@@ -1,0 +1,31 @@
+SIGIL 0.10 / decyzje techniczne i źródła
+
+1. Audyt broni, pocisków, ruchu i okien ataków. Każda poprawka ma
+   regresję odtwarzającą błąd albo niezależne porównanie matematyczne.
+2. Własny wąski solver koło kontra siatka; ciało przesuwane do pierwszego
+   kontaktu, potem rzut pozostałego ruchu na dopuszczalne płaszczyzny.
+   Wewnętrzny narożnik zachowuje dwie normalne; nie uśrednia ich.
+3. Rozwiązania analityczne: y=y0+v0*t-g*t²/2, tłumiona sprężyna,
+   odrzut v(t)=v0*exp(-k*t), droga=v0*(1-exp(-k*t))/k.
+4. Gameplay 120 Hz, interpolowany obraz. Dynamiczny deltaTime jest
+   dzielony na mniejsze kroki. Duże zawieszenie ma budżet .20 s.
+5. Hitboxy to anatomiczne bryły sprite'ów, nie siatka 3D. Granaty
+   pozostają punktami kontaktu. Ciosy mają skończone aktywne okna.
+6. Nowe moduły collision.lua, kinematics.lua; niezależne zestawy
+   tests_movement/combat/ordnance/enemies_v10.lua. Bez nowej zależności
+   silnika fizyki; istniejący format zapisu pozostaje zgodny.
+
+Źródła techniczne sprawdzone w tej iteracji:
+https://box2d.org/documentation/md_collision.html
+  Cast bryły i pierwszy czas kontaktu. Własna implementacja ograniczona
+  do koła i regularnej siatki; nie dołączono Box2D ani jego kodu.
+https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+  Materiał autora Box2D o ciągłych kolizjach.
+https://github.com/mas-bandwidth/gafferongames/blob/main/content/post/fix_your_timestep.md
+  Stały krok i ograniczanie nadrabiania zaległego czasu.
+
+Dokładność testów: losowe sweeps także po transpozycji osi; niezależny
+slab oracle dla promieni 3D; równoważność podzielonego czasu dla toru
+ładunku, skoku i sprężyn; realne callbacki i odczyt dawnego zapisu.
+Balans nadal wymaga ręcznej próby. Żaden pomiar CPU nie jest obietnicą
+stałego FPS ani testem pełnej dynamiki szkieletowego modelu.

@@ -1,0 +1,27 @@
+SIGIL: BREACH / kontekst 0.30 / 2026-10-23
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach
+Start: START-HERE.txt; aktywny kod: game; outputs to snapshoty wydań.
+
+Jedno pole testowe, dwie bronie fizyczne, obecne demony. Szybki Doom,
+czytelne ataki/unik i przygotowania między falami. Człowiek bez magii.
+Kampania, mapy, loot i świat pozostają na później.
+Styl: żywy mroczny fresk; Giovanni da Modena Inferno, Michał Anioł Sąd
+Ostateczny, piekło Boscha, Sąd Ostateczny Memlinga. Matowe pigmenty,
+ochry/umbry/cegła/tynk, bitmapowe glify; zachować zatwierdzone modele.
+
+0.30 domyka rozszerzalność: broń jako composable definition (delivery,
+payload, reload, weight, art/HUD), extends, finite projectiles, generic throw,
+slots save08 z migracją06/07. Nowa przykładowa broń i ability są tylko w QA.
+Szczegóły: game/docs/ROZSZERZANIE.txt oraz ZMIANY-0.30.txt.
+Naprawiono feedback HP/gardy, celownik przy szybkim swap/odrzucie,
+zasłanianie napisu w ustawieniach i cache dynamicznych bitmapowych tekstów.
+
+Kontynuacja wymaga faktycznego odczytu świeżych raportów work/qa-v30.
+Nie utożsamiać PASS z frajdą; B2/human playtest nadal otwarty.
+Pomiar --hit-timing wykrył różnicę ostatnio wyświetlonej i rozliczanej pozy:
+1 chybienie / 381 kontrolowanych prób mousepressed, 5 / 392 held oraz
+press-buffer. To nie odsetek chybień w normalnej rozgrywce. Raporty
+hit-outcomes* i game/docs/ODBIOR-0.30.txt opisują ten niezamknięty punkt.
+Nie oznaczać całej bazy jako odebranej ani nie zwiększać hitboxów, by go ukryć.
+Fizyczny chwyt dłoni w istniejących atlasach broni nadal do osobnej korekty
+artystycznej; ta iteracja nie zmienia PNG.

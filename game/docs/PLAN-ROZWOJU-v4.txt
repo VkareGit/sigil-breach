@@ -1,0 +1,192 @@
+STATUS (2026-10-22): F0–F9 WDROŻONE. Szczegóły: ZMIANY-0.24.txt część 7,
+ARCHITEKTURA.txt. Pozostałe ograniczenia: ARCHITEKTURA punkt 13.
+
+SIGIL: BREACH / PRZEGLĄD UKŁADU PO MODERNIZACJI E0–E11 I PLAN v4
+
+Stan zmierzony 2026-10-21: 159 plików src (≈ 19 tys. linii), 2623 testy,
+0 problemów architektury, złoty wzorzec bez zmian.
+
+==========================================================================
+1. CZY UKŁAD MA SENS POD PRZYSZŁOŚĆ — OCENA
+==========================================================================
+
+TAK, fundament jest właściwy i nie trzeba go cofać:
+  - warstwy z automatyczną kontrolą (core / content / physics / ...),
+  - dane jako definicje ze schematami i dziedziczeniem (demony, akcje,
+    bronie, rycerz, stany), bez fallbacków w kodzie,
+  - rejestry z unregister (tryby, ekrany, rodzaje ataków, umiejętności,
+    zdarzenia, oferty), test rozszerzalności to potwierdza,
+  - jeden harmonogram systemów, dwufazowe zdarzenia, determinizm
+    (dwa strumienie RNG, złoty wzorzec, Memento, dziennik poleceń),
+  - katalog pól sesji, komponenty ECS, tryb ścisły, zapadka liczb.
+
+ALE pomiar pokazał 7 przyczyn źródłowych, które przy rozbudowie (hub,
+więcej broni, zaklęcia, mapy, demony) zmuszą do edycji wielu plików naraz.
+To nie są błędy działania gry (testy i złoty wzorzec są zielone) — to
+miejsca, gdzie nowa treść wymaga zmian w kodzie zamiast samych danych.
+
+P1. SYMULACJA ZALEŻY OD PREZENTACJI (najważniejsze)
+    20 require z warstw symulacji do feedback/audio/render/ui, m.in.
+    combat/combat -> feedback/effects, impact_response, death_response;
+    enemies/ai -> audio; enemies/body i enemies/animation ->
+    feedback/death_response (poza ciała po śmierci wpływa na bryły
+    trafień, czyli logika symulacji mieszka w feedback); session/listeners
+    -> feedback/listeners; player/feel -> 3 moduły feedback.
+    26 wywołań love.mouse.setRelativeMode i ~50 Audio/notify/burst
+    w run/descent, session/interactions, session/game, test_field.
+    Skutek: nie da się uruchomić symulacji bez grafiki i dźwięku (serwer,
+    szybkie boty, powtórki w tle), prezentacja może niechcący zmienić
+    wynik, każdy nowy tryb powiela „zagraj dźwięk + przechwyć mysz”.
+    tools/check NIE pilnuje kierunku symulacja -> prezentacja.
+
+P2. SESJA (g) MIESZA STAN GRY ZE STANEM WIDOKU
+    Katalog: ~170 pól, z czego ~90 to prezentacja (29 pól weapon*,
+    kamera, odrzut, kopnięcia, serca, ślady). Migawka, złoty wzorzec
+    i zapis muszą je odfiltrowywać; nowy efekt dopisuje pole do sesji.
+
+P3. BRONIE PO NUMERZE SLOTU, POLA AMUNICJI NA SZTYWNO
+    Rycerz ma pola mag/reserve/revolverMag/revolverReserve/breechOpen/
+    cylinderOpen/shotgunReadyAt/revolverReadyAt (12 plików je zna);
+    profil broni wskazuje je przez magField/reserveField. Trzecia broń =
+    nowe pola rycerza, komponent, zapis, HUD, render. Game:switchWeapon
+    ma na sztywno „which == 1 and shotgunReadyAt”, mimo że profil ma
+    readyField (duplikat). UI/HUD/render sprawdzają weapon == 1/2
+    (20 miejsc).
+
+P4. JEDNA UMIEJĘTNOŚĆ NA SZTYWNO
+    Q -> Game.pulse -> Explosives.throw. Rejestr umiejętności istnieje,
+    ale nie ma slotów, rzucania po id ani wspólnego wykonawcy dostaw
+    (demony mają Attacks.kinds, rycerz osobny kod). Zaklęcia nie mają
+    gdzie się podpiąć bez nowego klawisza i nowej ścieżki.
+
+P5. WYGLĄD DEMONÓW W KODZIE PO NAZWIE
+    kind == 'stolas' / 'buer' / 'boss' / 'furfur' w renderer (11),
+    effects (6), animation (5), kolory portali w spawnerze, układ atlasu
+    (extended = {imp, armored, stolas, furfur}). Nowy demon = edycja
+    4–5 plików prezentacji zamiast jednej definicji wyglądu.
+
+P6. MAPA I POZYCJE W KODZIE
+    world/arena buduje jedyną mapę instrukcjami; portale w run/spawner,
+    Ember w session/sanctuary {18, 26}, strefy w limbo_layout, pieczęcie
+    i lampy w arena. Hub/baza albo druga mapa = kopiowanie kodu.
+    world/gallery miesza układ poligonu z rysowaniem (love.graphics).
+
+P7. EKRANY I TRYBY W POŁOWIE NA REJESTRACH
+    Klawisze ekranów są w rejestrze, ale rysowanie i przyciski to
+    łańcuchy if g.state == ... (24 w ui/interface). Trzy oryginalne tryby
+    rozpoznawane po flagach (g.run 50+ odczytów, g.testField 40+),
+    zdolności trybu liczone z flag. 5 zdarzeń w katalogu nigdy nie jest
+    emitowanych (WaveCleared, ModeChanged, GuardBroken, KnockedDown,
+    AttackCancelled). Zapis wyprawy ma limity na sztywno (fala 5,
+    zapas 72, ładunki 3).
+
+==========================================================================
+2. PLAN v4 — ETAPY (każdy: złoty wzorzec identyczny, testy zielone)
+==========================================================================
+
+Zasada jak w E0–E11: najpierw strażnik, potem zmiana, żadnej zmiany
+rozgrywki. Każdy etap kończy się TEST.ps1 -Suite All, identycznym
+złotym wzorcem i nowym testem dowodzącym celu etapu.
+
+F0  STRAŻNICY (mały, najpierw)
+    - tools/check: reguła kierunku „symulacja (combat, enemies, physics,
+      player, run, session, systems, world) nie importuje feedback,
+      render, ui, audio, app”, z zapadką na obecne 20 krawędzi.
+    - Test katalogu zdarzeń: każde zadeklarowane zdarzenie ma emiter
+      (nieużywane: wyemitować w swoim miejscu albo usunąć z katalogu).
+    Weryfikacja: check pokazuje liczbę krawędzi, test zdarzeń zielony.
+
+F1  SYMULACJA BEZ PREZENTACJI (P1)
+    - Poza ciała po śmierci i upadek (Death.pose, stan zwłok) przenieść
+      z feedback/death_response do enemies/corpse.lua (symulacja);
+      feedback zostawia tylko cząstki i krew.
+    - combat/combat, enemies/ai, run/descent, session/interactions,
+      session/game, systems/clocks: dźwięki, napisy, cząstki -> zdarzenia
+      (nowe: SealBroken, SecretFound, WaveCleared, ModeChanged,
+      OutOfAmmo, NoticePosted...) i słuchacze 'present'.
+    - Przechwycenie myszy: pole ekranu Screens.<id>.captureMouse; aplikacja
+      ustawia je przy zmianie ekranu (26 wywołań -> 1 miejsce).
+    - Audio.update przenieść z session/simulation do pętli aplikacji.
+    - player/feel: ruch (player/movement) oddzielić od kamery i broni
+      (feedback/camera).
+    - world/gallery: układ (world) oddzielić od rysowania (render/gallery).
+    Weryfikacja: zapadka F0 = 0 krawędzi; nowy test „headless”: symulacja
+    40 s drill z podmienionym love.graphics/love.audio = błąd przy dotknięciu
+    -> ten sam skrót co złoty wzorzec.
+
+F2  STAN WIDOKU OSOBNO (P2)
+    - g.view = { kamera, odrzut, ruch broni, kopnięcia, serca, ślady... }
+      — ~90 pól prezentacji przeniesionych pod jedną tablicę; katalog pól
+      podzielony na sim i view; migawka/zapis biorą tylko sim.
+    Weryfikacja: katalog sim ≈ 80 pól; złoty wzorzec; migawka mniejsza.
+
+F3  ARSENAŁ PO ID (P3)
+    - Komponent arsenal rycerza: weapons[id] = { mag, reserve, open,
+      readyAt, spent }, loadout = { 'exorcist', 'judge' } (sloty to tylko
+      kolejność). Rejestr broni po id; koniec magField/reserveField i pól
+      revolver*; Game:switchWeapon z profilu (usunięty duplikat readyAt).
+    - HUD, ręce, ikony: dane wyglądu w definicji broni, nie weapon == 1/2.
+    - Adapter zapisu: SIGIL06 czyta/pisze arsenał (format bez zmian).
+    Weryfikacja: test rozszerzalności dodaje 3. broń samymi danymi
+    (strzela, przeładowuje, zapisuje się); złoty wzorzec.
+
+F4  UMIEJĘTNOŚCI I ZAKLĘCIA (P4)
+    - Loadout umiejętności rycerza (slot -> id), Game:cast(slot); Q = slot 1.
+    - Wspólny wykonawca dostaw dla rycerza i demonów (throw dziś;
+      projectile/aoe/buff jako kolejne wpisy), komponent zasobu
+      (ładunki dziś, mana jutro), odnowienie z definicji.
+    - Proch jako pierwszy wpis; Explosives zostaje fizyką ładunku.
+    Weryfikacja: test dodaje zaklęcie (np. pocisk) danymi i rzuca je;
+    złoty wzorzec (proch bez zmian).
+
+F5  WYGLĄD DEMONA JAKO DANE (P5)
+    - Definicja appearance w stworzeniu: atlas, układ (extended/compact),
+      kolor portalu, krew/plama, poświata, skala, profil hit_volumes,
+      haki animacji (np. „ładunek = klatka 10”).
+    - renderer/effects/animation/spawner czytają dane; zero kind == '...'.
+    Weryfikacja: grep kind == '<demon>' w render/feedback/enemies = 0;
+    render-review i ui-audit bez zmian (te same klatki).
+
+F6  MAPY JAKO DANE (P6)
+    - content/maps/limbo.lua: komórki/pokoje, kolumny, pieczęcie, lampy,
+      start, Ember, portale, strefy. world/arena = budowniczy z danych;
+      Spawner.portals, Sanctuary.shrine, strefy z mapy.
+    Weryfikacja: mapa z danych daje identyczną siatkę (test porównuje
+    komórki) i złoty wzorzec; test ładuje drugą małą mapę.
+
+F7  EKRANY DO KOŃCA (P7a)
+    - Screens.<id>: draw(g, s), controls(g, s), captureMouse; ui/interface
+      rozbite na pliki ekranów (menu, pauza, ustawienia, koniec, mapa,
+      pomoc). Zero łańcuchów if g.state.
+    Weryfikacja: ui-layout-audit i rendery identyczne; test nowego
+    ekranu rysuje go bez zmian w interface.
+
+F8  TRYBY I ZAPIS DO KOŃCA (P7b)
+    - Każda sesja nazywa tryb (g.mode); flagi g.run/g.testField zostają
+      tylko jako dane trybu. Zdolności (demonsAct, vulnerable...) z
+      definicji trybu i jego fazy.
+    - Zapis: wersjonowany z migracjami (SIGIL06 -> 07 przez adapter),
+      limity z treści (liczba fal, maks. zapas, pojemność), tryb w zapisie.
+    - F12 w grze: zrzut dziennika poleceń do pliku (raport błędu =
+      dokładna powtórka).
+    Weryfikacja: stare zapisy SIGIL06 wczytują się (test na plikach
+    wzorcowych), złoty wzorzec.
+
+F9  SPRZĄTANIE
+    - Obniżenie zapadki liczb (reload, feel, test_field), zapytania ECS
+      dla zbiorów między pulami (np. „ciała”: demony + rycerz + przyszli
+      sojusznicy), aktualizacja ARCHITEKTURA/KONWENCJE/ZMIANY.
+
+KOLEJNOŚĆ I ZALEŻNOŚCI
+  F0 -> F1 -> F2 (F2 wymaga czystego podziału z F1)
+  F3 -> F4 (umiejętności korzystają z zasobów i slotów jak arsenał)
+  F5, F6, F7 niezależne od siebie (po F1)
+  F8 po F3 i F6 (zapis arsenału i mapy), F9 na końcu.
+  Szacunek wielkości: F1 i F3 duże; F2, F4, F5, F6, F7 średnie;
+  F0, F8, F9 małe/średnie.
+
+CZEGO NIE ROBIĘ (świadomie)
+  - Nie przepisuję pętli po g.enemies na zapytania ECS hurtowo (36 pętli;
+    w LuaJIT tablice są najszybsze, a pule już je opisują) — tylko tam,
+    gdzie potrzebny zbiór z kilku pul.
+  - Nie zmieniam formatu zapisu bez migracji ani balansu rozgrywki.

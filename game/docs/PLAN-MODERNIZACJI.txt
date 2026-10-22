@@ -1,0 +1,309 @@
+SIGIL: BREACH / PLAN MODERNIZACJI KODU / wersja 3
+Status: propozycja do akceptacji. Kod gry nie jest jeszcze zmieniony.
+Prototyp weryfikujący: tools/spikes/ecs-events (opis w sekcji 11).
+
+=====================================================================
+0. ZAMIAR I DLACZEGO WERSJA 2 BYŁA ZŁA
+=====================================================================
+Zamiar (z poleceń): nie „uporządkować projekt tak, jakby był skończony”,
+tylko zbudować BAZĘ, na której gra urośnie (baza/hub, więcej demonów,
+bossów, broni, zaklęć, map, trybów) bez cofania się i zmieniania
+fundamentów. Czytelność jest skutkiem ubocznym, nie celem.
+
+Błąd wersji 2: oceniała ECS i kolejkę zdarzeń względem DZISIEJSZEJ
+skali (jedna arena) i odrzucała je jako „niepotrzebne teraz”. To jest
+dokładnie decyzja, która później wymusza przebudowę fundamentów.
+Wersja 3 przyjmuje je jako fundament i rozwiązuje oba realne problemy,
+które w wersji 2 posłużyły za powód odrzucenia:
+  - ECS a 4000 miejsc kodu i testów czytających płaskie pola (e.x, e.hp):
+    ECS NA PŁASKICH BYTACH (sekcja 3). Komponent to zadeklarowany zestaw
+    pól bytu, systemy wybierają byty po komponentach. To idiomatyczny
+    model Lua (jak biblioteka tiny-ecs) i nie wymaga przepisania odczytów.
+  - Kolejka zdarzeń a kolejność skutków: magistrala DWUFAZOWA (sekcja 5).
+    Faza symulacji wykonuje słuchaczy natychmiast, w zadeklarowanej
+    kolejności (deterministycznie); faza prezentacji jest kolejką
+    opróżnianą po kroku i nie może zmienić symulacji.
+Prototyp na LÖVE 11.5 potwierdził wydajność, determinizm i kolejność
+(sekcja 11).
+
+=====================================================================
+1. ZAŁOŻENIA (do potwierdzenia)
+=====================================================================
+A1  Gra jednoosobowa. Symulacja deterministyczna (stały krok 1/120 s,
+    jawne ziarno losowości) — to otwiera powtórki, złoty wzorzec testów
+    i ewentualny lockstep sieciowy w przyszłości bez zmiany fundamentu.
+A2  Rozwój: tryb „baza/hub”, kolejne tryby, mapy poza jedną areną,
+    zaklęcia/umiejętności gracza, nowe bronie i mechanizmy, nowe demony,
+    bossowie z fazami, stany (podpalenie, trucizna...), zapisy rozgrywki.
+A3  Zachowanie gry nie zmienia się w trakcie modernizacji (każdy etap
+    sprawdzany złotym wzorcem). Zmiany balansu tylko osobno.
+A4  Zapis gry, testy i grafika działają przez cały czas (etapy wdrażalne
+    pojedynczo, strategia Strangler Fig: nowe obok starego, potem
+    przełączenie, potem usunięcie starego).
+
+=====================================================================
+2. MODEL CAŁOŚCI
+=====================================================================
+
+  DANE (src/content)          — definicje i strojenie, bez logiki
+   defs/      schematy: Body, Creature, Boss, Knight, Action (dostarczenie
+              + ładunek), Weapon, Mechanism, Condition, Supply, Encounter,
+              Level, Mode
+   creatures/ demony (extends = dziedziczenie danych)
+   actions/   ataki demonów i umiejętności gracza (jeden format)
+   weapons/   bronie
+   levels/    areny i ich układy
+   tuning/    nazwane stałe: balance, ai, spawning, scoring, feel, ...
+        │  Loader: extends → wartości domyślne → walidacja (Schema)
+        ▼
+  REJESTRY (core/registry)    — jeden typ rejestru dla wszystkiego
+        │  Prefab: definicja → zestaw komponentów (Factory)
+        ▼
+  ŚWIAT ECS (core/ecs)        — byty = płaskie tablice z komponentami
+   komponenty (sekcja 3), zapytania, odroczone zmiany struktury
+        │  Harmonogram (Scheduler): systemy w jawnej kolejności
+        ▼
+  SYSTEMY SYMULACJI           — logika, sekcja 4
+        │  zdarzenia faza 'sim' (natychmiast, kolejność zadeklarowana)
+        ▼
+  MAGISTRALA ZDARZEŃ (core/events) — sekcja 5
+        │  zdarzenia faza 'present' (kolejka, po kroku symulacji)
+        ▼
+  PREZENTACJA                 — audio, odczucie (feedback), kamera,
+                                animacja, render (przebiegi), UI, pomiary
+  TRYBY (core/modes)          — skirmish, poligon, wyprawa, (baza):
+                                który świat, które systemy, które ekrany
+  USŁUGI (kontekst sesji)     — rng symulacji, rng prezentacji, zegar,
+                                audio, zapis, wejście; przekazywane jawnie
+  POD WSZYSTKIM src/core: Class, Schema, Registry, ECS, Events, Scheduler,
+                          Modes, Rng, Timers, Strict, MathX, Serialize
+
+  Kierunek zależności: dane ← core; systemy → dane, core; prezentacja →
+  (tylko odczyt) świat + zdarzenia; nic nie zależy od prezentacji.
+  Sprawdza to tools/check (sekcja 9).
+
+=====================================================================
+3. ECS NA PŁASKICH BYTACH
+=====================================================================
+Byt: tablica { id, has = {komponenty}, ...pola komponentów }.
+Komponent: nazwa + schemat pól (typ, wartość domyślna, opis, właściciel).
+Prefab: lista komponentów + wartości z definicji (Type Object: byt
+wskazuje na swoją definicję, def). Zapytanie: world:query('health',
+'guard') — lista w kolejności tworzenia, przeliczana tylko po zmianie
+struktury. Zmiany struktury (spawn, destroy, dodanie komponentu) są
+odraczane do końca systemu → brak modyfikacji listy w trakcie iteracji.
+Tryb ścisły w testach: zapis pola spoza zadeklarowanych komponentów bytu
+= błąd (koniec pól dopisywanych „po drodze” — dziś 107 pól demona w 15
+plikach).
+
+Komponenty (z obecnych pól, każde pole ma jeden dom):
+  identity     id, def, kind, variant, displayName, tier*, rewardId
+  transform    x, y, z, facing, yaw
+  collider     radius (z ciała), mass
+  motion       vx, vy, vz, pushX, pushZ, walkVX, walkVZ, walkSpeed, walkAt,
+               walk, blocked, slamLock, collideLock
+  health       hp, maxHp, armorRating, locationArmor, resistances, immune,
+               soak, zones, woundFlash
+  guard        poise, guardQuiet, staggerLock, stun, heavyStagger,
+               knockedDown, knockTime, breakFlash, hitPause
+  conditions   conditions
+  brain        ai, phase, recover, attack, decision, side, threat
+  perception   sense, visible, memory, awake, lastX, lastZ, path, pathTimer
+  attacker     attackSpec, attackKind, attackCount, restUntil, aimX, aimZ,
+               windup, windupDuration, didHit, pendingHazard, packetCache
+  rush         rushVX, rushVZ, rushScale, lungeX, lungeZ, chargeTime
+  flight       leaping, leapY, leapVX, leapVY, leapVZ, landings
+  evade        evadeTime, evadeReady, evadeSide, evadeX, evadeZ, evades
+  corpse       deathTime, fallY, fallVY, fallLanded, deathResponse
+  appearance   hit, flinch, flinchSide, flinchLeanV, spawnAge, previewFrame
+  tags         boss, dummy, armored
+  (gracz)      knight (tarcza, nietykalność, unik, ślizg, skok), intent,
+               inventory (sloty broni; adapter na pola zapisu mag, reserve,
+               revolverMag, revolverReserve), abilities (ładunki, czary)
+  (inne)       projectile, hazard, pickup, gate (portal), lifetime
+
+Dlaczego to skaluje: nowy byt (np. wieżyczka, sojusznik, przedmiot
+interaktywny w bazie) to nowy prefab z istniejących komponentów; nowa
+zdolność to nowy komponent + system, bez dotykania reszty.
+
+=====================================================================
+4. SYSTEMY I HARMONOGRAM
+=====================================================================
+Scheduler: nazwane fazy, systemy w jawnej kolejności (dzisiejsza
+session/simulation.lua staje się jego konfiguracją, ta sama kolejność).
+  input/intent → knightMotion → weapons (spust, salwa) → perception →
+  brain (State: AI.states) → locomotion (Strategy: AI.styles) →
+  actions (Strategy: rodzaje dostarczenia) → flight → projectiles →
+  hazards → contacts (pchnięcia, mury, domino) → balance (garda, stany,
+  timery) → corpses → director/spawner → mode progression
+  → [flush 'present'] → animation → render → ui
+Każdy system: jedna odpowiedzialność, zapytanie o komponenty, stałe
+z tuning, zdarzenia zamiast bezpośrednich efektów.
+
+=====================================================================
+5. ZDARZENIA (magistrala dwufazowa)
+=====================================================================
+  'sim'      słuchacze wykonywani natychmiast w systemie, który emituje,
+             w kolejności (priorytet, potem rejestracja). Mogą zmieniać
+             symulację. Przykład: zabicie → (10) leczenie za przełamanie
+             → (20) nagroda → (30) reżyser tempa.
+  'present'  kolejka opróżniana raz po kroku symulacji: dźwięk, cząstki,
+             kamera, puls ramki, napisy, pomiary. Tylko odczyt symulacji
+             (w testach wymusza to tryb ścisły).
+Katalog zdarzeń (schemat ładunku w rejestrze, nieznane = błąd):
+  ShotFired, VolleyResolved, BodyHit, GuardBroken{heavy}, Countered,
+  KnockedDown, Tripped, Crippled, Wounded, EnemyKilled{offBalance},
+  PlayerHit, PlayerStaggered, PerfectDodge, WallSlam, BodiesCollided,
+  AttackTelegraphed, AttackReleased, AttackCancelled, Landed, Evaded,
+  PortalOpened, EnemyArrived, WaveCleared, PickupTaken, ConditionApplied,
+  ModeChanged.
+Dziś 80 bezpośrednich wywołań efektów w kodzie symulacji (Audio, FX,
+g:burst, Weight, Telemetry) → stają się słuchaczami 'present'.
+Dlaczego to skaluje: nowy efekt, osiągnięcie, samouczek, statystyka,
+narrator, dźwięk — dopisuje słuchacza, nie dotyka systemów.
+
+=====================================================================
+6. DANE: SCHEMATY I DZIEDZICZENIE
+=====================================================================
+Każda definicja przechodzi: extends (łańcuch rodziców) → wartości
+domyślne schematu → walidacja → zamrożenie (tylko odczyt).
+  Body       wspólne dla demonów i rycerza (hp, armor 0, soak 0, resist {},
+             mass 1, poise 36, woundAt .45, radius .25, aimY 1.1, struck,
+             blood, stability = √mass, brace, stagger...)
+  Creature   body + move (styl) + actions + nagroda + atlas; Boss = szablon
+             (boss, stability 1.5, maxAttackers 1, woundAt 1, microStun);
+             fazy bossa jako lista stanów (przygotowane na przyszłość)
+  Action     JEDEN format dla ataków demonów i umiejętności gracza:
+             dostarczenie (melee/lunge, rush/charge, leap, projectile, fan,
+             area/pool, strike/mark, throw) + ładunek (pakiet obrażeń, stan,
+             impuls) + zapowiedź (windup, telegraf) + koszt/odnowienie.
+             Ładunek prochowy gracza staje się Action — tak samo dojdą
+             zaklęcia.
+  Weapon     Firearm (wspólne) → strzelba, rewolwer; fire, mechanism,
+             attack (ładunek), glyphs, amunicja
+  Knight     Body + bryła trafień + tarcza + unik + ruch
+  Condition  efekty (speed, recovery, damage over time, tick), stos
+  Encounter  fale, stada, reżyser; Level: układ areny, portale, światła
+  Mode       które systemy, który świat, które ekrany, postęp
+Plik demona zawiera tylko różnice:
+  return Creature.define({ id = 'armored', extends = 'imp',
+    name = 'Iron Thrall', souls = 12,
+    body = { hp = 170, armor = 60, mass = 1.4, woundAt = 0.40, struck = 'metal' },
+    move = { speed = 3.0, accel = 12 },
+    actions = { claw = { hyper = 2, packet = packet(15, 70) },
+                shoulder = Action.charge({ ... }) } })
+
+=====================================================================
+7. TRYBY, USŁUGI, ZAPIS, POWTÓRKI
+=====================================================================
+Tryby (State + Strategy): rejestr trybów (skirmish, poligon, wyprawa,
+  baza). Tryb składa świat (Level), zestaw systemów, ekrany i postęp.
+  Stos scen (menu → tryb → pauza) zamiast porównań g.state w wielu
+  miejscach. Baza/hub = nowy tryb, nie przeróbka.
+Usługi (kontekst sesji, Dependency Injection): rng symulacji (ziarno
+  sesji, deterministyczny), rng prezentacji (cząstki, warianty dźwięku),
+  zegar, audio, zapis, wejście. Żadnych globali; testy podstawiają usługi.
+Zapis (Memento): każdy komponent deklaruje, co się zapisuje; adapter
+  zachowuje obecny format zapisu wyprawy. Później: zapis pełnego stanu.
+Powtórki (Command): wejście gracza jako komendy z numerem kroku; ten sam
+  mechanizm napędza złoty wzorzec, boty i (w przyszłości) powtórki.
+
+=====================================================================
+8. STAŁE I KONWENCJA ZAPISU KODU
+=====================================================================
+Stałe: każda liczba, którą się stroi, ma nazwę i dom:
+  content/tuning/balance, ai, spawning, scoring, field, explosives, feel
+  ui/palette (kolory), ui/layouts (układ ekranów 1280x720)
+  kalibracja grafiki obok czytającego kodu (enemies/hit_volumes.lua)
+Szablon modułu: nagłówek (cel, właściciel danych, czyta, emituje
+  zdarzenia, API) → require → stałe → prywatne → publiczne → return.
+Nazwy: opisowe i jednoznaczne (Rules, Renderer, Reload, World, Weapons),
+  ':' tylko dla klas z metatabelą, '.' dla modułów. Brak fallbacków
+  danych w kodzie (schemat już uzupełnił).
+docs/KONWENCJE.txt + przepisy „jak dodać”.
+
+=====================================================================
+9. STRAŻNICY (automatyczne pilnowanie bazy)
+=====================================================================
+  - Złoty wzorzec (tests/golden): skrót stanu symulacji dla zestawu
+    scenariuszy, identyczny bit w bit po każdym etapie.
+  - Walidacja definicji i katalogu zdarzeń przy ładowaniu.
+  - Tryb ścisły: niezadeklarowane pola, zapis z fazy prezentacji.
+  - tools/check: warstwy (core/content/physics/ecs), brak cykli, liczby
+    w katalogach logiki tylko w tabelach stałych, brak require przez
+    sklejanie tekstu (rejestry przez jawne pliki indeksu).
+  - Kompletność rejestrów (każdy demon, akcja, broń, tryb, zdarzenie).
+  - Budżet wydajności: krok symulacji przy 300 demonach mierzony w QA.
+
+=====================================================================
+10. ETAPY WDROŻENIA (kolejność z zależności, każdy wdrażalny sam)
+=====================================================================
+Po każdym etapie: FORMAT, testy (2578+), złoty wzorzec identyczny,
+audyt AI i populacja botów bez zmian, kontrola architektury 0.
+
+E0  Siatka bezpieczeństwa: złoty wzorzec scenariuszy, rozdział rng
+    symulacji i prezentacji (cząstki dziś losują z globalnego rng),
+    KONWENCJE.txt. Gotowe: wzorzec zapisany na obecnym kodzie.
+E1  Core: Class, Schema, Registry, Events, ECS, Scheduler, Modes, Rng,
+    Timers, Strict, Serialize (prototyp z tools/spikes jako punkt
+    startu) + testy jednostkowe. Gotowe: core przetestowany, gra bez zmian.
+E2  Dane: schematy i dziedziczenie (Body, Creature, Boss, Knight, Weapon,
+    Condition, Supply), loader z walidacją, tuning/*, usunięcie 41
+    fallbacków. Gotowe: definicje tylko z różnic; wzorzec identyczny.
+E3  Świat i harmonogram: sesja ma ECS i magistralę; simulation.lua jako
+    konfiguracja Schedulera (ta sama kolejność); g.enemies, g.bullets,
+    g.hazards, g.pickups jako widoki zapytań (adapter dla istniejącego
+    kodu). Gotowe: gra działa na świecie ECS, kod czyta jak dotąd.
+E4  Byty z prefabów: demony, pociski, zagrożenia, znajdźki, rycerz;
+    komponenty z sekcji 3; tryb ścisły w testach. Gotowe: żadnego
+    pola poza komponentami.
+E5  Systemy: logika z ai/actions/rules/body/hazards/projectiles
+    przeniesiona do systemów nad zapytaniami (przeniesienie, nie
+    przepisanie; fasady zostają dla testów). Gotowe: każdy system
+    w osobnym pliku, kolejność w Schedulerze.
+E6  Zdarzenia: 80 bezpośrednich efektów → słuchacze 'present';
+    nagrody, leczenie, reżyser → słuchacze 'sim'. Gotowe: systemy
+    symulacji nie wołają audio/FX/feedback.
+E7  Akcje: jeden format Action dla demonów i gracza (dostarczenie +
+    ładunek); ładunek prochowy jako Action. Gotowe: nowy czar = dane.
+E8  Tryby i sceny: rejestr trybów (skirmish, poligon, wyprawa), stos
+    scen, miejsce na bazę. Gotowe: tryb dodawany wpisem.
+E9  Stałe i prezentacja: tuning/feel, palette, layouts, hit_volumes;
+    strażnik liczb w tools/check. Gotowe: strażnik przechodzi.
+E10 Zapis i powtórki: serializacja komponentów, adapter obecnego
+    zapisu, nagrywanie komend wejścia. Gotowe: powtórka sceny daje
+    ten sam skrót co złoty wzorzec.
+E11 Testy i dokumentacja: fixtures/buildery (62 kopie → 1), ARCHITEKTURA,
+    KONWENCJE, przepisy; próbny demon, akcja i tryb dodane i usunięte
+    w teście bez zmian w systemach. Gotowe: przepisy sprawdzone testem.
+
+Kolejność i zależności: E0 → E1 → E2 → E3 → E4 → E5 → (E6, E7, E8
+mogą iść w dowolnej kolejności) → E9 → E10 → E11.
+
+=====================================================================
+11. WERYFIKACJA PLANU (wykonana)
+=====================================================================
+Prototyp tools/spikes/ecs-events (ecs.lua, events.lua, main.lua),
+uruchomiony na toolchain/love-11.5-win64/lovec.exe, krok 1/120 s, 10 s:
+  10 demonów:   0,0030 ms/krok, deterministyczny: tak
+  60 demonów:   0,0033 ms/krok, deterministyczny: tak, słuchacze 'sim'
+                w kolejności priorytetu przy każdym z 60 zabójstw: tak
+  300 demonów:  0,0191 ms/krok (budżet 8,33 ms), deterministyczny: tak,
+                560 bytów z pociskami, zmiany struktury odroczone
+Pomiar kodu: ok. 1900 odczytów płaskich pól w src i ok. 2200 w testach
+(e.x, e.hp, e.ai...) — dlatego ECS na płaskich bytach, nie zagnieżdżony.
+Odtworzenie: z katalogu projektu
+  & toolchain\love-11.5-win64\lovec.exe tools\spikes\ecs-events
+(wynik w konsoli).
+
+=====================================================================
+12. RYZYKA I ŚRODKI
+=====================================================================
+- Rozmiar (E3–E6 dotykają większości src): etapy wdrażalne pojedynczo,
+  adaptery na czas przejścia, złoty wzorzec bit w bit.
+- Równoległe zmiany w src (np. Codex): w trakcie etapu nie edytować src
+  równolegle; grafika/assets bez ograniczeń.
+- Wydajność: zapytania z pamięcią podręczną, walidacja tylko przy
+  ładowaniu, tryb ścisły tylko w testach, budżet mierzony w QA.
+- Rozjazd zachowania przez rng: E0 rozdziela rng symulacji i prezentacji
+  przed jakąkolwiek zmianą.

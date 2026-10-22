@@ -1,0 +1,251 @@
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.15 / WEIGHT AND INTENT
+Bazą jest nowa wersja użytkownika 0.14, nie EXE 0.13. Zachować otwartą
+arenę 588 pól, galerię, angielski UI, przebijający rewolwer i archetypy.
+Dopracowano wejście 120 ms, wspólny chód/kroki, celownik zgodny z promieniem,
+masy kontaktów, reakcję ściany, czytelne malowane liczby i tablice galerii.
+Podział: dane -> reguły -> symulacja -> prezentacja; AI jako fasada,
+osobne działania/ciało/zagrożenia; adaptery preferencji i QA.
+Instrukcje i opis:game/ARCHITEKTURA-0.15.txt, PLAN-0.15.txt, ZMIANY-0.15.txt.
+Bieżące raporty:work/qa-v15. Paczka:outputs/SIGIL-BREACH-0.15.
+Styl czterech obrazów/fresku zachowany. W 0.15 nie regenerowano atlasów.
+Nadal jedna arena i dwie bronie. Nie dodawać map/fabuły/lootów przed
+oceną podstawowej walki. Q fizyczny; manifest tylko do designu postaci.
+Automatyczna QA nie przejmuje kursora ani zapisu użytkownika.
+
+HISTORIA PONIŻEJ — nie nadpisuje nowszych ustaleń.
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.13 / CIĘŻAR I CIEŃ
+Priorytet: satysfakcja ze strzelania i ruchu, potem ozdoby.
+Jedna oryginalna arena 31 x 31; bez map i fabuły na tym etapie.
+Kierunek fresku 0.12 zachowany; mrok teraz przez lokalne światło,
+przesłonięcie ścian i cienie sylwetek. Czytelny jasny HUD pozostaje.
+24 nowe klatki czuwania, 152 razem. Portret zamkniętego rycerza.
+Gęstszy rdzeń strzelby, osobny bonus głowy bez wzrostu impetu,
+reakcje tynku/kamienia/metalu/krwi, zderzenia z utraty pędu,
+noszenie broni z przebytej drogi i ograniczonych sprężyn.
+Szybka potyczka z menu jest odizolowana od zapisu wyprawy.
+Skalibrowano głowy Stolasa/Buera i barki Buera względem namalowanych
+póz. HP, rating pancerza, faktyczne promienie i zapasy sześciu typów
+sprawdzono na 4/8/16/30 m. Osłona gracza to zużywany zapas 55%,
+nie procent redukcji równy liczbie na HUD. Nowych broni i spelli
+teraz nie dodawać; dopracowywać dwie obecne i bazową walkę.
+Szczegóły, równania i źródła: game/PLAN-0.13.txt oraz
+ game/CZUCIE-WALKI-0.13.txt. Nowe raporty: work/qa-v13.
+Następny etap, po ocenie feelingu: przedmioty, łupy i presja
+rosnąca w czasie inspirowane Risk of Rain 2. Nie wdrażać przed oceną.
+Człowiek bez magii; Q to fizyczny ładunek. Manifest tylko do wyglądu.
+Testy poza ekranem; żadnego przejmowania kursora użytkownika.
+
+PONIŻEJ HISTORIA POPRZEDNICH ETAPÓW (nie nadpisuje ustaleń powyżej)
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.12 / OŻYWIONY FRESK
+Użytkownik zmienił kierunek: gra ma wyglądać jak chodzenie po fresku,
+według jego nowej jasnej, wapienno-ochrowej referencji. Nie wracać do
+Claude'owego filtra posteryzacji, wielkich ekranowych pęknięć ani
+czarno-złotego interfejsu. Mrok wynika z anatomii, gestu, przestrzeni
+i symboli; nie z zasłonięcia całej sceny ciemnym filtrem.
+
+Aktualny dokument oprawy: docs/KIERUNEK-FRESK-0.12.txt.
+Aktywne grafiki: assets/art/*fresco-v12.png i suplementy demonów.
+128 klatek sześciu archetypów; malowane bronie, efekty, panorama,
+materiały, malowidła, Żar, dekoracje, portret i jasny GUI.
+Pismo pozostaje rzeczywistymi glifami PNG, obecnie z pigmentem
+dostosowanym do jasnych pól. Historyczne pieczęcie nie były regenerowane.
+Renderer zachowuje modelunek źródeł. Pole renderowane ma 450 linii
+przy HUD, zamiast wcześniejszych 300; brak starej globalnej posteryzacji.
+
+Wciąż JEDNO PIERWOTNE POLE TESTOWE. Żadnej rozbudowy map ani fabuły.
+Mechaniki fizycznej broni, ruchu, uniku, fali/sklepu/dusz zachowane.
+Geometria trafień dostosowana do nowych głów i pozy Furfura.
+RUN.ps1 / TEST.ps1 / BUILD.ps1 wskazują 0.12.
+Nowa paczka: outputs/SIGIL-BREACH-0.12; dowody: work/qa-v12.
+Poprzednia 0.10 i kopia przed zmianami w work/backup-before-fresco-v12-2026-10-20
+zostały zachowane. Dalszy szczegółowy kontekst poniżej jest historyczny;
+w razie sprzeczności pierwszeństwo ma niniejsza aktualizacja i kod 0.12.
+
+KONTEKST DO KONTYNUACJI PROJEKTU SIGIL: BREACH — HISTORYCZNY
+Stan: wersja 0.10, 19 października 2026.
+Główny katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+Aktualne źródła: C:\Users\nahiko\Documents\dev\sigil-breach\game
+
+NAJWAŻNIEJSZA ZASADA OBECNEGO ETAPU
+Mamy JEDEN POZIOM TESTOWY: pierwotną arenę Limbo 31×31. To wspólne
+pole prób wszystkich wdrożonych broni, demonów, bossów, animacji,
+efektów, symboli i mechanik. Nie rozbudowujemy teraz map ani fabuły.
+Najpierw dopracowujemy grafikę, ruch gracza, feeling strzelania,
+animacje, GUI, czytelność, hitboxy, AI, fizykę, matematykę i balans.
+Dopiero po uzyskaniu satysfakcjonujących podstaw przejdziemy do
+budowania świata, kolejnych poziomów, sekretów i właściwej kampanii.
+Fale i sklep działają jako drugi sposób testowania TEJ SAMEJ areny.
+Nie mylić tego z ukończonymi wieloma poziomami lub dziewięcioma kręgami.
+
+CZYM MA BYĆ GRA
+Szybki, brutalny FPS z podstawowym ruchem i feelingiem Dooma,
+połączony z rundami/falami i przygotowaniem u kupca jak w Killing
+Floor 1/2 oraz czytelnymi zamachami bossów, unikami i konsekwencją
+śmierci inspirowanymi soulslike. „System turowy” oznacza fale/rundy:
+walka pozostaje w czasie rzeczywistym, sklep i przygotowania są między
+falami. Gra zmierza w stronę horroru, nie lekkiego fantasy.
+Docelowy świat: dziewięć kręgów piekła Dantego, demonologia, Goecja,
+Mniejszy Klucz Salomona i pokrewne grimuary. To wizja, nie ukończona
+kampania. Wspólne uniwersum z projektem karcianym
+C:\Users\nahiko\Documents\dev\sigil-the-descent.
+Nie zakładać, że wszystkie postacie i fabuła karcianki są już wdrożone.
+
+CZTERY GŁÓWNE ODNIESIENIA WIZUALNE
+1. Giovanni da Modena — „Inferno” w kaplicy Bolognini, bazylika
+   San Petronio w Bolonii. To najważniejszy punkt odniesienia dla
+   cielesnych, niepokojących demonów, scen kary, piekielnej hierarchii
+   i ciemnej, osmalonej palety. Demony mają budzić odrazę i niepokój
+   anatomią i gestem, a nie być sympatycznymi czerwonymi „demonikami”.
+2. Hieronim Bosch — piekielne prawe skrzydło „Ogrodu rozkoszy
+   ziemskich”. Hybrydy ludzi, zwierząt i przedmiotów; groteska,
+   wynaturzone sylwetki i przedmioty przemienione w narzędzia cierpienia.
+3. Hans Memling — „Sąd Ostateczny”. Porządek kompozycji, sąd,
+   procesje, gesty lęku i cierpienia, jasne ciała na ciemnym tle,
+   bogate złocone oprawy i podział sceny na czytelne strefy.
+4. Michał Anioł — „Sąd Ostateczny” w Kaplicy Sykstyńskiej.
+   Ciężar ciała, napięta anatomia, gwałtowne skręty i dramatyczne pozy;
+   odniesienie dla zamachu, uderzenia i ciężkiego powrotu po ciosie.
+
+Te odniesienia obejmują CAŁĄ grę: demony, bohatera, broń, efekty,
+tekstury, GUI, ikonografię, ramy, litery i cyfry. Kierunek to religijne
+inferno i groza dawnego malarstwa przełożone na estetykę 16-bit/pixel
+art. Nie jest to wierna rekonstrukcja jednego obrazu ani ograniczenie
+sprzętowe do rzeczywistej konsoli 16-bitowej.
+
+PALETA, MATERIAŁY I CZYTELNOŚĆ
+Czerń sadzy, umbry i ziemiste brązy, zgaszona krwista czerwień,
+stara kość, osmalone żelazo, patyna i przybrudzone złoto. Chłodne
+akcenty oszczędnie, do oznaczania ważnych miejsc i kontrastu.
+Broń i wyposażenie: żelazo, drewno, skóra, kość, metalowy relief,
+grawerunki, zużycie, krew i popiół. Bez plastikowego połysku i
+futurystycznych świecących rdzeni. Sylwetki mają być rozpoznawalne
+z daleka; nie zakrywać obrazu wielkim rozmyciem ani samym przyciemnieniem.
+Mrok ma budować horror, lecz przeciwnik, pocisk i sygnał ataku muszą
+być czytelne. Żar ma zimny płomień, odróżniony od ciepłych pochodni.
+
+GUI I LITERNICTWO
+Dolny pas inspirowany Doomem: amunicja, zdrowie, arsenał, centralny
+portret, osłona, ładunki/uniki i dusze. Forma relikwiarza lub oprawy
+sakralnego obrazu, nie zbioru przypadkowo wklejonych prostokątów.
+Menu i pomoc mogą korzystać z powierzchni starej księgi/pergaminu,
+inkrustacji, marginesów i historycznej ikonografii.
+W aktualnym GUI litery, cyfry i polskie znaki są składane z osobno
+ilustrowanych glifów PNG. Zmienne liczby powstają z atlasu cyfr,
+więc nie trzeba generować osobnego obrazka dla każdej możliwej liczby.
+Są też pełne ilustrowane nagłówki. Liternictwo ma być złowrogie,
+ale przy małym rozmiarze czytelność jest obowiązkowa.
+Ornament pozostaje przy brzegach; tekst musi mieścić się w właściwym
+polu pisma, nie wchodzić na łuk, daszek, kolumnę ani portret.
+Brak prostokątnych granic awatara: jest maskowany w łuku relikwiarza.
+Automatyczne „brak kolizji” nie oznacza jeszcze artystycznej jakości.
+Oceniać prawdziwy ekran gry, a nie wyłącznie atlas czy bounding box.
+
+BOHATER
+Człowiek w świecie demonów, bez własnej magii. Ciężka ciemna zbroja,
+surowa twarz i czarne włosy; użytkownik podał Gutsa z Berserka jako
+odniesienie dla wyglądu i postawy. Portret ma pasować do przyjętej
+palety i malarskiego horroru, a nie wyglądać jak wklejony kadr anime.
+Wyczerpanie, czujność, determinacja i powściągnięty gniew.
+„Manifest Nikogo” to wyłącznie wskazówka do DESIGNU postaci.
+Nie robić z niego automatycznie fabuły, dialogów ani tekstu menu.
+Pełny tekst jest w game\MANIFEST-NIKOGO.txt.
+
+SYMBOLE I ŹRÓDŁA
+Używamy udokumentowanych historycznych znaków, a nie przypadkowych
+pseudoliter opisanych jako autentyczna Goecja. Obecnie są pieczęcie
+Asmodaya, Stolasa i Buera oraz pierwsze trzy pentakle Saturna z
+odrębnego „Klucza Salomona”. Katalog poligonu ma archiwum sześciu
+reprodukcji. Forma może być pigmentem lub reliefem; nie zmieniać
+rysunku historycznego znaku przez dopisywanie losowych kresek.
+Autorskie oznaczenia ataków są grafiką gry, nie rzekomo autentycznymi
+pieczęciami. Furfur: Goetia, duch 34, jeleń z ognistym ogonem,
+związek z burzą i piorunami; mechanika ataków jest interpretacją gry.
+Kanał wskazany przez użytkownika:
+https://www.youtube.com/@TheEsotericaChannel
+Nie twierdzić, że analizowano całą jego bibliotekę/transkrypcje.
+Dokładne źródła: game\KIERUNEK-ARTYSTYCZNY.txt oraz
+game\assets\art\sigils\SOURCES.txt.
+
+CO JEST WDROŻONE W 0.10
+- LÖVE 11.5 / LuaJIT, renderer retro; bitmapowe postacie w przestrzeni
+  3D, nie pełne modele ze szkieletem.
+- Jeden poziom testowy Limbo 31×31. Pod F2 izolowany poligon:
+  wywoływanie celów, podgląd póz i stref trafień, nieśmiertelność,
+  zatrzymywanie AI/pocisków, odnawianie zapasów oraz reset próby.
+  Poligon nie zapisuje ani nie psuje postępu wyprawy.
+- Sześć typów przeciwników: Sługa Żaru, Żelazny Sługa, Akolita
+  Gwiazd, Ogrodnik Zarazy, Margrabia Popiołu i Furfur.
+- Furfur: animowany boss poligonu, 24 pozy, zamach porożem,
+  szarża po zadanym kierunku i piorun w oznaczonym miejscu.
+  Przygotowanie, aktywne okno i odpoczynek umożliwiają unik.
+- Strzelba Egzorcysta: dwa naboje, po 10 niezależnych śrucin z naboju,
+  rozchodzący się stożek, trafienie wielu celów i zasłanianie ciałami.
+- Sędzia: fizyczny sześciostrzałowy rewolwer, rezerwa amunicji,
+  etapowe przeładowanie i bezpieczne przerywanie go zmianą broni.
+- Q: fizyczny ładunek prochowy, 1 s lontu, maksymalnie 3 sztuki,
+  promień eksplozji 4 m, osłona przez ściany i własne obrażenia.
+  Dawna Fala Dusz oraz magiczna lanca zostały zastąpione.
+- Wspólny wzór obrażeń uwzględnia bazę, moc, odległość, pancerz,
+  penetrację i odporności. Raport oddziela nominalne obrażenia,
+  rzeczywiste zabrane HP, absorpcję, impet i nadmiar ponad HP.
+  Precyzyjniejsze bryły nie oznaczają jeszcze bonusu za headshot.
+- Skok, przyspieszenie, hamowanie, ślizg, dwa odnawialne uniki,
+  odrzut i kołysanie broni; krok symulacji 120 Hz.
+- Ciągłe kolizje ruchu, poprawny ślizg po ścianie i kontakt narożników.
+  Pociski uwzględniają ruch gracza, skok/kucanie oraz czas kontaktu.
+  Granaty mają parabolę, odbicia z resztą czasu, toczenie i podparcie.
+  Granat nadal ma punkt kontaktu ze światem, nie pełną bryłę sztywną.
+- Strefy trafień demonów podzielone anatomicznie i dopasowane do póz;
+  aktywne okna ciosów. Stun/hit pause nie przewijają fazy ataku.
+  Znak pioruna współdzieli zegar rzucającego. Jad respektuje ściany.
+- Animowane grafiki broni, ładowania i efektów zaklęć demonów,
+  trafienia, dym, krew, ślady, dźwięki i ograniczone pule efektów/audio.
+- Cztery fale, sklep i strażnik jako próba na tej samej arenie.
+  Dusze są walutą; śmierć zostawia echo do odzyskania.
+  Żar pozwala odpocząć/handlować w przygotowaniu między falami.
+- Zapis i wczytywanie, zgodność formatu SIGIL06, oddzielone próby QA.
+
+MATEMATYKA I ORGANIZACJA
+Obrażenia = baza × moc × falloff(dystans) × strefa × ulepszenie
+            × 100/(100+pancerz×(1-penetracja)) × (1-odporność).
+Strefa ma obecnie mnożnik 1. Parametry: game\src\tuning.lua,
+weapon_defs.lua, damage.lua. Strzały: ballistics.lua, combat.lua.
+Fizyka: collision.lua, kinematics.lua, feel.lua, projectiles.lua,
+explosives.lua. Ataki: ai.lua, melee.lua, enemy_geometry.lua.
+Renderer jest rozdzielony na moduły zasobów, świateł, batchy i efektów.
+
+GRAFIKA — UCZCIWY OPIS STANU
+Wiele ilustracji powstało przez wbudowane image_gen. Następnie dobrano
+atlasy, kadry, skalę, położenie stóp i układ GUI. Nie opisywać ich jako
+ręcznie malowanych. Użytkownik oczekuje spójnej, świadomie opracowanej
+oprawy bez typowych przypadkowych detali generacji AI. To nadal cel
+iteracji, a nie deklaracja, że jakość „arcydzieła” została osiągnięta.
+Pliki i prompty: game\assets\art\prompts-v08-final.json i
+prompts-v09-final.json. Nie wymieniać dobrych atlasów bez potrzeby.
+
+WERYFIKACJA I OGRANICZENIA
+Wersja 0.10 przeszła 837 sprawdzeń mechaniki/zasobów i 41 testów
+realnych callbacków sterowania oraz zapisów. Audyt: 250 scen GUI,
+bez wykrytych kolizji. Rendery: 119 scen plus 10 faz ataków oraz
+32 pozy broni. Sprawdzono zgodność źródeł, EXE, .love, DLL i ZIP.
+To testy automatyczne i oględziny wybranych renderów, nie pełny ręczny
+playtest. Test przejścia używa idealnego celowania. Nie przedstawiać
+zielonych testów jako dowodu dobrego balansu dla człowieka.
+Hitboxy są przybliżonymi bryłami sprite'ów, nie maską każdego piksela.
+
+DALEJ
+Kontynuować na jednym poligonie: czytelność, spójność artystyczna,
+ruch i feeling, ciosy i animacje, bronie, AI, hitboxy, matematyka,
+balans i stabilność. Pamiętać o całym kierunku, nie wyłącznie ostatniej
+uwadze. Przed oddaniem oglądać rzeczywisty ekran i sprawdzać miejsca
+tekstu wewnątrz ozdobnych ramek. Nie uruchamiać nowych map ani fabuły
+bez zmiany obecnego priorytetu przez użytkownika.
+
+URUCHOMIENIE I NOWY KATALOG
+Projekt przeniesiono do C:\Users\nahiko\Documents\dev\sigil-breach.
+Uruchom RUN.ps1, aby zagrać z aktualnych źródeł; RUN.ps1 -Release
+otwiera gotową wersję 0.10. TEST.ps1 uruchamia testy, BUILD.ps1
+buduje i weryfikuje paczkę. Lokalny runtime jest w toolchain\.
+Nie edytować kopii outputs\...\source jako głównego kodu.
+Dokładny układ i komendy: START-HERE.txt. Starszy workspace Codex
+zawiera archiwalne paczki i odłożone eksperymenty, nie aktywne źródła.

@@ -1,0 +1,12 @@
+You are generating game art. Use your built-in image generation tool (edit the first attached reference). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+Attachment 1 is the CURRENT powder-charge sheet of the game: 8 frames in a 4x2 grid (wide 2:1 sheet). Top row: the thrown iron powder bomb with a burning fuse, spinning (4 frames). Bottom row: the left gauntlet throwing it (4 frames: holding, raising, releasing with open hand, hand withdrawn). Attachment 2 is the shotgun sheet already redrawn in the approved style.
+
+Redraw the SAME 8 frames, same grid, same positions and sizes, same poses, in the new style:
+ - the bomb: a crude iron-banded powder flask/bomb with a tarred cord fuse; the fuse tip burns with a small, flat inked ochre flame (no sparkle, no glow haze);
+ - the gauntlet: the same black-brown leather and iron plates as on the shotgun sheet.
+
+STYLE AND BACKGROUND RULES (follow exactly):
+@STYLE@
+
+Save as PNG exactly at work/gen/codex/charge-v11-raw.png (copy it from where the tool saves it; keep the original). Wide 2:1 image. Reply with the saved path.

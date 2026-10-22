@@ -1,0 +1,81 @@
+SIGIL: BREACH / 0.27 / SEEN AND STRUCK
+
+Plan v7 (PLAN-ROZWOJU-v7.md): etapy D0 i H0. Rozgrywka bez zmian — złoty
+wzorzec identyczny z 0.25/0.26 (playtest 0c96c388/3afa2f9e, human
+47261c4a/a714fb54, drill cda87f5f/907dd06d). H0 tylko MIERZY; naprawy brył
+należą do H1–H4.
+
+1. D0 — DOKUMENTACJA BEZ SPRZECZNOŚCI
+- INSTRUKCJA to teraz aktualna specyfikacja (historia: ZMIANY, plany: PLAN).
+  Usunięte bloki „NOWE W 0.25/0.26”; ich zasady przeniesione do właściwych
+  działów (ciała, unik, widok, broń w świetle sceny).
+- Leczenie: „zwykłe zabójstwo nie leczy”, zabójstwo przełamane leczy — z pełnym
+  warunkiem (także poważna rana i pierwsze trafienie Sędziego w Sługę).
+- Zapis: gra zapisuje SIGIL07 i czyta SIGIL06 (było „SIGIL06”).
+- Pancerz głowy: per część ciała (Margrabia i Furfur mają nagą czaszkę).
+- Strzały rycerza trafiają tylko żywe ciała; pociski demonów sprawdzają drogę.
+- Magia: rycerz jej nie używa; sloty F/C to przyszłe wyposażenie; usunięte
+  „zaklęcia gracza” i „mana” z ARCHITEKTURY i komentarzy kodu.
+- Wysokość terenu: symulacja zna Ground.height, renderer rysuje od 0.
+- KONWENCJE: zasada „specyfikacja / historia / plany” i „bez magii”.
+- PLAN-ROZWOJU-v6.md oznaczony jako zastąpiony przez v7.
+
+2. H0 — POWTÓRKI POLIGONU
+- Polecenia trybu idą przez sesję: Game:act(nazwa, ...) (ready, retry,
+  closeShop, buy, catalog). Akcje katalogu poligonu (cele, stacje, reset,
+  tier, god mode, zamrożenie, pozy, zasoby) to polecenie 'catalog' w trybie
+  poligonu — dziennik je zapisuje.
+- Pola ustawiane przez aplikację między poleceniami (stan gry, pauza, mapa,
+  pomoc, wyczyszczone zamiary) dziennik zapisuje jako wpis 'set'.
+- Nagłówek dziennika ma punkt początkowy sesji; powtórka dziennika zaczętego
+  w środku sesji odmawia zamiast rozjechać się po cichu.
+- Test: dziennik poligonu (cele, tier, god mode, pauza, reset) odtwarza się
+  bit w bit.
+
+3. H0 — POMIAR TRAFIEŃ WZGLĘDEM TEGO, CO WIDAĆ
+- render/renderer.lua: R:enemyPlacement — jedna transformacja sprite'a dla
+  shadera i pomiaru (bez zmiany obrazu).
+- qa/hit_truth.lua: „prawda obrazu” — reguła piksela shadera na CPU (siatka
+  320, próg alfa 0,30, kontur żywych ciał, filtr obrazu). Sprawdzona względem
+  GPU: 35 262 zgodnych z 35 304 punktów poza pasem krawędzi (99,9 %; przegląd
+  przerywa się poniżej 99,5 %).
+- qa/reviews/hit_truth.lua (w showcase; osobno: lovec game --hit-review):
+  prawdziwe przebiegi każdego demona (przybycie, chód, zamach, cios,
+  odzyskanie, zachwiania, przewrócenie, skok, unik, śmierć) i raporty:
+  hit-fit.txt/.csv, hit-shots.txt, hit-dying.txt, hit-engine.txt,
+  hit-landmarks-<demon>-<klatka>.png, hit-frame-rects.csv.
+  Zastępuje qa/reviews/hitbox_review.lua (mierzył klatki podglądu).
+- qa/data/hit_landmarks.lua: 101 punktów anatomicznych na 15 klatkach żywych
+  póz (przewrócenia, Margrabia 5/7/8/9, Furfur 13), oznaczonych na powiększeniach
+  (tools/art/landmarks/crops.ps1). Test tests/cases/hit_landmarks.lua: punkt
+  leży na pigmencie/powietrzu tak, jak gra go rysuje; 39 ocenianych punktów
+  działa, 54 to znane wady przypisane do etapów (41 H3, 13 H4) — test wymaga,
+  żeby nadal zawodziły, dopóki etap ich nie naprawi.
+
+4. CO ZMIERZONO (liczby: work/qa-v27)
+- Przewrócenie (Sługa, Żelazny, Akolita, Ogrodnik): bryła głowy w 100 %
+  nad powietrzem w pozie leżącej; czaszka na posadzce nie jest trafialna.
+- Margrabia: czaszka trafia tułów w pozach 5, 7, 8 (3–16 m) i nic w pozie 9
+  (odsłonięty); powietrze obok czaszki to „głowa”. Furfur 13: czaszka nie
+  jest trafialna.
+- Bossowie nigdy nie są przewracani za życia: ich klatki upadku widzą tylko
+  zwłoki (korekta szkicu v6).
+- STRZAŁ Z BLISKA: gdy Sługa lub Żelazny stoi przy rycerzu, oko rycerza jest
+  wewnątrz bryły demona — każdy strzał, w dowolną stronę, trafia jego tułów
+  lub nogi, głowa jest nieosiągalna. W przebiegach: Sługa 560 z 1438 żywych
+  kroków, Żelazny 424 z 1266, Furfur 123 z 2591.
+- Bryły zależą od danych klatek rejestrowanych przez renderer: symulacja bez
+  renderera liczyłaby głowę Margrabia do 0,69 m inaczej.
+- Kolejność kontaktów: dwa Sługi w linii — 71 % promieni zgodnych z tym, co
+  widać; padające zwłoki przed żywym — promień w narysowane zwłoki leci dalej
+  (zasada etapu H7). Salwa Egzorcysty: 14 z 20 śrucin zgodnych, 2 na krawędzi.
+- Poza widziana a rozliczana: najwyżej jeden krok symulacji (1/120 s); ciało
+  przesuwa się średnio 8 mm na krok; wyjątek — lądowanie skoku na rycerzu
+  przesuwa Sługę o 0,42 m w jednym kroku (kontakt ciał).
+- Koszt: promień przez bryły 0,075 µs, odczyt maski piksela 0,015 µs (oba
+  pomijalne: salwa 20 śrucin na 20 demonów < 0,05 ms) — wydajność nie
+  ogranicza wyboru reprezentacji (plan v7, sekcja 4).
+
+WERYFIKACJA
+FORMAT, pełne testy (selftest 2906 sprawdzeń, input, showcase z przeglądem
+trafień), złoty wzorzec bez zmian, BUILD.

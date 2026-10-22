@@ -1,0 +1,117 @@
+KONTEKST DLA NOWEGO CZATU — SIGIL: BREACH 0.25 (stan na 2026-10-22)
+
+Kontynuujesz pracę nad moją grą. Poprzednie czaty zrobiły wszystko opisane
+poniżej; wszystkie testy przechodzą. Najpierw przeczytaj pliki z punktu 9,
+dopiero potem cokolwiek zmieniaj.
+
+1. PROJEKT
+- SIGIL: BREACH — FPS w LÖVE 11.5 (LuaJIT / Lua 5.1), Windows, PowerShell 5.1.
+- Katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+  - game\ — źródła (game\src), testy (game\tests), raporty QA (game\qa),
+    dokumentacja (game\docs)
+  - toolchain\love-11.5-win64\lovec.exe — LÖVE
+  - outputs\SIGIL-BREACH-0.25\SIGIL-BREACH.exe i
+    outputs\SIGIL-BREACH-0.25-Windows.zip — aktualna paczka
+  - work\qa-v25\ — wyniki testów (test-results.txt, architecture.txt,
+    golden-current.lua, playtest-population.txt, benchmark.txt)
+  - work\v5-measure\ — pomiary przed i po etapach G3–G5
+- Skrypty w katalogu głównym:
+  .\RUN.ps1 (gra ze źródeł; -Release = gotowe EXE)
+  .\FORMAT.ps1 (StyLua; uruchamiać przed testami)
+  .\TEST.ps1 -Suite All (albo Architecture | Mechanics | Input | Render)
+  .\BUILD.ps1 (testy -> paczka -> weryfikacja EXE -> ZIP; po nieudanej
+  próbie sam sprząta katalog roboczy)
+  lovec.exe game --population — same populacje botów (9 s), do balansu
+- Numer wersji jest tylko w game\src\app\release.lua (teraz 0.25).
+- To nie jest repozytorium git.
+
+2. JAK ZE MNĄ PRACOWAĆ
+- Piszę po polsku — odpowiadaj po polsku.
+- Nie zatrzymuj się w połowie, żebym coś sprawdzał. Wdróż całość, sam
+  zweryfikuj (testy, boty, rendery), na końcu daj jeden raport. Przy pracy
+  etapami: krótki raport po etapie, bez pytania o zgodę na następny.
+- Balans opisuj technicznie (czas kontroli, czas zabicia, obrażenia
+  otrzymane, zabójstwa przełamane, idealne uniki), przed i po.
+- Zmiany techniczne nie mogą zmieniać rozgrywki, balansu, wyglądu ani
+  obsługi starych zapisów. Po każdym etapie: FORMAT, pełne testy i
+  porównanie złotego wzorca; regresje naprawiaj przed przejściem dalej.
+- Kod ma być bazą pod rozbudowę (hub/baza, więcej demonów, zaklęć, broni,
+  map, trybów), oparty na wzorcach projektowych i danych.
+- Raz wkleiłem w czacie token Hugging Face — nigdy go nie zapisuj ani nie
+  powtarzaj.
+
+3. WERYFIKACJA
+- Złoty wzorzec (qa/golden.lua, baza tests/golden/baseline.lua). Obecnie:
+  playtest 0c96c388/3afa2f9e, human 47261c4a/a714fb54,
+  drill cda87f5f/907dd06d.
+- Ostatni pełny przebieg i BUILD: 2686 sprawdzeń, 0 błędów (selftest, input
+  36, showcase); 295 plików Lua, 0 problemów architektury; 0 importów
+  symulacja -> prezentacja; nienazwanych liczb w kodzie symulacji i app 1097.
+- Celowa zmiana rozgrywki: skopiuj work/qa-v25/golden-current.lua do
+  tests/golden/baseline.lua (z komentarzem dlaczego) i opisz w ZMIANY.
+- tools/check pilnuje granic warstw, kierunku symulacja -> prezentacja,
+  emitera dla każdego zdarzenia, zapadki liczb (tools/check/literals.txt).
+- Pułapki: polskie cudzysłowy „” w PowerShell — teksty narzędziem Edit;
+  UTF-8 bez BOM; w Lua „a and f()” obcina drugi wynik; ścieżka scratchpada
+  jest za długa dla powershell.exe -File (skrypty próbne trzymaj w work\).
+
+4. CO ZROBIONO (historia)
+- 0.24 i wcześniej: matematyka gry (game/docs/matematyka/index.html), kontra
+  jako zderzenie pędów, zachwianie lekkie/ciężkie, pętla zasobów, reżyser
+  tempa, modernizacje E0–E11 i F0–F9 (ZMIANY-0.24.txt).
+- 0.25 — plan v5 (game/docs/PLAN-ROZWOJU-v5.md), decyzje D1–D8 przyjęte
+  z rekomendacjami. Opis i pomiary: game/docs/ZMIANY-0.25.txt.
+- Publikowana kopia matematyki (artifact 8RvXeaEpvnfnkxt9pNbwVA) nie była
+  dostępna z konta w tym czacie; aktualna wersja to plik lokalny.
+
+5. PLAN v5 — CO JEST W KODZIE
+- G0 pomiar: populacja podstawowa i wprawna (unik zgrany z ciosem, proch w
+  grupę) z celami S.targets (qa/scenarios/playtest.lua); telemetria z gry do
+  telemetry.txt przy śmierci, oczyszczonej potyczce i F9
+  (src/app/session_report.lua); benchmark z pauzami odśmiecacza.
+- G1 spójność: ładunki uniku, bronie poligonu, glif FOCUS, czasy
+  przeładowania (tuning.reload) z danych; łuski i liczby obrażeń w
+  prezentacji (feedback/damage_numbers.lua); Game:look (mysz jako
+  polecenie); Damage.rating (pancerz części ciała dla obrażeń, raportu,
+  przebicia); stała kolejność stanów; usunięta atrapa limbo_layout.
+- G2 silnik: physics/ground.lua (Ground.height, map.floor); wspólne pola
+  przepływu W.flow; W.clear; Modes.act (ready, retry, closeShop, buy, lose,
+  reward, remaining); klawisze w src/app/bindings.lua (sloty zaklęć Q, F, C);
+  Application.settle + tempo odśmiecacza (tuning.collector).
+- G3 ciała: combat/body_contact.lua (systemy knightContact i bodies) — własny
+  ruch nie przechodzi przez żywe ciało ani go nie pcha, pęd przechodzi prawem
+  mas; rozsuwanie demonów według masy; pościg poza wzrokiem w linii prostej
+  (walk.lookahead); wybuch na wysokości piersi; knight.slamShare.
+- G4 odczucie: zachwiany rycerz nie strzela; strzał przerywa przeładowanie
+  (Reload.interrupt, closeOnFire 0,25 s); g.worldStop przy przełamaniu
+  gardy rycerza; mysz jedna czułość (camera.mouse), pitchLimit 1,2; idealny
+  unik przez powidok (Outcomes.afterimage, dodgeFromX/Z).
+- G5: zabójstwo przełamane w oknie 2 s (breakKill.window, brokenAge);
+  zachwianie 0,16 + 0,14 r / 0,36 + 0,10 (r − 1), max 0,70; przebicie po
+  pancerzu części.
+
+6. GDZIE CO DODAWAĆ — game/docs/ARCHITEKTURA.txt punkt 12 (w tym: nowe
+  ciało = masa i promień; atak = test także z afterimage; mapa = floor;
+  tryb = handlery Modes.act; klawisz = app/bindings.lua).
+
+7. ZASADY KODU — game/docs/KONWENCJE.txt (0.25 dodaje: symulacja nie pisze
+  g.view; ciała nie przenikają; wysokości od Ground.height, nigdy „y = 0”;
+  polecenia trybu przez Modes.act; klawisze tylko w bindings; zmiana balansu
+  z populacjami przed i po; nazwy testów bez numerów wersji).
+
+8. OGRANICZENIA I CO DALEJ
+- Cele D7: zabójstwa przełamane spełnione (16,4 % u wprawnych). Kontrola
+  3,9 % (cel 8–12 %) — zależy od zabójczości broni, nie od długości
+  zachwiania (przegląd w ZMIANY-0.25). Idealne uniki 1,2 na przebieg u botów
+  (cel 1 na falę) — do oceny w ręcznym teście.
+- Renderer rysuje od podłogi 0; podłoga per komórka przy pierwszej mapie
+  z poziomami.
+- Następny krok (G6): mój ręczny test paczki 0.25 (proving ground: potyczka,
+  próba fal) — dane w telemetry.txt + F9 — i strojenie według niego.
+
+9. NAJWAŻNIEJSZE PLIKI DO PRZECZYTANIA NA START
+- game/docs/ARCHITEKTURA.txt
+- game/docs/KONWENCJE.txt
+- game/docs/ZMIANY-0.25.txt
+- game/docs/PLAN-ROZWOJU-v5.md
+- START-HERE.txt

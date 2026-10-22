@@ -1,0 +1,110 @@
+SIGIL: BREACH / 0.21 (robocza) / WYZWANIE JAKO FIZYKA I DANE
+
+DIAGNOZA (0.20)
+- Gracz 5,25 m/s; Sługa 2,6, Żelazny 2,15, Akolita 1,7 — cofanie się
+  unieważniało każdy atak wręcz.
+- Pociski celowały w miejsce gracza w chwili zamachu: każdy ruch w bok unikał.
+- Najwyżej 2 atakujących naraz, odstęp 0,24 s; fala 4 = te same demony
+  co fala 1, tylko więcej.
+
+ZASADY (content/enemies.lua, combat/rules.lua, enemies/actions.lua, ai.lua)
+1. POZIOM FALI (jak współczynnik Risk of Rain 2), stosowany przy narodzinach:
+   t = numer fali (poligon: pokrętło TIER 1–5 w katalogu F2).
+   prędkość ×(1 + 0,05·(t−1)), obrażenia ×(1 + 0,08·(t−1)),
+   zdrowie ×(1 + 0,06·(t−1)), agresja (przerwy między atakami i cooldowny
+   umiejętności) ÷(1 + 0,12·(t−1)); naraz atakuje 2/2/3/3/4 demonów;
+   wyprzedzanie celu 0/0,5/0,75/1/1. ZAPOWIEDZI ATAKÓW NIGDY SIĘ NIE SKRACAJĄ.
+   Obrażenia skalowane na kopii pakietu danego demona (dane wspólne nietknięte).
+2. CHÓD JAKO FIZYKA: ciało przyspiesza do prędkości marszu z a = accel/√masa
+   (Sługa 18, Żelazny 12, bossowie 8), hamuje 2× szybciej, zwalnia przed
+   celem w drodze hamowania. Ciężkie demony ruszają i skręcają później.
+   Prędkości: Sługa 4,0, Żelazny 3,0, Akolita 2,4, Ogrodnik 3,0,
+   Margrabia 2,2, Furfur 2,6 — każdy, nawet na poziomie 5, wolniejszy od gracza.
+3. SKOK SŁUGI (nowy rodzaj ataku 'leap', same dane): 3,5–7,5 m, przysiad
+   0,45 s, łuk balistyczny w grawitacji świata (wierzchołek 1 m, lot ~0,46 s),
+   lądowanie w miejscu wyprzedzonym o 0,25 s ruchu gracza, 18/80 w promieniu
+   0,87 m. Punkt lądowania oznaczony na posadzce od przysiadu. Własny
+   cooldown 2,6 s (umiejętności mają teraz osobne czasy odnowienia).
+   Trafienie w locie = kontra; przełamana garda w powietrzu: ciało spada
+   i ląduje powalone (≥ 0,35 s). Okulały Sługa doskakuje krócej.
+4. WYPRZEDZANIE CELU: Akolita (0,85) i Margrabia (0,5) liczą punkt przecięcia
+   z prędkością gracza w chwili zamachu (dwie iteracje czasu lotu + zamach),
+   skalowane poziomem; punkt w murze cofany połówkami. Zmiana kierunku po
+   rozpoczęciu zamachu nadal unika.
+5. UNIK AKOLITY (od poziomu 2): gdy celownik spoczywa na nim (stożek 0,06 rad,
+   < 16 m) — skok w bok 6,5 m/s przez 0,24 s, odnowienie 3,5 s ÷ agresja.
+6. HIPERPANCERZ: Żelazny Sługa w zamachu i ciosie ma podwójną gardę (72):
+   cios, który łamie go w marszu, w ataku nie przerywa. Kontra ×1,5 nadal działa.
+7. FALE: limit żywych demonów 5/6/7/8 (było 4/5/6/7), skład bez zmian.
+
+TESTY: 2384 sprawdzeń (+14 w tests/cases/difficulty.lua), wejście, rendery,
+formatowanie i architektura (183 pliki, 0 problemów). Nikt jeszcze nie grał.
+Do obserwacji w grze: czy skok nie jest zbyt częsty przy 3 atakujących,
+czy wyprzedzanie Akolity na poziomie 4–5 nie jest za ostre, czy chód
+z przyspieszeniem nie wygląda „ślizgowo”.
+
+CZĘŚĆ 2 / DOPRACOWANIE (pomiar zamiast zgadywania)
+NARZĘDZIE: bot fal (qa/scenarios/playtest.lua) raportuje obrażenia na falę
+i nacisk (ataki/min, skoki, uniki). Nowy „model człowieka” (reakcja 0,30 s,
+obrót 5 rad/s, błąd celu 0,03 rad, pole widzenia 100°, unik tylko widzianego
+ataku) zapisuje work/qa-v19/playtest-human.txt. Tylko raport — bez progu.
+
+DIAGNOZA Z POMIARU
+- Idealny bot: 0 obrażeń w falach 1–4; demony pojawiały się pojedynczo
+  (co 1,2–1,6 s) i ginęły zanim doszły.
+- Model człowieka też 0: stały ruch w bok przy 5,25 m/s unikał wszystkiego —
+  skok przewidywał tylko 0,25 s ruchu (przy ~0,9 s zamachu i lotu),
+  pocisk Akolity (5,1 m/s) był wolniejszy od gracza.
+
+ZMIANY
+- Fale przychodzą STADAMI (Doom Eternal): 2/2/3/3 demony naraz z różnych
+  portali; kolejne w stadzie wolą portale poza polem widzenia (okrążenie).
+  Każdy portal nadal świeci 1,2 s; przerwa po stadzie + 0,7 s na demona.
+  Demony pojawiają się w kolejności kolejki.
+- Skok przewiduje miejsce gracza w chwili lądowania: udział 0,6 na poziomie 1
+  do 1 na wyższych; znacznik lądowania pokazuje ten punkt — zmiana kierunku
+  lub unik nadal ratuje.
+- Pociski: Akolita 7,0 m/s (było 5,1), Ogrodnik 5,0 (było 3,4).
+- Odczucie: przysiad przed skokiem (ciało się spręża), lądowanie z pyłem,
+  łomotem i drżeniem tylko blisko; unik Akolity z przechyłem i świstem.
+
+POMIAR PO ZMIANACH (model człowieka): fale 1–3: 0, fala 4: 18,6, boss: 87,1;
+nacisk 40 ataków/min, 25 skoków, 9 uników. Bot porusza się idealną sinusoidą,
+więc fale 1–3 wymagają oceny w prawdziwej grze.
+TESTY: 2386 sprawdzeń, wejście, rendery, formatowanie, architektura.
+
+CZĘŚĆ 3 / DOMKNIĘCIE LISTY GEMINI
+NOWE
+- PODCIĘCIE: cios w nogi ≥ 40 obrażeń gardy w demona w doskoku, skoku lub
+  szarży: demon wypada z ataku i leży ≥ 0,45 s; szarża bossa kończy się
+  od razu z pauzą 0,30 s. Napis „TRIPPED”, łomot, puls ramki.
+  (Kula Sędziego w nogi: 44 · 1,35 = 59 — podcina wszystko, co pędzi.)
+- KONTRA = PRZEWRÓCENIE: kontra łamiąca gardę daje co najmniej 0,45 s.
+- RANA: ofiara zatrzymuje się 0,07 s (hit-stop tylko ofiary).
+- UDERZENIE O MUR: krótki puls ramki (prezentacja).
+
+STATUS PROPOZYCJI GEMINI
+ 1. Jedno prawo impulsu v = J/m z miękkim nasyceniem ........ wdrożone (0.20)
+    Rozdział push / garda w danych broni ...................... wdrożone (0.20)
+    Gracz pod tym samym prawem (masa rycerza 1,5) ............. wdrożone (0.20)
+ 2. Oszołomienie z nadwyżki gardy ............................. wdrożone (0.20)
+    Odbudowa gardy: opóźnienie + % / s ......................... wdrożone, dane
+      ciała różne dla gracza (0,5 s / 60 %) — propozycja 1,5 s była za surowa
+    Bossowie: garda, zachwianie, okno odsłonięcia, długa blokada  wdrożone
+ 3. Próg ciężkiej rany Żelaznego Sługi ......................... wdrożone jawnie
+      (opcja B; teza o 12,05 m była błędna — spadek tylko zmniejsza)
+ 4. Strefy głowa / tułów / nogi, okulawienie ................... wdrożone
+    Podcięcie szarży strzałem w nogi ........................... wdrożone (0.21)
+    Nogi „×1,35 impulsu” .................. zmienione: × gardy, nie pchnięcia
+    Głowa „pełna penetracja pancerza” ..... odrzucone: zniosłoby tożsamość
+      Żelaznego Sługi; głowa ma już ×1,35 rany i ×1,25 gardy
+ 5. Grawitacja „szarży” 12 → 18,5 ........ wdrożone dla ładunku prochowego
+      (to on miał 12; szarża Furfura nie ma grawitacji)
+    Kontra (pęd na pęd) ×1,5 gardy + przewrócenie .............. wdrożone
+    Domino: ciało wbite w ciało rani jak mur ................... wdrożone
+ 6. Skok ze ślizgu bez ścięcia prędkości ....................... wdrożone
+    DI pod pchnięciem ................ wdrożone (teza o blokadzie WASD błędna)
+    Mikro-hitstop / puls przy ranie, kontrze, murze ............ wdrożone
+ 7. Lista wdrożeniowa (rules, weapons, enemies, explosives) .... zamknięta
+
+TESTY: 2390 sprawdzeń (+4), wejście, rendery, formatowanie, architektura.

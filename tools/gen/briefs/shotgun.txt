@@ -1,0 +1,16 @@
+You are generating game art. Use your built-in image generation tool (edit the attached reference). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+Attachment 1 is the CURRENT first-person double-barrelled shotgun animation sheet of the game: exactly 16 frames in a 4x4 grid, read left to right, top to bottom. Attachment 2 is the APPROVED style reference (the player's portrait).
+
+Produce ONE edited sheet that REDRAWS THE SAME 16 FRAMES IN A NEW STYLE. Keep exactly: the 4x4 grid, the position and size of every frame in its cell, every pose, the camera angle, the hand positions, which frame shows the flash, smoke, the opened breech, the two shells in the left hand, and the closing. Each frame must stay fully inside its own cell with empty space around it; nothing may touch the cell borders or the neighbouring frame.
+
+NEW STYLE — "inked fresco": the drawing technique of 1930s hand-inked cel animation (as in the game Cuphead: a bold, even, dark brown-black ink contour around every shape, flat colour fills, one simple highlight shape per surface, clean readable silhouettes) applied to the subject matter and palette of Giovanni da Modena's Inferno fresco in Bologna. NOT cute, NOT rubber-hose, NOT a toy: a grim, heavy, real weapon of a man walking through hell.
+ - The gun: blackened iron barrels and dark walnut, with a carved bone relief of a screaming tormented face on the action and small bone horns (keep this motif, simplified to bold shapes). Matte, no chrome, no glossy reflections.
+ - The hands: heavy black-brown leather gauntlets with iron plates, the same armour language as the portrait.
+ - Shells: waxed brown paper hulls with dark tarnished brass heads, NOT red plastic, NOT shiny gold.
+ - Muzzle flash (frame 2): a flat, cartoon-inked tongue of ochre and dull vermilion fire with a thick contour, like painted hellfire; smoke (frames 3-4): flat grey-brown inked puffs.
+ - Palette only: bone black, burnt umber, slate grey, yellow ochre, a little red ochre, lime-white highlights.
+
+BACKGROUND: the whole sheet background must be ONE flat, pure magenta colour (#FF00FF) everywhere outside the drawings, with no gradient, no shadow, no texture, so it can be keyed out. No grid lines, no numbers, no text, no borders.
+
+Save the result as PNG exactly at work/gen/codex/shotgun-v11-raw.png (copy it from where the tool saves it; keep the original). Square image. Reply with the saved path.

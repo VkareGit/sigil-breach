@@ -1,0 +1,60 @@
+SIGIL: BREACH 0.7 — Żelazo i popiół
+19 października 2026
+
+PLAN ZREALIZOWANY W TEJ ITERACJI
+1. Wspólny bitmapowy język GUI: żelazo, mosiądz, kość i popiół.
+2. Nowy HUD i sklep z czytelnymi stanami zasobów i zakupów.
+3. Widoczność w walce, mniej zasłaniania widoku, spójne przedmioty.
+4. Pancerz animowany razem z postacią i korekta granic atlasów.
+5. Regresje logiki, rzeczywiste rendery oraz paczka Windows.
+
+GUI
+- Arkusz PNG z ramkami, stanami przycisków i ikonami. Skalowanie
+  ramek zachowuje narożniki; tekst pozostaje czytelny i dynamiczny.
+- Osobne, kompaktowe pola zdrowia, osłony, esencji, uniku i broni.
+- Amunicja, przeładowanie, temperatura i brak nabojów widoczne przy broni.
+- Informacje o wskazanym celu u góry, poza środkiem celowania.
+- Kolory zasobów wspierane symbolami, podpisami i segmentami pasków.
+- Sklep pokazuje zaznaczenie od razu po najechaniu myszą, również
+  na niedostępną ofertę. Powód niedostępności ma pierwszeństwo przed
+  starym potwierdzeniem zakupu. Czytelne stany posiadania grawerunków.
+- Te same ramki w menu, pauzie, pomocy, mapie, śmierci i zwycięstwie.
+- Pomoc obejmuje Żelaznego Sługę; opisy nie nakładają się na portrety.
+
+WALKA I GRAFIKA
+- Mniejsza broń na ekranie. Zmniejszone wizualne skoki FOV strzału
+  i uniku; prędkość ruchu, celowanie, czasy strzału i przeładowania
+  zachowane, więc zmiana wyglądu nie przestawia wyuczonego rytmu.
+- Mniej nieprzezroczystego dymu i słabsze rozświetlenie po strzale.
+- Ciemniejsze podłoże, chłodniejsza mgła, jaśniejsze sylwetki i cienka
+  ciemna krawędź przeciwnika. Ogień nadal daje ciepłe światło.
+- Podnoszone zdrowie, naboje i dusze mają symbole zgodne z GUI.
+- Żelazny Sługa ma 24 osobne klatki z pancerzem: chód, przygotowanie
+  ataku, cios, powrót, trafienie, upadek i widok od tyłu.
+- Granice atlasów dopasowane do rzeczywistych odstępów. Tylne klatki
+  zachowują głowę i rogi, ataki nie pokazują dłoni sąsiedniej postaci.
+  Nierówne wysokości klatek nie zmieniają skali postaci; stopy są
+  rejestrowane osobno. Poprawiono też tyły starszych atlasów.
+- Zdrowia i nabojów nie można zebrać przez narożnik filaru. Sklep
+  wymaga widoczności Żaru; sam promień interakcji już nie wystarcza.
+
+CIĄGŁOŚĆ
+Ta sama arena Limbo, cztery fale i Margrabia Popiołu. Zapis 0.6 jest
+kompatybilny. Ceny, obrażenia i skład fal pozostają bez zmian.
+Nowe bitmapy wygenerowano przez wbudowane image_gen; dokładne prompty
+znajdują się w source/assets/art/prompts-v07*.json. Styl ograniczono
+przez wspólną paletę, zwięzłe symbole i pikselowe próbkowanie.
+
+WERYFIKACJA
+302 kontrole mechaniki i zasobów oraz 21 kontroli wejścia i zapisu.
+46 scen z prawdziwego renderera, pięć rozdzielczości/proporcji okna.
+Sprawdzono m.in. małą ilość zasobów, brak pieniędzy, przeładowanie,
+przegrzanie, echo, bossa, pancerz, odzyskany zapis i dalekie sylwetki.
+Testy kontrolera wywołują prawdziwe callbacki LÖVE, ale nie zastępują
+oceny ruchu i feelingu podczas ręcznej gry. Symulacja przejścia używa
+idealnego celowania. Szczegóły w raportach dołączonych do paczki.
+
+NAJBARDZIEJ PRZYDATNA KOLEJNA OCENA
+Czy w walce czytelne są jednocześnie cel, amunicja i gotowość uniku?
+Czy po strzale nadal widać reakcję trafionego przeciwnika?
+Czy sklep da się obsłużyć bez zastanawiania się nad stanem oferty?

@@ -1,0 +1,14 @@
+-- Body-volume profiles: the data of the optional explicit hit representation
+-- (enemies/geometry.lua), for a creature whose appearance chooses
+-- hit = 'volumes' and names its profile in anatomy. Empty in the game: every
+-- current demon is painted and meets shots on its painted surface
+-- (enemies/surface.lua, content/art/anatomy). Until 0.28 this file held the
+-- cylinders calibrated to the six painted atlases; they no longer decided any
+-- hit and were removed in 0.29 (history: docs/ZMIANY-0.29.txt).
+--   profiles[name] = {
+--     shapes = { { id, zone, material?, x, bottom, top, radius }, ... },
+--     frameShapes = { [frame] = { ... } },   optional, per painted frame
+--   }
+-- x, bottom, top are fractions of the sprite (x across, from its left;
+-- bottom and top up from its feet); radius is a fraction of its width.
+return { profiles = {} }

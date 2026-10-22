@@ -1,0 +1,130 @@
+SIGIL: BREACH 0.3 — ŻYWE LIMBO
+18.10.2026 | LÖVE 11.5 / Lua | Windows x64
+
+Wciąż rozwijamy ten sam poziom testowy. Układ pomieszczeń, przejścia i trzy
+pieczęcie zostały zachowane. Nie dodano drugiego kręgu.
+
+CO ZMIENIONO
+
+1. Animacja powiązana z zachowaniem
+   Cztery osobne arkusze po 16 póz: krok, zamach, uderzenie/czar, powrót,
+   reakcja na trafienie, trzy etapy upadku oraz chód oglądany od tyłu.
+   Tempo chodu zależy od przebytej drogi; stojący demon nie przebiera nogami.
+   Sylwetka zapowiada moment ataku. Po uderzeniu zostaje czas na kontrę.
+   Sprite obrócony plecami do gracza pokazuje tylny cykl. Nadal jest to
+   świadomy styl sprite'ów 2.5D, z widokiem przód/tył, a nie model 3D.
+
+2. Różne role przeciwników
+   Sługa Żaru: obchodzi po bokach, przygotowuje skok i uderza w zadeklarowanym
+   kierunku. Można zejść z linii ataku, odskoczyć albo przerwać zamach strzelbą.
+   Akolita Stolasu: utrzymuje dystans, cofa się i przemieszcza w bok podczas
+   oczekiwania na kolejny czar.
+   Pomiot Buera: pluje i wyznacza kręgi jadu. Najpierw jest ostrzeżenie,
+   potem szkodliwa kałuża. Wyjście z kręgu lub skok omija obrażenia.
+   Margrabia: wachlarze pocisków, zapowiedziane pola zagrożenia, mocniejsza
+   druga faza. Lanca nie blokuje go bez końca.
+
+   Wspólne zasady: widoczność, usłyszany strzał, pamięć ostatniej pozycji,
+   droga wokół filarów, separacja, limit dwóch równoczesnych ataków zwykłych
+   demonów i krótki odstęp między przygotowaniami. Przywołanie daje 0,6 s
+   na zauważenie nowego wroga. Atak spoza pola widzenia ma dłuższy zamach.
+   Po rozpoczęciu zamachu cel zostaje zamrożony: brak automatycznego
+   śledzenia uskoku gracza. Ściana może przerwać planowany strzał.
+
+3. Klimat i spójność
+   Ciemniejszy kamień, wspólna mgła i mniej jaskrawe sprite'y. Cienie pod
+   postaciami, popiół, proporce, świece, ossuaria, anioły i relikwiarz.
+   Nowe animowane kadzielnice zastępują geometryczne płomienie.
+   Oryginalna proceduralna warstwa chóru i tła oraz rytm narastający w walce.
+   Ostrzegawcze pomruki, głos Stolasu i dźwięki czarów mają kierunek i dystans.
+
+4. GUI i dostęp do informacji
+   Stałe miejsca zdrowia i amunicji, oznaczenie wybranej broni, widoczne
+   naboje w komorach, postęp cyklu przy celowniku i wskaźnik kierunku obrażeń.
+   Q pokazuje gotowość i koszt 40 esencji; SHIFT pokazuje dwa ładunki uniku.
+   Cel zmienia się wraz z przebiegiem próby. Mapa podpisuje trzy dwory,
+   bramę i gracza; pauzuje walkę. Nawigacja do pieczęci pojawia się poza walką.
+   F1: sterowanie i trzy karty demonów z poradą jak reagować na każdy atak.
+   Menu i ustawienia obsługują mysz oraz klawiaturę. Ustawienia obejmują
+   czułość, FOV 85–115, muzykę/tło, ruch kamery, podpowiedzi i wyciszenie.
+   UI zachowuje proporcje na 4:3 i szerokich ekranach, z prawidłową obsługą
+   kliknięć. Ustawienia zapisywane w settings-v03.txt w danych LÖVE.
+
+5. Powód, żeby powtórzyć próbę
+   Łańcuch szybkich zabójstw dodaje punkty, otrzymanie obrażeń przerywa go.
+   Podsumowanie pokazuje czas, wynik, otrzymane obrażenia, pieczęcie i sekret.
+   Lokalny rekord jest zapisywany po zwycięstwie. Ranga S: poniżej 3 minut
+   i 100 otrzymanych obrażeń; A: poniżej 5 minut; inaczej B.
+   Jeden mały sekret w istniejącym zachodnim dworze nagradza oglądanie
+   otoczenia. Nagrody nie da się wielokrotnie odebrać.
+
+BADANIE GIER I PRZEŁOŻENIE NA IMPLEMENTACJĘ
+
+DOOM — animacja i czytelna presja
+Jake Campbell (id Software) opisuje ścisłe powiązanie zachowania AI z
+animacją całego ciała. Prezentacja o push-forward combat wskazuje ruch,
+agresję i pozyskiwanie zasobów w walce jako spójne filary.
+Wniosek projektowy: najpierw czytelny zamiar i skutek, potem trudność.
+Implementacja: wspólne stany AI/animacji, zapowiedź, uderzenie, odpoczynek,
+przerwanie zwykłego ataku i leczenie za zabójstwa z bliska.
+https://www.gdcvault.com/play/1024186/Bringing-Hell-to-Life-AI
+https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-
+
+DUSK — spójna estetyka i nauka przez krótkie starcie
+David Szymanski w wywiadzie opisuje początek jako szybkie oswojenie ruchu
+i zachowań wrogów przez grę. Podkreśla także wartość własnej, konsekwentnej
+estetyki. Nie trzeba zmieniać gry w prezentację tutoriali, aby była czytelna.
+Wniosek projektowy: zróżnicować napięcie, zachować jednolity język wizualny
+i pozwolić poznać przeciwnika w praktyce.
+Implementacja: to samo krótkie Limbo, oszczędne podpowiedzi, opcjonalne F1,
+ciemniejsza wspólna paleta, dźwiękowe ostrzeżenia i spokojniejsze przerwy.
+https://www.gamedeveloper.com/design/more-than-a-throwback-how-i-dusk-i-nails-the-best-parts-of-90s-fps-games
+https://store.steampowered.com/app/519860/DUSK/
+
+ULTRAKILL — opanowanie systemów i powtarzalność
+Oficjalny opis akcentuje mobilność, leczenie krwią przeciwników, kombinacje,
+rangi, sekrety i opanowywanie poziomów. Karta Steam ma ocenę przytłaczająco
+pozytywną w chwili sprawdzenia; to potwierdza odbiór, nie dowodzi jednej
+przyczyny sukcesu.
+Wniosek projektowy: powtórzenie ma dawać widoczny postęp umiejętności.
+Implementacja: prosta seria zabójstw, wynik, czas, ranga, rekord i sekret.
+To autorski, niewielki system punktacji; nie kopia systemu stylu ULTRAKILL.
+https://store.steampowered.com/app/1229490/ULTRAKILL/
+
+GUI — sprawdzenie źródeł, nie zgadywanie na podstawie stylu
+Kod statusu DOOM rozdziela zdrowie, amunicję, osłonę, posiadane bronie i
+klucze oraz sprzężenie zwrotne obrażeń. Menu ma jawny wybór pozycji.
+Implementacja: stabilne bloki informacji, kontekstowe komunikaty,
+oznaczenie wyboru i pełna obsługa myszą/klawiaturą. Nie kopiowano kodu DOOM.
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/st_stuff.c
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/m_menu.c
+
+Wnioski o tym, dlaczego te rozwiązania zachęcają do gry, są interpretacją
+projektową materiałów twórców. Ostateczny balans naszej areny wymaga Twojego
+ogrania; testy automatyczne nie mierzą przyjemności z walki.
+
+GRAFIKI
+Tryb: wbudowane narzędzie image_gen, z referencją poprzedniego arkusza.
+Użyte pliki w source/assets/art/:
+ imp-v03.png, stolas-v03-fixed.png, buer-v03.png, boss-v03.png,
+ props-v03.png oraz zachowane bronie i tekstury z 0.2.
+Dokładne prompty: source/assets/art/prompts-v03.json
+                  source/assets/art/prompts-v03-refinements.json
+Render Stolasu odbija UV dwóch klatek, aby laska pozostawała w tej samej ręce.
+
+WERYFIKACJA
+115 testów logiki i wejścia: regresje ruchu i broni, przejście do finału,
+walka z bossem bez nieśmiertelności, zachowania AI, uniki, jad, przerwanie
+zamachu, etapy animacji, przyciski, proporcje UI oraz powrót z mapy i pomocy.
+29 ujęć renderera: broń, demony, ostrzeżenia, upadek, mapa, pomoc, ustawienia,
+wynik oraz rozmiary od 960x540 do 1720x720. Raporty TESTY.txt i RENDER.txt.
+Pomiar z prezentacją obrazu: około 60 FPS z VSync na tym komputerze;
+nie jest to gwarancja wydajności na każdej konfiguracji.
+
+ŹRÓDŁA DO DALSZEJ PRACY
+src/ai.lua — role, pamięć, planowanie, ataki i zagrożenia.
+src/animation.lua — wybór klatek zsynchronizowany ze stanem.
+src/interface.lua — HUD, mapy, menu, pomoc i geometria kliknięć.
+src/retro_renderer.lua — obraz 2.5D, sprite'y, światło i atmosfera.
+src/soundscape.lua — proceduralne warstwy muzyczne.
+src/tuning.lua — bazowe parametry poruszania i broni.

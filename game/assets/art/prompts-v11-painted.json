@@ -1,0 +1,112 @@
+{
+  "version": "0.11-draft",
+  "mode": "image generation / image edit (not yet generated)",
+  "notes_pl": [
+    "Prompty do przemalowania broni i portretu tak, by były malarstwem, a nie cyfrową ilustracją. Nic jeszcze nie wygenerowano.",
+    "Powód: atlasy v09 powstały z promptów, które prosiły o 'polished worn steel edges' i 'physical brass cartridges'. Stąd chrom, mosiądz i plastikowe łuski. Shader painterly.lua tylko to tłumi i nie przerysuje kształtów.",
+    "Zalecany tryb: edycja obrazu z bieżącym atlasem jako referencją póz (referenced_image_paths), by zachować timing animacji i rejestrację nadgarstków.",
+    "Styl wspólny jest w polu shared_style; należy go wkleić na początek każdego promptu, jeśli narzędzie nie łączy pól.",
+    "Szczegóły podłączenia nowego atlasu są w polu integration przy każdym zasobie."
+  ],
+  "shared_style": "Painted as a late-medieval / early-Renaissance religious panel and fresco, then reduced to crisp, deliberately clustered 16-bit pixel art with a limited palette. Egg tempera and thin oil glazes over a dark toned ground. Matte surfaces everywhere: form is modelled by value and chiaroscuro (light falling from one side, deep umber shadow on the other), never by specular reflections. Historical pigments only: bone black, burnt umber, raw umber, yellow ochre, aged warm lead white for the lights, madder lake and dulled vermilion ONLY for blood and cloth, very sparing verdigris. Gold appears only as worn gold leaf with red bole showing through rubbed edges. Every form is bounded by a dark painted contour line (sinopia / ink outline) as in fresco. References and what to take from each: Giovanni da Modena, Inferno, Bolognini Chapel, San Petronio, Bologna: scorched fresco palette, coarse confident outlines, bodily, repellent horror. Hieronymus Bosch, right (hell) wing of The Garden of Earthly Delights: everyday objects turned into instruments of torment, grotesque hybrid ornament, small tormented figures as carved decoration. Hans Memling, The Last Judgment (Gdansk): pale bodies against a dark ground, ordered composition, gilded framing, gestures of dread. Michelangelo, The Last Judgment, Sistine Chapel: heavy anatomy, tense twisting hands, forearms and knuckles carrying real weight.",
+  "shared_negative": "No chrome, no mirror or specular highlights, no glossy or wet-looking metal, no plastic, no red plastic shotgun shells, no polished or shiny brass, no airbrushed gradients, no 3D render look, no modern digital concept-art or 'grimdark game art' rendering, no anime or manga linework, no bloom, glow, lens flare or neon, no comic-book starburst muzzle flash, no text, numbers, labels, grid lines, frame borders or watermark.",
+  "assets": [
+    {
+      "key": "shotgunV11Painted",
+      "replaces": "shotgun-v09.png",
+      "savedAs": "shotgun-v11.png",
+      "referenced_image_paths": ["game/assets/art/shotgun-v09.png"],
+      "layout": "1254 x 1254 px, EXACTLY 16 frames in a 4 x 4 grid of equal square cells (about 313 px each), sequential left to right, top to bottom. True alpha transparency outside the weapon and arms. At least 24 px of fully transparent gutter on all four sides of every cell; no pixel on any cell boundary. Wrists and forearms meet the bottom of each cell on one shared baseline.",
+      "prompt": "[shared_style] Edit this existing 16-frame first-person double-barrelled shotgun animation sheet. Keep EXACTLY all sixteen poses, the camera angle, hand positions, barrel directions, cell order and transparent background. Repaint only the material and ornament. The gun is a heavy hand-forged funerary object: blackened, pitted iron barrels painted as matte dark umber-grey with ochre-lit edges; a stock of dark walnut; the action plate carries a carved bone relief of a screaming, tormented face and small bodies in the manner of Bosch's hell, flanked by curved bone horns; worn gold-leaf fillets with red bole showing. The hands wear old black-brown leather gauntlets with iron plates, modelled like Michelangelo's heavy, tense hands. Cartridges are period paper-hulled shells: waxed brown paper, dark tarnished almost black brass heads, no shine. Frame 1 idle aimed; frame 2 fires: the flash is a short painted tongue of flame like the fires in Bosch's hell, ochre and dull vermilion with soot, flat and compact, not a starburst; frames 3-4 recoil with thin grey-brown painted smoke; frame 5 back to idle; frames 6-8 the breech breaks open and tilts, the two open chambers seen from the rear as dark iron rings; frames 9-12 the left hand brings two paper shells, inserts them, withdraws; frames 13-15 the action closes and returns to aim; frame 16 identical to frame 1. [shared_negative]",
+      "integration": "src/weapon.lua: the path in V.init, the dimension assert (1254x1254) and the measured row bands cuts[1]={0,352,630,940,1254} must be measured again for the new transparent gutters. Origins are measured automatically. tests_art_v08.lua compares the active texture with the file 'shotgun-v09'; update the name. After the swap, reduce pigment() in the weapon shader (keep about .5) so it does not double the effect."
+    },
+    {
+      "key": "revolverV11Painted",
+      "replaces": "revolver-v09.png",
+      "savedAs": "revolver-v11.png",
+      "referenced_image_paths": ["game/assets/art/revolver-v09.png"],
+      "layout": "1448 x 1086 px, EXACTLY 16 frames in a 4 x 4 grid of equal cells (about 362 x 271 px), sequential. True alpha transparency, at least 20 px empty transparent gutter on every side of every cell, shared wrist baseline at the bottom of each cell.",
+      "prompt": "[shared_style] Edit this existing 16-frame first-person top-break six-shot revolver sheet. Keep EXACTLY all poses, hinge mechanics, hand positions, camera and cell order. Repaint the material: a heavy nineteenth-century revolver of blackened pitted iron painted matte, lit edges in ochre and lead white, never polished steel. The side plate is a small carved relief of a mourning saint-like figure in the manner of Memling's Last Judgment, worn, with gold leaf rubbed down to red bole. Gauntlets of dark leather and riveted iron with heavy, tense knuckles. Cartridges: six dull, tarnished, almost black brass cases and grey lead bullets; ejected cases are dark and matte, no shine. Frame 1 idle aimed; frame 2 fires with a compact painted flame tongue, ochre and vermilion with soot; frame 3 recoil upward; frame 4 back to aim; frame 5 thumb on the top latch; frame 6 barrel tilts down at the hinge; frame 7 fully open, six dark chambers seen from the rear; frame 8 six spent cases eject; frame 9 the left hand brings a six-round speedloader; frame 10 the loader above the cylinder; frame 11 the cartridges enter; frame 12 the loader is removed; frame 13 the action closes upward; frame 14 the latch closes; frame 15 returning to aim; frame 16 identical to frame 1. [shared_negative]",
+      "integration": "src/weapon.lua: path, dimension assert (1448x1086) and cuts[2] ({0,271,543,809,1086} and {0,271,543,814,1086}) must be measured again. tests_art_v08.lua: the name 'revolver-v09'."
+    },
+    {
+      "key": "nosicielV11Panel",
+      "replaces": "nosiciel-fresco-v08.png",
+      "savedAs": "nosiciel-panel-v11.png",
+      "referenced_image_paths": ["game/assets/art/nosiciel-fresco-v08.png"],
+      "layout": "1536 x 1024 px, EXACTLY 6 portraits in a 3 x 2 grid of equal square cells (512 x 512), order: top row 1-2-3, bottom row 4-5-6. Opaque dark umber toned ground in every cell (not transparent). The same man, same scale and head position in every cell. Framing for the HUD arch mask: head-and-shoulders bust centred horizontally; the top of the hair no higher than 20 percent of the cell height; eyes at about 42 percent; chin at about 68 percent; shoulders and armour reach the bottom edge. The upper left and right corners of each cell stay empty dark ground, because they are hidden by the reliquary arch. Do not paint any frame, arch or border; the game supplies the gilded frame.",
+      "prompt": "[shared_style] A series of six head-and-shoulders portraits of the same man, painted as a small devotional panel portrait in the manner of Hans Memling: a pale, lit face against a near-black umber ground, one-sided light, precise painted contours, lead-white highlights on the brow, cheekbone and nose, warm umber shadows. He is an ordinary human with no magic who walks through hell: a harsh, weathered face, short untidy black hair, a scar across the brow and cheek, wearing heavy dark battered plate armour over a dark gambeson. The posture and presence recall Guts from Berserk, but this is an old-master painting, not a manga or anime drawing: no manga eyes, no cel shading, no ink-pen hair. The weight and tension of the neck and jaw come from Michelangelo's Last Judgment; the bruised, bloodied flesh in the later frames comes from Giovanni da Modena's Inferno, restrained, never gory. Expression: exhaustion, vigilance, determination and restrained anger, never a triumphant hero's pose. 1: frontal, guarded, a hard stare. 2: head turned toward the viewer's left, glancing aside. 3: head turned toward the viewer's right. 4: struck: eyes squeezed shut, jaw clenched, a fresh cut. 5: critical: exhausted, eyes lowered, blood running from the brow and mouth, the skin greyer. 6: firing: teeth bared in a grimace against the recoil, head slightly turned. [shared_negative]",
+      "integration": "src/portrait.lua: the path in P.init (the 3x2 grid stays). tests_art_v08.lua compares the texture with 'nosiciel-fresco-v08'; update the name. Check that all six expressions stay inside the HUD arch (the test 'all six portrait expressions stay inside the arched HUD window'). The portrait shader varnish and craquelure can stay; lower pigment keep if the colours go dull."
+    },
+    {
+      "key": "chargeV11Painted",
+      "optional": true,
+      "replaces": "charge-v09.png",
+      "savedAs": "charge-v11.png",
+      "referenced_image_paths": ["game/assets/art/charge-v09.png"],
+      "layout": "1774 x 887 px, 4 columns x 2 rows of equal cells, as in the source. The top row is the charge thrown into the world (4 spin frames); the bottom row is the throw from the left hand (4 frames). True alpha, empty gutters.",
+      "prompt": "[shared_style] Edit this existing powder-charge sheet keeping all poses. The charge is a crude iron-banded clay or leather powder flask with a tarred cord fuse, scorched; a thin painted glowing fuse tip in dull ochre, no sparkle effects. The hand as on the weapon sheets: dark leather gauntlet, heavy knuckles. [shared_negative]",
+      "integration": "src/weapon.lua: chargeImage, the halves of the sheet are cut automatically; render_effects.lua uses the same chargeRects."
+    },
+    {
+      "key": "frescoLetteringStyle",
+      "note_pl": "Wspólny opis liternictwa dla pięciu poniższych arkuszy. Wkleić w miejsce [lettering_style].",
+      "lettering_style": "Lettering painted directly on a fresco wall in the manner of the inscriptions and captions in Giovanni da Modena's Inferno (Bolognini Chapel, San Petronio, Bologna) and of the Gothic majuscule captions in late-medieval Italian fresco cycles: Gothic majuscule / Lombardic capitals, broad confident brush strokes, stroke ends finished with small split serifs, hairline flourishes kept minimal. Each letter is painted in warm lime white (aged, slightly yellowed, not pure white) with a thin dark sinopia-brown contour line all around, and a narrow red-ochre inner stroke or small red-ochre dot ornament on the thick stems only, like rubrication. Matte, flat, tempera-on-plaster look: subtle uneven brush density inside the strokes, no gradients, no bevels, no metallic or gold leaf, no drop shadows, no 3D, no glow. Readability is the first requirement: each letter must remain unmistakable when reduced to 11-18 px tall, so the silhouettes are bold and simple, counters are open, ornament never closes a counter or crosses a neighbouring letter, and the Polish diacritics (ogonek, kreska, kropka, Ł stroke) are large, separate and clearly attached to their letter. Background: completely transparent alpha, no plaster texture behind the letters, no frame, no grid lines, no labels, no numbering."
+    },
+    {
+      "key": "alphabetUpperV11Fresco",
+      "replaces": "alphabet-upper-v08.png",
+      "savedAs": "alphabet-upper-v11.png",
+      "referenced_image_paths": ["game/assets/art/alphabet-upper-v08.png"],
+      "layout": "1024 x 1536 px, EXACTLY 35 capital letters in 7 rows of 5, in this exact order, left to right, top to bottom: A B C D E / F G H I J / K L M N O / P Q R S T / U V W X Y / Z Ą Ć Ę Ł / Ń Ó Ś Ź Ż. All letters share one cap height and one baseline per row, with rows at about the same heights as the reference sheet (baselines near y = 211, 413, 613, 817, 1027, 1226, 1469). At least 18 px of empty transparent space between neighbouring letters, including accents and the ogonek; no letter touches another.",
+      "prompt": "[lettering_style] A specimen sheet of the 35 capital letters of the Polish alphabet arranged exactly as described in the layout, one letter per cell, every letter in the same consistent hand. Keep the same cell positions, rows and baselines as the reference image; repaint only the letterforms in the fresco lettering style. [shared_negative]",
+      "integration": "tools/bake_ui_font/main.lua: change file= to the v11 name. If baselines or row bands differ, measure them again (bands/baselines in the definition). Then rebuild the atlases according to assets/fonts/painted/README.txt and run TEST.ps1 (tests_illustrated_type and the GUI audit check coverage of every letter and text placement inside the frames)."
+    },
+    {
+      "key": "alphabetLowerV11Fresco",
+      "replaces": "alphabet-lower-v08.png",
+      "savedAs": "alphabet-lower-v11.png",
+      "referenced_image_paths": ["game/assets/art/alphabet-lower-v08.png"],
+      "layout": "1024 x 1536 px, EXACTLY 35 lowercase letters in 7 rows of 5, in this exact order: a b c d e / f g h i j / k l m n o / p q r s t / u v w x y / z ą ć ę ł / ń ó ś ź ż. Shared x-height and baseline per row (baselines near y = 230, 448, 679, 882, 1089, 1272, 1490); ascenders and descenders fully inside their row; at least 18 px of transparent space between letters.",
+      "prompt": "[lettering_style] A specimen sheet of the 35 lowercase letters of the Polish alphabet as Gothic textura / rotunda minuscules painted on a fresco wall, in the same hand, stroke width and colouring as the capital sheet, arranged exactly as described. Bold, open, very legible at small sizes; the i and j dots, accents and ogonek are separate, clear marks. [shared_negative]",
+      "integration": "as for the capitals: tools/bake_ui_font/main.lua (file, bands, baselines), rebuild the atlases, TEST.ps1."
+    },
+    {
+      "key": "punctuationV11Fresco",
+      "replaces": "alphabet-punctuation-v08.png",
+      "savedAs": "alphabet-punctuation-v11.png",
+      "referenced_image_paths": ["game/assets/art/alphabet-punctuation-v08.png"],
+      "layout": "1254 x 1254 px, EXACTLY 16 marks in a 4 x 4 grid of equal cells, in this order: . , : ; / ! ? + - / ( ) [ ] / degree-sign infinity = multiplication-sign. Each mark sits on a common baseline inside its cell, with generous transparent margins.",
+      "prompt": "[lettering_style] A sheet of 16 punctuation marks and signs in the same fresco hand as the alphabet sheets, arranged exactly as described: full stop, comma, colon, semicolon, exclamation mark, question mark, plus, hyphen, round brackets, square brackets, degree sign, infinity, equals, multiplication sign. Simple, bold, readable at 11 px; small marks are painted as solid lime-white lozenges with a sinopia contour, not as thin lines. [shared_negative]",
+      "integration": "tools/bake_ui_font/main.lua: the punctuation file (cols=4, bands computed evenly)."
+    },
+    {
+      "key": "numeralsV11Fresco",
+      "replaces": "numerals-v08.png",
+      "savedAs": "numerals-v11.png",
+      "referenced_image_paths": ["game/assets/art/numerals-v08.png"],
+      "layout": "1536 x 1024 px, EXACTLY 12 signs in 2 rows of 6: 0 1 2 3 4 5 / 6 7 8 9 % /. Each sign is centred in a cell of about 256 x 512 px, on one shared baseline per row, with at least 24 px of transparent space on every side.",
+      "prompt": "[lettering_style] Twelve large old-style numerals and signs painted as fresco inscriptions, for health, ammunition and soul counters in the HUD: the digits 0-9, a percent sign and a slash, arranged exactly as described. Full-height lining figures (all digits the same height, no old-style descenders) so changing counters do not jump; very clear distinction between 1 and 7, 3 and 8, 6 and 9, 0 and 8. Lime white with a sinopia contour and a single small red-ochre accent on the thickest stroke. [shared_negative]",
+      "integration": "src/painted_numbers.lua: the path and cuts (column boundaries {0,285,512,768,1024,1280,1536} and {0,256,512,768,1024,1296,1536}) must be measured again. The bake tool reads the same crops from painted_numbers."
+    },
+    {
+      "key": "letteringV11Fresco",
+      "replaces": "lettering-v08.png",
+      "savedAs": "lettering-v11.png",
+      "referenced_image_paths": ["game/assets/art/lettering-v08.png"],
+      "layout": "1536 x 1024 px, EXACTLY 8 complete painted inscriptions in 2 columns x 4 rows, in this order left to right, top to bottom: SIGIL / BREACH / PRZETRWAJ LIMBO / KUPIEC POPIOŁU / DZIEWIĘĆ KRĘGÓW / USTAWIENIA / NOWA WYPRAWA / PRZERWANY RYTUAŁ (the texts of lettering-v08/v11). Row boundaries near y = 0, 320, 535, 751, 1024; the first row (SIGIL, BREACH) is taller. Each inscription is centred in its half of the row with transparent margins.",
+      "prompt": "[lettering_style] Eight complete titles painted as the large captions of a fresco cycle, each a single word or short phrase exactly as spelled in the layout, including the Polish letters. The title SIGIL is the largest and most ornate: its first letter is a painted Lombardic initial with a small coiled hellish creature in the manner of Bosch woven into its bowl, but the word stays perfectly legible. Every other title uses the same capitals as the alphabet sheet, larger, with a red-ochre underline stroke. [shared_negative]",
+      "integration": "src/painted_titles.lua: path and bands {0,320,535,751,h}. Check the GUI audit (titles inside the writing fields)."
+    },
+    {
+      "key": "reliquaryUiV11Fresco",
+      "optional": true,
+      "replaces": "reliquary-ui-v08.png",
+      "savedAs": "reliquary-ui-v11.png",
+      "referenced_image_paths": ["game/assets/art/reliquary-ui-v08.png"],
+      "layout": "1536 x 1024 px with the SAME regions as the reference: the top 240 px is the full Doom-like bottom status bar (six writing wells and a central arched portrait niche at the same x positions as the reference); the region from y = 414 to y = 924 is a nine-slice panel frame with 136 px corners (corners at x 0-136 and 1400-1536, y 414-550 and 788-924), straight edges in between that can be stretched, and an EMPTY flat dark centre. Keep every well, arch and corner at the same pixel positions as the reference.",
+      "prompt": "Repaint this existing HUD and panel-frame sheet as painted fresco decoration of the Bolognini Chapel in Bologna instead of a carved metal reliquary: borders made of painted red-ochre and sinopia bands with lime-white fillets and simple painted cosmatesque or zigzag ornament, painted (not modelled) little Gothic arches, and small painted grotesque demon heads in the manner of Giovanni da Modena at the corners. Flat tempera on plaster, matte, limited earth palette (bone black, umbers, sinopia, red and yellow ochre, lime white, a touch of terre verte), slight craquelure and small flaked losses of paint. The writing wells and the panel centre are flat, very dark umber plaster without ornament, so that small light lettering stays perfectly readable. Crisp, deliberately clustered 16-bit pixel art. No metal, no gold leaf, no bevels, no specular light, no 3D. [shared_negative]",
+      "integration": "src/reliquary_skin.lua: path and quads (S.bar, xs/ys/ws/hs of the nine-slice). The tests_bitmap_ui_v08 audit has calibrated writing wells in the HUD bar (hudWells); with new geometry they must be calibrated again."
+    }
+  ]
+}

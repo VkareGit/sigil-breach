@@ -1,0 +1,31 @@
+-- Closed-form integration for constant acceleration and damped weapon springs.
+local K = {}
+function K.spring(x, v, target, k, d, dt)
+  local y = x - target
+  local a = d * 0.5
+  local q = k - a * a
+  local decay = math.exp(-a * dt)
+  if q > 1e-8 then
+    local w = math.sqrt(q)
+    local c, s = math.cos(w * dt), math.sin(w * dt) / w
+    return target + decay * (y * c + (v + a * y) * s), decay * (v * c - (a * v + k * y) * s)
+  elseif q < -1e-8 then
+    local w = math.sqrt(-q)
+    local r1, r2 = -a + w, -a - w
+    local c1 = (v - r2 * y) / (r1 - r2)
+    local c2 = y - c1
+    local e1, e2 = math.exp(r1 * dt), math.exp(r2 * dt)
+    return target + c1 * e1 + c2 * e2, c1 * r1 * e1 + c2 * r2 * e2
+  end
+  local b = v + a * y
+  return target + decay * (y + b * dt), decay * (v - a * b * dt)
+end
+function K.vertical(height, velocity, gravity, dt)
+  local h = height + velocity * dt - 0.5 * gravity * dt * dt
+  if h <= 0 then
+    local impact = -math.sqrt(math.max(0, velocity * velocity + 2 * gravity * height))
+    return 0, 0, impact
+  end
+  return h, velocity - gravity * dt
+end
+return K

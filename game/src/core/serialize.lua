@@ -1,0 +1,51 @@
+-- Stable text form of plain data (numbers, strings, booleans, tables with
+-- sorted keys). Used by component snapshots (saves, replays) and the golden
+-- master; the same value always gives the same text.
+local Serialize = {}
+local format = string.format
+local function key(k)
+  return type(k) == 'number' and format('%.17g', k) or tostring(k)
+end
+function Serialize.encode(v)
+  local t = type(v)
+  if t == 'number' then
+    return format('%.17g', v)
+  elseif t == 'string' then
+    return format('%q', v)
+  elseif t == 'boolean' or t == 'nil' then
+    return tostring(v)
+  elseif t == 'table' then
+    local keys = {}
+    for k in pairs(v) do
+      keys[#keys + 1] = k
+    end
+    table.sort(keys, function(a, b)
+      return key(a) < key(b)
+    end)
+    local out = {}
+    for i, k in ipairs(keys) do
+      out[i] = '[' .. Serialize.encode(k) .. ']=' .. Serialize.encode(v[k])
+    end
+    return '{' .. table.concat(out, ',') .. '}'
+  end
+  return '<' .. t .. '>'
+end
+-- Only the listed fields of a record, in list order.
+function Serialize.fields(record, fields)
+  local out = {}
+  for i, f in ipairs(fields) do
+    out[i] = Serialize.encode(record[f])
+  end
+  return table.concat(out, ',')
+end
+-- Read back text written by encode (data only; no functions are loaded).
+function Serialize.decode(text)
+  local chunk = loadstring('return ' .. text)
+  if not chunk then
+    return nil
+  end
+  setfenv(chunk, {})
+  local ok, value = pcall(chunk)
+  return ok and value or nil
+end
+return Serialize

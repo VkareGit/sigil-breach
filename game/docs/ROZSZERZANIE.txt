@@ -1,0 +1,89 @@
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.30
+
+Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
+istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
+Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
+
+BROŃ = DEFINICJA + STAN + KOMPOZYCJA ZACHOWAŃ
+
+Definicja: content/defs/weapon.lua, rejestr: content/weapons.lua.
+Stan (mag/reserve/open/loaded/spent/readyAt): player.arsenal[id].
+Kolejność wyposażenia: player.loadout. Dodawanie: Weapons.give(game, id).
+Postać nie zna nazw typów ani numeru ostatniego slotu.
+
+Niezależne części definicji:
+  delivery  sposób dotarcia: hitscan lub projectile (speed/radius/color)
+  attack    obrażenia, typ, falloff, penetracja, poise i impuls
+  fire      liczba pocisków/amunicji, kadencja przez cycle, sygnały strzału
+  mechanism przeładowanie (combat/reload mechanizmy)
+  weight    parametry odczuwalnej masy i odrzutu
+  art/hud   wybór atlasu i nazwy; GUI czyta wyposażenie
+
+Variant można opisać jako extends = Weapons.get('exorcist'), z własnym id,
+name i zmianami pól. Rekordy łączą się, tablice listowe zastępują rodzica.
+Rodzic i jego pola nie są modyfikowane. Pełny przykład z testu:
+  tests/cases/weapon_extension.lua
+To broń testowa, której nie rejestrujemy w zwykłej rozgrywce.
+Jeżeli wariant nie podaje art, zachowuje atlas rodzica. Zmiana delivery.kind
+zastępuje rekord transportu; strojenie tego samego kind dziedziczy parametry.
+
+Jeśli zmienia się tylko odporność/typ obrażeń, attack.damageType = 'fire'
+wystarcza do wspólnego rozliczenia odporności. Nie implikuje płomienia ani
+podpalania: to osobne zachowania. Pocisk transportuje swoją definicję i typ,
+prędkość/radius nie zależą od rodzaju obrażeń. Inny wygląd wymaga grafiki.
+
+Nowy algorytm dostawy:
+  1. content/defs/delivery.defineKind(id, pola schematu).
+  2. combat/weapon_delivery:register(id, { prepare?, fire }).
+     fire(game, shot, prepared) dostaje payload, definicję, slot, serial,
+     origin, count i wspólne rozliczenie trafień. Rejestracja przy starcie,
+     zanim powstaną sesje; nie wykonywać jej co klatkę.
+  3. Test lotu/kontaktu/śmierci/zasobów oraz zapis i replay.
+Nie tworzyć if weapon.id == 'nowa_bron' w Game, AI, HUD lub damage.
+
+Obecny projectile: skończona prędkość, odległość jako długość drogi,
+ciągła kolizja, jeden końcowy kontakt. Nie obsługuje przebijania wielu ciał;
+opcja attack.pierce jest odrzucana zamiast po cichu ignorowana. Wariant
+rodzica z pierce potrzebuje jawnej pełnej definicji attack bez tego pola
+(np. zbuduj własną definicję zamiast odziedziczyć Judge). Nie usuwa się
+opcjonalnych pól rodzica przez nil w Lua: nil nie jest wpisem tabeli.
+
+Po zmianie materiałów obowiązują te same reguły dla broni, pocisków i ciał.
+Nowe statusy (np. obrażenia w czasie), ciągły strumień, odbicia i łańcuchy
+wymagają jawnych zasad i zachowania we wspólnych systemach. Nie należy
+udawać ich samym kolorem efektu albo przypisywać obrażeń w love.draw.
+
+UMIEJĘTNOŚĆ / WYPOSAŻENIE
+
+content/defs/action opisuje dostawę i parametry ataku. Demon wykorzystuje
+enemies/actions.kinds, a gracz combat/abilities.kinds. Jeden rodzaj może
+mieć dwóch wykonawców ze względu na kierunek/cele. Dane i zachowanie są
+osobne, żeby content nie importował symulacji ani renderera.
+
+Abilities.define(def) waliduje dane; Abilities.give(game, id) wyposaża.
+Nowy bolt lub throw to definicja na istniejącym zachowaniu. Throw ma własne
+fuse, radius, blast, selfBlast i parametry ruchu. Postać pozostaje bez zmian.
+SIGIL08 przechowuje sloty i użycia, z migracją SIGIL06/07.
+Test: tests/cases/ability_extension.lua (także własny rzut i zapis w locie).
+
+Nowa logika: Action.defineKind + odpowiedni handler, jeden moduł importowany
+przy starcie. Caster sprawdza istnienie handlera przed zużyciem zasobów.
+Tryb gry nadal wyposaża człowieka wyłącznie w powder; próbne spelle nie
+zmieniają uzgodnienia "człowiek bez magii".
+HUD Q i input są przeznaczone na pierwszy slot. Drugi slot już przechodzi
+cast/save/replay jako API. Gdy faktycznie dodamy drugie wyposażenie, trzeba
+zaprojektować jego kontrolkę i klawisz, zamiast upychać go w polu Q.
+Ładunki współdzielą obecnie oprawę powder; nowy model wymaga opisania artu.
+
+PROCES I DOWÓD GOTOWOŚCI
+
+1. Zdefiniuj element i istniejące zachowania, które składa.
+2. Sprawdź błędne definicje i brak referencji, zanim uruchomisz grę.
+3. Przejdź: użycie -> kontakt -> obraz/HUD -> zasoby -> zapis -> replay.
+4. Dla ilustracji: PNG -> kotwice -> anatomia -> maski -> film w scenie.
+5. Sprawdź działanie razem z obecną zawartością i koszt w pełnej klatce.
+
+Nie rozbudowujemy drzew klas ani nie tworzymy nowego silnika. Obecne
+definicje, rejestry i wykonawcy mają jasnych właścicieli. Test rozszerzenia
+ma uruchamiać prawdziwą drogę, nie tylko sprawdzać obecność wpisu w rejestrze.
+Zakończenie QA technicznego nie zamyka B2 (feeling/balans przez człowieka).

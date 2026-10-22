@@ -1,0 +1,27 @@
+{
+  "version": "0.23",
+  "mode": "built-in imagegen",
+  "date": "2026-10-21",
+  "asset": "portal-fresco-v23.png",
+  "source": "C:/Users/nahiko/.codex/generated_images/01a14fa3-4fbf-71c1-b96d-9f327ba385fc/exec-35f13da5-9f38-4d70-a124-c18185912bd9.png",
+  "layout": {
+    "columns": 4,
+    "rows": 2,
+    "width": 1536,
+    "height": 1024,
+    "transparent_background": true
+  },
+  "frames": [
+    "closed seam",
+    "opening slit",
+    "widening aperture",
+    "open aperture",
+    "flame variation left",
+    "flame variation right",
+    "collapsing rift",
+    "final splinters"
+  ],
+  "prompt": "Use case: stylized-concept. Asset type: production transparent animation sprite atlas for SIGIL BREACH, a dark horror FPS that feels like walking inside an Italian medieval Inferno fresco. Create ONE 4-column by 2-row sprite sheet, exactly eight equal cells, preferably 1536x1024. Every cell contains the SAME tall hellmouth rift at a successive animation stage, viewed straight on, perfectly centered, stable ground anchor, generous fully transparent gutters on all four sides of each cell. No lines, numbers, labels, ground plane, cast shadow or background. True RGBA transparency. Medieval Giovanni da Modena Inferno and Last Judgment visual language: painted mineral pigment, lime underpainting, soot black, restrained iron oxide red, bone and faded ochre; crisp hand painted contours readable as 16-bit sprite, severe, unsettling, no cartoon, no modern VFX, no neon, no shiny metal, no gaussian glow. Motif: a vertical tear through a fresco, its edges formed from broken plaster, ragged charred feather strokes and tiny tormented faces pressed into the rim, with sharp inward licking pale ochre flames. Hollow transparent center must remain open so a creature can emerge, do not paint an opaque background rectangle. All eight cells share fixed maximum outer dimensions; do not change camera or scale. Reading order: 1 a narrow closed red seam and splintered plaster, 2 seam parts slightly with low licking flames, 3 wider jagged opening with flame rising, 4 fully open tall almond rift, 5 full aperture flame swept left, 6 full aperture flame swept right, 7 collapsing narrow lower arch and falling ash, 8 fading sparse embers at the base. Whole silhouette contained inside each cell. Make it an actual animation asset with clearly changing shapes, not eight identical decorated doors.",
+  "processing": "PNG copied unchanged. Runtime atlas sampling, nearest filtering, depth-tested billboard. Species tint and countdown retained from existing spawner.",
+  "style": "Burnt medieval infernal fresco; ochre, ash, bone and oxblood. No generated text or invented historical sigil presented as authentic."
+}

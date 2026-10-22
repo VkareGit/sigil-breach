@@ -1,0 +1,254 @@
+local Game = require('src.session.game')
+local Renderer = require('src.render.renderer')
+local UI = require('src.ui.interface')
+local Audio = require('src.audio.audio')
+local Presentation = require('src.render.presentation')
+local Run = require('src.run.descent')
+local Save = require('src.storage.run_save')
+local Preferences = require('src.storage.preferences')
+local QA = require('qa.runtime')
+local Input = require('src.app.input')
+local Commands = require('src.app.commands')
+local SessionReport = require('src.app.session_report')
+-- The presentation plugs itself into the simulation's hooks (sound, effects,
+-- feel, listeners); the simulation never requires it.
+require('src.feedback.install')
+
+local Application = {}
+Application.__index = Application
+
+-- One owner for session replacement, preferences, renderer, and frame timing.
+-- Gameplay modules never need a reference to the application or its callbacks.
+function Application.new()
+  return setmetatable({
+    settings = Preferences.decode(),
+    qa = QA.new(),
+    input = Input.new(),
+    accumulator = 0,
+    screenshotCaptured = false,
+  }, Application)
+end
+
+function Application:has(flag)
+  return self.qa:has(flag)
+end
+
+-- Collect the garbage of loading or of a left session now, at a transition,
+-- instead of in one long pause during play; then keep the collector's steps
+-- small (content/tuning.lua: collector).
+function Application.settle()
+  local pacing = require('src.content.tuning').collector
+  collectgarbage('collect')
+  collectgarbage('setpause', pacing.pause)
+  collectgarbage('setstepmul', pacing.stepmul)
+end
+
+function Application:applySettings()
+  self.game.view.motion = self.settings.motion
+  self.game.view.fov = self.settings.fov
+end
+
+-- Make a session the active one (a new game, the proving ground, the way
+-- back): settings, its journal with --record (every command of the session,
+-- a bug report that replays exactly: session/journal.lua), and the garbage
+-- of the one before collected now.
+function Application:adopt(game)
+  self.game = game
+  self:applySettings()
+  if self:has('--record') then
+    self.journals = self.journals or setmetatable({}, { __mode = 'k' })
+    self.journals[game] = self.journals[game] or require('src.session.journal').record(game)
+    self.journal = self.journals[game]
+  end
+  Application.settle()
+end
+
+function Application:reset(start)
+  local classic = self:has('--selftest') or self:has('--showcase') or self:has('--screenshot')
+  -- 0.22: no expedition is offered, so its save is neither read nor shown.
+  -- The files stay untouched for when the mode returns.
+  self:adopt(Game.new(classic and 'classic' or 'descent'))
+  self.input:reset(love.mouse.isDown(1))
+  self.accumulator = 0
+  UI.focus = 1
+  if start then
+    self.game:start()
+  end
+end
+
+-- Write the journal of the active session (with --record) to the save folder.
+function Application:writeJournal()
+  if not self.journal then
+    return false
+  end
+  local name = 'journal-' .. os.time() .. '.txt'
+  love.filesystem.write(name, require('src.session.journal').encode(self.journal))
+  return name
+end
+-- F9: the session's measurements to telemetry.txt (src/app/session_report.lua;
+-- with --record the journal follows each entry), and where the file is.
+function Application:report()
+  if SessionReport.write(self.game, 'F9') then
+    self.game:notify('Telemetry saved: ' .. SessionReport.path(), 4)
+    return true
+  end
+  return false
+end
+function Application:saveSettings()
+  if not self.qa.isolated then
+    Preferences.save(self.settings)
+  end
+end
+
+function Application:action(id)
+  return Commands.dispatch(self, id)
+end
+
+function Application:load(arguments)
+  self.qa = QA.new(arguments)
+  -- Isolation must precede every preferences/save access, including QA fixtures.
+  self.qa:prepare()
+  if self.qa:runEarly() then
+    return
+  end
+  if self:has('--ui-test') then
+    love.window.setTitle(require('src.app.release').title .. ' [QA]')
+  end
+  love.graphics.setDefaultFilter('nearest', 'nearest')
+  love.math.setRandomSeed(os.time())
+  self.settings = Preferences.read()
+  Audio.init()
+  Audio.muted = self.settings.muted
+  require('src.audio.soundscape').music = self.settings.music
+  love.audio.setVolume(self.settings.muted and 0 or 0.7)
+  UI.init()
+  self.renderer = Renderer.new()
+  self.renderer:resize(love.graphics.getDimensions())
+  -- With --record, the journal of the session follows each telemetry entry.
+  SessionReport.afterWrite = function(g)
+    if self.journals and self.journals[g] then
+      love.filesystem.write(
+        'journal-' .. os.time() .. '.txt',
+        require('src.session.journal').encode(self.journals[g])
+      )
+    end
+  end
+  self:reset(false)
+  if self.qa.capture then
+    Audio.muted = true
+    love.audio.stop()
+    love.audio.setVolume(0)
+  end
+  if self.qa:run(Game, self.renderer, function()
+    return self.game
+  end, self.settings) then
+    return
+  end
+  if self:has('--ui-test') and self:has('--shop') then
+    self.game:start()
+    Run.openShop(self.game)
+  end
+  if self:has('--screenshot') then
+    local game = self.game
+    game:start()
+    love.mouse.setRelativeMode(false)
+    game.player.x, game.player.z, game.player.pitch = 16, 25.5, 0.04
+    game.view.messageTimer = 0
+    game.enemies[1].z, game.enemies[1].awake = 21.6, false
+  end
+end
+
+function Application:update(dt)
+  if not self.game then
+    return
+  end
+  local input = self.input:sample()
+  self.accumulator = math.min(0.20, self.accumulator + dt)
+  while self.accumulator >= 1 / 120 do
+    Presentation.capture(self.game)
+    self.game:update(1 / 120, input)
+    -- Held controls repeat; dash and slide edges belong to one simulation tick.
+    self.input:consumeEdges(input)
+    self.accumulator = self.accumulator - 1 / 120
+  end
+  if self:has('--screenshot') and self.game.time > 0.1 then
+    self.game.state = 'paused'
+  end
+end
+
+function Application:draw()
+  local game = self.game
+  if not game then
+    return
+  end
+  local w, h = love.graphics.getDimensions()
+  local shown = Presentation.sample(game, self.accumulator * 120)
+  self.renderer:draw(shown, w, h)
+  if self:has('--screenshot') then
+    local previous = game.state
+    game.state = 'playing'
+    UI.draw(shown, w, h, self.settings)
+    game.state = previous
+  else
+    UI.draw(shown, w, h, self.settings)
+  end
+  if self:has('--screenshot') and not self.screenshotCaptured and game.time > 0.1 then
+    self.screenshotCaptured = true
+    love.graphics.captureScreenshot(function(data)
+      local file = io.open(self.qa.output .. '/gameplay.png', 'wb')
+      if file then
+        file:write(data:encode('png'):getString())
+        file:close()
+      end
+      love.event.quit()
+    end)
+  end
+end
+
+function Application:resize(w, h)
+  if self.renderer then
+    self.renderer:resize(w, h)
+  end
+end
+
+function Application:quit()
+  love.mouse.setRelativeMode(false)
+  self:saveSettings()
+end
+
+function Application:errorhandler(message)
+  local err = tostring(message) .. '\n' .. debug.traceback()
+  local file = io.open('sigil-error.log', 'w')
+  if file then
+    file:write(err)
+    file:close()
+  end
+  print(err)
+  if self.qa.capture then
+    return function()
+      return 1
+    end
+  end
+  love.mouse.setRelativeMode(false)
+  return function()
+    love.event.pump()
+    for event, key in love.event.poll() do
+      if event == 'quit' or (event == 'keypressed' and key == 'escape') then
+        return 1
+      end
+    end
+    love.graphics.reset()
+    love.graphics.clear(0.04, 0.05, 0.06)
+    love.graphics.setColor(1, 0.7, 0.5)
+    love.graphics.printf(
+      'SIGIL: BREACH — prototype error\n\n' .. err,
+      30,
+      30,
+      love.graphics.getWidth() - 60
+    )
+    love.graphics.present()
+    love.timer.sleep(0.1)
+  end
+end
+
+return Application

@@ -1,0 +1,49 @@
+SIGIL: BREACH 0.16 / ASH AND IRON
+20 października 2026
+
+Kierunek wybrany przez użytkownika: przede wszystkim propozycja B.
+Surowe matowe żelazo, ciemne drewno, popiół i wapno. C pozostaje drobnym
+akcentem: malowane postacie w skrajnych niszach HUD-u.
+
+GRAFIKA
+- Dwa nowe atlasy fizycznych broni, po 16 namalowanych póz źródłowych.
+  Rozgrywka wykorzystuje 14 póz strzelby i 13 rewolweru. Odrzut używa
+  niezmiennej bryły broni, ciągłej sprężyny i osobnej grafiki prochu.
+- Egzorcysta ma surowe podwójne lufy, zawias i rygiel. Sędzia ma ciężką
+  żelazną lufę i wychylany bęben. Usunięto złote oprawy i wielkie medaliony.
+- Nowe ramy GUI i rycerz z zamkniętym wizjerem w sześciu stanach.
+  Portret mieści się pod łukiem; ornament menu nie rozciąga ludzkich figur.
+- 70 nowych liter łacińskich i polskich, 12 znaków liczbowych,
+  8 nagłówków i 15 rozmiarów atlasów PNG. Dotychczasowa ilustrowana
+  interpunkcja jest zachowana. W grze nie rasteryzujemy czcionki TTF.
+- Skrócone wąskie etykiety, m.in. RES., x 3 i AI / SHOTS.
+  Galeria pola prób pokazuje aktualne wersje wszystkich zmienionych atlasów.
+- Faza przeładowania jest w polu AMMO. Usunięto środkową tabliczkę,
+  która zakrywała pracujące dłonie, zawias i bęben.
+- Karty bestiariusza mają własne pola tekstu i odstępy między nazwami.
+
+RUCH I ANIMACJE
+- Chwyt płynnie usztywnia się przez 0,10 s i rozluźnia przez ostatnie
+  0,12 s przeładowania. Zniknął skok dłoni przy nagłej zmianie mnożnika
+  noszenia z 0,48 do 1. Oddech korzysta z tej samej obwiedni.
+- Klatki otwarcia, wkładania amunicji i zamknięcia są powiązane z
+  faktycznymi momentami mechaniki. Przerwane przeładowanie nie rysuje
+  zamkniętej broni, kiedy jej mechanizm pozostaje otwarty.
+- Każda klatka ma jawny prostokąt, kotwicę chwytu i położenie wylotu.
+  Ładowanie broni nie zgaduje już chwytu z ostatniego widocznego piksela.
+- Furfur i strażnik korzystają z czasu własnego ataku, szarży i odpoczynku.
+  Animacja nie kończy się według stałego zegara słabego przeciwnika.
+  Strefy trafień nadal korzystają z tego samego transformu co sprite.
+
+ZAKRES
+Zachowana jedna arena, dwa rodzaje broni, amunicja, obrażenia, pancerz,
+czas przeładowań, Q jako proch, zapis i angielski interfejs. Historyczne
+pieczęcie Goetii nie zostały przerysowane ani zastąpione wymyślonymi.
+Mapy, fabuła, łupy i nowe mechaniki pozostają późniejszym etapem.
+
+WERYFIKACJA
+Mechanika, wejście i rzeczywiste rendery są sprawdzane oddzielnie.
+Raporty: work/qa-v16. Paczka ma własny raport WERYFIKACJA-PACZKI.txt.
+Weryfikacja nie jest deklaracją subiektywnej perfekcji ani testem gracza.
+Prompty nowych obrazów: assets/art/prompts-weapons-v16.json,
+assets/art/prompts-gui-v16.json oraz assets/fonts/painted-v16/prompts-v16.json.

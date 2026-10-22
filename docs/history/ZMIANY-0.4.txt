@@ -1,0 +1,64 @@
+SIGIL: BREACH 0.4 — RYTM KRWI
+18 października 2026
+
+Nadal dopracowujemy ten sam poziom Limbo.
+
+NAJWAŻNIEJSZE ZMIANY
+
+Ruch
+- CTRL podczas biegu uruchamia ślizg na 0,52 s. Początkowa prędkość
+  8,7 m/s stopniowo spada; przerwa między ślizgami wynosi 0,85 s.
+- SPACJA przerywa ślizg skokiem, zachowując rozpęd do 7,2 m/s.
+  SHIFT przechodzi ze ślizgu w unik. Sam ślizg nie daje niewrażliwości.
+- Obniżona pozycja jest uwzględniona w celowaniu i trafieniach pocisków.
+  Można prześlizgnąć się pod wysokim pociskiem; ślizg nie omija ścian.
+- Rozpęd po uniku w powietrzu nie jest już natychmiast ścinany do biegu.
+  Zwykły ruch nadal szybko reaguje na zmianę kierunku i puszczenie klawiszy.
+- Obraz interpoluje pozycje pomiędzy krokami symulacji 120 Hz. Mysz nadal
+  obraca kamerę bez wygładzania ani opóźnienia interpolacją.
+
+Animacja i broń
+- Nowy atlas Sługi Żaru: 24 klatki, w tym 6 biegu przodem i 6 tyłem,
+  6 faz zamachu/ataku/powrotu oraz trafienie i kolejne etapy upadku.
+- Prędkość animacji biegu wynika z przebytej drogi. Osadzenie stóp jest
+  mierzone osobno dla każdej klatki wszystkich czterech typów demonów.
+- Delikatne wychylenia, oddech i zmiana sylwetki podkreślają zamach.
+- Broń płynnie obraca się i przemieszcza podczas otwarcia, ładowania
+  i zamknięcia. Reaguje też na przyspieszenie, hamowanie i ślizg.
+- Broń zajmuje mniej miejsca w polu widzenia. Lanca w spoczynku nie
+  przeskakuje już pomiędzy dwiema różniącymi się sylwetkami.
+
+Oprawa
+- Nowy atlas efektów: 4 klatki odprysków kamienia, krwi, dymu i energii.
+  Efekty mają przezroczystość, wygasają i są zasłaniane przez geometrię.
+- Po strzale zostaje krótka smuga dymu. Zabite demony zostawiają ślad
+  na podłodze; jego kolor zależy od typu przeciwnika.
+- Pociski rzucają krótkie kolorowe światło na pobliskie otoczenie.
+- HUD pokazuje CTRL, aktywny ślizg i jego odnowienie. Pomoc F1 opisuje
+  nowe sterowanie. Karta Sługi Żaru korzysta z nowego sprite'a.
+- Nadal działa przełącznik ruchu kamery, mapa, pauza i ustawienia 0.3.
+
+WERYFIKACJA
+161 sprawdzeń zachowania: wcześniejsza walka i cały przebieg Limbo,
+AI, menu, nowe sterowanie, zasięg i kolizje ślizgu, skok z rozpędu,
+celowanie, buforowanie Ctrl, pauza, interpolacja i ograniczenie efektów.
+42 sceny renderowane: broń, bieg, zamach, ślizg, VFX, światło, interfejs;
+również 4:3 i ultrawide. Pomiar 180 pełnych klatek: ok. 60 FPS z VSync
+na tym komputerze (szczegóły w RENDER.txt, nie jest to gwarancja wydajności).
+Ocena odczucia ruchu i ciężaru broni pozostaje przedmiotem kolejnej próby.
+
+PLIKI DLA DEVELOPMENTU
+src/presentation.lua — interpolacja obrazu, bez zmian stanu symulacji
+src/atlas.lua — pomiar przezroczystych marginesów i osadzenie stóp
+src/effects.lua — cykl życia efektów i śladów, limity 48 / 40
+src/tests_v04.lua — nowe sprawdzenia na rzeczywistych modułach gry
+src/tuning.lua — prędkości, ślizg, skok, unik i parametry broni
+Pozostałe moduły opisane są w INSTRUKCJA.txt.
+
+GRAFIKI
+Wygenerowane wbudowanym image_gen na potrzeby tego prototypu:
+assets/art/imp-v04.png — edycja z referencji imp-v03.png, 6 × 4
+assets/art/effects-v04.png — nowa grafika, 4 × 4
+Oba pliki mają rzeczywisty kanał alfa. Dokładne prompty i tryb generowania
+są w assets/art/prompts-v04.json. Starsze grafiki i prompty pozostają
+w źródłach jako część historii projektu.

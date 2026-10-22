@@ -1,0 +1,118 @@
+-- A cached 2.5D shadow atlas for the arena's solid walls and pillars.
+-- Each light has its own tile. Decorative arches are not geometry in this map.
+local V = { resolution = 128, columns = 4, capacity = 14 }
+local cache = {}
+local function solid(w, x, z)
+  return not (w.map[z] and w.map[z][x] == 0)
+end
+function V.visible(w, lx, lz, x, z)
+  local cx, cz = math.floor(lx + 0.5), math.floor(lz + 0.5)
+  local tx, tz = math.floor(x + 0.5), math.floor(z + 0.5)
+  if solid(w, cx, cz) then
+    return false
+  end
+  local dx, dz = x - lx, z - lz
+  local sx, sz = dx >= 0 and 1 or -1, dz >= 0 and 1 or -1
+  local ax, az = math.abs(dx), math.abs(dz)
+  local ix, iz = ax > 1e-8 and 1 / ax or math.huge, az > 1e-8 and 1 / az or math.huge
+  local nx = ax > 1e-8 and math.abs(cx + sx * 0.5 - lx) / ax or math.huge
+  local nz = az > 1e-8 and math.abs(cz + sz * 0.5 - lz) / az or math.huge
+  for _ = 1, w.size * 2 + 4 do
+    if cx == tx and cz == tz then
+      return true
+    end
+    if math.abs(nx - nz) < 1e-7 then
+      if solid(w, cx + sx, cz) and solid(w, cx, cz + sz) then
+        return false
+      end
+      cx, cz = cx + sx, cz + sz
+      nx, nz = nx + ix, nz + iz
+    elseif nx < nz then
+      cx = cx + sx
+      nx = nx + ix
+    else
+      cz = cz + sz
+      nz = nz + iz
+    end
+    -- The final cell can be a wall: its facing surface receives light.
+    if cx == tx and cz == tz then
+      return true
+    end
+    if solid(w, cx, cz) then
+      return false
+    end
+  end
+  return false
+end
+function V.ambient(w, x, z)
+  local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
+  local nearest = 2
+  for oz = -2, 2 do
+    for ox = -2, 2 do
+      if solid(w, cx + ox, cz + oz) then
+        local dx = math.max(0, math.abs(x - cx - ox) - 0.5)
+        local dz = math.max(0, math.abs(z - cz - oz) - 0.5)
+        nearest = math.min(nearest, math.sqrt(dx * dx + dz * dz))
+      end
+    end
+  end
+  return 0.72 + 0.28 * math.min(1, nearest / 1.35)
+end
+function V.build(w, sources)
+  local parts = { tostring(w.size) }
+  for _, row in ipairs(w.map) do
+    parts[#parts + 1] = table.concat(row, ',')
+  end
+  for _, s in ipairs(sources) do
+    parts[#parts + 1] = ('%.3f,%.3f'):format(s.x, s.z)
+  end
+  local key = table.concat(parts, ';')
+  for _, entry in ipairs(cache) do
+    if entry.key == key then
+      return entry
+    end
+  end
+  local n = V.resolution
+  local data = love.image.newImageData(n * 4, n * 4)
+  local ao, blocked = {}, {}
+  for z = 0, n - 1 do
+    for x = 0, n - 1 do
+      local wx, wz = 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n
+      ao[z * n + x + 1] = V.ambient(w, wx, wz)
+      blocked[z * n + x + 1] = solid(w, math.floor(wx + 0.5), math.floor(wz + 0.5)) and 1 or 0
+    end
+  end
+  for i, s in ipairs(sources) do
+    assert(i <= V.capacity, 'Static light atlas capacity exceeded')
+    local ox, oz = ((i - 1) % 4) * n, math.floor((i - 1) / 4) * n
+    for z = 0, n - 1 do
+      for x = 0, n - 1 do
+        local visible =
+          V.visible(w, s.x, s.z, 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n)
+        data:setPixel(
+          ox + x,
+          oz + z,
+          visible and 1 or 0,
+          ao[z * n + x + 1],
+          blocked[z * n + x + 1],
+          1
+        )
+      end
+    end
+  end
+  local image = love.graphics.newImage(data)
+  image:setFilter('linear', 'linear')
+  local entry = { key = key, image = image, data = data, size = w.size }
+  cache[#cache + 1] = entry
+  if #cache > 2 then
+    table.remove(cache, 1)
+  end
+  return entry
+end
+function V.sample(entry, index, x, z)
+  local n = V.resolution
+  local px = math.max(0, math.min(n - 1, math.floor((x - 0.5) / entry.size * n)))
+  local pz = math.max(0, math.min(n - 1, math.floor((z - 0.5) / entry.size * n)))
+  return entry.data:getPixel(((index - 1) % 4) * n + px, math.floor((index - 1) / 4) * n + pz)
+end
+return V

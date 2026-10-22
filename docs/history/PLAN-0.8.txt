@@ -1,0 +1,116 @@
+SIGIL: BREACH 0.8 / Inferno
+Aktualizacja zakresu: 19 października 2026.
+Plan obejmuje wszystkie wymagania iteracji i jednoznaczną decyzję użytkownika:
+jedno pierwotne pole testowe 31 x 31; właściwe mapy dopiero po dopracowaniu gry.
+
+1. WSPÓLNY KIERUNEK OBRAZU
+   Inferno Giovanniego da Modeny, piekło Boscha, Sąd Ostateczny Memlinga
+   i Sąd Ostateczny Michała Anioła. Przełożyć ich materiał, anatomię,
+   gest, kompozycję i wyobrażenie kary na mroczny pikselowy horror.
+   Objąć tym samym kierunkiem demony, broń, portret, GUI i freski.
+   Szczegóły oraz źródła: KIERUNEK-ARTYSTYCZNY.txt.
+   Zachować pełny Manifest Nikogo jako kanoniczny tekst bohatera.
+   Jego głos o potrzebie autentyczności wprowadzić do menu; opis postaci
+   oprzeć na winie, maskach i wyczerpanej determinacji. Rozwinięcie
+   dialogów i fabuły odróżnić od funkcji wdrożonych na obecnym poligonie.
+
+2. BITMAPOWY HUD I CZYTELNOŚĆ
+   Jeden dolny pas z wygenerowaną oprawą relikwiarza, centralnym
+   portretem Nosiciela i stałymi polami zasobów. Zmienne napisy, liczby
+   i stany przycisków składać z gotowych bitmap liter, cyfr i polskich
+   znaków PNG przez bitmap_font.lua. Zachować czytelność alfabetu
+   SIGIL Painted Alphabet, bez ładowania TTF przez aktywne GUI.
+   Źródłowe piksele pochodzą z wygenerowanych alphabet-upper-v08.png,
+   alphabet-lower-v08.png, alphabet-punctuation-v08.png i numerals-v08.png.
+   Importer składa te ilustracje; dawne TTF pozostają materiałem historycznym.
+   Osiem ozdobnych nagłówków z lettering-v08.png obsłużyć przez
+   painted_titles.lua. Nie rozciągać liter osobno w pionie i poziomie.
+   Wpasować portret w łuk relikwiarza maską shadera, pod jego ornamenty.
+   Spójny sklep, mapa i menu. Własny obszar świata nad pasem HUD.
+   Pergamin i marginalia demonologiczne w menu oraz bestiariuszu;
+   tekst w polu pisma, z dala od ornamentów, łuków i gzymsów.
+   W F1 i na trzech istniejących pieczęciach dworów stosować rzeczywiste
+   znaki Asmodaya, Stolasu i Buera sprawdzone na planszach Goetii 1904.
+   Zachować niezmienione źródłowe PNG oraz dokładną proweniencję.
+   Audyt rzeczywistych pikseli glifów i ręczna ocena gotowych ekranów.
+   Sprawdzić małe okno, inne proporcje, niski stan zasobów i przeładowanie.
+
+3. POTWORY I BROŃ
+   Nowe pełne atlasy pięciu przeciwników zamiast pojedynczych zmian
+   koloru. Czytelna intencja, uderzenie, reakcja, ciężar i upadek.
+   Pilnować skali klatek, stóp, krawędzi, widoku od tyłu i pracy skrzydeł.
+   Pracować na sekwencjach póz sprite'ów i ich ruchu; nie deklarować
+   gotowych modeli 3D ani animacji szkieletowej, których prototyp nie ma.
+   Strzelba oraz pistolet Sędzia mają wyglądać jak materialna broń
+   używana przez człowieka w religijnym piekle. Zachować transakcję
+   amunicji oraz rytm przeładowania podczas wymiany grafiki.
+
+4. JEDNO POLE DO WSZYSTKICH PRÓB
+   Zachować pierwotną arenę 31 x 31: nawę, oba dwory, północną część
+   oraz Żar. Testować tu bossów, postacie, animacje, broń i balans.
+   Zgodnie z decyzją użytkownika odłożyć rozbudowę map i sekretne komnaty.
+   Przygotowany wcześniej kod oraz testy zachować poza aktywnymi źródłami gry.
+   Sprawdzić każde pole podłogi, sześć portali, zapasy i realne trasy AI.
+   Zachować budżet czterech nabojów i dwudziestu punktów leczenia na falę.
+   Przenosić nieosiągalne echo ze starszego zapisu roboczego na obecne
+   pole bez utraty dusz, zmiany fali lub automatycznego odebrania nagrody.
+   Obok wyprawy udostępnić osobny POLIGON / KATALOG PRÓB z menu i F2.
+   Katalog ma obejmować wszystkie obecne typy, bossa, bronie, symbole
+   i narzędzia prób: spawn jeden/trzy, reset, zasoby, god mode, freeze AI,
+   ręczny przegląd póz, sklep i niski stan HUD. Wykorzystać faktyczne
+   mechaniki walki; nie tworzyć uproszczonej imitacji obrażeń.
+   Przechowywać katalog zasobów w jednym module na przyszłe rozszerzenia.
+   Zapewnić wolne miejsce dla celów i bezpieczny widok pieczęci.
+   Osobne archiwum znaków: trzy pieczęcie Goetii i trzy pentakle Saturna
+   z Klucza Salomona; źródłowe ilustracje, bez nowych zdolności.
+   Odizolować stan od wyprawy i dyskowego zapisu. Powrót ma przywracać
+   tę samą wyprawę w pauzie, bez modyfikacji jej dusz i progresji.
+
+5. ŻAR I ORIENTACJA W WALCE
+   Wyraźna sylwetka sanktuarium, zimny płomień, odrębne światło,
+   kierunek oraz odległość. Brak nakładającej się zwykłej pochodni.
+   Ciemne pomieszczenia, kontrolowany kontrast podłogi i ograniczone
+   efekty muszą nadal umożliwiać rozpoznanie demonów oraz wyjść.
+
+6. MATEMATYKA I FEELING
+   Rozrzut liczony względem osi celowania, znormalizowane promienie,
+   niezmienny kształt stożka przy zmianie kąta patrzenia.
+   Trafienia całej salwy przed usunięciem celów; osobne rozliczenie
+   obrażeń, ochrony, odrzutu i ogłuszenia. Wyraźny odrzut broni bez
+   ukrytej zmiany toru strzału przez kosmetyczne ruchy kamery.
+   Ciągłe kolizje pocisków wrogów z poruszającym się graczem,
+   filarami, ścianami i podłogą pola testowego.
+
+7. WERYFIKACJA I WYDANIE
+   Pełne wcześniejsze regresje oraz nowe testy walki, mapy, zapisu,
+   zasobów i GUI. Rzeczywiste rendery --showcase-v08, kontrola wejścia,
+   ręczny przegląd wybranych scen oraz weryfikacja paczki Windows.
+   Zachować kompatybilny format SIGIL06, stare wydanie 0.7 i raporty.
+   Aktualne liczby testów i scen pochodzą z raportów danej kompilacji.
+   Ostateczne wyniki zapisać dopiero po ostatnim przebiegu QA i testach
+   spakowanego EXE, nie przenosić starszej liczby kontroli jako końcowej.
+   Ręczna próba natywnego okna przerwana przez Esc nie potwierdza
+   obsługi sklepu ani zakupu. Odróżniać test kontrolera i render GUI
+   od ukończonego ręcznego przejścia jego ścieżki.
+   Zweryfikować wszystkie typy celów, realne obrażenia i przeładowanie
+   na poligonie, twarde blokady zapisu także bez flagi testing, niezmienność
+   plików oraz rzeczywiste callbacki wejścia/powrotu F2. Katalog, śmierć,
+   sklep, mapę i archiwum znaków sprawdzić w pięciu formatach ekranu.
+
+NASTĘPNE ZADANIE — OSOBNY PROJEKT MECHANIKI
+Pełny fizyczny arsenał z różnych epok, broń biała i uzbrojenie zdobywane
+od demonów. Ponownie zaprojektować amunicję, profil obrażeń, działanie
+Sędziego i miejsce Q. Ta wersja zmienia oprawę i doszlifowuje istniejącą
+walkę; nie przedstawia pozostawionej mechaniki Lancy jako ukończonej
+symulacji pistoletu ani nie deklaruje wdrożenia walki wręcz.
+Pozostałe osiem kręgów, rozbudowane sanktuarium i NPC nadal czekają.
+Projektowanie większych map oraz sekretów nastąpi po dopracowaniu
+postaci, bossów, animacji, czytelności i balansu na jednym polu testowym.
+
+Punkt odniesienia dla HUD i osobnych śrucin: źródła id Software.
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/st_stuff.c
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/p_pspr.c
+Inspiracja układem i zachowaniem; własna implementacja i wygenerowane
+ilustracje, z rejestrem w assets/art/prompts-v08-final.json.
+Źródła ilustracji alfabetu: assets/art/prompts-v08-final.json; historycznych
+znaków: pliki SOURCES w assets/art/sigils/.

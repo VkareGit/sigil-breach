@@ -1,0 +1,24 @@
+You are generating game art. Use your built-in image generation tool. Do not write code, do not edit any project files, do not run tests. Only generate images and save them.
+
+Generate THREE separate square images (1024x1024), each a different variant, and save them as PNG files exactly at:
+  work/gen/codex/portrait-frontal-1.png
+  work/gen/codex/portrait-frontal-2.png
+  work/gen/codex/portrait-frontal-3.png
+(copy or move each generated image from wherever the tool saves it to these exact paths; keep the originals).
+
+SUBJECT: the HUD face of the player character of a horror first-person shooter, like the face icon in the middle of Doom's status bar: a STRICTLY FRONTAL head-and-shoulders bust, face perfectly centred and symmetrical, eyes looking DIRECTLY INTO THE VIEWER (into the camera), head not turned, not in profile, not three-quarter.
+
+CHARACTER: a hardened human warrior walking through hell, no magic. Clean-shaven (no moustache, no beard). Heavy brow, deep-set eyes with a furious, restrained, exhausted glare. Square jaw clenched. Short ragged jet-black hair, a few strands over the forehead. An old scar across the brow and the bridge of the nose. Thick muscular neck. Heavy battered black iron plate armour with a high gorget and dented pauldrons visible at the bottom.
+
+STYLE — combine the three attached reference images:
+ - from the dark-background panel portrait (reference 1): the near-black umber background, the matte old-master painting, the battered black armour;
+ - from the inked portrait (reference 2): a bold, even, dark brown ink contour around every shape and flat colour areas, so the face stays readable when shown very small in a game HUD;
+ - from the Michelangelo-like portrait (reference 3): the raw anger, the heavy anatomy and tension of the face and neck.
+Painted like an early 15th-century fresco of hell (Giovanni da Modena, Bologna): earth palette only (bone black, burnt umber, slate grey, ochre, a little red ochre, lime-white highlights on brow, cheekbones and nose). Skin: natural pale flesh with umber shadows, NOT green, NOT yellow.
+
+FRAMING: head occupies the upper-middle; top of the hair at about 15-20% of the height; eyes at about 40%; chin at about 65%; shoulders and armour fill the bottom edge. Upper left and upper right corners are plain dark background.
+
+DO NOT: anime or manga, modern cartoon, photograph, 3D render, glossy chrome, ruff or lace collar, sword, hands, text, letters, watermark, signature, frame, border, halo.
+
+The three variants should differ slightly: (1) colder and harsher light, (2) warmer light from one side, (3) stronger ink contour and flatter colours.
+When finished, reply with the three saved paths.

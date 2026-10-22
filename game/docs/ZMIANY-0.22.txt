@@ -1,0 +1,37 @@
+SIGIL: BREACH / 0.22 (robocza) / TYLKO POLIGON
+
+TRYB GŁÓWNY ZAMKNIĘTY
+- Wyprawa (fale + sklep + zapis) zniknęła z gry: menu ma SKIRMISH [SPACJA],
+  PROVING GROUND [F2], HELP, SETTINGS, QUIT. ENTER/SPACJA w menu = potyczka.
+- Zapis wyprawy nie jest czytany ani pokazywany; pliki pozostają nietknięte.
+- Kod wyprawy (run/descent.lua) zostaje jako biblioteka: poligon korzysta
+  z tych samych broni, sklepu i fal. Wróci, gdy powstanie baza.
+- Wspólny spawner fal (run/spawner.lua): portale, stada, okrążanie — używany
+  przez wyprawę i próbę fal na poligonie (bez cyklu zależności).
+
+STACJE POLIGONU (katalog F2, rząd STATIONS)
+- RANGE: pięć manekinów na 4/8/12/16/20 m wzdłuż nawy, rozstawionych tak,
+  by żaden nie zasłaniał drugiego; podpisy odległości widoczne do 24 m.
+  Manekin = prawdziwy demon wybranego poziomu (TIER), który nie chodzi i nie
+  atakuje, leczy się między strzałami i wstaje 1,5 s po zabiciu — wszystkie
+  liczby, strefy, garda, rany i rzuty ciał są prawdziwe.
+- PHYSICS: rząd trzech manekinów (domino), manekin przy ścianie (uderzenie
+  o mur) i jeden żywy Sługa do podcięcia strzałem w nogi w trakcie doskoku.
+- WAVE TRIAL: prawdziwy spawner na fali z pokrętła TIER (5 = Margrabia),
+  prawdziwe obrażenia; po oczyszczeniu raport: czas i otrzymane obrażenia.
+- Galeria, pola przywołań, posągi i tablice tekstur zostają.
+
+PORTALE
+- Kolor mówi, co nadchodzi: Sługa — żar, Żelazny — żelazo, Akolita — błękit,
+  Ogrodnik — zieleń zarazy, Margrabia — ogień.
+- 1,2 s zapowiedzi jako zegar: zewnętrzny pierścień się zamyka, wewnętrzny
+  jaśnieje, z ziemi rośnie przypalenie, wznosi się skręcona kolumna żaru,
+  sigil kręci się coraz szybciej i rozbłyska w ostatniej chwili.
+- Przybycie: dym, iskry w kolorze portalu, głęboki puls; demon wychodzi
+  z posadzki przez 0,6 s (posadzka zasłania tonące ciało, bryły trafień
+  podążają za pozą).
+
+TESTY: 2401 sprawdzeń (+11: tests/cases/stations.lua), wejście przepisane na
+menu bez wyprawy, rendery (nowe klatki 67-station-range, 67b-station-physics,
+67c-portals, 67d-arrival), formatowanie, architektura (186 plików, 0 problemów).
+Nie zmieniono numeru wydania. Nikt jeszcze nie grał tej wersji.

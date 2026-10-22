@@ -1,0 +1,68 @@
+SIGIL: BREACH / główny projekt / 0.30
+C:\Users\nahiko\Documents\dev\sigil-breach
+
+ZACZNIJ OD: game\docs\DEVELOPMENT.txt
+SPECYFIKACJA GRY: game\docs\INSTRUKCJA.txt (tak gra działa teraz)
+ARCHITEKTURA: game\docs\ARCHITEKTURA.txt
+ZMIANY: game\docs\ZMIANY-0.30.txt
+ROZBUDOWA: game\docs\ROZSZERZANIE.txt (broń, dostawy, wyposażenie, granice)
+ODBÓR: game\docs\ODBIOR-0.30.txt (B2 i chwyt broni nadal wymagają odbioru)
+ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (aktualne dla 0.29)
+PLAN: game\docs\PLAN-ROZWOJU-v7.md (wdrożenie H1–H9/B1, dopracowanie 0.29;
+      odbiór B2 przez gracza); v6 zastąpiony, v5 wdrożony
+KONTEKST DLA NOWEGO CZATU: docs\KONTEKST-0.30.txt
+
+Pracuj w game/, nie w snapshotach outputs/.
+main.lua -> src/app -> src/session -> systemy gry -> render i UI.
+src/content zawiera definicje. tests/ zawiera regresje. qa/ generuje raporty.
+Poprzednie dokumenty: docs/history. Warsztat atlasów: tools/art.
+
+.\RUN.ps1                       aktualne źródła
+.\RUN.ps1 -Release              bieżące EXE
+.\FORMAT.ps1                    formatowanie Lua z kontrolą AST
+.\FORMAT.ps1 -Check             kontrola stylu
+.\BAKE-HIT-MASKS.ps1             maski po zmianie ilustracji
+.\TEST.ps1                      architektura, mechanika, wejście, rendery
+.\TEST.ps1 -Suite Architecture   szybka kontrola kodu bez okna
+.\BUILD.ps1                     testy, snapshot, testy EXE i weryfikowany ZIP
+
+Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
+skrypty nie wymagają kopii -v29.
+Wyniki: work/qa-v30 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.30/SIGIL-BREACH.exe.
+telemetry.txt z gry: EXE %APPDATA%\sigil-breach-prototype\, źródła
+%APPDATA%\LOVE\sigil-breach-prototype\ (F9 pokazuje ścieżkę).
+Pomiary planu v5 przed i po etapach: work/v5-measure.
+Zmiana źródeł nie zmienia zbudowanego EXE.
+Testy nie przejmują myszy i nie korzystają z zapisu użytkownika.
+
+0.30: kompozycja/dziedziczenie broni, dostawy hitscan/projectile, generic throw,
+zapis slotów SIGIL08, prawdziwe feedback i celownik, GUI i limit cache napisów.
+Modele i źródłowe PNG pozostają zachowane; nowe definicje są tylko w testach.
+
+Jedna arena testowa. Dwie bronie fizyczne. Dopracowujemy ruch, strzelanie,
+animacje, fizykę i oprawę przed rozbudową świata. Styl: żywy, mroczny fresk.
+0.29: dopracowanie rdzenia bez zmiany rozgrywki w złotym wzorcu: prawdziwe
+HITBOXES, jedna reguła padającego ciała, przyczyny przełamania w jednym
+miejscu, anatomia i maski związane ze źródłem, koszt i rozbudowa zmierzone.
+0.27 (plan v7 D0+H0): dokumentacja bez sprzeczności, powtórki poligonu,
+pomiar trafień względem tego, co widać (bez zmiany rozgrywki).
+0.28: wspólna poza bez GPU, maski 168 klatek, części i materiały, ciągłe
+kontakty ataków/pocisków, pełna integralność replay i szczegółowa telemetria.
+Oryginalne malowane modele zachowane; broń ma spokojniejszy pigment.
+Domknięcie 0.29: również skok i unik mają pigment dopasowany do bazowych
+modeli, bez zmiany sylwetek. Maski mają pełne poświadczenie źródeł SHA-256.
+Archiwum 25 nieużywanych PNG: work/archive-art-v29 (manifest + RESTORE.ps1).
+Granice dokładności i pozostały odbiór człowieka są opisane w planie i anatomii.
+0.26 po teście gracza: przegląd i naprawy zmian v5 (unik w combat/dodge,
+raport sesji na zdarzeniach, tryby bez duplikatów), broń w świetle sceny,
+podskok widoku i łomot strzału, pomiar hitboxów; opis w ZMIANY-0.26.txt.
+0.25 dopracowało rdzeń walki: ciała (bez przenikania), idealny unik przez
+powidok, przerwanie przeładowania, okno zabójstwa przełamanego, jedna
+wysokość podłogi, klawisze jako dane, płynna praca odśmiecacza.
+0.24 przebudowało kod pod rozbudowę bez zmiany rozgrywki.
+
+Kopia przed refaktorem: work/backup-before-v18-20261020-215538.
+Kopia przed poprawą strzałów: work/backup-before-v19-20261020-222530.
+Kopia przed animacjami portali: work/backup-before-art-v23-20261021-012413.
+Mapa starych i nowych modułów: work/module-migration-v18.json.
+Poprzednie wydania pozostają w outputs; nie są bieżącym źródłem.

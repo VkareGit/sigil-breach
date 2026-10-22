@@ -1,0 +1,60 @@
+SIGIL: BREACH 0.11 / ART STYLE BIBLE AND PLAN FOR THE COMPLETE GRAPHICS SWAP
+One version, no switch. Backup of everything from before the swap:
+work\backup-before-restyle-2026-10-20\ (art, src, fonts, tools, documents).
+
+1. STYLE: "INKED FRESCO"
+Basis: Giovanni da Modena, Inferno (Bolognini Chapel, Bologna), supported by
+Bosch (hybrids, objects as torment), Memling (pale bodies on a dark ground,
+order, framing), Michelangelo (weight and twist of the body).
+Technique of readability taken from Cuphead / 1930s animation:
+ - the outline does the work: an even ink contour (dark brown-black,
+   not pure black) around EVERY figure, weapon and interactive object;
+ - flat fills: a figure has 2–3 values + one lime-white highlight,
+   no photographic gradients, no stippling;
+ - the background is softer: architecture and sky painted as broad planes,
+   weaker contour (sinopia, not ink), lower contrast than figures;
+ - grain/vignette only as a quiet binding of the frame, never noise.
+We do NOT take from Cuphead: rubber-hose limbs, cute big eyes, a gleeful mood.
+Anatomy stays repulsive (Giovanni, Bosch); the drawing technique changes.
+
+2. PALETTE (measured from the fresco, painterly.lua)
+Slate and ochre greys, burnt umber, sinopia, red and yellow ochre,
+carnation, lime white. Madder only for blood, ochre-flame only for fire.
+Two gameplay signal colours (cold Ember flame, vermilion warning).
+Numeric goals (work\metrics\measure.ps1): fine/large ≤ 0.42,
+values D/M/L close to 45/45/10, saturation ≤ 0.25, red ≤ 3%.
+
+3. ASSETS AND ORDER (fixed layouts, so loaders and tests keep working)
+ a. Bearer's portrait (3x2, 512 px cells): an entirely new man in the
+    inked-fresco style, 6 expressions. Base generation, then edits from the
+    same image (consistency of face).
+ b. Wall, floor, frieze, door textures: painted planes (tools\fresco_textures
+    is already in this style; possibly a generated painted variant).
+ c. HUD frame and panels (reliquary-ui): painted Bolognini decoration,
+    bands of red ochre, lime-white fillet, grotesque corner heads,
+    writing wells flat and dark. The same geometry of wells and nine-slice.
+ d. Shotgun and revolver (4x4): edits of the existing sheets keeping the
+    poses: ink contour, flat iron and wood, lime-white highlights.
+ e. Effects (hit, smoke, flash), pickups, Ember altar.
+ f. Lettering: shapes ready (fresco_repaint); optionally new majuscule.
+ g. Demons: STAY (they are liked). Only a unifying pass:
+    the same ink contour in the sprite shader, the same palette.
+
+4. PIPELINE FOR EACH ASSET
+generation (HF: Qwen-Image / FLUX Krea for new, FLUX Kontext /
+Qwen-Image-Edit for edits of existing sheets) → background removal →
+snapping to the fresco palette → reduction to game resolution with
+nearest sampling → packing into the existing atlas layout → foot / wrist /
+cell registration → TEST.ps1 + real-screen review + measurements.
+
+5. REQUIREMENTS BEFORE GENERATION (blocked as of 2026-10-20)
+ - Hugging Face: the connector sends gradio=none, so invoking Spaces is
+   disabled. In huggingface.co/settings/mcp add the Spaces
+   (mcp-tools/Qwen-Image, mcp-tools/FLUX.1-Krea-dev,
+   mcp-tools/FLUX.1-Kontext-Dev, akhaliq/Qwen-Image-Edit-2511-LoRAs-Fast)
+   and reconnect the connector. The free account has a small daily GPU
+   quota (ZeroGPU); a series of 30–60 images may need several days or PRO.
+ - Adobe: generation not available in the connector (only canvas expand,
+   background removal, adjustments). Useful as storage: upload of an atlas
+   to the user's Creative Cloud gives a temporary presigned URL that the
+   HF editor can read (needed for edits of existing sheets).

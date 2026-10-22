@@ -1,0 +1,14 @@
+Use your image_generation tool at the HIGHEST quality setting (extra high / high detail).
+
+Reference image attached: assets/art/lettering-v11.png. It is a sheet of eight hand-painted ornate gothic display inscriptions for the game SIGIL: BREACH (cream ivory letter bodies, thin vermilion inner shadow, dark umber outline, sharp spurs and small diamond cut-outs, Bologna-fresco / medieval manuscript feeling).
+
+Make the SAME sheet again, in EXACTLY the same lettering style, letter construction, colours, stroke weight and layout, but with the Polish texts replaced by English texts. Layout: 2 columns x 4 rows, 1536 x 1024 pixels, each inscription centred in its cell, same sizes as the reference:
+ row 1 (large, top ~0-320 px):  left "SIGIL"            right "BREACH"
+ row 2 (~320-535 px):          left "SURVIVE LIMBO"    right "ASH MERCHANT"
+ row 3 (~535-751 px):          left "NINE CIRCLES"     right "SETTINGS"
+ row 4 (~751-1024 px):         left "NEW EXPEDITION"   right "INTERRUPTED RITE"
+Spelling must be exactly these English words, capital letters in the same style as the reference (decorated initial letters slightly taller). Keep generous empty space between rows so every inscription stays inside its band. No other text, no ornaments outside letters, no frame.
+
+Background: perfectly flat pure magenta #FF00FF everywhere outside the letters (it will be keyed out). Letters must not contain magenta.
+
+Save the result as work/gen/codex/lettering-en-v14.png (create the folder if needed). If the first attempt has any misspelled word or a word crossing its band, generate again and keep only the correct one.

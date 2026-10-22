@@ -1,0 +1,43 @@
+SIGIL: BREACH 0.10 / Ciężar i impet
+19 października 2026
+
+MECHANIKA
+- Ciągłe zderzenie koła z siatką świata. Brak tunelowania podczas
+  szybkiego ruchu, poprawny ślizg przy ścianie, brak sztucznego
+  cofania wewnątrz narożników i usuwanie początkowej penetracji.
+- Promień Furfur spójny podczas chodzenia, odrzutu i szarży.
+- Skok i sprężyny odrzutu liczone analitycznie; ruch przyspieszony
+  całkuje prędkość zamiast stosować jej końcową wartość cały krok.
+- Unik wykorzystuje dokładnie .155 s; nie skraca istniejącej ochrony
+  po trafieniu. Po śmierci nie można zebrać apteczki w tej samej klatce.
+- Game.update dzieli czas na kroki do 1/120 s zamiast tracić czas
+  powyżej 1/30 s. Maksymalny nadrabiany czas to .20 s; ograniczenie
+  zabezpiecza pętlę przed kaskadą zaległych aktualizacji po zacięciu.
+
+STRZAŁY I ŁADUNKI
+- Promienie trafień działają symetrycznie przy narożnikach i krawędziach
+  siatki. Pierwszy kontakt wewnątrz bryły ma dokładny czas zero.
+- Pociski rozliczają zdarzenia w kolejności czasu trafienia, niezależnie
+  od kolejności w tablicy. Skok i kucanie są interpolowane w kolizji.
+- Tor granatu jest parabolą; odbicie zużywa tylko czas do kontaktu.
+  Pozostały czas jest przeznaczany na dalszy ruch. Podparcie, toczenie,
+  opadanie z krawędzi i detonacja kończą ruch we właściwym momencie.
+- Wzór obrażeń, pancerz, penetracja, rozrzut, amunicja i ceny bez buffów.
+
+DEMONY
+- Aktywne okna zamachu nie rozciągają się na całą klatkę.
+- Stun i hit pause zatrzymują zegar ciosu oraz odpoczynek po nim.
+- Znak pioruna czeka na rzeczywiste zakończenie animacji Furfur;
+  przerwanie linii ataku i śmierć rzucającego anulują oczekujący znak.
+- Jad respektuje przeszkody oraz pozycję gracza w chwili impulsu.
+- Odrzut oraz końcowy ruch zwłok są całkowane analitycznie.
+
+ZAKRES
+To aktualizacja mechaniki istniejącego pola testowego. Grafika 0.9,
+cztery odniesienia malarskie, fizyczne uzbrojenie człowieka i zapis
+SIGIL06 pozostają. Mapy i fabuła nadal odłożone.
+
+WERYFIKACJA
+Wyniki wykonanej wersji są w TESTY.txt, STEROWANIE-TESTY.txt,
+KOLIZJE-PRZEGLAD.txt, GUI-BITMAPY-AUDYT.txt i WERYFIKACJA-PACZKI.txt.
+Testy nie zastępują oceny trudności i odczucia sterowania przez gracza.

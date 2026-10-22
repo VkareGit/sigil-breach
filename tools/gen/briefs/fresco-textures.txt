@@ -1,0 +1,12 @@
+You are generating game art. Use your built-in image generation tool. Do not write code, do not edit project files, do not run tests. Only generate and save ONE image.
+
+The attached image is the APPROVED target look of the game: everything painted as a medieval wall fresco by Giovanni da Modena (Inferno, Bolognini Chapel, Bologna, c.1410) — matte tempera on lime plaster, flat earth pigments, reddish-brown sinopia contours, light overall value, plaster grain and fine cracks.
+
+Make ONE square image (1024x1024) containing FOUR SEAMLESSLY TILING square surface textures in a 2x2 grid, each exactly 512x512, flat front view, no perspective, no lighting gradient, no shadows, no objects, no figures, no text. Each tile must wrap seamlessly left-right and top-bottom (it will be repeated on large walls).
+ - TOP LEFT: stone WALL of the arena painted in fresco: large ashlar blocks of pale lime-cream and warm ochre plaster, joints drawn as thin red-ochre/sinopia lines, faint painted mottling, a few hairline plaster cracks. Light and calm.
+ - TOP RIGHT: dark DOOR / iron panel painted in fresco: slate grey-blue boards with painted iron straps and rivets, outlined in dark sinopia. Mid-dark value.
+ - BOTTOM LEFT: painted TRIM / FRIEZE band as on fresco borders: red ochre ground with a lime-white zigzag and small painted quatrefoils, thin dark lines along the edges. Repeats horizontally.
+ - BOTTOM RIGHT: FLOOR of faded painted tiles like the fresco's checkered pavement: a checkerboard of red-ochre and slate-blue-grey squares (2x2 squares per tile so it repeats cleanly), worn, chalky, with plaster grain. Light-to-mid value.
+Palette only: lime white, cream, yellow ochre, red ochre, sinopia brown, slate blue-grey, a little bone black. Matte, low contrast within each tile.
+
+Save as PNG exactly at work/gen/codex/fresco-textures-raw.png (copy it from where the tool saves it; keep the original). Reply with the saved path.

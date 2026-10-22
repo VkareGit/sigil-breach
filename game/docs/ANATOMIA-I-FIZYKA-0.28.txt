@@ -1,0 +1,170 @@
+SIGIL: BREACH — anatomia, obliczenia i granice rozwiązania 0.28
+(aktualne dla 0.29; zmiany 0.29 w sekcjach oznaczonych 0.29 i w ZMIANY-0.29)
+
+KIERUNEK
+Jeden poligon i dotychczasowe bronie. Wcześniejsze malowane potwory pozostają
+wzorcem: matowy fresk, duże plamy pigmentu, miękkie przejścia tonalne. Dodanie
+animacji nie upoważnia do zmiany anatomii, połysku ani szczegółowości postaci.
+Kontrola SHA-256 155 obrazów względem paczki 0.27: brak zmian. Broń ma jedynie
+łagodniejsze różnice między sąsiednimi próbkami pigmentu; alfa i obrys bez zmian.
+
+ARCHITEKTURA
+content/enemy_art i content/ability_art: źródła ilustracji i niezmienna rejestracja
+klatek. enemies/pose: wspólny opis pozy. Renderer tylko dopina uchwyt obrazu.
+Zmiana strefy trafienia nie przesuwa głowy w animacji.
+content/art/anatomy/*: części jako dane; id kształtu, strefa obrażeń i materiał
+są niezależne. Kilka nóg może mieć wspólną strefę lower; ich liczba nie należy
+do algorytmu strzelania. Ostatni pasujący wielokąt opisuje wierzch malunku.
+enemies/surface: promień przecina pełny, pochylony billboard, maskę alfa,
+a następnie ręcznie opisane regiony. Nie tworzy prostokątnego celu wokół
+potwora. Przestrzeń między kończynami jest przestrzelna. Efekt może być widoczny,
+ale hittable=false; tasak może blokować z zone=false, bez ranienia właściciela.
+
+Maski wypieka offline qa/bake_hit_masks.lua do danych Lua (0.29: tokeny RLE
+o stałej szerokości, content/art/mask_codec.lua, dekodowane raz przy wczytaniu
+do wierszy hex; każda klatka zapisuje też źródło: obraz i prostokąt w jego
+pikselach). Symulacja nie ładuje PNG ani nie pyta GPU. Siatka 320×320 odpowiada istniejącemu shaderowi: 2 bity
+rozróżniają ciało i obrys żywej postaci. Kontur nie zostaje niewidoczną osłoną
+po śmierci. Pełny quad zawiera każdą komórkę; nie odrzucamy wystającego rogu
+na podstawie dawnego walca tułowia. Wewnętrzne regiony anatomii są ręcznymi
+wielokątami, nie idealną segmentacją każdego włosa. Niezależne punkty źródłowych
+ilustracji sprawdzają ich sens.
+
+Ruch używa bryły kontaktu ciał; broń palna malowanej powierzchni; pazur własnej
+drogi dłoni i fizycznego zasięgu akcji. Dokładność odpowiada zapytaniu.
+0.29: reprezentację trafienia wybiera stworzenie (appearance.hit): 'painted'
+(wszystkie dzisiejsze demony) albo 'volumes' z jawnym profilem brył. Dawna
+kalibracja walców malowanych demonów została usunięta; nic jej nie liczy.
+
+MATERIAŁY I OBRAŻENIA
+Damage.surface jest wspólne dla śrucin i pocisków o promieniu. Najpierw obecny
+wzór odległości, strefy, pancerza i odporności, następnie polityka materiału.
+Żywa kość i czaszka pozostają podatne. Róg nie zabiera HP, lecz przenosi impuls
+na gardę. Pancerz używa ratingu strefy. Tkanka skrzydła ma jawny współczynnik
+rany/gardy. Szata na ciele nie daje odporności; luźne fragmenty mogą być wyłączone
+w danych. Współczynniki to parametry rozgrywki, nie pomiary biologii ani dżule.
+Materiały mają osobną politykę penetracji. Nie dodano losowego rykoszetu:
+odbicie wymaga wiarygodnej normalnej i osobno ustalonego bilansu energii.
+Normalna billboardu nie opisuje krzywizny rogu. Kontakt już przenosi materiał
+i normalną, więc przyszłe odbicia nie wymagają przebudowy katalogu postaci.
+
+Padający trup blokuje, dopóki jest widocznie w ruchu (0.29, enemies/corpse):
+malowany upadek nie doszedł do ostatniej klatki (rozszerzony układ 0,44 s:
+Sługa, Żelazny, Akolita, Furfur; zwarty 0,28 s: Ogrodnik, Margrabia),
+pochylenie nie osiadło (0,33 s) albo ciało jest w powietrzu.
+Ta sama reguła obejmuje strzał natychmiastowy i pociski rycerza. Nie dostaje
+nowych ran ani nagród. Po osiadaniu przestaje blokować. Kontakty śrucin zbieramy przed zmianą
+HP: śmierć od pierwszej nie otwiera arbitralnie drogi kolejnym w tej samej salwie.
+
+RUCH I POCISKI
+Niski skok nie pomija już kolizji z graczem aż do lądowania. Względny ruch obu
+ciał jest sprawdzany w aktywnej części kroku; lądowanie ma wyliczony czas kontaktu.
+Usuwa to końcowe wypchnięcie z nałożonych ciał. Pazur korzysta z punktów dłoni/
+pyska oraz zasięgu w danych akcji. Ilustracja nie ma głębokości 3D.
+Pocisk o promieniu wykonuje ciągły sweep, także przy ścianie, filarze i ziemi.
+Powierzchnia postaci jest konserwatywnie aproksymowana komórkami: przyspieszone
+trafienie ogranicza połowa przekątnej komórki maski, zapisana w contact.tolerance.
+Hitscan nie używa tego rozszerzenia. Wybuch zachowuje osobną regułę ekspozycji
+środka ciała; nie udaje promienia.
+
+POWTÓRKI I POMIAR
+Journal v2 sprawdza pełny początkowy i końcowy stan symulacji, domyka zmianę
+pauzy przed eksportem. Dziennik trafień zawiera shapeId, zone, material, punkt,
+dystans i wynik obrażeń. Inny ekwipunek, tier czy nieśmiertelność nie mogą po
+cichu odtwarzać pozornie tej samej sesji. Telemetria rozdziela czas od pojawienia,
+świadomości i pierwszej rany, rodzaje kontroli oraz potencjalne/faktyczne/
+zmarnowane leczenie. Raporty work/qa-v28/hit-* mierzą GPU, interpolację przy
+różnych harmonogramach klatek i koszt całej salwy. CPU nie odtwarza mipmap GPU
+idealnie; granica niepewności jest raportowana. Automat nie dowodzi przyjemności
+ani perfekcyjnego balansu. Ocena B2 wymaga faktycznych sesji człowieka.
+
+ŹRÓDŁA — ZASADY, NIE KOPIOWANIE KODU SILNIKÓW
+NVIDIA PhysX, Scene Queries: różne zapytania ray/sweep/overlap, fazy i dane wyniku.
+https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/docs/SceneQueries.html
+Epic, Physical Materials: materiał powierzchni jako osobna własność danych.
+https://dev.epicgames.com/documentation/en-us/unreal-engine/physical-materials-user-guide-for-unreal-engine
+Valve Source SDK 2013 studio.h; id Software Doom 3 Actor.cpp: części, grupy obrażeń,
+animacja. Własna implementacja dostosowana do billboardów, bez kopiowania kodu.
+https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/public/studio.h
+https://github.com/id-Software/DOOM-3/blob/master/neo/game/Actor.cpp
+Erin Catto, Continuous Collision, GDC 2013: pierwszy kontakt w przebiegu kroku.
+https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+A Large-scale Benchmark and an Inclusion-based Algorithm for Continuous Collision
+Detection (2021): koszt oraz błędy fałszywych trafień/pominięć mierzymy oddzielnie.
+https://continuous-collision-detection.github.io/
+https://arxiv.org/abs/2009.13349
+Redon, Lin, Manocha, Fast Continuous Collision Detection for Articulated Models:
+pełna obwiednia przed szczegółowym zapytaniem. Nie przenosimy ciężkiego systemu
+szkieletowego 3D do płaskiej ilustracji.
+https://diglib.eg.org/items/13aac165-e652-4c78-a0a6-0b42305f0753
+Przegląd patentów nie uzasadnił innego rozwiązania dla tego prototypu. Sam patent
+ani renoma gry nie dowodzą przydatności — decyduje porównanie w naszym silniku.
+
+KONWENCJA WSPÓŁRZĘDNYCH (0.29)
+Każdy region jest zapisany w UV KLATKI: u w prawo, v w dół, od lewego górnego
+rogu prostokąta klatki w jej obrazie źródłowym; 0..1 wewnątrz klatki. Region
+może wystawać poza klatkę (maska go przycina), ale nie dalej niż -0,25..1,25 —
+większa wartość to współrzędna w złych jednostkach (test anatomy-data).
+Rysowane w innych jednostkach konwertuje się jawnie, z metadanych klatki
+(sourcePath, rect) i rozmiaru źródła (content/art/sources.lua, sprawdzanego
+względem PNG): Author.fromPixels (piksel obrazu), Author.fromCell (piksel
+komórki siatki cols×rows), Author.cellPolygon (wielokąt z komórki, przycięty).
+Wszystkie pliki anatomii używają tych funkcji; wymiarów atlasu nie wpisuje
+się na sztywno. Maska klatki zapisuje prostokąt w pikselach i dokładny UV,
+filtr, SHA-256 pełnego PNG oraz reguły klasyfikacji (siatka, próg, kontur,
+skrót qa/hit_truth.lua). Test anatomy-data sprawdza wszystkie źródła,
+także podmianę obrazu pod tą samą nazwą i w tych samych wymiarach.
+Zmiana wymaga BAKE-HIT-MASKS.ps1 i przeglądu regionów; hashowanie i odczyt
+PNG wykonuje tylko bake/QA, nigdy promień strzału. Fallback musi zawierać
+cztery różne narożniki klatki w kolejności obwodu; region zerowego pola
+jest błędem. Oba kierunki obwodu oraz celowe wyjście poza klatkę są poprawne.
+
+Spójność pigmentu skoku/uniku (domknięcie 0.29): render/creature_pigment.lua
+używa profilu obok definicji ilustracji w content/ability_art.lua. Grupuje
+tylko RGB i dopasowuje kontrast do bazowych fresków. Alfa, siatka trafień,
+prostokąt klatki, pozycja i kotwice pozostają identyczne. QA --pigment-review
+sprawdza alfę wszystkich 16 klatek i porównuje sceny w tym samym świetle.
+
+CZĘŚCI I MATERIAŁY (stan 0.29; zmiana to decyzja rozgrywki, nie poprawka)
+Materiały (content/ballistic_surfaces.lua): wound = udział rany w HP, guard =
+udział impetu w gardzie, penetrable = runda może iść do ciała za nim,
+debris = co rzuca zatrzymany strzał (iskry metal, odpryski bone); brak =
+miękka powierzchnia. Strzał i efekty czytają te pola, nigdy nazwy.
+  rogi, poroże        torso, horn (bez HP, pełna garda)       Sługa, Ogrodnik,
+                                                              Margrabia, Furfur
+  skrzydła błoniaste  torso, membrane (25% rany i gardy)       Sługa (i skok)
+  skrzydła z piór     torso, flesh (100%)                      Akolita (i unik)
+  ogon                torso, flesh                             Sługa
+  grzywa, sierść      torso, flesh                             Ogrodnik
+  płomień ogona       efekt, hittable=false (bez kontaktu)     Furfur
+  blask czaru, ślina  efekt, hittable=false                    Akolita, Ogrodnik
+  luźny płaszcz       zone=false, cloth, hittable=false        Żelazny
+  szata na ciele      cloth (jak ciało: bez osłony)            —
+  tasak               zone=false, metal (blokuje bez rany)     Margrabia
+Niespójność do decyzji (B2), świadomie NIE zmieniona w 0.29: skrzydła Sługi
+(błona) chronią, skrzydła Akolity (pióra) są pełnym ciałem. Jeśli pióra mają
+chronić, potrzebny jest osobny materiał „feather” z własnymi wound/guard —
+to zmiana balansu i złotego wzorca, więc wymaga oceny w grze.
+
+NARZĘDZIE DO ADNOTACJI — OCENA (0.29)
+Wariant na istniejącej ilustracji nie wymaga narzędzia: dziedziczy atlas,
+a inny opis ciała to adnotacja appearance.regions wyprowadzona z istniejącej
+w kodzie (tests/cases/creature_extension.lua tnie tułów na płyty). Nowy atlas
+to dziś ok. 28 klatek ręcznych wielokątów (6–12 części na klatkę) pisanych
+w Lua, sprawdzanych arkuszami kontaktowymi (tools/art/anatomy/contact.ps1),
+punktami źródłowymi i testem anatomy-data. Prosty edytor w LÖVE (klatka
+z maską pod spodem, klikane wierzchołki, eksport Author.part w UV klatki,
+podgląd stref i materiałów) zwróci się przy pierwszym nowym atlasie;
+wcześniej nie jest potrzebny. Propozycja na kolejny etap, nie zrobione.
+
+ROZBUDOWA
+Wariant na istniejącej ilustracji: Creature.define({ extends = ... }),
+ewentualnie appearance.regions (własna adnotacja tych samych klatek),
+attacks/move.evade/appearance.art/evadeArt (połączenie istniejących ataków
+i uników). Nowa istota z nowym atlasem: PNG + content/art/sources.lua,
+enemy_art (klatki/rejestracja/stopy), regiony dowolnej liczby części każdej
+klatki, BAKE-HIT-MASKS.ps1, punkty źródłowe i --hit-review. Nowy materiał:
+jeden wpis w content/ballistic_surfaces (wound, guard, penetrable, debris).
+Nowa broń: definicja Weapon; nowy mechanizm tylko przy innej zasadzie
+działania. Bez if kind == nowy_potwor w matematyce pocisku. Niszczenie
+kończyn i nowe modele 3D pozostają poza zakresem.

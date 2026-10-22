@@ -1,0 +1,16 @@
+You are generating game art. Use your built-in image generation tool (edit the attached reference). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+Attachment 1 is the CURRENT first-person top-break six-shot revolver animation sheet of the game: exactly 16 frames in a 4x4 grid (landscape sheet, 4:3), read left to right, top to bottom. Attachment 2 is the shotgun sheet ALREADY REDRAWN in the approved new style; attachment 3 is the approved portrait. Match attachment 2's drawing style exactly.
+
+Produce ONE edited sheet that REDRAWS THE SAME 16 REVOLVER FRAMES IN THE NEW STYLE. Keep exactly: the 4x4 grid, the position and size of every frame in its cell, every pose, hand position, the hinge opening, the six ejected cases, the speedloader, the closing. Each frame must stay inside its own cell; leave a little empty space between neighbouring frames so nothing touches.
+
+NEW STYLE — "inked fresco" (same as attachment 2): 1930s hand-inked cel animation technique (as in the game Cuphead: bold even dark brown-black ink contour around every shape, flat colour fills, one simple highlight shape per surface, clean readable silhouettes) applied to the subject and palette of Giovanni da Modena's Inferno fresco in Bologna. Grim, heavy and real — NOT cute, NOT rubber-hose, NOT a toy.
+ - Revolver: blackened matte iron, the side plate is a small carved bone relief of a mourning saint figure (keep the motif, simplified to bold shapes); no chrome, no glossy reflections.
+ - Gauntlets: the same black-brown leather and iron plates as in attachment 2.
+ - Cartridges and ejected cases: dark tarnished brass and grey lead, matte, NOT shiny gold.
+ - Muzzle flash (frame 2): flat inked tongue of ochre and dull vermilion fire with a thick contour, like on the shotgun.
+ - Palette only: bone black, burnt umber, slate grey, yellow ochre, a little red ochre, lime-white highlights.
+
+BACKGROUND: the whole sheet background must be ONE flat pure magenta colour (#FF00FF) everywhere outside the drawings, no gradient, no shadow, no texture. No grid lines, no numbers, no text, no borders.
+
+Save as PNG exactly at work/gen/codex/revolver-v11-raw.png (copy it from where the tool saves it; keep the original). Landscape 4:3 image. Reply with the saved path.

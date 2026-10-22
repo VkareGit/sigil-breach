@@ -1,0 +1,6 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "impact-scars-v17.png",
+  "layout": "2x2, original transparent alpha",
+  "prompt": "Game production asset: transparent 2-by-2 square decal sprite sheet, four isolated surface bullet impact scars. Each of the four equal square cells has one small centered irregular crater with generous transparent empty margin at least 20% all sides. Top left and top right: two variations of chipped old fresco lime plaster, a charcoal dark bullet puncture with jagged thin chalk ochre edges and 3-5 fine short fissures. Bottom left and bottom right: two variations of bruised dark grey limestone bullet pocks, dark irregular center and muted ash grey thin chipped edges. Scars ONLY, no slab, no rectangular paper, no surrounding wall, no detached flying debris, no smoke. Front orthographic flat decal. Art style: hand painted dry tempera and worn medieval fresco pigment like Giovanni da Modena Inferno, severe restrained late-medieval horror. Limited earthy ash, bone, umber, muted oxblood residual paint on top row. Readable 16-bit game art: few clear irregular planes, deliberate crisp silhouettes, no soft blur, no photorealism, no glossy 3D metallic rings, no perfectly circular hole, no highlights outside tiny chipped lip. All four centered on the same 2x2 grid, no separators, no lettering or numbers, true transparent background."
+}

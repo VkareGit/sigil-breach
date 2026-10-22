@@ -1,0 +1,31 @@
+{
+  "version": "0.16",
+  "mode": "built-in image_gen",
+  "requestedStyle": "B dominant, C limited to marginal ornament. Restrained and readable painted Roman / humanist lettering, genuine transparent PNG glyphs.",
+  "assets": [
+    {
+      "savedAs": "assets/art/alphabet-upper-v16.png",
+      "generatedSource": "C:/Users/nahiko/.codex/generated_images/01a15aa3-9be6-79a1-a84c-8ae3d1176953/call_rEqRTJWSzDGiq5xTIUGrgWzd.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Production asset: a complete alphabet sprite sheet for a horror fresco game, NOT a typography poster. Portrait 1024x1536 image. Render exactly 35 isolated uppercase letters as flat hand-painted pale ivory pigment, transparent background. Typeface character: severe late medieval Italian wall inscription, readable slender Roman capitals with modest wedge serifs, subtly irregular brush edges, restrained worn pigment. Inspired by painted labels within Giovanni da Modena Inferno and religious frescoes; clear humanist construction rather than densely tangled blackletter. Wide open counters and clear separation of I/J/L, U/V, M/N. No 3D, bevel, shadows, outline, glow, symbols, skulls, ornaments, border, paper, stains outside letters, labels, or bonus text. Monochrome pale ivory letters, alpha transparency everywhere else; all texture lies inside strokes. This image is purely a game glyph atlas. Exact evenly spaced 5-column by 7-row grid; every letter centered in its own cell, 30px transparent gutters, no touching cells. All letter bodies consistent cap-height and baseline, accents above or below preserved. Exact row contents, one letter per cell: row 1 A B C D E; row 2 F G H I J; row 3 K L M N O; row 4 P Q R S T; row 5 U V W X Y; row 6 Z Ą Ć Ę Ł; row 7 Ń Ó Ś Ź Ż. Accents must be typographically correct: Ą and Ę include lower-right ogonek hook; Ł diagonal slash; acute marks for Ć Ń Ó Ś Ź; a single dot above Ż. Do not use texture to damage the identifying parts. Stroke weight medium, minimum stroke around 12px at this image size. Orthographic graphic, no perspective. Keep all alphabet letters completely legible."
+    },
+    {
+      "savedAs": "assets/art/alphabet-lower-v16.png",
+      "generatedSource": "C:/Users/nahiko/.codex/generated_images/01a15aa3-9be6-79a1-a84c-8ae3d1176953/call_SDFz3op3ZsSaLncjBVvBJzWK.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Production asset: complete lowercase alphabet sprite sheet for a horror fresco game; portrait 1024x1536. Render exactly 35 isolated lowercase letters in pale ivory painted pigment on genuine transparent background. Lettering character: readable late medieval Italian manuscript hand, elegant Renaissance humanist serif, subtly irregular hand-painted strokes, not modern digital geometric or tangled Gothic. Match restrained pale-ivory Roman capitals on old fresco labels. Slender but strong, generous open counters, medium stroke minimum 12px, crisp identifying details, no 3D or bevel/shadow/outline/glow. All ink and worn texture confined inside the glyph. No paper, frame, swirls, symbols, ornament or additional text. Exact 5-column x 7-row evenly spaced grid, each letter centered in its own cell with transparent gutter of at least 30px. Every row uses one shared baseline; consistent x-height; b d f h k l t with correct ascenders, g j p q y with descenders; double-storey a, open bowl e, simple readable g. Exact row contents, one glyph per cell: row 1 a b c d e; row 2 f g h i j; row 3 k l m n o; row 4 p q r s t; row 5 u v w x y; row 6 z ą ć ę ł; row 7 ń ó ś ź ż. Polish marks: ą and ę lower-right ogonek hook; ł diagonal slash; acute accents ć ń ó ś ź; one dot above ż. Keep descenders and accents completely inside their own cells; no adjoining glyphs; no lettering headers."
+    },
+    {
+      "savedAs": "assets/art/numerals-v16.png",
+      "generatedSource": "C:/Users/nahiko/.codex/generated_images/01a15aa3-9be6-79a1-a84c-8ae3d1176953/call_jQWCbUTk1JpavpZrFYExkUl7.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Production asset: illustrated numeral sprite sheet for a dark fresco game, landscape 1536x1024. Exactly twelve isolated glyphs on genuine transparent background. The complete 6-column by 2-row evenly spaced grid is: top row 0 1 2 3 4 5 ; bottom row 6 7 8 9 % / . Include only those twelve glyphs, one per grid cell; no punctuation labels or headers. Pale ivory painted pigment, late medieval Italian fresco manuscript humanist numerals, severe tall shapes, modest wedge serifs, slightly imperfect paint edges and subtle dry brush texture confined within strokes. A straight upright readable 1, open 4, distinct 6 and 9, large open counters, simple familiar percentage mark with two clearly separate rings and diagonal stroke, simple slash. Consistent cap height, shared baseline in each row, generous spacing, 50px transparent gutters. Medium strong stroke weight, not thin wispy lines. Flat hand-painted ink silhouette, no blackletter tangles, no 3D, no bevel, no shadow, no gold metal, no glow, no paper, no board, no frame, no skeleton ornaments, no other objects or text. Muted cream ivory strokes only; every other pixel transparent. The result will be used directly to display HUD values, so exact legible numeral shapes matter most."
+    }
+  ],
+  "integration": {
+    "glyphAtlas": "15 image atlases; 99 codepoints plus ordinary/nonbreaking spaces",
+    "titles": "Eight English title images composed from the new generated capitals",
+    "preserved": "Existing v11 illustrated punctuation; all original assets retained",
+    "review": "Measured source gutters, explicit slash crop excludes the generated extra dot, calibrated baselines and exact source-coverage reconstruction"
+  }
+}

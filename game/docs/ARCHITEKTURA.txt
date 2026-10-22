@@ -1,0 +1,307 @@
+SIGIL: BREACH / ARCHITEKTURA KODU / 0.29 (plan v7: wspólna poza, anatomia i kontakty)
+
+LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
+zaklęć demonów, broni i wyposażenia rycerza, map, trybów). Model: sesja = świat ECS nad własnymi tablicami
++ dwufazowa szyna zdarzeń + jawny harmonogram systemów + dane jako
+Type Object ze schematami + rejestry wszystkiego, czego może być więcej.
+Symulacja nie zna prezentacji (działa bez grafiki i dźwięku). Zachowanie gry
+jest zamrożone złotym wzorcem (tests/golden/baseline.lua); świadoma zmiana
+rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
+
+1. PRZEPŁYW STEROWANIA
+
+  main.lua (callbacki LÖVE)
+    -> app/application   uruchomienie, ustawienia, aktywna sesja, renderer;
+                         ładuje prezentację (feedback/install.lua); sprząta
+                         pamięć przy przejściach (Application.settle);
+                         Application:adopt = jedyne wejście nowej aktywnej
+                         sesji (ustawienia, dziennik --record, sprzątanie);
+                         raport sesji (app/session_report.lua)
+    -> app/input         klawisze z app/bindings.lua, mysz -> Game:look;
+                         klawisz ekranu = wpis app/screens
+    -> app/commands      rejestr poleceń (przycisk i klawisz = ten sam id);
+                         znaczenie poleceń trybu: Modes.act
+    -> session/game      fasada sesji: publiczne polecenia gracza
+    -> session/simulation krok 1/120 s: zegar, bramka pauzy, harmonogram
+                         systemów (core/scheduler), potem słuchacze 'present'
+    -> render/presentation + render/renderer + ui/interface   (tylko odczyt)
+
+2. WARSTWY (pilnuje tools/check/main.lua)
+
+  src/core      fundament bez zależności: class, schema, registry, events,
+                ecs, scheduler, rng, timers, strict, serialize, mathx.
+  src/content   dane (Type Object): content/defs (packet, body, action,
+                creature + appearance, knight, weapon, ability, condition),
+                stworzenia, rycerz, bronie, umiejętności, stany, fale, mapy,
+                strojenie, dane trybów (classic, expedition, shop).
+  src/physics   kolizje, wysokości kafli, wysokość podłogi (ground.lua).
+  SYMULACJA: src/combat, src/enemies, src/player, src/session, src/systems,
+             src/run, src/world — NIE importują feedback/render/ui/audio/app.
+  PREZENTACJA: src/feedback (słuchacze 'present', haki prezentacji),
+             src/render, src/ui, src/audio; src/app łączy całość.
+  src/storage   zapisy i preferencje.
+
+  Kontrola: kompilacja, brak cykli, granice warstw, brak nieosiągalnych
+  modułów, brak GPU w danych/fizyce, KIERUNEK symulacja -> prezentacja
+  (zapadka tools/check/presentation-edges.txt; 0 krawędzi), każde zdarzenie
+  katalogu ma emiter, ZAPADKA NIENAZWANYCH LICZB w kodzie symulacji i app
+  (tools/check/literals.txt; plik może tylko maleć, nowy = 0).
+
+3. SYMULACJA BEZ PREZENTACJI (session/presentation.lua)
+
+  Symulacja woła haki: Presentation.call(g, 'nazwa', ...), cue (dźwięk),
+  capture (mysz), stage (krok harmonogramu: efekty, cząstki, audio).
+  feedback/install.lua rejestruje haki i słuchacze przy starcie aplikacji.
+  Bez prezentacji (serwer, boty, test headless) haki nic nie robią, a
+  symulacja daje ten sam skrót (tests/cases/headless.lua). Symulacja nie pisze
+  g.view: łuski wyrzuca słuchacz ReloadStage (spent), liczby obrażeń
+  feedback/damage_numbers.lua (VolleyResolved, BlowResolved.number).
+  Zwłoki: enemies/corpse.lua — krew, łoskot i plamy to feedback/
+  death_response.lua przez haki.
+
+4. MODEL DANYCH SESJI
+
+  Sesja (g): pola symulacji z właścicielami w src/session/fields.lua; stan
+  widoku (kamera, odrzut, ruch broni, efekty, napisy, shotAge, swapAge) w
+  g.view (Fields.view). Odczyt/zapis pola widoku na sesji to błąd (metatabela
+  Game). Złoty test odrzuca niezadeklarowane pola obu.
+
+  ECS (core/ecs + session/world.lua + session/components.lua): pule nad
+  tablicami sesji (enemies, projectiles=g.bullets, hazards, pickups,
+  charges) i rycerz (g.player). Prefaby, tryb ścisły w testach.
+
+  Rycerz: player.loadout + player.arsenal[id] = { mag, reserve, open, loaded,
+  spent, readyAt }; player.abilities + player.abilityState[id] = { uses,
+  readyAt }; dodgeFromX/Z = powidok uniku. Demon: brokenAge = jego zegar
+  (spawnAge) w chwili utraty równowagi (zabójstwo przełamane w oknie).
+
+5. KROK SYMULACJI (systems/index.lua — JEDYNE miejsce kolejności)
+
+  clocks -> knight.recovery -> knight.reload -> knight.snapshot ->
+  knight.motion -> knight.contact -> world.effects -> world.transientsBefore
+  -> knight.trigger -> combat.demons -> combat.separation -> combat.bodies ->
+  combat.hazards -> combat.projectiles -> combat.charges -> world.telemetry ->
+  world.stillPlaying -> world.transientsAfter -> world.supplies ->
+  world.progression (Modes.of(g).progress).
+  Ciała (combat/body_contact.lua): kto wszedł w drugie żywe ciało, zatrzymuje
+  się na kontakcie (rycerz po swoim ruchu, demony po swoim); pęd z ciosów
+  przechodzi prawem mas (P.contact). g.worldStop (przełamana garda rycerza)
+  wstrzymuje zagrożenia, pociski i ładunki — systemy pytają
+  session/capabilities.lua (held, missilesFly, groundActs, demonsAct,
+  vulnerable), jedyne miejsce zasad „co dziś działa”. Zegary wstrzymania
+  (impactSlow, worldStop) odlicza systems/clocks.
+
+6. ZDARZENIA (core/events, session/event_catalog.lua)
+
+  Katalog rodzajów (ShotFired, BodyHit, EnemyKilled, PlayerHit, AbilityCast,
+  ReloadStage, BlowResolved, WaveCleared, ModeStarted...); nieznany = błąd,
+  nieemitowany = błąd checkera. 'sim' natychmiast (nagrody trybu, combo,
+  hit-stop, pomiary), 'present' po kroku (dźwięk, cząstki, kamera, liczby).
+
+7. BRONIE, UMIEJĘTNOŚCI, WYGLĄD, WALKA
+
+  content/weapons.lua: rejestr broni po id (Weapon.define; fire.noise, glyphs
+  set/scale/spread, pierce.minRetain), W.inHand/state/ammo/load/give/nextSlot.
+  combat/reload.lua: mechanizmy (breech, cylinder) z czasami w danych
+  (tuning.reload); interruptBefore + closing: strzał przerywa przeładowanie.
+  combat/combat.lua: ready (zachwianie blokuje strzał) -> discharge -> Volley.
+  combat/damage.lua: Damage.rating = pancerz trafionej części (obrażenia,
+  raport, przebicie). content/abilities.lua + combat/abilities.lua (Cast.kinds).
+  Idealny unik: combat/dodge.lua — Dodge.afterimage (cios na powidoku) i
+  Dodge.perfect (zwrot ładunku, zamrożenie, garda); wołają go ścieżka obrażeń,
+  ataki (pazur, szarża, lądowanie), pociski i pioruny. Tylko cios z pakietem,
+  tylko w grze i gdy rycerz jest podatny (Capabilities.vulnerable).
+  Prezentacja strzału (bez wpływu na symulację): weight.viewKick/viewKickRate/
+  thump w definicji broni -> feedback/weight.lua (podskok widoku aimKick,
+  sprężyna krytycznie tłumiona; łomot) -> renderer (pitch + aimKick). Ręce:
+  shader render/shaders.lua hands z danymi WeaponArt.look (światło, mgła,
+  nasycenie, kontrast, cień); Weapon.handsShader dla broni i ręki rzutu.
+  Stworzenie: appearance i guardian; content/enemies.lua A.of(e), A.look(e).
+  Trafienie w ciało (0.29: jedna reprezentacja na stworzenie, jawnie):
+  appearance.hit = 'painted' (domyślnie; enemies/surface: maska atlasu +
+  adnotacja anatomii appearance.regions, domyślnie atlas) albo 'volumes'
+  (enemies/geometry: profil brył appearance.anatomy w enemies/hit_volumes.lua,
+  dziś pusty rejestr). B.prepare przygotowuje tylko używaną; Geometry.uses(e)
+  wybiera. Strefa (zone), część (id), materiał, ruch (Rules.radius), atak
+  (combat/melee: M.window/M.reach) i rejestracja obrazu (enemies/pose) są
+  osobne; nic nie zależy od indeksu „części głowy”.
+  Zwłoki na linii strzału: enemies/corpse.lua (Corpse.settled, Corpse.shields)
+  — jedna reguła dla strzału natychmiastowego (B.blocks) i pocisków rycerza.
+  Przełamanie przy zabójstwie: combat/rules/balance.lua R.offBalance(e, causes)
+  ustala decyzję i przyczyny (guard, wound, knockdown, micro, trip) w jednym
+  miejscu; EnemyKilled niesie causes, telemetria tylko je liczy.
+
+8. MAPY, TRYBY, EKRANY
+
+  content/maps/<id>.lua + content/maps/index.lua: pokoje, kolumny, pieczęcie,
+  portal, spawn, kaganki, Ember, bramy fal, strefy, floor (wysokość podłogi);
+  world/arena.lua buduje świat (Game.new(kind, mapId)); W.flow = wspólne pola
+  przepływu (jedno na komórkę celu); W.clear = przejście ciała w linii.
+  run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
+  progress, policy + ready, retry, closeShop, buy, lose, reward, remaining);
+  Modes.act(g, nazwa, ...) — polecenia i skutki pytają tryb. Wyprawa
+  (run/descent.lua) nie zna poligonu: jeden strażnik „tylko sesja wyprawy
+  zapisuje, wczytuje i postępuje”; zakup Descent.trade (bez zapisu, poligon)
+  i Descent.buy (trade + zapis). Żar: session/sanctuary.lua (Sanctuary.near).
+  app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
+  ui/interface.lua tylko rozdziela.
+
+9. ZAPIS, POWTÓRKI, DETERMINIZM, POMIARY
+
+  core/rng (strumienie sim/present). session/snapshot.lua (Memento; zbiór
+  definicji współdzielonych liczony raz, odświeżany przy zmianie zestawu lub
+  tożsamości modułów src.content). Narzędzie dodające nowe zagnieżdżone
+  definicje do już wczytanego modułu wywołuje Snapshot.invalidateDefinitions()
+  przed kolejnym capture/restore. Istniejące definicje pozostają niezmienne
+  przez życie sesji i snapshotów; API nie migruje działającej sesji.
+  Wersja kompilacji: core/build.lua — Journal stempluje
+  ją w nagłówku bez udziału aplikacji (powtórka w narzędziu = ta sama wersja).
+  session/journal.lua: polecenia (look, update, shoot, cast, reloadGun,
+  switchWeapon, dash, interact, start, act = polecenia trybu przez Game:act)
+  + 'aim' (bezpośrednie ustawienie) + 'set' (stan, pauza, mapa, pomoc,
+  zamiary ustawione przez aplikację między poleceniami) + origin w nagłówku;
+  --record + F9 zapisuje dziennik (każdej sesji przyjętej przez adopt, także
+  poligonu: akcje katalogu to polecenie 'field', a nagłówek niesie warunki
+  początkowe poligonu). storage/run_save.lua: zapisuje SIGIL08, czyta SIGIL06/07.
+  Złoty wzorzec to odcisk regresji wybranych pól trzech scenariuszy (nie
+  wyrocznia poprawności): części ciała, stany i telemetria są poza nim.
+  Telemetria (combat/telemetry.lua: T.copy, T.since, T.lines) w grze i w
+  botach; app/session_report.lua słucha zdarzeń (Presentation.attacher:
+  PlayerHit -> śmierć, EnemyKilled -> poligon oczyszczony, WaveCleared) i F9;
+  każdy wpis = „to starcie” (różnica od znacznika) + „od początku pomiarów”.
+  Plik: <katalog zapisu LÖVE>/telemetry.txt (Report.path; ze źródeł
+  %APPDATA%\LOVE\sigil-breach-prototype, EXE %APPDATA%\sigil-breach-prototype).
+  qa/golden.lua + baseline; qa/scenarios/playtest.lua: populacje (podstawowa
+  i wprawna) z celami S.targets.
+  Trafienia względem obrazu (plan v7 H0): render/renderer.lua
+  R:enemyPlacement = jedna transformacja sprite'a (shader i pomiar);
+  qa/hit_truth.lua = reguła piksela shadera na CPU (sprawdzana z GPU);
+  qa/reviews/hit_truth.lua = przebiegi żywych stanów i raporty hit-*;
+  qa/data/hit_landmarks.lua + qa/hit_landmarks.lua = punkty anatomiczne
+  (test tests/cases/hit_landmarks.lua: znane wady oznaczone etapem planu).
+
+10. WZORCE PROJEKTOWE
+
+  Fasada (session/game, combat/rules), Type Object (content/defs),
+  Prototyp (extends/from), Fabryka/Prefab (ecs:create), Komponent/ECS,
+  Strategia (Attacks.kinds, Cast.kinds, AI.styles, mechanizmy, E.kinds,
+  supplies, Modes), Stan (AI.states, tryb), Obserwator (core/events),
+  Odwrócenie zależności (session/presentation: haki), Łańcuch
+  odpowiedzialności (ui/views), Harmonogram, Metoda szablonowa (C.shoot,
+  R:draw), Rejestr (core/registry), Memento, Polecenie (commands, journal,
+  Game:look), Adapter (run_save SIGIL06/07 -> 08), Pamięć podręczna (W.flow).
+
+11. GDZIE MIESZKAJĄ LICZBY
+
+  content/tuning.lua (ruch, bronie, ekonomia, reload, reach, floorSurface,
+  flowFields, collector + grupy: clocks, knight, motion, camera, rewards,
+  shot, explosives, world, feel), content/combat_defaults.lua (ciała i demony:
+  impulse, stagger, breakKill, walk, flank, keep, senses, separation, attacks,
+  claw, missiles, hazards, corpse, flashes, locks...), content/knight.lua,
+  content/waves (portal), content/maps/*, content/classic|expedition|shop,
+  definicje stworzeń/broni/umiejętności, content/ballistic_surfaces.lua
+  (wound, guard, penetrable, debris), content/art/anatomy/* (regiony obrazu),
+  physics/collision (heights), ui/palette.lua, app/bindings.lua (klawisze).
+  enemies/hit_volumes.lua nie ma już liczb (0.29: dawna kalibracja walców
+  malowanych demonów usunięta; rejestr profili dla appearance.hit='volumes').
+
+12. JAK DODAĆ (przepisy — sprawdzone w tests/cases/extension.lua, engine.lua
+    i creature_extension.lua)
+
+  Demon na ISTNIEJĄCEJ ilustracji (wariant, inny pancerz, inne zachowanie):
+  content/creatures/<id>.lua: Creature.define({ extends = rodzic, ... }), id w
+  A.creatures. Atlas, maski, klatki i animacje umiejętności dziedziczy.
+  Inny opis ciała na tym samym obrazie (płyty, inne materiały, inna liczba
+  części jednej strefy): adnotacja w content/art/anatomy/<id>.lua, wpis w
+  anatomy_regions.layouts i appearance.regions = '<id>'; adnotacja ma klatkę
+  dla każdej klatki atlasu (test anatomy-data) i spełnia Anatomy.problems.
+  Atak i unik łączy się danymi: attacks (z rodzica lub from=), move.evade,
+  appearance.art (atak -> arkusz) i appearance.evadeArt. Nowy materiał: wpis
+  w content/ballistic_surfaces.lua (wound, guard, penetrable, debris) — strzał
+  i efekty czytają politykę, nigdy nazwy. Masa i promień: ruch i kontakt ciał.
+  Demon z NOWYM atlasem: dodatkowo (kolejno, szczegóły w ANATOMIA-I-FIZYKA):
+  PNG + content/art/sources.lua (rozmiar), enemy_art (komórki/rejestracja,
+  stopy), adnotacja anatomii każdej klatki (Author.part/cellPolygon/fromPixels),
+  BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem), punkty anatomiczne
+  qa/data/hit_landmarks.lua, --hit-review, testy anatomy-data i hit-landmarks.
+  Bez narzędzia do rysowania regionów to ok. 28 klatek ręcznych wielokątów.
+  Rodzaj ataku: Action.defineKind + Attacks.kinds[nazwa]; idealny unik przez
+  powidok: test kontaktu także z Dodge.afterimage, potem Dodge.perfect.
+  Broń: Weapons.define({... hud, art?}) + Weapons.give(g, id) lub domyślny
+  loadout; mechanizm przeładowania: wpis w Reload.mechanisms z danymi czasu.
+  Wyposażenie rycerza (Q, F, C; rycerz jest człowiekiem bez magii):
+  Abilities.define({... action = Action.build(...)}) + slot w player.abilities
+  (klawisz: app/bindings.lua abilities); nowy rodzaj dostawy: Cast.kinds[nazwa]
+  (throw = ładunek prochowy; bolt = pocisk, dziś bez wyposażenia gracza).
+  Abilities.give(g, id) dodaje slot bez zmiany postaci; define waliduje Action.
+  SIGIL08 zapisuje kolejność slotów (także checkpoint), odczytuje 06/07.
+  Rzut niesie własną definicję: lot, zapalnik, promień i blast; wspólne
+  zachowanie nie odczytuje parametrów innego wyposażenia. Rejestracja nowego
+  handlera i ograniczenia statusów/wyglądu: DEVELOPMENT, „Wyposażenie”.
+  Mapa: content/maps/<id>.lua (z floor) + Maps:register; Game.new(kind, mapId).
+  Tryb: Modes:register(id, { start, progress, policy, ready?, retry?, ... }).
+  Ekran: Screens:register (klawisze) + Views:register (draw, controls).
+  Zdarzenie: event_catalog + emiter + słuchacz. Pole sesji: fields.lua
+  (sim) lub Fields.view (prezentacja). Liczba: nazwana w treści.
+
+13. ŚWIADOME GRANICE
+
+  Tryby oryginalne trzymają rekordy w g.run / g.testField (dane trybu).
+  Rola trybów (0.29, bez zmian): classic = deterministyczna arena testów,
+  botów i złotego wzorca (--selftest, --showcase, Fixtures.arena); sesja
+  descent = to, co aplikacja tworzy dla gracza (menu, poligon); wyprawa w niej
+  nie jest oferowana od 0.22, ale zapis SIGIL08, sklep i postęp pozostają
+  sprawdzane testami na jej powrót. Żadnego nie usuwamy.
+  Krzywe animacji to dane w kodzie objęte zapadką tools/check/literals.txt
+  (może maleć). Trafienia wszystkich dzisiejszych demonów: enemies/pose ->
+  enemies/surface -> maska atlasu + adnotacja anatomii (appearance.regions).
+  Jeden widz: obrót billboardu, klatki tyłem, sylwetka i punkty pazura liczą
+  się względem pozycji rycerza (g.player). Dla jednego gracza to poprawne;
+  co-op, sojusznicy, wieżyczki, demony trafiające się nawzajem albo kamera
+  powtórki z innego miejsca wymagają pozy względem obserwatora (parametr
+  widza w Pose.sample) — świadomie nie dodane. Sprite nie ma głębi: maska
+  leży w płaszczyźnie billboardu; sweep pocisku jest konserwatywny o pół
+  przekątnej komórki maski.
+  Krok symulacji 1/120 s: wynik nie zależy od FPS (qa/step_study.lua, ten sam
+  skrót przy 30/60/144/240/zmiennym FPS). Zmiana samego kroku (nie FPS):
+  1/240 przesuwa czasy kontaktów o ≤ 1 krok (≤ 0,0042 s), 1/60 do 0,025 s
+  (lądowanie skoku); upadek trupa, bieg rycerza i odepchnięcie bez zmian;
+  droga marszu demona ma błąd O(dt) ≈ 0,46 % przy 1/120 — zostawione.
+  Id kształtu, strefa obrażeń i materiał są oddzielne; dowolna liczba części.
+  Poza nie zależy od hitboxu ani zainicjalizowanego renderera. Dokładność,
+  koszt i ograniczenia: ANATOMIA-I-FIZYKA-0.28.txt; pomiary qa/reviews/hit_*.
+  Rycerz nie używa magii:
+  nadnaturalne ataki należą do demonów (bez many i zaklęć gracza).
+  Podłoga: symulacja zna Ground.height (jedna wysokość na mapę, dziś Limbo 0);
+  renderer rysuje demony i pociski od 0, więc mapa z floor ≠ 0 wymaga najpierw
+  renderera; podłoga per komórka — przy pierwszej mapie z poziomami.
+  Strzały i pociski rycerza blokują żywe i padające ciała: padające = zabite,
+  którego malowany upadek nie pokazuje jeszcze ostatniej klatki, nie przestało
+  się pochylać (corpse.settle) albo jest w powietrzu (Corpse.settled); po
+  osiadaniu przepuszczają. Padające ciała nie dostają HP/nagród. Materiały mają jawne mnożniki i politykę
+  penetracji (content/ballistic_surfaces); odbicia wymagają przyszłej specyfikacji.
+  Ruch, droga ataku i podatna powierzchnia pozostają osobnymi reprezentacjami.
+  Wybuch sprawdza ekspozycję środka; nie jest promieniem anatomicznym.
+  Pętle po g.enemies zostają tablicami (LuaJIT).
+
+14. NARZĘDZIA
+
+  FORMAT.ps1 (StyLua) przed testami; TEST.ps1 -Suite All|Architecture|
+  Mechanics|Input|Render; tools/check.ps1; raporty w work/qa-v<wersja>/
+  (qaOutput w game/src/app/release.lua). Flagi: --selftest, --input-test,
+  --showcase, --benchmark, --population (same populacje botów), --hit-review
+  (raporty trafień, GPU, opóźnienia i koszt salwy, nakładki hit-overlay-*),
+  --record (+ F9), --suite=<id> (z --selftest: jeden zestaw), --core-measure
+  (core-measure.txt: maski, salwa, pociski, pazur, Snapshot, Journal, długa
+  sesja), --step-study (step-study.txt: FPS vs krok), --mask-formats
+  (mask-formats.txt: porównanie formatów masek).
+  BAKE-HIT-MASKS.ps1 generuje maski offline po zmianie źródłowych ilustracji:
+  content/art/hit_masks.lua = tokeny RLE (content/art/mask_codec.lua,
+  dekodowane raz przy wczytaniu, nigdy na promień) + źródło każdej klatki
+  { obraz, x, y, szer., wys. }; test anatomy-data porównuje je z PNG.
+  Journal v2: pełna integralność stanu początkowego i końcowego, kontakty części
+  i działania poligonu. Złoty wzorzec obejmuje także skrót kontaktów.
+  Punkty anatomiczne: tools/art/landmarks/crops.ps1 -Kind boss -Frame 9
+  [-Points "x,y;..."] (wycinek z siatką pikseli źródła, po --hit-review).
+  Celowa zmiana rozgrywki: skopiuj work/qa-v<wersja>/golden-current.lua do
+  tests/golden/baseline.lua i opisz w ZMIANY (najpierw wyjaśnij różnice).

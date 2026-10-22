@@ -1,0 +1,17 @@
+You are generating a STYLE TEST for a video game. Use your built-in image generation tool. Do not write code, do not edit project files, do not run tests. Only generate and save ONE image.
+
+Make ONE 16:9 landscape image (about 1536x864): a finished-looking SCREENSHOT of a first-person horror shooter set in the first circle of Dante's hell. The attached image is the current game screenshot — use it ONLY for the composition and the elements on screen, NOT for its look.
+
+SCENE (same in every style test, so the styles can be compared):
+ - first-person view: two gauntleted hands at the bottom centre hold a heavy double-barrelled shotgun pointing forward; the shotgun is FIRING: a muzzle flash at the barrels;
+ - in the middle distance, directly in front, a gaunt, repulsive horned demon (emaciated humanoid body, long arms, claws, a hellhound-like snout) is HIT: it recoils with a spray of blood;
+ - a second demon (winged, owl-like) further back to the left, about to attack;
+ - the arena: a ruined gothic church-like courtyard of hell, stone pillars, arches, a red banner, a painted hell fresco on a wall, braziers, a smoky sky with distant fire;
+ - a Doom-like STATUS BAR along the bottom edge (about 1/6 of the height) with a FRONTAL face portrait of the player in the centre (a grim, scarred man with short black hair and a dark armour collar, looking straight at the viewer), and stat boxes left and right showing simple big numbers (ammo 2, health 100, armour 40, souls 150) with small icons. Text is optional; if any, keep it short and legible.
+
+READABILITY RULES (all styles): the hit demon must be the clearest thing on screen; the background must be calmer and lower in contrast than the figures; the HUD must be instantly readable; no visual noise; a deliberate, LIMITED palette as specified below — do not add colours outside it. Grim horror, not cute, not comedic.
+
+STYLE FOR THIS TEST:
+A black-and-white woodcut / steel engraving like Gustave DorÃ©'s Inferno illustrations and DÃ¼rer's woodcuts: everything built from black hatching and cross-hatching on aged paper, strong value design, no greys except through hatching. ONE accent colour only: deep blood red, used for blood, the muzzle flash and the health number. HUD as an engraved frame with an engraved portrait.
+
+Save the image as PNG exactly at work/gen/styles/04-woodcut-engraving.png (copy it from where the tool saves it; keep the original). Reply with the saved path.

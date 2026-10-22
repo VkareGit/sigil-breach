@@ -1,0 +1,187 @@
+SIGIL: BREACH — prototyp 0.28 / Flesh and Iron
+22 października 2026
+
+Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
+jest w ZMIANY-*.txt, plany i pomysły w PLAN-ROZWOJU-v7.md (nic z planu nie
+obowiązuje, dopóki nie trafi tutaj).
+
+GDZIE JEST TELEMETRY.TXT
+Paczka EXE: %APPDATA%\sigil-breach-prototype\telemetry.txt
+Gra ze źródeł (RUN.ps1): %APPDATA%\LOVE\sigil-breach-prototype\telemetry.txt
+(wklej ścieżkę w pasek adresu Eksploratora). F9 pokazuje pełną ścieżkę.
+F9 dopisuje statystyki walki (śmierć, oczyszczona potyczka i ukończona próba
+fal dopisują je same); każdy wpis ma „to starcie” i sumę od początku pomiarów.
+Z flagą --record F9 zapisuje też dziennik poleceń aktywnej sesji.
+
+URUCHOMIENIE I ZAKRES
+Rozpakuj cały ZIP. Uruchom SIGIL-BREACH.exe, zachowując DLL obok niego.
+Nie trzeba instalować LÖVE. QUICK SKIRMISH rozpoczyna szybką potyczkę.
+PROVING GROUND / F2 otwiera katalog testowy; BEGIN EXPEDITION — fale.
+Gra zachowuje angielski interfejs ze źródeł 0.14.
+Jedna arena Limbo 31 x 31, z otwartą galerią i 588 polami posadzki.
+Dopracowujemy ruch, dwie bronie, animacje, fizykę, grafikę i trafienia.
+Kolejne mapy, fabuła i łupy pozostają na później. Manifest Nikogo to
+materiał do wyglądu bohatera, nie scenariusz. Cztery fale, sklep
+oraz strażnik są drugim sposobem testowania tej samej areny.
+
+STEROWANIE
+WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
+1 / 2 / kółko — EXORCIST / JUDGE. R — przeładowanie wybranej broni.
+Shift — unik w kierunku ruchu; dwa odnawialne ładunki.
+Ctrl — ślizg; Spacja — skok (przytrzymanie powtarza skok po lądowaniu).
+Q — fizyczny ładunek prochowy (slot 1); F / C — sloty 2 i 3 na przyszłe
+wyposażenie (puste; rycerz nie używa magii). E — interakcja/sklep przy Żarze.
+Enter — gotowość do fali. Tab — mapa; F1 — pomoc; Esc — pauza.
+F2 — katalog poligonu; F11 — pełny ekran; M — wyciszenie.
+F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
+(telemetry.txt w katalogu danych gry; ścieżka wyżej i na ekranie po F9).
+Menu: mysz, strzałki, Tab i Enter. Sklep: 1 / 2 wybiera broń,
+Enter kupuje ofertę. Ustawienie MOTION ogranicza ruch obrazu.
+Wyłączenie MOTION pozostawia klatki strzału i przeładowania; usuwa kołysanie
+i dekoracyjny ruch kamery. Broń nadal pokazuje wykonane działanie.
+Krótkie naciśnięcie skoku lub strzału może czekać do 0,12 s na
+lądowanie/gotowość broni. Pauza, mapa, pomoc i utrata fokusu kasują
+taki zamiar. Wznowienie nie odtwarza zaległych strzałów ani skoków.
+Mysz ma jedną czułość w obu osiach; widok sięga 69° w górę i w dół.
+Strzał podnosi widok (strzelba 2°, rewolwer 1°) i wraca na linię przed
+następnym możliwym strzałem; sam strzał leci zawsze w środek celownika.
+
+CIAŁA I UNIK
+Rycerz i demony są ciałami: nie da się przejść przez demona ani go przepchnąć
+własnym ruchem; cios przenosi pęd według mas. Zachwiany rycerz nie strzela.
+Strzał przerywa przeładowanie, gdy w broni zostały naboje (wychylony bęben
+Sędziego zatrzaskuje się w 0,25 s). Unik zostawia powidok w miejscu startu:
+cios, który trafiłby powidok albo rycerza w trakcie uniku, to idealny unik
+(zwrot ładunku uniku, krótkie zamrożenie demonów, raz na unik).
+
+CZŁOWIEK BEZ MAGII
+Obie bronie zużywają amunicję. Q to proch, nie Fala Dusz.
+Zwykłe zabójstwo nie leczy i nie odnawia Q. Dusze są walutą.
+Wyjątek — ZABÓJSTWO PRZEŁAMANE leczy o 1/4 gardy zabitego (Sługa 9 HP,
+Ogrodnik 12,5 HP; nie ponad 100 HP). Liczy się, gdy w chwili śmierci demon
+jest ogłuszony, zachwiany lub odsłonięty (boss), albo gdy w ostatnich 2 s
+stracił gardę, upadł lub dostał poważną ranę (jednym trafieniem co najmniej
+45 % swojego HP; tak działa już pierwsze trafienie Sędziego w Sługę).
+Napis pokazuje pełną premię, także gdy zdrowie jest pełne.
+Raport F9 liczy przyczyny przełamania osobno (jedno zabójstwo może mieć
+kilka): garda, poważna rana, upadek, krótkie ogłuszenie po trafieniu,
+potknięcie bossa; decyzja i przyczyny pochodzą z tej samej reguły gry.
+Q: początkowo 2 ładunki, maksymalnie 3. Lont 1 s od rzutu, promień
+wybuchu 4 m, słabnięcie z odległością i osłona przez ściany.
+Ładunek leci po łuku, odbija się lub zatrzymuje na przeszkodach.
+Własny wybuch też rani, do 45 HP przed ochroną. Zakup: 30 dusz.
+Nadnaturalne ataki należą do demonów.
+
+DWIE BRONIE
+EXORCIST / Egzorcysta: dwulufowa strzelba, 2 naboje, po 10 śrucin
+na nabój, bazowo 12 obrażeń każdej. Z jednym nabojem strzela 10.
+Pełna moc do 4 m, liniowy spadek do 40% przy 18 m, zasięg 24 m.
+Cykl 0,94 s. Rozrzut zwiększa pokryty obszar wraz z dystansem.
+Każda śrucina ma własny promień i rozlicza pierwszą przeszkodę.
+JUDGE / Sędzia: sześciostrzałowy rewolwer z wychylanym bębnem; 6 + 24 na start.
+Zapas do 72. Baza 70, odstęp 0,38 s. Pełna moc do 12 m,
+spadek do 65% przy 36 m, zasięg 42 m. Penetracja pancerza 50%.
+Kula przebija ciała z utratą mocy: zachowane 62% przed dodatkowym
+kosztem pancerza 0,0045 na punkt ratingu. Ściana zatrzymuje kulę.
+Przeładowanie 1,85 s; naboje w bębnie po 1,16 s; zamknięcie po 1,55 s.
+Zmiana broni przerywa przeładowanie bez powielania amunicji.
+
+MATEMATYKA I TRAFIENIA
+Obrażenia fizyczne przed ograniczeniem do pozostałych HP:
+raw = baza * moc * spadek(dystans) * strefa * ulepszenie * bonus_głowy
+D = max(0, raw * 100/(100 + rating_miejsca*(1-penetracja))
+           * (1-odporność) - soak)
+Pełna odporność na typ usuwa ranę, nie fizyczny impet.
+Bonus głowy: 1,15 dla śrutu, 1,35 dla rewolweru; nie zwiększa impetu.
+Głowa podlega pancerzowi swojej części ciała: u Sług, Żelaznego, Akolity i
+Ogrodnika to jeden rating całego ciała; Margrabia (głowa 0 / tułów 30 /
+nogi 45) i Furfur (0 / 35 / 50) mają nagą czaszkę. Odsłonięty boss ma
+połowę pancerza każdej części. Obecne archetypy mają soak=0.
+Rating wroga to współczynnik, nie drugi pasek HP. Osłona gracza to
+zużywany zapas: pochłania 55% ciosu do wyczerpania. 40 na HUD oznacza
+40/100 zapasu, nie redukcję o 40%. Raport odróżnia HP, absorpcję, nadmiar.
+Strzał przecina namalowaną sylwetkę aktualnej pozy (maska 320×320), następnie
+region części ciała. Przerwy między kończynami można przestrzelić; głowa
+podąża za przewróceniem i nakładką umiejętności. Róg nie zabiera HP, lecz
+przenosi impet na gardę; czaszka jest podatna. Błona skrzydła przenosi 25%
+rany i gardy. Metalowa płyta zatrzymuje penetrację; ciało korzysta z obecnej
+utraty mocy przy przebiciu. Trzymany tasak blokuje bez ranienia właściciela.
+Luźna tkanina i odłączony efekt nie są ciałem; szata na tułowiu go nie uodparnia.
+Padający trup zatrzymuje śrut, kulę i ładunek rycerza, dopóki widać, że pada:
+malowany upadek nie doszedł do ostatniej klatki (Sługa, Żelazny, Akolita,
+Furfur: 0,44 s; Ogrodnik, Margrabia: 0,33 s), ciało jeszcze się pochyla albo
+leci w powietrzu. Nie dostaje HP ani ponownych nagród. Po osiadaniu jest
+przestrzelny. Jedna salwa używa jednej pozy sprzed huku.
+Atak wręcz ma kierunek, wysokość, zasięg i aktywny fragment zamachu.
+Znak ostrzegawczy i animacja korzystają ze wspólnego zegara.
+Ruch: kroki 1/120 s. Strzały rycerza są natychmiastowe (promień od oka);
+pociski demonów sprawdzają całą przebytą drogę razem z własnym promieniem.
+Ciężar broni wynika z pędu/masy i tłumionych sprężyn.
+Kroki i kołysanie dłoni wynikają z przebytej drogi.
+Odrzut wizualny nie przesuwa strzału poza środek celownika.
+Zderzenia ciał zachowują pęd wzdłuż normalnej oraz ruch styczny.
+Ściana rozlicza utraconą prędkość, osłonę i gardę, bez podwójnego
+uderzenia tym samym kontaktem. Sam cios o ścianę pozostaje nieśmiertelny.
+
+POLIGON
+Ember Thrall, Iron Thrall, Star Acolyte, Plague Gardener,
+Margrave of Ash oraz Furfur, Storm Count. Limit 20 żywych przeciwników.
+Katalog: cele/grupy, zasoby, GOD MODE, AI / PROJECTILES, HITBOXES,
+pozy, sklep, podgląd HUD, RESET FIELD. Galeria ma posągi, tablice
+materiałów, pola przywołań i znaki. Furfur jest dostępny na poligonie;
+ma poroże, szarżę po ustalonym kierunku i piorun z ostrzeżeniem 1,1 s.
+HITBOXES pokazuje dokładnie to, czym gra rozstrzyga, w bieżącej pozie:
+powierzchnię strzału (namalowany pigment klatki w kolorze strefy: głowa
+złota, tułów czerwony, nogi pomarańczowe; wzór materiału: róg w paski, błona
+w kropki, metal w kratkę; turkus = blokuje bez rany, np. tasak; fiolet =
+ozdoba bez kontaktu: płomień, luźny płaszcz; szary = padające ciało, które
+jeszcze zasłania), biały pierścień ruchu (kolizja ciał), czerwone punkty
+kontaktu ataku w jego aktywnym oknie (dłoń, czoło szarży, krąg lądowania
+skoku; przygaszone poza oknem) i promienie ostatniego strzału.
+Archiwum: 3 reprodukcje pieczęci Goetii i 3 pentakle Saturna.
+Poligon ma osobny stan w pamięci. F2 zachowuje instancję wyprawy,
+a powrót przywraca ją w pauzie. Próby nie zmieniają zapisu wyprawy.
+
+FALE, HANDEL I ZAPIS
+Żar ma wysoki zimny płomień. Handel wymaga bliskości, widoczności
+i przerwy w walce. Start: 100 dusz. Po fali wraca zdrowie i wpada
+60 dusz; dodatkowe wypadają z demonów. Uzupełniaj naboje i osłonę.
+Grawer FOCUS zwęża wiązkę o 28%. PIERCE: penetracja 60%, impet -35%.
+Każdy kosztuje 100 dusz; aktywny jeden. Kupione przełączasz za darmo.
+Śmierć zostawia dusze w echu; druga usuwa stare nieodzyskane echo.
+Ponowienie odtwarza wyposażenie początku fali; zakupy/fale pozostają.
+Te same nagrody wrogów nie wypłacają się ponownie przy powtarzaniu.
+Zapis przy zakupach i zmianach faz, nie w środku walki. Dwa pliki
+z kontrolą integralności; gra zapisuje format SIGIL07 i wczytuje też
+starsze zapisy SIGIL06.
+
+OPRAWA
+Inferno Giovanniego da Modeny, piekielne skrzydło Ogrodu Boscha,
+Sąd Ostateczny Memlinga oraz Michała Anioła: cztery odniesienia.
+Fresk, wapno, ochra, sadza, czerwień pigmentu, demoniczna anatomia.
+Mrok z lokalnego światła i przesłonięć; czytelny jasny HUD pozostaje.
+Napisy składają się z glifów PNG; liczby są dynamiczne.
+Broń w dłoniach jest oświetlona jak scena (pochodnia, mgła żaru, cień ku
+dołowi kadru). Dominuje wybrany wariant B: surowe żelazo, popiół i wapno. Pochodzenie: pliki
+prompts-*.json, KIERUNEK-ARTYSTYCZNY.txt, assets/art/sigils/SOURCES.txt.
+Historyczne znaki są reprodukcjami; hazardy to odrębny projekt gry.
+
+DEVELOPMENT I DANE
+LÖVE 11.5 / LuaJIT. RUN.ps1 — źródła; RUN.ps1 -Release — EXE.
+TEST.ps1 — mechanika, callbacki sterowania i rendery poza ekranem.
+BUILD.ps1 — testy, paczka i sprawdzenie EXE/ZIP.
+Flagi: --selftest, --input-test, --showcase, --benchmark.
+Detale: --detail-test oraz --detail-review.
+Strzał i śmierć: --firing-review (wyciszone sekwencje, pomiary i obrazy).
+Wyniki wszystkich zestawów: work/qa-v<wersja> (release.lua). Raporty powstają od zera.
+Powtórki: --record zapisuje dziennik poleceń; odtwarza się wyprawę, szybką
+potyczkę i poligon (także akcje katalogu poligonu).
+QA jest wyciszone, nie przejmuje kursora i ma osobny katalog zapisu.
+Testy nie zastępują subiektywnej oceny feelingu przez gracza.
+ARCHITEKTURA.txt: odpowiedzialności. DEVELOPMENT.txt: instrukcja rozwoju.
+SYSTEM-SWIATA-0.14.txt: historyczny opis praw świata.
+EXE: %APPDATA%/sigil-breach-prototype/
+Źródła w LÖVE: %APPDATA%/LOVE/sigil-breach-prototype/
+Postęp: descent-v06.a/b; ustawienia: settings-v03.txt; zrzuty: F12.
+Błędy: sigil-error.log w katalogu procesu. Zmiana source nie zmienia EXE.
+

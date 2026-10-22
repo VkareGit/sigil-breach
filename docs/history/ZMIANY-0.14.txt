@@ -1,0 +1,49 @@
+SIGIL: BREACH 0.14 (robocza, ze źródeł) — prawa świata i odczucie walki
+
+SYSTEM
+- Nowe src\archetypes.lua: wszystkie istoty jako dane (ciało, ruch,
+  dźwięki, lista ataków z pakietami obrażeń). enemy_defs.lua jest widokiem
+  zgodności generowanym z archetypów.
+- Nowe src\rules.lua: jedna odpowiedź ciała dla wroga i gracza, stany,
+  ciężka rana, garda, popchnięcie. combat.react i G:damagePlayer delegują.
+- damage.lua: odporność całkowita, stała redukcja (soak), pancerz miejsca.
+- ai.lua bez nazw demonów: rodzaje ataków lunge/bolt/fan/pool/charge/strike,
+  style ruchu flank/keep, wybór ataku z danych. Zachowanie 0.13 identyczne.
+- Pociski, kałuże, piorun i eksplozja niosą pakiety (typ, impet).
+- Gracz: popchnięcie od ciosów, oszołomienie po przełamaniu gardy, rana,
+  zatrucie spowalnia odbudowę uniku. Garda gracza 70: jeden pazur nie oszałamia, dwa szybkie tak.
+
+ODCZUCIE
+- Liczby obrażeń przy trafieniu (głowa/zabicie wyróżnione).
+- Ugięcie ciała na stronę trafienia, waga zabicia, błysk zapowiedzi ataku,
+  błysk ciężkiej rany.
+
+CIĘŻAR (src/weight.lua, opis: SYSTEM-SWIATA §12)
+- Odrzut z fizyki broni (pęd/masa); strzelba cięższa w celowaniu.
+- Uderzenie o ścianę i zderzenia ciał dla demonów i gracza.
+- Cios w gracza: odrzut broni, odwrót głowy, łuki kierunku w kolorze
+  typu obrażeń, łomot, hit-stop przy przełamaniu gardy.
+- Bliskie minięcie pocisku: świst i łuk. Pociski: rozmiar z impetu,
+  kolor typu, ślad lotu, bez czarnych dysków.
+- Potwierdzenie: złote nawiasy i dźwięk przełamania, kolory liczb
+  (rana, przełamanie), ton precyzji.
+- Demony: ugięcie na sprężynie zależne od masy, poza bólu przez całe
+  oszołomienie, drżenie rany; upadek ciał z lotem, lądowaniem, odbiciem
+  i ślizgiem (niezależny od FPS).
+- Bohater: uniesienie obrazu i pchnięcie broni przy strzale, pogłos sali,
+  skłon przy lądowaniu, kolczuga w krokach, serce poniżej 30 HP.
+
+BALISTYKA, ARENA, POLIGON, JĘZYK
+- Przebicie kulą Sędziego (CoD), okrągłe filary dla strzałów i ruchu,
+  uczciwe promienie pocisków ze znacznikiem na posadzce.
+- Otwarta arena (588 pól), łuki na prawdziwych filarach.
+- Poligon jako galeria: posągi demonów, tablice tekstur, pola przywołań,
+  podgląd ostatniego strzału przy włączonych hitboxach.
+- Cała gra po angielsku, nowe malowane napisy (Codex, ten sam krój).
+
+TESTY
+- tests_rules_v14.lua: 20 sprawdzeń praw świata, tests_weight_v14.lua: ciężar i upadki: 31 sprawdzeń, w tym potwór dodany wyłącznie
+  danymi. Razem 1865 mechaniki/zasobów; sterowanie i rendery przechodzą.
+Opis: SYSTEM-SWIATA-0.14.txt. Kopia źródeł sprzed zmian:
+work\backup-0.13-before-rules\.
+EXE nie jest przebudowany (BUILD.ps1).

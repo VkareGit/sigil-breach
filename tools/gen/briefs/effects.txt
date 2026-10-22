@@ -1,0 +1,15 @@
+You are generating game art. Use your built-in image generation tool (edit the first attached reference). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+Attachment 1 is the CURRENT impact-effects sheet of the game: 16 frames in a 4x4 grid (square), each row is one 4-frame animation growing then dissipating:
+ row 1: stone/spark impact on a wall (flying stone chips and a burst);
+ row 2: blood spray on a hit demon;
+ row 3: a puff of gunpowder smoke;
+ row 4: an arcane crackle/arc burst (lightning-like cracks in dark smoke).
+Attachment 2 is the shotgun sheet already redrawn in the approved style.
+
+Redraw the SAME 16 frames, same grid, same position and growth of each frame, in the new style: each effect as bold flat inked shapes — stone chips as ink-outlined grey-ochre shards with a simple star burst; blood as dark madder-red inked splashes and droplets (not bright red, not glossy); smoke as stacked round inked puffs in grey-brown with one lighter highlight shape; the arc burst as inked lime-white jagged bolts inside dark slate smoke. Keep each animation readable at very small size.
+
+STYLE AND BACKGROUND RULES (follow exactly):
+@STYLE@
+
+Save as PNG exactly at work/gen/codex/effects-v11-raw.png (copy it from where the tool saves it; keep the original). Square image. Reply with the saved path.

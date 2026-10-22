@@ -1,0 +1,47 @@
+﻿SIGIL: BREACH 0.6 — Żar i dusze
+
+ZREALIZOWANY ZAKRES
+Ta sama arena Limbo, nowa pętla wyprawy: przygotowanie, cztery fale,
+strażnik, pierwszy fragment pierścienia. Start jest bezpieczny;
+następna fala zaczyna się na wyraźne żądanie gracza.
+
+- Wspólny model obrażeń: typ, moc, odległość, penetracja, pancerz,
+  odporność. Każda śrucina nadal rozliczana osobno.
+- Oddzielny impet trafienia; opancerzenie nie odbiera całej reakcji.
+- Żelazny Sługa, odporność astralna Akolity, pancerz strażnika.
+- Lanca jako bezkosztowa broń awaryjna z przegrzewaniem, bez blokady
+  wyprawy po utracie dusz i amunicji.
+- Fale 7 / 8 / 10 / 13 przeciwników, potem jeden strażnik.
+- Limit jednocześnie aktywnych celów; przywołania poprzedzone znakiem.
+  Portal ponownie sprawdza pozycję gracza, aby nie pojawić się w nim.
+- Fizyczne dusze, magnetyzm z kontrolą ścian i zebranie reszty po fali.
+- Kupiec Popiołu przy Żarze, amunicja, naprawy i dwa grawerunki.
+- Utrata niesionych dusz, jedno odzyskiwalne echo, utrata starego echa
+  przy kolejnej śmierci; brak wielokrotnych wypłat za opłacone cele.
+- Powtórka bieżącej fali z jej początkowym wyposażeniem; zachowane
+  zakupy i ukończone fale. Q ma osobną esencję i nie finansuje samo siebie.
+- Lokalny zapis na granicach etapów, dwie generacje i suma kontrolna.
+- HUD fal i waluty, mapa dziewięciu kręgów, oznaczenie echa/Żaru,
+  sklep z rzeczywistą ceną i stanem po zakupie, sterowanie klawiaturą.
+- Ciemna stal pancerza, mniejsze złote dusze, boczny Żar pozostawiający
+  czytelny widok na arenę. Zachowany ruch i oprawa wcześniejszej wersji.
+
+ZAPLANOWANE DALEJ
+Pełne sanktuarium i osobiste wątki postaci SIGIL, kolejne kręgi oraz
+bardziej rozbudowane warianty przeciwników. Obecna mapa wyraźnie oznacza
+osiem niegrywalnych kręgów. Nie udajemy dziewięciu gotowych poziomów.
+
+NAJBARDZIEJ PRZYDATNE UWAGI Z GRY
+Czy normalne fale wymagają zmiany pozycji? Czy lanca przegrzewa się
+czytelnie? Czy zakup między falami jest sensowną decyzją? Czy utrata
+dusz motywuje do odzyskania echa bez blokowania kolejnej próby?
+Ceny, skład fal i obrażenia są w małych modułach danych, gotowe do strojenia.
+
+WERYFIKACJA
+304 automatyczne kontrole: 283 mechaniki i 21 obsługi wejścia;
+w tym 204 odziedziczone regresje.
+Pełna symulacja ruchu, walki, kupowania i pokonania strażnika bez
+teleportowania oraz bez nadawania zdrowia, amunicji czy pieniędzy.
+31 rzeczywistych scen wyrenderowanych w czterech proporcjach/rozdzielczościach.
+Szczegółowe raporty dołączono do paczki. Idealnie celujący bot nie jest
+miarą czasu przejścia ani trudności dla człowieka.

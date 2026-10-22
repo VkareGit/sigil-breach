@@ -1,0 +1,42 @@
+SIGIL: BREACH — kontekst przekazania 0.29, 2026-10-22
+
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Źródła w game/.
+Przeczytaj START-HERE.txt, game/docs/DEVELOPMENT.txt, ARCHITEKTURA.txt,
+INSTRUKCJA.txt, ZMIANY-0.29.txt, PLAN-ROZWOJU-v7.md (sekcja 9),
+ANATOMIA-I-FIZYKA-0.28.txt (aktualne dla 0.29).
+Snapshot outputs nie jest miejscem do edycji. Brak repozytorium Git.
+
+Nadal jeden poligon, dwie bronie fizyczne, człowiek bez magii. Dopracowujemy
+mechanikę, fizykę, matematykę, animacje, feeling i grafikę przed kampanią.
+Wcześniejsze modele potworów są wzorcem: dalsze animacje tych samych istot,
+NIE ostrzejsza reinterpretacja. Ilustracji, czcionek i chwytów nie zmieniano.
+
+0.29 dopracowało rdzeń 0.28 bez zmiany złotego wzorca: HITBOXES pokazuje
+prawdziwą powierzchnię i kontakt ataku; jedna reguła padającego ciała dla
+strzałów i pocisków (enemies/corpse.lua); przyczyny przełamania w jednym
+miejscu (Rules.offBalance -> EnemyKilled.causes); brak walców dla malowanych
+demonów (appearance.hit); anatomia w UV klatki z jawnymi konwersjami
+(Author.*), maski RLE związane ze źródłem (BAKE-HIT-MASKS.ps1, test
+anatomy-data), appearance.regions dla wariantów na tej samej ilustracji;
+materiały jako polityka danych (wound, guard, penetrable, debris).
+Wersja kompilacji: game/src/core/build.lua (czytana też przez tools/project.ps1).
+
+Pomiary rdzenia: --core-measure, --step-study, --mask-formats; jeden zestaw
+testów: --selftest --suite=<id>. Raporty: work/qa-v29.
+Świadome granice: geometria względem jednego widza (billboard), marsz O(dt)
+0,46 % przy kroku 1/120, sweep maski konserwatywny o pół przekątnej komórki.
+Decyzje dla człowieka (B2): poważna rana jako przełamanie, skrzydła z piór
+jako ciało vs błona. Boty i testy nie dowodzą frajdy.
+Nie oznaczaj planu jako perfekcyjnie zakończonego na podstawie sumy testów.
+
+Domknięcie po audycie: walidator odrzuca zdegenerowany fallback, wszystkie
+źródła masek są sprawdzane SHA-256 wraz z filtrem/UV/klasyfikatorem. Treść
+53 760 wierszy masek zachowana. Snapshot ma invalidateDefinitions() dla
+narzędzi rejestracji oraz wykrywa podmianę modułu. Wybrany zestaw testów
+pisze własny suite-ID-results.txt, bez utraty pełnego raportu.
+Skok Sługi i unik Akolity mają profil pigmentu dopasowany do bazowych
+fresków (content/ability_art, render/creature_pigment): tylko kolor, bez
+zmiany PNG, sylwetek, anatomii, kotwic i timingu. Próba generatora odrzucona,
+bo zmieniła sylwetkę. Oryginalne modele nadal są wzorcem stylistycznym.
+25 nieużywanych PNG (47,77 MiB) przeniesione do work/archive-art-v29;
+manifest i przywracanie zachowane, źródła fontów/testów/pieczęcie pozostają.

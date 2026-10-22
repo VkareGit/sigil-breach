@@ -1,0 +1,59 @@
+SIGIL: BREACH / DOMKNIĘCIE AUDYTU 0.29 / 2026-10-22
+
+ZAKRES
+Zachowane mechaniki, modele bazowe, jedno pole prób i dwie bronie. Poprawiono
+walidację anatomii i aktualności masek, kontrakt snapshotów i raporty testów.
+RLE: 168 klatek / 53 760 wierszy, brak zmian zdekodowanych komórek względem
+kopii odniesienia. Nie zmieniono HP, obrażeń, pozy, kotwic ani czasów animacji.
+
+GRAFIKA
+Korekta RGB istniejących klatek skoku i uniku: spokojniejszy mikrokontrast,
+światła i pigment; osobna kompresja nadmiernej czerwieni skoku. Bez zmiany
+alfy i obrysu. Próbę generowania zmieniającą proporcje odrzucono.
+Obejrzano wszystkie 16 klatek, pary w arenie, cień, błysk strzału i zamianę
+miejsc. Automatyczna kontrola alfy: zero różnic we wszystkich 16 klatkach.
+Selektywna korekta czerwieni: zero dodatkowych zmian zieleni/błękitu/alfy.
+Same statystyki barw nie dowodzą jakości artystycznej; załączone obrazy
+pozwalają ocenić rezultat w faktycznym rendererze gry.
+
+ASSETY
+25 nieużywanych PNG / 50 089 155 B przeniesiono do work/archive-art-v29.
+110 pozostawionych plików assets/art, w tym 86 PNG, identycznych SHA-256
+z kopią odniesienia; 25 archiwalnych również zachowało oryginalne sumy.
+Archiwum ma manifest, uzasadnienia i RESTORE.ps1. To odchudzenie aktywnego
+projektu/paczki, nie deklaracja odzyskania miejsca na dysku. Zachowane
+źródła fontów, pieczęcie, wejścia narzędzi i starsze obrazy używane w testach.
+
+WERYFIKACJA ŹRÓDEŁ
+- 346 plików Lua: kompilacja, formatowanie, zero błędów granic architektury.
+- 3082 sprawdzenia mechaniki/assetów i 36 sprawdzeń rzeczywistych callbacków.
+- Pełny showcase: 143 sceny GUI w pięciu formatach i dodatkowe sekwencje
+  broni, kontaktów, przeciwników, portali i oświetlenia.
+- 409 wpisów audytu / 11 175 kontroli wnętrz pól GUI: zero wykrytych problemów.
+- Przegląd trafień: 12 046 żywych kroków; zero kontaktów przy strzale
+  odwróconym od dotykającego demona. Poza nie zależy od wczytania renderera.
+- Końcowa korekta czerwieni sprawdzona dodatkowo przez --pigment-review.
+  Pełny przegląd będzie ponownie wykonany na zbudowanym EXE przez verify.ps1;
+  o jego zaliczeniu świadczy WERYFIKACJA-PACZKI.txt, nie sam ten dokument.
+- Pierwszy showcase przerwał limit 300 s. QA ponownie skanowało środek
+  tułowia w 320 x 320 komórkach przy każdym kroku. Teraz pamięta dokładne UV
+  dla tej samej maski/anatomii, a transformuje je dla każdej bieżącej pozy.
+  Pełne próbkowanie zachowane. Kolejny kompletny przebieg zaliczony.
+
+POMIAR RDZENIA PO POPRAWKACH (ten komputer; nie prognoza FPS)
+Snapshot capture 0,402 ms; restore 0,350 ms. Przygotowanie 20 ciał i salwa
+20 promieni 0,125 ms. 10 pocisków przeciw 20 demonom 0,0733 ms/krok.
+300 fal po 3 demony: zero zaległych rekordów telemetrii. Szczegóły i koszty
+alokacji w work/qa-core-final/core-measure.txt. Czasy zależą od sprzętu.
+
+GRANICE
+W pomiarze CPU/GPU pozostają znane 289 różnic poza pasem krawędzi na
+1 159 492 promienie; 47 460 próbek leży w pasie krawędzi. Korekta koloru
+tego nie zmienia i nie jest dowodem idealnej zgodności mipmap.
+Automatyka nie ocenia przyjemności gry ani nie zastępuje sesji człowieka B2.
+Chwyt broni, nowe mapy, kampania i dalsze rozbudowy pozostają poza tą iteracją.
+
+URUCHOMIENIE I DOWODY
+Gotowa paczka: outputs/SIGIL-BREACH-0.29/SIGIL-BREACH.exe.
+Końcowe testy EXE, zgodność źródeł i ZIP: WERYFIKACJA-PACZKI.txt.
+Porównania grafiki i raporty: katalog QA paczki oraz work/qa-v29.

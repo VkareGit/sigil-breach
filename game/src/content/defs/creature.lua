@@ -1,0 +1,139 @@
+-- Creature: the TYPE OBJECT of a demon. A creature file states only what
+-- differs from the defaults (and from its parent): Creature.define completes
+-- it (body, movement, actions), checks every field and returns the
+-- definition the rules read. Instances in play point at it.
+--   extends = <creature definition>    data inheritance (variant of a parent)
+--   attacks = { { from = 'claw', ... } } an action of the parent, changed
+--   Creature.boss({...})               the boss template (falters, 1 slot)
+local Schema = require('src.core.schema')
+local Body = require('src.content.defs.body')
+local Action = require('src.content.defs.action')
+local Defaults = require('src.content.combat_defaults')
+local Creature = {}
+Creature.evade = Schema:new('evade', {
+  speed = { type = 'number', required = true, min = 0 },
+  time = { type = 'number', required = true, min = 0 },
+  cooldown = { type = 'number', required = true, min = 0 },
+  cone = { type = 'number', default = 0.06, min = 0, desc = 'aim cone that triggers it (rad)' },
+  fromTier = { type = 'number', default = 1, min = 1 },
+})
+Creature.move = Schema:new('move', {
+  speed = { type = 'number', required = true, min = 0, desc = 'walking speed (m/s)' },
+  accel = { type = 'number', default = Defaults.accel, min = 0, desc = 'divided by sqrt(mass)' },
+  style = { type = 'string', default = 'keep', desc = 'movement style (enemies/ai.lua: AI.styles)' },
+  ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
+  heavy = { type = 'boolean', default = false },
+  evade = { type = 'table', schema = Creature.evade },
+})
+-- How a creature looks and is shown (0.24 F5): renderer, effects, portals,
+-- animation and HUD read this instead of asking for a creature by name.
+Creature.appearance = Schema:new('appearance', {
+  atlas = {
+    type = 'string',
+    desc = 'painted sheet, idle cycle and hit masks (default: id)',
+  },
+  -- What the painting is made of where a shot meets it: parts, zones and
+  -- materials (content/art/anatomy_regions.lua). A creature over existing art
+  -- may describe it differently (iron plates where the parent has skin); the
+  -- annotation must have a frame for every frame of the atlas.
+  regions = { type = 'string', desc = 'anatomy annotation of its atlas frames (default: atlas)' },
+  -- How a shot meets the body: its painted surface (mask + anatomy regions of
+  -- the atlas, enemies/surface.lua) or explicit body volumes (a profile named
+  -- by anatomy in enemies/hit_volumes.lua, enemies/geometry.lua). One is
+  -- chosen; the other is never prepared.
+  hit = { type = 'string', default = 'painted', values = { 'painted', 'volumes' } },
+  anatomy = { type = 'string', desc = "body-volume profile (hit = 'volumes' only)" },
+  layout = { type = 'string', default = 'compact', values = { 'extended', 'compact' } },
+  portal = { type = 'table', required = true, desc = 'colour of its summoning portal' },
+  stain = { type = 'table', desc = 'colour of its ground stain (default: blood)' },
+  warning = { type = 'table', desc = 'colour of its wind-up ring (default: ember)' },
+  shadow = { type = 'number', default = 1, min = 0, desc = 'shadow scale' },
+  stature = { type = 'string', default = 'normal', values = { 'normal', 'large' } },
+  casts = { type = 'table', desc = 'attack ids that glow as a spell in wind-up (all = every)' },
+  cast = {
+    type = 'table',
+    default = { size = 0.55, height = 1.35 },
+    desc = 'spell glow size, height',
+  },
+  strikeFrames = { type = 'table', desc = 'attack id -> painted frame held in its strike' },
+  motion = { type = 'string', desc = 'painted motion: hover, heavy, sway' },
+  deathStain = { type = 'number', default = 0.65, min = 0, desc = 'stain size where it dies' },
+  fieldRing = { type = 'number', default = 0.45, min = 0, desc = 'proving-ground spawn spacing' },
+  banner = { type = 'table', desc = 'HUD title: calm, fury, exposed, plainFury' },
+  art = { type = 'table', desc = 'attack id -> ability art sequence (render/ability_art.lua)' },
+  evadeArt = { type = 'string', desc = 'ability art sequence of its sidestep' },
+})
+Creature.schema = Schema:new('creature', {
+  id = { type = 'string', required = true },
+  kind = { type = 'string', required = true, desc = 'atlas and AI family' },
+  variant = { type = 'string', desc = 'id of the variant of its kind' },
+  name = { type = 'string', required = true },
+  souls = { type = 'number', default = 0, min = 0 },
+  guardian = {
+    type = 'boolean',
+    default = false,
+    desc = 'the circle guardian: its arrival and death end the trial',
+  },
+  appearance = { type = 'table', required = true, desc = 'how it looks (Creature.appearance)' },
+  threat = { type = 'number', default = 1, min = 0 },
+  maxAttackers = { type = 'number', min = 1, desc = 'own cap of simultaneous attackers' },
+  sounds = { type = 'table', default = {} },
+  body = { type = 'table', required = true },
+  move = { type = 'table', required = true },
+  attacks = { type = 'table', required = true },
+})
+-- The boss template: a large guard that falters instead of breaking,
+-- longer stance, one attacker at a time, never a major wound from one hit.
+Creature.bossTemplate = {
+  threat = 3,
+  maxAttackers = 1,
+  body = { boss = true, stability = 1.5, woundAt = 1, microStun = 0 },
+}
+local function actionsOf(parent, child)
+  if child == nil then
+    return parent and Schema.copy(parent.attacks) or {}
+  end
+  local out = {}
+  for i, a in ipairs(child) do
+    if a.from then
+      local base
+      for _, p in ipairs(parent and parent.attacks or {}) do
+        if p.id == a.from then
+          base = p
+        end
+      end
+      assert(base, 'attack from unknown parent action ' .. tostring(a.from))
+      local changed = {}
+      for k, v in pairs(a) do
+        if k ~= 'from' then
+          changed[k] = v
+        end
+      end
+      out[i] = Schema.inherit(base, changed)
+    else
+      out[i] = a
+    end
+  end
+  return out
+end
+function Creature.define(def)
+  local parent = def.extends
+  local merged = parent and Schema.inherit(parent, def) or Schema.copy(def)
+  merged.extends = nil
+  merged.attacks = actionsOf(parent, def.attacks)
+  merged.kind = merged.kind or merged.id
+  local where = 'creature ' .. tostring(merged.id)
+  merged = Creature.schema:fill(merged)
+  merged.body = Body.schema:build(merged.body, where .. '.body')
+  merged.move = Creature.move:build(merged.move, where .. '.move')
+  merged.appearance = Creature.appearance:build(merged.appearance, where .. '.appearance')
+  merged.appearance.atlas = merged.appearance.atlas or merged.id
+  for i, a in ipairs(merged.attacks) do
+    merged.attacks[i] = Action.build(a, where .. '.attacks[' .. i .. ']')
+  end
+  return Creature.schema:validate(merged, where)
+end
+function Creature.boss(def)
+  return Creature.define(Schema.inherit(Creature.bossTemplate, def))
+end
+return Creature

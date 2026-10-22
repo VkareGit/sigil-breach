@@ -1,0 +1,64 @@
+SIGIL: BREACH 0.15 / Weight and Intent
+Podstawa: źródła użytkownika 0.14, nie starszy EXE 0.13.
+
+ODCZUCIE I UCZCIWOŚĆ CELOWANIA
+- Skok i strzał pamiętają krótkie naciśnięcie przez 0,12 s.
+  Ostatni ułamek okna jest rozpatrywany przed wygaszeniem.
+- Pauza, mapa, pomoc, sklep i utrata fokusu odrzucają zaległe akcje.
+  Przytrzymany skok zachowuje wcześniejsze powtarzanie po lądowaniu.
+- Kroki, kolczuga i kołysanie broni mają wspólną fazę chodu wynikającą
+  z przebytej drogi. Nadwyżka drogi nie ginie między krokami.
+- Nie ma kroków przy skoku, ślizgu ani ostatnim fragmencie uniku.
+- Przechył wynika z prędkości po kolizji; wciskanie ruchu w ścianę
+  nie przechyla nieruchomej postaci.
+- Usunięto pionowe rozjechanie kamery i prawdziwego promienia strzału.
+  Impuls ciała pracuje teraz w dłoniach (do 4 px).
+- Wyłączenie MOTION usuwa resztki sprężyn również podczas pauzy;
+  ponowne włączenie nie odtwarza starego szarpnięcia.
+- Rytm serca zachowuje pozostałą część czasu między klatkami.
+
+FIZYKA I REAKCJE
+- Zderzenie ciał o różnych masach zachowuje pęd wzdłuż normalnej.
+  Nie tworzy energii i zachowuje ruch styczny. Rozchodzące się ciała
+  nie dostają kolejnego impulsu.
+- Blokada powtórnego slamu wygasa także po zatrzymaniu odrzutu wroga.
+  Wcześniej mogła pozostać na nim bez końca.
+- Cios gracza o ścianę korzysta ze wspólnego raportu obrażeń:
+  rzeczywiste HP/osłona, kierunek, reakcja broni i jeden łomot.
+  Nie dodaje kolejnego popchnięcia i nie leczy gracza poniżej 0,5 HP.
+- Obrażenia, HP, pancerz i parametry dwóch broni 0.14 zachowano.
+
+GRAFIKA I CZYTELNOŚĆ
+- Malowane liczby nie prześwitują przez ściany/okrągłe filary.
+- Rozmieszczenie rozdziela wartości i zostawia wolny celownik.
+  Całe glify mieszczą się w scenie, nie przyklejają się do jej krawędzi.
+- Duże wartości używają cyfr atlasu, nie zapisu wykładniczego.
+- Tablice galerii mierzą tusz liter, mają margines i nie nachodzą
+  na siebie, liczby obrażeń, celownik ani pasy interfejsu.
+  Niemieszcząca się tablica jest pomijana w całości, a nie przycinana.
+- Czwarta strefa Buera ma kolor barku/tułowia, nie białą bryłę.
+- Skrócono opisy amunicji i wstęp pomocy do wnętrza plansz; grawer
+  w HUD nie dotyka dolnej krawędzi. Audyt wnętrz przerywa test renderów
+  przy błędzie, zamiast zostawiać go tylko w raporcie.
+- Zachowano freskowe atlasy i angielski interfejs użytkownika.
+  Ta aktualizacja nie regeneruje obrazów ani nie zmienia kierunku sztuki.
+
+ORGANIZACJA KODU
+- AI: fasada stanu + enemy_actions, enemy_body, enemy_hazards.
+  body_physics zawiera czystą matematykę. Usunięto cykl Rules -> AI -> Rules.
+- player_intent zarządza czasem życia akcji; movement_gait fazą chodu.
+- render_numbers oddziela prezentację od obrażeń. Rozmieszczenie
+  ma limit 24 wpisów i ponownie używa tablic roboczych.
+- preferences przejmuje walidację i zapis ustawień.
+- qa_runtime i test_suite usuwają powtarzane ścieżki uruchamiania QA.
+  release jest wspólną tożsamością wersji okna, menu i trybu testowego.
+- Dokładny podział i równania: ARCHITEKTURA-0.15.txt.
+
+ZAKRES I WERYFIKACJA
+Zachowano otwartą galerię 0.14, sześć archetypów, przebijającą kulę
+Sędziego, dwie bronie i fizyczny Q. Nadal jedna arena testowa.
+Nie dodano map, fabuły, broni ani łupów.
+Nowe testy obejmują matematykę kontaktów, życie wejścia, chód, celownik,
+raport ściany i czytelność. Wyniki konkretnej paczki: TESTY.txt,
+STEROWANIE-TESTY.txt i WERYFIKACJA-PACZKI.txt.
+Automatyczne sprawdzenie nie dowodzi idealnego feelingu dla człowieka.

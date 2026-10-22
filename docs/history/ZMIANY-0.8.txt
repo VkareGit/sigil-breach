@@ -1,0 +1,148 @@
+SIGIL: BREACH 0.8 — Inferno
+19 października 2026
+
+KIERUNEK TEJ ITERACJI
+Wspólny mroczny język obrazu dla demonów, broni, architektury i GUI.
+Punkt wyjścia to Inferno Giovanniego da Modeny, piekielna część Ogrodu
+rozkoszy ziemskich Boscha oraz Sądy Ostateczne Memlinga i Michała Anioła.
+Nie chodzi o samo przyciemnienie: potwory mają niepokojącą anatomię,
+ciężar i wyraźne sylwetki, a dekoracja przywołuje malarstwo religijne,
+relikwiarze, osmalone złocenia i sceny kary. Całość pozostaje pikselowa.
+Interpretacje malarstwa na trzech istniejących ścianach wzmacniają
+charakter pierwotnego pola prób, bez dodawania nowych pomieszczeń.
+
+HUD I ORIENTACJA
+- Jeden dolny pas w układzie inspirowanym Doomem: amunicja, zdrowie,
+  broń, centralny portret, osłona, Q, unik i dusze mają stałe miejsca.
+- Nowa wygenerowana bitmapa relikwiarza zastępuje techniczny wygląd
+  prostokątnych paneli. Zmienne liczby i napisy są składane z gotowych
+  bitmap liter i cyfr PNG; wszystkie polskie znaki należą do atlasu.
+- Litery, polskie znaki, interpunkcja i cyfry mają piksele pochodzące
+  z wygenerowanych ilustracji alphabet-upper/lower/punctuation-v08.png
+  oraz numerals-v08.png. Własny kod składa tekst z atlasów tych bitmap;
+  aktywny alfabet nie czerpie kształtów z TTF.
+- Jaśniejszy rdzeń drobnych liter, szersze przerwy między wyrazami
+  i większe etykiety HUD poprawiają odczyt w oknie 960 x 540.
+  Numery klawiszy mają własną kolumnę, a SHIFT osobne miejsce obok
+  pasków uniku. Ostrzeżenia o amunicji otrzymały ciemną tabliczkę.
+- Osiem kompletnych, wygenerowanych nagłówków w lettering-v08.png
+  obsługuje painted_titles.lua, z zachowaniem proporcji liternictwa.
+- Portret Nosiciela: surowa twarz, czarne włosy i ciemna zbroja,
+  zgodnie z podanymi odniesieniami do Berserka, w palecie fresku.
+  Maska shadera wpuszcza go w łuk relikwiarza, pod jego zwieńczenie;
+  krawędzie portretu nie tworzą prostokątnego pola na ozdobnej ramie.
+- Manifest Nikogo przekazany przez użytkownika jest podstawą głosu
+  bohatera. Pełny tekst zachowano w MANIFEST-NIKOGO.txt; epilog otwiera
+  menu. Kierunek postaci: wina, maski, potrzeba bycia prawdziwym,
+  wyczerpana determinacja. Rozwinięcie opisuje dokument artystyczny.
+- Trzy historyczne pieczęcie Asmodaya, Stolasu i Buera pojawiają się
+  na istniejących znakach dworów w świecie i na marginesach pomocy F1.
+  Reprodukcje porównano z planszami Goetii z 1904 roku; pliki PNG
+  pozostają niezmienione; źródła i sumy są w assets/art/sigils/SOURCES.txt.
+- Świat ma własny obszar nad pasem HUD. Celownik wskazuje środek tego
+  obszaru; zmiana proporcji okna nie przesuwa go względem toru strzału.
+- Przeładowanie, przegrzanie, pancerz trafionego celu i zabójstwo
+  otrzymują odrębne sygnały. Menu, sklep i mapa korzystają ze wspólnej
+  oprawy zamiast mieszać niepowiązane style.
+
+DEMONY, BROŃ I RUCH
+- Pięć nowych atlasów horrorowych: Sługa Żaru, Akolita Gwiazd,
+  Ogrodnik Zarazy, Żelazny Sługa i Margrabia Popiołu.
+- Osobne pozy ruchu, przygotowania ataku, uderzenia, powrotu, bólu,
+  śmierci i widoków od tyłu. Rytm skrzydeł Akolity zależy od czasu,
+  więc pracują również podczas zawisu; chód pozostaje związany
+  z faktycznym przebytym dystansem, zamiast ślizgać się w miejscu.
+- Animacja opiera się na pozach sprite'ów, przesunięciu i wychyleniu.
+  Nie jest animacją szkieletową pełnych modeli 3D.
+- Ciężar pancerza, subtelny oddech oraz krótkie, oszczędne wychylenia
+  wspierają animacje. Sylwetek nie zastępuje duże sprężynowanie.
+- Nowy wygląd strzelby: ciemne żelazo, zużycie, mosiężne detale
+  i materialna konstrukcja, dopasowane do religijnego horroru.
+- Sędzia jest palnym następcą wizualnym dawnej Lancy Stolasu.
+  Nadal wykorzystuje jej prototypowe tempo, chłodzenie i profil
+  obrażeń. Pełna wymiana mechaniki arsenału jest następnym zadaniem.
+- Nie dodano jeszcze walki bronią białą, arsenału z różnych epok
+  ani kompletnego systemu broni zdobywanej od demonów. Q pozostaje
+  dotychczasową testową zdolnością; kierunek docelowy jest fizyczny.
+- Celowanie jest stabilne. Wizualny odrzut, ruch broni i skoki FOV
+  nie dodają ukrytego przesunięcia do obliczeń toru śrutu.
+
+MATEMATYKA STRZAŁU
+- Rozrzut powstaje w lokalnej płaszczyźnie celowania; każdy promień
+  jest normalizowany. Stożek nie deformuje się przy patrzeniu w górę
+  i w dół, a jego szerokość w metrach rośnie wraz z odległością.
+- Każda śrucina trafia najbliższą przeszkodę lub cel. Cała salwa jest
+  rozliczana przed usunięciem zabitych celów, więc śmierć od pierwszej
+  śruciny nie umożliwia pozostałym przeniknięcia przez to samo ciało.
+- Zachowane zależności obrażeń od dystansu, pancerza, przebicia
+  i odporności. Odrzut i ogłuszenie są osobnym wynikiem trafienia.
+- Wrogie pociski sprawdzają cały odcinek lotu w danej aktualizacji,
+  także względem przemieszczającego się gracza. Szybki pocisk nie
+  przeskakuje przez filar ani gracza między dwoma pomiarami pozycji.
+- Ciągłe zderzenia obejmują ściany, filary i podłogę pola testowego.
+
+JEDNO POLE TESTOWE
+- Zgodnie z jednoznaczną decyzją użytkownika pozostaje pierwotna arena 31 x 31.
+  To wspólne miejsce do rozwoju broni, animacji, bossów, postaci i balansu.
+- Rozbudowa map, nowe skrzydła i sekretna komnata zostały odłożone.
+  Ich kod oraz testy zachowano w archiwum rozwojowym poza źródłami
+  pakowanymi do gry; nie ma do nich aktywnych przejść ani nagród.
+- Sześć portali, obie paczki nabojów i medykament znajdują się na
+  dostępnej podłodze starej areny. Budżet zwykłej fali to nadal
+  cztery naboje i dwadzieścia punktów zdrowia.
+- Testy sprawdzają całą oryginalną geometrię, dostępność portali,
+  rzeczywisty ruch AI wokół przeszkód i brak pozostawionych zasobów
+  w niedostępnych częściach odłożonego projektu.
+
+OSOBNY POLIGON / KATALOG PRÓB
+- Nowa opcja menu i F2 otwierają niezależny poligon na tej samej arenie.
+  Wyprawa z czterema falami i strażnikiem pozostaje osobnym trybem.
+- Katalog zawiera wszystkie pięć aktualnych typów przeciwników,
+  w tym bossa: jeden cel lub grupa trzech, maksymalnie dwadzieścia
+  żywych celów. Wybór pochodzi ze wspólnego katalogu aktualnych zasobów.
+- Reset pola, pełne zasoby, przełączana nieśmiertelność, zatrzymanie
+  AI i pocisków, wybór broni oraz ręczny przegląd istniejących póz.
+  Wybrany typ, numer pozy i stan narzędzi są widoczne w interfejsie.
+- Próby używają rzeczywistych obrażeń, pancerza, ciepła broni,
+  amunicji, przeładowania, AI i cen sklepu. Próbną walutę opisano
+  oddzielnie; nie dopisuje ona dusz do wyprawy.
+- Przyciski prowadzą do bezpiecznych widoków trzech pieczęci.
+  Osobna karta archiwum pokazuje trzy znaki Goetii i trzy pentakle
+  Saturna z Klucza Salomona, z tytułem źródła i numerem ryciny.
+- Powrót przywraca zachowaną instancję wyprawy w pauzie. Twarde blokady
+  snapshot/save/load odcinają poligon od zapisu wyprawy niezależnie
+  od flagi testowej. Testy obejmują niezmienność plików i callbacki F2.
+
+ŻAR, WIDOCZNOŚĆ I CIĄGŁOŚĆ
+- Żar Pieczęci ma dużą, odrębną sylwetkę i jasny seledynowy płomień.
+  W przygotowaniu dostaje własne światło; zwykła pochodnia nie nakłada
+  się już na jego sylwetkę. Nowy start kieruje wzrok w stronę sanktuarium.
+- Wskaźnik podaje kierunek i odległość. Handel nadal wymaga bliskości
+  oraz widoczności Żaru. W trakcie fali sanktuarium jest nieaktywne.
+- Mniejszy szum podłogi, oszczędniejsze błyski i ciemniejsza krew
+  pomagają odczytać cel bez rozmywania obrazu.
+- Cztery fale, strażnik, ekonomia i dziewięć kręgów pozostają podstawą
+  prototypu. Grywalne jest tylko Limbo; nie dodano drugiego kręgu.
+- Zachowany format SIGIL06 i pliki descent-v06.a/.b. Zapisy z 0.6
+  i 0.7 działają także bez nowego pola stanu sekretnej bramy.
+- Echo z roboczego zapisu odłożonej rozbudowy trafia na dostępne
+  pole obecnej areny. Kwota, numer fali, zakupy i postęp pozostają
+  bez zmian. Nadal trzeba odzyskać dusze według zwykłych reguł śmierci.
+
+WERYFIKACJA I ZASOBY
+Końcowe wyniki należy odczytać z raportów ostatniej weryfikacji danej
+kompilacji; nie przypisujemy jej liczby testów z wcześniejszego przebiegu.
+Regresje obejmują dotychczasową grę, strzelanie, szybkie pociski,
+proporcje ekranu, topologię mapy, faktyczne trasy AI, zapis i wejście.
+Podglądy powstają w rzeczywistym rendererze przez --showcase-v08.
+Rendery i symulowane przejście pomagają wykrywać błędy, ale nie
+zastępują oceny strzelania, grozy i trudności podczas ręcznej gry.
+Ręczna próba natywnego okna została przerwana przez Esc; nie stanowi
+potwierdzenia zakupu w sklepie ani pełnej ręcznej ścieżki obsługi GUI.
+
+Nowe ilustracje i ozdobne nagłówki wygenerowano narzędziem image_gen; nie są ręcznie
+narysowanymi sprite'ami ani fotografiami skopiowanymi z muzeów.
+Alfabet PNG składa wygenerowane ilustracje liter i cyfr. Historyczne
+znaki pochodzą z reprodukcji oznaczonych domeną publiczną u źródła.
+Wybrany zestaw, prompty i odniesienia: assets/art/prompts-v08-final.json.
+Dokładniejsze zasady kierunku: KIERUNEK-ARTYSTYCZNY.txt.

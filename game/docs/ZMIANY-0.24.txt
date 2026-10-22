@@ -1,0 +1,316 @@
+SIGIL: BREACH / 0.24 / SPÓJNA LOGIKA
+
+ZAKRES: logika ataków demonów i jeden model matematyki dla wszystkich ciał.
+Grafika z 0.23 (portale, skok Sługi Żaru, unik Akolity) bez zmian.
+
+GRAFIKA CODEXA — STAN
+Portale (portal-fresco-v23.png): zapowiedź 1,2 s i narodziny 0,6 s
+odtwarzają wszystkie 8 klatek atlasu, kolor według rodzaju demona.
+Skok Sługi i unik Akolity: wszystkie 8 + 8 klatek wybierane ze stanu AI.
+Bronie (shotgun-iron-v16, revolver-iron-v16): po 16 klatek, strzał
+i przeładowanie używają wszystkich; jedyna nieużyta klatka (rewolwer 4)
+jest kopią spoczynku. Wszystko jest widoczne w grze.
+
+ATAKI BEZ ZAPĘTLEŃ
+Przed: demon zaczynał zamach, cel znikał za filarem, zamach był anulowany
+i natychmiast zaczynany od nowa (8 anulowań / minutę u Sług).
+Teraz:
+- początek ataku celuje w gracza, jeśli zapamiętany punkt jest za murem;
+- przy zwolnieniu ataku dystansowego cel jest odświeżany, jeśli gracz
+  jest widoczny, a stary punkt nie;
+- przerwany atak kończy się przerwą cancelPause 1,2 s (skracaną przez
+  agresję poziomu), zmianą strony okrążania i nową decyzją za 1,25 s;
+- demon wciśnięty w gracza (< 1,25 m) robi krok w bok zamiast stać.
+Żelazny Niewolnik dostał szarżę barkiem (3–7 m, zamach 0,8 s, pancerz
+podczas ataku ×2) — wcześniej przy krążącym graczu nie atakował wcale.
+Szarża zatrzymana przez mur wydaje głuchy łomot.
+
+Audyt (qa/scenarios/ai_audit.lua, 60 s, raport ai-audit.txt):
+              przed            teraz
+stojący gracz  anulowane 0, zablokowany 2,7 s → 0 s
+krążący gracz  Sługi: 8 anulowań → 0;  Niewolnik: 0 ataków → 7
+
+JEDEN MODEL MATEMATYKI
+Stałe przeniesione z kodu do danych (content/enemies.lua):
+- i-klatki gracza 0,32 s i uniku 0,20 s → player.body.iframes/dashIframes;
+- tarcie pchnięcia gracza 9 / w powietrzu 3,5 → player.body.drag/airDrag;
+- tarcie demonów 14 → defaults.drag (ciało może mieć własne);
+- próg zatrzymania trafienia (impuls ≥ 36) → defaults.hitPausePush;
+- zanik drgnięcia ×7 → defaults.flinch.decay;
+- demon zestrzelony w locie ląduje powalony na defaults.knockdown
+  (ten sam czas co podcięcie), zamiast osobnej liczby 0,35;
+- przerwanie ataku zawsze defaults.interruptRecover 0,35 s;
+- grawitacja upadku ciał = grawitacja świata (tuning.gravity), nie kopia 18,5;
+- udział tarczy gracza 0,55 czytany z player.body.shieldShare.
+
+KONTRA = ZDERZENIE PĘDÓW (combat/rules.lua: R.guard, R.meetRush)
+Każdy atak, który przesuwa ciało (doskok, szarża, skok), zapisuje prędkość
+biegu (e.rushVX/VZ). Reguły czytają tylko ją, nie rodzaj ataku.
+- garda: impact + min(0,6·P, 3,8 · masa · prędkość zbliżania); kontra od
+  0,5 m/s zbliżania (strzał w bok biegnącego to nie kontra). Sędzia w doskok
+  Sługi: 65,6 (dawniej ×1,5 = 66, kalibracja zachowana).
+- pchnięcie dodaje się do biegu jako wektor: skok leci dalej z sumą (strzał
+  w twarz skraca skok), bieg zwalnia, a jeśli cios odwróci pęd, bieg staje,
+  ciało leci do tyłu i jest przewrócone.
+- Sędzia w szarżę barkiem Żelaznego łamie jego hiperpancerz (87 ≥ 72),
+  w zamachu nie. Dwie kule w szarżę Furfura łamią gardę bossa.
+
+ZACHWIANIE: DWA STOPNIE, JEDEN WZÓR DLA KAŻDEGO CIAŁA
+r = (G − P)/P. Lekkie (r < 1): 0,10 + 0,10·r, ciało zaparte (40 % pchnięcia).
+Ciężkie (r ≥ 1): 0,30 + 0,08·(r − 1), max 0,60 s, pełne pchnięcie.
+Każdy czas utraty równowagi (zachwianie, przewrócenie) dzielony przez
+stabilność S = body.stability lub √masa: Sługa 1, Żelazny 1,18, gracz 1,22,
+bossowie 1,5 (dana). Przewrócenie 0,45/S (boss 0,30 = dawne bossTrip).
+Gracz: własne stopnie (0,22–0,40 s po S) i bez zapierania (pchnięcie to
+jego informacja zwrotna). Usunięte stałe: staggerBase/Gain/Max,
+counterGuard, bossFalter, bossTrip.
+Uwaga do gry: ciężkie zachwianie trwa dłużej niż dawne 0,35 s, więc
+strzelba jest mocniejsza. Model człowieka przyjął 87 zamiast 107 obrażeń.
+Do oceny w grze.
+
+BAZA POD ROZBUDOWĘ
+- Rejestr rodzajów ataków (enemies/actions.lua: Attacks.kinds): commit, aim,
+  execute, strike, duration, unseen, requires. Nowy rodzaj = jeden wpis.
+- Bronie: pakiet strzału w danych (weapons.lua: attack), glify jako
+  modyfikatory set/scale. Weapons.attack(g, slot).
+- Fale: rodzaj spoza rotacji (nowy demon) też się pojawia; Waves.build.
+- Test schematu (tests/cases/content_schema.lua): każde stworzenie, atak,
+  broń i fala sprawdzone względem reguł (wymagane pola rodzaju, pakiety,
+  unikalne id, „demon wolniejszy od rycerza”, ciągłość stopni).
+- Nowe testy: tests/cases/momentum_counter.lua (9 sprawdzeń).
+Następny krok: mechanizmy broni (łamana/bębenkowa) i umiejętności gracza
+jako rejestry tego samego typu.
+
+WERYFIKACJA (po drugiej części)
+2556 sprawdzeń, 0 błędów; 193 pliki Lua, 0 problemów architektury.
+Audyt AI bez zmian (0 anulowań, 0 s utknięcia).
+
+CZĘŚĆ 3 / WSZYSTKIE BRAKI Z DOKUMENTACJI WDROŻONE
+- POMIARY (combat/telemetry.lua), te same w grze i w botach:
+  czas kontroli = % życia demonów, gdy nie mogą działać; czas zabójstwa;
+  zachwiania lekkie/ciężkie, kontry, przewrócenia, podcięcia, rany,
+  zabójstwa przełamanych, idealne uniki, trafienia przyjęte.
+  Poligon: wynik próby fal na ekranie + plik telemetry.txt w folderze
+  zapisu; ekran śmierci pokazuje czas kontroli. Raporty botów też.
+- ZABÓJSTWO PRZEŁAMANEGO LECZY: demon zabity w zachwianiu, przewróceniu lub
+  odsłonięciu leczy 0,25 × jego garda (Sługa 9, Ogrodnik 12,5). Napis
+  BREAK KILL, puls ramki.
+- IDEALNY UNIK: cios w trakcie samego uniku (0,155 s). Raz na unik: zwrot
+  ładunku uniku, demony zamierają 0,25 s, napastnik w zasięgu 3,5 m dostaje
+  swój cios na gardę. Napis PERFECT DODGE, puls widoku.
+- REŻYSER TEMPA (content/waves.lua: director, run/spawner.lua): napięcie =
+  obrażenia gracza gasnące z τ 8 s; przerwa między stadami × 0,6–1,6;
+  spokojny i zdrowy gracz: +1 demon naraz. Portale nadal 1,2 s.
+- POSTAWA WG ZDROWIA: odbudowa gardy × (0,5 + 0,5 · HP/HPmax).
+- OGIEŃ: ładunek prochowy zadaje ogień — omija rating pancerza (odpowiedź
+  na Żelaznego). Ogrodnik podatny (−25 %), Margrabia odporny (40 %).
+- SŁABE PUNKTY BOSSÓW: czaszka bez pancerza; tułów jak dotąd; nogi mocniej.
+- GRACZ O MUR: szarża Furfura ma impuls pchnięcia 230 (3,41 m/s > 3,2).
+  Poprawka: przebudowany pakiet ciosu gracza gubił pole push.
+- WIDOCZNOŚĆ: przewrócenie gra namalowane klatki upadku i wstawania;
+  ciężkie zachwianie pokazuje klatkę odrzutu, głuchy cios i puls ramki;
+  odwrócony pęd = napis KNOCKED DOWN. Klatka 67e-balance-tiers.
+- BROŃ JAKO DANE: pole fire (naboje na pociągnięcie, śruciny, zamek,
+  gotowość, dźwięk, błysk, dym, automatyczne przeładowanie). combat.lua nie
+  rozróżnia już strzelby i rewolweru. Zostaje reload.lua (2 mechanizmy).
+
+POMIAR BOTÓW (5 fal):
+model człowieka: obrażenia 87 → 141 (rani się w 4 z 5 fal, było 1),
+  czas kontroli 4,5 %, czas zabójstwa 4,8 s.
+bot idealny (rewolwer): obrażenia 169 → 185, czas kontroli 13 %,
+  11 zabójstw przełamanych (64,9 HP leczenia).
+Boty nie trafiają idealnych uników — do sprawdzenia w grze.
+
+WERYFIKACJA (część 3): 2567 sprawdzeń, 0 błędów; 195 plików Lua,
+0 problemów architektury; audyt AI bez zmian; nowe testy
+tests/cases/push_forward.lua, schemat broni (fire) w content_schema.
+
+CZĘŚĆ 4 / PRZEGLĄD CAŁOŚCI (szlif)
+Przejrzane: reguły walki, obrażenia, strzał, pociski, walka wręcz, wybuchy,
+AI, ataki, ciało, zagrożenia, ruch gracza, sesja, poligon, spawner, dane.
+NAPRAWIONE BŁĘDY
+1. Garda zbierała obrażenia w czasie blokady (1,15 s) — pierwszy dotyk po
+   blokadzie dawał zawsze ciężkie zachwianie. Teraz blokada = nic nie wchodzi.
+2. D.core przy błędnych danych ataku zwracał 3 wartości zamiast 4 — strzał
+   kończyłby się błędem Lua (push = nil). Teraz zawsze cztery zera.
+3. Pęd biegu przerwany tym samym ciosem znikał (ciało stawało w miejscu).
+   Teraz cały pęd (bieg + pchnięcie) niesie ciało dalej, z tym samym limitem.
+4. Sługa zestrzelony w locie lądował „przewrócony” bez flagi — grafika
+   pokazywała zwykły ból zamiast upadku. Teraz Rules.knockDown (klatki upadku).
+5. Unik Akolity przerwany zachwianiem wznawiał się po nim. Teraz przerwanie
+   kończy unik.
+6. Idealny unik dało się „wyklikać” przebiegając przez własny ładunek
+   prochowy (zwrot uniku + zamrożenie demonów za darmo). Teraz tylko cios
+   demona.
+7. Apteczka pokazywała +25 nawet gdy leczyła mniej. Teraz pokazuje ile
+   naprawdę dała (to samo dla amunicji).
+8. Reżyser tempa nie zerował napięcia między próbami fal na poligonie.
+DUPLIKATY I STAŁE ZASZYTE W KODZIE
+- Bryła rycerza (promień 0,22, wysokość 1,80/1,95, odstęp od podłogi
+  0,05/0,08) była w pięciu miejscach z różnymi liczbami: walka wręcz,
+  pociski, zagrożenia, lądowanie skoku, ruch. Teraz jedna: player.body
+  radius / height / feet. Pociski trafiają w czubek głowy na 1,80 + promień
+  pocisku (było 1,95 bez względu na promień).
+- Maks. zdrowie 100 i zapas 72 wpisane w apteczki, sklep fal, spawner,
+  wyprawę → dane ciała rycerza i profilu broni.
+- Granice odporności (−25 %…60 %) liczone osobno dla demonów i gracza →
+  jedna funkcja Damage.resistance.
+- Odrzut broni (F.kick) i Weapons.canFire wybierały broń po numerze →
+  czytają profil broni w ręku.
+- Drobne: zdublowane wyliczenie rzutu zabijającego i kąta drgnięcia,
+  zbędny warunek w okrążaniu.
+SPRAWDZONE I CELOWO ZOSTAWIONE
+- Piorun Furfura anulowany, gdy mur zasłoni cel w chwili rzutu — to zasada
+  v10 (test ją pilnuje); poprawiłem tylko opis flagi „unseen”.
+- Martwego kodu brak (nieużywane są tylko wywołania silnika LÖVE).
+- Kopie małych funkcji (len, clamp, finite) w wielu plikach — styl, bez
+  wpływu na zachowanie.
+POMIAR: POPULACJA GRACZY
+Jeden przebieg bota jest chaotyczny (bot idealny po poprawkach: 185 → 81
+obrażeń bez zmiany balansu). Dlatego nowy raport playtest-population.txt:
+5 modeli człowieka (refleks 0,22–0,38 s, celność, obrót).
+Wynik: wygrane 5/5, obrażenia średnio 126,5 (93–142), czas kontroli 3,1 %,
+czas zabójstwa 4,71 s.
+TESTY: 2577+ sprawdzeń, 0 błędów; nowe tests/cases/polish_regressions.lua
+(po jednym sprawdzeniu na każdy naprawiony błąd); 196 plików Lua,
+0 problemów architektury; audyt AI bez zmian.
+
+CZĘŚĆ 5 / PRZEBUDOWA KODU POD ROZWÓJ (bez zmiany zachowania)
+Opis całości: docs/ARCHITEKTURA.txt (warstwy, wzorce, przepisy „jak dodać”).
+- WARSTWA CORE: src/core/mathx.lua zastępuje 32 kopie clamp/finite/len/
+  distance/lerp/angle/approach w 24 plikach. Kontrola architektury zna
+  warstwę core (wolno jej używać wszędzie, sama nie zależy od niczego).
+- FASADA REGUŁ: combat/rules.lua (600 linii, 8 odpowiedzialności) to teraz
+  fasada nad combat/rules/{body, conditions, spawning, impulse, balance,
+  hit_response, contact, knight}.lua. API bez zmian.
+- AI — WZORZEC STAN: AI.update = ciało -> zmysły -> obsługa stanu
+  (AI.states.windup / strike, reszta „wolny”). Style ruchu jako strategie
+  (AI.styles.flank / keep); test schematu sprawdza style w danych.
+- DANE — PROTOTYP I REJESTR: jeden plik na demona (content/creatures/),
+  content/knight.lua, content/combat_defaults.lua, content/conditions.lua
+  (efekty stanów przeniesione z kodu reguł do danych), content/creature_kit
+  (packet, derive). content/enemies.lua to rejestr (A.creatures, A.each).
+  Pazur Żelaznego = derive(pazur Sługi, zmiany) zamiast kopii.
+- BRONIE — STRATEGIA: mechanizmy przeładowania (breech, cylinder) w
+  rejestrze combat/reload.lua; profil broni podaje mechanism. Ładowanie
+  dotyczy przeładowywanej broni, nie numeru 1/2.
+- ZNAJDŹKI — STRATEGIA: Interactions.supplies (health, ammo z polem slot).
+- STRZAŁ — KROKI: C.shoot (250 linii) = ready -> discharge -> Volley
+  (trace, pierce, apply) -> confirm.
+- RENDER — PRZEBIEGI: R:draw (315 linii) = 9 nazwanych przebiegów w tej
+  samej kolejności (kontrakt głębi). Promień pierścienia skoku z danych.
+- Drobne: układ atlasu (rozszerzony/kompaktowy) w jednej tabeli animacji;
+  martwa gałąź w klasycznym HUD; packet() z polem push.
+WERYFIKACJA: 2578 sprawdzeń, 0 błędów; 215 plików Lua, 0 problemów
+architektury. Audyt AI i populacja 5 modeli człowieka dają DOKŁADNIE te
+same liczby co przed przebudową (symulacja deterministyczna) — zachowanie
+gry nie zmieniło się. Klatki renderera bez zmian.
+
+DOKUMENTACJA
+docs/matematyka/index.html — pełny opis modelu (wzory, wykresy, kalkulator
+trafienia, zrzuty z silnika, porównanie z grami referencyjnymi, ocena listy
+Gemini, czego brakuje). Opublikowana też jako strona (artifact).
+Pęd sumuje się tak samo u demonów i gracza (R.addPush): dwa szybkie
+ciosy rzucają dwa razy dalej niż jeden, ale suma nigdy nie przekracza
+pułapu pojedynczego ciosu vmax / masa (lub samego ciosu zabijającego).
+Wcześniej drugi cios u demona nadpisywał pierwszy — u gracza się sumował.
+
+WERYFIKACJA
+Wszystkie testy (selftest, input, showcase) przechodzą, formatowanie OK,
+191 plików Lua, 0 problemów architektury. Nowe sprawdzenia w
+tests/cases/impulse_law.lua: sumowanie pędu, pułap, dane ciała rycerza.
+
+
+CZĘŚĆ 6 / MODERNIZACJA E0–E11 (plan v3; zachowanie gry bez zmian)
+
+Cel: baza pod hub/bazę, więcej demonów, zaklęć, broni, map i trybów bez
+cofania się do fundamentów. Każdy etap kończył się tym samym złotym
+wzorcem symulacji (playtest ce5a0757/e5d7dbe3, human 6a5d353b/85953a37,
+drill d7d716e6/918cd167) — rozgrywka jest bit w bit taka sama.
+
+- E0 ZŁOTY WZORZEC: qa/golden.lua (skrót FNV-1a stanu symulacji),
+  scenariusz drill (40 s walki z każdym systemem), tests/golden/baseline,
+  test niezmienności definicji.
+- E1 FUNDAMENT src/core: class, schema, registry, events, ecs, scheduler,
+  rng (dwa strumienie), timers, strict, serialize, mathx.
+- E2 DEFINICJE (Type Object): content/defs (packet, body, action z
+  rejestrem rodzajów, creature z extends/from i Creature.boss, knight,
+  weapon, condition). Pliki stworzeń zawierają tylko różnice; usunięte
+  fallbacki danych w kodzie (domyślne uzupełnia schemat).
+- E3–E4 ECS: komponenty i prefaby (session/components.lua), pule nad
+  tablicami sesji (session/world.lua), fabryka bytów, tryb ścisły w
+  testach (wyłapał niezadeklarowane pola rycerza: heat/heatDelay/overheat).
+- E5 SYSTEMY: src/systems/{clocks, knight, combat, world} + jedno miejsce
+  kolejności systems/index.lua, uruchamiane przez core/scheduler.
+- E6–E7 ZDARZENIA: katalog ~29 rodzajów, faza 'sim' (nagrody, combo,
+  hit-stop, pomiary) i 'present' (dźwięk, cząstki, kamera); emitery w
+  walce, AI, ataki, ciała, spawner, ładunki, pociski, znajdźki.
+- E8 TRYBY: run/modes.lua (field, expedition, classic: init, start,
+  progress; nowe tryby przez g.mode), session/capabilities.lua (jedno
+  miejsce czytające flagi trybu), app/screens.lua (rejestr klawiszy
+  ekranów; input.lua bez nazw ekranów).
+- E9 LICZBY: nazwane grupy w content/combat_defaults (walk, flank, keep,
+  senses, separation, attacks, claw, missiles, hazards), content/waves
+  (portal), content/tuning (explosives), dane trybów content/classic,
+  content/expedition, content/shop; enemies/hit_volumes.lua (kalibracja);
+  wysokości kafli w physics/collision (wcześniej 4.2/4.8/4.175 w czterech
+  plikach); wysokość oczu rycerza w jego ciele; ui/palette.lua (35
+  literałów kolorów). Sklep jako Strategia (E.kinds). Zapadka liczb w
+  tools/check (1397 nienazwanych liczb, głównie dane kalibracji i krzywe
+  animacji; może tylko maleć).
+- E10 ZAPIS I POWTÓRKI: session/snapshot.lua (Memento: przywrócona sesja
+  gra dalej identycznie), session/journal.lua (dziennik poleceń jako
+  tekst; odtworzenie daje tę samą walkę bit w bit). Zapis wyprawy SIGIL06
+  bez zmian.
+- E11 PORZĄDEK: tests/support/fixtures.lua w 50 plikach testów (check,
+  near, sesje startowe), katalog pól sesji src/session/fields.lua
+  (~170 pól z właścicielem; złoty test odrzuca nowe niezadeklarowane),
+  Registry:unregister, Action.defineKind, ścisły wybór rodzaju ataku (bez
+  cichego zastępowania bełtem), test rozszerzalności (nowy demon, rodzaj
+  ataku, tryb i ekran dodane i usunięte bez zmian w systemach),
+  ARCHITEKTURA i KONWENCJE przepisane.
+
+WERYFIKACJA: 2623 sprawdzeń, 0 błędów (selftest, input, showcase);
+266 plików Lua, 0 problemów architektury; złoty wzorzec identyczny.
+
+
+CZĘŚĆ 7 / PLAN v4 F0–F9 (modernizacja techniczna; rozgrywka, balans,
+wygląd i stare zapisy bez zmian; złoty wzorzec identyczny po każdym etapie)
+
+- F0 STRAŻNICY: tools/check pilnuje kierunku symulacja -> prezentacja
+  (zapadka, było 26 krawędzi) i emiterów zdarzeń (GuardBroken/KnockedDown
+  usunięte z katalogu; AttackCancelled, WaveCleared, ModeStarted emitowane).
+- F1 SYMULACJA BEZ PREZENTACJI: session/presentation.lua (haki), feedback/
+  install.lua; enemies/corpse.lua (stan zwłok z feedback), arytmetyka
+  pancerza w combat/damage, galeria podzielona (world/gallery + render/
+  gallery), transients w feedback, mysz przez hak. 0 krawędzi; test
+  headless: symulacja z wyłączoną grafiką/dźwiękiem daje ten sam skrót.
+- F2 STAN WIDOKU: ~90 pól prezentacji pod g.view; strażnik metatabeli
+  sesji; katalog pól podzielony (sim / view).
+- F3 ARSENAŁ PO ID: player.loadout + player.arsenal[id]; bronie w
+  rejestrze po id (exorcist, judge) z danymi HUD i arkusza rąk; mechanizmy
+  przeładowania na rekordzie broni; UI/wejście bez założenia dwóch broni
+  (klawisze 1–9, kółko = następny slot). Zapis SIGIL07 (arsenal=id:mag:
+  reserve...), SIGIL06 wczytywany z migracją. Test: trzecia broń z danych
+  strzela, przeładowuje się, zapisuje i wczytuje.
+- F4 UMIEJĘTNOŚCI: Ability.define, player.abilities + abilityState,
+  combat/abilities.lua (wspólny rzucający; throw = proch, bolt = pocisk);
+  pociski rycerza trafiają demony (side 'knight'); g:cast(slot) zamiast
+  g:pulse(); zapis kit=id:uses. Test: zaklęcie-pocisk ze slotu 2.
+- F5 WYGLĄD JAKO DANE: appearance w definicji stworzenia, guardian zamiast
+  kind == 'boss'; renderer, efekty, animacja, portale, HUD, galeria i
+  poligon czytają dane (0 porównań po nazwie demona).
+- F6 MAPY: content/maps/limbo.lua + rejestr map; world/arena buduje z
+  danych (siatka identyczna — suma kontrolna w teście); Ember, bramy, strefy
+  i start rycerza z mapy; druga mapa testowa buduje się i jest grywalna.
+- F7 EKRANY: ui/views.lua (draw + controls, łańcuch dostawców), ekrany w
+  ui/screens/ (hud, map, menu, pause, help, ending), ui/kit.lua;
+  ui/interface.lua 800 -> 235 linii, bez łańcuchów if g.state.
+- F8 TRYBY I ZAPIS: każda sesja nazywa tryb (g.mode), polityka trybu
+  (phased, freezable, invincible) w session/capabilities; tryb w zapisie;
+  dziennik z nagłówkiem odbudowuje sesję; --record + F9 zapisuje dziennik.
+- F9 SPRZĄTANIE: stałe ruchu i kamery rycerza nazwane (tuning motion,
+  camera); zapadka liczb 1397 -> 1189; dokumentacja.
+WERYFIKACJA: 2647 sprawdzeń, 0 błędów (selftest, input, showcase);
+285 plików Lua, 0 problemów architektury, 0 krawędzi symulacja->prezentacja;
+złoty wzorzec ce5a0757/e5d7dbe3, 6a5d353b/85953a37, d7d716e6/918cd167.

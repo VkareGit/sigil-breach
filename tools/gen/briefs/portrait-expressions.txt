@@ -1,0 +1,14 @@
+You are generating game art. Use your built-in image generation tool. Do not write code, do not edit project files, do not run tests. Only generate images and save them.
+
+The attached image is the APPROVED base portrait of the player character (HUD face, like Doom's status-bar face). Generate FIVE new square images that are edits of exactly this portrait: the SAME man, the SAME painting style (dark umber background, bold dark brown contour, flat earth colours, lime-white highlights), the SAME armour, the SAME framing and scale. The head must stay in exactly the same place and size in the frame, strictly frontal, so the six images can be swapped frame-by-frame in an animated HUD without the head jumping. Only the facial expression (and the small details listed) changes.
+
+Save them as PNG, 1024x1024, exactly at:
+  work/gen/codex/expr-2-glance-left.png   eyes glance hard toward the VIEWER'S LEFT (image left), head still frontal, same anger
+  work/gen/codex/expr-3-glance-right.png  eyes glance hard toward the VIEWER'S RIGHT (image right), head still frontal, same anger
+  work/gen/codex/expr-4-hurt.png          just struck: eyes squeezed shut, brows knotted in pain, teeth clenched, a fresh bleeding cut on the cheek
+  work/gen/codex/expr-5-critical.png      near death: exhausted, eyes half-lowered but still looking at the viewer, skin greyer, blood running from the brow and the corner of the mouth, armour more battered
+  work/gen/codex/expr-6-firing.png        firing a gun at the viewer: teeth bared in a furious grimace, eyes narrowed, jaw tense
+(copy each generated image from wherever the tool saves it to these exact paths; resize to 1024x1024 if needed; keep the originals).
+
+DO NOT: turn the head, change the hairstyle, add a beard or moustache, add hands, weapons, text, watermark, frame or border, change the background.
+When finished, reply with the five saved paths.

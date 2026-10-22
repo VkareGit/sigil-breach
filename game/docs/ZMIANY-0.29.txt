@@ -1,0 +1,114 @@
+SIGIL: BREACH / 0.29 / TRUE SURFACE
+
+Dopracowanie rdzenia 0.28 bez nowej zawartości: ten sam poligon, dwie bronie,
+obecni przeciwnicy, te same ilustracje, czcionki i chwyty broni. Złoty wzorzec
+(playtest, human, drill i skróty kontaktów) jest bit w bit taki sam jak w 0.28:
+rozgrywka w scenariuszach testowych się nie zmieniła. Punktów anatomicznych
+nie przesuwano, progów i tolerancji testów nie luzowano.
+
+1. HITBOXES POKAZUJE TO, CZYM GRA ROZSTRZYGA
+Było: widok poligonu rysował stare walce, a strzał liczył maskę i regiony.
+Jest: pigment bieżącej klatki w kolorze strefy (głowa/tułów/nogi), wzór
+materiału, turkus = blokuje bez rany, fiolet = ozdoba bez kontaktu, szary =
+padające ciało, które zasłania; osobno biały pierścień ruchu i czerwone punkty
+kontaktu ataku w aktywnym oknie (dłoń, czoło szarży, krąg lądowania skoku).
+Sprawdzone obrazami w ruchu, ataku, skoku, uniku, przewróceniu, upadku i przy
+odsłoniętym bossie (hit-overlay-*.png w raportach --hit-review/--showcase).
+
+2. JEDNA ZASADA PADAJĄCEGO CIAŁA (enemies/corpse.lua)
+Było: strzał przestawał się zatrzymywać po 0,33 s (osiadanie pochylenia), choć
+malowany upadek Sługi, Żelaznego, Akolity i Furfura trwa 0,44 s — przez 0,11 s
+kule przechodziły przez widocznie padające ciało. Pociski rycerza pomijały
+każde zabite ciało. Jest: zasłania, dopóki upadek nie pokazuje ostatniej
+klatki, pochylenie nie osiadło lub ciało jest w powietrzu; ta sama reguła dla
+strzału natychmiastowego i pocisków. Bez HP i nagród; po osiadaniu przepuszcza.
+Rycerz nie ma dziś broni pociskowej, więc druga część dotyczy przyszłej broni.
+Test falling-bodies: za ciałem, w połowie upadku, dokładnie na granicy,
+ciało w powietrzu, boss, śrut bez rany i nagrody, przebicie Sędzią, ściana
+przed ciałem, pocisk przed i po osiadaniu.
+
+3. PRZEŁAMANIE PRZY ZABÓJSTWIE: DECYZJA I PRZYCZYNY W JEDNYM MIEJSCU
+Rules.offBalance(e, causes) ustala decyzję oraz przyczyny (garda, poważna
+rana, upadek, krótkie ogłuszenie, potknięcie bossa); EnemyKilled je niesie,
+telemetria tylko liczy. Wcześniej telemetria odtwarzała przyczyny osobno
+i mogła rozjechać się z grą; ogłuszenie i potknięcie trafiały do „inne”.
+Reguła bez zmian: poważna rana nadal liczy się jako przełamanie (ocena B2).
+
+4. ANIMACJA UMIEJĘTNOŚCI, REPREZENTACJA TRAFIENIA, ANATOMIA
+Wybór arkusza umiejętności sprawdza każdy możliwy arkusz: istota ze skokiem
+i unikiem pokazuje unik (wcześniej nigdy). Dziś żaden demon nie ma obu, więc
+gracz tego nie widział; regresja na kopii testowej. Dawna kalibracja walców
+malowanych demonów usunięta (B.prepare liczył je przy każdym strzale dla
+wszystkich ciał). Reprezentację wybiera stworzenie: appearance.hit.
+Anatomia: jedna konwencja (UV klatki), jawne konwersje z metadanych,
+rozmiary źródeł sprawdzane z PNG, maski związane z obrazem i prostokątem
+klatki, wspólna walidacja Anatomy.problems. Regiony po konwersji identyczne
+z 0.28 (największa różnica 5e-16). Nowe: appearance.regions — wariant może
+inaczej opisać części tej samej ilustracji. Materiał ma pole debris: efekty
+nie pytają już o nazwy metal/bone/horn.
+
+5. ŁAŃCUCH I KROK SYMULACJI
+Wejście -> poza (enemies/pose) -> kontakt (surface/melee/projectiles) ->
+obrażenia (Damage.surface) -> reakcja (rules) -> prezentacja (zdarzenia
+'present') jest jednokierunkowy; render nie zmienia pozy ani RNG (test).
+Pomiar --step-study: ten sam skrót przy 30/60/144/240/zmiennym FPS (700
+kroków). Zmiana samego kroku: 1/240 przesuwa kontakty o ≤ 1 krok, 1/60 do
+0,025 s; marsz demona ma błąd O(dt) 0,46 % przy 1/120 — zostawiony.
+
+6. KOSZT (--core-measure, przed -> po, ten sam komputer)
+Maski: plik 9033 -> 1408 KiB (RLE, wybrane pomiarem --mask-formats spośród
+hex/przycięte/upakowane/RLE), pamięć 1375 -> 715 KiB, wczytanie 28,7 ->
+32,8 ms (dekodowanie raz przy starcie; nigdy na promień, bez przycięcia przy
+pierwszym strzale). Salwa 20 promieni na 20 ciał 0,126 -> 0,100 ms.
+Pociski: 10 na 20 demonów 0,716 ms / 161 KiB -> 0,076 ms / 2,9 KiB na krok.
+Snapshot: zapis 2,71 -> 0,45 ms, odtworzenie 2,27 -> 0,26 ms. Pazur bez
+alokacji punktu dłoni. Długa sesja (300 fal): rekordy telemetrii 900 -> 0
+(zwalniane przy śmierci i usunięciu ciała). Journal: eksport 16 ms bez zmian.
+Wersja w nagłówku dziennika z core/build.lua, nie z efektu importu aplikacji:
+dziennik nagrany w grze odtwarza się w narzędziu bez aplikacji.
+
+7. ROZBUDOWA (test creature-extension, tylko w teście)
+Istota na ilustracji Sługi z własną adnotacją (tułów pocięty na 2-4 płyty,
+jedna strefa), skokiem Sługi i unikiem Akolity, nowym materiałem „płyta”
+(połowa rany, podwójna garda, stop przebicia, iskry) — przez niezmienione
+systemy, bez warunku na nazwę. Po teście wszystko usunięte.
+Test pokazał też, że część tułowia Sługi to błona skrzydła (25 % rany): to
+zamierzony stan danych, nie błąd.
+
+8. ŚWIADOMIE ZOSTAWIONE
+Poważna rana = przełamanie (B2). Skrzydła z piór Akolity = ciało, błona Sługi
+chroni (decyzja do B2, opis w ANATOMIA-I-FIZYKA). Geometria względem jednego
+widza (billboard). Tryby classic i descent zostają (testy/złoty wzorzec oraz
+sesja gracza z uśpioną wyprawą). Narzędzie do rysowania regionów: ocena
+w ANATOMIA-I-FIZYKA, do zrobienia przy pierwszym nowym atlasie.
+
+Szczegóły: ARCHITEKTURA (pkt 7, 9, 12-14), ANATOMIA-I-FIZYKA, DEVELOPMENT.
+
+DOMKNIĘCIE PO AUDYCIE / 2026-10-22
+- Walidacja: fallback z czterech różnych narożników obwodu; zerowe pole,
+  powtórzenia i skrzyżowana kolejność są odrzucane. Istniejące regiony bez zmian.
+- Aktualność masek: SHA-256 wszystkich pełnych PNG, dokładny UV i filtr,
+  reguły klasyfikacji. Podmiana obrazu pod tą samą nazwą/rozmiarem wykrywana.
+  Ponowny bake: 168 klatek, 53 760 wierszy, zero zmian wartości komórek.
+- Snapshot: jawne invalidateDefinitions() po dopisaniu definicji przez
+  narzędzia; wykrywanie podmiany modułu. Bez migracji żywych sesji.
+- Wybrane testy nie nadpisują pełnego raportu: suite-ID-results.txt.
+- Pełny przegląd trafień pamięta środek tułowia w UV klatki zamiast ponownie
+  skanować jej 320 x 320 komórek przy każdym kroku. Pozycję świata liczy
+  nadal z bieżącej pozy; liczba kroków i promieni kontrolnych bez ograniczeń.
+  Limit czasu TEST.ps1 jest konfigurowalny, timeout pozostaje błędem testu.
+- Skok i unik: dopasowany pigment istniejących klatek do bazowego fresku.
+  Sługa ma przygaszoną ochrę i czerwień, Akolita spokojniejsze światła.
+  Grupowanie wyłącznie RGB; obrys, alfa, pozy, kotwice i trafienia zachowane.
+  QA porównuje 16 klatek oraz pary scen z tym samym oświetleniem.
+  Wariant generatora odrzucono ze względu na zmieniony kontur; aktywne PNG
+  potworów nie zostały podmienione.
+  Po uwadze o czerwieni dodano selektywną korektę nadmiernie czerwonego pigmentu
+  skoku; test potwierdza brak dodatkowych zmian zieleni, błękitu i alfy.
+  Oglądane także w cieniu, przy błysku i po zamianie miejsc obu postaci.
+- Porządki: 25 nieaktywnych PNG / 50 089 155 bajtów przeniesione do
+  work/archive-art-v29, manifest SHA i przywracanie. Pozostały materiały
+  używane przez grę, testy i warsztat oraz historyczne pieczęcie.
+
+Wyniki i granice odbioru: ODBIOR-0.29.txt. Końcowy dowód testów samego EXE
+powstaje osobno w WERYFIKACJA-PACZKI.txt podczas tools/verify.ps1.

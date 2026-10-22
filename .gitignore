@@ -1,0 +1,11 @@
+# Local tooling configuration may contain private machine paths or credentials.
+.claude/
+.mcp.json
+.codex/
+# Generated QA evidence, reversible archives and built deliveries stay on disk.
+work/
+outputs/
+*.log
+toolchain/**/*.zip
+Thumbs.db
+Desktop.ini

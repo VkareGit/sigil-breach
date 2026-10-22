@@ -1,0 +1,84 @@
+HISTORICAL GOETIC SEALS / SIGIL: BREACH 0.8
+Retrieved and visually checked: 2026-10-19
+
+These three PNGs are downloaded reproductions, not AI-generated symbols.
+The downloaded bytes have not been cropped, repainted or otherwise modified.
+Display tint and removal of the white paper happen only in the game shader.
+
+PRIMARY EDITION USED FOR COMPARISON
+The Book of the Goetia of Solomon the King, translated by S. L. MacGregor
+Mathers, edited/published by Aleister Crowley, 1904.
+Digitized first-edition plates and printed pages:
+https://commons.wikimedia.org/wiki/File:The_Book_of_the_Goetia_(Mathers-Crowley,_1904).djvu
+https://en.wikisource.org/wiki/Index:The_Book_of_the_Goetia_(Mathers-Crowley,_1904).djvu
+Original scan source credited by Commons:
+https://www.100thmonkeypress.com/biblio/acrowley/books/goetia_1904/goetia_text.pdf
+
+The seals are on separate plates. Spirit number and figure number differ:
+Buer: spirit 10, figure 11 on scan 6, descriptive text printed page 15 (scan 29).
+Asmoday: spirit 32, figure 37 on scan 26, text pages 20-21 (scans 34-35).
+Stolas: spirit 36, figure 41 on scan 26, text page 22 (scan 36).
+Plate pages:
+https://en.wikisource.org/wiki/Page:The_Book_of_the_Goetia_(Mathers-Crowley,_1904).djvu/6
+https://en.wikisource.org/wiki/Page:The_Book_of_the_Goetia_(Mathers-Crowley,_1904).djvu/26
+Use the linked page image: the transcription may omit plates or be unproofread.
+
+DOWNLOADS
+All are 450x450 PNGs. Commons credits Mathers and Crowley, uploader
+Bioika0201 (2018-06-28), and source http://www.hermetics.org/pdf/grimoire/ac_goetia.pdf.
+They are individual reproductions in the same edition tradition, not claimed
+as literal crops from the above DJVU file. Their designs were checked against
+the primary plates, including the enclosing named circles.
+
+buer-1904.png
+Description: https://commons.wikimedia.org/wiki/File:10-Buer_seal.png
+Bytes: https://upload.wikimedia.org/wikipedia/commons/d/d2/10-Buer_seal.png
+SHA256: EAE7654B052DD384A78C29A03B9D44EBA861B50B8BD4784358CEF784AC6C4231
+SHA1: 0601B3307F14C2EBAA74EFDC3289E4042B6157BB
+
+asmoday-1904.png
+Description: https://commons.wikimedia.org/wiki/File:32-Asmoday_seal.png
+Bytes: https://upload.wikimedia.org/wikipedia/commons/7/7b/32-Asmoday_seal.png
+SHA256: 732BF72097D1C6A3D1659104A7965D5F715E38E3B7FA40305983DF6D259A5B29
+SHA1: 772265755AB0DCA4EDBFA44607C1F36AAFA25B89
+
+stolas-1904.png
+Description: https://commons.wikimedia.org/wiki/File:36-Stolas_seal.png
+Bytes: https://upload.wikimedia.org/wikipedia/commons/c/c7/36-Stolas_seal.png
+SHA256: 4D6E79EB80F4BBF5C9BAB862769C3CE72AA40AC3A7056C53FCE9EC641D5F627B
+SHA1: 57BAF3C654C2D2C78C617E797ABC32648F2D3A07
+
+RIGHTS / PROVENANCE
+Each Commons description marks its historical image as Public Domain,
+PD-old-70-expired, and Public Domain Mark 1.0:
+https://creativecommons.org/publicdomain/mark/1.0/
+The mark describes copyright status; it is not a new creative license.
+Attribution and source URLs are retained here even though the images are
+listed as public domain. Do not confuse the image status with the separate
+license covering modern Commons/Wikisource website text.
+
+EDITORIAL LIMITS
+The symbol variants follow this chosen edition, not a claim of one universal
+unchanged seal in every manuscript. The widely circulated Celephais Press
+2003 electronic re-set has different page numbers and is not the 1904 scan.
+The courts and combat mechanics are fictional. Historical seals identify
+these three courts; they do not add new rituals, spells or player abilities.
+
+
+CLAVICULA SALOMONIS / SATURN — ADDITIONAL HISTORICAL PLATE
+Local: clavicula-saturn-plate-ii.png (581 x 800, original downloaded bytes)
+SHA256: 3BEAF2CFD99AAB9FB4AF86B136FAC8C480EE77D847DE3D9129AC1A185A02E0F2
+File page: https://commons.wikimedia.org/wiki/File:Pentacles_of_Saturn_(Plate_II,_The_Key_of_Solomon_the_King,_1888).png
+Original: https://upload.wikimedia.org/wikipedia/commons/f/f0/Pentacles_of_Saturn_%28Plate_II%2C_The_Key_of_Solomon_the_King%2C_1888%29.png
+Commons identifies this historical reproduction as public domain. Downloaded 2026-10-19.
+The file title/metadata says1888. The checked book title page says1889;
+the editor's preface is dated October1888. GUI uses the book publication year1889.
+Checked primary book scan (title page PDF page9; descriptions printed pp58-59):
+https://upload.wikimedia.org/wikipedia/commons/0/0f/The_Key_of_Solomon_the_king_%28Clavicula_Salomonis%29_%28IA_b24884431%29.pdf
+S. Liddell MacGregor Mathers, The Key of Solomon the King (Clavicula Salomonis),
+London: George Redway,1889. PlateII, figures11/12/13 = first/second/third pentacles of Saturn.
+These are from the Key of Solomon, a different work from the Lesser Key/Goetia.
+The game preserves the complete circular marks and the planetary marker above each.
+Figure numbers/captions and neighboring figures are excluded only by runtime quads;
+the stored PNG is not edited. No generated pseudo-Hebrew substitutes its original ink.
+Uses: optional visual archive in the isolated test field, no magical player ability.

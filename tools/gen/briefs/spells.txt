@@ -1,0 +1,15 @@
+You are generating game art. Use your built-in image generation tool (edit the first attached reference). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+Attachment 1 is the CURRENT demon-spell sheet of the game: 16 frames in a 4x4 grid (square). These are GAMEPLAY WARNING SIGNALS and must stay at least as readable as now:
+ row 1: a demon gathering a spell before attacking (a thorned sigil ring forming in red fire, growing over 4 frames);
+ row 2: the flying fire projectile (a burning bolt pointing right, 4 flicker frames);
+ row 3: the ground warning ring before a strike (a thorned ring that tightens over 4 frames, seen from above);
+ row 4: the lightning strike from the sky hitting the ground (4 frames: bolt, impact burst, peak, fading smoke).
+Attachment 2 is the shotgun sheet already redrawn in the approved style.
+
+Redraw the SAME 16 frames, same grid, same positions, shapes and growth, in the new style: bold flat inked shapes, fire in flat ochre and vermilion layers with a thick dark contour, thorns and ring as inked bone-white spikes, smoke as inked slate-grey puffs, lightning as a bold lime-white zigzag with a dark contour. Hard edges only (no soft glow on the background). The silhouettes must read clearly at small size.
+
+STYLE AND BACKGROUND RULES (follow exactly):
+@STYLE@
+
+Save as PNG exactly at work/gen/codex/spells-v11-raw.png (copy it from where the tool saves it; keep the original). Square image. Reply with the saved path.

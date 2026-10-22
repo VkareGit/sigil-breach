@@ -1,0 +1,109 @@
+SIGIL: BREACH / 0.20 (robocza) / JEDNO PRAWO IMPULSU
+
+Źródło: przegląd propozycji (Gemini) sprawdzony na kodzie 0.19. Przyjęte
+z poprawkami; trzy twierdzenia okazały się błędne (na dole).
+
+1. JEDNO PRAWO PCHNIĘCIA (combat/rules.lua: R.shove)
+   v = vmax · (1 − e^(−J / skala)) / masa,  vmax 6 m/s, skala 120.
+   To samo dla demonów, gracza, ciał i wybuchu. Zniknęły osobne wzory
+   strzelby, rewolweru i gracza oraz twarde min(1, impact/110).
+   Broń rozdziela dane: impact = obrażenia gardy, push = impuls fizyczny
+   (Sędzia: guard 44, push 25 — łamie postawę, nie odrzuca).
+   Gracz-rycerz ma masę 1,5 (zbroja), demon 1, Żelazny Sługa 1,4.
+
+   Kalibracja (prędkość pchnięcia, m/s)      0.19 -> 0.20
+   strzelba z przyłożenia (20 śrucin, 240)    4,80 -> 5,19
+   strzelba 8 m (~15 śrucin, ~149)            4,80 -> 4,27
+   strzelba 9 śrucin (108)                    4,80 -> 3,56
+   strzelba 3 śruciny (36)                    1,87 -> 1,56
+   Sędzia                                     1,13 -> 1,13
+   pazur Sługi w gracza (55)                  1,38 -> 1,47
+   szarża Furfura w gracza (160)              4,00 -> 2,94
+   piorun (90)                                2,25 -> 2,11
+   własny wybuch z bliska (150)               3,75 -> 2,85
+
+2. GARDA (POISE) — jedna reguła, dane ciała
+   Oszołomienie z nadwyżki gardy (stopnie jak w Doom):
+     t = clamp(0,10 + 0,20 · (zebrane − garda) / garda, 0,10, 0,35)
+   Sędzia w Sługę: 0,14 s (było 0,10); 3 śruciny: 0,10 (było 0,24);
+   pełna salwa: 0,35 (było 0,24). Gracz: dwa pazury 0,21 s (było 0,32),
+   szarża Furfura 0,35 s.
+   Odbudowa (Souls): brak przez regenDelay po ciosie, potem regenRate ·
+   garda / s. Demony 1,2 s i 40 %/s; gracz 0,5 s i 60 %/s (42/s).
+   Bossowie mają gardę (Margrabia 420, Furfur 560). Przełamanie = zachwianie
+   0,15 s: atak opóźniony, NIGDY anulowany; 2 s „odsłonięcia” (pół pancerza);
+   blokada 6 s. Mikro-oszołomienie przy mocnym ciosie zostaje.
+
+3. STREFY TRAFIEŃ (content/enemies.lua: defaults.zones, damage.lua)
+   głowa: rana × mnożnik broni, garda × 1,25
+   tułów: × 1
+   nogi:  rana × 0,8, garda × 1,35, pchnięcie bez zmian; cios w nogi ≥ 50 %
+          gardy => „okulały” 1,5 s (ruch × 0,65).
+   Strefy nie zmieniają pchnięcia: noga destabilizuje, nie odrzuca dalej.
+
+4. KONTRA I DOMINO
+   Cios w demona w trakcie jego doskoku lub szarży: garda × 1,5 (i błysk).
+   Ciało wbite w inne szybciej niż 3,2 m/s rani je jak uderzenie o mur:
+   (v − 3,2) · 6 / √masa, oprócz istniejącej wymiany pędu i gardy.
+
+5. ŚWIAT I RUCH GRACZA
+   Ładunek prochowy spada z grawitacją świata 18,5 (było prywatne 12);
+   rzut przeskalowany √(18,5/12), więc zasięg łuku zostaje.
+   Skok ze ślizgu nie ścina prędkości w jednym ticku: nadwyżka nad 7,2 m/s
+   zanika (półtrwanie ~0,43 s).
+   DI: kierowanie przeciw pchnięciu hamuje je do × 1,8 szybciej.
+
+6. RANA ŻELAZNEGO SŁUGI
+   woundAt 0,50 (60 HP): Sędzia w korpus 53,8 nie rani (margines 6,2),
+   w głowę 72,7 rani. Wcześniej 53,8 vs 54,0 — próg przypadkowy.
+
+7. PREZENTACJA
+   Rana zadana przez gracza lub kontra przełamująca gardę: krótki puls
+   ramki i uniesienie widoku; okulawienie: głuchy dźwięk.
+
+SPROSTOWANIA DO PROPOZYCJI
+- „Szarża ma grawitację 12” — nie; 12 miał ładunek prochowy (explosives),
+  szarża Furfura nie ma grawitacji. Poprawiono ładunek.
+- „Odrzut blokuje WASD” — nie; pchnięcie już się dodawało do ruchu.
+  Dodano tylko DI.
+- „0,2 HP decyduje przy 12,05 m” — nie; spadek obrażeń tylko zmniejsza,
+  więc strzał w korpus nigdy nie ranił. Problem był kruchością przyszłego
+  strojenia, nie zasięgiem. Margines ustalono jawnie.
+- Opóźnienie odbudowy 1,5 s także dla gracza było zbyt surowe (pojedynczy
+  Sługa łamałby gardę co drugi pazur): ta sama reguła, inne dane ciała.
+
+TESTY: 2365 sprawdzeń mechaniki (17 nowych: tests/cases/impulse_law.lua),
+wejście, rendery, formatowanie i architektura (182 pliki, 0 problemów).
+Zmienione 4 stare asercje zgodnie z nowymi zasadami (skok ze ślizgu,
+grawitacja ładunku ×2, pęd przy trafieniu w głowę). Numer wydania nie
+został zmieniony (src/app/release.lua). Nikt jeszcze w to nie zagrał.
+
+CZĘŚĆ 2 / PO PIERWSZEJ GRZE (uwagi: mięso armatnie pada od jednego strzału,
+nogi i kontry niewidoczne, bossowie i ogłuszenie gracza nieczytelne)
+
+WYTRZYMAŁOŚĆ (z pomiaru rzeczywistego wzoru śrutu, bez losowania)
+   Sługa Żaru      85 -> 112: przeżywa salwę z 8 m (~102), ginie z
+                   przyłożenia (240) i w ciasnej parze (~120 każdy);
+                   para rozstawiona 1,2 m na 3–5 m: 96–108 każdy (dobicie).
+   Akolita Gwiazd  70 -> 76: salwa z 8 m (~81) lub głowa z Sędziego (94,5)
+                   zabija; korpus z Sędziego (70) już nie.
+   Ogrodnik Zarazy 100 -> 150, próg rany 0,40 (60).
+   Żelazny Sługa   120 -> 170, próg rany 0,40 (68): korpus Sędziego 53,8
+                   nie rani, głowa 72,7 rani.
+   Garda bossów: Margrabia 300, Furfur 400 (dwie salwy z bliska / ~7 kul).
+
+CZYTELNOŚĆ REGUŁ
+   Pasek gardy pod paskiem zdrowia celu i bossa: złoto rośnie z ciosami,
+   szarzeje i kurczy się w czasie blokady, pulsuje przy „odsłonięciu”.
+   Zachwianie bossa: poza bólu na czas pauzy, napis „FALTER / EXPOSED”,
+   pęknięcie, puls ramki; nazwa bossa „… / EXPOSED” na złoto, ciało tli się.
+   Kontra: napis „COUNTER”, ostry ton, czerwona liczba obrażeń.
+   Noga: „CRIPPLED”, ochrowa liczba, widoczne kulenie przy chodzie,
+   krótszy doskok okulałego Sługi (te same warunki prędkości).
+   Ogłuszenie gracza: broń opada z linii celu na czas ogłuszenia, niski
+   dźwięk pęknięcia gardy; własne dane ciała: 0,22–0,40 s (ta sama reguła).
+
+TESTY: 2370 sprawdzeń (+5), wejście, rendery (nowe klatki 26b, 26c, 32b),
+formatowanie, architektura. Zmienione asercje projektowe 0.13: „salwa
+z 8 m zabija Sługę” i „rozstawiona para zawsze ginie” — zastąpione nową
+zasadą; ciasna para nadal ginie.

@@ -1,0 +1,37 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "date": "2026-10-20",
+  "direction": "B dominant (~85%): ash, matte blackened iron, a closed human visor. C only in small painted outer marginal figures.",
+  "assets": [
+    {
+      "output": "game/assets/art/reliquary-ash-v16.png",
+      "source": "C:/Users/nahiko/.codex/generated_images/01a15aa3-57b5-7292-a5da-ff60da27bf18/call_hwm3uSujVaWYYzIJJn4FWfGk.png",
+      "references": [
+        "game/assets/art/reliquary-fresco-v12.png",
+        "work/art-proposals-v16/B-popiol-i-zelazo.png",
+        "work/art-proposals-v16/C-marginesy-potepionych.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset: production GUI atlas for SIGIL BREACH, not a gameplay screenshot. Image 1 is the exact layout/edit target, 1536×1024. Images 2 and 3 are style references ONLY. Retain Image 1's exact dimensions and every border/safe field position: top HUD strip spans x0..1535,y0..229, with seven empty arches, and the separate large blank menu rectangle at y408..923; retain dark separator at y230..407. No text, numerals, icons, helmet, HUD values or lettering anywhere. Change artwork only: combine reference B's severe blackened iron and ash coloration with reference C's painted narrative medieval marginalia. The outermost side niches of the TOP HUD must each contain a terrifying emaciated raven-faced medieval infernal creature bending over a small lamenting human soul, painted in the dry fresco manner of Giovanni da Modena's Inferno, no cartoon/generic demon; no gore needed. Preserve all SEVEN empty HUD arch fields in the exact original geometry, including empty central portrait arch. The top left niche figures stay x0..107; top right x1428..1535; no figure touches writing fields. Lower menu side-border figures must stay x0..107 and x1428..1535 as in original; replace old skeletons with narrow sinopia silhouettes of condemned souls and hooked beaked creatures. Keep large quiet menu interior x108..1427,y482..849 completely empty mottled warm pale ash-lime plaster, very low contrast subtle pigmentation; no dark cracks crossing main text field. Palette: aged bone lime plaster, restrained dried cinnabar red border, sooty charcoal shadows and blackened iron details, minimal worn ochre. Engraved iron accents are PAINTED 2D not shiny 3D. The player should feel this UI is one surviving fragment of a horrifying church fresco. Neat clear controlled painterly contour appropriate to reduction into 16-bit styled game. No modern card-like bevels, no typography, no watermark. Most important exact source layout and blank safe fields unchanged; output 1536×1024."
+    },
+    {
+      "output": null,
+      "intermediate": true,
+      "source": "C:/Users/nahiko/.codex/generated_images/01a15aa3-57b5-7292-a5da-ff60da27bf18/call_TqTEnsST9SYz53WZOcGUkyDr.png",
+      "references": [
+        "game/assets/art/nosiciel-knight-v13.png",
+        "work/art-proposals-v16/B-popiol-i-zelazo.png",
+        "work/art-proposals-v16/C-marginesy-potepionych.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset: six-frame painted HUD portrait atlas for SIGIL BREACH. Image 1 is exact layout target, a 1536x1024 sheet with 3 columns x 2 rows of square 512x512 portrait frames. Images 2 and 3 style references ONLY. Keep 6 cells exactly aligned and equal, same human knight identity across all frames. Replace the brassy busy rust armor with severe soot-blackened iron like the knight in reference B: a human mortal soldier fully enclosed in a worn rounded dark great helm, simple narrow horizontal eyeslit plus physically plausible vertical ventilation slots, thick dark gorget and restrained rough leather shoulders. Absolutely no glowing eyes, horns or magic. Helmet empty eyeslit reads dark and fearful, jaw guard angular and heavy. Dry matte fresco pigment, painted edged shapes, charcoal, cool gray iron planes, muted ochre chips and tiny dried cinnabar scars; not digital photorealistic. Inspired by condemned armored men painted by Giovanni da Modena and Michelangelo's last judgment, translated to crisp readable game art. Do not reproduce modern anime. SIX distinct reactions: top-left sober forward neutral; top-middle shallow glance left; top-right shallow glance right; bottom-left visibly recoiling to upper left after pain, one small thin blood streak on visor; bottom-middle exhausted head bowed forward and deeper dried streak, still fully closed helm; bottom-right braced lowering chin firing, frontal stern silhouette. Keep shoulder mass, helmet design, helmet width and total figure scale consistent. Put helmet dome 32px down from each cell top, maintain at least 24px plain plaster at either side around helmet, only shoulders meet bottom edge. Background in every cell uniform very subtle warm pale ash-lime fresco matching UI fields, low contrast, no black square frame or vignette, no halos, no border, no text, no labels, no symbols or adornment crowding face. The black iron silhouette must read immediately at 90px portrait size. Calm simple gray planes and selective iron edge highlights, avoid noisy corrosion all over the face. Output exact 1536x1024."
+    },
+    {
+      "output": "game/assets/art/nosiciel-iron-v16.png",
+      "source": "C:/Users/nahiko/.codex/generated_images/01a15aa3-57b5-7292-a5da-ff60da27bf18/call_SM9IVsMVorAPhaBCnoOUt9QT.png",
+      "references": [
+        "C:/Users/nahiko/.codex/generated_images/01a15aa3-57b5-7292-a5da-ff60da27bf18/call_TqTEnsST9SYz53WZOcGUkyDr.png"
+      ],
+      "prompt": "Precise material edit ONLY to this six-cell 1536x1024 fresco portrait atlas. Preserve exact 3-column 2-row square cell layout, all six differing poses, closed functional visor with vertical ventilation slots, same knight, anatomy and image scale. Strong change required: remove 85% of all the tiny gold/ochre/brassy chips and speckled corrosion covering the armor. Armor must instead have simple broad matte soot-charcoal and cool iron-gray painted planes with only a FEW discreet worn gray edge marks. No metallic sheen. Remove all brass/gold color from armor. Keep fine crisp dark contour around helmet and restrained gray ridge highlight so it reads strongly at only 90px. Flat dry Italian church fresco pigment, never a glossy render or photography. Change the vivid orange/yellow background in ALL SIX cells to quiet pale warm gray ASH LIME plaster with extremely subtle chalk grain, and remove large black background cracks. Very dark severe human knight, not magical. No orange anywhere except tiny leather seam tan. Preserve blood streaks in lower-left and lower-center. Preserve all physical forms/poses, no text, no added figures, no panels, no frame. Output exact 1536x1024."
+    }
+  ],
+  "packaging": "Selected generated PNGs copied without image processing; runtime uses existing fixed quads and measured clipping. No CLI API or Python generation. Intermediate portrait discarded from active game."
+}

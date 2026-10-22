@@ -1,0 +1,14 @@
+You are generating game art. Use your built-in image generation tool (edit the FIRST attached image). Do not write code, do not edit project files, do not run tests. Only generate and save the image.
+
+The first attachment is the CURRENT icon sheet: 16 cells in a 4x4 grid. Keep the SAME grid, the same subjects in the same cells, the same size and position of each drawing. Row 1: four small square frame tiles. Rows 2-4: heart (health), shield (armour), cold soul-flame (souls currency, must stay a COLD pale blue so it reads as a signal), star-in-ring (essence), two cartridges (ammunition), blue crystal lance (keep cold blue), boot with motion chevrons, horned demon skull, three-pronged choke mark, shield pierced by a spike, brazier with fire, broken ring.
+The second attachment is the approved TARGET look of the game (see its HUD icons: simple painted shapes, red-ochre heart-quatrefoil, slate shield, red-ochre flame, cartridges).
+
+Repaint every icon as a simple, bold fresco emblem: flat earth pigment, a firm sinopia contour, one light plane, readable at 20-36 px. Frame tiles become painted red-ochre / slate / ochre / grey bands with a cream centre.
+
+TARGET STYLE (match the attached target screenshot "_target-01" exactly): everything is painted as a medieval wall FRESCO by Giovanni da Modena (Inferno, Bolognini Chapel, Bologna, c.1410): matte tempera on lime plaster, flat areas of earth pigment, firm reddish-brown SINOPIA contour lines (not black ink), naive and slightly flat modelling with simple light planes, visible chalky plaster grain and a few hairline cracks, overall LIGHT value like a lit wall. Figures and demons drawn like the devils and the damned of the fresco: sinewy, bony, burnt-sienna and brown-red flesh, repulsive, NOT cartoon, NOT cute, NOT glossy.
+Palette ONLY: lime white / cream plaster, yellow ochre, red ochre, sinopia brown, burnt umber, slate blue-grey, a little bone black; blood in dark red ochre/madder; fire in ochre and red ochre flat painted tongues. No neon, no glow, no gradients, no metallic shine (iron is painted slate with ochre highlights, gold is flat yellow ochre).
+
+
+BACKGROUND: one flat pure magenta colour (#FF00FF) everywhere outside the drawings (the frame tiles' cream centres stay cream, not magenta). Hard edges, no halo, no grid lines, no text.
+
+Save as PNG exactly at work/gen/codex/f-icons-raw.png (copy it from where the tool saves it; keep the original). Square image. Reply with the saved path.

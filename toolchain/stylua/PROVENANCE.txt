@@ -1,0 +1,35 @@
+StyLua 2.6.0 / Windows x86_64
+
+Upstream project:
+https://github.com/JohnnyMorganz/StyLua
+
+Release:
+https://github.com/JohnnyMorganz/StyLua/releases/tag/v2.6.0
+
+Downloaded unmodified binary archive:
+https://github.com/JohnnyMorganz/StyLua/releases/download/v2.6.0/stylua-windows-x86_64.zip
+Retained locally as stylua-windows-x86_64-v2.6.0.zip.
+
+Archive SHA-256 (verified before extraction):
+fd13b4014e3b779c244bbc03f2c282e357f15bc526de6a6fa5ecbc447538313c
+
+Extracted stylua.exe SHA-256:
+8be0383e979b3c699bf6bfbfc0770038534d071b0479fee188636c4b54cd338b
+
+License: Mozilla Public License 2.0; exact upstream text included as LICENSE.md.
+https://raw.githubusercontent.com/JohnnyMorganz/StyLua/v2.6.0/LICENSE.md
+License SHA-256:
+4b89d4518bd135ab4ee154a7bce722246b57a98c3d7efc1a09409898160c2bd1
+
+Source code corresponding to this unmodified executable:
+https://github.com/JohnnyMorganz/StyLua/tree/v2.6.0
+https://github.com/JohnnyMorganz/StyLua/archive/refs/tags/v2.6.0.zip
+
+Usage from the project root:
+  .\FORMAT.ps1                Format game Lua sources with AST verification.
+  .\FORMAT.ps1 -Check         Check formatting without writing source files.
+  .\FORMAT.ps1 -Target game/src/app   Format a selected source directory.
+
+The upstream AST verification option is --verify (not --verifyAST).
+Formatting verifies syntax/AST similarity; it does not replace gameplay tests.
+See https://github.com/JohnnyMorganz/StyLua/blob/v2.6.0/README.md#--verify-verifying-formatting-output

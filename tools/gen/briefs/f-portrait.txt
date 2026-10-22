@@ -1,0 +1,16 @@
+You are generating game art. Use your built-in image generation tool. Do not write code, do not edit project files, do not run tests. Only generate and save the images.
+
+Attachment 1 is the approved player face (structure, scar, hair, armour, frontal gaze). Attachment 2 is the approved TARGET look of the game (see the round portrait medallion in the middle of its HUD band).
+
+Repaint the player face as a FRESCO PORTRAIT in the target style and produce SIX square images (1024x1024), all with exactly the same head position and size, strictly frontal, eyes looking straight at the viewer:
+  work/gen/codex/f-portrait-1.png  calm, hard stare
+  work/gen/codex/f-portrait-2.png  eyes glancing to the viewer's LEFT (head still frontal)
+  work/gen/codex/f-portrait-3.png  eyes glancing to the viewer's RIGHT (head still frontal)
+  work/gen/codex/f-portrait-4.png  just hit: eyes squeezed shut, teeth clenched, fresh cut on the cheek
+  work/gen/codex/f-portrait-5.png  near death: exhausted, half-lowered eyes still on the viewer, greyer skin, blood from brow and mouth
+  work/gen/codex/f-portrait-6.png  firing: teeth bared in a furious grimace, narrowed eyes
+Background of every portrait: a flat painted yellow-ochre field (like a fresco halo-ground), with plaster grain. Framing: head in the upper middle (hair top ~15%, eyes ~40%, chin ~68%), dark armour collar at the bottom.
+
+@FRESCO@
+
+No text, no frame, no border, no halo ring. Make portrait 1 first and derive 2-6 from it so the face stays identical. Copy each generated image to the exact paths above (resize to 1024x1024 if needed; keep originals). Reply with the six saved paths.
