@@ -350,6 +350,39 @@ function R.remaining(g)
   end
   return alive + #(r.pending or {}) + math.max(0, #Waves[r.wave].queue - (r.queueIndex or 1) + 1)
 end
+-- What the expedition answers for its session (run/modes.lua handlers; the
+-- proving ground shares the record g.run and answers some of these alike).
+-- The prompt where the knight stands: the Ember before a wave, the echo.
+function R.context(g)
+  local r = g.run
+  if r.phase == 'preparing' and Sanctuary.near(g) then
+    return '[E]  EMBER / REST AND TRADE'
+  end
+  if r.echo and distance(g.player, r.echo) < K.echo.prompt then
+    return (r.phase == 'wave' or r.wave > r.echo.wave) and 'APPROACH / RECOVER LOST SOULS'
+      or 'THE ECHO WAITS / BEGIN THE WAVE'
+  end
+  return nil
+end
+-- The wave tier a new demon gets: the wave it belongs to.
+function R.tier(g)
+  return g.run and g.run.wave
+end
+-- The fight is on only in a wave (the policy 'phased': session/capabilities).
+function R.waveActive(g)
+  return g.run ~= nil and g.run.phase == 'wave'
+end
+-- What the status bar shows of the run: the engraved glyph, the purse, the
+-- echo to reclaim, the wave and whether a fight is on (target bar). One
+-- report reused every frame (read at once by the HUD, never kept).
+local report = {}
+function R.hud(g)
+  local r = g.run
+  report.glyph, report.wallet, report.echo = r.glyph, r.wallet, r.echo
+  report.progress = r.wave == guardianWave and 'BOSS' or ('WAVE ' .. r.wave .. '/' .. K.totalWaves)
+  report.fighting = r.phase == 'wave'
+  return report
+end
 function R.finishWave(g)
   if not expedition(g) then
     return false

@@ -403,6 +403,52 @@ function F.shop(g)
   g.shopMessage = 'PROVING GROUND / 1000 trial souls. Purchases never change the expedition.'
   return Sanctuary.openShop(g)
 end
+-- What the proving ground answers for its session (run/modes.lua handlers;
+-- the gallery's pads answer first there: world/gallery.lua).
+-- [E] away from a pad: the Ember's trial shop.
+function F.interact(g)
+  if Sanctuary.near(g) then
+    return F.shop(g)
+  end
+  return false
+end
+-- The prompt away from a pad: the selected demon and its pose mode.
+function F.context(g)
+  local field, manual = g.testField, false
+  for _, enemy in ipairs(g.enemies) do
+    if enemy.fieldKind == field.selected and enemy.previewFrame then
+      manual = true
+    end
+  end
+  return '[F2] '
+    .. Definitions[field.selected].name
+    .. ' / '
+    .. (manual and ('POSE ' .. field.poseIndex) or 'AUTO ANIMATION')
+end
+-- A new demon's tier: the TIER dial, else the wave of the shared record.
+function F.tier(g)
+  return (g.testField and g.testField.tier) or (g.run and g.run.wave)
+end
+-- Time can stop and the knight can be unhurt here (policy freezable,
+-- invincible); the fight is on in the record's wave phase, as in a run.
+function F.frozen(g)
+  return g.testField ~= nil and g.testField.frozen == true
+end
+function F.invincible(g)
+  return g.testField and g.testField.invincible
+end
+function F.waveActive(g)
+  return g.run ~= nil and g.run.phase == 'wave'
+end
+-- The status bar: the trial purse and glyph, never an echo, 'PROVING'.
+-- One report reused every frame (read at once by the HUD, never kept).
+local report = {}
+function F.hud(g)
+  local r = g.run
+  report.glyph, report.wallet, report.echo = r.glyph, r.wallet, nil
+  report.progress, report.fighting = 'PROVING', r.phase == 'wave'
+  return report
+end
 -- STATIONS (0.22). Training dummies are real demons of the chosen tier that
 -- neither move nor attack (AI 'dummy'), heal fully between shots and stand
 -- up again 1.5 s after a lethal blow, so every number on screen is real.

@@ -1,13 +1,12 @@
--- World interactions and their contextual prompts share the same rules here.
--- Expedition progression remains in Descent; this module selects the active
--- mode and owns the original three-seal trial's world triggers.
+-- The original three-seal trial's world triggers and their prompts (the
+-- classic mode's interact and context: run/modes.lua), and the supplies
+-- every mode lays out. What [E] does and says in another mode is that
+-- mode's own (the proving ground, the expedition).
 local Signal = require('src.session.signal')
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
 local World = require('src.world.arena')
 local Presentation = require('src.session.presentation')
-local Descent = require('src.run.descent')
-local Definitions = require('src.content.enemy_catalog')
 local Tuning = require('src.content.tuning')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
@@ -29,10 +28,6 @@ end
 
 local function nearSecret(g)
   return not g.secretFound and distance(g.player, Classic.secret) < Classic.reach.secret
-end
-
-local function nearShrine(g)
-  return require('src.session.sanctuary').near(g)
 end
 
 local function breakSeal(g, seal, index)
@@ -69,23 +64,9 @@ local function finishClassic(g)
   Presentation.cue(g, 'seal')
 end
 
-function Interactions.interact(g)
-  if g.state ~= 'playing' then
-    return
-  end
+-- [E] in the classic trial: the secret, a seal, the way out after the guardian.
+function Interactions.classicInteract(g)
   local player = g.player
-  if g.testField then
-    if require('src.world.gallery').interact(g) then
-      return true
-    end
-    if nearShrine(g) then
-      return require('src.run.test_field').shop(g)
-    end
-    return false
-  end
-  if g.run then
-    return Descent.openShop(g)
-  end
   if nearSecret(g) then
     g.secretFound = true
     local secret = Classic.secret
@@ -113,34 +94,8 @@ function Interactions.interact(g)
   return false
 end
 
-function Interactions.context(g)
-  if g.testField then
-    local pad = require('src.world.gallery').context(g)
-    if pad then
-      return pad
-    end
-    local field, manual = g.testField, false
-    for _, enemy in ipairs(g.enemies) do
-      if enemy.fieldKind == field.selected and enemy.previewFrame then
-        manual = true
-      end
-    end
-    return '[F2] '
-      .. Definitions[field.selected].name
-      .. ' / '
-      .. (manual and ('POSE ' .. field.poseIndex) or 'AUTO ANIMATION')
-  end
-  if g.run then
-    if g.run.phase == 'preparing' and nearShrine(g) then
-      return '[E]  EMBER / REST AND TRADE'
-    end
-    if g.run.echo and distance(g.player, g.run.echo) < 2.5 then
-      return (g.run.phase == 'wave' or g.run.wave > g.run.echo.wave)
-          and 'APPROACH / RECOVER LOST SOULS'
-        or 'THE ECHO WAITS / BEGIN THE WAVE'
-    end
-    return nil
-  end
+-- The classic trial's prompt where the knight stands.
+function Interactions.classicContext(g)
   if nearSecret(g) then
     return '[E]  SEARCH THE CRACKED RELIQUARY'
   end

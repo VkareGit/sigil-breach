@@ -20,6 +20,17 @@
 --   remaining(g)        demons still to defeat (HUD)
 --   catalog(g, id)      a proving-ground catalogue action (targets, stations,
 --                       reset, tier, poses...); true when the id was one
+-- What the session asks its mode instead of reading the mode's record
+-- (g.run, g.testField) itself (each optional):
+--   interact(g)         [E] while playing (Game:interact); true when it acted
+--   context(g)          the prompt where the knight stands, or nil
+--   tier(g)             the tier of a demon spawned now (else g.tier or 1)
+--   waveActive(g)       a 'phased' mode: whether its fight is on now
+--   frozen(g)           a 'freezable' mode: whether time is stopped now
+--   invincible(g)       an 'invincible' mode: whether the knight is unhurt now
+--   hud(g)              the status bar's data { glyph, wallet, echo,
+--                       progress, fighting }; a mode with none draws the
+--                       classic arena's HUD (ui/screens/hud.lua)
 -- The application issues the player's ones through the session (Game:act),
 -- so the command journal records them.
 -- Every session names its mode (g.mode: Game.new, the proving ground); the
@@ -36,7 +47,7 @@ end
 local Modes = Registry:new('modes', function(mode, id)
   assert(type(mode.progress) == 'function', 'mode ' .. id .. ' needs progress(g, dt)')
   assert(type(mode.start) == 'function', 'mode ' .. id .. ' needs start(g)')
-  Capabilities.define(id, mode.policy or {})
+  Capabilities.define(id, mode.policy or {}, mode)
 end)
 -- The proving ground (skirmish and stations). Required lazily: the proving
 -- ground uses the expedition's definitions and must not load in a cycle.
@@ -80,6 +91,31 @@ Modes:register('field', {
     end
     return alive
   end,
+  -- A gallery pad answers first, then the field (its shop, its prompt).
+  interact = function(g)
+    if require('src.world.gallery').interact(g) then
+      return true
+    end
+    return field().interact(g)
+  end,
+  context = function(g)
+    return require('src.world.gallery').context(g) or field().context(g)
+  end,
+  tier = function(g)
+    return field().tier(g)
+  end,
+  waveActive = function(g)
+    return field().waveActive(g)
+  end,
+  frozen = function(g)
+    return field().frozen(g)
+  end,
+  invincible = function(g)
+    return field().invincible(g)
+  end,
+  hud = function(g)
+    return field().hud(g)
+  end,
 })
 -- The expedition: waves, shrine, shop and saves.
 Modes:register('expedition', {
@@ -105,6 +141,11 @@ Modes:register('expedition', {
     Descent.onKill(g, event.enemy, event.source)
   end,
   remaining = Descent.remaining,
+  interact = Descent.openShop,
+  context = Descent.context,
+  tier = Descent.tier,
+  waveActive = Descent.waveActive,
+  hud = Descent.hud,
 })
 -- The classic arena (regression coverage): seals, then the Margrave.
 Modes:register('classic', {
@@ -120,6 +161,8 @@ Modes:register('classic', {
     Interactions.advanceClassic(g)
   end,
   reward = Interactions.classicReward,
+  interact = Interactions.classicInteract,
+  context = Interactions.classicContext,
 })
 -- The mode a new session is built for (Game.new(kind)).
 Modes.forSession = { descent = 'expedition', classic = 'classic' }

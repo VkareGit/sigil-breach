@@ -147,7 +147,13 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   przepływu (jedno na komórkę celu); W.clear = przejście ciała w linii.
   run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
   progress, policy + ready, retry, closeShop, buy, lose, reward, remaining);
-  Modes.act(g, nazwa, ...) — polecenia i skutki pytają tryb. Wyprawa
+  Modes.act(g, nazwa, ...) — polecenia i skutki pytają tryb. Stan trybu
+  (g.run, g.testField) czyta tylko on sam: [E] i podpowiedź (interact,
+  context), poziom nowego demona (tier), pozwolenia (waveActive, frozen,
+  invincible dla polityk phased/freezable/invincible: session/capabilities),
+  dane paska HUD (hud: glyph, wallet, echo, progress, fighting; tryb bez hud
+  rysuje HUD areny classic). Nowy tryb odpowiada tymi funkcjami. Nagłówek
+  HUD (ui/descent heading) i ekrany wyprawy wciąż czytają g.run. Wyprawa
   (run/descent.lua) nie zna poligonu: jeden strażnik „tylko sesja wyprawy
   zapisuje, wczytuje i postępuje”; zakup Descent.trade (bez zapisu, poligon)
   i Descent.buy (trade + zapis). Żar: session/sanctuary.lua (Sanctuary.near).

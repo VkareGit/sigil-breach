@@ -12,6 +12,7 @@ local Abilities = require('src.content.abilities')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Palette = require('src.ui.palette')
+local Modes = require('src.run.modes')
 local C = Skin.colors
 local U
 -- Guard (poise) under a health bar: gold fills as blows accumulate toward
@@ -75,7 +76,10 @@ local function notice(label, y, size, tint)
   Skin.boxText(label, 30, y + 11, width - 24, 22, U.fonts[size], tint)
   Skin.endZone()
 end
-function H.status(g)
+-- The status bar. What it shows of the mode (purse, glyph, echo, progress)
+-- is the mode's report (run/modes.lua: hud), never its record read here.
+function H.status(g, run)
+  run = run or Modes.act(g, 'hud')
   local p = g.player
   require('src.ui.reliquary').status()
   Skin.lightField(0, 584, 1280, 136)
@@ -111,8 +115,8 @@ function H.status(g)
     local label = count > 2 and (slot .. ' ' .. def.hud.tab) or def.name
     fitted(label, 478, 648 + row * 16, 12, 114, tint)
   end
-  if g.run.glyph ~= 'none' then
-    centered(g.run.glyph == 'choke' and 'FOCUS' or 'PIERCE', 478, 681, 12, C.gold)
+  if run.glyph ~= 'none' then
+    centered(run.glyph == 'choke' and 'FOCUS' or 'PIERCE', 478, 681, 12, C.gold)
   end
   Skin.endZone()
   Portrait.draw(g, 565, 584, 150)
@@ -141,29 +145,23 @@ function H.status(g)
   Skin.endZone()
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted('SOULS', 1105, 630, 14, 98, C.gold)
-  local showEcho = g.run.echo and not g.testField
-  number(tostring(g.run.wallet), 1105, 648, 98, showEcho and 22 or 25, C.gold)
+  local showEcho = run.echo
+  number(tostring(run.wallet), 1105, 648, 98, showEcho and 22 or 25, C.gold)
   if showEcho then
     -- Seven-digit legal saves still keep their exact value. A separate short
     -- caption and proportional numeral line fit the fresco niche without
     -- shrinking an entire phrase below the smallest readable PNG font.
     centered('ECHO', 1105, 672, 11, C.blue)
-    number(tostring(g.run.echo.amount), 1105, 688, 98, 13, C.blue)
+    number(tostring(run.echo.amount), 1105, 688, 98, 13, C.blue)
   else
-    fitted(
-      g.testField and 'PROVING' or (g.run.wave == 5 and 'BOSS' or ('WAVE ' .. g.run.wave .. '/4')),
-      1105,
-      680,
-      14,
-      98,
-      C.muted
-    )
+    fitted(run.progress, 1105, 680, 14, 98, C.muted)
   end
   Skin.endZone()
 end
 function H.draw(g, settings, ui, descentUI)
   U = ui
   local p = g.player
+  local run = Modes.act(g, 'hud')
   local cx, cy = U.aimX or L.aimX, U.aimY or L.aimY
   descentUI.heading(g)
   Skin.panel(1028, 12, 236, 68, 7, 10)
@@ -265,7 +263,7 @@ function H.draw(g, settings, ui, descentUI)
         Skin.endZone()
       end
     end
-  elseif g.run.phase == 'wave' then
+  elseif run.fighting then
     local target = B.trace(g, p.yaw, p.pitch, 25)
     if target and target.hp > 0 then
       local shield = (target.armorRating or 0) > 0
@@ -286,7 +284,7 @@ function H.draw(g, settings, ui, descentUI)
       Skin.endZone()
     end
   end
-  H.status(g)
+  H.status(g, run)
   local mag, reserve = Weapons.ammo(g)
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.

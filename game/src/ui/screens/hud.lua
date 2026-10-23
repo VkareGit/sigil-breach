@@ -16,7 +16,9 @@ local HUD = require('src.ui.hud')
 local D = require('src.ui.descent')
 local S = {}
 function S.draw(g, s, U)
-  if g.run then
+  -- A mode that reports status bar data (run/modes.lua: hud) gets the fresco
+  -- HUD; the classic arena, which reports none, keeps its own below.
+  if require('src.run.modes').of(g).hud then
     return HUD.draw(g, s, U, D)
   end
   local p = g.player
@@ -42,7 +44,7 @@ function S.draw(g, s, U)
     20,
     gold
   )
-  if not g.run and (g.threat or 0) < 1 and not g.bossSpawned then
+  if (g.threat or 0) < 1 and not g.bossSpawned then
     local nearest, d = nil, 1e9
     for _, seal in ipairs(g.world.seals) do
       local ds = (seal.x - p.x) ^ 2 + (seal.z - p.z) ^ 2

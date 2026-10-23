@@ -64,7 +64,7 @@ src/session/event_catalog.lua 0
 src/session/fields.lua 0
 src/session/game.lua 5
 src/session/integrity.lua 0
-src/session/interactions.lua 1
+src/session/interactions.lua 0
 src/session/journal.lua 0
 src/session/listeners.lua 6
 src/session/presentation.lua 0

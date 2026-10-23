@@ -104,7 +104,9 @@ function Tests.run(G, check)
     '[E] on the refill pad restores health and ammunition',
     g.player.hp == 100 and g.player.arsenal.judge.reserve == 72
   )
-  g.testField = nil
+  -- Outside the proving ground: a session of another mode (the expedition's,
+  -- whose record the field shares). [E] and its prompt are the mode's.
+  g.testField, g.mode = nil, 'expedition'
   g.player.x, g.player.z = pad.x, pad.z
   check(
     'outside the proving ground the pads do nothing',

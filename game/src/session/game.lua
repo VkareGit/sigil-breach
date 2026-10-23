@@ -14,7 +14,6 @@ local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
 local State = require('src.session.state')
 local Outcomes = require('src.session.damage_outcomes')
-local Interactions = require('src.session.interactions')
 local Simulation = require('src.session.simulation')
 local Classic = require('src.content.classic')
 local Fields = require('src.session.fields')
@@ -88,11 +87,8 @@ function Game:spawn(kind, x, z)
     bornAt = self.elapsed or 0,
   }, false)
   Rules.equip(enemy, archetype)
-  -- Wave tier: the expedition's wave; the proving ground uses its own dial.
-  local tier = self.testField and self.testField.tier
-    or (self.run and self.run.wave)
-    or self.tier
-    or 1
+  -- Tier: the mode's (the expedition's wave, the proving ground's dial).
+  local tier = Modes.act(self, 'tier') or self.tier or 1
   Rules.applyTier(enemy, tier)
   enemy.variant = archetype.variant
   AI.init(enemy)
@@ -194,8 +190,16 @@ end
 Game.damageEnemy = Outcomes.enemy
 Game.damagePlayer = Outcomes.player
 Game.recordPlayerDamage = Outcomes.recordPlayerDamage
-Game.interact = Interactions.interact
-Game.context = Interactions.context
+-- [E] and its prompt mean what the mode says (run/modes.lua: interact, context).
+function Game:interact()
+  if self.state ~= 'playing' then
+    return
+  end
+  return Modes.act(self, 'interact')
+end
+function Game:context()
+  return Modes.act(self, 'context') or nil
+end
 Game.update = Simulation.update
 Game.simulate = Simulation.step
 
