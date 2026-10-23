@@ -163,5 +163,17 @@ Głośność (okno 50 ms) w granicach +-2 dB od dawnych dźwięków.
 Nazwy głosów etapów: content/tuning.lua reload.<mechanizm>.voices.
 Odsłuch wszystkich efektów i muzyki: --audio-export (sounds/, music/).
 
+13. PORTALE W KATALOGU POLIGONU (po paczce 0.31)
+Atlas portalu (portal-fresco-v23.png, 8 klatek) był używany tylko przez
+fale (WAVE TRIAL, wyprawa); katalog F2 stawiał demony od razu (spawnAge 1),
+więc na poligonie portalu prawie nie było widać. Teraz cel lub grupa z
+katalogu otwiera bramę w swoim miejscu: 1,2 s świecenia (klatki 1-6), potem
+demon wychodzi (klatki 6-8, krótka pauza AI jak w falach), zwrócony do
+rycerza. Otwierające się bramy liczą się do limitu 20. Bez zmian: manekiny
+stanowisk, szybka potyczka, pola galerii, podgląd pozy i F.spawn narzędzi.
+Fale i katalog dzielą jedną drogę przybycia (run/spawner.lua: gate,
+arrivals, welcome); złoty wzorzec 6/6 identyczny. Podgląd: --summoning-review
+(summoning-catalog-sequence.png).
+
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

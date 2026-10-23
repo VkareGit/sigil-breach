@@ -220,6 +220,26 @@ function Review.run(output, Game, renderer)
     end
     save(sheet, 'summoning-cohort-colors-sequence')
 
+    -- The catalogue's real summons (F2: a group of three) through the
+    -- session's own command and 120 Hz updates: three portals, three arrivals.
+    g, sheet = fresh(), strip(2)
+    g.testField.frozen = true
+    assert(g:act('catalog', 'field_spawn_stolas_3'), 'catalogue summons refused')
+    assert(#g.run.pending == 3 and #g.enemies == 0, 'catalogue summons opened no portals')
+    local elapsed = 0
+    for i, at in ipairs({ 0.02, 0.6, 1.1, 1.25, 1.45, 1.75 }) do
+      while elapsed < at - 1e-9 do
+        g:update(1 / 120, {})
+        elapsed = elapsed + 1 / 120
+      end
+      g.view.messageTimer, g.view.feedbackTimer = 0, 0
+      local gates = #g.run.pending
+      capture(g, nil, 'catalog', at, gates > 0 and 'portal' or 'arrival', gates, sheet, i)
+    end
+    assert(#g.run.pending == 0 and #g.enemies == 3, 'catalogue summons never arrived')
+    notes[#notes + 1] = 'Catalogue summons: 3 portals opened by F2, 3 demons stepped out.'
+    save(sheet, 'summoning-catalog-sequence')
+
     -- A portal centered inside an opaque wall must not paint over it. This
     -- catches accidental screen-space drawing or a disabled depth test.
     g = fresh()

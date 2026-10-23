@@ -199,7 +199,22 @@ function F.toggleFreeze(g)
   )
   return g.testField.frozen
 end
-function F.spawn(g, kind, count)
+-- A catalogue demon set on the knight: awake, remembering where he stands,
+-- facing him, its first blow a moment off.
+local function engage(g, e, kind)
+  local p = g.player
+  e.fieldKind = kind
+  e.awake = true
+  e.memory = 60
+  e.lastX = p.x
+  e.lastZ = p.z
+  e.facing = math.atan2(p.x - e.x, p.z - e.z)
+  e.attack = 1.2
+end
+-- Where count demons of kind may stand (free, in sight, 3 m or more from
+-- the knight, apart from the living and from open gates), or nil and why.
+-- Gates still opening count toward the limit of live demons.
+local function place(g, kind, count)
   if not g.testField or not Definitions[kind] then
     return nil, 'Unknown trial type.'
   end
@@ -212,7 +227,7 @@ function F.spawn(g, kind, count)
   if not allowed or (count ~= 1 and count ~= 3) then
     return nil, 'Choose one demon or a group of three.'
   end
-  local alive = 0
+  local alive = #g.run.pending
   for _, e in ipairs(g.enemies) do
     if e.hp > 0 then
       alive = alive + 1
@@ -239,9 +254,11 @@ function F.spawn(g, kind, count)
         return false
       end
     end
-    for _, s in ipairs(spots) do
-      if distance(s, candidate) < 1.8 then
-        return false
+    for _, list in ipairs({ g.run.pending, spots }) do
+      for _, s in ipairs(list) do
+        if distance(s, candidate) < 1.8 then
+          return false
+        end
       end
     end
     return true
@@ -284,32 +301,61 @@ function F.spawn(g, kind, count)
       table.remove(g.enemies, i)
     end
   end
+  g.testField.selected = kind
+  g.testField.poseIndex = 1
+  return spots
+end
+local function targets(kind, count)
+  return Definitions[kind].name .. ' / ' .. count .. ' target' .. (count == 1 and '' or 's')
+end
+-- Demons of kind standing at once (pose preview, tools, tests): no portal,
+-- no arrival (spawnAge 1). Returns the created demons, or nil and why.
+function F.spawn(g, kind, count)
+  local spots, why = place(g, kind, count)
+  if not spots then
+    return nil, why
+  end
   local created = {}
   for _, s in ipairs(spots) do
     local e = g:spawn(kind, s.x, s.z)
-    e.fieldKind = kind
-    e.awake = true
-    e.memory = 60
-    e.lastX = p.x
-    e.lastZ = p.z
-    e.facing = math.atan2(p.x - e.x, p.z - e.z)
+    engage(g, e, kind)
     e.spawnAge = 1
-    e.attack = 1.2
     created[#created + 1] = e
   end
-  g.testField.selected = kind
-  g.testField.poseIndex = 1
   F.update(g, 0)
+  tell(g, targets(kind, count) .. ' on the field.')
+  return created
+end
+-- The catalogue's summons (F2) come through portals: each opens a gate at
+-- its place and the demon steps out when it has glowed (Spawner.gate; the
+-- arrivals run in stations()). Returns the gates, or nil and why.
+function F.summon(g, kind, count)
+  local spots, why = place(g, kind, count)
+  if not spots then
+    return nil, why
+  end
+  local gates = {}
+  for _, s in ipairs(spots) do
+    local gate = Spawner.gate(kind, s.x, s.z)
+    gate.fieldKind = kind
+    g.run.pending[#g.run.pending + 1] = gate
+    gates[#gates + 1] = gate
+    Signal(g, 'PortalOpened', { gate = gate })
+  end
   tell(
     g,
-    Definitions[kind].name
-      .. ' / '
-      .. count
-      .. ' target'
-      .. (count == 1 and '' or 's')
-      .. ' on the field.'
+    targets(kind, count) .. ' summoned through ' .. (count == 1 and 'a portal.' or 'portals.')
   )
-  return created
+  return gates
+end
+-- What a demon stepping out of a gate here is given: a catalogue summons
+-- is set on the knight, a wave trial's demon gets the wave's welcome.
+local function arrive(g, e, gate)
+  if gate.fieldKind then
+    engage(g, e, gate.fieldKind)
+  else
+    Spawner.welcome(g, e, gate)
+  end
 end
 function F.pose(g, delta)
   if not g.testField then
@@ -558,8 +604,12 @@ local function stations(g, dt)
     end
   end
   local trial = t.trial
+  if not (trial and g.run.phase == 'wave') then
+    -- The catalogue's portals open outside a wave trial too.
+    Spawner.arrivals(g, dt, arrive)
+  end
   if trial and g.run.phase == 'wave' then
-    local _, done = Spawner.step(g, dt)
+    local _, done = Spawner.step(g, dt, arrive)
     if done then
       t.trial = nil
       local m = Telemetry.get(g)
@@ -659,7 +709,7 @@ function F.action(g, id)
     g.testField.poseIndex = 1
   elseif id:match('^field_spawn_') then
     local kind, n = id:match('^field_spawn_(%a+)_(%d)$')
-    if F.spawn(g, kind, tonumber(n)) then
+    if F.summon(g, kind, tonumber(n)) then
       F.close(g)
     end
   elseif id:match('^field_weapon_') then

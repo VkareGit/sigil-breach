@@ -132,7 +132,11 @@ uderzenia tym samym kontaktem. Sam cios o ścianę pozostaje nieśmiertelny.
 
 POLIGON
 Ember Thrall, Iron Thrall, Star Acolyte, Plague Gardener,
-Margrave of Ash oraz Furfur, Storm Count. Limit 20 żywych przeciwników.
+Margrave of Ash oraz Furfur, Storm Count. Limit 20 żywych przeciwników
+(otwierające się portale też się liczą). Cel lub grupa z katalogu (F2)
+przychodzi przez portal: brama świeci 1,2 s, potem demon z niej wychodzi
+(jak w falach). Manekiny stanowisk, szybka potyczka, pola galerii i podgląd
+pozy stawiają demona od razu.
 Katalog: cele/grupy, zasoby, GOD MODE, AI / PROJECTILES, HITBOXES,
 pozy, sklep, podgląd HUD, RESET FIELD. Galeria ma posągi, tablice
 materiałów, pola przywołań i znaki. Furfur jest dostępny na poligonie;

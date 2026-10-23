@@ -115,6 +115,41 @@ function Tests.run(G, renderer)
         and Field.spawn(g, 'imp', 2) == nil
         and #g.enemies == before
     )
+    -- The catalogue (F2) summons through portals: gates glow, then the
+    -- demons step out with the portal's arrival, set on the knight.
+    g = fresh()
+    local glow = require('src.content.waves').portal.glow
+    local gates = assert(Field.summon(g, 'imp', 3))
+    Field.close(g)
+    local waiting = #gates == 3 and #g.run.pending == 3 and #g.enemies == 0
+    for _ = 1, math.floor(glow * 120) - 2 do
+      g:update(1 / 120, {})
+    end
+    local stillWaiting = #g.enemies == 0
+    for _ = 1, 6 do
+      g:update(1 / 120, {})
+    end
+    local stepped, facing = #g.enemies == 3 and #g.run.pending == 0, true
+    for _, e in ipairs(g.enemies) do
+      local toward = math.atan2(g.player.x - e.x, g.player.z - e.z)
+      facing = facing
+        and e.fieldKind == 'imp'
+        and e.spawnAge < 0.6
+        and e.awake
+        and math.abs(math.atan2(math.sin(e.facing - toward), math.cos(e.facing - toward))) < 0.6
+    end
+    check(
+      'a catalogue summons opens portals that glow before the demons step out, set on the knight',
+      waiting and stillWaiting and stepped and facing
+    )
+    g = fresh()
+    for _ = 1, 6 do
+      assert(Field.summon(g, 'imp', 3))
+    end
+    check(
+      'portals still opening count toward the limit of live demons',
+      Field.summon(g, 'imp', 3) == nil and #g.run.pending == 18 and Field.spawn(g, 'imp', 3) == nil
+    )
     for slot = 1, 2 do
       g = fresh()
       local target = assert(Field.spawn(g, 'armored', 1))[1]

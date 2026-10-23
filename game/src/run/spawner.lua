@@ -82,12 +82,28 @@ function S.extraCap(g)
   local healthy = p.hp >= d.healthy * require('src.content.enemies').player.body.hp
   return (S.stress(g) < d.calm and healthy) and d.calmCap or 0
 end
-function S.step(g, dt)
+-- What a wave gives a demon stepping out of its gate: its reward, and the
+-- knight's place to hunt.
+function S.welcome(g, e, gate)
+  local p = g.player
+  e.rewardId = gate.rewardId
+  e.awake = true
+  e.memory = K.hunt
+  e.lastX = p.x
+  e.lastZ = p.z
+end
+-- A gate opened for a demon of kind at (x, z): it glows K.glow s before the
+-- demon arrives. Drawn from g.run.pending (render/portals.lua).
+function S.gate(kind, x, z)
+  return { kind = kind, x = x, z = z, delay = K.glow, maxDelay = K.glow }
+end
+-- The gates waiting in g.run.pending count down; at zero a gate's demon
+-- arrives (spawnAge 0: the portal's arrival art, a short pause) unless the
+-- knight stands in it, when it waits K.retry more. arrive(g, e, gate) gives
+-- the newcomer what its mode does (S.welcome for a wave) before it is
+-- announced. In queue order, so a pack's demons appear as they were opened.
+function S.arrivals(g, dt, arrive)
   local r, p = g.run, g.player
-  g.intensity = (g.intensity or 0) * math.exp(-dt / Waves.director.tau)
-  r.phaseTime = (r.phaseTime or 0) + dt
-  r.spawnTimer = (r.spawnTimer or 0) - dt
-  -- In queue order, so a pack's demons appear in the order they were opened.
   local i = 1
   while i <= #r.pending do
     local s = r.pending[i]
@@ -97,11 +113,7 @@ function S.step(g, dt)
       -- Revalidate after the warning: a player can dash into the portal meanwhile.
       if distance(p, s) >= K.clear then
         local e = g:spawn(s.kind, s.x, s.z)
-        e.rewardId = s.rewardId
-        e.awake = true
-        e.memory = K.hunt
-        e.lastX = p.x
-        e.lastZ = p.z
+        arrive(g, e, s)
         e.spawnAge = 0
         -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
         Signal(g, 'EnemyArrived', { enemy = e, gate = s })
@@ -118,6 +130,14 @@ function S.step(g, dt)
       i = i + 1
     end
   end
+end
+-- arrive: what an arriving demon is given (S.welcome unless the mode says).
+function S.step(g, dt, arrive)
+  local r, p = g.run, g.player
+  g.intensity = (g.intensity or 0) * math.exp(-dt / Waves.director.tau)
+  r.phaseTime = (r.phaseTime or 0) + dt
+  r.spawnTimer = (r.spawnTimer or 0) - dt
+  S.arrivals(g, dt, arrive or S.welcome)
   local wave = Waves[r.wave]
   local alive = 0
   for _, e in ipairs(g.enemies) do

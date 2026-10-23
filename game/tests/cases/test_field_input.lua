@@ -65,6 +65,16 @@ function Tests.run(get, settings)
     end
     return true
   end
+  -- A catalogue summons opens portals; play on until every demon stepped out.
+  local function arrive(field)
+    for _ = 1, 600 do
+      if #field.run.pending == 0 then
+        break
+      end
+      love.update(1 / 120)
+    end
+    draw()
+  end
   local original = get()
   local snapshot = Save.encode(Run.snapshot(original), 1)
   local originalBoss = original.bossDead
@@ -80,11 +90,15 @@ function Tests.run(get, settings)
       and field.run ~= original.run
   )
   click('field_spawn_imp_3')
+  local opened = #field.run.pending == 3 and #field.enemies == 0
+  arrive(field)
   check(
-    'a scaled catalog click spawns the requested three live enemies and resumes free combat',
-    get() == field
+    'a scaled catalog click opens three portals, resumes free combat, and three live demons step out',
+    opened
+      and get() == field
       and field.state == 'playing'
       and #field.enemies == 3
+      and #field.run.pending == 0
       and field.run.phase == 'wave'
   )
   key('f2')
@@ -176,6 +190,7 @@ function Tests.run(get, settings)
       and field.run.wave == 1
   )
   click('field_spawn_furfur_1')
+  arrive(field)
   local furfur = field.enemies[1]
   check(
     'Furfur catalog button spawns its real boss definition without an armored-imp skin',
@@ -243,6 +258,7 @@ function Tests.run(get, settings)
     field.testField and field ~= menu and field.state == 'field_catalog'
   )
   click('field_spawn_boss_1')
+  arrive(field)
   local boss = field.enemies[1]
   field:damageEnemy(boss, 100000, 'weapon')
   field.seals = 3
