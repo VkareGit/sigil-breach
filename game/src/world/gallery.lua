@@ -22,25 +22,35 @@ local halls = {
   INTERFACE = { xs = { 26, 28 }, zs = { 14.8, 18.8, 20.6, 22.4 } },
   DEMONS = { xs = { 9.2, 11.5, 14, 18, 20.5, 22.8 }, zs = { 3.3 } },
 }
-G.statues = {
-  { kind = 'imp' },
-  { kind = 'imp', armored = true, id = 'armored' },
-  { kind = 'stolas' },
-  { kind = 'buer' },
-  { kind = 'boss' },
-  { kind = 'furfur' },
+-- Pad places on the nave floor: the demons' (west column, then east), the
+-- weapons' and the refill. What stands on them is the content's: the demons
+-- in their proving-ground order (catalog.field), the default loadout.
+local demonPads = {
+  { 10.2, 20.6 },
+  { 10.2, 23.1 },
+  { 10.2, 25.8 },
+  { 21.8, 20.6 },
+  { 21.8, 23.1 },
+  { 21.8, 25.8 },
 }
-G.pads = {
-  { x = 10.2, z = 20.6, spawn = 'imp' },
-  { x = 10.2, z = 23.1, spawn = 'armored' },
-  { x = 10.2, z = 25.8, spawn = 'stolas' },
-  { x = 21.8, z = 20.6, spawn = 'buer' },
-  { x = 21.8, z = 23.1, spawn = 'boss' },
-  { x = 21.8, z = 25.8, spawn = 'furfur' },
-  { x = 13.4, z = 28.6, weapon = 'exorcist' },
-  { x = 18.6, z = 28.6, weapon = 'judge' },
-  { x = 16, z = 28.9, refill = true },
-}
+local weaponPads = { { 13.4, 28.6 }, { 18.6, 28.6 } }
+local refillPad = { 16, 28.9 }
+-- One statue per listed demon (id: its creature; kind: its atlas and AI).
+G.statues, G.pads = {}, {}
+for i, def in ipairs(Archetypes.listed('field')) do
+  G.statues[i] = { id = def.id, kind = def.kind }
+  local at = demonPads[i]
+  if at then
+    G.pads[#G.pads + 1] = { x = at[1], z = at[2], spawn = def.id }
+  end
+end
+for i, id in ipairs(require('src.content.weapons').defaultLoadout) do
+  local at = weaponPads[i]
+  if at then
+    G.pads[#G.pads + 1] = { x = at[1], z = at[2], weapon = id }
+  end
+end
+G.pads[#G.pads + 1] = { x = refillPad[1], z = refillPad[2], refill = true }
 -- boards: the exhibits to hang (render/gallery.lua owns the art list).
 function G.layout(world, boards)
   local placed = {}
@@ -82,13 +92,7 @@ function G.layout(world, boards)
 end
 local function padLabel(p)
   if p.spawn then
-    return '[E] SPAWN '
-      .. string.upper(
-        Archetypes.get(
-          p.spawn == 'armored' and 'imp' or p.spawn,
-          p.spawn == 'armored' and 'armored' or nil
-        ).name
-      )
+    return '[E] SPAWN ' .. string.upper(Archetypes.get(p.spawn).name)
   end
   if p.weapon then
     return '[E] TAKE ' .. require('src.content.weapons').get(p.weapon).name

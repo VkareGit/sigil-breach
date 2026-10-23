@@ -6,6 +6,7 @@ for id, a in A.each() do
   local b = a.body
   D[id] = {
     kind = a.kind,
+    variant = a.variant,
     name = a.name,
     hp = b.hp,
     armor = b.armor,

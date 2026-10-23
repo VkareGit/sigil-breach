@@ -81,7 +81,7 @@ function Tests.run(G, renderer)
   g:shoot()
   check(
     'armored variant has armor and a distinct identity',
-    foe.kind == 'imp' and foe.armored and foe.armorRating == 60
+    foe.kind == 'imp' and foe.variant == 'armored' and foe.armorRating == 60
   )
   check(
     'shotgun reports armor reduction independently of impact',

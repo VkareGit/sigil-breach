@@ -1,13 +1,6 @@
 local U = { focus = 1, mouseX = -1, mouseY = -1 }
 local lg = love.graphics
-local T = require('src.content.tuning')
-local Reload = require('src.combat.reload')
-local Weapons = require('src.content.weapons')
-local Abilities = require('src.content.abilities')
 local Skin = require('src.ui.skin')
-local Goetia = require('src.ui.goetic_sigils')
-local FieldUI = require('src.ui.test_field')
-local HUD = require('src.ui.hud')
 local D = require('src.ui.descent')
 local Palette = require('src.ui.palette')
 local Camera = require('src.render.camera')

@@ -234,7 +234,7 @@ function Tests.run(G, initial, renderer, getGame)
   g.time = 0
   local f = V.frame(g)
   g.time = 0.6
-  check('idle lance no longer flips between dissimilar poses', V.frame(g) == f)
+  check('idle revolver no longer flips between dissimilar poses', V.frame(g) == f)
   for _, kind in ipairs({ 'imp', 'stolas', 'buer', 'boss' }) do
     check(
       kind .. ' has measured grounding for every frame',

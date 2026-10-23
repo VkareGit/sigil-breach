@@ -183,7 +183,7 @@ function Tests.run(get, settings)
       and #field.enemies == 1
       and furfur.kind == 'furfur'
       and furfur.boss
-      and not furfur.armored
+      and furfur.variant == nil
   )
   key('f2')
   click('field_reset')

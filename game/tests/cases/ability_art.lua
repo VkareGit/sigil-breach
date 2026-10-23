@@ -46,12 +46,12 @@ function Tests.run(Game, renderer)
   check('an interrupted jump cannot show a successful landing', Art.select(g, e) == nil)
   e.ai, e.windup, e.didHit = 'windup', 0.1, true
   -- An Iron Thrall is its own definition (its look has no leap art).
-  e.armored, e.archetype = true, require('src.content.enemies').armored
+  e.variant, e.archetype = 'armored', require('src.content.enemies').armored
   check(
     'armored creatures retain their separate identity and original art',
     Art.select(g, e) == nil
   )
-  e.armored, e.archetype = false, require('src.content.enemies').imp
+  e.variant, e.archetype = nil, require('src.content.enemies').imp
   e.hp = 0
   check('death takes precedence over lingering ability state', Art.select(g, e) == nil)
   e.hp, e.ai = e.maxHp, 'hurt'

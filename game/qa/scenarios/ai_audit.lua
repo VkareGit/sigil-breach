@@ -23,7 +23,7 @@ local function run(G, label, steer)
   for _, s in ipairs(spawn) do
     local e = g:spawn(s[1], s[2], s[3])
     e.awake, e.memory, e.spawnAge = true, 60, 1
-    local key = e.armored and 'armored' or e.kind
+    local key = e.variant or e.kind
     stats[key] = stats[key]
       or { windups = 0, strikes = 0, cancels = 0, hits = 0, orbit = 0, stuck = 0, longestOrbit = 0 }
     watch[#watch + 1] =

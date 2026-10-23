@@ -3,7 +3,6 @@ local lg = love.graphics
 local E = require('src.run.economy')
 local Run = require('src.run.descent')
 local Modes = require('src.run.modes')
-local Waves = require('src.content.waves')
 local Circles = require('src.content.circles')
 local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')

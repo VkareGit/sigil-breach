@@ -104,5 +104,14 @@ paczki. 19 sprawdzeń, które czytały dawne atlasy, sprawdza teraz atlasy
 używane w grze (wymiar, przezroczyste tło, siatka) i loader na arkuszu
 czarów (nierówne pasma i cięcia kolumn); liczba sprawdzeń bez zmian.
 
+10. LISTY Z DANYCH, PORZĄDKI KODU
+Katalog poligonu, posągi i pady galerii oraz karty bestiariusza powstają
+z definicji stworzeń (catalog.field, catalog.bestiary; A.listed) zamiast
+z list w UI i świecie; kolejność i teksty bez zmian. Rotacja fal to dane
+(waves.rotation), nowy demon dochodzi bez porównań nazw. Flaga armored
+zastąpiona ogólnym e.variant. Zapadka liczb bez nazw: dozwolone 1097 ->
+277 (stan faktyczny). Usunięte nieużywane importy, martwe pola X.radius/
+X.fuse i alias dźwięku 'lance'; ikona rewolweru w atlasie UI ma swoją nazwę.
+
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

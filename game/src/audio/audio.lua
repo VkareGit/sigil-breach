@@ -249,9 +249,6 @@ local function recycle(s)
   end
 end
 function A.play(name, volume)
-  if name == 'lance' then
-    name = 'revolver'
-  end -- Legacy event compatibility.
   if A.muted or not A.sources[name] then
     return
   end

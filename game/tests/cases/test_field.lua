@@ -69,7 +69,7 @@ function Tests.run(G, renderer)
           and e.armorRating == d.armor
           and e.speed == d.speed
           and e.resistances == d.resistances
-          and e.armored == (kind == 'armored')
+          and e.variant == d.variant
       )
       local distance = math.sqrt((e.x - g.player.x) ^ 2 + (e.z - g.player.z) ^ 2)
       check(

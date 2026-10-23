@@ -5,6 +5,7 @@ local packet = require('src.content.defs.packet').new
 return Creature.boss({
   id = 'furfur',
   name = 'Furfur, Storm Count',
+  catalog = { field = 6 },
   appearance = {
     layout = 'extended',
     portal = { 0.86, 0.86, 1 },

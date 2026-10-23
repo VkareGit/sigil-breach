@@ -10,7 +10,7 @@ function S.run(G)
   local field, fieldX, fieldZ, fieldAge = nil, nil, nil, 0
   local lastX, lastZ = g.player.x, g.player.z
   local stuck = 0
-  local shotgun, lance, pulses = 0, 0, 0
+  local shotgun, revolver, pulses = 0, 0, 0
   local function pathTo(x, z)
     local tx, tz = math.floor(x + 0.5), math.floor(z + 0.5)
     if not field or tx ~= fieldX or tz ~= fieldZ or fieldAge > 0.35 then
@@ -129,7 +129,7 @@ function S.run(G)
       if g.weapon == 1 then
         shotgun = shotgun + 1
       else
-        lance = lance + 1
+        revolver = revolver + 1
       end
     end
     fieldAge = fieldAge + 1 / 120
@@ -149,7 +149,7 @@ function S.run(G)
     seals = g.seals,
     ammo = g.player.arsenal.exorcist.mag + g.player.arsenal.exorcist.reserve,
     shotgun = shotgun,
-    lance = lance,
+    revolver = revolver,
     pulses = pulses,
     x = g.player.x,
     z = g.player.z,
@@ -164,7 +164,7 @@ function S.run(G)
     result.damage,
     result.ammo,
     result.shotgun,
-    result.lance,
+    result.revolver,
     result.pulses,
     result.x,
     result.z

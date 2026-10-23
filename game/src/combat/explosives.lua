@@ -15,8 +15,8 @@ local function defaultAction()
   return Abilities:get('powder').action
 end
 local K = Tuning.explosives
--- Legacy inspection values; flight and blast read the action of each charge.
-local X = { radius = defaultAction().radius, fuse = defaultAction().fuse }
+-- Flight and blast read the action of each charge (its fuse, radius, blast).
+local X = {}
 local function clear(g, b, x, y, z)
   local dx, dy, dz = x - b.x, y - b.y, z - b.z
   local d = math.sqrt(dx * dx + dy * dy + dz * dz)

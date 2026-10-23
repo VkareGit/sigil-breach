@@ -6,16 +6,13 @@ local Archetypes = require('src.content.enemies')
 local Body = require('src.content.defs.body')
 local sqrt = math.sqrt
 return function(R)
-  -- Archetype of an enemy record (variant first: the armoured servant shares
-  -- the imp's atlas and AI but not its body).
+  -- Archetype of an enemy record (variant first: the Iron Thrall shares the
+  -- Ember Thrall's atlas and AI but not its body).
   function R.archetype(e)
     if e == nil then
       return nil
     end
-    if e.archetype then
-      return e.archetype
-    end
-    return Archetypes.get(e.kind, e.armored and 'armored' or nil)
+    return Archetypes.of(e)
   end
   function R.body(e)
     local a = R.archetype(e)

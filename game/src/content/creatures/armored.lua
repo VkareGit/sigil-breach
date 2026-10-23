@@ -9,6 +9,15 @@ return Creature.define({
   variant = 'armored',
   name = 'Iron Thrall',
   souls = 12,
+  catalog = {
+    field = 2,
+    bestiary = {
+      order = 4,
+      text = 'Armour protects it.',
+      tip = 'Pierce or the Judge.',
+      color = 'blue',
+    },
+  },
   -- Its own sheet; it does not leap, so it has no leap art of its parent.
   appearance = {
     atlas = 'armored',

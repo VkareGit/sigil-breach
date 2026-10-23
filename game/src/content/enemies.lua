@@ -45,9 +45,31 @@ function A.each()
     end
   end
 end
+-- The creatures listed under a catalog key ('field', 'bestiary'), in the
+-- order their definitions give (content/defs/creature.lua: catalog). Every
+-- screen and place that lists demons asks here; two at one place is an error.
+function A.listed(key)
+  local out, taken = {}, {}
+  local function place(def)
+    local entry = def.catalog[key]
+    return type(entry) == 'table' and entry.order or entry
+  end
+  for _, def in A.each() do
+    local at = place(def)
+    if at then
+      assert(not taken[at], 'two creatures listed at ' .. key .. ' ' .. at)
+      taken[at] = true
+      out[#out + 1] = def
+    end
+  end
+  table.sort(out, function(a, b)
+    return place(a) < place(b)
+  end)
+  return out
+end
 -- The definition of a body in play (its own, else by kind and variant).
 function A.of(e)
-  return e.archetype or A.get(e.kind, e.armored and 'armored' or nil)
+  return e.archetype or A.get(e.kind, e.variant)
 end
 -- How a body in play looks (its creature's appearance; a neutral look for a
 -- record of no known creature, e.g. a hand-made test body).

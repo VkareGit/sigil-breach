@@ -229,7 +229,7 @@ function G.draw(r, g)
         flinch = 0,
       }
     s.record = e
-    e.kind, e.armored, e.x, e.z, e.id = s.kind, s.armored, s.x, s.z, 900 + i
+    e.kind, e.variant, e.x, e.z, e.id = s.kind, Archetypes.get(s.id).variant, s.x, s.z, 900 + i
     e.previewFrame = Idle.sample(Idle.kind(e), time, e.id)
     r:enemy(g, e)
   end
@@ -291,7 +291,7 @@ function G.labels(r, g, ox, oy, vw, vh)
       }
     end
     for _, s in ipairs(WG.statues) do
-      local a = Archetypes.get(s.kind, s.armored and 'armored' or nil)
+      local a = Archetypes.get(s.id)
       local tall = a.appearance.stature == 'large' and 4.1 or 2.7
       state.items[#state.items + 1] = {
         x = s.x,

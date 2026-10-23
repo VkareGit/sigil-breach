@@ -516,7 +516,7 @@ function Tests.run(G, renderer)
       and foe.attackKind == 'charge'
       and foe.windup > 0.8
       and g.player.hp == 100
-      and not foe.armored
+      and foe.variant == nil
   )
   g.player.x = 19
   tick(g, 1.8)

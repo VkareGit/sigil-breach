@@ -1,3 +1,7 @@
+-- The role rotation of a wave queue: these creatures in this order, round
+-- after round, while any of the composition remain. A creature the rotation
+-- does not name (a new demon) follows in id order: every one still arrives.
+local rotation = { 'imp', 'stolas', 'imp', 'buer', 'armored' }
 -- pack: how many demons arrive together (from different portals, the later
 -- ones preferring the player's flanks and back), Doom Eternal encounter style.
 local function wave(cap, tip, composition, pack)
@@ -7,12 +11,13 @@ local function wave(cap, tip, composition, pack)
   for k, v in pairs(composition) do
     remaining[k] = v
   end
-  -- The classic role rotation first, then any other kind (new demons) in a
-  -- stable order: a kind missing from the rotation must still arrive.
-  local order = { 'imp', 'stolas', 'imp', 'buer', 'armored' }
+  local order, named = {}, {}
+  for i, k in ipairs(rotation) do
+    order[i], named[k] = k, true
+  end
   local extra = {}
   for k in pairs(composition) do
-    if k ~= 'imp' and k ~= 'stolas' and k ~= 'buer' and k ~= 'armored' then
+    if not named[k] then
       extra[#extra + 1] = k
     end
   end
@@ -59,8 +64,9 @@ local list = {
     },
   },
 }
--- The builder is exposed for tests and future encounter data.
+-- The builder and its rotation are exposed for tests and future encounter data.
 list.build = wave
+list.rotation = rotation
 -- Pacing director (0.24, Left 4 Dead style). Intensity I is the damage the
 -- knight took, fading with time constant tau seconds; stress = I / reference.
 -- The pause between packs is multiplied by fast + (slow - fast) * min(1,

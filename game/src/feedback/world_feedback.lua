@@ -7,7 +7,6 @@ local FX = require('src.feedback.effects')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Reload = require('src.combat.reload')
-local Spawner = require('src.run.spawner')
 local K = require('src.content.tuning').world
 local World = {}
 local function sounds(e)

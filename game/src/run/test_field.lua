@@ -15,16 +15,9 @@ local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
 F.catalog = {
-  enemies = {
-    { id = 'imp' },
-    { id = 'armored' },
-    { id = 'stolas' },
-    { id = 'buer' },
-    { id = 'boss' },
-    {
-      id = 'furfur',
-    },
-  },
+  -- Every creature whose definition lists it here, in its order
+  -- (catalog.field: content/defs/creature.lua). The gallery uses the same.
+  enemies = {},
   -- 0.22 stations: everything as it is now, measured in place.
   stations = {
     { id = 'range', name = 'RANGE' },
@@ -40,8 +33,8 @@ F.catalog = {
     },
   },
 }
-for _, entry in ipairs(F.catalog.enemies) do
-  entry.name = Definitions[entry.id].name
+for _, def in ipairs(require('src.content.enemies').listed('field')) do
+  F.catalog.enemies[#F.catalog.enemies + 1] = { id = def.id, name = Definitions[def.id].name }
 end
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name } (the catalogue follows the loadout, never a count).

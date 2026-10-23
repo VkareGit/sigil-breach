@@ -12,7 +12,6 @@ local Signal = require('src.session.signal')
 local Archetypes = require('src.content.enemies')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
-local Explosives = require('src.combat.explosives')
 local State = require('src.session.state')
 local Outcomes = require('src.session.damage_outcomes')
 local Interactions = require('src.session.interactions')
@@ -95,7 +94,7 @@ function Game:spawn(kind, x, z)
     or self.tier
     or 1
   Rules.applyTier(enemy, tier)
-  enemy.armored = archetype.variant == 'armored'
+  enemy.variant = archetype.variant
   AI.init(enemy)
   self.enemies[#self.enemies + 1] = enemy
   return enemy

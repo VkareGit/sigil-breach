@@ -6,6 +6,15 @@ return Creature.define({
   id = 'buer',
   name = 'Plague Gardener',
   souls = 12,
+  catalog = {
+    field = 4,
+    bestiary = {
+      order = 3,
+      text = 'Leaves venom pools.',
+      tip = 'Leave the marked ring.',
+      color = 'green',
+    },
+  },
   appearance = {
     portal = { 0.58, 0.84, 0.30 },
     stain = { 0.18, 0.15, 0.055 },

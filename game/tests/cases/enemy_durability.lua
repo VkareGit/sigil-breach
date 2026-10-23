@@ -86,7 +86,7 @@ function T.sample(kind, slot, distance, aim, frame, serial)
   local def = Def[kind]
   local e = {
     kind = def.kind,
-    armored = kind == 'armored',
+    variant = def.variant,
     id = 1,
     x = 41,
     z = 41,

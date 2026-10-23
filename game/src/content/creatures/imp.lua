@@ -7,6 +7,15 @@ return Creature.define({
   id = 'imp',
   name = 'Ember Thrall',
   souls = 4,
+  catalog = {
+    field = 1,
+    bestiary = {
+      order = 1,
+      text = 'Flanks and lunges.',
+      tip = 'Sidestep its swing.',
+      color = 'red',
+    },
+  },
   appearance = {
     layout = 'extended',
     portal = { 1, 0.42, 0.14 },

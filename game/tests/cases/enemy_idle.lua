@@ -47,7 +47,7 @@ end
 local function enemy(kind)
   return {
     kind = kind == 'armored' and 'imp' or kind,
-    armored = kind == 'armored',
+    variant = kind == 'armored' and 'armored' or nil,
     id = 7,
     hp = 100,
     x = 0,

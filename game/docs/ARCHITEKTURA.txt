@@ -225,6 +225,13 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Demon na ISTNIEJĄCEJ ilustracji (wariant, inny pancerz, inne zachowanie):
   content/creatures/<id>.lua: Creature.define({ extends = rodzic, ... }), id w
   A.creatures. Atlas, maski, klatki i animacje umiejętności dziedziczy.
+  Gdzie jest wymieniony, mówi jego definicja (catalog, nie dziedziczy się):
+  field = miejsce w katalogu poligonu, posągach i padach galerii; bestiary =
+  { order, text, tip, color } karta pomocy F1. Listy buduje A.listed(klucz);
+  ekranów i galerii się nie edytuje (miejsca padów to układ world/gallery,
+  test gallery sprawdza, że każdy wymieniony demon ma swój pad). Nowy demon
+  w falach: content/waves.lua (skład; spoza rotacji dochodzi sam, po id).
+  Odmiana ciała w grze: e.variant (id odmiany z definicji), A.of(e).
   Inny opis ciała na tym samym obrazie (płyty, inne materiały, inna liczba
   części jednej strefy): adnotacja w content/art/anatomy/<id>.lua, wpis w
   anatomy_regions.layouts i appearance.regions = '<id>'; adnotacja ma klatkę

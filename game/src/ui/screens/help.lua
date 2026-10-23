@@ -7,7 +7,6 @@ local lg = love.graphics
 local c, text, right, center = Kit.c, Kit.text, Kit.right, Kit.center
 local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.bar
 local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gold
-local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local Goetia = require('src.ui.goetic_sigils')
 local S = {}
 function S.draw(g, s, U)
@@ -53,36 +52,19 @@ function S.draw(g, s, U)
     text(k[2], x + 100, y + 8, 18, ivory)
   end
   line(170, 294, 940, gold)
-  local cards = {
-    {
-      kind = 'imp',
-      name = 'EMBER THRALL',
-      desc = 'Flanks and lunges.',
-      tip = 'Sidestep its swing.',
-      color = red,
-    },
-    {
-      kind = 'stolas',
-      name = 'STAR ACOLYTE',
-      desc = 'Keeps away, shoots.',
-      tip = 'Heavy shots interrupt.',
-      color = blue,
-    },
-    {
-      kind = 'buer',
-      name = 'PLAGUE GARDENER',
-      desc = 'Leaves venom pools.',
-      tip = 'Leave the marked ring.',
-      color = green,
-    },
-    {
-      kind = 'armored',
-      name = 'IRON THRALL',
-      desc = 'Armour protects it.',
-      tip = 'Pierce or the Judge.',
-      color = blue,
-    },
-  }
+  -- One card per creature whose definition has one (catalog.bestiary), in
+  -- its order; the text and the title colour are the creature's data.
+  local cards = {}
+  for _, def in ipairs(require('src.content.enemies').listed('bestiary')) do
+    local card = def.catalog.bestiary
+    cards[#cards + 1] = {
+      kind = def.id,
+      name = string.upper(def.name),
+      desc = card.text,
+      tip = card.tip,
+      color = assert(Palette[card.color], 'unknown palette colour ' .. card.color),
+    }
+  end
   for i, v in ipairs(cards) do
     local x = 160 + (i - 1) * 240
     U.face(v.kind, x + 54, 312, 116, 116)

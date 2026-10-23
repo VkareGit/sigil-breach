@@ -80,7 +80,7 @@ function S.run(G, human, observer)
   local field, fieldX, fieldZ, fieldAge = nil, nil, nil, 0
   local lastX, lastZ = g.player.x, g.player.z
   local stuck = 0
-  local shotgun, lance, pulses, purchases = 0, 0, 0, 0
+  local shotgun, revolver, pulses, purchases = 0, 0, 0, 0
   local waveTimes = {}
   local waveDamage, damageStart = {}, 0
   local previousWave = 1
@@ -294,7 +294,7 @@ function S.run(G, human, observer)
       if g.weapon == 1 then
         shotgun = shotgun + 1
       else
-        lance = lance + 1
+        revolver = revolver + 1
       end
     end
     fieldAge = fieldAge + 1 / 120
@@ -319,7 +319,7 @@ function S.run(G, human, observer)
     kills = g.kills,
     ammo = g.player.arsenal.exorcist.mag + g.player.arsenal.exorcist.reserve,
     shotgun = shotgun,
-    lance = lance,
+    revolver = revolver,
     pulses = pulses,
     purchases = purchases,
     wallet = g.run.wallet,
@@ -351,7 +351,7 @@ function S.run(G, human, observer)
     string.format(
       'Shotgun volleys %d; revolver shots %d; powder charges %d; purchases %d',
       shotgun,
-      lance,
+      revolver,
       pulses,
       purchases
     ),

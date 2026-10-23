@@ -249,7 +249,7 @@ function Tests.run(G, initial, renderer, getGame)
     g.player.yaw = math.atan2(a.x - g.player.x, a.z - g.player.z)
     g:update(1 / 120, { shoot = true })
   end
-  check('continuous lance fire cannot permanently stun-lock a caster', a.attackCount > 0)
+  check('continuous revolver fire cannot permanently stun-lock a caster', a.attackCount > 0)
   fresh()
   a = g:spawn('imp', 16, 24)
   g:shoot()

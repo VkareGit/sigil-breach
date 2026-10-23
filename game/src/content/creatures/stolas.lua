@@ -6,6 +6,15 @@ return Creature.define({
   id = 'stolas',
   name = 'Star Acolyte',
   souls = 8,
+  catalog = {
+    field = 3,
+    bestiary = {
+      order = 2,
+      text = 'Keeps away, shoots.',
+      tip = 'Heavy shots interrupt.',
+      color = 'blue',
+    },
+  },
   appearance = {
     layout = 'extended',
     portal = { 0.48, 0.66, 1 },

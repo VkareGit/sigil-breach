@@ -27,11 +27,28 @@ function Tests.run(G, check)
   )
   local kinds = {}
   for _, s in ipairs(Gallery.statues) do
-    kinds[s.armored and 'armored' or s.kind] = true
+    kinds[s.id] = true
   end
   check(
     'a statue stands for every demon of the catalogue',
     kinds.imp and kinds.armored and kinds.stolas and kinds.buer and kinds.boss and kinds.furfur
+  )
+  -- The lists come from the creature definitions (catalog.field): a demon
+  -- listed there has its catalogue entry, statue and spawn pad, in its order.
+  local listed, consistent = require('src.content.enemies').listed('field'), true
+  local spawns = {}
+  for _, p in ipairs(Gallery.pads) do
+    spawns[#spawns + 1] = p.spawn
+  end
+  for i, def in ipairs(listed) do
+    consistent = consistent
+      and Field.catalog.enemies[i].id == def.id
+      and Gallery.statues[i].id == def.id
+      and spawns[i] == def.id
+  end
+  check(
+    'every listed demon has its catalogue entry, statue and pad, in its order',
+    consistent and #Field.catalog.enemies == #listed and #Gallery.statues == #listed
   )
   local padsOpen = true
   for _, p in ipairs(Gallery.pads) do

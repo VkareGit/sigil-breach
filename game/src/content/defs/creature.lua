@@ -63,8 +63,24 @@ Creature.appearance = Schema:new('appearance', {
   art = { type = 'table', desc = 'attack id -> ability art sequence (render/ability_art.lua)' },
   evadeArt = { type = 'string', desc = 'ability art sequence of its sidestep' },
 })
+-- Where a creature is listed: the lists are built from these entries, never
+-- written out per screen. field: its place in the proving-ground catalogue,
+-- the gallery's statues and spawn pads (run/test_field.lua, world/gallery.lua);
+-- bestiary: its card on the help screen (ui/screens/help.lua). A creature
+-- with neither is not listed. A variant lists itself: never inherited.
+Creature.bestiary = Schema:new('bestiary', {
+  order = { type = 'number', required = true, min = 1, desc = 'place among the cards' },
+  text = { type = 'string', required = true, desc = 'what it does' },
+  tip = { type = 'string', required = true, desc = 'how to answer it' },
+  color = { type = 'string', required = true, desc = 'its title colour (ui/palette.lua name)' },
+})
+Creature.catalog = Schema:new('catalog', {
+  field = { type = 'number', min = 1, desc = 'place in the proving ground and the gallery' },
+  bestiary = { type = 'table', schema = Creature.bestiary },
+})
 Creature.schema = Schema:new('creature', {
   id = { type = 'string', required = true },
+  catalog = { type = 'table', default = {}, desc = 'where it is listed (Creature.catalog)' },
   kind = { type = 'string', required = true, desc = 'atlas and AI family' },
   variant = { type = 'string', desc = 'id of the variant of its kind' },
   name = { type = 'string', required = true },
@@ -131,6 +147,7 @@ function Creature.define(def)
   local parent = def.extends
   local merged = parent and Schema.inherit(parent, def) or Schema.copy(def)
   merged.extends = nil
+  merged.catalog = def.catalog or {}
   merged.attacks = actionsOf(parent, def.attacks)
   merged.kind = merged.kind or merged.id
   local where = 'creature ' .. tostring(merged.id)
@@ -146,6 +163,7 @@ function Creature.define(def)
   end
   merged.appearance = Creature.appearance:build(merged.appearance, where .. '.appearance')
   merged.appearance.atlas = merged.appearance.atlas or merged.id
+  merged.catalog = Creature.catalog:build(merged.catalog, where .. '.catalog')
   assert(#merged.attacks > 0, where .. '.attacks: at least one action required')
   local ids = {}
   for i, a in ipairs(merged.attacks) do

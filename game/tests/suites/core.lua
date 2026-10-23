@@ -255,7 +255,7 @@ function Tests.run(G, initial, renderer, getGame)
   e = g:spawn('boss', 16, 22)
   e.windup = 0.5
   g:shoot()
-  check('boss cannot be stunlocked by lance', e.stun == 0 and e.windup == 0.5)
+  check('boss cannot be stunlocked by revolver', e.stun == 0 and e.windup == 0.5)
   fresh()
   g.player.hp = 60
   e = g:spawn('imp', 16, 24)

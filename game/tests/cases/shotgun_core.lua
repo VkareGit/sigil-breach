@@ -11,7 +11,7 @@ local function target(kind, x, z, frame, id)
   local d = Definitions[kind]
   return {
     kind = d.kind,
-    armored = kind == 'armored',
+    variant = d.variant,
     id = id or 1,
     x = x,
     z = z,

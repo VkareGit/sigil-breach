@@ -6,6 +6,7 @@ return Creature.boss({
   id = 'boss',
   name = 'Margrave of Ash',
   souls = 150,
+  catalog = { field = 5 },
   guardian = true,
   appearance = {
     portal = { 1, 0.30, 0.08 },

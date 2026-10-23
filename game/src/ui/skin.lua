@@ -13,7 +13,7 @@ local names = {
   'soul',
   'essence',
   'ammo',
-  'lance',
+  'revolver',
   'dash',
   'skull',
   'choke',
