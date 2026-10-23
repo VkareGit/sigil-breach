@@ -12,27 +12,156 @@ local clip, ring, mail = Synth.clip, Synth.ring, Synth.mail
 local R = {}
 
 -- WEAPONS ------------------------------------------------------------------------
+-- Black powder in a stone nave: a heavy report, its smoke still crackling,
+-- the walls answering a moment later (the long ring is R.hall).
+
+-- The Exorcist: both barrels at once, a hair apart (ka-BOOM): the crack of
+-- each, the powder's blast and its burning crackle, a falling sub thump.
 R.shot = {
-  duration = 0.60,
+  duration = 0.9,
   jitter = 0.04,
-  voice = function(t, _, _, low, slower, high)
-    local crack = high * 0.70 * exp(-t * 150) + low * 1.7 * exp(-t * 28)
-    local body = sin(2 * pi * (74 * t + 1.2 * (1 - exp(-t * 40)))) * 0.90 * exp(-t * 22)
-    local tail = slower * 3.5 * exp(-t * 8)
-    local echo = (t > 0.065 and low * 0.35 * exp(-(t - 0.065) * 22) or 0)
-    return clip(crack + body + tail + echo) * 0.87
+  make = function(rate)
+    local boom, walls =
+      Synth.resonator(520, 0.9, rate), Synth.reflections(rate, {
+        { 0.047, 0.34 },
+        { 0.093, 0.22 },
+        { 0.141, 0.12 },
+      })
+    local crackle, fade = 0, exp(-1 / (0.0015 * rate))
+    return function(t, _, noise, low, slower, high)
+      local crack = noise * exp(-t * 900)
+        + (t > 0.006 and noise * 0.75 * exp(-(t - 0.006) * 900) or 0)
+      local blast = low * 1.5 * exp(-t * 26) + boom(noise) * 2.2 * exp(-t * 17)
+      local body = sin(2 * pi * (48 * t + 1.4 * (1 - exp(-t * 30)))) * 0.9 * exp(-t * 13)
+      if noise > 0.993 and t < 0.25 then
+        crackle = 1
+      end
+      crackle = crackle * fade
+      local powder = high * crackle * 0.6 * exp(-t * 9)
+      local dry = crack * 0.7 + blast + body + powder + slower * 3.2 * exp(-t * 4.5)
+      return clip(walls(dry)) * 0.55
+    end
   end,
 }
+-- The Judge: one heavy round, a sharp crack, the iron frame ringing, the
+-- cylinder turning to the next chamber.
 R.revolver = {
-  duration = 0.34,
+  duration = 0.55,
   jitter = 0.04,
-  voice = function(t, _, _, low, slower, high)
-    local crack = high * 0.95 * exp(-t * 135) + low * 1.25 * exp(-t * 32)
-    local body = sin(2 * pi * (112 * t + 0.65 * (1 - exp(-t * 35)))) * 0.55 * exp(-t * 27)
-    local latch = t > 0.145
-        and (high * 0.28 + sin(2 * pi * 1850 * t) * 0.12) * exp(-(t - 0.145) * 90)
+  make = function(rate)
+    local snap, walls =
+      Synth.resonator(1800, 1.4, rate), Synth.reflections(rate, {
+        { 0.041, 0.26 },
+        { 0.087, 0.15 },
+      })
+    return function(t, _, noise, low, slower, high)
+      local crack = noise * exp(-t * 1100)
+        + high * 0.85 * exp(-t * 120)
+        + snap(noise) * 1.6 * exp(-t * 60)
+      local body = sin(2 * pi * (85 * t + 0.9 * (1 - exp(-t * 35)))) * 0.6 * exp(-t * 24)
+        + low * 1.1 * exp(-t * 30)
+      local frame = (
+        sin(2 * pi * 2650 * t)
+        + 0.5 * sin(2 * pi * 3920 * t)
+        + 0.3 * sin(2 * pi * 5300 * t)
+      )
+        * 0.09
+        * exp(-t * 35)
+      local turn = Synth.clicks(t, { 0.15, 0.172 }, 1850, 260, { 0.16, 0.08 })
+      local dry = crack * 0.8 + body + frame + turn + slower * 2.4 * exp(-t * 9)
+      return clip(walls(dry)) * 0.7
+    end
+  end,
+}
+-- RELOADS (content/tuning.lua reload.<mechanism>.voices names them).
+-- The Exorcist's breech: the lever thrown, the barrels dropping on the
+-- hinge, the spent shells drawn out.
+R.breakOpen = {
+  duration = 0.32,
+  voice = function(t, _, noise, low)
+    local lever = Synth.clicks(t, { 0 }, 3100, 420, 0.32) + noise * 0.35 * exp(-t * 700)
+    local hinge = Synth.clicks(t, { 0.03 }, 920, 70, 0.3)
+      + Synth.clicks(t, { 0.03 }, 1430, 110, 0.14)
+    local drop = t > 0.06
+        and (sin(2 * pi * 140 * (t - 0.06)) * 0.5 + low * 0.5) * exp(-(t - 0.06) * 38)
       or 0
-    return clip(crack + body + slower * 2.2 * exp(-t * 12) + latch) * 0.82
+    local shells = Synth.clicks(t, { 0.12, 0.135 }, 2300, 160, 0.1)
+    return clip(lever + hinge + drop + shells) * 0.85
+  end,
+}
+-- Two shells pushed home: a short scrape of paper and brass, a dull seat.
+R.shellIn = {
+  duration = 0.26,
+  make = function(rate)
+    local brass = Synth.resonator(2600, 2, rate)
+    return function(t, _, noise, low)
+      local s = 0
+      for _, at in ipairs({ 0, 0.11 }) do
+        local d = t - at
+        if d > 0 then
+          s = s + brass(noise) * 0.9 * min(1, d / 0.004) * exp(-d * 90)
+          if d > 0.03 then
+            s = s + (sin(2 * pi * 310 * (d - 0.03)) * 0.45 + low * 0.4) * exp(-(d - 0.03) * 70)
+          end
+        end
+      end
+      return clip(s) * 1.0
+    end
+  end,
+}
+-- The breech snapped shut: a hard clunk, the lock biting.
+R.breakClose = {
+  duration = 0.3,
+  voice = function(t, _, noise, low, slower)
+    local snap = noise * 0.7 * exp(-t * 600)
+    local clunk = (sin(2 * pi * (110 * t)) * 0.75 + low * 0.9) * exp(-t * 32)
+      + slower * 1.6 * exp(-t * 20)
+    local lock = Synth.clicks(t, { 0.012 }, 2800, 180, 0.22)
+      + Synth.clicks(t, { 0.05, 0.075 }, 1700, 120, 0.06)
+    return clip(snap + clunk + lock) * 0.53
+  end,
+}
+-- The Judge's cylinder swung out on its crane: the latch, the free spin, the
+-- clank at the stop, the empty cases falling out.
+R.gateOpen = {
+  duration = 0.42,
+  voice = function(t, _, noise, low)
+    local latch = Synth.clicks(t, { 0 }, 3400, 380, 0.26) + noise * 0.25 * exp(-t * 800)
+    local spin = Synth.clicks(
+      t,
+      { 0.03, 0.048, 0.07, 0.096, 0.127 },
+      4200,
+      520,
+      { 0.08, 0.07, 0.06, 0.05, 0.04 }
+    )
+    local stop = t > 0.15
+        and (sin(2 * pi * 230 * (t - 0.15)) * 0.4 + low * 0.35) * exp(-(t - 0.15) * 45)
+      or 0
+    local cases = Synth.clicks(t, { 0.24, 0.262, 0.279, 0.3, 0.318, 0.34 }, 3600, 140, 0.07)
+    return clip(latch + spin + stop + Synth.clicks(t, { 0.15 }, 1300, 90, 0.15) + cases) * 1.0
+  end,
+}
+-- Rounds dropped into the chambers: soft brass clicks, the last one seated.
+R.roundsIn = {
+  duration = 0.3,
+  voice = function(t, _, _, low)
+    local drops = Synth.clicks(t, { 0, 0.045, 0.085, 0.12 }, 3300, 220, { 0.1, 0.09, 0.1, 0.08 })
+    local seat = t > 0.16
+        and (sin(2 * pi * 420 * (t - 0.16)) * 0.3 + low * 0.3) * exp(-(t - 0.16) * 60)
+      or 0
+    return clip(drops * 1.6 + seat * 1.4) * 0.95
+  end,
+}
+-- The cylinder slapped home: a clank, the ratchet spinning down, the latch.
+R.cylinderClose = {
+  duration = 0.36,
+  voice = function(t, _, noise, low)
+    local slap = noise * 0.5 * exp(-t * 650)
+      + (sin(2 * pi * 180 * t) * 0.6 + low * 0.7) * exp(-t * 36)
+    local ring = (sin(2 * pi * 2200 * t) + 0.6 * sin(2 * pi * 3300 * t)) * 0.06 * exp(-t * 28)
+    local ratchet = Synth.clicks(t, { 0.03, 0.05, 0.074, 0.103, 0.138, 0.18 }, 4400, 600, 0.07)
+    local latch = Synth.clicks(t, { 0.23 }, 2900, 300, 0.14)
+    return clip(slap + ring + ratchet + latch) * 0.66
   end,
 }
 R.shell = {
@@ -42,22 +171,14 @@ R.shell = {
       * exp(-t * 65)
   end,
 }
+-- A pull on an empty chamber: the hammer falls on nothing.
 R.empty = {
-  duration = 0.08,
-  voice = function(t, u, _, low)
-    return (low * 0.7 + sin(2 * pi * 90 * t) * 0.4) * exp(-u * 7)
+  duration = 0.12,
+  voice = function(t, _, noise, low)
+    local hammer = Synth.clicks(t, { 0 }, 2900, 260, 0.3) + noise * 0.3 * exp(-t * 900)
+    return clip(hammer * 1.5 + (sin(2 * pi * 260 * t) * 0.35 + low * 0.45) * exp(-t * 70)) * 0.9
   end,
 }
--- The breech: open, load and close, each a click of its own pitch.
-local function breech(f)
-  return function(t, _, _, _, _, high)
-    local pulse = exp(-t * 75) + (t > 0.045 and 0.65 * exp(-(t - 0.045) * 95) or 0)
-    return (high * 0.60 + sin(2 * pi * f * t) * 0.20 + sin(2 * pi * f * 1.41 * t) * 0.12) * pulse
-  end
-end
-R.open = { duration = 0.16, voice = breech(1100) }
-R.load = { duration = 0.18, voice = breech(1850) }
-R.close = { duration = 0.17, voice = breech(760) }
 
 -- HITS AND KILLS -----------------------------------------------------------------
 R.hit = {
@@ -92,7 +213,12 @@ R.multikill = {
     return (sin(2 * pi * 330 * t) * 0.18 + sin(2 * pi * 495 * t) * 0.12) * exp(-t * 14)
   end,
 }
-R.hurt = { duration = 0.25, voice = R.empty.voice }
+R.hurt = {
+  duration = 0.25,
+  voice = function(t, u, _, low)
+    return (low * 0.7 + sin(2 * pi * 90 * t) * 0.4) * exp(-u * 7)
+  end,
+}
 -- Weight cues (feedback/weight.lua): a passing projectile, a precise hit, a
 -- broken guard, a body against stone.
 R.whoosh = {
@@ -133,18 +259,28 @@ R.thud = {
     ) * 0.85
   end,
 }
--- The stone hall answers a shot: three dark reflections and a long bloom.
+-- The nave answers a shot: a dark burst of powder rung through the stone
+-- hall's reverb (Synth.hall), only its wet tail, a long low bloom.
 R.hall = {
-  duration = 1.4,
-  voice = function(t, _, _, low, slower)
-    local bloom = slower * 2.6 * (1 - exp(-t * 30)) * exp(-t * 2.8)
-    local echo = 0
-    for k, d in ipairs({ 0.085, 0.17, 0.29 }) do
-      if t > d then
-        echo = echo + low * (0.55 / k) * exp(-(t - d) * 14)
-      end
+  duration = 2.2,
+  make = function(rate)
+    local tail, random, low = Synth.buffer(2.2, rate), Synth.noise(Synth.seed('hall burst')), 0
+    for i = 1, math.floor(0.08 * rate) do
+      low = low * 0.8 + random() * 0.2
+      tail[i] = low * exp(-(i - 1) / rate * 40)
     end
-    return clip(bloom + echo) * 0.75
+    Synth.hall(
+      tail,
+      rate,
+      { time = 2.4, mix = 1, dry = 0, damp = 0.5, size = 1.8, predelay = 0.035 }
+    )
+    local peak = 0
+    for i = 1, #tail do
+      peak = max(peak, math.abs(tail[i]))
+    end
+    return function(t)
+      return (tail[math.floor(t * rate) + 1] or 0) / peak * 0.5
+    end
   end,
 }
 -- The hero's heart under 30 HP: a muffled double beat.

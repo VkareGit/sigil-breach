@@ -1,10 +1,14 @@
--- --music-export: the score rendered outside play, as 16-bit WAV files in
--- <qa output>/music: each layer (one loop) and each mood's mix (two loops,
--- the gains of audio/score.lua), for a listen or a trailer's edit; and
--- report.txt with the render's time, the loop and each file's levels.
+-- --audio-export: the game's sound outside play, as 16-bit WAV files for a
+-- listen or a trailer's edit. <qa output>/music: each layer of the score (one
+-- loop) and each mood's mix (two loops, the gains of audio/score.lua);
+-- <qa output>/sounds: every sound effect (audio/recipes.lua) as it plays.
+-- report.txt in each: render time and every file's levels.
 local Output = require('qa.output')
 local Score = require('src.audio.score')
 local Soundscape = require('src.audio.soundscape')
+local Synth = require('src.audio.synth')
+local Recipes = require('src.audio.recipes')
+local Audio = require('src.audio.audio')
 local Export = {}
 local floor = math.floor
 
@@ -47,20 +51,62 @@ local function levels(buffer)
   return peak, math.sqrt(sum / #buffer)
 end
 
-function Export.run()
-  local dir = Output.path('music')
+local function directory(name)
+  local dir = Output.path(name)
   os.execute('mkdir "' .. dir:gsub('/', '\\') .. '" 2>nul')
+  return dir
+end
+local function report(dir, lines)
+  local file = assert(io.open(dir .. '/report.txt', 'w'))
+  file:write(table.concat(lines, '\n'), '\n')
+  file:close()
+  print(table.concat(lines, '\n'))
+end
+
+-- Every recipe rendered as the game renders it (Audio.rate, its own seed).
+function Export.sounds()
+  local dir = directory('sounds')
+  local names = {}
+  for name in pairs(Recipes) do
+    names[#names + 1] = name
+  end
+  table.sort(names)
+  local lines = {}
+  for _, name in ipairs(names) do
+    local recipe = Recipes[name]
+    local data = Synth.effect(
+      recipe.duration,
+      Audio.rate,
+      Synth.seed(name),
+      recipe.voice or recipe.make(Audio.rate)
+    )
+    local buffer = {}
+    for i = 0, data:getSampleCount() - 1 do
+      buffer[i + 1] = data:getSample(i)
+    end
+    data:release()
+    write(dir .. '/' .. name .. '.wav', buffer, Audio.rate, 1)
+    local peak, rms = levels(buffer)
+    lines[#lines + 1] =
+      string.format('%-14s %.2f s peak %.3f rms %.3f', name, recipe.duration, peak, rms)
+  end
+  report(dir, lines)
+end
+
+function Export.run()
+  Export.sounds()
+  local dir = directory('music')
   local started = love.timer.getTime()
   local buffers, loop, rate = Soundscape.render()
   local seconds = love.timer.getTime() - started
-  local report = {
+  local lines = {
     string.format('render %.3f s; loop %.2f s at %d Hz', seconds, loop, rate),
   }
   for _, layer in ipairs(Score.layers) do
     local buffer = buffers[layer.id]
     write(dir .. '/layer-' .. layer.id .. '.wav', buffer, rate, 1)
     local peak, rms = levels(buffer)
-    report[#report + 1] = string.format('layer %-8s peak %.3f rms %.3f', layer.id, peak, rms)
+    lines[#lines + 1] = string.format('layer %-8s peak %.3f rms %.3f', layer.id, peak, rms)
   end
   for _, mood in ipairs({ 'menu', 'calm', 'fight', 'guardian', 'death', 'victory' }) do
     local mix = {}
@@ -73,11 +119,8 @@ function Export.run()
     end
     write(dir .. '/mood-' .. mood .. '.wav', mix, rate, 2)
     local peak, rms = levels(mix)
-    report[#report + 1] = string.format('mood  %-8s peak %.3f rms %.3f', mood, peak, rms)
+    lines[#lines + 1] = string.format('mood  %-8s peak %.3f rms %.3f', mood, peak, rms)
   end
-  local file = assert(io.open(dir .. '/report.txt', 'w'))
-  file:write(table.concat(report, '\n'), '\n')
-  file:close()
-  print(table.concat(report, '\n'))
+  report(dir, lines)
 end
 return Export

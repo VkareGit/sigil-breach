@@ -73,6 +73,44 @@ function Synth.mail(t, onsets, amplitudes)
   return sum
 end
 
+-- Small mechanical clicks of metal at the given onsets (s): a ring at f Hz
+-- that dies by decay per second, each with amplitude amp (or amps[k]).
+function Synth.clicks(t, onsets, f, decay, amp)
+  local sum = 0
+  for k = 1, #onsets do
+    local s = t - onsets[k]
+    if s > 0 then
+      local a = type(amp) == 'table' and amp[k] or amp
+      sum = sum + (sin(TAU * f * s) + 0.5 * sin(TAU * f * 1.47 * s)) * exp(-s * decay) * a
+    end
+  end
+  return sum
+end
+
+-- Stone walls answering a sound: taps {{delay s, gain}, ...}; each reflection
+-- loses its highs (a one-pole low-pass). Returns a function of one sample.
+function Synth.reflections(rate, taps)
+  local delays, soft, size = {}, {}, 1
+  for k, tap in ipairs(taps) do
+    delays[k], soft[k] = floor(tap[1] * rate), 0
+    size = math.max(size, delays[k] + 1)
+  end
+  local history, index = {}, 0
+  for i = 0, size - 1 do
+    history[i] = 0
+  end
+  return function(x)
+    history[index] = x
+    local out = x
+    for k, tap in ipairs(taps) do
+      soft[k] = soft[k] * 0.55 + history[(index - delays[k]) % size] * 0.45
+      out = out + soft[k] * tap[2]
+    end
+    index = (index + 1) % size
+    return out
+  end
+end
+
 -- A short effect: voice(t, u, noise, low, slower, high) sampled for its
 -- duration at rate, with the shared filtered noises of the old recipes
 -- (low: a one-pole low-pass, slower: a slower one, high: noise minus low).
@@ -282,8 +320,10 @@ end
 
 -- A stone nave's reverb (Schroeder: four damped combs, two all-passes) over
 -- a looping buffer: the tail that would ring past the end folds back into the
--- start, so the loop rings seamlessly. o: time (RT60 s), mix (wet share),
--- damp (0..1), size (scales the delay lines), predelay (s).
+-- start, so the loop rings seamlessly (a one-shot longer than its ring folds
+-- back nothing audible). o: time (RT60 s), mix (wet share), dry (the dry
+-- share, 1 - mix / 2 unless given), damp (0..1), size (scales the delay
+-- lines), predelay (s).
 local combs = { 0.0353, 0.0367, 0.0338, 0.0322 }
 local passes = { { 0.0126, 0.5 }, { 0.0051, 0.5 } }
 function Synth.hall(buffer, rate, o)
@@ -341,8 +381,9 @@ function Synth.hall(buffer, rate, o)
     wet[i] = wet[i] + wet[n + i]
   end
   local mix = o.mix
+  local dry = o.dry or (1 - mix * 0.5)
   for i = 1, n do
-    buffer[i] = buffer[i] * (1 - mix * 0.5) + wet[i] * mix * 2
+    buffer[i] = buffer[i] * dry + wet[i] * mix * 2
   end
 end
 

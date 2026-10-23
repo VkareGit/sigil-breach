@@ -15,6 +15,7 @@ local R = {}
 --   primed(w)                   an open action already holds its new rounds
 --   label(t)                    the stage shown on the HUD
 --   sounds                      volume of each stage's sound (presentation)
+--   voices                      the sound each stage plays (presentation)
 --   interruptBefore             a trigger pull stops the reload before this
 --                               time when rounds remain (nil: never)
 --   closing(w, t)               s the action needs to close when stopped at t
@@ -42,6 +43,7 @@ local B = T.reload.breech
 Mechanisms.breech = {
   duration = T.shotgunCycle,
   sounds = B.sounds,
+  voices = B.voices,
   -- A loaded barrel fires until the breech breaks open.
   interruptBefore = B.open,
   closing = function()
@@ -112,6 +114,7 @@ end
 Mechanisms.cylinder = {
   duration = T.revolverReload,
   sounds = C.sounds,
+  voices = C.voices,
   -- The rounds still in the cylinder fire until the new ones go in; a
   -- cylinder already swung out snaps shut first.
   interruptBefore = T.revolverLoadTime,

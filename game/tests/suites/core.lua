@@ -352,10 +352,14 @@ function Tests.run(G, initial, renderer, getGame)
   g.player.hp = 1
   g:damagePlayer(30)
   check('death stops play', g.state == 'dead')
-  check(
-    'mechanical sounds available',
-    A.sources.open and A.sources.load and A.sources.close and A.sources.shot
-  )
+  -- Every stage of every reload mechanism has its own sound.
+  local voiced = A.sources.shot and A.sources.revolver
+  for _, mechanism in pairs(require('src.combat.reload').mechanisms) do
+    for _, stage in ipairs({ 'open', 'load', 'close' }) do
+      voiced = voiced and A.sources[mechanism.voices[stage]]
+    end
+  end
+  check('mechanical sounds available', voiced)
   check('large font supports Polish', U.fonts[36]:hasGlyphs('ĄĆĘŁŃÓŚŹŻ'))
   -- The sheets drawn in play: a demon atlas and both weapon sheets.
   local WeaponArt = require('src.render.weapon_art')

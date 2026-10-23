@@ -35,7 +35,7 @@ local captures = {
   ['--mask-formats'] = true,
   ['--pigment-review'] = true,
   ['--ritual-review'] = true,
-  ['--music-export'] = true,
+  ['--audio-export'] = true,
   ['--movement-review'] = true,
 }
 function Q.captureFlag(flag)
@@ -83,9 +83,9 @@ function Q:runEarly()
     love.event.quit(0)
     return true
   end
-  if self:has('--music-export') then
-    -- The score as WAV files (qa/music_export.lua).
-    require('qa.music_export').run()
+  if self:has('--audio-export') then
+    -- The score and every sound effect as WAV files (qa/audio_export.lua).
+    require('qa.audio_export').run()
     love.event.quit(0)
     return true
   end

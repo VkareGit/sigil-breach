@@ -51,8 +51,8 @@ return {
   -- Presentation of the timeline: the hands' sheet frames (breech: one frame
   -- per cut from frame first, then last; cylinder: swing, eject, load and close
   -- runs of frames with their boundaries), the recoil frames by shot age
-  -- (shot: the ages of frames 2, 3, 4), the HUD stage boundaries (labels) and
-  -- the volume of each stage's sound.
+  -- (shot: the ages of frames 2, 3, 4), the HUD stage boundaries (labels),
+  -- the volume of each stage's sound and its voice (audio/recipes.lua).
   reload = {
     breech = {
       open = 0.26,
@@ -82,6 +82,7 @@ return {
       shot = { 0.045, 0.10, 0.15 },
       labels = { 0.32, 0.68 },
       sounds = { open = 0.56, load = 0.52, close = 0.62 },
+      voices = { open = 'breakOpen', load = 'shellIn', close = 'breakClose' },
     },
     cylinder = {
       open = 0.20,
@@ -98,6 +99,7 @@ return {
       shot = { 0.055, 0.13, 0.23 },
       labels = { 0.38, 0.68 },
       sounds = { open = 0.48, load = 0.60, close = 0.65 },
+      voices = { open = 'gateOpen', load = 'roundsIn', close = 'cylinderClose' },
     },
   },
   -- Expedition countdown before a wave (s).

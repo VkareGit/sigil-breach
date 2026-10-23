@@ -92,8 +92,11 @@ World.handlers = {
     local b = ev.bullet
     g:burst(b.x, b.y, b.z, b.color or K.boltColor, 6, 1.2)
   end,
+  -- A reload stage sounds as its mechanism's voice for it (the breech's
+  -- lever and shells, the cylinder's crane and ratchet).
   ReloadStage = function(g, ev)
-    A.play(ev.stage, Reload.mechanisms[ev.mechanism].sounds[ev.stage])
+    local mechanism = Reload.mechanisms[ev.mechanism]
+    A.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
     -- An opened breech throws out its spent cases, one to each side
     -- (render/weapon.lua draws them; feedback/transients.lua moves them).
     for i = 1, ev.spent or 0 do

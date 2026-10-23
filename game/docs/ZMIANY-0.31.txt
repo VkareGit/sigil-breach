@@ -131,7 +131,7 @@ ramowym, dzwony nad pustymi kwintami organów. Pierwsza fraza to Dies irae
 Wszystko syntezowane w kodzie przy starcie (0,36-0,46 s, pętla 30 s, bez
 plików). Nastroje: menu (chorał), spokój, walka (narasta z zagrożeniem w
 pobliżu: serce, organum), strażnik (dzwony), odpoczynek, śmierć, zwycięstwo.
-Dawny buczący pomruk 41 Hz usunięty (gryzł się z D). Odsłuch: --music-export.
+Dawny buczący pomruk 41 Hz usunięty (gryzł się z D). Odsłuch: --audio-export.
 Wysokości chorału na sucho: wszystkie nuty +-6 centów (vibrato i chór).
 Dźwięki ruchu (przepisy jako dane, audio/recipes.lua): unik (odbicie buta,
 powietrze, kolczuga), idealny unik (dzwonki sanktuarium, szept, ciężar),
@@ -147,6 +147,21 @@ się złoty cień. Ślizg: iskry spod nagolenników, kurz. Lądowanie, skok,
 zasłaniać widok. Podgląd: --movement-review.
 Tylko prezentacja: liczby ruchu bez zmian, złoty wzorzec 6/6 identyczny,
 menu i pasek HUD nietknięte (zrzuty menu porównane z wersją sprzed zmian).
+
+12. DŹWIĘKI BRONI (po paczce 0.31)
+Proch czarny w kamiennej nawie. Egzorcysta: obie lufy naraz, 6 ms od siebie
+(ka-BUM), wybuch prochu i jego trzaskające dopalanie, opadający niski
+bas, odbicia ścian po 47/93/141 ms. Sędzia: ostry trzask, dzwonienie
+żelaznej ramy, bęben obracający się do następnej komory. Pogłos nawy po
+strzale (hall) to teraz prawdziwy pogłos (RT60 2,4 s, sam ogon).
+Przeładowania mają własne głosy każdego mechanizmu (dawniej obie bronie
+grały te same trzy kliknięcia): zamek łamany - dźwignia, zawias i opadające
+lufy z wysuwanymi łuskami, dwie łuski wsunięte, zatrzask; bęben - zapadka,
+swobodny obrót i stuk ramienia, wypadające łuski, naboje do komór,
+zatrzaśnięcie z grzechotką zapadki. Pusta komora: kurek bije w próżnię.
+Głośność (okno 50 ms) w granicach +-2 dB od dawnych dźwięków.
+Nazwy głosów etapów: content/tuning.lua reload.<mechanizm>.voices.
+Odsłuch wszystkich efektów i muzyki: --audio-export (sounds/, music/).
 
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.
