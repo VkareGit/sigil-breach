@@ -8,7 +8,7 @@ local K = require('src.content.tuning').clocks
 local Clocks = { name = 'clocks' }
 local plain = { 'comboTimer', 'zoneTimer', 'cooldown', 'impactSlow', 'worldStop' }
 local plainView = { 'feedbackTimer', 'muzzle' }
-local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer' }
+local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer', 'perfectDodge' }
 function Clocks.run(g, dt)
   Timers.tick(g, plain, dt)
   Timers.tick(g.view, plainView, dt)

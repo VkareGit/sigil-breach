@@ -62,7 +62,7 @@ src/session/damage_outcomes.lua 0
 src/session/encounter.lua 0
 src/session/event_catalog.lua 0
 src/session/fields.lua 0
-src/session/game.lua 5
+src/session/game.lua 4
 src/session/integrity.lua 0
 src/session/interactions.lua 0
 src/session/journal.lua 0

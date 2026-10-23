@@ -175,6 +175,7 @@ declareView('feedback/effects.lua', { 'effects', 'effectPool', 'decals', 'decalP
 declareView('feedback/surface_marks.lua', { 'surfaceMarks', 'surfaceMarkPool' })
 declareView('feedback/shot_trails.lua', { 'traces', 'tracePool' })
 declareView('feedback/death_response.lua', { 'particles', 'corpses', 'shells' })
+declareView('feedback/movement_marks.lua', { 'markClocks' })
 declareView('feedback/movement_impact.lua', {
   'lastLandingImpact',
   'lastMovementImpact',

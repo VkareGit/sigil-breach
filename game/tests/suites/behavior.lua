@@ -237,8 +237,8 @@ function Tests.run(G, initial, renderer, getGame)
     A.sources.snarl and A.sources.owl and A.sources.growl and A.sources.cast
   )
   check(
-    'adaptive score has both continuous layers',
-    require('src.audio.soundscape').choir and require('src.audio.soundscape').drums
+    'adaptive score has its chant and its heartbeat',
+    require('src.audio.soundscape').layers.chant and require('src.audio.soundscape').layers.heart
   )
   local lx, ly = U.toLogical(860, 360, 1720, 720)
   check('ultrawide input stays aligned to unstretched UI', lx == 640 and ly == 360)

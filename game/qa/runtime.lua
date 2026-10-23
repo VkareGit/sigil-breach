@@ -35,6 +35,8 @@ local captures = {
   ['--mask-formats'] = true,
   ['--pigment-review'] = true,
   ['--ritual-review'] = true,
+  ['--music-export'] = true,
+  ['--movement-review'] = true,
 }
 function Q.captureFlag(flag)
   return type(flag) == 'string'
@@ -81,6 +83,12 @@ function Q:runEarly()
     love.event.quit(0)
     return true
   end
+  if self:has('--music-export') then
+    -- The score as WAV files (qa/music_export.lua).
+    require('qa.music_export').run()
+    love.event.quit(0)
+    return true
+  end
   if not self:has('--benchmark') then
     return false
   end
@@ -110,6 +118,9 @@ function Q:run(G, renderer, getGame, settings)
     require('qa.reviews.creature_pigment').run(G, renderer, self.output)
   elseif self:has('--ritual-review') then
     require('qa.reviews.ritual_art').run(G, renderer, self.output)
+  elseif self:has('--movement-review') then
+    -- The knight's moves as the painted world shows them.
+    require('qa.reviews.movement_marks_review').run(G, renderer, self.output)
   elseif self:has('--mask-formats') then
     -- Mask storage formats measured (qa/mask_formats.lua).
     require('qa.mask_formats').run(self.output)

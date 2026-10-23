@@ -1,46 +1,286 @@
--- Original procedural score. Two seamless, aligned layers: breath/choir and ritual drums.
-local S = { intensity = 0, music = 0.65 }
-function S.init(A)
-  local rate, n = 22050, 22050 * 8
-  local choir = love.sound.newSoundData(n, rate, 16, 1)
-  local drums = love.sound.newSoundData(n, rate, 16, 1)
-  local rng = love.math.newRandomGenerator(911)
-  local low = 0
-  for i = 0, n - 1 do
-    local t = i / rate
-    low = low * 0.97 + (rng:random() * 2 - 1) * 0.03
-    local breath = math.sin(math.pi * t / 8) ^ 2
-    local voice = math.sin(2 * math.pi * 110 * t) * 0.040
-      + math.sin(2 * math.pi * 164.875 * t) * 0.022
-      + math.sin(2 * math.pi * 220.125 * t) * 0.012
-    choir:setSample(i, (voice + low * 0.045) * breath)
-    local beat = t % 0.5
-    local hit = math.exp(-beat * 27)
-    local slow = t % 2
-    local kick = math.sin(2 * math.pi * (52 * slow + 1.5 * (1 - math.exp(-slow * 30))))
-      * math.exp(-slow * 10)
-      * 0.30
-    local metal = math.sin(2 * math.pi * 330 * t) * math.exp(-beat * 45) * 0.07
-    drums:setSample(i, math.max(-0.9, math.min(0.9, kick + low * hit * 0.7 + metal)))
+-- The music: the score's layers (audio/score.lua) rendered once when the game
+-- starts, played together as aligned loops, and mixed by the mood of the
+-- session: the menu's chant, the calm of a circle, the fight as danger nears,
+-- the guardian's knell, death. Reads the session; never changes it.
+local Synth = require('src.audio.synth')
+local Score = require('src.audio.score')
+local S = { intensity = 0, music = 0.65, layers = {}, gains = {}, sources = {} }
+local floor = math.floor
+
+-- A note's frequency: 'Bb1', 'D3'...
+function S.pitch(name)
+  local letter, octave = name:match('^(%a+)(%-?%d+)$')
+  local ratio = assert(Score.ratios[letter], 'unknown note ' .. name)
+  return Score.tonic * 2 ^ (tonumber(octave) - 3) * ratio
+end
+
+-- The vowel a syllable sings: its last ('y' sings as 'i').
+local function vowel(syllable)
+  local last = syllable:lower():match('.*([aeiouy])')
+  return last == 'y' and 'i' or last or 'a'
+end
+
+-- The chant as a timeline of notes {start, units, freq, vowel, line, place}
+-- (start and units in units), its lines {start, units} and its length.
+function S.timeline()
+  local notes, lines, at = {}, {}, 0
+  for index, line in ipairs(Score.chant) do
+    local words = {}
+    for word in line.words:gmatch('%S+') do
+      words[#words + 1] = word
+    end
+    local start, sung, count = at, 0, #words
+    for token in line.notes:gmatch('%S+') do
+      if token == '-' then
+        at = at + 1
+      else
+        local name, units = token:match('^([^:]+):?(%d*)$')
+        units = tonumber(units) or 1
+        sung = sung + 1
+        notes[#notes + 1] = {
+          start = at,
+          units = units,
+          freq = S.pitch(name),
+          vowel = vowel(assert(words[sung], 'a note without a syllable in line ' .. index)),
+          line = index,
+          place = (sung - 1) / math.max(1, count - 1),
+        }
+        at = at + units
+      end
+    end
+    lines[index] = { start = start, units = at - start }
   end
-  S.choir = love.audio.newSource(choir, 'static')
-  S.drums = love.audio.newSource(drums, 'static')
-  for _, s in ipairs({ S.choir, S.drums }) do
-    s:setLooping(true)
-    s:setVolume(0)
-    s:play()
+  return notes, lines, at
+end
+
+-- RENDERING ------------------------------------------------------------------------
+
+local tables = {}
+local function sung(freq, name)
+  local key = name .. string.format('%.1f', freq)
+  if not tables[key] then
+    tables[key] = Synth.vowel(freq, Score.vowels[name], Score.ceiling, Synth.seed(key))
+  end
+  return tables[key]
+end
+local function organ()
+  if not tables.organ then
+    tables.organ = Synth.wavetable(Score.organ, Synth.seed('organ'))
+  end
+  return tables.organ
+end
+
+-- A frequency the loop holds a whole number of cycles of, so a held tone
+-- meets itself at the seam.
+local function periodic(freq, loop)
+  return math.max(1, floor(freq * loop + 0.5)) / loop
+end
+
+-- A singer of the ison breathes `breaths` times a loop, at his own moments.
+local function breathing(loop, breaths, offset)
+  local period = loop / breaths
+  return function(t)
+    local d = (t - offset) % period
+    d = math.min(d, period - d)
+    local dip = d < 0.45 and 0.5 + 0.5 * math.cos(math.pi * d / 0.45) or 0
+    return (1 - 0.8 * dip) * (1 + 0.12 * math.sin(2 * math.pi * t / loop + offset))
   end
 end
-function S.update(A, dt, g)
-  local target = g.state == 'playing' and not g.map and math.min(1, (g.threat or 0) / 3) or 0.05
-  S.intensity = S.intensity
-    + (target - S.intensity) * math.min(1, dt * (target > S.intensity and 1.6 or 0.5))
-  if S.choir then
-    S.choir:setVolume(S.music * (0.45 - S.intensity * 0.15))
-    S.drums:setVolume(S.music * S.intensity * 0.64)
+
+local kinds = {}
+-- A held chord of the choir across the whole loop.
+function kinds.drone(buffer, layer, loop)
+  local rate, voice = Score.rate, Score.voice
+  for n, name in ipairs(layer.notes) do
+    local base = S.pitch(name)
+    local wave = sung(base, layer.vowel)
+    for k = 1, layer.singers do
+      local cents = (k - (layer.singers + 1) / 2) * voice.spread
+      Synth.voice(buffer, rate, wave, 0, loop, periodic(base * 2 ^ (cents / 1200), loop), 1, {
+        attack = 0,
+        release = 0,
+        steady = true,
+        vibrato = voice.vibrato * 0.6,
+        vibratoRate = periodic(voice.vibratoRate + k * voice.vibratoStep, loop),
+        breath = voice.breath,
+        swell = breathing(loop, layer.breaths, (k * 2.3 + n * 1.1) % (loop / layer.breaths)),
+        seed = Synth.seed(layer.id .. name .. k),
+      })
+    end
   end
-  if A.ambient then
-    A.ambient:setVolume(S.music * 0.55)
+end
+-- The chant (or a choir a fixed interval from it), each note a syllable, and
+-- an organ doubling it.
+function kinds.chant(buffer, layer, _, notes)
+  local rate, unit, voice = Score.rate, Score.unit, Score.voice
+  local interval = layer.interval or 1
+  for index, note in ipairs(notes) do
+    local freq = note.freq * interval
+    local wave = sung(freq, note.vowel)
+    local start, length = note.start * unit, note.units * unit + voice.legato
+    -- A line rises to its middle and settles on its final.
+    local gain = 0.82 + 0.18 * math.sin(math.pi * note.place)
+    for k = 1, layer.singers do
+      local cents = (k - (layer.singers + 1) / 2) * voice.spread
+      Synth.voice(
+        buffer,
+        rate,
+        wave,
+        start + (k - 1) * voice.stagger,
+        length,
+        freq * 2 ^ (cents / 1200),
+        gain,
+        {
+          attack = voice.attack,
+          release = voice.release,
+          vibrato = voice.vibrato,
+          vibratoRate = voice.vibratoRate + k * voice.vibratoStep,
+          breath = voice.breath,
+          seed = Synth.seed(layer.id .. index .. ':' .. k),
+        }
+      )
+    end
+    if layer.organ then
+      Synth.voice(
+        buffer,
+        rate,
+        organ(),
+        start,
+        length,
+        note.freq * layer.organ.ratio,
+        gain * layer.organ.gain,
+        {
+          attack = 0.05,
+          release = 0.18,
+          seed = Synth.seed(layer.id .. index .. 'organ'),
+        }
+      )
+    end
+  end
+end
+-- The heartbeat each unit, a deeper stroke at each line.
+function kinds.pulse(buffer, layer, _, _, lines, units)
+  local rate, unit = Score.rate, Score.unit
+  local beat = Synth.heartbeat(layer.beat, rate, Synth.seed(layer.id .. 'beat'))
+  local deep = Synth.heartbeat(layer.line, rate, Synth.seed(layer.id .. 'line'))
+  for u = 0, units - 1 do
+    Synth.mix(buffer, rate, beat, u * unit, 0.75)
+  end
+  for _, line in ipairs(lines) do
+    Synth.mix(buffer, rate, deep, line.start * unit, layer.line.gain)
+  end
+end
+-- Bells struck on their units over the organ's chord of each line.
+function kinds.knell(buffer, layer, _, _, lines, units)
+  local rate, unit = Score.rate, Score.unit
+  for index, bell in ipairs(layer.bells) do
+    local strike = Synth.bell(S.pitch(bell.prime), bell.ring, rate, Synth.seed(layer.id .. index))
+    for u = bell.at, units - 1, bell.every do
+      Synth.mix(buffer, rate, strike, u * unit, bell.gain)
+    end
+  end
+  for index, chord in ipairs(layer.chords) do
+    local line = lines[index]
+    for name in chord:gmatch('%S+') do
+      for rank, detune in ipairs({ 0, 3 }) do
+        Synth.voice(
+          buffer,
+          rate,
+          organ(),
+          line.start * unit,
+          line.units * unit,
+          S.pitch(name) * 2 ^ (detune / 1200),
+          layer.organ / rank,
+          { attack = 0.12, release = 0.4, seed = Synth.seed(layer.id .. chord .. name .. rank) }
+        )
+      end
+    end
+  end
+end
+S.kinds = kinds
+
+-- Every layer of the score as a buffer of samples: { [id] = buffer }, the
+-- loop's length (s) and the rate. Deterministic: the same score, the same sound.
+function S.render()
+  local notes, lines, units = S.timeline()
+  local loop, rate = units * Score.unit, Score.rate
+  local buffers = {}
+  for _, layer in ipairs(Score.layers) do
+    local buffer = Synth.buffer(loop, rate)
+    assert(kinds[layer.kind], 'unknown score layer kind ' .. tostring(layer.kind))(
+      buffer,
+      layer,
+      loop,
+      notes,
+      lines,
+      units
+    )
+    Synth.hall(buffer, rate, layer.hall)
+    buffers[layer.id] = Synth.level(buffer, layer.level)
+  end
+  return buffers, loop, rate
+end
+
+function S.init()
+  local buffers, _, rate = S.render()
+  local sources = {}
+  for _, layer in ipairs(Score.layers) do
+    local data = Synth.data(buffers[layer.id], rate)
+    local source = love.audio.newSource(data, 'static')
+    data:release()
+    source:setLooping(true)
+    source:setVolume(0)
+    S.layers[layer.id], S.gains[layer.id] = source, 0
+    sources[#sources + 1] = source
+  end
+  S.sources = sources
+  -- Started in one call, the loops stay aligned for good.
+  love.audio.play(sources)
+end
+
+-- MIXING ---------------------------------------------------------------------------
+
+-- The mood of a session: a state's own (score.states), or in play the
+-- guardian's, a rest (map, help) or 'battle' (calm into fight by intensity).
+function S.mood(g)
+  if g.state == 'playing' then
+    if g.map or g.help then
+      return 'rest'
+    end
+    if g.bossSpawned and not g.bossDead then
+      return 'guardian'
+    end
+    return 'battle'
+  end
+  return Score.states[g.state] or 'rest'
+end
+
+-- The gain a mood gives a layer, battle blended by intensity (0..1).
+function S.gain(mood, id, intensity)
+  if mood == 'battle' then
+    local calm, fight = Score.moods.calm[id] or 0, Score.moods.fight[id] or 0
+    return calm + (fight - calm) * intensity
+  end
+  return Score.moods[mood][id] or 0
+end
+
+local function follow(value, target, dt, rates)
+  local rate = target > value and rates.rise or rates.fall
+  return value + (target - value) * math.min(1, dt * rate)
+end
+
+function S.update(_, dt, g)
+  local mood = S.mood(g)
+  local danger = Score.danger
+  local target = mood == 'battle' and math.min(1, (g.threat or 0) / danger.full) or 0
+  S.intensity = follow(S.intensity, target, dt, danger)
+  for _, layer in ipairs(Score.layers) do
+    local id = layer.id
+    local source = S.layers[id]
+    if source then
+      S.gains[id] = follow(S.gains[id], S.gain(mood, id, S.intensity), dt, Score.follow)
+      source:setVolume(S.music * S.gains[id])
+    end
   end
 end
 return S

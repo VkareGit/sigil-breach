@@ -15,6 +15,19 @@ local function random(g)
   end
   return love.math.random()
 end
+Transients.random = random
+-- At most this many particles live; a new one retires the oldest.
+Transients.limit = 240
+
+-- One particle: a fleck at (x, y, z) m flying (vx, vy, vz) m/s for life s.
+function Transients.add(g, x, y, z, vx, vy, vz, life, color, size)
+  local particles = g.view.particles
+  particles[#particles + 1] =
+    { x = x, y = y, z = z, vx = vx, vy = vy, vz = vz, life = life, color = color, size = size }
+  while #particles > Transients.limit do
+    table.remove(particles, 1)
+  end
+end
 
 function Transients.burst(g, x, y, z, color, count, force)
   for _ = 1, count do
@@ -32,7 +45,7 @@ function Transients.burst(g, x, y, z, color, count, force)
       size = 0.4 + random(g) * 0.6,
     }
   end
-  while #g.view.particles > 240 do
+  while #g.view.particles > Transients.limit do
     table.remove(g.view.particles, 1)
   end
 end

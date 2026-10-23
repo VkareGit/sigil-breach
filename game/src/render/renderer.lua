@@ -37,6 +37,9 @@ local UNIT = { 1, 1 }
 local ASH = { 0.30, 0.25, 0.22 }
 local EMBER = { 1.25, 0.52, 0.16 } -- dull cinder: fire accent, not a bright speck
 local ASH_COUNT = 96
+-- A particle closer to the eye than this (m) shrinks away instead of
+-- swelling into a block over the view (a fleck the knight runs through).
+local PARTICLE_NEAR = 0.7
 local PROP_POS = { { 10.9, 28.5 }, { 21.1, 28.5 }, { 3.8, 12.8 }, { 28.5, 20.5 } }
 local function rects(cols, rows, padX, padY)
   local t = {}
@@ -611,8 +614,10 @@ function R:groundPass(g, time)
   local lg = love.graphics
   lg.setDepthMode('less', true)
   self.particleBatch:clear()
+  local cx, cy, cz = self.camera[1], self.camera[2], self.camera[3]
   for _, a in ipairs(g.view.particles) do
-    self.particleBatch:add(a.x, a.y, a.z, (a.size or 1) * math.min(1, a.life * 6), a.color)
+    local near = math.min(1, ((a.x - cx) ^ 2 + (a.y - cy) ^ 2 + (a.z - cz) ^ 2) / PARTICLE_NEAR ^ 2)
+    self.particleBatch:add(a.x, a.y, a.z, (a.size or 1) * math.min(1, a.life * 6) * near, a.color)
   end
   self.particleBatch:draw(self, g)
   if not g.run then
@@ -870,6 +875,7 @@ function R:present(g, w, h)
   lg.clear(0.008, 0.007, 0.011, 1)
   self.post:send('hurt', math.min(1, g.view.hurt + (g.view.staggerFlash or 0)))
   self.post:send('surge', g.view.surge)
+  self.post:send('still', math.min(1, (g.view.perfectDodge or 0) / T.feel.perfectDodgeFlash))
   self.post:send('low', R.lowHealth(g))
   self.post:send('kill', math.min(1, (g.view.killPunch or 0) * 7))
   self.post:send('size', self:vec2(self.w, self.h))

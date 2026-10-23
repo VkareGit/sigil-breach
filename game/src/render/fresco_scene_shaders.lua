@@ -21,15 +21,19 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 px){
 }
 ]],
   post = [[
-extern number hurt,surge,low,kill;
+extern number hurt,surge,low,kill,still;
 extern vec2 size;
 vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
  vec3 rgb=Texel(tex,uv).rgb;
  vec2 q=uv-.5;float r2=dot(q,q);
  float l=dot(rgb,vec3(.30,.59,.11));
+ // A perfect dodge stills the world into its underdrawing for a breath:
+ // sinopia in the shadows, lime plaster in the lights.
+ rgb=mix(rgb,mix(vec3(.30,.09,.05),vec3(.93,.86,.70),smoothstep(.04,.62,l)),still*.62);
  rgb=mix(rgb,vec3(l)*vec3(1.04,.99,.94),low*.44);
  rgb+=vec3(.40,.018,.01)*hurt*r2*1.8;
- rgb+=vec3(.025,.055,.065)*surge;
+ // A dodge (a broken seal) gilds the frame: gold leaf toward its edges.
+ rgb+=vec3(.075,.052,.018)*surge*(.3+r2*3.0);
  rgb+=vec3(.23,.012,.006)*low*r2;
  rgb=mix(rgb,rgb*vec3(1.08,.94,.90),kill);
  rgb*=1.0-r2*.17;

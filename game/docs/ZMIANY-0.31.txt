@@ -123,5 +123,30 @@ plansz); hale są listą. Cząstki losują z g.rng.present (w QA stałe ziarno,
 w grze zegar, jak wcześniej love.math), dźwięki generują się w kolejności
 nazw, wiersze hit-frame-rects.csv są posortowane.
 
+11. MUZYKA I ODCZUCIE RUCHU (po paczce 0.31; ZIP jej jeszcze nie zawiera)
+Muzyka: męski chór chorałowy w modusie I (D, strój pitagorejski) nad
+trzymanym isonem, organum kwintę niżej z organami, bicie serca na bębnie
+ramowym, dzwony nad pustymi kwintami organów. Pierwsza fraza to Dies irae
+(XIII w., domena publiczna), dalsze frazy własne, na słowach sekwencji.
+Wszystko syntezowane w kodzie przy starcie (0,36-0,46 s, pętla 30 s, bez
+plików). Nastroje: menu (chorał), spokój, walka (narasta z zagrożeniem w
+pobliżu: serce, organum), strażnik (dzwony), odpoczynek, śmierć, zwycięstwo.
+Dawny buczący pomruk 41 Hz usunięty (gryzł się z D). Odsłuch: --music-export.
+Wysokości chorału na sucho: wszystkie nuty +-6 centów (vibrato i chór).
+Dźwięki ruchu (przepisy jako dane, audio/recipes.lua): unik (odbicie buta,
+powietrze, kolczuga), idealny unik (dzwonki sanktuarium, szept, ciężar),
+ślizg (zgrzyt nagolenników, iskry), skok, lądowanie, rzut ładunku i lont.
+Głośność w oknie 50 ms względem starych: unik +7,8 dB, ślizg +12,9 dB,
+skok +8,3, lądowanie +6,4, rzut +7,7 dB; unik nadal ok. 6 dB pod strzałem.
+Obraz ruchu: drobiny pigmentów fresku (sadza, popiół, wapno, ochra,
+sinopia, złoto, żar). Unik: popiół w miejscu startu, złote drobiny przed
+oczami, złocenie brzegów kadru (dawny zimny błękit). Idealny unik: świat na
+chwilę staje się rysunkiem sinopii na wapnie, w miejscu powidoku wznosi
+się złoty cień. Ślizg: iskry spod nagolenników, kurz. Lądowanie, skok,
+ładunek w locie: kurz i żar. Drobina bliżej niż 0,7 m od oka maleje, zamiast
+zasłaniać widok. Podgląd: --movement-review.
+Tylko prezentacja: liczby ruchu bez zmian, złoty wzorzec 6/6 identyczny,
+menu i pasek HUD nietknięte (zrzuty menu porównane z wersją sprzed zmian).
+
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

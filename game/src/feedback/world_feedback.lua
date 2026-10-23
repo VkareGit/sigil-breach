@@ -72,8 +72,10 @@ World.handlers = {
     g.view.staggerFlash = K.staggerFlash
     g.view.shake = math.max(g.view.shake or 0, K.staggerShake)
   end,
+  -- The swing and the fuse catching; its embers: feedback/movement_marks.lua.
   ChargeThrown = function()
-    A.play('throw', 0.45)
+    A.play('throw', K.throwSound)
+    A.play('fuse', K.fuseSound)
   end,
   ChargeExploded = function(g, ev)
     local b = ev.charge

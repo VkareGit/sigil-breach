@@ -166,7 +166,8 @@ function Game:dash(dx, dz)
     dx, dz = dx / length, dz / length
   end
   player.dashX, player.dashZ = dx, dz
-  self.view.surge = 0.18
+  -- Its flash and the flecks it throws: feedback/movement_marks.lua.
+  Presentation.call(self, 'motion.dash', dx, dz)
   Presentation.cue(self, 'dash')
   return true
 end

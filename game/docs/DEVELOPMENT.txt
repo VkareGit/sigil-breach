@@ -44,6 +44,11 @@ Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
                    wczytanie, dekodowanie -> mask-formats.txt
   --pigment-review skok i unik obok modelu bazowego, przed/po w tym samym
                    świetle; alfa 16 klatek -> creature-pigment.txt, pigment-*.png
+  --music-export   partytura poza grą: każda warstwa (pętla) i miks każdego
+                   nastroju (dwie pętle) jako WAV -> music/*.wav, report.txt
+  --movement-review ruchy rycerza w zwykłej symulacji (uniki, idealny unik,
+                   ślizg, lądowanie, ładunek), trzy chwile każdego
+                   -> movement-marks-*.png, movement-marks.csv
 Balans: --population liczy same populacje botów (raport playtest-population).
 Trafienia: --hit-review liczy same raporty trafień względem obrazu (hit-*,
 plan v7 H0–H9). Nowy punkt anatomiczny: wycinek tools/art/landmarks/crops.ps1,
@@ -64,6 +69,18 @@ Ruch gracza / feeling:
   player/feel.lua, physics/kinematics.lua, physics/collision.lua.
   feedback/weapon_motion.lua i weight.lua odpowiadają za reakcję widoczną na broni.
   Nie dodawaj obrażeń do animacji. Zależne od prędkości siły licz w symulacji.
+  Ślady ruchu (drobiny pigmentu, złoty błysk uniku, sinopia idealnego uniku):
+  dane w content/movement_marks.lua (schemat content/defs/movement_mark.lua),
+  wykonanie feedback/movement_marks.lua na hakach motion.dash/slide/marks;
+  nowy ruch = nowy wpis. Podgląd: --movement-review.
+
+Dźwięk i muzyka:
+  Efekty to przepisy w audio/recipes.lua (długość, głos; wspólne narzędzia
+  audio/synth.lua); każdy dźwięk ma własne ziarno szumu, nowy nie zmienia
+  innych. Muzyka to dane w audio/score.lua (chorał, warstwy, nastroje),
+  renderowane przy starcie przez audio/soundscape.lua (~0,4 s). Nowa warstwa
+  = wpis z kind (drone, chant, pulse, knell); nowy nastrój = wpis w moods.
+  Odsłuch poza grą: --music-export.
 
 Strzał i przeładowanie:
   combat/combat.lua, ballistics.lua, reload.lua; parametry w content/weapons.lua.

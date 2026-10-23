@@ -257,7 +257,8 @@ return {
     aimHeight = 1.1,
   },
   -- The fight's presentation (feedback/world_feedback.lua): landing dust height
-  -- and tremor (shake within tremorReach m), slams, the knight's stagger.
+  -- and tremor (shake within tremorReach m), slams, the knight's stagger, the
+  -- volumes of a powder charge's throw and its lit fuse.
   world = {
     dustHeight = 0.12,
     tremor = 0.07,
@@ -268,6 +269,8 @@ return {
     staggerFlash = 0.25,
     staggerShake = 0.16,
     blastShake = 0.09,
+    throwSound = 0.45,
+    fuseSound = 0.24,
     blastColor = { 0.72, 0.28, 0.06 },
     boltColor = { 1, 0.4, 0.1 },
   },
@@ -280,6 +283,7 @@ return {
     hurtShake = 0.1,
     perfectDodgeFlash = 0.5,
     perfectDodgeSurge = 0.6,
+    perfectDodgeSound = 0.55,
     guardBreakStop = 0.06,
     sprayImpact = 110,
   },

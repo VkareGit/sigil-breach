@@ -10,6 +10,7 @@ local Shot = require('src.feedback.shot_feedback')
 local WorldFeedback = require('src.feedback.world_feedback')
 local Numbers = require('src.feedback.damage_numbers')
 local AbilityFeedback = require('src.feedback.ability_feedback')
+local MovementMarks = require('src.feedback.movement_marks')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
@@ -78,11 +79,15 @@ local function playerHit(g, e)
   g.view.shake = math.max(g.view.shake or 0, Feel.hurtShake)
   Weight.playerHit(g, info)
 end
+-- The perfect dodge: the world stills into its underdrawing for a moment
+-- (the post's sinopia, view.perfectDodge), a shade stays where the knight
+-- stood (feedback/movement_marks.lua), the sanctuary's bells ring.
 local function perfectDodge(g)
   g.view.perfectDodge = Feel.perfectDodgeFlash
   g.view.surge = math.max(g.view.surge or 0, Feel.perfectDodgeSurge)
   g.view.feedback, g.view.feedbackTimer = 'PERFECT DODGE', 1.2
-  Audio.play('dash', 0.5)
+  MovementMarks.afterimage(g)
+  Audio.play('afterimage', Feel.perfectDodgeSound)
 end
 function Listeners.attach(g)
   local bus = g.bus

@@ -31,6 +31,71 @@ function Tests.run()
     total = total + #pool
   end
   check('cached Source count matches the bounded idle pools', total == A.pooled)
+  -- Every recipe is a sound; the knight's movement has its own voices.
+  local Recipes = require('src.audio.recipes')
+  local all = true
+  for name in pairs(Recipes) do
+    all = all and A.sources[name] ~= nil
+  end
+  check(
+    'every sound recipe is rendered, the perfect dodge and the fuse included',
+    all and A.sources.afterimage and A.sources.fuse and A.sources.slide
+  )
+  -- The score: its layers loop together; the mood follows the session.
+  local S = require('src.audio.soundscape')
+  local Score = require('src.audio.score')
+  -- (QA stops every Source after loading, so only the loops are asserted.)
+  local looping = true
+  for _, layer in ipairs(Score.layers) do
+    local source = S.layers[layer.id]
+    looping = looping and source and source:isLooping()
+  end
+  check('every layer of the score is a loop', looping)
+  local notes, phrases, units = S.timeline()
+  local sung = 0
+  for _, line in ipairs(Score.chant) do
+    for _ in line.words:gmatch('%S+') do
+      sung = sung + 1
+    end
+  end
+  check(
+    'the chant sings one syllable on each of its notes',
+    #notes == sung and #phrases == #Score.chant
+  )
+  check(
+    'the chant keeps its loop of units',
+    units * Score.unit > 0 and phrases[#phrases].start < units
+  )
+  check(
+    'the mood follows the session: menu, play, guardian, rest, death',
+    S.mood({ state = 'menu' }) == 'menu'
+      and S.mood({ state = 'playing' }) == 'battle'
+      and S.mood({ state = 'playing', bossSpawned = true }) == 'guardian'
+      and S.mood({ state = 'playing', bossSpawned = true, bossDead = true }) == 'battle'
+      and S.mood({ state = 'playing', map = true }) == 'rest'
+      and S.mood({ state = 'dead' }) == 'death'
+  )
+  check(
+    'battle blends calm into fight by danger: no heartbeat in calm, the full one in a fight',
+    S.gain('battle', 'heart', 0) == (Score.moods.calm.heart or 0)
+      and S.gain('battle', 'heart', 1) == Score.moods.fight.heart
+  )
+  local intensity, gains = S.intensity, {}
+  for id, gain in pairs(S.gains) do
+    gains[id] = gain
+  end
+  local danger = { state = 'playing', threat = Score.danger.full }
+  for _ = 1, 100 do
+    S.update(A, 0.1, danger)
+  end
+  check(
+    'a fight near the knight brings the heartbeat in and the chant down',
+    S.intensity > 0.99 and S.gains.heart > 0.6 and S.gains.chant < Score.moods.calm.chant
+  )
+  S.intensity = intensity
+  for id, gain in pairs(gains) do
+    S.gains[id] = gain
+  end
   A.muted = oldMuted
   return lines
 end

@@ -104,6 +104,7 @@ function F.update(g, dt, input)
     p.slideAge = 0
     p.slideCooldown = T.slideCooldown
     Presentation.cue(g, 'slide', C.sounds.slide)
+    Presentation.call(g, 'motion.slide')
   end
   -- Conditions from the shared rules (stagger, wound) slow the body, not the aim.
   local condition = Rules.speedScale(p)
@@ -287,6 +288,8 @@ function F.update(g, dt, input)
     g.view.stepSound = C.stepEvery
     Presentation.cue(g, 'step', C.sounds.step)
   end
+  -- The trails of the step's movement (feedback/movement_marks.lua).
+  Presentation.call(g, 'motion.marks', dt)
 end
 function F.reloadUpdate(g, dt)
   Reload.update(g, dt)
