@@ -9,6 +9,7 @@ local Tuning = require('src.content.tuning')
 local Shot = require('src.feedback.shot_feedback')
 local WorldFeedback = require('src.feedback.world_feedback')
 local Numbers = require('src.feedback.damage_numbers')
+local AbilityFeedback = require('src.feedback.ability_feedback')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
@@ -105,6 +106,9 @@ function Listeners.attach(g)
   end)
   bus:on('present', 'VolleyResolved', function(e)
     Shot.volley(g, e)
+  end)
+  bus:on('present', 'AbilityCast', function(e)
+    AbilityFeedback.cast(g, e)
   end)
   WorldFeedback.attach(g)
 end

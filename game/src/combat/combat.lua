@@ -10,6 +10,7 @@ local Corpse = require('src.enemies.corpse')
 local Telemetry = require('src.combat.telemetry')
 local Materials = require('src.content.ballistic_surfaces')
 local Deliveries = require('src.combat.weapon_delivery')
+local Observation = require('src.combat.observation')
 local C = { trace = B.trace }
 -- Body response comes from the shared rules (src/combat/rules.lua); the
 -- corpse's response to the contact starts here; measurements and the visible
@@ -74,7 +75,7 @@ local function ready(g)
 end
 
 -- 2. The discharge: rounds spent, cadence, recoil, sound, flash and powder.
-local function discharge(g, profile)
+local function discharge(g, profile, command)
   local p, fire = g.player, profile.fire
   local state = Weapons.state(g)
   local rounds = math.min(fire.rounds, state.mag)
@@ -89,7 +90,8 @@ local function discharge(g, profile)
   state.readyAt = g.elapsed + profile.cycle
   -- Recoil, flash, sound and powder: feedback/shot_feedback.lua.
   if g.bus then
-    g.bus:emit('ShotFired', { profile = profile, shotPower = rounds / fire.rounds })
+    local event = { profile = profile, shotPower = rounds / fire.rounds, command = command }
+    Signal(g, 'ShotFired', event)
   end
   return fire.pellets * rounds / fire.rounds
 end
@@ -110,6 +112,7 @@ local function newVolley(g, profile, attack, pellets)
     impacts = {},
     details = {},
     pushes = {},
+    directions = {},
     lowers = {},
     blocked = 0,
     report = {
@@ -160,6 +163,9 @@ function Volley:contact(e, d, x, y, z, normal, part, retain, dx, dy, dz, surface
     return
   end
   self.pushes[e] = (self.pushes[e] or 0) + push
+  local direction = self.directions[e] or { 0, 0 }
+  direction[1], direction[2] = direction[1] + dx * push, direction[2] + dz * push
+  self.directions[e] = direction
   if part == 'lower' then
     self.lowers[e] = (self.lowers[e] or 0) + impact
   end
@@ -213,7 +219,7 @@ end
 -- the visible trail ends).
 function Volley:pierce(first, d, dx, dy, dz, bodies, firstPart, firstSurface)
   local pierce = self.attack.pierce
-  local chain = B.traceAll(self.g, dx, dy, dz, self.profile.range, bodies)
+  local chain = B.traceAll(self.g, dx, dy, dz, self.profile.range, bodies, self.origin)
   local retain, passed, prev, prevPart = 1, 0, first, firstPart
   local previousSurface = firstSurface
   for _, h in ipairs(chain) do
@@ -258,9 +264,9 @@ function Volley:trace(i, pellets, spread, bodies)
     ox, oy = B.pellet(i, g.shotSerial, pellets)
     ox, oy = ox * spread, oy * spread
   end
-  local dx, dy, dz = B.spreadDirection(p.yaw, p.pitch, ox, oy)
+  local dx, dy, dz = B.spreadDirection(self.yaw or p.yaw, self.pitch or p.pitch, ox, oy)
   local e, d, x, y, z, kind, normal, part, surface =
-    B.traceVector(g, dx, dy, dz, self.profile.range, bodies)
+    B.traceVector(g, dx, dy, dz, self.profile.range, bodies, self.origin)
   local ray = {
     x = x,
     y = y,
@@ -317,7 +323,11 @@ function Volley:apply()
       detail.seed = (report.shotSerial or g.shotSerial) * 31 + e.id
       detail.point = pt
       -- Counter-hits are decided by the rules from the body's own rush.
-      local extra = { push = self.pushes[e], lower = self.lowers[e] }
+      local extra = {
+        push = self.pushes[e],
+        lower = self.lowers[e],
+        direction = self.directions[e],
+      }
       local result = C.react(g, e, self.impacts[e], report.strong, pt, detail, nil, extra) or {}
       detail.counter, detail.crippled = result.counter, result.crippled
       report.counters = (report.counters or 0) + (result.counter and 1 or 0)
@@ -337,6 +347,8 @@ end
 local function resolveVolley(g, shot, bodies)
   local profile, pellets = shot.profile, shot.count
   local volley = newVolley(g, profile, shot.attack, pellets)
+  volley.origin, volley.yaw, volley.pitch = shot.origin, shot.yaw, shot.pitch
+  volley.report.origin = shot.origin
   local spread = shot.spread
   for i = 1, pellets do
     volley:trace(i, pellets, spread, bodies)
@@ -393,7 +405,11 @@ function C.projectile(g, b, e, part, surface)
   )
 end
 
-function C.shoot(g)
+function C.shoot(g, command)
+  local observation = command and command.observation
+  if observation and not Observation.valid(g, observation) then
+    return false
+  end
   local profile = ready(g)
   if not profile then
     return false
@@ -401,9 +417,11 @@ function C.shoot(g)
   -- Validate the executor before spending ammunition. Freeze hitscan bodies
   -- before noise can wake/turn them; finite rounds sample at actual contact.
   local delivery = Deliveries:get(profile.delivery.kind)
-  local prepared = delivery.prepare and delivery.prepare(g, profile)
+  local observed = observation and profile.delivery.kind == 'hitscan'
+  local prepared = observed and Observation.prepare(g, observation)
+    or (delivery.prepare and delivery.prepare(g, profile))
   local attack, spread = Weapons.attack(g, g.weapon), Weapons.spread(g)
-  local pellets = discharge(g, profile)
+  local pellets = discharge(g, profile, command)
   local shot = {
     profile = profile,
     attack = attack,
@@ -411,7 +429,9 @@ function C.shoot(g)
     count = pellets,
     serial = g.shotSerial,
     slot = g.weapon,
-    origin = { B.origin(g) },
+    origin = observed and Observation.copy(observation.origin) or { B.origin(g) },
+    yaw = command and command.yaw or g.player.yaw,
+    pitch = command and command.pitch or g.player.pitch,
     hit = false,
   }
   delivery.fire(g, shot, prepared)

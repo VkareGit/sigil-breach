@@ -10,6 +10,7 @@ return function(R)
   -- the whole volley, health the HP it actually removed (may be nil for legacy
   -- callers), point the mean contact point. extra (optional): push (physical
   -- impulse, defaults to impact), lower (guard impact landed on the legs),
+  -- direction {dx, dz} (incoming horizontal impulse, independent of the viewer),
   -- counter (the blow met the body's own lunge or charge). strong is kept for
   -- older callers and no longer chooses a formula.
   function R.react(g, e, impact, strong, point, health, extra)
@@ -17,6 +18,9 @@ return function(R)
     local b = R.body(e)
     extra = extra or {}
     local dx, dz = e.x - p.x, e.z - p.z
+    if extra.direction then
+      dx, dz = extra.direction[1], extra.direction[2]
+    end
     local len = sqrt(dx * dx + dz * dz)
     local boss = b.boss or e.boss
     local mass = b.mass or e.mass or 1

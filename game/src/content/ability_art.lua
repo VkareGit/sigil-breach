@@ -1,10 +1,10 @@
 -- Source-art ability anchors and authored timing; immutable content, no GPU or hitboxes.
 local Frames = require('src.content.art.ability_frames')
+local Registry = require('src.core.registry')
 local AbilityArt = {
   leap = {
-    path = 'assets/art/imp-leap-fresco-v23.png',
-    columns = 4,
-    rows = 2,
+    sampler = 'leap',
+    anatomy = 'src.content.art.anatomy.leap',
     scale = 1,
     -- The base thrall atlas is matte ochre, not the supplement's bright orange.
     -- RGB grouping at atlas-like detail; exact source alpha/geometry retained.
@@ -30,9 +30,8 @@ local AbilityArt = {
     actions = { 'crouch', 'gather', 'launch', 'flight', 'descend', 'land', 'rise', 'ready' },
   },
   evade = {
-    path = 'assets/art/stolas-evade-fresco-v23.png',
-    columns = 4,
-    rows = 2,
+    sampler = 'evade',
+    anatomy = 'src.content.art.anatomy.evade',
     scale = 1,
     -- A gentler match for the owl: keep the pale face readable, quiet the sheen.
     pigment = { grid = { 192, 256 }, tone = { 0.89, 0.96, 0.65 }, lift = { 0.035, 0.022, 0.015 } },
@@ -51,7 +50,48 @@ local AbilityArt = {
 }
 
 for key, entry in pairs(AbilityArt) do
+  entry.path, entry.columns, entry.rows = Frames[key].path, Frames[key].columns, Frames[key].rows
   entry.frames, entry.feet = Frames[key].frames, Frames[key].feet
+end
+-- The one sequence catalogue. Behaviour names and anatomy module paths are
+-- data; content never imports a sampler, renderer or GPU object.
+local registry = Registry:new('ability artwork', function(entry, id)
+  local prefix = 'ability artwork ' .. tostring(id) .. ': '
+  assert(type(entry.path) == 'string' and entry.path ~= '', prefix .. 'missing atlas path')
+  assert(type(entry.sampler) == 'string' and entry.sampler ~= '', prefix .. 'missing sampler id')
+  assert(
+    type(entry.anatomy) == 'string' or type(entry.anatomy) == 'table',
+    prefix .. 'missing anatomy'
+  )
+  assert(type(entry.frames) == 'table' and #entry.frames > 0, prefix .. 'missing frames')
+  assert(type(entry.feet) == 'table' and #entry.feet == #entry.frames, prefix .. 'feet/frame count')
+  assert(
+    type(entry.actions) == 'table' and #entry.actions == #entry.frames,
+    prefix .. 'action/frame count'
+  )
+end)
+for _, key in ipairs({ 'leap', 'evade' }) do
+  registry:register(key, AbilityArt[key])
+end
+AbilityArt.entries = registry.entries
+function AbilityArt.each()
+  return registry:each()
+end
+function AbilityArt.get(id)
+  return registry:get(id)
+end
+function AbilityArt.register(id, entry)
+  assert(AbilityArt[id] == nil, 'ability artwork id already exists: ' .. tostring(id))
+  registry:register(id, entry)
+  AbilityArt[id] = entry
+  return entry
+end
+function AbilityArt.unregister(id)
+  local entry = registry:unregister(id)
+  if entry then
+    AbilityArt[id] = nil
+  end
+  return entry
 end
 AbilityArt.timing = {
   arrival = 0.6,

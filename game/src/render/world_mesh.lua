@@ -90,7 +90,7 @@ function Geometry.prepare(w)
     M.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
     M.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
     M.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
-    M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { s.color[1], s.color[2], s.color[3], 0.5 }, 40)
+    M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
   end
   M.box(v, 16, 0, 2.9, 4, 0.2, 0.9, dark)
   M.ring(v, 16, 2.1, 2.85, 1.7, 0.16, trim, 64, true)

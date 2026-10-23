@@ -149,7 +149,8 @@ function S.draw(g, s, U)
   text(uses .. ' / ' .. capacity, 354, 670, 16, uses > 0 and gold or muted)
   bar(318, 691, 176, uses / capacity, gold)
   panel(783, 643, 197, 53)
-  key('SHIFT', 795, 655, 62)
+  -- Wide enough for the painted SHIFT (62 px cut its last letter); DODGE stays.
+  key('SHIFT', 788, 655, 78)
   text('DODGE', 870, 647, 16, ivory)
   for i = 1, 2 do
     bar(872 + (i - 1) * 44, 680, 34, math.max(0, p.dash - i + 1), gold)

@@ -38,6 +38,14 @@ function Tests.run(get, settings, output)
     ids.field_skirmish and ids.field_start and not ids.start and not ids.continue
   )
   key('return')
+  -- The first field prepares at most one catalogue image per displayed frame.
+  -- Advance that real application boundary before sending gameplay commands;
+  -- zero delta leaves the skirmish clocks unchanged. Its cancellation and
+  -- per-frame work limits are covered separately by gallery_loading.
+  for _ = 1, #require('src.render.gallery').boards + 1 do
+    love.draw()
+    love.update(0)
+  end
   check(
     'Enter opens a skirmish through the real controller',
     get().state == 'playing' and get().testField and get().testField.skirmish

@@ -130,6 +130,9 @@ Wyposażenie i nowe rodzaje dostawy:
   Abilities.define(def) waliduje także Action i zakres całkowitych użyć;
   Abilities.give(g, id) dopina slot bez zmiany kodu postaci. Powtórne give
   zachowuje slot i użycia. W istniejącym rodzaju bolt/throw wystarczą dane.
+  AbilityCast wybiera animację rzeczywiście użytego wyposażenia. Menu/HUD
+  pozostają w układzie 0.30; HUD wielu slotów wyposażenia nie jest wdrożony
+  i wymaga osobnej pracy przed dodaniem przedmiotu do produkcyjnego zestawu.
   Nowy rodzaj: Action.defineKind opisuje jego schemat; moduł zachowania
   zwraca funkcję (g, ability), rejestrowaną przy starcie jako
   Cast.kinds[id] = require('src.combat.<moduł>'). Treść nie importuje combat.
@@ -143,6 +146,39 @@ Wyposażenie i nowe rodzaje dostawy:
   sam nowy damageType nie nadaje pociskowi statusu. Nie dodawaj ifów po ID
   wyposażenia do postaci. Przykład i testy: tests/cases/ability_extension.lua,
   uruchamiany przez --selftest --suite=extension (bez nowego wyposażenia gry).
+
+Obserwacja strzału i skończone nagrywanie:
+  combat/observation.lua przechowuje jawne dane ostatniej pokazanej geometrii
+  celu i początku promienia, bez referencji do renderera, GPU, HP lub AI.
+  Direct korzysta z obserwacji naciśnięcia; zwolniony tap zachowuje ją przez
+  bufor 120 ms. Held pobiera najnowszą obserwację raz przed serią ticków ramki.
+  Bieżący ruch myszy określa kierunek komendy. Hitscan sprawdza tę geometrię
+  wobec aktualnych przesłon świata i aktualnego stanu ochrony/życia celu.
+  Martwy lub usunięty obserwowany cel nadal jest kontaktem blokującym zgodnie
+  z materiałem i penetracją broni, bez ponownej rany lub nagrody.
+  Pocisk w locie używa aktualnej geometrii; nie odtwarza historycznego trafienia.
+  Obserwacja wygasa po 320 ms (limit catch-up 200 ms + bufor 120 ms), po pauzie,
+  utracie focusu, zmianie sesji lub wyczyszczeniu etapu. Journal zapisuje
+  kopię komendy i jej przestrzeń identyfikatorów; replay nie wymaga rysowania.
+  Bez --record obserwacje nie tworzą historii: aplikacja trzyma bieżący widok.
+
+  --record jest opcjonalnym, skończonym nagraniem diagnostycznym. Limity
+  content/tuning.recording to 64 MiB szacowanego tekstu lub 72000 komend
+  (najwyżej 10 min samych update przy 120 Hz; look/shoot skracają ten czas).
+  Dane obserwacji mogą osiągnąć limit tekstu znacznie wcześniej: pomiar
+  48 ciał dawał ok. 2,1 MB/s samych komend held przy 120 Hz.
+  To NIE jest limit RAM. Tabele Lua, klucze, ciągi i końcowy eksport tekstu
+  zajmują dodatkową pamięć. Estymacja może przekroczyć próg o ostatnią pełną
+  komendę, jej wszystkie receipts i końcowy stan integralności.
+  Zatrzymanie następuje po tej komendzie; gra trwa dalej bez wrapperów
+  nagrywania, a komunikat informuje o limicie. F9 zapisuje zamknięty prefiks,
+  nie późniejszą rozgrywkę. Powrót do tej samej sesji nie wznawia nagrywania;
+  nowa sesja otrzymuje nowy limit. Eksport F9 jest synchroniczny i duży zapis
+  może na chwilę zatrzymać aplikację. Automatyczny eksport wywołany wewnątrz
+  komendy czeka przez Journal.whenComplete na wszystkie jej receipts i koniec
+  transakcji; direct-kill i auto-limit mają osobne reprodukcje.
+  Nie zmieniaj golden dla samego PASS.
+  Dowody: --suite=shot-observation, --suite=recording-budget, --hit-timing.
 
 DODAWANIE TESTU
 

@@ -1,5 +1,5 @@
-SIGIL: BREACH — prototyp 0.28 / Flesh and Iron
-22 października 2026
+SIGIL: BREACH — prototyp Foundation 0.31
+23 października 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY-*.txt, plany i pomysły w PLAN-ROZWOJU-v7.md (nic z planu nie
@@ -16,13 +16,15 @@ Z flagą --record F9 zapisuje też dziennik poleceń aktywnej sesji.
 URUCHOMIENIE I ZAKRES
 Rozpakuj cały ZIP. Uruchom SIGIL-BREACH.exe, zachowując DLL obok niego.
 Nie trzeba instalować LÖVE. QUICK SKIRMISH rozpoczyna szybką potyczkę.
-PROVING GROUND / F2 otwiera katalog testowy; BEGIN EXPEDITION — fale.
+PROVING GROUND / F2 otwiera katalog testowy. Menu i HUD mają układ 0.30;
+nie dodano nowego trybu. Poligon działa w pamięci i nie zmienia zapisu wyprawy.
 Gra zachowuje angielski interfejs ze źródeł 0.14.
 Jedna arena Limbo 31 x 31, z otwartą galerią i 588 polami posadzki.
 Dopracowujemy ruch, dwie bronie, animacje, fizykę, grafikę i trafienia.
 Kolejne mapy, fabuła i łupy pozostają na później. Manifest Nikogo to
-materiał do wyglądu bohatera, nie scenariusz. Cztery fale, sklep
-oraz strażnik są drugim sposobem testowania tej samej areny.
+materiał do wyglądu bohatera, nie scenariusz. WAVE TRIAL uruchamia jedną
+wybraną falę lub strażnika jako próbę na poligonie; sklep jest osobnym
+narzędziem katalogu. Pełny normalny cykl wyprawy nie jest dostępny w menu.
 
 STEROWANIE
 WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
@@ -62,13 +64,18 @@ Ogrodnik 12,5 HP; nie ponad 100 HP). Liczy się, gdy w chwili śmierci demon
 jest ogłuszony, zachwiany lub odsłonięty (boss), albo gdy w ostatnich 2 s
 stracił gardę, upadł lub dostał poważną ranę (jednym trafieniem co najmniej
 45 % swojego HP; tak działa już pierwsze trafienie Sędziego w Sługę).
-Napis pokazuje pełną premię, także gdy zdrowie jest pełne.
+Napis pokazuje faktycznie odzyskane HP. Przy pełnym zdrowiu informuje
+o przełamanym zabójstwie bez fikcyjnej premii leczenia.
 Raport F9 liczy przyczyny przełamania osobno (jedno zabójstwo może mieć
 kilka): garda, poważna rana, upadek, krótkie ogłuszenie po trafieniu,
 potknięcie bossa; decyzja i przyczyny pochodzą z tej samej reguły gry.
 Q: początkowo 2 ładunki, maksymalnie 3. Lont 1 s od rzutu, promień
 wybuchu 4 m, słabnięcie z odległością i osłona przez ściany.
 Ładunek leci po łuku, odbija się lub zatrzymuje na przeszkodach.
+Kolumny mają okrągły przekrój także dla granatu; odbicie zależy od normalnej
+w punkcie kontaktu. Eksplozja odrzuca od swojego środka, nie od gracza.
+Zasięg i osłonę wybuchu sprawdzamy do kotwicy tułowia z fizyczną wysokością
+skoku. To jawne uproszczenie wybuchu; nie osobny test każdego piksela ciała.
 Własny wybuch też rani, do 45 HP przed ochroną. Zakup: 30 dusz.
 Nadnaturalne ataki należą do demonów.
 
@@ -100,7 +107,7 @@ połowę pancerza każdej części. Obecne archetypy mają soak=0.
 Rating wroga to współczynnik, nie drugi pasek HP. Osłona gracza to
 zużywany zapas: pochłania 55% ciosu do wyczerpania. 40 na HUD oznacza
 40/100 zapasu, nie redukcję o 40%. Raport odróżnia HP, absorpcję, nadmiar.
-Strzał przecina namalowaną sylwetkę aktualnej pozy (maska 320×320), następnie
+Hitscan przecina sylwetkę ostatniej pokazanej pozy (maska 320×320), następnie
 region części ciała. Przerwy między kończynami można przestrzelić; głowa
 podąża za przewróceniem i nakładką umiejętności. Róg nie zabiera HP, lecz
 przenosi impet na gardę; czaszka jest podatna. Błona skrzydła przenosi 25%
@@ -139,21 +146,23 @@ jeszcze zasłania), biały pierścień ruchu (kolizja ciał), czerwone punkty
 kontaktu ataku w jego aktywnym oknie (dłoń, czoło szarży, krąg lądowania
 skoku; przygaszone poza oknem) i promienie ostatniego strzału.
 Archiwum: 3 reprodukcje pieczęci Goetii i 3 pentakle Saturna.
-Poligon ma osobny stan w pamięci. F2 zachowuje instancję wyprawy,
-a powrót przywraca ją w pauzie. Próby nie zmieniają zapisu wyprawy.
+Poligon ma osobny stan w pamięci. F2 i powrót zachowują poprzednią sesję
+aplikacji; próby nie zmieniają zapisu wyprawy.
 
 FALE, HANDEL I ZAPIS
+WAVE TRIAL wybiera falę 1–4 albo strażnika (TIER 5) i kończy tę jedną
+próbę. Reset poligonu uzupełnia zasoby; sklep katalogu przyznaje 1000
+testowych dusz. Szybka potyczka ma początkowe zapasy amunicji i osłonę 40,
+lecz nadal jest sandboxem. Nie tworzy ciągłego cyklu ekonomii i odzyskiwania
+duszy po śmierci. Te narzędzia służą do sprawdzania elementów walki.
 Żar ma wysoki zimny płomień. Handel wymaga bliskości, widoczności
-i przerwy w walce. Start: 100 dusz. Po fali wraca zdrowie i wpada
-60 dusz; dodatkowe wypadają z demonów. Uzupełniaj naboje i osłonę.
+i przerwy w walce. Uzupełniaj naboje i osłonę.
 Grawer FOCUS zwęża wiązkę o 28%. PIERCE: penetracja 60%, impet -35%.
 Każdy kosztuje 100 dusz; aktywny jeden. Kupione przełączasz za darmo.
-Śmierć zostawia dusze w echu; druga usuwa stare nieodzyskane echo.
-Ponowienie odtwarza wyposażenie początku fali; zakupy/fale pozostają.
-Te same nagrody wrogów nie wypłacają się ponownie przy powtarzaniu.
-Zapis przy zakupach i zmianach faz, nie w środku walki. Dwa pliki
-z kontrolą integralności; gra zapisuje format SIGIL07 i wczytuje też
-starsze zapisy SIGIL06.
+Biblioteka wypraw zachowuje fale, ekonomię, śmierć/echo, checkpointy i zapis;
+te ścieżki są sprawdzane testami, lecz nie są oferowane jako tryb z menu.
+Format SIGIL08 i odczyt starszych SIGIL06/07 pozostają w kodzie.
+Dawne zapisy pozostają nietknięte podczas korzystania z poligonu.
 
 OPRAWA
 Inferno Giovanniego da Modeny, piekielne skrzydło Ogrodu Boscha,

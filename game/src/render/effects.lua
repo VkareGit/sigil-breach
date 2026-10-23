@@ -106,6 +106,24 @@ function E.spells(r, g)
     end
   end
 end
+-- During the hand-off only, avoid magnifying a world sprite placed centimetres
+-- from the eye. A returning/older charge remains opaque and visibly dangerous.
+function E.chargeAlpha(g, c)
+  local age = math.max(0, (c.maxFuse or c.fuse or 0) - (c.fuse or 0))
+  local duration = math.min(0.12, (c.maxFuse or 1) * 0.25)
+  if duration <= 0 or age >= duration or not require('src.feedback.ability_feedback').frame(g) then
+    return 1
+  end
+  local x, y, z = require('src.combat.ballistics').origin(g)
+  local dx, dy, dz = c.x - x, c.y - y, c.z - z
+  if dx * (c.vx or 0) + dy * (c.vy or 0) + dz * (c.vz or 0) <= 0 then
+    return 1
+  end
+  local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+  local progress = math.max(age / duration, (distance - 0.35) / 0.55)
+  progress = math.max(0, math.min(1, progress))
+  return progress * progress * (3 - 2 * progress)
+end
 function E.charges(r, g, image, frames)
   if not image or not g.charges or #g.charges == 0 then
     return
@@ -124,14 +142,20 @@ function E.charges(r, g, image, frames)
   s:send('brightness', 1.1)
   s:send('objectScale', 0.4)
   for _, c in ipairs(g.charges or {}) do
+    local alpha = E.chargeAlpha(g, c)
+    s:send('effectAlpha', alpha)
+    love.graphics.setDepthMode('less', alpha >= 1)
     local frame = 1 + math.floor((c.spin or g.time * 5) * 2) % 4
     local region = frames[frame]
     s:send('spriteStretch', r:vec2(region.width, region.height))
     s:send('frameRect', region.rect)
     s:send('objectPos', r:vec3(c.x, c.y - 0.16, c.z))
     s:send('objectYaw', math.atan2(g.player.x - c.x, g.player.z - c.z))
-    love.graphics.draw(r.sprite)
+    if alpha > 0 then
+      love.graphics.draw(r.sprite)
+    end
   end
+  love.graphics.setDepthMode('less', true)
 end
 -- The last shot as the game resolved it: every ray as a dotted line from
 -- the eye to its contact, the contact coloured by what it struck.

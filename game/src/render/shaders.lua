@@ -157,6 +157,26 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
 }
 #endif
 ]]
+-- A physical painted plane, lit at its world position. Unlike an effect or
+-- billboard it has fixed world UVs, source alpha and no emissive contribution.
+local textureCode = vertex
+  .. atmosphere
+  .. [[
+extern vec4 frameRect;
+extern vec3 light,tint;
+extern number inkMask,objectAlpha;
+#ifdef VERTEX
+vec4 position(mat4 tp,vec4 vp){return projectVertex(vp);}
+#endif
+#ifdef PIXEL
+vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
+ vec4 p=Texel(tex,frameRect.xy+uv*frameRect.zw);
+ if(inkMask>.5){p.a*=1.0-min(p.r,min(p.g,p.b));p.rgb=vec3(1.0);}
+ if(p.a<.02)discard;
+ return vec4(atmosphere(p.rgb*tint*light,worldPos,camera,.040),p.a*objectAlpha);
+}
+#endif
+]]
 local tracerCode = vertex
   .. [[
 varying vec4 traceColor;
@@ -231,6 +251,7 @@ return {
   world = worldCode,
   sprite = spriteCode,
   seal = sealCode,
+  texture = textureCode,
   post = Fresco.post,
   tracer = tracerCode,
   surface = surfaceCode,

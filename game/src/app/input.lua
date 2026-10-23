@@ -3,6 +3,7 @@ local Intent = require('src.player.intent')
 local Screens = require('src.app.screens')
 local Bindings = require('src.app.bindings')
 local Tuning = require('src.content.tuning')
+local Observation = require('src.combat.observation')
 
 local Input = {}
 Input.__index = Input
@@ -29,12 +30,33 @@ end
 -- Physical button suppression is separate from buffered gameplay intent:
 -- holding the click that selected a menu entry must not fire on entering play.
 function Input:reset(suppressFire)
+  self:forget(self.observationOwner)
   self.pendingDash = false
   self.pendingSlide = false
   self.suppressFire = suppressFire
 end
 
-function Input:sample()
+function Input:forget(game)
+  if game then
+    Observation.invalidate(game)
+    Intent.clear(game)
+  end
+  self.observation, self.observationOwner = nil, nil
+end
+function Input:present(game, shown)
+  if game.state == 'playing' and not game.map and not game.help then
+    self.observation = Observation.capture(shown, game)
+    self.observationOwner = game
+  elseif self.observationOwner then
+    self:forget(game)
+  end
+end
+function Input:command(game)
+  if game and self.observationOwner == game and self.observation then
+    return Observation.command(self.observation, game)
+  end
+end
+function Input:sample(game)
   local mouseDown = love.mouse.isDown(1)
   if not mouseDown then
     self.suppressFire = false
@@ -44,6 +66,7 @@ function Input:sample()
     strafe = held('right') - held('left'),
     turn = held('turnRight') - held('turnLeft'),
     shoot = mouseDown and not self.suppressFire,
+    fireCommand = mouseDown and not self.suppressFire and self:command(game) or nil,
     dash = self.pendingDash,
     slide = self.pendingSlide,
     jump = held('jump') == 1,
@@ -149,6 +172,8 @@ function gameplay.ready(_, app, game)
   end
 end
 function gameplay.pause(self, _, game)
+  self:forget(game)
+  self.suppressFire = true
   game.state = 'paused'
   UI.focus = 1
   self.pendingDash = false
@@ -176,6 +201,8 @@ function gameplay.reload(_, _, game)
   game:reloadGun()
 end
 function gameplay.map(self, _, game)
+  self:forget(game)
+  self.suppressFire = true
   game.map = true
   self.pendingDash = false
   love.mouse.setRelativeMode(false)
@@ -204,8 +231,9 @@ function Input:mousepressed(app, x, y, button)
   if game.state ~= 'playing' or game.map or game.help then
     app:action(UI.actionAt(game, app.settings, x, y))
   elseif not self.suppressFire then
-    if not game:shoot() then
-      Intent.queue(game, 'fire')
+    local command = self:command(game)
+    if not game:shoot(command) then
+      Intent.queue(game, 'fire', command)
     end
   end
 end
@@ -220,6 +248,8 @@ end
 function Input:focus(app, focused)
   local game = app.game
   if not focused and game and game.state == 'playing' and not app:has('--screenshot') then
+    self:forget(game)
+    self.suppressFire = true
     Intent.clear(game)
     game.map = false
     self.pendingDash, self.pendingSlide = false, false

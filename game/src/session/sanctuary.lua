@@ -23,7 +23,7 @@ function Sanctuary.openShop(g)
     return false
   end
   g.state = 'shop'
-  g.fireBuffer = 0
+  require('src.player.intent').clear(g)
   g.view.presentationPrevious = nil
   Presentation.capture(g, false)
   return true

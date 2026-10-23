@@ -42,11 +42,21 @@ function Get-Project {
             'pigment-evade-before.png','pigment-evade-after.png',
             'pigment-leap-frames.png','pigment-evade-frames.png',
             'pigment-leap-shade.png','pigment-leap-flash.png','pigment-leap-swapped.png',
-            'pigment-evade-shade.png','pigment-evade-flash.png','pigment-evade-swapped.png')
+            'pigment-evade-shade.png','pigment-evade-flash.png','pigment-evade-swapped.png',
+            'ritual-review.txt','foundation-ui-review.txt',
+            '02-stolas-pad-near.png','02-stolas-pad-near-4by3.png','02-stolas-pad-near-large.png',
+            '04-buer-pad.png','05-asmoday-pad.png','06-weapon-refill-pads.png',
+            '07-west-altar-close.png','09-focused-board.png','10-spawn-portal.png',
+            'loading-1280x720.png','loading-1024x768.png','loading-1920x1080.png',
+            'charge-handoff-on-0.png','charge-handoff-on-8.png','charge-handoff-on-17.png',
+            'charge-handoff-on-50.png','charge-handoff-on-100.png',
+            'charge-handoff-off-0.png','charge-handoff-off-8.png','charge-handoff-off-17.png',
+            'charge-handoff-off-50.png','charge-handoff-off-100.png',
+            'charge-return-on.png','charge-return-off.png')
         Documents = @('docs\INSTRUKCJA.txt', ('docs\ZMIANY-' + $values.version + '.txt'),
             'docs\ARCHITEKTURA.txt', 'docs\DEVELOPMENT.txt', 'docs\ROZSZERZANIE.txt', 'docs\SYSTEM-SWIATA-0.14.txt',
             'docs\KIERUNEK-ARTYSTYCZNY.txt', 'docs\MANIFEST-NIKOGO.txt',
-            'docs\ANATOMIA-I-FIZYKA-0.28.txt', ('docs\ODBIOR-' + $values.version + '.txt'))
+            'docs\ANATOMIA-I-FIZYKA-0.28.txt', 'docs\PLAN-ROZWOJU-v7.md', ('docs\ODBIOR-' + $values.version + '.txt'))
     }
 }
 

@@ -1,0 +1,62 @@
+SIGIL: BREACH / ODBIÓR FOUNDATION 0.31
+
+Źródła: C:\Users\nahiko\Documents\dev\sigil-breach\game
+Aktualne raporty: work/qa-v31. Weryfikacja faktycznego EXE:
+package-verification.txt; sumy PASS odczytywać z tego wykonania.
+Opis zmian i ograniczeń: ZMIANY-0.31.txt, ROZSZERZANIE.txt.
+
+WDROŻONE I SPRAWDZANE
+1. Jawna obserwacja ostatnio pokazanej pozy dla hitscan. Osobne kontrolowane
+   próby kliknięcia, przytrzymania i bufora nie wykazują wcześniejszych
+   chybień/zmian strefy, materiału i obrażeń we wnętrzach sylwetek.
+   Dane historyczne to geometria, a nie HP. Obecne przesłony nadal obowiązują.
+   Pocisk w locie używa aktualnego kontaktu. To nie gwarancja zgodności
+   każdego pikselowego brzegu maski: zaokrąglenia nadal są granicą pomiaru.
+2. Impuls od źródła kontaktu; blast zależy także od fizycznej wysokości
+   skoku, a lot granatu od faktycznie okrągłych boków i blatu kolumny.
+3. Walidacja referencji i relacji czasowych; ID zgodne z zapisem.
+   Rozszerzenia broni, wyposażenia, animacji i FX sprawdzone osobnymi
+   definicjami testowymi. Nie dodano ich jako nowej zawartości produkcyjnej.
+4. Zakres pozostaje przy obecnym poligonie. Menu i HUD mają układ 0.30,
+   bez nowego trybu. WAVE TRIAL to pojedyncza wybrana fala sandboxu;
+   sklep katalogu używa zasobów testowych. Pełna normalna sesja z ekonomią
+   i śmiercią/echo nie jest oferowana z menu.
+5. Koszt tekstur galerii rozłożony na widoczne przygotowanie. Zimny pomiar
+   przenosi ~693 ms newImage poza pierwszą klatkę pola. Preload nie jest
+   darmowy: 17 obrazów, ~884 ms łącznie i ~149 MiB cache. Nie nazywać tego
+   usunięciem kosztu ani pomiarem rzeczywistego FPS monitora.
+6. Malowana podstawa rytualna, niezmienione historyczne pieczęcie i jeden
+   podpis oglądanego eksponatu. Osobny przegląd ritual-art weryfikuje UV,
+   okluzję i brak wpływu grafiki na stan walki.
+
+ODBÓR CZŁOWIEKA — NADAL OTWARTY
+1. W menu wybierz QUICK SKIRMISH, a przez F2 katalog poligonu. Zacznij od
+   istniejącej potyczki, potem wybieraj konkretne próby ruchu i trafień.
+2. Porównaj obie bronie: strzał, szybka zamiana, przerwanie przeładowania,
+   kontakt z mięsem/pancerzem, informacja o przełamaniu i zabójstwie.
+3. Sprawdź ruch przy kolumnach, skok/ślizg/lądowanie/unik i tłum demonów.
+   Rozpoznaj przygotowanie ataku, aktywny cios i powrót po ataku.
+4. Sprawdź wybraną falę i sklep jako osobne próby. Oceń czytelność, tempo
+   i chęć powtórzenia starcia; zachowaj telemetrię F9. Reset i testowe zasoby
+   poligonu nie pozwalają uznać tego za odbiór ekonomii pełnej sesji.
+5. Oceń HUD i kontrast w walce. Automatyczne testy ink bounds nie
+   zastępują patrzenia na faktyczny obraz w ruchu.
+
+CHWYT BRONI — STYL POZY ZAAKCEPTOWANY, CYKL OTWARTY
+Użytkownik zaakceptował styl pojedynczej nowej pozy oraz jej ręczny retusz
+po blokadzie generatora. Praca pozostaje warsztatowa w work/art-proposals-v31;
+pełny atlas nie jest zintegrowany, a produkcyjne PNG pozostają zachowane.
+Odbiór całego cyklu obu broni nadal wymaga czytelnego chwytu i spójnego
+pigmentu obok zaakceptowanego demona, także w finalnym oświetleniu gry.
+
+PREZENTACJA PRZYSZŁEGO WYPOSAŻENIA
+AbilityCast i katalog animacji pozostają rozszerzalne. HUD wielu slotów
+wyposażenia nie jest wdrożony; wymaga osobnego projektu i odbioru przy
+dodawaniu przedmiotu do produkcyjnego zestawu. Obecny HUD pozostaje jak w 0.30.
+
+DECYZJA O ROZBUDOWIE
+Rdzeń jest zabezpieczony lepiej niż w 0.30; nie uznajemy B2 ani pełnego cyklu
+chwytu za zamknięte na podstawie PASS. Najpierw odbiór obecnego cyklu i korekta
+artystyczna. Świat, dodatkowe mapy i loot pozostają na później. Nowa
+mechanika może wymagać nowego handlera; nie powinna wymuszać przerabiania
+wszystkich postaci, HUD, obrażeń i zapisu równocześnie.

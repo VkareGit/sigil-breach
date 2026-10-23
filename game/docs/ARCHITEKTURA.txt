@@ -1,4 +1,4 @@
-SIGIL: BREACH / ARCHITEKTURA KODU / 0.29 (plan v7: wspólna poza, anatomia i kontakty)
+SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.31
 
 LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
 zaklęć demonów, broni i wyposażenia rycerza, map, trybów). Model: sesja = świat ECS nad własnymi tablicami
@@ -35,6 +35,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
                 stworzenia, rycerz, bronie, umiejętności, stany, fale, mapy,
                 strojenie, dane trybów (classic, expedition, shop).
   src/physics   kolizje, wysokości kafli, wysokość podłogi (ground.lua).
+                ordnance_flight: lot/odbicia ładunku z przekazanymi danymi;
+                okrągłe kolumny mają radialną normalną i okrągły blat.
   SYMULACJA: src/combat, src/enemies, src/player, src/session, src/systems,
              src/run, src/world — NIE importują feedback/render/ui/audio/app.
   PREZENTACJA: src/feedback (słuchacze 'present', haki prezentacji),
@@ -105,6 +107,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   combat/reload.lua: mechanizmy (breech, cylinder) z czasami w danych
   (tuning.reload); interruptBefore + closing: strzał przerywa przeładowanie.
   combat/combat.lua: ready (zachwianie blokuje strzał) -> discharge -> Volley.
+  combat/observation.lua: serializowalna geometria ostatnio pokazanego
+  obrazu, przekazana jako jawna część komendy przez kontroler. Kliknięcie,
+  przytrzymanie i bufor mają ten sam kontrakt. Resolver nie cofa HP/pancerza
+  ani nagród; obecne ściany nadal blokują promień. Ważność jest ograniczona
+  sesją, generacją i tuning.observation.maxAge. Zmiana sesji/pauzy/fokusu
+  unieważnia zamiar. Pocisk w locie korzysta z aktualnego kontaktu.
   combat/damage.lua: Damage.rating = pancerz trafionej części (obrażenia,
   raport, przebicie). content/abilities.lua + combat/abilities.lua (Cast.kinds).
   Idealny unik: combat/dodge.lua — Dodge.afterimage (cios na powidoku) i
@@ -143,6 +151,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   (run/descent.lua) nie zna poligonu: jeden strażnik „tylko sesja wyprawy
   zapisuje, wczytuje i postępuje”; zakup Descent.trade (bez zapisu, poligon)
   i Descent.buy (trade + zapis). Żar: session/sanctuary.lua (Sanctuary.near).
+  field: niezależny sandbox. WAVE TRIAL uruchamia pojedynczą wybraną falę
+  na zasobach poligonu; nie jest normalnym cyklem ekonomii i progresji.
+  Menu i HUD zachowują układ 0.30, bez dodatkowego trybu próby.
+  app/application etapuje pierwszy preload galerii po jednym obrazie na
+  krok; ui/loading pokazuje postęp. Podczas ładowania symulacja stoi.
+  Poligon i ekrany współdzielą pętlę aplikacji.
   app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
   ui/interface.lua tylko rozdziela.
 
@@ -234,6 +248,9 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   (klawisz: app/bindings.lua abilities); nowy rodzaj dostawy: Cast.kinds[nazwa]
   (throw = ładunek prochowy; bolt = pocisk, dziś bez wyposażenia gracza).
   Abilities.give(g, id) dodaje slot bez zmiany postaci; define waliduje Action.
+  AbilityCast wskazuje faktycznie użyty slot i jego animację dłoni.
+  HUD wielu slotów wyposażenia nie jest wdrożony. Dodanie przedmiotu do
+  gry wymaga osobnego domknięcia jego prezentacji w zachowanym HUD 0.30.
   SIGIL08 zapisuje kolejność slotów (także checkpoint), odczytuje 06/07.
   Rzut niesie własną definicję: lot, zapalnik, promień i blast; wspólne
   zachowanie nie odczytuje parametrów innego wyposażenia. Rejestracja nowego
@@ -247,11 +264,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 13. ŚWIADOME GRANICE
 
   Tryby oryginalne trzymają rekordy w g.run / g.testField (dane trybu).
-  Rola trybów (0.29, bez zmian): classic = deterministyczna arena testów,
+  Rola trybów (0.31): classic = deterministyczna arena testów,
   botów i złotego wzorca (--selftest, --showcase, Fixtures.arena); sesja
-  descent = to, co aplikacja tworzy dla gracza (menu, poligon); wyprawa w niej
-  nie jest oferowana od 0.22, ale zapis SIGIL08, sklep i postęp pozostają
-  sprawdzane testami na jej powrót. Żadnego nie usuwamy.
+  descent = sesja aplikacji (menu i wejście do poligonu). Menu uruchamia
+  szybką potyczkę lub katalog poligonu; pełny normalny cykl fal, sklepu,
+  śmierci i echo nie jest oferowany. Wyprawa expedition, zapis SIGIL08,
+  sklep i postęp pozostają biblioteką sprawdzaną testami.
   Krzywe animacji to dane w kodzie objęte zapadką tools/check/literals.txt
   (może maleć). Trafienia wszystkich dzisiejszych demonów: enemies/pose ->
   enemies/surface -> maska atlasu + adnotacja anatomii (appearance.regions).
@@ -281,7 +299,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   osiadaniu przepuszczają. Padające ciała nie dostają HP/nagród. Materiały mają jawne mnożniki i politykę
   penetracji (content/ballistic_surfaces); odbicia wymagają przyszłej specyfikacji.
   Ruch, droga ataku i podatna powierzchnia pozostają osobnymi reprezentacjami.
-  Wybuch sprawdza ekspozycję środka; nie jest promieniem anatomicznym.
+  Wybuch sprawdza ekspozycję kotwicy tułowia z fizycznym leapY, bez
+  kosmetycznego bob/hover; nie jest promieniem anatomicznym.
   Pętle po g.enemies zostają tablicami (LuaJIT).
 
 14. NARZĘDZIA
@@ -301,6 +320,10 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   { obraz, x, y, szer., wys. }; test anatomy-data porównuje je z PNG.
   Journal v2: pełna integralność stanu początkowego i końcowego, kontakty części
   i działania poligonu. Złoty wzorzec obejmuje także skrót kontaktów.
+  Obserwacja trafienia jest częścią komendy. Nagrywanie ma limit szacowanych
+  64 MiB serializowanego tekstu albo 72000 komend (nie jest to limit RAM).
+  Zatrzymuje się na granicy kompletnej komendy; eksport czeka na kontakty
+  i końcowy Integrity. Szczegóły i koszt: DEVELOPMENT.txt.
   Punkty anatomiczne: tools/art/landmarks/crops.ps1 -Kind boss -Frame 9
   [-Points "x,y;..."] (wycinek z siatką pikseli źródła, po --hit-review).
   Celowa zmiana rozgrywki: skopiuj work/qa-v<wersja>/golden-current.lua do

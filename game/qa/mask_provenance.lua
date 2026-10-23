@@ -33,9 +33,9 @@ function P.frames()
       )
     end
   end
-  for _, id in ipairs({ 'leap', 'evade' }) do
-    for index, region in ipairs(Ability[id].frames) do
-      add('abilities', id, index, region, Ability[id].path, false)
+  for id, entry in Ability.each() do
+    for index, region in ipairs(entry.frames) do
+      add('abilities', id, index, region, entry.path, false)
     end
   end
   return out

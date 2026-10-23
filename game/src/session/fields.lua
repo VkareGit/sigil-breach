@@ -88,7 +88,11 @@ declare('player/feel.lua', {
   -- and combat/dodge, counted down by systems/clocks)
   'impactSlow',
 })
-declare('player/intent.lua', { 'fireBuffer' })
+declare('player/intent.lua', { 'fireBuffer', 'fireCommand' })
+declare(
+  'combat/observation.lua',
+  { '_observationSession', '_observationGeneration', '_observationSequence' }
+)
 -- Demons' shared state (enemies/*).
 declare('enemies/ai.lua', {
   'threat', -- summed threat of awake demons near the knight

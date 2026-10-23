@@ -18,7 +18,7 @@ Delivery:register('projectile', {
         ox, oy = B.pellet(i, shot.serial, shot.count)
         ox, oy = ox * spread, oy * spread
       end
-      local dx, dy, dz = B.spreadDirection(p.yaw, p.pitch, ox, oy)
+      local dx, dy, dz = B.spreadDirection(shot.yaw or p.yaw, shot.pitch or p.pitch, ox, oy)
       -- Start at the actual origin; a muzzle offset must not teleport a shot
       -- through thin cover. World and painted body sweeps own every contact.
       Spawn.make(g, 'projectile', {

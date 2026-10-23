@@ -3,11 +3,13 @@
 local Metadata = require('src.content.ability_art')
 local AbilityPose = require('src.enemies.ability_pose')
 local Pose = require('src.enemies.pose')
-local AbilityArt = { entries = { leap = Metadata.leap, evade = Metadata.evade } }
+local AbilityArt = { entries = Metadata.entries }
 AbilityArt.select = AbilityPose.select
 function AbilityArt.load()
   local loaded = {}
-  for key, entry in pairs(AbilityArt.entries) do
+  for key, entry in Metadata.each() do
+    local problems = require('src.enemies.art_contract').sequenceProblems(key)
+    assert(#problems == 0, table.concat(problems, '\n'))
     local image = love.graphics.newImage(entry.path)
     image:setFilter('nearest', 'nearest')
     loaded[key] = { image = image, feet = entry.feet, frames = entry.frames }
@@ -20,6 +22,7 @@ function AbilityArt.resolve(loaded, g, e)
   if not p.ability then
     return nil
   end
-  return loaded[p.ability].image, p.region, p.sx, p.sy, p.baseY, p.mirror, p.shift
+  local entry = assert(loaded[p.ability], 'ability artwork not loaded: ' .. p.ability)
+  return entry.image, p.region, p.sx, p.sy, p.baseY, p.mirror, p.shift
 end
 return AbilityArt

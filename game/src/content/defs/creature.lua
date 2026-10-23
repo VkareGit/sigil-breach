@@ -93,6 +93,17 @@ local function actionsOf(parent, child)
   if child == nil then
     return parent and Schema.copy(parent.attacks) or {}
   end
+  assert(type(child) == 'table', 'creature.attacks: expected an array')
+  local count = 0
+  for key, value in pairs(child) do
+    count = count + 1
+    assert(
+      type(key) == 'number' and key % 1 == 0 and key >= 1 and key <= #child,
+      'creature.attacks: expected a dense array'
+    )
+    assert(type(value) == 'table', 'creature.attacks[' .. key .. ']: expected an action')
+  end
+  assert(count == #child, 'creature.attacks: expected a dense array')
   local out = {}
   for i, a in ipairs(child) do
     if a.from then
@@ -126,10 +137,21 @@ function Creature.define(def)
   merged = Creature.schema:fill(merged)
   merged.body = Body.schema:build(merged.body, where .. '.body')
   merged.move = Creature.move:build(merged.move, where .. '.move')
+  if merged.move.evade then
+    assert(merged.move.evade.time > 0, where .. '.move.evade.time: must be positive')
+    assert(
+      merged.move.evade.fromTier % 1 == 0,
+      where .. '.move.evade.fromTier: expected an integer'
+    )
+  end
   merged.appearance = Creature.appearance:build(merged.appearance, where .. '.appearance')
   merged.appearance.atlas = merged.appearance.atlas or merged.id
+  assert(#merged.attacks > 0, where .. '.attacks: at least one action required')
+  local ids = {}
   for i, a in ipairs(merged.attacks) do
     merged.attacks[i] = Action.build(a, where .. '.attacks[' .. i .. ']')
+    assert(not ids[a.id], where .. '.attacks: repeated action id ' .. a.id)
+    ids[a.id] = true
   end
   return Creature.schema:validate(merged, where)
 end

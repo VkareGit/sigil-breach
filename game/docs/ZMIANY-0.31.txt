@@ -1,0 +1,100 @@
+SIGIL: BREACH / Foundation 0.31
+
+Zakres: fundament i ta sama arena testowa. Dwie bronie fizyczne, sześć
+istniejących demonów. Bez nowych map, kampanii, łupów ani magii gracza.
+
+1. CZAS STRZAŁU
+Hitscan przyjmuje jawną obserwację ostatniej pokazanej pozy: geometria CPU,
+ID części/ciała i kamery, bez kopiowania zdrowia ani całego świata.
+Kliknięcie, przytrzymanie i krótki bufor mają osobne pokrycie kontrolera.
+Obrażenia, gardę i żywe identyfikatory rozliczamy teraz; obecna ściana
+nadal zatrzymuje strzał. Stare/obce obserwacje są odrzucane, reset sesji,
+fokus i pauza nie odtwarzają dawnych zamiarów. Pocisk w locie nadal trafia
+aktualne ciało w chwili kontaktu. Journal przechowuje tę samą komendę.
+
+W kontrolowanych --hit-timing: held 393, mousepress 381, press-buffer 393
+ważne wnętrza sylwetek; zero dawnych chybień/zmian strefy, materiału lub
+obrażeń. To reprodukcje, nie procent skuteczności gracza ani pixel-perfect.
+Oracle order rozpoznaje luźny płaszcz jako przepuszczalny: poprawienie
+testu usuwa wcześniejsze fałszywe alarmy bez powiększania anatomii.
+
+2. KONTAKT I FIZYKA
+Odrzut salwy jest skierowany zgodnie z ważonym impetem trafień. Eksplozja
+odrzuca od swojego środka; pozycja gracza po rzucie tego nie zmienia.
+Granat odbija się od okrągłej kolumny, jej brzegu i blatu, z zachowaniem
+pozostałego czasu kroku; nie od kwadratu otaczającego kolumnę.
+Wyodrębniony physics/ordnance_flight nie importuje gry ani renderera;
+strojenie jest przekazywane z warstwy walki. Blast czyta także fizyczną
+wysokość skoku kotwicy tułowia. Regresje: styczna, narożnik, normalna,
+zjazd z okrągłego brzegu, różne kroki czasu, źródło impulsu i skok.
+Są to świadome poprawki zachowania, nie kosmetyczny refaktor.
+Złoty wzorzec zmienił sześć skrótów stanu/kontaktów. Diagnostyka w pamięci
+z dawnym hit_response i explosives odtworzyła wszystkie 6/6 starych
+wyników. Zmian nie powodują obserwacja, grafika ani zapis. Odepchnięcie
+zmienia dalsze pozycje i kontakty; poprawka granatu także mieszany drill.
+Nie zmieniano HP, mocy broni ani nagród pod wynik testu. Pełna atrybucja:
+work/qa-observation/golden-attribution.txt i cztery tabele wariantów.
+
+3. ROZBUDOWA I BŁĘDNE DANE
+Wspólny kontrakt ID dla rejestrów, broni, wyposażenia i zapisu SIGIL08.
+Action.build odrzuca zerowy pulse, wadliwe okna/relacje czasów, krzywe
+obrażeń i referencje. Walidacja transakcyjna nie zostawia połowy wpisu.
+Katalog ability_art łączy sampler, obraz, kotwice, anatomię, bake i
+poświadczenie. Startup sprawdza kompozycję całej zawartości.
+Trzecia sekwencja oraz FX są testowymi rozszerzeniami na istniejących PNG.
+Animacja dłoni pochodzi z faktycznego AbilityCast, nie zawsze ze slotu Q.
+Menu i HUD zachowują układ 0.30. Prezentacja wielu slotów wyposażenia nie
+jest wdrożona; pozostaje zależnością przy dodawaniu nowego przedmiotu.
+Obraz świeżo rzuconego ładunku pojawia się płynnie przy przekazaniu z ręki
+przez pierwsze 120 ms; powracający
+lub starszy granat pozostaje widoczny. Zmiana nie dotyczy trajektorii.
+Opcjonalne nagrywanie ma granicę 64 MiB szacowanego tekstu lub 72000
+komend (to nie limit RAM). Kończy kompletną komendę z kontaktami i stanem.
+Eksport po zabiciu ostatniego celu czeka na VolleyResolved, również gdy
+ta sama komenda osiąga limit. Test odtwarza wyeksportowany dziennik.
+
+4. ZAKRES POLIGONU
+Pozostaje obecna szybka potyczka i katalog poligonu, bez dodatkowego trybu.
+WAVE TRIAL sprawdza jedną wybraną falę lub strażnika; sklep katalogu działa
+na zasobach testowych. Pełny normalny cykl fal/sklepu/śmierci/echo nie jest
+oferowany z menu. Biblioteka wypraw i jej testy pozostają w kodzie.
+Próby komponentowe nie zastępują odbioru ekonomii pełnej sesji przez gracza.
+
+5. PIERWSZE WEJŚCIE
+Przyczyną przycięcia było 17 newImage galerii w pierwszej klatce.
+Jawna plansza przygotowania ładuje najwyżej jeden obraz na krok; nie
+uruchamia wtedy czasu walki ani zamiarów. Esc bezpiecznie wraca.
+Pomiar Intel Arc/1280x720: pierwszy field 746.168 -> 47.829 ms; galeria
+695.682 -> 0.939 ms. Przygotowanie trwa 883.746 ms w 17 krokach, max 73.150 ms
+na obraz. Koszt przeniesiono przed walkę, nie usunięto. Cache nadal zajmuje
+148.711 MiB / 17 obrazów. Filtry i pigment demonów pozostają zachowane.
+
+6. GRAFIKA ZNAKÓW I PORTALI
+Nowa malowana medalia na posadzce i ołtarzach, w kolorach obecnego fresku.
+Źródłowe pieczęcie Goetii są nakładane bez zmian kresek i bez lustrzanego
+odbicia. Brakujące znaki nie są wymyślane generatywnie. Galeria pokazuje
+czytelny podpis oglądanego obiektu; wielki pływający znak nie zasłania
+plansz. Ta sama medalia to podstawa portalu przywołania. Promienie ciosów
+i ich ostrzeżeń pozostają regułą walki, oddzielną od ozdobnika.
+PNG: assets/art/ritual-medallion-v31.png. Prompt/pochodzenie:
+assets/art/ritual-provenance-v31.json; narzędzie wbudowane image_gen.
+
+7. OTWARTE
+Styl pojedynczej nowej pozy chwytu został zaakceptowany przez użytkownika.
+Ręczny retusz tej pozy, zaakceptowany po blokadzie generatora, pozostaje
+pracą warsztatową w work/art-proposals-v31. Pełny atlas nie jest zintegrowany;
+chwyt i spójność całego cyklu obu broni wymagają dalszego odbioru.
+Produkcja zachowuje stare PNG broni i wszystkie zaakceptowane demony.
+Odbiór feelingu i balansu przez gracza nadal otwarty (B2).
+
+8. DOMKNIĘCIE BRAMEK TESTÓW
+Nowy przegląd foundation_ui po raz pierwszy objął audytem menu i HUD sesji
+classic (ekranów testów, gracz ich nie widzi) i wykrył 18 błędów układu:
+przyciski QUICK SKIRMISH / PROVING GROUND na opisach stanowisk oraz napis
+SHIFT szerszy niż sztywne 62 px klawisza. Oba przyciski sesji classic stoją
+teraz pod panelem, a jej klawisz SHIFT ma 78 px. release.lua miał końce
+linii CRLF i zatrzymywał FORMAT. Menu i freskowy pasek HUD gracza bez zmian
+(identyczne z 0.30).
+
+Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
+Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

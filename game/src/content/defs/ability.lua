@@ -5,12 +5,14 @@
 -- the notice when none is left. The live record (uses left, ready time) is
 -- player.abilityState[id] (content/abilities.lua: newState).
 local Schema = require('src.core.schema')
+local Id = require('src.core.id')
 local Action = require('src.content.defs.action')
 local Ability = {}
 Ability.schema = Schema:new('ability', {
   id = { type = 'string', required = true },
   name = { type = 'string', required = true },
   tag = { type = 'string', required = true, desc = 'its word on the HUD key (Q CHARGE)' },
+  hands = { type = 'string', desc = 'equipment hands sequence (content/equipment_art.lua)' },
   action = { type = 'table', required = true, desc = 'Action.build(...): delivery and payload' },
   capacity = { type = 'number', required = true, min = 1, desc = 'uses carried at most' },
   start = { type = 'number', required = true, min = 0, desc = 'uses a fresh knight carries' },
@@ -19,6 +21,11 @@ Ability.schema = Schema:new('ability', {
 function Ability.define(def)
   local path = 'ability ' .. tostring(def.id)
   local built = Ability.schema:build(def, path)
+  Id.check(built.id, path .. '.id')
+  assert(
+    not built.hands or require('src.content.equipment_art').entries[built.hands],
+    path .. '.hands: unknown equipment hands sequence ' .. tostring(built.hands)
+  )
   assert(built.capacity % 1 == 0, path .. '.capacity: expected an integer')
   assert(built.start % 1 == 0, path .. '.start: expected an integer')
   assert(built.start <= built.capacity, path .. '.start: exceeds capacity')

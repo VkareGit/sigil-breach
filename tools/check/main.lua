@@ -25,6 +25,9 @@ end
 local function unnamedNumbers(text)
   text = text:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%[(=*)%[.-%]%1%]', "''")
   text = text:gsub('"[^"\n]*"', "''"):gsub("'[^'\n]*'", "''"):gsub('%-%-[^\n]*', '')
+  -- Scientific notation is one token, including the signed exponent. Without
+  -- this, the 12 in an allowed geometric epsilon 1e-12 was counted as tuning.
+  text = text:gsub('%d[%d%.]*[eE][%+%-]?%d+', '0')
   local count = 0
   for position, token in text:gmatch('()(%.?%d[%w%.]*)') do
     local before = position > 1 and text:sub(position - 1, position - 1) or ''

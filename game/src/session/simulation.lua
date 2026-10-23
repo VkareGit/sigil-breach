@@ -50,6 +50,7 @@ function Simulation.update(g, dt, input)
         strafe = input.strafe,
         turn = input.turn,
         shoot = input.shoot,
+        fireCommand = input.fireCommand,
         jump = input.jump,
       }
     end

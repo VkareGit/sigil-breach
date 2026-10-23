@@ -4,6 +4,8 @@
 local W = require('src.world.arena')
 local WG = require('src.world.gallery')
 local Archetypes = require('src.content.enemies')
+local Ritual = require('src.render.ritual_art')
+local Skin = require('src.ui.skin')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
@@ -119,6 +121,29 @@ local function image(r, b)
   return cache[b.path] or nil
 end
 G.image = image
+-- The same cache and sampling as the gallery. Preparation is bounded to one
+-- absent PNG per loading frame; already owned renderer images need no copy.
+local function pending(r, b)
+  return not b.image and not (b.get and b.get(r)) and cache[b.path] == nil
+end
+function G.pending(r)
+  local count = 0
+  for _, b in ipairs(G.boards) do
+    if pending(r, b) then
+      count = count + 1
+    end
+  end
+  return count
+end
+function G.preloadStep(r)
+  for _, b in ipairs(G.boards) do
+    if pending(r, b) then
+      assert(image(r, b), 'gallery artwork failed to load: ' .. b.path)
+      return G.pending(r)
+    end
+  end
+  return 0
+end
 local WHITE = { 1, 1, 1 }
 local PLATE = { 0.11, 0.075, 0.055 }
 local UV = { 0, 0, 1, 1 }
@@ -154,23 +179,9 @@ function G.draw(r, g)
     G.placed = G.layout(g.world)
     G.world = g.world
   end
-  -- Pads: floor rings and a slow sigil, coloured by what they give.
-  lg.setShader(r.shader)
+  -- Painted, fixed floor medallions; no floating geometry obscures exhibits.
   for _, p in ipairs(WG.pads) do
-    local near = dist(g.player, p.x, p.z) < 1.05
-    local color = p.spawn and { 0.85, 0.32, 0.18 }
-      or (p.weapon and { 0.86, 0.66, 0.30 } or { 0.45, 0.80, 0.62 })
-    r:object(r.warning, p.x, 0.03, p.z, 0, near and 1.0 or 0.85, color)
-    r:object(r.warning, p.x, 0.035, p.z, 0, near and 0.62 or 0.5, color)
-    r:object(
-      r.sigil,
-      p.x,
-      0.75 + math.sin(time * 2 + p.x) * 0.06,
-      p.z,
-      time * 0.8,
-      near and 0.5 or 0.4,
-      color
-    )
+    Ritual.pad(r, p, g.world.floor)
   end
   lg.setShader(r.spriteShader)
   -- Boards: a dark plate behind the atlas so transparent sheets stay readable.
@@ -268,8 +279,16 @@ function G.labels(r, g, ox, oy, vw, vh)
     state = { placed = G.placed, labels = stationLabels, items = {}, taken = {}, boxes = {} }
     r.galleryLabelLayout = state
     for _, b in ipairs(G.placed) do
-      state.items[#state.items + 1] =
-        { x = b.x, y = 2.62, z = b.z, text = b.group .. ' / ' .. b.name }
+      state.items[#state.items + 1] = {
+        x = b.x,
+        -- The plate sits below the artwork's 1.15 m base, so its caption cannot
+        -- cover an atlas and stays visible when the top approaches the header.
+        y = 0.95,
+        focusY = 1.7,
+        z = b.z,
+        text = b.group .. ' / ' .. b.name,
+        kind = 'exhibit',
+      }
     end
     for _, s in ipairs(WG.statues) do
       local a = Archetypes.get(s.kind, s.armored and 'armored' or nil)
@@ -277,7 +296,9 @@ function G.labels(r, g, ox, oy, vw, vh)
       state.items[#state.items + 1] = {
         x = s.x,
         y = tall,
+        focusY = tall * 0.5,
         z = s.z,
+        kind = 'exhibit',
         text = a.name
           .. ' / HP '
           .. a.body.hp
@@ -285,7 +306,12 @@ function G.labels(r, g, ox, oy, vw, vh)
       }
     end
     for _, p in ipairs(WG.pads) do
-      state.items[#state.items + 1] = { x = p.x, y = 1.05, z = p.z, text = WG.padLabel(p) }
+      local name = p.spawn and Archetypes.get(p.spawn).name
+        or (
+          p.weapon and require('src.content.weapons').get(p.weapon).name or 'HEALTH / WARD / AMMO'
+        )
+      state.items[#state.items + 1] =
+        { x = p.x, y = 0.35, focusY = 0.1, z = p.z, text = name:upper(), reach = 3, kind = 'pad' }
     end
     -- Station captions (range distances, physics drills) from the proving ground.
     for _, l in ipairs(stationLabels or {}) do
@@ -298,9 +324,25 @@ function G.labels(r, g, ox, oy, vw, vh)
   end
   local p = g.player
   local overlap = require('src.render.numbers').overlap
-  -- Nearest first; a plate that would overlap a nearer one is skipped.
+  -- Only the exhibit under the gaze and one nearby pad get captions. Station
+  -- rulers retain their separate distance labels for actual measurement drills.
+  local focused, scores = {}, {}
   for _, it in ipairs(items) do
     it.d = dist(p, it.x, it.z)
+    if it.kind and it.d < (it.reach or 8) and W.visible(g.world, p.x, p.z, it.x, it.z) then
+      local x, y = r:project(it.x, it.focusY, it.z)
+      if x then
+        local dx, dy = x / r.w - 0.5, y / r.h - 0.5
+        local score = dx * dx + dy * dy + it.d * it.d * 0.0006
+        if
+          math.abs(dx) < 0.25
+          and math.abs(dy) < 0.4
+          and (not scores[it.kind] or score < scores[it.kind])
+        then
+          scores[it.kind], focused[it.kind] = score, it
+        end
+      end
+    end
   end
   table.sort(items, function(a, b)
     if a.d == b.d then
@@ -313,7 +355,11 @@ function G.labels(r, g, ox, oy, vw, vh)
   lg.setShader(require('src.ui.ink').ink(false))
   for _, it in ipairs(items) do
     local d = it.d
-    if d < (it.reach or 8) and W.visible(g.world, p.x, p.z, it.x, it.z) then
+    if
+      (not it.kind or focused[it.kind] == it)
+      and d < (it.reach or 8)
+      and W.visible(g.world, p.x, p.z, it.x, it.z)
+    then
       local px, py = r:project(it.x, it.y, it.z)
       if px then
         local sx, sy = ox + px * vw / r.w, oy + py * vh / r.h
@@ -338,12 +384,10 @@ function G.labels(r, g, ox, oy, vw, vh)
         end
         if free then
           taken[#taken + 1] = box
-          local alpha = math.min(1, ((it.reach or 8) - d) / 2)
           lg.setShader()
-          lg.setColor(0.04, 0.03, 0.025, 0.78 * alpha)
-          lg.rectangle('fill', box[1], box[2], box[3], box[4])
-          lg.setShader(require('src.ui.ink').ink(false))
-          font:draw(it.text, box.textX, box.textY, { 0.93, 0.87, 0.72, alpha })
+          Skin.panel(box[1], box[2], box[3], box[4], 7, 6)
+          lg.setShader(require('src.ui.ink').ink(true))
+          font:draw(it.text, box.textX, box.textY, { 0.93, 0.87, 0.72, 1 })
         end
       end
     end

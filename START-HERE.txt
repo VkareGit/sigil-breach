@@ -1,16 +1,16 @@
-SIGIL: BREACH / główny projekt / 0.30
+SIGIL: BREACH / główny projekt / Foundation 0.31
 C:\Users\nahiko\Documents\dev\sigil-breach
 
 ZACZNIJ OD: game\docs\DEVELOPMENT.txt
 SPECYFIKACJA GRY: game\docs\INSTRUKCJA.txt (tak gra działa teraz)
 ARCHITEKTURA: game\docs\ARCHITEKTURA.txt
-ZMIANY: game\docs\ZMIANY-0.30.txt
+ZMIANY: game\docs\ZMIANY-0.31.txt
 ROZBUDOWA: game\docs\ROZSZERZANIE.txt (broń, dostawy, wyposażenie, granice)
-ODBÓR: game\docs\ODBIOR-0.30.txt (B2 i chwyt broni nadal wymagają odbioru)
-ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (aktualne dla 0.29)
+ODBÓR: game\docs\ODBIOR-0.31.txt (B2 i pełny cykl chwytu nadal wymagają odbioru)
+ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (uzupełnienia: ZMIANY-0.31)
 PLAN: game\docs\PLAN-ROZWOJU-v7.md (wdrożenie H1–H9/B1, dopracowanie 0.29;
       odbiór B2 przez gracza); v6 zastąpiony, v5 wdrożony
-KONTEKST DLA NOWEGO CZATU: docs\KONTEKST-0.30.txt
+KONTEKST DLA NOWEGO CZATU: docs\KONTEKST-0.31.txt
 
 Pracuj w game/, nie w snapshotach outputs/.
 main.lua -> src/app -> src/session -> systemy gry -> render i UI.
@@ -27,8 +27,8 @@ Poprzednie dokumenty: docs/history. Warsztat atlasów: tools/art.
 .\BUILD.ps1                     testy, snapshot, testy EXE i weryfikowany ZIP
 
 Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
-skrypty nie wymagają kopii -v29.
-Wyniki: work/qa-v30 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.30/SIGIL-BREACH.exe.
+skrypty nie wymagają kopii -v31.
+Wyniki: work/qa-v31 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.31/SIGIL-BREACH.exe.
 telemetry.txt z gry: EXE %APPDATA%\sigil-breach-prototype\, źródła
 %APPDATA%\LOVE\sigil-breach-prototype\ (F9 pokazuje ścieżkę).
 Pomiary planu v5 przed i po etapach: work/v5-measure.
@@ -38,6 +38,13 @@ Testy nie przejmują myszy i nie korzystają z zapisu użytkownika.
 0.30: kompozycja/dziedziczenie broni, dostawy hitscan/projectile, generic throw,
 zapis slotów SIGIL08, prawdziwe feedback i celownik, GUI i limit cache napisów.
 Modele i źródłowe PNG pozostają zachowane; nowe definicje są tylko w testach.
+
+0.31: czas hitscan zgodny z pokazaną obserwacją, kierunek impulsu, okrągłe
+kolumny dla Q, walidacja danych i rozszerzalna prezentacja umiejętności.
+Menu i HUD pozostają w układzie 0.30; obecny poligon nie otrzymuje nowego trybu.
+Etapowane ładowanie galerii, malowane medale i oryginalne pieczęcie.
+Styl pojedynczej nowej pozy chwytu zaakceptowano. Jej ręczny retusz pozostaje
+warsztatowy; pełny atlas nie jest zintegrowany ani odebrany w animacji gry.
 
 Jedna arena testowa. Dwie bronie fizyczne. Dopracowujemy ruch, strzelanie,
 animacje, fizykę i oprawę przed rozbudową świata. Styl: żywy, mroczny fresk.

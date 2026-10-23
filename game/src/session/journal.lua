@@ -11,12 +11,14 @@
 --   Journal.replay(fresh, journal)      -- the same session again
 local Serialize = require('src.core.serialize')
 local Integrity = require('src.session.integrity')
+local Observation = require('src.combat.observation')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 local Journal = { version = 2, build = require('src.core.build').version }
 local recordings = setmetatable({}, { __mode = 'k' })
 local sessions = setmetatable({}, { __mode = 'k' })
 local observers = setmetatable({}, { __mode = 'k' })
+local boundaries = setmetatable({}, { __mode = 'k' })
 -- Store resolved outcomes, not pointers to mutable enemies or presentation.
 -- Volley contacts retain shape/zone/material and each pellet's exact result.
 local function observe(g, consume)
@@ -61,7 +63,16 @@ Journal.commands = {
 -- pause, the help or the map, cleared intents). A change between two
 -- commands is recorded as a 'set' entry before the next one, the way an
 -- aim set by a tool is an 'aim' entry. Paths: 'field' or 'player.field'.
-Journal.external = { 'state', 'map', 'help', 'fireBuffer', 'player.jumpBuffer' }
+Journal.external = {
+  'state',
+  'map',
+  'help',
+  'fireBuffer',
+  'fireCommand',
+  'player.jumpBuffer',
+  '_observationSession',
+  '_observationGeneration',
+}
 local function read(g, path)
   local owner, key = path:match('^(%w+)%.(%w+)$')
   if owner then
@@ -76,16 +87,6 @@ local function write(g, path, value)
   else
     g[path] = value
   end
-end
-local function copyInput(input)
-  if type(input) ~= 'table' then
-    return input
-  end
-  local out = {}
-  for k, v in pairs(input) do
-    out[k] = v
-  end
-  return out
 end
 -- Where the journal began: a replay must start from the same place. A
 -- session recorded from its construction matches a new one built from the
@@ -110,6 +111,8 @@ function Journal.header(g)
   return {
     version = Journal.version,
     build = Journal.build,
+    observationSession = Observation.session(g),
+    observationGeneration = g._observationGeneration,
     mode = g.mode,
     map = g.world and g.world.mapId,
     origin = Journal.origin(g),
@@ -124,14 +127,52 @@ function Journal.session(Game, journal)
   end
   return Game.new(header.mode == 'expedition' and 'descent' or 'classic', header.map)
 end
-function Journal.record(g)
+local function close(g, journal, reason)
+  journal.final = Integrity.capture(g)
+  journal.stopped = reason
+  observers[journal]()
+  observers[journal] = nil
+  recordings[journal], sessions[g] = nil, nil
+  boundaries[journal] = nil
+  for _, name in ipairs(Journal.commands) do
+    g[name] = nil
+  end
+end
+function Journal.record(g, limits, onLimit)
   assert(not sessions[g], 'session is already being recorded')
-  local journal = { entries = {}, receipts = {}, header = Journal.header(g) }
+  limits = limits or require('src.content.tuning').recording
+  assert(limits.maxBytes > 0 and limits.maxCommands > 0, 'recording limits must be positive')
+  local journal = {
+    entries = {},
+    receipts = {},
+    header = Journal.header(g),
+    budget = Observation.copy(limits),
+    commands = 0,
+  }
+  journal.estimatedBytes = #Serialize.encode(journal)
+  local function append(list, value)
+    local index = #list + 1
+    list[index] = value
+    -- Account for the value, its numeric key and table punctuation. The final
+    -- integrity snapshot is added only at a boundary, so this is an estimate.
+    journal.estimatedBytes = journal.estimatedBytes
+      + #Serialize.encode(value)
+      + #tostring(index)
+      + 4
+  end
   observers[journal] = observe(g, function(receipt)
-    journal.receipts[#journal.receipts + 1] = receipt
+    append(journal.receipts, receipt)
   end)
   local entries = journal.entries
   local depth = 0
+  local pending = {}
+  boundaries[journal] = function(consume)
+    if depth > 0 then
+      pending[#pending + 1] = consume
+    else
+      consume(journal)
+    end
+  end
   local aimYaw, aimPitch
   local known = {}
   local function remember()
@@ -146,21 +187,33 @@ function Journal.record(g)
     local p = g.player
     if p.yaw ~= aimYaw or p.pitch ~= aimPitch then
       aimYaw, aimPitch = p.yaw, p.pitch
-      entries[#entries + 1] = { 'aim', p.yaw, p.pitch }
+      append(entries, { 'aim', p.yaw, p.pitch })
     end
     for i, path in ipairs(Journal.external) do
       local value = read(g, path)
       if value ~= known[i] then
-        entries[#entries + 1] = { 'set', path, value }
+        append(entries, { 'set', path, Observation.copy(value) })
       end
     end
     remember()
     return true
   end
+  local function limitReached()
+    if
+      journal.commands >= journal.budget.maxCommands
+      or journal.estimatedBytes >= journal.budget.maxBytes
+    then
+      close(g, journal, 'limit')
+      if onLimit then
+        onLimit(journal)
+      end
+    end
+  end
   remember()
   recordings[journal] = function()
     if sync() then
       journal.final = Integrity.capture(g)
+      limitReached()
     end
   end
   sessions[g] = journal
@@ -172,11 +225,9 @@ function Journal.record(g)
       if depth == 0 then
         sync()
         journal.final = nil
-        local args = { ... }
-        if name == 'update' then
-          args[2] = copyInput(args[2])
-        end
-        entries[#entries + 1] = { name, args }
+        local args = Observation.copy({ ... })
+        append(entries, { name, args })
+        journal.commands = journal.commands + 1
       end
       depth = depth + 1
       local results = { method(self, ...) }
@@ -186,6 +237,14 @@ function Journal.record(g)
         -- The aim a 'look' left is already in the journal as that command.
         if name == 'look' then
           aimYaw, aimPitch = self.player.yaw, self.player.pitch
+        end
+        -- All nested commands and their hit receipts are now complete. The
+        -- boundary may exceed the estimate by one command; never truncate it.
+        limitReached()
+        local completed = pending
+        pending = {}
+        for _, consume in ipairs(completed) do
+          consume(journal)
         end
       end
       return unpack(results)
@@ -198,12 +257,18 @@ function Journal.stop(g)
   local journal = sessions[g]
   if journal then
     Journal.flush(journal)
-    observers[journal]()
-    observers[journal] = nil
-    recordings[journal], sessions[g] = nil, nil
+    if sessions[g] then
+      close(g, journal, 'manual')
+    end
   end
-  for _, name in ipairs(Journal.commands) do
-    g[name] = nil
+end
+-- Automatic telemetry can run inside a direct shot, before VolleyResolved.
+-- Keep exports outside that transaction without dropping a single receipt.
+function Journal.whenComplete(journal, consume)
+  if boundaries[journal] then
+    boundaries[journal](consume)
+  else
+    consume(journal)
   end
 end
 -- An 'aim' entry sets the aim the session had (a bot or a tool turned the
@@ -211,6 +276,10 @@ end
 -- a 'set' entry a field the application set between commands.
 function Journal.replay(g, journal)
   local header = journal.header or {}
+  -- Replay explicitly enters the recorded input namespace. Ordinary sessions
+  -- cannot accept observations captured from a different session/generation.
+  g._observationSession = header.observationSession
+  g._observationGeneration = header.observationGeneration
   if header.version then
     assert(header.version == Journal.version, 'unsupported journal format')
     assert(
@@ -257,9 +326,9 @@ function Journal.replay(g, journal)
       if entry[1] == 'aim' then
         g.player.yaw, g.player.pitch = entry[2], entry[3]
       elseif entry[1] == 'set' then
-        write(g, entry[2], entry[3])
+        write(g, entry[2], Observation.copy(entry[3]))
       else
-        local args = entry[2]
+        local args = Observation.copy(entry[2])
         g[entry[1]](g, unpack(args, 1, table.maxn(args)))
       end
     end

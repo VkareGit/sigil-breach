@@ -3,7 +3,7 @@ local Reload = require('src.combat.reload')
 local Motion = require('src.feedback.weapon_motion')
 local Art = require('src.render.weapon_art')
 local Weapons = require('src.content.weapons')
-local Abilities = require('src.content.abilities')
+local AbilityFeedback = require('src.feedback.ability_feedback')
 function V.init()
   local paths = {}
   for _, id in ipairs(Art.ids) do
@@ -144,21 +144,9 @@ function V.handsShader(tint, h, image)
   s:send('pigmentBlend', look.pigmentBlend)
   love.graphics.setShader(s)
 end
--- The throwing hand after a 'throw' cast from Q (age since the cast).
+-- The gesture attached to the actual cast, whichever equipment slot made it.
 function V.throwFrame(g)
-  if not (g.player and g.player.abilityState) then
-    return nil
-  end
-  local ability, power = Abilities.slot(g, 1)
-  if not ability or ability.action.kind ~= 'throw' then
-    return nil
-  end
-  local age = ability.action.cooldown - (power.readyAt - (g.elapsed or 0))
-  if age < 0 or age >= 0.30 then
-    return nil
-  end
-  -- The simulation releases immediately, so never draw a second, held grenade.
-  return age < 0.10 and 3 or 4, age
+  return AbilityFeedback.frame(g)
 end
 function V.frame(g)
   return Reload.frame(g)
@@ -291,8 +279,9 @@ function V.draw(g, w, h, tint)
       effect.y
     )
   end
-  local throwFrame, throwAge = V.throwFrame(g)
+  local throwFrame, throwAge, throwDuration, handAtlas = V.throwFrame(g)
   if throwFrame then
+    assert(handAtlas == 'powder', 'equipment hand atlas not loaded: ' .. tostring(handAtlas))
     local tq = V.chargeQuads[throwFrame]
     local _, _, tw = tq:getViewport()
     local ts = h * 0.46 / tw
@@ -302,7 +291,7 @@ function V.draw(g, w, h, tint)
       V.chargeImage,
       tq,
       w * 0.30,
-      h + 11 + (throwAge / 0.30) ^ 2 * h * 0.30,
+      h + 11 + (throwAge / throwDuration) ^ 2 * h * 0.30,
       0,
       ts,
       ts,

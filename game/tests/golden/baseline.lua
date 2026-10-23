@@ -9,11 +9,15 @@
 -- 0.28 H3-H9: painted anatomy, material/corpse contact rules, continuous
 -- attacks and the pre-noise pose snapshot. Includes initial step zero and
 -- per-part receipt digests; HP, weapon power and cadence are unchanged.
+-- 0.31: impulses follow contact/velocity instead of the player's later position;
+-- powder uses circular pillars, analytic contacts and the physical leap anchor.
+-- Attribution restored HEAD hit_response + explosives IN MEMORY and reproduced
+-- all six original hashes. See work/qa-observation/golden-attribution.txt.
 return {
-  playtest = 'a47ba20f/92d5fc87',
-  human = 'ca158102/d4930751',
-  drill = '646035a7/05626a12',
-  playtestContacts = '948aa0e7/400',
-  humanContacts = '06b120fd/704',
-  drillContacts = '600c64b8/176',
+  playtest = '57ba111d/960187d6',
+  human = '98255b1c/361bb557',
+  drill = '4192c0b6/8200078d',
+  playtestContacts = 'aab9a46e/299',
+  humanContacts = '4be34edb/671',
+  drillContacts = '663b77fc/178',
 }

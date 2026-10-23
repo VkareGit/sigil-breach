@@ -1,0 +1,16 @@
+{
+  "version": "0.31",
+  "method": "built-in image_gen",
+  "selected": {
+    "ritual": {
+      "source": "exec-831c4981-0051-4e40-89b5-6ea70c661acd.png",
+      "file": "assets/art/ritual-medallion-v31.png",
+      "sha256": "58894b3dfb843722b11e840942283fa2ff893db311423d307fe58b6aa8047123",
+      "prompt": "Use case: stylized-concept. Production game texture, a single square transparent cutout of an old circular ritual pavement medallion viewed exactly from directly ABOVE, perfectly circular not perspective. Reference image is ONLY the established pigment/style, not content to copy. Fit circular object at 90% canvas width, transparent outer margin. Aged Italian late medieval fresco / painted plaster: soot-dark charcoal central disk, broad worn red-ochre annulus with sparse bone-ivory quatrefoil ornaments and tiny incised cardinal crosses, thin concentric uneven hand-painted ink bands. EMPTY QUIET CENTER covering middle 55% diameter for a historically sourced Goetic seal to be composited separately: NO generated sigil, NO letters, NO fake writing. Dark horror sacramental atmosphere with chipped sinopia and lime, broad matte pigment masses, subdued burgundy and grey umber. Flat design lying on a floor, no elevated bevel, no 3D render, no radial light rays, no glow, no floating embers, no drop shadow, no glossy metal, no excessively crisp scratch detail. Gently irregular worn outer edge with authentic alpha. Style must fit this existing faded fresco architecture in a 16bit inspired shooter.",
+      "notes": "Matte fresco base only. Historical seal images retain their original strokes and are composited by the renderer. No generated pseudo-writing."
+    }
+  },
+  "unresolved": {
+    "weaponGrip": "Two shotgun atlas edits rejected. User accepted the matte style of the single pose, requested correction of one malformed finger, and explicitly authorized local manual retouch after generator refusal. Retouched study: work/art-proposals-v31/shotgun-grip-retouched.png, with pixel-level preservation receipt. Full animation atlas is not integrated; existing production weapon PNGs retained."
+  }
+}

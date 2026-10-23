@@ -94,6 +94,8 @@ function Tests.run(_, renderer)
   end
   image:release()
   if renderer then
+    local previousProjection = renderer.projection
+    renderer.projection = renderer.projection or 1
     local lg = love.graphics
     local target = lg.newCanvas(64, 64)
     local depth = lg.newCanvas(64, 64, { format = 'depth24', readable = false })
@@ -135,6 +137,7 @@ function Tests.run(_, renderer)
     lg.pop()
     target:release()
     depth:release()
+    renderer.projection = previousProjection
     assert(ok, err)
   end
   return lines

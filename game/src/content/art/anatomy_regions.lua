@@ -5,6 +5,8 @@
 -- layouts: by annotation id; an atlas is annotated under its own id, and a
 -- creature may name another annotation of the same frames (appearance.regions).
 local Materials = require('src.content.ballistic_surfaces')
+local Sequences = require('src.content.ability_art')
+local resolved = setmetatable({}, { __mode = 'k' })
 local Anatomy = {
   layouts = {
     imp = require('src.content.art.anatomy.imp'),
@@ -14,10 +16,19 @@ local Anatomy = {
     boss = require('src.content.art.anatomy.boss'),
     furfur = require('src.content.art.anatomy.furfur'),
   },
-  abilities = {
-    leap = require('src.content.art.anatomy.leap'),
-    evade = require('src.content.art.anatomy.evade'),
-  },
+  abilities = setmetatable({}, {
+    __index = function(_, id)
+      local entry = Sequences.entries[id]
+      if not entry then
+        return nil
+      end
+      if not resolved[entry] then
+        resolved[entry] = type(entry.anatomy) == 'string' and require(entry.anatomy)
+          or entry.anatomy
+      end
+      return resolved[entry]
+    end,
+  }),
 }
 local ZONES = { head = true, torso = true, lower = true }
 local function polygonProblem(poly)

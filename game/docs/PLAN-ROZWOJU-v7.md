@@ -6,6 +6,25 @@ były częściowo błędne, a etapy H1 i H5 łamały zasady poniżej). Postęp e
 Oznaczenia: **[K]** potwierdzone w kodzie, **[R]** wcześniejszy pomiar, **[H]** hipoteza,
 **[T]** wymaga testu.
 
+Aktualizacja 2026-10-23 / 0.31: powyższy kierunek pozostaje aktualny. Hitscan
+otrzymał jawny kontrakt ostatnio pokazanej obserwacji z obsługą kliknięcia,
+przytrzymania, bufora i replay. Kontrolowane wnętrza sylwetek w ponownym pomiarze
+mają zero wcześniejszych chybień/zmian strefy, materiału i obrażeń. Nie jest to
+gwarancja zgodności wszystkich pikselowych krawędzi. Doszły walidacja definicji,
+katalog animacji/FX, kierunek impulsu od źródła i okrągłe kontakty granatu.
+Zakres Foundation 0.31 zachowuje menu i HUD 0.30 oraz istniejący poligon,
+bez nowego trybu. WAVE TRIAL sprawdza pojedynczą falę; pełny normalny cykl
+fal/sklepu/śmierci/echo nie jest oferowany z menu. HUD wielu slotów wyposażenia
+nie jest wdrożony i pozostaje zależnością przy dodawaniu kolejnego przedmiotu.
+Kontrakt AbilityCast i katalog animacji pozostają w kodzie.
+Pierwsze ładowanie galerii rozłożono na widoczne przygotowanie; koszt pamięci
+nadal jest mierzony. Malowane medale i podpisy galerii nie zmieniają walki.
+Styl pojedynczej nowej pozy chwytu został zaakceptowany. Jej ręczny retusz
+pozostaje warsztatowy; pełny atlas nie jest zintegrowany. Odbiór całego cyklu
+broni i feelingu przez człowieka nadal OTWARTY. Aktualne ograniczenia
+i dalszy odbiór: ODBIOR-0.31.txt; dowody: work/qa-v31. Poniższy opis 0.30 jest
+historią reprodukcji, a nie nieusuniętą usterką czasu strzału.
+
 Aktualizacja 2026-10-23 / 0.30: rozszerzalność domknięta w zakresie opisanym w
 ROZSZERZANIE.txt (broń jako kompozycja, dziedziczenie, dwa transporty, generic throw,
 zapis slotów08, dowód render/HUD/save/replay). Poprawiono prawdziwość leczenia/gardy,

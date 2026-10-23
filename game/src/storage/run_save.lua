@@ -9,6 +9,7 @@ local Weapons = require('src.content.weapons')
 local Shop = require('src.content.shop')
 local Expedition = require('src.content.expedition')
 local Abilities = require('src.content.abilities')
+local Id = require('src.core.id')
 -- Accept coordinates from the deferred expansion so load can relocate an echo
 -- without rejecting the save or discarding its souls. Active geometry is31x31.
 local legacyCoordinateLimit = 38
@@ -63,8 +64,8 @@ local function kit(s)
   local uses = {}
   if s and s ~= '' then
     for _, entry in ipairs(fields(s)) do
-      local id, n = entry:match('^([%w_]+):([^:]+)$')
-      assert(id and Abilities:has(id) and not uses[id], 'invalid kit')
+      local id, n = entry:match('^([^:]+):([^:]+)$')
+      assert(Id.valid(id) and Abilities:has(id) and not uses[id], 'invalid kit')
       uses[id] = number(n, 0, Abilities:get(id).capacity, true)
     end
   end
@@ -93,7 +94,7 @@ local function slots(s, uses)
   if s ~= '' then
     for _, id in ipairs(fields(s)) do
       assert(
-        id:match('^[%w_]+$') and Abilities:has(id) and not seen[id] and uses[id] ~= nil,
+        Id.valid(id) and Abilities:has(id) and not seen[id] and uses[id] ~= nil,
         'invalid equipment slot'
       )
       out[#out + 1], seen[id] = id, true
@@ -141,8 +142,8 @@ end
 local function arsenal(s)
   local loadout, weapons = {}, {}
   for _, entry in ipairs(fields(s)) do
-    local id, mag, reserve = entry:match('^([%w_]+):([^:]+):([^:]+)$')
-    assert(id and Weapons.registry:has(id) and not weapons[id], 'invalid arsenal')
+    local id, mag, reserve = entry:match('^([^:]+):([^:]+):([^:]+)$')
+    assert(Id.valid(id) and Weapons.registry:has(id) and not weapons[id], 'invalid arsenal')
     loadout[#loadout + 1] = id
     weapons[id] = rounds(id, mag, reserve)
   end
@@ -258,7 +259,7 @@ function P.decode(raw)
       checkpoint = inventory(f.checkpoint, f.checkarsenal, f.checkkit, f.checkslots, version)
     end
     -- The mode the save belongs to (SIGIL06 knew only the expedition).
-    assert(f.mode == nil or f.mode:match('^[%w_]+$'), 'invalid mode')
+    assert(f.mode == nil or Id.valid(f.mode), 'invalid mode')
     local d = {
       mode = f.mode or 'expedition',
       phase = f.phase,

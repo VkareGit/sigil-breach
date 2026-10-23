@@ -1,4 +1,4 @@
-SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.30
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.31
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
@@ -70,10 +70,33 @@ Nowa logika: Action.defineKind + odpowiedni handler, jeden moduł importowany
 przy starcie. Caster sprawdza istnienie handlera przed zużyciem zasobów.
 Tryb gry nadal wyposaża człowieka wyłącznie w powder; próbne spelle nie
 zmieniają uzgodnienia "człowiek bez magii".
-HUD Q i input są przeznaczone na pierwszy slot. Drugi slot już przechodzi
-cast/save/replay jako API. Gdy faktycznie dodamy drugie wyposażenie, trzeba
-zaprojektować jego kontrolkę i klawisz, zamiast upychać go w polu Q.
-Ładunki współdzielą obecnie oprawę powder; nowy model wymaga opisania artu.
+Klawisze Q/F/C wynikają z app/bindings. HUD pozostaje w układzie 0.30;
+prezentacja wielu slotów wyposażenia nie jest wdrożona. Dodanie przedmiotu
+do produkcyjnego zestawu wymaga osobnej pracy nad HUD i jego odbioru.
+AbilityCast wskazuje użyty przedmiot, więc animacja dłoni nie wybiera
+bezwarunkowo pierwszego slotu. Art dłoni wybiera pole hands; obecna oprawa
+powder jest wspólna dla fizycznych ładunków. Inny model potrzebuje atlasu
+i walidowanego wpisu, nie samej nazwy. Produkcja nadal wyposaża tylko Q.
+
+ANIMACJA I JEJ GEOMETRIA
+
+content/ability_art jest wspólnym katalogiem sekwencji: ścieżka, klatki,
+kotwice, sampler, anatomia i pigment. Loader, bake i poświadczenie masek
+przechodzą po tym samym katalogu. Dopisz dane i sampler zachowania;
+nie rozbudowuj list leap/evade w kilku niezależnych plikach.
+enemies/art_contract sprawdza referencje stworzeń przy kontroli zawartości.
+content/effect_art opisuje czas i klatki FX na istniejącym atlasie.
+Test art-extension dodaje trzecią sekwencję i FX, po czym je usuwa.
+Maski/poza nadal są danymi CPU. Dokładność strzału, kolizji ruchu i ataku
+pozostaje odrębna; identyfikator kształtu nie jest strefą obrażeń.
+
+WALIDACJA PRZED URUCHOMIENIEM
+
+Wspólny core/id obowiązuje rejestry, definicje i format zapisu. Używaj
+identyfikatorów alfanumerycznych z podkreśleniem (np. iron_rifle).
+Action.build odrzuca m.in. pulse <= 0, niespójne okna aktywności,
+niepoprawne czasy lotu/szarży i krzywe obrażeń. Nieudana rejestracja nie
+zostawia połowy definicji w katalogu. Testy: content-contracts.
 
 PROCES I DOWÓD GOTOWOŚCI
 

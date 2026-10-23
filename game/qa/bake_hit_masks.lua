@@ -12,41 +12,51 @@ local Provenance = require('qa.mask_provenance')
 local Serialize = require('src.core.serialize')
 local Sizes = require('src.content.art.sources')
 local Bake = {}
+local function raster(truth, region, path, linear)
+  local grid = Truth.grid
+  local data = love.image.newImageData(path)
+  local w, h = data:getDimensions()
+  data:release()
+  assert(
+    Sizes[path] and w == Sizes[path][1] and h == Sizes[path][2],
+    'update source dimensions before baking: ' .. path
+  )
+  local p = { region = region, path = path, width = w, height = h, linear = linear, live = true }
+  local rows = {}
+  for y = 0, grid - 1 do
+    local row, code = {}, 0
+    for x = 0, grid - 1 do
+      local class = truth:texelUncached(p, x, y)
+      code = code * 4 + (class == 'body' and 1 or (class == 'contour' and 2 or 0))
+      if x % 2 == 1 then
+        row[#row + 1] = string.format('%x', code)
+        code = 0
+      end
+    end
+    rows[#rows + 1] = table.concat(row)
+  end
+  local tokens = Codec.encode(rows, grid)
+  local decoded = Codec.decode(tokens, grid)
+  for y = 1, grid do
+    assert(decoded[y] == rows[y], 'mask codec round trip failed: ' .. path)
+  end
+  return tokens, decoded
+end
+-- The same baker for a single fixture frame; no output file or source edit.
+function Bake.frame(region, path, linear)
+  local truth = setmetatable({ data = {}, sizes = {} }, Truth)
+  local tokens, decoded = raster(truth, region, path, linear)
+  truth:release()
+  return decoded, tokens
+end
 function Bake.run(destination)
   local truth = setmetatable({ data = {}, sizes = {} }, Truth)
   local grid = Truth.grid
   local count = 0
   local sources = Provenance.capture(Provenance.frames())
-  -- One frame: its stored tokens.
   local function frame(region, path, linear)
-    local data = love.image.newImageData(path)
-    local w, h = data:getDimensions()
-    data:release()
-    assert(
-      w == Sizes[path][1] and h == Sizes[path][2],
-      'update source dimensions before baking: ' .. path
-    )
-    local p = { region = region, path = path, width = w, height = h, linear = linear, live = true }
-    local rows = {}
-    for y = 0, grid - 1 do
-      local row, code = {}, 0
-      for x = 0, grid - 1 do
-        local class = truth:texelUncached(p, x, y)
-        code = code * 4 + (class == 'body' and 1 or (class == 'contour' and 2 or 0))
-        if x % 2 == 1 then
-          row[#row + 1] = string.format('%x', code)
-          code = 0
-        end
-      end
-      rows[#rows + 1] = table.concat(row)
-    end
-    local tokens = Codec.encode(rows, grid)
-    local decoded = Codec.decode(tokens, grid)
-    for y = 1, grid do
-      assert(decoded[y] == rows[y], 'mask codec round trip failed: ' .. path)
-    end
     count = count + 1
-    return "'" .. tokens .. "'"
+    return "'" .. raster(truth, region, path, linear) .. "'"
   end
   local masks = { layouts = {}, abilities = {} }
   local function group(name, id, regions, pathOf, linearOf)
@@ -64,9 +74,9 @@ function Bake.run(destination)
       return region.sourcePath ~= Art.entries[kind].path
     end)
   end
-  for _, key in ipairs({ 'leap', 'evade' }) do
-    group('abilities', key, Ability[key].frames, function()
-      return Ability[key].path
+  for key, entry in Ability.each() do
+    group('abilities', key, entry.frames, function()
+      return entry.path
     end, function()
       return false
     end)

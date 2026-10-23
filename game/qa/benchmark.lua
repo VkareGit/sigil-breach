@@ -60,6 +60,7 @@ function B.run(output)
   collectgarbage('collect')
   local before = lg.getStats()
   local t = clock()
+  require('src.enemies.art_contract').validateAll()
   local r = require('src.render.renderer').new()
   local startup = (clock() - t) * 1000
   Atlas.load = load
@@ -268,13 +269,79 @@ function B.run(output)
       )
     )
     if not heavy then
+      if os.getenv('SIGIL_BENCH_PRELOAD') == '1' then
+        app:adopt(g)
+        local steps, decode, loadingFrames = 0, {}, {}
+        local start, memory = clock(), lg.getStats()
+        while app.loading do
+          local frameStart = clock()
+          lg.setCanvas(complete)
+          app:draw()
+          lg.setCanvas()
+          local pixel = complete:newImageData(1, 1, 0, 0, 1, 1)
+          pixel:release()
+          loadingFrames[#loadingFrames + 1] = (clock() - frameStart) * 1000
+          local loadStart = clock()
+          app:update(1 / 60)
+          decode[#decode + 1] = (clock() - loadStart) * 1000
+          steps = steps + 1
+          assert(steps < 100, 'gallery preparation did not converge')
+        end
+        local finalMemory = lg.getStats()
+        log(
+          string.format(
+            'gallery_preparation steps=%d wall_ms=%.3f step_median_ms=%.3f step_max_ms=%.3f loading_frame_max_ms=%.3f images_added=%d texture_added_MiB=%.3f',
+            steps,
+            (clock() - start) * 1000,
+            steps > 0 and percentile(decode, 0.5) or 0,
+            steps > 0 and percentile(decode, 1) or 0,
+            steps > 0 and percentile(loadingFrames, 1) or 0,
+            finalMemory.images - memory.images,
+            (finalMemory.texturememory - memory.texturememory) / 1048576
+          )
+        )
+        log(
+          'Preparation cost moved before field display and simulation, one missing PNG per visible loading step; total decode work and gallery memory are retained.'
+        )
+        captureComplete('gallery-loading')
+      end
+      -- Attribute first-entry submission without changing image construction.
+      -- newImage includes decode/upload/mip generation and possible driver wait.
+      local originalImage, imageLoads = lg.newImage, {}
+      lg.newImage = function(path, ...)
+        local started = clock()
+        local image = originalImage(path, ...)
+        imageLoads[#imageLoads + 1] = { tostring(path), (clock() - started) * 1000 }
+        return image
+      end
+      local Gallery = require('src.render.gallery')
+      local originalGallery, galleryTime = Gallery.draw, 0
+      Gallery.draw = function(...)
+        local started = clock()
+        originalGallery(...)
+        galleryTime = galleryTime + (clock() - started) * 1000
+      end
       t = clock()
       r:draw(g, 1280, 720)
       sync()
+      lg.newImage, Gallery.draw = originalImage, originalGallery
       log(
         string.format(
           'first_field_world_draw_after_menu_and_sync_ms=%.3f (new field, menu already rendered)',
           (clock() - t) * 1000
+        )
+      )
+      local imageTime = 0
+      for _, loaded in ipairs(imageLoads) do
+        imageTime = imageTime + loaded[2]
+        log(string.format('first_field_newImage_ms=%.3f path=%s', loaded[2], loaded[1]))
+      end
+      log(
+        string.format(
+          'first_field_gallery_submit_ms=%.3f image_create_total_ms=%.3f new_images=%d (nested inclusive times, not additive)',
+          galleryTime,
+          imageTime,
+          #imageLoads
         )
       )
       -- A new session on a warm renderer (entering the field from the menu).
@@ -288,6 +355,14 @@ function B.run(output)
           (clock() - t) * 1000
         )
       )
+      if os.getenv('SIGIL_BENCH_STARTUP_ONLY') == '1' then
+        complete:release()
+        log(
+          'Startup-only probe: stops after first field and one warm new session; no steady-state/FPS claim.'
+        )
+        write(output .. '/benchmark.txt', table.concat(lines, '\n') .. '\n')
+        return lines
+      end
     end
     for _ = 1, 30 do
       r:draw(g, 1280, 720)

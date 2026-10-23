@@ -58,6 +58,8 @@ function S.run(G, renderer)
   end
   g.state = 'menu'
   save('01-menu')
+  save('01-menu-4by3', 1024, 768)
+  save('01-menu-large', 1920, 1080)
   g.availableSave = { phase = 'preparing', wave = 3 }
   save('02-continue')
   g.state = 'confirm_new'
@@ -459,6 +461,10 @@ function S.run(G, renderer)
       g.player.x, g.player.z, g.player.yaw, g.player.pitch = v[2], v[3], v[4], v[5]
       g.view.presentationPrevious = nil
       save(v[1])
+      if v[1] == '66-gallery-pads' then
+        save('66-gallery-pads-4by3', 1024, 768)
+        save('66-gallery-pads-large', 1920, 1080)
+      end
     end
     -- 0.22 stations: the shooting range and the physics drills.
     Field.range(g)
@@ -805,6 +811,11 @@ function S.run(G, renderer)
     detailScenes
   )
   require('qa.reviews.creature_pigment').run(G, renderer, output)
+  require('qa.reviews.ritual_art').run(G, renderer, output)
+  local foundationChecks = require('qa.reviews.foundation_ui').run(G, renderer, output)
+  reports[#reports + 1] = 'Foundation UI / charge handoff: '
+    .. foundationChecks
+    .. ' passing checks; fresh slot, loading and ritual captures.'
   local f = assert(io.open(output .. '/render-results.txt', 'w'))
   reports[#reports + 1] = string.format(
     'v19 discharge and death: %d real shot/fall frames; distinct painted recoil, one landing per body, clear aiming area.',

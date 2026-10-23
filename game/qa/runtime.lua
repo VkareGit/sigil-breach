@@ -34,6 +34,7 @@ local captures = {
   ['--step-study'] = true,
   ['--mask-formats'] = true,
   ['--pigment-review'] = true,
+  ['--ritual-review'] = true,
 }
 function Q.captureFlag(flag)
   return type(flag) == 'string'
@@ -107,6 +108,8 @@ function Q:run(G, renderer, getGame, settings)
     truth:release()
   elseif self:has('--pigment-review') then
     require('qa.reviews.creature_pigment').run(G, renderer, self.output)
+  elseif self:has('--ritual-review') then
+    require('qa.reviews.ritual_art').run(G, renderer, self.output)
   elseif self:has('--mask-formats') then
     -- Mask storage formats measured (qa/mask_formats.lua).
     require('qa.mask_formats').run(self.output)

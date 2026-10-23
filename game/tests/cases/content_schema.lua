@@ -4,9 +4,11 @@ local Tests = {}
 function Tests.run(_, check)
   local A = require('src.content.enemies')
   local Attacks = require('src.enemies.actions')
+  local Action = require('src.content.defs.action')
   local Weapons = require('src.content.weapons')
   local Waves = require('src.content.waves')
   local Rules = require('src.combat.rules')
+  local ArtContract = require('src.enemies.art_contract')
   local T = require('src.content.tuning')
   local D = A.defaults
   local function positive(v)
@@ -37,6 +39,9 @@ function Tests.run(_, check)
   end
   local Styles = require('src.enemies.ai').styles
   for key, a in A.each() do
+    for _, problem in ipairs(ArtContract.problems(a)) do
+      bad(problem)
+    end
     if not Styles[a.move.style or 'keep'] then
       bad(key .. '.move.style ' .. tostring(a.move.style) .. ' is not a movement style')
     end
@@ -69,6 +74,10 @@ function Tests.run(_, check)
       local ids = {}
       for i, atk in ipairs(a.attacks or {}) do
         local name = key .. '.attacks[' .. i .. ']'
+        local valid, problem = pcall(Action.build, atk, name)
+        if not valid then
+          bad(tostring(problem))
+        end
         local kind = Attacks.kinds[atk.kind]
         if not kind then
           bad(name .. ' unknown kind ' .. tostring(atk.kind))
@@ -212,7 +221,6 @@ function Tests.run(_, check)
   -- 0.24: one action format for demons and the knight. Every delivery kind
   -- has a schema (content) and a behaviour: a demon kind (enemies/actions.lua)
   -- or a knight ability kind (combat/explosives.lua: throw).
-  local Action = require('src.content.defs.action')
   local Cast = require('src.combat.abilities')
   local knightKinds = Cast.kinds
   local unmatched = {}

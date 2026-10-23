@@ -1,5 +1,6 @@
 -- Painted summoning art follows existing spawner clocks; never advances them.
 local Atlas = require('src.render.atlas')
+local Ritual = require('src.render.ritual_art')
 local P = {}
 local Archetypes = require('src.content.enemies')
 P.colors = require('src.run.spawner').colors
@@ -86,7 +87,7 @@ function P.draw(r, gate)
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
   r:object(r.shadow, gate.x, 0.014, gate.z, 0, 0.9 + 0.8 * t, nil, 0.25 + 0.35 * t)
-  r:object(r.warning, gate.x, 0.033, gate.z, 0, 1.55 - 0.65 * t, color, 0.55 + 0.4 * t)
+  Ritual.draw(r, gate.x, 0.033, gate.z, (1.55 - 0.65 * t) * 2, 0, nil, nil, false, 0.55 + 0.4 * t)
   paint(r, gate.x, gate.z, gate.kind, P.frame(gate), 0.9 + 0.1 * t, 0.85 + 0.22 * t)
   love.graphics.pop()
 end
@@ -100,7 +101,7 @@ function P.arrival(r, g, e)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
-  r:object(r.warning, e.x, 0.028, e.z, 0, 1.4 - age, P.color(kind), (1 - age / 0.6) * 0.75)
+  Ritual.draw(r, e.x, 0.028, e.z, (1.4 - age) * 2, 0, nil, nil, false, (1 - age / 0.6) * 0.75)
   paint(r, e.x, e.z, kind, frame, 1 - (age / 0.6) ^ 2, 1.05 - age * 0.25)
   love.graphics.pop()
 end

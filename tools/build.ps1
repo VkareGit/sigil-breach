@@ -22,7 +22,7 @@ trap {
     if ($stageRoot -and (Test-Path -LiteralPath $stageRoot)) { Remove-Item -LiteralPath $stageRoot -Recurse -Force }
     break
 }
-foreach ($required in @('main.lua', 'conf.lua', 'assets\art\prompts-fresco-world-v12.json', 'assets\art\prompts-fresco-enemies-v12.json', 'assets\art\weapon-provenance-v16.json', 'assets\art\prompts-gui-v16.json', 'assets\fonts\painted-v16\prompts-v16.json', 'assets\art\prompts-detail-v17.json', 'assets\art\impact-scars-v17.png') + $documents) {
+foreach ($required in @('main.lua', 'conf.lua', 'assets\art\prompts-fresco-world-v12.json', 'assets\art\prompts-fresco-enemies-v12.json', 'assets\art\weapon-provenance-v16.json', 'assets\art\prompts-gui-v16.json', 'assets\fonts\painted-v16\prompts-v16.json', 'assets\art\prompts-detail-v17.json', 'assets\art\impact-scars-v17.png', 'assets\art\ritual-medallion-v31.png', 'assets\art\ritual-provenance-v31.json') + $documents) {
     if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot $required) -PathType Leaf)) { throw "Missing source file: $required" }
 }
 foreach ($required in @('love.exe', 'license.txt')) {

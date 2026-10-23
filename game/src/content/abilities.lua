@@ -19,6 +19,7 @@ Abilities:register(
     id = 'powder',
     name = 'POWDER CHARGE',
     tag = 'CHARGE',
+    hands = 'powder',
     capacity = 3,
     start = 2,
     empty = 'No charges. Restock at the Ember.',

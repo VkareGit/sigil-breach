@@ -5,6 +5,7 @@
 -- reserve, open action, ready time) is a record in the knight's arsenal
 -- (content/weapons.lua: W.newState), never a field of the knight.
 local Schema = require('src.core.schema')
+local Id = require('src.core.id')
 local Delivery = require('src.content.defs.delivery')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
@@ -150,6 +151,7 @@ function Weapon.define(def)
     merged.delivery = Schema.copy(own.delivery)
   end
   local built = Weapon.schema:build(merged, 'weapon ' .. tostring(def.id))
+  Id.check(built.id, 'weapon.id')
   built.delivery = Delivery.build(built.delivery, 'weapon ' .. built.id .. '.delivery')
   for channel = 1, 3 do
     local value = built.fire.flash[channel]

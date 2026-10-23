@@ -1,10 +1,10 @@
 -- Eight imp leap paintings: all coordinates traced in pixels of their cell of
 -- the sheet's columns x rows grid (each frame is exactly one cell, so cell
 -- pixels over the cell size are frame UV; the size comes from the sheet's
--- metadata: content/ability_art.lua, content/art/sources.lua).
+-- metadata: content/art/ability_frames.lua, content/art/sources.lua).
 -- Wings, tucked legs, the two horns and the attacking hands remain distinct.
 local Author = require('src.content.art.anatomy.author')
-local Sheet = require('src.content.ability_art').leap
+local Sheet = require('src.content.art.ability_frames').leap
 local Size = require('src.content.art.sources')[Sheet.path]
 local CELL_W, CELL_H = Size[1] / Sheet.columns, Size[2] / Sheet.rows
 local Leap = { frames = {} }

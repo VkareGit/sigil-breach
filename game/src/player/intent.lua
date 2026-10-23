@@ -2,6 +2,7 @@
 -- fields remain compatible with saves, the test field and old QA fixtures.
 -- Holding jump still repeats on landing; a quick tap survives for 120 ms.
 local I = { window = 0.12 }
+local Observation = require('src.combat.observation')
 local function active(g)
   return g.state == 'playing' and not g.map and not g.help
 end
@@ -10,12 +11,13 @@ local function validStep(dt)
 end
 function I.clear(g)
   g.fireBuffer = 0
+  g.fireCommand = nil
   if g.player then
     g.player.jumpBuffer = 0
   end
 end
 I.init = I.clear
-function I.queue(g, kind)
+function I.queue(g, kind, command)
   if not active(g) then
     return false
   end
@@ -23,6 +25,7 @@ function I.queue(g, kind)
     g.player.jumpBuffer = I.window
   elseif kind == 'fire' then
     g.fireBuffer = I.window
+    g.fireCommand = Observation.copy(command)
   else
     return false
   end
@@ -49,7 +52,7 @@ function I.jump(g, dt, held, onGround)
   p.jumpBuffer = math.max(0, (p.jumpBuffer or 0) - dt)
   return false
 end
-function I.fire(g, dt, held)
+function I.fire(g, dt, held, command)
   if not validStep(dt) then
     return false
   end
@@ -57,11 +60,21 @@ function I.fire(g, dt, held)
     I.clear(g)
     return false
   end
-  if (held or (g.fireBuffer or 0) > 0) and g:shoot() then
+  -- A held trigger follows the newest observation; a released tap retains the
+  -- exact observation and aim that were submitted with that press.
+  local submitted = g.fireCommand
+  if held then
+    submitted = command
+  end
+  if (held or (g.fireBuffer or 0) > 0) and g:shoot(submitted) then
     g.fireBuffer = 0
+    g.fireCommand = nil
     return true
   end
   g.fireBuffer = math.max(0, (g.fireBuffer or 0) - dt)
+  if g.fireBuffer == 0 then
+    g.fireCommand = nil
+  end
   return false
 end
 return I

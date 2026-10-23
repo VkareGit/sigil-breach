@@ -1,7 +1,8 @@
 -- Actual Judge shots aimed at interior painted head/torso points of the last
 -- displayed frame. Records the contact/material/damage outcome, not merely
 -- a root-position difference. This is a timing observation, not a fun score
--- or an assertion that every last-frame shot must hit a moving body.
+-- score. The submitted observation is the contract for direct/held/buffered
+-- hitscan; the current world and target protection still apply at resolution.
 local Field = require('src.run.test_field')
 local Presentation = require('src.render.presentation')
 local Surface = require('src.enemies.surface')
@@ -87,18 +88,34 @@ function Review.run(Game, truth, output, mode)
       local pressing = false
       local input = require('src.app.input').new()
       local app = { game = g, settings = {} }
+      local displayed = {}
+      local function present(shown)
+        input:present(g, shown)
+        displayed[input.observation.sequence] = {
+          surface = lastSurface,
+          place = lastPlace,
+          time = lastTime,
+          walk = lastWalk,
+          phase = lastPhase,
+        }
+      end
+      present(g)
       local stats =
         { shots = 0, valid = 0, misses = 0, zones = 0, materials = 0, damage = 0, excluded = 0 }
-      g.bus:on('sim', 'ShotFired', function()
+      g.bus:on('sim', 'ShotFired', function(event)
         stats.shots = stats.shots + 1
+        local command = assert(event.command, 'probe must submit an observation')
+        local observed = assert(displayed[command.observation.sequence])
+        local shownSurface, shownPlace = observed.surface, observed.place
         local ox, oy, oz = B.origin(g)
-        local dx, dy, dz = B.direction(g.player.yaw, g.player.pitch)
+        ox, oy, oz = unpack(command.observation.origin)
+        local dx, dy, dz = B.direction(command.yaw, command.pitch)
         local d, zone, contact =
-          Surface.ray(lastSurface, ox, oy, oz, dx, dy, dz, Weapons.inHand(g).range)
-        local t, u, v = truth.cross(lastPlace, ox, oy, oz, dx, dy, dz)
+          Surface.ray(shownSurface, ox, oy, oz, dx, dy, dz, Weapons.inHand(g).range)
+        local t, u, v = truth.cross(shownPlace, ox, oy, oz, dx, dy, dz)
         local class, edge
         if t then
-          class, edge = truth:classify(lastPlace, u, v)
+          class, edge = truth:classify(shownPlace, u, v)
         end
         local current = truth:place(g, enemy, {})
         expected = {
@@ -107,19 +124,19 @@ function Review.run(Game, truth, output, mode)
           contact = contact,
           valid = d and class == 'body' and not edge and zone ~= false,
           damage = contact and Damage.surface(Weapons.attack(g), enemy, d, contact) or 0,
-          age = (g.elapsed - lastTime) * 1000,
+          age = (g.elapsed - observed.time) * 1000,
           delta = math.sqrt(
-            (current.x - lastPlace.x) ^ 2
-              + (current.z - lastPlace.z) ^ 2
-              + (current.baseY - lastPlace.baseY) ^ 2
+            (current.x - shownPlace.x) ^ 2
+              + (current.z - shownPlace.z) ^ 2
+              + (current.baseY - shownPlace.baseY) ^ 2
           ),
-          changed = current.key ~= lastPlace.key,
-          frames = tostring(lastSurface.frame) .. ' -> ' .. tostring(current.frame),
+          changed = current.key ~= shownPlace.key,
+          frames = tostring(shownSurface.frame) .. ' -> ' .. tostring(current.frame),
           clocks = string.format(
             'walk %.9f -> %.9f; phase %.9f -> %.9f',
-            lastWalk or 0,
+            observed.walk or 0,
             enemy.walk or 0,
-            lastPhase or 0,
+            observed.phase or 0,
             enemy.phase or 0
           ),
         }
@@ -206,10 +223,11 @@ function Review.run(Game, truth, output, mode)
           pressing = false
         end
         local dt = schedule.dt[(frame - 1) % #schedule.dt + 1]
+        local heldCommand = input:command(g)
         wallTime, accumulator = wallTime + dt, math.min(0.20, accumulator + dt)
         while accumulator >= STEP do
           Presentation.capture(g)
-          g:update(STEP, { shoot = mode == 'held' and u ~= nil })
+          g:update(STEP, { shoot = mode == 'held' and u ~= nil, fireCommand = heldCommand })
           accumulator = accumulator - STEP
         end
         local shown = Presentation.sample(g, accumulator / STEP)
@@ -217,6 +235,7 @@ function Review.run(Game, truth, output, mode)
         lastPlace = truth:place(shown, shown.enemies[1], {})
         lastWalk, lastPhase = shown.enemies[1].walk, shown.enemies[1].phase
         lastTime = g.elapsed - STEP + accumulator
+        present(shown)
       end
       assert(
         stats.shots > 0 and stats.valid > 0,
@@ -252,13 +271,13 @@ function Review.run(Game, truth, output, mode)
   write('hit-outcomes-summary.csv', summary)
   write('hit-outcomes-differences.txt', differences)
   local description = {
-    'Last displayed pose versus actual Judge contact; 6 live creature kinds x 6 render schedules; motion off isolates pose timing.',
+    'Submitted displayed observation versus actual Judge contact; 6 live creature kinds x 6 render schedules; motion off isolates pose timing.',
     'Aim alternates interior head and torso pigment; trigger mode '
       .. mode
       .. ', normal ammunition/reload, durable target; fixed simulation 120 Hz.',
-    'Expected damage uses the displayed surface and current damage rules/target protection. Actual damage comes from VolleyResolved.',
-    'Excluded shots do not cross non-edge, hittable pigment in the last displayed frame at firing time (e.g. the player moved).',
-    'This measures delayed presentation outcomes, not a guarantee of hit registration or player enjoyment. Individual shots are in the matching hit-outcomes CSV.',
+    'Direct/held use the latest displayed observation. A released buffered tap retains its press-time observation and aim. Current protection and world cover remain authoritative.',
+    'Expected damage uses the submitted surface and current damage rules/target protection. Actual damage comes from VolleyResolved; excluded rays do not cross interior hittable pigment.',
+    'This tests the observation contract, not player enjoyment. Individual shots are in the matching hit-outcomes CSV.',
     string.format(
       'Cases %d; shots %d; valid interior %d; misses %d; zone changes %d; material changes %d; damage differences >0.01 %d; excluded %d.',
       total.cases,

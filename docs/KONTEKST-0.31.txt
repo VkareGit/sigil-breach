@@ -1,0 +1,37 @@
+SIGIL: BREACH / kontekst Foundation 0.31 / 2026-10-23
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach
+Aktywne źródła: game. START-HERE.txt wskazuje aktualne dokumenty.
+outputs to snapshoty wydań; zmiana kodu nie zmienia istniejącego EXE.
+
+Jedna arena testowa, dwie bronie fizyczne i sześć obecnych demonów.
+Szybki Doom z czytelnymi atakami/unikiem i przygotowaniami między falami.
+Człowiek bez magii. Kampania, mapy, loot i świat na później.
+Styl: żywy mroczny fresk; Giovanni da Modena Inferno, Michał Anioł Sąd
+Ostateczny, piekło Boscha, Sąd Ostateczny Memlinga. Matowe pigmenty,
+ochry/umbry/cegła/tynk, bitmapowe glify. Zachować zatwierdzone modele
+demonów i ich pigment, także między klatkami umiejętności.
+
+0.30: kompozycja broni/dostaw/pakietów/reload, extends, finite projectiles,
+generic throw, sloty SIGIL08 i migracja 06/07, rozszerzenia tylko w QA.
+0.31: kontrakt ostatnio pokazanej obserwacji dla hitscan z replay,
+impuls zgodny ze źródłem, okrągłe kolumny w locie Q, walidacja danych,
+katalog animacji/FX i wybór animacji dłoni z rzeczywistego AbilityCast.
+Menu i HUD pozostają jak w 0.30. Poligon nie otrzymuje nowego trybu;
+WAVE TRIAL nadal oznacza pojedynczą wybraną falę sandboxu. Pełny normalny
+cykl fal/sklepu/śmierci/echo nie jest oferowany w menu.
+HUD wielu slotów wyposażenia nie jest wdrożony; pozostaje zależnością
+przy dodawaniu nowego wyposażenia. Kontrakty danych i AbilityCast zostają.
+Pierwsze ładowanie galerii etapowane na widocznej planszy; koszt nadal
+istnieje, lecz nie wpada w jedną pierwszą klatkę pola.
+Nowa malowana medalia zastępuje pomarańczowe pierścienie padów i podstaw
+portali. Pieczęcie oryginalne, czytelny pojedynczy podpis galerii.
+
+Aktualne dowody: work/qa-v31; raport EXE package-verification.txt.
+Dokumenty game/docs/ZMIANY-0.31.txt, ODBIOR-0.31.txt, ROZSZERZANIE.txt.
+Nie utożsamiać PASS z frajdą. Odbiór człowieka B2 nadal otwarty.
+Chwyt całego cyklu broni nadal otwarty. Użytkownik zaakceptował styl nowej
+pojedynczej malarskiej pozy i ręczny retusz po blokadzie generatora.
+Ta praca pozostaje w warsztacie; pełny atlas nie jest zintegrowany z grą.
+Produkcyjne PNG broni zachowane. Nie podmieniać starego idle pojedynczą
+nową klatką. Wymagane są wyraźne dłonie i szerokie matowe plamy, bez
+połysku i nadmiaru drobnych ostrych rys.

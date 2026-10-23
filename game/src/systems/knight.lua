@@ -50,7 +50,7 @@ Knight.contact = {
 Knight.trigger = {
   name = 'trigger',
   run = function(g, dt, input)
-    Intent.fire(g, dt, input.shoot)
+    Intent.fire(g, dt, input.shoot, input.fireCommand)
   end,
 }
 return Knight

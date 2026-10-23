@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'shot-observation',
+    title = 'Explicit displayed shot observations',
+    module = 'tests.cases.shot_observation',
+  },
+  {
     id = 'sphere-cast',
     title = 'Finite projectile world contacts',
     module = 'tests.cases.sphere_cast',
@@ -36,6 +41,31 @@ Suite.registry = {
     module = 'tests.cases.summoning_art',
   },
   { id = 'ability-art', title = 'Painted ability poses', module = 'tests.cases.ability_art' },
+  {
+    id = 'charge-presentation',
+    title = 'Visible physical charge handoff',
+    module = 'tests.cases.charge_presentation',
+  },
+  {
+    id = 'ritual-art',
+    title = 'Matte ritual source, orientation, light and depth',
+    module = 'tests.cases.ritual_art',
+  },
+  {
+    id = 'gallery-loading',
+    title = 'Bounded gallery loading transition',
+    module = 'tests.cases.gallery_loading',
+  },
+  {
+    id = 'art-extension',
+    title = 'Registered painted sequence and effect',
+    module = 'tests.cases.art_extension',
+  },
+  {
+    id = 'equipment-presentation',
+    title = 'Equipped slots and cast presentation',
+    module = 'tests.cases.equipment_presentation',
+  },
   {
     id = 'core',
     title = 'Core combat and application regressions',
@@ -135,6 +165,11 @@ Suite.registry = {
     module = 'tests.cases.replay',
   },
   {
+    id = 'recording-budget',
+    title = 'Bounded optional command recording',
+    module = 'tests.cases.recording_budget',
+  },
+  {
     id = 'extension',
     title = 'Extension points: a demon, an attack, a mode and a screen',
     module = 'tests.cases.extension',
@@ -205,6 +240,16 @@ Suite.registry = {
     module = 'tests.cases.weapon_contracts',
   },
   -- Last: the simulation must reproduce the golden master bit for bit.
+  {
+    id = 'impact-origin',
+    title = 'Physical source of impulses',
+    module = 'tests.cases.impact_origin',
+  },
+  {
+    id = 'content-contracts',
+    title = 'Content definition contracts',
+    module = 'tests.cases.content_contracts',
+  },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }
 

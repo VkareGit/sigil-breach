@@ -394,22 +394,25 @@ local function fitKind(G, truth, kind, out)
   }
 end
 -- Order of contacts: rays over two drawn demons (or a pillar and a demon);
--- the truth is the nearest painted plane or the nearer wall.
+-- the truth is the nearest hittable painted plane or the nearer wall. Loose
+-- cloth/effects explicitly authored as passthrough are not body occluders.
 local function orderCheck(truth, g, bodies, label_)
   local ox, oy, oz = B.origin(g)
   local prepared = B.prepare(g)
-  local places = {}
+  local places, surfaces = {}, {}
   for i, e in ipairs(bodies) do
     places[i] = truth:place(g, e, {})
+    surfaces[i] = Surface.prepare(g, e)
   end
-  local result = { rays = 0, agree = 0, wrongBody = 0, ghost = 0, missed = 0, edge = 0 }
+  local result =
+    { rays = 0, agree = 0, wrongBody = 0, ghost = 0, missed = 0, edge = 0, decorative = 0 }
   for _, p in ipairs(places) do
     for c = 0, MATRIX.cols - 1 do
       for r = 0, MATRIX.rows - 1 do
         local wx, wy, wz = Truth.world(p, (c + 0.5) / MATRIX.cols, (r + 0.5) / MATRIX.rows)
         local dx, dy, dz = unit(wx - ox, wy - oy, wz - oz)
         local wall = B.world(g.world, ox, oy, oz, dx, dy, dz, 1000)
-        local best, owner, uncertain = wall, nil, false
+        local best, owner, uncertain, decorative = wall, nil, false, false
         for i, q in ipairs(places) do
           local d, u, v = Truth.cross(q, ox, oy, oz, dx, dy, dz)
           if d and d < best then
@@ -417,13 +420,21 @@ local function orderCheck(truth, g, bodies, label_)
             if edge then
               uncertain = true
             end
-            if class ~= 'air' then
+            local surface = surfaces[i]
+            local sourceU = surface.mirror > 0.5 and 1 - u or u
+            local part = Surface.part(surface.parts, sourceU, 1 - v)
+            if class ~= 'air' and part and part.hittable == false then
+              decorative = true
+            elseif class ~= 'air' then
               best, owner = d, bodies[i]
             end
           end
         end
         local target = B.traceVector(g, dx, dy, dz, 1000, prepared)
         result.rays = result.rays + 1
+        if decorative and not uncertain then
+          result.decorative = result.decorative + 1
+        end
         if uncertain then
           result.edge = result.edge + 1
         elseif target == owner then
@@ -439,17 +450,20 @@ local function orderCheck(truth, g, bodies, label_)
     end
   end
   return string.format(
-    '%-40s rays %5d  agree %5.1f %%  other body %4d  ghost %4d  missed %4d  edge %4d',
+    '%-40s rays %5d  agree %5.1f %%  other body %4d  ghost %4d  missed %4d  edge %4d  decorative rays %4d',
     label_,
     result.rays,
     percent(result.agree, result.rays - result.edge),
     result.wrongBody,
     result.ghost,
     result.missed,
-    result.edge
+    result.edge,
+    result.decorative
   ),
     result
 end
+-- Also exercised by the focused observation regression, without a full atlas sweep.
+S.orderCheck = orderCheck
 local function frozenField(G)
   local g = Field.new(G)
   g.testing = true
@@ -839,7 +853,8 @@ function S.run(output, G, renderer)
     end
   end
   shots[#shots + 1] = ''
-  shots[#shots + 1] = 'Order of contacts (truth: nearest painted plane, or the wall first):'
+  shots[#shots + 1] =
+    'Order of contacts (truth: nearest hittable painted plane, or the wall first; decorative rays counted separately):'
   orderScenarios(G, truth, shots)
   shots[#shots + 1] = ''
   shots[#shots + 1] =

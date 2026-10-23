@@ -75,6 +75,43 @@ function Tests.run(check)
     'ordnance: descending charge hits the column top rather than falling inside it',
     b.y >= 4.8 and b.vy > 0
   )
+  for _, z in ipairs({ 10.46, 10.48 }) do
+    local pillar = world()
+    pillar.map[10][10] = 2
+    local free, freeBody = charge(nil, { x = 9, z = z, vx = 10, vy = 0, vz = 0 })
+    g, b = charge(pillar, { x = 9, z = z, vx = 10, vy = 0, vz = 0 })
+    X.update(free, 0.2)
+    X.update(g, 0.2)
+    check(
+      'ordnance: tangent and square-corner paths clear the round pillar ' .. z,
+      near(b.x, freeBody.x) and near(b.y, freeBody.y) and near(b.vx, freeBody.vx)
+    )
+  end
+  w = world()
+  w.map[10][10] = 2
+  g, b = charge(w, { x = 9, z = 10.3, vx = 10, vy = 0, vz = 0 })
+  local contactX = 10 - math.sqrt(0.46 ^ 2 - 0.3 ^ 2)
+  local normalX, normalZ = (contactX - 10) / 0.46, 0.3 / 0.46
+  local coefficients = require('src.content.tuning').explosives
+  local reflectedX = (10 - coefficients.bounce * 10 * normalX ^ 2) * coefficients.keep
+  local reflectedZ = -coefficients.bounce * 10 * normalX * normalZ * coefficients.keep
+  X.update(g, 0.1)
+  check(
+    'ordnance: glancing pillar strike reflects about its radial normal',
+    near(b.vx, reflectedX) and near(b.vz, reflectedZ) and b.z > 10.3
+  )
+  fine, fb = charge(w, { x = 9, z = 10.3, vx = 10, vy = 0, vz = 0 })
+  evolve(fine, 0.1, 120)
+  check(
+    'ordnance: radial collision is independent of step subdivision',
+    near(b.x, fb.x) and near(b.y, fb.y) and near(b.z, fb.z)
+  )
+  g, b = charge(w, { x = 10.48, z = 10.48, y = 6, vx = 0, vy = -3, vz = 0 })
+  X.update(g, 0.3)
+  check(
+    'ordnance: a fall outside the circular cap does not land on its square bounds',
+    b.y < 4.8 and b.vy < 0
+  )
   g, b = charge(nil, { x = 10, y = 2, z = 10, vx = 10, vy = 0, vz = 10 })
   g.world.map[11][11] = 1
   X.update(g, 0.1)
@@ -113,6 +150,12 @@ function Tests.run(check)
       and near(b.y, fb.y)
       and near(b.x, fb.x)
       and near(b.vy, fb.vy)
+  )
+  local leaveAt = -math.log(1 - 6 * 0.46 / 6) / 6
+  local fallFor = 0.5 - leaveAt
+  check(
+    'ordnance: circular support ends at radius 0.46, not at the square cell edge',
+    near(b.y, 4.80001 - 0.5 * G * fallFor * fallFor) and near(b.vy, -G * fallFor)
   )
   local explode = X.explode
   local count, position = 0, nil

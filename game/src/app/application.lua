@@ -53,11 +53,27 @@ end
 -- a bug report that replays exactly: session/journal.lua), and the garbage
 -- of the one before collected now.
 function Application:adopt(game)
+  self.loading = nil
+  self.discardLoadingDelta = nil
+  self.input:forget(self.game)
+  self.input:forget(game)
   self.game = game
   self:applySettings()
+  if game.testField and self.renderer then
+    local remaining = require('src.render.gallery').pending(self.renderer)
+    if remaining > 0 then
+      self.loading = { remaining = remaining, total = remaining, shown = false }
+      self.accumulator = 0
+      self.input:reset(true)
+      love.mouse.setRelativeMode(false)
+    end
+  end
   if self:has('--record') then
     self.journals = self.journals or setmetatable({}, { __mode = 'k' })
-    self.journals[game] = self.journals[game] or require('src.session.journal').record(game)
+    self.journals[game] = self.journals[game]
+      or require('src.session.journal').record(game, nil, function()
+        game:notify('Recording stopped: limit reached. F9 saves the completed recording.', 8)
+      end)
     self.journal = self.journals[game]
   end
   Application.settle()
@@ -77,12 +93,19 @@ function Application:reset(start)
 end
 
 -- Write the journal of the active session (with --record) to the save folder.
-function Application:writeJournal()
-  if not self.journal then
+function Application:writeJournal(game)
+  local journal = game and self.journals and self.journals[game]
+  if not game then
+    journal = self.journal
+  end
+  if not journal then
     return false
   end
   local name = 'journal-' .. os.time() .. '.txt'
-  love.filesystem.write(name, require('src.session.journal').encode(self.journal))
+  local Journal = require('src.session.journal')
+  Journal.whenComplete(journal, function(completed)
+    love.filesystem.write(name, Journal.encode(completed))
+  end)
   return name
 end
 -- F9: the session's measurements to telemetry.txt (src/app/session_report.lua;
@@ -101,7 +124,23 @@ function Application:saveSettings()
 end
 
 function Application:action(id)
-  return Commands.dispatch(self, id)
+  if self.loading then
+    if id ~= 'loading_cancel' and id ~= 'field_leave' then
+      return false
+    end
+    self.loading = nil
+    id = 'field_leave'
+  end
+  local before = self.game
+  local state, map, help = before and before.state, before and before.map, before and before.help
+  local result = Commands.dispatch(self, id)
+  if
+    self.game ~= before
+    or (self.game and (self.game.state ~= state or self.game.map ~= map or self.game.help ~= help))
+  then
+    self.input:forget(self.game)
+  end
+  return result
 end
 
 function Application:load(arguments)
@@ -122,15 +161,13 @@ function Application:load(arguments)
   require('src.audio.soundscape').music = self.settings.music
   love.audio.setVolume(self.settings.muted and 0 or 0.7)
   UI.init()
+  require('src.enemies.art_contract').validateAll()
   self.renderer = Renderer.new()
   self.renderer:resize(love.graphics.getDimensions())
   -- With --record, the journal of the session follows each telemetry entry.
   SessionReport.afterWrite = function(g)
     if self.journals and self.journals[g] then
-      love.filesystem.write(
-        'journal-' .. os.time() .. '.txt',
-        require('src.session.journal').encode(self.journals[g])
-      )
+      self:writeJournal(g)
     end
   end
   self:reset(false)
@@ -162,7 +199,30 @@ function Application:update(dt)
   if not self.game then
     return
   end
-  local input = self.input:sample()
+  if self.loading then
+    -- Show the loading page before any decoding, then one image per draw.
+    if self.loading.shown then
+      local remaining = require('src.render.gallery').preloadStep(self.renderer)
+      self.loading.remaining, self.loading.shown = remaining, false
+      if remaining == 0 then
+        if self.loading.focused == false and self.game.state == 'playing' then
+          self.game.state = 'paused'
+        end
+        self.loading = nil
+        self.input:forget(self.game)
+        self.input:reset(true)
+        self.accumulator, UI.focus = 0, 1
+        self.discardLoadingDelta = true
+        love.mouse.setRelativeMode(self.game.state == 'playing')
+      end
+    end
+    return
+  end
+  if self.discardLoadingDelta then
+    self.discardLoadingDelta = nil
+    return
+  end
+  local input = self.input:sample(self.game)
   self.accumulator = math.min(0.20, self.accumulator + dt)
   while self.accumulator >= 1 / 120 do
     Presentation.capture(self.game)
@@ -182,6 +242,11 @@ function Application:draw()
     return
   end
   local w, h = love.graphics.getDimensions()
+  if self.loading then
+    require('src.ui.loading').draw(UI, self.loading.remaining, self.loading.total, w, h)
+    self.loading.shown = true
+    return
+  end
   local shown = Presentation.sample(game, self.accumulator * 120)
   self.renderer:draw(shown, w, h)
   if self:has('--screenshot') then
@@ -192,6 +257,9 @@ function Application:draw()
   else
     UI.draw(shown, w, h, self.settings)
   end
+  -- Commit only a view that was actually submitted for display. This plain
+  -- geometry belongs to the input adapter, never to mutable gameplay/view.
+  self.input:present(game, shown)
   if self:has('--screenshot') and not self.screenshotCaptured and game.time > 0.1 then
     self.screenshotCaptured = true
     love.graphics.captureScreenshot(function(data)

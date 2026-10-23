@@ -3,4 +3,4 @@
 -- (app/release.lua). One value, imported, never assigned from outside, so a
 -- journal recorded by the game replays in a test or a tool that never loads
 -- the application.
-return { version = '0.30' }
+return { version = '0.31' }

@@ -297,13 +297,16 @@ function B.prepare(g)
   end
   return bodies
 end
-function B.traceVector(g, dx, dy, dz, range, bodies)
+function B.traceVector(g, dx, dy, dz, range, bodies, origin)
   local ox, oy, oz = B.origin(g)
+  if origin then
+    ox, oy, oz = unpack(origin)
+  end
   local distance, normal, kind = B.world(g.world, ox, oy, oz, dx, dy, dz, range)
   local target, part, contact
   for _, entry in ipairs(bodies or g.enemies) do
     local e = bodies and entry.enemy or entry
-    if B.blocks(e) then
+    if (bodies and entry.observed) or B.blocks(e) then
       local d, segment, receipt = B.body(
         g,
         e,
@@ -335,13 +338,16 @@ function B.traceVector(g, dx, dy, dz, range, bodies)
   return target, distance, x, y, z, kind, normal, part, contact
 end
 -- Every body along the ray before the wall, nearest first (penetration).
-function B.traceAll(g, dx, dy, dz, range, bodies)
+function B.traceAll(g, dx, dy, dz, range, bodies, origin)
   local ox, oy, oz = B.origin(g)
+  if origin then
+    ox, oy, oz = unpack(origin)
+  end
   local wall = B.world(g.world, ox, oy, oz, dx, dy, dz, range)
   local hits = {}
   for _, entry in ipairs(bodies or g.enemies) do
     local e = bodies and entry.enemy or entry
-    if B.blocks(e) then
+    if (bodies and entry.observed) or B.blocks(e) then
       local d, part, contact = B.body(
         g,
         e,

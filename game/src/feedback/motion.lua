@@ -7,11 +7,13 @@ local MovementImpact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
 local Motion = {}
 function Motion.init(g)
+  g.view.abilityCast = nil
   WeaponMotion.init(g)
   MovementImpact.init(g)
   Weight.init(g)
 end
 function Motion.clear(g)
+  g.view.abilityCast = nil
   Weight.clearMotion(g)
   WeaponMotion.init(g, true)
 end

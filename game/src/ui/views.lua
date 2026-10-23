@@ -128,8 +128,10 @@ Views:get('menu').controls = function()
     { id = 'help', label = 'HELP  [ F1 ]', x = 72, y = 482, w = 194, h = 46 },
     { id = 'settings', label = 'SETTINGS', x = 270, y = 482, w = 194, h = 46 },
     { id = 'quit', label = 'QUIT', x = 72, y = 546, w = 194, h = 42 },
-    { id = 'field_skirmish', label = 'QUICK SKIRMISH', x = 612, y = 444, w = 526, h = 44 },
-    { id = 'field_start', label = 'PROVING GROUND [ F2 ]', x = 612, y = 498, w = 526, h = 44 },
+    -- Under the proving-ground panel, not over its station list (this menu is
+    -- the classic test session's; the expedition's own menu: ui/descent.lua).
+    { id = 'field_skirmish', label = 'QUICK SKIRMISH', x = 580, y = 620, w = 290, h = 44 },
+    { id = 'field_start', label = 'PROVING GROUND [ F2 ]', x = 880, y = 620, w = 290, h = 44 },
   }
 end
 Views:get('paused').controls = pageControls

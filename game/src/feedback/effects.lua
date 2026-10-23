@@ -1,20 +1,20 @@
 local E = { limits = { effects = 48, decals = 40, smoke = 8 } }
-local durations = { stone = 0.28, blood = 0.32, smoke = 0.52, arc = 0.24 }
-local rows = { stone = 0, blood = 1, smoke = 2, arc = 3 }
+local Art = require('src.content.effect_art')
 function E.emit(g, kind, x, y, z, size, options)
   g.view.effects = g.view.effects or {}
-  local life = assert(durations[kind])
+  local sequence = Art:get(kind)
+  local life = sequence.duration
   local effects = g.view.effects
   local recycle
-  if kind == 'smoke' then
+  if sequence.limit then
     local count, oldest = 0
     for i, e in ipairs(effects) do
-      if e.kind == 'smoke' then
+      if e.kind == kind then
         count = count + 1
         oldest = oldest or i
       end
     end
-    if count >= E.limits.smoke then
+    if count >= sequence.limit then
       recycle = table.remove(effects, oldest)
     end
   end
@@ -61,9 +61,7 @@ function E.update(g, dt)
     e.x = e.x + (e.vx or 0) * dt
     e.y = e.y + (e.vy or 0) * dt
     e.z = e.z + (e.vz or 0) * dt
-    if e.kind == 'smoke' then
-      e.y = e.y + dt * 0.24
-    end
+    e.y = e.y + dt * (Art:get(e.kind).rise or 0)
     if e.age < e.duration then
       g.view.effects[write] = e
       write = write + 1
@@ -91,6 +89,10 @@ function E.update(g, dt)
   end
 end
 function E.frame(e)
-  return rows[e.kind] * 4 + 1 + math.min(3, math.floor(e.age / e.duration * 4))
+  local frames = Art:get(e.kind).frames
+  return frames[1 + math.min(#frames - 1, math.max(0, math.floor(e.age / e.duration * #frames)))]
+end
+E.profile = function(e)
+  return Art:get(e.kind)
 end
 return E

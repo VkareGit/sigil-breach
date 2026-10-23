@@ -4,6 +4,7 @@
 -- (deterministic iteration). An optional check(entry, id) validates an
 -- entry when it is registered (schemas, required functions).
 local Class = require('src.core.class')
+local Id = require('src.core.id')
 local Registry = Class:extend('Registry')
 function Registry:init(name, check)
   self.name = name
@@ -12,7 +13,7 @@ function Registry:init(name, check)
   self.order = {}
 end
 function Registry:register(id, entry)
-  assert(type(id) == 'string', self.name .. ': id must be a string')
+  Id.check(id, self.name .. '.id')
   assert(entry ~= nil, self.name .. ': empty entry ' .. id)
   if self.check then
     self.check(entry, id)

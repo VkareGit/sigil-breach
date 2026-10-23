@@ -45,10 +45,10 @@ tests can reconstruct the silhouettes from the original raster.
 
 Rebuild from project root:
   $env:SIGIL_FONT_SOURCE='<project>/game'
-  & '<project>/toolchain/love-11.5-win64/lovec.exe' game/tools/bake_type_v16
+  & '<project>/toolchain/love-11.5-win64/lovec.exe' tools/art/bake_type_v16
 
 Offscreen visual/source review:
-  & '<project>/toolchain/love-11.5-win64/lovec.exe' game/tools/review_type_v16
+  & '<project>/toolchain/love-11.5-win64/lovec.exe' tools/art/review_type_v16
 
 The importer disables graphics/audio; the specimen tool is hidden and muted,
 uses no production saves and does not interact with desktop mouse or keyboard.

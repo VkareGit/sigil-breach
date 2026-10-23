@@ -5,6 +5,7 @@ local Weight = require('src.feedback.weight')
 local Gallery = require('src.render.gallery')
 local Archetypes = require('src.content.enemies')
 local Portals = require('src.render.portals')
+local Ritual = require('src.render.ritual_art')
 local Weapon = require('src.render.weapon')
 local WeaponArt = require('src.render.weapon_art')
 local Pose = require('src.enemies.pose')
@@ -105,6 +106,7 @@ function R.new()
     'static'
   )
   Portals.init(r)
+  Ritual.init(r)
   local v = {}
   M.sphere(v, 0, 0, 0, 0.09, 0.09, 0.09, { 1, 1, 1, 1 }, 6)
   r.orb = M.finish(v)
@@ -329,6 +331,7 @@ function R:prop(g, frame, x, y, z, scale, bright)
 end
 function R:effect(g, e)
   local frame = FX.frame(e)
+  local profile = FX.profile(e)
   local s = self.spriteShader
   local size = e.size
   local region = self.effectFrames[frame]
@@ -337,11 +340,7 @@ function R:effect(g, e)
   s:send('silhouette', 0)
   s:send('spriteStretch', self:vec2(region.width, region.height))
   s:send('soft', 1)
-  s:send(
-    'effectAlpha',
-    math.min(1, (1 - e.age / e.duration) * 3)
-      * (e.kind == 'smoke' and 0.17 or (e.kind == 'arc' and 0.78 or 0.60))
-  )
+  s:send('effectAlpha', math.min(1, (1 - e.age / e.duration) * 3) * profile.alpha)
   s:send('frameRect', region.rect)
   s:send('objectPos', self:vec3(e.x, e.y - size * region.height * 0.5, e.z))
   s:send('objectYaw', math.atan2(g.player.x - e.x, g.player.z - e.z))
@@ -349,7 +348,7 @@ function R:effect(g, e)
   s:send('lean', 0)
   s:send('pain', 0)
   s:send('mirror', 0)
-  s:send('brightness', e.kind == 'arc' and 1.12 or 1)
+  s:send('brightness', profile.brightness)
   love.graphics.draw(self.sprite)
   s:send('effectTint', WHITE)
 end
@@ -405,21 +404,7 @@ function R:weaponTint(g)
   return c
 end
 function R:seal(g, seal)
-  local image = Goetic.image(seal.name)
-  if not image then
-    return
-  end
-  local shader = self.goeticShader
-  self:cameraUniforms(shader)
-  shader:send('objectPos', self:vec3(seal.x, 1.25 + math.sin(g.time * 2) * 0.035, seal.z))
-  shader:send('objectYaw', math.atan2(g.player.x - seal.x, g.player.z - seal.z))
-  shader:send('objectScale', 1.2)
-  local tint = seal.active and { 0.22, 0.25, 0.22 }
-    or { 0.38 + seal.color[1] * 0.50, 0.31 + seal.color[2] * 0.46, 0.20 + seal.color[3] * 0.38 }
-  shader:send('pigment', tint)
-  love.graphics.setShader(shader)
-  self.sprite:setTexture(image)
-  love.graphics.draw(self.sprite)
+  Ritual.seal(self, g, seal)
 end
 function R:pickup(g, a)
   local name = a.kind == 'health' and 'health' or (a.kind == 'ammo' and 'ammo' or 'soul')

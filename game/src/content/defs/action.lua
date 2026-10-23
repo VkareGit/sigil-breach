@@ -129,11 +129,14 @@ fan.rageCount = { type = 'number', min = 1 }
 fan.spread = { type = 'number', min = 0 }
 fan.line = { type = 'table', schema = Line }
 Action.kinds:register('fan', kind('fan', fan, { 'speed', 'count', 'spread', 'packet' }))
+local spit = Schema:new('pool spit', Action.projectile):extend('pool spit', {
+  packet = { type = 'table', required = true, schema = Packet.schema },
+})
 Action.kinds:register(
   'pool',
   kind('pool', {
     pool = { type = 'table', schema = Pool },
-    bolt = { type = 'table', schema = Schema:new('pool spit', Action.projectile) },
+    bolt = { type = 'table', schema = spit },
   }, { 'pool', 'bolt' })
 )
 Action.kinds:register(
@@ -179,29 +182,90 @@ function Action.defineKind(name, fields, required)
     return def
   end
 end
+local function samples(values, path, size)
+  assert(#values > 0 and (not size or #values == size), path .. ': invalid sample count')
+  local count = 0
+  for key, value in pairs(values) do
+    count = count + 1
+    assert(
+      type(key) == 'number' and key % 1 == 0 and key >= 1 and key <= #values,
+      path .. ': expected a dense array'
+    )
+    assert(
+      type(value) == 'number' and value == value and value >= 0 and value < math.huge,
+      path .. '[' .. tostring(key) .. ']: expected a finite nonnegative number'
+    )
+  end
+  assert(count == #values, path .. ': expected a dense array')
+end
+local function integer(value, path)
+  assert(value == nil or value % 1 == 0, path .. ': expected an integer')
+end
+local function projectile(spec, path)
+  if spec.color then
+    samples(spec.color, path .. '.color', 3)
+    for _, channel in ipairs(spec.color) do
+      assert(channel <= 1, path .. '.color: expected RGB channels in [0, 1]')
+    end
+  end
+end
 -- Complete and validate one action (where: for the message).
 function Action.build(def, where)
   local schema = Action.kinds:get(def.kind)
   local path = where or ('action ' .. tostring(def.id))
   local built = schema:build(def, path)
+  assert(built.id ~= '', path .. '.id: must not be empty')
+  assert(built.minRange <= built.range, path .. '.minRange: exceeds range')
+  if built.maxRange then
+    assert(
+      built.maxRange >= built.minRange and built.maxRange <= built.range,
+      path .. '.maxRange: must lie between minRange and range'
+    )
+  end
+  integer(built.every, path .. '.every')
   if built.kind == 'throw' then
     assert(built.referenceGravity > 0, path .. '.referenceGravity: must be positive')
-  end
-  if built.kind == 'lunge' then
-    assert(#built.contactReach > 0, path .. '.contactReach: at least one depth sample required')
-    local count = 0
-    for key, value in pairs(built.contactReach) do
-      count = count + 1
+    for _, field in ipairs({ 'blast', 'selfBlast' }) do
+      local blast = built[field]
       assert(
-        type(key) == 'number' and key % 1 == 0 and key >= 1 and key <= #built.contactReach,
-        path .. '.contactReach: expected a dense array'
-      )
-      assert(
-        type(value) == 'number' and value == value and value >= 0 and value < math.huge,
-        path .. '.contactReach[' .. key .. ']: expected a finite nonnegative depth'
+        blast.falloffEnd > blast.falloffStart,
+        path .. '.' .. field .. ': invalid damage curve'
       )
     end
-    assert(count == #built.contactReach, path .. '.contactReach: expected a dense array')
+  end
+  if built.kind == 'lunge' then
+    samples(built.contactReach, path .. '.contactReach')
+    samples(built.active, path .. '.active', 2)
+    assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
+    assert(built.lungeTime > 0, path .. '.lungeTime: must be positive')
+    assert(built.active[2] <= built.lungeTime, path .. '.active: exceeds lungeTime')
+    assert(built.lungeTime <= built.duration, path .. '.lungeTime: exceeds strike duration')
+  elseif built.kind == 'charge' then
+    assert(built.speed > 0, path .. '.speed: must be positive')
+    assert(
+      built.maxTime > 0 and built.maxTime >= built.minTime,
+      path .. '.maxTime: invalid charge window'
+    )
+  elseif built.kind == 'leap' then
+    assert(built.height > 0, path .. '.height: must be positive')
+  elseif built.kind == 'pool' then
+    assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
+    assert(
+      not built.pool.condition or require('src.content.conditions')[built.pool.condition],
+      path .. '.pool.condition: unknown condition ' .. tostring(built.pool.condition)
+    )
+    projectile(built.bolt, path .. '.bolt')
+  elseif built.kind == 'fan' then
+    integer(built.count, path .. '.count')
+    integer(built.rageCount, path .. '.rageCount')
+    if built.line then
+      assert(built.line.pulse > 0, path .. '.line.pulse: must be positive')
+      integer(built.line.count, path .. '.line.count')
+      integer(built.line.every, path .. '.line.every')
+    end
+    projectile(built, path)
+  elseif built.kind == 'bolt' then
+    projectile(built, path)
   end
   return built
 end

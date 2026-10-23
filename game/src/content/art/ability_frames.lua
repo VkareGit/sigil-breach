@@ -1,6 +1,9 @@
 -- Source-art ability atlas crops and anchors. Pure data: no GPU dependency.
 return {
   ['evade'] = {
+    path = 'assets/art/stolas-evade-fresco-v23.png',
+    columns = 4,
+    rows = 2,
     ['feet'] = {
       [1] = 0.16015625,
       [2] = 0.158203125,
@@ -159,6 +162,9 @@ return {
     },
   },
   ['leap'] = {
+    path = 'assets/art/imp-leap-fresco-v23.png',
+    columns = 4,
+    rows = 2,
     ['feet'] = {
       [1] = 0.1796875,
       [2] = 0.1796875,

@@ -11,6 +11,8 @@ function Encounter.clearThreats(g)
 end
 
 function Encounter.clearStage(g)
+  require('src.combat.observation').invalidate(g)
+  require('src.player.intent').clear(g)
   Encounter.clearThreats(g)
   g.enemies = {}
   g.pickups = {}

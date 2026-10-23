@@ -7,6 +7,20 @@ local AbilityArt = require('src.content.ability_art')
 local Timing = AbilityArt.timing
 local AbilityPose = {}
 local samples = {}
+AbilityPose.samplers = samples
+function AbilityPose.register(id, sampler)
+  assert(
+    type(id) == 'string' and type(sampler) == 'function',
+    'ability sampler needs an id and function'
+  )
+  assert(samples[id] == nil, 'ability sampler already registered: ' .. id)
+  samples[id] = sampler
+end
+function AbilityPose.unregister(id)
+  local sampler = samples[id]
+  samples[id] = nil
+  return sampler
+end
 function samples.leap(e)
   if e.ai == 'windup' then
     return Animation.actionPhase(e) < Timing.coil and 1 or 2, 0
@@ -49,10 +63,18 @@ function AbilityPose.select(g, e)
   local look = Archetypes.look(e)
   local sequence = look.art and look.art[e.attackKind]
   for _, key in ipairs({ sequence or false, look.evadeArt or false }) do
-    local sampler = key and samples[key]
-    if sampler then
+    if key then
+      local entry = AbilityArt.get(key)
+      local sampler = assert(
+        samples[entry.sampler],
+        'ability artwork ' .. key .. ': missing sampler ' .. entry.sampler
+      )
       local frame, mirror = sampler(e)
       if frame then
+        assert(
+          type(frame) == 'number' and frame % 1 == 0 and entry.frames[frame],
+          'ability artwork ' .. key .. ': sampler returned unknown frame ' .. tostring(frame)
+        )
         return key, frame, mirror
       end
     end
