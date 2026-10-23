@@ -201,10 +201,15 @@ Nowe moduły importuj dosłowną ścieżką, np. require('src.combat.damage').
 Nie twórz nowych plików system_v19.lua: nazwa ma opisywać odpowiedzialność.
 Wersje w nazwach atlasów i metadanych źródłowych grafiki pozostają celowe.
 
-Archiwum nieużywanych grafik 0.29: work/archive-art-v29 (manifest SHA-256,
-powody archiwizacji i RESTORE.ps1). 25 PNG poza aktywnym game/assets/art.
-Starsze nazwy nie oznaczają śmieci: zachowano źródła fontów, pieczęcie,
-referencje oraz pliki wymagane przez starsze testy. Nie usuwaj ich samym rg.
+Archiwum starych plików: old/ w katalogu głównym (poza game/, więc nie trafia
+do paczki). old/SIGIL-BREACH-old-assets-0.31.zip trzyma pod pierwotnymi
+ścieżkami nieużywane grafiki (także 25 PNG z porządków 0.29), dawne
+czcionki TTF z licencjami i wycofane narzędzia tools/art wraz z wejściami;
+old/manifest.csv podaje SHA-256 i powód, old/RESTORE.ps1 przywraca bez
+nadpisywania. ZIP nie jest w gicie (za duży); pliki z game/ i tools/ są też
+w historii commitów sprzed archiwizacji. Starsza nazwa nie oznacza śmiecia:
+przed archiwizacją sprawdź odwołania w game/src, tests, qa i tools (także
+ścieżki składane w kodzie), nie samym rg po nazwie.
 
 Narzędzia grafiki: tools/art; wymagają własnych zmiennych SIGIL_* wskazujących
 materiał wejściowy. Są zachowanym warsztatem produkcji, nie częścią uruchomienia

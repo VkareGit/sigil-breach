@@ -353,10 +353,13 @@ function Tests.run(G, initial, renderer, getGame)
   a.windup = 0.05
   local f3 = Anim.pose(g, a)
   check('Stolas builds a cast through three anticipation poses', f1 == 7 and f2 == 8 and f3 == 9)
-  for _, name in ipairs({ 'stolas-v05', 'shotgun-v05' }) do
-    local data = love.image.newImageData('assets/art/' .. name .. '.png')
+  for _, sheet in ipairs({
+    { 'stolas', require('src.content.enemy_art').entries.stolas.path },
+    { 'exorcist', require('src.render.weapon_art').exorcist.path },
+  }) do
+    local data = love.image.newImageData(sheet[2])
     local _, _, _, alpha = data:getPixel(0, 0)
-    check(name .. ' has actual alpha transparency', alpha < 0.05)
+    check(sheet[1] .. ' sheet has actual alpha transparency', alpha < 0.05)
     data:release()
   end
   local balance = {

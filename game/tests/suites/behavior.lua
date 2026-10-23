@@ -218,11 +218,18 @@ function Tests.run(G, initial, renderer, getGame)
     #U.controls(g, settings) == 1 and U.controls(g, settings)[1].id == 'help_back'
   )
   g.help = false
+  -- The painted atlases in play (content/enemy_art), not archived sheets:
+  -- at their recorded source size and on a transparent ground.
+  local Sources = require('src.content.art.sources')
   for _, kind in ipairs({ 'imp', 'stolas', 'buer', 'boss' }) do
-    local data = love.image.newImageData('assets/art/' .. kind .. '-v03.png')
+    local path = require('src.content.enemy_art').entries[kind].path
+    local data = love.image.newImageData(path)
     local w, h = data:getDimensions()
     local _, _, _, alpha = data:getPixel(w - 1, h - 1)
-    check(kind .. ' animated atlas is square and transparent', w == h and alpha < 0.05)
+    check(
+      kind .. ' painted atlas has its recorded size and a transparent ground',
+      w == Sources[path][1] and h == Sources[path][2] and alpha < 0.05
+    )
     data:release()
   end
   check(

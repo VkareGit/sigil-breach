@@ -35,7 +35,8 @@ against its letter bodies, independently of accents and descenders.
 Numeral cell gutters are measured, not assumed equal: the generator shifted
 several letters across nominal grid positions. The source's extra dot next
 to the slash is outside its selected crop and is never rendered.
-Old v11 sources and atlases remain intact.
+The v11 punctuation sheet and the v11 font atlases remain; the other v11/v08
+sources are archived in old/SIGIL-BREACH-old-assets-0.31.zip.
 
 Sampling: original source alpha > .55; exact area coverage > .23.
 RGB is area-weighted and blended 25% toward ivory for stable tiny lettering.

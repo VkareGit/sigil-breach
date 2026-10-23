@@ -58,7 +58,7 @@ kontakty ataków/pocisków, pełna integralność replay i szczegółowa telemet
 Oryginalne malowane modele zachowane; broń ma spokojniejszy pigment.
 Domknięcie 0.29: również skok i unik mają pigment dopasowany do bazowych
 modeli, bez zmiany sylwetek. Maski mają pełne poświadczenie źródeł SHA-256.
-Archiwum 25 nieużywanych PNG: work/archive-art-v29 (manifest + RESTORE.ps1).
+Stare grafiki, czcionki i narzędzia: old/ (ZIP + manifest.csv + RESTORE.ps1).
 Granice dokładności i pozostały odbiór człowieka są opisane w planie i anatomii.
 0.26 po teście gracza: przegląd i naprawy zmian v5 (unik w combat/dodge,
 raport sesji na zdarzeniach, tryby bez duplikatów), broń w świetle sceny,

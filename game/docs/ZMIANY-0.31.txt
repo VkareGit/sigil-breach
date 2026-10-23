@@ -96,5 +96,13 @@ teraz pod panelem, a jej klawisz SHIFT ma 78 px. release.lua miał końce
 linii CRLF i zatrzymywał FORMAT. Menu i freskowy pasek HUD gracza bez zmian
 (identyczne z 0.30).
 
+9. STARE PLIKI W ARCHIWUM
+Nieużywane grafiki, dawne czcionki TTF i 5 wycofanych narzędzi tools/art
+(88 plików, 126 MiB, w tym 25 PNG z porządków 0.29) są w ZIP-ie w old/
+w katalogu głównym, z manifestem SHA-256 i RESTORE.ps1; nie trafiają do
+paczki. 19 sprawdzeń, które czytały dawne atlasy, sprawdza teraz atlasy
+używane w grze (wymiar, przezroczyste tło, siatka) i loader na arkuszu
+czarów (nierówne pasma i cięcia kolumn); liczba sprawdzeń bez zmian.
+
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

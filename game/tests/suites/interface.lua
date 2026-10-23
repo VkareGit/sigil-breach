@@ -11,7 +11,7 @@ function Tests.run(G, renderer)
   local function fresh()
     return Fixtures.expedition(G)
   end
-  local atlas = love.image.newImageData('assets/art/ui-v07.png')
+  local atlas = love.image.newImageData(Skin.path)
   local _, _, _, alpha = atlas:getPixel(0, 0)
   check('UI bitmap has actual alpha outside its components', alpha < 0.05)
   local nearest = Skin.image:getFilter()
@@ -21,76 +21,54 @@ function Tests.run(G, renderer)
     Skin.bounds[9].y + Skin.bounds[9].h <= 916 and Skin.bounds[13].y >= 916
   )
   atlas:release()
-  local armored = love.image.newImageData('assets/art/armored-v07.png')
-  local w, h = armored:getDimensions()
-  local _, _, _, a = armored:getPixel(0, 0)
-  local oldImage, oldFeet, oldFrames = require('src.render.atlas').load(
-    'assets/art/armored-v07.png',
-    6,
-    4,
-    {
-      { 0, 260, 500, 727, 1024 },
-      { 0, 260, 512, 725, 1024 },
-      { 0, 260, 512, 724, 1024 },
-      { 0, 260, 512, 727, 1024 },
-      { 0, 260, 512, 729, 1024 },
-      { 0, 260, 512, 727, 1024 },
-    },
-    { [2] = { 0, 264, 520, 790, 1040, 1325, 1536 } }
+  -- The atlas loader on a sheet the game cuts with uneven gutters: the spells
+  -- (render/fresco_effects: row bands per column, authored column cuts in row 2).
+  local spells = require('src.render.fresco_effects').spells
+  local sheet = love.image.newImageData(spells.path)
+  local w, h = sheet:getDimensions()
+  local _, _, _, a = sheet:getPixel(0, 0)
+  local image, feet, frames = require('src.render.atlas').load(
+    spells.path,
+    spells.columns,
+    spells.rows,
+    spells.bands,
+    spells.columnBands
   )
-  local legacyArmored = { image = oldImage, feet = oldFeet, frames = oldFrames }
-  check('armored animation keeps 24 square cells and alpha', w / 6 == h / 4 and a < 0.05)
-  check('all armored poses have independent floor registration', #legacyArmored.feet == 24)
+  image:release()
+  local cells = spells.columns * spells.rows
+  check('spell sheet keeps its 16 cells and alpha', #frames == cells and a < 0.05)
+  check('every spell pose has its own floor registration', #feet == cells)
   local valid = true
-  for _, foot in ipairs(legacyArmored.feet) do
-    valid = valid and foot >= 0 and foot < 0.6
+  for _, foot in ipairs(feet) do
+    valid = valid and foot >= 0 and foot < 1
   end
-  check('armored foot offsets remain inside each cell', valid)
-  local horns, scale = true, true
-  for frame = 1, 24 do
-    local region = legacyArmored.frames[frame]
-    local rect = region.rect
-    scale = scale and math.abs(region.height / (rect[4] * h) - 4 / h) < 0.00001
-    if frame >= 19 then
-      local top = math.floor(rect[2] * h + 0.5)
-      local pixels = 0
-      for y = top, 759 do
-        for x = (frame - 19) * 256, (frame - 18) * 256 - 1 do
-          local _, _, _, alpha = armored:getPixel(x, y)
-          if alpha > 0.65 then
-            pixels = pixels + 1
-          end
+  check('spell foot offsets remain inside each cell', valid)
+  local painted, scale = true, true
+  for frame = 1, cells do
+    local rect = frames[frame].rect
+    scale = scale and math.abs(frames[frame].height / (rect[4] * h) - spells.rows / h) < 0.00001
+    local pixels = 0
+    for y = math.floor(rect[2] * h + 0.5), math.floor((rect[2] + rect[4]) * h + 0.5) - 1, 4 do
+      for x = math.floor(rect[1] * w + 0.5), math.floor((rect[1] + rect[3]) * w + 0.5) - 1, 4 do
+        local _, _, _, alpha = sheet:getPixel(x, y)
+        if alpha > 0.65 then
+          pixels = pixels + 1
         end
       end
-      horns = horns and top <= 731 and pixels > 100
     end
+    painted = painted and pixels > 20
   end
-  check('all six back poses retain horns above the old 768px cut', horns)
+  check('every spell cell keeps its painted pigment inside its bands', painted)
   check('unequal frame heights preserve world size per source pixel', scale)
-  local foreign, visible = 0, 0
-  local attack = legacyArmored.frames[10].rect
-  for y = 370, 450 do
-    for x = 768, 782 do
-      local red, green, _, alpha = armored:getPixel(x, y)
-      if alpha > 0.65 and red > green * 1.5 then
-        foreign = foreign + 1
-        if
-          x >= attack[1] * w
-          and x < (attack[1] + attack[3]) * w
-          and y >= attack[2] * h
-          and y < (attack[2] + attack[4]) * h
-        then
-          visible = visible + 1
-        end
-      end
-    end
+  local cuts, honoured = spells.columnBands[2], true
+  for column = 1, spells.columns do
+    local rect = frames[spells.columns + column].rect
+    honoured = honoured
+      and math.abs(rect[1] * w - cuts[column]) < 0.5
+      and math.abs((rect[1] + rect[3]) * w - cuts[column + 1]) < 0.5
   end
-  check(
-    'strike frame excludes opaque red pixels of the neighboring claw',
-    foreign > 10 and visible == 0
-  )
-  armored:release()
-  oldImage:release()
+  check('authored column cuts bound each frame, not the even grid', honoured)
+  sheet:release()
   -- 0.14: pillars are round (radius .46); the sight line crosses the shaft itself.
   local g = fresh()
   g.player.x = 19.25

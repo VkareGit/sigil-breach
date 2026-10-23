@@ -357,10 +357,16 @@ function Tests.run(G, initial, renderer, getGame)
     A.sources.open and A.sources.load and A.sources.close and A.sources.shot
   )
   check('large font supports Polish', U.fonts[36]:hasGlyphs('ĄĆĘŁŃÓŚŹŻ'))
-  for _, name in ipairs({ 'enemies', 'shotgun', 'lance' }) do
-    local data = love.image.newImageData('assets/art/' .. name .. '.png')
+  -- The sheets drawn in play: a demon atlas and both weapon sheets.
+  local WeaponArt = require('src.render.weapon_art')
+  for _, sheet in ipairs({
+    { 'imp', require('src.content.enemy_art').entries.imp.path },
+    { 'exorcist', WeaponArt.exorcist.path },
+    { 'judge', WeaponArt.judge.path },
+  }) do
+    local data = love.image.newImageData(sheet[2])
     local _, _, _, a = data:getPixel(20, 20)
-    check(name .. ' has transparent background', a < 0.05)
+    check(sheet[1] .. ' sheet has transparent background', a < 0.05)
     data:release()
   end
   love.keypressed('return', 'return')

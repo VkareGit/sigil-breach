@@ -5,6 +5,8 @@
 # Generated QA evidence, reversible archives and built deliveries stay on disk.
 work/
 outputs/
+# Archived old files: the zip stays on disk; its README, manifest and restore script are tracked.
+old/*.zip
 *.log
 toolchain/**/*.zip
 Thumbs.db

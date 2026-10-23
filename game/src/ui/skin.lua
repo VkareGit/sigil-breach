@@ -3,6 +3,8 @@
 local S = {
   -- The interface palette (ui/palette.lua).
   colors = require('src.ui.palette'),
+  -- The painted interface atlas the frames and icons are cut from.
+  path = 'assets/art/ui-fresco-v12.png',
 }
 local lg = love.graphics
 local names = {
@@ -23,7 +25,7 @@ function S.init()
   if S.image then
     return
   end
-  local data = love.image.newImageData('assets/art/ui-fresco-v12.png')
+  local data = love.image.newImageData(S.path)
   local w, h = data:getDimensions()
   S.image = lg.newImage(data)
   S.image:setFilter('nearest', 'nearest')

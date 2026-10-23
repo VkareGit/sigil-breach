@@ -1,5 +1,11 @@
 SIGIL illustrated manuscript alphabet / version 2
 
+RETIRED (0.31): the game draws assets/fonts/painted-v16. This v11 font stays
+for the typography comparison review and as metrics for tools/art/bake_type_v16.
+Its alphabet/numeral sheets (except the punctuation still used by v16), the
+v08 originals and the tools below are in old/SIGIL-BREACH-old-assets-0.31.zip
+(project root; old/RESTORE.ps1 puts them back). Paths below are as they were.
+
 ACTIVE SOURCES (all images, no font outlines):
   assets/art/alphabet-upper-v11.png       A-Z + ĄĆĘŁŃÓŚŹŻ
   assets/art/alphabet-lower-v11.png       a-z + ąćęłńóśźż
