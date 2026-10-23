@@ -57,6 +57,12 @@ function Application:adopt(game)
   self.input:forget(self.game)
   self.input:forget(game)
   self.game = game
+  -- In play particles vary from run to run (seeded from the clock, as before);
+  -- QA keeps the session's fixed presentation seed so its captures repeat
+  -- (feedback/transients.lua). The simulation's stream is never touched.
+  if not (self.qa.capture or self.qa.isolated) and game.rng then
+    game.rng.present:seed(os.time())
+  end
   self:applySettings()
   if game.testField and self.renderer then
     local remaining = require('src.render.gallery').pending(self.renderer)

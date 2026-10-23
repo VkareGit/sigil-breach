@@ -689,7 +689,14 @@ local function frameRects(truth, output)
       add_(kind, frame, image, r.frames[kind][frame].rect)
     end
   end
-  for key, sheet in pairs(r.abilityArt) do
+  -- Rows in sequence order, the same on every run (not pairs() order).
+  local keys = {}
+  for key in pairs(r.abilityArt) do
+    keys[#keys + 1] = key
+  end
+  table.sort(keys)
+  for _, key in ipairs(keys) do
+    local sheet = r.abilityArt[key]
     for frame, region in ipairs(sheet.frames) do
       add_('art-' .. key, frame, sheet.image, region.rect)
     end

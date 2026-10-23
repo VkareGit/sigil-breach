@@ -5,21 +5,31 @@ local Audio = require('src.audio.audio')
 local Trails = require('src.feedback.shot_trails')
 local Presentation = require('src.session.presentation')
 local Transients = {}
+-- Particles draw from the session's presentation stream (core/rng: present),
+-- never the simulation's: repeatable from its seed (fixed in QA, the clock in
+-- play: app/application.lua adopt). A record with no streams uses love.math.
+local function random(g)
+  local stream = g.rng and g.rng.present
+  if stream then
+    return stream:random()
+  end
+  return love.math.random()
+end
 
 function Transients.burst(g, x, y, z, color, count, force)
   for _ = 1, count do
-    local angle = love.math.random() * math.pi * 2
-    local speed = love.math.random() * (force or 2)
+    local angle = random(g) * math.pi * 2
+    local speed = random(g) * (force or 2)
     g.view.particles[#g.view.particles + 1] = {
       x = x,
       y = y,
       z = z,
       vx = math.sin(angle) * speed,
-      vy = love.math.random() * 2,
+      vy = random(g) * 2,
       vz = math.cos(angle) * speed,
-      life = 0.4 + love.math.random() * 0.5,
+      life = 0.4 + random(g) * 0.5,
       color = color,
-      size = 0.4 + love.math.random() * 0.6,
+      size = 0.4 + random(g) * 0.6,
     }
   end
   while #g.view.particles > 240 do

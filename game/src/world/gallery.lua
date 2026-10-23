@@ -15,12 +15,15 @@ end
 -- Hall slots: west court (world, weapons), east court (effects, interface),
 -- altar back row (demon atlases). Slots inside walls, pillars or a seal's
 -- circle are skipped when the gallery is laid out.
+-- A list, not a map: the boards are hung (and drawn) hall by hall in this
+-- order on every run. pairs() over string keys follows LuaJIT's per-process
+-- string hash seed, so it would reorder the overlapping boards run to run.
 local halls = {
-  WORLD = { xs = { 4.1, 6.5 }, zs = { 11, 12.9, 20.6, 22.4 } },
-  WEAPONS = { xs = { 4.1, 6.5 }, zs = { 14.8, 18.8 } },
-  EFFECTS = { xs = { 26, 28 }, zs = { 11, 12.9 } },
-  INTERFACE = { xs = { 26, 28 }, zs = { 14.8, 18.8, 20.6, 22.4 } },
-  DEMONS = { xs = { 9.2, 11.5, 14, 18, 20.5, 22.8 }, zs = { 3.3 } },
+  { group = 'WORLD', xs = { 4.1, 6.5 }, zs = { 11, 12.9, 20.6, 22.4 } },
+  { group = 'WEAPONS', xs = { 4.1, 6.5 }, zs = { 14.8, 18.8 } },
+  { group = 'EFFECTS', xs = { 26, 28 }, zs = { 11, 12.9 } },
+  { group = 'INTERFACE', xs = { 26, 28 }, zs = { 14.8, 18.8, 20.6, 22.4 } },
+  { group = 'DEMONS', xs = { 9.2, 11.5, 14, 18, 20.5, 22.8 }, zs = { 3.3 } },
 }
 -- Pad places on the nave floor: the demons' (west column, then east), the
 -- weapons' and the refill. What stands on them is the content's: the demons
@@ -57,7 +60,8 @@ function G.layout(world, boards)
   for _, b in ipairs(boards) do
     b.x = nil
   end
-  for group, hall in pairs(halls) do
+  for _, hall in ipairs(halls) do
+    local group = hall.group
     local slots = {}
     for _, z in ipairs(hall.zs) do
       for _, x in ipairs(hall.xs) do

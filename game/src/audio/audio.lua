@@ -45,8 +45,17 @@ function A.init()
     hall = 1.4,
     heart = 0.42,
   }
+  -- One noise stream shared by every sound, so they are generated in name
+  -- order: pairs() order (LuaJIT's per-process string hash) would give each
+  -- sound different noise on every run.
   local rng = love.math.newRandomGenerator(413)
-  for name, dur in pairs(specs) do
+  local names = {}
+  for name in pairs(specs) do
+    names[#names + 1] = name
+  end
+  table.sort(names)
+  for _, name in ipairs(names) do
+    local dur = specs[name]
     local n = math.floor(dur * rate)
     local data = love.sound.newSoundData(n, rate, 16, 1)
     local low = 0

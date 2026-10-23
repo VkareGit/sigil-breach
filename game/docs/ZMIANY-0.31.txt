@@ -116,6 +116,12 @@ Interakcje [E] i podpowiedzi, pozwolenia (fala, zatrzymanie czasu,
 nieśmiertelność), poziom nowego demona i dane paska HUD pyta się trybu
 (run/modes.lua) zamiast czytać g.run / g.testField w sesji i UI; dystans
 podpowiedzi echa ma nazwę (expedition.echo.prompt). Zachowanie bez zmian.
+Powtarzalne zrzuty QA: LuaJIT tej wersji losuje ziarno haszy napisów per
+proces, więc pairs(halls) zmieniało kolejność tablic galerii w każdym
+uruchomieniu (~230 zrzutów różniło się drobnymi pikselami nakładających się
+plansz); hale są listą. Cząstki losują z g.rng.present (w QA stałe ziarno,
+w grze zegar, jak wcześniej love.math), dźwięki generują się w kolejności
+nazw, wiersze hit-frame-rects.csv są posortowane.
 
 Pełne wyniki wydania: work/qa-v31, weryfikacja EXE: package-verification.txt.
 Nie przenosić sum PASS z poprzedniej wersji; źródłem liczb są świeże raporty.

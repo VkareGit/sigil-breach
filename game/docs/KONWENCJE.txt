@@ -95,10 +95,18 @@ zmieniasz, zostawiasz zgodny z konwencją).
      appearance, guardian, body.boss.
 
 7a. DETERMINIZM I ZAPIS
-   - Symulacja losuje tylko z g.rng.sim; prezentacja z g.rng.present lub
-     love.math. Polecenie gracza przechodzi przez fasadę session/game, żeby
+   - Symulacja losuje tylko z g.rng.sim; prezentacja (cząstki) z
+     g.rng.present: w QA ze stałego ziarna sesji, w grze z zegara
+     (app/application adopt). love.math tylko poza sesją (dźwięk).
+     Polecenie gracza przechodzi przez fasadę session/game, żeby
      dziennik (session/journal) je widział. Stan do zapisania = dane sesji
      (session/snapshot), nie domknięcia ani obiekty LÖVE.
+   - Kolejność pairs() jest w każdym uruchomieniu inna: LuaJIT tej wersji
+     losuje ziarno haszy napisów per proces. pairs() nie może więc
+     decydować o kolejności rysowania, emisji, zużycia wspólnego RNG,
+     tekstu raportu ani zapisu — tablica (ipairs) albo posortowane klucze
+     (jak core/serialize, combat/rules/conditions). Sprawdzenie: dwa
+     przebiegi --showcase tego samego kodu dają identyczne zrzuty.
 
 8. TESTY
    - Pomocnicze z tests/support/fixtures.lua: checker(lines, fail, pass),
