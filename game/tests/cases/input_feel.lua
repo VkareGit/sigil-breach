@@ -500,9 +500,15 @@ function Tests.run(G, check)
   local V = require('src.render.weapon')
   local rx, ry, rr = V.pose(g)
   local tx, ty, tr, scale = V.transform(g, 800, 450)
+  local illustration = require('src.render.weapon_art').of(g)
+  local placement = illustration.placement or { 0, 0 }
+  local sourceScale = 450 * illustration.screenScale / illustration.cellWidth
   check(
     'after paused toggle only the ongoing mechanical reload pose remains',
-    near(tx, 400 + rx) and near(ty, 461 + ry) and near(tr, rr) and scale == 1
+    near(tx, 400 + rx + placement[1] * sourceScale)
+      and near(ty, 461 + ry + placement[2] * sourceScale)
+      and near(tr, rr)
+      and scale == 1
   )
   -- Root's view-punch transfer is a bounded hand offset, not a new firing axis.
   g = fresh()

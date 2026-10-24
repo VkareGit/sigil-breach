@@ -4,6 +4,7 @@ local World = require('src.world.arena')
 local Presentation = require('src.session.presentation')
 local Maps = require('src.content.maps.index')
 local Tuning = require('src.content.tuning')
+local Capabilities = require('src.session.capabilities')
 -- The Ember of the default map (static readers); a session's own is at(g).
 local Sanctuary = { shrine = Maps:get(Maps.default).ember }
 function Sanctuary.at(g)
@@ -19,7 +20,7 @@ function Sanctuary.near(g)
 end
 
 function Sanctuary.openShop(g)
-  if g.run.phase ~= 'preparing' or g.state ~= 'playing' or not Sanctuary.near(g) then
+  if not Capabilities.canTrade(g) or g.state ~= 'playing' or not Sanctuary.near(g) then
     return false
   end
   g.state = 'shop'

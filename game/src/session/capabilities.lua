@@ -8,9 +8,24 @@
 -- test fixture) is read from its flags as before. Systems, rules and
 -- outcomes ask here, never the flags themselves.
 local Capabilities = { policies = {}, modes = {} }
+local policyHandlers = { phased = 'waveActive', freezable = 'frozen', invincible = 'invincible' }
 function Capabilities.define(id, policy, mode)
+  for name, enabled in pairs(policy) do
+    local handler = policyHandlers[name]
+    assert(
+      handler and type(enabled) == 'boolean',
+      'mode ' .. id .. ': invalid policy ' .. tostring(name)
+    )
+    assert(
+      not enabled or type(mode[handler]) == 'function',
+      'mode ' .. id .. ': policy ' .. name .. ' needs ' .. handler
+    )
+  end
   Capabilities.policies[id] = policy
   Capabilities.modes[id] = mode or {}
+end
+function Capabilities.undefine(id)
+  Capabilities.policies[id], Capabilities.modes[id] = nil, nil
 end
 local function policyOf(g)
   return g.mode and Capabilities.policies[g.mode]
@@ -57,6 +72,11 @@ end
 -- The knight may shoot and throw.
 function Capabilities.armed(g)
   return Capabilities.combatPhase(g)
+end
+-- The sanctuary is a place; the active mode decides whether trading there
+-- is available now. This does not impose a shared wallet or phase layout.
+function Capabilities.canTrade(g)
+  return policyOf(g) ~= nil and ask(g, 'canTrade') == true
 end
 -- Blows and walls can hurt the knight.
 function Capabilities.vulnerable(g)

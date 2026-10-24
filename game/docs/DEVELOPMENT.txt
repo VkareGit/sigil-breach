@@ -18,6 +18,7 @@ POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
   .\TEST.ps1 -Suite Mechanics    mechanika, zasoby i kontrakty aplikacji
   .\TEST.ps1 -Suite Input        prawdziwe callbacki, menu i zapis
   .\TEST.ps1 -Suite Render       widoki gry i pomiary interfejsu
+  .\TEST.ps1 -Suite Tools        smoke narzędzi + realny start/retry/cancel
   .\TEST.ps1                     wszystkie powyższe kontrole
 
 Pełny Render obejmuje także gęste próbkowanie trafień w żywych animacjach.
@@ -26,6 +27,28 @@ próbek: .\TEST.ps1 -Suite Render -TestTimeoutSeconds 1200.
 Analogiczny parametr ma tools/verify.ps1. Limit domyślny wynosi 300 sekund;
 timeout nie jest zaliczonym testem. Przebieg trafień wypisuje kolejne archetypy.
   .\BUILD.ps1                    testy, snapshot, testy EXE, weryfikowany ZIP
+
+0.32: BUILD tworzy osobne paczki Developer-Windows i Player-Windows.
+Gracz dostaje EXE/runtime i niezbędną zawartość; nie dostaje qa/tests ani
+luźnego source i dokumentacji warsztatu. Deweloper dostaje także pełne
+źródła, narzędzia i dołączony toolchain. Format .love zawiera wykonywalne
+Lua — paczka gracza nie jest ochroną kodu przed odczytem. Archiwum gry
+gracza istnieje tylko wewnątrz jego EXE (bez drugiej kopii .love obok);
+weryfikacja czyta je z EXE i odrzuca bajty dopisane za archiwum.
+tools/package-check.ps1 sprawdza manifesty/allowlistę i odrzucanie zmian;
+-Installed uruchamia rzeczywiste paczki z katalogu poza repo.
+PACKAGE-MANIFEST.json oraz build-fingerprint.txt wiążą wynik z SHA-256
+źródeł, a osobne .sha256 poświadczają ZIP. Sam timestamp PASS nie wystarcza.
+
+QA przy uruchomieniu hashuje całe game przed i po procesie. Edycja pliku
+w trakcie unieważnia poświadczenie. Pełny odbiór wymaga nieruchomego drzewa;
+próby focused przy równoległym pisaniu są wyłącznie dowodami roboczymi.
+Każde uruchomienie dostaje własny identyfikator (SIGIL_QA_RUN); raporty
+wpisują go jako "QA run: ..." i bramka sprawdza ten wpis, a nie zegar pliku.
+Jeden katalog QA obsługuje naraz jedną sesję (.qa-session.lock): drugi
+TEST/BUILD/BAKE, np. równoległego agenta, czeka zamiast nadpisywać raporty.
+Hashowanie może rozgrzać cache plików OS, więc pierwszy przebieg procesu
+nie jest automatycznie pomiarem dysku po zimnym restarcie komputera.
 
 Po udanych testach źródeł można wykonać samo tools/build.ps1, a potem
 tools/verify.ps1. Drugi krok jest konieczny do poświadczenia i utworzenia ZIP.
@@ -38,6 +61,12 @@ test-results.txt. Błąd jednego zestawu przerywa pełny przebieg.
 Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
   --core-measure   maski (start, pamięć), salwa, pociski, pazur, Snapshot,
                    Journal, długa sesja -> core-measure.txt
+  --benchmark      przygotowane populacje 20/48/96 oraz osobno prawdziwe
+                   wejście/przywołanie przez portal (normalny limit20).
+  --startup-check  rzeczywisty Application.load/update/draw, postęp,
+                   błąd zasobu, retry i cancel; oddzielny świeży proces.
+  --qa-smoke       modyfikator benchmark/core-measure/step-study/audio-export,
+                   mniejszy scenariusz, bez pomijania etapów przygotowania.
   --step-study     ten sam przebieg przy różnym FPS oraz różnym kroku
                    symulacji (prawa ruchu i kontaktu) -> step-study.txt
   --mask-formats   formaty masek (hex, przycięte, upakowane, RLE): rozmiar,
@@ -234,6 +263,12 @@ przed archiwizacją sprawdź odwołania w game/src, tests, qa i tools (także
 Narzędzia grafiki: tools/art; wymagają własnych zmiennych SIGIL_* wskazujących
 materiał wejściowy. Są zachowanym warsztatem produkcji, nie częścią uruchomienia
 gry. Nie uruchamiaj ich masowo: część zapisuje atlasy lub wygenerowane metadane.
+
+Archiwum 0.32: old/SIGIL-BREACH-old-weapons-0.32.zip zawiera wyłącznie
+wycofane shotgun-iron-v16.png i revolver-iron-v16.png. Osobny manifest SHA
+i RESTORE-WEAPONS-0.32.ps1 odtwarzają je bez nadpisywania innych plików.
+Aktualny warsztat obu broni: tools/art/weapon_cycles_v32, surowe wejścia
+i deterministyczny retusz. Stare archiwa old nie są potrzebne do grania.
 
 REFAKTOR 0.18 / DOWODY
 

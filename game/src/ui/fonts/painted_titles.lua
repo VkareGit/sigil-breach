@@ -1,4 +1,5 @@
 -- Complete illustrated inscriptions. Crop their ink, never stretch letterforms.
+local Resources = require('src.render.resources')
 local T = {
   names = {
     'sigil',
@@ -18,15 +19,22 @@ function T.init()
   local meta = require('assets.fonts.painted-v16.titles')
   T.path = meta.image
   T.inkStyle = 'flat-painted'
-  T.image = love.graphics.newImage(meta.image)
-  T.image:setFilter('nearest', 'nearest')
+  T.resources = Resources.new('UI painted titles')
+  T.image = T.resources:image(meta.image)
   T.entries = {}
   local w, h = T.image:getDimensions()
   for _, name in ipairs(T.names) do
     local e = assert(meta.entries[name], 'Missing painted inscription: ' .. name)
-    T.entries[name] = { q = love.graphics.newQuad(e.x, e.y, e.w, e.h, w, h), w = e.w, h = e.h }
+    T.entries[name] =
+      { q = T.resources:own(love.graphics.newQuad(e.x, e.y, e.w, e.h, w, h)), w = e.w, h = e.h }
   end
   return T
+end
+function T.release()
+  if T.resources then
+    T.resources:release()
+  end
+  T.resources, T.image, T.entries = nil, nil, nil
 end
 function T.draw(name, x, y, maxW, maxH, alpha, lightGround)
   T.init()

@@ -13,6 +13,8 @@ local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Palette = require('src.ui.palette')
 local Modes = require('src.run.modes')
+local Text = require('src.content.text')
+local Fit = require('src.ui.text_fit')
 local C = Skin.colors
 local U
 -- Guard (poise) under a health bar: gold fills as blows accumulate toward
@@ -62,7 +64,7 @@ local function fitted(t, cx, y, size, w, c)
       return centered(t, cx, y, s, c)
     end
   end
-  centered(t, cx, y, 11, c)
+  centered(Fit.ellipsis(U.fonts[11], t, w), cx, y, 11, c)
 end
 local function line(x1, y1, x2, y2, c, w)
   color(c)
@@ -85,9 +87,9 @@ function H.status(g, run)
   Skin.lightField(0, 584, 1280, 136)
   Skin.zone('HUD ammunition', 133, 628, 105, 68)
   local mag, reserve = Weapons.ammo(g)
-  fitted('AMMO', 185, 630, 14, 100, C.muted)
+  fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
   number(tostring(mag), 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
-  local ammoCaption = g.reload > 0 and Reload.label(g) or ('RES. ' .. reserve)
+  local ammoCaption = g.reload > 0 and Reload.label(g) or Text.get('reserve', { count = reserve })
   fitted(
     ammoCaption,
     185,
@@ -98,12 +100,12 @@ function H.status(g, run)
   )
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
-  centered('HEALTH', 330, 630, 14, C.muted)
+  centered(Text.get('health'), 330, 630, 14, C.muted)
   number(math.ceil(p.hp) .. '%', 330, 648, 112, 29, p.hp < 30 and C.red or Palette.wound)
   Skin.meter(275, 686, 110, p.hp / 100, C.red, 12)
   Skin.endZone()
   Skin.zone('HUD arsenal', 421, 628, 115, 68)
-  centered('ARSENAL', 478, 630, 14, C.muted)
+  centered(Text.get('arsenal'), 478, 630, 14, C.muted)
   -- Two painted rows: scroll around the selected slot instead of silently
   -- dropping any third weapon or overflowing the fresco's lower ornament.
   local count = Weapons.count(g)
@@ -112,16 +114,19 @@ function H.status(g, run)
     local slot = first + row
     local def = Weapons.profile(slot, g)
     local tint = g.weapon == slot and C.gold or C.muted
-    local label = count > 2 and (slot .. ' ' .. def.hud.tab) or def.name
+    local label = count > 2 and (Text.get('weapon_slot', { slot = slot, name = def.hud.tab }))
+      or def.name
     fitted(label, 478, 648 + row * 16, 12, 114, tint)
   end
   if run.glyph ~= 'none' then
-    centered(run.glyph == 'choke' and 'FOCUS' or 'PIERCE', 478, 681, 12, C.gold)
+    local label =
+      assert(require('src.content.shop').get(run.glyph).short, 'missing engraving HUD label')
+    fitted(label, 478, 681, 12, 114, C.gold)
   end
   Skin.endZone()
   Portrait.draw(g, 565, 584, 150)
   Skin.zone('HUD armor', 752, 628, 118, 68)
-  centered('WARD', 810, 630, 14, C.muted)
+  centered(Text.get('ward'), 810, 630, 14, C.muted)
   number(math.ceil(p.armor) .. '%', 810, 648, 114, 29, p.armor > 0 and C.blue or C.muted)
   Skin.meter(753, 686, 114, p.armor / 100, C.blue, 12)
   Skin.endZone()
@@ -129,29 +134,29 @@ function H.status(g, run)
   -- The ability on Q (the first of the loadout): its uses of its capacity.
   local ability, power = Abilities.slot(g, 1)
   local uses, capacity = power and power.uses or 0, ability and ability.capacity or 1
-  text('Q ' .. (ability and ability.tag or ''), 912, 630, 12, C.gold)
+  text(Text.get('ability_key', { tag = ability and ability.tag or '' }), 912, 630, 12, C.gold)
   text(
-    uses > 0 and (uses .. ' / ' .. capacity) or 'NONE',
+    uses > 0 and Text.get('uses', { uses = uses, capacity = capacity }) or Text.get('none'),
     912,
     649,
     14,
     uses > 0 and C.ivory or C.red
   )
   Skin.meter(912, 667, 104, uses / capacity, C.gold, capacity)
-  text('SHIFT', 912, 678, 12, C.muted)
+  text(Text.get('shift'), 912, 678, 12, C.muted)
   for i = 1, 2 do
     Skin.meter(974 + (i - 1) * 24, 683, 20, p.dash - i + 1, C.ivory, 4)
   end
   Skin.endZone()
   Skin.zone('HUD souls', 1055, 628, 100, 76)
-  fitted('SOULS', 1105, 630, 14, 98, C.gold)
+  fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
   local showEcho = run.echo
   number(tostring(run.wallet), 1105, 648, 98, showEcho and 22 or 25, C.gold)
   if showEcho then
     -- Seven-digit legal saves still keep their exact value. A separate short
     -- caption and proportional numeral line fit the fresco niche without
     -- shrinking an entire phrase below the smallest readable PNG font.
-    centered('ECHO', 1105, 672, 11, C.blue)
+    centered(Text.get('echo'), 1105, 672, 11, C.blue)
     number(tostring(run.echo.amount), 1105, 688, 98, 13, C.blue)
   else
     fitted(run.progress, 1105, 680, 14, 98, C.muted)

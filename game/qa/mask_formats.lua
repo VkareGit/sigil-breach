@@ -6,9 +6,10 @@
 --   cropped  hex rows cut to the frame's painted bounding box
 --   packed   4 cells per byte, base64 text (no Lua escapes)
 --   rle      run-length rows (mask_codec: the chosen format, if it wins)
--- Writes work/mask-formats/*.lua and mask-formats.txt; every variant is
+-- Writes mask-format-*.lua beside mask-formats.txt in the selected QA directory; every variant is
 -- decoded and compared with the current masks cell by cell.
 local Codec = require('src.content.art.mask_codec')
+local Tooling = require('qa.tooling')
 local M = {}
 local clock = love.timer.getTime
 local function each(masks, fn)
@@ -131,15 +132,11 @@ end
 function M.run(output)
   local masks = require('src.content.art.hit_masks')
   local grid = masks.grid
-  local dir = 'work/mask-formats'
-  love.filesystem.createDirectory('mask-formats')
-  os.execute('mkdir "' .. dir:gsub('/', '\\') .. '" 2>nul')
-  local lines = {
-    'MASK STORAGE FORMATS (same in-memory masks; one decode at load)',
-    'The decoded masks are the same strings in every format (memory: core-measure).',
-    string.format('%d x %d cells per frame', grid, grid),
-    '',
-  }
+  local lines =
+    Tooling.header('MASK STORAGE FORMATS (same in-memory masks; one decode at load)', false)
+  lines[#lines + 1] =
+    'The decoded masks are the same strings in every format (memory: core-measure).'
+  lines[#lines + 1] = string.format('%d x %d cells per frame', grid, grid)
   for _, format in ipairs({ 'hex', 'cropped', 'packed', 'rle' }) do
     local parts = { 'return {' }
     each(masks, function(group, id, frames)
@@ -152,7 +149,7 @@ function M.run(output)
     end)
     parts[#parts + 1] = '}'
     local text = table.concat(parts, '\n')
-    local path = dir .. '/' .. format .. '.lua'
+    local path = output .. '/mask-format-' .. format .. '.lua'
     local f = assert(io.open(path, 'wb'))
     f:write(text)
     f:close()
@@ -160,6 +157,8 @@ function M.run(output)
     local f2 = assert(io.open(path, 'rb'))
     local source = f2:read('*a')
     f2:close()
+    -- This source was generated above from quoted, trusted production masks;
+    -- measuring Lua asset loading is intentional, not a replay import path.
     local stored = assert(loadstring(source))()
     local parsed = clock()
     local decoded, same, frames = {}, true, 0
@@ -184,10 +183,9 @@ function M.run(output)
       frames,
       same and 'identical to the current masks' or 'DIFFERENT'
     )
+    assert(same, 'mask format changed collision data: ' .. format)
   end
-  local f = assert(io.open(output .. '/mask-formats.txt', 'w'))
-  f:write(table.concat(lines, '\n') .. '\n')
-  f:close()
+  Tooling.write(output, 'mask-formats.txt', lines, false)
   for _, line in ipairs(lines) do
     print(line)
   end

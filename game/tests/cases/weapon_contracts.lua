@@ -77,8 +77,13 @@ function Tests.run(G)
   end
   local id = 'trial_contract'
   local ok, reason = pcall(function()
-    Weapons.define({ extends = parent, id = id, mechanism = 'missing' })
     local g = Fixtures.arena(G)
+    Weapons.define({ extends = parent, id = id, mechanism = 'missing' })
+    local created, startupError = pcall(Fixtures.arena, G)
+    check(
+      'missing mechanism rejects a new session at content composition',
+      not created and tostring(startupError):find('unknown reload mechanism missing', 1, true)
+    )
     Weapons.give(g, id)
     g.weapon, g.cooldown, g.reload = 3, 0, 1
     local state = Weapons.state(g)
@@ -106,10 +111,15 @@ function Tests.run(G)
       '24 physical projectiles launch as a complete discharge',
       g:shoot() and #g.bullets == 24 and Weapons.state(g).mag == 0
     )
+    g = Fixtures.arena(G)
+    Weapons.give(g, id)
     local handler = Delivery:unregister('projectile')
     local missingOk, missingReason = pcall(function()
-      g = Fixtures.arena(G)
-      Weapons.give(g, id)
+      local created, startupError = pcall(Fixtures.arena, G)
+      check(
+        'missing executor rejects a new session at content composition',
+        not created and tostring(startupError):find('unknown projectile', 1, true)
+      )
       g.weapon, g.cooldown, g.reload = 3, 0, 1
       local fired = pcall(g.shoot, g)
       check(

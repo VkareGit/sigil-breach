@@ -11,7 +11,7 @@ function love.conf(t)
   -- LOVE 11.5 has no window.visible flag. Automated canvas captures use an
   -- off-screen window; normal launches retain the centered desktop window.
   for _, value in pairs(arg or {}) do
-    if require('qa.runtime').captureFlag(value) then
+    if require('src.app.runtime').captureFlag(value) then
       t.window.centered = false
       t.window.x = -16000
       t.window.y = -16000

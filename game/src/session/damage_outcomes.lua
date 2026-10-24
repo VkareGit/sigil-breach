@@ -11,6 +11,7 @@ local Modes = require('src.run.modes')
 local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
+local Effects = require('src.combat.effects')
 local Outcomes = {}
 
 local function validDamage(amount)
@@ -24,7 +25,7 @@ local function emit(g, kind, event)
 end
 Outcomes.emit = emit
 
-function Outcomes.enemy(g, enemy, damage, source)
+function Outcomes.enemy(g, enemy, damage, source, payload)
   if enemy.hp <= 0 or not validDamage(damage) then
     return
   end
@@ -33,8 +34,10 @@ function Outcomes.enemy(g, enemy, damage, source)
   enemy.hit, enemy.awake = Defaults.hitFlash, true
   emit(g, 'BodyHit', { enemy = enemy, health = healthDamage, source = source })
   if enemy.hp > 0 then
+    Effects.apply(g, enemy, payload and payload.effects, source)
     return
   end
+  Effects.clear(enemy)
   -- Off balance at the moment of death, and why (combat/rules/balance.lua:
   -- offBalance, the one decision): the break kill of the push-forward loop
   -- (session/listeners.lua) and its measurement read this result.
@@ -71,15 +74,21 @@ end
 -- The amount is incoming damage; a packet adds type and physical impulse.
 -- source (optional): the demon whose own body delivered the blow, or 'self'
 -- for the knight's own powder charge.
-function Outcomes.player(g, amount, x, z, packet, source)
+function Outcomes.player(g, amount, x, z, packet, source, context)
   local player = g.player
+  local ongoing = context and context.ongoing
   if type(amount) == 'table' then
     packet, amount = amount, amount.base
   end
   packet = packet or { base = amount, impact = 0 }
   if packet.base ~= amount then
-    packet =
-      { base = amount, impact = packet.impact, push = packet.push, damageType = packet.damageType }
+    packet = {
+      base = amount,
+      impact = packet.impact,
+      push = packet.push,
+      damageType = packet.damageType,
+      effects = packet.effects,
+    }
   end
   if not validDamage(amount) then
     return
@@ -87,7 +96,7 @@ function Outcomes.player(g, amount, x, z, packet, source)
   if g.state ~= 'playing' or not Capabilities.vulnerable(g) then
     return
   end
-  if player.invuln > 0 then
+  if not ongoing and player.invuln > 0 then
     -- Only a demon's blow can be dodged perfectly (not the knight's own charge).
     if (player.dashTimer or 0) > 0 and source ~= 'self' then
       Dodge.perfect(g, packet, type(source) == 'table' and source or nil)
@@ -109,9 +118,16 @@ function Outcomes.player(g, amount, x, z, packet, source)
     z = z,
     staggered = events.staggered,
     wounded = events.wounded,
+    source = ongoing and source or nil,
   })
-  player.invuln = Rules.playerBody().iframes
+  if not ongoing then
+    player.invuln = Rules.playerBody().iframes
+  end
+  if healthDamage > 0 then
+    Effects.apply(g, player, packet.effects, context and context.effectSource or source)
+  end
   if player.hp <= 0 then
+    Effects.clear(player)
     player.hp, g.state = 0, 'dead'
     Presentation.capture(g, false)
     -- What a death means is the mode's (run/modes.lua: lose).

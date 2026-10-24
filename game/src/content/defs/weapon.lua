@@ -7,6 +7,7 @@
 local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Delivery = require('src.content.defs.delivery')
+local Effect = require('src.content.defs.effect')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
   bodies = { type = 'number', required = true, min = 0 },
@@ -28,6 +29,7 @@ Weapon.hud = Schema:new('weapon labels', {
   partialShort = { type = 'string' },
 })
 Weapon.attack = Schema:new('weapon attack', {
+  effects = { type = 'table', list = Effect.schema, desc = 'effects after a damaging body contact' },
   base = { type = 'number', required = true, min = 0 },
   impact = { type = 'number', required = true, min = 0, desc = 'guard damage' },
   push = { type = 'number', min = 0, desc = 'physical impulse when it differs from impact' },
@@ -103,7 +105,7 @@ Weapon.weight = Schema:new('weapon weight', {
 Weapon.schema = Schema:new('weapon', {
   id = { type = 'string', required = true, desc = 'registry id (saves, loadouts)' },
   name = { type = 'string', required = true },
-  art = { type = 'string', desc = 'hands sheet (render/weapon_art.lua); default: the id' },
+  art = { type = 'string', desc = 'hands sheet (content/weapon_art.lua); default: the id' },
   hud = {
     type = 'table',
     required = true,

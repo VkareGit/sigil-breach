@@ -27,13 +27,24 @@ Body.fields = {
   regenRate = { type = 'number', min = 0, desc = 'own guard regeneration rate (share/s)' },
   drag = { type = 'number', min = 0, desc = 'own friction against a shove (1/s)' },
   radius = { type = 'number', default = 0.25, min = 0.05, desc = 'collision footprint (m)' },
+  height = {
+    type = 'number',
+    min = 0.05,
+    desc = 'coarse movement separation height (m); else its painted body as posed',
+  },
   aimY = { type = 'number', default = 1.1, desc = 'height aimed at by explosives (m)' },
+  eye = {
+    type = 'number',
+    min = 0,
+    desc = 'where its sight starts above its feet (m); else its painted head as posed',
+  },
   blood = { type = 'table', default = { 0.26, 0.025, 0.016 }, desc = 'blood colour' },
   struck = { type = 'string', default = 'flesh', values = { 'flesh', 'metal', 'bone' } },
   boss = { type = 'boolean', desc = 'falters instead of being interrupted' },
   microStun = { type = 'number', min = 0, desc = 'boss: brief stun of a heavy unbroken blow' },
 }
 Body.schema = Schema:new('body', Body.fields)
--- A neutral body for records without an archetype (fixtures, catalogue).
-Body.neutral = Body.schema:build({ hp = 1, woundAt = 1 })
+-- A neutral body for records without an archetype (fixtures, catalogue). It
+-- has no painting to stand in, so it states its movement height.
+Body.neutral = Body.schema:build({ hp = 1, woundAt = 1, height = 2.2 })
 return Body

@@ -825,7 +825,8 @@ function S.run(G, renderer)
   f:write(
     '\nPainted portals and abilities: '
       .. summoningScenes
-      .. ' native scenes, read-only render receipts and wall occlusion verified.'
+      .. ' native scenes, read-only render receipts and wall occlusion verified.\n'
+      .. require('qa.output').receipt()
   )
   f:close()
   print(table.concat(reports, '\n'))

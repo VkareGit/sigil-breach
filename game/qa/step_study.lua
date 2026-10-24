@@ -11,6 +11,7 @@
 local Golden = require('qa.golden')
 local Rules = require('src.combat.rules')
 local Attacks = require('src.enemies.actions')
+local Tooling = require('qa.tooling')
 local S = {}
 local STEP = 1 / 120
 local function arena(G)
@@ -173,18 +174,20 @@ function laws.knightRun(G, dt)
   end
   return z - g.player.z, 'the knight running forward for 1 s (m)'
 end
-function S.run(G, output)
-  local lines = { 'STEP STUDY (0.29)', '', 'A. Frame rate at a fixed 1/120 s simulation step:' }
+function S.run(G, output, smoke)
+  local lines = Tooling.header('STEP STUDY', smoke)
+  lines[#lines + 1] = 'A. Frame rate at a fixed 1/120 s simulation step:'
+  local limit, duration = Tooling.count(smoke, 700, 120), Tooling.count(smoke, 6, 1.1)
   local reference
   for _, entry in ipairs({
     -- Each schedule runs exactly 700 steps (5.83 s): the same simulated time.
-    { 'fps 30', schedule(30, 6) },
-    { 'fps 60', schedule(60, 6) },
-    { 'fps 144', schedule(144, 6) },
-    { 'fps 240', schedule(240, 6) },
-    { 'jittered 24-150 fps', schedule(60, 6, true) },
+    { 'fps 30', schedule(30, duration) },
+    { 'fps 60', schedule(60, duration) },
+    { 'fps 144', schedule(144, duration) },
+    { 'fps 240', schedule(240, duration) },
+    { 'jittered 24-150 fps', schedule(60, duration, true) },
   }) do
-    local digest, steps = drive(G, entry[2], 700)
+    local digest, steps = drive(G, entry[2], limit)
     reference = reference or digest
     lines[#lines + 1] = string.format(
       '  %-22s %5d steps  digest %s  %s',
@@ -193,8 +196,12 @@ function S.run(G, output)
       digest,
       digest == reference and 'same' or 'DIFFERENT'
     )
+    assert(
+      steps == limit and digest == reference,
+      'fixed-step frame schedule diverged: ' .. entry[1]
+    )
   end
-  local slow, steps = drive(G, schedule(4, 6))
+  local slow, steps = drive(G, schedule(4, duration))
   lines[#lines + 1] = string.format(
     '  %-22s %5d steps (time dropped by the 0.2 s clamp, by design)  digest %s',
     'fps 4',
@@ -232,9 +239,7 @@ function S.run(G, output)
         or '-'
     )
   end
-  local f = assert(io.open(output .. '/step-study.txt', 'w'))
-  f:write(table.concat(lines, '\n') .. '\n')
-  f:close()
+  Tooling.write(output, 'step-study.txt', lines, smoke)
   for _, line in ipairs(lines) do
     print(line)
   end

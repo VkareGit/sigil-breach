@@ -107,7 +107,10 @@ end
 -- The four neighbouring cells a route may step to, in the order they are tried.
 local steps = { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } }
 local function route(g, e, tx, tz, dt)
-  if W.visible(g.world, e.x, e.z, tx, tz) then
+  if
+    W.visible(g.world, e.x, e.z, tx, tz)
+    and (not g.world.elevations or W.clear(g.world, e.x, e.z, tx, tz, radius(e)))
+  then
     move(g, e, tx, tz, e.speed, dt)
     return
   end
@@ -265,7 +268,11 @@ local function tickBody(g, e, dt, paused)
   Body.recover(e, dt)
   -- A body in the air keeps flying whatever its state: a leap shot out of
   -- the sky falls and lands knocked down (the painted fall).
-  if e.hp > 0 and e.leapY ~= nil and e.ai ~= 'strike' then
+  if
+    e.hp > 0
+    and e.leapY ~= nil
+    and (e.ai ~= 'strike' or (g.world.elevations and e.attackSpec and e.attackSpec.kind ~= 'leap'))
+  then
     if Attacks.flight(g, e, dt) then
       Attacks.land(g, e, true)
       if e.ai == 'hurt' then
@@ -302,7 +309,7 @@ local function perceive(g, e, d, dt)
   local p = g.player
   e.sense = e.sense - dt
   if e.sense <= 0 then
-    e.visible = W.visible(g.world, e.x, e.z, p.x, p.z)
+    e.visible = Rules.seesKnight(g, e)
     e.sense = Senses.interval + e.id % 3 * Senses.stagger
     if e.visible and d < Senses.alertRange then
       if not e.awake then
@@ -348,13 +355,13 @@ function States.windup(g, e, d, dt)
   local spec = Attacks.current(e)
   if
     not Attacks.kindOf(spec).unseen
-    and not W.visible(g.world, e.x, e.z, e.aimX, e.aimZ)
-    and W.visible(g.world, e.x, e.z, p.x, p.z)
+    and not Rules.seesKnight(g, e, e.aimX, e.aimZ)
+    and Rules.seesKnight(g, e)
   then
     e.aimX, e.aimZ = p.x, p.z
     g.retargets = (g.retargets or 0) + 1
   end
-  if W.visible(g.world, e.x, e.z, e.aimX, e.aimZ) then
+  if Rules.seesKnight(g, e, e.aimX, e.aimZ) then
     change(e, 'strike')
     Attacks.execute(g, e)
     return
@@ -410,23 +417,22 @@ local function separate(g, dt)
     if a.hp > 0 then
       for j = i + 1, #g.enemies do
         local b = g.enemies[j]
-        if b.hp > 0 then
-          local dx, dz = a.x - b.x, a.z - b.z
-          local d = len(dx, dz)
-          local minimum = math.max(S.minimum, radius(a) + radius(b))
-          if d < minimum then
-            local overlap = minimum - d
-            if d < 0.001 then
-              dx, dz, d = 1, 0, 1
-            end
-            -- The parting is shared by the masses (0.25): the lighter body
-            -- gives way more; equal bodies part equally.
-            local amount = math.min(S.step, dt * S.rate, overlap * S.share)
-            local ma, mb = Rules.body(a).mass or 1, Rules.body(b).mass or 1
-            local ga, gb = 2 * amount * mb / (ma + mb), 2 * amount * ma / (ma + mb)
-            W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a))
-            W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b))
+        local dx, dz = a.x - b.x, a.z - b.z
+        local d = len(dx, dz)
+        local minimum = math.max(S.minimum, radius(a) + radius(b))
+        -- Footprints first: heights are compared only for bodies that touch.
+        if b.hp > 0 and d < minimum and Rules.bodiesOverlap(g, a, b) then
+          local overlap = minimum - d
+          if d < 0.001 then
+            dx, dz, d = 1, 0, 1
           end
+          -- The parting is shared by the masses (0.25): the lighter body
+          -- gives way more; equal bodies part equally.
+          local amount = math.min(S.step, dt * S.rate, overlap * S.share)
+          local ma, mb = Rules.body(a).mass or 1, Rules.body(b).mass or 1
+          local ga, gb = 2 * amount * mb / (ma + mb), 2 * amount * ma / (ma + mb)
+          W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a))
+          W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b))
         end
       end
     end

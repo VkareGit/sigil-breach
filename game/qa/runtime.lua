@@ -37,6 +37,10 @@ local captures = {
   ['--ritual-review'] = true,
   ['--audio-export'] = true,
   ['--movement-review'] = true,
+  ['--qa-smoke'] = true,
+  ['--startup-check'] = true,
+  ['--startup-fixture'] = true,
+  ['--resource-plateau'] = true,
 }
 function Q.captureFlag(flag)
   return type(flag) == 'string'
@@ -54,6 +58,13 @@ function Q.new(arguments)
     end
   end
   q.isolated = q.capture or q:has('--ui-test')
+  if q:has('--qa-smoke') then
+    local selected = 0
+    for _, entry in ipairs(require('qa.tooling').catalog) do
+      selected = selected + (q:has(entry.flag) and 1 or 0)
+    end
+    assert(selected == 1, '--qa-smoke requires exactly one registered diagnostic tool')
+  end
   q.output = os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput
   return q
 end
@@ -77,6 +88,11 @@ function Q:prepare()
   end
 end
 function Q:runEarly()
+  if self:has('--startup-check') then
+    require('qa.startup_check').run(self.output)
+    love.event.quit(0)
+    return true
+  end
   if self:has('--bake-hit-masks') then
     local count = require('qa.bake_hit_masks').run(self.output .. '/hit-masks.lua')
     print('Baked ' .. count .. ' painted frames; source images unchanged.')
@@ -85,14 +101,14 @@ function Q:runEarly()
   end
   if self:has('--audio-export') then
     -- The score and every sound effect as WAV files (qa/audio_export.lua).
-    require('qa.audio_export').run()
+    require('qa.audio_export').run(self:has('--qa-smoke'))
     love.event.quit(0)
     return true
   end
   if not self:has('--benchmark') then
     return false
   end
-  require('qa.benchmark').run(self.output)
+  require('qa.benchmark').run(self.output, self:has('--qa-smoke'))
   love.event.quit(0)
   return true
 end
@@ -124,12 +140,14 @@ function Q:run(G, renderer, getGame, settings)
   elseif self:has('--mask-formats') then
     -- Mask storage formats measured (qa/mask_formats.lua).
     require('qa.mask_formats').run(self.output)
+  elseif self:has('--resource-plateau') then
+    require('qa.resource_plateau').run(G, renderer, getGame(), settings, self.output)
   elseif self:has('--step-study') then
     -- Frame-rate and physics-step sensitivity (qa/step_study.lua).
-    require('qa.step_study').run(G, self.output)
+    require('qa.step_study').run(G, self.output, self:has('--qa-smoke'))
   elseif self:has('--core-measure') then
     -- Core costs before/after a change (qa/core_measure.lua).
-    require('qa.core_measure').run(G, self.output)
+    require('qa.core_measure').run(G, self.output, self:has('--qa-smoke'))
   elseif self:has('--population') then
     -- Balance tuning (plan v5): the human-model populations alone.
     require('qa.scenarios.playtest').population(G)

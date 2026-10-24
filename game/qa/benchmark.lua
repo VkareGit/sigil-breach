@@ -1,20 +1,28 @@
 -- Deterministic renderer workload. No present-derived FPS: draw submission,
 -- synchronous readback, simulation and Lua allocation are measured separately.
 -- Complete-frame and lifecycle passes include UI; legacy world passes do not.
+local Tooling = require('qa.tooling')
 local B = {}
 local function write(path, text)
   local f = assert(io.open(path, 'wb'))
   f:write(text)
   f:close()
 end
-function B.run(output)
+function B.run(output, smoke)
+  assert(
+    not (smoke and os.getenv('SIGIL_BENCH_STARTUP_ONLY') == '1'),
+    'smoke must exercise the full benchmark path; disable SIGIL_BENCH_STARTUP_ONLY'
+  )
+  local function n(full, short)
+    return Tooling.count(smoke, full, short)
+  end
   local lg = love.graphics
   love.window.setVSync(0)
   lg.setDefaultFilter('nearest', 'nearest')
   local clock = love.timer.getTime
   local begin = clock()
   local initialStats = lg.getStats()
-  local lines = {}
+  local lines = Tooling.header('SIGIL renderer benchmark', smoke)
   local function log(s)
     lines[#lines + 1] = s
     print(s)
@@ -158,9 +166,18 @@ function B.run(output)
         g.bullets[i] =
           { x = 14 + (i * 0.41) % 4, y = 1.2, z = 19 + (i * 0.47) % 5, color = { 0.7, 0.35, 0.12 } }
       end
+      -- Through the hazard prefab, as enemies/hazards.lua makes them: the
+      -- component's fields (maxDelay, pulse...) are what the renderer reads.
+      local Spawn = require('src.session.spawn')
       for i = 1, (heavy and 8 or 1) do
-        g.hazards[i] =
-          { x = 13 + (i * 0.67) % 6, z = 18 + (i * 0.49) % 5, radius = 0.8, delay = 0.4, life = 3 }
+        Spawn.make(g, 'hazard', {
+          x = 13 + (i * 0.67) % 6,
+          z = 18 + (i * 0.49) % 5,
+          radius = 0.8,
+          delay = 0.4,
+          maxDelay = 0.4,
+          life = 3,
+        })
       end
     end
     return g
@@ -209,9 +226,11 @@ function B.run(output)
     end
     local updated = clock()
     local game = app.game
-    r:draw(Presentation.sample(game, app.accumulator * 120), 1280, 720)
+    local shown = Presentation.sample(game, app.accumulator * 120)
+    r:draw(shown, 1280, 720)
     local world = clock()
-    UI.draw(game, 1280, 720, app.settings)
+    UI.draw(shown, 1280, 720, app.settings)
+    app.input:present(game, shown)
     lg.setCanvas() -- flush the full image before timing its readback separately
     local submitted = clock()
     local pixel = complete:newImageData(1, 1, 0, 0, 1, 1)
@@ -230,6 +249,16 @@ function B.run(output)
     write(output .. '/' .. filename .. '.png', png:getString())
     png:release()
     pixels:release()
+  end
+  local function finishLoading()
+    return Tooling.advanceUntil('application gallery loading', function()
+      return not app.loading
+    end, function(dt)
+      lg.setCanvas(complete)
+      app:draw()
+      lg.setCanvas()
+      app:update(dt)
+    end, 1 / 60, 5)
   end
   r.present = presentToCanvas
   local _, coldWorld, coldUI, coldSubmit, coldSync, coldTotal = completeFrame(false)
@@ -357,20 +386,23 @@ function B.run(output)
       )
       if os.getenv('SIGIL_BENCH_STARTUP_ONLY') == '1' then
         complete:release()
+        r:release()
+        require('src.render.weapon').release()
+        UI.shutdown()
         log(
           'Startup-only probe: stops after first field and one warm new session; no steady-state/FPS claim.'
         )
-        write(output .. '/benchmark.txt', table.concat(lines, '\n') .. '\n')
+        Tooling.write(output, 'benchmark.txt', lines, smoke)
         return lines
       end
     end
-    for _ = 1, 30 do
+    for _ = 1, n(30, 2) do
       r:draw(g, 1280, 720)
       sync()
     end
     local submissions, readbacks = {}, {}
     local stats0 = lg.getStats()
-    for i = 1, 180 do
+    for i = 1, n(180, 4) do
       t = clock()
       r:draw(g, 1280, 720)
       submissions[i] = (clock() - t) * 1000
@@ -387,15 +419,15 @@ function B.run(output)
         percentile(submissions, 0.95),
         percentile(readbacks, 0.5),
         percentile(readbacks, 0.95),
-        (stats1.drawcalls - stats0.drawcalls) / 180,
-        (stats1.canvasswitches - stats0.canvasswitches) / 180,
-        (stats1.shaderswitches - stats0.shaderswitches) / 180
+        (stats1.drawcalls - stats0.drawcalls) / n(180, 4),
+        (stats1.canvasswitches - stats0.canvasswitches) / n(180, 4),
+        (stats1.shaderswitches - stats0.shaderswitches) / n(180, 4)
       )
     )
     collectgarbage('collect')
     collectgarbage('stop')
     local mem = collectgarbage('count')
-    for _ = 1, 30 do
+    for _ = 1, n(30, 2) do
       r:draw(g, 1280, 720)
       sync()
     end
@@ -403,14 +435,14 @@ function B.run(output)
       string.format(
         '%s lua_allocated_KiB_per_draw=%.4f (GC stopped, includes readback object)',
         label,
-        (collectgarbage('count') - mem) / 30
+        (collectgarbage('count') - mem) / n(30, 2)
       )
     )
     collectgarbage('restart')
     collectgarbage('collect')
     local prof = {}
     local original = {}
-    for _, method in ipairs({
+    local methods = {
       'object',
       'enemy',
       'prop',
@@ -420,7 +452,8 @@ function B.run(output)
       'shrine',
       'mural',
       'pickup',
-    }) do
+    }
+    for _, method in ipairs(methods) do
       local key = method
       original[key] = r[key]
       prof[key] = 0
@@ -431,25 +464,27 @@ function B.run(output)
         return result
       end
     end
-    for _ = 1, 60 do
+    for _ = 1, n(60, 2) do
       r:draw(g, 1280, 720)
       sync()
     end
-    for key, fn in pairs(original) do
-      r[key] = fn
-      log(string.format('%s profile_%s_ms=%.4f', label, key, prof[key] * 1000 / 60))
+    for _, key in ipairs(methods) do
+      r[key] = original[key]
+      log(string.format('%s profile_%s_ms=%.4f', label, key, prof[key] * 1000 / n(60, 2)))
     end
     local image = r.canvas:newImageData()
-    write(output .. '/' .. label .. '.png', image:encode('png'):getString())
+    local encoded = image:encode('png')
+    write(output .. '/' .. label .. '.png', encoded:getString())
+    encoded:release()
     image:release()
     -- Simulation is a fresh live scene, never the synthetic frozen FX snapshot.
     g = scene(heavy, true)
     local input = {}
-    for _ = 1, 60 do
+    for _ = 1, n(60, 2) do
       g:update(1 / 120, input)
     end
     local updates = {}
-    for i = 1, 1200 do
+    for i = 1, n(1200, 8) do
       t = clock()
       g:update(1 / 120, input)
       updates[i] = (clock() - t) * 1000
@@ -467,7 +502,7 @@ function B.run(output)
     -- the collector running. There is no UI, present, or per-frame sync here.
     local frames, worst = {}, 0
     collectgarbage('collect')
-    for i = 1, 600 do
+    for i = 1, n(600, 4) do
       t = clock()
       g:update(1 / 120, input)
       r:draw(g, 1280, 720)
@@ -488,7 +523,7 @@ function B.run(output)
     collectgarbage('collect')
     collectgarbage('stop')
     local quiet = 0
-    for _ = 1, 600 do
+    for _ = 1, n(600, 4) do
       t = clock()
       g:update(1 / 120, input)
       r:draw(g, 1280, 720)
@@ -503,7 +538,7 @@ function B.run(output)
     local pause = collectgarbage('setpause', pacing.pause)
     local stepmul = collectgarbage('setstepmul', pacing.stepmul)
     local paced, pacedWorst = {}, 0
-    for i = 1, 600 do
+    for i = 1, n(600, 4) do
       t = clock()
       g:update(1 / 120, input)
       r:draw(g, 1280, 720)
@@ -525,14 +560,14 @@ function B.run(output)
     collectgarbage('collect')
     collectgarbage('stop')
     local before = collectgarbage('count')
-    for _ = 1, 240 do
+    for _ = 1, n(240, 2) do
       g:update(1 / 120, input)
     end
     log(
       string.format(
         '%s sim_allocated_KiB_per_step=%.4f (GC stopped)',
         label,
-        (collectgarbage('count') - before) / 240
+        (collectgarbage('count') - before) / n(240, 2)
       )
     )
     collectgarbage('restart')
@@ -618,18 +653,19 @@ function B.run(output)
       end
     end
     app:adopt(game)
-    for _ = 1, 30 do
+    for _ = 1, n(30, 2) do
       completeFrame(false)
     end
     local samples, prior = measurements(), lg.getStats()
-    for i = 1, 240 do
+    for i = 1, n(240, 4) do
       sample(samples, i, false)
     end
     summarize(label, samples, prior)
     captureComplete(label)
   end
   app:adopt(menu)
-  -- Real session routing: 36 simulated arena seconds plus four menu seconds.
+  -- Real application routing, distinct from prepared/frozen scene timings.
+  -- Portal arrival is observed, not bypassed or replaced with a fixed sleep.
   -- Audio voices run with zero output volume; this is no listening assessment.
   Audio.muted = false
   resources('lifecycle_before')
@@ -640,11 +676,35 @@ function B.run(output)
     app:action('field_start')
     local created = (clock() - started) * 1000
     app.game.testing = true
+    local loadingSteps = finishLoading()
     for i = 1, count do
       local kind = Field.catalog.enemies[1 + (i - 1) % #Field.catalog.enemies].id
       app:action('field_spawn_' .. kind .. '_1')
     end
     app:action('field_close')
+    assert(
+      #app.game.enemies == 0 and #app.game.run.pending == count,
+      'catalogue summons must begin as pending portals, not immediate bodies'
+    )
+    local preparationStarted = clock()
+    local arrivalSteps, arrivalSeconds = Tooling.advanceUntil('lifecycle portal arrival', function()
+      return not app.loading
+        and app.game.state == 'playing'
+        and #app.game.run.pending == 0
+        and #app.game.enemies == count
+    end, function()
+      completeFrame(true)
+    end, 1 / 60, 5)
+    log(
+      string.format(
+        'cycle_%d preparation loading_steps=%d arrival_steps=%d arrival_simulated_s=%.3f arrival_wall_ms=%.3f (excluded from steady-state samples)',
+        cycle,
+        loadingSteps,
+        arrivalSteps,
+        arrivalSeconds,
+        (clock() - preparationStarted) * 1000
+      )
+    )
     assert(
       app.game.state == 'playing' and #app.game.enemies == count,
       'lifecycle did not enter the requested arena'
@@ -662,7 +722,7 @@ function B.run(output)
       )
     )
     local samples, prior = measurements(), lg.getStats()
-    for i = 1, 540 do
+    for i = 1, n(540, 8) do
       sample(samples, i, true)
     end
     summarize('cycle_' .. cycle .. '_arena_live', samples, prior)
@@ -695,14 +755,36 @@ function B.run(output)
       )
     )
     samples, prior = measurements(), lg.getStats()
-    for i = 1, 60 do
+    for i = 1, n(60, 2) do
       sample(samples, i, true)
     end
     summarize('cycle_' .. cycle .. '_menu', samples, prior)
   end
-  for cycle = 1, 4 do
+  for cycle = 1, n(4, 2) do
     lifecycle(cycle)
     resources('lifecycle_after_cycle_' .. cycle)
+  end
+  -- Larger populations are diagnostics built with the real factory. The
+  -- catalogue still limits ordinary play to 20; this does not raise that cap.
+  local populations =
+    Tooling.populations(os.getenv('SIGIL_BENCH_POPULATIONS'), smoke and { 4, 20 } or { 20, 48, 96 })
+  for _, count in ipairs(populations) do
+    local crowd = Tooling.crowd(G, count)
+    app:adopt(crowd)
+    finishLoading()
+    completeFrame(false)
+    local samples, prior = measurements(), lg.getStats()
+    for i = 1, n(240, 4) do
+      sample(samples, i, true)
+    end
+    summarize('prepared_population_' .. count .. '_live', samples, prior)
+    log(
+      string.format(
+        'prepared_population_%d final_bodies=%d; diagnostic fixture bypasses catalogue cap; no machine-specific performance assertion',
+        count,
+        #crowd.enemies
+      )
+    )
   end
   -- Faster-changing clocks deliberately stress the rendered HUD cache. These
   -- timestamps are synthetic: 1024 images do not stand for 1024 played seconds.
@@ -711,7 +793,7 @@ function B.run(output)
   resources('clock_churn_before')
   local function clockChurn(batch)
     local samples, prior = measurements(), lg.getStats()
-    for i = 1, 512 do
+    for i = 1, n(512, 16) do
       app.game.elapsed = 100000 + (batch - 1) * 512 + i
       app.game.run.wallet = (batch - 1) * 512 + i
       sample(samples, i, false)
@@ -728,10 +810,13 @@ function B.run(output)
   resources('final_menu')
   r.present = nativePresent
   complete:release()
+  r:release()
+  require('src.render.weapon').release()
+  UI.shutdown()
   log(
-    'Legacy world passes exclude UI; complete_* / cycle_* / clock_churn_* include world, postprocessing, bitmap UI and a final-canvas 1px readback. Submit can include driver back-pressure; readback is extra waiting/copy, not GPU-only time. No present/vsync FPS or input-latency claim. PNG encoding and per-frame result bookkeeping excluded.'
+    'Legacy world passes exclude UI; complete_* / cycle_* / prepared_population_* / clock_churn_* include world, postprocessing, bitmap UI, Input:present observation capture (inside ui timing), and a final-canvas 1px readback. Submit can include driver back-pressure; readback is extra waiting/copy, not GPU-only time. No present/vsync FPS or input-latency claim. PNG encoding and per-frame result bookkeeping excluded.'
   )
-  write(output .. '/benchmark.txt', table.concat(lines, '\n') .. '\n')
+  Tooling.write(output, 'benchmark.txt', lines, smoke)
   return lines
 end
 return B

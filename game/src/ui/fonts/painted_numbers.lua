@@ -1,22 +1,31 @@
 -- Individually illustrated fresco numerals, assembled without a system font.
 local N = { order = '0123456789%/' }
-function N.init()
+local Resources = require('src.render.resources')
+function N.init(checkpoint)
   if N.image then
     return N
   end
   local meta = require('assets.fonts.painted-v16.numerals')
   N.path = meta.image
   N.inkStyle = 'flat-painted'
-  N.image = love.graphics.newImage(meta.image)
-  N.image:setFilter('nearest', 'nearest')
+  N.resources = Resources.new('UI painted numbers', checkpoint)
+  N.image = N.resources:image(meta.image)
   N.glyphs = {}
   local w, h = N.image:getDimensions()
   for i = 1, #N.order do
     local char = N.order:sub(i, i)
     local g = assert(meta.glyphs[char], 'Missing illustrated numeral ' .. char)
-    N.glyphs[char] = { q = love.graphics.newQuad(g.x, g.y, g.w, g.h, w, h), w = g.w, h = g.h }
+    N.glyphs[char] =
+      { q = N.resources:own(love.graphics.newQuad(g.x, g.y, g.w, g.h, w, h)), w = g.w, h = g.h }
   end
+  N.resources.checkpoint = nil
   return N
+end
+function N.release()
+  if N.resources then
+    N.resources:release()
+  end
+  N.resources, N.image, N.glyphs = nil, nil, nil
 end
 function N.measure(value, height)
   N.init()

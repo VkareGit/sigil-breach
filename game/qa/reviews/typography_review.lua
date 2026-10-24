@@ -3,6 +3,7 @@ local R = {}
 function R.run(output)
   local lg = love.graphics
   local Bitmap = require('src.ui.fonts.bitmap_font')
+  local Resources = require('src.render.resources')
   local ink = require('src.ui.ink')
   local Numbers = require('src.ui.fonts.painted_numbers')
   local Titles = require('src.ui.fonts.painted_titles')
@@ -11,7 +12,8 @@ function R.run(output)
   for _, size in ipairs({ 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 36, 42, 48, 64, 94 }) do
     fonts[size] = Bitmap.load(size)
     local m = old.sizes[size]
-    oldFonts[size] = Bitmap.new(m, lg.newImage(m.image))
+    local scope = Resources.new('typography comparison ' .. size)
+    oldFonts[size] = Bitmap.new(m, scope:image(m.image), scope)
   end
   local ivory = { 0.94, 0.89, 0.76 }
   local red = { 0.88, 0.31, 0.24 }
@@ -89,10 +91,10 @@ function R.run(output)
   f:write(table.concat(lines, '\n') .. '\nTOTAL ' .. #lines .. ' PASS\n')
   f:close()
   for _, font in pairs(fonts) do
-    font.image:release()
+    font:release()
   end
   for _, font in pairs(oldFonts) do
-    font.image:release()
+    font:release()
   end
   return #lines
 end

@@ -1,6 +1,7 @@
 -- Painted summoning art follows existing spawner clocks; never advances them.
 local Atlas = require('src.render.atlas')
 local Ritual = require('src.render.ritual_art')
+local Ground = require('src.physics.ground')
 local P = {}
 local Archetypes = require('src.content.enemies')
 P.colors = require('src.run.spawner').colors
@@ -45,7 +46,7 @@ function P.arrivalFrame(age)
   return age < 0.16 and 6 or (age < 0.38 and 7 or 8)
 end
 function P.init(r)
-  local image, feet, frames = Atlas.load(P.path, 4, 2)
+  local image, feet, frames = Atlas.load(P.path, 4, 2, nil, nil, r.resources)
   local width, height = image:getDimensions()
   for _, region in ipairs(frames) do
     region.width = region.width * (width / 4) / (height / 2)
@@ -53,7 +54,7 @@ function P.init(r)
   r.portalArt = { image = image, feet = feet, frames = frames }
   r.portalTint = { 1, 1, 1 }
 end
-local function paint(r, x, z, kind, frame, alpha, brightness)
+local function paint(r, x, z, kind, frame, alpha, brightness, ground)
   local art, shader = r.portalArt, r.spriteShader
   local region = art.frames[frame]
   local color, tint = P.color(kind), r.portalTint
@@ -71,7 +72,10 @@ local function paint(r, x, z, kind, frame, alpha, brightness)
   shader:send('silhouette', 0)
   shader:send('mirror', 0)
   shader:send('frameRect', region.rect)
-  shader:send('objectPos', r:vec3(x, 0.018 - art.feet[frame] * size * region.height, z))
+  shader:send(
+    'objectPos',
+    r:vec3(x, (ground or 0) + 0.018 - art.feet[frame] * size * region.height, z)
+  )
   shader:send('objectYaw', math.atan2(r.camera[1] - x, r.camera[3] - z))
   shader:send('objectScale', size)
   shader:send('lean', 0)
@@ -81,17 +85,30 @@ local function paint(r, x, z, kind, frame, alpha, brightness)
   love.graphics.draw(r.sprite)
   shader:send('effectTint', r:vec3(1, 1, 1))
 end
-function P.draw(r, gate)
+function P.draw(r, gate, _, world)
+  local ground = Ground.height(world, gate.x, gate.z)
   local t, color = P.progress(gate), P.color(gate.kind)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
-  r:object(r.shadow, gate.x, 0.014, gate.z, 0, 0.9 + 0.8 * t, nil, 0.25 + 0.35 * t)
-  Ritual.draw(r, gate.x, 0.033, gate.z, (1.55 - 0.65 * t) * 2, 0, nil, nil, false, 0.55 + 0.4 * t)
-  paint(r, gate.x, gate.z, gate.kind, P.frame(gate), 0.9 + 0.1 * t, 0.85 + 0.22 * t)
+  r:object(r.shadow, gate.x, ground + 0.014, gate.z, 0, 0.9 + 0.8 * t, nil, 0.25 + 0.35 * t)
+  Ritual.draw(
+    r,
+    gate.x,
+    ground + 0.033,
+    gate.z,
+    (1.55 - 0.65 * t) * 2,
+    0,
+    nil,
+    nil,
+    false,
+    0.55 + 0.4 * t
+  )
+  paint(r, gate.x, gate.z, gate.kind, P.frame(gate), 0.9 + 0.1 * t, 0.85 + 0.22 * t, ground)
   love.graphics.pop()
 end
 function P.arrival(r, g, e)
+  local ground = Ground.height(g.world, e.x, e.z)
   local age, frame = e.spawnAge, P.arrivalFrame(e.spawnAge)
   if not frame then
     return
@@ -101,8 +118,19 @@ function P.arrival(r, g, e)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
-  Ritual.draw(r, e.x, 0.028, e.z, (1.4 - age) * 2, 0, nil, nil, false, (1 - age / 0.6) * 0.75)
-  paint(r, e.x, e.z, kind, frame, 1 - (age / 0.6) ^ 2, 1.05 - age * 0.25)
+  Ritual.draw(
+    r,
+    e.x,
+    ground + 0.028,
+    e.z,
+    (1.4 - age) * 2,
+    0,
+    nil,
+    nil,
+    false,
+    (1 - age / 0.6) * 0.75
+  )
+  paint(r, e.x, e.z, kind, frame, 1 - (age / 0.6) ^ 2, 1.05 - age * 0.25, ground)
   love.graphics.pop()
 end
 return P

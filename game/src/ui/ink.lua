@@ -4,6 +4,12 @@
 local F = {}
 local lg = love.graphics
 local inkShader
+function F.release()
+  if inkShader then
+    inkShader:release()
+  end
+  inkShader = nil
+end
 function F.ink(lightGround)
   if not inkShader then
     inkShader = lg.newShader([[

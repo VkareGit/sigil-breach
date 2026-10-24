@@ -2,29 +2,63 @@
 -- World creation and collision tests never allocate a GPU mesh.
 local M = require('src.render.mesh')
 local Collision = require('src.physics.collision')
+local Ground = require('src.physics.ground')
 local Geometry = {}
+-- The weak map names worlds but owns no native resources. A live simulation
+-- world must not keep a mesh alive after its last renderer has closed.
+local identities, serial = setmetatable({}, { __mode = 'k' }), 0
 local stone, dark, trim, glow =
   { 0.24, 0.29, 0.30 }, { 0.095, 0.12, 0.14 }, { 0.42, 0.36, 0.24 }, { 1, 0.28, 0.055, 1 }
-function Geometry.prepare(w)
-  if w.mesh and w.meshRevision == w.geometryRevision then
-    return w.mesh
-  end
+local function build(w)
   local v = {}
+  local decor = w.decor or {}
+  local function raise(first, x, z, offset)
+    local height = Ground.height(w, x, z) - Ground.height(w) + (offset or 0)
+    if height ~= 0 then
+      for i = first, #v do
+        v[i][2] = v[i][2] + height
+      end
+    end
+  end
+  local function muralWall(x, z)
+    for _, area in ipairs(decor.muralWalls or {}) do
+      if x >= area[1] and x <= area[3] and z >= area[2] and z <= area[4] then
+        return true
+      end
+    end
+    return false
+  end
   for z = 1, w.size do
     for x = 1, w.size do
       if w.map[z][x] == 0 then
+        local elevation = Ground.cell(w, x, z)
         M.quad(
           v,
-          { x - 0.5, 0, z - 0.5 },
-          { x - 0.5, 0, z + 0.5 },
-          { x + 0.5, 0, z + 0.5 },
-          { x + 0.5, 0, z - 0.5 },
+          { x - 0.5, elevation, z - 0.5 },
+          { x - 0.5, elevation, z + 0.5 },
+          { x + 0.5, elevation, z + 0.5 },
+          { x + 0.5, elevation, z - 0.5 },
           { 0.30, 0.33, 0.32 }
         )
         -- Every exposed face has a high base, a dark panel, and brass cornice.
         for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
           local nx, nz = x + d[1], z + d[2]
+          local adjacent = Ground.cell(w, nx, nz)
+          if w.map[nz] and w.map[nz][nx] == 0 and elevation > adjacent then
+            -- The riser is the same cell boundary queried by collision/rays.
+            local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
+            local tx, tz = d[2] * 0.5, -d[1] * 0.5
+            M.quad(
+              v,
+              { px - tx, adjacent, pz - tz },
+              { px - tx, elevation, pz - tz },
+              { px + tx, elevation, pz + tz },
+              { px + tx, adjacent, pz + tz },
+              stone
+            )
+          end
           if w.map[nz] and w.map[nz][nx] and w.map[nz][nx] > 0 then
+            local first = #v + 1
             local h = Collision.top(w.map[nz][nx])
             local px, pz = x + d[1] * 0.55, z + d[2] * 0.55
             local bw, bd = d[1] == 0 and 1 or 0.12, d[2] == 0 and 1 or 0.12
@@ -33,9 +67,7 @@ function Geometry.prepare(w)
             M.box(v, px, h - 0.25, pz, bw, 0.25, bd, trim)
             -- Leave continuous lime behind the three narrative wall paintings:
             -- a black niche stripe through a fresco reads as a pasted decal.
-            local muralWall = ((x == 3 or x == 29) and z >= 14 and z <= 18)
-              or (z == 29 and x >= 14 and x <= 18)
-            if (x + z) % 3 == 0 and not muralWall then
+            if (x + z) % 3 == 0 and not muralWall(x, z) then
               M.box(v, px - d[1] * 0.06, 0.55, pz - d[2] * 0.06, bw * 0.92, 2.8, bd * 0.92, dark)
               M.box(
                 v,
@@ -48,96 +80,150 @@ function Geometry.prepare(w)
                 { 0.5, 0.31, 0.13 }
               )
             end
+            raise(first, nx, nz)
           end
         end
       elseif w.map[z][x] == 2 then
+        local elevation = Ground.cell(w, x, z)
+        if elevation > 0 then
+          M.box(v, x, 0, z, 1, elevation, 1, stone)
+        end
+        local first = #v + 1
         M.box(v, x, 0, z, 1.15, 0.22, 1.15, trim)
         M.cone(v, x, 0.22, z, 0.48, 0.36, 4.5, stone, 8)
         M.cone(v, x, 3.8, z, 0.37, 0.68, 0.5, trim, 8)
         M.cone(v, x, 4.3, z, 0.68, 0.45, 0.5, stone, 8)
+        raise(first, x, z)
       end
     end
   end
   -- Elevated rib arches across the nave, open to an impossible sky.
   -- 0.14: every rib springs from a real pillar (x 12 / 20): no column you can walk through.
-  for _, z in ipairs({ 10, 15, 20, 25 }) do
+  for _, arch in ipairs(decor.arches or {}) do
+    local first = #v + 1
     for side = -1, 1, 2 do
       for i = 0, 11 do
         local a = i / 12 * math.pi / 2
         local b = (i + 1) / 12 * math.pi / 2
-        M.beam(
-          v,
-          { 16 + side * 4 * math.cos(a), 3.8 + 2 * math.sin(a), z },
-          { 16 + side * 4 * math.cos(b), 3.8 + 2 * math.sin(b), z },
-          0.18,
-          stone
-        )
+        M.beam(v, {
+          arch.x + side * arch.halfSpan * math.cos(a),
+          arch.spring + arch.rise * math.sin(a),
+          arch.z,
+        }, {
+          arch.x + side * arch.halfSpan * math.cos(b),
+          arch.spring + arch.rise * math.sin(b),
+          arch.z,
+        }, 0.18, stone)
       end
     end
+    raise(first, arch.x, arch.z, arch.y)
   end
   -- Main ritual inlay, lines and nine circles.
-  for _, r in ipairs({ 2.3, 2.4, 2.85 }) do
-    M.ring(v, 16, 0.012, 17, r, 0.025, { 0.59, 0.40, 0.18, 0.25 })
+  for _, ritual in ipairs(decor.rituals or {}) do
+    local first = #v + 1
+    for _, r in ipairs(ritual.rings) do
+      M.ring(v, ritual.x, 0.012, ritual.z, r, 0.025, { 0.59, 0.40, 0.18, 0.25 })
+    end
+    for i = 0, ritual.seals - 1 do
+      local a = i * math.pi * 2 / ritual.seals
+      M.ring(
+        v,
+        ritual.x + math.cos(a) * ritual.orbit,
+        0.014,
+        ritual.z + math.sin(a) * ritual.orbit,
+        0.14,
+        0.02,
+        trim,
+        16
+      )
+    end
+    raise(first, ritual.x, ritual.z, ritual.y)
   end
-  for i = 0, 8 do
-    local a = i * math.pi * 2 / 9
-    M.ring(v, 16 + math.cos(a) * 2.62, 0.014, 17 + math.sin(a) * 2.62, 0.14, 0.02, trim, 16)
-  end
-  for _, x in ipairs({ 15.3, 16.7 }) do
-    M.box(v, x, 0.01, 24, 0.025, 0.01, 9, { 0.55, 0.35, 0.15, 0.1 })
+  for _, aisle in ipairs(decor.aisles or {}) do
+    local first = #v + 1
+    M.box(v, aisle.x, 0.01, aisle.z, 0.025, 0.01, aisle.length, { 0.55, 0.35, 0.15, 0.1 })
+    raise(first, aisle.x, aisle.z, aisle.y)
   end
   for _, s in ipairs(w.seals) do
+    local first = #v + 1
     M.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
     M.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
     M.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
     M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
+    raise(first, s.x, s.z)
   end
-  M.box(v, 16, 0, 2.9, 4, 0.2, 0.9, dark)
-  M.ring(v, 16, 2.1, 2.85, 1.7, 0.16, trim, 64, true)
-  M.ring(v, 16, 2.1, 2.84, 1.5, 0.04, glow, 64, true)
-  for _, x in ipairs({ 13.8, 18.2 }) do
-    M.cone(v, x, 0, 3, 0.4, 0.25, 3.5, stone)
-    M.cone(v, x, 3.5, 3, 0.25, 0, 0.8, trim)
+  local portal = decor.portal
+  if portal then
+    local first = #v + 1
+    M.box(v, portal.x, 0, portal.z, 4, 0.2, 0.9, dark)
+    M.ring(v, portal.x, portal.y, portal.z - 0.05, portal.radius, 0.16, trim, 64, true)
+    M.ring(v, portal.x, portal.y, portal.z - 0.06, portal.radius - 0.2, 0.04, glow, 64, true)
+    for side = -1, 1, 2 do
+      local x = portal.x + side * 2.2
+      M.cone(v, x, 0, portal.z + 0.1, 0.4, 0.25, 3.5, stone)
+      M.cone(v, x, 3.5, portal.z + 0.1, 0.25, 0, 0.8, trim)
+    end
+    raise(first, portal.x, portal.z)
   end
   -- Dress the existing test arena without changing collision or routes.
   -- Banners hang beside the walls of the widened nave.
-  for _, z in ipairs({ 25, 28 }) do
-    for _, x in ipairs({ 9.25, 22.75 }) do
-      local side = x < 16 and 1 or -1
-      M.beam(v, { x, 3.8, z - 0.65 }, { x, 3.8, z + 0.65 }, 0.035, trim, 6)
-      for i = 0, 9 do
-        local a = i / 10
-        local b = (i + 1) / 10
-        local xa = x + side * (0.09 + math.sin(a * math.pi * 4) * 0.035)
-        local xb = x + side * (0.09 + math.sin(b * math.pi * 4) * 0.035)
-        M.quad(
-          v,
-          { xa, 3.75, z - 0.55 + a * 1.1 },
-          { xb, 3.75, z - 0.55 + b * 1.1 },
-          { xb, 1.9 + math.sin(b * math.pi) * 0.12, z - 0.55 + b * 1.1 },
-          { xa, 1.9 + math.sin(a * math.pi) * 0.12, z - 0.55 + a * 1.1 },
-          { 0.24, 0.045, 0.035, 0 }
-        )
-      end
-      M.ring(v, x + side * 0.14, 2.9, z, 0.20, 0.02, { 0.55, 0.32, 0.12, 0.08 }, 24, true)
+  for _, banner in ipairs(decor.banners or {}) do
+    local first = #v + 1
+    local x, z, side = banner.x, banner.z, banner.side
+    M.beam(v, { x, 3.8, z - 0.65 }, { x, 3.8, z + 0.65 }, 0.035, trim, 6)
+    for i = 0, 9 do
+      local a = i / 10
+      local b = (i + 1) / 10
+      local xa = x + side * (0.09 + math.sin(a * math.pi * 4) * 0.035)
+      local xb = x + side * (0.09 + math.sin(b * math.pi * 4) * 0.035)
+      M.quad(
+        v,
+        { xa, 3.75, z - 0.55 + a * 1.1 },
+        { xb, 3.75, z - 0.55 + b * 1.1 },
+        { xb, 1.9 + math.sin(b * math.pi) * 0.12, z - 0.55 + b * 1.1 },
+        { xa, 1.9 + math.sin(a * math.pi) * 0.12, z - 0.55 + a * 1.1 },
+        { 0.24, 0.045, 0.035, 0 }
+      )
     end
+    M.ring(v, x + side * 0.14, 2.9, z, 0.20, 0.02, { 0.55, 0.32, 0.12, 0.08 }, 24, true)
+    raise(first, banner.x, banner.z, banner.y)
   end
   -- Candle clusters, ossuary niches, and the cracked western reliquary.
-  for _, spot in ipairs({ { 14, 28 }, { 18, 28 }, { 6, 16 }, { 26, 16 }, { 14, 4 }, { 18, 4 } }) do
+  for _, spot in ipairs(decor.candles or {}) do
+    local first = #v + 1
     for i = 1, 3 do
-      local x = spot[1] + (i - 2) * 0.16
+      local x = spot.x + (i - 2) * 0.16
       local h = 0.16 + i * 0.05
-      M.cone(v, x, 0, spot[2], 0.04, 0.035, h, { 0.57, 0.47, 0.29, 0.04 }, 6)
-      M.cone(v, x, h, spot[2], 0.027, 0, 0.09, { 1, 0.47, 0.12, 1 }, 5)
+      M.cone(v, x, 0, spot.z, 0.04, 0.035, h, { 0.57, 0.47, 0.29, 0.04 }, 6)
+      M.cone(v, x, h, spot.z, 0.027, 0, 0.09, { 1, 0.47, 0.12, 1 }, 5)
+    end
+    raise(first, spot.x, spot.z, spot.y)
+  end
+  for _, spot in ipairs(decor.reliquaries or {}) do
+    local first = #v + 1
+    M.box(v, spot.x, 0, spot.z, 0.50, 0.65, 0.38, dark)
+    M.box(v, spot.x, 0.65, spot.z, 0.58, 0.07, 0.43, trim)
+    raise(first, spot.x, spot.z, spot.y)
+  end
+  local floor = Ground.height(w)
+  if floor ~= 0 then
+    for _, vertex in ipairs(v) do
+      vertex[2] = vertex[2] + floor
     end
   end
-  M.box(v, 3.7, 0, 20.4, 0.50, 0.65, 0.38, dark)
-  M.box(v, 3.7, 0.65, 20.4, 0.58, 0.07, 0.43, trim)
-  if w.mesh then
-    w.mesh:release()
+  return M.finish(v)
+end
+function Geometry.prepare(w, owner)
+  assert(owner, 'world geometry requires an explicit resource owner')
+  if not identities[w] then
+    serial = serial + 1
+    identities[w] = serial
   end
-  w.mesh = M.finish(v)
-  w.meshRevision = w.geometryRevision
-  return w.mesh
+  local key = 'world geometry|' .. identities[w] .. '|' .. tostring(w.geometryRevision)
+  return owner:retain(key, function()
+    return build(w)
+  end, function(mesh)
+    mesh:release()
+  end, { kind = 'generated world geometry', revision = w.geometryRevision })
 end
 return Geometry

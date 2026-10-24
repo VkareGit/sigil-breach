@@ -59,19 +59,18 @@ function X.explode(g, b)
   local action = b.action or defaultAction()
   local report =
     { targets = 0, kills = 0, healthDamage = 0, blocked = 0, impact = 0, selfDamage = 0 }
-  local ground = Ground.height(g.world)
   for _, e in ipairs(g.enemies) do
     if e.hp > 0 then
       -- The blast samples the physical body anchor. A leap moves it; visual bob
       -- and hover do not change exposure or damage.
-      local y = ground
+      local y = Ground.height(g.world, e.x, e.z)
         + (require('src.combat.rules').body(e).aimY or Tuning.explosives.aimHeight)
         + (e.leapY or 0)
       local visible, d = clear(g, b, e.x, y, e.z)
       if visible and d < action.radius then
         local dealt, blocked, impact, push = D.resolve(action.blast, e, d)
         local health = math.min(e.hp, dealt)
-        g:damageEnemy(e, dealt, 'charge')
+        g:damageEnemy(e, dealt, 'charge', action.blast)
         require('src.combat.combat').react(
           g,
           e,
@@ -93,19 +92,19 @@ function X.explode(g, b)
   end
   local p = g.player
   -- The blast meets the knight at his chest, as a missile does (0.25).
-  local visible, d = clear(g, b, p.x, ground + chest + p.jump - (p.crouch or 0), p.z)
+  local visible, d =
+    clear(g, b, p.x, Ground.height(g.world, p.x, p.z) + chest + p.jump - (p.crouch or 0), p.z)
   if visible and d < action.radius then
     local before = p.hp
     local own = action.selfBlast
     local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
     -- source 'self': the knight's own charge is never a perfect dodge.
-    g:damagePlayer(
-      own.base * f,
-      b.x,
-      b.z,
-      { base = own.base * f, impact = own.impact * f, damageType = own.damageType },
-      'self'
-    )
+    g:damagePlayer(own.base * f, b.x, b.z, {
+      base = own.base * f,
+      impact = own.impact * f,
+      damageType = own.damageType,
+      effects = own.effects,
+    }, 'self')
     report.selfDamage = math.max(0, before - p.hp)
   end
   g.explosionReport = report

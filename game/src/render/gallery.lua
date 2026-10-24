@@ -6,6 +6,7 @@ local WG = require('src.world.gallery')
 local Archetypes = require('src.content.enemies')
 local Ritual = require('src.render.ritual_art')
 local Skin = require('src.ui.skin')
+local Resources = require('src.render.resources')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
@@ -99,7 +100,11 @@ function G.layout(world)
   return WG.layout(world, G.boards)
 end
 -- Rendering ---------------------------------------------------------------
-local cache = {}
+local sampling = { mipmaps = true, filter = 'linear', mipmapFilter = 'linear' }
+local function resources(r)
+  r.galleryResources = r.galleryResources or Resources.new('renderer gallery')
+  return r.galleryResources
+end
 local function image(r, b)
   if b.get then
     local img = b.get(r)
@@ -110,21 +115,24 @@ local function image(r, b)
   if b.image then
     return b.image
   end
-  if cache[b.path] == nil then
-    local ok, img = pcall(love.graphics.newImage, b.path, { mipmaps = true })
-    if ok then
-      img:setFilter('linear', 'linear')
-      img:setMipmapFilter('linear')
-    end
-    cache[b.path] = ok and img or false
-  end
-  return cache[b.path] or nil
+  return resources(r):image(b.path, sampling)
 end
 G.image = image
 -- The same cache and sampling as the gallery. Preparation is bounded to one
 -- absent PNG per loading frame; already owned renderer images need no copy.
 local function pending(r, b)
-  return not b.image and not (b.get and b.get(r)) and cache[b.path] == nil
+  return not b.image and not (b.get and b.get(r)) and not resources(r):hasImage(b.path, sampling)
+end
+function G.forgetWorld(r)
+  r.galleryWorld, r.galleryPlaced = nil, nil
+  r.galleryLabelLayout = nil
+end
+function G.release(r)
+  if r.galleryResources then
+    r.galleryResources:release()
+    r.galleryResources = nil
+  end
+  G.forgetWorld(r)
 end
 function G.pending(r)
   local count = 0
@@ -143,6 +151,18 @@ function G.preloadStep(r)
     end
   end
   return 0
+end
+function G.loadingJobs(r)
+  local jobs = {}
+  for _ = 1, G.pending(r) do
+    jobs[#jobs + 1] = {
+      label = 'PREPARING THE GALLERY',
+      run = function()
+        G.preloadStep(r)
+      end,
+    }
+  end
+  return jobs
 end
 local WHITE = { 1, 1, 1 }
 local PLATE = { 0.11, 0.075, 0.055 }
@@ -175,9 +195,9 @@ function G.draw(r, g)
   end
   local lg = love.graphics
   local time = g.time or 0
-  if not G.placed or G.world ~= g.world then
-    G.placed = G.layout(g.world)
-    G.world = g.world
+  if not r.galleryPlaced or r.galleryWorld ~= g.world then
+    r.galleryPlaced = G.layout(g.world)
+    r.galleryWorld = g.world
   end
   -- Painted, fixed floor medallions; no floating geometry obscures exhibits.
   for _, p in ipairs(WG.pads) do
@@ -185,7 +205,7 @@ function G.draw(r, g)
   end
   lg.setShader(r.spriteShader)
   -- Boards: a dark plate behind the atlas so transparent sheets stay readable.
-  for _, b in ipairs(G.placed) do
+  for _, b in ipairs(r.galleryPlaced) do
     local img = image(r, b)
     if img then
       local w, h = img:getDimensions()
@@ -264,7 +284,7 @@ function G.labelBox(font, text, sx, sy, ox, oy, vw, vh, box)
 end
 -- Name plates over the nearest exhibits (screen space, after the frame).
 function G.labels(r, g, ox, oy, vw, vh)
-  if not g.testField or g.state ~= 'playing' or g.map or g.help or not G.placed then
+  if not g.testField or g.state ~= 'playing' or g.map or g.help or not r.galleryPlaced then
     return
   end
   local ui = require('src.ui.interface')
@@ -275,10 +295,10 @@ function G.labels(r, g, ox, oy, vw, vh)
   local lg = love.graphics
   local state = r.galleryLabelLayout
   local stationLabels = g.testField.labels
-  if not state or state.placed ~= G.placed or state.labels ~= stationLabels then
-    state = { placed = G.placed, labels = stationLabels, items = {}, taken = {}, boxes = {} }
+  if not state or state.placed ~= r.galleryPlaced or state.labels ~= stationLabels then
+    state = { placed = r.galleryPlaced, labels = stationLabels, items = {}, taken = {}, boxes = {} }
     r.galleryLabelLayout = state
-    for _, b in ipairs(G.placed) do
+    for _, b in ipairs(r.galleryPlaced) do
       state.items[#state.items + 1] = {
         x = b.x,
         -- The plate sits below the artwork's 1.15 m base, so its caption cannot

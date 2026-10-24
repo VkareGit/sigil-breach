@@ -1,6 +1,8 @@
 -- Stable world-light identities prevent lamps popping as the camera moves.
-local Shrine = require('src.run.descent').shrine
+local Queries = require('src.run.queries')
+local Ground = require('src.physics.ground')
 local Visibility = require('src.render.light_visibility')
+local Resources = require('src.render.resources')
 local L = { budget = 16 }
 function L.new()
   local l = setmetatable({ positions = {}, colors = {}, tiles = {}, sources = {} }, { __index = L })
@@ -15,16 +17,37 @@ function L:prepare(w)
   if self.world == w and self.revision == w.geometryRevision then
     return
   end
-  self.world, self.revision = w, w.geometryRevision
-  self.sources = {}
+  local sources = {}
   for _, lamp in ipairs(w.lamps) do
-    self.sources[#self.sources + 1] = { x = lamp.x, y = lamp.y, z = lamp.z, lamp = lamp }
+    if #sources < L.budget - 2 then
+      sources[#sources + 1] = { x = lamp.x, y = lamp.y, z = lamp.z, lamp = lamp }
+    end
   end
   for _, seal in ipairs(w.seals) do
-    self.sources[#self.sources + 1] = { x = seal.x, y = 2, z = seal.z, seal = seal }
+    if #sources < L.budget - 2 then
+      sources[#sources + 1] =
+        { x = seal.x, y = Ground.height(w, seal.x, seal.z) + 2, z = seal.z, seal = seal }
+    end
   end
-  self.sources[#self.sources + 1] = { x = Shrine.x, y = 1.55, z = Shrine.z, shrine = true }
-  self.visibility = Visibility.build(w, self.sources)
+  if w.ember and #sources < L.budget - 2 then
+    sources[#sources + 1] = {
+      x = w.ember.x,
+      y = Ground.height(w, w.ember.x, w.ember.z) + 1.55,
+      z = w.ember.z,
+      shrine = true,
+    }
+  end
+  local previous = self.resources
+  local resources = Resources.new('world light visibility')
+  local visibility = Visibility.build(w, sources, resources)
+  -- Commit only a complete replacement. Failed native allocation leaves the
+  -- previous world's atlas usable and this revision eligible for a retry.
+  self.world, self.revision, self.sources = w, w.geometryRevision, sources
+  self.visibility = visibility
+  self.resources = resources
+  if previous then
+    previous:release()
+  end
   for i = 1, L.budget do
     local s = self.sources[i]
     local pos, tile = self.positions[i], self.tiles[i]
@@ -36,8 +59,16 @@ function L:prepare(w)
     end
   end
 end
+function L:release()
+  if self.resources then
+    self.resources:release()
+  end
+  self.resources, self.visibility, self.world, self.revision = nil, nil, nil, nil
+  self.sources = {}
+end
 function L:update(g)
   self:prepare(g.world)
+  local view = Queries.world(g)
   for i = 1, L.budget do
     local c = self.colors[i]
     c[1], c[2], c[3] = 0, 0, 0
@@ -57,8 +88,8 @@ function L:update(g)
       for k = 1, 3 do
         c[k] = (0.38 + s.seal.color[k] * 0.45) * f
       end
-    elseif g.run then
-      local f = g.run.phase == 'preparing' and 1.1 or 0.25
+    elseif view.shrine then
+      local f = view.shrineActive and 1.1 or 0.25
       c[1], c[2], c[3] = 0.72 * f, 1.02 * f, 0.82 * f
     end
   end

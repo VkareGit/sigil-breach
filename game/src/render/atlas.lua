@@ -1,6 +1,6 @@
 -- Keep each sprite's opaque feet on the floor despite varying transparent margins.
 local Atlas = {}
-function Atlas.load(path, columns, rows, bands, columnBands)
+function Atlas.load(path, columns, rows, bands, columnBands, resources)
   local data = love.image.newImageData(path)
   local w, h = data:getDimensions()
   local feet, frames = {}, {}
@@ -38,7 +38,7 @@ function Atlas.load(path, columns, rows, bands, columnBands)
       width = (x1 - x0 + 1) / (w / columns),
     }
   end
-  local image = love.graphics.newImage(data)
+  local image = resources and resources:image(path, nil, data) or love.graphics.newImage(data)
   image:setFilter('nearest', 'nearest')
   data:release()
   return image, feet, frames

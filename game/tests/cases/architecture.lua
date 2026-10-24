@@ -8,6 +8,7 @@ function Tests.run(G, renderer)
 
   local World = require('src.world.arena')
   local Geometry = require('src.render.world_mesh')
+  local geometryResources = require('src.render.resources').new('architecture fixture')
   local Lights = require('src.render.lights')
   local original = love.graphics.newMesh
   love.graphics.newMesh = function()
@@ -24,30 +25,33 @@ function Tests.run(G, renderer)
   local lights = Lights.new()
   lights:prepare(world)
   local oldSources, revision = lights.sources, world.geometryRevision
-  local mesh = Geometry.prepare(world)
+  local mesh = Geometry.prepare(world, geometryResources)
   check(
     'first rendering creates one cached mesh',
-    mesh == world.mesh and Geometry.prepare(world) == mesh
+    world.mesh == nil and Geometry.prepare(world, geometryResources) == mesh
   )
   local vertices = mesh:getVertexCount()
   World.rebuild(world)
   check(
     'rebuilding data invalidates geometry without eagerly allocating a replacement',
-    world.geometryRevision == revision + 1 and world.mesh == mesh
+    world.geometryRevision == revision + 1 and world.mesh == nil
   )
   lights:prepare(world)
   check(
     'light cache follows world data revision independently of mesh allocation',
     lights.sources ~= oldSources
   )
-  local rebuilt = Geometry.prepare(world)
+  local rebuilt = Geometry.prepare(world, geometryResources)
   check(
     'next render rebuilds identical arena geometry once',
     rebuilt ~= mesh and rebuilt:getVertexCount() == vertices
   )
-  check('unchanged world reuses the rebuilt resource', Geometry.prepare(world) == rebuilt)
-  rebuilt:release()
-  world.mesh, world.meshRevision = nil, nil
+  check(
+    'unchanged world reuses the rebuilt resource',
+    Geometry.prepare(world, geometryResources) == rebuilt
+  )
+  geometryResources:release()
+  lights:release()
   return lines
 end
 

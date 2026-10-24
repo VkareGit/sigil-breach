@@ -1,5 +1,14 @@
 -- Closed-form integration for constant acceleration and damped weapon springs.
 local K = {}
+-- Positive descending root of h + v*t - g*t^2/2 = 0. The rational form
+-- avoids cancellation when a descending body is extremely close to support.
+function K.fallTime(height, velocity, gravity)
+  local root = math.sqrt(math.max(0, velocity * velocity + 2 * gravity * height))
+  if velocity < 0 then
+    return math.max(0, 2 * height / (root - velocity))
+  end
+  return (velocity + root) / gravity
+end
 function K.spring(x, v, target, k, d, dt)
   local y = x - target
   local a = d * 0.5

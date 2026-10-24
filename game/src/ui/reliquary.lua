@@ -2,14 +2,15 @@
 -- brush marks and figures; layout keeps the live text inside quiet fields.
 local S = { path = 'assets/art/reliquary-ash-v16.png' }
 local lg = love.graphics
+local Resources = require('src.render.resources')
 function S.init()
   if S.image then
     return
   end
-  S.image = lg.newImage(S.path)
-  S.image:setFilter('linear', 'linear')
+  S.resources = Resources.new('UI reliquary')
+  S.image = S.resources:image(S.path, { filter = 'linear' })
   local w, h = S.image:getDimensions()
-  S.bar = lg.newQuad(0, 0, w, 230, w, h)
+  S.bar = S.resources:own(lg.newQuad(0, 0, w, 230, w, h))
   S.frames = {}
   local xs = { 0, 108, w - 108 }
   local ys = { 408, 482, 850 }
@@ -18,15 +19,22 @@ function S.init()
   for y = 1, 3 do
     for x = 1, 3 do
       S.frames[#S.frames + 1] =
-        { q = lg.newQuad(xs[x], ys[y], ws[x], hs[y], w, h), w = ws[x], h = hs[y] }
+        { q = S.resources:own(lg.newQuad(xs[x], ys[y], ws[x], hs[y], w, h)), w = ws[x], h = hs[y] }
     end
   end
   -- Tall menu borders use the authored nonfigurative frieze. Narrative
   -- figures stay in the spacious HUD niches, never stretched into columns.
-  S.sideTrim = lg.newQuad(108, 408, w - 216, 74, w, h)
+  S.sideTrim = S.resources:own(lg.newQuad(108, 408, w - 216, 74, w, h))
   S.paper = S.image
-  S.paperQuiet = lg.newQuad(200, 500, 1100, 326, w, h)
-  S.rule = lg.newQuad(200, 0, 1100, 10, w, h)
+  S.paperQuiet = S.resources:own(lg.newQuad(200, 500, 1100, 326, w, h))
+  S.rule = S.resources:own(lg.newQuad(200, 0, 1100, 10, w, h))
+end
+function S.release()
+  if S.resources then
+    S.resources:release()
+  end
+  S.resources, S.image, S.paper, S.frames, S.bar, S.sideTrim, S.paperQuiet, S.rule =
+    nil, nil, nil, nil, nil, nil, nil, nil
 end
 function S.plaster(x, y, w, h, tone)
   S.init()

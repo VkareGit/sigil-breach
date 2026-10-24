@@ -1,4 +1,4 @@
-SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.31
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.32
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
@@ -21,6 +21,8 @@ Niezależne części definicji:
 
 Variant można opisać jako extends = Weapons.get('exorcist'), z własnym id,
 name i zmianami pól. Rekordy łączą się, tablice listowe zastępują rodzica.
+Pusta lista {} także usuwa odziedziczoną listę. Pusty rekord {} dziedziczy
+pola rekordu; kopiowanie danych instancji używa Schema.copy, nie inherit.
 Rodzic i jego pola nie są modyfikowane. Pełny przykład z testu:
   tests/cases/weapon_extension.lua
 To broń testowa, której nie rejestrujemy w zwykłej rozgrywce.
@@ -49,9 +51,9 @@ rodzica z pierce potrzebuje jawnej pełnej definicji attack bez tego pola
 opcjonalnych pól rodzica przez nil w Lua: nil nie jest wpisem tabeli.
 
 Po zmianie materiałów obowiązują te same reguły dla broni, pocisków i ciał.
-Nowe statusy (np. obrażenia w czasie), ciągły strumień, odbicia i łańcuchy
-wymagają jawnych zasad i zachowania we wspólnych systemach. Nie należy
-udawać ich samym kolorem efektu albo przypisywać obrażeń w love.draw.
+Status i obrażenia okresowe mają wspólny rejestr efektów opisany poniżej.
+Ciągły strumień, odbicia i łańcuchy wymagają własnego wykonawcy dostawy
+i testu. Nie należy udawać ich samym kolorem ani naliczać obrażeń w love.draw.
 
 UMIEJĘTNOŚĆ / WYPOSAŻENIE
 
@@ -74,9 +76,9 @@ Klawisze Q/F/C wynikają z app/bindings. HUD pozostaje w układzie 0.30;
 prezentacja wielu slotów wyposażenia nie jest wdrożona. Dodanie przedmiotu
 do produkcyjnego zestawu wymaga osobnej pracy nad HUD i jego odbioru.
 AbilityCast wskazuje użyty przedmiot, więc animacja dłoni nie wybiera
-bezwarunkowo pierwszego slotu. Art dłoni wybiera pole hands; obecna oprawa
-powder jest wspólna dla fizycznych ładunków. Inny model potrzebuje atlasu
-i walidowanego wpisu, nie samej nazwy. Produkcja nadal wyposaża tylko Q.
+bezwarunkowo pierwszego slotu. Art dłoni wybiera pole hands; inny model
+rejestruje własny atlas i gest w content/equipment_art, bez wyjątku
+w render/weapon. Produkcja nadal wyposaża tylko Q.
 
 ANIMACJA I JEJ GEOMETRIA
 
@@ -110,3 +112,120 @@ Nie rozbudowujemy drzew klas ani nie tworzymy nowego silnika. Obecne
 definicje, rejestry i wykonawcy mają jasnych właścicieli. Test rozszerzenia
 ma uruchamiać prawdziwą drogę, nie tylko sprawdzać obecność wpisu w rejestrze.
 Zakończenie QA technicznego nie zamyka B2 (feeling/balans przez człowieka).
+
+PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
+
+1. Ilustracja trzeciej broni o innym układzie
+   WeaponArt.register(id, entry) w content/weapon_art. entry.frames posiada
+   nazwane id, rect w pikselach, grip i action. entry.phases.fire
+   i reload to kolejne {finish = sekundy, frame = nazwa}. ready,
+   reloadComplete oraz open.primed/empty wskazują nazwy, nie ostatni indeks.
+   screenScale, cellWidth, reloadMotion i style opisują prezentację.
+   Loader nie zakłada 16 klatek, 1600x1600 ani dwóch nazw broni.
+   Sprawdzony przykład: tests/cases/hand_art_extension.lua, pięć klatek,
+   ready jako piąta i complete jako pierwsza, inna kotwica błysku, prawdziwy
+   strzał i przerwane/wznowione przeładowanie. Ogólny renderer bez zmian.
+
+   muzzle jest pomierzonym wylotem i jest wymagany dla ready oraz klatek
+   fire. Poza tym jest opcjonalny: poza przeładowania bez widocznego wylotu
+   nie dostaje wymyślonej kotwicy ani błysku. grip jest fizycznym punktem
+   trzymania/pivotem, a opcjonalne entry.placement = {x, y} przesuwa go
+   względem ekranowej pozycji w źródłowych pikselach. Pozwala to zachować
+   pozycję wylotu oraz szerokość broni bez fałszowania punktu obrotu.
+   Opcjonalne frame.eject wskazuje otwarte komory dla wyrzutu łusek.
+   Efekt zapisuje weapon ID i wiąże punkt przy pierwszym widocznym rysunku;
+   potem tor porusza się niezależnie od ręki i zachowuje proporcje po resize.
+   Zmiana broni przed pierwszym pokazaniem pomija niewidoczny efekt zamiast
+   wyrzucać starą łuskę z nowej broni. Nie zmienia to amunicji ani obrażeń.
+
+   Odkryte komory: frame.rounds = {'zero', 'one', ...} wskazuje gęstą
+   listę nazw od zera do pojemności włącznie. Lua indeks mag + 1 wybiera
+   dokładnie stan Weapons.state(g).mag. Elementy muszą być klatkami
+   końcowymi bez własnego rounds; nie wolno tworzyć łańcuchów ani pętli.
+   validateWeapon sprawdza pokrycie capacity + 1 przy kompozycji grafiki.
+   Sampler nie przyznaje amunicji, nie ma drugiego zegara ani clampowania
+   błędnej liczby nabojów. Przed transakcją widać pozostałe żywe naboje;
+   po niej nową zawartość, także przy jednym naboju w zapasie. Zamknięte
+   lub zasłonięte komory mogą współdzielić ilustrację.
+   Opcjonalne phases.interruptedClose zawiera nazwane klatki ze znormalizowanym
+   finish (ostatnie dokładnie 1). Prezentacja używa started/duration zdarzenia
+   przerwanego zamknięcia i g.elapsed, a nie własnego zegara. Swap, reset i strzał
+   usuwają zapis prezentacji; ammo/readyAt nadal należą wyłącznie do mechaniki.
+   Test weapon-rounds obejmuje rezerwę jednego naboju, cancel/swap/resume,
+   przerwanie spustem, niepoprawne referencje oraz faktyczny wybór GPU quad.
+   Sprawdza także każdą produkcyjną otwartą pozę z każdą legalną liczbą
+   nabojów oraz kotwicę, niezależność toru i zmianę rozmiaru efektu łuski.
+   weapon-art-review tworzy żywe filmstripy weapon-*-16-poses (historyczna
+   nazwa, liczba klatek jest dynamiczna), weapon-*-partial-one,
+   weapon-*-cancel-resume, weapon-revolver-trigger-interrupt oraz pełne
+   weapon-*-scene-v32.png. Obejrzyj je: zaliczenie testu nie ocenia anatomii
+   ręki, spójności pigmentu ani przyjemności animacji.
+
+2. Nowe wyposażenie z własnymi rękami
+   EquipmentArt.registerAtlas(id, metadata) i register(gestureId, gesture)
+   w content/equipment_art. Gest wskazuje atlas, duration i nazwane phases.
+   AbilityCast niesie tożsamość użytego wyposażenia. Przykład w tym samym
+   teście obejmuje drugi slot z odrębnym trzyklatkowym arkuszem.
+
+3. Nowy efekt kontaktu
+   Opcjonalne attack.effects / packet.effects to lista walidowanych danych.
+   condition dodaje nazwany stan; periodic: id, duration, interval, packet,
+   stacking = refresh albo replace, opcjonalnie cancelOnSourceDeath.
+   Periodic packet nie może zawierać kolejnych effects ani impulsu/pchnięcia.
+   Refresh zachowuje fazę pulsu i istniejący payload; replace zaczyna od nowa.
+   Efekt uruchamia rzeczywiste uszkodzenie zdrowia, raz na trafiony cel
+   agregowanej salwy. Sam kontakt z rogiem/pancerzem bez rany go nie tworzy.
+   Nowy algorytm: Effect.defineKind + Effects.kinds:register({apply, tick?}).
+   Stan instancji jest na celu, nie we współdzielonej definicji broni.
+   Puls wraca do wspólnego rozliczenia ochrony, śmierci i nagrody.
+   Testy: contact-effects, foundation-contracts. Produkcyjne bronie nie
+   otrzymały nowych efektów ani zmienionych obrażeń w tym refaktorze.
+
+4. Nowy rodzaj akcji demona
+   Action.defineKind + wykonawca enemies/actions; następnie osobno
+   ActionPhase.register(kind, durationSampler) dla prezentacji czasu oraz
+   AttackDebug.register(kind, painter) dla diagnostyki prawdziwego kontaktu.
+   Animacja i debug niczego nie trafiają ani nie uruchamiają drugiego zegara.
+   Test: action-presentation. Nowa ilustracja nadal wymaga anatomii/masek.
+
+5. Tryb / stanowisko
+   Modes:register opisuje session = {world, map, prepare?}, init, start,
+   progress oraz polityki i polecenia. Game.new(id, map) i Journal.session
+   używają tego samego konstruktora. modeData jest miejscem prywatnego stanu.
+   Ogólna prezentacja pyta run/queries: world, tools, objective; widoki są
+   pożyczone i tylko do odczytu. Własny ekran trybu może znać jego stan.
+   app/navigation przechowuje powroty i je czyści przy resecie.
+   Poligon: run/field/stations (rejestr), catalog, actions, targets, reset.
+   Testy: mode-lifecycle i extension; nowy tryb oraz stanowisko działają
+   wraz z snapshotem i replay bez zmian Journal/Game/ogólnego renderera.
+
+6. Przestrzeń testowa
+   content/maps: geometria, elevations, decor, lamps i anchors. Wysokości
+   elevations są nieujemne względem floor i zajmują rozłączne komórki.
+   Jest to heightfield: jedna podpora na x/z, bez pięter nad inną podłogą.
+   Scenografia ma kotwice mapy, nie współrzędne zaszyte w rendererze.
+   Testy world-support i terrain-motion obejmują schody, podest, kolumnę,
+   zejście z krawędzi, pociski, ciała, lądowanie i zgodność widocznej pozy.
+   To geometria testów; produkcja nadal ma jeden dotychczasowy poligon.
+
+7. Więcej tekstu / pozycji
+   Text.register(key, template), Text.get(key, {nazwanyParametr = wartość}).
+   Nie generuj obrazka dla każdej liczby: gotowe bitmapowe glify składają
+   dowolną wartość; cache pomiarów jest ograniczony. UI.pages i text_fit
+   obsługują większe katalogi, opisy i długie polskie nazwy. Zachowane są
+   obecne cztery karty/sześć ofert; większa zawartość dostaje strony.
+   Test ui-content-extension: 9 kart, 13 ofert, 7 broni w pięciu rozmiarach.
+   Oprócz przecięć sprawdzaj oddech między wierszami oraz wnętrze ornamentu.
+
+8. Nowy zasób
+   Resources.new(label) tworzy właściciela. :image(path, options) współdzieli
+   zgodny wariant próbkowania; :own(handle) posiada natywny obiekt;
+   :release() jest jawne i idempotentne, :manifest() ujawnia zależności.
+   Inny filtr/wrap to inny wariant, nie mutacja tekstury drugiego odbiorcy.
+   LoadPlan etapuje pracę, pokazuje błąd, pozwala anulować i ponowić.
+   Nie kopiuj uchwytów GPU do świata/snapshotu. Maski kontaktu są osobne CPU.
+
+Wszystkie przykłady dodają treść testową na czas próby i usuwają ją po niej.
+Dowód rozszerzalności nie jest deklaracją obsługi dowolnego przyszłego
+algorytmu samymi danymi. Nowe zachowanie otrzymuje mały lokalny wykonawca;
+wspólne kontrakty pozostałych systemów mają pozostać stabilne.

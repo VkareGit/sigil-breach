@@ -21,6 +21,43 @@ function Surface.painted(mask, u, v, alive)
   code = floor(code / 4 ^ (1 - x % 2)) % 4
   return code == 1 or code == 3 or (code == 2 and alive ~= false)
 end
+-- Hex digits holding a painted-body cell (code 1 or 3) in either half: a row
+-- with one of them is a row the body reaches (the contour alone does not).
+local bodyDigits = {}
+for n = 0, #alphabet - 1 do
+  local high, low = floor(n / 4), n % 4
+  if high % 2 == 1 or low % 2 == 1 then
+    bodyDigits[#bodyDigits + 1] = alphabet:sub(n + 1, n + 1)
+  end
+end
+local bodyRow = '[' .. table.concat(bodyDigits) .. ']'
+local crowns = setmetatable({}, { __mode = 'k' })
+-- The top of the painted body in one mask frame, as v (down from the top of
+-- the frame): its highest painted row. Read once per frame, then kept.
+function Surface.crown(mask)
+  local crown = crowns[mask]
+  if not crown then
+    crown = 1
+    for j = 1, #mask do
+      if mask[j]:find(bodyRow) then
+        crown = (j - 1) / Masks.grid
+        break
+      end
+    end
+    crowns[mask] = crown
+  end
+  return crown
+end
+local stature = {}
+-- How high the painted body reaches above the floor under it, as posed now:
+-- its stature, crouch, flinch, leap and ability sheet, the same pose a shot
+-- meets. Its fall frames lie where they are drawn.
+function Surface.top(g, e)
+  local p = Pose.sample(g, e, stature)
+  local masks = p.ability and Masks.abilities[p.ability] or Masks.layouts[p.atlas]
+  local mask = assert(masks and masks[p.abilityFrame or p.frame], 'missing baked pigment mask')
+  return p.baseY + (1 - Surface.crown(mask)) * p.sy * p.size
+end
 function Surface.contains(polygon, u, v)
   local inside, last = false, #polygon - 1
   for i = 1, #polygon, 2 do
@@ -44,7 +81,7 @@ function Surface.prepare(g, e, out)
   local p = Pose.sample(g, e, out)
   -- Art registration is local to the feet. Queries, like the shooter's eye,
   -- use world height even on an authored map with a non-zero ground datum.
-  p.baseY = p.baseY + Ground.height(g.world)
+  p.baseY = p.baseY + Ground.height(g.world, e.x, e.z)
   local group = p.ability and Anatomy.abilities[p.ability] or Anatomy.layouts[p.regions]
   local index = p.abilityFrame or p.frame
   p.parts = assert(group and group.frames[index], 'missing authored anatomy frame').parts

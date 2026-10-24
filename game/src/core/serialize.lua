@@ -38,14 +38,9 @@ function Serialize.fields(record, fields)
   end
   return table.concat(out, ',')
 end
--- Read back text written by encode (data only; no functions are loaded).
-function Serialize.decode(text)
-  local chunk = loadstring('return ' .. text)
-  if not chunk then
-    return nil
-  end
-  setfenv(chunk, {})
-  local ok, value = pcall(chunk)
-  return ok and value or nil
+-- Literal-only parsing with bounded input, depth, string length and value count.
+-- Invalid input returns nil plus a diagnostic; a valid false stays false.
+function Serialize.decode(text, limits)
+  return require('src.core.data_reader').decode(text, limits)
 end
 return Serialize

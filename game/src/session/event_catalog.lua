@@ -6,6 +6,8 @@ local Catalog = {
   { 'ShotFired', 'the knight pulled a trigger {weapon, pellets}' },
   { 'VolleyResolved', 'a shot was applied to every body it reached {report, results}' },
   { 'BodyHit', 'a demon lost health {enemy, health, source}' },
+  { 'EffectApplied', 'a damaging contact applied an effect {target, definition}' },
+  { 'EffectPulse', 'an ongoing effect resolved one pulse {target, definition, health}' },
   {
     'BlowResolved',
     'the rules resolved a blow on a body {target, result, impact, point, contact, number}',
@@ -15,7 +17,10 @@ local Catalog = {
   { 'ChargeThrown', 'the knight threw a powder charge {}' },
   { 'AbilityCast', 'the knight cast an ability {ability, slot}' },
   { 'ChargeExploded', 'a powder charge went off {charge}' },
-  { 'ReloadStage', 'a reload reached a stage {stage, mechanism, spent}' },
+  {
+    'ReloadStage',
+    'a reload stage {stage, mechanism, spent, weapon, interrupted, started, duration, reloadAge}',
+  },
   { 'PlayerStaggered', 'the knight lost his balance {time}' },
   { 'Alerted', 'a demon noticed the knight {enemy}' },
   { 'ChargeBlocked', 'a rush ran into stone {enemy}' },

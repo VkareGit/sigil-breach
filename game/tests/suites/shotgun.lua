@@ -319,14 +319,28 @@ function Tests.run(G, initial, renderer, getGame)
   fresh()
   g.player.arsenal.exorcist.mag = 0
   g:reloadGun()
+  local Art = require('src.content.weapon_art')
+  local entry = require('src.render.weapon_art').of(g)
+  local first = V.frame(g)
+  local noFlash = true
   local counts = {}
   for _ = 1, 110 do
     counts[V.frame(g)] = true
+    noFlash = noFlash and V.muzzlePhase(g) == nil
     g:update(1 / 120, {})
+  end
+  for _, phase in ipairs(entry.phases.fire) do
+    noFlash = noFlash and not counts[Art.frame(entry, phase.frame)]
   end
   check(
     'manual reload skips the muzzle flash',
-    not counts[2] and not counts[3] and counts[5] and counts[12]
+    noFlash
+      and counts[first]
+      and counts[Art.variant(
+        entry,
+        Art.frame(entry, entry.open.primed),
+        g.player.arsenal.exorcist.mag
+      )]
   )
   fresh()
   a = g:spawn('stolas', 16, 24)

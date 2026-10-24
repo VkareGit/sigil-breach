@@ -31,6 +31,7 @@ function Encounter.clearWorld(g)
   g.bossSpawned = false
   g.bossDead = false
   g.threat = 0
+  g.player.effectState = nil
 end
 
 return Encounter

@@ -11,6 +11,9 @@
 --   ui/palette.lua              interface colours
 -- tools/check refuses new unnamed numbers in simulation code (KONWENCJE).
 return {
+  -- Heightfield support: largest walkable riser (m), segment length (m).
+  -- Sight is queried between observers' eye planes, independently of walking.
+  terrain = { stepHeight = 0.32, segment = 0.25, eye = 1.15 },
   -- A displayed input may survive one capped 200 ms catch-up plus a 120 ms tap.
   observation = { maxAge = 0.20 + 0.12 },
   -- Optional command recording: estimated serialized text, not Lua heap bytes.
@@ -48,38 +51,13 @@ return {
   -- resume.open (opened, empty) or resume.loaded (opened, rounds in).
   -- cylinder: it swings out at open, a swung-out cylinder resumes at
   -- resume.open; loading and closing are the revolver's own times below.
-  -- Presentation of the timeline: the hands' sheet frames (breech: one frame
-  -- per cut from frame first, then last; cylinder: swing, eject, load and close
-  -- runs of frames with their boundaries), the recoil frames by shot age
-  -- (shot: the ages of frames 2, 3, 4), the HUD stage boundaries (labels),
-  -- the volume of each stage's sound and its voice (audio/recipes.lua).
+  -- Presentation cues owned by the mechanism: HUD stage boundaries (labels),
+  -- sound volumes and voices. Painted hand frames belong to content/weapon_art.
   reload = {
     breech = {
       open = 0.26,
       close = 0.82,
       resume = { afterShot = 0, closed = 0.15, open = 0.32, loaded = 0.68 },
-      frames = {
-        first = 2,
-        last = 16,
-        cuts = {
-          0.045,
-          0.10,
-          0.15,
-          0.20,
-          0.26,
-          0.32,
-          0.39,
-          0.46,
-          0.53,
-          0.60,
-          0.68,
-          0.75,
-          0.82,
-          0.88,
-          0.94,
-        },
-      },
-      shot = { 0.045, 0.10, 0.15 },
       labels = { 0.32, 0.68 },
       sounds = { open = 0.56, load = 0.52, close = 0.62 },
       voices = { open = 'breakOpen', load = 'shellIn', close = 'breakClose' },
@@ -90,13 +68,6 @@ return {
       -- A pull during the reload snaps a swung-out cylinder shut in this
       -- time (s) before the rounds still in it can fire.
       closeOnFire = 0.25,
-      frames = {
-        swing = { first = 5, steps = 1, ends = 0.38, every = 0.19 },
-        eject = { first = 7, steps = 1, ends = 0.68, every = 0.15 },
-        load = { first = 9, steps = 3, parts = 4 },
-        close = { first = 13, steps = 3, parts = 4 },
-      },
-      shot = { 0.055, 0.13, 0.23 },
       labels = { 0.38, 0.68 },
       sounds = { open = 0.48, load = 0.60, close = 0.65 },
       voices = { open = 'gateOpen', load = 'roundsIn', close = 'cylinderClose' },

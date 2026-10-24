@@ -9,7 +9,7 @@ local eye = require('src.content.knight').body.eye
 -- The eye in world height: the ground under the knight, his eye, his jump.
 function B.origin(g)
   local p = g.player
-  return p.x, Ground.height(g.world) + eye + p.jump - (p.crouch or 0), p.z
+  return p.x, Ground.height(g.world, p.x, p.z) + eye + p.jump - (p.crouch or 0), p.z
 end
 function B.direction(yaw, pitch)
   local cp = math.cos(pitch)
@@ -106,11 +106,25 @@ local function pillar(oy, dy, x, z, entry, exit)
 end
 local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
   local tile = w.map[z] and w.map[z][x]
+  local elevation = Ground.cell(w, x, z)
   if tile == 2 then
-    return pillar(oy, dy, x, z, entry, exit)
+    local d, px, py, pz = pillar(oy - elevation, dy, x, z, entry, exit)
+    -- A raised cell is a square foundation below the round shaft. Empty
+    -- corners around the shaft are open only above that supporting floor.
+    if elevation > 0 then
+      if oy + dy * entry <= elevation then
+        return entry, nx, 0, nz
+      elseif dy < 0 then
+        local top = (elevation - oy) / dy
+        if top >= entry and top <= exit and (not d or top < d) then
+          return top, 0, 1, 0
+        end
+      end
+    end
+    return d, px, py, pz
   end
-  if not tile or tile > 0 then
-    local height = Collision.top(tile)
+  if not tile or tile > 0 or elevation > 0 then
+    local height = elevation + (tile == 0 and T.floorSurface or Collision.top(tile))
     if oy + dy * entry <= height then
       return entry, nx, 0, nz
     end

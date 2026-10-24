@@ -7,6 +7,7 @@ local S = {
   path = 'assets/art/ui-fresco-v12.png',
 }
 local lg = love.graphics
+local Resources = require('src.render.resources')
 local names = {
   'health',
   'armor',
@@ -27,7 +28,8 @@ function S.init()
   end
   local data = love.image.newImageData(S.path)
   local w, h = data:getDimensions()
-  S.image = lg.newImage(data)
+  S.resources = Resources.new('UI skin')
+  S.image = S.resources:image(S.path, nil, data)
   S.image:setFilter('nearest', 'nearest')
   S.frames = {}
   S.icons = {}
@@ -64,16 +66,27 @@ function S.init()
       local hs = { cut, bh - 2 * cut, cut }
       for iy = 1, 3 do
         for ix = 1, 3 do
-          frame[#frame + 1] =
-            { q = lg.newQuad(xs[ix], ys[iy], ws[ix], hs[iy], w, h), w = ws[ix], h = hs[iy] }
+          frame[#frame + 1] = {
+            q = S.resources:own(lg.newQuad(xs[ix], ys[iy], ws[ix], hs[iy], w, h)),
+            w = ws[ix],
+            h = hs[iy],
+          }
         end
       end
       S.frames[index + 1] = frame
     else
-      S.icons[names[index - 3]] = { q = lg.newQuad(x1, y1, bw, bh, w, h), w = bw, h = bh }
+      S.icons[names[index - 3]] =
+        { q = S.resources:own(lg.newQuad(x1, y1, bw, bh, w, h)), w = bw, h = bh }
     end
   end
   data:release()
+end
+function S.release()
+  if S.resources then
+    S.resources:release()
+  end
+  S.resources, S.image, S.frames, S.icons, S.bounds, S.fontTops, S.fields =
+    nil, nil, nil, nil, nil, nil, nil
 end
 local function record(kind, label, x, y, w, h)
   if not S.audit then

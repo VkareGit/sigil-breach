@@ -71,6 +71,7 @@ function Tests.run(get, settings, output)
     .. #lines
     .. ' controller checks. Real love.keypressed/love.mousepressed callbacks, actual saves in isolated QA identity.'
   lines[#lines + 1] = 'Save directory used by this test: ' .. love.filesystem.getSaveDirectory()
+  lines[#lines + 1] = require('qa.output').receipt()
   local file = assert(io.open(output or require('qa.output').path('input-results.txt'), 'w'))
   file:write(table.concat(lines, '\n'))
   file:close()

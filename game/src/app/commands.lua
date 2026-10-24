@@ -1,6 +1,7 @@
-local Game = require('src.session.game')
-local Field = require('src.run.test_field')
-local Run = require('src.run.descent')
+-- Application commands route session operations through mode contracts.
+-- Navigation owns temporary visits; this module owns input/UI aftermath.
+local Modes = require('src.run.modes')
+local Navigation = require('src.app.navigation')
 local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
 local Intent = require('src.player.intent')
@@ -27,11 +28,8 @@ local immediateSettings = {
 local function fieldCommand(app, id)
   local game = app.game
   if id == 'field_start' or id == 'field_open' or id == 'field_skirmish' then
-    if not game.testField then
-      app.fieldReturn = game
-      app:adopt(Field.new(Game))
-      app.game.testField.returnLabel = game.state == 'menu' and 'MAIN MENU'
-        or (game.state == 'settings' and 'BACK TO SETTINGS' or 'BACK TO EXPEDITION')
+    if game.mode ~= 'field' then
+      Navigation.enter(app, 'field')
     else
       game:act('catalog', 'field_open')
     end
@@ -41,15 +39,8 @@ local function fieldCommand(app, id)
     app.input:reset(true)
     app.accumulator, UI.focus = 0, 1
     return true
-  elseif id == 'field_leave' or (id == 'menu' and game.testField) then
-    if app.fieldReturn then
-      local back = app.fieldReturn
-      app.fieldReturn = nil
-      app:adopt(back)
-      if back.state == 'playing' then
-        back.state = 'paused'
-      end
-    else
+  elseif id == 'field_leave' or (id == 'menu' and Navigation.previous(app)) then
+    if not Navigation.back(app) then
       app:reset(false)
     end
     app.game.view.presentationPrevious = nil
@@ -57,12 +48,12 @@ local function fieldCommand(app, id)
     app.accumulator, UI.focus = 0, 1
     love.mouse.setRelativeMode(false)
     return true
-  elseif game.testField and id == 'restart' then
+  elseif game.mode == 'field' and id == 'restart' then
     game:act('catalog', 'field_reset')
     app.input:reset(true)
     UI.focus = 1
     return true
-  elseif game.testField and game:act('catalog', id) then
+  elseif game:act('catalog', id) then
     app.input:reset(true)
     app.accumulator = 0
     return true
@@ -75,20 +66,14 @@ handlers.continue = function(app)
     return
   end
   local saved = app.game.availableSave
-  app:reset(false)
-  Run.load(app.game, saved)
+  Navigation.replace(app, saved.mode or app.game.mode, saved.map)
+  Modes.act(app.game, 'load', saved)
   app.input.suppressFire = true
 end
 
 local function start(app, id)
   local game = app.game
-  if
-    game.run
-    and (
-      (game.availableSave and game.availableSave.phase ~= 'complete')
-      or (id == 'restart' and game.run.phase ~= 'complete')
-    )
-  then
+  if Modes.act(game, 'newRequiresConfirmation', id) then
     game.view.confirmReturn = game.state
     game.state, UI.focus = 'confirm_new', 1
     love.mouse.setRelativeMode(false)
@@ -125,7 +110,14 @@ handlers.ready = function(app)
 end
 handlers.shop_back = function(app)
   app.game:act('closeShop')
+  require('src.ui.descent').resetShop(app.game)
   app.input.suppressFire = true
+end
+handlers.shop_prev = function(app)
+  require('src.ui.descent').turnShop(app.game, -1)
+end
+handlers.shop_next = function(app)
+  require('src.ui.descent').turnShop(app.game, 1)
 end
 local function shopWeapon(app, id)
   local slot = tonumber(id:match('%d+$'))
@@ -157,6 +149,8 @@ handlers.settings = function(app)
 end
 handlers.help = function(app)
   local game = app.game
+  require('src.ui.screens.help').reset(game)
+  UI.focus = 1
   game.help, game.map = true, false
   if game.state == 'playing' then
     game.state = 'paused'
@@ -166,6 +160,13 @@ handlers.help = function(app)
 end
 handlers.help_back = function(app)
   app.game.help = false
+  require('src.ui.screens.help').reset(app.game)
+end
+handlers.help_prev = function(app)
+  require('src.ui.screens.help').turn(app.game, -1)
+end
+handlers.help_next = function(app)
+  require('src.ui.screens.help').turn(app.game, 1)
 end
 handlers.map = function(app)
   app.game.map = false

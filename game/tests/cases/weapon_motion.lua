@@ -256,15 +256,16 @@ function Tests.run(G, check)
     )
   end
   g = fresh()
+  g.view.motion = false
+  local idleX, idleY, idleRoll = V.transform(g, 800, 450)
   g.reload = 0.45
   g.reloadDuration = 0.94
   g.reloadOffset = 0
-  g.view.motion = false
   local rx, ry, rr = V.pose(g)
   x, y, roll = V.transform(g, 800, 450)
   check(
     'motion off preserves the mechanical reload action',
-    near(x, 400 + rx) and near(y, 461 + ry) and near(roll, rr)
+    near(x - idleX, rx) and near(y - idleY, ry) and near(roll - idleRoll, rr)
   )
   g = fresh()
   local before = g.view.weaponClock

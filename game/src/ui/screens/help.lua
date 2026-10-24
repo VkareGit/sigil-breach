@@ -8,7 +8,43 @@ local c, text, right, center = Kit.c, Kit.text, Kit.right, Kit.center
 local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.bar
 local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gold
 local Goetia = require('src.ui.goetic_sigils')
+local Text = require('src.content.text')
+local Fit = require('src.ui.text_fit')
+local Pages = require('src.ui.pages')
 local S = {}
+require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
+function S.page(g)
+  local cards = require('src.content.enemies').listed('bestiary')
+  local detailed = false
+  for _, def in ipairs(cards) do
+    local card = def.catalog.bestiary
+    for _, value in ipairs({ string.upper(def.name), card.text, card.tip }) do
+      detailed = detailed or Kit.ui.fonts[11]:getInk(value).w > 208
+    end
+  end
+  local first, last, page, total = Pages.range(#cards, g and g.view.helpPage, detailed and 2 or 4)
+  return cards, first, last, page, total, detailed
+end
+function S.turn(g, delta)
+  local _, _, _, page, total = S.page(g)
+  g.view.helpPage = math.max(1, math.min(total, page + delta))
+end
+function S.reset(g)
+  g.view.helpPage = 1
+end
+function S.controls(g)
+  local _, _, _, _, total = S.page(g)
+  local controls = {
+    { id = 'help_back', label = Text.get('help_back'), x = 460, y = 619, w = 360, h = 42 },
+  }
+  if total > 1 then
+    controls[#controls + 1] =
+      { id = 'help_prev', label = Text.get('help_previous'), x = 170, y = 619, w = 240, h = 42 }
+    controls[#controls + 1] =
+      { id = 'help_next', label = Text.get('help_next'), x = 870, y = 619, w = 240, h = 42 }
+  end
+  return controls
+end
 function S.draw(g, s, U)
   Skin.auditLayer('bestiary')
   rect(0, 0, 1280, 720, Palette.veil, 0.96)
@@ -22,15 +58,8 @@ function S.draw(g, s, U)
   Skin.zone('parchment writing field', 158, 106, 964, 492)
   Skin.inscription('limbo', 440, 112, 400, 50)
   center(
-    g
-        and g.testField
-        and 'PROVING GROUND / [F2] Targets, poses, guns and seals. Never saves the run.'
-      or (
-        g
-          and g.run
-          and '4 waves + guardian. [E] Ember merchant. [ENTER] Ready. Reclaim souls from the echo.'
-        or 'Break three seals [E], defeat the defenders and the guardian. Return to the gate.'
-      ),
+    g and g.testField and Text.get('help_field')
+      or (g and g.run and Text.get('help_descent') or Text.get('help_classic')),
     170,
     18,
     gold
@@ -54,11 +83,14 @@ function S.draw(g, s, U)
   line(170, 294, 940, gold)
   -- One card per creature whose definition has one (catalog.bestiary), in
   -- its order; the text and the title colour are the creature's data.
+  local listed, first, last, page, total, detailed = S.page(g)
   local cards = {}
-  for _, def in ipairs(require('src.content.enemies').listed('bestiary')) do
+  for index = first, last do
+    local def = listed[index]
     local card = def.catalog.bestiary
     cards[#cards + 1] = {
       kind = def.id,
+      artKind = def.appearance.atlas or def.kind or def.id,
       name = string.upper(def.name),
       desc = card.text,
       tip = card.tip,
@@ -66,27 +98,53 @@ function S.draw(g, s, U)
     }
   end
   for i, v in ipairs(cards) do
-    local x = 160 + (i - 1) * 240
-    U.face(v.kind, x + 54, 312, 116, 116)
-    local function caption(value, y, initial, tint)
-      local size = initial
-      for _, candidate in ipairs({ 18, 16, 14, 13, 12, 11 }) do
-        if candidate <= initial and Skin.inkBounds(U.fonts[candidate], value).w <= 208 then
-          size = candidate
-          break
+    local x = 160 + (i - 1) * (detailed and 480 or 240)
+    local width = detailed and 448 or 208
+    U.face(
+      v.artKind,
+      x + (detailed and 186 or 54),
+      312,
+      detailed and 76 or 116,
+      detailed and 76 or 116
+    )
+    local function caption(value, y, initial, tint, wrap, rowStep)
+      local size = 11
+      rowStep = rowStep or 18
+      local height = wrap and rowStep * 2 or 26
+      if wrap then
+        size = initial
+        value = Fit.wrap(U.fonts[size], value, width, 2)
+      else
+        for _, candidate in ipairs({ 18, 16, 14, 13, 12, 11 }) do
+          if candidate <= initial and Skin.inkBounds(U.fonts[candidate], value).w <= width then
+            size = candidate
+            break
+          end
         end
+        value = Fit.ellipsis(U.fonts[size], value, width)
       end
-      Skin.zone('bestiary card ' .. v.kind, x + 6, y, 208, 26)
-      Skin.boxText(value, x + 6, y, 208, 26, U.fonts[size], tint)
+      Skin.zone('bestiary card ' .. v.kind, x + 6, y, width, height)
+      if wrap then
+        local row = 0
+        for line in value:gmatch('[^\n]+') do
+          Skin.boxText(line, x + 6, y + row * rowStep, width, rowStep, U.fonts[size], tint)
+          row = row + 1
+        end
+      else
+        Skin.boxText(value, x + 6, y, width, height, U.fonts[size], tint)
+      end
       Skin.endZone()
     end
-    caption(v.name, 435, 18, v.color)
-    caption(v.desc, 467, 14, ivory)
-    caption(v.tip, 491, 14, muted)
+    caption(v.name, detailed and 392 or 435, detailed and 13 or 18, v.color, detailed, 24)
+    caption(v.desc, detailed and 446 or 467, detailed and 13 or 14, ivory, detailed)
+    caption(v.tip, detailed and 486 or 491, detailed and 13 or 14, muted, detailed)
   end
-  center('R: reload. TAB: map. Judge: six rounds.', 528, 18, ivory)
-  center('Q: powder charge. 1 s fuse. The blast hurts you too.', 554, 16, gold)
-  center('Ward: remaining pool. Absorbs 55% of damage until spent.', 580, 14, muted)
+  if total > 1 then
+    center(Text.get('page_count', { page = page, pages = total }), 299, 11, muted)
+  end
+  center(Text.get('help_reload'), 528, 18, ivory)
+  center(Text.get('help_charge'), 554, 16, gold)
+  center(Text.get('help_ward'), 580, 14, muted)
   Skin.endZone()
 end
 return S

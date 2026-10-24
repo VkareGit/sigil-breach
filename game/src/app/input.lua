@@ -132,8 +132,12 @@ function Input:keypressed(app, key, scancode, isrepeat)
     return
   end
   if game.help then
-    if key == 'escape' or key == 'return' then
+    if key == 'escape' then
       app:action('help_back')
+    elseif Screens.navigation[key] then
+      UI.navigate(game, app.settings, Screens.navigation[key])
+    elseif key == 'return' then
+      app:action(UI.selected(game, app.settings))
     end
     return
   end

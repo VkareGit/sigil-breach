@@ -2,55 +2,8 @@ local Anim = {}
 local Idle = require('src.enemies.idle')
 local Archetypes = require('src.content.enemies')
 local Corpse = require('src.enemies.corpse')
-local function finitePositive(value)
-  return type(value) == 'number' and value == value and value > 0 and value < math.huge
-end
-local function attack(e)
-  local spec = e.attackSpec
-  if spec and (not e.attackKind or spec.id == e.attackKind) then
-    return spec
-  end
-  -- Catalogue poses and restored fixtures can name an attack without keeping
-  -- the simulation's cached spec. Looking it up must not change that cache.
-  local archetype = Archetypes.of(e)
-  local attacks = archetype and archetype.attacks or {}
-  for _, candidate in ipairs(attacks) do
-    if candidate.id == e.attackKind then
-      return candidate
-    end
-  end
-  return attacks[1] or {}
-end
--- One physical action has one visual phase. In particular, Furfur's charge
--- and recovery must not finish their painted response on an imp's clock.
--- The helper is read-only: drawing never advances AI or changes hit windows.
-function Anim.actionPhase(e, state)
-  state = state or e.ai
-  local spec = attack(e)
-  local elapsed = type(e.phase) == 'number' and e.phase or 0
-  local duration
-  if state == 'windup' then
-    duration = finitePositive(e.windupDuration) and e.windupDuration or spec.windup or 0.6
-    elapsed = duration - (e.windup or duration)
-  elseif state == 'strike' then
-    duration = spec.kind == 'charge' and e.chargeTime or spec.duration
-    if not finitePositive(duration) then
-      duration = 0.23
-    end
-  elseif state == 'recover' then
-    -- This includes a shortened recovery after a cast was blocked by a wall.
-    duration = finitePositive(e.recover) and elapsed + e.recover or spec.recover or 0.48
-  else
-    return 0
-  end
-  if not finitePositive(duration) then
-    return 0
-  end
-  if elapsed ~= elapsed then
-    return 0
-  end
-  return math.max(0, math.min(1, elapsed / duration))
-end
+local ActionPhase = require('src.enemies.action_phase')
+Anim.actionPhase = ActionPhase.sample
 -- Painted atlases come in two layouts: the extended one (6 columns: walk,
 -- windup, strike, pain, collapse, rear) and the compact one (4 columns).
 -- A creature names its layout in its appearance (content/defs/creature.lua);

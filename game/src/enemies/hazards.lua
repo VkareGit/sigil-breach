@@ -3,6 +3,7 @@
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
+local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
@@ -21,6 +22,7 @@ function Hazards.add(g, x, z, delay, r, life, spec)
       packet = spec and spec.packet,
       interval = spec and spec.pulse,
       condition = spec and spec.condition,
+      owner = spec and spec.owner,
     })
   end
 end
@@ -58,7 +60,16 @@ function Hazards.update(g, dt, previousPlayer)
             local reach = h.radius + Rules.playerBody().radius
             local ghost = Dodge.afterimage(g)
             if len(p.x - h.x, p.z - h.z) < reach and W.visible(g.world, h.x, h.z, p.x, p.z) then
-              g:damagePlayer(h.packet and h.packet.base or h.damage, h.x, h.z, h.packet)
+              g:damagePlayer(
+                h.packet and h.packet.base or h.damage,
+                h.x,
+                h.z,
+                h.packet,
+                nil,
+                h.packet
+                  and h.packet.effects
+                  and { effectSource = { side = 'demons', id = h.owner } }
+              )
             elseif
               ghost
               and h.packet
@@ -87,10 +98,17 @@ function Hazards.update(g, dt, previousPlayer)
           local jump = before.jump + (p.jump - before.jump) * t
           if
             len(x - h.x, z - h.z) < h.radius
-            and jump < K.jumpClear
+            and math.abs(Ground.height(g.world, x, z) + jump - Ground.height(g.world, h.x, h.z)) < K.jumpClear
             and W.visible(g.world, h.x, h.z, x, z)
           then
-            g:damagePlayer(h.packet and h.packet.base or K.damage, h.x, h.z, h.packet)
+            g:damagePlayer(
+              h.packet and h.packet.base or K.damage,
+              h.x,
+              h.z,
+              h.packet,
+              nil,
+              h.packet and h.packet.effects and { effectSource = { side = 'demons', id = h.owner } }
+            )
             if h.condition then
               Rules.addCondition(p, h.condition, interval + K.linger)
             end

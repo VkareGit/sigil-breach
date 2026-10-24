@@ -14,7 +14,10 @@ function T.run(check)
   for slot, art in ipairs(Art.ids) do
     local path = V.paths[art]
     local data = love.image.newImageData(path)
-    check('fresco weapon ' .. slot .. ' has sixteen registered poses', #V.quads[art] == 16)
+    check(
+      'fresco weapon ' .. slot .. ' loads every registered pose and round variant',
+      #V.quads[art] == #Art.get(art).frames and #V.quads[art] > 0
+    )
     for frame, q in ipairs(V.quads[art]) do
       local x, y, w, h = q:getViewport()
       local edges = 0
@@ -41,14 +44,17 @@ function T.run(check)
     end
     data:release()
   end
-  local r = {}
+  local r = { resources = require('src.render.resources').new('fresco-test') }
   F.load(r)
   for _, kind in ipairs({ 'effects', 'spells' }) do
     local definition = F[kind]
     local data = love.image.newImageData(definition.path)
     local width, height = data:getDimensions()
     local frames = kind == 'effects' and r.effectFrames or r.spellFrames
-    check('fresco ' .. kind .. ' retain sixteen chronological poses', #frames == 16)
+    check(
+      'fresco ' .. kind .. ' retains every chronological cell in each meaning row',
+      #frames == definition.columns * definition.rows and #definition.meanings == definition.rows
+    )
     for frame, region in ipairs(frames) do
       local x, y =
         math.floor(region.rect[1] * width + 0.5), math.floor(region.rect[2] * height + 0.5)
@@ -134,7 +140,6 @@ function T.run(check)
     )
   end
   muzzle:release()
-  r.effects:release()
-  r.spells:release()
+  r.resources:release()
 end
 return T

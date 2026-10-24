@@ -456,7 +456,7 @@ function Tests.run(G, renderer)
     local name = Weapon.paths[art]
     source = love.image.newImageData(name)
     local image = Weapon.images[art]
-    local distinct, seen, valid = true, {}, true
+    local signatures, valid = {}, true
     for i, q in ipairs(Weapon.quads[art]) do
       local s = stats(source, rectOf(q, source))
       local _, _, qw, qh = q:getViewport()
@@ -465,11 +465,14 @@ function Tests.run(G, renderer)
         and s.clear > 500
         and Weapon.origins[art][i] > 0
         and Weapon.origins[art][i] <= qh
-      distinct = distinct and not seen[s.signature]
-      seen[s.signature] = true
+      signatures[i] = s.signature
     end
+    local meta = require('src.content.weapon_art').get(art)
+    local distinct = signatures[meta.frameNames.ready] ~= signatures[meta.frameNames.recoil]
+      and signatures[meta.frameNames.recoil] ~= signatures[meta.frameNames.settle]
     check(
-      name .. ' is the active weapon texture with distinct visible frames and alpha',
+      name
+        .. ' keeps its active texture, alpha and distinct firing poses; open-hold aliases are intentional',
       valid and distinct and matchTexture(image, source) and image:getFilter() == 'nearest'
     )
     source:release()
@@ -480,10 +483,14 @@ function Tests.run(G, renderer)
   g:shoot()
   local used = {}
   local stable = true
+  local opened, loadedOpen = false, false
   for i = 0, 114 do
     local frame = Weapon.frame(g)
     used[frame] = true
     stable = stable and Weapon.quads.exorcist[frame] ~= nil
+    opened = opened or g.player.arsenal.exorcist.open
+    loadedOpen = loadedOpen
+      or (g.player.arsenal.exorcist.open and g.player.arsenal.exorcist.mag == 2)
     g.view.shotAge = g.view.shotAge + 1 / 120
     Reload.update(g, 1 / 120)
   end
@@ -493,9 +500,14 @@ function Tests.run(G, renderer)
     count = count + 1
   end
   check(
-    'fired shotgun retains sixteen logical phases backed by registered artwork',
+    'fired shotgun renders real firing, open and loaded-open poses through the latch transaction',
     stable
-      and count == 16
+      and used[1]
+      and used[2]
+      and used[3]
+      and opened
+      and loadedOpen
+      and not g.player.arsenal.exorcist.open
       and g.player.arsenal.exorcist.mag == 2
       and g.player.arsenal.exorcist.reserve == 6
   )
@@ -512,8 +524,8 @@ function Tests.run(G, renderer)
     stable = stable and Weapon.quads.judge[frame] ~= nil
   end
   check(
-    'revolver retains four logical firing/recovery phases without changing readiness',
-    stable and count == 4 and Weapon.frame(g) == 1
+    'revolver renders recoil catch and ready without an unused logical phase',
+    stable and count == 3 and used[2] and used[3] and Weapon.frame(g) == 1
   )
   source = data('shrine-fresco-v12')
   local shrineDistinct, shrineValid, seen = true, true, {}

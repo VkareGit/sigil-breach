@@ -10,6 +10,7 @@ local Projectiles = require('src.combat.projectiles')
 local Explosives = require('src.combat.explosives')
 local Capabilities = require('src.session.capabilities')
 local BodyContact = require('src.combat.body_contact')
+local Effects = require('src.combat.effects')
 local Combat = {}
 local demonsAct = Capabilities.demonsAct
 Combat.demons = {
@@ -57,6 +58,12 @@ Combat.charges = {
     if Capabilities.missilesFly(g) and g.state == 'playing' then
       Explosives.update(g, dt)
     end
+  end,
+}
+Combat.effects = {
+  name = 'contactEffects',
+  run = function(g, dt)
+    Effects.update(g, dt)
   end,
 }
 return Combat

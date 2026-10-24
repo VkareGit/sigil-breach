@@ -220,7 +220,7 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
 local handsCode = [[
 extern vec3 light;
 extern vec3 mist;
-extern number contrast,saturation,haze,shade,height;
+extern number contrast,saturation,haze,shade,height,exposure;
 extern vec2 pigmentStep;
 extern number pigmentBlend;
 vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
@@ -238,7 +238,7 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
  float l=dot(p.rgb,vec3(.30,.59,.11));
  vec3 rgb=mix(vec3(l),p.rgb,saturation);
  rgb=max(vec3(0.0),(rgb-vec3(.38))*contrast+vec3(.38));
- rgb*=light;
+ rgb*=light*exposure;
  rgb=mix(rgb,mist,haze);
  rgb*=1.0-shade*smoothstep(.62,1.0,pixel.y/height);
  return vec4(rgb,p.a*c.a);

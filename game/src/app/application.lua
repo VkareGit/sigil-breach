@@ -5,9 +5,13 @@ local Audio = require('src.audio.audio')
 local Presentation = require('src.render.presentation')
 local Run = require('src.run.descent')
 local Preferences = require('src.storage.preferences')
-local QA = require('qa.runtime')
+local QA = require('src.app.runtime')
+local LoadPlan = require('src.app.load_plan')
+local Loading = require('src.ui.loading')
 local Input = require('src.app.input')
 local Commands = require('src.app.commands')
+local Navigation = require('src.app.navigation')
+local Queries = require('src.run.queries')
 local SessionReport = require('src.app.session_report')
 -- The presentation plugs itself into the simulation's hooks (sound, effects,
 -- feel, listeners); the simulation never requires it.
@@ -52,6 +56,9 @@ end
 -- a bug report that replays exactly: session/journal.lua), and the garbage
 -- of the one before collected now.
 function Application:adopt(game)
+  if self.renderer then
+    require('src.render.gallery').forgetWorld(self.renderer)
+  end
   self.loading = nil
   self.discardLoadingDelta = nil
   self.input:forget(self.game)
@@ -64,10 +71,15 @@ function Application:adopt(game)
     game.rng.present:seed(os.time())
   end
   self:applySettings()
-  if game.testField and self.renderer then
+  local tools = Queries.tools(game)
+  if tools and tools.gallery and self.renderer then
     local remaining = require('src.render.gallery').pending(self.renderer)
     if remaining > 0 then
-      self.loading = { remaining = remaining, total = remaining, shown = false }
+      self.loading = LoadPlan.new(
+        'PREPARING THE GALLERY',
+        require('src.render.gallery').loadingJobs(self.renderer)
+      )
+      self.loading.kind = 'transition'
       self.accumulator = 0
       self.input:reset(true)
       love.mouse.setRelativeMode(false)
@@ -85,7 +97,12 @@ function Application:adopt(game)
 end
 
 function Application:reset(start)
-  local classic = self:has('--selftest') or self:has('--showcase') or self:has('--screenshot')
+  Navigation.clear(self)
+  -- A focused suite receives the same initial application fixture as --selftest.
+  local classic = self.qa.suite ~= nil
+    or self:has('--selftest')
+    or self:has('--showcase')
+    or self:has('--screenshot')
   -- 0.22: no expedition is offered, so its save is neither read nor shown.
   -- The files stay untouched for when the mode returns.
   self:adopt(Game.new(classic and 'classic' or 'descent'))
@@ -130,9 +147,22 @@ end
 
 function Application:action(id)
   if self.loading then
+    if self.loading.kind == 'startup' then
+      if id == 'loading_retry' and self.loading.error then
+        self:discardStartup()
+        self:beginStartup()
+        return true
+      elseif id == 'loading_cancel' then
+        self:quit()
+        love.event.quit()
+        return true
+      end
+      return false
+    end
     if id ~= 'loading_cancel' and id ~= 'field_leave' then
       return false
     end
+    self.loading:cancel()
     self.loading = nil
     id = 'field_leave'
   end
@@ -161,14 +191,67 @@ function Application:load(arguments)
   love.graphics.setDefaultFilter('nearest', 'nearest')
   love.math.setRandomSeed(os.time())
   self.settings = Preferences.read()
-  Audio.init()
-  Audio.muted = self.settings.muted
-  require('src.audio.soundscape').music = self.settings.music
-  love.audio.setVolume(self.settings.muted and 0 or 0.7)
-  UI.init()
-  require('src.enemies.art_contract').validateAll()
-  self.renderer = Renderer.new()
-  self.renderer:resize(love.graphics.getDimensions())
+  self.bootstrap = Loading.bootstrap(UI)
+  self.ownsPresentation = true
+  self:beginStartup()
+end
+
+-- Jobs are providers, not special cases in the frame loop. A yielded checkpoint
+-- may resume only after the progress page has been submitted for display.
+function Application:beginStartup()
+  self.loading = LoadPlan.new('PREPARING SIGIL', {
+    {
+      label = 'PREPARING SOUND',
+      run = function(checkpoint)
+        Audio.init(checkpoint)
+        Audio.muted = self.settings.muted or self.qa.capture
+        require('src.audio.soundscape').music = self.settings.music
+        love.audio.setVolume(Audio.muted and 0 or 0.7)
+      end,
+    },
+    {
+      label = 'PREPARING THE INTERFACE',
+      run = function(checkpoint)
+        UI.init(checkpoint)
+      end,
+    },
+    {
+      label = 'PREPARING THE WORLD',
+      run = function(checkpoint)
+        require('src.enemies.art_contract').validateAll()
+        checkpoint('art contracts')
+        self.renderer = Renderer.new(checkpoint)
+        self.renderer:resize(love.graphics.getDimensions())
+      end,
+    },
+  })
+  self.loading.kind = 'startup'
+  self.accumulator = 0
+  self.input:reset(true)
+  love.mouse.setRelativeMode(false)
+end
+
+-- Covers constructors interrupted before they can return their renderer.
+-- Dropping the worker frees its scopes; globals release explicitly. Bootstrap
+-- fonts have their own small scope and remain available for the retry screen.
+function Application:discardStartup()
+  if self.loading then
+    self.loading:cancel()
+  end
+  self.loading = nil
+  if self.renderer then
+    self.renderer:release()
+    self.renderer = nil
+  end
+  require('src.render.weapon').release()
+  UI.release()
+  Audio.release()
+  Application.settle()
+end
+
+function Application:finishStartup()
+  Loading.releaseBootstrap(self.bootstrap)
+  self.bootstrap = nil
   -- With --record, the journal of the session follows each telemetry entry.
   SessionReport.afterWrite = function(g)
     if self.journals and self.journals[g] then
@@ -201,19 +284,22 @@ function Application:load(arguments)
 end
 
 function Application:update(dt)
-  if not self.game then
-    return
-  end
   if self.loading then
-    -- Show the loading page before any decoding, then one image per draw.
-    if self.loading.shown then
-      local remaining = require('src.render.gallery').preloadStep(self.renderer)
-      self.loading.remaining, self.loading.shown = remaining, false
-      if remaining == 0 then
-        if self.loading.focused == false and self.game.state == 'playing' then
+    local plan = self.loading
+    local done = plan:step()
+    if plan.error then
+      self.lastLoadError = plan.error
+      self.input:forget(self.game)
+      love.mouse.setRelativeMode(false)
+    elseif done then
+      self.loading = nil
+      if plan.kind == 'startup' then
+        self.lastStartupReport = plan
+        self:finishStartup()
+      else
+        if plan.focused == false and self.game.state == 'playing' then
           self.game.state = 'paused'
         end
-        self.loading = nil
         self.input:forget(self.game)
         self.input:reset(true)
         self.accumulator, UI.focus = 0, 1
@@ -221,6 +307,9 @@ function Application:update(dt)
         love.mouse.setRelativeMode(self.game.state == 'playing')
       end
     end
+    return
+  end
+  if not self.game then
     return
   end
   if self.discardLoadingDelta then
@@ -243,13 +332,22 @@ end
 
 function Application:draw()
   local game = self.game
-  if not game then
-    return
-  end
   local w, h = love.graphics.getDimensions()
   if self.loading then
-    require('src.ui.loading').draw(UI, self.loading.remaining, self.loading.total, w, h)
+    Loading.draw(
+      self.bootstrap or UI,
+      self.loading.remaining,
+      self.loading.total,
+      w,
+      h,
+      self.loading.error,
+      self.loading.stage or self.loading.label,
+      self.loading.kind == 'startup'
+    )
     self.loading.shown = true
+    return
+  end
+  if not game then
     return
   end
   local shown = Presentation.sample(game, self.accumulator * 120)
@@ -287,6 +385,23 @@ end
 function Application:quit()
   love.mouse.setRelativeMode(false)
   self:saveSettings()
+  if self.ownsPresentation then
+    if self.loading then
+      self.loading:cancel()
+      self.loading = nil
+    end
+    Loading.releaseBootstrap(self.bootstrap)
+    self.bootstrap = nil
+    if self.renderer then
+      self.renderer:release()
+      self.renderer = nil
+    end
+    require('src.render.weapon').release()
+    UI.shutdown()
+    Audio.release()
+    self.ownsPresentation = false
+    Application.settle()
+  end
 end
 
 function Application:errorhandler(message)

@@ -37,7 +37,13 @@ function Tests.run(check)
         return false
       end,
     }
-    app.game = { state = 'playing', player = {}, time = 0 }
+    app.game = {
+      state = 'playing',
+      player = {},
+      time = 0,
+      mode = 'classic',
+      act = require('src.session.game').act,
+    }
     app.game.update = function(game, dt, input)
       steps[#steps + 1] = {
         dt = dt,

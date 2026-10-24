@@ -10,5 +10,7 @@ $runtime = Join-Path $project.Root 'toolchain\love-11.5-win64\lovec.exe'
 $literals = Join-Path $PSScriptRoot 'check\literals.txt'
 $edges = Join-Path $PSScriptRoot 'check\presentation-edges.txt'
 $arguments = @((Join-Path $PSScriptRoot 'check'), $manifest, $project.Source, $report, $literals, $edges) | ForEach-Object { '"' + $_ + '"' }
-$null = Invoke-IsolatedGame $runtime $arguments $project.Root $project.Qa 'architecture' 60
+$session = Enter-QaSession $project.Qa
+try { $null = Invoke-IsolatedGame $runtime $arguments $project.Root $project.Qa 'architecture' 60 }
+finally { Exit-QaSession $session }
 Get-Content -LiteralPath $report | Select-Object -Last 1

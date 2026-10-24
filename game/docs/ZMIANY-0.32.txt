@@ -1,0 +1,61 @@
+SIGIL: BREACH / 0.32 / FUNDAMENT POD ROZWÓJ
+
+Zakres: wykonanie planu PLAN-FUNDAMENT-v9.md. Nadal jeden poligon, dwa
+rodzaje broni palnej i fizyczne wyposażenie człowieka. Bez nowego kręgu,
+kampanii, LIMBO TRIAL ani przebudowy obecnego menu/HUD.
+
+- Definicje, instancje symulacji i zasoby prezentacji mają jawnych właścicieli.
+  Uszkodzone listy, zakresy i brakujące wykonawcy/referencje są odrzucane.
+- Efekty kontaktu/statusu/pulsu mają wspólne schematy i wykonawców. Obecnym
+  broniom nie dodano nowych obrażeń ani statusów w ramach refaktoru.
+- Katalog grafiki broni/wyposażenia obsługuje nazwane prostokąty, kotwice,
+  fazy i dowolną liczbę klatek. Ruch i animacja nie posiadają drugiego
+  zegara trafień. Podgląd geometrii ataków czyta prawdziwe dane kontaktu.
+- Katalog broni obsługuje warianty widocznych komór czytające rzeczywistą
+  amunicję (także naboje w drodze do komory); rysunek nie wpisuje nabojów do
+  symulacji. Dłonie, wylot i ekranowe położenie mają jawne kotwice. Obecnie
+  obie bronie używają sprawdzonych arkuszy v16; nowe ilustracje wejdą przez
+  same dane (content/art/weapon_frames.lua), bez zmian kodu.
+- Rzut granatu: dłoń wspierająca rzuca, a broń w tym czasie zjeżdża poza
+  kadr i wraca na swoje miejsce (dane gestu w content/equipment_art.lua).
+- Na mapie z wysokościami wzrok biegnie między oczami ciał: rycerza (skok,
+  kucnięcie) i stwora (namalowana głowa w aktualnej pozie). Wysokość ciała
+  w tłoku to namalowana sylwetka w aktualnej pozie, chyba że dane ciała
+  podają własne height/eye.
+- Żywe cykle ujawniły dwie usterki: wznowienie otwartej strzelby z jednym
+  pozostałym nabojem pomijało faktyczne doładowanie, a łuski rodziły się
+  nad komorami z powodu starego ekranowego offsetu. Jawny stan transakcji
+  rozróżnia pozostawiony nabój od doładowania, a łuska wiąże pomierzoną
+  komorę i dalej leci samodzielnie. Rewolwer nie otrzymał fikcyjnego
+  wyrzutu łusek: jego obecny model nie raportuje liczby zużytych łusek.
+- Przerwanie otwartego rewolweru spustem pokazuje zamknięcie przez istniejące
+  0,25 s oczekiwania na gotowość. Nazwane pozy czytają znacznik symulacji;
+  podgląd nie zmienia amunicji ani czasu następnego strzału.
+- Nowe tryby tworzy ta sama fabryka w aplikacji i replay. Poligon ma
+  osobne katalogi, stanowiska, narzędzia resetu i wykonawców poleceń.
+- Scenografia i nazwane miejsca należą do mapy. Testowa geometria sprawdza
+  przesuniętą podłogę, schody, podest, podwyższoną kolumnę, pociski,
+  lądowania i zejścia. Żadna nowa mapa nie trafia do zwykłej rozgrywki.
+- Współdzielone tekstury mają kontrolowany czas życia. Start i galeria
+  ładują etapami; błędy można ponawiać, częściowe ładowanie anulować.
+- Większe katalogi i dłuższe teksty mają paginację oraz pomiar bitmapowego
+  tuszu. Zachowane bieżące układy; odstęp wierszy też jest częścią odbioru.
+- Journal v3 współdzieli identyczne obserwacje, zachowuje geometrię oraz
+  wynik trafień, waliduje wejście i źródłowy fingerprint przed replay.
+  Ten sam numer wersji nie wystarcza do uznania dwóch buildów za identyczne.
+  Dekoder nie wykonuje kodu zapisanego w pliku, ma ograniczenia wielkości,
+  głębokości i liczby wartości oraz zachowuje format dotychczasowego encodera.
+- Narzędzia czekają na stan portalu/zasobów, nie zakładają natychmiastowego
+  spawnu. Smoke i pomiary pełne są osobne, z limitem czasu i identyfikacją
+  źródeł. Profil CPU nie jest przedstawiany jako pomiar pełnej klatki GPU.
+- Osobne paczki Player i Developer, manifesty SHA, kontrola nieświeżych
+  wyników (identyfikator przebiegu w raporcie, jedna sesja QA na katalog)
+  i uruchomienie poza repo. Gracz dostaje archiwum gry tylko w EXE.
+- Wspólne zasoby GPU nazywają wariant obrazu raz: powtarzane co klatkę
+  wyszukanie nie alokuje (alokacja Lua na klatkę z ok. 15 do ok. 4 KiB). Dołączona instrukcja ROZSZERZANIE.txt
+  wskazuje wykonane przykłady rozszerzeń oraz ich testy.
+
+Wyniki odbioru wiąże manifest konkretnej paczki oraz raporty z tego samego
+SHA. Opisy roboczych prób i liczniki ze starszych wersji nie są certyfikatem
+tej paczki. Ludzki odbiór feelingu B2 oraz stan pełnej korekty chwytu broni
+są jawnie oddzielone w ODBIOR-0.32.txt i raporcie wdrożenia.

@@ -54,8 +54,10 @@ function Schema:fill(def)
       out[key] = spec.schema:fill(out[key])
     elseif spec.list and type(out[key]) == 'table' then
       local list = {}
-      for i, item in ipairs(out[key]) do
-        list[i] = spec.list:fill(item)
+      -- Preserve every key until validation. ipairs would silently truncate a
+      -- sparse definition and discard malformed or misspelled entries.
+      for i, item in pairs(out[key]) do
+        list[i] = type(item) == 'table' and spec.list:fill(item) or item
       end
       out[key] = list
     end
@@ -104,8 +106,17 @@ function Schema:problems(def, path, out)
       if spec.schema and type(v) == 'table' then
         spec.schema:problems(v, where, out)
       elseif spec.list and type(v) == 'table' then
-        for i, item in ipairs(v) do
-          spec.list:problems(item, where .. '[' .. i .. ']', out)
+        local count, last = 0, 0
+        for i, item in pairs(v) do
+          if type(i) ~= 'number' or i < 1 or i % 1 ~= 0 then
+            out[#out + 1] = where .. ': expected consecutive integer keys'
+          else
+            count, last = count + 1, math.max(last, i)
+          end
+          spec.list:problems(item, where .. '[' .. tostring(i) .. ']', out)
+        end
+        if count ~= last then
+          out[#out + 1] = where .. ': sparse lists are not allowed'
         end
       end
     end
@@ -132,12 +143,13 @@ function Schema:build(def, path)
   return self:validate(self:fill(def), path)
 end
 -- Data inheritance: child over parent. Records merge key by key, arrays
--- (lists) and non-table values of the child replace the parent's.
+-- (lists) and non-table values of the child replace the parent's. An empty
+-- child list must also clear an inherited array (effects, attacks, loadout).
 local function isArray(t)
   return type(t) == 'table' and t[1] ~= nil
 end
 function Schema.inherit(parent, child)
-  if type(parent) ~= 'table' or type(child) ~= 'table' or isArray(child) then
+  if type(parent) ~= 'table' or type(child) ~= 'table' or isArray(parent) or isArray(child) then
     return copy(child)
   end
   local out = copy(parent)

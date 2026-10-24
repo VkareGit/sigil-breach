@@ -51,6 +51,10 @@ function Transients.burst(g, x, y, z, color, count, force)
 end
 
 function Transients.beforeCombat(g, dt)
+  local close = g.view.interruptedClose
+  if close and g.elapsed >= close.started + close.duration then
+    g.view.interruptedClose = nil
+  end
   local numbers = g.view.damageNumbers
   if numbers then
     for i = #numbers, 1, -1 do

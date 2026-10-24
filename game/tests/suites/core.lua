@@ -158,16 +158,45 @@ function Tests.run(G, initial, renderer, getGame)
     g.view.hitmarker > 0 and g.view.recoilV > 0 and #g.view.traces > 0
   )
   check('shot immediately begins automatic cycle', g.reload > 0 and V.frame(g) == 2)
-  local frames = { [V.frame(g)] = true }
+  local art = require('src.content.weapon_art')
+  local entry = require('src.render.weapon_art').of(g)
+  local observed, expected = {}, {}
+  local function append(sequence, index)
+    if sequence[#sequence] ~= index then
+      sequence[#sequence + 1] = index
+    end
+  end
+  -- A full reload must visit its authored phases in order. Partial-magazine
+  -- leaf poses are covered separately; they cannot all appear in this cycle.
+  for _, phase in ipairs(entry.phases.fire) do
+    append(expected, art.variant(entry, art.frame(entry, phase.frame), 0))
+  end
+  local start = 0
+  for _, phase in ipairs(entry.phases.reload) do
+    if phase.finish > entry.automaticFireUntil then
+      local index = art.frame(entry, phase.frame)
+      local frame = entry.frames[index]
+      -- Both shells load at reloadLoadTime; before it a 'loading' pose shows
+      -- the pair pushed home but for those its hand still holds.
+      local rounds = start >= T.reloadLoadTime and 2 or 0
+      if start < T.reloadLoadTime and frame.roundsSource == 'loading' then
+        rounds = math.max(0, 2 - frame.inHand)
+      end
+      append(expected, art.variant(entry, index, rounds))
+    end
+    start = phase.finish
+  end
+  append(expected, art.frame(entry, entry.ready))
+  append(observed, V.frame(g))
   for i = 1, 120 do
     g:update(1 / 120, {})
-    frames[V.frame(g)] = true
+    append(observed, V.frame(g))
   end
-  local count = 0
-  for _ in pairs(frames) do
-    count = count + 1
+  local ordered = #observed == #expected
+  for index, frame in ipairs(expected) do
+    ordered = ordered and observed[index] == frame
   end
-  check('all sixteen weapon frames are used', count == 16)
+  check('automatic cycle reaches its authored phases and round variants in order', ordered)
   check(
     'automatic reload commits exactly two shells',
     g.player.arsenal.exorcist.mag == 2 and g.player.arsenal.exorcist.reserve == 36

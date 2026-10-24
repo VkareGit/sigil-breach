@@ -24,6 +24,8 @@ function love.keypressed(key, scancode, isrepeat)
   if app.loading then
     if key == 'escape' then
       app:action('loading_cancel')
+    elseif key == 'return' then
+      app:action('loading_retry')
     end
     return
   end

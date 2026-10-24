@@ -27,9 +27,6 @@ function T.run(G, check)
       end
     end
     -- Collision fixture only: the real G, shoot, damage, poise and FX paths run.
-    if g.world.mesh then
-      g.world.mesh:release()
-    end
     g.world = w
     return g
   end

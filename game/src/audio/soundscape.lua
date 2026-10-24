@@ -201,7 +201,7 @@ S.kinds = kinds
 
 -- Every layer of the score as a buffer of samples: { [id] = buffer }, the
 -- loop's length (s) and the rate. Deterministic: the same score, the same sound.
-function S.render()
+function S.render(checkpoint)
   local notes, lines, units = S.timeline()
   local loop, rate = units * Score.unit, Score.rate
   local buffers = {}
@@ -217,12 +217,23 @@ function S.render()
     )
     Synth.hall(buffer, rate, layer.hall)
     buffers[layer.id] = Synth.level(buffer, layer.level)
+    if checkpoint then
+      checkpoint('score ' .. layer.id)
+    end
   end
   return buffers, loop, rate
 end
 
-function S.init()
-  local buffers, _, rate = S.render()
+function S.release()
+  for _, source in ipairs(S.sources) do
+    source:stop()
+    source:release()
+  end
+  S.layers, S.gains, S.sources, S.intensity = {}, {}, {}, 0
+end
+function S.init(checkpoint)
+  S.release()
+  local buffers, _, rate = S.render(checkpoint)
   local sources = {}
   for _, layer in ipairs(Score.layers) do
     local data = Synth.data(buffers[layer.id], rate)
@@ -232,6 +243,10 @@ function S.init()
     source:setVolume(0)
     S.layers[layer.id], S.gains[layer.id] = source, 0
     sources[#sources + 1] = source
+    S.sources = sources
+    if checkpoint then
+      checkpoint('music source ' .. layer.id)
+    end
   end
   S.sources = sources
   -- Started in one call, the loops stay aligned for good.

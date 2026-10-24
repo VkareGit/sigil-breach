@@ -1,7 +1,7 @@
 -- The Ember's offers between waves. Each offer names a kind (run/economy.lua
 -- E.kinds: how it is priced, what it gives); a new offer of a known kind is
 -- a new entry here, a new kind of offer is a new entry there.
-return {
+local Shop = {
   -- A wallet beyond this is a corrupted save, not a purchase.
   maxWallet = 1000000,
   -- The ward (consumable shield) is mended up to maxWard.
@@ -9,6 +9,7 @@ return {
   offers = {
     {
       id = 'ammo',
+      icon = 'ammo',
       kind = 'rounds',
       name = '4 SHELLS',
       price = 12,
@@ -16,12 +17,14 @@ return {
     },
     {
       id = 'fill',
+      icon = 'ammo',
       kind = 'refill',
       name = 'REFILL AMMO',
       description = 'Full reserve. You only pay for missing rounds.',
     },
     {
       id = 'armor',
+      icon = 'armor',
       kind = 'ward',
       name = 'MEND +25 WARD',
       -- amount of ward for price; a partial mend costs its share (rounded up).
@@ -31,6 +34,8 @@ return {
     },
     {
       id = 'choke',
+      icon = 'choke',
+      short = 'FOCUS',
       kind = 'engraving',
       name = 'ENGRAVING: FOCUS',
       price = 100,
@@ -38,6 +43,8 @@ return {
     },
     {
       id = 'pierce',
+      icon = 'pierce',
+      short = 'PIERCE',
       kind = 'engraving',
       name = 'ENGRAVING: PIERCE',
       price = 100,
@@ -45,6 +52,7 @@ return {
     },
     {
       id = 'charge',
+      icon = 'ammo',
       kind = 'charge',
       ability = 'powder',
       name = 'POWDER CHARGE',
@@ -53,3 +61,12 @@ return {
     },
   },
 }
+function Shop.get(id)
+  for _, offer in ipairs(Shop.offers) do
+    if offer.id == id then
+      return offer
+    end
+  end
+  error('unknown shop offer: ' .. tostring(id), 2)
+end
+return Shop

@@ -14,14 +14,23 @@ local Abilities = require('src.content.abilities')
 local Defaults = require('src.content.combat_defaults')
 local B = require('src.combat.ballistics')
 local Explosives = require('src.combat.explosives')
+local Registry = require('src.core.registry')
+local Action = require('src.content.defs.action')
 local Cast = {}
-Cast.kinds = {}
-Cast.kinds.throw = function(g, ability)
+Cast.registry = Registry:new('equipment deliveries', function(handler, id)
+  Action.kinds:get(id)
+  assert(type(handler) == 'function', 'equipment delivery ' .. id .. ' needs a function')
+end)
+Cast.kinds = Cast.registry:view()
+function Cast.register(id, handler)
+  return Cast.registry:register(id, handler)
+end
+Cast.register('throw', function(g, ability)
   Explosives.launch(g, ability.action)
   return true
-end
+end)
 -- A missile from the eye along the aim, carrying the action's packet.
-Cast.kinds.bolt = function(g, ability)
+Cast.register('bolt', function(g, ability)
   local action, p = ability.action, g.player
   local x, y, z = B.origin(g)
   local dx, dy, dz = B.direction(p.yaw, p.pitch)
@@ -41,7 +50,7 @@ Cast.kinds.bolt = function(g, ability)
     radius = action.radius,
   })
   return true
-end
+end)
 -- The ability in a slot of the knight's loadout and its live record.
 function Cast.slot(g, slot)
   local p = g.player

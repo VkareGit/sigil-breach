@@ -108,7 +108,7 @@ local function pageControls(g, s)
     },
     {
       id = g.testField and 'field_leave' or (settings and 'quit' or 'menu'),
-      label = g.testField and g.testField.returnLabel or (settings and 'QUIT GAME' or 'MAIN MENU'),
+      label = g.view.fieldReturnLabel or (settings and 'QUIT GAME' or 'MAIN MENU'),
       x = 648,
       y = 570,
       w = 252,
@@ -153,9 +153,7 @@ Views.providers = {
   end,
   function(g)
     if g.help then
-      return {
-        { id = 'help_back', label = 'BACK  [ F1 / ESC ]', x = 460, y = 619, w = 360, h = 42 },
-      }
+      return require('src.ui.screens.help').controls(g)
     end
   end,
   function(g)

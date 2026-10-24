@@ -3,16 +3,21 @@
 -- The bust sits inside the painted arch, including the helmet's crown.
 local P =
   { bounds = { x = 570, y = 602, w = 140, h = 105 }, path = 'assets/art/nosiciel-iron-v16.png' }
-function P.init()
-  P.image = love.graphics.newImage(P.path)
-  P.image:setFilter('linear', 'linear')
+local Resources = require('src.render.resources')
+function P.init(checkpoint)
+  if P.image then
+    return P
+  end
+  P.resources = Resources.new('UI knight portrait')
+  P.image = P.resources:image(P.path, { filter = 'linear' })
   P.quads = {}
   local w, h = P.image:getDimensions()
   for i = 0, 5 do
-    P.quads[i + 1] =
+    P.quads[i + 1] = P.resources:own(
       love.graphics.newQuad(i % 3 * w / 3, math.floor(i / 3) * h / 2, w / 3, h / 2, w, h)
+    )
   end
-  P.shader = love.graphics.newShader([[
+  P.shader = P.resources:own(love.graphics.newShader([[
  extern vec4 frameRect;
  extern vec3 placement;
  vec4 effect(vec4 color,Image tex,vec2 uv,vec2 screen){
@@ -27,7 +32,16 @@ function P.init()
   vec4 p=Texel(tex,uv);
   return vec4(p.rgb,p.a*arch)*color;
  }
- ]])
+ ]]))
+  if checkpoint then
+    checkpoint('knight portrait')
+  end
+end
+function P.release()
+  if P.resources then
+    P.resources:release()
+  end
+  P.resources, P.image, P.quads, P.shader = nil, nil, nil, nil
 end
 function P.frame(g)
   if g.player.hp < 30 then

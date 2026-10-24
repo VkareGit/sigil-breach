@@ -1,4 +1,4 @@
-SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.31
+SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.32
 
 LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
 zaklęć demonów, broni i wyposażenia rycerza, map, trybów). Model: sesja = świat ECS nad własnymi tablicami
@@ -82,7 +82,7 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   clocks -> knight.recovery -> knight.reload -> knight.snapshot ->
   knight.motion -> knight.contact -> world.effects -> world.transientsBefore
   -> knight.trigger -> combat.demons -> combat.separation -> combat.bodies ->
-  combat.hazards -> combat.projectiles -> combat.charges -> world.telemetry ->
+  combat.hazards -> combat.projectiles -> combat.charges -> combat.contactEffects -> world.telemetry ->
   world.stillPlaying -> world.transientsAfter -> world.supplies ->
   world.progression (Modes.of(g).progress).
   Ciała (combat/body_contact.lua): kto wszedł w drugie żywe ciało, zatrzymuje
@@ -143,6 +143,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 
   content/maps/<id>.lua + content/maps/index.lua: pokoje, kolumny, pieczęcie,
   portal, spawn, kaganki, Ember, bramy fal, strefy, floor (wysokość podłogi);
+  elevations (podpora na komórkach), decor (scenografia) i anchors (miejsca).
+  content/maps/schema odrzuca uszkodzone wymiary/listy przed budową.
   world/arena.lua buduje świat (Game.new(kind, mapId)); W.flow = wspólne pola
   przepływu (jedno na komórkę celu); W.clear = przejście ciała w linii.
   run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
@@ -165,6 +167,14 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Poligon i ekrany współdzielą pętlę aplikacji.
   app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
   ui/interface.lua tylko rozdziela.
+  Game.new i Journal.session korzystają ze wspólnego Modes.session.
+  Nowy tryb nie tworzy najpierw wyprawy ani jej aktorów. Wspólne renderery
+  pytają run/queries o world/tools/objective; specyficzne ekrany czytają
+  stan swojego trybu. app/navigation posiada stos powrotów.
+  world_mesh posiada zasób GPU poza serializowanym rekordem świata.
+  app/load_plan obsługuje także start: audio, bitmapy UI, renderer i broń
+  mają punkty oddania sterowania między zasobami. Pojedynczy upload obrazu
+  jest nadal niepodzielny; postęp nie oznacza gwarancji stałego czasu klatki.
 
 9. ZAPIS, POWTÓRKI, DETERMINIZM, POMIARY
 
@@ -176,6 +186,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   przez życie sesji i snapshotów; API nie migruje działającej sesji.
   Wersja kompilacji: core/build.lua — Journal stempluje
   ją w nagłówku bez udziału aplikacji (powtórka w narzędziu = ta sama wersja).
+  Dodatkowo źródłowy SHA pochodzi z uruchomienia QA albo wygenerowanego
+  build-fingerprint.txt w paczce. Sam numer wersji nie poświadcza kodu.
+  Bez SHA zwykły start developerski jest oznaczony jako niepoświadczony.
+  Journal v3 współdzieli identyczne obserwacje obrazu; identyfikator nie
+  zastępuje porównania geometrii. Odtworzenie nie mutuje danych archiwum.
   session/journal.lua: polecenia (look, update, shoot, cast, reloadGun,
   switchWeapon, dash, interact, start, act = polecenia trybu przez Game:act)
   + 'aim' (bezpośrednie ustawienie) + 'set' (stan, pauza, mapa, pomoc,
@@ -303,9 +318,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   koszt i ograniczenia: ANATOMIA-I-FIZYKA-0.28.txt; pomiary qa/reviews/hit_*.
   Rycerz nie używa magii:
   nadnaturalne ataki należą do demonów (bez many i zaklęć gracza).
-  Podłoga: symulacja zna Ground.height (jedna wysokość na mapę, dziś Limbo 0);
-  renderer rysuje demony i pociski od 0, więc mapa z floor ≠ 0 wymaga najpierw
-  renderera; podłoga per komórka — przy pierwszej mapie z poziomami.
+  Podłoga: Ground.height(map,x,z) obejmuje datum mapy i lokalny heightfield.
+  Ruch, pociski, lot, lądowanie, renderer i dekoracje używają tego samego
+  podparcia. Podparcie stóp jest punktowe; promień ruchu jest oddzielną
+  bryłą poziomą, a nie geometrią trafienia. Jedna podłoga na x/z oznacza,
+  że most nad drugim pomieszczeniem wymaga innego modelu przestrzeni.
   Strzały i pociski rycerza blokują żywe i padające ciała: padające = zabite,
   którego malowany upadek nie pokazuje jeszcze ostatniej klatki, nie przestało
   się pochylać (corpse.settle) albo jest w powietrzu (Corpse.settled); po
@@ -319,11 +336,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 14. NARZĘDZIA
 
   FORMAT.ps1 (StyLua) przed testami; TEST.ps1 -Suite All|Architecture|
-  Mechanics|Input|Render; tools/check.ps1; raporty w work/qa-v<wersja>/
+  Mechanics|Input|Render|Tools; tools/check.ps1; raporty w work/qa-v<wersja>/
   (qaOutput w game/src/app/release.lua). Flagi: --selftest, --input-test,
   --showcase, --benchmark, --population (same populacje botów), --hit-review
   (raporty trafień, GPU, opóźnienia i koszt salwy, nakładki hit-overlay-*),
-  --record (+ F9), --suite=<id> (z --selftest: jeden zestaw), --core-measure
+  --record (+ F9), --suite=<id> (jeden zestaw), --core-measure
   (core-measure.txt: maski, salwa, pociski, pazur, Snapshot, Journal, długa
   sesja), --step-study (step-study.txt: FPS vs krok), --mask-formats
   (mask-formats.txt: porównanie formatów masek).
@@ -331,8 +348,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   content/art/hit_masks.lua = tokeny RLE (content/art/mask_codec.lua,
   dekodowane raz przy wczytaniu, nigdy na promień) + źródło każdej klatki
   { obraz, x, y, szer., wys. }; test anatomy-data porównuje je z PNG.
-  Journal v2: pełna integralność stanu początkowego i końcowego, kontakty części
-  i działania poligonu. Złoty wzorzec obejmuje także skrót kontaktów.
+  Journal v3: pełna integralność stanu początkowego i końcowego, kontakty części
+  i działania poligonu. Identyczne obserwacje są współdzielone po porównaniu
+  geometrii, nie tylko ID. Złoty wzorzec obejmuje także skrót kontaktów.
+  Literalny parser danych nie wykonuje kodu Lua. Weryfikacja formatu,
+  referencji i fingerprintu źródeł poprzedza mutację sesji replay.
   Obserwacja trafienia jest częścią komendy. Nagrywanie ma limit szacowanych
   64 MiB serializowanego tekstu albo 72000 komend (nie jest to limit RAM).
   Zatrzymuje się na granicy kompletnej komendy; eksport czeka na kontakty

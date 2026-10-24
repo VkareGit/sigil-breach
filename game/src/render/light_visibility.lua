@@ -1,7 +1,6 @@
 -- A cached 2.5D shadow atlas for the arena's solid walls and pillars.
 -- Each light has its own tile. Decorative arches are not geometry in this map.
 local V = { resolution = 128, columns = 4, capacity = 14 }
-local cache = {}
 local function solid(w, x, z)
   return not (w.map[z] and w.map[z][x] == 0)
 end
@@ -58,56 +57,53 @@ function V.ambient(w, x, z)
   end
   return 0.72 + 0.28 * math.min(1, nearest / 1.35)
 end
-function V.build(w, sources)
-  local parts = { tostring(w.size) }
+function V.build(w, sources, owner)
+  assert(owner, 'visibility atlas requires an explicit resource owner')
+  local parts =
+    { tostring(w.size), tostring(V.resolution), tostring(V.columns), tostring(V.capacity) }
   for _, row in ipairs(w.map) do
     parts[#parts + 1] = table.concat(row, ',')
   end
   for _, s in ipairs(sources) do
-    parts[#parts + 1] = ('%.3f,%.3f'):format(s.x, s.z)
+    parts[#parts + 1] = ('%.17g,%.17g'):format(s.x, s.z)
   end
   local key = table.concat(parts, ';')
-  for _, entry in ipairs(cache) do
-    if entry.key == key then
-      return entry
-    end
-  end
-  local n = V.resolution
-  local data = love.image.newImageData(n * 4, n * 4)
-  local ao, blocked = {}, {}
-  for z = 0, n - 1 do
-    for x = 0, n - 1 do
-      local wx, wz = 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n
-      ao[z * n + x + 1] = V.ambient(w, wx, wz)
-      blocked[z * n + x + 1] = solid(w, math.floor(wx + 0.5), math.floor(wz + 0.5)) and 1 or 0
-    end
-  end
-  for i, s in ipairs(sources) do
-    assert(i <= V.capacity, 'Static light atlas capacity exceeded')
-    local ox, oz = ((i - 1) % 4) * n, math.floor((i - 1) / 4) * n
+  return owner:retain('visibility|' .. key, function()
+    local n = V.resolution
+    local data = love.image.newImageData(n * 4, n * 4)
+    local ao, blocked = {}, {}
     for z = 0, n - 1 do
       for x = 0, n - 1 do
-        local visible =
-          V.visible(w, s.x, s.z, 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n)
-        data:setPixel(
-          ox + x,
-          oz + z,
-          visible and 1 or 0,
-          ao[z * n + x + 1],
-          blocked[z * n + x + 1],
-          1
-        )
+        local wx, wz = 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n
+        ao[z * n + x + 1] = V.ambient(w, wx, wz)
+        blocked[z * n + x + 1] = solid(w, math.floor(wx + 0.5), math.floor(wz + 0.5)) and 1 or 0
       end
     end
-  end
-  local image = love.graphics.newImage(data)
-  image:setFilter('linear', 'linear')
-  local entry = { key = key, image = image, data = data, size = w.size }
-  cache[#cache + 1] = entry
-  if #cache > 2 then
-    table.remove(cache, 1)
-  end
-  return entry
+    for i, s in ipairs(sources) do
+      assert(i <= V.capacity, 'Static light atlas capacity exceeded')
+      local ox, oz = ((i - 1) % 4) * n, math.floor((i - 1) / 4) * n
+      for z = 0, n - 1 do
+        for x = 0, n - 1 do
+          local visible =
+            V.visible(w, s.x, s.z, 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n)
+          data:setPixel(
+            ox + x,
+            oz + z,
+            visible and 1 or 0,
+            ao[z * n + x + 1],
+            blocked[z * n + x + 1],
+            1
+          )
+        end
+      end
+    end
+    local image = love.graphics.newImage(data)
+    image:setFilter('linear', 'linear')
+    return { key = key, image = image, data = data, size = w.size }
+  end, function(entry)
+    entry.image:release()
+    entry.data:release()
+  end, { kind = 'generated visibility', width = V.resolution * 4, height = V.resolution * 4 })
 end
 function V.sample(entry, index, x, z)
   local n = V.resolution

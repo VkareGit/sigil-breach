@@ -49,6 +49,7 @@ C.schemas = {
     boss = f(false),
     speed = f(0, 'walking speed of the definition'),
     conditions = f(nil, 'named states and their remaining time'),
+    effectState = f(nil, 'ordered ongoing effect instances, clocks and source ids'),
     woundFlash = f(0),
   },
   guard = {
@@ -225,6 +226,7 @@ C.schemas.knight = {
   essence = f(nil),
   resist = f(nil),
   conditions = f(nil),
+  effectState = f(nil, 'ordered ongoing effect instances, clocks and source ids'),
   poise = f(nil),
   guardQuiet = f(nil),
   pushX = f(nil),

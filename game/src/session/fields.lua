@@ -33,6 +33,7 @@ function Fields.declare(owner, names)
 end
 local declare = Fields.declare
 local declareView = Fields.declareView
+declareView('run/modes.lua', { 'fieldReturnLabel' })
 
 -- SIMULATION ----------------------------------------------------------------
 -- The session itself (session/state.lua): the world, the pools' arrays, the
@@ -117,7 +118,7 @@ declare('session/listeners.lua', {
 declare('session/damage_outcomes.lua', { 'playerDamageReport' })
 -- Modes.
 declare('run/descent.lua', { 'run', 'shopMessage', 'saveWarning' })
-declare('run/modes.lua', { 'mode' }) -- the mode a session names (new modes)
+declare('run/modes.lua', { 'mode', 'modeData' }) -- ID and optional private state of a registered mode
 declare('run/spawner.lua', { 'bossSpawned' })
 declare('run/test_field.lua', { 'testField', 'availableSave', 'tier' })
 declare('session/interactions.lua', { 'seals', 'secretFound', 'rank', 'bestScore' })
@@ -176,6 +177,7 @@ declareView('feedback/surface_marks.lua', { 'surfaceMarks', 'surfaceMarkPool' })
 declareView('feedback/shot_trails.lua', { 'traces', 'tracePool' })
 declareView('feedback/death_response.lua', { 'particles', 'corpses', 'shells' })
 declareView('feedback/movement_marks.lua', { 'markClocks' })
+declareView('feedback/world_feedback.lua', { 'interruptedClose' })
 declareView('feedback/movement_impact.lua', {
   'lastLandingImpact',
   'lastMovementImpact',

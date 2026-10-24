@@ -110,6 +110,7 @@ function S.run(Game, renderer, output)
       )
       lg.pop()
       canvas:release()
+      local muzzlePhase = Weapon.muzzlePhase(g)
       records[#records + 1] = string.format(
         '%s t=%.4f shotAge=%.4f reloadAge=%.4f logicalPose=%02d bodyPose=%02d muzzle=%s targetHP=%.2f',
         label,
@@ -118,7 +119,7 @@ function S.run(Game, renderer, output)
         Reload.age(g),
         Weapon.frame(g),
         Weapon.sourceFrame(g),
-        tostring(Weapon.muzzlePhase(g)),
+        tostring(muzzlePhase),
         target.hp
       )
     end

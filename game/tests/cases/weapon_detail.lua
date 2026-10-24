@@ -59,13 +59,14 @@ function Tests.run(G, check)
   local yaw, pitch = g.player.yaw, g.player.pitch
   local mag, reserve = g.player.arsenal.judge.mag, g.player.arsenal.judge.reserve
   local reload, ready, elapsed = g.reload, g.player.arsenal.judge.readyAt, g.elapsed
+  local gripX, gripY = V.transform(g, 800, 450)
   W.shot(g, Defs.profile(2), 1)
   W.update(g, 0.08)
   local x, y, r = V.transform(g, 800, 450)
   local ax, ay, az = B.origin(g)
   check(
     'the Judge rotates about its registered hand grip, without drifting horizontally',
-    near(x, 400) and r < -0.05 and r > -0.10 and y < 470
+    near(x, gripX) and r < -0.05 and r > -0.10 and y - gripY < 9
   )
   check(
     'wrist presentation never redirects the firing ray',

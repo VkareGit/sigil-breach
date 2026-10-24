@@ -1,4 +1,7 @@
 local D = {}
+local Text = require('src.content.text')
+local Pages = require('src.ui.pages')
+local Fit = require('src.ui.text_fit')
 local lg = love.graphics
 local E = require('src.run.economy')
 local Run = require('src.run.descent')
@@ -13,6 +16,25 @@ local gold = Skin.colors.gold
 local blue = Skin.colors.blue
 local red = Skin.colors.red
 local U
+require('src.session.fields').declareView('ui.descent', { 'shopPage' })
+function D.shopPage(g)
+  local detailed = false
+  for _, offer in ipairs(E.offers) do
+    local name, description = E.describe(g, offer.id)
+    detailed = detailed
+      or U.fonts[20]:getInk(name).w > 648
+      or U.fonts[16]:getInk(description).w > 648
+  end
+  local first, last, page, total = Pages.range(#E.offers, g.view.shopPage, detailed and 4 or 6)
+  return first, last, page, total, detailed and 80 or 56, detailed
+end
+function D.turnShop(g, delta)
+  local _, _, page, total = D.shopPage(g)
+  g.view.shopPage = math.max(1, math.min(total, page + delta))
+end
+function D.resetShop(g)
+  g.view.shopPage = 1
+end
 function D.install(ui)
   U = ui
 end
@@ -34,21 +56,21 @@ local function panel(x, y, w, h)
   Skin.panel(x, y, w, h, 1, 14)
 end
 local function waveName(r)
-  return r.wave == Run.totalWaves + 1 and 'LIMBO GUARDIAN'
-    or ('WAVE ' .. r.wave .. ' / ' .. Run.totalWaves)
+  return r.wave == Run.totalWaves + 1 and Text.get('guardian')
+    or Text.get('wave', { wave = r.wave, total = Run.totalWaves })
 end
 function D.objective(g)
   local r = g.run
   if r.phase == 'complete' then
-    return 'Ring fragment recovered.'
+    return Text.get('fragment_recovered')
   end
   if r.phase == 'preparing' then
-    return 'Preparation / ' .. waveName(r)
+    return Text.get('preparing', { wave = waveName(r) })
   end
   if r.phase == 'countdown' then
-    return 'The rite begins in ' .. math.ceil(r.countdown)
+    return Text.get('countdown', { seconds = math.ceil(r.countdown) })
   end
-  return waveName(r) .. ' / Remaining: ' .. (Modes.act(g, 'remaining') or 0)
+  return Text.get('remaining', { wave = waveName(r), count = Modes.act(g, 'remaining') or 0 })
 end
 function D.controls(g)
   if not g.run or g.help or g.map then
@@ -57,13 +79,15 @@ function D.controls(g)
   local r = g.run
   if g.state == 'shop' then
     local list = {}
-    for i, o in ipairs(E.offers) do
+    local first, last, page, pages, rowHeight = D.shopPage(g)
+    for i = first, last do
+      local o = E.offers[i]
       local _, reason = E.quote(g, o.id)
       list[#list + 1] = {
         id = 'buy_' .. o.id,
         label = E.label(g, o.id),
         x = 881,
-        y = 189 + (i - 1) * 56,
+        y = 189 + (i - first) * rowHeight,
         w = 270,
         h = 42,
         disabled = reason ~= nil,
@@ -79,6 +103,18 @@ function D.controls(g)
     }
     list[#list + 1] =
       { id = 'shop_back', label = 'BACK TO ARENA [ ESC ]', x = 128, y = 593, w = 310, h = 48 }
+    if pages > 1 then
+      list[#list + 1] = {
+        id = 'shop_prev',
+        label = Text.get('previous_short', { page = page, pages = pages }),
+        x = 450,
+        y = 593,
+        w = 170,
+        h = 48,
+      }
+      list[#list + 1] =
+        { id = 'shop_next', label = Text.get('next_short'), x = 638, y = 593, w = 170, h = 48 }
+    end
     -- One button per weapon of the loadout across the shop's right half.
     local count = Weapons.count(g)
     local step = count <= 2 and 262 or math.floor(524 / count)
@@ -202,7 +238,7 @@ function D.shop(g)
   Skin.icon('ring', 129, 84, 36)
   Skin.inscription('merchant', 188, 82, 420, 52)
   Skin.icon('soul', 844, 84, 31)
-  text('SOULS  ' .. r.wallet, 892, 84, 28, gold)
+  text(Text.get('souls_amount', { amount = r.wallet }), 892, 84, 28, gold)
   text(
     g.testField and 'PROVING GROUND / UNSAVED SHOP' or (waveName(r) .. ' / PREPARATION'),
     130,
@@ -211,23 +247,43 @@ function D.shop(g)
     gold
   )
   text(
-    'BUYING FOR: ' .. Weapons.inHand(g).hud.kind .. ' / WARD ' .. math.ceil(p.armor) .. '/100',
+    Text.get('shop_buying', { weapon = Weapons.inHand(g).hud.kind, ward = math.ceil(p.armor) }),
     650,
     120,
     14,
     muted
   )
-  for i, o in ipairs(E.offers) do
-    local y = 183 + (i - 1) * 56
+  local first, last, _, _, rowHeight, detailed = D.shopPage(g)
+  for i = first, last do
+    local o = E.offers[i]
+    local row = i - first + 1
+    local y = 183 + (row - 1) * rowHeight
     rect(128, y, 1024, 1, gold, 0.22)
-    if U.focus == i then
-      rect(132, y + 3, 730, 50, Palette.highlight, 0.22)
+    if U.focus == row then
+      rect(132, y + 3, 730, rowHeight - 6, Palette.highlight, 0.22)
     end
-    Skin.icon(((o.id == 'fill' or o.id == 'charge') and 'ammo' or o.id), 145, y + 7, 40)
-    Skin.zone('offer ' .. o.id, 208, y + 3, 650, 50)
+    Skin.icon(assert(o.icon, 'missing shop offer icon ' .. o.id), 145, y + 7, 40)
+    Skin.zone('offer ' .. o.id, 208, y + 3, 650, rowHeight - 6)
     local name, description = E.describe(g, o.id)
-    text(name, 209, y + 7, 20, gold)
-    text(description, 209, y + 32, 16, muted)
+    local titleSize = 20
+    if detailed then
+      for _, candidate in ipairs({ 20, 18, 16, 14 }) do
+        titleSize = candidate
+        if U.fonts[candidate]:getInk(name).w <= 648 then
+          break
+        end
+      end
+    end
+    text(Fit.ellipsis(U.fonts[titleSize], name, 648), 209, y + 7, titleSize, gold)
+    if detailed then
+      local line = 0
+      for value in Fit.wrap(U.fonts[16], description, 648, 2):gmatch('[^\n]+') do
+        text(value, 209, y + 32 + line * 22, 16, muted)
+        line = line + 1
+      end
+    else
+      text(description, 209, y + 32, 16, muted)
+    end
     Skin.endZone()
   end
   local selected = U.controls(g, {})[U.focus]
@@ -236,16 +292,16 @@ function D.shop(g)
     price, reason = E.quote(g, selected.id:sub(5))
   end
   text(
-    reason or g.shopMessage or 'Owned engravings switch for free. One is active.',
+    reason or g.shopMessage or Text.get('shop_engraving_tip'),
     129,
     536,
     18,
     reason and red or ivory
   )
   if price and not reason then
-    text('AFTER: ' .. (r.wallet - price) .. ' SOULS', 825, 559, 16, gold)
+    text(Text.get('shop_after', { amount = r.wallet - price }), 825, 559, 16, gold)
   end
-  text('Health restored. The Ember shields you until the wave begins.', 129, 567, 16, muted)
+  text(Text.get('shop_rest_tip'), 129, 567, 16, muted)
   Skin.endZone()
   if g.saveWarning then
     center(g.saveWarning, 679, 16, red)

@@ -7,6 +7,11 @@ local max = math.max
 return function(R)
   R.conditionEffects = Archetypes.conditions
   function R.addCondition(target, id, duration)
+    R.conditionEffects.get(id)
+    assert(
+      type(duration) == 'number' and duration >= 0 and duration < math.huge,
+      'condition duration must be finite seconds'
+    )
     target.conditions = target.conditions or {}
     target.conditions[id] = max(target.conditions[id] or 0, duration or 0)
   end
@@ -25,18 +30,13 @@ return function(R)
   -- Effects multiply in one fixed order (the catalogue's ids, sorted), never
   -- in the hash order of a body's conditions: the product is the same on
   -- every build, so replays stay exact.
-  local order = {}
-  for id in pairs(R.conditionEffects) do
-    order[#order + 1] = id
-  end
-  table.sort(order)
   local function conditionScale(target, key)
     local s = 1
     local c = target.conditions
     if not c then
       return 1
     end
-    for _, id in ipairs(order) do
+    for _, id in ipairs(R.conditionEffects.ids()) do
       local t = c[id]
       if t and t > 0 then
         s = s * (R.conditionEffects[id][key] or 1)

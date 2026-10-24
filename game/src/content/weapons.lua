@@ -246,13 +246,12 @@ function W.validAmmo(g, slot)
     and reserve == math.floor(reserve)
 end
 -- The attack of a weapon as fired now: its data with the run's glyph applied.
-function W.attack(g, slot)
+function W.attack(g, slot, glyph)
   local def = assert(W.inHand(g, slot), 'invalid weapon slot')
   local attack = {}
   for k, v in pairs(def.attack) do
     attack[k] = v
   end
-  local glyph = g and g.run and g.run.glyph
   local mod = glyph and def.glyphs and def.glyphs[glyph]
   if mod then
     for k, v in pairs(mod.set or {}) do
@@ -265,9 +264,8 @@ function W.attack(g, slot)
   return attack
 end
 -- The pellet cone of the weapon in hand under the run's glyph (1: as made).
-function W.spread(g)
+function W.spread(g, glyph)
   local def = W.inHand(g)
-  local glyph = g.run and g.run.glyph
   local mod = def and glyph and def.glyphs and def.glyphs[glyph]
   return (def and def.fire.spread or 1) * (mod and mod.spread or 1)
 end

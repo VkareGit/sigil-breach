@@ -9,6 +9,7 @@ local Physics = require('src.physics.body_physics')
 local K = require('src.physics.kinematics')
 local Corpse = require('src.enemies.corpse')
 local Anim = require('src.enemies.animation')
+local SupportPath = require('src.physics.support_path')
 local Body = {}
 local sqrt = math.sqrt
 local len = MathX.len
@@ -47,16 +48,27 @@ local function fall(g, e, dt)
   local F = Archetypes.defaults.fall
   local remaining = math.min(dt, math.max(0, F.life - e.deathTime))
   local elapsed = e.deathTime
-  for _ = 1, 6 do
+  local iterations = 0
+  while g.world.elevations or iterations < 6 do
+    iterations = iterations + 1
     if remaining <= 1e-9 then
       break
     end
     local y, vy = e.fallY or 0, e.fallVY or 0
     if y > 0 or vy > 0 then
-      local land = (vy + sqrt(vy * vy + 2 * F.gravity * y)) / F.gravity
+      local land = g.world.elevations and K.fallTime(y, vy, F.gravity)
+        or (vy + sqrt(vy * vy + 2 * F.gravity * y)) / F.gravity
       local step = math.min(remaining, land)
       push(g, e, step, F.airDrag)
-      if step >= land - 1e-12 then
+      -- Horizontal travel can leave a ledge. W.move preserved world height by
+      -- rebasing fallY to the new support; do not overwrite it with old support.
+      if g.world.elevations then
+        y = e.fallY or 0
+      end
+      local endY = y + vy * step - 0.5 * F.gravity * step * step
+      if
+        (not g.world.elevations and step >= land - 1e-12) or (g.world.elevations and endY <= 0)
+      then
         local hit = -(vy - F.gravity * land)
         e.fallY = 0
         e.fallVY = hit > F.bounceFrom and hit * F.bounce or 0
@@ -65,14 +77,24 @@ local function fall(g, e, dt)
         end
         Corpse.land(g, e, hit, elapsed + step)
       else
-        e.fallY = y + vy * step - 0.5 * F.gravity * step * step
+        e.fallY = endY
         e.fallVY = vy - F.gravity * step
       end
       remaining = remaining - step
       elapsed = elapsed + step
     else
-      push(g, e, remaining, F.groundDrag)
-      remaining = 0
+      local step = remaining
+      if g.world.elevations then
+        local _, travel = Physics.drag(F.groundDrag, remaining)
+        local fraction =
+          SupportPath.firstChange(g.world, e.x, e.z, e.pushX * travel, e.pushZ * travel)
+        if fraction then
+          step = SupportPath.time(fraction, F.groundDrag, remaining)
+        end
+      end
+      push(g, e, step, F.groundDrag)
+      remaining = remaining - step
+      elapsed = elapsed + step
     end
   end
   -- At the end of its fall the body is at rest.

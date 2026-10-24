@@ -1,10 +1,11 @@
 -- Painted floor silhouettes follow the same pose/feet as the body.
 -- This is a bounded 2.5D projection, not a full volumetric shadow map.
 local Geometry = require('src.enemies.geometry')
+local Ground = require('src.physics.ground')
 local S = {}
 local code = [[
 extern vec3 camera,rightDir,upDir,forwardDir,objectPos;
-extern number aspect,projectionScale,objectYaw,objectScale,lean,mirror,opacity,worldSize;
+extern number aspect,projectionScale,objectYaw,objectScale,lean,mirror,opacity,worldSize,groundHeight;
 extern vec2 spriteStretch,away,shadowTile;
 extern vec4 frameRect;
 extern Image shadowAtlas;
@@ -14,7 +15,7 @@ vec4 position(mat4 tp,vec4 vp){
  vp.xy*=spriteStretch;vp.x+=vp.y*lean;
  float c=cos(objectYaw),s=sin(objectYaw);
  float height=max(0.0,vp.y*objectScale+objectPos.y);
- ground=vec3(objectPos.x+vp.x*objectScale*c+away.x*height,.022,objectPos.z-vp.x*objectScale*s+away.y*height);
+ ground=vec3(objectPos.x+vp.x*objectScale*c+away.x*height,groundHeight+.022,objectPos.z-vp.x*objectScale*s+away.y*height);
  vec3 rel=ground-camera;float z=dot(rel,forwardDir);
  return vec4(dot(rel,rightDir)*projectionScale/aspect,-dot(rel,upDir)*projectionScale,1.002*z-.1001,z);
 }
@@ -51,7 +52,8 @@ function S.draw(r, g)
   lg.setDepthMode('less', false)
   for _, e in ipairs(g.enemies) do
     if e.hp > 0 then
-      local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, 0.8, e.z)
+      local ground = Ground.height(g.world, e.x, e.z)
+      local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)
       local length = math.sqrt(lx * lx + lz * lz)
       if index > 0 and strength > 0.025 and length > 0.001 then
         local frame, hover, lean, sx, sy, size, width, height, baseY, atlas = Geometry.pose(g, e)
@@ -62,6 +64,7 @@ function S.draw(r, g)
         s:send('objectScale', size)
         s:send('lean', lean)
         s:send('objectPos', r:vec3(e.x, baseY, e.z))
+        s:send('groundHeight', ground)
         s:send('objectYaw', math.atan2(g.player.x - e.x, g.player.z - e.z))
         s:send('mirror', (r.frameMirrors[atlas] and r.frameMirrors[atlas][frame]) or 0)
         s:send('away', r:vec2(-lx / length * 0.95, -lz / length * 0.95))

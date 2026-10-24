@@ -8,6 +8,8 @@ return {
   size = 31,
   -- Height of the walkable floor (m); walls and pillars rise from it.
   floor = 0,
+  decor = require('src.content.maps.limbo_art'),
+  anchors = { secret = { x = 3.7, z = 20.4 }, boss = { x = 16, z = 8 } },
   -- Open floor (x1, z1, x2, z2), carved in order out of solid wall.
   -- 0.14: an open arena. The two courts and the crossing are one wide
   -- transept, the nave and the altar are wider; pillars remain as cover.

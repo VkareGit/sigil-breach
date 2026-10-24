@@ -33,7 +33,7 @@ return function(R)
   -- tangent and bodies already moving apart never exchange another impulse.
   -- A body struck faster than slamSpeed is hurt like a wall slam (domino).
   function R.collide(g, e, other)
-    if (other.collideLock or 0) > 0 then
+    if (other.collideLock or 0) > 0 or not R.bodiesOverlap(g, e, other) then
       return false
     end
     local mass = R.body(other).mass or 1

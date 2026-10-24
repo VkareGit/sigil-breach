@@ -1,6 +1,7 @@
 -- Historical seals, not generated pseudo-writing. See assets/art/sigils/SOURCES.txt.
 -- PNG files are kept byte-for-byte as downloaded; the shader only displays their ink.
 local S = { images = {}, order = { 'asmoday', 'stolas', 'buer' } }
+local Resources = require('src.render.resources')
 local commons = 'https://commons.wikimedia.org/wiki/File:'
 S.entries = {
   asmoday = {
@@ -39,19 +40,25 @@ function S.init()
   if S.shader then
     return S
   end
+  S.resources = Resources.new('application historical seals')
   for _, key in ipairs(S.order) do
-    local img = love.graphics.newImage('assets/art/sigils/' .. S.entries[key].file)
-    img:setFilter('nearest', 'nearest')
+    local img = S.resources:image('assets/art/sigils/' .. S.entries[key].file)
     S.images[key] = img
   end
-  S.shader = love.graphics.newShader([[
+  S.shader = S.resources:own(love.graphics.newShader([[
   vec4 effect(vec4 color, Image image, vec2 uv, vec2 screen) {
    vec4 sample = Texel(image, uv);
    float ink = 1.0 - min(sample.r, min(sample.g, sample.b));
    return vec4(color.rgb, color.a * sample.a * ink);
   }
- ]])
+ ]]))
   return S
+end
+function S.release()
+  if S.resources then
+    S.resources:release()
+  end
+  S.resources, S.shader, S.images = nil, nil, {}
 end
 
 function S.image(name)

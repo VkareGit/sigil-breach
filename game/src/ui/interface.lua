@@ -3,7 +3,9 @@ local lg = love.graphics
 local Skin = require('src.ui.skin')
 local D = require('src.ui.descent')
 local Palette = require('src.ui.palette')
+local Resources = require('src.render.resources')
 local Camera = require('src.render.camera')
+local TextFit = require('src.ui.text_fit')
 D.install(U)
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
@@ -15,13 +17,26 @@ local Views = require('src.ui.views')
 local Kit = require('src.ui.kit')
 Kit.ui = U
 local c = Kit.c
-function U.init()
+function U.release()
+  for _, font in pairs(U.fonts or {}) do
+    if Skin.fontTops then
+      Skin.fontTops[font] = nil
+    end
+    font:release()
+  end
+  if U.faceResources then
+    U.faceResources:release()
+  end
+  U.fonts, U.faces, U.faceQuads, U.faceResources = nil, nil, nil, nil
+end
+function U.init(checkpoint)
+  U.release()
   Skin.init()
-  require('src.ui.portrait').init()
+  require('src.ui.portrait').init(checkpoint)
   U.fonts = {}
   local Bitmap = require('src.ui.fonts.bitmap_font')
   for _, size in ipairs({ 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 36, 42, 48, 64, 94 }) do
-    local font = Bitmap.load(size)
+    local font = Bitmap.load(size, checkpoint)
     assert(
       font:hasGlyphs('ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ 0123456789'),
       'Missing painted Polish UI glyphs'
@@ -29,13 +44,16 @@ function U.init()
     U.fonts[size] = font
     Skin.registerFont(font)
   end
+  -- HUD numerals are part of the UI load, not a surprise upload when the
+  -- first catalogue closes and gameplay becomes visible.
+  require('src.ui.fonts.painted_numbers').init(checkpoint)
   U.faces = {}
   U.faceQuads = {}
+  U.faceResources = Resources.new('UI creature portraits', checkpoint)
   local catalog = require('src.render.fresco_enemies')
   for _, kind in ipairs(catalog.kinds) do
     local entry = catalog.entries[kind]
-    local img = lg.newImage(entry.path)
-    img:setFilter('linear', 'linear')
+    local img = U.faceResources:image(entry.path, { filter = 'linear' })
     U.faces[kind] = img
     local w, h = img:getDimensions()
     local rows = entry.bands and (type(entry.bands[1]) == 'table' and entry.bands[1] or entry.bands)
@@ -43,8 +61,22 @@ function U.init()
     local left, top = columns and columns[1] or 0, rows and rows[1] or 0
     local right, bottom =
       columns and columns[2] or w / entry.columns, rows and rows[2] or h / entry.rows
-    U.faceQuads[kind] = lg.newQuad(left, top, right - left, bottom - top, w, h)
+    U.faceQuads[kind] = U.faceResources:own(lg.newQuad(left, top, right - left, bottom - top, w, h))
   end
+  U.faceResources.checkpoint = nil
+end
+-- Application lifetime ends after renderers stop borrowing historical seals.
+-- Ordinary UI reinitialization only releases its fonts and bestiary faces.
+function U.shutdown()
+  U.release()
+  require('src.ui.occult_plates').release()
+  require('src.ui.portrait').release()
+  require('src.ui.reliquary').release()
+  require('src.ui.fonts.painted_titles').release()
+  require('src.ui.fonts.painted_numbers').release()
+  require('src.ui.ink').release()
+  require('src.ui.goetic_sigils').release()
+  Skin.release()
 end
 function U.face(kind, x, y, w, h, label)
   local q = U.faceQuads[kind]
@@ -169,7 +201,7 @@ local function buttons(g, s)
     Skin.zone('button ' .. b.id, b.x + 10, b.y + 10, b.w - 20, b.h - 20)
     local inset = b.w < 60 and 11 or 24
     Skin.boxText(
-      b.label,
+      TextFit.ellipsis(U.fonts[size], b.label, b.w - inset - 12),
       b.x + inset,
       b.y + 11,
       b.w - inset - 12,

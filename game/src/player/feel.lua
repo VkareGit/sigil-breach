@@ -43,6 +43,7 @@ function F.init(g)
   clearCamera(g)
   g.view.shotAge, g.view.swapAge, g.impactSlow, g.view.stepSound = 10, 1, 0, 0
   g.view.shotReport = nil
+  g.view.interruptedClose = nil
   g.playerDamageReport = nil
   g.view.precisionHit = false
   g.view.hitWeight = 0
@@ -188,7 +189,11 @@ function F.update(g, dt, input)
   p.slamLock = math.max(0, (p.slamLock or 0) - dt)
   local oldx, oldz = p.x, p.z
   local contactVX, contactVZ = p.vx, p.vz
-  local slidX, slidZ, collided = W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p)
+  local slidX, slidZ, collided, supportLift, supportDrop =
+    W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p)
+  if g.world.elevations and g.frame then
+    g.frame.supportLift = supportLift or 0
+  end
   -- Shoved into a wall: the same slam rule as the demons (src/combat/rules.lua).
   -- The wall removes the normal part of the requested step; that is the
   -- speed the body loses against stone.
@@ -242,7 +247,8 @@ function F.update(g, dt, input)
   -- strafe key against stone must not tilt an otherwise stationary view.
   local lateral = (p.vx * math.cos(p.yaw) - p.vz * math.sin(p.yaw)) / T.moveSpeed
   g.view.bank = approach(g.view.bank, -math.max(-1, math.min(1, lateral)) * C.bank, dt * C.bankRate)
-  if Intent.jump(g, dt, input.jump, onGround) then
+  local jumped = Intent.jump(g, dt, input.jump, onGround)
+  if jumped then
     p.jumpV = T.jumpSpeed
     Presentation.call(g, 'motion.takeoff', p.jumpV)
     if p.slideTimer > 0 then
@@ -259,7 +265,13 @@ function F.update(g, dt, input)
   )
   local wasAir = p.jump > 0
   local impact
-  p.jump, p.jumpV, impact = K.vertical(p.jump, p.jumpV, T.gravity, dt)
+  local verticalTime = dt
+  if supportDrop and onGround and not jumped then
+    -- Motion during the fixed step is the resolved horizontal segment. Feet
+    -- start falling when that path leaves support, not at the tick's start.
+    verticalTime = dt * (1 - supportDrop)
+  end
+  p.jump, p.jumpV, impact = K.vertical(p.jump, p.jumpV, T.gravity, verticalTime)
   local landingImpact
   if p.jump == 0 then
     if wasAir then

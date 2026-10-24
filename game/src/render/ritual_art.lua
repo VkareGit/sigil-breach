@@ -17,9 +17,8 @@ Ritual.vertices = {
 }
 function Ritual.init(r)
   Goetic.init()
-  local image = love.graphics.newImage(Ritual.path, { mipmaps = true })
-  image:setFilter('linear', 'linear')
-  image:setMipmapFilter('linear')
+  local image =
+    r.resources:image(Ritual.path, { mipmaps = true, filter = 'linear', mipmapFilter = 'linear' })
   r.ritualArt = {
     image = image,
     mesh = love.graphics.newMesh(

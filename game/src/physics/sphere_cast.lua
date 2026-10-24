@@ -146,11 +146,18 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
   for z = z1, z2 do
     for x = x1, x2 do
       local tile = w.map[z] and w.map[z][x]
-      if not tile or tile > 0 then
-        local t, n =
-          contact(ox, oy, oz, dx, dy, dz, x, z, Collision.top(tile), tile == 2, radius, best)
+      local elevation = Ground.cell(w, x, z)
+      if not tile or tile > 0 or elevation > 0 then
+        local top = elevation + (tile == 0 and floorSurface or Collision.top(tile))
+        local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, tile == 2, radius, best)
         if t and (t < best or kind == 'range') then
           best, normal, kind = t, n, 'wall'
+        end
+        if tile == 2 and elevation > 0 then
+          t, n = contact(ox, oy, oz, dx, dy, dz, x, z, elevation, false, radius, best)
+          if t and (t < best or kind == 'range') then
+            best, normal, kind = t, n, 'wall'
+          end
         end
       end
     end

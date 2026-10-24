@@ -75,6 +75,7 @@ function Tests.run(G)
   -- A new mode, entered by name: its own progression runs in the world system.
   local progressed = 0
   Modes:register('trial', {
+    session = { world = 'classic', map = require('src.content.maps.index').default },
     start = function(session)
       session.state = 'playing'
     end,

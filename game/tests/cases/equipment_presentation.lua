@@ -122,6 +122,27 @@ function Tests.run(G, renderer)
       )
     end
     check('content fixture does not introduce another production HUD label', not labels['F ASH'])
+    -- The powder throw uses the gun's support hand: the gun stands aside for
+    -- the gesture and returns to the very same place, without simulation.
+    local Feedback = require('src.feedback.ability_feedback')
+    local Gesture = require('src.content.equipment_art').entries.powder
+    local thrower = require('tests.support.fixtures').arena(G)
+    thrower.view.swapAge = 1
+    local _, restY = Weapon.transform(thrower, 1280, 720)
+    assert(thrower:cast(1))
+    thrower.elapsed = thrower.view.abilityCast.elapsed + Gesture.duration * 0.5
+    local _, thrownY = Weapon.transform(thrower, 1280, 720)
+    check(
+      'the gun drops out of the frame while its support hand throws',
+      Feedback.weaponLowered(thrower) == Gesture.weapon.lower
+        and thrownY - restY > 720 * Gesture.weapon.lower * 0.99
+    )
+    thrower.elapsed = thrower.view.abilityCast.elapsed + Gesture.duration + Gesture.weapon.rise
+    local _, backY = Weapon.transform(thrower, 1280, 720)
+    check(
+      'after the gesture the gun is back exactly where it rests',
+      Feedback.weaponLowered(thrower) == 0 and backY == restY
+    )
   end, debug.traceback)
   Skin.text = originalText
   Abilities:unregister(id)

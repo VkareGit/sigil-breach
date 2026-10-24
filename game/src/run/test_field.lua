@@ -8,34 +8,14 @@ local W = require('src.world.arena')
 local Feel = require('src.player.feel')
 local Encounter = require('src.session.encounter')
 local Sanctuary = require('src.session.sanctuary')
-local Definitions = require('src.content.enemy_catalog')
+local Archetypes = require('src.content.enemies')
+local Actions = require('src.run.field.actions')
 local Spawner = require('src.run.spawner')
 local Telemetry = require('src.combat.telemetry')
 local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
-F.catalog = {
-  -- Every creature whose definition lists it here, in its order
-  -- (catalog.field: content/defs/creature.lua). The gallery uses the same.
-  enemies = {},
-  -- 0.22 stations: everything as it is now, measured in place.
-  stations = {
-    { id = 'range', name = 'RANGE' },
-    { id = 'physics', name = 'PHYSICS' },
-    { id = 'waves', name = 'WAVE TRIAL' },
-  },
-  seals = {
-    { id = 'asmoday', name = 'ASMODAY' },
-    { id = 'stolas', name = 'STOLAS' },
-    {
-      id = 'buer',
-      name = 'BUER',
-    },
-  },
-}
-for _, def in ipairs(require('src.content.enemies').listed('field')) do
-  F.catalog.enemies[#F.catalog.enemies + 1] = { id = def.id, name = Definitions[def.id].name }
-end
+F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name } (the catalogue follows the loadout, never a count).
 function F.weapons(g)
@@ -49,19 +29,20 @@ local function tell(g, message)
   g.testField.message = message
   g:notify(message, 3)
 end
+F.tell = tell
 local distance = MathX.distance
-function F.new(Game)
-  local g = Game.new('descent')
-  g.mode = 'field'
+function F.new(Game, mapId)
+  return Game.new('field', mapId)
+end
+function F.init(g)
   g.testField = {
     invincible = true,
     frozen = false,
     selected = 'imp',
     poseIndex = 1,
-    returnLabel = 'MAIN MENU',
   }
+  g.view.fieldReturnLabel = 'MAIN MENU'
   F.reset(g)
-  return g
 end
 function F.refill(g)
   if not g.testField then
@@ -215,7 +196,7 @@ end
 -- the knight, apart from the living and from open gates), or nil and why.
 -- Gates still opening count toward the limit of live demons.
 local function place(g, kind, count)
-  if not g.testField or not Definitions[kind] then
+  if not g.testField or not Archetypes.get(kind) then
     return nil, 'Unknown trial type.'
   end
   local allowed = false
@@ -306,7 +287,7 @@ local function place(g, kind, count)
   return spots
 end
 local function targets(kind, count)
-  return Definitions[kind].name .. ' / ' .. count .. ' target' .. (count == 1 and '' or 's')
+  return Archetypes.get(kind).name .. ' / ' .. count .. ' target' .. (count == 1 and '' or 's')
 end
 -- Demons of kind standing at once (pose preview, tools, tests): no portal,
 -- no arrival (spawnAge 1). Returns the created demons, or nil and why.
@@ -467,7 +448,7 @@ function F.context(g)
     end
   end
   return '[F2] '
-    .. Definitions[field.selected].name
+    .. Archetypes.get(field.selected).name
     .. ' / '
     .. (manual and ('POSE ' .. field.poseIndex) or 'AUTO ANIMATION')
 end
@@ -641,97 +622,6 @@ function F.update(g, dt)
   g.bossDead = false
 end
 function F.action(g, id)
-  if not g.testField then
-    return false
-  end
-  if id == 'field_close' then
-    F.close(g)
-  elseif id == 'field_open' then
-    F.open(g)
-  elseif id == 'field_archive' then
-    g.state = 'field_archive'
-    g.help = false
-    g.map = false
-    g.view.presentationPrevious = nil
-    Presentation.capture(g, false)
-  elseif id:match('^archive_') then
-    return require('src.content.occult_catalog').action(g, id)
-  elseif id == 'field_station_range' then
-    F.range(g)
-  elseif id == 'field_station_physics' then
-    F.physics(g)
-  elseif id == 'field_station_waves' then
-    F.waves(g)
-  elseif id == 'field_reset' then
-    F.reset(g)
-  elseif id == 'field_skirmish' then
-    F.skirmish(g)
-  elseif id == 'field_refill' then
-    F.refill(g)
-  elseif id == 'field_god' then
-    F.toggleGod(g)
-  elseif id == 'field_freeze' then
-    F.toggleFreeze(g)
-  elseif id == 'field_tier' then
-    -- Wave tier of the next demons: speed, damage, health, aggression, lead.
-    g.testField.tier = (g.testField.tier or 1) % 5 + 1
-    tell(
-      g,
-      'Tier ' .. g.testField.tier .. ' / new demons fight like wave ' .. g.testField.tier .. '.'
-    )
-  elseif id == 'field_hitboxes' then
-    g.testField.hitboxes = not g.testField.hitboxes
-    tell(
-      g,
-      g.testField.hitboxes and 'Hitboxes on / shot surface, body ring, attack contact.'
-        or 'Hitboxes off.'
-    )
-  elseif id == 'field_pose_prev' or id == 'field_pose_next' then
-    if F.pose(g, id == 'field_pose_prev' and -1 or 1) then
-      F.close(g)
-    end
-  elseif id == 'field_shop' then
-    F.shop(g)
-  elseif id == 'field_low' then
-    g.player.hp, g.player.armor, g.player.souls = 25, 0, 0
-    Abilities.fill(g, true)
-    for _, state in pairs(g.player.arsenal) do
-      state.mag, state.reserve = 0, 0
-    end
-    tell(g, 'Low resources / HUD preview.')
-    F.close(g)
-  elseif id:match('^field_select_') then
-    local key = id:sub(14)
-    if not Definitions[key] then
-      return false
-    end
-    g.testField.selected = key
-    g.testField.poseIndex = 1
-  elseif id:match('^field_spawn_') then
-    local kind, n = id:match('^field_spawn_(%a+)_(%d)$')
-    if F.summon(g, kind, tonumber(n)) then
-      F.close(g)
-    end
-  elseif id:match('^field_weapon_') then
-    local slot = tonumber(id:sub(14))
-    local valid = false
-    for _, weapon in ipairs(F.weapons(g)) do
-      if weapon.id == slot then
-        valid = true
-      end
-    end
-    if not valid then
-      return false
-    end
-    g:switchWeapon(slot)
-    F.close(g)
-  elseif id:match('^field_seal_') then
-    if F.visitSeal(g, id:sub(12)) then
-      F.close(g)
-    end
-  else
-    return false
-  end
-  return true
+  return Actions.dispatch(g, id, F)
 end
 return F

@@ -29,4 +29,26 @@ function Feedback.frame(g)
     end
   end
 end
+-- How far the firearm stands aside for the cast's gesture (0..1 of its
+-- authored lowering, content/equipment_art.lua weapon), smoothed both ways.
+function Feedback.weaponLowered(g)
+  local cast = g.view and g.view.abilityCast
+  local entry = cast and cast.hands and Art.entries[cast.hands]
+  local weapon = entry and entry.weapon
+  if not weapon then
+    return 0
+  end
+  local age = g.elapsed - cast.elapsed
+  local t
+  if age < 0 or age >= entry.duration + weapon.rise then
+    return 0
+  elseif age < weapon.drop then
+    t = age / weapon.drop
+  elseif age < entry.duration then
+    t = 1
+  else
+    t = 1 - (age - entry.duration) / weapon.rise
+  end
+  return t * t * (3 - 2 * t) * weapon.lower
+end
 return Feedback

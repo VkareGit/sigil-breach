@@ -14,7 +14,8 @@ local AbilityArt = require('src.render.ability_art')
 local AbilityMetadata = require('src.content.ability_art')
 local Pigment = require('src.render.creature_pigment')
 local FX = require('src.feedback.effects')
-local Descent = require('src.run.descent')
+local Queries = require('src.run.queries')
+local Ground = require('src.physics.ground')
 local Skin = require('src.ui.skin')
 local Layout = require('src.ui.layout')
 local Camera = require('src.render.camera')
@@ -27,6 +28,7 @@ local Batch = require('src.render.batch')
 local Lights = require('src.render.lights')
 local Shadows = require('src.render.shadows')
 local RenderFX = require('src.render.effects')
+local HazardArt = require('src.render.hazard_art')
 local SurfaceMarks = require('src.render.surface_marks')
 local Trails = require('src.feedback.shot_trails')
 local Death = require('src.feedback.death_response')
@@ -40,7 +42,6 @@ local ASH_COUNT = 96
 -- A particle closer to the eye than this (m) shrinks away instead of
 -- swelling into a block over the view (a fleck the knight runs through).
 local PARTICLE_NEAR = 0.7
-local PROP_POS = { { 10.9, 28.5 }, { 21.1, 28.5 }, { 3.8, 12.8 }, { 28.5, 20.5 } }
 local function rects(cols, rows, padX, padY)
   local t = {}
   for i = 1, cols * rows do
@@ -56,24 +57,33 @@ end
 local MURAL_RECTS = rects(2, 2, 0.001, 0.001)
 local Shaders = require('src.render.shaders')
 local Assets = require('src.render.assets')
-function R.new()
-  local r = setmetatable({
-    shader = love.graphics.newShader(Shaders.world),
-    spriteShader = love.graphics.newShader(Shaders.sprite),
-    post = love.graphics.newShader(Shaders.post),
-  }, { __index = R })
-  r.particleShader = love.graphics.newShader(Shaders.particle)
-  r.skyShader = love.graphics.newShader(Shaders.sky)
+local Resources = require('src.render.resources')
+function R.new(checkpoint)
+  local r = setmetatable({}, { __index = R })
+  r.native = Resources.new('renderer meshes and shaders')
+  r.resources = Resources.new('renderer artwork', checkpoint)
+  local function shader(source, name)
+    local result = r.native:own(love.graphics.newShader(source))
+    if checkpoint then
+      checkpoint(name)
+    end
+    return result
+  end
+  r.shader = shader(Shaders.world, 'world shader')
+  r.spriteShader = shader(Shaders.sprite, 'sprite shader')
+  r.post = shader(Shaders.post, 'postprocess shader')
+  r.particleShader = shader(Shaders.particle, 'particle shader')
+  r.skyShader = shader(Shaders.sky, 'sky shader')
   local white = love.image.newImageData(1, 1)
   white:setPixel(0, 0, 1, 1, 1, 1)
-  r.blank = love.graphics.newImage(white)
+  r.blank = r.native:own(love.graphics.newImage(white))
   white:release()
   r.goetic = Goetic.init()
-  r.goeticShader = love.graphics.newShader(Shaders.seal)
+  r.goeticShader = shader(Shaders.seal, 'seal shader')
   Assets.load(r)
-  r.abilityArt = AbilityArt.load()
+  r.abilityArt = AbilityArt.load(r.resources)
   r.spriteShader:send('effectTint', WHITE)
-  r.tracerShader = love.graphics.newShader(Shaders.tracer)
+  r.tracerShader = shader(Shaders.tracer, 'tracer shader')
   r.tracerMesh = M.dynamic(384)
   -- The first effigy's hood starts above the nominal half-sheet boundary.
   -- Cut through the empty gutter, not through the painted hood.
@@ -81,7 +91,9 @@ function R.new()
     'assets/art/props-fresco-v12.png',
     4,
     2,
-    { { 0, 425, 887 }, { 0, 443, 887 }, { 0, 443, 887 }, { 0, 443, 887 } }
+    { { 0, 425, 887 }, { 0, 443, 887 }, { 0, 443, 887 }, { 0, 443, 887 } },
+    nil,
+    r.resources
   )
   r.sprite = love.graphics.newMesh(
     { { 'VertexPosition', 'float', 3 }, { 'VertexTexCoord', 'float', 2 } },
@@ -110,6 +122,7 @@ function R.new()
   )
   Portals.init(r)
   Ritual.init(r)
+  HazardArt.init(r)
   local v = {}
   M.sphere(v, 0, 0, 0, 0.09, 0.09, 0.09, { 1, 1, 1, 1 }, 6)
   r.orb = M.finish(v)
@@ -148,10 +161,6 @@ function R.new()
   v = {}
   M.cone(v, 0, 0, 0, 0.44, 0.44, 0.006, { 0.025, 0.018, 0.025, 0.05 }, 24)
   r.shadow = M.finish(v)
-  -- Plague bile is a dark verdigris stain lit by the room, not a flat green disc.
-  v = {}
-  M.cone(v, 0, 0, 0, 1, 1, 0.005, { 0.10, 0.15, 0.05, 0.06 }, 32)
-  r.pool = M.finish(v)
   v = {}
   M.cone(v, 0, 0, 0, 0.45, 0.45, 0.003, { 1, 1, 1, 0.05 }, 16)
   for i = 1, 7 do
@@ -182,20 +191,73 @@ function R.new()
   end
   RenderFX.init(r)
   SurfaceMarks.init(r)
-  Weapon.init()
+  for _, name in ipairs({
+    'shader',
+    'spriteShader',
+    'post',
+    'particleShader',
+    'skyShader',
+    'blank',
+    'goeticShader',
+    'tracerShader',
+    'tracerMesh',
+    'sprite',
+    'orb',
+    'spark',
+    'sigil',
+    'ammo',
+    'health',
+    'warning',
+    'shadow',
+    'stain',
+    'castShadowShader',
+    'groundSprite',
+    'markMesh',
+    'markShader',
+  }) do
+    r.native:own(r[name])
+  end
+  r.native:own(r.ritualArt.mesh)
+  r.native:own(r.ritualArt.shader)
+  for _, batch in ipairs({ r.particleBatch, r.ashBatch }) do
+    r.native:own(batch.mesh)
+    r.native:own(batch.instances)
+  end
+  if checkpoint then
+    checkpoint('renderer geometry')
+  end
+  Weapon.init(checkpoint)
   r:resize(1280, 720)
+  r.resources.checkpoint = nil
   return r
 end
 function R:resize(w, h, resolution)
   resolution = resolution or T.renderHeight
   self.w, self.h = math.floor(resolution * w / h + 0.5), resolution
-  if self.canvas then
-    self.canvas:release()
-    self.depth:release()
+  local targets = Resources.new('renderer viewport')
+  local canvas = targets:own(love.graphics.newCanvas(self.w, self.h, { format = 'rgba8' }))
+  local depth =
+    targets:own(love.graphics.newCanvas(self.w, self.h, { format = 'depth24', readable = false }))
+  if self.targets then
+    self.targets:release()
   end
-  self.canvas = love.graphics.newCanvas(self.w, self.h, { format = 'rgba8' })
+  self.targets, self.canvas, self.depth = targets, canvas, depth
   self.canvas:setFilter('nearest', 'nearest')
-  self.depth = love.graphics.newCanvas(self.w, self.h, { format = 'depth24', readable = false })
+end
+function R:release()
+  if self.released then
+    return
+  end
+  self.released = true
+  Gallery.release(self)
+  self.lighting:release()
+  self.targets:release()
+  self.native:release()
+  self.resources:release()
+  if self.worldResources then
+    self.worldResources:release()
+  end
+  self.worldResources, self.worldMesh, self.meshWorld, self.meshRevision = nil, nil, nil, nil
 end
 function R:vec2(x, y)
   local v = self.vector2
@@ -265,6 +327,7 @@ end
 local placement = {}
 function R:enemyPlacement(g, e)
   local p = Pose.sample(g, e, placement)
+  p.baseY = p.baseY + Ground.height(g.world, e.x, e.z)
   if p.ability then
     p.image = self.abilityArt[p.ability].image
   else
@@ -278,7 +341,7 @@ function R:enemy(g, e)
   -- direction becomes the lit and shadow sides of the body), a faint presence
   -- of the bearer, and the muzzle flash as a brief frontal light. Readability
   -- comes from the rim and the sinopia outline, not from flooding the body.
-  local lr, lg, lb, lx, lz = self.lighting:sample(e.x, 1, e.z)
+  local lr, lg, lb, lx, lz = self.lighting:sample(e.x, Ground.height(g.world, e.x, e.z) + 1, e.z)
   local brightness = lr * 0.30 + lg * 0.59 + lb * 0.11
   local side = (lx * self.right[1] + lz * self.right[3])
   local strength = math.min(1, math.sqrt(lx * lx + lz * lz) * 4)
@@ -394,7 +457,7 @@ end
 -- The first-person weapon is lit by the same torches, presence and muzzle flash.
 function R:weaponTint(g)
   local p = g.player
-  local r, green, b = self.lighting:sample(p.x, 1, p.z)
+  local r, green, b = self.lighting:sample(p.x, Ground.height(g.world, p.x, p.z) + 1, p.z)
   local f = math.min(1, (g.view.muzzle or 0) * 16)
   local c = self.weaponColor or { 1, 1, 1 }
   self.weaponColor = c
@@ -421,7 +484,10 @@ function R:pickup(g, a)
   s:send('soft', 0)
   s:send('effectAlpha', 1)
   s:send('frameRect', { x / iw, y / ih, w / iw, h / ih })
-  s:send('objectPos', self:vec3(a.x, 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z))
+  s:send(
+    'objectPos',
+    self:vec3(a.x, Ground.height(g.world, a.x, a.z) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
+  )
   s:send('objectYaw', math.atan2(g.player.x - a.x, g.player.z - a.z))
   s:send('objectScale', a.kind == 'soul' and 0.42 or 0.48)
   s:send('lean', 0)
@@ -432,20 +498,31 @@ function R:pickup(g, a)
   love.graphics.draw(self.sprite)
   s:send('paint', 0)
 end
-function R:shrine(g)
+function R:shrine(g, worldView)
+  worldView = worldView or Queries.world(g)
+  if not worldView.shrine then
+    return
+  end
   local frame = 1 + math.floor(g.time * 5) % 4
   local data = self.shrineFrames[frame]
   local s = self.spriteShader
   local size = 3
-  local active = g.run.phase == 'preparing'
-  local spot = Descent.shrine
+  local active = worldView.shrineActive
+  local spot = worldView.shrine
   self.sprite:setTexture(self.shrineImage)
   s:send('spriteStretch', self:vec2(0.5, 1))
   s:send('silhouette', 1)
   s:send('soft', 0)
   s:send('effectAlpha', 1)
   s:send('frameRect', data.rect)
-  s:send('objectPos', self:vec3(spot.x, -self.shrineFeet[frame] * size, spot.z))
+  s:send(
+    'objectPos',
+    self:vec3(
+      spot.x,
+      Ground.height(g.world, spot.x, spot.z) - self.shrineFeet[frame] * size,
+      spot.z
+    )
+  )
   s:send('objectYaw', math.atan2(g.player.x - spot.x, g.player.z - spot.z))
   s:send('objectScale', size)
   s:send('lean', 0)
@@ -542,7 +619,7 @@ function R:architecturePass(g, time)
   self.shader:send('flash', g.view.muzzle * 7)
   self.shader:send('flashColor', g.view.flashColor)
   self.lighting:send(self.shader, g)
-  self:object(g.world.mesh)
+  self:object(self.worldMesh)
   for _, l in ipairs(g.world.lamps) do
     self:object(
       self.spark,
@@ -576,7 +653,16 @@ function R:projectilesPass(g)
     local tint = Weight.typeColor(packet.damageType)
     -- Floor marker: where the projectile passes, readable while dodging.
     lg.setDepthMode('less', false)
-    self:object(self.warning, b.x, 0.03, b.z, 0, radius * 2.2, tint, 0.45)
+    self:object(
+      self.warning,
+      b.x,
+      Ground.height(g.world, b.x, b.z) + 0.03,
+      b.z,
+      0,
+      radius * 2.2,
+      tint,
+      0.45
+    )
     local vx, vy, vz = b.vx or 0, b.vy or 0, b.vz or 0
     local speed = math.sqrt(vx * vx + vy * vy + vz * vz)
     if speed > 0.01 then
@@ -612,6 +698,7 @@ end
 -- sigils) and the stains on the floor.
 function R:groundPass(g, time)
   local lg = love.graphics
+  local view = Queries.world(g)
   lg.setDepthMode('less', true)
   self.particleBatch:clear()
   local cx, cy, cz = self.camera[1], self.camera[2], self.camera[3]
@@ -620,54 +707,80 @@ function R:groundPass(g, time)
     self.particleBatch:add(a.x, a.y, a.z, (a.size or 1) * math.min(1, a.life * 6) * near, a.color)
   end
   self.particleBatch:draw(self, g)
-  if not g.run then
+  if not view.paintedPickups then
     for _, a in ipairs(g.pickups) do
       self:object(
         a.kind == 'ammo' and self.ammo or self.health,
         a.x,
-        0.15 + math.sin(time * 3 + a.x) * 0.06,
+        Ground.height(g.world, a.x, a.z) + 0.15 + math.sin(time * 3 + a.x) * 0.06,
         a.z,
         time * 0.4,
         1.25
       )
     end
   end
-  if g.run then
-    local active = g.run.phase == 'preparing'
-    local sx, sz = Descent.shrine.x, Descent.shrine.z
+  if view.shrine then
+    local active = view.shrineActive
+    local sx, sz = view.shrine.x, view.shrine.z
     self:object(
       self.warning,
       sx,
-      0.035,
+      Ground.height(g.world, sx, sz) + 0.035,
       sz,
       0,
       0.72,
       active and { 0.50, 0.85, 0.72 } or { 0.12, 0.13, 0.14 }
     )
-    local echo = g.run.echo
-    if echo then
-      self:object(
-        self.sigil,
-        echo.x,
-        1.1 + math.sin(time * 2) * 0.07,
-        echo.z,
-        time * 0.7,
-        0.8,
-        { 0.15, 0.7, 1 }
-      )
-      self:object(self.warning, echo.x, 0.03, echo.z, 0, 0.8, { 0.2, 0.7, 1 })
-    end
-    lg.setDepthMode('less', false)
-    for _, gate in ipairs(g.run.pending or {}) do
-      Portals.draw(self, gate, time)
-    end
-    lg.setDepthMode('less', true)
   end
+  local echo = view.echo
+  if echo then
+    self:object(
+      self.sigil,
+      echo.x,
+      Ground.height(g.world, echo.x, echo.z) + 1.1 + math.sin(time * 2) * 0.07,
+      echo.z,
+      time * 0.7,
+      0.8,
+      { 0.15, 0.7, 1 }
+    )
+    self:object(
+      self.warning,
+      echo.x,
+      Ground.height(g.world, echo.x, echo.z) + 0.03,
+      echo.z,
+      0,
+      0.8,
+      { 0.2, 0.7, 1 }
+    )
+  end
+  lg.setDepthMode('less', false)
+  for _, gate in ipairs(view.gates) do
+    Portals.draw(self, gate, time, g.world)
+  end
+  lg.setDepthMode('less', true)
   if g.bossDead then
-    self:object(self.sigil, 16, 2.1, 2.8, time * 0.3, 2.9, { 0.35, 0.85, 1 })
+    local exit = g.world.portal
+    self:object(
+      self.sigil,
+      exit.x,
+      Ground.height(g.world, exit.x, exit.z) + 2.1,
+      exit.z - 0.1,
+      time * 0.3,
+      2.9,
+      { 0.35, 0.85, 1 }
+    )
   end
-  if not g.run and not g.secretFound then
-    self:object(self.sigil, 3.7, 1.15, 20.4, 0.4, 0.34, { 0.38, 0.26, 0.12 })
+  local secret = g.world.anchors and g.world.anchors.secret
+  if view.classicSecret and not g.secretFound and secret then
+    self:object(
+      self.sigil,
+      secret.x,
+      Ground.height(g.world, secret.x, secret.z) + 1.15,
+      secret.z,
+      0.4,
+      0.34,
+      { 0.38, 0.26, 0.12 }
+    )
   end
   lg.setDepthMode('less', false)
   for _, d in ipairs(g.view.decals or {}) do
@@ -676,7 +789,7 @@ function R:groundPass(g, time)
     self:object(
       self.stain,
       d.x,
-      0.012,
+      Ground.height(g.world, d.x, d.z) + 0.012,
       d.z,
       d.rotation,
       d.size,
@@ -697,15 +810,16 @@ function R:enemyMarksPass(g)
       lg.setDepthMode('less', false)
       local look = Archetypes.look(e)
       local size = look.shadow
-      self:object(self.shadow, e.x, 0.015, e.z, 0, size * 1.35, nil, 0.24)
-      self:object(self.shadow, e.x, 0.016, e.z, 0, size * 0.95, nil, 0.38)
+      local ground = Ground.height(g.world, e.x, e.z)
+      self:object(self.shadow, e.x, ground + 0.015, e.z, 0, size * 1.35, nil, 0.24)
+      self:object(self.shadow, e.x, ground + 0.016, e.z, 0, size * 0.95, nil, 0.38)
       lg.setDepthMode('less', true)
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         self:object(
           self.warning,
           e.x,
-          0.025,
+          ground + 0.025,
           e.z,
           0,
           0.42 + progress * 0.35,
@@ -721,7 +835,16 @@ function R:enemyMarksPass(g)
       local spec = e.attackSpec
       if spec and spec.kind == 'leap' and (e.ai == 'windup' or e.leaping) and e.aimX then
         local reachLand = spec.landRadius + KNIGHT.radius
-        self:object(self.warning, e.aimX, 0.03, e.aimZ, 0, reachLand * 1.04, COLORS.ember, 0.85)
+        self:object(
+          self.warning,
+          e.aimX,
+          Ground.height(g.world, e.aimX, e.aimZ) + 0.03,
+          e.aimZ,
+          0,
+          reachLand * 1.04,
+          COLORS.ember,
+          0.85
+        )
       end
     end
   end
@@ -730,25 +853,18 @@ end
 -- Pools, lines and lightning marks: telegraph colour, then the live ground.
 function R:hazardsPass(g, time)
   for _, haz in ipairs(g.hazards or {}) do
-    self:object(
-      self.warning,
-      haz.x,
-      0.03,
-      haz.z,
-      0,
-      haz.radius,
-      haz.delay > 0 and COLORS.bone or COLORS.brimstone
-    )
-    if haz.delay <= 0 and haz.kind ~= 'lightning' then
-      self:object(self.pool, haz.x, 0.018, haz.z, 0, haz.radius)
+    if haz.kind ~= 'lightning' then
+      HazardArt.draw(self, g, haz)
+    else
+      local ground = Ground.height(g.world, haz.x, haz.z)
       self:object(
-        self.spark,
-        haz.x + math.sin(time * 3) * haz.radius * 0.5,
-        0.16 + math.sin(time * 4) * 0.08,
-        haz.z + math.cos(time * 2) * haz.radius * 0.5,
+        self.warning,
+        haz.x,
+        ground + 0.03,
+        haz.z,
         0,
-        1.1,
-        COLORS.brimstone
+        haz.radius,
+        haz.delay > 0 and COLORS.bone or COLORS.brimstone
       )
     end
   end
@@ -776,28 +892,52 @@ end
 -- demons themselves (alive, and dead for 25 s).
 function R:spritesPass(g, time)
   local lg = love.graphics
+  local view = Queries.world(g)
+  local decor = g.world.decor or {}
   lg.setShader(self.spriteShader)
-  if g.run then
-    self:mural(1, 2.65, 0.72, 16, math.pi / 2, 2.7)
-    self:mural(2, 29.35, 0.72, 16, -math.pi / 2, 2.7)
-    self:mural(4, 16, 0.72, 29.35, math.pi, 2.7)
-    self:shrine(g)
+  if view.shrine then
+    for _, mural in ipairs(decor.murals or {}) do
+      self:mural(
+        mural.frame,
+        mural.x,
+        Ground.height(g.world, mural.x, mural.z) + mural.y,
+        mural.z,
+        mural.yaw,
+        mural.size
+      )
+    end
+    self:shrine(g, view)
   end
   for _, l in ipairs(g.world.lamps) do
-    self:prop(g, 1 + math.floor(time * 7 + l.phase) % 4, l.x, 0, l.z, 1.7, 1.1)
+    self:prop(
+      g,
+      1 + math.floor(time * 7 + l.phase) % 4,
+      l.x,
+      Ground.height(g.world, l.x, l.z),
+      l.z,
+      1.7,
+      1.1
+    )
   end
-  self:prop(g, 5, 10.7, 0, 3.5, 3.3, 0.95)
-  self:prop(g, 5, 21.3, 0, 3.5, 3.3, 0.95)
-  for _, pos in ipairs(PROP_POS) do
-    self:prop(g, 6, pos[1], 0, pos[2], 0.75, 0.95)
+  for _, prop in ipairs(decor.props or {}) do
+    local brightness = prop.secret and g.secretFound and 0.4 or prop.brightness
+    self:prop(
+      g,
+      prop.frame,
+      prop.x,
+      Ground.height(g.world, prop.x, prop.z) + (prop.y or 0),
+      prop.z,
+      prop.size,
+      brightness
+    )
   end
-  self:prop(g, 8, 3.7, 0.62, 20.4, 0.75, g.secretFound and 0.4 or 0.9)
-  if g.run then
+  if view.paintedPickups then
     for _, a in ipairs(g.pickups) do
       self:pickup(g, a)
     end
   end
-  if g.testField then
+  local tools = Queries.tools(g)
+  if tools and tools.gallery then
     Gallery.draw(self, g)
     lg.setShader(self.spriteShader)
   end
@@ -833,7 +973,17 @@ function R:effectsPass(g)
 end
 
 function R:draw(g, w, h)
-  WorldMesh.prepare(g.world)
+  assert(not self.released, 'renderer has been released')
+  if self.meshWorld ~= g.world or self.meshRevision ~= g.world.geometryRevision then
+    local resources = Resources.new('renderer world geometry')
+    local mesh = WorldMesh.prepare(g.world, resources)
+    local previous = self.worldResources
+    self.worldResources, self.worldMesh = resources, mesh
+    self.meshWorld, self.meshRevision = g.world, g.world.geometryRevision
+    if previous then
+      previous:release()
+    end
+  end
   local lg = love.graphics
   local time = g.time
   self:frameCamera(g, w, h)

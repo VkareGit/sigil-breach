@@ -15,8 +15,8 @@ local Weapons = require('src.content.weapons')
 local State = require('src.session.state')
 local Outcomes = require('src.session.damage_outcomes')
 local Simulation = require('src.session.simulation')
-local Classic = require('src.content.classic')
 local Fields = require('src.session.fields')
+local ContentContracts = require('src.session.content_contracts')
 local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
@@ -36,23 +36,15 @@ function Game.__newindex(session, key, value)
 end
 
 function Game.new(mode, mapId)
-  local g = setmetatable(State.new(mode, mapId), Game)
+  local id, kind = Modes.resolve(mode)
+  ContentContracts.validate()
+  local descriptor = kind.session
+  local g = setmetatable(State.new(descriptor.world, mapId or descriptor.map), Game)
   Feel.init(g)
-  -- Keep the classic fixture construction before Descent initialization:
-  -- archetype initialization consumes seeded randomness used by replays/QA.
-  -- The classic trial's garrison and supplies belong to its own map.
-  g.pickups = {}
-  if g.world.mapId == Classic.map then
-    for _, entry in ipairs(Classic.garrison) do
-      g:spawn(entry[1], entry[2], entry[3])
-    end
-    for i, supply in ipairs(Classic.supplies) do
-      g.pickups[i] = { x = supply.x, z = supply.z, kind = supply.kind, amount = supply.amount }
-    end
+  if descriptor.prepare then
+    descriptor.prepare(g)
   end
-  -- The session names its mode (run/modes.lua); its policy and progression follow.
-  g.mode = Modes.forSession[mode] or 'classic'
-  local kind = Modes:get(g.mode)
+  g.mode = id
   if kind.init then
     kind.init(g)
   end
@@ -124,6 +116,7 @@ function Game:switchWeapon(which)
   self.weapon, self.view.swapAge = which, 0
   self.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
   self.view.shotAge = 10
+  self.view.interruptedClose = nil
   -- An action left open finishes its reload when the weapon is back in hand.
   if state.open then
     Reload.start(self, false)

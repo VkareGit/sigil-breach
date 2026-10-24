@@ -21,7 +21,7 @@ local function earlier(a, b)
 end
 -- Intersect a moving horizontal cylinder and two independently moving vertical
 -- bounds. A union of standing/crouching heights hits players who already ducked.
-local function playerContact(player, previous, b, dx, dy, dz, fraction, ground)
+local function playerContact(player, previous, b, dx, dy, dz, fraction, world)
   local rx = dx - (player.x - previous.x) * fraction
   local rz = dz - (player.z - previous.z) * fraction
   local ox, oz = b.x - previous.x, b.z - previous.z
@@ -46,8 +46,10 @@ local function playerContact(player, previous, b, dx, dy, dz, fraction, ground)
     hi = math.min(hi, (-halfB + root) / a)
   end
   -- The knight's feet in world height: the ground and his jump.
+  local ground = Ground.height(world, previous.x, previous.z)
   local jump = ground + (previous.jump or 0)
-  local jumpDelta = ((player.jump or 0) - (previous.jump or 0)) * fraction
+  local jumpDelta = (Ground.height(world, player.x, player.z) + (player.jump or 0) - jump)
+    * fraction
   local crouch = previous.crouch or 0
   local crouchDelta = ((player.crouch or 0) - crouch) * fraction
   -- Each inequality value + slope*t >= 0 narrows the same contact interval.
@@ -124,7 +126,7 @@ local function strikeDemon(g, b, e, part, surface)
     dealt, _, impact = D.resolve(attack, e, 0, part)
   end
   local health = math.min(e.hp, dealt)
-  g:damageEnemy(e, dealt, 'ability')
+  g:damageEnemy(e, dealt, 'ability', packet)
   local Combat = require('src.combat.combat')
   Combat.react(
     g,
@@ -144,7 +146,7 @@ function P.update(g, dt, previous)
   end
   local player = g.player
   previous = previous or player
-  local ground = Ground.height(g.world)
+  local ground = Ground.height(g.world, player.x, player.z)
   local bullets = g.bullets
   local events = g._projectileEvents or {}
   g._projectileEvents = events
@@ -203,11 +205,11 @@ function P.update(g, dt, previous)
         bodies = bodies or B.prepare(g)
         hit, target, part, surface = demonContact(b, dx, dy, dz, worldT, bodies, g)
       else
-        hit = playerContact(player, previous, b, dx, dy, dz, fraction, ground)
+        hit = playerContact(player, previous, b, dx, dy, dz, fraction, g.world)
         -- Through the afterimage of a dodge: a perfect dodge; it flies on.
         local ghost = not hit and b.packet and Dodge.afterimage(g)
         if ghost then
-          local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, ground)
+          local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, g.world)
           if through and through <= 1 and (not wall or through < worldT) then
             Dodge.perfect(g, b.packet, nil)
           end
@@ -261,7 +263,9 @@ function P.update(g, dt, previous)
         b.packet and b.packet.base or (b.big and K.bigBoltDamage or K.boltDamage),
         b.x - b.vx,
         b.z - b.vz,
-        b.packet
+        b.packet,
+        nil,
+        b.packet and b.packet.effects and { effectSource = { side = 'demons', id = b.owner } }
       )
     end
     Signal(g, 'ProjectileBurst', { bullet = b })

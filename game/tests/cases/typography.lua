@@ -99,7 +99,7 @@ function T.run(check)
     longInk.w > 0 and font.inkCache[long] == nil
   )
   for _, font in pairs(fonts) do
-    font.image:release()
+    font:release()
   end
 end
 return T

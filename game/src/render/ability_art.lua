@@ -5,12 +5,12 @@ local AbilityPose = require('src.enemies.ability_pose')
 local Pose = require('src.enemies.pose')
 local AbilityArt = { entries = Metadata.entries }
 AbilityArt.select = AbilityPose.select
-function AbilityArt.load()
+function AbilityArt.load(resources)
   local loaded = {}
   for key, entry in Metadata.each() do
     local problems = require('src.enemies.art_contract').sequenceProblems(key)
     assert(#problems == 0, table.concat(problems, '\n'))
-    local image = love.graphics.newImage(entry.path)
+    local image = resources and resources:image(entry.path) or love.graphics.newImage(entry.path)
     image:setFilter('nearest', 'nearest')
     loaded[key] = { image = image, feet = entry.feet, frames = entry.frames }
   end

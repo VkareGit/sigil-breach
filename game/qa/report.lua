@@ -23,7 +23,12 @@ function Report:add(id, title, lines)
 end
 
 function Report:render()
-  local lines = { 'SIGIL / MECHANICS AND ASSETS', 'STATUS: ' .. self.status, '' }
+  local lines = {
+    'SIGIL / MECHANICS AND ASSETS',
+    'STATUS: ' .. self.status,
+    require('qa.output').receipt(),
+    '',
+  }
   for _, suite in ipairs(self.suites) do
     lines[#lines + 1] = 'SUITE ' .. suite.id .. ' / ' .. suite.title
     for _, line in ipairs(suite.lines) do

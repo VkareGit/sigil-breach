@@ -112,3 +112,14 @@ Sama korekta jasności nie wystarczyła: czerwona tkanina skoku nadal odstawała
 Osobny miękki próg nadmiaru czerwieni przesuwa ją ku brunatnemu pigmentowi
 modelu bazowego. Nie nakładać tej korekty na całą scenę ani na modele bazowe.
 Kontrole: wszystkie klatki, cień, błysk strzału i zamiana miejsc obu postaci.
+
+AKTUALIZACJA 0.32 — CAŁE CYKLE BRONI
+shotgun-fresco-v32 i revolver-fresco-v32 zachowują zaakceptowany matowy,
+freskowy styl nowego chwytu w całych cyklach. Retusz lokalny obu arkuszy
+został jawnie zaakceptowany przez użytkownika. Metal, rękawica i drewno
+mają czytelne granice, bez dodatkowego ostrzenia. Widoczne komory odczytują
+amunicję gry; małe warianty nie stanowią odrębnych mechanizmów strzelania.
+Dokładne prompty i źródła: assets/art/weapon-provenance-v32.json.
+Modele, atlasy animacji i pigment demonów nie zostały zmienione w tym etapie.
+Stare dwa atlasy broni są odtwarzalne z old/ (ZIP, manifest SHA i restore).
+Techniczny filmstrip nie zastępuje osobnej oceny użytkownika w ruchu.

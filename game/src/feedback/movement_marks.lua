@@ -96,7 +96,7 @@ local function knight(g, dx, dz)
       dx, dz = sin(p.yaw), cos(p.yaw)
     end
   end
-  local ground = Ground.height(g.world)
+  local ground = Ground.height(g.world, p.x, p.z)
   local ex, ey, ez = Ballistics.origin(g)
   local vy = p.jumpV or 0
   return {

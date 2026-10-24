@@ -148,8 +148,13 @@ function Tests.run(G, check, spark)
   unsupported.id = 'trial_unsupported'
   unsupported.action =
     Action.leap({ id = 'trial_leap', range = 4, windup = 0, packet = { base = 1, impact = 1 } })
-  Abilities.define(unsupported)
   local unsupportedSession = Fixtures.arena(G)
+  Abilities.define(unsupported)
+  local started, startupError = pcall(Fixtures.arena, G)
+  check(
+    'a new session rejects equipment without an executable delivery',
+    not started and tostring(startupError):find('equipment deliveries: unknown leap', 1, true)
+  )
   local slot = Abilities.give(unsupportedSession, unsupported.id)
   local state = unsupportedSession.player.abilityState[unsupported.id]
   local before = state.uses

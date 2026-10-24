@@ -4,6 +4,10 @@
 -- on the shared rules table R and call each other through it.
 local Archetypes = require('src.content.enemies')
 local Body = require('src.content.defs.body')
+local Ground = require('src.physics.ground')
+local World = require('src.world.arena')
+local Pose = require('src.enemies.pose')
+local Surface = require('src.enemies.surface')
 local sqrt = math.sqrt
 return function(R)
   -- Archetype of an enemy record (variant first: the Iron Thrall shares the
@@ -23,6 +27,60 @@ return function(R)
   -- The knight's body (the player under the same rules).
   function R.playerBody()
     return Archetypes.player.body
+  end
+  -- The movement footprint is coarse and independent of anatomical shot
+  -- surfaces. On a heightfield its vertical intervals must overlap before
+  -- crowd separation or momentum transfer can make horizontal contact.
+  -- The knight: his height less his crouch. A creature: its own height when
+  -- its body states one, else up to its painted body as posed now (its leap
+  -- is in the painting; a falling corpse's drop is not).
+  local function interval(g, o)
+    local ground = Ground.height(g.world, o.x, o.z)
+    if o.jump ~= nil then
+      local base = ground + o.jump
+      return base, base + R.playerBody().height - (o.crouch or 0)
+    end
+    local base = ground + ((o.hp <= 0 and o.fallY or o.leapY) or 0)
+    local height = R.body(o).height
+    if height then
+      return base, base + height
+    end
+    return base, ground + Surface.top(g, o) + (o.hp <= 0 and o.fallY or 0)
+  end
+  function R.bodiesOverlap(g, a, b)
+    if not g.world or not g.world.elevations then
+      return true
+    end
+    local a1, a2 = interval(g, a)
+    local b1, b2 = interval(g, b)
+    return a1 < b2 and b1 < a2
+  end
+  -- Where a body's sight starts, in world height over the floor under it.
+  -- The knight: his eye, his jump, less his crouch. A creature: its own eye
+  -- when its body states one (with its leap), else its painted head as posed
+  -- now (enemies/pose 'head' anchor: its stature, leap, crouch and lunge).
+  function R.eye(g, o)
+    local base = Ground.height(g.world, o.x, o.z)
+    if o.jump ~= nil then
+      return base + o.jump + R.playerBody().eye - (o.crouch or 0)
+    end
+    local eye = R.body(o).eye
+    if eye then
+      return base + (o.leapY or 0) + eye
+    end
+    local _, head = Pose.anchor(g, o, 'head')
+    return base + head
+  end
+  -- Whether body o sees the knight: where he is now (his jump and crouch
+  -- included), or standing at (x, z) (a predicted or remembered place).
+  function R.seesKnight(g, o, x, z)
+    local world, p = g.world, g.player
+    if not world.elevations then
+      -- A flat map has no heights for sight to compare: no eye to pose.
+      return World.visible(world, o.x, o.z, x or p.x, z or p.z)
+    end
+    local target = x and Ground.height(world, x, z) + R.playerBody().eye or R.eye(g, p)
+    return World.visible(world, o.x, o.z, x or p.x, z or p.z, R.eye(g, o), target)
   end
   function R.radius(e)
     return R.body(e).radius or 0.25

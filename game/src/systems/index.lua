@@ -24,6 +24,7 @@ return {
   Combat.hazards,
   Combat.projectiles,
   Combat.charges,
+  Combat.effects,
   World.telemetry,
   World.stillPlaying,
   World.transientsAfter,

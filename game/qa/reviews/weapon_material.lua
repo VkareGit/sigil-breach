@@ -13,7 +13,8 @@ function Review.run(Game, renderer, output)
   Audio.muted, UI.useMouse = true, false
   local reports = {
     'WEAPON PIGMENT / SOURCE-SPACE MATERIAL REVIEW',
-    'Before/after differ only in pigmentBlend. Alpha is the authored source alpha.',
+    'Per-pose checks isolate pigmentBlend; arena pairs compare the previous v32 and current complete material.',
+    'Alpha is the authored source alpha; grading never changes anchors or animation timing.',
     'Variation is mean absolute adjacent opaque-pixel luminance difference, not an art-quality score.',
     'Tests every registered pose; scene pairs use the actual renderer at the same state.',
   }
@@ -108,6 +109,20 @@ function Review.run(Game, renderer, output)
   after:release()
   local canvas = lg.newCanvas(1280, 720)
   local comparisons = lg.newCanvas(1280, 720)
+  local current = {}
+  for key, value in pairs(Art.look) do
+    current[key] = value
+  end
+  local previous = {
+    saturation = 0.80,
+    contrast = 0.84,
+    exposure = 1,
+    haze = 0.07,
+    mist = { 0.24, 0.17, 0.12 },
+    shade = 0.28,
+    pigmentRadius = 1.35,
+    pigmentBlend = 0.65,
+  }
   local g = Field.new(Game)
   g.testing = true
   Field.close(g)
@@ -118,8 +133,10 @@ function Review.run(Game, renderer, output)
   g.view.messageTimer, g.view.feedbackTimer, g.zoneTimer = 0, 0, 0
   for slot, id in ipairs({ 'exorcist', 'judge' }) do
     g.weapon = slot
-    for index, amount in ipairs({ 0, blend }) do
-      Art.look.pigmentBlend = amount
+    for index, material in ipairs({ previous, current }) do
+      for key, value in pairs(material) do
+        Art.look[key] = value
+      end
       renderer:resize(1280, 720)
       renderer:draw(g, 1280, 720)
       paint(canvas, function()

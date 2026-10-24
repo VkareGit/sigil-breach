@@ -49,7 +49,7 @@ function Geometry.volumes(g, e)
   )
   local yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
   local rx, rz = math.cos(yaw), -math.sin(yaw)
-  local ground = Ground.height(g.world)
+  local ground = Ground.height(g.world, e.x, e.z)
   local volumes = cache[e] or {}
   cache[e] = volumes
   local body = Archetypes.of(e)

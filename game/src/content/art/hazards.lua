@@ -1,0 +1,21 @@
+-- Painted ground marks. These values describe presentation, never damage,
+-- attack duration, pulse cadence, movement or authoritative hazard radii.
+return {
+  path = 'assets/art/hazards-fresco-v33.png',
+  width = 1774,
+  height = 887,
+  columns = 4,
+  rows = 2,
+  styles = { fire = 0, poison = 1 },
+  defaultStyle = 0,
+  segments = 64,
+  groundOffset = 0.024,
+  warningOffset = 0.002,
+  emergeTime = 0.12,
+  fadeTime = 0.30,
+  cycleRate = 4,
+  stainAlpha = 0.90,
+  warningAlpha = 0.66,
+  liveBoundaryAlpha = 0.42,
+  pigmentLightFloor = 0.68,
+}

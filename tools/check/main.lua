@@ -117,7 +117,7 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath)
         if
           id:match('^src%.')
           and not dependency:match('^src%.')
-          and not (id == 'src.app.application' and dependency == 'qa.runtime')
+          and not (id == 'src.app.runtime' and dependency == 'qa.runtime')
         then
           failure('DEVELOPMENT DEPENDENCY ' .. id .. ' -> ' .. dependency)
         end

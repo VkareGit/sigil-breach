@@ -27,7 +27,8 @@ local function ammoFor(player, pickup)
 end
 
 local function nearSecret(g)
-  return not g.secretFound and distance(g.player, Classic.secret) < Classic.reach.secret
+  local anchor = g.world.anchors and g.world.anchors.secret
+  return anchor and not g.secretFound and distance(g.player, anchor) < Classic.reach.secret
 end
 
 local function breakSeal(g, seal, index)
@@ -186,7 +187,8 @@ function Interactions.advanceClassic(g)
   end
   g.bossSpawned = true
   local guardian = Classic.guardian
-  g:spawn(guardian.kind, guardian.x, guardian.z)
+  local anchor = assert(g.world.anchors.boss, 'classic mode requires a boss anchor')
+  g:spawn(guardian.kind, anchor.x, anchor.z)
   g:notify('MARGRAVE OF ASH  /  Guardian of the first circle', 5)
   Presentation.cue(g, 'pulse')
   local player = g.player

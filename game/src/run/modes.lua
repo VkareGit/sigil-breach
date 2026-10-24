@@ -41,17 +41,63 @@ local Capabilities = require('src.session.capabilities')
 local Descent = require('src.run.descent')
 local Interactions = require('src.session.interactions')
 local Encounter = require('src.session.encounter')
+local Maps = require('src.content.maps.index')
+local Classic = require('src.content.classic')
+local Id = require('src.core.id')
+local Views = require('src.run.mode_views')
 local function field()
   return require('src.run.test_field')
 end
 local Modes = Registry:new('modes', function(mode, id)
   assert(type(mode.progress) == 'function', 'mode ' .. id .. ' needs progress(g, dt)')
   assert(type(mode.start) == 'function', 'mode ' .. id .. ' needs start(g)')
+  assert(type(mode.session) == 'table', 'mode ' .. id .. ' needs a session descriptor')
+  Id.check(mode.session.world, 'mode ' .. id .. '.session.world')
+  Maps:get(mode.session.map)
+  assert(
+    mode.session.prepare == nil or type(mode.session.prepare) == 'function',
+    'mode ' .. id .. ' needs a prepare function'
+  )
+  assert(
+    mode.init == nil or type(mode.init) == 'function',
+    'mode ' .. id .. ' needs an init function'
+  )
   Capabilities.define(id, mode.policy or {}, mode)
 end)
+-- The original sessions seeded the classic fixture before initialization.
+-- Keep that RNG history explicitly for those sessions; a new mode does not
+-- inherit another mode's actors merely by using the same map.
+local function prepareClassic(g)
+  if g.world.mapId ~= Classic.map then
+    return
+  end
+  for _, entry in ipairs(Classic.garrison) do
+    g:spawn(entry[1], entry[2], entry[3])
+  end
+  for i, supply in ipairs(Classic.supplies) do
+    g.pickups[i] = { x = supply.x, z = supply.z, kind = supply.kind, amount = supply.amount }
+  end
+end
 -- The proving ground (skirmish and stations). Required lazily: the proving
 -- ground uses the expedition's definitions and must not load in a cycle.
 Modes:register('field', {
+  session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
+  init = function(g)
+    field().init(g)
+  end,
+  visit = function(g, previous)
+    g.view.fieldReturnLabel = previous.state == 'menu' and 'MAIN MENU'
+      or (previous.state == 'settings' and 'BACK TO SETTINGS' or 'BACK TO EXPEDITION')
+  end,
+  worldView = Views.fieldWorld,
+  tools = Views.fieldTools,
+  objective = Views.fieldObjective,
+  weaponModifier = function(g)
+    return g.run.glyph
+  end,
+  canTrade = function(g)
+    return g.run.phase == 'preparing'
+  end,
   policy = { phased = true, freezable = true, invincible = true },
   test = function(g)
     return g.testField ~= nil
@@ -119,6 +165,22 @@ Modes:register('field', {
 })
 -- The expedition: waves, shrine, shop and saves.
 Modes:register('expedition', {
+  session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
+  worldView = Views.expeditionWorld,
+  objective = Views.expeditionObjective,
+  weaponModifier = function(g)
+    return g.run.glyph
+  end,
+  canTrade = function(g)
+    return g.run.phase == 'preparing'
+  end,
+  snapshot = Descent.snapshot,
+  load = Descent.load,
+  save = Descent.save,
+  newRequiresConfirmation = function(g, id)
+    return (g.availableSave and g.availableSave.phase ~= 'complete')
+      or (id == 'restart' and g.run.phase ~= 'complete')
+  end,
   policy = { phased = true },
   test = function(g)
     return g.run ~= nil
@@ -149,6 +211,9 @@ Modes:register('expedition', {
 })
 -- The classic arena (regression coverage): seals, then the Margrave.
 Modes:register('classic', {
+  session = { world = 'classic', map = Maps.default, prepare = prepareClassic },
+  worldView = Views.classicWorld,
+  objective = Views.classicObjective,
   test = function()
     return true
   end,
@@ -165,7 +230,21 @@ Modes:register('classic', {
   context = Interactions.classicContext,
 })
 -- The mode a new session is built for (Game.new(kind)).
-Modes.forSession = { descent = 'expedition', classic = 'classic' }
+Modes.aliases = { descent = 'expedition' }
+-- Construction and replay accept the registered id. Only historic public
+-- names are aliases; an unknown id never silently becomes the classic game.
+function Modes.resolve(id)
+  id = id or 'classic'
+  id = Modes.aliases[id] or id
+  return id, Modes:get(id)
+end
+function Modes:unregister(id)
+  local removed = Registry.unregister(self, id)
+  if removed then
+    Capabilities.undefine(id)
+  end
+  return removed
+end
 -- The mode of a session: the one it names (g.mode, how new modes are
 -- entered), else the first whose test holds, in registration order (the
 -- original three recognise their own flags; classic is the catch-all).

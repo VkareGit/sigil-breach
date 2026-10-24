@@ -73,6 +73,7 @@ function W.shot(g, profile, power)
   local kick = w.momentum * power / w.mass
   g.view.recoilV = (g.view.recoilV or 0) + kick
   g.view.shotAge = 0
+  g.view.interruptedClose = nil
   g.view.fovKick = w.fov
   g.view.rollSide = -(g.view.rollSide or 1)
   if g.view.motion ~= false then

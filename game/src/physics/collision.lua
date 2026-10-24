@@ -1,12 +1,16 @@
 -- Continuous ground-plane circle / tile collision. Rounded corners avoid
 -- invisible square snagging; the remaining motion slides on the contact plane.
 local MathX = require('src.core.mathx')
+local Ground = require('src.physics.ground')
 local C = {}
 local abs, sqrt, min, max = math.abs, math.sqrt, math.min, math.max
 local EPS = 1e-9
 local finite = MathX.finite
-local function occupied(w, x, z)
-  return not w.map[z] or not w.map[z][x] or w.map[z][x] > 0
+local function occupied(w, x, z, feet, step)
+  return not w.map[z]
+    or not w.map[z][x]
+    or w.map[z][x] > 0
+    or (feet ~= nil and Ground.height(w, x, z) > feet + (step or 0) + EPS)
 end
 -- Round pillars (tile 2) are cylinders of the painted shaft radius for bodies,
 -- sight and shots alike (ballistics uses the same value).
@@ -22,7 +26,7 @@ end
 local function pillar(w, x, z)
   return w.map[z] and w.map[z][x] == 2
 end
-function C.solid(w, x, z, r)
+function C.solid(w, x, z, r, feet, step)
   r = r or 0.20
   if not finite(x) or not finite(z) or not finite(r) or r < 0 then
     return true
@@ -32,7 +36,7 @@ function C.solid(w, x, z, r)
   end
   for tz = math.floor(z - r + 0.5), math.floor(z + r + 0.5) do
     for tx = math.floor(x - r + 0.5), math.floor(x + r + 0.5) do
-      if occupied(w, tx, tz) then
+      if occupied(w, tx, tz, feet, step) then
         if pillar(w, tx, tz) then
           local R = C.pillarRadius + r
           if (x - tx) ^ 2 + (z - tz) ^ 2 < R * R - EPS then
@@ -50,7 +54,7 @@ function C.solid(w, x, z, r)
   end
   return false
 end
-function C.cast(w, x, z, dx, dz, r)
+function C.cast(w, x, z, dx, dz, r, feet, step)
   local best, nx, nz, ax, az = 1, nil, nil, nil, nil
   if
     not finite(x)
@@ -96,8 +100,21 @@ function C.cast(w, x, z, dx, dz, r)
           local t = (-b - sqrt(disc)) / length2
           hit(t, (x + dx * t - tx) / R, (z + dz * t - tz) / R)
         end
-      elseif occupied(w, tx, tz) then
+      elseif occupied(w, tx, tz, feet, step) then
         local left, right, bottom, top = tx - 0.5, tx + 0.5, tz - 0.5, tz + 0.5
+        -- Feet use point support; the circular footprint only constrains
+        -- horizontal motion. Just after leaving a ledge, the trailing part
+        -- can still overlap its riser. It may leave or slide, but never move
+        -- farther into that riser. This is a velocity constraint, not a
+        -- displacement to add to a body's flight momentum.
+        if feet ~= nil and w.map[tz] and w.map[tz][tx] == 0 then
+          local qx, qz = max(left, min(right, x)), max(bottom, min(top, z))
+          local rx, rz = x - qx, z - qz
+          local distance = sqrt(rx * rx + rz * rz)
+          if distance > EPS and distance < r then
+            hit(0, rx / distance, rz / distance)
+          end
+        end
         if abs(dx) > EPS then
           local side = dx > 0 and -1 or 1
           local t = ((side < 0 and left - r or right + r) - x) / dx
@@ -152,17 +169,17 @@ local function project(x, z, nx, nz, ax, az)
   end
   return 0, 0
 end
-local function separate(w, o, r)
+local function separate(w, o, r, feet, step)
   -- Restores valid shallow overlaps (spawn placement / accumulated roundoff).
   -- Push to the nearest surface, never through the far face of a crossed tile.
   for _ = 1, 8 do
-    if not C.solid(w, o.x, o.z, r) then
+    if not C.solid(w, o.x, o.z, r, feet, step) then
       return true
     end
     local best, bx, bz
     for tz = max(0, math.floor(o.z - r + 0.5)), min(w.size + 1, math.floor(o.z + r + 0.5)) do
       for tx = max(0, math.floor(o.x - r + 0.5)), min(w.size + 1, math.floor(o.x + r + 0.5)) do
-        if occupied(w, tx, tz) then
+        if occupied(w, tx, tz, feet, step) then
           local qx = max(tx - 0.5, min(tx + 0.5, o.x))
           local qz = max(tz - 0.5, min(tz + 0.5, o.z))
           local nx, nz = o.x - qx, o.z - qz
@@ -210,9 +227,9 @@ local function separate(w, o, r)
     end
     o.x, o.z = o.x + bx * (best + 1e-7), o.z + bz * (best + 1e-7)
   end
-  return not C.solid(w, o.x, o.z, r)
+  return not C.solid(w, o.x, o.z, r, feet, step)
 end
-function C.move(w, o, dx, dz, r, velocity)
+function C.move(w, o, dx, dz, r, velocity, feet, step)
   r = r or 0.20
   if
     not finite(dx)
@@ -224,6 +241,9 @@ function C.move(w, o, dx, dz, r, velocity)
   then
     return 0, 0, true
   end
+  -- Spawn recovery applies to actual walls/pillars. A trailing riser overlap
+  -- is resolved by cast's directional constraint above, never by teleporting
+  -- the body sideways as its feet descend past the old floor.
   if C.solid(w, o.x, o.z, r) and not separate(w, o, r) then
     if velocity then
       velocity.vx, velocity.vz = 0, 0
@@ -236,7 +256,7 @@ function C.move(w, o, dx, dz, r, velocity)
     if dx * dx + dz * dz < 1e-16 then
       break
     end
-    local t, nx, nz, ax, az = C.cast(w, o.x, o.z, dx, dz, r)
+    local t, nx, nz, ax, az = C.cast(w, o.x, o.z, dx, dz, r, feet, step)
     if not t then
       o.x, o.z = o.x + dx, o.z + dz
       break

@@ -10,10 +10,15 @@ local Claw = require('src.content.combat_defaults').claw
 local M = {}
 local reachSamples = Claw.reach
 local lerp = MathX.lerp
-local function playerAt(previous, current, t, out)
+local function playerAt(previous, current, t, out, world)
   out = out or {}
   out.x, out.z = lerp(previous.x, current.x, t), lerp(previous.z, current.z, t)
   out.jump = lerp(previous.jump or 0, current.jump or 0, t)
+  if world and world.elevations then
+    local from = Ground.height(world, previous.x, previous.z) + (previous.jump or 0)
+    local to = Ground.height(world, current.x, current.z) + (current.jump or 0)
+    out.jump = lerp(from, to, t) - Ground.height(world, out.x, out.z)
+  end
   out.crouch = lerp(previous.crouch or 0, current.crouch or 0, t)
   return out
 end
@@ -66,8 +71,9 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY)
       return false
     end
   end
-  local jump = previous.jump or 0
-  local jumpDelta = (p.jump or 0) - jump
+  local datum = Ground.height(g.world)
+  local jump = Ground.height(g.world, previous.x, previous.z) - datum + (previous.jump or 0)
+  local jumpDelta = Ground.height(g.world, p.x, p.z) - datum + (p.jump or 0) - jump
   lo, hi = clip(lo, hi, y - jump - knight.feet + radius, dy - jumpDelta)
   if not lo then
     return false
@@ -116,7 +122,7 @@ end
 function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
   local ax, ay, az = Anchor.point(g, e, phase, x, z, action and action.contactAnchor or 'claw')
   if ax then
-    return ax, ay, az, e.lungeX, e.lungeZ
+    return ax, ay + Ground.height(g.world, x, z) - Ground.height(g.world), az, e.lungeX, e.lungeZ
   end
   -- Unannotated extension art retains the generic physical swing. Existing
   -- creatures use their named painted contact, not this fallback arc.
@@ -125,7 +131,11 @@ function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
   end
   local a = math.atan2(e.lungeX, e.lungeZ)
   local yaw = a - Claw.arc + 2 * Claw.arc * (phase - activeStart) / (activeEnd - activeStart)
-  return x, Claw.height, z, math.sin(yaw), math.cos(yaw)
+  return x,
+    Claw.height + Ground.height(g.world, x, z) - Ground.height(g.world),
+    z,
+    math.sin(yaw),
+    math.cos(yaw)
 end
 -- The depths along the forward direction where the contact is sampled.
 function M.depths(action)
@@ -156,8 +166,8 @@ function M.claw(g, e, oldX, oldZ, previous, before, after, movementEnd, active, 
   for step = 1, steps do
     local t1 = start + (finish - start) * (step - 1) / steps
     local t2 = start + (finish - start) * step / steps
-    local from = playerAt(previous, current, (t1 - before) / duration, e.clawFrom)
-    local to = playerAt(previous, current, (t2 - before) / duration, e.clawTo)
+    local from = playerAt(previous, current, (t1 - before) / duration, e.clawFrom, g.world)
+    local to = playerAt(previous, current, (t2 - before) / duration, e.clawTo, g.world)
     local x1, y1, z1, dx1, dz1 = point(t1)
     local x2, y2, z2, dx2, dz2 = point(t2)
     for _, reach in ipairs(M.depths(action)) do

@@ -7,6 +7,7 @@ local FX = require('src.feedback.effects')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Reload = require('src.combat.reload')
+local Weapons = require('src.content.weapons')
 local K = require('src.content.tuning').world
 local World = {}
 local function sounds(e)
@@ -97,11 +98,20 @@ World.handlers = {
   ReloadStage = function(g, ev)
     local mechanism = Reload.mechanisms[ev.mechanism]
     A.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
+    if ev.interrupted and ev.weapon == Weapons.idAt(g) and g.elapsed < ev.started + ev.duration then
+      g.view.interruptedClose = {
+        weapon = ev.weapon,
+        started = ev.started,
+        duration = ev.duration,
+        reloadAge = ev.reloadAge,
+      }
+    end
     -- An opened breech throws out its spent cases, one to each side
     -- (render/weapon.lua draws them; feedback/transients.lua moves them).
     for i = 1, ev.spent or 0 do
       local side = i == 1 and -1 or 1
       g.view.shells[#g.view.shells + 1] = {
+        weapon = ev.weapon,
         x = side * 7,
         y = 0,
         vx = side * 83,

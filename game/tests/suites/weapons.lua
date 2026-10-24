@@ -247,17 +247,26 @@ function Tests.run(G, renderer)
   g.player.arsenal.judge.reserve = 6
   g:reloadGun()
   local frames = {}
+  local sampledArt = require('src.render.weapon_art')
+  local manifest = sampledArt.of(g)
+  local actions = {}
   for _ = 1, 230 do
-    frames[Reload.frame(g)] = true
+    local frame = sampledArt.frame(g)
+    frames[frame] = true
+    actions[manifest.frames[frame].action] = true
     g.view.shotAge = g.view.shotAge + 1 / 120
     Reload.update(g, 1 / 120)
   end
   local complete = true
-  for frame = 5, 16 do
-    complete = complete and frames[frame]
+  for _, key in ipairs(manifest.timeline) do
+    local frame = manifest.frames[key[2]]
+    if frame.rounds then
+      frame = manifest.frames[manifest.frameNames[frame.rounds[1]]]
+    end
+    complete = complete and actions[frame.action]
   end
   check(
-    'revolver reload traverses all twelve authored loading frames without a firing flash',
+    'revolver reload traverses every authored loading action, including chamber variants, without a firing flash',
     complete
       and not frames[2]
       and not frames[3]
@@ -636,6 +645,9 @@ function Tests.run(G, renderer)
     lines[#lines + 1] = line
   end
   for _, line in ipairs(require('tests.cases.audio').run()) do
+    lines[#lines + 1] = line
+  end
+  for _, line in ipairs(require('tests.cases.breech_reload').run(G)) do
     lines[#lines + 1] = line
   end
   love.mouse.setRelativeMode(false)

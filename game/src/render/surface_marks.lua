@@ -7,8 +7,7 @@ local format = {
 }
 local indices = { 1, 2, 3, 1, 3, 4 }
 function R.init(r)
-  r.markImage = love.graphics.newImage(Marks.path)
-  r.markImage:setFilter('nearest', 'nearest')
+  r.markImage = r.resources:image(Marks.path)
   r.markMesh = love.graphics.newMesh(format, Marks.limit * 6, 'triangles', 'stream')
   r.markMesh:setTexture(r.markImage)
   r.markVertices = {}

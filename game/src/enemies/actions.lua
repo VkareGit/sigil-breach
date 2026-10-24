@@ -11,6 +11,7 @@ local Dodge = require('src.combat.dodge')
 local Rules = require('src.combat.rules')
 local Hazards = require('src.enemies.hazards')
 local Tuning = require('src.content.tuning')
+local Kinematics = require('src.physics.kinematics')
 local Attacks = {}
 local sin, cos, sqrt, atan2 = math.sin, math.cos, math.sqrt, math.atan2
 local len = MathX.len
@@ -25,7 +26,7 @@ end
 -- A bolt carries its archetype's damage packet to the projectile system.
 local function projectile(g, e, a, speed, spec)
   -- Launched and aimed at heights above the ground (physics/ground.lua).
-  local ground = Ground.height(g.world)
+  local ground = Ground.height(g.world, e.x, e.z)
   local y = ground + spec.height
   local d = len(e.aimX - e.x, e.aimZ - e.z)
   -- radius: the projectile's own collision radius, also its painted size.
@@ -35,7 +36,7 @@ local function projectile(g, e, a, speed, spec)
     z = e.z + cos(a) * K.muzzle,
     vx = sin(a) * speed,
     vz = cos(a) * speed,
-    vy = (ground + K.aimHeight - y) * speed / math.max(1, d),
+    vy = (Ground.height(g.world, e.aimX, e.aimZ) + K.aimHeight - y) * speed / math.max(1, d),
     life = K.boltLife,
     big = spec.big or false,
     color = spec.color,
@@ -142,7 +143,7 @@ Kinds.lunge = {
     end
     local step = math.min(dt, atk.lungeTime - ctx.before)
     local p = g.player
-    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt) or p
+    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt, nil, g.world) or p
     -- A crippled or wounded body lunges shorter (the same speed conditions).
     rush(g, e, atk.lungeSpeed * Rules.speedScale(e), step, ctx.previous, current)
     if e.didHit then
@@ -201,22 +202,19 @@ Kinds.charge = {
     end
     local p = g.player
     local step = math.min(dt, e.chargeTime - ctx.before)
-    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt) or p
+    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt, nil, g.world) or p
     rush(g, e, atk.speed, step, ctx.previous, current)
     local r = atk.reach
     local x1, z1 = ctx.oldX + e.lungeX * r, ctx.oldZ + e.lungeZ * r
     local x2, z2 = e.x + e.lungeX * r, e.z + e.lungeZ * r
+    local y1 = atk.contactY + Ground.height(g.world, ctx.oldX, ctx.oldZ) - Ground.height(g.world)
+    local y2 = atk.contactY + Ground.height(g.world, e.x, e.z) - Ground.height(g.world)
     if not e.didHit then
-      if
-        Melee.contact(g, x1, z1, x2, z2, atk.contactY, atk.contactRadius, ctx.previous, current)
-      then
+      if Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, ctx.previous, current, y2) then
         hurtPlayer(g, e, atk)
       else
         local ghost = Dodge.afterimage(g)
-        if
-          ghost
-          and Melee.contact(g, x1, z1, x2, z2, atk.contactY, atk.contactRadius, ghost, ghost)
-        then
+        if ghost and Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, ghost, ghost, y2) then
           dodged(g, e, atk)
         end
       end
@@ -295,19 +293,30 @@ Kinds.leap = {
     local _, used = Attacks.flight(g, e, dt, ctx and ctx.previous)
     if not e.leaping and not e.didHit then
       if used and used < dt then
-        p = Melee.playerAt(ctx and ctx.previous or p, p, used / dt)
+        p = Melee.playerAt(ctx and ctx.previous or p, p, used / dt, nil, g.world)
       end
       e.didHit = true
       Attacks.land(g, e)
       local reachLand = atk.landRadius + Rules.playerBody().radius
       local ghost = Dodge.afterimage(g)
-      if len(p.x - e.x, p.z - e.z) < reachLand and (p.jump or 0) < K.jumpClear then
+      if
+        len(p.x - e.x, p.z - e.z) < reachLand
+        and math.abs(
+            Ground.height(g.world, p.x, p.z) + (p.jump or 0) - Ground.height(g.world, e.x, e.z)
+          )
+          < K.jumpClear
+      then
         local packet = Rules.packet(e, atk.packet)
         g:damagePlayer(packet.base, e.x, e.z, packet, e)
       elseif
         ghost
         and len(ghost.x - e.x, ghost.z - e.z) < reachLand
-        and (ghost.jump or 0) < K.jumpClear
+        and math.abs(
+            Ground.height(g.world, ghost.x, ghost.z)
+              + (ghost.jump or 0)
+              - Ground.height(g.world, e.x, e.z)
+          )
+          < K.jumpClear
       then
         dodged(g, e, atk)
       end
@@ -324,6 +333,7 @@ Kinds.pool = {
       packet = Rules.packet(e, pool.packet),
       pulse = pool.pulse,
       condition = pool.condition,
+      owner = pool.packet.effects and e.id or nil,
     })
     projectile(g, e, a, atk.bolt.speed, atk.bolt)
   end,
@@ -346,7 +356,11 @@ Kinds.fan = {
           line.delay,
           line.radius,
           line.life,
-          { packet = Rules.packet(e, line.packet), pulse = line.pulse }
+          {
+            packet = Rules.packet(e, line.packet),
+            pulse = line.pulse,
+            owner = line.packet.effects and e.id or nil,
+          }
         )
       end
     end
@@ -441,7 +455,7 @@ local function beginAttack(g, e, d, chosen)
   end
   -- Commit only to a target in sight: a prediction behind cover falls back to
   -- the player's present position (the release check would otherwise cancel).
-  if not kind.unseen and not W.visible(g.world, e.x, e.z, e.aimX, e.aimZ) then
+  if not kind.unseen and not Rules.seesKnight(g, e, e.aimX, e.aimZ) then
     e.aimX, e.aimZ = p.x, p.z
   end
   Signal(g, 'AttackTelegraphed', { enemy = e, attack = atk })
@@ -477,6 +491,34 @@ function Attacks.flight(g, e, dt, previous)
     return
   end
   local gravity = Tuning.gravity
+  if g.world.elevations then
+    local elapsed = 0
+    local p = g.player
+    previous = previous or p
+    while elapsed < dt do
+      local landing = Kinematics.fallTime(e.leapY, e.leapVY, gravity)
+      local step = math.min(dt - elapsed, landing)
+      local from = Melee.playerAt(previous, p, elapsed / dt, nil, g.world)
+      local current = Melee.playerAt(previous, p, (elapsed + step) / dt, nil, g.world)
+      local vx, vz =
+        BodyContact.moveEnemy(g, e, (e.leapVX or 0) * step, (e.leapVZ or 0) * step, from, current)
+      if step > 0 then
+        e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
+      end
+      local y = e.leapY + e.leapVY * step - 0.5 * gravity * step * step
+      e.leapVY = e.leapVY - gravity * step
+      elapsed = elapsed + step
+      if y <= 0 then
+        e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
+        return true, elapsed
+      end
+      e.leapY, e.leaping = y, true
+      -- A former floor's landing time is only an integration boundary.
+      -- Leaving its ledge rebased leapY; consume the remaining time over
+      -- the new support instead of slowing the whole trajectory by a tick.
+    end
+    return false, elapsed
+  end
   local landing = (e.leapVY + math.sqrt(e.leapVY * e.leapVY + 2 * gravity * e.leapY)) / gravity
   local step = math.min(dt, landing)
   local p = g.player
@@ -488,7 +530,7 @@ function Attacks.flight(g, e, dt, previous)
   end
   local y = e.leapY + e.leapVY * step - 0.5 * gravity * step * step
   e.leapVY = e.leapVY - gravity * step
-  if dt >= landing or y <= 0 then
+  if (not g.world.elevations and dt >= landing) or y <= 0 then
     e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
     return true, step
   end

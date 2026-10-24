@@ -1,6 +1,7 @@
 local T = {}
 function T.run(G, check, r)
   local V = require('src.render.light_visibility')
+  local resources = require('src.render.resources').new('lighting test')
   local Lights = require('src.render.lights')
   local function fixture()
     local w = { size = 9, map = {}, lamps = { { x = 3, y = 1.18, z = 5, phase = 0 } }, seals = {} }
@@ -33,8 +34,8 @@ function T.run(G, check, r)
   )
   w = fixture()
   local sources = { { x = 3, y = 1.18, z = 5 } }
-  local a = V.build(w, sources)
-  local again = V.build(w, sources)
+  local a = V.build(w, sources, resources)
+  local again = V.build(w, sources, resources)
   check(
     'unchanged world geometry reuses the same shadow atlas',
     a == again and a.image:getWidth() == 512
@@ -45,7 +46,7 @@ function T.run(G, check, r)
   local _, _, blocked = V.sample(a, 1, 5, 5)
   check('dynamic light blocker channel contains the wall', blocked > 0.95)
   w.map[5][5] = 0
-  local changed = V.build(w, sources)
+  local changed = V.build(w, sources, resources)
   check(
     'a map edit invalidates cached light visibility',
     changed ~= a and V.sample(changed, 1, 7, 5) > 0.95
@@ -123,6 +124,7 @@ function T.run(G, check, r)
   local mesh = Mesh.finish(vertices)
   local target = lg.newCanvas(256, 256)
   local s = r.shader
+  lighting:release()
   lighting = Lights.new()
   lighting:update({ world = w, time = 0, player = { x = 3, z = 5 }, bullets = {} })
   local function sample(enabled, dynamic)
@@ -185,5 +187,7 @@ function T.run(G, check, r)
   )
   mesh:release()
   target:release()
+  lighting:release()
+  resources:release()
 end
 return T

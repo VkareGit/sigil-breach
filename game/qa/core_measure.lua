@@ -3,11 +3,12 @@
 -- from love.timer, Lua heap from collectgarbage('count'). Not an FPS estimate.
 --   masks         parsing and building the baked mask data (a fresh chunk)
 --   surface       preparing poses/surfaces and full 20-ray volleys
---   missiles      knight missiles swept against 20 demons each step
+--   missiles      knight missiles swept against the selected population
 --   melee         a thrall's lunges and claws against the knight
---   snapshot      Snapshot.capture / restore of a 20-demon field
+--   snapshot      Snapshot.capture / restore of the selected field
 --   journal       recording, exporting and replaying a field fight
 --   long session  300 waves of three demons spawned, killed and cleared
+local Tooling = require('qa.tooling')
 local M = {}
 local clock = love.timer.getTime
 local function heap()
@@ -35,6 +36,9 @@ local function timed(n, fn)
   return (clock() - start) / n * 1000
 end
 local function field(G, count, kind)
+  if count > 20 and not kind then
+    return Tooling.crowd(G, count)
+  end
   local Field = require('src.run.test_field')
   local g = Field.new(G)
   g.testing = true
@@ -53,8 +57,23 @@ local function field(G, count, kind)
   Field.close(g)
   return g
 end
-function M.run(G, output)
-  local lines = { 'CORE COST MEASUREMENTS', 'LuaJIT ' .. tostring(jit and jit.version), '' }
+function M.run(G, output, smoke)
+  local function n(full, short)
+    return Tooling.count(smoke, full, short)
+  end
+  local lines = Tooling.header('CORE COST MEASUREMENTS', smoke)
+  local populations = Tooling.populations(os.getenv('SIGIL_CORE_POPULATION'), { 20 })
+  assert(
+    #populations == 1 and populations[1] >= 20,
+    'core population must be one integer from 20 to 256'
+  )
+  local population, journalPopulation = populations[1], smoke and 3 or populations[1]
+  lines[#lines + 1] = 'Population: '
+    .. population
+    .. '; populations above 20 use a prepared free-tile factory grid outside the player catalogue. The 20 rays and 10 missiles remain fixed.'
+  lines[#lines + 1] = 'LuaJIT ' .. tostring(jit and jit.version)
+  lines[#lines + 1] =
+    'Prepared CPU workloads; no renderer or desktop input polling. Timing is diagnostic, never a machine-specific pass threshold.'
   local function log(text)
     lines[#lines + 1] = text
     print(text)
@@ -90,34 +109,35 @@ function M.run(G, output)
   data = nil
   -- Surface preparation and full volleys (20 rays) against 20 demons.
   local B = require('src.combat.ballistics')
-  local g = field(G, 20)
+  local g = field(G, population)
   local ox, oy, oz = B.origin(g)
   local rays = {}
   for i = 1, 20 do
-    local e = g.enemies[i]
+    local e = g.enemies[1 + math.floor((i - 1) * population / 20)]
     local dx, dy, dz = e.x - ox, 1.2 - oy, e.z - oz
     local l = math.sqrt(dx * dx + dy * dy + dz * dz)
     rays[i] = { dx / l, dy / l, dz / l }
   end
-  for _ = 1, 50 do
+  for _ = 1, n(50, 2) do
     B.prepare(g)
   end
   log(
     string.format(
-      'surface: prepare 20 bodies %.4f ms (%.2f KiB), volley prepare + 20 rays %.4f ms (%.2f KiB)',
-      timed(500, function()
+      'surface: prepare %d bodies %.4f ms (%.2f KiB), volley prepare + 20 rays %.4f ms (%.2f KiB)',
+      population,
+      timed(n(500, 3), function()
         B.prepare(g)
       end),
-      allocation(100, function()
+      allocation(n(100, 2), function()
         B.prepare(g)
       end),
-      timed(500, function()
+      timed(n(500, 3), function()
         local bodies = B.prepare(g)
         for i = 1, 20 do
           B.traceVector(g, rays[i][1], rays[i][2], rays[i][3], 40, bodies)
         end
       end),
-      allocation(100, function()
+      allocation(n(100, 2), function()
         local bodies = B.prepare(g)
         for i = 1, 20 do
           B.traceVector(g, rays[i][1], rays[i][2], rays[i][3], 40, bodies)
@@ -128,12 +148,12 @@ function M.run(G, output)
   -- Knight missiles: ten slow missiles crossing the field, per step.
   local Projectiles = require('src.combat.projectiles')
   local Spawn = require('src.session.spawn')
-  g = field(G, 20)
+  g = field(G, population)
   g.testField.invincible = true
   local function volley()
     g.bullets = {}
     for i = 1, 10 do
-      local e = g.enemies[i * 2]
+      local e = g.enemies[math.floor(i * population / 10)]
       local dx, dz = e.x - g.player.x, e.z - g.player.z
       local l = math.sqrt(dx * dx + dz * dz)
       Spawn.make(g, 'projectile', {
@@ -153,14 +173,15 @@ function M.run(G, output)
   volley()
   log(
     string.format(
-      'missiles: 10 knight missiles vs 20 demons, per step %.4f ms (%.2f KiB)',
-      timed(240, function(i)
+      'missiles: 10 knight missiles vs %d demons, per step %.4f ms (%.2f KiB)',
+      population,
+      timed(n(240, 4), function(i)
         if i % 60 == 0 then
           volley()
         end
         Projectiles.update(g, 1 / 120)
       end),
-      allocation(60, function()
+      allocation(n(60, 3), function()
         Projectiles.update(g, 1 / 120)
       end)
     )
@@ -170,77 +191,95 @@ function M.run(G, output)
   g.testField.invincible = true
   local e = g.enemies[1]
   e.x, e.z = g.player.x + math.sin(g.player.yaw) * 1.5, g.player.z + math.cos(g.player.yaw) * 1.5
+  if smoke then
+    Tooling.advanceUntil('melee smoke attack', function()
+      return e.ai == 'strike'
+    end, function(dt)
+      g:update(dt, {})
+    end, 1 / 120, 5)
+  end
   local strikes = 0
   log(
     string.format(
       'melee: one attacking thrall, per simulation step %.4f ms (%.2f KiB, %s)',
-      timed(1200, function()
+      timed(n(1200, 120), function()
         g:update(1 / 120, {})
         strikes = strikes + (e.ai == 'strike' and 1 or 0)
       end),
-      allocation(240, function()
+      allocation(n(240, 4), function()
         g:update(1 / 120, {})
       end),
       strikes .. ' strike steps'
     )
   )
+  assert(strikes > 0, 'melee workload never reached an active attack')
   -- Snapshot capture and restore of a 20-demon field.
   local Snapshot = require('src.session.snapshot')
-  g = field(G, 20)
-  for _ = 1, 60 do
+  g = field(G, population)
+  for _ = 1, n(60, 2) do
     g:update(1 / 120, {})
   end
   local memento
   log(
     string.format(
-      'snapshot: capture %.3f ms (%.1f KiB), restore %.3f ms (%.1f KiB)',
-      timed(20, function()
+      'snapshot: %d bodies; capture %.3f ms (%.1f KiB), restore %.3f ms (%.1f KiB)',
+      population,
+      timed(n(20, 2), function()
         memento = Snapshot.capture(g)
       end),
-      allocation(5, function()
+      allocation(n(5, 1), function()
         Snapshot.capture(g)
       end),
-      timed(20, function()
+      timed(n(20, 2), function()
         Snapshot.restore(g, memento)
       end),
-      allocation(5, function()
+      allocation(n(5, 1), function()
         Snapshot.restore(g, memento)
       end)
     )
   )
-  -- Journal: record, export and replay a ten-second field fight.
-  local Journal = require('src.session.journal')
+  -- Journal: production Input.sample includes the displayed geometry even
+  -- while the held weapon cools down or reloads. Omitting it hides the cost.
   local Field = require('src.run.test_field')
-  g = Field.new(G)
-  g.testing = true
-  start = clock()
-  local journal = Journal.record(g)
-  local recordStart = (clock() - start) * 1000
-  g:act('catalog', 'field_spawn_imp_3')
-  start = clock()
-  for tick = 1, 1200 do
-    g.player.yaw = g.player.yaw + 0.002
-    g:update(1 / 120, { shoot = tick % 45 == 0 })
-  end
-  local fight = (clock() - start) * 1000
-  start = clock()
-  local text = Journal.encode(journal)
-  local export = (clock() - start) * 1000
-  Journal.stop(g)
-  local fresh = Journal.session(G, Journal.decode(text))
-  fresh.testing = true
-  start = clock()
-  Journal.replay(fresh, Journal.decode(text))
-  local replay = (clock() - start) * 1000
+  local recording = require('qa.recording_workload').run(G, journalPopulation, n(10, 1))
   log(
     string.format(
-      'journal: record start %.2f ms, recorded 10 s fight %.1f ms, export %.2f ms (%.0f KiB text), replay %.1f ms',
-      recordStart,
-      fight,
-      export,
-      #text / 1024,
-      replay
+      'journal: %d targets, %.2f s held-fire fight, 60 observations/s, 120 updates/s; start %.2f ms; fight %.1f ms; export %.2f ms; decode %.2f ms; replay %.1f ms; receipts=%d (replay verified)',
+      journalPopulation,
+      recording.seconds,
+      recording.recordStart,
+      recording.fight,
+      recording.export,
+      recording.decode,
+      recording.replay,
+      recording.receipts
     )
+  )
+  log(
+    string.format(
+      'journal storage: text=%d bytes; estimate=%d bytes; detached plain journal retained=%.1f KiB; commands=%d; observed mean bodies=%.2f; portal preparation steps=%d',
+      recording.bytes,
+      recording.estimatedBytes,
+      recording.retainedCopyKiB,
+      recording.commands,
+      recording.meanBodies,
+      recording.preparationSteps
+    )
+  )
+  log(
+    string.format(
+      'journal limits: estimated serialized text=%d bytes; commands=%d; measured estimate growth=%.0f bytes/s, encoded growth=%.0f bytes/s, commands=%.1f/s; extrapolated estimate/command limits=%.2f/%.2f s at this workload only',
+      recording.budget.maxBytes,
+      recording.budget.maxCommands,
+      recording.bytesPerSecond,
+      recording.textBytesPerSecond,
+      recording.commandsPerSecond,
+      recording.budget.maxBytes / recording.bytesPerSecond,
+      recording.budget.maxCommands / recording.commandsPerSecond
+    )
+  )
+  log(
+    'Journal text budget is NOT a RAM cap or a guaranteed duration. A complete command and final integrity may exceed the text estimate; retained-copy heap excludes export text, decoded replay, session and transient allocations. Geometry capture is real, rasterization is excluded.'
   )
   -- A long session: 300 waves of three demons, killed and cleared.
   g = Field.new(G)
@@ -248,7 +287,7 @@ function M.run(G, output)
   Field.close(g)
   local first = heap()
   start = clock()
-  for wave = 1, 300 do
+  for wave = 1, n(300, 4) do
     local created = Field.spawn(g, wave % 2 == 0 and 'imp' or 'stolas', 3) or {}
     Field.close(g)
     for _, body in ipairs(created) do
@@ -265,16 +304,15 @@ function M.run(G, output)
   end
   log(
     string.format(
-      'long session: 300 waves x 3 demons in %.0f ms; %d enemy records live, %d telemetry body records, heap +%.0f KiB',
+      'long session: %d waves x 3 demons in %.0f ms; %d enemy records live, %d telemetry body records, heap +%.0f KiB',
+      n(300, 4),
       spent,
       #g.enemies,
       records,
       heap() - first
     )
   )
-  local f = assert(io.open(output .. '/core-measure.txt', 'w'))
-  f:write(table.concat(lines, '\n') .. '\n')
-  f:close()
+  Tooling.write(output, 'core-measure.txt', lines, smoke)
   return lines
 end
 return M

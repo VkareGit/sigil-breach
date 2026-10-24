@@ -48,11 +48,12 @@ function Tests.run(G)
   -- A3: the FOCUS engraving is the shotgun's glyph data.
   g.run.glyph = 'choke'
   g.weapon = 1
-  local shotgun = Weapons.spread(g)
+  local shotgun = require('src.combat.loadout').spread(g)
   g.weapon = 2
   check(
     'FOCUS narrows the shotgun by its data and leaves the revolver as made',
-    shotgun == Weapons.get('exorcist').glyphs.choke.spread and Weapons.spread(g) == 1
+    shotgun == Weapons.get('exorcist').glyphs.choke.spread
+      and require('src.combat.loadout').spread(g) == 1
   )
 
   -- A4: the reload timeline is data; the opened breech announces its cases.

@@ -5,6 +5,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'project.ps1')
+. (Join-Path $PSScriptRoot 'package.ps1')
+. (Join-Path $PSScriptRoot 'package-verification.ps1')
 $project = Get-Project
 $taskRoot = $project.Root
 $sourceRoot = Join-Path $taskRoot 'game'
@@ -15,6 +17,14 @@ $lovePath = Join-Path $releaseRoot 'SIGIL-BREACH.love'
 $runtimePath = Join-Path $RuntimeRoot 'love.exe'
 $zipPath = $project.Zip
 $documents = $project.Documents
+$playerRoot = Join-Path $taskRoot ('outputs/' + $project.Name + '-Player')
+$sourceFingerprint = Get-SourceFingerprint $taskRoot
+# The whole verification is one QA session: no parallel run rewrites its reports.
+$session = Enter-QaSession $qaRoot
+trap { Exit-QaSession $session; break }
+$developerManifest = Assert-PackageManifest $releaseRoot $sourceFingerprint
+$playerManifest = Assert-PackageManifest $playerRoot $sourceFingerprint
+Check-Hash $sourceFingerprint (Get-SourceFingerprint (Join-Path $releaseRoot 'development')) 'included developer workspace'
 & (Join-Path $PSScriptRoot 'check.ps1')
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -36,6 +46,12 @@ try {
     foreach ($entry in $archive.Entries) {
         if ($entry.FullName.EndsWith('/')) { continue }
         if (-not $seen.Add($entry.FullName)) { throw "Duplicate .love archive entry: $($entry.FullName)" }
+        if ($entry.FullName -eq 'build-fingerprint.txt') {
+            $reader = [IO.StreamReader]::new($entry.Open())
+            try { Check-Hash $sourceFingerprint $reader.ReadToEnd().Trim() 'developer embedded identity' } finally { $reader.Dispose() }
+            Check-Hash $sourceFingerprint ([IO.File]::ReadAllText((Join-Path $releaseRoot 'source/build-fingerprint.txt')).Trim()) 'included source identity'
+            continue
+        }
         $localPath = Assert-ChildPath (Join-Path $sourceRoot $entry.FullName) $sourceRoot
         $releaseSourceRoot = Join-Path $releaseRoot 'source'
         $releaseSource = Assert-ChildPath (Join-Path $releaseSourceRoot $entry.FullName) $releaseSourceRoot
@@ -48,7 +64,8 @@ try {
 }
 finally { $archive.Dispose() }
 if ($count -ne @(Get-ChildItem -LiteralPath $sourceRoot -File -Recurse -Force).Count) { throw 'Missing development source files in .love archive.' }
-if ($count -ne @(Get-ChildItem -LiteralPath (Join-Path $releaseRoot 'source') -File -Recurse -Force).Count) { throw 'Unexpected or missing files in release/source.' }
+if (-not $seen.Contains('build-fingerprint.txt')) { throw 'Developer archive has no embedded build identity.' }
+if ($count + 1 -ne @(Get-ChildItem -LiteralPath (Join-Path $releaseRoot 'source') -File -Recurse -Force).Count) { throw 'Unexpected or missing files in release/source.' }
 
 $exe = [IO.File]::ReadAllBytes($exePath)
 $runtimeLength = [int](Get-Item -LiteralPath $runtimePath).Length
@@ -84,7 +101,8 @@ $abilityReport = Join-Path $qaRoot 'ability-registration-v23.csv'
 $oldAbilityTime = Last-Write $abilityReport
 # The helper logs progress on the host stream, leaving one structured result here.
 $selftest = Run-PackagedTest '--selftest' 'packaged-selftest'
-Require-Fresh $testReport $selftest.Started $oldTestTime
+$selftestEvidence = Assert-PackageEvidence $qaRoot 'packaged-selftest' $sourceFingerprint @('test-results.txt', 'bitmap-ui-audit.txt', 'balance-results.txt', 'playtest-results.txt', 'DURABILITY-REVIEW.txt', 'ability-registration-v23.csv') $exePath
+Require-Fresh $testReport $selftest.Started $oldTestTime $selftest.RunId
 Require-Fresh $bitmapReport $selftest.Started $oldBitmapTime
 $bitmapText = Get-Content -LiteralPath $bitmapReport -Raw
 if ($bitmapText -notmatch '; 0 issues\.' -or $bitmapText -match '(?m)^FAIL\b') { throw 'Packaged bitmap GUI audit did not report zero issues.' }
@@ -105,7 +123,8 @@ if ($mechanicsCount -le 0 -or $mechanicsCount -ne $executedCount -or $mechanicsC
 
 $oldInputTime = Last-Write $inputReport
 $inputTest = Run-PackagedTest '--input-test' 'packaged-input'
-Require-Fresh $inputReport $inputTest.Started $oldInputTime
+$inputEvidence = Assert-PackageEvidence $qaRoot 'packaged-input' $sourceFingerprint @('input-results.txt') $exePath
+Require-Fresh $inputReport $inputTest.Started $oldInputTime $inputTest.RunId
 $inputText = Get-Content -LiteralPath $inputReport -Raw
 $inputSummary = [regex]::Match($inputText, '(?m)^(\d+) controller checks\.')
 if (-not $inputSummary.Success -or $inputText -match '(?m)^FAIL\b') { throw 'Packaged input test did not produce a valid passing summary.' }
@@ -117,7 +136,8 @@ $layoutReport = Join-Path $qaRoot 'ui-layout-audit.txt'
 $oldRenderTime = Last-Write $renderReport
 $oldLayoutTime = Last-Write $layoutReport
 $renderTest = Run-PackagedTest '--showcase' 'packaged-render'
-Require-Fresh $renderReport $renderTest.Started $oldRenderTime
+$renderEvidence = Assert-PackageEvidence $qaRoot 'packaged-render' $sourceFingerprint (@('render-results.txt', 'ui-layout-audit.txt') + $project.RenderEvidence) $exePath
+Require-Fresh $renderReport $renderTest.Started $oldRenderTime $renderTest.RunId
 Require-Fresh $layoutReport $renderTest.Started $oldLayoutTime
 $layoutText = Get-Content -LiteralPath $layoutReport -Raw
 if ($layoutText -notmatch '\d+ interior checks, 0 issues' -or $layoutText -match '\b[1-9]\d* issues\b') { throw 'Packaged render has frame-interior or collision failures.' }
@@ -139,7 +159,12 @@ Copy-Item -LiteralPath $inputReport -Destination (Join-Path $releaseRoot 'STEROW
 Copy-Item -LiteralPath $bitmapReport -Destination (Join-Path $releaseRoot 'GUI-BITMAPY-AUDYT.txt') -Force
 Copy-Item -LiteralPath (Join-Path $qaRoot 'render-results.txt') -Destination (Join-Path $releaseRoot 'RENDER.txt') -Force
 $nativePath = Join-Path $qaRoot 'native-ui-results.txt'
-$nativeIncluded = Test-Path -LiteralPath $nativePath -PathType Leaf
+$nativeReceipt = Join-Path $qaRoot 'native-ui-results.evidence.json'
+$nativeIncluded = $false
+if ((Test-Path -LiteralPath $nativePath -PathType Leaf) -and (Test-Path -LiteralPath $nativeReceipt -PathType Leaf)) {
+    $nativeProof = Get-Content -LiteralPath $nativeReceipt -Raw | ConvertFrom-Json
+    $nativeIncluded = $nativeProof.sourceFingerprint -eq $sourceFingerprint -and $nativeProof.reportSha256 -eq (Get-FileHash -LiteralPath $nativePath -Algorithm SHA256).Hash
+}
 if ($nativeIncluded) { Copy-Item -LiteralPath $nativePath -Destination (Join-Path $releaseRoot 'GUI-TESTY.txt') -Force }
 else {
     $staleNative = Assert-ChildPath (Join-Path $releaseRoot 'GUI-TESTY.txt') $releaseRoot
@@ -152,6 +177,7 @@ $stableArchive = [IO.Compression.ZipFile]::OpenRead($lovePath)
 try {
     foreach ($entry in $stableArchive.Entries) {
         if ($entry.FullName.EndsWith('/')) { continue }
+        if ($entry.FullName -eq 'build-fingerprint.txt') { continue }
         $currentSource = Assert-ChildPath (Join-Path $sourceRoot $entry.FullName) $sourceRoot
         $stream = $entry.Open()
         try { $expected = Hash-Stream $stream } finally { $stream.Dispose() }
@@ -161,6 +187,11 @@ try {
 }
 finally { $stableArchive.Dispose() }
 $exeHash = (Get-FileHash -LiteralPath $exePath -Algorithm SHA256).Hash
+Assert-FusedGame $releaseRoot $RuntimeRoot
+Assert-FusedGame $playerRoot $RuntimeRoot
+$playerPayloadCount = Assert-PlayerPayload $playerRoot $sourceRoot $sourceFingerprint $RuntimeRoot
+$installed = Test-InstalledPackages $playerRoot $releaseRoot $qaRoot $sourceFingerprint $TestTimeoutSeconds
+Check-Hash $sourceFingerprint (Get-SourceFingerprint $taskRoot) 'source remained stable through installed-package checks'
 $lines = @(
     ($project.Title + ' - executed package verification.'),
     ('Verified UTC: ' + [DateTime]::UtcNow.ToString('o')),
@@ -178,51 +209,46 @@ $lines = @(
     ('Native UI report included: ' + $nativeIncluded + '. Its observations are separate from automated verification.'),
     'Packaged EXE --showcase regenerated render evidence and layout reports; exit0 and zero measured layout issues.',
     'Automated tests invoke real game callbacks and rendering, with desktop mouse capture disabled; this is not a native mouse playtest.',
-    'Only Limbo is playable. Test completion does not establish human difficulty or subjective weapon feel.',
+    'Only the test arena is offered in the production menu. Test completion does not establish human difficulty or subjective weapon feel.',
     'Hit outcome timing reports measure remaining presented-pose/resolved-pose differences; passing mechanics tests do not mean these differences are zero. See the acceptance document.',
     ('EXE SHA256: ' + $exeHash),
     ('LOVE SHA256: ' + (Get-FileHash -LiteralPath $lovePath -Algorithm SHA256).Hash),
+    ('GAME tree SHA256: ' + $sourceFingerprint),
+    ('Installed player payload: ' + $playerPayloadCount + ' entries; no qa/tests/docs or loose source.'),
+    'Both deliveries ran outside the repository from paths containing spaces, with an unrelated working directory.',
+    'Relocated developer workspace passed its own pinned formatter, architecture checker and foundation-contracts suite.',
     'The final Windows ZIP is created after these checks and rehashed entry-by-entry against this release folder.'
 )
 $lines | Set-Content -LiteralPath (Join-Path $releaseRoot 'WERYFIKACJA-PACZKI.txt') -Encoding utf8
+$installed | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $playerRoot 'PACKAGE-CHECK.json') -Encoding utf8
+$evidence = @($selftestEvidence, $inputEvidence, $renderEvidence, $installed)
+Write-PackageManifest $releaseRoot 'developer' $project.Version $sourceFingerprint $developerManifest.sourceFiles $evidence
+Write-PackageManifest $playerRoot 'player' $project.Version $sourceFingerprint $playerManifest.sourceFiles $evidence
+$null = Assert-PackageManifest $releaseRoot $sourceFingerprint
+$null = Assert-PackageManifest $playerRoot $sourceFingerprint
 
-# Create a fresh archive only after actual packaged test success. Preserve any
-# previous verified ZIP until the new archive has passed its own content check.
-$temporaryZip = $zipPath + '.verified-' + [Guid]::NewGuid().ToString('N') + '.tmp'
-$temporaryZip = Assert-ChildPath $temporaryZip (Join-Path $taskRoot 'outputs')
-# A failed check removes the unverified archive; the previous verified ZIP stays.
-trap {
-    if ($temporaryZip -and (Test-Path -LiteralPath $temporaryZip)) { Remove-Item -LiteralPath $temporaryZip -Force }
-    break
-}
-Write-Archive $releaseRoot $temporaryZip
-$finalArchive = [IO.Compression.ZipFile]::OpenRead($temporaryZip)
-$zipEntries = 0
-try {
-    foreach ($entry in $finalArchive.Entries) {
-        if ($entry.FullName.EndsWith('/')) { continue }
-        $local = Assert-ChildPath (Join-Path $releaseRoot $entry.FullName) $releaseRoot
-        $stream = $entry.Open()
-        try { $zipHash = Hash-Stream $stream } finally { $stream.Dispose() }
-        Check-Hash $zipHash (Get-FileHash -LiteralPath $local -Algorithm SHA256).Hash ('Windows ZIP entry ' + $entry.FullName)
-        $zipEntries++
-    }
-}
-finally { $finalArchive.Dispose() }
-if ($zipEntries -ne @(Get-ChildItem -LiteralPath $releaseRoot -File -Recurse -Force).Count) { throw 'Windows ZIP file count mismatch.' }
-$checkedZip = Assert-ChildPath $zipPath (Join-Path $taskRoot 'outputs')
+# Publish both variants only after all source, package and relocated checks.
+$outputs = Join-Path $taskRoot 'outputs'
+$developerZip = Join-Path $outputs ($project.Name + '-Developer-Windows.zip')
+$playerZip = Join-Path $outputs ($project.Name + '-Player-Windows.zip')
+$developerHash = Publish-PackageArchive $releaseRoot $developerZip $outputs $qaRoot
+$playerHash = Publish-PackageArchive $playerRoot $playerZip $outputs $qaRoot
+# Preserve the old Windows.zip name as a byte-identical developer alias.
+$checkedZip = Assert-ChildPath $zipPath $outputs
 if (Test-Path -LiteralPath $checkedZip) {
-    $zipBackup = Assert-ChildPath (Join-Path $qaRoot ('verified-zip-before-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.zip')) $qaRoot
-    Move-Item -LiteralPath $checkedZip -Destination $zipBackup
+    $backup = Assert-ChildPath (Join-Path $qaRoot ('previous-legacy-delivery-' + [Guid]::NewGuid().ToString('N') + '.zip')) $qaRoot
+    Move-Item -LiteralPath $checkedZip -Destination $backup
 }
-Move-Item -LiteralPath $temporaryZip -Destination $checkedZip
+Copy-Item -LiteralPath $developerZip -Destination $checkedZip
+Check-Hash $developerHash (Get-FileHash -LiteralPath $checkedZip -Algorithm SHA256).Hash 'legacy developer ZIP alias'
+($developerHash + '  ' + [IO.Path]::GetFileName($checkedZip)) | Set-Content -LiteralPath ($checkedZip + '.sha256') -Encoding ascii
 $zipResult = @(
-    ('Verified final ZIP entries: ' + $zipEntries),
-    ('ZIP SHA256: ' + (Get-FileHash -LiteralPath $checkedZip -Algorithm SHA256).Hash),
-    ('ZIP: ' + $checkedZip)
+    ('Developer ZIP SHA256: ' + $developerHash), ('Developer ZIP: ' + $developerZip),
+    ('Player ZIP SHA256: ' + $playerHash), ('Player ZIP: ' + $playerZip),
+    ('Legacy developer alias: ' + $checkedZip)
 )
 ($lines + '' + $zipResult) | Set-Content -LiteralPath (Join-Path $qaRoot 'package-verification.txt') -Encoding utf8
+Exit-QaSession $session
 $lines
 $zipResult
-Get-Item -LiteralPath $exePath, $checkedZip | Select-Object FullName, Length
-
+Get-Item -LiteralPath $exePath, $developerZip, $playerZip | Select-Object FullName, Length

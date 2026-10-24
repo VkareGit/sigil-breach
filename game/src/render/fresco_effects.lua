@@ -42,8 +42,8 @@ function F.load(renderer)
   local Atlas = require('src.render.atlas')
   local e, s = F.effects, F.spells
   renderer.effects, renderer.effectFeet, renderer.effectFrames =
-    Atlas.load(e.path, e.columns, e.rows, e.bands, e.columnBands)
+    Atlas.load(e.path, e.columns, e.rows, e.bands, e.columnBands, renderer.resources)
   renderer.spells, renderer.spellFeet, renderer.spellFrames =
-    Atlas.load(s.path, s.columns, s.rows, s.bands, s.columnBands)
+    Atlas.load(s.path, s.columns, s.rows, s.bands, s.columnBands, renderer.resources)
 end
 return F

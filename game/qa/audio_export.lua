@@ -9,6 +9,7 @@ local Soundscape = require('src.audio.soundscape')
 local Synth = require('src.audio.synth')
 local Recipes = require('src.audio.recipes')
 local Audio = require('src.audio.audio')
+local Tooling = require('qa.tooling')
 local Export = {}
 local floor = math.floor
 
@@ -23,7 +24,7 @@ end
 local function u16(v)
   return string.char(v % 256, floor(v / 256) % 256)
 end
-local function write(path, buffer, rate, loops)
+local function write(path, buffer, rate, loops, verify)
   local file = assert(io.open(path, 'wb'))
   local bytes = #buffer * loops * 2
   file:write('RIFF', u32(36 + bytes), 'WAVE', 'fmt ', u32(16), u16(1), u16(1))
@@ -41,6 +42,19 @@ local function write(path, buffer, rate, loops)
   end
   file:write(table.concat(chunk))
   file:close()
+  if verify then
+    local saved = assert(io.open(path, 'rb'))
+    local encoded = saved:read('*a')
+    saved:close()
+    local fileData = love.filesystem.newFileData(encoded, 'qa-smoke.wav')
+    local decoded = love.sound.newSoundData(fileData)
+    assert(
+      decoded:getSampleCount() == #buffer * loops and decoded:getSampleRate() == rate,
+      'exported WAV does not decode to its declared PCM samples'
+    )
+    decoded:release()
+    fileData:release()
+  end
 end
 local function levels(buffer)
   local peak, sum = 0, 0
@@ -56,23 +70,24 @@ local function directory(name)
   os.execute('mkdir "' .. dir:gsub('/', '\\') .. '" 2>nul')
   return dir
 end
-local function report(dir, lines)
-  local file = assert(io.open(dir .. '/report.txt', 'w'))
-  file:write(table.concat(lines, '\n'), '\n')
-  file:close()
+local function report(dir, lines, smoke)
+  Tooling.write(dir, 'report.txt', lines, smoke)
   print(table.concat(lines, '\n'))
 end
 
 -- Every recipe rendered as the game renders it (Audio.rate, its own seed).
-function Export.sounds()
+function Export.sounds(smoke)
   local dir = directory('sounds')
   local names = {}
   for name in pairs(Recipes) do
     names[#names + 1] = name
   end
   table.sort(names)
-  local lines = {}
-  for _, name in ipairs(names) do
+  local lines = Tooling.header('SOUND EFFECT EXPORT', smoke)
+  for index, name in ipairs(names) do
+    if smoke and index > 1 then
+      break
+    end
     local recipe = Recipes[name]
     local data = Synth.effect(
       recipe.duration,
@@ -85,42 +100,66 @@ function Export.sounds()
       buffer[i + 1] = data:getSample(i)
     end
     data:release()
-    write(dir .. '/' .. name .. '.wav', buffer, Audio.rate, 1)
+    write(dir .. '/' .. name .. '.wav', buffer, Audio.rate, 1, smoke)
     local peak, rms = levels(buffer)
     lines[#lines + 1] =
       string.format('%-14s %.2f s peak %.3f rms %.3f', name, recipe.duration, peak, rms)
   end
-  report(dir, lines)
+  report(dir, lines, smoke)
+  return smoke and 1 or #names
 end
 
-function Export.run()
-  Export.sounds()
+function Export.run(smoke)
+  local effects = Export.sounds(smoke)
   local dir = directory('music')
   local started = love.timer.getTime()
   local buffers, loop, rate = Soundscape.render()
   local seconds = love.timer.getTime() - started
-  local lines = {
-    string.format('render %.3f s; loop %.2f s at %d Hz', seconds, loop, rate),
-  }
-  for _, layer in ipairs(Score.layers) do
-    local buffer = buffers[layer.id]
-    write(dir .. '/layer-' .. layer.id .. '.wav', buffer, rate, 1)
+  local lines = Tooling.header('MUSIC EXPORT', smoke)
+  lines[#lines + 1] = string.format('render %.3f s; loop %.2f s at %d Hz', seconds, loop, rate)
+  local function excerpt(buffer)
+    if not smoke then
+      return buffer
+    end
+    local short = {}
+    for i = 1, math.min(#buffer, rate) do
+      short[i] = buffer[i]
+    end
+    return short
+  end
+  local layers = smoke and { Score.layers[1] } or Score.layers
+  for _, layer in ipairs(layers) do
+    local buffer = excerpt(buffers[layer.id])
+    write(dir .. '/layer-' .. layer.id .. '.wav', buffer, rate, 1, smoke)
     local peak, rms = levels(buffer)
     lines[#lines + 1] = string.format('layer %-8s peak %.3f rms %.3f', layer.id, peak, rms)
   end
-  for _, mood in ipairs({ 'menu', 'calm', 'fight', 'guardian', 'death', 'victory' }) do
+  local moods = smoke and { 'fight' } or { 'menu', 'calm', 'fight', 'guardian', 'death', 'victory' }
+  for _, mood in ipairs(moods) do
     local mix = {}
-    for i = 1, #buffers[Score.layers[1].id] do
+    for i = 1, (smoke and math.min(rate, #buffers[Score.layers[1].id]) or #buffers[Score.layers[1].id]) do
       local s = 0
       for _, layer in ipairs(Score.layers) do
         s = s + buffers[layer.id][i] * Soundscape.gain(mood, layer.id, 1)
       end
       mix[i] = s
     end
-    write(dir .. '/mood-' .. mood .. '.wav', mix, rate, 2)
+    write(dir .. '/mood-' .. mood .. '.wav', mix, rate, smoke and 1 or 2, smoke)
     local peak, rms = levels(mix)
     lines[#lines + 1] = string.format('mood  %-8s peak %.3f rms %.3f', mood, peak, rms)
   end
-  report(dir, lines)
+  if smoke then
+    lines[#lines + 1] =
+      'Smoke exports one full sound effect, one layer excerpt and one mixed-mood excerpt (1 s each); every WAV was decoded back and its sample count/rate verified. Full score synthesis is exercised; this is not a complete audio export or listening assessment.'
+  end
+  report(dir, lines, smoke)
+  local summary = Tooling.header('AUDIO EXPORT', smoke)
+  summary[#summary + 1] = string.format(
+    'Exported effects=%d layers=%d moods=%d; detailed reports: sounds/report.txt and music/report.txt',
+    effects,
+    #layers,
+    #moods
+  )
+  Tooling.write(Output.directory(), 'audio-export.txt', summary, smoke)
 end
 return Export

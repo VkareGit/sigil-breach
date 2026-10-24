@@ -12,13 +12,19 @@
 local Serialize = require('src.core.serialize')
 local Integrity = require('src.session.integrity')
 local Observation = require('src.combat.observation')
+local Values = require('src.session.journal_values')
+local Build = require('src.core.build')
+local finite = require('src.core.mathx').finite
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
-local Journal = { version = 2, build = require('src.core.build').version }
-local recordings = setmetatable({}, { __mode = 'k' })
+local Journal = { version = 3, build = Build.version }
+-- LuaJIT weak keys are not ephemerons: a strongly held callback that captures
+-- its key (or the session) would keep abandoned sessions alive forever. The
+-- active command wrappers own callbacks; these tables are lookup indexes only.
+local recordings = setmetatable({}, { __mode = 'kv' })
 local sessions = setmetatable({}, { __mode = 'k' })
-local observers = setmetatable({}, { __mode = 'k' })
-local boundaries = setmetatable({}, { __mode = 'k' })
+local observers = setmetatable({}, { __mode = 'kv' })
+local boundaries = setmetatable({}, { __mode = 'kv' })
 -- Store resolved outcomes, not pointers to mutable enemies or presentation.
 -- Volley contacts retain shape/zone/material and each pellet's exact result.
 local function observe(g, consume)
@@ -111,6 +117,8 @@ function Journal.header(g)
   return {
     version = Journal.version,
     build = Journal.build,
+    sourceFingerprint = Build.sourceFingerprint,
+    provenance = Build.provenance,
     observationSession = Observation.session(g),
     observationGeneration = g._observationGeneration,
     mode = g.mode,
@@ -122,10 +130,7 @@ end
 -- A fresh session as the journal's began (Game: session/game.lua).
 function Journal.session(Game, journal)
   local header = journal.header or {}
-  if header.mode == 'field' then
-    return require('src.run.test_field').new(Game)
-  end
-  return Game.new(header.mode == 'expedition' and 'descent' or 'classic', header.map)
+  return Game.new(header.mode or 'classic', header.map)
 end
 local function close(g, journal, reason)
   journal.final = Integrity.capture(g)
@@ -141,9 +146,17 @@ end
 function Journal.record(g, limits, onLimit)
   assert(not sessions[g], 'session is already being recorded')
   limits = limits or require('src.content.tuning').recording
-  assert(limits.maxBytes > 0 and limits.maxCommands > 0, 'recording limits must be positive')
+  assert(
+    finite(limits.maxBytes)
+      and limits.maxBytes > 0
+      and finite(limits.maxCommands)
+      and limits.maxCommands > 0
+      and limits.maxCommands % 1 == 0,
+    'recording limits must be finite and positive; commands must be integral'
+  )
   local journal = {
     entries = {},
+    observations = {},
     receipts = {},
     header = Journal.header(g),
     budget = Observation.copy(limits),
@@ -160,19 +173,23 @@ function Journal.record(g, limits, onLimit)
       + #tostring(index)
       + 4
   end
-  observers[journal] = observe(g, function(receipt)
+  local pack = Values.writer(journal, append)
+  local control = {}
+  control.detach = observe(g, function(receipt)
     append(journal.receipts, receipt)
   end)
+  observers[journal] = control.detach
   local entries = journal.entries
   local depth = 0
   local pending = {}
-  boundaries[journal] = function(consume)
+  control.boundary = function(consume)
     if depth > 0 then
       pending[#pending + 1] = consume
     else
       consume(journal)
     end
   end
+  boundaries[journal] = control.boundary
   local aimYaw, aimPitch
   local known = {}
   local function remember()
@@ -192,7 +209,7 @@ function Journal.record(g, limits, onLimit)
     for i, path in ipairs(Journal.external) do
       local value = read(g, path)
       if value ~= known[i] then
-        append(entries, { 'set', path, Observation.copy(value) })
+        append(entries, { 'set', path, pack(value) })
       end
     end
     remember()
@@ -210,12 +227,14 @@ function Journal.record(g, limits, onLimit)
     end
   end
   remember()
-  recordings[journal] = function()
+  control.flush = function()
     if sync() then
       journal.final = Integrity.capture(g)
       limitReached()
     end
   end
+  recordings[journal] = control.flush
+  control.sync = sync
   sessions[g] = journal
   for _, name in ipairs(Journal.commands) do
     local method = assert(g[name], 'session has no command ' .. name)
@@ -223,9 +242,9 @@ function Journal.record(g, limits, onLimit)
       -- Only the player's own commands; a command issued by another one (an
       -- update that fires) is its consequence and replays by itself.
       if depth == 0 then
-        sync()
+        control.sync()
         journal.final = nil
-        local args = Observation.copy({ ... })
+        local args = pack({ ... })
         append(entries, { name, args })
         journal.commands = journal.commands + 1
       end
@@ -275,18 +294,62 @@ end
 -- knight directly; journals before 0.25 recorded the mouse this way too);
 -- a 'set' entry a field the application set between commands.
 function Journal.replay(g, journal)
+  assert(type(journal) == 'table', 'invalid journal')
   local header = journal.header or {}
-  -- Replay explicitly enters the recorded input namespace. Ordinary sessions
-  -- cannot accept observations captured from a different session/generation.
-  g._observationSession = header.observationSession
-  g._observationGeneration = header.observationGeneration
+  assert(type(header) == 'table', 'invalid journal header')
+  if header.sourceFingerprint or Build.sourceFingerprint then
+    assert(
+      header.sourceFingerprint == Build.sourceFingerprint,
+      'journal source fingerprint differs or this development launch is unverified'
+    )
+  end
   if header.version then
-    assert(header.version == Journal.version, 'unsupported journal format')
+    assert(header.version == Journal.version or header.version == 2, 'unsupported journal format')
     assert(
       header.build == Journal.build,
       'journal belongs to another build: ' .. tostring(header.build)
     )
   end
+  -- Preflight the entire structural contract before touching the destination.
+  -- A later missing reference must not leave earlier valid commands applied.
+  local permitted, external = {}, {}
+  for _, name in ipairs(Journal.commands) do
+    permitted[name] = true
+  end
+  for _, path in ipairs(Journal.external) do
+    external[path] = true
+  end
+  local validate = Values.validator(header.version == 3 and journal.observations or nil)
+  validate(header)
+  validate(journal.final)
+  validate(journal.receipts)
+  assert(type(journal.entries) == 'table', 'invalid journal entries')
+  local entryCount = 0
+  for index, entry in pairs(journal.entries) do
+    assert(
+      finite(index) and index > 0 and index % 1 == 0 and type(entry) == 'table',
+      'invalid journal entry'
+    )
+    entryCount = entryCount + 1
+    validate(entry)
+    if entry[1] == 'aim' then
+      assert(finite(entry[2]) and finite(entry[3]), 'invalid journal aim')
+    elseif entry[1] == 'set' then
+      assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
+    else
+      assert(
+        permitted[entry[1]] and type(entry[2]) == 'table',
+        'unknown or invalid journal command ' .. tostring(entry[1])
+      )
+      for argument in pairs(entry[2]) do
+        assert(
+          finite(argument) and argument > 0 and argument % 1 == 0,
+          'invalid journal argument index'
+        )
+      end
+    end
+  end
+  assert(entryCount == #journal.entries, 'sparse journal entries')
   if header.initial then
     local difference = Integrity.difference(header.initial, Integrity.capture(g))
     assert(not difference, 'journal initial state differs: ' .. tostring(difference))
@@ -307,6 +370,10 @@ function Journal.replay(g, journal)
       )
     end
   end
+  -- Only a structurally valid, matching archive can enter this namespace.
+  -- Runtime divergence is diagnostic: replay should use a disposable session.
+  g._observationSession = header.observationSession
+  g._observationGeneration = header.observationGeneration
   local count = 0
   local detach = journal.receipts
     and observe(g, function(receipt)
@@ -322,13 +389,23 @@ function Journal.replay(g, journal)
       )
     end)
   local ok, reason = pcall(function()
+    local function expand(value)
+      return header.version == 3 and Values.expand(value, journal.observations)
+        or Observation.copy(value)
+    end
     for _, entry in ipairs(journal.entries) do
       if entry[1] == 'aim' then
+        assert(
+          require('src.core.mathx').finite(entry[2]) and require('src.core.mathx').finite(entry[3]),
+          'invalid journal aim'
+        )
         g.player.yaw, g.player.pitch = entry[2], entry[3]
       elseif entry[1] == 'set' then
-        write(g, entry[2], Observation.copy(entry[3]))
+        assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
+        write(g, entry[2], expand(entry[3]))
       else
-        local args = Observation.copy(entry[2])
+        assert(permitted[entry[1]], 'unknown journal command ' .. tostring(entry[1]))
+        local args = expand(entry[2])
         g[entry[1]](g, unpack(args, 1, table.maxn(args)))
       end
     end

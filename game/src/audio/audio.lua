@@ -6,14 +6,42 @@ local A = { sources = {}, live = {}, muted = false, pool = {}, pooled = 0, voice
 A.rate = 44100
 -- Every sound has its own seeded noise (Synth.seed of its name), so the order
 -- of rendering decides nothing and a new recipe changes no other sound.
-function A.init()
-  for name, recipe in pairs(Recipes) do
+function A.release()
+  for _, source in pairs(A.sources) do
+    source:stop()
+    source:release()
+  end
+  for _, source in ipairs(A.live) do
+    source:stop()
+    source:release()
+  end
+  for _, list in pairs(A.pool) do
+    for _, source in ipairs(list) do
+      source:stop()
+      source:release()
+    end
+  end
+  A.sources, A.live, A.pool, A.voiceNames, A.pooled = {}, {}, {}, {}, 0
+  require('src.audio.soundscape').release()
+end
+function A.init(checkpoint)
+  A.release()
+  local names = {}
+  for name in pairs(Recipes) do
+    names[#names + 1] = name
+  end
+  table.sort(names)
+  for _, name in ipairs(names) do
+    local recipe = Recipes[name]
     local voice = recipe.voice or recipe.make(A.rate)
     local data = Synth.effect(recipe.duration, A.rate, Synth.seed(name), voice)
     A.sources[name] = love.audio.newSource(data, 'static')
     data:release()
+    if checkpoint then
+      checkpoint('sound ' .. name)
+    end
   end
-  require('src.audio.soundscape').init(A)
+  require('src.audio.soundscape').init(checkpoint)
 end
 -- Reuse finished voices instead of allocating a new Source on every pellet,
 -- step and impact. Both active voices and the idle cache have strict caps.

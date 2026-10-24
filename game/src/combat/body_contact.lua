@@ -13,14 +13,20 @@
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Physics = require('src.physics.body_physics')
+local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
 local Archetypes = require('src.content.enemies')
 local Contact = {}
 local len = MathX.len
 local defaults = Archetypes.defaults
 local motionEpsilon = 1e-6
-local function standing(e, p)
-  return e.hp > 0 and (e.leapY or 0) < (p.jump or 0) + Rules.playerBody().height - (p.crouch or 0)
+local function standing(g, e, p)
+  if g.world.elevations then
+    return e.hp > 0 and Rules.bodiesOverlap(g, e, p)
+  end
+  local ey = Ground.height(g.world, e.x, e.z) + (e.leapY or 0)
+  local py = Ground.height(g.world, p.x, p.z) + (p.jump or 0)
+  return e.hp > 0 and ey < py + Rules.playerBody().height - (p.crouch or 0)
 end
 -- Earliest moving-circle contact, including a complete crossing in one step.
 -- The normal points out of the stationary obstacle; tangent motion survives.
@@ -46,10 +52,14 @@ function Contact.sweep(x, z, dx, dz, ox, oz, radius)
   end
   return t, nx / length, nz / length
 end
-local function clippedMove(world, body, oldX, oldZ, dx, dz, radius, t, nx, nz)
+local function clippedMove(world, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offset)
   local remainX, remainZ = dx * (1 - t), dz * (1 - t)
   local into = math.min(0, remainX * nx + remainZ * nz)
   body.x, body.z = oldX, oldZ
+  if world.elevations then
+    local key = body.jump ~= nil and 'jump' or 'leapY'
+    body[key] = offset
+  end
   W.move(world, body, dx * t, dz * t, radius)
   W.move(world, body, remainX - into * nx, remainZ - into * nz, radius)
   return body.x - oldX, body.z - oldZ
@@ -57,11 +67,12 @@ end
 -- Own attack movement obeys the same footprint as ordinary locomotion.
 function Contact.moveEnemy(g, e, dx, dz, previous, current)
   local oldX, oldZ, r = e.x, e.z, Rules.radius(e)
+  local air, verticalVelocity = e.leapY, e.leapVY
   W.move(g.world, e, dx, dz, r)
   dx, dz = e.x - oldX, e.z - oldZ
   local p = current or g.player
   previous = previous or p
-  if standing(e, p) then
+  if standing(g, e, p) then
     local t, nx, nz = Contact.sweep(
       oldX,
       oldZ,
@@ -72,7 +83,10 @@ function Contact.moveEnemy(g, e, dx, dz, previous, current)
       r + Rules.playerBody().radius
     )
     if t then
-      return clippedMove(g.world, e, oldX, oldZ, dx, dz, r, t, nx, nz)
+      if g.world.elevations then
+        e.leapVY = verticalVelocity
+      end
+      return clippedMove(g.world, e, oldX, oldZ, dx, dz, r, t, nx, nz, air)
     end
   end
   return dx, dz
@@ -122,7 +136,7 @@ function Contact.knight(g)
     local dx, dz = p.x - previous.x, p.z - previous.z
     local first, normalX, normalZ, obstacle
     for _, e in ipairs(g.enemies) do
-      if standing(e, p) then
+      if standing(g, e, p) then
         local t, nx, nz =
           Contact.sweep(previous.x, previous.z, dx, dz, e.x, e.z, radius + Rules.radius(e))
         if t and (not first or t < first) then
@@ -132,13 +146,29 @@ function Contact.knight(g)
     end
     if first then
       exchange(g, p, obstacle, normalX, normalZ)
-      clippedMove(g.world, p, previous.x, previous.z, dx, dz, radius, first, normalX, normalZ)
+      -- Undo only support rebasing/auto-step height, not this tick's vertical
+      -- integration. Otherwise rejecting a horizontal ledge crossing adds
+      -- the drop height a second time when rewinding its position.
+      local air = p.jump
+      if g.world.elevations then
+        air = math.max(
+          0,
+          Ground.height(g.world, p.x, p.z)
+            + p.jump
+            - Ground.height(g.world, previous.x, previous.z)
+            - (g.frame.supportLift or 0)
+        )
+        if air == 0 and p.jumpV < 0 then
+          p.jumpV = 0
+        end
+      end
+      clippedMove(g.world, p, previous.x, previous.z, dx, dz, radius, first, normalX, normalZ, air)
       local into = math.min(0, (p.vx or 0) * normalX + (p.vz or 0) * normalZ)
       p.vx, p.vz = (p.vx or 0) - into * normalX, (p.vz or 0) - into * normalZ
     end
   end
   for _, e in ipairs(g.enemies) do
-    if standing(e, p) then
+    if standing(g, e, p) then
       local depth, nx, nz = overlap(p, e, radius)
       if depth then
         exchange(g, p, e, nx, nz)
@@ -158,7 +188,7 @@ function Contact.demons(g)
   local p = g.player
   local radius = Rules.playerBody().radius
   for _, e in ipairs(g.enemies) do
-    if standing(e, p) then
+    if standing(g, e, p) then
       local depth, nx, nz = overlap(p, e, radius)
       if depth then
         exchange(g, p, e, nx, nz)

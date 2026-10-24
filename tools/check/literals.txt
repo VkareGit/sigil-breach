@@ -2,6 +2,7 @@ src/app/application.lua 20
 src/app/bindings.lua 0
 src/app/commands.lua 7
 src/app/input.lua 6
+src/app/package_smoke.lua 2
 src/app/release.lua 0
 src/app/screens.lua 0
 src/app/session_report.lua 0
@@ -30,7 +31,7 @@ src/combat/weapon_delivery.lua 0
 src/enemies/ability_pose.lua 0
 src/enemies/actions.lua 0
 src/enemies/ai.lua 2
-src/enemies/animation.lua 80
+src/enemies/animation.lua 77
 src/enemies/art_contract.lua 0
 src/enemies/body.lua 0
 src/enemies/contact_anchor.lua 0
@@ -55,7 +56,7 @@ src/run/economy.lua 0
 src/run/modes.lua 0
 src/run/navigation.lua 3
 src/run/spawner.lua 1
-src/run/test_field.lua 52
+src/run/test_field.lua 48
 src/session/capabilities.lua 0
 src/session/components.lua 5
 src/session/damage_outcomes.lua 0

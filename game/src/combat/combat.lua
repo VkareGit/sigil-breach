@@ -10,6 +10,7 @@ local Corpse = require('src.enemies.corpse')
 local Materials = require('src.content.ballistic_surfaces')
 local Deliveries = require('src.combat.weapon_delivery')
 local Observation = require('src.combat.observation')
+local Loadout = require('src.combat.loadout')
 local C = { trace = B.trace }
 -- Body response comes from the shared rules (src/combat/rules.lua); the
 -- corpse's response to the contact starts here; measurements and the visible
@@ -305,7 +306,7 @@ function Volley:apply()
         pt[j] = pt[j] / self.counts[e]
       end
       local healthBefore = e.hp
-      g:damageEnemy(e, damage, 'weapon')
+      g:damageEnemy(e, damage, 'weapon', self.attack)
       local actual = math.min(math.max(0, healthBefore), damage)
       report.healthDamage = report.healthDamage + actual
       report.overkill = report.overkill + math.max(0, damage - actual)
@@ -419,7 +420,7 @@ function C.shoot(g, command)
   local observed = observation and profile.delivery.kind == 'hitscan'
   local prepared = observed and Observation.prepare(g, observation)
     or (delivery.prepare and delivery.prepare(g, profile))
-  local attack, spread = Weapons.attack(g, g.weapon), Weapons.spread(g)
+  local attack, spread = Loadout.attack(g, g.weapon), Loadout.spread(g)
   local pellets = discharge(g, profile, command)
   local shot = {
     profile = profile,

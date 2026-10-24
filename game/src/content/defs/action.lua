@@ -148,6 +148,7 @@ Action.kinds:register(
 )
 -- The blast of an area action: a full damage profile (combat/damage.lua).
 Action.blast = Schema:new('blast', {
+  effects = { type = 'table', list = require('src.content.defs.effect').schema },
   base = { type = 'number', required = true, min = 0 },
   impact = { type = 'number', required = true, min = 0 },
   push = { type = 'number', min = 0 },
@@ -251,7 +252,7 @@ function Action.build(def, where)
   elseif built.kind == 'pool' then
     assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
     assert(
-      not built.pool.condition or require('src.content.conditions')[built.pool.condition],
+      not built.pool.condition or require('src.content.conditions').find(built.pool.condition),
       path .. '.pool.condition: unknown condition ' .. tostring(built.pool.condition)
     )
     projectile(built.bolt, path .. '.bolt')

@@ -4,8 +4,10 @@ local Archetypes = require('src.content.enemies')
 local Geometry = require('src.enemies.geometry')
 local Surface = require('src.enemies.surface')
 local Corpse = require('src.enemies.corpse')
-local Melee = require('src.combat.melee')
+local AttackDebug = require('src.render.attack_debug')
 local Rules = require('src.combat.rules')
+local Ground = require('src.physics.ground')
+local Queries = require('src.run.queries')
 local E = {}
 E.colors = {
   coal = { 0.018, 0.016, 0.014 },
@@ -82,7 +84,7 @@ function E.spells(r, g)
         0,
         progress,
         e.x + math.sin(yaw) * 0.4,
-        look.cast.height,
+        Ground.height(g.world, e.x, e.z) + (e.leapY or 0) + look.cast.height,
         e.z + math.cos(yaw) * 0.4,
         size,
         0.72,
@@ -97,12 +99,23 @@ function E.spells(r, g)
     local preparing = h.delay > 0
     local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
       or (1 - (h.life or 0) / 0.22)
-    if preparing then
-      E.spell(r, g, 2, progress, h.x, 0.045, h.z, h.radius * 2, 0.68, true)
+    if preparing and h.kind == 'lightning' then
+      E.spell(
+        r,
+        g,
+        2,
+        progress,
+        h.x,
+        Ground.height(g.world, h.x, h.z) + 0.045,
+        h.z,
+        h.radius * 2,
+        0.68,
+        true
+      )
     elseif h.kind == 'lightning' then
       -- A short narrow strike leaves the enemy silhouette visible. The ground ring
       -- is still the exact authoritative damage radius, not this ornamental width.
-      E.spell(r, g, 3, progress, h.x, 1.5, h.z, 2.8, 0.9, false)
+      E.spell(r, g, 3, progress, h.x, Ground.height(g.world, h.x, h.z) + 1.5, h.z, 2.8, 0.9, false)
     end
   end
 end
@@ -261,7 +274,7 @@ local function overlay(r, p)
       end
     end
   end
-  image = love.graphics.newImage(data)
+  image = r.native:own(love.graphics.newImage(data))
   image:setFilter('nearest', 'nearest')
   data:release()
   r.hitOverlays[key] = image
@@ -297,44 +310,9 @@ local function volumes(r, g, e)
     r:object(r.warning, v.x, v.top, v.z, 0, v.radius, color, 0.85)
   end
 end
--- The attack's contact as the simulation evaluates it now.
-local function attackContact(r, g, e)
-  local atk = e.attackSpec
-  if not atk or e.ai ~= 'strike' then
-    return
-  end
-  local color = E.hitColors.attack
-  if atk.kind == 'lunge' then
-    local from, to = Melee.window(atk)
-    local live = e.phase >= from and e.phase <= to and not e.didHit
-    local x, y, z, dx, dz = Melee.reach(g, e, e.phase, e.x, e.z, atk)
-    for _, depth in ipairs(Melee.depths(atk)) do
-      r:object(
-        r.spark,
-        x + dx * depth,
-        y,
-        z + dz * depth,
-        0,
-        live and 1.1 or 0.6,
-        live and color or E.hitColors.idle
-      )
-    end
-  elseif atk.kind == 'charge' and e.lungeX then
-    r:object(
-      r.spark,
-      e.x + e.lungeX * atk.reach,
-      atk.contactY,
-      e.z + e.lungeZ * atk.reach,
-      0,
-      e.didHit and 0.6 or 1.1,
-      e.didHit and E.hitColors.idle or color
-    )
-  elseif atk.kind == 'leap' and e.leaping then
-    r:object(r.warning, e.x, 0.03, e.z, 0, atk.landRadius, color, 0.85)
-  end
-end
 function E.hitboxes(r, g)
-  if not (g.testField and g.testField.hitboxes) then
+  local tools = Queries.tools(g)
+  if not (tools and tools.hitboxes) then
     return
   end
   love.graphics.setDepthMode('lequal', false)
@@ -353,8 +331,17 @@ function E.hitboxes(r, g)
   shotRays(r, g)
   for _, e in ipairs(g.enemies) do
     if e.hp > 0 then
-      r:object(r.warning, e.x, 0.03, e.z, 0, Rules.radius(e), E.hitColors.body, 0.7)
-      attackContact(r, g, e)
+      r:object(
+        r.warning,
+        e.x,
+        Ground.height(g.world, e.x, e.z) + 0.03,
+        e.z,
+        0,
+        Rules.radius(e),
+        E.hitColors.body,
+        0.7
+      )
+      AttackDebug.draw(r, g, e, E.hitColors)
     end
   end
 end

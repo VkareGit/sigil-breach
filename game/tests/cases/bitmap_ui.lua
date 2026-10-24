@@ -470,7 +470,7 @@ function Tests.run(G, renderer)
     function()
       local g = Field.new(G)
       Field.close(g)
-      g.testField.returnLabel = 'BACK TO EXPEDITION'
+      g.view.fieldReturnLabel = 'BACK TO EXPEDITION'
       g.state = 'paused'
       return g
     end,

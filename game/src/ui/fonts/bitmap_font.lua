@@ -3,32 +3,46 @@ local B = {}
 local F = {}
 F.__index = F
 local utf8 = require('utf8')
+local Resources = require('src.render.resources')
 local lg = love.graphics
 -- Clocks and counters produce new strings throughout a session. Keep only a
 -- bounded working set, including a byte limit so long captions cannot grow it.
 local CACHE_LIMIT, CACHE_TEXT_LIMIT = 256, 256
-function B.new(meta, image)
+function B.new(meta, image, resources)
   local self = setmetatable({
     meta = meta,
     image = image,
+    resources = resources or Resources.new('bitmap glyphs'),
     glyphs = {},
     inkCache = {},
     inkCacheKeys = {},
     inkCacheNext = 1,
   }, F)
-  image:setFilter('nearest', 'nearest')
   local w, h = image:getDimensions()
   for cp, g in pairs(meta.glyphs) do
-    self.glyphs[cp] = g
+    local glyph = {}
+    for key, value in pairs(g) do
+      if key ~= 'quad' then
+        glyph[key] = value
+      end
+    end
+    self.glyphs[cp] = glyph
     if g.w then
-      g.quad = lg.newQuad(g.x, g.y, g.w, g.h, w, h)
+      glyph.quad = self.resources:own(lg.newQuad(g.x, g.y, g.w, g.h, w, h))
     end
   end
   return self
 end
-function B.load(size)
+function B.load(size, checkpoint)
   local meta = assert(require('assets.fonts.painted-v16.catalog').sizes[size], size)
-  return B.new(meta, lg.newImage(meta.image))
+  local resources = Resources.new('bitmap font ' .. size, checkpoint)
+  local font = B.new(meta, resources:image(meta.image), resources)
+  resources.checkpoint = nil
+  return font
+end
+function F:release()
+  self.resources:release()
+  self.glyphs, self.inkCache, self.inkCacheKeys = {}, {}, {}
 end
 function F:walk(t, visit)
   local x, y, maximum, previous = 0, 0, 0, nil
@@ -69,7 +83,8 @@ function F:hasGlyphs(t)
   return true
 end
 function F:setFilter(a, b)
-  self.image:setFilter(a, b)
+  -- A new sampling variant must not change another font sharing the source.
+  self.image = self.resources:image(self.meta.image, { min = a, mag = b })
 end
 function F:draw(t, x, y, color)
   if color then

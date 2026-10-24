@@ -250,6 +250,86 @@ Suite.registry = {
     title = 'Content definition contracts',
     module = 'tests.cases.content_contracts',
   },
+  {
+    id = 'qa-tools',
+    title = 'QA lifecycle, profiles and observed recording contracts',
+    module = 'tests.cases.qa_tools',
+  },
+  {
+    id = 'hand-art-extension',
+    title = 'Named firearm frames and independent equipment atlases',
+    module = 'tests.cases.hand_art_extension',
+  },
+  {
+    id = 'mode-lifecycle',
+    title = 'Session factories, navigation and mode extension',
+    module = 'tests.cases.mode_lifecycle',
+  },
+  {
+    id = 'action-presentation',
+    title = 'Independent action clocks and contact diagnostics',
+    module = 'tests.cases.action_presentation',
+  },
+  {
+    id = 'terrain-motion',
+    title = 'Terrain movement and flight',
+    module = 'tests.cases.terrain_motion',
+  },
+  {
+    id = 'world-support',
+    title = 'Shared support, risers and map-owned decoration',
+    module = 'tests.cases.world_support',
+  },
+  {
+    id = 'load-plan',
+    title = 'Staged loading lifecycle',
+    module = 'tests.cases.load_plan',
+  },
+  {
+    id = 'resources',
+    title = 'Native resource ownership and sampling variants',
+    module = 'tests.cases.resources',
+  },
+  {
+    id = 'serialization',
+    title = 'Bounded literal data decoding without evaluation',
+    module = 'tests.cases.serialization',
+  },
+  {
+    id = 'weapon-rounds',
+    title = 'Painted ammunition follows the live reload transaction',
+    module = 'tests.cases.weapon_rounds',
+  },
+  {
+    id = 'weapon-art-review',
+    title = 'Live firearm cycles, partial load and interruptions',
+    module = 'tests.cases.weapon_art_review',
+  },
+  {
+    id = 'journal-values',
+    title = 'Shared observations and restricted replay commands',
+    module = 'tests.cases.journal_values',
+  },
+  {
+    id = 'ui-content-extension',
+    title = 'Parameterized bitmap text and paged content growth',
+    module = 'tests.cases.ui_content_extension',
+  },
+  {
+    id = 'foundation-contracts',
+    title = 'Definition ownership and executable references',
+    module = 'tests.cases.foundation_contracts',
+  },
+  {
+    id = 'contact-effects',
+    title = 'Contact effects, pulse clocks and complete replay',
+    module = 'tests.cases.contact_effects',
+  },
+  {
+    id = 'hazard-art',
+    title = 'Painted hazard phases and depth',
+    module = 'tests.cases.hazard_art',
+  },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }
 

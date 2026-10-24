@@ -43,7 +43,7 @@ function UI.controls(g)
         50
       ),
       button('field_open', 'CATALOGUE [ F2 ]', 410, 586, 224, 44),
-      button('field_leave', t.returnLabel, 650, 586, 220, 44),
+      button('field_leave', g.view.fieldReturnLabel, 650, 586, 220, 44),
     }
   end
   if g.state ~= 'field_catalog' then
@@ -99,7 +99,7 @@ function UI.controls(g)
     48
   )
   list[#list + 1] = button('field_archive', 'ARCHIVE OF SIGNS', 550, 616, 250, 48)
-  list[#list + 1] = button('field_leave', t.returnLabel, 826, 616, 342, 48)
+  list[#list + 1] = button('field_leave', g.view.fieldReturnLabel, 826, 616, 342, 48)
   list[#list + 1] =
     button('field_hitboxes', 'HITBOXES: ' .. (t.hitboxes and 'ON' or 'OFF'), 904, 72, 264, 40)
   -- 0.21: the wave tier of demons spawned here (1 = calibrated base).

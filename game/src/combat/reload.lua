@@ -11,7 +11,6 @@ local R = {}
 --   offset(g, w, def, afterShot) where the timeline starts, or nil if no reload
 --   step(g, w, before, after)   events crossed between two timeline ages
 --   finish(g, w)                the action closed
---   frame(g, reloading, t)      sheet frame of the hands (presentation)
 --   primed(w)                   an open action already holds its new rounds
 --   label(t)                    the stage shown on the HUD
 --   sounds                      volume of each stage's sound (presentation)
@@ -28,16 +27,6 @@ R.mechanisms = Mechanisms
 local function crossed(before, after, t)
   return before < t and after >= t
 end
--- The recoil frame of the hands by shot age (frames 2, 3, 4, then at rest).
-local function shotFrame(g, ages)
-  for i, age in ipairs(ages) do
-    if g.view.shotAge < age then
-      return i + 1
-    end
-  end
-  return 1
-end
-
 -- The break-action shotgun: open, eject the spent shells, load two, close.
 local B = T.reload.breech
 Mechanisms.breech = {
@@ -53,7 +42,9 @@ Mechanisms.breech = {
     if not w.open and (w.mag >= def.capacity or w.reserve <= 0) then
       return nil
     end
-    if w.open and w.mag > 0 then
+    -- Remaining live shells predate this reload. Only the completed loading
+    -- transaction permits resuming after insertion, even when it moved zero.
+    if w.open and w.loaded then
       return B.resume.loaded
     elseif w.open then
       return B.resume.open
@@ -63,13 +54,20 @@ Mechanisms.breech = {
   step = function(g, w, before, after)
     if crossed(before, after, B.open) then
       w.open = true
+      w.loaded = false
       g.reloadStage = 1
       -- The spent cases fly out now (feedback/world_feedback.lua).
-      Signal(g, 'ReloadStage', { stage = 'open', mechanism = 'breech', spent = w.spent or 0 })
+      Signal(g, 'ReloadStage', {
+        stage = 'open',
+        mechanism = 'breech',
+        spent = w.spent or 0,
+        weapon = W.idAt(g, g.reloadWeapon),
+      })
       w.spent = 0
     end
     if crossed(before, after, T.reloadLoadTime) then
       local n = W.load(g, g.reloadWeapon)
+      w.loaded = true
       g.reloadStage = 2
       if n > 0 then
         Signal(g, 'ReloadStage', { stage = 'load', mechanism = 'breech' })
@@ -77,26 +75,17 @@ Mechanisms.breech = {
     end
     if crossed(before, after, B.close) then
       w.open = false
+      w.loaded = false
       g.reloadStage = 3
       Signal(g, 'ReloadStage', { stage = 'close', mechanism = 'breech' })
     end
   end,
   finish = function(_, w)
     w.open = false
+    w.loaded = false
   end,
   primed = function(w)
-    return w.mag > 0
-  end,
-  frame = function(g, reloading, t)
-    if reloading then
-      for i, cut in ipairs(B.frames.cuts) do
-        if t < cut then
-          return B.frames.first + i - 1
-        end
-      end
-      return B.frames.last
-    end
-    return shotFrame(g, B.shot)
+    return w.loaded
   end,
   label = function(t)
     return t < B.labels[1] and 'OPEN' or (t < B.labels[2] and 'LOAD' or 'CLOSE')
@@ -105,12 +94,6 @@ Mechanisms.breech = {
 
 -- The revolver: swing the cylinder out, eject, load all six, close.
 local C = T.reload.cylinder
--- A run of sheet frames: first + the step reached from start, every s (or
--- the span to stop split into parts), at most steps.
-local function run(spec, t, start, stop)
-  local every = spec.every or (stop - start) / spec.parts
-  return spec.first + math.min(spec.steps, math.floor((t - start) / every))
-end
 Mechanisms.cylinder = {
   duration = T.revolverReload,
   sounds = C.sounds,
@@ -157,22 +140,6 @@ Mechanisms.cylinder = {
   primed = function(w)
     return w.loaded
   end,
-  frame = function(g, reloading, t)
-    if reloading then
-      local F = C.frames
-      if t < F.swing.ends then
-        return run(F.swing, t, 0)
-      end
-      if t < F.eject.ends then
-        return run(F.eject, t, F.swing.ends)
-      end
-      if t < T.revolverLoadTime then
-        return run(F.load, t, F.eject.ends, T.revolverLoadTime)
-      end
-      return run(F.close, t, T.revolverLoadTime, T.revolverReload)
-    end
-    return shotFrame(g, C.shot)
-  end,
   label = function(t)
     return t < C.labels[1] and 'OPEN'
       or (t < C.labels[2] and 'EJECT' or (t < T.revolverLoadTime and 'LOAD' or 'CLOSE'))
@@ -192,10 +159,6 @@ end
 function R.progress(g)
   return g.reload > 0 and math.max(0, math.min(1, R.age(g) / mechanism(g, g.reloadWeapon).duration))
     or 0
-end
-function R.frame(g)
-  local reloading = g.reload > 0 and g.reloadWeapon == g.weapon
-  return mechanism(g, g.weapon).frame(g, reloading, reloading and R.age(g) or 0)
 end
 function R.label(g)
   return mechanism(g, g.reloadWeapon).label(R.age(g))
@@ -240,7 +203,15 @@ function R.interrupt(g)
   m.finish(g, w)
   if closing > 0 then
     w.readyAt = math.max(w.readyAt or 0, g.elapsed + closing)
-    Signal(g, 'ReloadStage', { stage = 'close', mechanism = W.inHand(g).mechanism })
+    Signal(g, 'ReloadStage', {
+      stage = 'close',
+      mechanism = W.inHand(g).mechanism,
+      weapon = W.idAt(g),
+      interrupted = true,
+      started = g.elapsed,
+      duration = closing,
+      reloadAge = age,
+    })
     return false
   end
   return true

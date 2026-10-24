@@ -177,7 +177,7 @@ function Tests.run(_, check)
     end
     for glyph in pairs(profile.glyphs or {}) do
       local g = { player = player, run = { glyph = glyph } }
-      if not positive(Weapons.attack(g, 1).impact) then
+      if not positive(Weapons.attack(g, 1, glyph).impact) then
         bad('weapon ' .. slot .. ' glyph ' .. glyph)
       end
     end

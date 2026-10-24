@@ -1,3 +1,6 @@
+ARCHIWUM KONTEKSTÓW. Aktualny punkt wejścia: START-HERE.txt oraz
+docs/KONTEKST-0.32.txt. Poniższe dopiski opisują historyczne wersje.
+
 AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.15 / WEIGHT AND INTENT
 Bazą jest nowa wersja użytkownika 0.14, nie EXE 0.13. Zachować otwartą
 arenę 588 pól, galerię, angielski UI, przebijający rewolwer i archetypy.
