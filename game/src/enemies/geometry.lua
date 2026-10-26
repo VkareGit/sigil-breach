@@ -56,7 +56,7 @@ function Geometry.volumes(g, e)
   )
   local yaw = viewerYaw(g, e)
   local rx, rz = math.cos(yaw), -math.sin(yaw)
-  local ground = Ground.height(g.world, e.x, e.z)
+  local ground = Ground.of(g.world, e)
   local volumes = cache[e] or {}
   cache[e] = volumes
   local body = Archetypes.of(e)

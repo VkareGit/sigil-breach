@@ -42,8 +42,13 @@ Knight.snapshot = {
   name = 'knightSnapshot',
   run = function(g, _, _, frame)
     local player = Bodies.controlled(g)
-    frame.previousPlayer =
-      { x = player.x, z = player.z, jump = player.jump, crouch = player.crouch or 0 }
+    frame.previousPlayer = {
+      x = player.x,
+      z = player.z,
+      jump = player.jump,
+      crouch = player.crouch or 0,
+      level = player.level,
+    }
     -- Other knights only when there are any (no table for one knight).
     local knights = Pools.of(g, 'knights')
     frame.previousKnights = nil
@@ -51,8 +56,13 @@ Knight.snapshot = {
       local previous = {}
       for _, knight in ipairs(knights) do
         if knight ~= player and knight.id then
-          previous[knight.id] =
-            { x = knight.x, z = knight.z, jump = knight.jump, crouch = knight.crouch or 0 }
+          previous[knight.id] = {
+            x = knight.x,
+            z = knight.z,
+            jump = knight.jump,
+            crouch = knight.crouch or 0,
+            level = knight.level,
+          }
         end
       end
       frame.previousKnights = previous

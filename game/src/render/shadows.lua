@@ -72,7 +72,7 @@ function S.draw(r, g)
   local batch = r.castShadows
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
-      local ground = Ground.height(g.world, e.x, e.z)
+      local ground = Ground.of(g.world, e)
       local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)
       local length = math.sqrt(lx * lx + lz * lz)
       if index > 0 and strength > 0.025 and length > 0.001 then

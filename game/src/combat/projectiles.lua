@@ -64,10 +64,9 @@ local function playerContact(player, previous, b, dx, dy, dz, fraction, world)
     hi = math.min(hi, (-halfB + root) / a)
   end
   -- The knight's feet in world height: the ground and his jump.
-  local ground = Ground.height(world, previous.x, previous.z)
+  local ground = Ground.of(world, previous)
   local jump = ground + (previous.jump or 0)
-  local jumpDelta = (Ground.height(world, player.x, player.z) + (player.jump or 0) - jump)
-    * fraction
+  local jumpDelta = (Ground.of(world, player) + (player.jump or 0) - jump) * fraction
   local crouch = previous.crouch or 0
   local crouchDelta = ((player.crouch or 0) - crouch) * fraction
   -- Each inequality value + slope*t >= 0 narrows the same contact interval.
@@ -171,7 +170,7 @@ function P.update(g, dt, previous)
   end
   local player = Roles.controlled(g)
   previous = previous or player
-  local ground = Ground.height(g.world, player.x, player.z)
+  local ground = Ground.of(g.world, player)
   local bullets = Pools.of(g, 'projectiles')
   local events = g._projectileEvents or {}
   g._projectileEvents = events

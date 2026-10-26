@@ -195,7 +195,10 @@ return {
   -- body that moved farther during its own pass gathers its neighbours again,
   -- so the indexed pass equals the pass over every pair.
   separation = { minimum = 0.75, step = 0.035, rate = 1.4, share = 0.5, margin = 0.5 },
-  -- Attacks (enemies/actions.lua). A bolt leaves muzzle m in front of the
+  -- The height (m) a creature whose body states none keeps under a deck
+  -- (plan v10 V3): a standing one, or one of large stature. One number, not
+  -- its painted pose, so a step of its walk never strikes a deck it fit under.
+  stature = { standing = 2.2, large = 3.4 }, -- Attacks (enemies/actions.lua). A bolt leaves muzzle m in front of the
   -- body, rises toward the knight's chest (aimHeight m), lives boltLife s and
   -- collides with boltRadius (bigBoltRadius) m. A charge runs chargeMargin s
   -- past its target; a leap flies at most leapSpeed m/s and misses a knight

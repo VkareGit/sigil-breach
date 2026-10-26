@@ -9,6 +9,7 @@ local Cast = {}
 local EPS = 1e-8
 local directionEpsilon = 1e-6
 local min, max, sqrt = math.min, math.max, math.sqrt
+local none = {}
 local function slab(lo, hi, origin, direction, lower, upper)
   if math.abs(direction) < directionEpsilon * directionEpsilon then
     if origin < lower or origin > upper then
@@ -26,8 +27,9 @@ local function slab(lo, hi, origin, direction, lower, upper)
   end
   return lo, hi
 end
--- Closest point on a vertical box or capped cylinder extending down to ground.
-local function separation(x, y, z, cx, cz, top, pillar)
+-- Closest point on a vertical box or capped cylinder extending down to ground
+-- (bottom given: a deck's slab between bottom and top, plan v10 V3).
+local function separation(x, y, z, cx, cz, top, pillar, bottom)
   local qx, qz
   if pillar then
     local vx, vz = x - cx, z - cz
@@ -38,6 +40,9 @@ local function separation(x, y, z, cx, cz, top, pillar)
     qx, qz = max(cx - 0.5, min(cx + 0.5, x)), max(cz - 0.5, min(cz + 0.5, z))
   end
   local vx, vy, vz = x - qx, max(0, y - top), z - qz
+  if bottom and y < bottom then
+    vy = y - bottom
+  end
   return sqrt(vx * vx + vy * vy + vz * vz), vx, vy, vz
 end
 local function first(distance, lo, hi, radius, dx, dy, dz)
@@ -80,7 +85,7 @@ local function first(distance, lo, hi, radius, dx, dy, dz)
   end
   return entry, { -dx, -dy, -dz }
 end
-local function contact(ox, oy, oz, dx, dy, dz, cx, cz, top, pillar, radius, limit)
+local function contact(ox, oy, oz, dx, dy, dz, cx, cz, top, pillar, radius, limit, bottom)
   local extent = (pillar and Collision.pillarRadius or 0.5) + radius
   local lo, hi = slab(0, limit, ox, dx, cx - extent, cx + extent)
   if not lo then
@@ -90,12 +95,12 @@ local function contact(ox, oy, oz, dx, dy, dz, cx, cz, top, pillar, radius, limi
   if not lo then
     return nil
   end
-  lo, hi = slab(lo, hi, oy, dy, -math.huge, top + radius)
+  lo, hi = slab(lo, hi, oy, dy, bottom and bottom - radius or -math.huge, top + radius)
   if not lo then
     return nil
   end
   return first(function(t)
-    return separation(ox + dx * t, oy + dy * t, oz + dz * t, cx, cz, top, pillar)
+    return separation(ox + dx * t, oy + dy * t, oz + dz * t, cx, cz, top, pillar, bottom)
   end, lo, hi, radius, dx, dy, dz)
 end
 -- The exterior is unbounded, not just one extra ring of tiles.
@@ -159,6 +164,13 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
           if t and (t < best or kind == 'range') then
             best, normal, kind = t, n, 'wall'
           end
+        end
+      end
+      for _, deck in ipairs(Ground.decks(w, x, z) or none) do
+        local top = deck[2] + floorSurface
+        local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, false, radius, best, deck[1])
+        if t and (t < best or kind == 'range') then
+          best, normal, kind = t, n, 'wall'
         end
       end
     end

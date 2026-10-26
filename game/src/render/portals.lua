@@ -86,7 +86,7 @@ local function paint(r, x, z, kind, frame, alpha, brightness, ground)
   shader:send('effectTint', r:vec3(1, 1, 1))
 end
 function P.draw(r, gate, _, world)
-  local ground = Ground.height(world, gate.x, gate.z)
+  local ground = Ground.of(world, gate)
   local t, color = P.progress(gate), P.color(gate.kind)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
@@ -108,7 +108,7 @@ function P.draw(r, gate, _, world)
   love.graphics.pop()
 end
 function P.arrival(r, g, e)
-  local ground = Ground.height(g.world, e.x, e.z)
+  local ground = Ground.of(g.world, e)
   local age, frame = e.spawnAge, P.arrivalFrame(e.spawnAge)
   if not frame then
     return

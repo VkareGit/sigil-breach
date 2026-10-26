@@ -30,7 +30,7 @@ function S.choosePortal(g, flank)
   local P = K.score
   for i, s in ipairs(g.world.gates or S.portals) do
     -- Walking distance from the portal to the knight (world/navigation.lua).
-    local path = Navigation.distance(g.world, s.x, s.z, p.x, p.z)
+    local path = Navigation.distance(g.world, s.x, s.z, p.x, p.z, nil, nil, p.level)
     local d = distance(p, s)
     local crowded = false
     for _, e in ipairs(Pools.of(g, 'enemies')) do

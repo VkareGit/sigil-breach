@@ -98,6 +98,49 @@ local function build(w)
       end
     end
   end
+  -- Decks (plan v10 V3): each slab's top, underside and the edges no
+  -- neighbouring cell of the same deck hides.
+  for z = 1, Grid.depth(w) do
+    for x = 1, Grid.width(w) do
+      for _, deck in ipairs(Ground.decks(w, x, z) or {}) do
+        local bottom, top = deck[1], deck[2]
+        M.quad(
+          v,
+          { x - 0.5, top, z - 0.5 },
+          { x - 0.5, top, z + 0.5 },
+          { x + 0.5, top, z + 0.5 },
+          { x + 0.5, top, z - 0.5 },
+          { 0.30, 0.33, 0.32 }
+        )
+        M.quad(
+          v,
+          { x - 0.5, bottom, z + 0.5 },
+          { x - 0.5, bottom, z - 0.5 },
+          { x + 0.5, bottom, z - 0.5 },
+          { x + 0.5, bottom, z + 0.5 },
+          dark
+        )
+        for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
+          local shared = false
+          for _, other in ipairs(Ground.decks(w, x + d[1], z + d[2]) or {}) do
+            shared = shared or other == deck
+          end
+          if not shared then
+            local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
+            local tx, tz = d[2] * 0.5, -d[1] * 0.5
+            M.quad(
+              v,
+              { px - tx, bottom, pz - tz },
+              { px - tx, top, pz - tz },
+              { px + tx, top, pz + tz },
+              { px + tx, bottom, pz + tz },
+              trim
+            )
+          end
+        end
+      end
+    end
+  end
   -- Elevated rib arches across the nave, open to an impossible sky.
   -- 0.14: every rib springs from a real pillar (x 12 / 20): no column you can walk through.
   for _, arch in ipairs(decor.arches or {}) do

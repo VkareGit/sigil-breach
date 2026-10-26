@@ -36,6 +36,12 @@ extern Image shadowAtlas,groundAtlas;
 extern vec2 shadowTiles[16],lightOrigins[16];
 extern number tileSpan,groundScale;
 extern vec2 groundSpan,groundLow,groundHigh;
+// Decks (plan v10 V3): per cell the underside (r) and top (g) of its deck,
+// as shares of deckHeight m over deckDatum; a deck between a light and a
+// surface keeps the light from it. A world without decks sends no deck.
+extern Image deckAtlas;
+extern vec2 deckSpan;
+extern number deckHeight,deckDatum;
 varying vec3 normal;
 varying vec4 material;
 varying vec3 materialPos;
@@ -85,6 +91,8 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   vec2 groundUV=clamp((surface-.5)/groundSpan*groundScale,groundLow,groundHigh);
   float ao=Texel(groundAtlas,groundUV).g;
   vec3 light=(vec3(.29,.31,.35)+vec3(.09)*max(0.0,dot(n,normalize(vec3(.35,1.0,-.25)))))*mix(1.0,ao,.8);
+  vec4 deck=Texel(deckAtlas,(floor(worldPos.xz-n.xz*.09+.5)-.5)/deckSpan);
+  float deckBottom=deckDatum+deck.r*deckHeight,deckTop=deckDatum+deck.g*deckHeight;
   for(int i=0;i<16;i++){
    vec3 delta=lights[i]-worldPos;float d2=dot(delta,delta);
    vec2 shadowUV=clamp((surface-lightOrigins[i])/tileSpan*.25,vec2(.5/512.0),vec2(127.5/512.0));
@@ -92,6 +100,8 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
    float radius2=shadowTiles[i].x<0.0?9.0:72.0;
    if(shadowTiles[i].x<0.0 && d2<9.0 && dot(lightColors[i],lightColors[i])>.001)
     visible=shortRayVisibility(lights[i].xz,worldPos.xz+n.xz*.09);
+   if(deck.g>0.0&&((worldPos.y<deckBottom+.01&&lights[i].y>deckTop)||(worldPos.y>deckTop-.01&&lights[i].y<deckBottom)))
+    visible=0.0;
    float falloff=max(0.0,1.0-d2/radius2)/(1.0+d2*.22);
    light+=lightColors[i]*.72*max(.12,dot(n,normalize(delta+vec3(.00001))))*falloff*visible;
   }

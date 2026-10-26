@@ -36,7 +36,7 @@ AttackDebug.register('charge', function(r, g, e, atk, colors)
     r:object(
       r.spark,
       e.x + e.lungeX * atk.reach,
-      Ground.height(g.world, e.x, e.z) + atk.contactY,
+      Ground.of(g.world, e) + atk.contactY,
       e.z + e.lungeZ * atk.reach,
       0,
       e.didHit and 0.6 or 1.1,
@@ -49,7 +49,7 @@ AttackDebug.register('leap', function(r, g, e, atk, colors)
     r:object(
       r.warning,
       e.x,
-      Ground.height(g.world, e.x, e.z) + 0.03,
+      Ground.of(g.world, e) + 0.03,
       e.z,
       0,
       atk.landRadius,

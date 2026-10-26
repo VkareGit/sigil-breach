@@ -316,6 +316,7 @@ function R.onKill(g, e, source)
       kind = 'soul',
       x = e.x,
       z = e.z,
+      level = e.level,
       amount = e.rewardSouls,
       rewardId = e.rewardId,
     })

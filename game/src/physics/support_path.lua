@@ -12,6 +12,9 @@ function Path.firstChange(world, x, z, dx, dz)
   end
   local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
   local height = Ground.cell(world, cx, cz)
+  -- A deck's edge changes support as a riser does (plan v10 V3); the cells
+  -- of one deck share their list.
+  local decks = Ground.decks(world, cx, cz)
   local sx, sz = dx < 0 and -1 or 1, dz < 0 and -1 or 1
   local tx = dx ~= 0 and (cx + sx * 0.5 - x) / dx or math.huge
   local tz = dz ~= 0 and (cz + sz * 0.5 - z) / dz or math.huge
@@ -25,7 +28,7 @@ function Path.firstChange(world, x, z, dx, dz)
     if tz <= t then
       cz, tz = cz + sz, tz + stepZ
     end
-    if Ground.cell(world, cx, cz) ~= height then
+    if Ground.cell(world, cx, cz) ~= height or Ground.decks(world, cx, cz) ~= decks then
       -- Pick the outgoing side of an exact cell boundary in either direction.
       -- This is a numerical ownership tie-break, never a gameplay tolerance.
       return math.min(1, math.max(0, t) + boundarySkin / math.sqrt(dx * dx + dz * dz))

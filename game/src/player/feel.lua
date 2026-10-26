@@ -190,7 +190,7 @@ function F.update(g, dt, input)
   local oldx, oldz = p.x, p.z
   local contactVX, contactVZ = p.vx, p.vz
   local slidX, slidZ, collided, supportLift, supportDrop =
-    W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p)
+    W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p, Rules.tall(g, p))
   if g.world.elevations and g.frame then
     g.frame.supportLift = supportLift or 0
   end
@@ -272,6 +272,10 @@ function F.update(g, dt, input)
     verticalTime = dt * (1 - supportDrop)
   end
   p.jump, p.jumpV, impact = K.vertical(p.jump, p.jumpV, T.gravity, verticalTime)
+  if g.world.decks then
+    -- A deck overhead stops the rise (plan v10 V3).
+    p.jump, p.jumpV = Rules.ceiling(g, p, p.jump, p.jumpV)
+  end
   local landingImpact
   if p.jump == 0 then
     if wasAir then

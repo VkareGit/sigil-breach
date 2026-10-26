@@ -82,7 +82,7 @@ function Bodies.sweep(g, b, out)
     return b
   end
   out = out or {}
-  out.x, out.z, out.jump, out.crouch = b.x, b.z, b.leapY or 0, 0
+  out.x, out.z, out.jump, out.crouch, out.level = b.x, b.z, b.leapY or 0, 0, b.level
   return out
 end
 -- Radius, feet clearance and standing height of body b's contact volume.

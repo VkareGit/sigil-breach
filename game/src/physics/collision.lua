@@ -7,11 +7,28 @@ local C = {}
 local abs, sqrt, min, max = math.abs, math.sqrt, math.min, math.max
 local EPS = 1e-9
 local finite = MathX.finite
-local function occupied(w, x, z, feet, step)
+-- A deck of the cell (x, z) a body between lift and head would strike: one
+-- above what it can step onto, below its head (plan v10 V3).
+local function struck(w, x, z, lift, head)
+  local decks = Ground.decks(w, x, z)
+  if not decks then
+    return false
+  end
+  local datum = w.floor or 0
+  for _, deck in ipairs(decks) do
+    if datum + deck[2] > lift + EPS and datum + deck[1] < head - EPS then
+      return true
+    end
+  end
+  return false
+end
+-- head (optional, world height): the top of the body whose feet are at feet.
+local function occupied(w, x, z, feet, step, head)
   return not w.map[z]
     or not w.map[z][x]
     or w.map[z][x] > 0
     or (feet ~= nil and Ground.height(w, x, z) > feet + (step or 0) + EPS)
+    or (head ~= nil and struck(w, x, z, feet + (step or 0), head))
 end
 -- Round pillars (tile 2) are cylinders of the painted shaft radius for bodies,
 -- sight and shots alike (ballistics uses the same value).
@@ -27,7 +44,7 @@ end
 local function pillar(w, x, z)
   return w.map[z] and w.map[z][x] == 2
 end
-function C.solid(w, x, z, r, feet, step)
+function C.solid(w, x, z, r, feet, step, head)
   r = r or 0.20
   if not finite(x) or not finite(z) or not finite(r) or r < 0 then
     return true
@@ -37,7 +54,7 @@ function C.solid(w, x, z, r, feet, step)
   end
   for tz = math.floor(z - r + 0.5), math.floor(z + r + 0.5) do
     for tx = math.floor(x - r + 0.5), math.floor(x + r + 0.5) do
-      if occupied(w, tx, tz, feet, step) then
+      if occupied(w, tx, tz, feet, step, head) then
         if pillar(w, tx, tz) then
           local R = C.pillarRadius + r
           if (x - tx) ^ 2 + (z - tz) ^ 2 < R * R - EPS then
@@ -55,7 +72,7 @@ function C.solid(w, x, z, r, feet, step)
   end
   return false
 end
-function C.cast(w, x, z, dx, dz, r, feet, step)
+function C.cast(w, x, z, dx, dz, r, feet, step, head)
   local best, nx, nz, ax, az = 1, nil, nil, nil, nil
   if
     not finite(x)
@@ -101,7 +118,7 @@ function C.cast(w, x, z, dx, dz, r, feet, step)
           local t = (-b - sqrt(disc)) / length2
           hit(t, (x + dx * t - tx) / R, (z + dz * t - tz) / R)
         end
-      elseif occupied(w, tx, tz, feet, step) then
+      elseif occupied(w, tx, tz, feet, step, head) then
         local left, right, bottom, top = tx - 0.5, tx + 0.5, tz - 0.5, tz + 0.5
         -- Feet use point support; the circular footprint only constrains
         -- horizontal motion. Just after leaving a ledge, the trailing part
@@ -230,7 +247,7 @@ local function separate(w, o, r, feet, step)
   end
   return not C.solid(w, o.x, o.z, r, feet, step)
 end
-function C.move(w, o, dx, dz, r, velocity, feet, step)
+function C.move(w, o, dx, dz, r, velocity, feet, step, head)
   r = r or 0.20
   if
     not finite(dx)
@@ -257,7 +274,7 @@ function C.move(w, o, dx, dz, r, velocity, feet, step)
     if dx * dx + dz * dz < 1e-16 then
       break
     end
-    local t, nx, nz, ax, az = C.cast(w, o.x, o.z, dx, dz, r, feet, step)
+    local t, nx, nz, ax, az = C.cast(w, o.x, o.z, dx, dz, r, feet, step, head)
     if not t then
       o.x, o.z = o.x + dx, o.z + dz
       break

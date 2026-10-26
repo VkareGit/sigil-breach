@@ -35,7 +35,7 @@ return function(R)
   -- its body states one, else up to its painted body as posed now (its leap
   -- is in the painting; a falling corpse's drop is not).
   local function interval(g, o)
-    local ground = Ground.height(g.world, o.x, o.z)
+    local ground = Ground.of(g.world, o)
     if o.jump ~= nil then
       local base = ground + o.jump
       return base, base + R.playerBody().height - (o.crouch or 0)
@@ -48,6 +48,39 @@ return function(R)
     return base, ground + Surface.top(g, o) + (o.hp <= 0 and o.fallY or 0)
   end
   R.interval = interval
+  -- The height of body o over its feet on a world with decks (what a deck
+  -- above stops and what room its routes need, plan v10 V3): the knight's
+  -- less his crouch, a creature's stated or its stature's; nil on a world
+  -- without decks.
+  function R.tall(g, o)
+    if not (g.world and g.world.decks) then
+      return nil
+    end
+    if o.jump ~= nil then
+      return R.playerBody().height - (o.crouch or 0)
+    end
+    local stated = R.body(o).height
+    if stated then
+      return stated
+    end
+    local a = R.archetype(o)
+    local large = a and a.appearance and a.appearance.stature == 'large'
+    return large and Archetypes.defaults.stature.large or Archetypes.defaults.stature.standing
+  end
+  -- A body rising air m over its floor at velocity under a deck: the deck's
+  -- underside stops it (plan v10 V3). Returns the height and velocity kept.
+  function R.ceiling(g, o, air, velocity)
+    local floor = Ground.of(g.world, o)
+    local top = Ground.ceiling(g.world, o.x, o.z, floor)
+    if not top then
+      return air, velocity
+    end
+    local room = top - floor - R.tall(g, o)
+    if air > room then
+      return math.max(0, room), math.min(0, velocity)
+    end
+    return air, velocity
+  end
   function R.bodiesOverlap(g, a, b)
     if not g.world or not g.world.elevations then
       return true
@@ -61,7 +94,7 @@ return function(R)
   -- when its body states one (with its leap), else its painted head as posed
   -- now (enemies/pose 'head' anchor: its stature, leap, crouch and lunge).
   function R.eye(g, o)
-    local base = Ground.height(g.world, o.x, o.z)
+    local base = Ground.of(g.world, o)
     if o.jump ~= nil then
       return base + o.jump + R.playerBody().eye - (o.crouch or 0)
     end
@@ -85,9 +118,9 @@ return function(R)
     if not x then
       target = R.eye(g, t)
     elseif t.jump ~= nil then
-      target = Ground.height(world, x, z) + R.playerBody().eye
+      target = Ground.height(world, x, z, t.level) + R.playerBody().eye
     else
-      target = Ground.height(world, x, z) + R.eye(g, t) - Ground.height(world, t.x, t.z)
+      target = Ground.height(world, x, z, t.level) + R.eye(g, t) - Ground.of(world, t)
     end
     return World.visible(world, o.x, o.z, x or t.x, z or t.z, R.eye(g, o), target)
   end

@@ -68,6 +68,39 @@ local function ground(w, v)
     high = { (width - 0.5) / width, (depth - 0.5) / depth },
   }
 end
+-- The decks of the world as an image (plan v10 V3): per cell the underside
+-- (r) and top (g) of its lowest deck as shares of the highest top; one
+-- empty texel for a world without decks.
+local function decks(w, owner)
+  local width, depth = w.decks and Grid.width(w) or 1, w.decks and Grid.depth(w) or 1
+  local data = love.image.newImageData(width, depth)
+  local highest = 0
+  for z = 1, w.decks and depth or 0 do
+    for x = 1, width do
+      local list = Ground.decks(w, x, z)
+      if list then
+        highest = math.max(highest, list[#list][2])
+      end
+    end
+  end
+  for z = 1, w.decks and depth or 0 do
+    for x = 1, width do
+      local list = Ground.decks(w, x, z)
+      if list then
+        data:setPixel(x - 1, z - 1, list[1][1] / highest, list[1][2] / highest, 0, 1)
+      end
+    end
+  end
+  local image = owner:own(love.graphics.newImage(data))
+  image:setFilter('nearest', 'nearest')
+  data:release()
+  return {
+    image = image,
+    span = { width, depth },
+    height = math.max(highest, 1),
+    datum = w.floor or 0,
+  }
+end
 function L:prepare(w)
   if self.world == w and self.revision == w.geometryRevision then
     return
@@ -77,8 +110,7 @@ function L:prepare(w)
     sources[#sources + 1] = { x = lamp.x, y = lamp.y, z = lamp.z, lamp = lamp }
   end
   for _, seal in ipairs(w.seals) do
-    sources[#sources + 1] =
-      { x = seal.x, y = Ground.height(w, seal.x, seal.z) + 2, z = seal.z, seal = seal }
+    sources[#sources + 1] = { x = seal.x, y = Ground.of(w, seal) + 2, z = seal.z, seal = seal }
   end
   if w.ember then
     sources[#sources + 1] = {
@@ -102,6 +134,7 @@ function L:prepare(w)
   self.visibility = visibility
   self.resources = resources
   self.ground = ground(w, visibility)
+  self.decks = decks(w, resources)
   self.tileSpan = select(3, Visibility.frame(w, 0, 0))
   if previous then
     previous:release()
@@ -257,6 +290,11 @@ function L:bind(shader)
   shader:send('groundScale', floor.scale)
   shader:send('groundLow', floor.low)
   shader:send('groundHigh', floor.high)
+  local deck = self.decks
+  shader:send('deckAtlas', deck.image)
+  shader:send('deckSpan', deck.span)
+  shader:send('deckHeight', deck.height)
+  shader:send('deckDatum', deck.datum)
 end
 function L:send(shader, g, camera, forward)
   self:update(g, camera, forward)

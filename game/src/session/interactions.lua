@@ -159,7 +159,17 @@ function Interactions.collectSupplies(g)
       supply
       and supply.wanted(player, pickup)
       and distance(player, pickup) < Tuning.reach.supply
-      and World.visible(g.world, player.x, player.z, pickup.x, pickup.z)
+      and World.visible(
+        g.world,
+        player.x,
+        player.z,
+        pickup.x,
+        pickup.z,
+        nil,
+        nil,
+        player.level,
+        pickup.level
+      )
     then
       Signal(g, 'PickupTaken', { pickup = pickup, text = supply.take(player, pickup) })
       Pools.removeAt(g, 'pickups', i)
@@ -171,14 +181,20 @@ end
 function Interactions.classicReward(g, event)
   local enemy, K = event.enemy, Tuning.rewards
   if g.kills % K.ammoEvery == 0 then
-    Spawn.make(g, 'pickup', { x = enemy.x, z = enemy.z, kind = 'ammo', amount = Tuning.killAmmo })
-  end
-  if g.kills % K.healthEvery == 0 then
     Spawn.make(
       g,
       'pickup',
-      { x = enemy.x + K.dropSpacing, z = enemy.z, kind = 'health', amount = Tuning.healthPickup }
+      { x = enemy.x, z = enemy.z, level = enemy.level, kind = 'ammo', amount = Tuning.killAmmo }
     )
+  end
+  if g.kills % K.healthEvery == 0 then
+    Spawn.make(g, 'pickup', {
+      x = enemy.x + K.dropSpacing,
+      z = enemy.z,
+      level = enemy.level,
+      kind = 'health',
+      amount = Tuning.healthPickup,
+    })
   end
   if (require('src.content.enemies').of(enemy) or {}).guardian then
     g.bossDead = true

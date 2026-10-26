@@ -65,7 +65,7 @@ function X.explode(g, b)
     if e.hp > 0 then
       -- The blast samples the physical body anchor. A leap moves it; visual bob
       -- and hover do not change exposure or damage.
-      local y = Ground.height(g.world, e.x, e.z)
+      local y = Ground.of(g.world, e)
         + (require('src.combat.rules').body(e).aimY or Tuning.explosives.aimHeight)
         + (e.leapY or 0)
       local visible, d = clear(g, b, e.x, y, e.z)
@@ -100,7 +100,7 @@ function X.explode(g, b)
   for _, p in ipairs(Bodies.knights(g)) do
     if p == thrower or p.hp > 0 then
       local visible, d =
-        clear(g, b, p.x, Ground.height(g.world, p.x, p.z) + chest + p.jump - (p.crouch or 0), p.z)
+        clear(g, b, p.x, Ground.of(g.world, p) + chest + p.jump - (p.crouch or 0), p.z)
       if visible and d < action.radius then
         local before = p.hp
         local own = action.selfBlast

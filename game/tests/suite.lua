@@ -346,6 +346,11 @@ Suite.registry = {
     module = 'tests.cases.space_scale',
   },
   {
+    id = 'floor-layers',
+    title = 'Decks over floors: movement, shots, charges, routes and light (plan v10 V3)',
+    module = 'tests.cases.floor_layers',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',

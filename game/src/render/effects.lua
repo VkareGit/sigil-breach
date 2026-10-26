@@ -85,7 +85,7 @@ function E.spells(r, g)
         0,
         progress,
         e.x + math.sin(yaw) * 0.4,
-        Ground.height(g.world, e.x, e.z) + (e.leapY or 0) + look.cast.height,
+        Ground.of(g.world, e) + (e.leapY or 0) + look.cast.height,
         e.z + math.cos(yaw) * 0.4,
         size,
         0.72,
@@ -101,22 +101,11 @@ function E.spells(r, g)
     local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
       or (1 - (h.life or 0) / 0.22)
     if preparing and h.kind == 'lightning' then
-      E.spell(
-        r,
-        g,
-        2,
-        progress,
-        h.x,
-        Ground.height(g.world, h.x, h.z) + 0.045,
-        h.z,
-        h.radius * 2,
-        0.68,
-        true
-      )
+      E.spell(r, g, 2, progress, h.x, Ground.of(g.world, h) + 0.045, h.z, h.radius * 2, 0.68, true)
     elseif h.kind == 'lightning' then
       -- A short narrow strike leaves the enemy silhouette visible. The ground ring
       -- is still the exact authoritative damage radius, not this ornamental width.
-      E.spell(r, g, 3, progress, h.x, Ground.height(g.world, h.x, h.z) + 1.5, h.z, 2.8, 0.9, false)
+      E.spell(r, g, 3, progress, h.x, Ground.of(g.world, h) + 1.5, h.z, 2.8, 0.9, false)
     end
   end
 end
@@ -335,7 +324,7 @@ function E.hitboxes(r, g)
       r:object(
         r.warning,
         e.x,
-        Ground.height(g.world, e.x, e.z) + 0.03,
+        Ground.of(g.world, e) + 0.03,
         e.z,
         0,
         Rules.radius(e),

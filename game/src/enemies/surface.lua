@@ -81,7 +81,7 @@ function Surface.prepare(g, e, out)
   local p = Pose.sample(g, e, out)
   -- Art registration is local to the feet. Queries, like the shooter's eye,
   -- use world height even on an authored map with a non-zero ground datum.
-  p.baseY = p.baseY + Ground.height(g.world, e.x, e.z)
+  p.baseY = p.baseY + Ground.of(g.world, e)
   local group = p.ability and Anatomy.abilities[p.ability] or Anatomy.layouts[p.regions]
   local index = p.abilityFrame or p.frame
   p.parts = assert(group and group.frames[index], 'missing authored anatomy frame').parts

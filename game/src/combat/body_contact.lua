@@ -27,8 +27,8 @@ local function standing(g, e, p)
   if g.world.elevations then
     return e.hp > 0 and Rules.bodiesOverlap(g, e, p)
   end
-  local ey = Ground.height(g.world, e.x, e.z) + (e.leapY or 0)
-  local py = Ground.height(g.world, p.x, p.z) + (p.jump or 0)
+  local ey = Ground.of(g.world, e) + (e.leapY or 0)
+  local py = Ground.of(g.world, p) + (p.jump or 0)
   return e.hp > 0 and ey < py + Rules.playerBody().height - (p.crouch or 0)
 end
 -- Earliest moving-circle contact, including a complete crossing in one step.
@@ -55,7 +55,9 @@ function Contact.sweep(x, z, dx, dz, ox, oz, radius)
   end
   return t, nx / length, nz / length
 end
-local function clippedMove(world, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offset)
+-- oldLevel: the surface the body stood on at (oldX, oldZ) (a world with decks).
+local function clippedMove(g, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offset, oldLevel)
+  local world = g.world
   local remainX, remainZ = dx * (1 - t), dz * (1 - t)
   local into = math.min(0, remainX * nx + remainZ * nz)
   body.x, body.z = oldX, oldZ
@@ -63,8 +65,12 @@ local function clippedMove(world, body, oldX, oldZ, dx, dz, radius, t, nx, nz, o
     local key = body.jump ~= nil and 'jump' or 'leapY'
     body[key] = offset
   end
-  W.move(world, body, dx * t, dz * t, radius)
-  W.move(world, body, remainX - into * nx, remainZ - into * nz, radius)
+  if world.decks then
+    body.level = oldLevel
+  end
+  local height = Rules.tall(g, body)
+  W.move(world, body, dx * t, dz * t, radius, nil, height)
+  W.move(world, body, remainX - into * nx, remainZ - into * nz, radius, nil, height)
   return body.x - oldX, body.z - oldZ
 end
 -- The earliest contact of a demon's own move with knight p (previous: where
@@ -88,9 +94,9 @@ end
 -- previous and current (sub-step positions), every other knight between
 -- its step snapshot and where it stands.
 function Contact.moveEnemy(g, e, dx, dz, previous, current)
-  local oldX, oldZ, r = e.x, e.z, Rules.radius(e)
+  local oldX, oldZ, r, oldLevel = e.x, e.z, Rules.radius(e), e.level
   local air, verticalVelocity = e.leapY, e.leapVY
-  W.move(g.world, e, dx, dz, r)
+  W.move(g.world, e, dx, dz, r, nil, Rules.tall(g, e))
   dx, dz = e.x - oldX, e.z - oldZ
   local controlled = Bodies.controlled(g)
   local p = current or controlled
@@ -108,7 +114,7 @@ function Contact.moveEnemy(g, e, dx, dz, previous, current)
     if g.world.elevations then
       e.leapVY = verticalVelocity
     end
-    return clippedMove(g.world, e, oldX, oldZ, dx, dz, r, t, nx, nz, air)
+    return clippedMove(g, e, oldX, oldZ, dx, dz, r, t, nx, nz, air, oldLevel)
   end
   return dx, dz
 end
@@ -174,16 +180,26 @@ function Contact.knight(g)
       if g.world.elevations then
         air = math.max(
           0,
-          Ground.height(g.world, p.x, p.z)
-            + p.jump
-            - Ground.height(g.world, previous.x, previous.z)
-            - (g.frame.supportLift or 0)
+          Ground.of(g.world, p) + p.jump - Ground.of(g.world, previous) - (g.frame.supportLift or 0)
         )
         if air == 0 and p.jumpV < 0 then
           p.jumpV = 0
         end
       end
-      clippedMove(g.world, p, previous.x, previous.z, dx, dz, radius, first, normalX, normalZ, air)
+      clippedMove(
+        g,
+        p,
+        previous.x,
+        previous.z,
+        dx,
+        dz,
+        radius,
+        first,
+        normalX,
+        normalZ,
+        air,
+        previous.level
+      )
       local into = math.min(0, (p.vx or 0) * normalX + (p.vz or 0) * normalZ)
       p.vx, p.vz = (p.vx or 0) - into * normalX, (p.vz or 0) - into * normalZ
     end
@@ -193,7 +209,7 @@ function Contact.knight(g)
       local depth, nx, nz = overlap(p, e, radius)
       if depth then
         exchange(g, p, e, nx, nz)
-        W.move(g.world, p, nx * depth, nz * depth, radius)
+        W.move(g.world, p, nx * depth, nz * depth, radius, nil, Rules.tall(g, p))
         -- His own velocity no longer drives into the demon.
         local into = (p.vx or 0) * nx + (p.vz or 0) * nz
         if into < 0 then
@@ -215,7 +231,7 @@ function Contact.demons(g)
           local depth, nx, nz = overlap(p, e, radius)
           if depth then
             exchange(g, p, e, nx, nz)
-            W.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e))
+            W.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e), nil, Rules.tall(g, e))
           end
         end
       end

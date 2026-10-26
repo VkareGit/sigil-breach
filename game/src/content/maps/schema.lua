@@ -61,7 +61,16 @@ function Schema.check(map, id)
     assert(map.stepHeight >= 0, label .. '.stepHeight must be non-negative')
   end
   assert(type(map.rooms) == 'table', label .. ' needs rooms')
-  for _, key in ipairs({ 'rooms', 'pillars', 'zones', 'lamps', 'seals', 'gates', 'elevations' }) do
+  for _, key in ipairs({
+    'rooms',
+    'pillars',
+    'zones',
+    'lamps',
+    'seals',
+    'gates',
+    'elevations',
+    'decks',
+  }) do
     if map[key] then
       list(map[key], label .. '.' .. key)
     end
@@ -130,6 +139,9 @@ function Schema.check(map, id)
   for _, lamp in ipairs(map.lamps or {}) do
     number(lamp[1], label .. '.lamp.x')
     number(lamp[2], label .. '.lamp.z')
+    if lamp[3] ~= nil then
+      number(lamp[3], label .. '.lamp.surface')
+    end
   end
   local used = {}
   for _, area in ipairs(map.elevations or {}) do
@@ -149,6 +161,41 @@ function Schema.check(map, id)
         assert(opened[z] and opened[z][x], label .. ': elevation outside open floor')
         assert(not used[z][x], label .. ': overlapping elevation regions')
         used[z][x] = true
+      end
+    end
+  end
+  -- Decks (plan v10 V3): slabs over open floor, top m over the datum and
+  -- thickness m deep, leaving room under them; two decks of a cell never
+  -- overlap.
+  local slabs = {}
+  for _, area in ipairs(map.decks or {}) do
+    for _, key in ipairs({ 'x1', 'x2', 'z1', 'z2' }) do
+      if key:sub(1, 1) == 'x' then
+        cellX(area[key], label .. '.deck.' .. key)
+      else
+        cellZ(area[key], label .. '.deck.' .. key)
+      end
+    end
+    positive(area.top, label .. '.deck.top')
+    positive(area.thickness, label .. '.deck.thickness')
+    assert(area.x1 <= area.x2 and area.z1 <= area.z2, label .. ': deck bounds reversed')
+    local bottom = area.top - area.thickness
+    for z = area.z1, area.z2 do
+      slabs[z] = slabs[z] or {}
+      for x = area.x1, area.x2 do
+        assert(opened[z] and opened[z][x], label .. ': deck outside open floor')
+        local floor = 0
+        for _, e in ipairs(map.elevations or {}) do
+          if x >= e.x1 and x <= e.x2 and z >= e.z1 and z <= e.z2 then
+            floor = e.height
+          end
+        end
+        assert(bottom > floor, label .. ': a deck must leave room above the floor under it')
+        for _, other in ipairs(slabs[z][x] or {}) do
+          assert(bottom >= other[2] or area.top <= other[1], label .. ': overlapping decks')
+        end
+        slabs[z][x] = slabs[z][x] or {}
+        table.insert(slabs[z][x], { bottom, area.top })
       end
     end
   end

@@ -70,7 +70,7 @@ local function creatureBlow(g, target, amount, x, z, packet, source)
   local dealt, _, impact, push = Damage.resolve(blow, target, 0)
   local health = math.min(target.hp, dealt)
   Outcomes.enemy(g, target, dealt, 'creature', blow)
-  local y = Ground.height(g.world, target.x, target.z) + (Rules.body(target).aimY or 1)
+  local y = Ground.of(g.world, target) + (Rules.body(target).aimY or 1)
   require('src.combat.combat').react(
     g,
     target,

@@ -94,8 +94,11 @@ return {
   -- an exact field covers window cells around its goal (a map no larger is
   -- covered whole); beyond it bodies cross regions of sector x sector cells.
   -- classes: a body wider than classes[k] m in radius needs the open square
-  -- of k cells around every cell of its route.
-  navigation = { window = 32, sector = 16, classes = { 0.6, 1.6 } },
+  -- of k cells around every cell of its route. heights: on a world with
+  -- decks, a body up to heights[1] m tall walks where heights[1] m of room
+  -- is left under a deck, up to heights[2] where that much is; a taller one
+  -- never under a deck.
+  navigation = { window = 32, sector = 16, classes = { 0.6, 1.6 }, heights = { 2.4, 3.6 } },
   -- Health of a supply that names no amount.
   healthPickup = 25,
   -- Reach (m): the Ember's rest and trade, a supply taken from the floor.

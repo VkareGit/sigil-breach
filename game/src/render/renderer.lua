@@ -342,7 +342,7 @@ end
 local placement = {}
 function R:enemyPlacement(g, e)
   local p = Pose.sample(g, e, placement)
-  p.baseY = p.baseY + Ground.height(g.world, e.x, e.z)
+  p.baseY = p.baseY + Ground.of(g.world, e)
   if p.ability then
     p.image = self.abilityArt[p.ability].image
   else
@@ -358,7 +358,7 @@ function R:enemy(g, e, batch)
   -- direction becomes the lit and shadow sides of the body), a faint presence
   -- of the bearer, and the muzzle flash as a brief frontal light. Readability
   -- comes from the rim and the sinopia outline, not from flooding the body.
-  local lr, lg, lb, lx, lz = self.lighting:sample(e.x, Ground.height(g.world, e.x, e.z) + 1, e.z)
+  local lr, lg, lb, lx, lz = self.lighting:sample(e.x, Ground.of(g.world, e) + 1, e.z)
   local brightness = lr * 0.30 + lg * 0.59 + lb * 0.11
   local side = (lx * self.right[1] + lz * self.right[3])
   local strength = math.min(1, math.sqrt(lx * lx + lz * lz) * 4)
@@ -488,7 +488,7 @@ end
 -- The first-person weapon is lit by the same torches, presence and muzzle flash.
 function R:weaponTint(g)
   local p = g.player
-  local r, green, b = self.lighting:sample(p.x, Ground.height(g.world, p.x, p.z) + 1, p.z)
+  local r, green, b = self.lighting:sample(p.x, Ground.of(g.world, p) + 1, p.z)
   local f = math.min(1, (g.view.muzzle or 0) * 16)
   local c = self.weaponColor or { 1, 1, 1 }
   self.weaponColor = c
@@ -517,7 +517,7 @@ function R:pickup(g, a)
   s:send('frameRect', { x / iw, y / ih, w / iw, h / ih })
   s:send(
     'objectPos',
-    self:vec3(a.x, Ground.height(g.world, a.x, a.z) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
+    self:vec3(a.x, Ground.of(g.world, a) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
   )
   s:send('objectYaw', math.atan2(g.player.x - a.x, g.player.z - a.z))
   s:send('objectScale', a.kind == 'soul' and 0.42 or 0.48)
@@ -548,11 +548,7 @@ function R:shrine(g, worldView)
   s:send('frameRect', data.rect)
   s:send(
     'objectPos',
-    self:vec3(
-      spot.x,
-      Ground.height(g.world, spot.x, spot.z) - self.shrineFeet[frame] * size,
-      spot.z
-    )
+    self:vec3(spot.x, Ground.of(g.world, spot) - self.shrineFeet[frame] * size, spot.z)
   )
   s:send('objectYaw', math.atan2(g.player.x - spot.x, g.player.z - spot.z))
   s:send('objectScale', size)
@@ -684,16 +680,7 @@ function R:projectilesPass(g)
     local tint = Weight.typeColor(packet.damageType)
     -- Floor marker: where the projectile passes, readable while dodging.
     lg.setDepthMode('less', false)
-    self:object(
-      self.warning,
-      b.x,
-      Ground.height(g.world, b.x, b.z) + 0.03,
-      b.z,
-      0,
-      radius * 2.2,
-      tint,
-      0.45
-    )
+    self:object(self.warning, b.x, Ground.of(g.world, b) + 0.03, b.z, 0, radius * 2.2, tint, 0.45)
     local vx, vy, vz = b.vx or 0, b.vy or 0, b.vz or 0
     local speed = math.sqrt(vx * vx + vy * vy + vz * vz)
     if speed > 0.01 then
@@ -743,7 +730,7 @@ function R:groundPass(g, time)
       self:object(
         a.kind == 'ammo' and self.ammo or self.health,
         a.x,
-        Ground.height(g.world, a.x, a.z) + 0.15 + math.sin(time * 3 + a.x) * 0.06,
+        Ground.of(g.world, a) + 0.15 + math.sin(time * 3 + a.x) * 0.06,
         a.z,
         time * 0.4,
         1.25
@@ -768,7 +755,7 @@ function R:groundPass(g, time)
     self:object(
       self.sigil,
       echo.x,
-      Ground.height(g.world, echo.x, echo.z) + 1.1 + math.sin(time * 2) * 0.07,
+      Ground.of(g.world, echo) + 1.1 + math.sin(time * 2) * 0.07,
       echo.z,
       time * 0.7,
       0.8,
@@ -777,7 +764,7 @@ function R:groundPass(g, time)
     self:object(
       self.warning,
       echo.x,
-      Ground.height(g.world, echo.x, echo.z) + 0.03,
+      Ground.of(g.world, echo) + 0.03,
       echo.z,
       0,
       0.8,
@@ -794,7 +781,7 @@ function R:groundPass(g, time)
     self:object(
       self.sigil,
       exit.x,
-      Ground.height(g.world, exit.x, exit.z) + 2.1,
+      Ground.of(g.world, exit) + 2.1,
       exit.z - 0.1,
       time * 0.3,
       2.9,
@@ -806,7 +793,7 @@ function R:groundPass(g, time)
     self:object(
       self.sigil,
       secret.x,
-      Ground.height(g.world, secret.x, secret.z) + 1.15,
+      Ground.of(g.world, secret) + 1.15,
       secret.z,
       0.4,
       0.34,
@@ -820,7 +807,7 @@ function R:groundPass(g, time)
     self:object(
       self.stain,
       d.x,
-      Ground.height(g.world, d.x, d.z) + 0.012,
+      Ground.of(g.world, d) + 0.012,
       d.z,
       d.rotation,
       d.size,
@@ -843,7 +830,7 @@ function R:enemyMarksPass(g)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       local size = Archetypes.look(e).shadow
-      local ground = Ground.height(g.world, e.x, e.z)
+      local ground = Ground.of(g.world, e)
       if stamps.count + 2 > stamps.capacity then
         stamps:draw(self, g)
         stamps:clear()
@@ -857,7 +844,7 @@ function R:enemyMarksPass(g)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       local look = Archetypes.look(e)
-      local ground = Ground.height(g.world, e.x, e.z)
+      local ground = Ground.of(g.world, e)
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         self:object(
@@ -882,7 +869,7 @@ function R:enemyMarksPass(g)
         self:object(
           self.warning,
           e.aimX,
-          Ground.height(g.world, e.aimX, e.aimZ) + 0.03,
+          Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + 0.03,
           e.aimZ,
           0,
           reachLand * 1.04,
@@ -900,7 +887,7 @@ function R:hazardsPass(g, time)
     if haz.kind ~= 'lightning' then
       HazardArt.draw(self, g, haz)
     else
-      local ground = Ground.height(g.world, haz.x, haz.z)
+      local ground = Ground.of(g.world, haz)
       self:object(
         self.warning,
         haz.x,
@@ -944,7 +931,7 @@ function R:spritesPass(g, time)
       self:mural(
         mural.frame,
         mural.x,
-        Ground.height(g.world, mural.x, mural.z) + mural.y,
+        Ground.of(g.world, mural) + mural.y,
         mural.z,
         mural.yaw,
         mural.size
@@ -953,15 +940,7 @@ function R:spritesPass(g, time)
     self:shrine(g, view)
   end
   for _, l in ipairs(g.world.lamps) do
-    self:prop(
-      g,
-      1 + math.floor(time * 7 + l.phase) % 4,
-      l.x,
-      Ground.height(g.world, l.x, l.z),
-      l.z,
-      1.7,
-      1.1
-    )
+    self:prop(g, 1 + math.floor(time * 7 + l.phase) % 4, l.x, Ground.of(g.world, l), l.z, 1.7, 1.1)
   end
   for _, prop in ipairs(decor.props or {}) do
     local brightness = prop.secret and g.secretFound and 0.4 or prop.brightness
@@ -969,7 +948,7 @@ function R:spritesPass(g, time)
       g,
       prop.frame,
       prop.x,
-      Ground.height(g.world, prop.x, prop.z) + (prop.y or 0),
+      Ground.of(g.world, prop) + (prop.y or 0),
       prop.z,
       prop.size,
       brightness

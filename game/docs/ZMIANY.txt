@@ -51,6 +51,19 @@ V2 — strony, cele i jedna droga obrażeń (2026-10-26)
 - Zapadka knight-references 153 → 1. Rozgrywka, balans, wygląd i zapisy
   bez zmian; skróty v2 bit w bit.
 
+V3 — przestrzeń w skali (2026-10-26)
+- Mapy prostokątne (width × depth); indeks przestrzenny ciał dla separacji
+  i strzałów (krok przy 512 ciałach 16,2 → 2,85 ms).
+- Nawigacja w oknie wokół celu i po regionach sektorów, klasy prześwitu,
+  pamięć pól LRU; droga przez mapę 256 × 256 bez przechodzenia całej mapy.
+- Warstwy podłogi: płyty nad podłogą (most). Ruch, lądowanie, sufit,
+  wzrok, strzał, pocisk, ładunek, nawigacja i renderer znają poziom ciała.
+- Dowolna liczba świateł z raportem przekroczenia; ciała jednego obrazu
+  rysowane razem (96 demonów: 137,6 wywołań wobec 182,9 przy 20 w 0.32).
+- Mapy diagnostyczne QA: qa_bridge (256 × 128, most, 200 kaganków).
+- Rozgrywka, balans, wygląd i zapisy bez zmian; skróty v2 bit w bit,
+  rendery showcase identyczne piksel w piksel.
+
 
 ########################################################################
 ZMIANY-0.32.txt

@@ -127,7 +127,7 @@ local function layer(renderer, hazard, image, rect, alpha, height)
 end
 function HazardArt.draw(renderer, game, hazard)
   local sample = HazardArt.sample(hazard)
-  local height = Ground.height(game.world, hazard.x, hazard.z) + Definition.groundOffset
+  local height = Ground.of(game.world, hazard) + Definition.groundOffset
   local art = renderer.hazardArt
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)

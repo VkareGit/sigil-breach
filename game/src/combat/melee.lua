@@ -16,9 +16,14 @@ local function playerAt(previous, current, t, out, world)
   out.x, out.z = lerp(previous.x, current.x, t), lerp(previous.z, current.z, t)
   out.jump = lerp(previous.jump or 0, current.jump or 0, t)
   if world and world.elevations then
-    local from = Ground.height(world, previous.x, previous.z) + (previous.jump or 0)
-    local to = Ground.height(world, current.x, current.z) + (current.jump or 0)
-    out.jump = lerp(from, to, t) - Ground.height(world, out.x, out.z)
+    local from = Ground.of(world, previous) + (previous.jump or 0)
+    local to = Ground.of(world, current) + (current.jump or 0)
+    local feet = lerp(from, to, t)
+    if world.decks then
+      -- The swept body stands on the surface under its feet (plan v10 V3).
+      out.level = feet
+    end
+    out.jump = feet - Ground.of(world, out)
   end
   out.crouch = lerp(previous.crouch or 0, current.crouch or 0, t)
   return out
@@ -80,8 +85,8 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
     end
   end
   local datum = Ground.height(g.world)
-  local jump = Ground.height(g.world, previous.x, previous.z) - datum + (previous.jump or 0)
-  local jumpDelta = Ground.height(g.world, p.x, p.z) - datum + (p.jump or 0) - jump
+  local jump = Ground.of(g.world, previous) - datum + (previous.jump or 0)
+  local jumpDelta = Ground.of(g.world, p) - datum + (p.jump or 0) - jump
   lo, hi = clip(lo, hi, y - jump - feet + radius, dy - jumpDelta)
   if not lo then
     return false
@@ -113,7 +118,9 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
     end
   end
   local px, pz = lerp(previous.x, p.x, lo), lerp(previous.z, p.z, lo)
-  if not W.visible(g.world, lerp(x1, x2, lo), lerp(z1, z2, lo), px, pz) then
+  if
+    not W.visible(g.world, lerp(x1, x2, lo), lerp(z1, z2, lo), px, pz, nil, nil, p.level, p.level)
+  then
     return false
   end
   return true, lo
@@ -130,7 +137,11 @@ end
 function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
   local ax, ay, az = Anchor.point(g, e, phase, x, z, action and action.contactAnchor or 'claw')
   if ax then
-    return ax, ay + Ground.height(g.world, x, z) - Ground.height(g.world), az, e.lungeX, e.lungeZ
+    return ax,
+      ay + Ground.height(g.world, x, z, e.level) - Ground.height(g.world),
+      az,
+      e.lungeX,
+      e.lungeZ
   end
   -- Unannotated extension art retains the generic physical swing. Existing
   -- creatures use their named painted contact, not this fallback arc.
@@ -140,7 +151,7 @@ function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
   local a = math.atan2(e.lungeX, e.lungeZ)
   local yaw = a - Claw.arc + 2 * Claw.arc * (phase - activeStart) / (activeEnd - activeStart)
   return x,
-    Claw.height + Ground.height(g.world, x, z) - Ground.height(g.world),
+    Claw.height + Ground.height(g.world, x, z, e.level) - Ground.height(g.world),
     z,
     math.sin(yaw),
     math.cos(yaw)

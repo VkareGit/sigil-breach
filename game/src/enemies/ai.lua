@@ -10,7 +10,7 @@ local Body = require('src.enemies.body')
 local Attacks = require('src.enemies.actions')
 local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
-local Grid = require('src.physics.grid')
+local Ground = require('src.physics.ground')
 local Spatial = require('src.physics.spatial')
 local Navigation = require('src.world.navigation')
 local Bodies = require('src.combat.bodies')
@@ -40,6 +40,7 @@ function AI.init(e)
   e.memory = 0
   e.lastX = e.x
   e.lastZ = e.z
+  e.lastLevel = e.level
   e.side = e.id % 2 == 0 and 1 or -1
   e.decision = 0
   e.recover = 0
@@ -48,13 +49,15 @@ function AI.init(e)
   e.spawnAge = 1
   e.flinch = 0
 end
-function AI.noise(g, x, z, r)
+-- level (optional): the surface the noise rose from, on a world with decks.
+function AI.noise(g, x, z, r, level)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and len(e.x - x, e.z - z) < r then
       e.awake = true
       e.memory = 4
       e.lastX = x
       e.lastZ = z
+      e.lastLevel = level
     end
   end
 end
@@ -97,7 +100,7 @@ local function move(g, e, tx, tz, speed, dt)
     vx, vz = vx + ax / al * step, vz + az / al * step
   end
   local ox, oz = e.x, e.z
-  local sx, sz = W.move(g.world, e, vx * dt, vz * dt, radius(e))
+  local sx, sz = W.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
   e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt
   local moved = len(e.x - ox, e.z - oz)
   e.walk = e.walk + moved
@@ -115,52 +118,75 @@ local function move(g, e, tx, tz, speed, dt)
 end
 -- The four neighbouring cells a route may step to, in the order they are tried.
 local steps = { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } }
-local function route(g, e, tx, tz, dt)
+-- level (optional): the surface of the goal on a world with decks; the route
+-- runs over the walk graph's nodes (cells, and decks above them).
+local function route(g, e, tx, tz, dt, level)
+  local w = g.world
+  local tall = Rules.tall(g, e)
   if
-    W.visible(g.world, e.x, e.z, tx, tz)
-    and (not g.world.elevations or W.clear(g.world, e.x, e.z, tx, tz, radius(e)))
+    W.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
+    and (not w.elevations or W.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
   then
     move(g, e, tx, tz, e.speed, dt)
     return
   end
-  local class = W.class(radius(e))
+  local class = W.class(radius(e), tall)
   e.pathTimer = (e.pathTimer or 0) - dt
   if e.pathTimer <= 0 or not e.path then
-    e.path = W.flow(g.world, tx, tz, class)
+    e.path = W.flow(w, tx, tz, class, level)
     e.pathTimer = Walk.replan
   end
-  -- The next cell down the distance field from a cell (nil at the goal).
-  local function downhill(x, z)
-    local best, bx, bz = e.path[Grid.key(g.world, x, z)] or 1e9, nil, nil
+  -- The next node down the distance field from a node (nil at the goal).
+  local function downhill(x, z, layer)
+    local here = w.decks and W.level(w, x, z, layer)
+    local best, bx, bz, bl = e.path[W.node(w, x, z, layer)] or 1e9, nil, nil, nil
     for _, o in ipairs(steps) do
       local nx, nz = x + o[1], z + o[2]
-      local d = e.path[Grid.key(g.world, nx, nz)]
-      if d and d < best and not W.solid(g.world, nx, nz, radius(e)) then
+      local nl = 0
+      if here then
+        nl = W.step(w, nx, nz, here, class)
+      end
+      local d = nl and e.path[W.node(w, nx, nz, nl)]
+      if d and d < best and not W.solid(w, nx, nz, radius(e)) then
         best = d
-        bx, bz = nx, nz
+        bx, bz, bl = nx, nz, nl
       end
     end
-    return bx, bz
+    return bx, bz, bl
   end
   -- Walk toward the furthest cell of the route the body can reach in a
   -- straight line (0.25): no zigzag from cell centre to cell centre.
   local x, z = math.floor(e.x + 0.5), math.floor(e.z + 0.5)
-  local bx, bz = downhill(x, z)
+  local layer = w.decks and W.layer(w, x, z, Ground.of(w, e) - (w.floor or 0)) or 0
+  local bx, bz, bl = downhill(x, z, layer)
   if not bx then
     -- Beyond the exact field around the goal (plan v10 V3): cross region by
     -- region toward it (world/navigation.lua).
     if Navigation.beyond(e.x, e.z, tx, tz) then
-      local wx, wz = Navigation.waypoint(g.world, e.x, e.z, tx, tz, class)
+      local wx, wz = Navigation.waypoint(w, e.x, e.z, tx, tz, class, e.level, level)
       if wx then
         move(g, e, wx, wz, e.speed, dt)
       end
     end
     return
   end
-  local cx, cz = bx, bz
+  local cx, cz, cl = bx, bz, bl
   for _ = 2, Walk.lookahead do
-    cx, cz = downhill(cx, cz)
-    if not cx or not W.clear(g.world, e.x, e.z, cx, cz, radius(e)) then
+    cx, cz, cl = downhill(cx, cz, cl)
+    if
+      not cx
+      or not W.clear(
+        w,
+        e.x,
+        e.z,
+        cx,
+        cz,
+        radius(e),
+        e.level,
+        tall,
+        w.decks and W.level(w, cx, cz, cl) + (w.floor or 0)
+      )
+    then
       break
     end
     bx, bz = cx, cz
@@ -211,7 +237,7 @@ local function evade(g, e, d, dt)
     e.evadeTime = e.evadeTime - dt
     local step = spec.speed * dt
     local ox, oz = e.x, e.z
-    W.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e))
+    W.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e), nil, Rules.tall(g, e))
     e.walk = e.walk + len(e.x - ox, e.z - oz)
     return true
   end
@@ -281,6 +307,15 @@ function Styles.keep(g, e, d, dt)
   local tx, tz =
     e.x + dx * radial + dz * e.side * K.strafe, e.z + dz * radial - dx * e.side * K.strafe
   move(g, e, tx, tz, e.speed * (radial == 0 and K.holdSpeed or 1), dt)
+end
+-- On a world with decks, whether body e and body p stand on floors a step
+-- cannot join (one on a deck, one under it): then e follows its routes, not
+-- a straight approach (plan v10 V3).
+function AI.apart(g, e, p)
+  if not g.world.decks then
+    return false
+  end
+  return math.abs(Ground.of(g.world, e) - Ground.of(g.world, p)) > (g.world.stepHeight or 0)
 end
 local function approach(g, e, d, dt)
   local style = Styles[arch(e).move.style] or Styles.keep
@@ -364,6 +399,7 @@ local function perceive(g, e, d, dt)
       e.memory = Senses.memory
       e.lastX = p.x
       e.lastZ = p.z
+      e.lastLevel = p.level
     end
   end
   if not e.visible then
@@ -404,7 +440,7 @@ function States.windup(g, e, d, dt)
     and not Rules.sees(g, e, p, e.aimX, e.aimZ)
     and Rules.sees(g, e, p)
   then
-    e.aimX, e.aimZ = p.x, p.z
+    e.aimX, e.aimZ, e.aimLevel = p.x, p.z, p.level
     g.retargets = (g.retargets or 0) + 1
   end
   if Rules.sees(g, e, p, e.aimX, e.aimZ) then
@@ -448,8 +484,8 @@ local function free(g, e, d, dt)
     Attacks.begin(g, e, d, chosen)
   elseif evade(g, e, d, dt) then
     -- sidestepping out of the player's aim
-  elseif not e.visible then
-    route(g, e, e.lastX, e.lastZ, dt)
+  elseif not e.visible or AI.apart(g, e, target(g, e)) then
+    route(g, e, e.lastX, e.lastZ, dt, e.lastLevel)
   else
     approach(g, e, d, dt)
   end
@@ -471,8 +507,8 @@ local function part(g, a, b, dt, S)
     local amount = math.min(S.step, dt * S.rate, overlap * S.share)
     local ma, mb = Rules.body(a).mass or 1, Rules.body(b).mass or 1
     local ga, gb = 2 * amount * mb / (ma + mb), 2 * amount * ma / (ma + mb)
-    W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a))
-    W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b))
+    W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a), nil, Rules.tall(g, a))
+    W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b), nil, Rules.tall(g, b))
     return true
   end
   return false

@@ -23,6 +23,43 @@ local function descendingCrossing(b, height, acceleration)
   end
   return (b.vy + root) / acceleration
 end
+-- The first time the flight rises through height (math.huge: never).
+local function ascendingCrossing(b, height, acceleration)
+  if b.y >= height then
+    return math.huge
+  end
+  if acceleration == 0 then
+    return b.vy > 0 and (height - b.y) / b.vy or math.huge
+  end
+  local d = b.vy * b.vy - 2 * acceleration * (height - b.y)
+  if b.vy <= 0 or d < 0 then
+    return math.huge
+  end
+  return (b.vy - math.sqrt(d)) / acceleration
+end
+local none = {}
+-- A deck of cell (cx, cz) met between entry and leave (plan v10 V3): its
+-- side when the flight enters the cell at the slab's height, its top when it
+-- falls onto it, its underside when it rises into it.
+local function deck(w, b, cx, cz, entry, leave, ex, ez, acceleration, floorHeight)
+  for _, slab in ipairs(Ground.decks(w, cx, cz) or none) do
+    local bottom, top = slab[1], slab[2] + floorHeight
+    local y = flightY(b, entry, acceleration)
+    if y > bottom + skin and y < top - skin then
+      return entry, ex, 0, ez
+    end
+    if not b.grounded then
+      local land = descendingCrossing(b, top, acceleration)
+      if y >= top - skin and land >= entry and land <= leave then
+        return land, 0, 1, 0
+      end
+      local rise = ascendingCrossing(b, bottom, acceleration)
+      if rise >= entry and rise <= leave then
+        return rise, 0, -1, 0
+      end
+    end
+  end
+end
 local function solidAt(w, x, z, y)
   local tile = w.map[z] and w.map[z][x]
   -- A grid corner never lies in the circular footprint of a pillar. Its exact
@@ -73,7 +110,7 @@ local function sweep(w, b, duration, acceleration, floorHeight)
       enterPillar, exitPillar = pillarInterval(b, cx, cz)
     end
     if b.grounded and b.y > floorHeight + skin * 2 then
-      local base = Ground.cell(w, cx, cz)
+      local base = Ground.surface(w, cx, cz, b.y - floorHeight + skin * 2)
       local onCap = tile == 2 and b.y > base + floorHeight + skin * 2
       local support = base
         + (
@@ -124,6 +161,12 @@ local function sweep(w, b, duration, acceleration, floorHeight)
       local top = descendingCrossing(b, height, acceleration)
       if top >= entry and top <= leave then
         return top, 0, 1, 0
+      end
+    end
+    if w.decks then
+      local t, dx, dy, dz = deck(w, b, cx, cz, entry, leave, ex, ez, acceleration, floorHeight)
+      if t then
+        return t, dx, dy, dz
       end
     end
     if nextX > hit and nextZ > hit then

@@ -293,6 +293,41 @@ Odbiór:
 - wywołania rysowania przy 96 demonach mniejsze niż przy 20 w 0.32
   (diagnostyka).
 
+Wykonano (2026-10-26):
+- Mapa to prostokąt `width` × `depth` (`physics/grid.lua`); ciała w indeksie
+  przestrzennym (`physics/spatial.lua`) dla separacji i promieni strzałów,
+  z dowodem równości bit w bit z przejściem po wszystkich parach.
+- Nawigacja: pole odległości w oknie 32 komórek wokół celu, klasy
+  prześwitu (promień; przy płytach także wysokość), LRU; dalej regiony
+  sektorów 16 × 16 z łączami (`world/navigation.lua`). Zapytanie drogi na
+  mapie 256 × 256 odwiedza 1948 z 65 536 komórek.
+- Warstwy podłogi: płyty (`decks`) nad podłogą komórki; ciało pamięta
+  swoją powierzchnię (`o.level`). Ruch, lądowanie, sufit skoku, wzrok,
+  strzał, pocisk, ładunek, nawigacja (węzły komórka + poziom) i renderer
+  (siatka płyt, płyta zasłania światło) korzystają z warstw. Sprzeczności
+  z rendererem 2.5D nie było: geometria jest prawdziwie 3D, a 2.5D atlas
+  świateł uzupełnia jedna próbka płyty na piksel.
+- Światła: dowolna liczba, 14 miejsc dla najbliższych kamerze (stałe
+  miejsce, wygaszanie, raport `lights.report`); okno 32 komórek na światło
+  dla dużych map. Ciała jednego obrazu, ich cienie i plamy pod nimi to po
+  jednym wywołaniu instancyjnym.
+- Odbiór:
+
+  | Warunek | Wynik |
+  |---|---|
+  | złoty wzorzec, rendery, drogi demonów | 6 skrótów bez zmian; 596 obrazów showcase/GUI identycznych piksel w piksel; testy dróg bez zmian |
+  | mapa 256 × 128 z mostem i 200 kagankami (`qa_bridge`) | test `floor-layers` (16): ruch po moście i pod nim, upadek z krawędzi, wysoki stwór zatrzymany, sufit skoku, strzał wzdłuż mostu i pod nim, spód/góra płyty, ładunek na płycie, pola na obu poziomach, demon wchodzi po schodach do rycerza na moście, wszystkie kaganki przy kamerze świecą, płyta zasłania światło |
+  | zapytanie drogi 256 × 256 bez BFS całej mapy | 1948 odwiedzonych węzłów z 65 536 |
+  | koszt kroku 20/96/256/512 | 0,145 / 0,451 / 0,974 / 2,848 ms; wykładnik dopasowania 0,88 |
+  | wywołania rysowania przy 96 demonach < 0.32 przy 20 | 137,6 < 182,9 (512: 158,4) |
+
+  Odcinek 256 → 512 ma wykładnik 1,55: w stałej sali 72 × 72 gęstość tłumu
+  rośnie z liczbą ciał, więc rośnie też liczba sąsiadów w separacji
+  (0,18 → 0,87 ms). To koszt gęstości, nie algorytmu; krok przy 512
+  ciałach spadł z 16,2 do 2,85 ms. Update klatki aplikacji: 0,44 / 1,67 /
+  5,36 / 11,67 ms (0.32: 0,40 / 2,26 / 11,67 / 40,13). Raporty i zrzuty
+  mostu w `work/v10-v3-measure` (poza gitem).
+
 ### V4 — zapis jako dane ze schematem (B5)
 
 - Zapis to drzewo danych przez `core/serialize` i literalny `core/data_reader`

@@ -20,7 +20,7 @@ local radius = Rules.radius
 local function push(g, e, dt, drag)
   local decay, travel = Physics.drag(drag, dt)
   local dx, dz = e.pushX * travel, e.pushZ * travel
-  local vx, vz, collided = W.move(g.world, e, dx, dz, radius(e))
+  local vx, vz, collided = W.move(g.world, e, dx, dz, radius(e), nil, Rules.tall(g, e))
   if collided and travel > 0 then
     vx, vz = vx or 0, vz or 0
     local lost = len(dx - vx, dz - vz) / travel
@@ -67,6 +67,11 @@ local function fall(g, e, dt)
         y = e.fallY or 0
       end
       local endY = y + vy * step - 0.5 * F.gravity * step * step
+      local endVY = vy - F.gravity * step
+      if g.world.decks then
+        -- A deck overhead stops the rise (plan v10 V3).
+        endY, endVY = Rules.ceiling(g, e, endY, endVY)
+      end
       if
         (not g.world.elevations and step >= land - 1e-12) or (g.world.elevations and endY <= 0)
       then
@@ -79,7 +84,7 @@ local function fall(g, e, dt)
         Corpse.land(g, e, hit, elapsed + step)
       else
         e.fallY = endY
-        e.fallVY = vy - F.gravity * step
+        e.fallVY = endVY
       end
       remaining = remaining - step
       elapsed = elapsed + step

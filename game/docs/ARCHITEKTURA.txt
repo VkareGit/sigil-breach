@@ -159,10 +159,35 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 
   content/maps/<id>.lua + content/maps/index.lua: pokoje, kolumny, pieczęcie,
   portal, spawn, kaganki, Ember, bramy fal, strefy, floor (wysokość podłogi);
-  elevations (podpora na komórkach), decor (scenografia) i anchors (miejsca).
-  content/maps/schema odrzuca uszkodzone wymiary/listy przed budową.
-  world/arena.lua buduje świat (Game.new(kind, mapId)); W.flow = wspólne pola
-  przepływu (jedno na komórkę celu); W.clear = przejście ciała w linii.
+  elevations (podpora na komórkach), decks (płyty nad podłogą: most),
+  decor (scenografia) i anchors (miejsca). Mapa jest prostokątem width ×
+  depth (size dla kwadratu); physics/grid.lua jest jedyną odpowiedzią na
+  wymiary. content/maps/schema odrzuca uszkodzone wymiary/listy przed budową.
+  world/arena.lua buduje świat (Game.new(kind, mapId)); W.clear = przejście
+  ciała w linii.
+  Przestrzeń w skali (plan v10 V3):
+  - Ciała w indeksie przestrzennym (physics/spatial.lua): separacja tłumu
+    i promienie strzałów pytają o sąsiedztwo, nie o każdą parę (wynik
+    identyczny bit w bit z przejściem po wszystkich parach, test).
+  - Węzły chodu: podłoga komórki albo płyta nad nią (W.node, W.layer,
+    W.step). W.flow = pole odległości wokół celu w oknie navigation.window
+    komórek, na klasę prześwitu (promień, a przy płytach wysokość ciała),
+    pamięć LRU. Dalej world/navigation.lua: regiony sektorów, łącza między
+    nimi, przejścia; Navigation.waypoint/distance. Zapytanie drogi nie
+    przechodzi całej mapy (licznik odwiedzonych węzłów w teście).
+  - Płyty (physics/ground.lua): Ground.height(w, x, z, y) = powierzchnia pod
+    wysokością y; ciało pamięta swoją (o.level, ustawia W.move); Ground.of(w,
+    o) to podłoga ciała, miejsca, pocisku. Kolizja zatrzymuje głowę na płycie
+    (Rules.tall), skok, lot i upadek kończą się na jej spodzie (Rules.ceiling);
+    promienie, pociski i ładunki trafiają w górę, spód i bok płyty. Mapa bez
+    płyt idzie dokładnie dawną drogą (o.level = nil).
+  - Światła: dowolna liczba; 14 miejsc w shaderze dostają najbliższe kamerze
+    (stałe miejsce, wygaszanie, raport lights.report); mapa szersza niż 32
+    komórki ma okno 32 komórek na światło i obraz podłoża całej mapy; płyta
+    nie przepuszcza światła na drugą stronę. Ciała jednego obrazu to jedno
+    wywołanie (render/instances.lua), cienie i plamy pod nimi tak samo.
+  - qa/data/bridge_map.lua (qa_bridge, 256 × 128, most, 200 kaganków) i
+    qa/data/crowd_map.lua (qa_crowd) to mapy diagnostyczne QA.
   run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
   progress, policy + ready, retry, closeShop, buy, lose, reward, remaining);
   Modes.act(g, nazwa, ...) — polecenia i skutki pytają tryb. Stan trybu

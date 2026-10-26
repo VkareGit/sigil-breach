@@ -26,6 +26,7 @@ function Hazards.add(g, x, z, delay, r, life, spec)
       packet = spec and spec.packet,
       interval = spec and spec.pulse,
       condition = spec and spec.condition,
+      level = spec and spec.level,
       owner = spec and spec.owner,
       side = spec and spec.side,
     })
@@ -87,7 +88,7 @@ local function pulse(g, h, t, interval, previousPlayer)
     local jump = before.jump + (now.jump - before.jump) * t
     if
       len(x - h.x, z - h.z) < h.radius
-      and math.abs(Ground.height(g.world, x, z) + jump - Ground.height(g.world, h.x, h.z)) < K.jumpClear
+      and math.abs(Ground.height(g.world, x, z, now.level) + jump - Ground.of(g.world, h)) < K.jumpClear
       and W.visible(g.world, h.x, h.z, x, z)
     then
       g:damageBody(

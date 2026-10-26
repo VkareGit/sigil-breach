@@ -28,7 +28,7 @@ end
 -- A bolt carries its archetype's damage packet to the projectile system.
 local function projectile(g, e, a, speed, spec)
   -- Launched and aimed at heights above the ground (physics/ground.lua).
-  local ground = Ground.height(g.world, e.x, e.z)
+  local ground = Ground.of(g.world, e)
   local y = ground + spec.height
   local d = len(e.aimX - e.x, e.aimZ - e.z)
   -- radius: the projectile's own collision radius, also its painted size.
@@ -38,7 +38,9 @@ local function projectile(g, e, a, speed, spec)
     z = e.z + cos(a) * K.muzzle,
     vx = sin(a) * speed,
     vz = cos(a) * speed,
-    vy = (Ground.height(g.world, e.aimX, e.aimZ) + K.aimHeight - y) * speed / math.max(1, d),
+    vy = (Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + K.aimHeight - y)
+      * speed
+      / math.max(1, d),
     life = K.boltLife,
     big = spec.big or false,
     color = spec.color,
@@ -247,8 +249,10 @@ Kinds.charge = {
     local r = atk.reach
     local x1, z1 = ctx.oldX + e.lungeX * r, ctx.oldZ + e.lungeZ * r
     local x2, z2 = e.x + e.lungeX * r, e.z + e.lungeZ * r
-    local y1 = atk.contactY + Ground.height(g.world, ctx.oldX, ctx.oldZ) - Ground.height(g.world)
-    local y2 = atk.contactY + Ground.height(g.world, e.x, e.z) - Ground.height(g.world)
+    local y1 = atk.contactY
+      + Ground.height(g.world, ctx.oldX, ctx.oldZ, e.level)
+      - Ground.height(g.world)
+    local y2 = atk.contactY + Ground.of(g.world, e) - Ground.height(g.world)
     if not e.didHit then
       if Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, previous, current, y2, t) then
         hurt(g, e, atk, t)
@@ -287,6 +291,7 @@ Kinds.strike = {
       side = Bodies.side(g, e),
       x = e.aimX,
       z = e.aimZ,
+      level = e.aimLevel,
       radius = atk.radius,
       delay = e.windupDuration,
       maxDelay = e.windupDuration,
@@ -345,21 +350,14 @@ Kinds.leap = {
       local ghost = Dodge.afterimage(g, t)
       if
         len(p.x - e.x, p.z - e.z) < reachLand
-        and math.abs(
-            Ground.height(g.world, p.x, p.z) + (p.jump or 0) - Ground.height(g.world, e.x, e.z)
-          )
-          < K.jumpClear
+        and math.abs(Ground.of(g.world, p) + (p.jump or 0) - Ground.of(g.world, e)) < K.jumpClear
       then
         local packet = Rules.packet(e, atk.packet)
         g:damageBody(t, packet.base, e.x, e.z, packet, e)
       elseif
         ghost
         and len(ghost.x - e.x, ghost.z - e.z) < reachLand
-        and math.abs(
-            Ground.height(g.world, ghost.x, ghost.z)
-              + (ghost.jump or 0)
-              - Ground.height(g.world, e.x, e.z)
-          )
+        and math.abs(Ground.of(g.world, ghost) + (ghost.jump or 0) - Ground.of(g.world, e))
           < K.jumpClear
       then
         dodged(g, e, atk, t)
@@ -378,6 +376,7 @@ Kinds.pool = {
       pulse = pool.pulse,
       condition = pool.condition,
       owner = pool.packet.effects and e.id or nil,
+      level = e.aimLevel,
       side = Bodies.side(g, e),
     })
     projectile(g, e, a, atk.bolt.speed, atk.bolt)
@@ -406,6 +405,7 @@ Kinds.fan = {
             pulse = line.pulse,
             owner = line.packet.effects and e.id or nil,
             side = Bodies.side(g, e),
+            level = e.aimLevel,
           }
         )
       end
@@ -464,6 +464,7 @@ local function beginAttack(g, e, d, chosen)
   e.windup = e.windupDuration
   e.aimX = p.x
   e.aimZ = p.z
+  e.aimLevel = p.level
   local kind = kindOf(atk)
   if kind.commit then
     kind.commit(g, e, atk)
@@ -554,6 +555,10 @@ function Attacks.flight(g, e, dt, previous)
       end
       local y = e.leapY + e.leapVY * step - 0.5 * gravity * step * step
       e.leapVY = e.leapVY - gravity * step
+      if g.world.decks then
+        -- A deck overhead stops the rise (plan v10 V3).
+        y, e.leapVY = Rules.ceiling(g, e, y, e.leapVY)
+      end
       elapsed = elapsed + step
       if y <= 0 then
         e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false

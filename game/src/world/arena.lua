@@ -67,6 +67,39 @@ function W.new(mode, mapId)
       end
     end
   end
+  -- Decks (plan v10 V3): slabs above the floor, { bottom, top } over the
+  -- datum, shared by the cells of one deck. A world with decks keeps a
+  -- heightfield (flat where none is authored), so every height-aware path
+  -- of movement, sight and shots runs on it.
+  if data.decks and #data.decks > 0 then
+    w.elevations = w.elevations or {}
+    w.decks = {}
+    local merged = {}
+    for _, area in ipairs(data.decks) do
+      local slab = { area.top - area.thickness, area.top }
+      local alone = { slab }
+      for z = area.z1, area.z2 do
+        w.decks[z] = w.decks[z] or {}
+        for x = area.x1, area.x2 do
+          local below = w.decks[z][x]
+          if not below then
+            w.decks[z][x] = alone
+          else
+            local key = tostring(below) .. '+' .. tostring(slab)
+            if not merged[key] then
+              local list = { unpack(below) }
+              list[#list + 1] = slab
+              table.sort(list, function(a, b)
+                return a[1] < b[1]
+              end)
+              merged[key] = list
+            end
+            w.decks[z][x] = merged[key]
+          end
+        end
+      end
+    end
+  end
   for i, s in ipairs(data.seals or {}) do
     local seal = copy(s)
     seal.active = false
@@ -83,9 +116,12 @@ function W.rebuild(w)
   w.geometryRevision = (w.geometryRevision or 0) + 1
   w.lamps = {}
   for _, p in ipairs(data.lamps or {}) do
-    -- The animated pixel brazier is rendered at this existing light anchor.
+    -- The animated pixel brazier is rendered at this existing light anchor;
+    -- p[3] (optional): it stands on the surface under that height (a deck).
+    local stand = p[3] and Ground.height(w, p[1], p[2], (w.floor or 0) + p[3])
+      or Ground.height(w, p[1], p[2])
     w.lamps[#w.lamps + 1] =
-      { x = p[1], y = Ground.height(w, p[1], p[2]) + data.lampHeight, z = p[2], phase = #w.lamps }
+      { x = p[1], y = stand + data.lampHeight, z = p[2], phase = #w.lamps, level = p[3] and stand }
   end
   if w.mode == 'descent' then
     local ember, clear = data.ember, data.emberClear or 0
@@ -115,7 +151,10 @@ end
 function W.solid(w, x, z, r)
   return Collision.solid(w, x, z, r)
 end
-function W.move(w, o, dx, dz, r, velocity)
+-- height (optional): the body's height over its feet; a deck it would
+-- strike with its head stops it (plan v10 V3). On a world with decks the
+-- body keeps the surface it stands on in o.level.
+function W.move(w, o, dx, dz, r, velocity, height)
   if not w.elevations then
     return Collision.move(w, o, dx, dz, r, velocity)
   end
@@ -138,13 +177,18 @@ function W.move(w, o, dx, dz, r, velocity)
     if change then
       span = span * change
     end
-    local before = Ground.height(w, o.x, o.z)
+    local before = Ground.of(w, o)
     local air = o[offset] or 0
     local feet = before + air
+    local climb = air <= 0 and w.stepHeight or 0
     local vx, vz, hit =
-      Collision.move(w, o, dx * span, dz * span, r, velocity, feet, air <= 0 and w.stepHeight or 0)
+      Collision.move(w, o, dx * span, dz * span, r, velocity, feet, climb, height and feet + height)
     sx, sz, collided = sx + vx, sz + vz, collided or hit
-    local rise = Ground.height(w, o.x, o.z) - before
+    local after = Ground.height(w, o.x, o.z, feet + climb)
+    if w.decks then
+      o.level = after
+    end
+    local rise = after - before
     progress = progress + span
     if rise < 0 and air == 0 and not dropAt then
       dropAt = progress
@@ -171,10 +215,12 @@ function W.move(w, o, dx, dz, r, velocity)
 end
 -- Line of sight from (x, z) to (tx, tz). On a heightfield the ray runs
 -- between world heights y and ty: a body's own eyes (Rules.eye), or for a
--- place with no body a standing observer's sight plane (terrain.eye).
-function W.visible(w, x, z, tx, tz, y, ty)
+-- place with no body a standing observer's sight plane (terrain.eye) over
+-- the floor, or over the surface under level / tlevel (a deck, plan v10 V3).
+function W.visible(w, x, z, tx, tz, y, ty, level, tlevel)
   if w.elevations then
-    y, ty = y or Ground.height(w, x, z) + Terrain.eye, ty or Ground.height(w, tx, tz) + Terrain.eye
+    y = y or Ground.height(w, x, z, level) + Terrain.eye
+    ty = ty or Ground.height(w, tx, tz, tlevel) + Terrain.eye
     local dx, dy, dz = tx - x, ty - y, tz - z
     local length = math.sqrt(dx * dx + dy * dy + dz * dz)
     if length == 0 then
@@ -186,11 +232,16 @@ function W.visible(w, x, z, tx, tz, y, ty)
   end
   return Collision.visible(w, x, z, tx, tz)
 end
--- A body of radius r can travel in a straight line from (x, z) to (tx, tz).
-function W.clear(w, x, z, tx, tz, r)
+-- A body of radius r can travel in a straight line from (x, z) to (tx, tz)
+-- (level, height: the surface it stands on and its height; goal: the surface
+-- it must arrive on, on a world with decks; plan v10 V3).
+function W.clear(w, x, z, tx, tz, r, level, height, goal)
   if w.elevations then
-    local probe = { x = x, z = z, jump = 0 }
-    local _, _, blocked = W.move(w, probe, tx - x, tz - z, r)
+    local probe = { x = x, z = z, jump = 0, level = level }
+    local _, _, blocked = W.move(w, probe, tx - x, tz - z, r, nil, height)
+    if w.decks and goal and not blocked then
+      return math.abs(Ground.of(w, probe) - Ground.height(w, tx, tz, goal)) < Terrain.stepHeight
+    end
     return not blocked
   end
   return not Collision.solid(w, tx, tz, r) and Collision.cast(w, x, z, tx - x, tz - z, r) == nil
@@ -208,9 +259,11 @@ W.flowCacheSize = require('src.content.tuning').flowFields
 -- Cells visited by every field built so far (tests read the growth).
 W.stats = { visited = 0 }
 -- Whether a body of clearance class k fits cell (x, z): class 0 needs the
--- cell to be floor; class k the whole square of k cells around it.
+-- cell to be floor; class k the whole square of k cells around it (only
+-- the class's width counts here: k % 4, W.class).
 function W.open(w, x, z, k)
-  if k == nil or k == 0 then
+  k = k and k % 4 or 0
+  if k == 0 then
     return w.map[z] and w.map[z][x] == 0 or false
   end
   for oz = -k, k do
@@ -223,52 +276,132 @@ function W.open(w, x, z, k)
   end
   return true
 end
--- The clearance class of a body of radius r (content/tuning.lua: navigation).
-function W.class(r)
+-- The clearance class of a body of radius r (content/tuning.lua: navigation)
+-- and, on a world with decks, of height tall (Rules.tall): a body taller
+-- than heights[t] needs more room under a deck; the class counts it in fours.
+function W.class(r, tall)
   local k = 0
   for i, limit in ipairs(Navigation.classes) do
     if r > limit then
       k = i
     end
   end
-  return k
+  local t = 0
+  for i, limit in ipairs(Navigation.heights) do
+    if tall and tall > limit then
+      t = i
+    end
+  end
+  return k + 4 * t
 end
-local function flowField(w, sx, sz, class)
-  local qx, qz, head, tail = { sx }, { sz }, 1, 1
+-- The room a body of class k needs under a deck (m).
+function W.headroom(k)
+  return Navigation.heights[math.floor(k / 4) + 1] or math.huge
+end
+-- Nodes of the walk graph (plan v10 V3): the floor of a cell (layer 0) or,
+-- on a world with decks, the top of its n-th deck (layer n). A node's key is
+-- its cell's key, past every cell once per layer below it.
+local function stride(w)
+  return Grid.key(w, Grid.width(w) + 1, Grid.depth(w) + 1) + 1
+end
+function W.node(w, x, z, layer)
+  return Grid.key(w, x, z) + (layer or 0) * stride(w)
+end
+-- The layer of the surface at height h (over the datum) in cell (x, z).
+function W.layer(w, x, z, h)
+  local decks = Ground.decks(w, x, z)
+  local layer = 0
+  if decks and h then
+    for i, deck in ipairs(decks) do
+      if deck[2] <= h then
+        layer = i
+      end
+    end
+  end
+  return layer
+end
+-- The surface (height over the datum) of layer n of cell (x, z).
+function W.level(w, x, z, layer)
+  if layer and layer > 0 then
+    return Ground.decks(w, x, z)[layer][2]
+  end
+  return Ground.cell(w, x, z)
+end
+-- Whether a body of class k can stand on the surface h of cell (x, z):
+-- its room under the next deck above.
+local function roomy(w, x, z, h, k)
+  local top = Ground.ceiling(w, x, z, (w.floor or 0) + h)
+  return not top or top - (w.floor or 0) - h >= W.headroom(k)
+end
+-- The layer a body standing on surface h of one cell lands on stepping into
+-- cell (x, z) (nil: it cannot: a riser too high or a deck in its way).
+function W.step(w, x, z, h, k)
+  local step = w.stepHeight or Terrain.stepHeight
+  if not w.decks then
+    return Ground.cell(w, x, z) - h <= step and 0 or nil
+  end
+  local landing = Ground.surface(w, x, z, h + step)
+  if landing - h > step or not roomy(w, x, z, landing, k) then
+    return nil
+  end
+  local top = Ground.ceiling(w, x, z, (w.floor or 0) + landing)
+  if top and top - (w.floor or 0) - h < W.headroom(k) then
+    return nil
+  end
+  return W.layer(w, x, z, landing)
+end
+local none = {}
+local function flowField(w, sx, sz, class, layer)
+  local qx, qz, ql, head, tail = { sx }, { sz }, { layer }, 1, 1
   local dist = {}
   local window = Navigation.window
-  dist[Grid.key(w, sx, sz)] = 0
+  dist[W.node(w, sx, sz, layer)] = 0
   while head <= tail do
-    local px, pz = qx[head], qz[head]
+    local px, pz, pl = qx[head], qz[head], ql[head]
     head = head + 1
     W.stats.visited = W.stats.visited + 1
-    local d = dist[Grid.key(w, px, pz)]
+    local d = dist[W.node(w, px, pz, pl)]
+    local here = W.level(w, px, pz, pl)
     for i = 1, #neighbours do
       local a = neighbours[i]
       local nx, nz = px + a[1], pz + a[2]
-      local id = Grid.key(w, nx, nz)
       -- Search runs backwards from the goal: a neighbour must be able to
       -- climb from its own floor to this cell, not the other way round.
-      local climb = Ground.cell(w, px, pz) - Ground.cell(w, nx, nz)
-      if
-        math.abs(nx - sx) <= window
-        and math.abs(nz - sz) <= window
-        and W.open(w, nx, nz, class)
-        and dist[id] == nil
-        and climb <= (w.stepHeight or Terrain.stepHeight)
-      then
-        dist[id] = d + 1
-        tail = tail + 1
-        qx[tail], qz[tail] = nx, nz
+      -- Every surface of the neighbour is a node (its floor, its decks).
+      local decks = w.decks and Ground.decks(w, nx, nz) or none
+      for nl = 0, #decks do
+        local id = W.node(w, nx, nz, nl)
+        local there = W.level(w, nx, nz, nl)
+        local climb = here - there
+        if
+          math.abs(nx - sx) <= window
+          and math.abs(nz - sz) <= window
+          and W.open(w, nx, nz, class)
+          and dist[id] == nil
+          and climb <= (w.stepHeight or Terrain.stepHeight)
+          and (
+            not w.decks
+            or (roomy(w, nx, nz, there, class) and W.step(w, px, pz, there, class) == pl)
+          )
+        then
+          dist[id] = d + 1
+          tail = tail + 1
+          qx[tail], qz[tail], ql[tail] = nx, nz, nl
+        end
       end
     end
   end
   return dist
 end
--- class (optional): the clearance class of the bodies following it (W.class).
-function W.flow(w, x, z, class)
+-- class (optional): the clearance class of the bodies following it (W.class);
+-- level (optional): the goal's surface (world height) on a world with decks.
+function W.flow(w, x, z, class, level)
   class = class or 0
   local sx, sz = math.floor(x + 0.5), math.floor(z + 0.5)
+  local layer = 0
+  if w.decks and level then
+    layer = W.layer(w, sx, sz, Ground.surface(w, sx, sz, level - (w.floor or 0)))
+  end
   local cache = w.flows
   if not cache or cache.revision ~= w.geometryRevision then
     cache = { revision = w.geometryRevision, count = 0, clock = 0, fields = {} }
@@ -280,7 +413,7 @@ function W.flow(w, x, z, class)
     byClass = {}
     cache.fields[class] = byClass
   end
-  local goal = Grid.key(w, sx, sz)
+  local goal = W.node(w, sx, sz, layer)
   local entry = byClass[goal]
   if not entry then
     if cache.count >= W.flowCacheSize then
@@ -300,7 +433,7 @@ function W.flow(w, x, z, class)
       cache.fields[oldClass][oldGoal] = nil
       cache.count = cache.count - 1
     end
-    entry = { field = flowField(w, sx, sz, class) }
+    entry = { field = flowField(w, sx, sz, class, layer) }
     byClass[goal], cache.count = entry, cache.count + 1
   end
   entry.used = cache.clock
