@@ -60,13 +60,29 @@ function Tooling.populations(spec, defaults)
     assert(value:match('^%s*%d+%s*$'), 'SIGIL_BENCH_POPULATIONS must be comma-separated integers')
     local count = tonumber(value)
     assert(
-      count >= 1 and count <= 256 and not seen[count],
-      'population must be unique and within 1..256'
+      count >= 1 and count <= 512 and not seen[count],
+      'population must be unique and within 1..512'
     )
     seen[count], result[#result + 1] = true, count
   end
   assert(#result > 0, 'population list is empty')
   return result
+end
+
+-- The map crowds are built on: the arena, or SIGIL_CROWD_MAP=qa_crowd, the
+-- diagnostic hall (qa/data/crowd_map.lua) registered on first use, where one
+-- cost curve from 20 to 512 bodies is measured on the same floor.
+function Tooling.crowdMap()
+  local id = os.getenv('SIGIL_CROWD_MAP')
+  if id == nil or id == '' then
+    return nil
+  end
+  assert(id == 'qa_crowd', 'SIGIL_CROWD_MAP knows only qa_crowd')
+  local Maps = require('src.content.maps.index')
+  if not Maps:find(id) then
+    Maps:register(id, require('qa.data.crowd_map'))
+  end
+  return id
 end
 
 -- This intentionally bypasses the catalogue's player-facing population cap.
@@ -76,7 +92,7 @@ function Tooling.crowd(Game, count)
   local Field = require('src.run.test_field')
   local Enemies = require('src.content.enemies')
   local World = require('src.world.arena')
-  local game = Field.new(Game)
+  local game = Field.new(Game, Tooling.crowdMap())
   game.testing = true
   local index = 1
   for z = 3, game.world.size - 3, 1.5 do

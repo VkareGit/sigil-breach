@@ -80,8 +80,214 @@ local function readBaseline(path)
   return baseline
 end
 
+-- Lua source split into code and short string literals. Comments vanish,
+-- every string becomes '' in the code, and each short string keeps the code
+-- just before it (to tell a call's argument). Long strings count as code ''.
+local function longBracket(text, i)
+  local level = text:match('^%[(=*)%[', i)
+  if level then
+    local close = text:find(']' .. level .. ']', i, true)
+    return close and close + #level + 1 or #text
+  end
+end
+local function scan(text)
+  local code, strings, i, n, tail = {}, {}, 1, #text, ''
+  local function emit(piece)
+    code[#code + 1] = piece
+    tail = (tail .. piece):sub(-16)
+  end
+  while i <= n do
+    local c = text:sub(i, i)
+    if c == '-' and text:sub(i + 1, i + 1) == '-' then
+      local last = longBracket(text, i + 2)
+      i = (last or (text:find('\n', i, true) or n + 1) - 1) + 1
+    elseif c == '[' and longBracket(text, i) then
+      local last = longBracket(text, i)
+      emit("''")
+      i = last + 1
+    elseif c == '"' or c == "'" then
+      local j, value = i + 1, {}
+      while j <= n do
+        local d = text:sub(j, j)
+        if d == '\\' then
+          value[#value + 1] = text:sub(j, j + 1)
+          j = j + 2
+        elseif d == c or d == '\n' then
+          break
+        else
+          value[#value + 1] = d
+          j = j + 1
+        end
+      end
+      strings[#strings + 1] = { value = table.concat(value), before = tail }
+      emit("''")
+      i = j + 1
+    else
+      local stop = text:find('[%-%[\'"]', i + 1) or n + 1
+      emit(text:sub(i, stop - 1))
+      i = stop
+    end
+  end
+  return table.concat(code), strings
+end
+
+-- Scaling ratchets (plan v10 V0): per-file counts of the single-arena
+-- assumptions the plan removes, recorded in tools/check/<name>.txt. Like the
+-- numbers, a file may not exceed its recorded count and a new file holds
+-- none; the stage that removes an assumption drives its count to 0. Counts
+-- are proxies read from the code, not proof of a design.
+local sessionNames = { 'g', 'self', 'game', 'session', 'shown' }
+local function fieldAccesses(code, fields)
+  local count = 0
+  for _, owner in ipairs(sessionNames) do
+    for _, field in ipairs(fields) do
+      for _ in code:gmatch('%f[%w_]' .. owner .. '%.' .. field .. '%f[^%w_]') do
+        count = count + 1
+      end
+    end
+  end
+  return count
+end
+-- Text the player reads: an ALL-CAPS literal of three or more letters (the
+-- game's lettering), not an identifier (no '_', no digits without a space),
+-- or any literal given straight to notify().
+local function playerText(strings)
+  local count = 0
+  for _, s in ipairs(strings) do
+    local value = s.value
+    local _, capitals = value:gsub('%u', '')
+    if s.before:match('notify%(%s*$') then
+      count = count + 1
+    elseif
+      capitals >= 3
+      and not value:find('%l')
+      and not value:find('_', 1, true)
+      and (value:find(' ', 1, true) or not value:find('%d'))
+    then
+      count = count + 1
+    end
+  end
+  return count
+end
+local simulationAndContent =
+  { 'combat', 'content', 'enemies', 'physics', 'player', 'run', 'session', 'systems', 'world' }
+local scalingRatchets = {
+  {
+    name = 'knight-references',
+    label = 'KNIGHT AS THE ONLY TARGET',
+    hint = 'ask for the target or the controlled knight (plan v10 V2)',
+    layers = simulationAndContent,
+    exempt = { 'src/player/', 'src/combat/rules/knight.lua' },
+    count = function(code)
+      return fieldAccesses(code, { 'player' })
+    end,
+  },
+  {
+    name = 'pool-arrays',
+    label = 'DIRECT POOL ARRAYS',
+    hint = 'query the entity world (plan v10 V1)',
+    exempt = { 'src/session/world.lua', 'src/session/state.lua' },
+    count = function(code)
+      return fieldAccesses(code, { 'enemies', 'bullets', 'hazards', 'pickups', 'charges' })
+    end,
+  },
+  {
+    name = 'mode-records',
+    label = 'MODE RECORDS READ OUTSIDE THEIR MODE',
+    hint = 'ask the mode (Modes, run/queries; plan v10 V6)',
+    exempt = {
+      'src/run/descent.lua',
+      'src/run/economy.lua',
+      'src/run/test_field.lua',
+      'src/run/field/',
+      'src/run/modes.lua',
+    },
+    count = function(code)
+      return fieldAccesses(code, { 'run', 'testField' })
+    end,
+  },
+  {
+    name = 'player-text',
+    label = 'PLAYER TEXT OUTSIDE THE TEXT TABLE',
+    hint = 'move it to content/text (plan v10 V6)',
+    exempt = { 'src/content/text.lua' },
+    count = function(_, strings)
+      return playerText(strings)
+    end,
+  },
+}
+local function inScope(rule, relative)
+  if relative:sub(1, 4) ~= 'src/' then
+    return false
+  end
+  for _, prefix in ipairs(rule.exempt) do
+    if relative:sub(1, #prefix) == prefix then
+      return false
+    end
+  end
+  if not rule.layers then
+    return true
+  end
+  for _, layer in ipairs(rule.layers) do
+    if relative:sub(1, #layer + 5) == 'src/' .. layer .. '/' then
+      return true
+    end
+  end
+  return false
+end
+local function scalingAudit(rule, counts, directory, failure, lines)
+  local path = directory .. '/' .. rule.name .. '.txt'
+  local files, total = {}, 0
+  for relative, count in pairs(counts) do
+    if count > 0 then
+      files[#files + 1] = relative
+    end
+    total = total + count
+  end
+  table.sort(files)
+  local baseline = readBaseline(path)
+  if not baseline then
+    local recorded = {}
+    for _, relative in ipairs(files) do
+      recorded[#recorded + 1] = relative .. ' ' .. counts[relative]
+    end
+    local file = assert(io.open(path, 'wb'))
+    file:write(table.concat(recorded, '\n') .. (#recorded > 0 and '\n' or ''))
+    file:close()
+    baseline = counts
+  end
+  for relative, allowed in pairs(baseline) do
+    if (counts[relative] or 0) < allowed then
+      lines[#lines + 1] = 'RATCHET '
+        .. rule.name
+        .. ' '
+        .. relative
+        .. ' can drop to '
+        .. (counts[relative] or 0)
+    end
+  end
+  for _, relative in ipairs(files) do
+    local allowed = baseline[relative] or 0
+    if counts[relative] > allowed then
+      failure(
+        rule.label
+          .. ' '
+          .. relative
+          .. ' has '
+          .. counts[relative]
+          .. ' (allowed '
+          .. allowed
+          .. '): '
+          .. rule.hint
+      )
+    end
+  end
+  lines[#lines + 1] = rule.label .. ' ' .. total
+end
+
 local function audit(manifest, root, reportPath, literalsPath, edgesPath)
   local sources, graph, errors, lines, numbers, crossing = {}, {}, {}, {}, {}, {}
+  local scaling = {}
   local function failure(message)
     errors[#errors + 1] = message
   end
@@ -94,6 +300,16 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath)
     local id = relative:gsub('%.lua$', ''):gsub('/', '.')
     if governed(relative) then
       numbers[relative] = unnamedNumbers(text)
+    end
+    local scanned, strings
+    for _, rule in ipairs(scalingRatchets) do
+      if inScope(rule, relative) then
+        if not scanned then
+          scanned, strings = scan(text)
+        end
+        scaling[rule.name] = scaling[rule.name] or {}
+        scaling[rule.name][relative] = rule.count(scanned, strings)
+      end
     end
     sources[id] = text
     graph[id] = {}
@@ -270,6 +486,12 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath)
     end
   end
   lines[#lines + 1] = 'UNNAMED NUMBERS IN SIMULATION CODE ' .. unnamed
+  if literalsPath then
+    local directory = literalsPath:gsub('[\\/][^\\/]*$', '')
+    for _, rule in ipairs(scalingRatchets) do
+      scalingAudit(rule, scaling[rule.name] or {}, directory, failure, lines)
+    end
+  end
   table.sort(lines)
   lines[#lines + 1] = ''
   for _, id in ipairs(names) do

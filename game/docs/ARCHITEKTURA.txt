@@ -48,6 +48,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   (zapadka tools/check/presentation-edges.txt; 0 krawędzi), każde zdarzenie
   katalogu ma emiter, ZAPADKA NIENAZWANYCH LICZB w kodzie symulacji i app
   (tools/check/literals.txt; plik może tylko maleć, nowy = 0).
+  Zapadki skalowania planu v10 (tools/check/<nazwa>.txt, ta sama zasada):
+  knight-references (g.player w symulacji poza modułami rycerza), pool-arrays
+  (bezpośrednie tablice pul poza session/world i state), mode-records
+  (g.run / g.testField poza modułami trybów), player-text (napisy dla gracza
+  poza content/text). Etap planu, który usuwa dane założenie, sprowadza
+  licznik do 0.
 
 3. SYMULACJA BEZ PREZENTACJI (session/presentation.lua)
 

@@ -37,9 +37,25 @@ function Tests.run(Game)
     'diagnostic population configuration is explicit and ordered',
     #populations == 3 and populations[3] == 96
   )
-  for _, invalid in ipairs({ '0', '48,48', '257', '-1', 'all', '20;96' }) do
+  for _, invalid in ipairs({ '0', '48,48', '513', '-1', 'all', '20;96' }) do
     check('invalid population is rejected: ' .. invalid, not pcall(Tooling.populations, invalid))
   end
+  check(
+    'the largest diagnostic crowd (plan v10 V0) is accepted',
+    Tooling.populations('512')[1] == 512
+  )
+  check('only the diagnostic crowd map is accepted by name', not pcall(function()
+    local getenv = os.getenv
+    os.getenv = function(name)
+      if name == 'SIGIL_CROWD_MAP' then
+        return 'limbo'
+      end
+      return getenv(name)
+    end
+    local ok, problem = pcall(Tooling.crowdMap)
+    os.getenv = getenv
+    assert(ok, problem)
+  end))
   local QA = require('qa.runtime')
   local outputs = {}
   for _, entry in ipairs(Tooling.catalog) do

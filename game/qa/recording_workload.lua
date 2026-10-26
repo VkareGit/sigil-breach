@@ -18,7 +18,8 @@ end
 function Workload.run(Game, count, seconds)
   -- The player-facing catalogue intentionally caps at20. Larger populations
   -- are labelled prepared diagnostics, reconstructed identically for replay.
-  local prepared = count > 20
+  -- On the diagnostic crowd map every population is prepared the same way.
+  local prepared = count > 20 or Tooling.crowdMap() ~= nil
   local function fresh()
     return prepared and Tooling.crowd(Game, count) or Field.new(Game)
   end

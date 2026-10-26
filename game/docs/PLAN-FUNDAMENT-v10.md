@@ -90,6 +90,48 @@ Odbiór: świeże raporty 20/48/96/256/512 z identyfikacją źródeł; cztery
 zapadki z wartościami 0.32; wykres kosztu kroku od liczby ciał (dziś
 oczekiwany składnik kwadratowy separacji, opisany).
 
+Wykonano (2026-10-25):
+- Zapadki w `tools/check/` (raport `architecture.txt`, licznik może tylko
+  maleć, nowy plik = 0). Liczone w kodzie bez komentarzy i napisów, jako
+  wskaźnik, nie dowód projektu:
+
+  | Zapadka | Wartość 0.32 | Plików |
+  |---|---|---|
+  | `KNIGHT AS THE ONLY TARGET` (g.player w symulacji i treści, poza `src/player/`, `combat/rules/knight.lua`) | 154 | 39 |
+  | `DIRECT POOL ARRAYS` (g/self/game/session/shown . enemies/bullets/hazards/pickups/charges, poza `session/world.lua`, `session/state.lua`) | 99 | 35 |
+  | `MODE RECORDS READ OUTSIDE THEIR MODE` (g.run/g.testField poza modułami trybów) | 57 | 19 |
+  | `PLAYER TEXT OUTSIDE THE TEXT TABLE` (napisy WIELKIMI LITERAMI i argumenty notify poza `content/text`) | 340 | 44 |
+
+- Pomiary: `--core-measure` liczy też krok symulacji z przebudzoną populacją
+  (z osobną separacją) i krok ze zwłokami. Populacje do 512.
+  `SIGIL_CROWD_MAP=qa_crowd` to diagnostyczna sala 72×72 tylko w QA
+  (`qa/data/crowd_map.lua`), dzięki czemu cała krzywa leży na jednej mapie.
+  `SIGIL_CORE_JOURNAL_SECONDS` jawnie skraca próbkę dziennika.
+- Stan odniesienia (odcisk źródeł `24338727…7B22`; raporty i wykres
+  `step-cost.svg` w `work/v10-baseline`, poza gitem):
+
+  | Ciała (qa_crowd) | 20 | 96 | 256 | 512 |
+  |---|---|---|---|---|
+  | krok symulacji, mediana ms | 0,106 | 0,357 | 5,549 | 16,214 |
+  | w tym separacja, ms | 0,004 | 0,118 | 3,908 | 13,794 |
+  | reszta kroku, ms | 0,102 | 0,239 | 1,641 | 2,420 |
+  | krok przy zwłokach (n−1 martwych, 1 żywy), ms | 0,022 | 0,032 | 0,175 | 0,292 |
+  | pociski rycerza (10) na krok, ms | 0,066 | 0,289 | 0,818 | 1,481 |
+  | snapshot capture, ms | 0,63 | 1,04 | 1,88 | 3,32 |
+  | dziennik: przyrost tekstu, MB/s | 0,56 | 2,51 | 6,68 | 13,31 |
+  | dziennik: 64 MiB wystarcza na, s | 121 | 27 | 10 | 5 |
+  | benchmark: wywołania rysowania na klatkę | 183 | 414 | 920 | 1779 |
+  | benchmark: update w klatce aplikacji, mediana ms | 0,40 | 2,26 | 11,67 | 40,13 |
+
+  Wykładnik kosztu kroku 20→512 wynosi 1,55; 96→256 aż 2,80. Separacja
+  par ma wykładnik 2,84 (96→512), a reszta kroku 0,98 (20→512). Przy 512
+  ciałach sam krok (16,2 ms) przekracza budżet 8,33 ms kroku 120 Hz.
+  Zwłoki kosztują liniowo, ok. 0,5 µs na ciało w kroku. Dziennik rośnie
+  liniowo z liczbą ciał na mapie, niezależnie od tego, w co celuje strzał
+  (B7): przy 256 ciałach 10-sekundowa próbka przekracza limit produkcyjny.
+  Na arenie (limbo) krok wynosi 0,159 / 0,297 / 0,916 ms dla 20/48/96 ciał,
+  z separacją 0,009 / 0,097 / 0,566 ms.
+
 ### V1 — encje z cyklem życia (B2)
 
 Świat ECS staje się rzeczywistym właścicielem encji:

@@ -6,6 +6,8 @@
 --   missiles      knight missiles swept against the selected population
 --   melee         a thrall's lunges and claws against the knight
 --   snapshot      Snapshot.capture / restore of the selected field
+--   step          whole simulation steps with the population awake
+--   corpses       steps with the population killed and kept in place
 --   journal       recording, exporting and replaying a field fight
 --   long session  300 waves of three demons spawned, killed and cleared
 local Tooling = require('qa.tooling')
@@ -35,8 +37,19 @@ local function timed(n, fn)
   end
   return (clock() - start) / n * 1000
 end
+-- Per-call times (ms) of fn over n calls: median and 95th percentile.
+local function spread(n, fn)
+  local times = {}
+  for i = 1, n do
+    local start = clock()
+    fn(i)
+    times[i] = (clock() - start) * 1000
+  end
+  table.sort(times)
+  return times[math.ceil(n / 2)], times[math.ceil(n * 0.95)]
+end
 local function field(G, count, kind)
-  if count > 20 and not kind then
+  if (count > 20 or Tooling.crowdMap()) and not kind then
     return Tooling.crowd(G, count)
   end
   local Field = require('src.run.test_field')
@@ -65,12 +78,15 @@ function M.run(G, output, smoke)
   local populations = Tooling.populations(os.getenv('SIGIL_CORE_POPULATION'), { 20 })
   assert(
     #populations == 1 and populations[1] >= 20,
-    'core population must be one integer from 20 to 256'
+    'core population must be one integer from 20 to 512'
   )
   local population, journalPopulation = populations[1], smoke and 3 or populations[1]
   lines[#lines + 1] = 'Population: '
     .. population
     .. '; populations above 20 use a prepared free-tile factory grid outside the player catalogue. The 20 rays and 10 missiles remain fixed.'
+  lines[#lines + 1] = 'Map: '
+    .. (Tooling.crowdMap() or 'limbo (the arena)')
+    .. (Tooling.crowdMap() and '; every population uses the crowd factory grid' or '')
   lines[#lines + 1] = 'LuaJIT ' .. tostring(jit and jit.version)
   lines[#lines + 1] =
     'Prepared CPU workloads; no renderer or desktop input polling. Timing is diagnostic, never a machine-specific pass threshold.'
@@ -238,10 +254,66 @@ function M.run(G, output, smoke)
       end)
     )
   )
+  -- Whole simulation steps with the population awake (plan v10 V0): the
+  -- step cost against the number of bodies, and crowd separation alone
+  -- (every living pair today).
+  local AI = require('src.enemies.ai')
+  g = field(G, population)
+  g.testField.invincible = true
+  for _ = 1, n(60, 2) do
+    g:update(1 / 120, {})
+  end
+  local stepMedian, stepTail = spread(n(240, 4), function()
+    g:update(1 / 120, {})
+  end)
+  local separationMedian = spread(n(240, 4), function()
+    AI.separate(g, 1 / 120)
+  end)
+  log(
+    string.format(
+      'step: %d bodies awake; whole simulation step median %.4f ms, p95 %.4f ms; separation alone median %.4f ms',
+      population,
+      stepMedian,
+      stepTail,
+      separationMedian
+    )
+  )
+  -- Dead bodies stay in their encounter until it is cleared (0.32): the step
+  -- with the population killed in place and one demon left alive.
+  g = field(G, population)
+  g.testField.invincible = true
+  for i = 2, #g.enemies do
+    local body = g.enemies[i]
+    g:damageEnemy(body, body.hp + 1, 'weapon')
+  end
+  for _ = 1, n(240, 4) do
+    g:update(1 / 120, {})
+  end
+  local alive = 0
+  for _, body in ipairs(g.enemies) do
+    alive = alive + (body.hp > 0 and 1 or 0)
+  end
+  local corpseMedian, corpseTail = spread(n(240, 4), function()
+    g:update(1 / 120, {})
+  end)
+  log(
+    string.format(
+      'corpses: %d dead bodies kept beside %d alive; whole simulation step median %.4f ms, p95 %.4f ms',
+      #g.enemies - alive,
+      alive,
+      corpseMedian,
+      corpseTail
+    )
+  )
   -- Journal: production Input.sample includes the displayed geometry even
   -- while the held weapon cools down or reloads. Omitting it hides the cost.
   local Field = require('src.run.test_field')
-  local recording = require('qa.recording_workload').run(G, journalPopulation, n(10, 1))
+  -- SIGIL_CORE_JOURNAL_SECONDS shortens the fight explicitly where ten
+  -- seconds of a large crowd exceed the production recording budget (0.32:
+  -- from 256 bodies); the report names the length used.
+  local journalSeconds = tonumber(os.getenv('SIGIL_CORE_JOURNAL_SECONDS') or '') or n(10, 1)
+  assert(journalSeconds >= 1 and journalSeconds % 1 == 0, 'journal seconds must be a whole number')
+  local recording = require('qa.recording_workload').run(G, journalPopulation, journalSeconds)
   log(
     string.format(
       'journal: %d targets, %.2f s held-fire fight, 60 observations/s, 120 updates/s; start %.2f ms; fight %.1f ms; export %.2f ms; decode %.2f ms; replay %.1f ms; receipts=%d (replay verified)',

@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.32 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.33 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,23 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.33.txt
+########################################################################
+SIGIL: BREACH / 0.33 / FUNDAMENT v10 (W TOKU)
+
+Plan: game/docs/PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25). Wersja w
+src/core/build.lua pozostaje 0.32 do wydania; ta sekcja zbiera etapy.
+
+V0 — stan odniesienia i zapadki (2026-10-25)
+- Checker: cztery zapadki skalowania (knight-references 154, pool-arrays 99,
+  mode-records 57, player-text 340); licznik pliku może tylko maleć.
+- Pomiary: krok symulacji z przebudzoną populacją i ze zwłokami, populacje
+  do 512, diagnostyczna sala qa_crowd (tylko QA), jawna długość próbki
+  dziennika. Tabela odniesienia w planie, sekcja V0.
+- Rozgrywka, balans, wygląd i zapisy bez zmian; złoty wzorzec bez zmian.
 
 
 ########################################################################

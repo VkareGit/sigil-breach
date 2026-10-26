@@ -64,7 +64,13 @@ tests/suite.lua); raport suite-<id>-results.txt nie nadpisuje pełnego
 test-results.txt. Błąd jednego zestawu przerywa pełny przebieg.
 Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
   --core-measure   maski (start, pamięć), salwa, pociski, pazur, Snapshot,
-                   Journal, długa sesja -> core-measure.txt
+                   krok z przebudzoną populacją (z osobną separacją), krok
+                   ze zwłokami, Journal, długa sesja -> core-measure.txt
+                   SIGIL_CORE_POPULATION=20..512; SIGIL_CROWD_MAP=qa_crowd
+                   (diagnostyczna sala 72×72 tylko w QA, cała krzywa na
+                   jednej mapie); SIGIL_CORE_JOURNAL_SECONDS skraca próbkę
+                   dziennika, gdy 10 s dużego tłumu przekracza limit.
+                   SIGIL_BENCH_POPULATIONS (do 512) dla --benchmark.
   --benchmark      przygotowane populacje 20/48/96 oraz osobno prawdziwe
                    wejście/przywołanie przez portal (normalny limit20).
   --startup-check  rzeczywisty Application.load/update/draw, postęp,
