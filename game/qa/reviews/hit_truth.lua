@@ -529,7 +529,7 @@ local function orderScenarios(G, truth, lines)
   front = put(g, 'imp', p.x + fx * 7, p.z + fz * 7)
   back = put(g, 'imp', p.x + fx * 10 + rx * 0.5, p.z + fz * 10 + rz * 0.5)
   g:switchWeapon(1)
-  g.cooldown = 0
+  g.player.cooldown = 0
   aimAt(g, front)
   local places = { truth:place(g, front, {}), truth:place(g, back, {}) }
   local ox, oy, oz = B.origin(g)

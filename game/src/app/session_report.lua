@@ -6,6 +6,7 @@
 -- proving ground was reset). It listens to the session's events ('present':
 -- after the step) and never changes the session. A test session writes
 -- nothing. Report.afterWrite (optional) runs after an entry (the journal).
+local Combat = require('src.combat.combat')
 local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
 local Pools = require('src.session.world')
@@ -27,8 +28,8 @@ local function totals(g)
     elapsed = g.elapsed or 0,
     kills = g.kills or 0,
     damage = g.damageTaken or 0,
-    shots = g.shots or 0,
-    hits = g.hits or 0,
+    shots = select(1, Combat.counters(g)) or 0,
+    hits = select(2, Combat.counters(g)) or 0,
   }
 end
 local function summary(label, t, hp)

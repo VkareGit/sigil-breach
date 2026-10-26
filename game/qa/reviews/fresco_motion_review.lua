@@ -42,7 +42,7 @@ function S.run(Game, renderer, output)
     g.testing = true
     Field.close(g)
     g.testField.frozen = true
-    g.weapon = slot
+    g.player.weapon = slot
     g.view.motion = true
     g.view.fov = 100
     g.elapsed = 70
@@ -104,7 +104,7 @@ function S.run(Game, renderer, output)
       lg.setColor(0.86, 0.75, 0.56)
       lg.print(string.format('%s  %.3fs  pose %02d', name, at, Weapon.frame(g)), x + 8, y + 8)
       lg.print(
-        g.reload > 0 and Reload.label(g) or (started and 'strzal / powrot' or 'gotowa'),
+        g.player.reload > 0 and Reload.label(g) or (started and 'strzal / powrot' or 'gotowa'),
         x + 8,
         y + 222
       )

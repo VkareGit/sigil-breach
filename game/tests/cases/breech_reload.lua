@@ -36,7 +36,7 @@ function Tests.run(G)
   pause(g, 'swap')
   check(
     'one live shell and one reserve still resume insertion after a manual reload swap',
-    near(g.reloadOffset, timing.resume.open)
+    near(g.player.reloadOffset, timing.resume.open)
       and state.mag == 1
       and state.reserve == 1
       and state.open
@@ -63,7 +63,7 @@ function Tests.run(G)
           and not Reload.mechanism(g, 1).primed(state)
           and state.mag == mag
           and state.reserve == reserve
-          and near(g.reloadOffset, timing.resume.open)
+          and near(g.player.reloadOffset, timing.resume.open)
         advanceTo(g, Tuning.reloadLoadTime + epsilon)
         local amount = math.min(definition.capacity - mag, reserve)
         local inserted = state.open
@@ -76,7 +76,7 @@ function Tests.run(G)
           before and inserted
         )
         pause(g, route)
-        local resumed = near(g.reloadOffset, timing.resume.loaded) and state.loaded
+        local resumed = near(g.player.reloadOffset, timing.resume.loaded) and state.loaded
         Reload.update(g, Tuning.shotgunCycle)
         check(
           'post-transaction pause only closes and conserves total ammunition: ' .. label,
@@ -86,7 +86,7 @@ function Tests.run(G)
             and state.mag + state.reserve == mag + reserve
             and not state.open
             and not state.loaded
-            and g.reload == 0
+            and g.player.reload == 0
         )
       end
     end
@@ -117,13 +117,13 @@ function Tests.run(G)
       and state.reserve == 1
       and not state.open
       and not state.loaded
-      and g.reload == 0
+      and g.player.reload == 0
   )
   assert(g:reloadGun())
   advanceTo(g, timing.close + epsilon)
   check(
     'close clears the transaction marker before the timeline finishes',
-    not state.open and not state.loaded and g.reload > 0
+    not state.open and not state.loaded and g.player.reload > 0
   )
   return lines
 end

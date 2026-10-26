@@ -92,7 +92,7 @@ function Tests.run(G, renderer)
       local g = Fixtures.arena(G)
       local slot = Weapons.give(g, id)
       g:switchWeapon(slot)
-      g.cooldown, g.elapsed = 0, 1
+      g.player.cooldown, g.elapsed = 0, 1
       local e = g:spawn('imp', 16, 21)
       e.dummy, e.hp, e.maxHp, e.armorRating = true, 1000, 1000, 0
       e.resistances = { fire = resistance or 0 }
@@ -129,7 +129,7 @@ function Tests.run(G, renderer)
         and receipt.contacts[1].material
         and receipt.contacts[1].distance > 2
         and receipt.healthDamage > 0
-        and g.hits == 1
+        and g.player.hits == 1
     )
     local plain, flesh = setup(0)
     plain:shoot()
@@ -167,7 +167,7 @@ function Tests.run(G, renderer)
     Snapshot.invalidateDefinitions()
     local many = setup()
     Weapons.give(many, multi.id)
-    many.weapon, many.cooldown = 4, 0
+    many.player.weapon, many.player.cooldown = 4, 0
     many:shoot()
     local snapshot = Snapshot.capture(many)
     Snapshot.restore(many, snapshot)
@@ -180,7 +180,7 @@ function Tests.run(G, renderer)
     for _ = 1, 60 do
       many:update(1 / 120, {})
     end
-    check('several finite pellets count as a single successful trigger pull', many.hits == 1)
+    check('several finite pellets count as a single successful trigger pull', many.player.hits == 1)
     Weapons.registry:unregister(multi.id)
     local recorded = setup()
     local baseline = Snapshot.capture(recorded)
@@ -201,7 +201,7 @@ function Tests.run(G, renderer)
     local run = Fixtures.expedition(G)
     Weapons.give(run, id)
     run:switchWeapon(3)
-    run.cooldown = 0
+    run.player.cooldown = 0
     Weapons.state(run).mag = 0
     check('existing reload mechanism works for the new delivery', run:reloadGun())
     for _ = 1, 400 do
@@ -221,7 +221,7 @@ function Tests.run(G, renderer)
         and loaded.player.arsenal[id].mag == 4
         and loaded.player.arsenal[id].reserve == 4
     )
-    loaded.weapon = 3
+    loaded.player.weapon = 3
     loaded.view.swapAge = 1
     local labels = {}
     Skin.text = function(t, ...)
@@ -250,7 +250,7 @@ function Tests.run(G, renderer)
     Weapons.give(classic, fourth.id)
     classic:shoot()
     for _, slot in ipairs({ 3, 4 }) do
-      classic.weapon = slot
+      classic.player.weapon = slot
       labels = {}
       Skin.text = function(t, ...)
         labels[t] = true

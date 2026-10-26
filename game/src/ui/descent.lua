@@ -121,7 +121,7 @@ function D.controls(g)
         y = 137,
         w = step - 12,
         h = 40,
-        active = g.weapon == slot,
+        active = Weapons.slot(g) == slot,
       }
     end
     return list

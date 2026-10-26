@@ -54,7 +54,7 @@ function Review.run(output, Game, renderer)
     g.testing = true
     Field.close(g)
     g.testField.frozen = true
-    g.weapon = slot
+    g.player.weapon = slot
     g.view.motion = motion ~= false
     g.view.fov = 100
     g.enemies = {}
@@ -93,8 +93,8 @@ function Review.run(output, Game, renderer)
       g.time,
       g.elapsed,
       g.view.shotAge,
-      g.reload,
-      g.cooldown,
+      g.player.reload,
+      g.player.cooldown,
       g.player.arsenal.exorcist.mag,
       g.player.arsenal.judge.mag,
       #g.view.traces,
@@ -147,14 +147,14 @@ function Review.run(output, Game, renderer)
       clockReceipt(g) == before,
       name .. ': drawing changed a shot clock, ammunition or effect lifetime'
     )
-    local mag = g.weapon == 1 and g.player.arsenal.exorcist.mag or g.player.arsenal.judge.mag
-    local reserve = g.weapon == 1 and g.player.arsenal.exorcist.reserve
+    local mag = g.player.weapon == 1 and g.player.arsenal.exorcist.mag or g.player.arsenal.judge.mag
+    local reserve = g.player.weapon == 1 and g.player.arsenal.exorcist.reserve
       or g.player.arsenal.judge.reserve
     records[#records + 1] = string.format(
       '%s,%.5f,%d,%.5f,%.5f,%d,%d,%d,%d,%d,%d,%.6f,%.6f,%.7f,%d',
       name,
       at,
-      g.weapon,
+      g.player.weapon,
       g.view.shotAge,
       Reload.age(g),
       Weapon.sourceFrame(g),

@@ -24,16 +24,23 @@ local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
 -- one of its fields on the session itself is a mistake, reported at once.
+-- A field that moved off the session (plan v11) names its new place.
 setmetatable(Game, {
   __index = function(_, key)
     if Fields.viewOwner(key) then
       error('session.' .. key .. ' is presentation state: use session.view.' .. key, 2)
+    end
+    if Fields.retired[key] then
+      error('session.' .. key .. ' moved to ' .. Fields.retired[key], 2)
     end
   end,
 })
 function Game.__newindex(session, key, value)
   if Fields.viewOwner(key) then
     error('session.' .. key .. ' is presentation state: use session.view.' .. key, 2)
+  end
+  if Fields.retired[key] then
+    error('session.' .. key .. ' moved to ' .. Fields.retired[key], 2)
   end
   rawset(session, key, value)
 end
@@ -91,7 +98,7 @@ function Game:spawn(kind, x, z)
 end
 
 function Game:reloadGun()
-  if self.reload > 0 or not Weapons.inHand(self) then
+  if Reload.left(self) > 0 or not Weapons.inHand(self) then
     return false
   end
   if Reload.start(self, false) then
@@ -99,7 +106,7 @@ function Game:reloadGun()
   end
   local mag, reserve = Weapons.ammo(self)
   if mag == 0 and reserve == 0 then
-    self.cooldown = 0.20
+    Roles.controlled(self).cooldown = 0.20
     self:notify(Text.get('no_ammo'), 2)
     Presentation.cue(self, 'empty')
   end
@@ -110,13 +117,14 @@ function Game:switchWeapon(which)
   if type(which) ~= 'number' then
     return false
   end
+  local actor = Roles.controlled(self)
   local def, state = Weapons.inHand(self, which)
-  if not def or self.weapon == which then
+  if not def or actor.weapon == which then
     return false
   end
   Reload.cancel(self)
-  self.weapon, self.view.swapAge = which, 0
-  self.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
+  actor.weapon, self.view.swapAge = which, 0
+  actor.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
   self.view.shotAge = 10
   self.view.interruptedClose = nil
   -- An action left open finishes its reload when the weapon is back in hand.

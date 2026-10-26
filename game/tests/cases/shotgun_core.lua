@@ -39,11 +39,18 @@ end
 local function scene(distance, enemies)
   return {
     world = { size = 61, map = map },
-    player = { x = 31, z = 31 + distance, yaw = math.pi, pitch = 0, jump = 0, crouch = 0 },
+    player = {
+      x = 31,
+      z = 31 + distance,
+      yaw = math.pi,
+      pitch = 0,
+      jump = 0,
+      crouch = 0,
+      weapon = 1,
+    },
     enemies = enemies,
     testField = {},
     time = 0,
-    weapon = 1,
   }
 end
 function S.volley(kind, distance, frame, count, serial, offsets)

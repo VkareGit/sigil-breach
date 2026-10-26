@@ -38,7 +38,7 @@ function Tests.run(G, renderer)
   end
   local g = fresh()
   local p = g.player
-  g.weapon = 2
+  g.player.weapon = 2
   local attack = W.attack(g, 2)
   local damage, blocked, impact = D.resolve(attack, { armorRating = 60 }, 3)
   check(
@@ -115,13 +115,13 @@ function Tests.run(G, renderer)
   g.elapsed = 0.1
   g:switchWeapon(1)
   g:switchWeapon(2)
-  g.cooldown = 0
+  g.player.cooldown = 0
   check(
     'switching weapons cannot bypass the revolver firing interval',
     not g:shoot() and p.arsenal.judge.mag == 5
   )
   g.elapsed = 0.39
-  g.cooldown = 0
+  g.player.cooldown = 0
   g.player.pitch = 0.9
   g:shoot()
   check(
@@ -133,13 +133,13 @@ function Tests.run(G, renderer)
       and g.view.shotReport.distanceMin == nil
   )
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   p = g.player
   p.arsenal.judge.mag = 1
   p.arsenal.judge.reserve = 9
   check(
     'manual reload starts the complete physical cylinder timeline',
-    g:reloadGun() and near(g.reloadDuration, 1.85) and g.reloadWeapon == 2
+    g:reloadGun() and near(g.player.reloadDuration, 1.85) and g.player.reloadWeapon == 2
   )
   Reload.update(g, 1.15)
   check(
@@ -156,21 +156,21 @@ function Tests.run(G, renderer)
   check(
     'interrupting after insertion resumes closure without duplicating ammunition',
     p.arsenal.judge.mag + p.arsenal.judge.reserve == 10
-      and g.reloadWeapon == 2
-      and near(g.reloadOffset, 1.16)
-      and g.reload > 0
+      and g.player.reloadWeapon == 2
+      and near(g.player.reloadOffset, 1.16)
+      and g.player.reload > 0
       and not g:shoot()
   )
   Reload.update(g, 2)
   check(
     'closure leaves a usable full cylinder and exact conserved reserve',
-    g.reload == 0
+    g.player.reload == 0
       and not p.arsenal.judge.open
       and p.arsenal.judge.mag == 6
       and p.arsenal.judge.reserve == 4
   )
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   p = g.player
   p.arsenal.judge.mag = 0
   p.arsenal.judge.reserve = 3
@@ -188,7 +188,7 @@ function Tests.run(G, renderer)
     p.arsenal.judge.mag == 3 and p.arsenal.judge.reserve == 0 and not p.arsenal.judge.open
   )
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   p = g.player
   p.arsenal.judge.mag = 3
   p.arsenal.judge.reserve = 24
@@ -204,7 +204,7 @@ function Tests.run(G, renderer)
   g:switchWeapon(2)
   check(
     'interrupting before insertion resumes loading even when old live rounds remain',
-    near(g.reloadOffset, 0.68)
+    near(g.player.reloadOffset, 0.68)
       and not p.arsenal.judge.loaded
       and p.arsenal.judge.mag == 3
       and p.arsenal.judge.reserve == 24
@@ -219,30 +219,30 @@ function Tests.run(G, renderer)
       and W.canFire(g)
   )
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   p = g.player
   p.arsenal.judge.mag = 0
   p.arsenal.judge.reserve = 0
-  local shots = g.shots
+  local shots = g.player.shots
   check(
     'an empty revolver cannot fire or regenerate ammunition over time',
     not g:shoot()
       and (function()
         tick(g, 4)
-        return p.arsenal.judge.mag == 0 and p.arsenal.judge.reserve == 0 and g.shots == shots
+        return p.arsenal.judge.mag == 0 and p.arsenal.judge.reserve == 0 and g.player.shots == shots
       end)()
   )
   for _, bad in ipairs({ -1, 7, 0.5, math.huge, 0 / 0 }) do
     g = fresh()
-    g.weapon = 2
+    g.player.weapon = 2
     g.player.arsenal.judge.mag = bad
     check(
       'invalid cylinder value ' .. tostring(bad) .. ' cannot fire or reload',
-      not g:shoot() and not g:reloadGun() and g.shots == 0
+      not g:shoot() and not g:reloadGun() and g.player.shots == 0
     )
   end
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   g.player.arsenal.judge.mag = 0
   g.player.arsenal.judge.reserve = 6
   g:reloadGun()

@@ -174,7 +174,7 @@ function Tests.run(Game)
   g = fresh()
   g:start()
   g.state = 'paused'
-  g.fireBuffer = 0.1
+  g.player.fireBuffer = 0.1
   g.view.particles = { { life = 0.5 } }
   local startTime, startElapsed = g.time, g.elapsed
   g:update(0.1, { forward = 1, shoot = true })
@@ -185,7 +185,7 @@ function Tests.run(Game)
       and g.player.x == 16
       and g.player.z == 27.5
       and g.view.particles[1].life == 0.5
-      and g.fireBuffer == 0
+      and g.player.fireBuffer == 0
   )
 
   local expedition = fresh('descent')

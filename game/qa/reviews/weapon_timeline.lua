@@ -30,7 +30,7 @@ function Review.run(Game, renderer, output)
     local g = Field.new(Game)
     g.testing = true
     Field.close(g)
-    g.weapon, g.view.motion = slot, false
+    g.player.weapon, g.view.motion = slot, false
     g.view.swapAge, g.view.shotAge = 1, 10
     local state, definition = Weapons.state(g), Weapons.inHand(g)
     local entry = Art.of(g)
@@ -38,7 +38,7 @@ function Review.run(Game, renderer, output)
     local function capture(label)
       local index = V.sourceFrame(g)
       local frame = assert(entry.frames[index], 'sampled unknown weapon drawing')
-      local age = g.reload > 0 and Reload.age(g) or 0
+      local age = g.player.reload > 0 and Reload.age(g) or 0
       local key = table.concat({ frame.id, state.mag, state.open and 1 or 0, label or '' }, ':')
       if key == last then
         return

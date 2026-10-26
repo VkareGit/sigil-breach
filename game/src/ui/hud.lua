@@ -91,14 +91,15 @@ function H.status(g, run)
   local mag, reserve = Weapons.ammo(g)
   fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
   number(tostring(mag), 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
-  local ammoCaption = g.reload > 0 and Reload.label(g) or Text.get('reserve', { count = reserve })
+  local ammoCaption = Reload.left(g) > 0 and Reload.label(g)
+    or Text.get('reserve', { count = reserve })
   fitted(
     ammoCaption,
     185,
     678,
     14,
     100,
-    g.reload > 0 and C.gold or (reserve == 0 and C.red or C.muted)
+    Reload.left(g) > 0 and C.gold or (reserve == 0 and C.red or C.muted)
   )
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
@@ -318,7 +319,7 @@ function H.draw(g, settings, ui, descentUI)
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.
   local def = Weapons.inHand(g)
-  if g.reload <= 0 and (mag == 0 or mag < def.fire.rounds) then
+  if Reload.left(g) <= 0 and (mag == 0 or mag < def.fire.rounds) then
     local empty = mag + reserve == 0
     local other = Weapons.nextSlot(g)
     local otherMag, otherReserve = Weapons.ammo(g, other)

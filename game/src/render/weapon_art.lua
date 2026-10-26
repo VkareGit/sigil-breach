@@ -59,13 +59,13 @@ function WeaponArt.interruptedProgress(g)
 end
 function WeaponArt.frame(g)
   local entry = WeaponArt.of(g)
-  if (g.reload or 0) > 0 and g.reloadWeapon == g.weapon then
+  if Reload.left(g) > 0 and Reload.slot(g) == Weapons.slot(g) then
     local age = Reload.age(g)
     -- Automatic opening may include the real discharge. Manual/resumed
     -- opening never manufactures a recoil or advances an ammunition clock.
     if
       Weapons.inHand(g).fire.autoReload
-      and (g.reloadOffset or 0) == 0
+      and Reload.offset(g) == 0
       and age < entry.automaticFireUntil
     then
       local fire = WeaponArt.fireFrame(g)
@@ -90,7 +90,7 @@ function WeaponArt.frame(g)
   end
   local state = g.player and Weapons.state(g)
   if state and state.open then
-    local name = Reload.mechanism(g, g.weapon).primed(state) and entry.open.primed
+    local name = Reload.mechanism(g, Weapons.slot(g)).primed(state) and entry.open.primed
       or entry.open.empty
     return rounds(g, entry, Metadata.frame(entry, name))
   end

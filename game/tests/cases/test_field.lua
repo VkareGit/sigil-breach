@@ -154,7 +154,7 @@ function Tests.run(G, renderer)
       g = fresh()
       local target = assert(Field.spawn(g, 'armored', 1))[1]
       Field.close(g)
-      g.weapon = slot
+      g.player.weapon = slot
       target.x, target.z = 16, 24
       g.player.yaw = math.pi
       g.player.pitch = 0
@@ -163,7 +163,7 @@ function Tests.run(G, renderer)
       normal:start()
       normal.run.phase = 'wave'
       normal.enemies = {}
-      normal.weapon = slot
+      normal.player.weapon = slot
       normal.player.yaw = math.pi
       normal.player.pitch = 0
       local control = normal:spawn('armored', 16, 24)
@@ -246,14 +246,14 @@ function Tests.run(G, renderer)
     Field.close(g)
     g.testField.frozen = true
     g:shoot()
-    local emptied = g.player.arsenal.exorcist.mag == 0 and g.reload > 0
+    local emptied = g.player.arsenal.exorcist.mag == 0 and g.player.reload > 0
     for _ = 1, 180 do
       g:update(1 / 120, {})
     end
     check(
       'sandbox shotgun completes its real reload and spends reserve ammunition',
       emptied
-        and g.reload == 0
+        and g.player.reload == 0
         and g.player.arsenal.exorcist.mag == 2
         and g.player.arsenal.exorcist.reserve == 70
     )
@@ -271,20 +271,20 @@ function Tests.run(G, renderer)
         and g.player.dash == 2
         and g.player.arsenal.judge.mag == 6
         and g.player.arsenal.judge.reserve == 72
-        and g.reload == 0
+        and g.player.reload == 0
         and not g.player.arsenal.exorcist.open
     )
     g.player.arsenal.exorcist.mag = 0
     g:reloadGun()
-    local reloading = g.reload > 0
+    local reloading = g.player.reload > 0
     g.player.jump, g.player.jumpV, g.player.jumpBuffer, g.player.slideTimer, g.player.crouch, g.player.vx, g.player.vz =
       0.7, 3, 0.1, 0.3, 0.4, 2, 4
     Field.reset(g)
     check(
       'reset during reload, jump and slide clears movement momentum and weapon transients',
       reloading
-        and g.reload == 0
-        and g.weapon == 1
+        and g.player.reload == 0
+        and g.player.weapon == 1
         and g.player.jump == 0
         and g.player.jumpV == 0
         and g.player.jumpBuffer == 0
@@ -293,8 +293,8 @@ function Tests.run(G, renderer)
         and g.player.vx == 0
         and g.player.vz == 0
         and not g.player.arsenal.exorcist.open
-        and g.reloadStage == 0
-        and g.reloadDuration == 0
+        and g.player.reloadStage == 0
+        and g.player.reloadDuration == 0
     )
     g.bullets = { {} }
     g.hazards = { {} }

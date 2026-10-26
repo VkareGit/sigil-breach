@@ -19,10 +19,10 @@ function Tests.run(G, check)
     g.bullets = {}
     g.hazards = {}
     g.pickups = {}
-    g.weapon = slot or 1
+    g.player.weapon = slot or 1
     g.view.swapAge = 1
     g.view.shotAge = 10
-    g.cooldown = 0
+    g.player.cooldown = 0
     return g
   end
   local g = fresh()
@@ -184,8 +184,9 @@ function Tests.run(G, check)
       'weapon ' .. contract.slot .. ' commits its partial reserve exactly once',
       p[contract.mag] == contract.stock and p[contract.reserve] == 0 and p[contract.opened]
     )
-    local clock, ammo = v.reload, p[contract.mag]
-    local phase, offset, duration = v.reloadStage, v.reloadOffset, v.reloadDuration
+    local clock, ammo = v.player.reload, p[contract.mag]
+    local phase, offset, duration =
+      v.player.reloadStage, v.player.reloadOffset, v.player.reloadDuration
     for _ = 1, 120 do
       V.frame(v)
       V.sourceFrame(v)
@@ -195,12 +196,12 @@ function Tests.run(G, check)
     end
     check(
       'weapon ' .. contract.slot .. ' pose sampling cannot change reload clocks or ammunition',
-      v.reload == clock
+      v.player.reload == clock
         and p[contract.mag] == ammo
         and p[contract.reserve] == 0
-        and v.reloadStage == phase
-        and v.reloadOffset == offset
-        and v.reloadDuration == duration
+        and v.player.reloadStage == phase
+        and v.player.reloadOffset == offset
+        and v.player.reloadDuration == duration
     )
     advanceTo(v, contract.close - 1e-5)
     check(
@@ -210,12 +211,12 @@ function Tests.run(G, check)
     advanceTo(v, contract.close + 1e-5)
     check(
       'weapon ' .. contract.slot .. ' closes on time but still waits for the ready pose',
-      not p[contract.opened] and v.reload > 0 and not v:shoot()
+      not p[contract.opened] and v.player.reload > 0 and not v:shoot()
     )
     advanceTo(v, contract.finish + 1e-5)
     check(
       'weapon ' .. contract.slot .. ' finishes without inventing a round or a second load',
-      v.reload == 0
+      v.player.reload == 0
         and p[contract.mag] == contract.stock
         and p[contract.reserve] == 0
         and not p[contract.opened]
@@ -296,7 +297,7 @@ function Tests.run(G, check)
     local nx, ny, nr = M.pose(v)
     check(
       name .. ' begins with a neutral grip despite its absolute action offset',
-      near(v.reloadOffset, expectedOffset)
+      near(v.player.reloadOffset, expectedOffset)
         and near(M.grip(v), 1)
         and near(nx, x)
         and near(ny, y)
@@ -304,19 +305,19 @@ function Tests.run(G, check)
     )
     -- The weapon's live record in the arsenal (content/weapons.lua).
     local w = require('src.content.weapons').state(v, slot)
-    local clock, ammo, stock = v.reload, w.mag, w.reserve
+    local clock, ammo, stock = v.player.reload, w.mag, w.reserve
     for _ = 1, 100 do
       M.grip(v)
     end
     check(
       name .. ' grip sampling cannot advance the resumed transaction',
-      v.reload == clock and w.mag == ammo and w.reserve == stock
+      v.player.reload == clock and w.mag == ammo and w.reserve == stock
     )
     local bounded, braced = true, false
     local maximum = 0
     x, y, r = nx, ny, nr
-    while v.reload > 0 do
-      Reload.update(v, math.min(1 / 120, v.reload))
+    while v.player.reload > 0 do
+      Reload.update(v, math.min(1 / 120, v.player.reload))
       local grip = M.grip(v)
       bounded = bounded and grip >= 0.48 - 1e-9 and grip <= 1 + 1e-9
       braced = braced or grip < 0.6

@@ -17,7 +17,7 @@ function T.run(G, check)
     g.enemies = {}
     g.pickups = {}
     g.view.particles = {}
-    g.weapon = slot or 2
+    g.player.weapon = slot or 2
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 32, 32, 0, 0
     local w = { size = 70, map = {}, seals = {}, lamps = {}, decor = {} }
     for z = 1, 70 do
@@ -123,7 +123,7 @@ function T.run(G, check)
   check(
     'environment feedback consumes ammunition once and cannot damage the player',
     close.player.arsenal.judge.mag == 5
-      and close.shots == 1
+      and close.player.shots == 1
       and close.player.hp == 100
       and close.view.shotReport.damage == 0
       and close.view.shotReport.headHits == 0
@@ -211,9 +211,8 @@ function T.run(G, check)
   }
   local g = {
     view = { effects = {}, decals = {}, particles = {} },
-    shots = 12,
     score = 9,
-    player = { hp = 84 },
+    player = { hp = 84, shots = 12 },
   }
   local rng = love.math.getRandomState()
   local oldSurface, oldBody = I.surface, I.body
@@ -230,7 +229,7 @@ function T.run(G, check)
   )
   check(
     'calling visual contact responses cannot award points, shoot or remove health',
-    g.shots == 12 and g.score == 9 and g.player.hp == 84
+    g.player.shots == 12 and g.score == 9 and g.player.hp == 84
   )
   FX.update(g, 2)
   check(
@@ -302,8 +301,8 @@ function T.run(G, check)
     'disabling all new impact art preserves ammunition and weapon timing',
     visual.player.arsenal.exorcist.mag == silent.player.arsenal.exorcist.mag
       and visual.player.arsenal.exorcist.reserve == silent.player.arsenal.exorcist.reserve
-      and near(visual.cooldown, silent.cooldown)
-      and near(visual.reload, silent.reload)
+      and near(visual.player.cooldown, silent.player.cooldown)
+      and near(visual.player.reload, silent.player.reload)
       and near(visual.view.recoilV, silent.view.recoilV)
   )
   for _ = 1, 50 do

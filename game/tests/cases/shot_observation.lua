@@ -16,7 +16,7 @@ function T.run(G, renderer)
   local function setup()
     local g = Fixtures.arena(G)
     g:switchWeapon(2)
-    g.cooldown, g.elapsed = 0, 1
+    g.player.cooldown, g.elapsed = 0, 1
     local e = g:spawn('imp', 16, 21)
     e.dummy, e.spawnAge, e.hp, e.maxHp = true, 1, 1000, 1000
     local p = Surface.prepare(g, e)
@@ -51,7 +51,7 @@ function T.run(G, renderer)
   )
   local buffered, target = setup()
   local tap = O.command(O.capture(buffered), buffered)
-  buffered.cooldown = 0.04
+  buffered.player.cooldown = 0.04
   check('unready direct press does not spend ammunition', not buffered:shoot(tap))
   Intent.queue(buffered, 'fire', tap)
   target.x = target.x + 2
@@ -62,7 +62,7 @@ function T.run(G, renderer)
   end
   check(
     'released buffer retains press-time geometry and aim through cooldown',
-    buffered.shots == 1 and target.hp < 1000 and buffered.fireCommand == nil
+    buffered.player.shots == 1 and target.hp < 1000 and buffered.player.fireCommand == nil
   )
   local held, old = setup()
   local oldCommand = O.command(O.capture(held), held)
@@ -72,7 +72,7 @@ function T.run(G, renderer)
   held:update(1 / 120, { shoot = true, fireCommand = fresh })
   check(
     'held trigger replaces an old buffered tap with its latest observation',
-    held.shots == 1 and old.hp == 1000 and held.fireCommand == nil
+    held.player.shots == 1 and old.hp == 1000 and held.player.fireCommand == nil
   )
   local covered, safe = setup()
   local beforeCover = O.command(O.capture(covered), covered)
@@ -111,13 +111,13 @@ function T.run(G, renderer)
   local ammo = Weapons.state(stale).mag
   check(
     'an expired observation is rejected before ammo/cadence are changed',
-    not stale:shoot(expired) and Weapons.state(stale).mag == ammo and stale.shots == 0
+    not stale:shoot(expired) and Weapons.state(stale).mag == ammo and stale.player.shots == 0
   )
   local foreign = setup()
   O.session(foreign)
   check(
     'another session cannot use an observation even with matching entity IDs',
-    not foreign:shoot(command) and foreign.shots == 0
+    not foreign:shoot(command) and foreign.player.shots == 0
   )
   local paused = setup()
   local adapter = Input.new()
@@ -133,7 +133,7 @@ function T.run(G, renderer)
   check(
     'focus loss clears buffer, invalidates view and suppresses held mouse',
     paused.state == 'paused'
-      and paused.fireCommand == nil
+      and paused.player.fireCommand == nil
       and not O.valid(paused, previous.observation)
       and adapter.suppressFire
       and adapter.observation == nil
@@ -147,21 +147,23 @@ function T.run(G, renderer)
     paused.state == 'paused' and not O.valid(paused, renewed.observation)
   )
   local timeout = setup()
-  timeout.cooldown = 1
+  timeout.player.cooldown = 1
   Intent.queue(timeout, 'fire', O.command(O.capture(timeout), timeout))
   for _ = 1, 20 do
     timeout:update(1 / 120, {})
   end
   check(
     'expired fire buffer releases its observation without a delayed shot',
-    timeout.fireBuffer == 0 and timeout.fireCommand == nil and timeout.shots == 0
+    timeout.player.fireBuffer == 0
+      and timeout.player.fireCommand == nil
+      and timeout.player.shots == 0
   )
   local reset = setup()
   local oldStage = O.command(O.capture(reset), reset)
   require('src.session.encounter').clearStage(reset)
   check(
     'headless stage replacement invalidates IDs from the old observation',
-    not reset:shoot(oldStage) and reset.shots == 0
+    not reset:shoot(oldStage) and reset.player.shots == 0
   )
   -- Replay records observations explicitly; no draw or presentation capture
   -- runs in the replay. Exercise all three trigger routes and journal ownership.
@@ -185,7 +187,9 @@ function T.run(G, renderer)
   Journal.replay(replay, decoded)
   check(
     'direct, buffered and held contacts replay without a renderer',
-    replay.shots == 3 and #journal.receipts >= 6 and replay.enemies[1].hp == recorded.enemies[1].hp
+    replay.player.shots == 3
+      and #journal.receipts >= 6
+      and replay.enemies[1].hp == recorded.enemies[1].hp
   )
   -- A finite projectile must ignore observed body placement and resolve at
   -- arrival; its impulse follows travel even after the shooter crosses it.
@@ -198,7 +202,7 @@ function T.run(G, renderer)
   local ok, reason = pcall(function()
     local flying, moved = setup()
     local slot = Weapons.give(flying, def.id)
-    flying.weapon, flying.cooldown = slot, 0
+    flying.player.weapon, flying.player.cooldown = slot, 0
     local before = O.command(O.capture(flying), flying)
     moved.x = moved.x + 2
     flying:shoot(before)
@@ -214,7 +218,7 @@ function T.run(G, renderer)
       moved.hp == 1000
     )
     local physical, hit = setup()
-    physical.weapon, physical.cooldown = Weapons.give(physical, def.id), 0
+    physical.player.weapon, physical.player.cooldown = Weapons.give(physical, def.id), 0
     physical:shoot(O.command(O.capture(physical), physical))
     physical.player.z = 18
     local direction

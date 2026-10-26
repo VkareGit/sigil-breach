@@ -48,10 +48,13 @@ function F.init(g)
   g.view.precisionHit = false
   g.view.hitWeight = 0
   g.view.shotPower = 1
-  g.reloadOffset = 0
+  -- The actor's reload timeline and shot sequence start again with it; the
+  -- world's shot id restarts with the encounter (one knight: the same count).
+  p.reloadOffset = 0
+  p.shotSequence = 0
   g.shotSerial = 0
-  g.reloadStage = 0
-  g.reloadDuration = 0
+  p.reloadStage = 0
+  p.reloadDuration = 0
   g.view.lastDamage = 0
   g.view.lastKill = false
   g.view.traces = {}

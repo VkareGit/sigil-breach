@@ -1,8 +1,8 @@
 -- Firearms by id (0.24 F3). A weapon is a definition here (content/defs/
 -- weapon.lua) and a live record in the knight's arsenal: player.arsenal[id]
 -- = { mag, reserve, open, loaded, spent, readyAt }. The knight carries the
--- weapons of his loadout (player.loadout, an ordered list of ids); g.weapon
--- is the slot in hand. A new weapon is a new definition; nothing assumes two.
+-- weapons of his loadout (player.loadout, an ordered list of ids); its
+-- weapon field is the slot in hand (the actor's, plan v11 E3). A new weapon is a new definition; nothing assumes two.
 local T = require('src.content.tuning')
 local Registry = require('src.core.registry')
 local Weapon = require('src.content.defs.weapon')
@@ -197,9 +197,14 @@ end
 local function loadoutOf(g)
   return g and Roles.controlled(g) and Roles.controlled(g).loadout or W.defaultLoadout
 end
+-- The slot in the controlled actor's hand.
+function W.slot(g)
+  local actor = g and Roles.controlled(g)
+  return actor and actor.weapon or 1
+end
 -- The id of the weapon in a slot (default: the slot in hand).
 function W.idAt(g, slot)
-  return loadoutOf(g)[slot or (g and g.weapon) or 1]
+  return loadoutOf(g)[slot or W.slot(g)]
 end
 -- The slot of a weapon id in the knight's loadout.
 function W.slotOf(g, id)
@@ -229,7 +234,7 @@ function W.count(g)
 end
 -- The slot after the one in hand (wrapping), for cycling weapons.
 function W.nextSlot(g)
-  return (g.weapon or 1) % W.count(g) + 1
+  return W.slot(g) % W.count(g) + 1
 end
 function W.ammo(g, slot)
   local def, state = W.inHand(g, slot)

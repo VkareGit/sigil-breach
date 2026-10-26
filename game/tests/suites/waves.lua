@@ -122,27 +122,27 @@ function Tests.run(G, renderer)
   check('collecting the same soul is idempotent', money == 104 and g.run.wallet == money)
   g = fresh()
   active(g)
-  g.weapon = 2
+  g.player.weapon = 2
   for i = 1, 6 do
     g.elapsed = g.elapsed + 0.38
-    g.cooldown = 0
+    g.player.cooldown = 0
     check('revolver cylinder shot ' .. i, g:shoot())
   end
   g.elapsed = g.elapsed + 0.38
-  g.cooldown = 0
+  g.player.cooldown = 0
   check(
     'empty cylinder waits for a physical reload',
-    not g:shoot() and g.player.arsenal.judge.mag == 0 and g.reload > 0
+    not g:shoot() and g.player.arsenal.judge.mag == 0 and g.player.reload > 0
   )
   g:switchWeapon(1)
   g:switchWeapon(2)
-  g.cooldown = 0
+  g.player.cooldown = 0
   check(
     'weapon switching cannot refill an empty cylinder',
     not g:shoot() and g.player.arsenal.judge.mag == 0
   )
   require('src.combat.reload').update(g, 1.86)
-  g.cooldown = 0
+  g.player.cooldown = 0
   check(
     'revolver reload spends its reserve ammunition',
     g:shoot() and g.player.arsenal.judge.reserve == 18 and g.player.arsenal.judge.mag == 5

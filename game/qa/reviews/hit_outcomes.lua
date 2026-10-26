@@ -216,7 +216,7 @@ function Review.run(Game, truth, output, mode)
         if
           u
           and mode ~= 'held'
-          and (mode == 'press-buffer' or (g.cooldown <= 0 and g.reload <= 0))
+          and (mode == 'press-buffer' or (g.player.cooldown <= 0 and g.player.reload <= 0))
         then
           pressing = true
           input:mousepressed(app, 640, 360, 1)

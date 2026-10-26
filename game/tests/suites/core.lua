@@ -35,16 +35,12 @@ function Tests.run(G, initial, renderer, getGame)
     g.view.particles = {}
     g.pickups = {}
     g.state = 'playing'
-    g.cooldown = 0
-    g.reload = 0
     g.kills = 0
-    g.shots = 0
-    g.hits = 0
     g.map = false
     g.elapsed = 0
     require('src.world.arena').breakSeals(g.world, 0)
     require('src.session.encounter').setGuardian(g, false, false)
-    g.player = {
+    g.player = require('tests.support.fixtures').actor({
       x = 16,
       z = 27,
       yaw = math.pi,
@@ -64,8 +60,9 @@ function Tests.run(G, initial, renderer, getGame)
       jump = 0,
       jumpV = 0,
       invuln = 0,
-    }
-    g.weapon = 1
+    })
+    g.player.weapon = 1
+    g.player.cooldown, g.player.reload, g.player.shots, g.player.hits = 0, 0, 0, 0
     F.init(g)
     g.flowTimer = 0
     g.player.arsenal.judge.readyAt = 0
@@ -156,7 +153,7 @@ function Tests.run(G, initial, renderer, getGame)
     'hit feedback is immediate',
     g.view.hitmarker > 0 and g.view.recoilV > 0 and #g.view.traces > 0
   )
-  check('shot immediately begins automatic cycle', g.reload > 0 and V.frame(g) == 2)
+  check('shot immediately begins automatic cycle', g.player.reload > 0 and V.frame(g) == 2)
   local art = require('src.content.weapon_art')
   local entry = require('src.render.weapon_art').of(g)
   local observed, expected = {}, {}
@@ -200,13 +197,16 @@ function Tests.run(G, initial, renderer, getGame)
     'automatic reload commits exactly two shells',
     g.player.arsenal.exorcist.mag == 2 and g.player.arsenal.exorcist.reserve == 36
   )
-  check('weapon is ready again in under one second', g.cooldown == 0 and g.reload == 0)
+  check(
+    'weapon is ready again in under one second',
+    g.player.cooldown == 0 and g.player.reload == 0
+  )
   fresh()
   g:shoot()
   tick(0.3, { forward = 1 })
   check('reload does not lock movement', g.player.z < 26)
   g:switchWeapon(2)
-  check('switch cancels reload', g.reload == 0 and g.player.arsenal.exorcist.mag == 0)
+  check('switch cancels reload', g.player.reload == 0 and g.player.arsenal.exorcist.mag == 0)
   g:switchWeapon(1)
   g:reloadGun()
   tick(0.6)
@@ -221,14 +221,14 @@ function Tests.run(G, initial, renderer, getGame)
   fresh()
   g:shoot()
   tick(T.shotgunCycle - 0.08)
-  g.fireBuffer = 0.12
+  g.player.fireBuffer = 0.12
   tick(0.12)
-  check('late trigger press is buffered into next shot', g.shots == 2)
+  check('late trigger press is buffered into next shot', g.player.shots == 2)
   fresh()
   g.player.arsenal.exorcist.reserve = 0
   g.player.arsenal.exorcist.mag = 0
   g:shoot()
-  check('empty shotgun never produces phantom hit', g.shots == 0)
+  check('empty shotgun never produces phantom hit', g.player.shots == 0)
   g:switchWeapon(2)
   tick(0.21)
   check(
@@ -236,7 +236,7 @@ function Tests.run(G, initial, renderer, getGame)
     g:shoot() and g.player.arsenal.judge.mag == 5
   )
   fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   local front = g:spawn('imp', 16, 24)
   local back = g:spawn('imp', 16, 23)
   g:shoot()
@@ -247,7 +247,7 @@ function Tests.run(G, initial, renderer, getGame)
       and back.maxHp - back.hp < front.maxHp - front.hp
   )
   fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   g.player.x = 13
   g.player.z = 25
   g.player.yaw = -math.pi / 2
@@ -279,7 +279,7 @@ function Tests.run(G, initial, renderer, getGame)
     e.stun > 0 and e.windup == 0 and e.pushZ < 0
   )
   fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   e = g:spawn('boss', 16, 22)
   e.windup = 0.5
   g:shoot()
@@ -363,7 +363,7 @@ function Tests.run(G, initial, renderer, getGame)
   g.player.armor = 100
   g.player.yaw = math.pi
   g.player.pitch = 0.04
-  g.weapon = 2
+  g.player.weapon = 2
   for i = 1, 10000 do
     if boss.hp <= 0 or g.state == 'dead' then
       break
@@ -407,7 +407,7 @@ function Tests.run(G, initial, renderer, getGame)
   love.keypressed('return', 'return')
   check('Enter starts new game', getGame().state == 'playing')
   love.keypressed('2', '2')
-  check('number key switches weapon', getGame().weapon == 2)
+  check('number key switches weapon', getGame().player.weapon == 2)
   love.mousemoved(640, 360, 40, -30)
   check(
     'raw mouse input updates view',

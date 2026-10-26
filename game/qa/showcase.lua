@@ -122,11 +122,11 @@ function S.run(G, renderer)
   g.map = true
   save('19-echo-map')
   g.map = false
-  g.weapon = 2
+  g.player.weapon = 2
   g.player.arsenal.judge.mag = 0
   g.player.arsenal.judge.reserve = 0
   save('20-revolver-empty')
-  g.weapon = 1
+  g.player.weapon = 1
   g.player.arsenal.judge.mag = 6
   g.player.arsenal.judge.reserve = 24
   g:damagePlayer(1000, 16, 20)
@@ -210,7 +210,7 @@ function S.run(G, renderer)
   g.player.hp = 100
   g.player.armor = 40
   g.player.abilityState.powder.uses = 2
-  g.cooldown = 0
+  g.player.cooldown = 0
   g:shoot()
   g.view.hitmarker = 0.12
   save('35-fire')
@@ -335,7 +335,7 @@ function S.run(G, renderer)
   g.run.phase = 'wave'
   g.run.pending = {}
   g.run.queueIndex = 8
-  g.weapon = 2
+  g.player.weapon = 2
   g.view.shotAge = 99
   save('57-pistol')
   save('58-combat-4by3', 1024, 768)
@@ -347,7 +347,7 @@ function S.run(G, renderer)
   -- 0.14 weight: typed incoming projectiles with trails, blow arcs around the
   -- reticle (fire from the left, a heavy astral blow from the right, a near
   -- miss behind) and the gold guard-break brackets.
-  g.weapon = 1
+  g.player.weapon = 1
   g.view.shotAge = 99
   g.bullets = {
     {
@@ -428,9 +428,9 @@ function S.run(G, renderer)
   -- real clock (shove at the eye, view rise, settle past rest).
   g.player.arsenal.exorcist.mag = 2
   g.player.arsenal.exorcist.reserve = 28
-  g.cooldown = 0
+  g.player.cooldown = 0
   g.player.arsenal.exorcist.readyAt = 0
-  g.reload = 0
+  g.player.reload = 0
   g.run.phaseTime = 0
   g.run.spawnTimer = 99
   g:spawn('imp', 16, 10).hp = 5000
@@ -516,7 +516,7 @@ function S.run(G, renderer)
     save('67d-arrival')
     g = main
   end
-  g.weapon = 1
+  g.player.weapon = 1
   g.view.shotAge = 99
   g.view.hurt = 0
   g.player.hp = 100
@@ -639,7 +639,7 @@ function S.run(G, renderer)
   g = Field.new(G)
   g.testing = true
   Field.close(g)
-  g.weapon = 2
+  g.player.weapon = 2
   g.elapsed = 70
   g.view.messageTimer = 0
   g.player.pitch = 0
@@ -669,7 +669,7 @@ function S.run(G, renderer)
   save('revolver-shop-full')
   Field.reset(g)
   Field.close(g)
-  g.weapon = 1
+  g.player.weapon = 1
   g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27, math.pi, 0
   g.enemies = {}
   g:spawn('imp', 15.6, 22)
@@ -683,7 +683,7 @@ function S.run(G, renderer)
   save('range-shotgun-report-large', 1920, 1080)
   Field.reset(g)
   Field.close(g)
-  g.weapon = 2
+  g.player.weapon = 2
   g.player.yaw = 0
   g:shoot()
   Field.open(g)
@@ -731,7 +731,7 @@ function S.run(G, renderer)
   save('quick-combat-retry')
   save('quick-combat-retry-small', 960, 540)
   Field.skirmish(g)
-  g.weapon = 2
+  g.player.weapon = 2
   g.elapsed = 70
   g.view.messageTimer = 0
   local e = g.enemies[1]

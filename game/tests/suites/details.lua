@@ -17,7 +17,7 @@ function T.run(G)
     g.testField.frozen = true
     g.enemies = {}
     g.pickups = {}
-    g.weapon = slot or 2
+    g.player.weapon = slot or 2
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 21.5, 28, math.pi * 0.5, 0
     return g
   end
@@ -209,7 +209,7 @@ function T.run(G)
     return table.concat({
       target.hp,
       q.player.arsenal.judge.mag,
-      q.cooldown,
+      q.player.cooldown,
       q.player.arsenal.judge.readyAt,
       q.view.shotReport.damage,
       q.view.shotReport.impact,

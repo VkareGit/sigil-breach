@@ -70,7 +70,7 @@ function Tests.run(G, renderer)
     local g = G.new('classic')
     g.testing = true
     g.state = 'playing'
-    g.weapon = slot
+    g.player.weapon = slot
     g.view.shotAge = 10
     g.player.arsenal.exorcist.mag = 0
     g.player.arsenal.exorcist.reserve = 1
@@ -121,8 +121,8 @@ function Tests.run(G, renderer)
       V.sourceFrame(g) == Art.variant(m, Art.frame(m, m.phases.fire[1].frame), state.mag)
         and V.muzzlePhase(g) ~= nil
     )
-    g.reload = 0
-    g.reloadWeapon = nil
+    g.player.reload = 0
+    g.player.reloadWeapon = nil
     g.view.shotAge = 10
     g.player.arsenal.exorcist.mag = 0
     g.player.arsenal.exorcist.reserve = 2
@@ -156,7 +156,7 @@ function Tests.run(G, renderer)
           break
         end
       end
-      if g.reload > 0 then
+      if g.player.reload > 0 then
         visited[expectedName] = true
         honest = honest
           and frame == shown(expectedName, state)

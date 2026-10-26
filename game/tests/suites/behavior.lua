@@ -42,8 +42,8 @@ function Tests.run(G, initial, renderer, getGame)
     p.dashTimer = 0
     p.arsenal.exorcist.mag = 2
     p.arsenal.exorcist.reserve = 38
-    g.reload = 0
-    g.cooldown = 0
+    g.player.reload = 0
+    g.player.cooldown = 0
   end
   local function step(seconds, input)
     for i = 1, math.floor(seconds * 120) do

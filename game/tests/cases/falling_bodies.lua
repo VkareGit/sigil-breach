@@ -77,7 +77,7 @@ function Tests.run(G)
   g.bus:on('sim', 'VolleyResolved', function(event)
     report = event.report
   end)
-  g.weapon, g.player.pitch, g.cooldown = 1, pitch, 0
+  g.player.weapon, g.player.pitch, g.player.cooldown = 1, pitch, 0
   g:shoot()
   local shielded, unwounded = 0, true
   for _, ray in ipairs(report.rays) do
@@ -98,7 +98,7 @@ function Tests.run(G)
   g.bus:on('sim', 'VolleyResolved', function(event)
     report = event.report
   end)
-  g.weapon, g.player.pitch, g.cooldown = 2, pitch, 0
+  g.player.weapon, g.player.pitch, g.player.cooldown = 2, pitch, 0
   local rearHp = rear.hp
   g:shoot()
   local through

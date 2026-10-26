@@ -26,12 +26,14 @@ function Tests.run(G, renderer)
   g.testing = true
   check(
     'the session keeps no guardian, seal, secret or rank field of its own',
-    g.bossSpawned == nil
-      and g.bossDead == nil
-      and g.seals == nil
-      and g.secretFound == nil
-      and g.rank == nil
-      and g.bestScore == nil
+    rawget(g, 'bossSpawned') == nil
+      and rawget(g, 'seals') == nil
+      and Fields.retired.bossDead
+      and Fields.retired.secretFound
+      and Fields.retired.rank
+      and not pcall(function()
+        return g.bestScore
+      end)
       and not Fields.owner('seals')
       and not Fields.owner('bossDead')
       and Fields.owner('encounter') == 'session/encounter.lua'

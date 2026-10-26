@@ -32,8 +32,13 @@ function Fixtures.arena(G)
 end
 -- A session field by name, wherever it lives (presentation state is g.view).
 function Fixtures.field(g, key)
-  if require('src.session.fields').viewOwner(key) then
+  local Fields = require('src.session.fields')
+  if Fields.viewOwner(key) then
     return g.view[key]
+  end
+  -- The actor's fields since plan v11 E3 (the controlled knight's).
+  if Fields.retired[key] then
+    return g.player and g.player[key]
   end
   return g[key]
 end
@@ -69,5 +74,29 @@ function Fixtures.words(words)
       Text.register(id, template)
     end
   end
+end
+-- A hand-made knight (a plain table, not a pool member): its fields with the
+-- actor state of the knight component (plan v11 E3: the slot in hand, the
+-- reload, the trigger, shots and shot sequence) where it gives none.
+Fixtures.actorFields = {
+  'weapon',
+  'cooldown',
+  'reload',
+  'reloadStage',
+  'reloadDuration',
+  'reloadOffset',
+  'fireBuffer',
+  'shots',
+  'hits',
+  'shotSequence',
+}
+function Fixtures.actor(fields)
+  local schema = require('src.session.components').schemas.knight
+  for _, name in ipairs(Fixtures.actorFields) do
+    if fields[name] == nil then
+      fields[name] = schema[name].default
+    end
+  end
+  return fields
 end
 return Fixtures

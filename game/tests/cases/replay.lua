@@ -232,7 +232,7 @@ function Tests.run(G)
     complete:update(1 / 120, {})
   end
   complete.state, complete.map, complete.help = 'paused', true, true
-  complete.fireBuffer, complete.player.jumpBuffer = 0.12, 0.08
+  complete.player.fireBuffer, complete.player.jumpBuffer = 0.12, 0.08
   local exported = Journal.encode(completeLog)
   check(
     'repeat export does not append duplicate external changes',
@@ -247,7 +247,7 @@ function Tests.run(G)
     not difference
   )
   complete.state, complete.map, complete.help = 'playing', false, false
-  complete.fireBuffer, complete.player.jumpBuffer = 0, 0
+  complete.player.fireBuffer, complete.player.jumpBuffer = 0, 0
   Journal.stop(complete)
   local stopped = Journal.session(G, completeLog)
   stopped.testing = true

@@ -66,11 +66,11 @@ function Tests.run(Game, renderer)
       end)
       for _ = 1, 40 do
         g:update(1 / 120, { shoot = true })
-        if g.shots == 2 then
+        if g.player.shots == 2 then
           break
         end
       end
-      assert(g.shots == 2, 'swap must exercise a real second shot')
+      assert(g.player.shots == 2, 'swap must exercise a real second shot')
     end
   end
   local out = assert(io.open(require('qa.output').path('aim-swap.csv'), 'w'))

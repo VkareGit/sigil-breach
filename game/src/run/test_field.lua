@@ -69,7 +69,7 @@ function F.refill(g)
   Weapons.rest(g)
   Pools.clear(g, 'charges')
   p.heat, p.overheat, p.heatDelay, p.invuln = nil, nil, nil, 0
-  g.reload, g.cooldown, g.fireBuffer = 0, 0, 0
+  p.reload, p.cooldown, p.fireBuffer = 0, 0, 0
   Abilities.rest(g)
   tell(g, 'field_refilled')
   return true
@@ -98,13 +98,14 @@ function F.reset(g)
     fragment = false,
     pending = {},
   }
-  g.kills, g.shots, g.hits, g.score, g.damageTaken, g.elapsed = 0, 0, 0, 0, 0, 0
+  g.kills, g.score, g.damageTaken, g.elapsed = 0, 0, 0, 0
+  Roles.controlled(g).shots, Roles.controlled(g).hits = 0, 0
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
   g.world.secretFound = false
   World.breakSeals(g.world, 0)
-  g.weapon = 1
-  g.cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =
+  Roles.controlled(g).weapon = 1
+  Roles.controlled(g).cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =
     0, 0, 0, 0, 0, 0
   g.view.feedbackTimer, g.comboTimer, g.zoneTimer, g.nextAttack = 0, 0, 0, 0
   g.view.presentationPrevious = nil
@@ -128,7 +129,7 @@ function F.open(g)
   g.state = 'field_catalog'
   g.help = false
   g.map = false
-  g.fireBuffer = 0
+  Roles.controlled(g).fireBuffer = 0
   g.view.presentationPrevious = nil
   Presentation.capture(g, false)
   return true
@@ -160,7 +161,7 @@ function F.close(g)
   g.run.phase = 'wave'
   g.help = false
   g.map = false
-  g.fireBuffer = 0
+  Roles.controlled(g).fireBuffer = 0
   g.view.presentationPrevious = nil
   Presentation.capture(g, g.state == 'playing')
   return true

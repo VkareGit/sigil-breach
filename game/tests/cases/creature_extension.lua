@@ -154,7 +154,7 @@ function Tests.run(G)
     g.bus:on('sim', 'VolleyResolved', function(event)
       report = event.report
     end)
-    g.weapon, g.player.yaw, g.player.pitch, g.cooldown = 2, yaw, pitch, 0
+    g.player.weapon, g.player.yaw, g.player.pitch, g.player.cooldown = 2, yaw, pitch, 0
     local rearHp = rear.hp
     g:shoot()
     local first

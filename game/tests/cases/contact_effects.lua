@@ -64,7 +64,7 @@ function Tests.run(Game)
         g.player.armor = 0
         Weapons.give(g, 'effect_hitscan')
         Weapons.give(g, 'effect_missile')
-        g.weapon = 3
+        g.player.weapon = 3
         local enemy = g:spawn('imp', 16, 21)
         enemy.dummy, enemy.hp, enemy.maxHp, enemy.armorRating = true, 500, 500, 0
         enemy.resistances = { fire = 0.5 }
@@ -162,7 +162,7 @@ function Tests.run(Game)
 
     g, enemy = fresh()
     g:switchWeapon(4)
-    g.cooldown = 0
+    g.player.cooldown = 0
     local journal = Journal.record(g)
     g:shoot()
     check(
@@ -174,7 +174,7 @@ function Tests.run(Game)
     Journal.stop(g)
     local repeatSession = fresh()
     repeatSession:switchWeapon(4)
-    repeatSession.cooldown = 0
+    repeatSession.player.cooldown = 0
     Journal.replay(repeatSession, Journal.decode(Journal.encode(journal)))
     check(
       'in-flight effects retain their weapon and replay after swapping',

@@ -123,7 +123,7 @@ function Tests.run(G, renderer)
     Snapshot.invalidateDefinitions()
     local g = Fixtures.arena(G)
     g:switchWeapon(Weapons.give(g, id))
-    g.cooldown = 0
+    g.player.cooldown = 0
     g.view.swapAge, g.view.shotAge = 1, 10
     local state = Weapons.state(g)
     check('ready uses named fifth frame instead of hardcoded frame one', Visual.sourceFrame(g) == 5)
@@ -165,7 +165,7 @@ function Tests.run(G, renderer)
       'drawing custom firearm cannot advance the simulation',
       not Integrity.difference(before, Integrity.capture(g))
     )
-    g.view.shotAge, g.cooldown = 10, 0
+    g.view.shotAge, g.player.cooldown = 10, 0
     state.mag, state.reserve = 0, 1
     assert(Reload.start(g, false))
     Reload.update(g, 1.15)
@@ -196,7 +196,7 @@ function Tests.run(G, renderer)
     Reload.interrupt(g)
     check(
       'interrupt closes the same physical action without spending or loading',
-      g.reload == 0
+      g.player.reload == 0
         and not state.open
         and state.mag == mag
         and state.reserve == reserve

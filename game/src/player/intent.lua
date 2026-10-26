@@ -9,11 +9,13 @@ end
 local function validStep(dt)
   return type(dt) == 'number' and dt > 0 and dt < math.huge and dt == dt
 end
+-- The trigger buffer is the actor's (plan v11 E3): the controlled knight's.
 function I.clear(g)
-  g.fireBuffer = 0
-  g.fireCommand = nil
-  if g.player then
-    g.player.jumpBuffer = 0
+  local p = g.player
+  if p then
+    p.fireBuffer = 0
+    p.fireCommand = nil
+    p.jumpBuffer = 0
   end
 end
 I.init = I.clear
@@ -24,8 +26,8 @@ function I.queue(g, kind, command)
   if kind == 'jump' then
     g.player.jumpBuffer = I.window
   elseif kind == 'fire' then
-    g.fireBuffer = I.window
-    g.fireCommand = Observation.copy(command)
+    g.player.fireBuffer = I.window
+    g.player.fireCommand = Observation.copy(command)
   else
     return false
   end
@@ -62,18 +64,19 @@ function I.fire(g, dt, held, command)
   end
   -- A held trigger follows the newest observation; a released tap retains the
   -- exact observation and aim that were submitted with that press.
-  local submitted = g.fireCommand
+  local p = g.player
+  local submitted = p.fireCommand
   if held then
     submitted = command
   end
-  if (held or (g.fireBuffer or 0) > 0) and g:shoot(submitted) then
-    g.fireBuffer = 0
-    g.fireCommand = nil
+  if (held or (p.fireBuffer or 0) > 0) and g:shoot(submitted) then
+    p.fireBuffer = 0
+    p.fireCommand = nil
     return true
   end
-  g.fireBuffer = math.max(0, (g.fireBuffer or 0) - dt)
-  if g.fireBuffer == 0 then
-    g.fireCommand = nil
+  p.fireBuffer = math.max(0, (p.fireBuffer or 0) - dt)
+  if p.fireBuffer == 0 then
+    p.fireCommand = nil
   end
   return false
 end

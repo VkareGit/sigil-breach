@@ -36,21 +36,21 @@ function Tests.run(get, settings)
   key('escape')
   check(
     'pause immediately clears both pending actions',
-    g.state == 'paused' and g.fireBuffer == 0 and g.player.jumpBuffer == 0
+    g.state == 'paused' and g.player.fireBuffer == 0 and g.player.jumpBuffer == 0
   )
   click('resume')
-  local shots = g.shots
+  local shots = g.player.shots
   g:update(1 / 120, {})
   check(
     'resume cannot replay a shot or jump queued before pause',
-    g.shots == shots and g.player.jump == 0
+    g.player.shots == shots and g.player.jump == 0
   )
   key('space')
   Intent.queue(g, 'fire')
   key('tab')
   check(
     'map entry immediately cancels pending actions',
-    g.map and g.fireBuffer == 0 and g.player.jumpBuffer == 0
+    g.map and g.player.fireBuffer == 0 and g.player.jumpBuffer == 0
   )
   key('tab')
   key('space')
@@ -59,7 +59,7 @@ function Tests.run(get, settings)
   check(
     'focus loss clears pending actions and releases gameplay',
     g.state == 'paused'
-      and g.fireBuffer == 0
+      and g.player.fireBuffer == 0
       and g.player.jumpBuffer == 0
       and not love.mouse.getRelativeMode()
   )
@@ -72,7 +72,7 @@ function Tests.run(get, settings)
   g.view.recoil = 2
   g.view.recoilV = 5
   g.view.bank = 0.02
-  local mag, reload = g.player.arsenal.exorcist.mag, g.reload
+  local mag, reload = g.player.arsenal.exorcist.mag, g.player.reload
   key('c')
   key('c')
   check(
@@ -86,7 +86,7 @@ function Tests.run(get, settings)
       and g.view.recoilV == 0
       and g.view.bank == 0
       and g.player.arsenal.exorcist.mag == mag
-      and g.reload == reload
+      and g.player.reload == reload
   )
   click('resume')
   key('f2')

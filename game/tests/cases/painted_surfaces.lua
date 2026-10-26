@@ -154,7 +154,7 @@ function T.run(G)
     local sleeping = Fixtures.arena(G)
     local target = sleeping:spawn('imp', 16, 22)
     target.facing, target.awake, target.memory, target.spawnAge = math.pi, false, 0, 1
-    sleeping.weapon, sleeping.player.pitch = 2, 0.1
+    sleeping.player.weapon, sleeping.player.pitch = 2, 0.1
     local before = Surface.prepare(sleeping, target)
     local awakenedFrame, shot
     sleeping.bus:on('sim', 'ShotFired', function()

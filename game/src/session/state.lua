@@ -42,12 +42,7 @@ function State.new(mode, mapId)
     time = 0,
     elapsed = 0,
     step = 0,
-    weapon = 1,
-    cooldown = 0,
-    reload = 0,
     kills = 0,
-    shots = 0,
-    hits = 0,
     nextId = 0,
     -- The encounter's guardian (session/encounter.lua).
     encounter = { guardianSpawned = false, guardianDead = false },

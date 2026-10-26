@@ -78,12 +78,15 @@ Journal.external = {
   'state',
   'map',
   'help',
-  'fireBuffer',
-  'fireCommand',
+  'player.fireBuffer',
+  'player.fireCommand',
   'player.jumpBuffer',
   '_observationSession',
   '_observationGeneration',
 }
+-- Paths of earlier journals of this build's formats: the trigger buffer was
+-- the session's until plan v11 E3 moved it to the actor.
+Journal.renamed = { fireBuffer = 'player.fireBuffer', fireCommand = 'player.fireCommand' }
 local function read(g, path)
   local owner, key = path:match('^(%w+)%.(%w+)$')
   if owner then
@@ -350,6 +353,9 @@ function Journal.replay(g, journal)
   for _, path in ipairs(Journal.external) do
     external[path] = true
   end
+  for old in pairs(Journal.renamed) do
+    external[old] = true
+  end
   local pooled = header.version == 3 or header.version == 4
   local bodies = header.version == 4 and journal.bodies or nil
   if header.version == 4 then
@@ -438,7 +444,7 @@ function Journal.replay(g, journal)
         Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
       elseif entry[1] == 'set' then
         assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
-        write(g, entry[2], expand(entry[3]))
+        write(g, Journal.renamed[entry[2]] or entry[2], expand(entry[3]))
       else
         assert(permitted[entry[1]], 'unknown journal command ' .. tostring(entry[1]))
         local args = expand(entry[2])

@@ -53,7 +53,7 @@ function Tests.run(G)
     or {}
   for _, ammunition in ipairs(loaders) do
     local g = Fixtures.arena(G)
-    g.weapon, g.view.shotAge, g.view.swapAge = 2, 10, 1
+    g.player.weapon, g.view.shotAge, g.view.swapAge = 2, 10, 1
     local state = Weapons.state(g)
     local initial, reserve = ammunition[1], ammunition[2]
     state.mag, state.reserve = initial, reserve
@@ -118,7 +118,7 @@ function Tests.run(G)
     or {}
   for _, ammunition in ipairs(breeches) do
     local g = Fixtures.arena(G)
-    g.weapon, g.view.shotAge, g.view.swapAge = 1, 10, 1
+    g.player.weapon, g.view.shotAge, g.view.swapAge = 1, 10, 1
     local state = Weapons.state(g)
     state.mag, state.reserve = ammunition[1], ammunition[2]
     state.open, state.loaded = ammunition[1] > 0, false
@@ -302,7 +302,7 @@ function Tests.run(G)
     Reload.interrupt(g)
     check(
       'preload interrupt closes mechanically without granting rounds',
-      state.mag == 1 and not state.open and g.reload == 0
+      state.mag == 1 and not state.open and g.player.reload == 0
     )
     state.open, state.mag = true, 3
     check(
@@ -311,7 +311,7 @@ function Tests.run(G)
     )
     local function interruptedCylinder()
       local session = Fixtures.arena(G)
-      session.weapon, session.elapsed = 2, 2
+      session.player.weapon, session.elapsed = 2, 2
       session.view.swapAge = 1
       local cylinder = Weapons.state(session)
       cylinder.mag, cylinder.reserve = 1, 1

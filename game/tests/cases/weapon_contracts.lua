@@ -87,7 +87,7 @@ function Tests.run(G)
       not created and tostring(startupError):find('unknown reload mechanism missing', 1, true)
     )
     Weapons.give(g, id)
-    g.weapon, g.cooldown, g.reload = 3, 0, 1
+    g.player.weapon, g.player.cooldown, g.player.reload = 3, 0, 1
     local state = Weapons.state(g)
     local spent = state.mag
     local fired, errorText = pcall(g.shoot, g)
@@ -96,8 +96,8 @@ function Tests.run(G)
       not fired
         and tostring(errorText):find('unknown reload mechanism', 1, true)
         and state.mag == spent
-        and g.reload == 1
-        and g.shots == 0
+        and g.player.reload == 1
+        and g.player.shots == 0
     )
     Weapons.registry:unregister(id)
     local def = Weapons.define({
@@ -108,7 +108,7 @@ function Tests.run(G)
     })
     g = Fixtures.arena(G)
     Weapons.give(g, id)
-    g.weapon, g.cooldown = 3, 0
+    g.player.weapon, g.player.cooldown = 3, 0
     check(
       '24 physical projectiles launch as a complete discharge',
       g:shoot() and #g.bullets == 24 and Weapons.state(g).mag == 0
@@ -122,11 +122,14 @@ function Tests.run(G)
         'missing executor rejects a new session at content composition',
         not created and tostring(startupError):find('unknown projectile', 1, true)
       )
-      g.weapon, g.cooldown, g.reload = 3, 0, 1
+      g.player.weapon, g.player.cooldown, g.player.reload = 3, 0, 1
       local fired = pcall(g.shoot, g)
       check(
         'missing executor fails before cancelling a reload',
-        not fired and g.reload == 1 and Weapons.state(g).mag == def.capacity and #g.bullets == 0
+        not fired
+          and g.player.reload == 1
+          and Weapons.state(g).mag == def.capacity
+          and #g.bullets == 0
       )
     end)
     Delivery:register('projectile', handler)

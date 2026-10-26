@@ -158,17 +158,20 @@ function Tests.run(G)
     'a weapon given takes the next slot of the loadout',
     slot == 3 and Weapons.count(armed) == 3
   )
-  check('the third weapon is drawn by its number', armed:switchWeapon(3) and armed.weapon == 3)
+  check(
+    'the third weapon is drawn by its number',
+    armed:switchWeapon(3) and armed.player.weapon == 3
+  )
   local target = armed:spawn('imp', 16, 21)
   target.awake = false
   armed.player.yaw = math.atan2(target.x - armed.player.x, target.z - armed.player.z)
-  armed.cooldown = 0
+  armed.player.cooldown = 0
   armed.elapsed = armed.elapsed + 1
   local state = Weapons.state(armed)
   check('the third weapon fires through the shared combat', armed:shoot() and state.mag == 4)
   check('its rounds hit with its own attack', target.hp < target.maxHp)
   state.mag = 0
-  armed.cooldown = 0
+  armed.player.cooldown = 0
   check('it reloads by its mechanism', armed:reloadGun())
   for _ = 1, 400 do
     armed:update(1 / 120, {})
@@ -177,7 +180,7 @@ function Tests.run(G)
   local run = Fixtures.expedition(G)
   Weapons.give(run, 'trial_carbine')
   Weapons.state(run, 3).mag, Weapons.state(run, 3).reserve = 2, 7
-  run.weapon = 3
+  run.player.weapon = 3
   local Save = require('src.storage.run_save')
   local text = Save.encode(require('src.run.descent').snapshot(run), 1)
   local back = assert(Save.decode(text))

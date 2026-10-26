@@ -26,10 +26,10 @@ function Tests.run(G, initial, renderer, getGame)
     require('src.world.arena').breakSeals(g.world, 0)
     require('src.session.encounter').setGuardian(g, false, false)
     g.map = false
-    g.cooldown = 0
-    g.reload = 0
-    g.weapon = 1
-    g.player = {
+    g.player.cooldown = 0
+    g.player.reload = 0
+    g.player.weapon = 1
+    g.player = require('tests.support.fixtures').actor({
       x = 16,
       z = 27,
       yaw = math.pi,
@@ -49,7 +49,7 @@ function Tests.run(G, initial, renderer, getGame)
       jump = 0,
       jumpV = 0,
       invuln = 0,
-    }
+    })
     F.init(g)
     g.player.arsenal.judge.readyAt = 0
     g.player.abilityState.powder.readyAt = 0
@@ -130,7 +130,7 @@ function Tests.run(G, initial, renderer, getGame)
   step(0.2, { forward = 1 })
   g:update(1 / 120, { slide = true })
   step(0.12, { forward = 1 })
-  g.weapon = 2
+  g.player.weapon = 2
   local target = g:spawn('imp', 16, g.player.z - 3)
   check('hitscan remains aligned while sliding', g:shoot() and target.hp < target.maxHp)
   local _, _, _, hitY = C.trace(g, g.player.yaw, 0, 1)
@@ -229,7 +229,7 @@ function Tests.run(G, initial, renderer, getGame)
   check('weapon reload transform has no sudden screen jump', maxStep < 3)
   check('reload returns weapon exactly to rest', lastX == 0 and lastY == 0 and lastR == 0)
   reset()
-  g.weapon = 2
+  g.player.weapon = 2
   g.time = 0
   local f = V.frame(g)
   g.time = 0.6

@@ -12,11 +12,12 @@ local Slots = {}
 -- ({ slot, def, selected }), and how many the knight carries.
 function Slots.weapons(g, rows)
   local count = Weapons.count(g)
-  local first = math.max(1, math.min(g.weapon - 1, count - rows + 1))
+  local inHand = Weapons.slot(g)
+  local first = math.max(1, math.min(inHand - 1, count - rows + 1))
   local list = {}
   for row = 0, math.min(rows, count) - 1 do
     local slot = first + row
-    list[#list + 1] = { slot = slot, def = Weapons.profile(slot, g), selected = g.weapon == slot }
+    list[#list + 1] = { slot = slot, def = Weapons.profile(slot, g), selected = inHand == slot }
   end
   return list, count
 end

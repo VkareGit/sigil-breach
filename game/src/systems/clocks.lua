@@ -6,12 +6,23 @@ local Arena = require('src.world.arena')
 local Timers = require('src.core.timers')
 local K = require('src.content.tuning').clocks
 local Roles = require('src.core.roles')
+local Pools = require('src.session.world')
 local Clocks = { name = 'clocks' }
-local plain = { 'comboTimer', 'zoneTimer', 'cooldown', 'impactSlow', 'worldStop' }
+local plain = { 'comboTimer', 'zoneTimer', 'impactSlow', 'worldStop' }
+-- Each actor's own weapon cadence (plan v11 E3).
+local actor = { 'cooldown' }
 local plainView = { 'feedbackTimer', 'muzzle' }
 local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer', 'perfectDodge' }
 function Clocks.run(g, dt)
   Timers.tick(g, plain, dt)
+  -- The controlled knight first, then every other one (systems/knight.lua).
+  local controlled = Roles.controlled(g)
+  Timers.tick(controlled, actor, dt)
+  for _, knight in ipairs(Pools.of(g, 'knights')) do
+    if knight ~= controlled then
+      Timers.tick(knight, actor, dt)
+    end
+  end
   Timers.tick(g.view, plainView, dt)
   local zone = Arena.zone(g.world, Roles.controlled(g).x, Roles.controlled(g).z)
   if zone ~= g.zone then

@@ -46,7 +46,7 @@ function Tests.run(G)
       local e = g:spawn('imp', 16, 20)
       e.hp, e.maxHp, e.spawnAge = 10000, 10000, 1
       g.player.pitch = -0.05
-      g.weapon = 2
+      g.player.weapon = 2
       g:shoot()
       results[i] = { hp = e.hp, part = g.view.shotReport and g.view.shotReport.rays[1].part }
     end

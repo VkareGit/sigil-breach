@@ -56,7 +56,7 @@ function Tests.run(G)
 
   -- D2: off balance, the knight cannot aim.
   local g = field()
-  g.weapon = 2
+  g.player.weapon = 2
   Rules.addCondition(g.player, 'staggered', 0.3)
   local blocked = not g:shoot()
   step(g, 0.31)
@@ -64,7 +64,7 @@ function Tests.run(G)
 
   -- D3: a pull stops the Judge's reload while rounds remain.
   g = field()
-  g.weapon = 2
+  g.player.weapon = 2
   local judge = g.player.arsenal.judge
   judge.mag = 3
   g:reloadGun()
@@ -72,24 +72,27 @@ function Tests.run(G)
   local early = g:shoot()
   check(
     'before the cylinder swings out, a pull fires and stops the reload',
-    early and g.reload == 0
+    early and g.player.reload == 0
   )
   g = field()
-  g.weapon = 2
+  g.player.weapon = 2
   judge = g.player.arsenal.judge
   judge.mag = 3
   g:reloadGun()
   step(g, 0.5)
-  local snapped = not g:shoot() and g.reload == 0 and not judge.open
+  local snapped = not g:shoot() and g.player.reload == 0 and not judge.open
   step(g, Tuning.reload.cylinder.closeOnFire + 0.01)
   check('a swung-out cylinder snaps shut, then its rounds fire', snapped and g:shoot())
   g = field()
-  g.weapon = 2
+  g.player.weapon = 2
   judge = g.player.arsenal.judge
   judge.mag = 3
   g:reloadGun()
   step(g, Tuning.revolverLoadTime + 0.05)
-  check('once the new rounds are in, the reload runs to its end', not g:shoot() and g.reload > 0)
+  check(
+    'once the new rounds are in, the reload runs to its end',
+    not g:shoot() and g.player.reload > 0
+  )
 
   -- D4: a broken guard holds the demons' missiles with the world.
   g = field()
@@ -111,7 +114,7 @@ function Tests.run(G)
   local Weapons = require('src.content.weapons')
   for slot = 1, 2 do
     g = field()
-    g.weapon = slot
+    g.player.weapon = slot
     local def = Weapons.inHand(g)
     g:shoot()
     local peak = 0

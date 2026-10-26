@@ -85,11 +85,11 @@ function Tests.run(G, check)
     end
   end
   g.player.x, g.player.z = pad.x, pad.z
-  g.weapon = 1
+  g.player.weapon = 1
   g:interact()
   check(
     '[E] on a weapon pad puts that weapon in hand',
-    g.weapon == require('src.content.weapons').slotOf(g, 'judge')
+    g.player.weapon == require('src.content.weapons').slotOf(g, 'judge')
   )
   for _, p in ipairs(Gallery.pads) do
     if p.refill then

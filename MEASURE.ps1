@@ -33,10 +33,8 @@ function Add-Sample([string]$Variant, [string]$Metric, [double]$Value) {
     if (-not $samples.ContainsKey($key)) { $samples[$key] = New-Object System.Collections.Generic.List[double] }
     $samples[$key].Add($Value)
 }
-# Every measured process runs at high priority on the same performance cores
-# (logical processors 2-7): a hybrid CPU otherwise moves it between core
-# kinds, which is most of the spread between processes.
-$affinity = [IntPtr]0xFC
+# Every measured process runs at high priority. (Pinning it to six logical
+# processors was tried for E1 and made the spread worse: not used.)
 function Invoke-Pinned([string]$Tree, [string]$Flag, [string]$Log) {
     $info = New-Object Diagnostics.ProcessStartInfo $runtime
     $info.Arguments = '"' + $Tree + '" ' + $Flag
@@ -45,7 +43,6 @@ function Invoke-Pinned([string]$Tree, [string]$Flag, [string]$Log) {
     $info.RedirectStandardError = $true
     $process = [Diagnostics.Process]::Start($info)
     try {
-        $process.ProcessorAffinity = $affinity
         $process.PriorityClass = 'High'
     }
     catch { }
@@ -111,7 +108,7 @@ finally {
 $report = New-Object System.Collections.Generic.List[string]
 $report.Add('V11 MEASUREMENT PROTOCOL')
 foreach ($variant in $variants.Keys) { $report.Add("$variant = $($variants[$variant])") }
-$report.Add("pairs = $Pairs (order alternates), populations = $Populations, warm-up 300 steps/frames, 2400 steps and 720 frames sampled, map qa_crowd, high priority on logical processors 2-7")
+$report.Add("pairs = $Pairs (order alternates), populations = $Populations, warm-up 300 steps/frames, 2400 steps and 720 frames sampled, map qa_crowd, high priority")
 $metrics = $samples.Keys | ForEach-Object { $_.Split('|')[1] } | Sort-Object -Unique
 foreach ($metric in $metrics) {
     $stats = @{}

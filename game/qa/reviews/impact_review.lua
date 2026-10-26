@@ -40,7 +40,7 @@ function R.run(Game, renderer, output)
     g.testing = true
     Field.close(g)
     g.testField.frozen = true
-    g.weapon = case.slot
+    g.player.weapon = case.slot
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = case.x, case.z, case.yaw, case.pitch
     g.view.motion = true
     g.view.fov = 100

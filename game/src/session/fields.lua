@@ -24,6 +24,14 @@ function Fields.declareView(owner, names)
     viewIndex[name] = owner
   end
 end
+-- Fields that moved off the session (plan v11): reading or writing one on a
+-- session is an error that names its new place (session/game.lua).
+Fields.retired = {}
+function Fields.retire(names, place)
+  for _, name in ipairs(names) do
+    Fields.retired[name] = place
+  end
+end
 function Fields.declare(owner, names)
   Fields.groups[#Fields.groups + 1] = { owner = owner, names = names }
   for _, name in ipairs(names) do
@@ -66,21 +74,29 @@ declare('session/state.lua', {
 -- The frame record of a step (session/simulation.lua): previous positions.
 declare('session/simulation.lua', { 'frame' })
 -- The knight's commands and weapons (session/game.lua, combat/*).
-declare('combat/combat.lua', {
-  'weapon', -- the weapon in hand (1 shotgun, 2 revolver)
-  'cooldown', -- seconds until the weapon may fire
-  'shots',
-  'hits',
-  'kills',
-  'shotSerial',
-  '_shotBodies', -- per-shot scratch (combat/ballistics.lua)
-})
-declare('combat/reload.lua', {
+-- The weapon in hand, its cadence, reload and trigger, the shots and their
+-- sequence belong to the actor (the knight's record, session/components.lua,
+-- plan v11 E3). The session keeps the world's shot id.
+Fields.retire({
+  'weapon',
+  'cooldown',
   'reload',
   'reloadWeapon',
   'reloadStage',
   'reloadDuration',
   'reloadOffset',
+  'fireBuffer',
+  'fireCommand',
+  'shots',
+  'hits',
+}, "the actor's record (g.player.<field>, session/components.lua: knight)")
+Fields.retire({ 'bossSpawned', 'bossDead' }, 'the encounter (session/encounter.lua)')
+Fields.retire({ 'seals', 'secretFound' }, 'the world (world/arena.lua: activeSeals, secretFound)')
+Fields.retire({ 'rank', 'bestScore' }, 'the classic record (g.modeData)')
+declare('combat/combat.lua', {
+  'kills',
+  'shotSerial', -- the world's shot id: every shot of any actor (journal, observations)
+  '_shotBodies', -- per-shot scratch (combat/ballistics.lua)
 })
 declare('combat/explosives.lua', { 'explosionReport' })
 declare('combat/projectiles.lua', { '_projectileEvents' })
@@ -91,7 +107,6 @@ declare('player/feel.lua', {
   -- and combat/dodge, counted down by systems/clocks)
   'impactSlow',
 })
-declare('player/intent.lua', { 'fireBuffer', 'fireCommand' })
 declare(
   'combat/observation.lua',
   { '_observationSession', '_observationGeneration', '_observationSequence' }

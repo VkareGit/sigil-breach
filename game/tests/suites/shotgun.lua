@@ -32,15 +32,15 @@ function Tests.run(G, initial, renderer, getGame)
     g.nextAttack = 0
     g.map = false
     g.help = false
-    g.cooldown = 0
-    g.reload = 0
-    g.weapon = 1
+    g.player.cooldown = 0
+    g.player.reload = 0
+    g.player.weapon = 1
     g.kills = 0
-    g.shots = 0
-    g.hits = 0
+    g.player.shots = 0
+    g.player.hits = 0
     require('src.world.arena').breakSeals(g.world, 0)
     require('src.session.encounter').setGuardian(g, false, false)
-    g.player = {
+    g.player = require('tests.support.fixtures').actor({
       x = 16,
       z = 27,
       yaw = math.pi,
@@ -60,7 +60,7 @@ function Tests.run(G, initial, renderer, getGame)
       jump = 0,
       jumpV = 0,
       invuln = 0,
-    }
+    })
     F.init(g)
     g.player.arsenal.judge.readyAt = 0
     g.player.abilityState.powder.readyAt = 0
@@ -84,7 +84,9 @@ function Tests.run(G, initial, renderer, getGame)
   )
   check(
     'multi-kill consumes only the two fired shells',
-    g.player.arsenal.exorcist.mag == 0 and g.player.arsenal.exorcist.reserve == 38 and g.shots == 1
+    g.player.arsenal.exorcist.mag == 0
+      and g.player.arsenal.exorcist.reserve == 38
+      and g.player.shots == 1
   )
   check(
     'each pellet has its own collision and damage accounting',
@@ -242,7 +244,7 @@ function Tests.run(G, initial, renderer, getGame)
   a = g:spawn('stolas', 16, 21)
   a.hp = 10000
   a.attack = 0
-  g.weapon = 2
+  g.player.weapon = 2
   g.player.hp = 10000
   for _ = 1, 480 do
     g.player.yaw = math.atan2(a.x - g.player.x, a.z - g.player.z)
@@ -280,7 +282,10 @@ function Tests.run(G, initial, renderer, getGame)
   check('gun cannot fire while loaded but open', not g:shoot())
   g:switchWeapon(2)
   g:switchWeapon(1)
-  check('returning to a loaded open gun resumes closing', g.reload > 0 and g.reloadOffset == 0.68)
+  check(
+    'returning to a loaded open gun resumes closing',
+    g.player.reload > 0 and g.player.reloadOffset == 0.68
+  )
   step(0.27)
   check('weapon swap cannot bypass original firing cadence', not g:shoot())
   step(0.08)
@@ -312,9 +317,9 @@ function Tests.run(G, initial, renderer, getGame)
   fresh()
   g:shoot()
   step(0.4)
-  local before = g.reload
+  local before = g.player.reload
   g:reloadGun()
-  check('repeated reload input does not restart timeline', g.reload == before)
+  check('repeated reload input does not restart timeline', g.player.reload == before)
   fresh()
   g.player.arsenal.exorcist.mag = 0
   g:reloadGun()

@@ -190,12 +190,13 @@ end
 function V.pose(g)
   local x, y, roll = 0, 0, 0
   local closeProgress, close = Art.interruptedProgress(g)
-  if g.reload > 0 then
+  local left = Reload.left(g)
+  if left > 0 then
     closeProgress = nil
   end
-  if g.reload > 0 or closeProgress then
+  if left > 0 or closeProgress then
     local keys = Art.of(g).reloadMotion
-    local age = g.reload > 0 and Reload.age(g)
+    local age = left > 0 and Reload.age(g)
       or close.reloadAge + (keys[#keys][1] - close.reloadAge) * closeProgress
     for i = 2, #keys do
       local a, b = keys[i - 1], keys[i]
@@ -209,7 +210,7 @@ function V.pose(g)
       end
     end
     local entry = closeProgress and 1
-      or math.max(0, math.min(1, ((g.reloadDuration or g.reload) - g.reload) / 0.08))
+      or math.max(0, math.min(1, (Reload.duration(g) - left) / 0.08))
     entry = entry * entry * (3 - 2 * entry)
     x, y, roll = x * entry, y * entry, roll * entry
   end

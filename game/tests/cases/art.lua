@@ -478,7 +478,7 @@ function Tests.run(G, renderer)
     source:release()
   end
   g = fresh()
-  g.weapon = 1
+  g.player.weapon = 1
   g.player.arsenal.exorcist.reserve = 8
   g:shoot()
   local used = {}
@@ -512,7 +512,7 @@ function Tests.run(G, renderer)
       and g.player.arsenal.exorcist.reserve == 6
   )
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   used = {}
   for i = 0, 36 do
     g.view.shotAge = i / 120

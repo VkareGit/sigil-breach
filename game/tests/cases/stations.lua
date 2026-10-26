@@ -65,7 +65,7 @@ function Tests.run(G, check)
     'the physics station sets a domino row, a wall dummy and one live thrall',
     dummies == 4 and live == 1
   )
-  g.weapon = 1
+  g.player.weapon = 1
   g.player.yaw = math.pi
   for _, e in ipairs(g.enemies) do
     if not e.dummy then

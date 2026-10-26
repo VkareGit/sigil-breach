@@ -39,7 +39,7 @@ function Review.run(Game, renderer, output)
     g.testing = true
     Field.close(g)
     g.testField.frozen = true
-    g.weapon = 1
+    g.player.weapon = 1
     g.view.motion = true
     g.view.fov = 100
     g.enemies = {}

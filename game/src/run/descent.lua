@@ -37,7 +37,7 @@ local function inventory(g)
   return {
     armor = p.armor,
     essence = 0,
-    weapon = g.weapon,
+    weapon = p.weapon,
     loadout = loadout,
     weapons = weapons,
     abilities = abilities,
@@ -64,7 +64,7 @@ local function restore(g, v)
   p.armor = v.armor
   Weapons.restore(g, v.loadout, v.weapons)
   p.souls = 0
-  g.weapon = v.weapon
+  p.weapon = v.weapon
   Abilities.restore(g, v.abilities, v.abilityLoadout)
   local spawn = g.world.spawn
   p.x, p.z, p.yaw, p.pitch = spawn.x, spawn.z, spawn.yaw, 0
@@ -77,8 +77,8 @@ local function restore(g, v)
   local motion = g.view.motion
   F.init(g)
   g.view.motion = motion
-  g.cooldown, g.reload, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge = 0, 0, 0, 0, 0, 0
-  g.reloadWeapon = nil
+  p.cooldown, p.reload, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge = 0, 0, 0, 0, 0, 0
+  p.reloadWeapon = nil
   g.view.presentationPrevious = nil
   g.nextAttack = 0
   g.view.hitmarker = 0
@@ -211,8 +211,8 @@ function R.ready(g)
   -- Commit the full entry state before starting. Reload is settled at the shrine.
   require('src.combat.reload').cancel(g)
   Weapons.close(g)
-  g.reload = 0
-  g.cooldown = 0
+  Roles.controlled(g).reload = 0
+  Roles.controlled(g).cooldown = 0
   r.checkpoint = inventory(g)
   R.save(g)
   r.phase = 'countdown'
@@ -234,7 +234,7 @@ function R.ready(g)
     end
   end
   g.state = 'playing'
-  g.fireBuffer = 0
+  Roles.controlled(g).fireBuffer = 0
   Presentation.capture(g, true)
   g:notify(Text.get(Waves[r.wave].tip), 5)
   return true
@@ -410,8 +410,8 @@ function R.finishWave(g)
   Roles.controlled(g).hp = require('src.content.enemies').player.body.hp
   Roles.controlled(g).dash = T.knight.dashCharges
   require('src.combat.reload').cancel(g)
-  g.reload = 0
-  g.cooldown = 0
+  Roles.controlled(g).reload = 0
+  Roles.controlled(g).cooldown = 0
   Weapons.close(g)
   Weapons.loadAll(g)
   g.comboTimer = 0

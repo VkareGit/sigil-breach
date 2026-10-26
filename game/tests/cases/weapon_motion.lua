@@ -11,7 +11,7 @@ function Tests.run(G, check)
     g.state = 'playing'
     g.enemies = {}
     g.pickups = {}
-    g.weapon = slot or 1
+    g.player.weapon = slot or 1
     return g
   end
   local g = fresh()
@@ -258,9 +258,9 @@ function Tests.run(G, check)
   g = fresh()
   g.view.motion = false
   local idleX, idleY, idleRoll = V.transform(g, 800, 450)
-  g.reload = 0.45
-  g.reloadDuration = 0.94
-  g.reloadOffset = 0
+  g.player.reload = 0.45
+  g.player.reloadDuration = 0.94
+  g.player.reloadOffset = 0
   local rx, ry, rr = V.pose(g)
   x, y, roll = V.transform(g, 800, 450)
   check(

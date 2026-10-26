@@ -278,6 +278,23 @@ C.schemas.knight = {
   -- live record per ability (content/abilities.lua: newState)
   abilities = f(nil, 'ability ids in slot order'),
   abilityState = f(nil, 'ability id -> { uses, readyAt }'),
+  -- The actor's hands and trigger (plan v11 E3: the session kept them for
+  -- its one knight until 0.33): the slot in hand, its cadence, the reload
+  -- timeline (combat/reload.lua), the trigger buffer (player/intent.lua),
+  -- its shots and its own shot sequence (the pellet pattern and contact
+  -- seeds of its shots, combat/combat.lua).
+  weapon = f(1, 'the loadout slot in hand'),
+  cooldown = f(0, 'seconds until the weapon may fire'),
+  reload = f(0, 'seconds of the reload left'),
+  reloadWeapon = f(nil, 'the slot being reloaded'),
+  reloadStage = f(0),
+  reloadDuration = f(0),
+  reloadOffset = f(0),
+  fireBuffer = f(0, 'seconds a pull waits for the weapon'),
+  fireCommand = f(nil, 'the buffered pull (observation and aim)'),
+  shots = f(0),
+  hits = f(0),
+  shotSequence = f(0, "this actor's shots: its pellet pattern and contact seeds"),
 }
 -- Weapon fields of the knight before the arsenal (0.24 F3).
 require('src.core.strict').retire('knight', {

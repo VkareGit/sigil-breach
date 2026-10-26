@@ -132,7 +132,7 @@ function Review.run(Game, renderer, output)
   g:spawn('stolas', 12.8, 19).previewFrame = 1
   g.view.messageTimer, g.view.feedbackTimer, g.zoneTimer = 0, 0, 0
   for slot, id in ipairs({ 'exorcist', 'judge' }) do
-    g.weapon = slot
+    g.player.weapon = slot
     for index, material in ipairs({ previous, current }) do
       for key, value in pairs(material) do
         Art.look[key] = value

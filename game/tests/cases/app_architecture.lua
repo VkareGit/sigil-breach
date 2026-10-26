@@ -111,20 +111,22 @@ function Tests.run(check)
       )
       saves = saves + 1
     end
-    app.game.fireBuffer, app.game.player.jumpBuffer = 0.12, 0.12
+    app.game.player.fireBuffer, app.game.player.jumpBuffer = 0.12, 0.12
     local previousHints = app.settings.hints
     app:action('hints')
     check(
       'immediate settings commands keep gameplay intentions and skip isolated writes',
       app.settings.hints ~= previousHints
-        and app.game.fireBuffer == 0.12
+        and app.game.player.fireBuffer == 0.12
         and app.game.player.jumpBuffer == 0.12
         and saves == 0
     )
     app:action('settings')
     check(
       'screen commands cancel both buffered gameplay intentions',
-      app.game.state == 'settings' and app.game.fireBuffer == 0 and app.game.player.jumpBuffer == 0
+      app.game.state == 'settings'
+        and app.game.player.fireBuffer == 0
+        and app.game.player.jumpBuffer == 0
     )
     app.qa.isolated = false
     app:saveSettings()

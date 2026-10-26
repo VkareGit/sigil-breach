@@ -115,8 +115,8 @@ function S.draw(g, s, U)
     lg.line(cx - cone, cy - 4, cx - cone, cy + 4)
     lg.line(cx + cone, cy - 4, cx + cone, cy + 4)
   end
-  if g.reload > 0 then
-    bar(cx - 25, cy + 29, 50, 1 - g.reload / g.reloadDuration, gold)
+  if Reload.left(g) > 0 then
+    bar(cx - 25, cy + 29, 50, 1 - Reload.left(g) / Reload.duration(g), gold)
   end
   require('src.feedback.weight').drawMarks(g, cx, cy, 100)
   panel(24, 602, 260, 94)
@@ -136,7 +136,7 @@ function S.draw(g, s, U)
       rect(1210 + (i - 1) * 15, 640, 9, 20, mag >= i and gold or Palette.emptyRound)
     end
   end
-  if g.reload > 0 then
+  if Reload.left(g) > 0 then
     right(Reload.label(g), 1250, 551, 14, gold)
   elseif mag > 0 and mag < inHand.fire.rounds then
     right(Text.get(inHand.hud.partialShort), 1250, 551, 14, muted)
@@ -226,7 +226,7 @@ function S.draw(g, s, U)
     if p.hp < 30 then
       hint = Text.get('hud_hint_hurt')
     elseif
-      g.weapon == 1
+      Weapons.slot(g) == 1
       and Weapons.count(g) > 1
       and Weapons.ammo(g) == 0
       and select(2, Weapons.ammo(g)) == 0

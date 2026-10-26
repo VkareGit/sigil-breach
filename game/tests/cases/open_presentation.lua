@@ -171,7 +171,7 @@ local function hudSlots(G, check)
     require('src.run.descent').ready(g)
     g.run.phase, g.state, g.view.messageTimer, g.zoneTimer = 'wave', 'playing', 0, 0
     for _, id in ipairs(weapons) do
-      g.weapon = Weapons.give(g, id)
+      g.player.weapon = Weapons.give(g, id)
     end
     for _, id in ipairs(equipment) do
       Abilities.give(g, id)
@@ -191,7 +191,7 @@ local function hudSlots(G, check)
         and Text.get(kit[3].def.tag) == 'BELL'
     )
     audit(g, 'hud-slots-4-weapons-3-equipment', check)
-    g.weapon = 2
+    g.player.weapon = 2
     audit(g, 'hud-slots-second-weapon', check)
   end)
   for _, id in ipairs(weapons) do
@@ -290,7 +290,7 @@ local function language(G, renderer, check)
     reload = function()
       local g = expedition()
       g.run.phase = 'wave'
-      g.weapon = 2
+      g.player.weapon = 2
       g.player.arsenal.judge.mag = 0
       g:reloadGun()
       require('src.combat.reload').update(g, 0.7)

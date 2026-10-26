@@ -194,7 +194,7 @@ function Tests.run(G, renderer)
       'empty-revolver-and-low-health',
       function(g)
         active(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.mag = 0
         g.player.arsenal.judge.reserve = 0
         g.player.hp = 1
@@ -208,7 +208,7 @@ function Tests.run(G, renderer)
       'full-revolver-and-charges',
       function(g)
         active(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.mag = 6
         g.player.arsenal.judge.reserve = 72
         g.player.abilityState.powder.uses = 3
@@ -218,7 +218,7 @@ function Tests.run(G, renderer)
       'revolver-needs-reload',
       function(g)
         active(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.mag = 0
         g.player.arsenal.judge.reserve = 72
       end,
@@ -227,7 +227,7 @@ function Tests.run(G, renderer)
       'revolver-loading',
       function(g)
         active(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.mag = 0
         g:reloadGun()
         require('src.combat.reload').update(g, 0.7)
@@ -237,7 +237,7 @@ function Tests.run(G, renderer)
       'revolver-closing',
       function(g)
         active(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.mag = 0
         g:reloadGun()
         require('src.combat.reload').update(g, 1.5)
@@ -361,7 +361,7 @@ function Tests.run(G, renderer)
       'revolver-partial-ammunition-purchase',
       function(g)
         Run.openShop(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.reserve = 71
         g.run.wallet = 3
         U.focus = 1
@@ -371,7 +371,7 @@ function Tests.run(G, renderer)
       'revolver-full-ammunition-and-charges',
       function(g)
         Run.openShop(g)
-        g.weapon = 2
+        g.player.weapon = 2
         g.player.arsenal.judge.reserve = 72
         g.player.abilityState.powder.uses = 3
         g.run.wallet = 1000000

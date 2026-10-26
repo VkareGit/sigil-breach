@@ -312,7 +312,7 @@ function Tests.run(G, renderer)
     local x, y, z = Surface.locateZone(prepared, 'head')
     local ox, oy, oz = B.origin(g)
     g:switchWeapon(2)
-    g.cooldown = 0
+    g.player.cooldown = 0
     g.player.yaw = math.atan2(x - ox, z - oz)
     g.player.pitch = math.atan2(y - oy, math.sqrt((x - ox) ^ 2 + (z - oz) ^ 2))
     local volley
@@ -354,7 +354,7 @@ function Tests.run(G, renderer)
       local p = field.player
       p.x, p.z = 16, 22
       field:switchWeapon(2)
-      p.arsenal.judge.mag, p.arsenal.judge.readyAt, field.cooldown = 6, 0, 0
+      p.arsenal.judge.mag, p.arsenal.judge.readyAt, field.player.cooldown = 6, 0, 0
       local aim = Surface.prepare(field, target)
       local hx, hy, hz = Surface.locateZone(aim, 'head')
       local sx, sy, sz = B.origin(field)

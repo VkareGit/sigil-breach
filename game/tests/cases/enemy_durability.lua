@@ -357,9 +357,8 @@ function T.run(G, check, renderer, output)
   A.muted = true
   for slot = 1, 2 do
     local g = {
-      weapon = slot,
-      reload = 0,
-      player = {
+      player = require('tests.support.fixtures').actor({
+        weapon = slot,
         loadout = { 'exorcist', 'judge' },
         arsenal = select(
           2,
@@ -368,16 +367,16 @@ function T.run(G, check, renderer, output)
             judge = { 0, 72 },
           })
         ),
-      },
+      }),
       view = { shells = {} },
     }
     check('durability clock starts the real reload for weapon ' .. slot, R.start(g, true))
-    local duration = g.reload
+    local duration = g.player.reload
     R.update(g, duration)
     local rounds = W.ammo(g)
     check(
       'durability clock agrees with the real refill transaction for weapon ' .. slot,
-      g.reload == 0
+      g.player.reload == 0
         and rounds == W.profile(slot).capacity
         and near(duration, slot == 1 and Tune.shotgunCycle or Tune.revolverReload)
     )

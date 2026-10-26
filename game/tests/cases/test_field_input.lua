@@ -112,7 +112,7 @@ function Tests.run(get, settings)
   click('field_weapon_2')
   check(
     'catalog weapon selection reaches the actual player weapon',
-    field.state == 'playing' and field.weapon == 2
+    field.state == 'playing' and field.player.weapon == 2
   )
   key('f2')
   click('field_low')
@@ -130,7 +130,7 @@ function Tests.run(get, settings)
   click('field_close')
   field.player.arsenal.judge.mag, field.player.arsenal.judge.reserve = 0, 7
   key('r')
-  local reloading = field.reload > 0 and field.reloadWeapon == 2
+  local reloading = field.player.reload > 0 and field.player.reloadWeapon == 2
   for _ = 1, 240 do
     love.update(1 / 120)
   end
@@ -138,7 +138,7 @@ function Tests.run(get, settings)
   check(
     'R callback reloads the selected revolver and consumes its exact reserve',
     reloading
-      and field.reload == 0
+      and field.player.reload == 0
       and field.player.arsenal.judge.mag == 6
       and field.player.arsenal.judge.reserve == 1
       and not field.player.arsenal.judge.open
@@ -174,7 +174,7 @@ function Tests.run(get, settings)
   click('buy_ammo')
   check(
     'shop weapon shortcut redirects the real partial purchase to revolver ammunition',
-    field.weapon == 2
+    field.player.weapon == 2
       and field.player.arsenal.judge.reserve == 72
       and field.player.arsenal.exorcist.reserve == 72
       and field.run.wallet == 994

@@ -72,7 +72,7 @@ function Review.run(output, Game, renderer)
     g.testing = true
     Field.close(g)
     g.testField.frozen = false
-    g.weapon, g.view.motion, g.view.fov = slot, motion ~= false, 100
+    g.player.weapon, g.view.motion, g.view.fov = slot, motion ~= false, 100
     g.enemies, g.pickups = {}, {}
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27.5, math.pi, 0
     g.time, g.elapsed = 30, 30
@@ -105,8 +105,8 @@ function Review.run(output, Game, renderer)
       g.time,
       g.elapsed,
       g.view.shotAge,
-      g.reload,
-      g.cooldown,
+      g.player.reload,
+      g.player.cooldown,
       g.player.arsenal.exorcist.mag,
       g.player.arsenal.judge.mag,
       g.kills,
@@ -224,10 +224,10 @@ function Review.run(output, Game, renderer)
       phase,
       time,
       Weapon.sourceFrame(g),
-      g.weapon == 1 and g.player.arsenal.exorcist.mag or g.player.arsenal.judge.mag,
-      g.weapon == 1 and g.player.arsenal.exorcist.reserve or g.player.arsenal.judge.reserve,
-      g.shots,
-      g.hits,
+      g.player.weapon == 1 and g.player.arsenal.exorcist.mag or g.player.arsenal.judge.mag,
+      g.player.weapon == 1 and g.player.arsenal.exorcist.reserve or g.player.arsenal.judge.reserve,
+      g.player.shots,
+      g.player.hits,
       g.kills,
       e and e.hp or -1,
       e and e.armorRating or -1,

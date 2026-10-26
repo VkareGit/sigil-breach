@@ -73,7 +73,7 @@ local function brain(goal)
       input.shoot = W.visible(g.world, p.x, p.z, target.x, target.z) and tick % 3 == 0
       input.dash = target.ai == 'windup' and target.windup < 0.15 and best < 3
       if tick % 900 == 450 then
-        g:switchWeapon(g.weapon == 1 and 2 or 1)
+        g:switchWeapon(p.weapon == 1 and 2 or 1)
       end
     elseif goal then
       p.yaw = math.atan2(goal.x - p.x, goal.z - p.z)

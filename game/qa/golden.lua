@@ -37,8 +37,9 @@ end
 -- Nothing reads it, and a retired corpse is no longer stepped.
 function Golden.describe(g)
   local out = {}
-  append(out, g.elapsed, g.kills, g.damageTaken, g.score, g.weapon, g.state)
   local p = g.player
+  -- The weapon in hand is the actor's since plan v11 E3 (the same value).
+  append(out, g.elapsed, g.kills, g.damageTaken, g.score, p.weapon, g.state)
   append(
     out,
     p.x,

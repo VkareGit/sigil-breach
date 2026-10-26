@@ -80,15 +80,17 @@ function Projection.actor(g, knight, out)
   if knight ~= Roles.controlled(g) then
     return out
   end
-  put(out, name .. '.weapon', g.weapon and Weapons.idAt(g, g.weapon) or nil)
-  put(out, name .. '.slot', g.weapon)
-  put(out, name .. '.cooldown', g.cooldown)
-  put(out, name .. '.reload.time', g.reload)
-  put(out, name .. '.reload.weapon', g.reloadWeapon)
-  put(out, name .. '.reload.stage', g.reloadStage)
-  put(out, name .. '.sequence', g.shotSerial)
-  put(out, name .. '.stats.shots', g.shots)
-  put(out, name .. '.stats.hits', g.hits)
+  -- Plan v11 E3a: the hands, the reload, the shots and the shot sequence are
+  -- the actor's (same names, same values).
+  put(out, name .. '.weapon', knight.weapon and Weapons.idAt(g, knight.weapon) or nil)
+  put(out, name .. '.slot', knight.weapon)
+  put(out, name .. '.cooldown', knight.cooldown)
+  put(out, name .. '.reload.time', knight.reload)
+  put(out, name .. '.reload.weapon', knight.reloadWeapon)
+  put(out, name .. '.reload.stage', knight.reloadStage)
+  put(out, name .. '.sequence', knight.shotSequence)
+  put(out, name .. '.stats.shots', knight.shots)
+  put(out, name .. '.stats.hits', knight.hits)
   put(out, name .. '.stats.kills', g.kills)
   put(out, name .. '.stats.score', g.score)
   put(out, name .. '.stats.combo', g.combo)
@@ -147,11 +149,11 @@ local function shot(g, event, out)
   put(out, name .. '.z', p.z)
   put(out, name .. '.yaw', event.command and event.command.yaw or p.yaw)
   put(out, name .. '.pitch', event.command and event.command.pitch or p.pitch)
-  put(out, name .. '.weapon', Weapons.idAt(g, g.weapon))
+  put(out, name .. '.weapon', Weapons.idAt(g, p.weapon))
   local w = Weapons.state(g)
   put(out, name .. '.mag', w and w.mag)
-  put(out, name .. '.cooldown', g.cooldown)
-  put(out, name .. '.sequence', g.shotSerial)
+  put(out, name .. '.cooldown', p.cooldown)
+  put(out, name .. '.sequence', p.shotSequence)
   put(out, name .. '.observed', event.command and event.command.observation ~= nil or false)
   return out
 end
@@ -190,9 +192,9 @@ local function reload(g, event, out)
   put(out, 'reload.stage', event.stage)
   put(out, 'reload.mechanism', event.mechanism)
   put(out, 'reload.interrupted', event.interrupted == true)
-  put(out, name .. '.reload.time', g.reload)
-  put(out, name .. '.reload.stage', g.reloadStage)
-  local slot = g.reloadWeapon or g.weapon
+  put(out, name .. '.reload.time', p.reload)
+  put(out, name .. '.reload.stage', p.reloadStage)
+  local slot = p.reloadWeapon or p.weapon
   local id = Weapons.idAt(g, slot)
   local w = p.arsenal[id]
   put(out, name .. '.reload.weapon', id)
@@ -291,10 +293,11 @@ function Projection.recorder(rate)
     step = n
     -- A reload that ended with time left was stopped (a trigger pull, the
     -- shrine): no event tells it, so the step after shows it.
-    local left = g.reload or 0
+    local actor = controlled(g)
+    local left = actor.reload or 0
     if reloadLeft > 0 and left == 0 and reloadLeft > 1 / rate + 1e-9 then
       local p = controlled(g)
-      local id = Weapons.idAt(g, reloadWeapon or g.weapon)
+      local id = Weapons.idAt(g, reloadWeapon or actor.weapon)
       local w = p.arsenal[id]
       step = n - 1
       record('reload-stop', {
@@ -306,7 +309,7 @@ function Projection.recorder(rate)
       })
       step = n
     end
-    reloadLeft, reloadStage, reloadWeapon = left, g.reloadStage or 0, g.reloadWeapon
+    reloadLeft, reloadStage, reloadWeapon = left, actor.reloadStage or 0, actor.reloadWeapon
     if n % Projection.every ~= 0 then
       return
     end

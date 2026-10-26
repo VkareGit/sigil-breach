@@ -13,7 +13,7 @@ function Tests.run(G)
     local g = G.new('classic')
     g.testing, g.state, g.run = true, 'playing', nil
     g.enemies, g.pickups, g.bullets, g.hazards = {}, {}, {}, {}
-    g.weapon, g.view.swapAge, g.view.shotAge = slot, 1, 10
+    g.player.weapon, g.view.swapAge, g.view.shotAge = slot, 1, 10
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27, math.pi, 0
     if stock ~= nil then
       Weapons.state(g, slot).reserve = stock
@@ -50,7 +50,7 @@ function Tests.run(G)
     advance(g, fire[2][1] - fire[1][1] + 0.003)
     check(
       prefix .. 'empty reserve does not leave recoil stuck',
-      V.sourceFrame(g) == 1 and g.reload == 0
+      V.sourceFrame(g) == 1 and g.player.reload == 0
     )
     local ax, ay, az = B.origin(g)
     check(
@@ -81,7 +81,8 @@ function Tests.run(G)
     g.view.motion = false
     assert(g:shoot())
     check(prefix .. 'reduced motion retains the actual discharge picture', V.sourceFrame(g) == 2)
-    local frame, age, shots, ammo = V.sourceFrame(g), g.view.shotAge, g.shots, Weapons.ammo(g)
+    local frame, age, shots, ammo =
+      V.sourceFrame(g), g.view.shotAge, g.player.shots, Weapons.ammo(g)
     for _ = 1, 60 do
       V.sourceFrame(g)
       V.transform(g, 800, 450)
@@ -90,7 +91,7 @@ function Tests.run(G)
       prefix .. 'render queries cannot advance recoil or create a second shot',
       V.sourceFrame(g) == frame
         and g.view.shotAge == age
-        and g.shots == shots
+        and g.player.shots == shots
         and Weapons.ammo(g) == ammo
     )
     assert(g:switchWeapon(slot == 1 and 2 or 1))
@@ -111,7 +112,7 @@ function Tests.run(G)
   assert(g:shoot())
   check(
     'automatic shotgun cycle preserves its discharge before opening',
-    g.reload > 0 and V.sourceFrame(g) == 2
+    g.player.reload > 0 and V.sourceFrame(g) == 2
   )
   advance(g, 0.08)
   check(

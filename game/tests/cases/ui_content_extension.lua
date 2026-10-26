@@ -223,7 +223,7 @@ function Tests.run(G)
     end
     g.state, g.help, g.view.messageTimer = 'playing', false, 0
     for _, id in ipairs(guns) do
-      g.weapon = Weapons.give(g, id)
+      g.player.weapon = Weapons.give(g, id)
     end
     for _, dimensions in ipairs({
       { 960, 540 },

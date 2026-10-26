@@ -47,7 +47,7 @@ function S.step(g, tick)
   end
   local t = tick / S.rate
   if tick % 480 == 1 then
-    g:switchWeapon(g.weapon == 1 and 2 or 1)
+    g:switchWeapon(p.weapon == 1 and 2 or 1)
   end
   if tick % 600 == 300 and (p.abilityState.powder.uses or 0) > 0 then
     g:cast(1)

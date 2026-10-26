@@ -14,6 +14,11 @@ local Loadout = require('src.combat.loadout')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local C = { trace = B.trace }
+-- The controlled actor's shots and the shots that reached a body.
+function C.counters(g)
+  local a = Roles.controlled(g)
+  return a.shots, a.hits
+end
 -- Body response comes from the shared rules (src/combat/rules.lua); the
 -- corpse's response to the contact starts here; measurements and the visible
 -- spray are listeners of BlowResolved.
@@ -41,7 +46,7 @@ end
 -- A knight off balance (staggered) cannot aim (0.25, D2); a pull may stop a
 -- reload while rounds remain in the gun (combat/reload.lua: interrupt).
 local function ready(g)
-  if g.state ~= 'playing' or g.map or g.help or g.cooldown > 0 then
+  if g.state ~= 'playing' or g.map or g.help or Roles.controlled(g).cooldown > 0 then
     return nil
   end
   if Rules.has(Roles.controlled(g), 'staggered') then
@@ -57,7 +62,7 @@ local function ready(g)
     Reload.mechanisms[profile.mechanism],
     'weapon ' .. profile.id .. ': unknown reload mechanism ' .. profile.mechanism
   )
-  if g.reload > 0 and not Reload.interrupt(g) then
+  if Reload.left(g) > 0 and not Reload.interrupt(g) then
     return nil
   end
   if not Capabilities.armed(g) then
@@ -86,9 +91,12 @@ local function discharge(g, profile, command)
     state.spent = (state.spent or 0) + rounds
   end
   AI.noise(g, p.x, p.z, fire.noise)
-  g.shots = g.shots + 1
+  -- The world's shot id (journal, observations) and the actor's own shot
+  -- sequence (its pellet pattern and contact seeds; plan v11 E3).
+  p.shots = p.shots + 1
   g.shotSerial = g.shotSerial + 1
-  g.cooldown = profile.cycle
+  p.shotSequence = p.shotSequence + 1
+  p.cooldown = profile.cycle
   state.readyAt = g.elapsed + profile.cycle
   -- Recoil, flash, sound and powder: feedback/shot_feedback.lua.
   if g.bus then
@@ -118,7 +126,7 @@ local function newVolley(g, profile, attack, pellets)
     lowers = {},
     blocked = 0,
     report = {
-      weapon = g.weapon,
+      weapon = Weapons.slot(g),
       weaponName = profile.name,
       pellets = pellets,
       pelletsHit = 0,
@@ -263,7 +271,7 @@ function Volley:trace(i, pellets, spread, bodies)
   local g, fire, p, report = self.g, self.profile.fire, Roles.controlled(self.g), self.report
   local ox, oy = 0, 0
   if fire.pellets > 1 then
-    ox, oy = B.pellet(i, g.shotSerial, pellets)
+    ox, oy = B.pellet(i, self.sequence, pellets)
     ox, oy = ox * spread, oy * spread
   end
   local dx, dy, dz = B.spreadDirection(self.yaw or p.yaw, self.pitch or p.pitch, ox, oy)
@@ -287,7 +295,7 @@ function Volley:trace(i, pellets, spread, bodies)
     dz = dz,
   }
   report.rays[#report.rays + 1] = ray
-  ray.normal, ray.seed = normal, g.shotSerial * 31 + i
+  ray.normal, ray.seed = normal, self.sequence * 31 + i
   if e then
     self:contact(e, d, x, y, z, normal, part, 1, dx, dy, dz, surface)
     if self.attack.pierce then
@@ -322,7 +330,7 @@ function Volley:apply()
       detail.impact = self.impacts[e]
       detail.killed = e.hp <= 0
       report.hitTargets[#report.hitTargets + 1] = detail
-      detail.seed = (report.shotSerial or g.shotSerial) * 31 + e.id
+      detail.seed = self.sequence * 31 + e.id
       detail.point = pt
       -- Counter-hits are decided by the rules from the body's own rush.
       local extra = {
@@ -350,6 +358,7 @@ local function resolveVolley(g, shot, bodies)
   local profile, pellets = shot.profile, shot.count
   local volley = newVolley(g, profile, shot.attack, pellets)
   volley.origin, volley.yaw, volley.pitch = shot.origin, shot.yaw, shot.pitch
+  volley.sequence = shot.sequence
   volley.report.origin = shot.origin
   local spread = shot.spread
   for i = 1, pellets do
@@ -357,7 +366,7 @@ local function resolveVolley(g, shot, bodies)
   end
   local results = volley:apply()
   if volley.report.targets > 0 then
-    g.hits = g.hits + 1
+    Roles.controlled(g).hits = Roles.controlled(g).hits + 1
   end
   -- Marks, trails, numbers, hitmarker, named rules: feedback/shot_feedback.lua.
   if g.bus then
@@ -379,6 +388,7 @@ function C.projectile(g, b, e, part, surface)
   local shot = b.shot
   local volley = newVolley(g, shot.profile, shot.attack, 1)
   volley.report.weapon, volley.report.shotSerial = shot.slot, shot.serial
+  volley.sequence = shot.sequence
   volley.report.origin = shot.origin
   local length = math.max(1e-8, math.sqrt(b.vx * b.vx + b.vy * b.vy + b.vz * b.vz))
   local normal = surface and surface.normal or { -b.vx / length, -b.vy / length, -b.vz / length }
@@ -398,7 +408,7 @@ function C.projectile(g, b, e, part, surface)
   )
   local results = volley:apply()
   if volley.report.targets > 0 and not shot.hit then
-    g.hits, shot.hit = g.hits + 1, true
+    shot.shooter.hits, shot.hit = shot.shooter.hits + 1, true
   end
   Signal(
     g,
@@ -426,7 +436,7 @@ function C.shoot(g, command)
     -- The journal keeps the bodies of an observation a shot used.
     Signal(g, 'ObservationUsed', { observation = observation })
   end
-  local attack, spread = Loadout.attack(g, g.weapon), Loadout.spread(g)
+  local attack, spread = Loadout.attack(g, Weapons.slot(g)), Loadout.spread(g)
   local pellets = discharge(g, profile, command)
   local shot = {
     profile = profile,
@@ -434,7 +444,10 @@ function C.shoot(g, command)
     spread = spread,
     count = pellets,
     serial = g.shotSerial,
-    slot = g.weapon,
+    -- Its shooter and the shooter's own shot sequence (plan v11 E3).
+    shooter = Roles.controlled(g),
+    sequence = Roles.controlled(g).shotSequence,
+    slot = Weapons.slot(g),
     origin = observed and Observation.copy(observation.origin) or { B.origin(g) },
     yaw = command and command.yaw or Roles.controlled(g).yaw,
     pitch = command and command.pitch or Roles.controlled(g).pitch,

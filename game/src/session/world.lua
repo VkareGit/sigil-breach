@@ -16,6 +16,7 @@ local Components = require('src.session.components')
 local Roles = require('src.core.roles')
 local Tree = require('src.core.data_tree')
 local Save = require('src.storage.save')
+local Schema = require('src.core.schema')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.
@@ -177,10 +178,27 @@ local members = setmetatable({}, { __mode = 'k' })
 local function transient(t, k)
   return members[t] and Components.transient[k]
 end
+-- Version 2 (plan v11 E3): a knight carries its actor state (the slot in
+-- hand, reload, trigger, shots, shot sequence). A version 1 save had none
+-- (the session kept it and saved it nowhere): its knights take the defaults
+-- of their component when restored.
+local function actorDefaults(knight)
+  for name, spec in pairs(Components.schemas.knight) do
+    if knight[name] == nil and spec.default ~= nil then
+      knight[name] = type(spec.default) == 'table' and Schema.copy(spec.default) or spec.default
+    end
+  end
+end
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 1,
+  version = 2,
+  migrations = {
+    [1] = function(data)
+      data.actorDefaults = true
+      return data
+    end,
+  },
   pack = function(g)
     local all, controlled = {}, nil
     for _, name in ipairs(M.order) do
@@ -220,13 +238,23 @@ Save.declare({
     assert(#knights >= 1, 'no knight')
     assert(type(t.controlled) == 'number' and knights[t.controlled] ~= nil, 'no controlled knight')
     assert(t.nextId == nil or type(t.nextId) == 'number', 'next id')
-    return { pools = all, controlled = t.controlled, nextId = t.nextId }
+    return {
+      pools = all,
+      controlled = t.controlled,
+      nextId = t.nextId,
+      actorDefaults = t.actorDefaults == true,
+    }
   end,
   restore = function(g, value)
     for _, name in ipairs(M.order) do
       M.clear(g, name)
       for _, e in ipairs(value.pools[name]) do
         M.add(g, name, e)
+      end
+    end
+    if value.actorDefaults then
+      for _, knight in ipairs(value.pools.knights) do
+        actorDefaults(knight)
       end
     end
     Roles.control(g, value.pools.knights[value.controlled])

@@ -207,7 +207,7 @@ function S.run(G, human, observer)
         then
           desired = 1
         end
-        if desired ~= g.weapon and g.reload == 0 and g.cooldown == 0 then
+        if desired ~= p.weapon and p.reload == 0 and p.cooldown == 0 then
           g:switchWeapon(desired)
         end
         if distance > 6 then
@@ -280,7 +280,7 @@ function S.run(G, human, observer)
     if len > 1 then
       dx, dz = dx / len, dz / len
     end
-    local shotCount = g.shots
+    local shotCount = g.player.shots
     g:update(1 / 120, {
       forward = dx * math.sin(p.yaw) + dz * math.cos(p.yaw),
       strafe = dx * math.cos(p.yaw) - dz * math.sin(p.yaw),
@@ -291,8 +291,8 @@ function S.run(G, human, observer)
     if observer then
       observer(g, tick)
     end
-    if g.shots > shotCount then
-      if g.weapon == 1 then
+    if g.player.shots > shotCount then
+      if g.player.weapon == 1 then
         shotgun = shotgun + 1
       else
         revolver = revolver + 1

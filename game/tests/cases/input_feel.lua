@@ -23,7 +23,7 @@ function Tests.run(G, check)
   local g = fresh()
   check(
     'intent queue rejects unknown actions without changing either buffer',
-    not Intent.queue(g, 'reload') and g.fireBuffer == 0 and g.player.jumpBuffer == 0
+    not Intent.queue(g, 'reload') and g.player.fireBuffer == 0 and g.player.jumpBuffer == 0
   )
   Intent.queue(g, 'jump')
   g.player.jumpBuffer = 0.001
@@ -58,10 +58,10 @@ function Tests.run(G, check)
     return true
   end
   Intent.queue(g, 'fire')
-  g.fireBuffer = 0.001
+  g.player.fireBuffer = 0.001
   check(
     'a fire tap remains valid through the final fractional simulation tick',
-    Intent.fire(g, 1 / 120, false) and shots == 1 and g.fireBuffer == 0
+    Intent.fire(g, 1 / 120, false) and shots == 1 and g.player.fireBuffer == 0
   )
   check(
     'one consumed fire tap cannot discharge again',
@@ -78,7 +78,10 @@ function Tests.run(G, check)
   for _ = 1, 16 do
     Intent.fire(g, 1 / 120, false)
   end
-  check('an unavailable weapon cannot retain a fire intention indefinitely', g.fireBuffer == 0)
+  check(
+    'an unavailable weapon cannot retain a fire intention indefinitely',
+    g.player.fireBuffer == 0
+  )
   for _, state in ipairs({ 'paused', 'dead', 'field_catalog', 'shop' }) do
     g = fresh()
     Intent.queue(g, 'jump')
@@ -91,7 +94,7 @@ function Tests.run(G, check)
     Intent.fire(g, 1 / 120, true)
     check(
       state .. ' discards both pending gameplay intentions',
-      g.fireBuffer == 0 and g.player.jumpBuffer == 0
+      g.player.fireBuffer == 0 and g.player.jumpBuffer == 0
     )
   end
   for _, overlay in ipairs({ 'map', 'help' }) do
@@ -102,7 +105,7 @@ function Tests.run(G, check)
     Intent.jump(g, 1 / 120, true, true)
     check(
       overlay .. ' overlay cancels pending taps rather than replaying them later',
-      g.fireBuffer == 0 and g.player.jumpBuffer == 0
+      g.player.fireBuffer == 0 and g.player.jumpBuffer == 0
     )
   end
   g = fresh()
@@ -114,18 +117,20 @@ function Tests.run(G, check)
   end
   check(
     'invalid time cannot consume input or fire a weapon',
-    g.shots == 0 and g.fireBuffer == Intent.window and g.player.jumpBuffer == Intent.window
+    g.player.shots == 0
+      and g.player.fireBuffer == Intent.window
+      and g.player.jumpBuffer == Intent.window
   )
   for _, rate in ipairs({ 30, 60, 144 }) do
     g = fresh()
-    g.weapon = 2
-    g.cooldown = 0.001
+    g.player.weapon = 2
+    g.player.cooldown = 0.001
     Intent.queue(g, 'fire')
-    g.fireBuffer = 0.001
+    g.player.fireBuffer = 0.001
     g:update(1 / rate, {})
     check(
       'real weapon consumes a buffered tap at cycle end at ' .. rate .. ' Hz',
-      g.shots == 1 and g.player.arsenal.judge.mag == 5 and g.fireBuffer == 0
+      g.player.shots == 1 and g.player.arsenal.judge.mag == 5 and g.player.fireBuffer == 0
     )
     g = fresh()
     g.player.jump = 0.02
@@ -163,7 +168,10 @@ function Tests.run(G, check)
     g:update(1 / 60, {})
     check(
       'actual ' .. blocked .. ' simulation discards pending taps before resuming',
-      g.fireBuffer == 0 and g.player.jumpBuffer == 0 and g.shots == 0 and g.player.jump == 0
+      g.player.fireBuffer == 0
+        and g.player.jumpBuffer == 0
+        and g.player.shots == 0
+        and g.player.jump == 0
     )
   end
   -- The hand plants and their audio share exactly one accumulated distance.
@@ -372,7 +380,7 @@ function Tests.run(G, check)
   )
   -- OFF -> ON while paused must work without waiting for a simulation update.
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   g:shoot()
   g:reloadGun()
   g:update(0.05, { forward = 1, jump = true })
@@ -436,7 +444,7 @@ function Tests.run(G, check)
     'pause-toggle fixture contains active recoil and a mechanical reload',
     g.view.recoil > 0
       and g.view.recoilV ~= 0
-      and g.reload > 0
+      and g.player.reload > 0
       and g.view.presentationPrevious ~= nil
   )
   g.view.motion = false

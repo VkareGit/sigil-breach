@@ -14,7 +14,7 @@ function Tests.run(G, check)
     local g = Field.new(G)
     g.testing = true
     Field.close(g)
-    g.weapon = 2
+    g.player.weapon = 2
     local e = g:spawn(kind or 'imp', 16, 19.5)
     e.previewFrame = 1
     e.hp = 1000
@@ -80,7 +80,7 @@ function Tests.run(G, check)
   check(
     'precision does not change ammunition or shot cadence',
     head.player.arsenal.judge.mag == torso.player.arsenal.judge.mag
-      and head.cooldown == torso.cooldown
+      and head.player.cooldown == torso.player.cooldown
   )
   check(
     'precision marker belongs to the current confirmed shot',

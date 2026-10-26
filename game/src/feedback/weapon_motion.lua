@@ -6,6 +6,7 @@ local T = require('src.content.tuning')
 local Impact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
 local Gait = require('src.player.movement_gait')
+local Reload = require('src.combat.reload')
 local M = {}
 local sin, cos, pi = math.sin, math.cos, math.pi
 local clamp = MathX.clamp
@@ -18,13 +19,14 @@ local function smooth(v)
   return v * v * (3 - 2 * v)
 end
 function M.grip(g)
-  if (g.reload or 0) <= 0 then
+  local left = Reload.left(g)
+  if left <= 0 then
     return 1
   end
   -- Blend the hand brace on elapsed presentation time, including a resumed
   -- reload. The physical action still uses its unchanged absolute timeline.
-  local elapsed = math.max(0, (g.reloadDuration or g.reload) - g.reload)
-  local brace = math.min(smooth(elapsed / 0.10), smooth(g.reload / 0.12))
+  local elapsed = math.max(0, Reload.duration(g) - left)
+  local brace = math.min(smooth(elapsed / 0.10), smooth(left / 0.12))
   return 1 - 0.52 * brace
 end
 local keys = {

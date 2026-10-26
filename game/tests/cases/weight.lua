@@ -26,7 +26,7 @@ function Tests.run(G, check)
   -- A heavier weapon trails the same turn further.
   local function trail(slot)
     local t = fresh()
-    t.weapon = slot
+    t.player.weapon = slot
     for _ = 1, 3 do
       t:update(1 / 120, {})
     end
@@ -176,7 +176,7 @@ function Tests.run(G, check)
   local target = g:spawn('buer', 16, 21)
   target.hp = 1000
   target.maxHp = 1000
-  g.weapon = 1
+  g.player.weapon = 1
   g:shoot()
   check(
     'a guard-breaking shot confirms the break (marker, number, flash)',
@@ -248,7 +248,7 @@ function Tests.run(G, check)
   local Damage = require('src.combat.damage')
   local function line(first, second)
     local t = fresh()
-    t.weapon = 2
+    t.player.weapon = 2
     local a = t:spawn(first, 16, 21.5)
     local b = t:spawn(second or 'imp', 16, 19.5)
     a.hp, a.maxHp, b.hp, b.maxHp = 5000, 5000, 5000, 5000
@@ -276,7 +276,7 @@ function Tests.run(G, check)
     aa.hp < 5000 and ab.hp == 5000 and not ag.view.shotReport.pierced
   )
   local sg2 = fresh()
-  sg2.weapon = 1
+  sg2.player.weapon = 1
   local s1, s2 = sg2:spawn('imp', 16, 21.5), sg2:spawn('imp', 16, 19.5)
   s1.hp, s2.hp = 5000, 5000
   sg2:shoot()
@@ -289,7 +289,7 @@ function Tests.run(G, check)
   g = fresh()
   local body = g:spawn('imp', 16, 21)
   body.hp = 1
-  g.weapon = 1
+  g.player.weapon = 1
   g:shoot()
   check('a point-blank kill lifts the body off its feet', body.hp <= 0 and (body.fallVY or 0) > 0)
   local airFrame = Anim.pose(g, body)
@@ -360,7 +360,7 @@ function Tests.run(G, check)
   end
   -- The hero's weapon: view punch and shove settle before the next shot.
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   g:shoot()
   g:update(1 / 120, {})
   local rose = g.view.viewPunch > 0 and g.view.kickBack > 0
@@ -372,14 +372,14 @@ function Tests.run(G, check)
     rose and math.abs(g.view.viewPunch) < 0.0015 and math.abs(g.view.kickBack) < 0.05
   )
   g = fresh()
-  g.weapon = 1
+  g.player.weapon = 1
   g:shoot()
   for _ = 1, 4 do
     g:update(1 / 120, {})
   end
   local shotgunPunch = g.view.viewPunch
   g = fresh()
-  g.weapon = 2
+  g.player.weapon = 2
   g:shoot()
   for _ = 1, 4 do
     g:update(1 / 120, {})
@@ -390,7 +390,7 @@ function Tests.run(G, check)
   )
   g = fresh()
   g.view.motion = false
-  g.weapon = 1
+  g.player.weapon = 1
   g:shoot()
   g:update(1 / 120, {})
   check(

@@ -17,7 +17,7 @@ function Tests.run(G, check)
     g.state = 'playing'
     g.enemies = {}
     g.pickups = {}
-    g.weapon = slot or 1
+    g.player.weapon = slot or 1
     g.player.yaw = 0
     return g
   end
@@ -58,7 +58,7 @@ function Tests.run(G, check)
   local ox, oy, oz = B.origin(g)
   local yaw, pitch = g.player.yaw, g.player.pitch
   local mag, reserve = g.player.arsenal.judge.mag, g.player.arsenal.judge.reserve
-  local reload, ready, elapsed = g.reload, g.player.arsenal.judge.readyAt, g.elapsed
+  local reload, ready, elapsed = g.player.reload, g.player.arsenal.judge.readyAt, g.elapsed
   local gripX, gripY = V.transform(g, 800, 450)
   W.shot(g, Defs.profile(2), 1)
   W.update(g, 0.08)
@@ -80,7 +80,7 @@ function Tests.run(G, check)
     'wrist update preserves ammunition reload and ready clocks',
     g.player.arsenal.judge.mag == mag
       and g.player.arsenal.judge.reserve == reserve
-      and g.reload == reload
+      and g.player.reload == reload
       and g.player.arsenal.judge.readyAt == ready
       and g.elapsed == elapsed
   )
