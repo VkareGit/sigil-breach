@@ -175,7 +175,7 @@ function Tests.run(G)
   local restored = loaded.player.arsenal.trial_carbine
   check(
     'a save keeps every weapon of the loadout by id (no format change)',
-    text:find('trial_carbine:2:7', 1, true) ~= nil
+    text:find('["trial_carbine"]={["mag"]=2,["reserve"]=7}', 1, true) ~= nil
       and #loaded.player.loadout == 3
       and restored
       and restored.mag == 2

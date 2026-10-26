@@ -349,6 +349,29 @@ Odbiór:
   w rdzeniu zapisu;
 - przerwanie zapisu w połowie nie niszczy poprzedniego.
 
+Wykonano (2026-10-26):
+- Rdzeń `storage/save.lua` (bez wiedzy o sekcjach): plik SIGIL09 z rodzajem,
+  numerem, sumą kontrolną i drzewem `{ sekcja = { version, data } }`;
+  odczyt literalny, sprawdzenie schematu, migracje kolejnymi funkcjami,
+  odrzucenie całego pliku przed przywróceniem; zapis przez plik obok,
+  zamianę i zachowaną poprzednią kopię.
+- Sekcje u właścicieli: `run` (checkpoint wyprawy, `storage/run_save.lua`),
+  `map` (`world/arena.lua`), `pools` (`session/world.lua`: członkowie pul,
+  ich strony, odwołania do definicji jako ścieżki `core/data_tree.lua`,
+  wspólne tabele raz, sterowany rycerz, następne id). Zapis sesji:
+  `storage/session_save.lua`.
+- SIGIL06/07/08 czyta adapter; gra zapisuje tylko SIGIL09. Koder SIGIL08
+  w wersji 0.32 został w `tests/support/legacy_save.lua` dla testów migracji.
+- Odbiór (test `save-format`, 11): 30 checkpointów SIGIL08 czyta się jak
+  dotąd i równo z bliźniakiem SIGIL09; 40 losowych checkpointów i 8 losowych
+  sesji (pule, strony, mapa) wraca bit w bit, definicje i wspólne tabele
+  zachowują tożsamość; plik uszkodzony, obcięty, obcej wersji, nowszej
+  sekcji, z nieznaną sekcją, z wartością spoza schematu, z kodem Lua albo
+  innego rodzaju jest odrzucany, a sesja zostaje nietknięta; sekcja próbna
+  dodana samą deklaracją zapisuje się, czyta (ze stanem domyślnym dla
+  starszego pliku) i migruje; zapis przerwany przed zamianą i w jej trakcie
+  zostawia pełny zapis. Złoty wzorzec i 596 renderów bez zmian.
+
 ### V5 — nagrywanie dużych walk (B7)
 
 - Obserwacja strzału zapisuje tylko ciała w korytarzu tego strzału:

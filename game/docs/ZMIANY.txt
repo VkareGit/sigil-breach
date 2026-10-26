@@ -64,6 +64,16 @@ V3 — przestrzeń w skali (2026-10-26)
 - Rozgrywka, balans, wygląd i zapisy bez zmian; skróty v2 bit w bit,
   rendery showcase identyczne piksel w piksel.
 
+V4 — zapis jako dane ze schematem (2026-10-26)
+- Nowy format SIGIL09: drzewo sekcji z wersjami, czytane bez wykonywania
+  kodu, ze schematem, sumą kontrolną i migracjami; błąd odrzuca cały plik.
+- Sekcje deklarują ich właściciele: checkpoint wyprawy, mapa, pule ze
+  stronami. Nowa sekcja to jedna deklaracja.
+- Zapis atomowy: plik obok, zamiana, poprzedni zostaje; przerwany zapis
+  nie niszczy ostatniego pełnego.
+- Zapisy SIGIL06/07/08 wczytują się jak dotąd; kolejny zapis jest w SIGIL09.
+- Rozgrywka, balans i wygląd bez zmian; skróty v2 bit w bit.
+
 
 ########################################################################
 ZMIANY-0.32.txt

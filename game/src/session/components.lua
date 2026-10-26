@@ -295,6 +295,9 @@ require('src.core.strict').retire(
   { 'charges' },
   'ability uses live in player.abilityState[id] (content/abilities.lua)'
 )
+-- Fields that are caches of a member, rebuilt rather than saved (plan v10
+-- V4): a route's distance field belongs to the world's field cache.
+C.transient = { path = true }
 -- What every member of a pool has.
 C.pools = {
   enemies = {

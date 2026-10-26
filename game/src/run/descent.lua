@@ -5,6 +5,7 @@ local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local F = require('src.player.feel')
 local Save = require('src.storage.run_save')
+local SaveCore = require('src.storage.save')
 local E = require('src.run.economy')
 local Waves = require('src.content.waves')
 local Weapons = require('src.content.weapons')
@@ -143,7 +144,8 @@ function R.save(g)
   if r.phase ~= 'preparing' and r.phase ~= 'defeated' and r.phase ~= 'complete' then
     return false
   end
-  local ok, reason = Save.write(R.snapshot(g))
+  -- The checkpoint and every other section of the expedition's file.
+  local ok, reason = Save.write(R.snapshot(g), nil, g)
   g.saveWarning = not ok and reason or nil
   return ok
 end
@@ -180,6 +182,10 @@ function R.load(g, data)
   g.seals = math.min(3, data.wave - 1)
   for i, s in ipairs(g.world.seals) do
     s.active = i <= g.seals
+  end
+  -- The file's other sections, restored by their owners (plan v10 V4).
+  if data.sections then
+    SaveCore.restore('expedition', g, data.sections, 'run')
   end
   Presentation.capture(g, g.state == 'playing')
   g:notify(

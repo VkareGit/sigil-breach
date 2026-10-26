@@ -351,6 +351,11 @@ Suite.registry = {
     module = 'tests.cases.floor_layers',
   },
   {
+    id = 'save-format',
+    title = 'Saves as data with a schema: adapter, round trips, refusals (plan v10 V4)',
+    module = 'tests.cases.save_format',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',

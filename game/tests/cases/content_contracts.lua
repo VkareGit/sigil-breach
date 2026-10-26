@@ -180,10 +180,10 @@ function Tests.run()
       deaths = 0,
       score = 0,
     }
-    local encoded = Save.encode(data, 7)
-    local restored = assert(Save.decode(encoded))
+    local restored = assert(Save.decode(Save.encode(data, 7)))
+    local encoded = require('tests.support.legacy_save').encode08(data, 7)
     check(
-      'accepted registry ids roundtrip through SIGIL08 without losing slots',
+      'accepted registry ids roundtrip through the save without losing slots',
       Id.valid(weaponId)
         and Id.valid(abilityId)
         and restored.inventory.loadout[2] == weaponId

@@ -305,7 +305,8 @@ function Tests.run(G, renderer)
   check('truncated save is rejected', Save.decode(encoded:sub(1, -8)) == nil)
   check(
     'edited payload fails checksum',
-    Save.decode(encoded:gsub('wallet=164', 'wallet=999')) == nil
+    Save.decode((encoded:gsub('%["wallet"%]=164', '["wallet"]=999'))) == nil
+      and encoded:find('["wallet"]=164', 1, true) ~= nil
   )
   check('save does not execute Lua text', Save.decode('return os.execute("test")') == nil)
   data.wallet = -1
@@ -315,19 +316,29 @@ function Tests.run(G, renderer)
   )
   data.wallet = 164
   local prefix = 'qa-v06-generation'
-  love.filesystem.remove(prefix .. '.a')
-  love.filesystem.remove(prefix .. '.b')
-  check('first save generation writes and verifies', Save.write(data, prefix))
+  local file = Save.file(prefix)
+  local function clean()
+    for _, path in ipairs({
+      file,
+      file .. '.tmp',
+      file .. '.previous',
+      prefix .. '.a',
+      prefix .. '.b',
+    }) do
+      love.filesystem.remove(path)
+    end
+  end
+  clean()
+  check('first save writes and verifies', Save.write(data, prefix))
   data.wallet = 200
-  check('second save generation writes and verifies', Save.write(data, prefix))
-  love.filesystem.write(prefix .. '.a', 'interrupted')
+  check('second save writes and verifies, the first kept beside it', Save.write(data, prefix))
+  love.filesystem.write(file, 'interrupted')
   local recovered, sequence, damaged = Save.read(prefix)
   check(
-    'damaged latest generation falls back to previous complete save',
+    'a damaged latest save falls back to the previous complete save',
     recovered and recovered.wallet == 164 and sequence == 1 and damaged
   )
-  love.filesystem.remove(prefix .. '.a')
-  love.filesystem.remove(prefix .. '.b')
+  clean()
   local loaded = fresh()
   Run.load(loaded, decoded)
   check(

@@ -19,7 +19,8 @@ function Tests.run(G, check, spark)
   run.player.abilityState[spark.id].uses = 1
   run.player.abilityState.powder.uses = 0
   local snapshot = Run.snapshot(run)
-  local encoded = Save.encode(snapshot, 7)
+  -- As 0.32 wrote it: the adapter reads SIGIL08 into the same checkpoint.
+  local encoded = require('tests.support.legacy_save').encode08(snapshot, 7)
   local saved = assert(Save.decode(encoded))
   local restored = Fixtures.expedition(G)
   Run.load(restored, saved)

@@ -238,8 +238,20 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   zamiary ustawione przez aplikację między poleceniami) + origin w nagłówku;
   --record + F9 zapisuje dziennik (każdej sesji przyjętej przez adopt, także
   poligonu: akcje katalogu to polecenie 'field', a nagłówek niesie warunki
-  początkowe poligonu). storage/run_save.lua: zapisuje SIGIL08, czyta SIGIL06/07.
-  Złoty wzorzec to odcisk regresji wybranych pól trzech scenariuszy (nie
+  początkowe poligonu).
+  Zapis (plan v10 V4): storage/save.lua to rdzeń bez wiedzy o sekcjach.
+  Plik SIGIL09 = rodzaj pliku, numer, suma kontrolna i drzewo
+  { sekcja = { version, data } } przez core/serialize; odczyt literalnym
+  core/data_reader (nic się nie wykonuje). Sekcję deklaruje jej właściciel
+  (Save.declare: name, file, version, schema, pack, unpack, restore,
+  migrations, default): 'run' w storage/run_save.lua (checkpoint wyprawy),
+  'map' w world/arena.lua, 'pools' w session/world.lua (członkowie pul ze
+  stronami, definicje jako ścieżki core/data_tree.lua, wspólne tabele raz).
+  Każdy błąd odrzuca cały plik przed przywróceniem czegokolwiek. Zapis jest
+  atomowy: plik obok (.tmp), sprawdzony, zamiana, poprzedni zostaje
+  (.previous); odczyt bierze najnowszy pełny z trzech. SIGIL06/07/08 czyta
+  adapter w run_save; zapis tylko SIGIL09. storage/session_save.lua: zapis
+  stanu sesji (mapa, pule, strony).  Złoty wzorzec to odcisk regresji wybranych pól trzech scenariuszy (nie
   wyrocznia poprawności): części ciała, stany i telemetria są poza nim.
   Telemetria (combat/telemetry.lua: T.copy, T.since, T.lines) w grze i w
   botach; app/session_report.lua słucha zdarzeń (Presentation.attacher:
@@ -265,7 +277,7 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Odwrócenie zależności (session/presentation: haki), Łańcuch
   odpowiedzialności (ui/views), Harmonogram, Metoda szablonowa (C.shoot,
   R:draw), Rejestr (core/registry), Memento, Polecenie (commands, journal,
-  Game:look), Adapter (run_save SIGIL06/07 -> 08), Pamięć podręczna (W.flow).
+  Game:look), Adapter (run_save SIGIL06/07/08 -> sekcja run), Pamięć podręczna (W.flow).
 
 11. GDZIE MIESZKAJĄ LICZBY
 
@@ -320,7 +332,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   AbilityCast wskazuje faktycznie użyty slot i jego animację dłoni.
   HUD wielu slotów wyposażenia nie jest wdrożony. Dodanie przedmiotu do
   gry wymaga osobnego domknięcia jego prezentacji w zachowanym HUD 0.30.
-  SIGIL08 zapisuje kolejność slotów (także checkpoint), odczytuje 06/07.
+  Checkpoint zapisuje kolejność slotów (także checkpointu); SIGIL06/07
+  migrują przez adapter.
   Rzut niesie własną definicję: lot, zapalnik, promień i blast; wspólne
   zachowanie nie odczytuje parametrów innego wyposażenia. Rejestracja nowego
   handlera i ograniczenia statusów/wyglądu: DEVELOPMENT, „Wyposażenie”.

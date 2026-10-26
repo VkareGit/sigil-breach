@@ -14,6 +14,8 @@
 local World = require('src.core.ecs')
 local Components = require('src.session.components')
 local Roles = require('src.core.roles')
+local Tree = require('src.core.data_tree')
+local Save = require('src.storage.save')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.
@@ -166,4 +168,70 @@ function M.reindex(g)
     g.ecs:reindex()
   end
 end
+-- The session save's section of the pools (plan v10 V4): every member of
+-- every pool with its components, its side (faction) and its references to
+-- definitions and to other members (core/data_tree.lua), which knight this
+-- session controls and the next id. A member's caches (Components.transient)
+-- are not saved: they are rebuilt.
+local members = setmetatable({}, { __mode = 'k' })
+local function transient(t, k)
+  return members[t] and Components.transient[k]
+end
+Save.declare({
+  name = 'pools',
+  file = 'session',
+  version = 1,
+  pack = function(g)
+    local all, controlled = {}, nil
+    for _, name in ipairs(M.order) do
+      all[name] = M.of(g, name)
+      for i, e in ipairs(all[name]) do
+        members[e] = true
+        if name == 'knights' and e == Roles.controlled(g) then
+          controlled = i
+        end
+      end
+    end
+    return { pools = Tree.encode(all, transient), controlled = controlled, nextId = g.nextId }
+  end,
+  unpack = function(t)
+    assert(type(t) == 'table', 'pools')
+    local all = Tree.decode(t.pools)
+    assert(type(all) == 'table', 'pools')
+    for name in pairs(all) do
+      assert(M.arrays[name], 'unknown pool ' .. tostring(name))
+    end
+    local ids = {}
+    for _, name in ipairs(M.order) do
+      local list = all[name] or {}
+      all[name] = list
+      for i, e in pairs(list) do
+        assert(
+          type(i) == 'number' and i >= 1 and i <= #list and type(e) == 'table',
+          'pool ' .. name
+        )
+        if e.id ~= nil then
+          assert(not ids[e.id], 'two members with one id')
+          ids[e.id] = true
+        end
+      end
+    end
+    local knights = all.knights
+    assert(#knights >= 1, 'no knight')
+    assert(type(t.controlled) == 'number' and knights[t.controlled] ~= nil, 'no controlled knight')
+    assert(t.nextId == nil or type(t.nextId) == 'number', 'next id')
+    return { pools = all, controlled = t.controlled, nextId = t.nextId }
+  end,
+  restore = function(g, value)
+    for _, name in ipairs(M.order) do
+      M.clear(g, name)
+      for _, e in ipairs(value.pools[name]) do
+        M.add(g, name, e)
+      end
+    end
+    Roles.control(g, value.pools.knights[value.controlled])
+    g.nextId = value.nextId
+    M.reindex(g)
+  end,
+})
 return M

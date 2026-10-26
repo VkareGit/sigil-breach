@@ -5,8 +5,8 @@
 -- session's machinery (its event bus with its listeners, its ECS world over
 -- the session's arrays) is not data: it stays and sees the restored arrays.
 -- Uses: quick save/load, a replay that starts mid-fight, a test that rewinds.
--- The expedition's file save (storage/run_save.lua) is a narrow checkpoint
--- of the same idea in a stable text format; it does not change.
+-- File saves are data, not mementos (storage/save.lua, plan v10 V4): each
+-- section's owner writes its state as a tree and reads it back.
 local Snapshot = {}
 -- Session fields that are machinery, not state.
 Snapshot.machinery = { bus = true, ecs = true }

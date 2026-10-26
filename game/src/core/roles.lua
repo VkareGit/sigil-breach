@@ -8,6 +8,10 @@ local Roles = {}
 function Roles.controlled(g)
   return g.player
 end
+-- Hand control to knight (a session restored from its save).
+function Roles.control(g, knight)
+  g.player = knight
+end
 function Roles.viewer(g)
   return g.viewer or g.player
 end

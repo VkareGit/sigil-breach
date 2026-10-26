@@ -10,6 +10,7 @@ local SphereCast = require('src.physics.sphere_cast')
 local MathX = require('src.core.mathx')
 local SupportPath = require('src.physics.support_path')
 local Grid = require('src.physics.grid')
+local Save = require('src.storage.save')
 local W = {}
 local function room(map, x1, z1, x2, z2)
   for z = z1, z2 do
@@ -439,4 +440,59 @@ function W.flow(w, x, z, class, level)
   entry.used = cache.clock
   return entry.field
 end
+-- The session save's section of the world (plan v10 V4): which map, in
+-- which mode, every cell as it is now (edits included) and the seals lit.
+-- The rest (elevations, decks, lamps, places) is the map's own data.
+local Tiles, zero = '^[012]*$', ('0'):byte()
+Save.declare({
+  name = 'map',
+  file = 'session',
+  version = 1,
+  schema = Schema:new('map', {
+    id = { type = 'string', required = true },
+    mode = { type = 'string', required = true },
+    rows = { type = 'table', required = true },
+    seals = { type = 'table', required = true },
+  }),
+  pack = function(g)
+    local w, rows, seals = g.world, {}, {}
+    for z = 1, Grid.depth(w) do
+      rows[z] = table.concat(w.map[z])
+    end
+    for i, seal in ipairs(w.seals) do
+      seals[i] = seal.active == true
+    end
+    return { id = w.mapId, mode = w.mode, rows = rows, seals = seals }
+  end,
+  unpack = function(t)
+    assert(Maps:has(t.id), 'unknown map ' .. tostring(t.id))
+    local data = Maps:get(t.id)
+    local width, depth = data.width or data.size, data.depth or data.size
+    assert(#t.rows == depth, 'map rows')
+    for z = 1, depth do
+      local row = t.rows[z]
+      assert(type(row) == 'string' and #row == width and row:match(Tiles), 'map row ' .. z)
+    end
+    assert(#t.seals == #(data.seals or {}), 'map seals')
+    for _, active in ipairs(t.seals) do
+      assert(type(active) == 'boolean', 'map seal')
+    end
+    return t
+  end,
+  restore = function(g, t)
+    if not g.world or g.world.mapId ~= t.id or g.world.mode ~= t.mode then
+      g.world = W.new(t.mode, t.id)
+    end
+    local w = g.world
+    for z, row in ipairs(t.rows) do
+      for x = 1, #row do
+        w.map[z][x] = row:byte(x) - zero
+      end
+    end
+    for i, active in ipairs(t.seals) do
+      w.seals[i].active = active
+    end
+    W.rebuild(w)
+  end,
+})
 return W
