@@ -63,7 +63,7 @@ function Test.run(Game)
   local text = Journal.encode(journal)
   local loaded = Journal.decode(text)
   check(
-    'v3 round trip replays the exact final state and receipts',
+    'v4 round trip replays the exact final state and receipts',
     pcall(Journal.replay, fresh(), loaded)
   )
   local legacy = Observation.copy(loaded)
@@ -71,9 +71,9 @@ function Test.run(Game)
   legacy.observations = nil
   for _, entry in ipairs(legacy.entries) do
     if entry[1] == 'set' then
-      entry[3] = Values.expand(entry[3], loaded.observations)
+      entry[3] = Values.expand(entry[3], loaded.observations, loaded.bodies)
     elseif entry[1] ~= 'aim' then
-      entry[2] = Values.expand(entry[2], loaded.observations)
+      entry[2] = Values.expand(entry[2], loaded.observations, loaded.bodies)
     end
   end
   check(

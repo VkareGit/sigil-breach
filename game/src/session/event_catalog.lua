@@ -6,6 +6,7 @@ local Catalog = {
   { 'ShotFired', 'the knight pulled a trigger {weapon, pellets}' },
   { 'VolleyResolved', 'a shot was applied to every body it reached {report, results}' },
   { 'BodyHit', 'a demon lost health {enemy, health, source}' },
+  { 'ObservationUsed', 'a shot resolved against a displayed observation {observation}' },
   { 'EffectApplied', 'a damaging contact applied an effect {target, definition}' },
   { 'EffectPulse', 'an ongoing effect resolved one pulse {target, definition, health}' },
   {

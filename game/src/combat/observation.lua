@@ -8,7 +8,12 @@ local Surface = require('src.enemies.surface')
 local Geometry = require('src.enemies.geometry')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
-local O = { maxAge = require('src.content.tuning').observation.maxAge }
+local Tuning = require('src.content.tuning')
+local Weapons = require('src.content.weapons')
+local Pattern = require('src.content.ballistic_pattern')
+local O = { maxAge = Tuning.observation.maxAge }
+-- Angle (rad) added to the corridor against rounding at its edge.
+local corridorSlack = 1e-6
 local serial = 0
 local surfaceKeys = {
   'x',
@@ -80,12 +85,89 @@ function O.capture(shown, owner)
   end
   return out
 end
+-- The corridor of a shot (plan v10 V5): every ray a weapon the knight
+-- carries can fire leaves the observed origin within this half-angle of the
+-- aim (its pellet pattern at its widest spread and glyph) and ends within
+-- this range. The resolver meets nothing outside it, so a command keeps only
+-- the bodies whose bounds reach into it.
+local patternBound = 1
+for _, v in ipairs(Pattern) do
+  patternBound = math.max(patternBound, math.abs(v[1]), math.abs(v[2]))
+end
+function O.corridor(g)
+  local p = Roles.controlled(g)
+  local widest, range = 0, 0
+  for _, id in ipairs(p.loadout or {}) do
+    local def = Weapons.get(id)
+    local spread = def.fire.spread or 1
+    local glyph = 1
+    for _, mod in pairs(def.glyphs or {}) do
+      glyph = math.max(glyph, mod.spread or 1)
+    end
+    widest = math.max(widest, spread * glyph)
+    range = math.max(range, def.range or 0)
+  end
+  local h = math.tan(Tuning.pelletSpread * patternBound * widest)
+  local v = math.tan(Tuning.pelletVerticalSpread * patternBound * widest)
+  return math.atan(math.sqrt(h * h + v * v)), range
+end
+-- The bounding sphere (centre, radius) of an observed body's geometry.
+local function bounds(body)
+  local s = body.surface
+  if s then
+    local cell = (s.width + s.height * (1 + math.abs(s.lean))) / Masks.grid
+    local across = s.width * 0.5 + s.height * math.abs(s.lean) + cell
+    local up = s.height * 0.5 + cell
+    return s.x, s.baseY + s.height * 0.5, s.z, math.sqrt(across * across + up * up)
+  end
+  local count, cx, cz, low, high = 0, 0, 0, math.huge, -math.huge
+  for _, v in ipairs(body.volumes or {}) do
+    count, cx, cz = count + 1, cx + v.x, cz + v.z
+    low, high = math.min(low, v.bottom), math.max(high, v.top)
+  end
+  if count == 0 then
+    return body.x, 0, body.z, 0
+  end
+  cx, cz = cx / count, cz / count
+  local across = 0
+  for _, v in ipairs(body.volumes) do
+    across = math.max(across, math.sqrt((v.x - cx) ^ 2 + (v.z - cz) ^ 2) + v.radius)
+  end
+  local up = (high - low) * 0.5
+  return cx, low + up, cz, math.sqrt(across * across + up * up)
+end
+-- Whether an observed body can lie in the corridor of a shot aimed at yaw,
+-- pitch from origin (half-angle, range as O.corridor gives them).
+function O.inCorridor(body, origin, yaw, pitch, half, range)
+  local cx, cy, cz, r = bounds(body)
+  local vx, vy, vz = cx - origin[1], cy - origin[2], cz - origin[3]
+  local d = math.sqrt(vx * vx + vy * vy + vz * vz)
+  if d <= r then
+    return true
+  end
+  if d - r > range then
+    return false
+  end
+  local fx, fy, fz = B.direction(yaw, pitch)
+  local cosine = math.max(-1, math.min(1, (vx * fx + vy * fy + vz * fz) / d))
+  return math.acos(cosine) <= half + math.asin(math.min(1, r / d)) + corridorSlack
+end
 function O.command(observation, g)
-  return {
-    observation = O.copy(observation),
-    yaw = Roles.controlled(g).yaw,
-    pitch = Roles.controlled(g).pitch,
-  }
+  local yaw, pitch = Roles.controlled(g).yaw, Roles.controlled(g).pitch
+  local half, range = O.corridor(g)
+  local kept = {}
+  for key, value in pairs(observation) do
+    if key ~= 'bodies' then
+      kept[key] = O.copy(value)
+    end
+  end
+  kept.bodies = {}
+  for _, body in ipairs(observation.bodies) do
+    if O.inCorridor(body, observation.origin, yaw, pitch, half, range) then
+      kept.bodies[#kept.bodies + 1] = O.copy(body)
+    end
+  end
+  return { observation = kept, yaw = yaw, pitch = pitch }
 end
 function O.valid(g, observation)
   return observation

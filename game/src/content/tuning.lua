@@ -17,8 +17,10 @@ return {
   -- A displayed input may survive one capped 200 ms catch-up plus a 120 ms tap.
   observation = { maxAge = 0.20 + 0.12 },
   -- Optional command recording: estimated serialized text, not Lua heap bytes.
-  -- Stop after the complete command that reaches either bound (10 min at 120 Hz).
-  recording = { maxBytes = 64 * 1024 * 1024, maxCommands = 10 * 60 * 120 },
+  -- Stop after the complete command that reaches either bound: 10 min of
+  -- 120 updates/s and one aim per displayed frame up to 240 frames/s.
+  -- recall: the views a journal keeps searchable for the shot that uses them.
+  recording = { maxBytes = 64 * 1024 * 1024, maxCommands = 10 * 60 * (120 + 240), recall = 16 },
   -- Movement (player/feel.lua): speeds m/s, accelerations m/s^2, times s.
   moveSpeed = 5.25,
   groundAccel = 68,

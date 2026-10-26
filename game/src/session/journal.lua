@@ -19,7 +19,10 @@ local finite = require('src.core.mathx').finite
 local Roles = require('src.core.roles')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
-local Journal = { version = 3, build = Build.version }
+-- Version 4 (plan v10 V5): a shot keeps only the bodies of its corridor
+-- (combat/observation.lua) and unchanged body geometry is a reference;
+-- journals of version 3 (and 2) still replay.
+local Journal = { version = 4, build = Build.version }
 -- LuaJIT weak keys are not ephemerons: a strongly held callback that captures
 -- its key (or the session) would keep abandoned sessions alive forever. The
 -- active command wrappers own callbacks; these tables are lookup indexes only.
@@ -163,6 +166,7 @@ function Journal.record(g, limits, onLimit)
   local journal = {
     entries = {},
     observations = {},
+    bodies = {},
     receipts = {},
     header = Journal.header(g),
     budget = Observation.copy(limits),
@@ -179,11 +183,20 @@ function Journal.record(g, limits, onLimit)
       + #tostring(index)
       + 4
   end
-  local pack = Values.writer(journal, append)
+  local pack, used = Values.writer(journal, append, function(added)
+    journal.estimatedBytes = journal.estimatedBytes + #Serialize.encode(added)
+  end)
   local control = {}
-  control.detach = observe(g, function(receipt)
+  local detachReceipts = observe(g, function(receipt)
     append(journal.receipts, receipt)
   end)
+  local usage = g.bus:on('sim', 'ObservationUsed', function(event)
+    used(event.observation)
+  end)
+  control.detach = function()
+    detachReceipts()
+    g.bus:off('sim', 'ObservationUsed', usage)
+  end
   observers[journal] = control.detach
   local entries = journal.entries
   local depth = 0
@@ -319,7 +332,10 @@ function Journal.replay(g, journal)
     )
   end
   if header.version then
-    assert(header.version == Journal.version or header.version == 2, 'unsupported journal format')
+    assert(
+      header.version == Journal.version or header.version == 3 or header.version == 2,
+      'unsupported journal format'
+    )
     assert(
       header.build == Journal.build,
       'journal belongs to another build: ' .. tostring(header.build)
@@ -334,7 +350,12 @@ function Journal.replay(g, journal)
   for _, path in ipairs(Journal.external) do
     external[path] = true
   end
-  local validate = Values.validator(header.version == 3 and journal.observations or nil)
+  local pooled = header.version == 3 or header.version == 4
+  local bodies = header.version == 4 and journal.bodies or nil
+  if header.version == 4 then
+    assert(type(bodies) == 'table', 'invalid journal body pool')
+  end
+  local validate = Values.validator(pooled and journal.observations or nil, bodies)
   validate(header)
   validate(journal.final)
   validate(journal.receipts)
@@ -405,7 +426,7 @@ function Journal.replay(g, journal)
     end)
   local ok, reason = pcall(function()
     local function expand(value)
-      return header.version == 3 and Values.expand(value, journal.observations)
+      return pooled and Values.expand(value, journal.observations, bodies)
         or Observation.copy(value)
     end
     for _, entry in ipairs(journal.entries) do

@@ -390,6 +390,30 @@ Odbiór:
   odtworzony strzał;
 - istniejące dzienniki z testów odtwarzają się.
 
+Wykonano (2026-10-26):
+- Komenda strzału (`Observation.command`) niesie tylko ciała korytarza:
+  stożek rozrzutu każdej noszonej broni (wzór śrutu × rozrzut × najszerszy
+  glif) z zasięgiem, sfera ograniczająca ciała; resolver poza nim niczego
+  nie trafia (porównanie z pełną obserwacją w 12 scenach).
+- Dziennik v4: obserwacja, której żaden strzał nie użył, zostaje samym
+  nagłówkiem (o jej losie decyduje tylko ważność); ciała wchodzą, gdy
+  strzał ich użyje (zdarzenie `ObservationUsed`). Ciało niezmienione od
+  poprzedniego wpisu to odwołanie, zmienione — różnica pól. v3 i v2
+  nadal odtwarzane.
+- Limit komend nagrania liczy 10 minut aktualizacji (120/s) i celowania
+  w każdej klatce do 240/s (216 000), bo samo celowanie myszą kończyło
+  nagranie po 6,6 min mimo zapasu tekstu.
+- Odbiór:
+
+  | Warunek | Wynik |
+  |---|---|
+  | 96 ciał, przebieg 0.32: przyrost ≤ 15% z 2,43 MB/s | 70,4 KB/s (2,9%); 58 kontaktów jak w 0.32; odtworzenie zweryfikowane |
+  | 64 MiB na ≥ 10 min tej walki | 10 min nagrane naprawdę: 29,6 MB, bez zatrzymania, odtworzenie zweryfikowane (zapas ≈ 23 min przy 10-sekundowym tempie) |
+  | ciało spoza korytarza nie trafione | test `fight-recording`: nie ma go w komendzie, odtworzony strzał go nie trafia, żaden promień żadnej broni nie sięga poza korytarz |
+  | istniejące dzienniki odtwarzają się | testy replay/headless/journal values; dziennik v3 z tej samej walki odtwarza się |
+
+  Raporty w `work/v10-v5-measure` (poza gitem).
+
 ### V6 — otwarta prezentacja (B6)
 
 - Renderer dzielony według przejść na moduły. Obiekty świata (pieczęć,

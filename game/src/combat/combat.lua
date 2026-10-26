@@ -422,6 +422,10 @@ function C.shoot(g, command)
   local observed = observation and profile.delivery.kind == 'hitscan'
   local prepared = observed and Observation.prepare(g, observation)
     or (delivery.prepare and delivery.prepare(g, profile))
+  if observed then
+    -- The journal keeps the bodies of an observation a shot used.
+    Signal(g, 'ObservationUsed', { observation = observation })
+  end
   local attack, spread = Loadout.attack(g, g.weapon), Loadout.spread(g)
   local pellets = discharge(g, profile, command)
   local shot = {

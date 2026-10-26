@@ -230,8 +230,13 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Dodatkowo źródłowy SHA pochodzi z uruchomienia QA albo wygenerowanego
   build-fingerprint.txt w paczce. Sam numer wersji nie poświadcza kodu.
   Bez SHA zwykły start developerski jest oznaczony jako niepoświadczony.
-  Journal v3 współdzieli identyczne obserwacje obrazu; identyfikator nie
-  zastępuje porównania geometrii. Odtworzenie nie mutuje danych archiwum.
+  Journal v4 (plan v10 V5): komenda strzału niesie tylko ciała korytarza
+  strzału (Observation.command: stożek rozrzutu każdej noszonej broni
+  × zasięg + sfera ograniczająca ciała; resolver poza nim niczego nie
+  trafia); obserwacja bez użycia przez strzał zostaje samym nagłówkiem,
+  ciała wchodzą przy ObservationUsed; ciało niezmienione to odwołanie,
+  zmienione to różnica pól od poprzedniego wpisu. v3/v2 nadal odtwarzane.
+  Odtworzenie nie mutuje danych archiwum.
   session/journal.lua: polecenia (look, update, shoot, cast, reloadGun,
   switchWeapon, dash, interact, start, act = polecenia trybu przez Game:act)
   + 'aim' (bezpośrednie ustawienie) + 'set' (stan, pauza, mapa, pomoc,
@@ -404,7 +409,7 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Wybuch sprawdza ekspozycję kotwicy tułowia z fizycznym leapY, bez
   kosmetycznego bob/hover; nie jest promieniem anatomicznym.
   Pule zostają tablicami (LuaJIT), ale ich członkostwem zarządza świat
-  ECS (Pools); separacja żywych jest O(n²) do etapu V3 planu v10.
+  ECS (Pools); separacja żywych idzie przez indeks przestrzenny (V3).
 
 14. NARZĘDZIA
 
@@ -421,13 +426,14 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   content/art/hit_masks.lua = tokeny RLE (content/art/mask_codec.lua,
   dekodowane raz przy wczytaniu, nigdy na promień) + źródło każdej klatki
   { obraz, x, y, szer., wys. }; test anatomy-data porównuje je z PNG.
-  Journal v3: pełna integralność stanu początkowego i końcowego, kontakty części
-  i działania poligonu. Identyczne obserwacje są współdzielone po porównaniu
-  geometrii, nie tylko ID. Złoty wzorzec obejmuje także skrót kontaktów.
+  Journal v4: pełna integralność stanu początkowego i końcowego, kontakty części
+  i działania poligonu; korytarze strzałów i delty geometrii ciał (wyżej).
+  Złoty wzorzec obejmuje także skrót kontaktów.
   Literalny parser danych nie wykonuje kodu Lua. Weryfikacja formatu,
   referencji i fingerprintu źródeł poprzedza mutację sesji replay.
   Obserwacja trafienia jest częścią komendy. Nagrywanie ma limit szacowanych
-  64 MiB serializowanego tekstu albo 72000 komend (nie jest to limit RAM).
+  64 MiB serializowanego tekstu albo 216000 komend (10 min aktualizacji 120/s
+  i celowania 240/s; nie jest to limit RAM).
   Zatrzymuje się na granicy kompletnej komendy; eksport czeka na kontakty
   i końcowy Integrity. Szczegóły i koszt: DEVELOPMENT.txt.
   Punkty anatomiczne: tools/art/landmarks/crops.ps1 -Kind boss -Frame 9

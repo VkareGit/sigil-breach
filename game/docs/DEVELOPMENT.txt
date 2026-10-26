@@ -224,7 +224,7 @@ Obserwacja strzału i skończone nagrywanie:
   Bez --record obserwacje nie tworzą historii: aplikacja trzyma bieżący widok.
 
   --record jest opcjonalnym, skończonym nagraniem diagnostycznym. Limity
-  content/tuning.recording to 64 MiB szacowanego tekstu lub 72000 komend
+  content/tuning.recording to 64 MiB szacowanego tekstu lub 216000 komend
   (najwyżej 10 min samych update przy 120 Hz; look/shoot skracają ten czas).
   Dane obserwacji mogą osiągnąć limit tekstu znacznie wcześniej: pomiar
   48 ciał dawał ok. 2,1 MB/s samych komend held przy 120 Hz.

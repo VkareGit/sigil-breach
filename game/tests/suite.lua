@@ -356,6 +356,11 @@ Suite.registry = {
     module = 'tests.cases.save_format',
   },
   {
+    id = 'fight-recording',
+    title = 'Recording big fights: shot corridors, geometry deltas, replay (plan v10 V5)',
+    module = 'tests.cases.fight_recording',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',

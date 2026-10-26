@@ -74,6 +74,14 @@ V4 — zapis jako dane ze schematem (2026-10-26)
 - Zapisy SIGIL06/07/08 wczytują się jak dotąd; kolejny zapis jest w SIGIL09.
 - Rozgrywka, balans i wygląd bez zmian; skróty v2 bit w bit.
 
+V5 — nagrywanie dużych walk (2026-10-26)
+- Dziennik v4: strzał zapisuje tylko ciała w swoim korytarzu, obraz bez
+  strzału tylko nagłówek, ciało niezmienione jako odwołanie, zmienione jako
+  różnica pól. Dzienniki v3 nadal się odtwarzają.
+- 96 ciał: przyrost dziennika 2,52 MB/s → 70 KB/s; 10 minut walki to
+  29,6 MB (limit 64 MiB); limit komend obejmuje 10 minut celowania myszą.
+- Rozgrywka, balans i wygląd bez zmian; skróty v2 bit w bit.
+
 
 ########################################################################
 ZMIANY-0.32.txt
