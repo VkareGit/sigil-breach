@@ -85,7 +85,8 @@ zmieniasz, zostawiasz zgodny z konwencją).
      prawdziwą sesję albo moduł przyjmuje zależność jawnie.
    - Nowa aktywna sesja w aplikacji tylko przez Application:adopt.
    - Dokumenty: INSTRUKCJA = aktualna specyfikacja (tak gra działa teraz),
-     ZMIANY-*.txt = historia, PLAN-ROZWOJU-* = plany i pomysły. Zmiana zasady
+     ZMIANY.txt = historia (nowa wersja na górze), ODBIOR.txt = dowody
+     i odbiór wydań, PLAN-* = plany i pomysły. Zmiana zasady
      gry zmienia INSTRUKCJĘ w tym samym kroku. Rycerz nie używa magii — nowe
      wyposażenie gracza nie nazywa się zaklęciem.
    - Klawisze gry tylko w app/bindings.lua.

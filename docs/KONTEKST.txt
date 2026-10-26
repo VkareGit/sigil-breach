@@ -1,4 +1,5 @@
 SIGIL: BREACH / aktualny kontekst Foundation 0.32 / 24.10.2026
+(uzupełniony 25.10.2026; dawne konteksty: docs/history/KONTEKSTY.txt)
 
 Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Pracuj w game/,
 nie w historycznym cwd Codex ani w snapshotach outputs/. LÖVE11.5 + LuaJIT.
@@ -34,8 +35,10 @@ CO WDROŻONO W FUNDAMENCIE V9
 - Poligon ma katalogi/stanowiska/akcje/reset, większy UI ma stronicowanie.
 - Journal v3 współdzieli identyczne obserwacje. Import jest literalnym
   parserem bez eval; preflight sprawdza źródła i referencje przed replay.
-- Pełne nowe arkusze obu broni, autoryzowany lokalny retusz, kotwice i
-  warianty komór według rzeczywistego magazynka. Demony niezmienione.
+- Broń: w grze znów sprawdzone arkusze v16 (od 998b189); katalog zachował
+  kotwice i warianty komór według rzeczywistego magazynka, więc nowy
+  atlas wejdzie jako dane. Retuszowane v32/v33 czekają poza gitem
+  w work/weapon-art-v32-v33-backup. Demony niezmienione.
 - Paczki Player i Developer; source/runtime SHA, świeże raporty, test EXE
   i relokacja. Warsztat broni z surowymi wejściami jest w tools/art.
 
@@ -57,3 +60,12 @@ lokalnego wykonawcę bez przepisywania niepowiązanych systemów.
 64MiB nagrania to estymacja tekstu, nie gwarancja czasu ani limit RAM.
 Etapowanie uploadu nie daje gwarancji16.7ms dla pojedynczego zasobu.
 Historii docs/history, ZMIANY i starych planów nie traktować jako bieżącego API.
+
+DOKUMENTY (od 25.10.2026)
+game/docs/ZMIANY.txt i ODBIOR.txt to jedne pliki z sekcjami wersji,
+najnowsza na górze; odwołanie „ZMIANY-0.29.txt” wskazuje nagłówek sekcji.
+Dawne konteksty, plany i opisy: docs/history/KONTEKSTY.txt, PLANY.txt,
+OPISY.txt. Opis każdego pliku kodu: docs/podrecznik-codex (Codex, w toku,
+nieśledzony; jego kontrola/ jest w .gitignore). Wcześniejszy szkic
+docs/podrecznik jest w old/ (ZIP + manifest).
+game/docs/matematyka/index.html to migawka 0.24/0.25, nie bieżące wzory.

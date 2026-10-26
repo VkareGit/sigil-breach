@@ -1,9 +1,0 @@
-Primary project moved to C:\Users\nahiko\Documents\dev\sigil-breach
-Verified source files: 199
-Runtime files: 14
-Migracja zakończona. Weryfikacja gotowego EXE i ZIP wykonana z nowego katalogu.
-837 testów mechaniki/zasobów oraz 41 testów sterowania/zapisu: PASS.
-TEST.ps1 -Suite Input: PASS z aktualnych źródeł i lokalnego runtime.
-Nowa paczka ZIP: outputs\SIGIL-BREACH-0.10-Windows.zip.
-Opis do nowego czatu: docs\KONTEKST-DO-NOWEGO-CHATA.txt.
-Główny priorytet: jeden poziom testowy; grafika, ruch, animacje i mechanika przed światem.

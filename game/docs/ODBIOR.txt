@@ -1,0 +1,261 @@
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.32 (jeden plik, najnowsze na górze)
+
+Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
+nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
+o tym nagłówku. Obowiązuje sekcja bieżącej wersji; starsze opisują, co
+wtedy sprawdzono i czego nie zamknięto.
+
+Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
+odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
+gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.32.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR FUNDAMENTU 0.32
+
+Ważność dowodu: game SHA + uruchomiony EXE SHA + świeży raport procesu.
+Czytaj TESTY, STEROWANIE-TESTY, RENDER, GUI-UKLAD, PACKAGE-MANIFEST i raport
+relokacji z tej samej paczki. Brak któregoś dowodu nie oznacza PASS.
+Stan roboczy ma plan game/docs/PLAN-FUNDAMENT-v9.md; raport wykonania
+całego zadania znajduje się poza źródłami, w work/foundation-v9.
+
+Zakres regresji: dotychczasowa walka na poligonie, obserwacja widocznej
+pozy, materiały/strefy, ochrona i HP, przerwania/przeładowania, zapis/replay,
+interfejs i zasoby. Próby rozszerzeń są testowe, a nie dodatkową treścią
+udającą gotową kampanię. Dotychczasowe wzorce wyników nie mogą być
+aktualizowane wyłącznie po to, aby test przeszedł.
+
+B2 — ODBIÓR GRACZA: NIE ZOSTAŁ ZASTĄPIONY TESTEM AUTOMATYCZNYM.
+Do sprawdzenia przez użytkownika w normalnej grze:
+1. Obie bronie: pojedyncze i ciągłe strzały, szybka zamiana, pusty magazynek,
+   częściowy zapas, przerwanie i wznowienie przeładowania.
+2. Ruch: start/stop, skręt, ślizg, unik, skok, kolizja z kolumną i ciałem.
+3. Czy zamach demona jest czytelny, unik uzasadniony, a trafienie/zabójstwo
+   daje zrozumiałą i satysfakcjonującą odpowiedź obrazu i dźwięku.
+4. Zwykły HUD/F1/katalog: czy tekst siedzi w planszy, zachowuje oddech,
+   nie zlewa się z ornamentem i pozostaje czytelny w używanej rozdzielczości.
+5. Chwyt i styl: pigment, proporcje i dłoń w całym cyklu, nie tylko idle.
+
+Grafika F12 (stan wydania, commit 998b189): gra używa ponownie sprawdzonych
+arkuszy shotgun-iron-v16 i revolver-iron-v16 (siatka 4 x 4, 16 nazwanych
+póz; źródła: assets/art/weapon-provenance-v16.json). Katalog broni zachował
+warianty widocznej amunicji, więc następny atlas wejdzie jako dane.
+Retuszowane arkusze fresco-v32/v33 z etapu F12 nie są w grze ani w gicie:
+leżą lokalnie w work/weapon-art-v32-v33-backup, a ich warsztat jest
+w tools/art/weapon_cycles_v32. Pliki QA weapon-*-scene-v32.png noszą
+historyczną nazwę i pokazują aktywne arkusze v16.
+Filmstripy i raporty techniczne są w work/foundation-v9 oraz powiązanym
+katalogu QA; nie stanowią za użytkownika odbioru B2. Modele i pigment
+demonów są chronioną referencją tego etapu.
+
+Ograniczenia jawne:
+- Heightfield ma jedną podłogę dla x/z. Most nad pomieszczeniem wymaga
+  innego modelu przestrzeni; nie deklarujemy go jako już obsługiwanego.
+- Cienie są ograniczoną projekcją 2.5D, a nie pełnym ray tracingiem.
+- Upload pojedynczego PNG może przekroczyć budżet jednej klatki mimo
+  etapowania; pomiary po pierwszym starcie procesu nie oznaczają zimnego OS.
+- Limit nagrywania zależy od liczby komend/obserwacji i jest limitem
+  szacowanego tekstu, nie gwarancją długości sesji ani limitem całego RAM.
+- Automatyczne próby nie dowodzą przyjemności grania. B2 ma osobny wynik.
+
+
+########################################################################
+ODBIOR-0.31.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR FOUNDATION 0.31
+
+Źródła: C:\Users\nahiko\Documents\dev\sigil-breach\game
+Aktualne raporty: work/qa-v31. Weryfikacja faktycznego EXE:
+package-verification.txt; sumy PASS odczytywać z tego wykonania.
+Opis zmian i ograniczeń: ZMIANY-0.31.txt, ROZSZERZANIE.txt.
+
+WDROŻONE I SPRAWDZANE
+1. Jawna obserwacja ostatnio pokazanej pozy dla hitscan. Osobne kontrolowane
+   próby kliknięcia, przytrzymania i bufora nie wykazują wcześniejszych
+   chybień/zmian strefy, materiału i obrażeń we wnętrzach sylwetek.
+   Dane historyczne to geometria, a nie HP. Obecne przesłony nadal obowiązują.
+   Pocisk w locie używa aktualnego kontaktu. To nie gwarancja zgodności
+   każdego pikselowego brzegu maski: zaokrąglenia nadal są granicą pomiaru.
+2. Impuls od źródła kontaktu; blast zależy także od fizycznej wysokości
+   skoku, a lot granatu od faktycznie okrągłych boków i blatu kolumny.
+3. Walidacja referencji i relacji czasowych; ID zgodne z zapisem.
+   Rozszerzenia broni, wyposażenia, animacji i FX sprawdzone osobnymi
+   definicjami testowymi. Nie dodano ich jako nowej zawartości produkcyjnej.
+4. Zakres pozostaje przy obecnym poligonie. Menu i HUD mają układ 0.30,
+   bez nowego trybu. WAVE TRIAL to pojedyncza wybrana fala sandboxu;
+   sklep katalogu używa zasobów testowych. Pełna normalna sesja z ekonomią
+   i śmiercią/echo nie jest oferowana z menu.
+5. Koszt tekstur galerii rozłożony na widoczne przygotowanie. Zimny pomiar
+   przenosi ~693 ms newImage poza pierwszą klatkę pola. Preload nie jest
+   darmowy: 17 obrazów, ~884 ms łącznie i ~149 MiB cache. Nie nazywać tego
+   usunięciem kosztu ani pomiarem rzeczywistego FPS monitora.
+6. Malowana podstawa rytualna, niezmienione historyczne pieczęcie i jeden
+   podpis oglądanego eksponatu. Osobny przegląd ritual-art weryfikuje UV,
+   okluzję i brak wpływu grafiki na stan walki.
+
+ODBÓR CZŁOWIEKA — NADAL OTWARTY
+1. W menu wybierz QUICK SKIRMISH, a przez F2 katalog poligonu. Zacznij od
+   istniejącej potyczki, potem wybieraj konkretne próby ruchu i trafień.
+2. Porównaj obie bronie: strzał, szybka zamiana, przerwanie przeładowania,
+   kontakt z mięsem/pancerzem, informacja o przełamaniu i zabójstwie.
+3. Sprawdź ruch przy kolumnach, skok/ślizg/lądowanie/unik i tłum demonów.
+   Rozpoznaj przygotowanie ataku, aktywny cios i powrót po ataku.
+4. Sprawdź wybraną falę i sklep jako osobne próby. Oceń czytelność, tempo
+   i chęć powtórzenia starcia; zachowaj telemetrię F9. Reset i testowe zasoby
+   poligonu nie pozwalają uznać tego za odbiór ekonomii pełnej sesji.
+5. Oceń HUD i kontrast w walce. Automatyczne testy ink bounds nie
+   zastępują patrzenia na faktyczny obraz w ruchu.
+
+CHWYT BRONI — STYL POZY ZAAKCEPTOWANY, CYKL OTWARTY
+Użytkownik zaakceptował styl pojedynczej nowej pozy oraz jej ręczny retusz
+po blokadzie generatora. Praca pozostaje warsztatowa w work/art-proposals-v31;
+pełny atlas nie jest zintegrowany, a produkcyjne PNG pozostają zachowane.
+Odbiór całego cyklu obu broni nadal wymaga czytelnego chwytu i spójnego
+pigmentu obok zaakceptowanego demona, także w finalnym oświetleniu gry.
+
+PREZENTACJA PRZYSZŁEGO WYPOSAŻENIA
+AbilityCast i katalog animacji pozostają rozszerzalne. HUD wielu slotów
+wyposażenia nie jest wdrożony; wymaga osobnego projektu i odbioru przy
+dodawaniu przedmiotu do produkcyjnego zestawu. Obecny HUD pozostaje jak w 0.30.
+
+DECYZJA O ROZBUDOWIE
+Rdzeń jest zabezpieczony lepiej niż w 0.30; nie uznajemy B2 ani pełnego cyklu
+chwytu za zamknięte na podstawie PASS. Najpierw odbiór obecnego cyklu i korekta
+artystyczna. Świat, dodatkowe mapy i loot pozostają na później. Nowa
+mechanika może wymagać nowego handlera; nie powinna wymuszać przerabiania
+wszystkich postaci, HUD, obrażeń i zapisu równocześnie.
+
+
+########################################################################
+ODBIOR-0.30.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR FUNDAMENTU 0.30
+
+Źródła: C:\Users\nahiko\Documents\dev\sigil-breach\game
+Wyniki aktualnego wydania: work/qa-v30; wcześniejsze pomiary: qa-foundation-*.
+
+Weryfikacja automatyczna: patrz świeży test-results.txt, input-results.txt,
+raporty GUI i package-verification.txt. Nie przenosić sum testów z 0.29.
+Każdy etap i ograniczenie opisuje docs/ZMIANY-0.30.txt.
+
+ODBÓR CZŁOWIEKA — OTWARTY
+1. Obie bronie: strzał, szybka zamiana, przeładowanie/przerwanie, powrót.
+2. Ruch przy filarach, ślizg/skok, lądowanie, unik, tłum przeciwników.
+3. Rozpoznanie przygotowania ciosu, aktywnego ataku, powrotu i przełamania.
+4. Normalna sesja przygotowanie/fale/sklep/śmierć/odzyskanie; bez zasobów QA.
+5. Oceń celownik w odrzucie, czytelność HUD, dźwięk ostrzeżeń i kontaktów.
+6. Chwyt obu broni nadal wymaga osobnego przeglądu artystycznego i korekty
+   zaakceptowanych klatek. Ta wersja nie zmienia ich ilustracji.
+
+Nie uznawać B2 za zamknięte na podstawie botów lub samej liczby PASS.
+Nie dodajemy map ani kampanii w celu przykrycia problemów istniejącej walki.
+
+POZOSTAŁA ZGODNOŚĆ CZASOWA TRAFIEŃ — ZMIERZONA, NIE NAPRAWIONA
+--hit-timing: 6 demonów x 6 harmonogramów FPS. Środek rzeczywiście
+namalowanej głowy/tułowia ostatniej pokazanej klatki, osobno current resolver.
+Held: 392 ważne próby, 5 chybień, 4 zmiany strefy; press-buffer: to samo.
+Native mousepressed przed update: 381 ważnych prób, 1 chybienie
+(armored/60FPS, klatka chodu1->2, różnica zegara8.333ms).
+Nie traktować tych proporcji jako statystyk zwykłej gry. To reprodukcje
+kontrolowane; replay/raport kontaktu poprawnie opisuje obecne rozstrzygnięcie.
+Wybór znaczenia czasu strzału wymaga osobnej implementacji i weryfikacji,
+nie powiększania brył lub korekty procentów w raporcie. Nie deklarujemy
+pełnej gotowości do masowej produkcji zawartości przed tym odbiorem.
+
+WYDAJNOŚĆ — ZMIERZONE GRANICE
+work/qa-foundation-performance/REVIEW.txt: pełny render + post + GUI,
+3904 mierzone klatki, stabilne tekstury/cache podczas 4 powrotów arena/menu.
+Readback jest osobno mierzonym oczekiwaniem, nie dowodem rzeczywistego FPS.
+Na zmierzonym Intel Arc pierwszy render pola po menu kosztował ~787ms;
+około522MiB tekstur obejmuje UI i dodatkowy canvas benchmarku. To jawne
+koszty startu/pamięci do budżetowania przed dokładaniem atlasów.
+
+KOLEJNOŚĆ DALSZEGO DOMKNIĘCIA BAZY
+1. Czas trafienia: ustalić kontrakt osobno dla kliknięcia, przytrzymania,
+   zbuforowanego strzału i pocisku w locie. Jeżeli hitscan odwołuje się do
+   pokazanej obserwacji, musi zachować identyfikatory części, czas i pozycję
+   kamery oraz zasady wobec śmierci celu i zmian przeszkód. Nie cofać HP ani
+   całego świata. Obserwacja wejściowa musi przechodzić przez zapis replay.
+   Odbiór: powtórzyć obecne reprodukcje i sprawdzić brak strzałów przez
+   przesłony, podwójnych obrażeń i skutków nieaktualnej obserwacji.
+2. Pierwsze wejście na poligon: ustalić źródło skoku ~787 ms, oddzielając
+   dekodowanie, upload tekstur, kompilację shaderów i pierwszy render.
+   Odbiór: pomiar zimnego procesu i kolejnych wejść, bez utraty pigmentu
+   lub dokładności geometrii; nie nazywać benchmarku z readback pomiarem FPS.
+3. B2: krótka sesja człowieka na zwykłych zasobach, z zapisem wejścia i
+   telemetrii. Osobno ocenić strzał, ruch, informację o kontakcie i balans.
+   Zmieniać jeden parametr naraz i porównać tę samą sytuację. Automatyczne
+   testy zabezpieczają reguły, lecz nie zastępują tego odbioru.
+4. Chwyt broni: poprawić zaakceptowane klatki bez wymiany modeli demonów,
+   sprawdzić cały cykl strzału/przeładowania i spójność matowego fresku.
+
+Po tych punktach wykonać ponowną próbę rozszerzenia poza produkcyjną
+zawartością oraz zweryfikować wynikowy EXE. Dopiero wtedy zwiększać zakres
+świata. Nowy algorytm może wymagać modułu; nie powinien wymagać zmian we
+wszystkich postaciach, rozliczaniu obrażeń, HUD i zapisie jednocześnie.
+
+
+########################################################################
+ODBIOR-0.29.txt
+########################################################################
+SIGIL: BREACH / DOMKNIĘCIE AUDYTU 0.29 / 2026-10-22
+
+ZAKRES
+Zachowane mechaniki, modele bazowe, jedno pole prób i dwie bronie. Poprawiono
+walidację anatomii i aktualności masek, kontrakt snapshotów i raporty testów.
+RLE: 168 klatek / 53 760 wierszy, brak zmian zdekodowanych komórek względem
+kopii odniesienia. Nie zmieniono HP, obrażeń, pozy, kotwic ani czasów animacji.
+
+GRAFIKA
+Korekta RGB istniejących klatek skoku i uniku: spokojniejszy mikrokontrast,
+światła i pigment; osobna kompresja nadmiernej czerwieni skoku. Bez zmiany
+alfy i obrysu. Próbę generowania zmieniającą proporcje odrzucono.
+Obejrzano wszystkie 16 klatek, pary w arenie, cień, błysk strzału i zamianę
+miejsc. Automatyczna kontrola alfy: zero różnic we wszystkich 16 klatkach.
+Selektywna korekta czerwieni: zero dodatkowych zmian zieleni/błękitu/alfy.
+Same statystyki barw nie dowodzą jakości artystycznej; załączone obrazy
+pozwalają ocenić rezultat w faktycznym rendererze gry.
+
+ASSETY
+25 nieużywanych PNG / 50 089 155 B przeniesiono do work/archive-art-v29.
+110 pozostawionych plików assets/art, w tym 86 PNG, identycznych SHA-256
+z kopią odniesienia; 25 archiwalnych również zachowało oryginalne sumy.
+Archiwum ma manifest, uzasadnienia i RESTORE.ps1. To odchudzenie aktywnego
+projektu/paczki, nie deklaracja odzyskania miejsca na dysku. Zachowane
+źródła fontów, pieczęcie, wejścia narzędzi i starsze obrazy używane w testach.
+
+WERYFIKACJA ŹRÓDEŁ
+- 346 plików Lua: kompilacja, formatowanie, zero błędów granic architektury.
+- 3082 sprawdzenia mechaniki/assetów i 36 sprawdzeń rzeczywistych callbacków.
+- Pełny showcase: 143 sceny GUI w pięciu formatach i dodatkowe sekwencje
+  broni, kontaktów, przeciwników, portali i oświetlenia.
+- 409 wpisów audytu / 11 175 kontroli wnętrz pól GUI: zero wykrytych problemów.
+- Przegląd trafień: 12 046 żywych kroków; zero kontaktów przy strzale
+  odwróconym od dotykającego demona. Poza nie zależy od wczytania renderera.
+- Końcowa korekta czerwieni sprawdzona dodatkowo przez --pigment-review.
+  Pełny przegląd będzie ponownie wykonany na zbudowanym EXE przez verify.ps1;
+  o jego zaliczeniu świadczy WERYFIKACJA-PACZKI.txt, nie sam ten dokument.
+- Pierwszy showcase przerwał limit 300 s. QA ponownie skanowało środek
+  tułowia w 320 x 320 komórkach przy każdym kroku. Teraz pamięta dokładne UV
+  dla tej samej maski/anatomii, a transformuje je dla każdej bieżącej pozy.
+  Pełne próbkowanie zachowane. Kolejny kompletny przebieg zaliczony.
+
+POMIAR RDZENIA PO POPRAWKACH (ten komputer; nie prognoza FPS)
+Snapshot capture 0,402 ms; restore 0,350 ms. Przygotowanie 20 ciał i salwa
+20 promieni 0,125 ms. 10 pocisków przeciw 20 demonom 0,0733 ms/krok.
+300 fal po 3 demony: zero zaległych rekordów telemetrii. Szczegóły i koszty
+alokacji w work/qa-core-final/core-measure.txt. Czasy zależą od sprzętu.
+
+GRANICE
+W pomiarze CPU/GPU pozostają znane 289 różnic poza pasem krawędzi na
+1 159 492 promienie; 47 460 próbek leży w pasie krawędzi. Korekta koloru
+tego nie zmienia i nie jest dowodem idealnej zgodności mipmap.
+Automatyka nie ocenia przyjemności gry ani nie zastępuje sesji człowieka B2.
+Chwyt broni, nowe mapy, kampania i dalsze rozbudowy pozostają poza tą iteracją.
+
+URUCHOMIENIE I DOWODY
+Gotowa paczka: outputs/SIGIL-BREACH-0.29/SIGIL-BREACH.exe.
+Końcowe testy EXE, zgodność źródeł i ZIP: WERYFIKACJA-PACZKI.txt.
+Porównania grafiki i raporty: katalog QA paczki oraz work/qa-v29.

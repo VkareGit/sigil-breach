@@ -132,6 +132,10 @@ function Journal.session(Game, journal)
   local header = journal.header or {}
   return Game.new(header.mode or 'classic', header.map)
 end
+-- pcall's status and results with their count: trailing nils survive.
+local function outcome(...)
+  return { n = select('#', ...), ... }
+end
 local function close(g, journal, reason)
   journal.final = Integrity.capture(g)
   journal.stopped = reason
@@ -249,8 +253,17 @@ function Journal.record(g, limits, onLimit)
         journal.commands = journal.commands + 1
       end
       depth = depth + 1
-      local results = { method(self, ...) }
+      local results = outcome(pcall(method, self, ...))
       depth = depth - 1
+      if not results[1] then
+        -- A failed command is an incomplete transaction: the recording stops
+        -- here (stopped = 'error') instead of going on behind a stuck depth,
+        -- and the caller gets the same error.
+        if sessions[self] == journal then
+          close(self, journal, 'error')
+        end
+        error(results[2], 0)
+      end
       if depth == 0 then
         remember()
         -- The aim a 'look' left is already in the journal as that command.
@@ -266,7 +279,7 @@ function Journal.record(g, limits, onLimit)
           consume(journal)
         end
       end
-      return unpack(results)
+      return unpack(results, 2, results.n)
     end
   end
   return journal

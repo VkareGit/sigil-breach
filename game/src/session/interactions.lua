@@ -20,10 +20,14 @@ local function mainWeapon(player)
   return Weapons.get(id), player.arsenal[id]
 end
 -- The weapon an ammunition pickup is for: its weapon id, or its loadout slot
--- (the first by default).
+-- (the first by default). Nothing when the knight does not carry that weapon
+-- (an empty slot, a gun not in the arsenal): the pickup stays on the floor.
 local function ammoFor(player, pickup)
   local id = pickup.weapon or player.loadout[pickup.slot or 1]
-  return Weapons.get(id), player.arsenal[id]
+  local state = id and player.arsenal[id]
+  if state then
+    return Weapons.get(id), state
+  end
 end
 
 local function nearSecret(g)
@@ -131,7 +135,7 @@ Interactions.supplies = {
   ammo = {
     wanted = function(player, pickup)
       local def, state = ammoFor(player, pickup)
-      return state.reserve < def.maxReserve
+      return state ~= nil and state.reserve < def.maxReserve
     end,
     take = function(player, pickup)
       local def, state = ammoFor(player, pickup)

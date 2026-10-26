@@ -2,7 +2,8 @@
 
 Przyjęty przez użytkownika 2026-10-24. Wdrażanie rozpoczęte.
 Stan odniesienia: `216b56a`; wersja wejściowa 0.31. Ten plan wykonawczy
-zastępuje podział „teraz / przy potrzebie” z PLAN-ROZWOJU-v8.md. Kontrakty
+zastępuje podział „teraz / przy potrzebie” z PLAN-ROZWOJU-v8.md (dziś sekcja
+docs/history/PLANY.txt). Kontrakty
 trafień planu v7 pozostają wymaganiami. Wyniki wcześniejszych przeglądów
 są historią; nie są automatycznie wynikiem niniejszego odbioru.
 

@@ -1,0 +1,933 @@
+SIGIL: BREACH / ARCHIWUM KONTEKSTÓW DLA NOWEGO CZATU (do 0.31)
+
+Historyczne. Aktualny kontekst: docs/KONTEKST.txt i START-HERE.txt.
+Dawniej osobne pliki docs/KONTEKST-<wersja>.txt oraz zbiorczy
+KONTEKST-DO-NOWEGO-CHATA.txt (najstarsze dopiski, do 0.15). Każda sekcja ma nagłówek
+z dawną nazwą pliku; wskazane w nich ścieżki opisują tamtą chwilę.
+Pliki ZMIANY-*, ODBIOR-* i dawne plany są teraz sekcjami
+game/docs/ZMIANY.txt, game/docs/ODBIOR.txt i docs/history/PLANY.txt.
+
+
+########################################################################
+KONTEKST-0.31.txt
+########################################################################
+SIGIL: BREACH / kontekst Foundation 0.31 / 2026-10-23
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach
+Aktywne źródła: game. START-HERE.txt wskazuje aktualne dokumenty.
+outputs to snapshoty wydań; zmiana kodu nie zmienia istniejącego EXE.
+
+Jedna arena testowa, dwie bronie fizyczne i sześć obecnych demonów.
+Szybki Doom z czytelnymi atakami/unikiem i przygotowaniami między falami.
+Człowiek bez magii. Kampania, mapy, loot i świat na później.
+Styl: żywy mroczny fresk; Giovanni da Modena Inferno, Michał Anioł Sąd
+Ostateczny, piekło Boscha, Sąd Ostateczny Memlinga. Matowe pigmenty,
+ochry/umbry/cegła/tynk, bitmapowe glify. Zachować zatwierdzone modele
+demonów i ich pigment, także między klatkami umiejętności.
+
+0.30: kompozycja broni/dostaw/pakietów/reload, extends, finite projectiles,
+generic throw, sloty SIGIL08 i migracja 06/07, rozszerzenia tylko w QA.
+0.31: kontrakt ostatnio pokazanej obserwacji dla hitscan z replay,
+impuls zgodny ze źródłem, okrągłe kolumny w locie Q, walidacja danych,
+katalog animacji/FX i wybór animacji dłoni z rzeczywistego AbilityCast.
+Menu i HUD pozostają jak w 0.30. Poligon nie otrzymuje nowego trybu;
+WAVE TRIAL nadal oznacza pojedynczą wybraną falę sandboxu. Pełny normalny
+cykl fal/sklepu/śmierci/echo nie jest oferowany w menu.
+HUD wielu slotów wyposażenia nie jest wdrożony; pozostaje zależnością
+przy dodawaniu nowego wyposażenia. Kontrakty danych i AbilityCast zostają.
+Pierwsze ładowanie galerii etapowane na widocznej planszy; koszt nadal
+istnieje, lecz nie wpada w jedną pierwszą klatkę pola.
+Nowa malowana medalia zastępuje pomarańczowe pierścienie padów i podstaw
+portali. Pieczęcie oryginalne, czytelny pojedynczy podpis galerii.
+
+Aktualne dowody: work/qa-v31; raport EXE package-verification.txt.
+Dokumenty game/docs/ZMIANY-0.31.txt, ODBIOR-0.31.txt, ROZSZERZANIE.txt.
+Nie utożsamiać PASS z frajdą. Odbiór człowieka B2 nadal otwarty.
+Chwyt całego cyklu broni nadal otwarty. Użytkownik zaakceptował styl nowej
+pojedynczej malarskiej pozy i ręczny retusz po blokadzie generatora.
+Ta praca pozostaje w warsztacie; pełny atlas nie jest zintegrowany z grą.
+Produkcyjne PNG broni zachowane. Nie podmieniać starego idle pojedynczą
+nową klatką. Wymagane są wyraźne dłonie i szerokie matowe plamy, bez
+połysku i nadmiaru drobnych ostrych rys.
+
+
+########################################################################
+KONTEKST-0.30.txt
+########################################################################
+SIGIL: BREACH / kontekst 0.30 / 2026-10-23
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach
+Start: START-HERE.txt; aktywny kod: game; outputs to snapshoty wydań.
+
+Jedno pole testowe, dwie bronie fizyczne, obecne demony. Szybki Doom,
+czytelne ataki/unik i przygotowania między falami. Człowiek bez magii.
+Kampania, mapy, loot i świat pozostają na później.
+Styl: żywy mroczny fresk; Giovanni da Modena Inferno, Michał Anioł Sąd
+Ostateczny, piekło Boscha, Sąd Ostateczny Memlinga. Matowe pigmenty,
+ochry/umbry/cegła/tynk, bitmapowe glify; zachować zatwierdzone modele.
+
+0.30 domyka rozszerzalność: broń jako composable definition (delivery,
+payload, reload, weight, art/HUD), extends, finite projectiles, generic throw,
+slots save08 z migracją06/07. Nowa przykładowa broń i ability są tylko w QA.
+Szczegóły: game/docs/ROZSZERZANIE.txt oraz ZMIANY-0.30.txt.
+Naprawiono feedback HP/gardy, celownik przy szybkim swap/odrzucie,
+zasłanianie napisu w ustawieniach i cache dynamicznych bitmapowych tekstów.
+
+Kontynuacja wymaga faktycznego odczytu świeżych raportów work/qa-v30.
+Nie utożsamiać PASS z frajdą; B2/human playtest nadal otwarty.
+Pomiar --hit-timing wykrył różnicę ostatnio wyświetlonej i rozliczanej pozy:
+1 chybienie / 381 kontrolowanych prób mousepressed, 5 / 392 held oraz
+press-buffer. To nie odsetek chybień w normalnej rozgrywce. Raporty
+hit-outcomes* i game/docs/ODBIOR-0.30.txt opisują ten niezamknięty punkt.
+Nie oznaczać całej bazy jako odebranej ani nie zwiększać hitboxów, by go ukryć.
+Fizyczny chwyt dłoni w istniejących atlasach broni nadal do osobnej korekty
+artystycznej; ta iteracja nie zmienia PNG.
+
+
+########################################################################
+KONTEKST-0.29.txt
+########################################################################
+SIGIL: BREACH — kontekst przekazania 0.29, 2026-10-22
+
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Źródła w game/.
+Przeczytaj START-HERE.txt, game/docs/DEVELOPMENT.txt, ARCHITEKTURA.txt,
+INSTRUKCJA.txt, ZMIANY-0.29.txt, PLAN-ROZWOJU-v7.md (sekcja 9),
+ANATOMIA-I-FIZYKA-0.28.txt (aktualne dla 0.29).
+Snapshot outputs nie jest miejscem do edycji. Brak repozytorium Git.
+
+Nadal jeden poligon, dwie bronie fizyczne, człowiek bez magii. Dopracowujemy
+mechanikę, fizykę, matematykę, animacje, feeling i grafikę przed kampanią.
+Wcześniejsze modele potworów są wzorcem: dalsze animacje tych samych istot,
+NIE ostrzejsza reinterpretacja. Ilustracji, czcionek i chwytów nie zmieniano.
+
+0.29 dopracowało rdzeń 0.28 bez zmiany złotego wzorca: HITBOXES pokazuje
+prawdziwą powierzchnię i kontakt ataku; jedna reguła padającego ciała dla
+strzałów i pocisków (enemies/corpse.lua); przyczyny przełamania w jednym
+miejscu (Rules.offBalance -> EnemyKilled.causes); brak walców dla malowanych
+demonów (appearance.hit); anatomia w UV klatki z jawnymi konwersjami
+(Author.*), maski RLE związane ze źródłem (BAKE-HIT-MASKS.ps1, test
+anatomy-data), appearance.regions dla wariantów na tej samej ilustracji;
+materiały jako polityka danych (wound, guard, penetrable, debris).
+Wersja kompilacji: game/src/core/build.lua (czytana też przez tools/project.ps1).
+
+Pomiary rdzenia: --core-measure, --step-study, --mask-formats; jeden zestaw
+testów: --selftest --suite=<id>. Raporty: work/qa-v29.
+Świadome granice: geometria względem jednego widza (billboard), marsz O(dt)
+0,46 % przy kroku 1/120, sweep maski konserwatywny o pół przekątnej komórki.
+Decyzje dla człowieka (B2): poważna rana jako przełamanie, skrzydła z piór
+jako ciało vs błona. Boty i testy nie dowodzą frajdy.
+Nie oznaczaj planu jako perfekcyjnie zakończonego na podstawie sumy testów.
+
+Domknięcie po audycie: walidator odrzuca zdegenerowany fallback, wszystkie
+źródła masek są sprawdzane SHA-256 wraz z filtrem/UV/klasyfikatorem. Treść
+53 760 wierszy masek zachowana. Snapshot ma invalidateDefinitions() dla
+narzędzi rejestracji oraz wykrywa podmianę modułu. Wybrany zestaw testów
+pisze własny suite-ID-results.txt, bez utraty pełnego raportu.
+Skok Sługi i unik Akolity mają profil pigmentu dopasowany do bazowych
+fresków (content/ability_art, render/creature_pigment): tylko kolor, bez
+zmiany PNG, sylwetek, anatomii, kotwic i timingu. Próba generatora odrzucona,
+bo zmieniła sylwetkę. Oryginalne modele nadal są wzorcem stylistycznym.
+25 nieużywanych PNG (47,77 MiB) przeniesione do work/archive-art-v29;
+manifest i przywracanie zachowane, źródła fontów/testów/pieczęcie pozostają.
+
+
+########################################################################
+KONTEKST-0.28.txt
+########################################################################
+SIGIL: BREACH — kontekst przekazania 0.28, 2026-10-22
+
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Źródła w game/.
+Przeczytaj START-HERE.txt, game/docs/DEVELOPMENT.txt, ARCHITEKTURA.txt,
+INSTRUKCJA.txt, PLAN-ROZWOJU-v7.md (sekcja 9), ANATOMIA-I-FIZYKA-0.28.txt.
+Snapshot outputs nie jest miejscem do edycji. Brak repozytorium Git.
+
+Nadal jeden poligon, dwie bronie fizyczne, człowiek bez magii. Dopracowujemy
+mechanikę, fizykę, matematykę, animacje, feeling i grafikę przed kampanią.
+Manifest Nikogo jest wskazówką designu bohatera, nie zadaniem rozwoju fabuły.
+Styl: chodzenie po mrocznych freskach; Giovanni da Modena, Michał Anioł,
+Bosch, Memling, Goetia i autentyczne znaki dawnych ksiąg. Zachowaj czytelność.
+NAJNOWSZA KOREKTA: wcześniejsze modele potworów były dobre. Użytkownik chce
+dalszych animacji tych samych istot, NIE ostrzejszej reinterpretacji modeli.
+155 PNG/JPG nie zmieniono względem 0.27. Nie zastępuj ich błyszczącym detalem.
+
+0.28 rozdziela dane klatek i wspólną pozę od renderera. Maska + regiony
+168 klatek dają niezależne shapeId/zone/material. Nie zakładaj liczby nóg
+ani indeksu głowy. Ruch ciał, powierzchnie przyjmujące kule i droga ataku
+to różne odpowiedzialności. Symulacja nie czyta PNG/GPU. Nowa ilustracja
+wymaga BAKE-HIT-MASKS.ps1 i niezależnych punktów obrazu w QA.
+Współczynniki ran/gardy są danymi gameplay, nie udawanymi dżulami.
+
+Naprawiono kontakt niskiego skoku i szarży, czas lądowania, kotwice dłoni,
+promień pocisków przeciw ciałom i światu. Strzał zamraża pozę przed AI.noise.
+Padający trup blokuje bez HP/nagród, osiadły przepuszcza. Metal zatrzymuje
+penetrację. Róg przenosi gardę bez HP; żywa czaszka nadal podatna.
+Journal v2: pełna integralność i pierwszy różny kontakt. B1: jawne czasy
+walki/kontroli/leczenia. Golden obejmuje też kontakty każdej kuli.
+
+Źródła i zakres naukowych odniesień w ANATOMIA-I-FIZYKA-0.28.txt.
+Nie kopiowano implementacji silników. Nie dodano rykoszetu bez modelu
+normalnej/energii, nowych map, łupów ani broni. Rysowany świat zakłada floor=0.
+CPU/GPU mają małe resztkowe różnice przy filtrowaniu; raport nie ukrywa ich.
+Maskowy sweep jest konserwatywny o połowę przekątnej komórki.
+
+Raporty: work/qa-v28; finalna weryfikacja paczki w package-verification.txt.
+Trafienia: hit-fit, hit-shots, hit-engine, hit-gpu, hit-timing, hit-performance.
+Oprawa: weapon-material, ui-layout-audit. Każdy raport sprawdzaj pod kątem
+aktualnej daty, nie traktuj starych plików jako nowego sukcesu.
+Ocena B2 odczucia i trudności wymaga człowieka. Boty i testy nie dowodzą frajdy.
+Nie oznaczaj całego planu jako perfekcyjnie zakończonego na podstawie sumy testów.
+
+
+########################################################################
+KONTEKST-0.27.txt
+########################################################################
+KONTEKST DLA NOWEGO CZATU — SIGIL: BREACH 0.27 (stan na 2026-10-22)
+
+Kontynuujesz pracę nad moją grą. Najpierw przeczytaj pliki z punktu 8,
+dopiero potem cokolwiek zmieniaj.
+
+1. PROJEKT
+- SIGIL: BREACH — FPS w LÖVE 11.5 (LuaJIT / Lua 5.1), Windows, PowerShell 5.1.
+- Katalog: C:\Users\nahiko\Documents\dev\sigil-breach (to nie jest repozytorium git)
+  - game\ — źródła, testy (game\tests), QA (game\qa), dokumentacja (game\docs)
+  - toolchain\love-11.5-win64\lovec.exe — LÖVE
+  - outputs\SIGIL-BREACH-0.27\ i outputs\SIGIL-BREACH-0.27-Windows.zip
+  - work\qa-v27\ — wyniki testów; raporty trafień hit-*.txt/csv/png
+- Skrypty: .\RUN.ps1, .\FORMAT.ps1, .\TEST.ps1 -Suite All|Architecture|
+  Mechanics|Input|Render, .\BUILD.ps1; lovec.exe game --population (balans),
+  lovec.exe game --hit-review (same raporty trafień, ~1 min).
+- Wersja tylko w game\src\app\release.lua (0.27) + game\docs\ZMIANY-<wersja>.txt.
+- telemetry.txt: EXE %APPDATA%\sigil-breach-prototype\, źródła
+  %APPDATA%\LOVE\sigil-breach-prototype\.
+
+2. JAK ZE MNĄ PRACOWAĆ
+- Piszę po polsku — odpowiadaj po polsku.
+- Nie zatrzymuj się w połowie; wdróż, sam zweryfikuj (testy, boty, rendery),
+  raport na końcu; przy etapach krótki raport po etapie bez pytania o zgodę.
+- Balans opisuj technicznie, przed i po.
+- Zmiany techniczne nie zmieniają rozgrywki, balansu, wyglądu ani starych
+  zapisów. Po każdym etapie: FORMAT, pełne testy, złoty wzorzec.
+- Kod jako baza pod rozbudowę, wzorce i dane; bez rozwiązań „na teraz” i
+  duplikatów; patrz na całość projektu.
+- Dokładność trafień jest wymaganiem: nie poprawiaj raportu ani wydajności
+  kosztem widocznych błędów. Rycerz jest człowiekiem bez magii.
+- Raz wkleiłem w czacie token Hugging Face — nigdy go nie zapisuj ani nie
+  powtarzaj.
+
+3. WERYFIKACJA
+- Złoty wzorzec: playtest 0c96c388/3afa2f9e, human 47261c4a/a714fb54,
+  drill cda87f5f/907dd06d (bez zmian od 0.25). To odcisk regresji, nie
+  wyrocznia: zmianę wzorca poprzedź wyjaśnieniem różnic.
+- Ostatnio: selftest 2906 sprawdzeń, input, showcase (z przeglądem trafień),
+  BUILD; 0 problemów architektury; zapadka liczb 1097.
+- Pułapki: polskie cudzysłowy w PowerShell (teksty narzędziem Edit), UTF-8
+  bez BOM, „a and f()” obcina drugi wynik, skrypty próbne w work\.
+
+4. PLAN v7 (game/docs/PLAN-ROZWOJU-v7.md) — przyjęty
+- D0 (dokumentacja) i H0 (pomiar) WYKONANE w 0.27. Następny: H1 (wspólny
+  opis pozy, bez zmiany rozgrywki), potem H2 (kształty/strefy/materiały,
+  bez zmiany), H3 (przewrócenie, czaszka bossa, strzał z bliska — pierwsza
+  zmiana rozgrywki), H4–H9, B1–B2.
+- Narzędzia H0: qa/hit_truth.lua (reguła piksela shadera na CPU, zgodna
+  z GPU w 99,9 %), qa/reviews/hit_truth.lua, qa/data/hit_landmarks.lua (101
+  punktów; 54 znane wady oznaczone 'H3'/'H4' — test wymaga, by zawodziły,
+  aż etap je naprawi i usunie oznaczenie), tools/art/landmarks/crops.ps1.
+
+5. NAJWAŻNIEJSZE USTALENIA H0 (liczby w work/qa-v27)
+- Przewrócone ciała: głowa w powietrzu, czaszka na posadzce nietrafialna.
+- Margrabia: czaszka = tułów w pozach 5/7/8, nic w 9; Furfur 13: nic.
+- Strzał z bliska: oko rycerza w bryle Sługi/Żelaznego (39 %/33 % żywych
+  kroków przebiegów) — każdy strzał trafia tułów/nogi w dowolną stronę.
+- Bryły zależą od danych klatek rejestrowanych przez renderer (do 0,69 m).
+- Bossowie nie są przewracani za życia.
+- Zabójstwo przełamane: poważna rana (45 % HP jednym trafieniem) oznacza
+  przełamanie — pierwsze trafienie Sędziego w Sługę wystarcza (B1/B2).
+
+6. GDZIE CO DODAWAĆ — game/docs/ARCHITEKTURA.txt punkt 12.
+7. ZASADY KODU — game/docs/KONWENCJE.txt.
+
+8. PRZECZYTAJ NA START
+- START-HERE.txt, game/docs/PLAN-ROZWOJU-v7.md, game/docs/ZMIANY-0.27.txt,
+  game/docs/INSTRUKCJA.txt (specyfikacja), game/docs/ARCHITEKTURA.txt,
+  game/docs/KONWENCJE.txt
+
+
+########################################################################
+KONTEKST-0.26.txt
+########################################################################
+KONTEKST DLA NOWEGO CZATU — SIGIL: BREACH 0.26 (stan na 2026-10-22)
+
+Kontynuujesz pracę nad moją grą. Poprzednie czaty zrobiły wszystko opisane
+poniżej; wszystkie testy przechodzą. Najpierw przeczytaj pliki z punktu 9,
+dopiero potem cokolwiek zmieniaj.
+
+1. PROJEKT
+- SIGIL: BREACH — FPS w LÖVE 11.5 (LuaJIT / Lua 5.1), Windows, PowerShell 5.1.
+- Katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+  - game\ — źródła (game\src), testy (game\tests), raporty QA (game\qa),
+    dokumentacja (game\docs)
+  - toolchain\love-11.5-win64\lovec.exe — LÖVE
+  - outputs\SIGIL-BREACH-0.26\SIGIL-BREACH.exe i
+    outputs\SIGIL-BREACH-0.26-Windows.zip — aktualna paczka
+  - work\qa-v26\ — wyniki testów (test-results.txt, architecture.txt,
+    golden-current.lua, playtest-population.txt, benchmark.txt,
+    hitbox-review.txt/csv, hitbox-<demon>.png)
+  - work\v5-measure\ — pomiary przed i po etapach G3–G5
+- Skrypty w katalogu głównym:
+  .\RUN.ps1 (gra ze źródeł; -Release = gotowe EXE)
+  .\FORMAT.ps1 (StyLua; uruchamiać przed testami)
+  .\TEST.ps1 -Suite All (albo Architecture | Mechanics | Input | Render)
+  .\BUILD.ps1 (testy -> paczka -> weryfikacja EXE -> ZIP)
+  lovec.exe game --population — same populacje botów (9 s), do balansu
+- Numer wersji jest tylko w game\src\app\release.lua (teraz 0.26) + wymagany
+  game\docs\ZMIANY-<wersja>.txt.
+- telemetry.txt z mojej gry: EXE %APPDATA%\sigil-breach-prototype\, źródła
+  %APPDATA%\LOVE\sigil-breach-prototype\ (F9 pokazuje ścieżkę).
+- To nie jest repozytorium git.
+
+2. JAK ZE MNĄ PRACOWAĆ
+- Piszę po polsku — odpowiadaj po polsku.
+- Nie zatrzymuj się w połowie, żebym coś sprawdzał. Wdróż całość, sam
+  zweryfikuj (testy, boty, rendery), na końcu daj jeden raport. Przy pracy
+  etapami: krótki raport po etapie, bez pytania o zgodę na następny.
+- Balans opisuj technicznie (czas kontroli, czas zabicia, obrażenia
+  otrzymane, zabójstwa przełamane, idealne uniki), przed i po.
+- Zmiany techniczne nie mogą zmieniać rozgrywki, balansu, wyglądu ani
+  obsługi starych zapisów. Po każdym etapie: FORMAT, pełne testy i
+  porównanie złotego wzorca; regresje naprawiaj przed przejściem dalej.
+- Kod ma być bazą pod rozbudowę (hub/baza, więcej demonów, zaklęć, broni,
+  map, trybów), oparty na wzorcach projektowych i danych. Przed nową pracą
+  sprawdzaj, czy nie dublujesz istniejącego kodu i czy nic nie jest „na teraz”.
+- Raz wkleiłem w czacie token Hugging Face — nigdy go nie zapisuj ani nie
+  powtarzaj.
+
+3. WERYFIKACJA
+- Złoty wzorzec (qa/golden.lua, baza tests/golden/baseline.lua). Obecnie:
+  playtest 0c96c388/3afa2f9e, human 47261c4a/a714fb54,
+  drill cda87f5f/907dd06d (bez zmian od 0.25).
+- Ostatni pełny przebieg i BUILD: 2691 sprawdzeń, 0 błędów (selftest, input,
+  showcase); 297 plików Lua, 0 problemów architektury; 0 importów
+  symulacja -> prezentacja; nienazwanych liczb w kodzie symulacji i app 1097.
+- Celowa zmiana rozgrywki: skopiuj work/qa-v26/golden-current.lua do
+  tests/golden/baseline.lua (z komentarzem dlaczego) i opisz w ZMIANY.
+- tools/check pilnuje granic warstw, kierunku symulacja -> prezentacja,
+  emitera dla każdego zdarzenia, zapadki liczb (tools/check/literals.txt).
+- Pułapki: polskie cudzysłowy „” w PowerShell — teksty narzędziem Edit;
+  UTF-8 bez BOM; w Lua „a and f()” obcina drugi wynik; ścieżka scratchpada
+  jest za długa dla powershell.exe -File (skrypty próbne trzymaj w work\).
+
+4. CO ZROBIONO (historia)
+- 0.24 i wcześniej: matematyka gry (game/docs/matematyka/index.html),
+  modernizacje E0–E11 i F0–F9 (ZMIANY-0.24.txt).
+- 0.25 — plan v5 G0–G5, G7 (ZMIANY-0.25.txt): ciała, idealny unik przez
+  powidok, przerwanie przeładowania, okno zabójstwa przełamanego, Ground,
+  bindings, W.flow, Modes.act, tempo odśmiecacza.
+- 0.26 — po moim teście (ZMIANY-0.26.txt): przegląd zmian v5 (unik w
+  combat/dodge.lua; raport sesji na zdarzeniach; Application:adopt; wyprawa
+  bez przekierowań poligonu — tylko Modes.act; Descent.trade/buy;
+  Sanctuary.near; Capabilities.held/missilesFly/groundActs; zegary
+  wstrzymania w systems/clocks; znajdźki z ilością od powstania), G6: broń
+  w świetle sceny (shader hands + WeaponArt.look), podskok widoku i łomot
+  strzału (weight.viewKick/viewKickRate/thump, feedback/weight.lua aimKick),
+  pomiar hitboxów (qa/reviews/hitbox_review.lua).
+- Publikowana kopia matematyki (artifact 8RvXeaEpvnfnkxt9pNbwVA) nie była
+  dostępna z konta; aktualna wersja to plik lokalny.
+
+5. MOJA SESJA 0.25 (telemetry.txt): potyczka 223 s, 40 zabójstw, kontrola
+   8,5 %, zabójstwa przełamane 43 % (cel 15–25 %), idealne uniki 2, trafienia
+   129/148, 9 trafień otrzymanych / 114,6 obrażeń, leczenie 26 HP.
+
+6. GDZIE CO DODAWAĆ — game/docs/ARCHITEKTURA.txt punkt 12 (nowe ciało =
+  masa i promień; atak = test z Dodge.afterimage, potem Dodge.perfect; mapa =
+  floor; tryb = handlery Modes.act; klawisz = app/bindings.lua; odczucie broni =
+  weight w definicji broni).
+
+7. ZASADY KODU — game/docs/KONWENCJE.txt.
+
+8. CO DALEJ
+- game/docs/PLAN-ROZWOJU-v6.md — SZKIC do mojej akceptacji: hitboxy H1–H5
+  (pozy leżące, słaby punkt bossa w chwianiu, dwie bryły nóg, strażnik z
+  progami). Zmieni złoty wzorzec (trafienia to symulacja).
+- Decyzja: udział zabójstw przełamanych u człowieka 43 % (zostawić / okno
+  2 s -> 1 s / mniej leczenia) — potrzebna sesja w próbie fal.
+- Renderer rysuje od podłogi 0; dziennik poligonu bez akcji katalogu; mana.
+
+9. NAJWAŻNIEJSZE PLIKI DO PRZECZYTANIA NA START
+- game/docs/ARCHITEKTURA.txt
+- game/docs/KONWENCJE.txt
+- game/docs/ZMIANY-0.26.txt
+- game/docs/PLAN-ROZWOJU-v6.md
+- START-HERE.txt
+
+
+########################################################################
+KONTEKST-0.25.txt
+########################################################################
+KONTEKST DLA NOWEGO CZATU — SIGIL: BREACH 0.25 (stan na 2026-10-22)
+
+Kontynuujesz pracę nad moją grą. Poprzednie czaty zrobiły wszystko opisane
+poniżej; wszystkie testy przechodzą. Najpierw przeczytaj pliki z punktu 9,
+dopiero potem cokolwiek zmieniaj.
+
+1. PROJEKT
+- SIGIL: BREACH — FPS w LÖVE 11.5 (LuaJIT / Lua 5.1), Windows, PowerShell 5.1.
+- Katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+  - game\ — źródła (game\src), testy (game\tests), raporty QA (game\qa),
+    dokumentacja (game\docs)
+  - toolchain\love-11.5-win64\lovec.exe — LÖVE
+  - outputs\SIGIL-BREACH-0.25\SIGIL-BREACH.exe i
+    outputs\SIGIL-BREACH-0.25-Windows.zip — aktualna paczka
+  - work\qa-v25\ — wyniki testów (test-results.txt, architecture.txt,
+    golden-current.lua, playtest-population.txt, benchmark.txt)
+  - work\v5-measure\ — pomiary przed i po etapach G3–G5
+- Skrypty w katalogu głównym:
+  .\RUN.ps1 (gra ze źródeł; -Release = gotowe EXE)
+  .\FORMAT.ps1 (StyLua; uruchamiać przed testami)
+  .\TEST.ps1 -Suite All (albo Architecture | Mechanics | Input | Render)
+  .\BUILD.ps1 (testy -> paczka -> weryfikacja EXE -> ZIP; po nieudanej
+  próbie sam sprząta katalog roboczy)
+  lovec.exe game --population — same populacje botów (9 s), do balansu
+- Numer wersji jest tylko w game\src\app\release.lua (teraz 0.25).
+- To nie jest repozytorium git.
+
+2. JAK ZE MNĄ PRACOWAĆ
+- Piszę po polsku — odpowiadaj po polsku.
+- Nie zatrzymuj się w połowie, żebym coś sprawdzał. Wdróż całość, sam
+  zweryfikuj (testy, boty, rendery), na końcu daj jeden raport. Przy pracy
+  etapami: krótki raport po etapie, bez pytania o zgodę na następny.
+- Balans opisuj technicznie (czas kontroli, czas zabicia, obrażenia
+  otrzymane, zabójstwa przełamane, idealne uniki), przed i po.
+- Zmiany techniczne nie mogą zmieniać rozgrywki, balansu, wyglądu ani
+  obsługi starych zapisów. Po każdym etapie: FORMAT, pełne testy i
+  porównanie złotego wzorca; regresje naprawiaj przed przejściem dalej.
+- Kod ma być bazą pod rozbudowę (hub/baza, więcej demonów, zaklęć, broni,
+  map, trybów), oparty na wzorcach projektowych i danych.
+- Raz wkleiłem w czacie token Hugging Face — nigdy go nie zapisuj ani nie
+  powtarzaj.
+
+3. WERYFIKACJA
+- Złoty wzorzec (qa/golden.lua, baza tests/golden/baseline.lua). Obecnie:
+  playtest 0c96c388/3afa2f9e, human 47261c4a/a714fb54,
+  drill cda87f5f/907dd06d.
+- Ostatni pełny przebieg i BUILD: 2686 sprawdzeń, 0 błędów (selftest, input
+  36, showcase); 295 plików Lua, 0 problemów architektury; 0 importów
+  symulacja -> prezentacja; nienazwanych liczb w kodzie symulacji i app 1097.
+- Celowa zmiana rozgrywki: skopiuj work/qa-v25/golden-current.lua do
+  tests/golden/baseline.lua (z komentarzem dlaczego) i opisz w ZMIANY.
+- tools/check pilnuje granic warstw, kierunku symulacja -> prezentacja,
+  emitera dla każdego zdarzenia, zapadki liczb (tools/check/literals.txt).
+- Pułapki: polskie cudzysłowy „” w PowerShell — teksty narzędziem Edit;
+  UTF-8 bez BOM; w Lua „a and f()” obcina drugi wynik; ścieżka scratchpada
+  jest za długa dla powershell.exe -File (skrypty próbne trzymaj w work\).
+
+4. CO ZROBIONO (historia)
+- 0.24 i wcześniej: matematyka gry (game/docs/matematyka/index.html), kontra
+  jako zderzenie pędów, zachwianie lekkie/ciężkie, pętla zasobów, reżyser
+  tempa, modernizacje E0–E11 i F0–F9 (ZMIANY-0.24.txt).
+- 0.25 — plan v5 (game/docs/PLAN-ROZWOJU-v5.md), decyzje D1–D8 przyjęte
+  z rekomendacjami. Opis i pomiary: game/docs/ZMIANY-0.25.txt.
+- Publikowana kopia matematyki (artifact 8RvXeaEpvnfnkxt9pNbwVA) nie była
+  dostępna z konta w tym czacie; aktualna wersja to plik lokalny.
+
+5. PLAN v5 — CO JEST W KODZIE
+- G0 pomiar: populacja podstawowa i wprawna (unik zgrany z ciosem, proch w
+  grupę) z celami S.targets (qa/scenarios/playtest.lua); telemetria z gry do
+  telemetry.txt przy śmierci, oczyszczonej potyczce i F9
+  (src/app/session_report.lua); benchmark z pauzami odśmiecacza.
+- G1 spójność: ładunki uniku, bronie poligonu, glif FOCUS, czasy
+  przeładowania (tuning.reload) z danych; łuski i liczby obrażeń w
+  prezentacji (feedback/damage_numbers.lua); Game:look (mysz jako
+  polecenie); Damage.rating (pancerz części ciała dla obrażeń, raportu,
+  przebicia); stała kolejność stanów; usunięta atrapa limbo_layout.
+- G2 silnik: physics/ground.lua (Ground.height, map.floor); wspólne pola
+  przepływu W.flow; W.clear; Modes.act (ready, retry, closeShop, buy, lose,
+  reward, remaining); klawisze w src/app/bindings.lua (sloty zaklęć Q, F, C);
+  Application.settle + tempo odśmiecacza (tuning.collector).
+- G3 ciała: combat/body_contact.lua (systemy knightContact i bodies) — własny
+  ruch nie przechodzi przez żywe ciało ani go nie pcha, pęd przechodzi prawem
+  mas; rozsuwanie demonów według masy; pościg poza wzrokiem w linii prostej
+  (walk.lookahead); wybuch na wysokości piersi; knight.slamShare.
+- G4 odczucie: zachwiany rycerz nie strzela; strzał przerywa przeładowanie
+  (Reload.interrupt, closeOnFire 0,25 s); g.worldStop przy przełamaniu
+  gardy rycerza; mysz jedna czułość (camera.mouse), pitchLimit 1,2; idealny
+  unik przez powidok (Outcomes.afterimage, dodgeFromX/Z).
+- G5: zabójstwo przełamane w oknie 2 s (breakKill.window, brokenAge);
+  zachwianie 0,16 + 0,14 r / 0,36 + 0,10 (r − 1), max 0,70; przebicie po
+  pancerzu części.
+
+6. GDZIE CO DODAWAĆ — game/docs/ARCHITEKTURA.txt punkt 12 (w tym: nowe
+  ciało = masa i promień; atak = test także z afterimage; mapa = floor;
+  tryb = handlery Modes.act; klawisz = app/bindings.lua).
+
+7. ZASADY KODU — game/docs/KONWENCJE.txt (0.25 dodaje: symulacja nie pisze
+  g.view; ciała nie przenikają; wysokości od Ground.height, nigdy „y = 0”;
+  polecenia trybu przez Modes.act; klawisze tylko w bindings; zmiana balansu
+  z populacjami przed i po; nazwy testów bez numerów wersji).
+
+8. OGRANICZENIA I CO DALEJ
+- Cele D7: zabójstwa przełamane spełnione (16,4 % u wprawnych). Kontrola
+  3,9 % (cel 8–12 %) — zależy od zabójczości broni, nie od długości
+  zachwiania (przegląd w ZMIANY-0.25). Idealne uniki 1,2 na przebieg u botów
+  (cel 1 na falę) — do oceny w ręcznym teście.
+- Renderer rysuje od podłogi 0; podłoga per komórka przy pierwszej mapie
+  z poziomami.
+- Następny krok (G6): mój ręczny test paczki 0.25 (proving ground: potyczka,
+  próba fal) — dane w telemetry.txt + F9 — i strojenie według niego.
+
+9. NAJWAŻNIEJSZE PLIKI DO PRZECZYTANIA NA START
+- game/docs/ARCHITEKTURA.txt
+- game/docs/KONWENCJE.txt
+- game/docs/ZMIANY-0.25.txt
+- game/docs/PLAN-ROZWOJU-v5.md
+- START-HERE.txt
+
+
+########################################################################
+KONTEKST-0.24.txt
+########################################################################
+KONTEKST DLA NOWEGO CZATU — SIGIL: BREACH 0.24 (stan na 2026-10-22)
+
+Kontynuujesz pracę nad moją grą. Poprzedni czat zrobił wszystko opisane
+poniżej; wszystkie testy przechodzą. Najpierw przeczytaj pliki z punktu 9,
+dopiero potem cokolwiek zmieniaj.
+
+1. PROJEKT
+- SIGIL: BREACH — FPS w LÖVE 11.5 (LuaJIT / Lua 5.1), Windows, PowerShell 5.1.
+- Katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+  - game\ — źródła (game\src), testy (game\tests), raporty QA (game\qa),
+    dokumentacja (game\docs)
+  - toolchain\love-11.5-win64\lovec.exe — LÖVE
+  - outputs\SIGIL-BREACH-0.24\SIGIL-BREACH.exe i
+    outputs\SIGIL-BREACH-0.24-Windows.zip — aktualna paczka
+  - work\qa-v24\ — wyniki testów (test-results.txt, architecture.txt,
+    golden-current.lua)
+- Skrypty w katalogu głównym:
+  .\RUN.ps1 (gra ze źródeł; -Release = gotowe EXE)
+  .\FORMAT.ps1 (StyLua; uruchamiać przed testami)
+  .\TEST.ps1 -Suite All (albo Architecture | Mechanics | Input | Render)
+  .\BUILD.ps1 (testy -> paczka -> weryfikacja EXE -> ZIP)
+- Numer wersji jest tylko w game\src\app\release.lua (teraz 0.24).
+- To nie jest repozytorium git.
+
+2. JAK ZE MNĄ PRACOWAĆ
+- Piszę po polsku — odpowiadaj po polsku.
+- Nie zatrzymuj się w połowie, żebym coś sprawdzał. Wdróż całość, sam
+  zweryfikuj (testy, boty, rendery), na końcu daj jeden raport. Przy pracy
+  etapami: krótki raport po etapie, bez pytania o zgodę na następny.
+- Balans opisuj technicznie (czas kontroli, TTK, obrażenia otrzymane).
+- Zmiany techniczne nie mogą zmieniać rozgrywki, balansu, wyglądu ani
+  obsługi starych zapisów. Po każdym etapie: FORMAT, pełne testy i
+  porównanie złotego wzorca; regresje naprawiaj przed przejściem dalej.
+- Kod ma być bazą pod rozbudowę (hub/baza, więcej demonów, zaklęć, broni,
+  map, trybów), oparty na wzorcach projektowych i danych.
+- Raz wkleiłem w czacie token Hugging Face — nigdy go nie zapisuj ani nie
+  powtarzaj.
+
+3. WERYFIKACJA
+- Złoty wzorzec: deterministyczne skróty stanu symulacji (qa/golden.lua,
+  baza w tests/golden/baseline.lua). Muszą zostać:
+  playtest ce5a0757/e5d7dbe3, human 6a5d353b/85953a37,
+  drill d7d716e6/918cd167.
+- Ostatni pełny przebieg: 2647 sprawdzeń, 0 błędów (selftest, input,
+  showcase); 285 plików Lua, 0 problemów architektury; 0 importów z
+  symulacji do prezentacji; nienazwanych liczb w kodzie symulacji 1189.
+- Celowa zmiana rozgrywki: skopiuj work/qa-v24/golden-current.lua do
+  tests/golden/baseline.lua i opisz powód w ZMIANY.
+- tools/check pilnuje:
+  - granic warstw;
+  - braku importów symulacja -> prezentacja
+    (tools/check/presentation-edges.txt, ma być pusty);
+  - emitera dla każdego zdarzenia z katalogu;
+  - zapadki nienazwanych liczb (tools/check/literals.txt: plik może mieć
+    tylko mniej, nowy plik logiki = 0; nowe liczby nazywaj w content/).
+- Pułapki:
+  - Polskie cudzysłowy „” w stringach PowerShell psują parser — do
+    tekstów używaj narzędzia Edit.
+  - Zapisuj UTF-8 bez BOM.
+  - W Lua „a and f()” obcina drugi wynik funkcji.
+
+4. CO ZROBIONO (historia)
+- Dokumentacja matematyki gry z wykresami: game/docs/matematyka/index.html
+  oraz artifact https://claude.ai/artifact/8RvXeaEpvnfnkxt9pNbwVA
+- Mechanika:
+  - kontra jako zderzenie pędów;
+  - uniwersalny wzór zachwiania lekkie/ciężkie zależny od stabilności
+    (pierwiastek z masy);
+  - pętla zasobów, idealny unik, reżyser tempa, garda zależna od HP, ogień,
+    słabe punkty, telemetria.
+- Przegląd i naprawa 8 błędów, pierwszy refaktor.
+- Modernizacja E0–E11 (plan v3):
+  - złoty wzorzec;
+  - warstwa src/core (class, schema, registry, events, ecs, scheduler, rng,
+    timers, strict, serialize, mathx);
+  - definicje danych ze schematami i dziedziczeniem; ECS z prefabami;
+  - harmonogram systemów; dwufazowe zdarzenia;
+  - tryby i ekrany w rejestrach; nazwane stałe;
+  - migawka stanu (Memento) i dziennik poleceń; wspólne pomocnicze testów.
+- Modernizacja F0–F9 (plan v4, game/docs/PLAN-ROZWOJU-v4.txt), opis w
+  punkcie 5.
+- Wersja podniesiona do 0.24, paczka zbudowana i zweryfikowana.
+  tools/build.ps1 wymagał ręcznego pliku z 0.23
+  (graphics-only-verification.txt); zastąpiony generowanym
+  golden-current.lua.
+
+5. PLAN v4 F0–F9 — CO JEST W KODZIE
+- F0: strażnicy w tools/check (kierunek warstw, emitery zdarzeń, zapadka
+  liczb).
+- F1: symulacja nie zna prezentacji.
+  - session/presentation.lua — haki: hook, call, stage, cue, capture,
+    attacher;
+  - feedback/install.lua rejestruje prezentację (ładuje go
+    app/application.lua);
+  - enemies/corpse.lua — stan zwłok; feedback/death_response.lua — krew,
+    łoskot, plamy;
+  - galeria rozdzielona: world/gallery.lua (układ), render/gallery.lua
+    (rysowanie);
+  - test tests/cases/headless.lua: bez grafiki i dźwięku ten sam wynik.
+- F2: stan widoku (~90 pól: kamera, odrzut, efekty, napisy) jest w g.view.
+  Metatabela sesji zgłasza błąd przy starej nazwie pola. Katalog pól:
+  src/session/fields.lua (pola symulacji + Fields.view).
+- F3: bronie po id.
+  - player.loadout = {'exorcist','judge'};
+  - player.arsenal[id] = {mag, reserve, open, loaded, spent, readyAt};
+  - content/weapons.lua: Weapons.define, get, inHand, state, ammo, load,
+    give, nextSlot;
+  - broń ma pola hud i art; ręce w render/weapon_art.lua po id arkusza;
+  - klawisze 1–9;
+  - zapis SIGIL07 (storage/run_save.lua); stare SIGIL06 wczytywane z
+    migracją.
+- F4: umiejętności.
+  - content/abilities.lua: proch (capacity 3, start 2);
+  - player.abilities + player.abilityState[id] = {uses, readyAt};
+  - combat/abilities.lua: wspólny mechanizm rzucania, Cast.kinds: throw =
+    proch, bolt = pocisk rycerza (trafia demony, side 'knight' w
+    combat/projectiles.lua);
+  - g:cast(slot) zamiast g:pulse(); Q = slot 1.
+- F5: wygląd demonów jako dane.
+  - pole appearance w definicji stworzenia (atlas, układ klatek, kolor
+    portalu, plama, pierścień zamachu, cień, postura, czary, banery HUD...);
+  - flaga guardian zamiast kind == 'boss';
+  - A.of(e), A.look(e) w content/enemies.lua;
+  - zero porównań nazw demonów w kodzie.
+- F6: mapy jako dane.
+  - content/maps/limbo.lua + rejestr content/maps/index.lua;
+  - world/arena.lua buduje świat z danych; Game.new(kind, mapId);
+  - Ember, bramy fal, strefy i start rycerza z mapy.
+- F7: ekrany.
+  - ui/views.lua (rysowanie i przyciski ekranów, łańcuch dostawców);
+  - pliki ekranów w ui/screens/ (hud, map, menu, pause, help, ending);
+  - pomocnicze rysowanie w ui/kit.lua;
+  - ui/interface.lua tylko rozdziela.
+- F8: tryby i zapis.
+  - każda sesja ma g.mode;
+  - polityka trybu (phased, freezable, invincible) w
+    session/capabilities.lua, definiowana w run/modes.lua;
+  - tryb zapisywany w pliku;
+  - gra uruchomiona z --record: F9 zapisuje dziennik poleceń, który
+    odtwarza sesję dokładnie (session/journal.lua). F12 = zrzut ekranu.
+- F9: stałe ruchu i kamery w content/tuning.lua (motion, camera), zapadka
+  liczb obniżona, dokumentacja.
+
+6. GDZIE CO DODAWAĆ (sprawdzone w tests/cases/extension.lua)
+- Demon: content/creatures/<id>.lua (Creature.define, z appearance) + id w
+  A.creatures (content/enemies.lua).
+- Rodzaj ataku: Action.defineKind + Attacks.kinds[nazwa]
+  (enemies/actions.lua).
+- Broń: Weapons.define({..., hud, art}) + Weapons.give(g, id) albo
+  domyślny loadout.
+- Zaklęcie: Abilities.define({..., action = Action.build(...)}) + slot w
+  player.abilities. Nowy rodzaj dostawy: Cast.kinds[nazwa].
+- Mapa: content/maps/<id>.lua + Maps:register.
+- Tryb: Modes:register(id, {start, progress, policy}); sesja: g.mode = id.
+- Ekran: Screens:register (klawisze, app/screens.lua) + Views:register
+  (rysowanie, przyciski).
+- Zdarzenie: session/event_catalog.lua + emiter + słuchacz.
+- Pole sesji: session/fields.lua (symulacja) albo Fields.view (prezentacja).
+- Liczby: tylko nazwane w content/ (tuning.lua, combat_defaults.lua,
+  waves.lua, maps/, classic|expedition|shop.lua).
+
+7. ZASADY KODU (szczegóły: game/docs/KONWENCJE.txt)
+- Symulacja (combat, enemies, player, session, systems, run, world) nie
+  importuje feedback/render/ui/audio/app — tylko haki Presentation albo
+  zdarzenia 'present'.
+- Stan broni i umiejętności tylko w player.arsenal i player.abilityState.
+  Nic nie zakłada liczby broni ani slotów.
+- Bez rozróżniania stworzeń po nazwie (używaj appearance, guardian,
+  body.boss).
+- Kolejność kroku symulacji jest tylko w src/systems/index.lua.
+- Symulacja losuje tylko z g.rng.sim.
+- Polecenia gracza idą przez fasadę session/game.lua.
+
+8. OGRANICZENIA I CO DALEJ
+- Mana i dalsze rodzaje zaklęć odłożone (Cast.kinds jest gotowe).
+- 1189 nienazwanych liczb zostaje (kalibracja trafień, krzywe animacji,
+  galeria, poligon); zapadka pozwala im tylko maleć.
+- Grafika i światło Embera są tylko na mapie Limbo.
+- Tryby wyprawy i poligonu trzymają swoje dane w g.run i g.testField
+  (traktowane jako dane trybu).
+- Testy automatyczne nie zastępują ręcznego grania. Następny krok: ręczny
+  test paczki 0.24 i moje poprawki.
+
+9. NAJWAŻNIEJSZE PLIKI DO PRZECZYTANIA NA START
+- game/docs/ARCHITEKTURA.txt — model i przepisy (punkt 12),
+  ograniczenia (punkt 13)
+- game/docs/KONWENCJE.txt
+- game/docs/ZMIANY-0.24.txt — części 1–7
+- START-HERE.txt
+
+
+########################################################################
+KONTEKST-DO-NOWEGO-CHATA.txt
+########################################################################
+ARCHIWUM KONTEKSTÓW. Aktualny punkt wejścia: START-HERE.txt oraz
+docs/KONTEKST-0.32.txt. Poniższe dopiski opisują historyczne wersje.
+
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.15 / WEIGHT AND INTENT
+Bazą jest nowa wersja użytkownika 0.14, nie EXE 0.13. Zachować otwartą
+arenę 588 pól, galerię, angielski UI, przebijający rewolwer i archetypy.
+Dopracowano wejście 120 ms, wspólny chód/kroki, celownik zgodny z promieniem,
+masy kontaktów, reakcję ściany, czytelne malowane liczby i tablice galerii.
+Podział: dane -> reguły -> symulacja -> prezentacja; AI jako fasada,
+osobne działania/ciało/zagrożenia; adaptery preferencji i QA.
+Instrukcje i opis:game/ARCHITEKTURA-0.15.txt, PLAN-0.15.txt, ZMIANY-0.15.txt.
+Bieżące raporty:work/qa-v15. Paczka:outputs/SIGIL-BREACH-0.15.
+Styl czterech obrazów/fresku zachowany. W 0.15 nie regenerowano atlasów.
+Nadal jedna arena i dwie bronie. Nie dodawać map/fabuły/lootów przed
+oceną podstawowej walki. Q fizyczny; manifest tylko do designu postaci.
+Automatyczna QA nie przejmuje kursora ani zapisu użytkownika.
+
+HISTORIA PONIŻEJ — nie nadpisuje nowszych ustaleń.
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.13 / CIĘŻAR I CIEŃ
+Priorytet: satysfakcja ze strzelania i ruchu, potem ozdoby.
+Jedna oryginalna arena 31 x 31; bez map i fabuły na tym etapie.
+Kierunek fresku 0.12 zachowany; mrok teraz przez lokalne światło,
+przesłonięcie ścian i cienie sylwetek. Czytelny jasny HUD pozostaje.
+24 nowe klatki czuwania, 152 razem. Portret zamkniętego rycerza.
+Gęstszy rdzeń strzelby, osobny bonus głowy bez wzrostu impetu,
+reakcje tynku/kamienia/metalu/krwi, zderzenia z utraty pędu,
+noszenie broni z przebytej drogi i ograniczonych sprężyn.
+Szybka potyczka z menu jest odizolowana od zapisu wyprawy.
+Skalibrowano głowy Stolasa/Buera i barki Buera względem namalowanych
+póz. HP, rating pancerza, faktyczne promienie i zapasy sześciu typów
+sprawdzono na 4/8/16/30 m. Osłona gracza to zużywany zapas 55%,
+nie procent redukcji równy liczbie na HUD. Nowych broni i spelli
+teraz nie dodawać; dopracowywać dwie obecne i bazową walkę.
+Szczegóły, równania i źródła: game/PLAN-0.13.txt oraz
+ game/CZUCIE-WALKI-0.13.txt. Nowe raporty: work/qa-v13.
+Następny etap, po ocenie feelingu: przedmioty, łupy i presja
+rosnąca w czasie inspirowane Risk of Rain 2. Nie wdrażać przed oceną.
+Człowiek bez magii; Q to fizyczny ładunek. Manifest tylko do wyglądu.
+Testy poza ekranem; żadnego przejmowania kursora użytkownika.
+
+PONIŻEJ HISTORIA POPRZEDNICH ETAPÓW (nie nadpisuje ustaleń powyżej)
+AKTUALIZACJA 20 PAŹDZIERNIKA 2026 — 0.12 / OŻYWIONY FRESK
+Użytkownik zmienił kierunek: gra ma wyglądać jak chodzenie po fresku,
+według jego nowej jasnej, wapienno-ochrowej referencji. Nie wracać do
+Claude'owego filtra posteryzacji, wielkich ekranowych pęknięć ani
+czarno-złotego interfejsu. Mrok wynika z anatomii, gestu, przestrzeni
+i symboli; nie z zasłonięcia całej sceny ciemnym filtrem.
+
+Aktualny dokument oprawy: docs/KIERUNEK-FRESK-0.12.txt.
+Aktywne grafiki: assets/art/*fresco-v12.png i suplementy demonów.
+128 klatek sześciu archetypów; malowane bronie, efekty, panorama,
+materiały, malowidła, Żar, dekoracje, portret i jasny GUI.
+Pismo pozostaje rzeczywistymi glifami PNG, obecnie z pigmentem
+dostosowanym do jasnych pól. Historyczne pieczęcie nie były regenerowane.
+Renderer zachowuje modelunek źródeł. Pole renderowane ma 450 linii
+przy HUD, zamiast wcześniejszych 300; brak starej globalnej posteryzacji.
+
+Wciąż JEDNO PIERWOTNE POLE TESTOWE. Żadnej rozbudowy map ani fabuły.
+Mechaniki fizycznej broni, ruchu, uniku, fali/sklepu/dusz zachowane.
+Geometria trafień dostosowana do nowych głów i pozy Furfura.
+RUN.ps1 / TEST.ps1 / BUILD.ps1 wskazują 0.12.
+Nowa paczka: outputs/SIGIL-BREACH-0.12; dowody: work/qa-v12.
+Poprzednia 0.10 i kopia przed zmianami w work/backup-before-fresco-v12-2026-10-20
+zostały zachowane. Dalszy szczegółowy kontekst poniżej jest historyczny;
+w razie sprzeczności pierwszeństwo ma niniejsza aktualizacja i kod 0.12.
+
+KONTEKST DO KONTYNUACJI PROJEKTU SIGIL: BREACH — HISTORYCZNY
+Stan: wersja 0.10, 19 października 2026.
+Główny katalog: C:\Users\nahiko\Documents\dev\sigil-breach
+Aktualne źródła: C:\Users\nahiko\Documents\dev\sigil-breach\game
+
+NAJWAŻNIEJSZA ZASADA OBECNEGO ETAPU
+Mamy JEDEN POZIOM TESTOWY: pierwotną arenę Limbo 31×31. To wspólne
+pole prób wszystkich wdrożonych broni, demonów, bossów, animacji,
+efektów, symboli i mechanik. Nie rozbudowujemy teraz map ani fabuły.
+Najpierw dopracowujemy grafikę, ruch gracza, feeling strzelania,
+animacje, GUI, czytelność, hitboxy, AI, fizykę, matematykę i balans.
+Dopiero po uzyskaniu satysfakcjonujących podstaw przejdziemy do
+budowania świata, kolejnych poziomów, sekretów i właściwej kampanii.
+Fale i sklep działają jako drugi sposób testowania TEJ SAMEJ areny.
+Nie mylić tego z ukończonymi wieloma poziomami lub dziewięcioma kręgami.
+
+CZYM MA BYĆ GRA
+Szybki, brutalny FPS z podstawowym ruchem i feelingiem Dooma,
+połączony z rundami/falami i przygotowaniem u kupca jak w Killing
+Floor 1/2 oraz czytelnymi zamachami bossów, unikami i konsekwencją
+śmierci inspirowanymi soulslike. „System turowy” oznacza fale/rundy:
+walka pozostaje w czasie rzeczywistym, sklep i przygotowania są między
+falami. Gra zmierza w stronę horroru, nie lekkiego fantasy.
+Docelowy świat: dziewięć kręgów piekła Dantego, demonologia, Goecja,
+Mniejszy Klucz Salomona i pokrewne grimuary. To wizja, nie ukończona
+kampania. Wspólne uniwersum z projektem karcianym
+C:\Users\nahiko\Documents\dev\sigil-the-descent.
+Nie zakładać, że wszystkie postacie i fabuła karcianki są już wdrożone.
+
+CZTERY GŁÓWNE ODNIESIENIA WIZUALNE
+1. Giovanni da Modena — „Inferno” w kaplicy Bolognini, bazylika
+   San Petronio w Bolonii. To najważniejszy punkt odniesienia dla
+   cielesnych, niepokojących demonów, scen kary, piekielnej hierarchii
+   i ciemnej, osmalonej palety. Demony mają budzić odrazę i niepokój
+   anatomią i gestem, a nie być sympatycznymi czerwonymi „demonikami”.
+2. Hieronim Bosch — piekielne prawe skrzydło „Ogrodu rozkoszy
+   ziemskich”. Hybrydy ludzi, zwierząt i przedmiotów; groteska,
+   wynaturzone sylwetki i przedmioty przemienione w narzędzia cierpienia.
+3. Hans Memling — „Sąd Ostateczny”. Porządek kompozycji, sąd,
+   procesje, gesty lęku i cierpienia, jasne ciała na ciemnym tle,
+   bogate złocone oprawy i podział sceny na czytelne strefy.
+4. Michał Anioł — „Sąd Ostateczny” w Kaplicy Sykstyńskiej.
+   Ciężar ciała, napięta anatomia, gwałtowne skręty i dramatyczne pozy;
+   odniesienie dla zamachu, uderzenia i ciężkiego powrotu po ciosie.
+
+Te odniesienia obejmują CAŁĄ grę: demony, bohatera, broń, efekty,
+tekstury, GUI, ikonografię, ramy, litery i cyfry. Kierunek to religijne
+inferno i groza dawnego malarstwa przełożone na estetykę 16-bit/pixel
+art. Nie jest to wierna rekonstrukcja jednego obrazu ani ograniczenie
+sprzętowe do rzeczywistej konsoli 16-bitowej.
+
+PALETA, MATERIAŁY I CZYTELNOŚĆ
+Czerń sadzy, umbry i ziemiste brązy, zgaszona krwista czerwień,
+stara kość, osmalone żelazo, patyna i przybrudzone złoto. Chłodne
+akcenty oszczędnie, do oznaczania ważnych miejsc i kontrastu.
+Broń i wyposażenie: żelazo, drewno, skóra, kość, metalowy relief,
+grawerunki, zużycie, krew i popiół. Bez plastikowego połysku i
+futurystycznych świecących rdzeni. Sylwetki mają być rozpoznawalne
+z daleka; nie zakrywać obrazu wielkim rozmyciem ani samym przyciemnieniem.
+Mrok ma budować horror, lecz przeciwnik, pocisk i sygnał ataku muszą
+być czytelne. Żar ma zimny płomień, odróżniony od ciepłych pochodni.
+
+GUI I LITERNICTWO
+Dolny pas inspirowany Doomem: amunicja, zdrowie, arsenał, centralny
+portret, osłona, ładunki/uniki i dusze. Forma relikwiarza lub oprawy
+sakralnego obrazu, nie zbioru przypadkowo wklejonych prostokątów.
+Menu i pomoc mogą korzystać z powierzchni starej księgi/pergaminu,
+inkrustacji, marginesów i historycznej ikonografii.
+W aktualnym GUI litery, cyfry i polskie znaki są składane z osobno
+ilustrowanych glifów PNG. Zmienne liczby powstają z atlasu cyfr,
+więc nie trzeba generować osobnego obrazka dla każdej możliwej liczby.
+Są też pełne ilustrowane nagłówki. Liternictwo ma być złowrogie,
+ale przy małym rozmiarze czytelność jest obowiązkowa.
+Ornament pozostaje przy brzegach; tekst musi mieścić się w właściwym
+polu pisma, nie wchodzić na łuk, daszek, kolumnę ani portret.
+Brak prostokątnych granic awatara: jest maskowany w łuku relikwiarza.
+Automatyczne „brak kolizji” nie oznacza jeszcze artystycznej jakości.
+Oceniać prawdziwy ekran gry, a nie wyłącznie atlas czy bounding box.
+
+BOHATER
+Człowiek w świecie demonów, bez własnej magii. Ciężka ciemna zbroja,
+surowa twarz i czarne włosy; użytkownik podał Gutsa z Berserka jako
+odniesienie dla wyglądu i postawy. Portret ma pasować do przyjętej
+palety i malarskiego horroru, a nie wyglądać jak wklejony kadr anime.
+Wyczerpanie, czujność, determinacja i powściągnięty gniew.
+„Manifest Nikogo” to wyłącznie wskazówka do DESIGNU postaci.
+Nie robić z niego automatycznie fabuły, dialogów ani tekstu menu.
+Pełny tekst jest w game\MANIFEST-NIKOGO.txt.
+
+SYMBOLE I ŹRÓDŁA
+Używamy udokumentowanych historycznych znaków, a nie przypadkowych
+pseudoliter opisanych jako autentyczna Goecja. Obecnie są pieczęcie
+Asmodaya, Stolasa i Buera oraz pierwsze trzy pentakle Saturna z
+odrębnego „Klucza Salomona”. Katalog poligonu ma archiwum sześciu
+reprodukcji. Forma może być pigmentem lub reliefem; nie zmieniać
+rysunku historycznego znaku przez dopisywanie losowych kresek.
+Autorskie oznaczenia ataków są grafiką gry, nie rzekomo autentycznymi
+pieczęciami. Furfur: Goetia, duch 34, jeleń z ognistym ogonem,
+związek z burzą i piorunami; mechanika ataków jest interpretacją gry.
+Kanał wskazany przez użytkownika:
+https://www.youtube.com/@TheEsotericaChannel
+Nie twierdzić, że analizowano całą jego bibliotekę/transkrypcje.
+Dokładne źródła: game\KIERUNEK-ARTYSTYCZNY.txt oraz
+game\assets\art\sigils\SOURCES.txt.
+
+CO JEST WDROŻONE W 0.10
+- LÖVE 11.5 / LuaJIT, renderer retro; bitmapowe postacie w przestrzeni
+  3D, nie pełne modele ze szkieletem.
+- Jeden poziom testowy Limbo 31×31. Pod F2 izolowany poligon:
+  wywoływanie celów, podgląd póz i stref trafień, nieśmiertelność,
+  zatrzymywanie AI/pocisków, odnawianie zapasów oraz reset próby.
+  Poligon nie zapisuje ani nie psuje postępu wyprawy.
+- Sześć typów przeciwników: Sługa Żaru, Żelazny Sługa, Akolita
+  Gwiazd, Ogrodnik Zarazy, Margrabia Popiołu i Furfur.
+- Furfur: animowany boss poligonu, 24 pozy, zamach porożem,
+  szarża po zadanym kierunku i piorun w oznaczonym miejscu.
+  Przygotowanie, aktywne okno i odpoczynek umożliwiają unik.
+- Strzelba Egzorcysta: dwa naboje, po 10 niezależnych śrucin z naboju,
+  rozchodzący się stożek, trafienie wielu celów i zasłanianie ciałami.
+- Sędzia: fizyczny sześciostrzałowy rewolwer, rezerwa amunicji,
+  etapowe przeładowanie i bezpieczne przerywanie go zmianą broni.
+- Q: fizyczny ładunek prochowy, 1 s lontu, maksymalnie 3 sztuki,
+  promień eksplozji 4 m, osłona przez ściany i własne obrażenia.
+  Dawna Fala Dusz oraz magiczna lanca zostały zastąpione.
+- Wspólny wzór obrażeń uwzględnia bazę, moc, odległość, pancerz,
+  penetrację i odporności. Raport oddziela nominalne obrażenia,
+  rzeczywiste zabrane HP, absorpcję, impet i nadmiar ponad HP.
+  Precyzyjniejsze bryły nie oznaczają jeszcze bonusu za headshot.
+- Skok, przyspieszenie, hamowanie, ślizg, dwa odnawialne uniki,
+  odrzut i kołysanie broni; krok symulacji 120 Hz.
+- Ciągłe kolizje ruchu, poprawny ślizg po ścianie i kontakt narożników.
+  Pociski uwzględniają ruch gracza, skok/kucanie oraz czas kontaktu.
+  Granaty mają parabolę, odbicia z resztą czasu, toczenie i podparcie.
+  Granat nadal ma punkt kontaktu ze światem, nie pełną bryłę sztywną.
+- Strefy trafień demonów podzielone anatomicznie i dopasowane do póz;
+  aktywne okna ciosów. Stun/hit pause nie przewijają fazy ataku.
+  Znak pioruna współdzieli zegar rzucającego. Jad respektuje ściany.
+- Animowane grafiki broni, ładowania i efektów zaklęć demonów,
+  trafienia, dym, krew, ślady, dźwięki i ograniczone pule efektów/audio.
+- Cztery fale, sklep i strażnik jako próba na tej samej arenie.
+  Dusze są walutą; śmierć zostawia echo do odzyskania.
+  Żar pozwala odpocząć/handlować w przygotowaniu między falami.
+- Zapis i wczytywanie, zgodność formatu SIGIL06, oddzielone próby QA.
+
+MATEMATYKA I ORGANIZACJA
+Obrażenia = baza × moc × falloff(dystans) × strefa × ulepszenie
+            × 100/(100+pancerz×(1-penetracja)) × (1-odporność).
+Strefa ma obecnie mnożnik 1. Parametry: game\src\tuning.lua,
+weapon_defs.lua, damage.lua. Strzały: ballistics.lua, combat.lua.
+Fizyka: collision.lua, kinematics.lua, feel.lua, projectiles.lua,
+explosives.lua. Ataki: ai.lua, melee.lua, enemy_geometry.lua.
+Renderer jest rozdzielony na moduły zasobów, świateł, batchy i efektów.
+
+GRAFIKA — UCZCIWY OPIS STANU
+Wiele ilustracji powstało przez wbudowane image_gen. Następnie dobrano
+atlasy, kadry, skalę, położenie stóp i układ GUI. Nie opisywać ich jako
+ręcznie malowanych. Użytkownik oczekuje spójnej, świadomie opracowanej
+oprawy bez typowych przypadkowych detali generacji AI. To nadal cel
+iteracji, a nie deklaracja, że jakość „arcydzieła” została osiągnięta.
+Pliki i prompty: game\assets\art\prompts-v08-final.json i
+prompts-v09-final.json. Nie wymieniać dobrych atlasów bez potrzeby.
+
+WERYFIKACJA I OGRANICZENIA
+Wersja 0.10 przeszła 837 sprawdzeń mechaniki/zasobów i 41 testów
+realnych callbacków sterowania oraz zapisów. Audyt: 250 scen GUI,
+bez wykrytych kolizji. Rendery: 119 scen plus 10 faz ataków oraz
+32 pozy broni. Sprawdzono zgodność źródeł, EXE, .love, DLL i ZIP.
+To testy automatyczne i oględziny wybranych renderów, nie pełny ręczny
+playtest. Test przejścia używa idealnego celowania. Nie przedstawiać
+zielonych testów jako dowodu dobrego balansu dla człowieka.
+Hitboxy są przybliżonymi bryłami sprite'ów, nie maską każdego piksela.
+
+DALEJ
+Kontynuować na jednym poligonie: czytelność, spójność artystyczna,
+ruch i feeling, ciosy i animacje, bronie, AI, hitboxy, matematyka,
+balans i stabilność. Pamiętać o całym kierunku, nie wyłącznie ostatniej
+uwadze. Przed oddaniem oglądać rzeczywisty ekran i sprawdzać miejsca
+tekstu wewnątrz ozdobnych ramek. Nie uruchamiać nowych map ani fabuły
+bez zmiany obecnego priorytetu przez użytkownika.
+
+URUCHOMIENIE I NOWY KATALOG
+Projekt przeniesiono do C:\Users\nahiko\Documents\dev\sigil-breach.
+Uruchom RUN.ps1, aby zagrać z aktualnych źródeł; RUN.ps1 -Release
+otwiera gotową wersję 0.10. TEST.ps1 uruchamia testy, BUILD.ps1
+buduje i weryfikuje paczkę. Lokalny runtime jest w toolchain\.
+Nie edytować kopii outputs\...\source jako głównego kodu.
+Dokładny układ i komendy: START-HERE.txt. Starszy workspace Codex
+zawiera archiwalne paczki i odłożone eksperymenty, nie aktywne źródła.

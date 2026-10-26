@@ -46,3 +46,25 @@ Osobne przywracanie (nie zmienia archiwum 0.31):
 Domyślnie tylko sprawdza ZIP. -Apply odtwarza brakujące pliki, nie nadpisuje.
 Istniejący plik z innym SHA powoduje odmowę; nie jest zastępowany kopią.
 Po przywróceniu stare PNG nie wracają automatycznie do registry broni.
+
+STAN PO COMMICIE 998b189 (2026-10-24): v16 WRÓCIŁY DO GRY
+Powyższy opis dotyczy chwili archiwizacji. W commicie 998b189 gra wróciła
+do sprawdzonych arkuszy v16: shotgun-iron-v16.png i revolver-iron-v16.png
+znów leżą w game/assets/art z tym samym SHA256 co w ZIP (sprawdzono
+2026-10-25). Archiwum broni 0.32 jest więc obecnie zbędną kopią; kolumna
+Reason w manifest-weapons-0.32.csv opisuje stan z chwili archiwizacji.
+Retuszowane arkusze fresco-v32/v33 nie są w repozytorium. Leżą lokalnie
+w work/weapon-art-v32-v33-backup (poza gitem). Ich warsztat jest w
+tools/art/weapon_cycles_v32.
+
+AKTUALIZACJA 2026-10-25 — SZKIC PODRĘCZNIKA CLAUDE
+SIGIL-BREACH-podrecznik-claude-0.32.zip zawiera 303 pliki dawnego
+docs/podrecznik/ (3,2 MiB), pod pierwotnymi ścieżkami. Był to nieukończony
+i nieśledzony szkic: 285 adnotacji src, bez ui, testów, narzędzi i tomów
+1/3. Pozostaje jeden podręcznik: docs/podrecznik-codex/ (pełne tomy,
+raport pokrycia). Jego narzędzie inventory.py sprawdza jeszcze istnienie
+docs/podrecznik/adnotacje; po archiwizacji ta kolumna wyniesie false.
+manifest-podrecznik-claude-0.32.csv: ścieżka, rozmiar i SHA256 każdego pliku.
+podrecznik-claude-0.32.sha256.txt: SHA256 archiwum.
+Przywracanie (z katalogu głównego): rozpakuj ZIP do katalogu projektu,
+np. Expand-Archive old\SIGIL-BREACH-podrecznik-claude-0.32.zip -DestinationPath .

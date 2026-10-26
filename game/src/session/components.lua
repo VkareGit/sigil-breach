@@ -18,6 +18,7 @@ C.schemas = {
     rewardSouls = f(nil),
     rewardId = f(nil, 'expedition reward slot'),
     bornAt = f(0, 'session time of arrival (time to kill)'),
+    killCounted = f(nil, 'its death is in the session counters (combat/telemetry.lua)'),
     dummy = f(nil, 'proving-ground training dummy: physics only'),
     previewFrame = f(nil, 'catalogue pose override'),
     fieldKind = f(nil, 'proving-ground catalogue entry'),
@@ -197,6 +198,7 @@ C.schemas.pickup = {
   kind = f(nil, 'health, ammo, soul'),
   amount = f(nil),
   slot = f(nil, 'weapon slot of ammunition'),
+  weapon = f(nil, 'weapon id of ammunition (before slot)'),
   rewardId = f(nil),
 }
 -- A thrown powder charge (combat/explosives.lua).

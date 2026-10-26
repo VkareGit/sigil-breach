@@ -185,7 +185,13 @@ function T.react(g, result, e)
     t.wounds = t.wounds + 1
   end
 end
+-- Once per body: a second report of the same death (another listener, a
+-- new damage source) changes no counter.
 function T.kill(g, e)
+  if e.killCounted then
+    return
+  end
+  e.killCounted = true
   local t = T.get(g)
   t.kills = t.kills + 1
   local record = bodyRecord(g, e)

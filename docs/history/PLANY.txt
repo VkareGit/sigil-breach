@@ -1,0 +1,1636 @@
+SIGIL: BREACH / DAWNE PLANY 0.8–v8 (jeden plik, najnowsze na górze)
+
+Historyczne. Plany w realizacji pozostają osobno w game/docs:
+PLAN-FUNDAMENT-v9.md (bieżący) i PLAN-ROZWOJU-v7.md (kontrakty trafień).
+Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku; odwołanie
+„PLAN-ROZWOJU-v6.md” wskazuje sekcję o tym nagłówku. Status zapisany
+w sekcji opisuje tamtą chwilę, nie obecne wdrożenie.
+
+
+########################################################################
+PLAN-ROZWOJU-v8.md
+########################################################################
+# SIGIL: BREACH — PLAN v8: gotowość bazy do rozwoju i skalowania
+
+Stan: analiza 2026-10-24, kod po commitach `e1b5d34` (muzyka, ślady ruchu),
+`fa9d17f` (dźwięki broni) i `216b56a` (portale w katalogu poligonu). Sama
+analiza nie zmieniła kodu. Uzupełnia PLAN-ROZWOJU-v7.md (trafienia), nie
+zastępuje go.
+
+Oznaczenia: **[K]** potwierdzone w kodzie, **[R]** zmierzone (`--benchmark`,
+`--core-measure`, rozmiary plików), **[H]** szacunek lub hipoteza.
+Ścieżki są względne do katalogu `game/`.
+
+## 0. Werdykt
+
+- **Baza jest gotowa do dalszego rozwoju bez przepisywania.** Nowe demony,
+  bronie, wyposażenie, dźwięki i tryby na obecnej mapie dodaje się głównie
+  danymi i małymi modułami.
+- **Warunek dla kierunku gry (9 kręgów = wiele map):** wiedza o jedynej mapie
+  (Limbo) jest rozsiana po rendererze i danych trybów. Przed drugą mapą
+  potrzebny jest jeden ograniczony refaktor („mapa posiada scenografię”) oraz
+  manifest zasobów per mapa.
+- **Skalowanie techniczne:** gra offline dla jednego gracza ma duży zapas
+  czasu klatki. Ograniczeniem przy wzroście treści będzie pamięć tekstur
+  i czas ładowania, nie procesor.
+- **Znaleziona regresja:** `--benchmark` wywraca się od `216b56a` (sekcja 3G).
+
+## 1. Jak to działa (przepływ)
+
+`main.lua` → `src/app/application.lua` → polecenia (`src/app/commands.lua`)
+→ fasada sesji `src/session/game.lua` → stały krok 1/120 s
+(`src/session/simulation.lua`) → harmonogram systemów (`src/systems/index.lua`)
+→ zdarzenia `sim` / `present` → renderer i UI (tylko odczyt). Treść to
+definicje ze schematami (`src/content/defs/`) i rejestry
+(`src/core/registry.lua`); tryby to rejestr strategii (`src/run/modes.lua`).
+
+Rozmiar [R]: `src` ok. 36,6 tys. linii (z czego `content` 12,8 tys., w tym
+wygenerowane `content/art/enemy_frames.lua` i `hit_masks.lua`), testy 22,1 tys.,
+QA 9,7 tys.; 3435 sprawdzeń w TEST.
+
+## 2. Co jest dobre i warto zachować
+
+1. **Symulacja nie zna prezentacji** [K]: haki `src/session/presentation.lua`
+   (bez prezentacji są no-op), `tools/check` pilnuje 0 krawędzi symulacja →
+   prezentacja, braku cykli i granic warstw. Dowód praktyczny: muzyka,
+   cząstki, dźwięki broni i portale zmieniły się bez ruszania złotego wzorca
+   (6/6).
+2. **Treść jako dane z walidacją** [K]: `Creature.define` z `extends`,
+   `Weapon.define`, `Action.build`, `Mark.move` (ślady ruchu); listy katalogu,
+   galerii i bestiariusza z `A.listed('field')`. Nowy demon na istniejącym
+   obrazie = jeden plik w `src/content/creatures/` (test `creature_extension`).
+3. **Zachowania jako rejestry strategii** [K]: rodzaje ataków `Kinds.lunge /
+   charge / strike / leap / pool / fan / bolt` (`src/enemies/actions.lua:137-361`),
+   `AI.styles` / `AI.states`, mechanizmy przeładowania z głosami
+   (`src/combat/reload.lua`, `content/tuning.lua reload.<m>.voices`),
+   `Cast.kinds`, tryby.
+4. **Determinizm i powtórki** [K][R]: stały krok, strumienie RNG `sim` /
+   `present`, dziennik poleceń, snapshot. `--core-measure`: 10 s walki liczy się
+   w 100 ms, snapshot 0,65 ms / 66 KiB, dziennik 27 KiB/s, 300 fal bez wycieku.
+5. **Barierki jakości** [K]: złoty wzorzec, zapadka liczb bez nazw (275,
+   `tools/check/literals.txt`), deklarowane pola sesji (`src/session/fields.lua`),
+   KONWENCJE i ARCHITEKTURA zgodne z kodem.
+6. **Nowe moduły też są danymi** [K]: dźwięk (`src/audio/recipes.lua`,
+   `src/audio/score.lua`), ślady ruchu (`src/content/movement_marks.lua` ze
+   schematem `src/content/defs/movement_mark.lua`).
+
+## 3. Gdzie rozwój będzie kosztował zmiany w wielu plikach
+
+### A. Mapa nie jest właścicielem swojej scenografii (najważniejsze) [K]
+
+`src/content/maps/limbo.lua` opisuje pokoje, kolumny, pieczęcie, bramy i strefy.
+Reszta jest zaszyta gdzie indziej:
+
+- `src/render/world_mesh.lua:80-97` — ołtarz (16, 17), łuk portalu (16, 2.9);
+  `:134` — ołtarz sekretu (3.7, 20.4);
+- `src/render/renderer.lua:43` — `PROP_POS`; `:666-670` — znaki strażnika
+  i sekretu na sztywnych współrzędnych;
+- `src/content/classic.lua` — pozycje zapasów i strażnika; `src/world/gallery.lua`
+  — układ padów; `Sanctuary.shrine` — kapliczka;
+- jedna wysokość podłogi na mapę, renderer rysuje od 0 (ARCHITEKTURA pkt 13);
+- jeden atlas ścian i podłóg (`assets/art/textures-fresco-v12.png`) dla całej gry.
+
+### B. Stan trybów wycieka do prezentacji i infrastruktury [K]
+
+Routing 0.31 objął sesję (interakcje, pozwolenia, HUD). Zostały:
+
+- renderer czyta `g.run` i `Descent.shrine` (`src/render/renderer.lua:440`,
+  `623-670`, `780-800`); `src/render/lights.lua:60` czyta `g.run`;
+- `src/ui/descent.lua` czyta `g.run` w 9 miejscach; `src/ui/interface.lua:69-75`;
+- `src/render/effects.lua:337` czyta `g.testField.hitboxes`;
+- dziennik ma sztywne „tryb → konstruktor sesji” (`src/session/journal.lua:125-128`),
+  a `Modes.forSession` używa drugiego słownika (`descent` ↔ `expedition`);
+- `src/world/gallery.lua` importuje `src/run/test_field.lua`;
+- poligon używa kształtu rekordu wyprawy (`g.run = { phase='wave', wallet,
+  pending… }`, `src/run/test_field.lua:101`).
+
+### C. Duże moduły o wielu rolach [K][R]
+
+- `src/render/renderer.lua`: 884 linie, 32 zależności (najwięcej w projekcie).
+- `src/run/test_field.lua`: 737 linii — katalog, przywołania, stanowiska, sklep,
+  pieczęcie, pozy; `F.action` to łańcuch `if id ==` (`:643`).
+- Nawigacja między sesjami ad hoc: `app.fieldReturn`
+  (`src/app/commands.lua:27-71`).
+
+### D. Prezentacja ataków rozgałęzia się po nazwie rodzaju [K]
+
+Symulacja ma rejestr `Kinds`, rysowanie nie:
+`src/render/effects.lua:301-335` (`lunge` / `charge` / `leap`),
+`src/enemies/animation.lua:36` i `:173`, pierścień skoku
+`src/render/renderer.lua:723`, `src/enemies/hazards.lua:31` (`lightning`).
+Nowy rodzaj ataku = wpis w rejestrze + 3–4 edycje prezentacji.
+
+### E. Dane grafiki w kodzie renderera [K]
+
+- `src/render/weapon_art.lua:8` — `A.ids = {'exorcist','judge'}` i stały układ
+  arkusza 1600² 4×4 (demony i umiejętności mają to w `src/content/`);
+- `src/render/weapon.lua:284` — `assert(handAtlas == 'powder')`;
+- pozycje pieczęci w `src/ui/screens/help.lua`;
+- `src/ui/hud.lua:119` — mapowanie `choke` → `'FOCUS'`.
+
+### F. Drobniejsze [K][R]
+
+- Płaski stan sesji: ok. 150 deklarowanych pól, w tym pola jednego trybu
+  (`seals`, `secretFound`, `rank`, `bossDead`). Deklaracje trzymają to w ryzach.
+- 112 `require` wewnątrz funkcji w 54 plikach (najwięcej `content/enemies.lua`,
+  `combat/rules.lua`): głównie omijają cykle, ale ukrywają zależności.
+- Ok. 100 tekstów dla gracza zaszytych w ok. 20 plikach (np. `ui/descent.lua`,
+  `run/test_field.lua`, `ui/views.lua`) oraz angielski malowany napis
+  `assets/art/lettering-en-v16.png`.
+
+### G. Narzędzia QA poza TEST psują się po cichu [K][R]
+
+TEST uruchamia 3 z 21 flag QA. `--benchmark` wywraca się na
+`qa/benchmark.lua:648` („lifecycle did not enter the requested arena”): cykl
+przywołuje demony akcją katalogu i oczekuje ich od razu, a od `216b56a`
+przychodzą przez portal (1,2 s). `--core-measure` działa, ale jego „10 s walki”
+zawiera teraz 1,2 s otwierania portali.
+
+### H. Paczka wydania 303 MiB przy grze ok. 95 MiB [R]
+
+`outputs/SIGIL-BREACH-0.31` zawiera dane gry trzy razy (`source/` 90 MiB,
+`SIGIL-BREACH.love` 85 MiB, `SIGIL-BREACH.exe` 86 MiB) oraz ok. 50 zrzutów
+i raportów QA. Po trailerze gracze powinni dostać samo EXE + DLL.
+
+## 4. Scenariusze rozwoju
+
+| Scenariusz | Ocena | Co trzeba zrobić / trudności |
+|---|---|---|
+| Nowy demon na istniejącym obrazie | Łatwe | Jeden plik `content/creatures/<id>.lua`. |
+| Nowy demon z nowym atlasem | Architektura OK, drogi proces | PNG, `sources`, `enemy_art`, ręczne wielokąty anatomii (ok. 28 klatek), bake masek, punkty anatomiczne; +6–10 MiB tekstur [H]; nowy rodzaj ataku przez 3D. |
+| Nowa broń | Łatwe w symulacji | Definicja, rejestr dostaw, mechanizm + głosy; HUD przewija dowolną liczbę broni (`ui/hud.lua:107-117`); nowa grafika rąk przez 3E. |
+| Wyposażenie F/C | Symulacja gotowa | HUD pokazuje tylko slot Q (świadoma granica); ręce przypięte do `powder`. |
+| **Nowy krąg = nowa mapa** | **Trudne dziś** | Cały punkt 3A + tekstury per krąg, światła (`lights.lua` czyta `g.run`), wczytywanie wszystkiego naraz. |
+| Kampania / hub między kręgami | Średnie | Rejestr trybów dobry; brak nawigacji sesji (zamiast `fieldReturn`), zapis związany z wyprawą (`descent-v06`, SIGIL08), sztywne konstruktory w dzienniku. |
+| Tłumaczenie na polski | Średnie | Wyciągnięcie ok. 100 tekstów + polski malowany napis; fonty mają polskie znaki (test). |
+| Co-op / sieć | Bardzo drogie | Fundament lockstepu jest (stały krok, dziennik, RNG), ale `g.player` w 188 liniach / 62 plikach i jeden widz (ARCHITEKTURA pkt 13). Nie przygotowywać na zapas. |
+| Większe bitwy (50–100 demonów) | Realne | Ograniczeniem liczba wywołań rysowania (ok. 13 na demona) [R]. |
+
+## 5. Skalowalność techniczna [R]
+
+- **Liczba użytkowników:** nie dotyczy — gra lokalna, bez serwera. Rankingi czy
+  telemetria online wymagałyby osobnego projektu.
+- **Obciążenie (`--benchmark`, 1280×720):** scena „ciężka” (20 demonów, 240 cząstek,
+  12 pocisków) — pełna klatka mediana 4,9 ms, p99 6,8 ms (budżet 16,7 ms przy
+  60 FPS); symulacja 0,07 ms na krok; 388 wywołań rysowania. Alokacja 17,9 KiB
+  na krok: domyślny odśmiecacz dawał pauzy do 32 ms; aplikacja ma dostrojone
+  tempo GC (`src/app/application.lua:41-42`), wtedy maksimum ok. 5 ms.
+- **Dane i pamięć (główne ryzyko):** 529 MiB tekstur przy 83 obrazach (suma PNG
+  po rozpakowaniu 393 MiB); wszystko wczytywane przy starcie
+  (`src/render/assets.lua`, `fresco_enemies.loadAll`); pierwsze wejście galerii
+  822 ms (etapowane). Przy 9 kręgach i ok. 30 demonach szacunkowo ponad 1,5 GiB [H].
+- **Pozostałe:** maski 743 KiB w pamięci, 36 ms budowy (168 klatek); synteza
+  audio ok. 0,5 s przy starcie; dziennik z limitem 64 MiB (ok. 40 minut); pełny
+  TEST ok. 5 minut, showcase 551 zrzutów rośnie z treścią.
+
+## 6. Czego nie da się ocenić bez dodatkowych informacji
+
+- Docelowy sprzęt i budżet pamięci karty graficznej (np. Steam Deck).
+- Planowana skala treści: ile map (kręgów) i demonów.
+- Czy w planach są co-op lub funkcje online.
+- Czy będzie polska wersja językowa.
+- Wielkość zespołu (wpływa na potrzebę CI i podziału modułów).
+
+## 7. Plan zmian
+
+### Teraz
+
+| # | Zmiana | Uzasadnienie | Zakres | Korzyść |
+|---|---|---|---|---|
+| T1 | Naprawić `--benchmark`; dodać szybki przebieg narzędzi QA (benchmark, core-measure, step-study, audio-export) do TEST lub BUILD | Regresja istnieje (3G); narzędzia gniją niezauważone | 1–2 pliki QA + skrypt | Wiarygodne pomiary wydajności |
+| T2 | Paczka dla graczy (EXE + DLL, ok. 95 MiB) oddzielnie od paczki deweloperskiej | Po trailerze gracze pobierają grę; dziś 303 MiB (3H) | `tools/build.ps1`, `tools/verify.ps1` | Paczka ok. 3× mniejsza, bez materiałów QA |
+| T3 (opcj.) | Dziennik pyta rejestr trybów o konstruktor sesji zamiast `if` w `journal.lua:125` | Każdy nowy tryb uderza w infrastrukturę | ok. 20 linii | Nowy tryb nie dotyka dziennika |
+
+### Przed drugą mapą (krąg)
+
+| # | Zmiana | Uzasadnienie | Zakres | Korzyść |
+|---|---|---|---|---|
+| M1 | „Mapa posiada scenografię”: rekwizyty, ołtarze, łuk portalu, znaki strażnika i sekretu, zapasy i strażnik, pady galerii, kapliczka trafiają do `content/maps/<id>.lua`; renderer rysuje ogólną listę `decor`; tryby i renderer pytają o miejsca mapę lub tryb | 3A blokuje wizję 9 kręgów | Średni: renderer, world_mesh, classic, gallery. Dowód: zrzuty Limbo identyczne bajt w bajt przed i po | Nowy krąg = głównie plik danych |
+| M2 | Manifest zasobów per mapa + wczytywanie i zwalnianie przy przejściu (rozszerzyć etapowe ładowanie galerii) | 529 MiB tekstur już dziś, wszystko naraz | Średni | Pamięć rośnie z mapą, nie z całą grą |
+| M3 | Podłoga ≠ 0 w rendererze — dopiero gdy mapa tego wymaga | ARCHITEKTURA pkt 13 | Mały–średni | Poziomy, schody |
+
+### Przy konkretnej potrzebie
+
+| # | Kiedy | Zmiana | Korzyść |
+|---|---|---|---|
+| P1 | Nowy rodzaj ataku | Rejestr prezentacji ataków obok `Kinds` zamiast `if` w `effects.lua`, `animation.lua`, rendererze (3D) | Atak = symulacja + jeden wpis prezentacji |
+| P2 | Trzecia grafika broni | Rejestracja arkuszy broni w `content/` (jak `ability_art`) (3E) | Broń bez edycji renderera |
+| P3 | Nowe narzędzia poligonu | Stanowiska jako dane, akcje katalogu jako tabela, podział `test_field.lua` (3C) | Mniejszy plik o jednej roli |
+| P4 | Kampania / hub | Nawigacja sesji („skąd i dokąd wraca”) zamiast `fieldReturn`; zapis niezwiązany z samą wyprawą | Spójne przejścia i zapisy |
+| P5 | Każdy dotknięty ekran (zasada skauta) | Ekrany i renderer pytają tryb zamiast czytać `g.run` (3B) | Tryby niezależne od siebie |
+
+### Odłożyć (brak konkretnej potrzeby)
+
+Lokalizacja (do decyzji o polskiej wersji), co-op i sieć, kompresja tekstur
+(DDS/BC — gdy pamięć stanie się problemem), sprzątanie `require` w funkcjach,
+spłaszczanie pól sesji.
+
+## 8. Czego nie robić
+
+Nie przepisywać renderera od zera, nie budować nowego silnika i nie dokładać
+warstw abstrakcji przed realną drugą mapą. Każda zmiana z punktu 7 ma być
+weryfikowana pełnym TEST, złotym wzorcem i — gdy dotyka obrazu — porównaniem
+zrzutów przed i po.
+
+## 9. Postęp
+
+- [ ] T1 — `--benchmark` + przebieg narzędzi QA
+- [ ] T2 — paczka dla graczy
+- [ ] T3 — konstruktor sesji z rejestru trybów
+- [ ] M1 — mapa posiada scenografię
+- [ ] M2 — manifest zasobów per mapa
+- [ ] M3 — podłoga ≠ 0
+
+
+########################################################################
+PLAN-ROZWOJU-v6.md
+########################################################################
+# SIGIL: BREACH — PLAN v6 (szkic do akceptacji): hitboxy i wnioski z testu 0.25
+
+> **ZASTĄPIONY przez PLAN-ROZWOJU-v7.md (2026-10-22).** Nie wdrażać. Część wniosków
+> poniżej jest błędna (numery klatek bossa, „odsłonięcie”, metryka „powietrza”,
+> etapy H1 i H5) — korekty w v7, sekcja 1.2. Dokument zostaje jako historia.
+
+Stan: 2026-10-22, po wersji 0.26. Nic z tego planu nie jest jeszcze wdrożone.
+Dane: Twoja sesja (telemetry.txt), przegląd hitboxów `work/qa-v26/hitbox-review.txt`,
+`hitbox-review.csv` i arkusze `hitbox-<demon>.png`.
+
+## 1. Hitboxy — co zmierzono
+
+Przegląd porównuje bryły trafień z namalowaną sylwetką każdej klatki (rycerz 8 m przed
+demonem). „Powietrze” to część brył nad przezroczystymi pikselami (strzał trafia
+w nic), „pokrycie” to część namalowanego ciała w bryłach (skrzydła, rogi, płaszcze
+są poza bryłami celowo).
+
+| Demon | pokrycie | powietrze | najgorsza klatka | głowa w powietrzu (średnio / najgorzej) |
+|---|---|---|---|---|
+| Sługa | 64 % | 41 % | 18: 74 % | 40 % / 100 % (klatka 16) |
+| Żelazny | 71 % | 35 % | 18: 69 % | 27 % / 100 % |
+| Akolita | 49 % | 31 % | 17: 65 % | 24 % / 100 % |
+| Ogrodnik | 63 % | 28 % | 12: 62 % | 19 % / 100 % |
+| Margrabia | 73 % | 36 % | 12: 67 % | 51 % / 100 % |
+| Furfur | 58 % | 46 % | 18: 65 % | 45 % / 99 % |
+
+Najważniejsze wady (widoczne na arkuszach):
+1. **Przewrócenie i upadek** (klatki 14–18 / 10–12): bryły stoją pionowo, głowa wisi nad
+   leżącym ciałem. Przewrócony demon żyje — strzał w powietrze nad nim to „głowa”,
+   a prawdziwa głowa na posadzce to „nogi”.
+2. **Słaby punkt bossa w pozach chwiania** (Margrabia 7, 8, 10): czaszka schodzi niżej
+   niż bryła głowy, więc strzał w nią trafia tułów z pancerzem 30 zamiast 0 —
+   „odsłonięcie” traci sens dokładnie wtedy, gdy ma działać.
+3. **Jedna bryła nóg** obejmuje przerwę między nogami (główne źródło powietrza).
+4. **Pozy z pochyleniem** (zamach, ból): głowa przesunięta w bok względem bryły.
+
+## 2. Hitboxy — propozycja etapów
+
+- **H1 narzędzie kalibracji**: przegląd proponuje dla każdej klatki pasma i środki
+  (głowa = zwarta grupa pigmentu najwyżej w osi ciała, tułów, nogi), zapisuje je jako
+  dane `hit_volumes` do przejrzenia na arkuszu; człowiek zatwierdza, nie zgaduje liczb.
+- **H2 pozy leżące**: bryły leżące (poziome walce) dla przewrócenia i upadku, z danych
+  klatki; trafienie w głowę na posadzce to głowa.
+- **H3 nogi**: dwie bryły nóg zamiast jednej, tam gdzie nogi są rozstawione.
+- **H4 słabe punkty bossów**: głowa śledzi czaszkę w pozach chwiania i zamachu.
+- **H5 strażnik**: test z progami (powietrze średnio ≤ 20 %, głowa ≤ 15 %, żadna żywa
+  poza z głową > 50 %) i zapadką, która pozwala liczbom tylko maleć.
+Weryfikacja: złoty wzorzec zmieni się (trafienia to symulacja) — nowa baza i opis
+w ZMIANY; populacje botów przed i po; test anatomii głów bez zmian.
+
+## 3. Wnioski z Twojej sesji 0.25 (potyczka na poligonie, 223 s, 40 zabójstw)
+
+| Miara | Ty | boty wprawne | cel D7 |
+|---|---|---|---|
+| Czas kontroli | 8,5 % | 3,9 % | 8–12 % — spełniony w grze |
+| Zabójstwa przełamane | 43 % | 16 % | 15–25 % — powyżej |
+| Idealne uniki | 2 | 1,2 / przebieg | ≥ 1 na falę |
+| Trafienia | 129 / 148 | — | — |
+
+Do decyzji: zabójstwa przełamane u człowieka są prawie 3× częstsze niż u botów
+(rewolwer łamie gardę, strzelba dobija). Leczenie wyniosło tylko 26 HP w 223 s, więc
+pętla nie jest za mocna w liczbach HP, ale przekracza cel udziału. Opcje: zostawić
+(cel był szacunkiem), skrócić okno 2 s -> 1 s, albo zmniejszyć leczenie. Potrzebna
+druga sesja w próbie fal (nie tylko potyczka), żeby ocenić to rzetelnie.
+
+## 4. Inne rzeczy na później
+- Dziennik poleceń poligonu nie zapisuje akcji katalogu (spawn, stacje): powtórka
+  sesji poligonu wymaga dodania tych akcji do dziennika.
+- Renderer rysuje od podłogi 0 (symulacja zna Ground.height).
+- Mana i dalsze zaklęcia (sloty F i C już mają klawisze).
+
+
+########################################################################
+PLAN-ROZWOJU-v5.md
+########################################################################
+# SIGIL: BREACH — PLAN v5: dopracowanie rdzenia (feeling, logika, matematyka, fizyka, silnik)
+
+Stan: przyjęty 2026-10-22 z rekomendacjami D1–D8. **Wdrożone w 0.25: G0–G5 i G7**
+(opis i pomiary: ZMIANY-0.25.txt). **G6 wdrożone w 0.26** po Twoim teście: broń
+wtopiona w scenę, podskok widoku i łomot strzału, pomiar hitboxów (ZMIANY-0.26.txt).
+Cele D7 po Twojej sesji: kontrola 8,5 % (spełniony), zabójstwa przełamane 43 %
+(powyżej 15–25 %, decyzja w PLAN-ROZWOJU-v6.md), idealne uniki 2. Dodane ponad plan:
+idealny unik przez powidok (bez niego cel D7 był nieosiągalny). Następny: plan v6.
+
+## 0. Werdykt: czy to podejście ma sens
+
+**Tak, ale z dwoma zastrzeżeniami.**
+
+- Teraz jest właściwy moment. Jedna arena, dwie bronie i sześć demonów oznaczają, że poprawka fundamentu (ciała, wysokość podłoża, sterowanie, przeładowanie jako dane) kosztuje tyle co jeden plik. Po dodaniu map, broni i zaklęć ta sama poprawka objęłaby każdy z nich.
+- **Zastrzeżenie 1: „perfekcja” musi mieć liczby.** Bez celów (czas kontroli, udział zabójstw przełamanych, obrażenia na falę, długość walki) strojenie nie ma końca. W etapie G0 proponuję cele do Twojej akceptacji.
+- **Zastrzeżenie 2: feelingu nie zmierzą boty.** Boty mają idealną wiedzę: nigdy nie robią uniku i nie rzucają prochu (0 w każdym raporcie). Warstwy techniczne (G0–G3) da się zrobić i zweryfikować samemu. Strojenie odczucia i balansu (G4–G5) wymaga Twojego ręcznego testu. Dlatego G0 dodaje narzędzia, dzięki którym Twoja sesja zostawia dane: dziennik plus telemetrię.
+- Czego nie dopracowywać teraz: ekonomii wyprawy i sklepu. Wyprawa jest ukryta w menu („The expedition waits until the combat is forged”), więc strojenie jej teraz to praca do wyrzucenia. Skupiamy się na walce: poligon, próba fal, potyczka.
+
+## 1. Zakres przeglądu
+
+Przeczytane w całości:
+- sesja i systemy: game, state, simulation, systems/*, listeners, damage_outcomes, interactions, capabilities, fields, journal, presentation, event_catalog;
+- rycerz: player/feel, intent, movement_gait, physics/*;
+- walka: combat, ballistics, damage, rules/* (8 części), melee, projectiles, reload, abilities, explosives, telemetry;
+- demony: enemies/ai, actions, body, corpse, hazards, geometry, animation;
+- dane: tuning, combat_defaults, wszystkie stworzenia, knight, enemies, conditions, defs (action, creature, body), weapons, abilities, waves;
+- tryby i świat: run/spawner, modes, descent, część test_field, world/arena, limbo_layout;
+- aplikacja: application, input, main;
+- odczucie: feedback/weight, weapon_motion, listeners, shot_feedback, world_feedback;
+- rdzeń: core/events, scheduler.
+
+Do tego raporty QA 0.24 (ai-audit, playtest-*, balance) i świeży pomiar `--benchmark`.
+
+## 2. Stan zmierzony
+
+| Pomiar | Wartość | Uwagi |
+|---|---|---|
+| Model człowieka (5 profili), fale 1–5 | wygrane 5/5, obrażenia 93–142, czas kontroli **2,1–4,5 %**, czas zabójstwa 3,9–5,4 s | zdrowie odnawiane po fali |
+| Zabójstwa przełamane (model człowieka) | **1 na 39** (leczenie 7,5 HP) | bot idealny: 13 na 39 |
+| Idealne uniki / ładunki prochu | **0 / 0** we wszystkich botach | mechaniki niezmierzone |
+| Audyt AI 60 s | 0 utknięć, anulowania 0–1 | dobrze |
+| Symulacja, 20 demonów | 0,06 ms mediana, 0,25 ms p95 na krok | zapas ogromny |
+| Rysowanie, 20 demonów | 1,45 ms submit, 362 draw calls | dobrze |
+| Pierwsza klatka świata | **861 ms** (shadery, atlas cieni) | przycięcie przy wejściu do gry |
+| Alokacja Lua na klatkę | 5,7–8,2 KiB | ryzyko mikroprzycięć GC przy wysokim FPS |
+
+**Wniosek balansowy (technicznie).** Pętla „przełam, potem zabij = leczenie” (0.24) prawie nie działa w grze człowieka. Strzelba zadaje Słudze 240 obrażeń z bliska przy 112 HP, więc zabija przed jakimkolwiek przełamaniem. Czas kontroli 3 % oznacza, że demony prawie nigdy nie są wybijane z akcji. To decyzja projektowa, nie błąd (punkt 8, D5).
+
+## 3. Ustalenia
+
+### A. Logika i spójność (bez zmiany rozgrywki)
+
+| # | Co | Gdzie |
+|---|---|---|
+| A1 | Liczba ładunków uniku wpisana jako `2` w 4 miejscach, mimo że jest `Tuning.knight.dashCharges` | `session/damage_outcomes.lua:76`, `run/descent.lua:59, 385`, `run/test_field.lua:69` |
+| A2 | Poligon zakłada dwie bronie (`{id=1,'EXORCIST'},{id=2,'JUDGE'}`) i `hp=100`, `armor=100` | `run/test_field.lua:26, 69` |
+| A3 | Glif `choke` jest w kodzie (`spread 0.72`), a `pierce` w danych | `content/weapons.lua:256` |
+| A4 | Przeładowanie: progi czasu (0,26 / 0,82 / 0,68 / 0,20…) w kodzie; symulacja tworzy łuski w `g.view.shells` (zapis prezentacji z symulacji) | `combat/reload.lua:28–97, 45–55` |
+| A5 | Martwy kod mapy: atrapa `limbo_layout` (`ceiling()` zawsze false), `w.expanded` nigdy nie ustawiane, nieużywane `B.falloff` | `combat/ballistics.lua:50, 131`, `combat/explosives.lua:153`, `systems/clocks.lua:4` |
+| A6 | Zapasowe wartości danych w kodzie (`pickup.amount or 25`) i liczby bez nazwy w regułach (rana 1,6 / 1,2 s, `slamLock` 0,3, tarcie 6, zasięg Żaru 2,8, znajdźka 0,7, rzut zabijający 1,35 + 0,65·n) | `session/interactions.lua:36, 175, 201`, `rules/hit_response.lua:41, 90`, `rules/knight.lua:52, 65, 70`, `combat/explosives.lua:96–97` |
+| A7 | `shotAge`/`swapAge` to pola symulacji, ale czyta je tylko prezentacja; ustawiają je dwa słuchacze prezentacji | `feedback/shot_feedback.lua:17`, `feedback/weight.lua:73` |
+| A8 | Ruch myszy zmienia `player.yaw` z pominięciem fasady (dziennik łapie celowanie tylko przy następnym poleceniu) | `app/input.lua:53–57` |
+| A9 | Kod wyprawy pyta `if g.testField` w 10 funkcjach, choć tryby mają rejestr | `run/descent.lua` |
+| A10 | Klawisze na sztywno; zaklęcia ze slotu 2+ nie mają klawisza (`Q` = tylko slot 1) | `app/input.lua:27–34, 149` |
+
+### B. Matematyka
+
+| # | Co | Gdzie |
+|---|---|---|
+| B1 | `armorLoss` (raport, iskry pancerza) ignoruje pancerz miejsca i „odsłonięcie”. Strzał w gołą czaszkę Margrabiego pokazuje pancerz. | `combat/damage.lua:162` |
+| B2 | Przebicie liczy koszt z `armorRating`, a nie z pancerza trafionego miejsca | `combat/combat.lua:204` |
+| B3 | Iloczyn efektów stanów w kolejności `pairs` (teoretyczne ryzyko determinizmu między wersjami LuaJIT) | `rules/conditions.lua:31` |
+| B4 | Rycerz dostaje połowę obrażeń od uderzenia o mur (`* 0.5`) bez nazwy i opisu — wbrew „jednemu prawu” | `rules/knight.lua:70` |
+
+### C. Fizyka
+
+| # | Co | Gdzie |
+|---|---|---|
+| C1 | **Rycerz przechodzi przez demony.** Ruch rycerza zderza się tylko z kaflami, a rozsuwanie działa tylko demon–demon. Demon może stać „w” rycerzu. | `player/feel.lua:191`, `enemies/ai.lua:388` |
+| C2 | Rozsuwanie demonów ignoruje masę: Sługa przepycha Żelaznego tak samo jak odwrotnie | `enemies/ai.lua:403–405` |
+| C3 | Świat zakłada podłogę na y = 0 w 7 miejscach (skok, ładunek, pociski, zwłoki, doskok, kałuże, strzał w podłogę). Mapa z poziomami wymagałaby edycji każdego z nich. | `physics/kinematics.lua`, `combat/explosives.lua:96`, `combat/ballistics.lua:124`, `enemies/body.lua`, `enemies/actions.lua:438` |
+| C4 | Pościg poza zasięgiem wzroku idzie od środka do środka kafla (schodki), a pole przepływu liczone jest osobno dla każdego demona co 0,65 s, z tablicą na węzeł | `enemies/ai.lua:107–129`, `world/arena.lua:101` |
+| C5 | Wybuch sprawdza rycerza na wysokości `1` zamiast z ciała | `combat/explosives.lua:75` |
+| C6 | Zatrzymanie trafienia (`impactSlow`) wstrzymuje tylko decyzje demonów; pociski, kałuże i zwłoki lecą dalej | `enemies/ai.lua:427` |
+
+### D. Feeling
+
+| # | Co | Gdzie |
+|---|---|---|
+| D-1 | Zachwiany rycerz: broń opada o 9 px („bezradność widać w dłoniach”), a mimo to strzela normalnie | `feedback/weapon_motion.lua:174`, `combat/combat.lua:61` |
+| D-2 | Przeładowania Sędziego (1,85 s) nie da się przerwać spustem, nawet z 5 nabojami w bębnie | `combat/combat.lua:62` |
+| D-3 | Czułość myszy niesymetryczna: pion 0,0021 vs poziom 0,0023 (−8,7 %); pochylenie ograniczone do ±0,9 rad (±52°) | `app/input.lua:53–55` |
+| D-4 | 861 ms przycięcia przy pierwszej klatce świata | benchmark |
+| D-5 | Pętla przełamania i leczenia niewyczuwalna (sekcja 2) | dane |
+
+## 4. Co już istnieje i zostanie wykorzystane
+
+- **Prawo zderzenia ciał** `physics/body_physics.lua: P.contact` (zachowuje pęd, bez tworzenia energii) — posłuży do kontaktu rycerz–demon (C1) i rozsuwania według masy (C2).
+- **Prawo pchnięcia i sufit** `R.shove`, `R.addPush` — rycerz popychany przez demona używa tego samego.
+- **Telemetria** `combat/telemetry.lua` i **dziennik** `session/journal.lua` (`--record`, F9) — Twoja sesja da dane bez nowego mechanizmu, wystarczy zapis automatyczny.
+- **Rejestr mechanizmów przeładowania** (`Reload.mechanisms`) — progi czasu przejdą do danych mechanizmu, a nowa broń (dźwignia, magazynek) będzie jednym wpisem.
+- **Glify jako dane** (`glyphs.set/scale`) — `choke` stanie się takim samym wpisem (skala rozrzutu).
+- **Rejestr trybów i polityka** (`Modes`, `Capabilities`) — wyprawa przestanie znać poligon.
+- **Złoty wzorzec, test headless, test rozszerzalności, zapadka liczb** — pilnują każdego etapu.
+- **Modele człowieka** (`qa/scenarios/playtest.lua`) — dostaną unik na zapowiedź i rzut prochem.
+
+## 5. Etapy
+
+Każdy etap kończy się: FORMAT, pełne testy, porównanie złotego wzorca, krótki raport.
+
+- **[=]** — rozgrywka bez zmian, złoty wzorzec identyczny.
+- **[Δ]** — celowa zmiana rozgrywki: nowa baza złotego wzorca, wpis w ZMIANY z liczbami (czas kontroli, czas zabójstwa, obrażenia otrzymane).
+
+### G0. Pomiar i cele [=]
+- Boty: model człowieka robi unik na zapowiedź (z czasem reakcji modelu) i rzuca proch w grupę ≥ 2. Raport populacji pokazuje idealne uniki, ładunki, udział zabójstw przełamanych oraz telemetrię osobno dla każdej fali.
+- Benchmark: najdłuższa pauza GC i czas pierwszej klatki jako stałe wiersze raportu.
+- Twoja sesja zostawia dane: koniec próby fal, potyczki lub śmierć zapisuje `telemetry-<czas>.txt`, a z `--record` także dziennik.
+- Proponowane cele (do akceptacji, D7).
+- Weryfikacja: złoty wzorzec identyczny (zmiany tylko w `qa/`), nowe wiersze raportów.
+
+### G1. Spójność i dług [=]
+- A1, A2, A3: wartości z danych (ładunki uniku, broń z loadoutu, ciało rycerza, glif `choke` jako `scale.spread`).
+- A4: progi przeładowania w danych mechanizmu; łuski tworzy słuchacz `ReloadStage` (prezentacja).
+- A5: usunięcie atrapy `limbo_layout` i martwych ścieżek (`expanded`, `ceiling`, `B.falloff`).
+- A6: nazwy dla liczb, usunięcie `or 25` (wartość domyślną daje schemat znajdźki); zapadka liczb obniżona.
+- A7: `shotAge`/`swapAge` przeniesione do `g.view`.
+- A8: polecenie `Game:aim(dYaw, dPitch)`; dziennik zapisuje celowanie jako polecenie i nadal czyta stare wpisy `aim`.
+- B1: jedna funkcja „efektywny pancerz miejsca” dla obrażeń i raportu.
+- B3: stany w kolejności katalogu.
+- Weryfikacja: złoty wzorzec identyczny, zapadka liczb niższa, test „dziennik z poleceniem aim odtwarza bit w bit”, testy regresji dla A1 (3 ładunki z danych działają wszędzie) i B1.
+
+### G2. Silnik pod rozbudowę [=]
+- C3: jedno zapytanie `Ground.height(world, x, z)` w warstwie physics (na Limbo zwraca 0), użyte we wszystkich 7 miejscach.
+- C4 (część techniczna): wspólna pamięć pola przepływu na (kafel celu, rewizja świata) i kolejka tablicowa — ten sam BFS, mniej alokacji.
+- A9: wyprawa nie zna poligonu; obsługa poligonu przechodzi do jego trybu.
+- A10: przypisania klawiszy jako dane (domyślnie identyczne) i klawisze dla slotów umiejętności 2+.
+- D-4: rozgrzanie shaderów i atlasu cieni podczas ładowania menu.
+- Pule gorących tablic (kontekst ciosu, zdarzenia) tylko wtedy, gdy G0 pokaże pauzy GC > 1 ms.
+- Weryfikacja: złoty wzorzec identyczny, benchmark przed i po, test „druga mapa z podłogą na innej wysokości” (wysokość podłogi tylko w teście).
+
+### G3. Fizyka ciał [Δ]
+- C1: kontakt rycerz–demon tym samym prawem `P.contact` (masy: rycerz 1,5, Sługa 1, Żelazny 1,4, bossowie 8,3). Żywe ciała blokują, zwłoki nie. Wariant uniku: D1.
+- C2: rozsuwanie demonów według udziału mas.
+- C4 (część ruchowa): wygładzanie trasy — ruch do najdalszego widocznego kafla trasy zamiast do środka sąsiada.
+- C5, B4: wysokość wybuchu z ciała; udział rycerza w uderzeniu o mur jako nazwana dana albo jedno prawo (D8).
+- Weryfikacja: testy (brak nakładania rycerza i demona po 60 s naporu, zachowanie pędu, Żelazny przepycha Sługę bardziej niż odwrotnie), audyt AI (0 utknięć, 0 anulowań), populacja przed i po (czas kontroli, czas zabójstwa, obrażenia), nowa baza złotego wzorca i wpis w ZMIANY.
+
+### G4. Odczucie walki [Δ] (według Twoich decyzji D1–D4, D6)
+- D-1: zasada strzału w zachwianiu.
+- D-2: przerwanie przeładowania spustem.
+- C6: zakres zatrzymania trafienia.
+- D-3: symetryczna czułość i zakres pochylenia.
+- Weryfikacja: testy wejścia (prawdziwe callbacki), oś czasu broni (`weapon-timeline`), populacja, ZMIANY.
+
+### G5. Matematyka i pętla nagrody [Δ] (decyzja D5 + dane z G0 i Twojej sesji)
+- D-5: wybrany wariant pętli przełamania.
+- B2: przebicie liczone z pancerza miejsca.
+- Strojenie do celów z D7: tabele czasu zabójstwa (broń × demon × dystans × strefa) i obrażeń na falę próby; aktualizacja `docs/matematyka`.
+- Weryfikacja: populacja mieści się w celach, złoty wzorzec, ZMIANY z tabelami przed i po.
+
+### G6. Twoja sesja i strojenie
+- Grasz na wersji po G3–G5 (albo równolegle na 0.24 — na tym, który wybierzesz). Pliki telemetrii i dziennika trafiają do mnie, a ja stroję według nich i Twoich uwag.
+
+### G7. Wydanie 0.25
+- Wersja w `release.lua`, `ZMIANY-0.25.txt`, ARCHITEKTURA i KONWENCJE, BUILD (testy, paczka, weryfikacja EXE, ZIP).
+
+Kolejność: G0 → G1 → G2 → G3 → G4 → G5 → G6 → G7. Twój ręczny test 0.24 może iść równolegle z G0–G2, bo te etapy niczego w grze nie zmieniają.
+
+## 6. Jak to zachowa się przy rozbudowie (roadmapa)
+
+- **Mapy:** `Ground.height` i brak atrap Limbo oznaczają, że mapa z poziomami, mostem albo schodami nie wymaga zmian w 7 systemach. Wspólne pole przepływu skaluje się z rozmiarem mapy i liczbą demonów.
+- **Hub/baza:** tryb poligonu odcięty od wyprawy to wzór dla trybu bazy; przypisania klawiszy jako dane obsłużą ekrany bazy i interakcje.
+- **Więcej demonów:** kontakt ciał i rozsuwanie według masy działają dla każdego nowego ciała z samej definicji (masa, promień). Przyszli sojusznicy dostaną to samo prawo.
+- **Więcej broni:** przeładowanie i glify jako dane: broń z dźwignią lub magazynkiem to wpis mechanizmu; modyfikator rozrzutu, obrażeń czy przebicia to wpis glifu.
+- **Zaklęcia:** sloty 2+ mają klawisze; `Cast.kinds` bez zmian; mana nadal odłożona.
+- **Powtórki i raporty błędów:** celowanie jako polecenie oznacza, że dziennik jest kompletny bez zgadywania.
+
+## 7. Weryfikacja zasad punkt po punkcie
+
+| Zasada | Jak plan ją spełnia |
+|---|---|
+| Odpowiedzi po polsku | Tak; komentarze w kodzie po angielsku (KONWENCJE 9) |
+| Bez zatrzymywania w połowie, raport po etapie | Wszystkie decyzje zebrane z góry (sekcja 8); potem etapy idą do końca z krótkimi raportami |
+| Balans opisany technicznie | Każdy etap [Δ] raportuje czas kontroli, czas zabójstwa i obrażenia otrzymane, przed i po |
+| Zmiany techniczne nie zmieniają gry, wyglądu ani starych zapisów | G0–G2 = [=] ze złotym wzorcem identycznym. Format zapisu SIGIL07 bez zmian. Dziennik czyta stare wpisy `aim`. Wygląd bez zmian (rendery i audyt UI) |
+| FORMAT, pełne testy, złoty wzorzec po etapie; regresje przed dalszą pracą | W definicji każdego etapu |
+| Kod jako baza pod rozbudowę, wzorce, dane | Strategia (mechanizmy, glify, tryby), dane zamiast liczb, jedno zapytanie podłoża, jedno prawo ciał |
+| Token HF | Nie dotykam, nie zapisuję |
+| Granice warstw / 0 krawędzi symulacja → prezentacja | A4 i A7 usuwają zapisy prezentacji z symulacji; `Ground` w warstwie physics; nowe krawędzie = błąd checkera |
+| Emiter dla każdego zdarzenia | Nowe zdarzenia (np. kontakt rycerz–demon) wchodzą do katalogu razem z emiterem i słuchaczem |
+| Zapadka liczb (tylko maleje, nowy plik = 0) | A6 i G1 obniżają; nowe liczby trafiają do `content/` |
+| Pułapki: cudzysłowy „” w PowerShell, UTF-8 bez BOM, `a and f()` | Teksty przez Edit; zapis bez BOM; wielowynikowe wywołania bez `and` |
+| Szablon modułu, nazwy, `:` vs `.` | Nowe moduły (`physics/ground.lua`, przypisania) według szablonu |
+| Brak fallbacków danych w kodzie | A6 usuwa `or 25`; wartości domyślne ze schematu |
+| Definicje tylko do odczytu | Bez zmian; test niezmienności zostaje |
+| Pole bytu w komponencie, pole sesji w `fields.lua` | Nowe pola (np. kontakt rycerza) najpierw w schemacie komponentu i katalogu pól |
+| Kolejność kroku tylko w `systems/index.lua` | Kontakt rycerz–demon jako nazwany system wpisany tam |
+| Losowanie tylko z `g.rng.sim` | Plan nie dodaje losowości |
+| Polecenia przez fasadę | A8 domyka ostatni wyjątek (mysz) |
+| Bez rozróżniania demonów po nazwie | Kontakt i rozsuwanie czytają masę i promień z ciała |
+| Stan broni i umiejętności tylko w `arsenal` / `abilityState` | Przerwanie przeładowania (D-2) i ładunki uniku z danych bez nowych pól poza rekordami |
+| Każdy naprawiony błąd ma test regresji | Wymienione w weryfikacji etapów |
+
+## 8. Decyzje do podjęcia przed startem (D1–D8)
+
+| # | Pytanie | Moja rekomendacja |
+|---|---|---|
+| D1 | Rycerz a ciała demonów | Żywe ciała blokują także w uniku (bez przenikania); zwłoki nie blokują |
+| D2 | Strzał w zachwianiu rycerza (0,22–0,49 s) | Blokada strzału na czas zachwiania (spójne z opuszczoną bronią, zasada soulslike) |
+| D3 | Przerwanie przeładowania Sędziego | Spust przerywa przeładowanie przed momentem ładowania (1,16 s), jeśli w bębnie są naboje; bęben zamyka się w 0,25 s |
+| D4 | Zatrzymanie trafienia | Przełamanie gardy rycerza (0,06 s) zatrzymuje też pociski i kałuże; zamrożenie po idealnym uniku (0,25 s) zostaje tylko dla demonów |
+| D5 | Pętla przełamania i leczenia | Leczenie za zabójstwo ciała przełamanego **lub zranionego w ostatniej 1,0 s**; ostateczne liczby po danych z G0 |
+| D6 | Mysz | Czułość symetryczna (pion = poziom); pochylenie ±1,2 rad (±69°) |
+| D7 | Cele „perfekcji” (model człowieka, próba fal) | Czas kontroli 8–12 %; zabójstwa przełamane 15–25 % zabójstw; ≥ 1 idealny unik na falę u modelu z unikami; żadna zapowiedź < 0,45 s (już spełnione) |
+| D8 | Rycerz o mur: połowa obrażeń | Zostawić połowę jako nazwaną daną `knightSlamShare = 0.5` (bez zmiany gry) |
+
+## 9. Czego świadomie nie robię
+
+- Ekonomia wyprawy, sklep i długość wyprawy — wyprawa jest ukryta, strojenie wróci razem z nią.
+- Mana i nowe rodzaje zaklęć — poza zakresem (sloty i klawisze będą gotowe).
+- Hurtowe przepisywanie pętli po `g.enemies` na zapytania ECS.
+- Nowa grafika — rysowanie zmienia się tylko tam, gdzie decyzja D-1 wymaga spójności broni z zasadą.
+
+
+########################################################################
+PLAN-ROZWOJU-v4.txt
+########################################################################
+STATUS (2026-10-22): F0–F9 WDROŻONE. Szczegóły: ZMIANY-0.24.txt część 7,
+ARCHITEKTURA.txt. Pozostałe ograniczenia: ARCHITEKTURA punkt 13.
+
+SIGIL: BREACH / PRZEGLĄD UKŁADU PO MODERNIZACJI E0–E11 I PLAN v4
+
+Stan zmierzony 2026-10-21: 159 plików src (≈ 19 tys. linii), 2623 testy,
+0 problemów architektury, złoty wzorzec bez zmian.
+
+==========================================================================
+1. CZY UKŁAD MA SENS POD PRZYSZŁOŚĆ — OCENA
+==========================================================================
+
+TAK, fundament jest właściwy i nie trzeba go cofać:
+  - warstwy z automatyczną kontrolą (core / content / physics / ...),
+  - dane jako definicje ze schematami i dziedziczeniem (demony, akcje,
+    bronie, rycerz, stany), bez fallbacków w kodzie,
+  - rejestry z unregister (tryby, ekrany, rodzaje ataków, umiejętności,
+    zdarzenia, oferty), test rozszerzalności to potwierdza,
+  - jeden harmonogram systemów, dwufazowe zdarzenia, determinizm
+    (dwa strumienie RNG, złoty wzorzec, Memento, dziennik poleceń),
+  - katalog pól sesji, komponenty ECS, tryb ścisły, zapadka liczb.
+
+ALE pomiar pokazał 7 przyczyn źródłowych, które przy rozbudowie (hub,
+więcej broni, zaklęcia, mapy, demony) zmuszą do edycji wielu plików naraz.
+To nie są błędy działania gry (testy i złoty wzorzec są zielone) — to
+miejsca, gdzie nowa treść wymaga zmian w kodzie zamiast samych danych.
+
+P1. SYMULACJA ZALEŻY OD PREZENTACJI (najważniejsze)
+    20 require z warstw symulacji do feedback/audio/render/ui, m.in.
+    combat/combat -> feedback/effects, impact_response, death_response;
+    enemies/ai -> audio; enemies/body i enemies/animation ->
+    feedback/death_response (poza ciała po śmierci wpływa na bryły
+    trafień, czyli logika symulacji mieszka w feedback); session/listeners
+    -> feedback/listeners; player/feel -> 3 moduły feedback.
+    26 wywołań love.mouse.setRelativeMode i ~50 Audio/notify/burst
+    w run/descent, session/interactions, session/game, test_field.
+    Skutek: nie da się uruchomić symulacji bez grafiki i dźwięku (serwer,
+    szybkie boty, powtórki w tle), prezentacja może niechcący zmienić
+    wynik, każdy nowy tryb powiela „zagraj dźwięk + przechwyć mysz”.
+    tools/check NIE pilnuje kierunku symulacja -> prezentacja.
+
+P2. SESJA (g) MIESZA STAN GRY ZE STANEM WIDOKU
+    Katalog: ~170 pól, z czego ~90 to prezentacja (29 pól weapon*,
+    kamera, odrzut, kopnięcia, serca, ślady). Migawka, złoty wzorzec
+    i zapis muszą je odfiltrowywać; nowy efekt dopisuje pole do sesji.
+
+P3. BRONIE PO NUMERZE SLOTU, POLA AMUNICJI NA SZTYWNO
+    Rycerz ma pola mag/reserve/revolverMag/revolverReserve/breechOpen/
+    cylinderOpen/shotgunReadyAt/revolverReadyAt (12 plików je zna);
+    profil broni wskazuje je przez magField/reserveField. Trzecia broń =
+    nowe pola rycerza, komponent, zapis, HUD, render. Game:switchWeapon
+    ma na sztywno „which == 1 and shotgunReadyAt”, mimo że profil ma
+    readyField (duplikat). UI/HUD/render sprawdzają weapon == 1/2
+    (20 miejsc).
+
+P4. JEDNA UMIEJĘTNOŚĆ NA SZTYWNO
+    Q -> Game.pulse -> Explosives.throw. Rejestr umiejętności istnieje,
+    ale nie ma slotów, rzucania po id ani wspólnego wykonawcy dostaw
+    (demony mają Attacks.kinds, rycerz osobny kod). Zaklęcia nie mają
+    gdzie się podpiąć bez nowego klawisza i nowej ścieżki.
+
+P5. WYGLĄD DEMONÓW W KODZIE PO NAZWIE
+    kind == 'stolas' / 'buer' / 'boss' / 'furfur' w renderer (11),
+    effects (6), animation (5), kolory portali w spawnerze, układ atlasu
+    (extended = {imp, armored, stolas, furfur}). Nowy demon = edycja
+    4–5 plików prezentacji zamiast jednej definicji wyglądu.
+
+P6. MAPA I POZYCJE W KODZIE
+    world/arena buduje jedyną mapę instrukcjami; portale w run/spawner,
+    Ember w session/sanctuary {18, 26}, strefy w limbo_layout, pieczęcie
+    i lampy w arena. Hub/baza albo druga mapa = kopiowanie kodu.
+    world/gallery miesza układ poligonu z rysowaniem (love.graphics).
+
+P7. EKRANY I TRYBY W POŁOWIE NA REJESTRACH
+    Klawisze ekranów są w rejestrze, ale rysowanie i przyciski to
+    łańcuchy if g.state == ... (24 w ui/interface). Trzy oryginalne tryby
+    rozpoznawane po flagach (g.run 50+ odczytów, g.testField 40+),
+    zdolności trybu liczone z flag. 5 zdarzeń w katalogu nigdy nie jest
+    emitowanych (WaveCleared, ModeChanged, GuardBroken, KnockedDown,
+    AttackCancelled). Zapis wyprawy ma limity na sztywno (fala 5,
+    zapas 72, ładunki 3).
+
+==========================================================================
+2. PLAN v4 — ETAPY (każdy: złoty wzorzec identyczny, testy zielone)
+==========================================================================
+
+Zasada jak w E0–E11: najpierw strażnik, potem zmiana, żadnej zmiany
+rozgrywki. Każdy etap kończy się TEST.ps1 -Suite All, identycznym
+złotym wzorcem i nowym testem dowodzącym celu etapu.
+
+F0  STRAŻNICY (mały, najpierw)
+    - tools/check: reguła kierunku „symulacja (combat, enemies, physics,
+      player, run, session, systems, world) nie importuje feedback,
+      render, ui, audio, app”, z zapadką na obecne 20 krawędzi.
+    - Test katalogu zdarzeń: każde zadeklarowane zdarzenie ma emiter
+      (nieużywane: wyemitować w swoim miejscu albo usunąć z katalogu).
+    Weryfikacja: check pokazuje liczbę krawędzi, test zdarzeń zielony.
+
+F1  SYMULACJA BEZ PREZENTACJI (P1)
+    - Poza ciała po śmierci i upadek (Death.pose, stan zwłok) przenieść
+      z feedback/death_response do enemies/corpse.lua (symulacja);
+      feedback zostawia tylko cząstki i krew.
+    - combat/combat, enemies/ai, run/descent, session/interactions,
+      session/game, systems/clocks: dźwięki, napisy, cząstki -> zdarzenia
+      (nowe: SealBroken, SecretFound, WaveCleared, ModeChanged,
+      OutOfAmmo, NoticePosted...) i słuchacze 'present'.
+    - Przechwycenie myszy: pole ekranu Screens.<id>.captureMouse; aplikacja
+      ustawia je przy zmianie ekranu (26 wywołań -> 1 miejsce).
+    - Audio.update przenieść z session/simulation do pętli aplikacji.
+    - player/feel: ruch (player/movement) oddzielić od kamery i broni
+      (feedback/camera).
+    - world/gallery: układ (world) oddzielić od rysowania (render/gallery).
+    Weryfikacja: zapadka F0 = 0 krawędzi; nowy test „headless”: symulacja
+    40 s drill z podmienionym love.graphics/love.audio = błąd przy dotknięciu
+    -> ten sam skrót co złoty wzorzec.
+
+F2  STAN WIDOKU OSOBNO (P2)
+    - g.view = { kamera, odrzut, ruch broni, kopnięcia, serca, ślady... }
+      — ~90 pól prezentacji przeniesionych pod jedną tablicę; katalog pól
+      podzielony na sim i view; migawka/zapis biorą tylko sim.
+    Weryfikacja: katalog sim ≈ 80 pól; złoty wzorzec; migawka mniejsza.
+
+F3  ARSENAŁ PO ID (P3)
+    - Komponent arsenal rycerza: weapons[id] = { mag, reserve, open,
+      readyAt, spent }, loadout = { 'exorcist', 'judge' } (sloty to tylko
+      kolejność). Rejestr broni po id; koniec magField/reserveField i pól
+      revolver*; Game:switchWeapon z profilu (usunięty duplikat readyAt).
+    - HUD, ręce, ikony: dane wyglądu w definicji broni, nie weapon == 1/2.
+    - Adapter zapisu: SIGIL06 czyta/pisze arsenał (format bez zmian).
+    Weryfikacja: test rozszerzalności dodaje 3. broń samymi danymi
+    (strzela, przeładowuje, zapisuje się); złoty wzorzec.
+
+F4  UMIEJĘTNOŚCI I ZAKLĘCIA (P4)
+    - Loadout umiejętności rycerza (slot -> id), Game:cast(slot); Q = slot 1.
+    - Wspólny wykonawca dostaw dla rycerza i demonów (throw dziś;
+      projectile/aoe/buff jako kolejne wpisy), komponent zasobu
+      (ładunki dziś, mana jutro), odnowienie z definicji.
+    - Proch jako pierwszy wpis; Explosives zostaje fizyką ładunku.
+    Weryfikacja: test dodaje zaklęcie (np. pocisk) danymi i rzuca je;
+    złoty wzorzec (proch bez zmian).
+
+F5  WYGLĄD DEMONA JAKO DANE (P5)
+    - Definicja appearance w stworzeniu: atlas, układ (extended/compact),
+      kolor portalu, krew/plama, poświata, skala, profil hit_volumes,
+      haki animacji (np. „ładunek = klatka 10”).
+    - renderer/effects/animation/spawner czytają dane; zero kind == '...'.
+    Weryfikacja: grep kind == '<demon>' w render/feedback/enemies = 0;
+    render-review i ui-audit bez zmian (te same klatki).
+
+F6  MAPY JAKO DANE (P6)
+    - content/maps/limbo.lua: komórki/pokoje, kolumny, pieczęcie, lampy,
+      start, Ember, portale, strefy. world/arena = budowniczy z danych;
+      Spawner.portals, Sanctuary.shrine, strefy z mapy.
+    Weryfikacja: mapa z danych daje identyczną siatkę (test porównuje
+    komórki) i złoty wzorzec; test ładuje drugą małą mapę.
+
+F7  EKRANY DO KOŃCA (P7a)
+    - Screens.<id>: draw(g, s), controls(g, s), captureMouse; ui/interface
+      rozbite na pliki ekranów (menu, pauza, ustawienia, koniec, mapa,
+      pomoc). Zero łańcuchów if g.state.
+    Weryfikacja: ui-layout-audit i rendery identyczne; test nowego
+    ekranu rysuje go bez zmian w interface.
+
+F8  TRYBY I ZAPIS DO KOŃCA (P7b)
+    - Każda sesja nazywa tryb (g.mode); flagi g.run/g.testField zostają
+      tylko jako dane trybu. Zdolności (demonsAct, vulnerable...) z
+      definicji trybu i jego fazy.
+    - Zapis: wersjonowany z migracjami (SIGIL06 -> 07 przez adapter),
+      limity z treści (liczba fal, maks. zapas, pojemność), tryb w zapisie.
+    - F12 w grze: zrzut dziennika poleceń do pliku (raport błędu =
+      dokładna powtórka).
+    Weryfikacja: stare zapisy SIGIL06 wczytują się (test na plikach
+    wzorcowych), złoty wzorzec.
+
+F9  SPRZĄTANIE
+    - Obniżenie zapadki liczb (reload, feel, test_field), zapytania ECS
+      dla zbiorów między pulami (np. „ciała”: demony + rycerz + przyszli
+      sojusznicy), aktualizacja ARCHITEKTURA/KONWENCJE/ZMIANY.
+
+KOLEJNOŚĆ I ZALEŻNOŚCI
+  F0 -> F1 -> F2 (F2 wymaga czystego podziału z F1)
+  F3 -> F4 (umiejętności korzystają z zasobów i slotów jak arsenał)
+  F5, F6, F7 niezależne od siebie (po F1)
+  F8 po F3 i F6 (zapis arsenału i mapy), F9 na końcu.
+  Szacunek wielkości: F1 i F3 duże; F2, F4, F5, F6, F7 średnie;
+  F0, F8, F9 małe/średnie.
+
+CZEGO NIE ROBIĘ (świadomie)
+  - Nie przepisuję pętli po g.enemies na zapytania ECS hurtowo (36 pętli;
+    w LuaJIT tablice są najszybsze, a pule już je opisują) — tylko tam,
+    gdzie potrzebny zbiór z kilku pul.
+  - Nie zmieniam formatu zapisu bez migracji ani balansu rozgrywki.
+
+
+########################################################################
+PLAN-MODERNIZACJI.txt
+########################################################################
+SIGIL: BREACH / PLAN MODERNIZACJI KODU / wersja 3
+Status: propozycja do akceptacji. Kod gry nie jest jeszcze zmieniony.
+Prototyp weryfikujący: tools/spikes/ecs-events (opis w sekcji 11).
+
+=====================================================================
+0. ZAMIAR I DLACZEGO WERSJA 2 BYŁA ZŁA
+=====================================================================
+Zamiar (z poleceń): nie „uporządkować projekt tak, jakby był skończony”,
+tylko zbudować BAZĘ, na której gra urośnie (baza/hub, więcej demonów,
+bossów, broni, zaklęć, map, trybów) bez cofania się i zmieniania
+fundamentów. Czytelność jest skutkiem ubocznym, nie celem.
+
+Błąd wersji 2: oceniała ECS i kolejkę zdarzeń względem DZISIEJSZEJ
+skali (jedna arena) i odrzucała je jako „niepotrzebne teraz”. To jest
+dokładnie decyzja, która później wymusza przebudowę fundamentów.
+Wersja 3 przyjmuje je jako fundament i rozwiązuje oba realne problemy,
+które w wersji 2 posłużyły za powód odrzucenia:
+  - ECS a 4000 miejsc kodu i testów czytających płaskie pola (e.x, e.hp):
+    ECS NA PŁASKICH BYTACH (sekcja 3). Komponent to zadeklarowany zestaw
+    pól bytu, systemy wybierają byty po komponentach. To idiomatyczny
+    model Lua (jak biblioteka tiny-ecs) i nie wymaga przepisania odczytów.
+  - Kolejka zdarzeń a kolejność skutków: magistrala DWUFAZOWA (sekcja 5).
+    Faza symulacji wykonuje słuchaczy natychmiast, w zadeklarowanej
+    kolejności (deterministycznie); faza prezentacji jest kolejką
+    opróżnianą po kroku i nie może zmienić symulacji.
+Prototyp na LÖVE 11.5 potwierdził wydajność, determinizm i kolejność
+(sekcja 11).
+
+=====================================================================
+1. ZAŁOŻENIA (do potwierdzenia)
+=====================================================================
+A1  Gra jednoosobowa. Symulacja deterministyczna (stały krok 1/120 s,
+    jawne ziarno losowości) — to otwiera powtórki, złoty wzorzec testów
+    i ewentualny lockstep sieciowy w przyszłości bez zmiany fundamentu.
+A2  Rozwój: tryb „baza/hub”, kolejne tryby, mapy poza jedną areną,
+    zaklęcia/umiejętności gracza, nowe bronie i mechanizmy, nowe demony,
+    bossowie z fazami, stany (podpalenie, trucizna...), zapisy rozgrywki.
+A3  Zachowanie gry nie zmienia się w trakcie modernizacji (każdy etap
+    sprawdzany złotym wzorcem). Zmiany balansu tylko osobno.
+A4  Zapis gry, testy i grafika działają przez cały czas (etapy wdrażalne
+    pojedynczo, strategia Strangler Fig: nowe obok starego, potem
+    przełączenie, potem usunięcie starego).
+
+=====================================================================
+2. MODEL CAŁOŚCI
+=====================================================================
+
+  DANE (src/content)          — definicje i strojenie, bez logiki
+   defs/      schematy: Body, Creature, Boss, Knight, Action (dostarczenie
+              + ładunek), Weapon, Mechanism, Condition, Supply, Encounter,
+              Level, Mode
+   creatures/ demony (extends = dziedziczenie danych)
+   actions/   ataki demonów i umiejętności gracza (jeden format)
+   weapons/   bronie
+   levels/    areny i ich układy
+   tuning/    nazwane stałe: balance, ai, spawning, scoring, feel, ...
+        │  Loader: extends → wartości domyślne → walidacja (Schema)
+        ▼
+  REJESTRY (core/registry)    — jeden typ rejestru dla wszystkiego
+        │  Prefab: definicja → zestaw komponentów (Factory)
+        ▼
+  ŚWIAT ECS (core/ecs)        — byty = płaskie tablice z komponentami
+   komponenty (sekcja 3), zapytania, odroczone zmiany struktury
+        │  Harmonogram (Scheduler): systemy w jawnej kolejności
+        ▼
+  SYSTEMY SYMULACJI           — logika, sekcja 4
+        │  zdarzenia faza 'sim' (natychmiast, kolejność zadeklarowana)
+        ▼
+  MAGISTRALA ZDARZEŃ (core/events) — sekcja 5
+        │  zdarzenia faza 'present' (kolejka, po kroku symulacji)
+        ▼
+  PREZENTACJA                 — audio, odczucie (feedback), kamera,
+                                animacja, render (przebiegi), UI, pomiary
+  TRYBY (core/modes)          — skirmish, poligon, wyprawa, (baza):
+                                który świat, które systemy, które ekrany
+  USŁUGI (kontekst sesji)     — rng symulacji, rng prezentacji, zegar,
+                                audio, zapis, wejście; przekazywane jawnie
+  POD WSZYSTKIM src/core: Class, Schema, Registry, ECS, Events, Scheduler,
+                          Modes, Rng, Timers, Strict, MathX, Serialize
+
+  Kierunek zależności: dane ← core; systemy → dane, core; prezentacja →
+  (tylko odczyt) świat + zdarzenia; nic nie zależy od prezentacji.
+  Sprawdza to tools/check (sekcja 9).
+
+=====================================================================
+3. ECS NA PŁASKICH BYTACH
+=====================================================================
+Byt: tablica { id, has = {komponenty}, ...pola komponentów }.
+Komponent: nazwa + schemat pól (typ, wartość domyślna, opis, właściciel).
+Prefab: lista komponentów + wartości z definicji (Type Object: byt
+wskazuje na swoją definicję, def). Zapytanie: world:query('health',
+'guard') — lista w kolejności tworzenia, przeliczana tylko po zmianie
+struktury. Zmiany struktury (spawn, destroy, dodanie komponentu) są
+odraczane do końca systemu → brak modyfikacji listy w trakcie iteracji.
+Tryb ścisły w testach: zapis pola spoza zadeklarowanych komponentów bytu
+= błąd (koniec pól dopisywanych „po drodze” — dziś 107 pól demona w 15
+plikach).
+
+Komponenty (z obecnych pól, każde pole ma jeden dom):
+  identity     id, def, kind, variant, displayName, tier*, rewardId
+  transform    x, y, z, facing, yaw
+  collider     radius (z ciała), mass
+  motion       vx, vy, vz, pushX, pushZ, walkVX, walkVZ, walkSpeed, walkAt,
+               walk, blocked, slamLock, collideLock
+  health       hp, maxHp, armorRating, locationArmor, resistances, immune,
+               soak, zones, woundFlash
+  guard        poise, guardQuiet, staggerLock, stun, heavyStagger,
+               knockedDown, knockTime, breakFlash, hitPause
+  conditions   conditions
+  brain        ai, phase, recover, attack, decision, side, threat
+  perception   sense, visible, memory, awake, lastX, lastZ, path, pathTimer
+  attacker     attackSpec, attackKind, attackCount, restUntil, aimX, aimZ,
+               windup, windupDuration, didHit, pendingHazard, packetCache
+  rush         rushVX, rushVZ, rushScale, lungeX, lungeZ, chargeTime
+  flight       leaping, leapY, leapVX, leapVY, leapVZ, landings
+  evade        evadeTime, evadeReady, evadeSide, evadeX, evadeZ, evades
+  corpse       deathTime, fallY, fallVY, fallLanded, deathResponse
+  appearance   hit, flinch, flinchSide, flinchLeanV, spawnAge, previewFrame
+  tags         boss, dummy, armored
+  (gracz)      knight (tarcza, nietykalność, unik, ślizg, skok), intent,
+               inventory (sloty broni; adapter na pola zapisu mag, reserve,
+               revolverMag, revolverReserve), abilities (ładunki, czary)
+  (inne)       projectile, hazard, pickup, gate (portal), lifetime
+
+Dlaczego to skaluje: nowy byt (np. wieżyczka, sojusznik, przedmiot
+interaktywny w bazie) to nowy prefab z istniejących komponentów; nowa
+zdolność to nowy komponent + system, bez dotykania reszty.
+
+=====================================================================
+4. SYSTEMY I HARMONOGRAM
+=====================================================================
+Scheduler: nazwane fazy, systemy w jawnej kolejności (dzisiejsza
+session/simulation.lua staje się jego konfiguracją, ta sama kolejność).
+  input/intent → knightMotion → weapons (spust, salwa) → perception →
+  brain (State: AI.states) → locomotion (Strategy: AI.styles) →
+  actions (Strategy: rodzaje dostarczenia) → flight → projectiles →
+  hazards → contacts (pchnięcia, mury, domino) → balance (garda, stany,
+  timery) → corpses → director/spawner → mode progression
+  → [flush 'present'] → animation → render → ui
+Każdy system: jedna odpowiedzialność, zapytanie o komponenty, stałe
+z tuning, zdarzenia zamiast bezpośrednich efektów.
+
+=====================================================================
+5. ZDARZENIA (magistrala dwufazowa)
+=====================================================================
+  'sim'      słuchacze wykonywani natychmiast w systemie, który emituje,
+             w kolejności (priorytet, potem rejestracja). Mogą zmieniać
+             symulację. Przykład: zabicie → (10) leczenie za przełamanie
+             → (20) nagroda → (30) reżyser tempa.
+  'present'  kolejka opróżniana raz po kroku symulacji: dźwięk, cząstki,
+             kamera, puls ramki, napisy, pomiary. Tylko odczyt symulacji
+             (w testach wymusza to tryb ścisły).
+Katalog zdarzeń (schemat ładunku w rejestrze, nieznane = błąd):
+  ShotFired, VolleyResolved, BodyHit, GuardBroken{heavy}, Countered,
+  KnockedDown, Tripped, Crippled, Wounded, EnemyKilled{offBalance},
+  PlayerHit, PlayerStaggered, PerfectDodge, WallSlam, BodiesCollided,
+  AttackTelegraphed, AttackReleased, AttackCancelled, Landed, Evaded,
+  PortalOpened, EnemyArrived, WaveCleared, PickupTaken, ConditionApplied,
+  ModeChanged.
+Dziś 80 bezpośrednich wywołań efektów w kodzie symulacji (Audio, FX,
+g:burst, Weight, Telemetry) → stają się słuchaczami 'present'.
+Dlaczego to skaluje: nowy efekt, osiągnięcie, samouczek, statystyka,
+narrator, dźwięk — dopisuje słuchacza, nie dotyka systemów.
+
+=====================================================================
+6. DANE: SCHEMATY I DZIEDZICZENIE
+=====================================================================
+Każda definicja przechodzi: extends (łańcuch rodziców) → wartości
+domyślne schematu → walidacja → zamrożenie (tylko odczyt).
+  Body       wspólne dla demonów i rycerza (hp, armor 0, soak 0, resist {},
+             mass 1, poise 36, woundAt .45, radius .25, aimY 1.1, struck,
+             blood, stability = √mass, brace, stagger...)
+  Creature   body + move (styl) + actions + nagroda + atlas; Boss = szablon
+             (boss, stability 1.5, maxAttackers 1, woundAt 1, microStun);
+             fazy bossa jako lista stanów (przygotowane na przyszłość)
+  Action     JEDEN format dla ataków demonów i umiejętności gracza:
+             dostarczenie (melee/lunge, rush/charge, leap, projectile, fan,
+             area/pool, strike/mark, throw) + ładunek (pakiet obrażeń, stan,
+             impuls) + zapowiedź (windup, telegraf) + koszt/odnowienie.
+             Ładunek prochowy gracza staje się Action — tak samo dojdą
+             zaklęcia.
+  Weapon     Firearm (wspólne) → strzelba, rewolwer; fire, mechanism,
+             attack (ładunek), glyphs, amunicja
+  Knight     Body + bryła trafień + tarcza + unik + ruch
+  Condition  efekty (speed, recovery, damage over time, tick), stos
+  Encounter  fale, stada, reżyser; Level: układ areny, portale, światła
+  Mode       które systemy, który świat, które ekrany, postęp
+Plik demona zawiera tylko różnice:
+  return Creature.define({ id = 'armored', extends = 'imp',
+    name = 'Iron Thrall', souls = 12,
+    body = { hp = 170, armor = 60, mass = 1.4, woundAt = 0.40, struck = 'metal' },
+    move = { speed = 3.0, accel = 12 },
+    actions = { claw = { hyper = 2, packet = packet(15, 70) },
+                shoulder = Action.charge({ ... }) } })
+
+=====================================================================
+7. TRYBY, USŁUGI, ZAPIS, POWTÓRKI
+=====================================================================
+Tryby (State + Strategy): rejestr trybów (skirmish, poligon, wyprawa,
+  baza). Tryb składa świat (Level), zestaw systemów, ekrany i postęp.
+  Stos scen (menu → tryb → pauza) zamiast porównań g.state w wielu
+  miejscach. Baza/hub = nowy tryb, nie przeróbka.
+Usługi (kontekst sesji, Dependency Injection): rng symulacji (ziarno
+  sesji, deterministyczny), rng prezentacji (cząstki, warianty dźwięku),
+  zegar, audio, zapis, wejście. Żadnych globali; testy podstawiają usługi.
+Zapis (Memento): każdy komponent deklaruje, co się zapisuje; adapter
+  zachowuje obecny format zapisu wyprawy. Później: zapis pełnego stanu.
+Powtórki (Command): wejście gracza jako komendy z numerem kroku; ten sam
+  mechanizm napędza złoty wzorzec, boty i (w przyszłości) powtórki.
+
+=====================================================================
+8. STAŁE I KONWENCJA ZAPISU KODU
+=====================================================================
+Stałe: każda liczba, którą się stroi, ma nazwę i dom:
+  content/tuning/balance, ai, spawning, scoring, field, explosives, feel
+  ui/palette (kolory), ui/layouts (układ ekranów 1280x720)
+  kalibracja grafiki obok czytającego kodu (enemies/hit_volumes.lua)
+Szablon modułu: nagłówek (cel, właściciel danych, czyta, emituje
+  zdarzenia, API) → require → stałe → prywatne → publiczne → return.
+Nazwy: opisowe i jednoznaczne (Rules, Renderer, Reload, World, Weapons),
+  ':' tylko dla klas z metatabelą, '.' dla modułów. Brak fallbacków
+  danych w kodzie (schemat już uzupełnił).
+docs/KONWENCJE.txt + przepisy „jak dodać”.
+
+=====================================================================
+9. STRAŻNICY (automatyczne pilnowanie bazy)
+=====================================================================
+  - Złoty wzorzec (tests/golden): skrót stanu symulacji dla zestawu
+    scenariuszy, identyczny bit w bit po każdym etapie.
+  - Walidacja definicji i katalogu zdarzeń przy ładowaniu.
+  - Tryb ścisły: niezadeklarowane pola, zapis z fazy prezentacji.
+  - tools/check: warstwy (core/content/physics/ecs), brak cykli, liczby
+    w katalogach logiki tylko w tabelach stałych, brak require przez
+    sklejanie tekstu (rejestry przez jawne pliki indeksu).
+  - Kompletność rejestrów (każdy demon, akcja, broń, tryb, zdarzenie).
+  - Budżet wydajności: krok symulacji przy 300 demonach mierzony w QA.
+
+=====================================================================
+10. ETAPY WDROŻENIA (kolejność z zależności, każdy wdrażalny sam)
+=====================================================================
+Po każdym etapie: FORMAT, testy (2578+), złoty wzorzec identyczny,
+audyt AI i populacja botów bez zmian, kontrola architektury 0.
+
+E0  Siatka bezpieczeństwa: złoty wzorzec scenariuszy, rozdział rng
+    symulacji i prezentacji (cząstki dziś losują z globalnego rng),
+    KONWENCJE.txt. Gotowe: wzorzec zapisany na obecnym kodzie.
+E1  Core: Class, Schema, Registry, Events, ECS, Scheduler, Modes, Rng,
+    Timers, Strict, Serialize (prototyp z tools/spikes jako punkt
+    startu) + testy jednostkowe. Gotowe: core przetestowany, gra bez zmian.
+E2  Dane: schematy i dziedziczenie (Body, Creature, Boss, Knight, Weapon,
+    Condition, Supply), loader z walidacją, tuning/*, usunięcie 41
+    fallbacków. Gotowe: definicje tylko z różnic; wzorzec identyczny.
+E3  Świat i harmonogram: sesja ma ECS i magistralę; simulation.lua jako
+    konfiguracja Schedulera (ta sama kolejność); g.enemies, g.bullets,
+    g.hazards, g.pickups jako widoki zapytań (adapter dla istniejącego
+    kodu). Gotowe: gra działa na świecie ECS, kod czyta jak dotąd.
+E4  Byty z prefabów: demony, pociski, zagrożenia, znajdźki, rycerz;
+    komponenty z sekcji 3; tryb ścisły w testach. Gotowe: żadnego
+    pola poza komponentami.
+E5  Systemy: logika z ai/actions/rules/body/hazards/projectiles
+    przeniesiona do systemów nad zapytaniami (przeniesienie, nie
+    przepisanie; fasady zostają dla testów). Gotowe: każdy system
+    w osobnym pliku, kolejność w Schedulerze.
+E6  Zdarzenia: 80 bezpośrednich efektów → słuchacze 'present';
+    nagrody, leczenie, reżyser → słuchacze 'sim'. Gotowe: systemy
+    symulacji nie wołają audio/FX/feedback.
+E7  Akcje: jeden format Action dla demonów i gracza (dostarczenie +
+    ładunek); ładunek prochowy jako Action. Gotowe: nowy czar = dane.
+E8  Tryby i sceny: rejestr trybów (skirmish, poligon, wyprawa), stos
+    scen, miejsce na bazę. Gotowe: tryb dodawany wpisem.
+E9  Stałe i prezentacja: tuning/feel, palette, layouts, hit_volumes;
+    strażnik liczb w tools/check. Gotowe: strażnik przechodzi.
+E10 Zapis i powtórki: serializacja komponentów, adapter obecnego
+    zapisu, nagrywanie komend wejścia. Gotowe: powtórka sceny daje
+    ten sam skrót co złoty wzorzec.
+E11 Testy i dokumentacja: fixtures/buildery (62 kopie → 1), ARCHITEKTURA,
+    KONWENCJE, przepisy; próbny demon, akcja i tryb dodane i usunięte
+    w teście bez zmian w systemach. Gotowe: przepisy sprawdzone testem.
+
+Kolejność i zależności: E0 → E1 → E2 → E3 → E4 → E5 → (E6, E7, E8
+mogą iść w dowolnej kolejności) → E9 → E10 → E11.
+
+=====================================================================
+11. WERYFIKACJA PLANU (wykonana)
+=====================================================================
+Prototyp tools/spikes/ecs-events (ecs.lua, events.lua, main.lua),
+uruchomiony na toolchain/love-11.5-win64/lovec.exe, krok 1/120 s, 10 s:
+  10 demonów:   0,0030 ms/krok, deterministyczny: tak
+  60 demonów:   0,0033 ms/krok, deterministyczny: tak, słuchacze 'sim'
+                w kolejności priorytetu przy każdym z 60 zabójstw: tak
+  300 demonów:  0,0191 ms/krok (budżet 8,33 ms), deterministyczny: tak,
+                560 bytów z pociskami, zmiany struktury odroczone
+Pomiar kodu: ok. 1900 odczytów płaskich pól w src i ok. 2200 w testach
+(e.x, e.hp, e.ai...) — dlatego ECS na płaskich bytach, nie zagnieżdżony.
+Odtworzenie: z katalogu projektu
+  & toolchain\love-11.5-win64\lovec.exe tools\spikes\ecs-events
+(wynik w konsoli).
+
+=====================================================================
+12. RYZYKA I ŚRODKI
+=====================================================================
+- Rozmiar (E3–E6 dotykają większości src): etapy wdrażalne pojedynczo,
+  adaptery na czas przejścia, złoty wzorzec bit w bit.
+- Równoległe zmiany w src (np. Codex): w trakcie etapu nie edytować src
+  równolegle; grafika/assets bez ograniczeń.
+- Wydajność: zapytania z pamięcią podręczną, walidacja tylko przy
+  ładowaniu, tryb ścisły tylko w testach, budżet mierzony w QA.
+- Rozjazd zachowania przez rng: E0 rozdziela rng symulacji i prezentacji
+  przed jakąkolwiek zmianą.
+
+
+########################################################################
+PLAN-0.17.txt
+########################################################################
+SIGIL: BREACH 0.17 / zakres wdrożenia
+
+1. Zachować ilustracje popiołu i żelaza, jedną arenę i zasady dwóch broni.
+2. Oddzielić osiowy odrzut od reakcji nadgarstka i wygaszania chwytu.
+3. Powiązać małe gesty noszenia z faktycznymi stopami i ruchem pionowym.
+4. Dodać malowane ślady po kulach, krótki tor i dym przy obu broniach.
+5. Sprawdzić położenie śladów na tynku, posadzce i panelach kolumn.
+6. Uruchomić regresje, przegląd sekwencji, kontrolę GUI i pomiar kosztu.
+7. Zbudować osobny EXE/ZIP i zweryfikować kod, archiwa oraz testy paczki.
+
+Bez rozszerzania map, fabuły, magii i łupów.
+Kopia początku: work/backup-before-v17-20261020-212521.
+Odbiór feelingu wymaga również kolejnej gry użytkownika; testy potwierdzają
+kontrakty i czytelność, nie stanowią dowodu subiektywnej perfekcji.
+
+
+########################################################################
+PLAN-0.16.txt
+########################################################################
+SIGIL: BREACH 0.16 — zakres i kolejność
+
+1. Przyjąć dominację B: popiół i surowe żelazo; C tylko na marginesach.
+2. Wygenerować rzeczywiste atlasy broni, portretu, ram i liter.
+3. Zarejestrować każdą pozę i powiązać ją z zachowaną mechaniką.
+4. Usunąć skoki noszenia podczas przeładowania i błędne zegary demonów.
+5. Włączyć aktywne obrazy również do galerii testowej.
+6. Przeprowadzić kontrolę małych opisów, cyfr, portretu i wnętrz ram.
+7. Uruchomić mechanikę, wejście, pięć formatów GUI, arkusze rzeczywistych
+   przeładowań, ataków, oświetlenia, kontaktów i czytelności. Obejrzeć obrazy.
+8. Zbudować osobną wersję Windows i uruchomić jej testy oraz kontrolę SHA-256.
+
+Jeden poziom testowy. Bez rozbudowy świata, fabuły i łupów.
+Zmiany zachowują bazę użytkownika 0.14 i ulepszenia 0.15.
+Kopia początku: work/backup-before-v16-20261020-204620.
+
+
+########################################################################
+PLAN-0.15.txt
+########################################################################
+SIGIL: BREACH 0.15 — PLAN DOPRACOWANIA PODSTAWOWEJ WALKI
+Dokument opisuje zakres i wdrożone rozwiązania kandydata. Końcowy status
+sprawdzeń, audytu obrazów oraz paczki jest zapisywany osobno w work/qa-v15.
+Nie oznacza to, że wszystkie etapy weryfikacji są już zakończone.
+
+CEL TEJ ITERACJI
+Mniej zgubionych naciśnięć, wiarygodniejszy ciężar, uczciwy celownik,
+czytelne potwierdzenie trafienia i kod, w którym wiadomo, gdzie wprowadzić
+poprawkę. Frajda z walki jest hipotezą do sprawdzenia w graniu; sama liczba
+testów ani matematyczna spójność nie dowodzą, że gra stała się przyjemna.
+
+PUNKTY STAŁE
+- Bazą jest nowszy kod użytkownika 0.14, nie poprzednia paczka 0.13.
+- Jedna otwarta arena testowa i galeria pozostają miejscem wszystkich prób.
+- Zachowujemy dwie obecne bronie, fizyczny ładunek Q, przebicie pocisku
+  Sędziego, archetypy jako dane oraz angielskie teksty interfejsu.
+- Zachowujemy świat oglądany jak ożywiony fresk: horror, limbo Dantego,
+  cielesne demony, historyczne znaki i ograniczoną paletę pigmentów.
+- Nie rozwijamy teraz map, fabuły, lootu ani nowego zestawu broni.
+
+1. PRZEGLĄD ZMIAN UŻYTKOWNIKA I ZABEZPIECZENIE BAZY
+Sprawdzić bieżące źródła, istniejące testy i różnicę między źródłami a EXE.
+Nie nadpisywać nowej mechaniki starszym „dobrym” stanem. Odróżnić rzeczywisty
+błąd od nieaktualnego logu albo testu wymagającego innej sceny.
+Przykład: stary log niepowodzenia wall slamu nie odtwarzał się na obecnym
+murze x=24, z=25. Istniejącego oczekiwania 22,8 HP nie zmieniono.
+
+2. UPORZĄDKOWANIE ODPOWIEDZIALNOŚCI — WDROŻONE
+AI prowadzi intencję i stany; wykonanie ataku, zegary zagrożeń oraz fizykę
+ciała mają osobne moduły. Dane są oddzielone od sposobu ich wykonania.
+Usunięto zależność Rules -> AI -> Rules i powtórzone mnożniki stanów.
+Wspólne adaptery preferencji, QA i numeru wydania ograniczają powielanie
+warunków w main.lua. Zachowano stare punkty wywołania potrzebne testom.
+Opis plików i reguł: ARCHITEKTURA-0.15.txt.
+
+3. WEJŚCIE I CIĘŻAR NOSZONEJ BRONI — WDROŻONE
+Krótki tap skoku lub strzału trwa do 120 ms; przytrzymanie działa osobno.
+Na pauzie i po utracie fokusu nie pozostaje „odroczony” cios.
+Dystans po rozwiązaniu kolizji steruje wspólnie ruchem dłoni i dźwiękiem
+kroków. Nie chodzimy wizualnie w miejscu po naciśnięciu klawisza przy murze.
+Sprężyny broni zachowują masę i ruch przy skręcaniu, hamowaniu i lądowaniu.
+Wyłączenie dekoracyjnego ruchu czyści zaległe impulsy natychmiast, również
+w pauzie; nie zmienia amunicji ani zegara gotowości broni.
+
+4. UCZCIWOŚĆ STRZAŁU I REAKCJI — WDROŻONE
+Środek widoku wskazuje rzeczywisty promień strzału także podczas reakcji
+na obrażenie, lądowania i odzyskiwania równowagi. Podbicie viewPunch działa
+w dłoniach zamiast rozjeżdżać kamerę z balistyką.
+Trafienie gracza i uderzenie w mur korzystają z jednej ścieżki raportu:
+HP, pochłonięcie przez osłonę, nadmiar, kierunek i reakcja gardy.
+Slam nie dodaje kolejnego pchnięcia; ciężki dźwięk nie odtwarza się podwójnie.
+Sam kontakt ze ścianą nie zadaje śmiertelnego ciosu i nie podnosi HP
+krytycznie rannego gracza do sztucznego minimum.
+
+5. MATEMATYKA CIAŁ — WDROŻONE
+Normalny impuls kontaktu zależy od względnej prędkości i obu mas.
+Zachowuje całkowity pęd i składowe styczne; nie produkuje energii.
+Oddalające się ciała nie otrzymują kolejnego uderzenia, a samo szybkie
+mijanie nie udaje czołowego kontaktu. Próg reakcji pozostaje w danych.
+Blokada ponownego slamu wygasa także po zatrzymaniu demona.
+Równania i ograniczenia modelu 2.5D: ARCHITEKTURA-0.15.txt.
+
+6. GRAFIKA JAKO INFORMACJA W WALCE — WDROŻONE
+Malowane liczby trafień dostają bezpieczne miejsce poza środkiem celowania.
+Nie przechodzą przez mur, nie przyklejają się do brzegu obrazu po zniknięciu
+celu i nie zostają na ekranie mapy/pauzy. Układ ma limit pracy i używa
+ponownie pól zamiast stale tworzyć nowe tabele.
+Podpisy galerii uwzględniają rzeczywisty obrys malowanych liter, margines
+ozdoby, obszar celownika i ramkę sceny. Całe podpisy mieszczą się albo
+znikają; nie wystają przypadkowo poza planszę.
+To etap czytelności istniejących zasobów, nie deklaracja ponownego
+wygenerowania całego świata lub nowych atlasów postaci.
+
+7. WALIDACJA DO ZAMKNIĘCIA PRZED WYDANIEM
+- Regresje dotychczasowej balistyki, pancerza, animacji i starć.
+- Zachowanie pędu/energii/stycznej dla różnych mas i kierunków.
+- Krótkie naciśnięcie, lądowanie, granica bufora, pauza, mapa, powrót,
+  utrata fokusu, zmiana ustawień bez klatki symulacji pomiędzy zmianami.
+- Zgodność celownika z projekcją faktycznego promienia w prawdziwym rendererze.
+- Pełne obrysy tekstu, cyfry, centra celowania, marginesy i kadry przy różnych
+  rozmiarach okna; nie tylko brak nakładania prostokątów.
+- Rendery walki i galerii ocenione wzrokowo, z zachowaniem spójności fresku.
+- Pomiar wydajności na tej samej scenie i ustawieniach; bez ogłaszania
+  przyspieszenia wyłącznie na podstawie krótszego pliku.
+- Weryfikacja gotowego EXE/archiwum względem końcowych źródeł i osobne
+  uruchomienie testów z gotowej paczki.
+Automatyczne próby korzystają z odrębnej tożsamości zapisu, wyciszenia
+i wirtualnego trybu myszy. Nie mają przejmować sterowania użytkownika.
+
+ŹRÓDŁA I WŁASNE WNIOSKI PROJEKTOWE
+
+A. id Software / GDC 2018, „Embracing Push Forward Combat in DOOM”
+https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-Combat-in
+Zapoznano się z publicznym opisem wystąpienia, nie z całym nagraniem.
+Punktem odniesienia jest związek agresywnego ruchu i działania gracza
+z konstrukcją walki. Nasz wniosek: zanim dodamy nagrody i kolejne systemy,
+podstawowa intencja gracza oraz odpowiedź na kontakt muszą być czytelne.
+Nie jest to twierdzenie, że konkretne liczby lub 120-ms bufor pochodzą
+z DOOM albo są rozwiązaniem optymalnym dla każdej strzelanki.
+
+B. id Software, źródła Quake: WinQuake/cl_input.c
+https://raw.githubusercontent.com/id-Software/Quake/master/WinQuake/cl_input.c
+Analizowano rozróżnienie zdarzenia naciśnięcia/zwolnienia od stanu
+przytrzymania. Nasze zastosowanie to niezależna obsługa krótkiego tapu,
+przytrzymania i czyszczenia intencji przy przejściu do innego ekranu.
+Implementacja w Lua jest własna; kod Quake nie został skopiowany.
+Okno 0,12 s jest parametrem SIGIL do dalszej oceny w graniu.
+
+C. Frictional Games, „The struggle between light and dark”
+https://frictionalgames.com/2009-11-the-struggle-between-light-and-dark/
+Punktem odniesienia jest napięcie pomiędzy mrokiem a możliwością odczytania
+przestrzeni. Nasz wniosek: lokalne ciemności i kontrast powinny prowadzić
+uwagę, bez jednolitego przyciemniania całej gry. W tej iteracji zastosowaniem
+jest szczególnie wiarygodna widoczność kontaktów i uporządkowanie informacji,
+tak aby świat nie był zasłonięty przez liczby i podpisy.
+To interpretacja przydatna dla naszej gry, nie odtworzenie oświetlenia
+Frictional ani dowód uniwersalnej recepty na horror.
+
+PO TEJ ITERACJI
+Najpierw rzeczywiste próby dwóch broni na tym samym poligonie: szybkie
+zmiany celu, strzał z bliska i daleka, gra przy ścianie, uniki i powroty
+z pauzy. Kolejne strojenie powinno wynikać z konkretnej obserwacji oraz
+pomiaru, nie z dokładania kolejnych efektów do każdego zdarzenia.
+Rozbudowa map, fabuły, lootu, nowych broni i dodatkowych systemów pozostaje
+odłożona do chwili zaakceptowania bazowego feelingu przez użytkownika.
+
+
+########################################################################
+PLAN-0.13.txt
+########################################################################
+SIGIL: BREACH 0.13 — Ciężar i cień
+20 października 2026
+
+CEL I KOLEJNOŚĆ
+Najpierw poprawić samą decyzję i odpowiedź w walce, potem ozdoby.
+Jedna istniejąca arena Limbo. Bez nowych map, scenariusza i magicznych
+umiejętności człowieka. Strzelba, rewolwer, fizyczny ładunek prochowy.
+Manifest służy projektowi postaci; portret przedstawia teraz rycerza
+z zamkniętym wizjerem, namalowanego tym samym pigmentem co świat.
+
+1. ZMIERZYĆ PROBLEM Z WALKĄ
+Stary środek wiązki przy celowaniu w tułów Impa z 8 m dawał 81,19
+obrażeń wobec 85 HP. Druga pełna salwa była wymagana mimo dobrego
+celowania. Rewolwer nie nagradzał trafienia w anatomiczną głowę.
+Od gotowości do pierwszego widocznego przeciwnika upływało ok. 4,9 s.
+Raport porównawczy obejmuje 84 przypadki, te same pozy i odległości.
+
+2. DAĆ CZYTELNE, POWTARZALNE DECYZJE
+Zwarty rdzeń strzelby; zewnętrzne promienie nadal trafiają kilka ciał.
+Mnożnik głowy 1,15 dla śrutu i 1,35 dla rewolweru, bez losowego krytyka.
+Przewaga rewolweru pozostaje w rytmie, dystansie i penetracji pancerza.
+Strefy głowy Stolasa i Buera dopasowano do czaszki w każdej żywej
+pozie. Osobna bryła barku zachowuje trafialność pochylonego Buera.
+Audyt HP/pancerza obejmuje sześć archetypów i cztery odległości:
+prawdziwe promienie, liczba strzałów, przeładowania i dostępny zapas.
+Nie obniżamy HP, żeby zamaskować niecelny śrut lub błędną anatomię.
+Osłona gracza pozostaje zużywanym zapasem pochłaniającym 55% ciosu;
+utrata HP, pochłonięcie i śmiertelny nadmiar mają osobne rozliczenie.
+Przygotowanie fali trwa 1,25 s; pierwszy zwykły cel preferuje widoczny
+portal z bezpiecznym odstępem. Nadal obowiązuje 1,2 s ostrzeżenia portalu.
+Szybka próba walki uruchamia 2 Impy i Stolas na tej samej arenie,
+z prawdziwymi obrażeniami; katalog F2 pozostaje dostępny.
+Broń i celownik reagują od razu. Przeładowanie nadal daje przeciwnikom
+czas na odpowiedź, więc dystans i wybór broni mają znaczenie.
+
+3. POWIĄZAĆ ODCZUCIE Z PRZYCZYNĄ
+Rytm noszenia broni zależy od przebytej drogi. Osobno: oddech,
+przyspieszenie, hamowanie, obrót, unik, ślizg i lądowanie.
+Kontakt ze ścianą używa utraconego pędu po projekcji kolizji, a nie
+samego przytrzymania klawisza. Przednie i boczne uderzenie różnią się.
+Ciężki upadek ugina ręce i wznieca krótki pył. Zwykły skok nie pyli.
+Tynk, kamień, metal, kość i krew mają odrębne odpowiedzi. Wielkość
+odprysku zależy od pozostałej mocy i kąta. Krew od faktycznie zdjętego HP.
+Są to względne jednostki gry; nie symulacja rzeczywistych ran lub broni.
+Dokładne równania i parametry: CZUCIE-WALKI-0.13.txt.
+
+4. OŻYWIĆ FRESK BEZ ZGUBIENIA CZYTELNOŚCI
+24 nowe malowane pozy czuwania dla sześciu archetypów, 152 łącznie.
+Nie rozciągamy nieruchomego obrazka, żeby udawał oddech.
+Światło ma stałe źródła, przesłonięcie przez ściany, chłodny ambient
+i ciepłe lokalne ognie. Sylwetki rzucają cienie na podłogę.
+Niebo jest ciemniejsze; HUD pozostaje wapienną, czytelną częścią fresku.
+To cienie 2,5D, nie pełna symulacja cieni wszystkich łuków i rzeźb.
+Wielkość efektów i ruch dłoni mają ograniczenia chroniące widok celu.
+
+5. WERYFIKACJA PRZED WYDANIEM
+Regresja matematyki, hitboxów, animacji, amunicji, fal i zapisów.
+Rzeczywiste callbacki menu, zakupów, poligonu i ponowienia potyczki.
+Rendery w pięciu proporcjach/rozdzielczościach; pomiar tuszu PNG,
+odstępów i wnętrz ozdobnych ramek. Osobne sekwencje światła, ruchu
+i trafień. Render poza ekranem, bez przejmowania kursora.
+Pomiar inicjalizacji, pierwszej klatki, CPU, odczytu GPU i alokacji.
+Testy gotowego EXE oraz zgodność SHA-256 źródeł, archiwum i ZIP.
+Liczby weryfikują spójność. Przyjemności z gry nie da się dowieść
+liczbą testów; ta wersja jest konkretną iteracją do ogrania.
+
+NASTĘPNY ETAP — ŚWIADOMIE ODŁOŻONY
+Użytkownik chce przedmioty, łupy i stale rosnącą presję jak w Risk of
+Rain 2. Wracamy do tego po ocenie strzelania i ruchu, przed mapami.
+Do zaprojektowania: wybory przedmiotów zmieniające sposób walki,
+kontrolowany wzrost zagrożenia w czasie, zbieranie kontra ryzyko,
+relacja do fal i sklepu oraz granice kumulacji mnożników.
+Nie dodajemy teraz losowych mnożników ani automatycznego leczenia.
+Nie utożsamiamy struktury etapów RoR2 z turową walką: nasza walka
+pozostaje w czasie rzeczywistym, fale są rundami.
+
+ŹRÓDŁA I WNIOSKI Z PORÓWNAŃ
+Hopoo, wywiad o przejściu Risk of Rain do 3D (2019):
+https://www.gamedeveloper.com/design/how-moving-from-2d-to-3d-shaped-the-design-of-i-risk-of-rain-2-i-
+Przedmioty powinny mieć konkretny cel i tworzyć decyzje. Zbieranie
+zasobów może wymagać wejścia w ryzyko; nie jest tylko automatyczną
+zmianą statystyki. Wniosek dla nas teraz: odległość, precyzja i moment
+wejścia do walki mają dawać odczuwalnie różne wyniki.
+
+id Software, GDC 2018, Embracing Push Forward Combat in DOOM:
+https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-Combat-in
+Przeczytano opis wystąpienia, nie całe nagranie. Agresja, szybkość
+i aktywne zdobywanie zasobów są celami projektu. Nie kopiujemy
+automatycznie ekonomii glory kill do człowieka bez magii.
+
+id Software, źródła ruchu widoku i broni:
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/p_pspr.c
+https://github.com/id-Software/Quake/blob/master/WinQuake/view.c
+https://github.com/id-Software/Quake-III-Arena/blob/master/code/cgame/cg_weapons.c
+Wniosek: osobne, ograniczone reakcje noszenia, lądowania i bezruchu.
+Implementacja własna; nie skopiowano ich kodu.
+
+Frictional, The struggle between Light and Dark:
+https://frictionalgames.com/2009-11-the-struggle-between-light-and-dark/
+https://wiki.frictionalgames.com/page/Hpl2:Tutorials:level_editor:tutorial_2
+Mrok wymaga zachowania orientacji i kontroli widoczności. U nas słaby
+ambient oraz lokalne źródła zamiast globalnego czarnego filtra.
+
+id Software, GDC 2017, Bringing Hell to Life: AI and Full Body Animation:
+https://www.gdcvault.com/play/1024186/Bringing-Hell-to-Life-AI
+Przeczytano opis wystąpienia. Wniosek: zamiar przeciwnika ma być
+widoczny w całym geście, a spokojna postać też potrzebuje stanu czuwania.
+
+
+########################################################################
+PLAN-0.12.txt
+########################################################################
+SIGIL: BREACH — zakres wydania 0.12 / Ożywiony fresk
+
+Wykonany etap: ponowne zaprojektowanie oprawy jednego pola testowego.
+Nie jest to wydanie kampanii ani kolejnych map.
+
+1. Analiza referencji użytkownika i czterech dzieł; osobny język
+   materiału, kompozycji, anatomii i znaków. Źródła w dokumencie
+   KIERUNEK-ARTYSTYCZNY.txt; porównania z Pentiment, Apotheon i Inkulinati.
+2. Nowe ilustracje świata, panoramy, modeli sprite, broni, efektów,
+   ogniska, dekoracji, portretu i GUI.
+3. Korekty atlasów i póz po oględzinach: skrzydła, stopy, kończyny,
+   sześć komór rewolweru, mały osobny błysk i światowe klatki ładunku.
+4. Integracja z istniejącą symulacją. Dopasowanie anatomii trafień.
+   Usunięcie filtrów niszczących malowany modelunek.
+5. Kontrola odczytu: malowane pola, litery PNG, duże wartości, szerokie
+   i wysokie ekrany, podpowiedzi na jasnych ścianach i efekty przy celu.
+6. Regresja mechanik i sterowania, rendery pięciu proporcji ekranu,
+   przegląd klatek i rzeczywistych osi czasu, pomiar kosztu renderowania.
+7. Nowa paczka Windows; ponowne testy EXE i kontrola zgodności SHA-256.
+
+Następny etap należy wybrać po ograniu tej wersji. Nadal najpierw
+dopracowujemy grafikę, ruch, feeling, animacje i walkę na poligonie.
+Rozbudowa świata, fabuła i dziewięć kręgów pozostają na później.
+Manifest Nikogo pozostaje inspiracją wyglądu bohatera.
+
+
+########################################################################
+STYL-PLAN-0.11.txt
+########################################################################
+SIGIL: BREACH 0.11 / ART STYLE BIBLE AND PLAN FOR THE COMPLETE GRAPHICS SWAP
+One version, no switch. Backup of everything from before the swap:
+work\backup-before-restyle-2026-10-20\ (art, src, fonts, tools, documents).
+
+1. STYLE: "INKED FRESCO"
+Basis: Giovanni da Modena, Inferno (Bolognini Chapel, Bologna), supported by
+Bosch (hybrids, objects as torment), Memling (pale bodies on a dark ground,
+order, framing), Michelangelo (weight and twist of the body).
+Technique of readability taken from Cuphead / 1930s animation:
+ - the outline does the work: an even ink contour (dark brown-black,
+   not pure black) around EVERY figure, weapon and interactive object;
+ - flat fills: a figure has 2–3 values + one lime-white highlight,
+   no photographic gradients, no stippling;
+ - the background is softer: architecture and sky painted as broad planes,
+   weaker contour (sinopia, not ink), lower contrast than figures;
+ - grain/vignette only as a quiet binding of the frame, never noise.
+We do NOT take from Cuphead: rubber-hose limbs, cute big eyes, a gleeful mood.
+Anatomy stays repulsive (Giovanni, Bosch); the drawing technique changes.
+
+2. PALETTE (measured from the fresco, painterly.lua)
+Slate and ochre greys, burnt umber, sinopia, red and yellow ochre,
+carnation, lime white. Madder only for blood, ochre-flame only for fire.
+Two gameplay signal colours (cold Ember flame, vermilion warning).
+Numeric goals (work\metrics\measure.ps1): fine/large ≤ 0.42,
+values D/M/L close to 45/45/10, saturation ≤ 0.25, red ≤ 3%.
+
+3. ASSETS AND ORDER (fixed layouts, so loaders and tests keep working)
+ a. Bearer's portrait (3x2, 512 px cells): an entirely new man in the
+    inked-fresco style, 6 expressions. Base generation, then edits from the
+    same image (consistency of face).
+ b. Wall, floor, frieze, door textures: painted planes (tools\fresco_textures
+    is already in this style; possibly a generated painted variant).
+ c. HUD frame and panels (reliquary-ui): painted Bolognini decoration,
+    bands of red ochre, lime-white fillet, grotesque corner heads,
+    writing wells flat and dark. The same geometry of wells and nine-slice.
+ d. Shotgun and revolver (4x4): edits of the existing sheets keeping the
+    poses: ink contour, flat iron and wood, lime-white highlights.
+ e. Effects (hit, smoke, flash), pickups, Ember altar.
+ f. Lettering: shapes ready (fresco_repaint); optionally new majuscule.
+ g. Demons: STAY (they are liked). Only a unifying pass:
+    the same ink contour in the sprite shader, the same palette.
+
+4. PIPELINE FOR EACH ASSET
+generation (HF: Qwen-Image / FLUX Krea for new, FLUX Kontext /
+Qwen-Image-Edit for edits of existing sheets) → background removal →
+snapping to the fresco palette → reduction to game resolution with
+nearest sampling → packing into the existing atlas layout → foot / wrist /
+cell registration → TEST.ps1 + real-screen review + measurements.
+
+5. REQUIREMENTS BEFORE GENERATION (blocked as of 2026-10-20)
+ - Hugging Face: the connector sends gradio=none, so invoking Spaces is
+   disabled. In huggingface.co/settings/mcp add the Spaces
+   (mcp-tools/Qwen-Image, mcp-tools/FLUX.1-Krea-dev,
+   mcp-tools/FLUX.1-Kontext-Dev, akhaliq/Qwen-Image-Edit-2511-LoRAs-Fast)
+   and reconnect the connector. The free account has a small daily GPU
+   quota (ZeroGPU); a series of 30–60 images may need several days or PRO.
+ - Adobe: generation not available in the connector (only canvas expand,
+   background removal, adjustments). Useful as storage: upload of an atlas
+   to the user's Creative Cloud gives a temporary presigned URL that the
+   HF editor can read (needed for edits of existing sheets).
+
+
+########################################################################
+PLAN-0.10.txt
+########################################################################
+SIGIL 0.10 / decyzje techniczne i źródła
+
+1. Audyt broni, pocisków, ruchu i okien ataków. Każda poprawka ma
+   regresję odtwarzającą błąd albo niezależne porównanie matematyczne.
+2. Własny wąski solver koło kontra siatka; ciało przesuwane do pierwszego
+   kontaktu, potem rzut pozostałego ruchu na dopuszczalne płaszczyzny.
+   Wewnętrzny narożnik zachowuje dwie normalne; nie uśrednia ich.
+3. Rozwiązania analityczne: y=y0+v0*t-g*t²/2, tłumiona sprężyna,
+   odrzut v(t)=v0*exp(-k*t), droga=v0*(1-exp(-k*t))/k.
+4. Gameplay 120 Hz, interpolowany obraz. Dynamiczny deltaTime jest
+   dzielony na mniejsze kroki. Duże zawieszenie ma budżet .20 s.
+5. Hitboxy to anatomiczne bryły sprite'ów, nie siatka 3D. Granaty
+   pozostają punktami kontaktu. Ciosy mają skończone aktywne okna.
+6. Nowe moduły collision.lua, kinematics.lua; niezależne zestawy
+   tests_movement/combat/ordnance/enemies_v10.lua. Bez nowej zależności
+   silnika fizyki; istniejący format zapisu pozostaje zgodny.
+
+Źródła techniczne sprawdzone w tej iteracji:
+https://box2d.org/documentation/md_collision.html
+  Cast bryły i pierwszy czas kontaktu. Własna implementacja ograniczona
+  do koła i regularnej siatki; nie dołączono Box2D ani jego kodu.
+https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+  Materiał autora Box2D o ciągłych kolizjach.
+https://github.com/mas-bandwidth/gafferongames/blob/main/content/post/fix_your_timestep.md
+  Stały krok i ograniczanie nadrabiania zaległego czasu.
+
+Dokładność testów: losowe sweeps także po transpozycji osi; niezależny
+slab oracle dla promieni 3D; równoważność podzielonego czasu dla toru
+ładunku, skoku i sprężyn; realne callbacki i odczyt dawnego zapisu.
+Balans nadal wymaga ręcznej próby. Żaden pomiar CPU nie jest obietnicą
+stałego FPS ani testem pełnej dynamiki szkieletowego modelu.
+
+
+########################################################################
+PLAN-0.9.txt
+########################################################################
+SIGIL: BREACH — PLAN 0.9 / Żelazo i popiół
+
+1. ZACHOWAĆ ZAKRES
+Jedna arena31 x31. Manifest wyłącznie referencją wyglądu. Cztery źródła
+malarskie, bitmapowy alfabet, portret w łuku i archiwum historycznych
+znaków zostają. Bez dodawania map i scenariusza.
+
+2. FIZYCZNY ARSENAŁ
+Sędzia:6 nabojów, rezerwa, przeładowanie z pojedynczą transakcją.
+Q: ograniczony ładunek prochowy z łukiem lotu, lontem, LOS i ryzykiem
+własnego trafienia. Bez magii gracza, lifesteal i darmowej amunicji.
+Oba narzędzia mają nowe obrazy, mechaniczne animacje i dźwięki.
+
+3. JEDEN MODEL OBRAŻEŃ
+Wspólna bezpieczna funkcja obrażeń fizycznych z dystansem, penetracją,
+pancerzem i odpornością. Raport odróżnia nominalny potencjał od zabranych
+HP. Stożek i przesłony śrucin pozostają zgodne z celem na ekranie.
+
+4. DEMONY I OKNA ATAKU
+Nowy Furfur tylko na poligonie.24 pozy,3 ataki: poroże, szarża, piorun.
+Geometria podzielona anatomicznie i oparta o transformację sprite'a.
+Zamach, aktywne okno oraz powrót. Testy ruchu poza ciosem, ścian i skoku.
+Oddzielne obrazy ładowania, pocisków, oznaczenia i uderzenia zaklęcia.
+
+5. WYDAJNOŚĆ I PORZĄDEK KODU
+Pomiar tego samego renderera/sceny przed i po zmianie. Oddzielić czas
+CPU submission od GPU/readback; nie mylićvsync z wydajnością.
+Usunąć ładowanie nieaktywnych atlasów, ograniczyć alokacje drobin,
+smug, uniformów i audio. Wspólna geometria dla obrazu i balistyki.
+
+6. SPRAWDZIĆ PRZED PACZKĄ
+Regresje starych systemów przy jawnej zmianie kontraktu magicznej broni.
+Nowe testy amunicji, przerwańreload, zapisu, Q, bossów i precyzji.
+Oględziny przezroczystości, wszystkich klatek i rejestracji atlasów.
+GUI w5 formatach: pomiary kolizji i oględziny wnętrz ozdobnych ramek.
+Zachować0.8; zbudować nową0.9; uruchomić jej EXE w testach i porównać
+hash źródeł, archiwum, runtime i końcowego ZIP.
+
+OGRANICZENIA
+Sprite'y są2D w przestrzeni3D. Bryły trafień są anatomicznym
+przybliżeniem, nie szkieletem/modelami ani maską pikselową.
+Symulacja przejścia używa idealnego celowania; balansu dla człowieka
+nie wyprowadza się z samego zielonego testu. Ocena feelingu pozostaje
+przedmiotem kolejnej próby gracza.
+
+
+########################################################################
+PLAN-0.8.txt
+########################################################################
+SIGIL: BREACH 0.8 / Inferno
+Aktualizacja zakresu: 19 października 2026.
+Plan obejmuje wszystkie wymagania iteracji i jednoznaczną decyzję użytkownika:
+jedno pierwotne pole testowe 31 x 31; właściwe mapy dopiero po dopracowaniu gry.
+
+1. WSPÓLNY KIERUNEK OBRAZU
+   Inferno Giovanniego da Modeny, piekło Boscha, Sąd Ostateczny Memlinga
+   i Sąd Ostateczny Michała Anioła. Przełożyć ich materiał, anatomię,
+   gest, kompozycję i wyobrażenie kary na mroczny pikselowy horror.
+   Objąć tym samym kierunkiem demony, broń, portret, GUI i freski.
+   Szczegóły oraz źródła: KIERUNEK-ARTYSTYCZNY.txt.
+   Zachować pełny Manifest Nikogo jako kanoniczny tekst bohatera.
+   Jego głos o potrzebie autentyczności wprowadzić do menu; opis postaci
+   oprzeć na winie, maskach i wyczerpanej determinacji. Rozwinięcie
+   dialogów i fabuły odróżnić od funkcji wdrożonych na obecnym poligonie.
+
+2. BITMAPOWY HUD I CZYTELNOŚĆ
+   Jeden dolny pas z wygenerowaną oprawą relikwiarza, centralnym
+   portretem Nosiciela i stałymi polami zasobów. Zmienne napisy, liczby
+   i stany przycisków składać z gotowych bitmap liter, cyfr i polskich
+   znaków PNG przez bitmap_font.lua. Zachować czytelność alfabetu
+   SIGIL Painted Alphabet, bez ładowania TTF przez aktywne GUI.
+   Źródłowe piksele pochodzą z wygenerowanych alphabet-upper-v08.png,
+   alphabet-lower-v08.png, alphabet-punctuation-v08.png i numerals-v08.png.
+   Importer składa te ilustracje; dawne TTF pozostają materiałem historycznym.
+   Osiem ozdobnych nagłówków z lettering-v08.png obsłużyć przez
+   painted_titles.lua. Nie rozciągać liter osobno w pionie i poziomie.
+   Wpasować portret w łuk relikwiarza maską shadera, pod jego ornamenty.
+   Spójny sklep, mapa i menu. Własny obszar świata nad pasem HUD.
+   Pergamin i marginalia demonologiczne w menu oraz bestiariuszu;
+   tekst w polu pisma, z dala od ornamentów, łuków i gzymsów.
+   W F1 i na trzech istniejących pieczęciach dworów stosować rzeczywiste
+   znaki Asmodaya, Stolasu i Buera sprawdzone na planszach Goetii 1904.
+   Zachować niezmienione źródłowe PNG oraz dokładną proweniencję.
+   Audyt rzeczywistych pikseli glifów i ręczna ocena gotowych ekranów.
+   Sprawdzić małe okno, inne proporcje, niski stan zasobów i przeładowanie.
+
+3. POTWORY I BROŃ
+   Nowe pełne atlasy pięciu przeciwników zamiast pojedynczych zmian
+   koloru. Czytelna intencja, uderzenie, reakcja, ciężar i upadek.
+   Pilnować skali klatek, stóp, krawędzi, widoku od tyłu i pracy skrzydeł.
+   Pracować na sekwencjach póz sprite'ów i ich ruchu; nie deklarować
+   gotowych modeli 3D ani animacji szkieletowej, których prototyp nie ma.
+   Strzelba oraz pistolet Sędzia mają wyglądać jak materialna broń
+   używana przez człowieka w religijnym piekle. Zachować transakcję
+   amunicji oraz rytm przeładowania podczas wymiany grafiki.
+
+4. JEDNO POLE DO WSZYSTKICH PRÓB
+   Zachować pierwotną arenę 31 x 31: nawę, oba dwory, północną część
+   oraz Żar. Testować tu bossów, postacie, animacje, broń i balans.
+   Zgodnie z decyzją użytkownika odłożyć rozbudowę map i sekretne komnaty.
+   Przygotowany wcześniej kod oraz testy zachować poza aktywnymi źródłami gry.
+   Sprawdzić każde pole podłogi, sześć portali, zapasy i realne trasy AI.
+   Zachować budżet czterech nabojów i dwudziestu punktów leczenia na falę.
+   Przenosić nieosiągalne echo ze starszego zapisu roboczego na obecne
+   pole bez utraty dusz, zmiany fali lub automatycznego odebrania nagrody.
+   Obok wyprawy udostępnić osobny POLIGON / KATALOG PRÓB z menu i F2.
+   Katalog ma obejmować wszystkie obecne typy, bossa, bronie, symbole
+   i narzędzia prób: spawn jeden/trzy, reset, zasoby, god mode, freeze AI,
+   ręczny przegląd póz, sklep i niski stan HUD. Wykorzystać faktyczne
+   mechaniki walki; nie tworzyć uproszczonej imitacji obrażeń.
+   Przechowywać katalog zasobów w jednym module na przyszłe rozszerzenia.
+   Zapewnić wolne miejsce dla celów i bezpieczny widok pieczęci.
+   Osobne archiwum znaków: trzy pieczęcie Goetii i trzy pentakle Saturna
+   z Klucza Salomona; źródłowe ilustracje, bez nowych zdolności.
+   Odizolować stan od wyprawy i dyskowego zapisu. Powrót ma przywracać
+   tę samą wyprawę w pauzie, bez modyfikacji jej dusz i progresji.
+
+5. ŻAR I ORIENTACJA W WALCE
+   Wyraźna sylwetka sanktuarium, zimny płomień, odrębne światło,
+   kierunek oraz odległość. Brak nakładającej się zwykłej pochodni.
+   Ciemne pomieszczenia, kontrolowany kontrast podłogi i ograniczone
+   efekty muszą nadal umożliwiać rozpoznanie demonów oraz wyjść.
+
+6. MATEMATYKA I FEELING
+   Rozrzut liczony względem osi celowania, znormalizowane promienie,
+   niezmienny kształt stożka przy zmianie kąta patrzenia.
+   Trafienia całej salwy przed usunięciem celów; osobne rozliczenie
+   obrażeń, ochrony, odrzutu i ogłuszenia. Wyraźny odrzut broni bez
+   ukrytej zmiany toru strzału przez kosmetyczne ruchy kamery.
+   Ciągłe kolizje pocisków wrogów z poruszającym się graczem,
+   filarami, ścianami i podłogą pola testowego.
+
+7. WERYFIKACJA I WYDANIE
+   Pełne wcześniejsze regresje oraz nowe testy walki, mapy, zapisu,
+   zasobów i GUI. Rzeczywiste rendery --showcase-v08, kontrola wejścia,
+   ręczny przegląd wybranych scen oraz weryfikacja paczki Windows.
+   Zachować kompatybilny format SIGIL06, stare wydanie 0.7 i raporty.
+   Aktualne liczby testów i scen pochodzą z raportów danej kompilacji.
+   Ostateczne wyniki zapisać dopiero po ostatnim przebiegu QA i testach
+   spakowanego EXE, nie przenosić starszej liczby kontroli jako końcowej.
+   Ręczna próba natywnego okna przerwana przez Esc nie potwierdza
+   obsługi sklepu ani zakupu. Odróżniać test kontrolera i render GUI
+   od ukończonego ręcznego przejścia jego ścieżki.
+   Zweryfikować wszystkie typy celów, realne obrażenia i przeładowanie
+   na poligonie, twarde blokady zapisu także bez flagi testing, niezmienność
+   plików oraz rzeczywiste callbacki wejścia/powrotu F2. Katalog, śmierć,
+   sklep, mapę i archiwum znaków sprawdzić w pięciu formatach ekranu.
+
+NASTĘPNE ZADANIE — OSOBNY PROJEKT MECHANIKI
+Pełny fizyczny arsenał z różnych epok, broń biała i uzbrojenie zdobywane
+od demonów. Ponownie zaprojektować amunicję, profil obrażeń, działanie
+Sędziego i miejsce Q. Ta wersja zmienia oprawę i doszlifowuje istniejącą
+walkę; nie przedstawia pozostawionej mechaniki Lancy jako ukończonej
+symulacji pistoletu ani nie deklaruje wdrożenia walki wręcz.
+Pozostałe osiem kręgów, rozbudowane sanktuarium i NPC nadal czekają.
+Projektowanie większych map oraz sekretów nastąpi po dopracowaniu
+postaci, bossów, animacji, czytelności i balansu na jednym polu testowym.
+
+Punkt odniesienia dla HUD i osobnych śrucin: źródła id Software.
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/st_stuff.c
+https://github.com/id-Software/DOOM/blob/master/linuxdoom-1.10/p_pspr.c
+Inspiracja układem i zachowaniem; własna implementacja i wygenerowane
+ilustracje, z rejestrem w assets/art/prompts-v08-final.json.
+Źródła ilustracji alfabetu: assets/art/prompts-v08-final.json; historycznych
+znaków: pliki SOURCES w assets/art/sigils/.

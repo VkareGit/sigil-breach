@@ -236,6 +236,6 @@ INSPIRACJE Z GIER FABULARNYCH (przełożone na FPS w czasie rzeczywistym)
 
 14. 0.20 — JEDNO PRAWO IMPULSU I GARDY
  Zastępuje wzory pchnięcia i stałe czasy oszołomienia z punktów 4 i 5.
- Pełny opis, wzory i tabela kalibracji: docs/ZMIANY-0.20.txt.
+ Pełny opis, wzory i tabela kalibracji: docs/ZMIANY.txt, sekcja ZMIANY-0.20.txt.
  v = 6 · (1 − e^(−J/120)) / masa;  t_oszołomienia = clamp(0,10 + 0,20 · nadwyżka/garda, 0,10, 0,35);
  odbudowa gardy po opóźnieniu; bossowie się chwieją; strefy głowa/tułów/nogi; kontra; domino.

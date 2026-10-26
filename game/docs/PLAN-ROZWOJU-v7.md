@@ -3,6 +3,9 @@
 Stan: przyjęty 2026-10-22. Zastępuje szkic PLAN-ROZWOJU-v6.md (jego wnioski o hitboxach
 były częściowo błędne, a etapy H1 i H5 łamały zasady poniżej). Postęp etapów: sekcja 9.
 
+Od 2026-10-25 nazwy ZMIANY-x.txt i ODBIOR-x.txt to nagłówki sekcji w game/docs/ZMIANY.txt
+i ODBIOR.txt; PLAN-ROZWOJU-v6.md to sekcja docs/history/PLANY.txt.
+
 Oznaczenia: **[K]** potwierdzone w kodzie, **[R]** wcześniejszy pomiar, **[H]** hipoteza,
 **[T]** wymaga testu.
 

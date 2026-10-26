@@ -330,6 +330,11 @@ Suite.registry = {
     title = 'Painted hazard phases and depth',
     module = 'tests.cases.hazard_art',
   },
+  {
+    id = 'runtime-contracts',
+    title = 'Failed commands, named ammunition, single deaths, fallback attacks',
+    module = 'tests.cases.runtime_contracts',
+  },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }
 

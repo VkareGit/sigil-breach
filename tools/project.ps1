@@ -57,10 +57,12 @@ function Get-Project {
             'charge-handoff-off-0.png','charge-handoff-off-8.png','charge-handoff-off-17.png',
             'charge-handoff-off-50.png','charge-handoff-off-100.png',
             'charge-return-on.png','charge-return-off.png')
-        Documents = @('docs\INSTRUKCJA.txt', ('docs\ZMIANY-' + $values.version + '.txt'),
+        Documents = @('docs\INSTRUKCJA.txt', 'docs\ZMIANY.txt',
             'docs\ARCHITEKTURA.txt', 'docs\DEVELOPMENT.txt', 'docs\ROZSZERZANIE.txt', 'docs\SYSTEM-SWIATA-0.14.txt',
             'docs\KIERUNEK-ARTYSTYCZNY.txt', 'docs\MANIFEST-NIKOGO.txt',
-            'docs\ANATOMIA-I-FIZYKA-0.28.txt', 'docs\PLAN-ROZWOJU-v7.md', 'docs\PLAN-FUNDAMENT-v9.md', ('docs\ODBIOR-' + $values.version + '.txt'))
+            'docs\ANATOMIA-I-FIZYKA-0.28.txt', 'docs\PLAN-ROZWOJU-v7.md', 'docs\PLAN-FUNDAMENT-v9.md', 'docs\ODBIOR.txt')
+        # Each version adds its own section on top of these two documents.
+        VersionSections = @(('docs\ZMIANY.txt', ('ZMIANY-' + $values.version + '.txt')), ('docs\ODBIOR.txt', ('ODBIOR-' + $values.version + '.txt')))
     }
 }
 

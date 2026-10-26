@@ -2,8 +2,8 @@ SIGIL: BREACH — prototyp Foundation 0.32
 24 października 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
-jest w ZMIANY-*.txt, plany i pomysły w PLAN-ROZWOJU-v7.md (nic z planu nie
-obowiązuje, dopóki nie trafi tutaj).
+jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v9.md i PLAN-ROZWOJU-v7.md
+(nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
 GDZIE JEST TELEMETRY.TXT
 Paczka EXE: %APPDATA%\sigil-breach-prototype\telemetry.txt

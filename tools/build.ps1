@@ -31,6 +31,10 @@ trap {
 foreach ($required in @('main.lua', 'conf.lua', 'assets\art\prompts-fresco-world-v12.json', 'assets\art\prompts-fresco-enemies-v12.json', 'assets\art\weapon-provenance-v16.json', 'assets\art\shotgun-iron-v16.png', 'assets\art\revolver-iron-v16.png', 'assets\art\prompts-gui-v16.json', 'assets\fonts\painted-v16\prompts-v16.json', 'assets\art\prompts-detail-v17.json', 'assets\art\impact-scars-v17.png', 'assets\art\ritual-medallion-v31.png', 'assets\art\ritual-provenance-v31.json') + $documents) {
     if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot $required) -PathType Leaf)) { throw "Missing source file: $required" }
 }
+foreach ($section in $project.VersionSections) {
+    $lines = [IO.File]::ReadAllLines((Join-Path $sourceRoot $section[0]), [Text.Encoding]::UTF8)
+    if ($lines -cnotcontains $section[1]) { throw "Missing version section $($section[1]) in $($section[0])" }
+}
 foreach ($required in @('love.exe', 'lovec.exe', 'license.txt')) {
     if (-not (Test-Path -LiteralPath (Join-Path $RuntimeRoot $required) -PathType Leaf)) { throw "Missing LOVE runtime file: $required" }
 }

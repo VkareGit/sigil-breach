@@ -1,5 +1,5 @@
 -- Golden master baseline. Update only for a deliberate gameplay change; see
--- tests/suites/golden.lua and the change log (docs/ZMIANY-0.28.txt).
+-- tests/suites/golden.lua and the change log (docs/ZMIANY.txt, section 0.28).
 -- 0.25 G3: the knight and the demons are bodies (no walking through, mass
 -- shares), out-of-sight routes run straight, the blast meets the chest.
 -- 0.25 G4: no aim while staggered, a pull stops a reload, the guard-break

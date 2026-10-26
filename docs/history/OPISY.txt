@@ -1,0 +1,482 @@
+SIGIL: BREACH / DAWNE OPISY 0.12–0.17 (architektura, czucie walki, kierunek fresku, migracja)
+
+Historyczne. Bieżąca architektura: game/docs/ARCHITEKTURA.txt; bieżący
+kierunek artystyczny: game/docs/KIERUNEK-ARTYSTYCZNY.txt. Każda sekcja
+zaczyna się nagłówkiem z dawną nazwą pliku. KIERUNEK-FRESK-0.13.txt był
+identyczną kopią PLAN-0.13.txt; jego treść jest w PLANY.txt.
+
+
+########################################################################
+ARCHITEKTURA-0.17.txt
+########################################################################
+SIGIL: BREACH 0.17 / małe reakcje jako prezentacja stanu
+
+weapon_defs / weight
+Impuls nadgarstka = (momentum * power / mass) * wrist.
+JUDGE: wrist .31, sprężyna k210 / tłumienie20; szczyt około3,4 stopnia.
+EXORCIST: wrist .014, k280 / tłumienie28; szczyt około0,5 stopnia.
+To skala prezentacji, nie deklaracja rzeczywistych jednostek balistycznych.
+Zamknięte rozwiązanie sprężyny z kinematics zapewnia zgodność czasu.
+Każda sprężyna ma ograniczenie i jawne czyszczenie w clearMotion.
+
+weapon_motion
+Impuls stopy następuje przy przekroczeniu pi w wspólnym zegarze drogi.
+Pozostała część kroku symulacji jest policzona analitycznie, więc 30 Hz
+nie opóźnia kontaktu o pełną klatkę. Uchwyt naprzemiennie przejmuje ciężar.
+Ruch w powietrzu wynika z prędkości pionowej, ograniczony do2,2 piksela
+przy wysokości sceny450. Lądowanie nadal używa movement_impact.
+presentation interpoluje położenia, nigdy prędkości ani zasady strzału.
+
+shot_trails
+Odbiera już rozstrzygnięty promień i ostatni trafiony punkt penetracji.
+Nie wykonuje nowych testów obrażeń. Ekspozycja .038+min(d,24)*.0011s.
+Przód i tył krótkiej smugi przemieszczają się po promieniu. Oba końce
+pozostają przed kontaktem. Renderer dobiera bok wstążki z kierunku
+promienia i widoku; stary format danych pomiarowych jest obsługiwany.
+Lista ograniczona do64; wygasłe rekordy wracają do puli.
+
+surface_marks / render_surface_marks
+impact_response wywołuje emit wyłącznie po rzeczywistym trafieniu
+powierzchni. Rozmiar zależy od pierwiastka zachowanej energii normalnej.
+Energia jest dotychczasową skalą obrażeń, nie umownymi dżulami.
+Pula96, czas36s, zanikanie przez ostatnie6s; bliskie ślady śrutu scalane.
+Mount uwzględnia wypukły tynk, nisze i fillet z obecnego world.rebuild;
+punkt jest rzutowany wzdłuż rzeczywistego promienia także pod kątem.
+podłoga jest na y0, nie na y.025, na którym kończy się promień kolizji.
+Kolumny mają idealny cylinder kolizji i widoczne kwadratowe panele:
+ślad osadza się na najbliższym panelu. Nie jest to dowolny mesh decal;
+przyszłe mapy wymagają rozszerzenia adaptera powierzchni.
+Jeden strumieniowany mesh / jedno wywołanie rysowania, głębia zachowana.
+Osobny shader malowanego pigmentu nie emituje światła i używa alfa PNG.
+Brak śladów na ruchomych demonach i strzałach w pustą przestrzeń.
+
+Reset w feel.init i descent.clearWorld/ready; przełączenie MOTION czyści
+sprężyny, lecz nie usuwa rezultatów strzałów. Update efektów jest po
+symulacji ruchu i przed obsługą nowego strzału; draw jest tylko odczytem.
+
+QA: tests_v17 + tests_weapon_detail_v17; detail_review_v17 to48 pełnych
+kadrów i9 plansz z rzeczywistej symulacji. Tryby --detail-test-v17 oraz
+--detail-review-v17 są izolowane, wyciszone i poza ekranem.
+
+
+########################################################################
+ARCHITEKTURA-0.16.txt
+########################################################################
+SIGIL: BREACH 0.16 — prezentacja jako odbiorca stanu
+
+Podział reguł i symulacji opisany w ARCHITEKTURA-0.15.txt pozostaje aktualny.
+Ta aktualizacja dodaje jawny kontrakt ilustracji, nie nowy system obrażeń.
+
+weapon_art.lua
+Źródła PNG, wymiary, osobne prostokąty i kotwice grip/muzzle, nazwy akcji
+oraz mapa czasu przeładowania na faktyczne klatki. Wylot i chwyt mają
+współrzędne w wycinku; nie zależą od obcych rozmiarów starego atlasu.
+frame(g) odczytuje stan. Nie przeładowuje amunicji ani nie tyka zegarów.
+Przy anulowanym otwartym mechanizmie wybiera otwartą pozę.
+
+reload.lua
+Nadal właściciel transakcji:
+strzelba — otwarcie .26, naboje .60, zamknięcie .82, gotowość .94 s;
+rewolwer — otwarcie .20, naboje1.16, zamknięcie1.55, gotowość1.85 s.
+Porównanie czasu w prezentacji ma ten sam próg, bez wcześniejszego epsilon.
+Historyczne Reload.frame pozostaje logicznym zegarem kompatybilności.
+Rysowanie i arkusze przeglądu korzystają z Weapon.sourceFrame.
+
+weapon_motion.lua
+grip(g) = 1 - .52 * min(smooth(elapsed/.10), smooth(remaining/.12)).
+smooth(t) to ograniczone t*t*(3-2*t). elapsed nie zawiera offsetu
+wznowionego przeładowania, dzięki czemu chwyt startuje płynnie także
+po anulowaniu i powrocie do częściowo przeładowanej broni.
+Ten sam parametr wycisza oddech. Zmiana nie dotyka kierunku promienia.
+
+animation.lua
+actionPhase(e,state) odczytuje attackSpec zgodny z attackKind albo katalog.
+Zamach uwzględnia rzeczywisty windupDuration; szarża chargeTime; regeneracja
+phase+recover, również po przerwanym przez ścianę rzuceniu.
+Wyszukiwanie nie zapisuje spec do przeciwnika. Hitboxy i obraz mają wspólną
+pozę; szczegółowość nadal jest przybliżeniem sprite'a, nie siatką 3D.
+
+Typografia
+assets/fonts/painted-v16 zawiera obrazy i źródłową mapę każdego znaku.
+bitmap_font ładuje PNG i prostokąty, mierzy rzeczywistą farbę. Liczniki
+składają dowolną dozwoloną wartość z 12 obrazów, a nagłówki z tych samych
+namalowanych liter. Pochodzenie glifów sprawdza niezależna rekonstrukcja
+źródła, nie tylko asercja używanej ścieżki.
+
+reliquary_skin / portrait
+Spokojne pola HUD-u zachowują ustalone granice. Menu używa osobnej części
+atlasu. Boczne paski nie rozciągają postaci. Portret ma miękką maskę pod
+łukiem, nie prostokątną naklejkę. Pieczęcie Goetii zachowane bez zmian.
+
+QA
+tests_v16 łączy animacje, źródła glifów, rejestrację atlasów i granice
+mechanicznych faz. Pełny test obejmuje też wcześniejsze regresje.
+showcase_weapons rejestruje rzeczywiste obrazy, stan mechanizmu i amunicję.
+TEST.ps1 używa ukrytych okien, odseparowanego zapisu i wyciszonego audio.
+
+
+########################################################################
+ARCHITEKTURA-0.15.txt
+########################################################################
+SIGIL: BREACH 0.15 — ARCHITEKTURA
+Stan dokumentu: implementacja kandydata 0.15; końcowa walidacja i paczka są
+weryfikowane osobno. Ten dokument nie jest deklaracją zakończenia testów.
+
+BAZA I ZAKRES
+Pracujemy na użytkownikowej wersji 0.14. Zachowane są angielski interfejs,
+otwarta arena i galeria testowa, okrągłe filary, przebicie pocisku Sędziego,
+archetypy jako dane, ciężar ciała i dotychczasowy kierunek fresków.
+Nie przywracamy starszej gry 0.13. Jedno pole testowe, dwie obecne bronie
+i fizyczny ładunek pod Q pozostają zakresem tej iteracji.
+
+WZORZEC: DANE, REGUŁY, KROK SYMULACJI, PREZENTACJA
+To podział odpowiedzialności w istniejącym Lua, bez narzucania pełnego ECS.
+Rekordy gracza i demonów pozostają zwykłymi tabelami, więc dotychczasowe
+zapisy, katalog póz i testy nie wymagają migracji do nowego modelu obiektów.
+
+  archetypes / weapon_defs / tuning
+                    |
+        damage / body_physics / rules
+                    |
+   game:simulate / feel / AI + jego podsystemy
+                    |
+  raport kontaktu, stany ciała, zegary i pozycje
+                    |
+ weight / weapon_motion / animation / render_* / UI
+
+1. Dane
+   archetypes.lua opisuje ciało, ruch, pakiety obrażeń i ataki demonów.
+   weapon_defs.lua opisuje dwie bronie, ich amunicję, odrzut i atak.
+   tuning.lua zawiera wspólne parametry ruchu i walki.
+   Rozbudowa danych nie oznacza dopisywania nazw demonów do każdej gałęzi AI.
+
+2. Reguły i matematyka
+   damage.lua liczy obrażenia, pancerz, odporność i rozdział osłony gracza.
+   body_physics.lua to czyste funkcje oporu i impulsu kontaktu. Nie odczytuje
+   świata, nie zmienia tabel gry i nie zna grafiki ani dźwięku.
+   rules.lua stosuje wynik do ciała: garda, rana, stany, pchnięcie i slam.
+   Mnożniki stanów korzystają z jednej funkcji; promień ciała ma jedno
+   źródło. Rules.interrupt usuwa dawną zależność Rules -> AI -> Rules.
+   To pragmatyczny podział: nie wszystkie historyczne pola reakcji obrazu
+   usunięto z reguł. Nie deklarujemy pełnej izolacji całego silnika.
+
+3. Symulacja
+   game:simulate wykonuje pojedynczy krok; główna pętla pracuje w 120 Hz.
+   game:update dzieli krok zewnętrznego wywołania na te same podkroki,
+   z dotychczasowym limitem nadganiania 0,20 s.
+   feel.lua prowadzi ruch gracza i odbiera wynik rzeczywistych kolizji.
+   collision.lua pozostaje źródłem kontaktu ze światem; nie dodano drugiego
+   zestawu niewidzialnych ścian tylko dla efektów.
+
+   ai.lua jest fasadą i maszyną stanów: intencja, decyzje, kolejność ataków,
+   ruch celowy i koordynacja są tutaj. Szczegóły rozdzielono na:
+   - enemy_actions.lua: wybór, zamach, zobowiązanie do celu, wykonanie ataku
+     oraz aktywne okna kontaktu wręcz;
+   - enemy_body.lua: pchnięcie, kontakt z murem, lot martwego ciała, odbicie,
+     poślizg i wygasanie reakcji;
+   - enemy_hazards.lua: zegary kałuż i piorunów, właściciel zapowiedzi ataku,
+     pulsowanie oraz anulowanie.
+   Publiczne AI.radius, AI.hazard i AI.interrupt pozostają zgodne ze starszymi
+   wywołaniami. Parametry ataków i broni nie zostały przy tym przepisane.
+
+4. Prezentacja
+   weight.lua przekłada istniejący impet, obrażenia i przełamanie gardy na
+   reakcję rąk, potwierdzenie kontaktu, dźwięk oraz oznaczenie kierunku.
+   weapon_motion.lua prowadzi sprężyny dłoni i bezwładność niesionej broni.
+   movement_impact.lua mierzy odpowiedź solvera kontaktu i wyprowadza
+   impuls/energię reakcji; nie zastępuje solvera.
+   Kamera używa tego samego początku i kierunku co autorytatywny strzał.
+   Kosmetyczny viewPunch przeniesiono do dłoni, aby celownik podczas
+   odzyskiwania równowagi nadal wskazywał faktyczny kierunek pocisku.
+   Obrót obrazu wokół osi patrzenia pozostawia środek celowania na miejscu.
+
+KONTAKT CIAŁ: CO ZMIENIŁO SIĘ MATEMATYCZNIE
+Masy są względnymi masami gry. Jest to kontakt niesprężysty w płaszczyźnie
+podłoża, a nie pełny silnik brył sztywnych ani symulacja jednostek SI.
+
+Niech n będzie jednostkowym kierunkiem od środka ciała 1 do ciała 2,
+a v1, v2 ich prędkościami pchnięcia:
+  closing = max(0, (v1 - v2) dot n)
+  J       = closing / (1/m1 + 1/m2)
+  v1'     = v1 - n * J/m1
+  v2'     = v2 + n * J/m2
+
+Pęd obu ciał zostaje zachowany. Energia kinetyczna nie rośnie. Prędkości
+styczne do kontaktu zostają nienaruszone. Ciała już oddalające się od siebie
+nie otrzymują drugiego impulsu. Próg 2,6 m/s dotyczy zbliżania po normalnej,
+więc szybkie przejście obok demona nie udaje bezpośredniego uderzenia.
+Dla jednakowych mas i nieruchomego odbiorcy prosty cios nadal dzieli
+prędkość po połowie. Przy różnych masach poprzednia reguła gubiła albo
+tworzyła pęd; nowa usuwa ten błąd bez zmiany obrażeń broni.
+Garda odbiorcy korzysta z faktycznie otrzymanej zmiany prędkości.
+
+Opór jest całkowany w postaci zamkniętej:
+  decay  = exp(-drag * dt)
+  travel = (1 - decay) / drag
+Dla drag = 0 stosujemy travel = dt. Podział czasu nie zmienia swobodnego
+wyniku takiego ruchu. Złożone kontakty nadal zależą od kroku symulacji
+i istniejącego testu bliskości ciał; nie obiecujemy ciągłego solvera ciał.
+
+Timer blokady slamu demona wygasa także w spoczynku. Wcześniej przestawał
+maleć po zatrzymaniu przy ścianie, przez co znikała reakcja na późniejszy cios.
+Gracz otrzymuje teraz wspólny raport kontaktu przez G:recordPlayerDamage.
+Slam nie rozlicza obrażeń drugi raz i nie dodaje kolejnego pchnięcia.
+Kierunek oznaczenia pochodzi z zablokowanego wektora ruchu. Raportowany
+kontakt ma jedno źródło ciężkiego dźwięku; sygnał recorded zapobiega jego
+powtórzeniu w feel.lua. Ściana nadal nie zabija i nie leczy gracza, który
+już miał mniej niż 0,5 HP.
+
+INTENCJA GRACZA I KROKI
+player_intent.lua rozdziela krótkie naciśnięcie od przytrzymania przycisku.
+Okno intencji wynosi 0,12 s. Dostępny strzał/skok jest próbą przed starzeniem
+bufora, aby ostatnie milisekundy poprawnego wejścia nie ginęły na granicy
+kroku. Pauza, mapa, pomoc i utrata fokusu czyszczą intencje. Wznowienie
+gry nie wykonuje starego strzału lub skoku.
+
+movement_gait.lua jest wspólnym zegarem fizycznego chodu dla dźwięku kroku
+i ruchu dłoni. Faza rośnie o dystans * 2,5 rad/m; jedna stopa przypada co
+pi/2,5, czyli około 1,257 m. Zachowujemy resztę fazy. Chód nie nalicza kroków
+podczas lotu, uniku, ślizgu ani stania na przeszkodzie. Wyłączenie ruchu
+dekoracyjnego nie wyłącza fizycznego dźwięku kroków.
+Feel.clearMotion czyści sprężyny od razu, także przy dwóch zmianach opcji
+w pauzie, bez ruszania amunicji, przeładowania, uniku i zegarów fizycznych.
+
+ADAPTERY APLIKACJI I WERYFIKACJI
+preferences.lua: czyste decode/encode, domyślne ustawienia, walidacja
+liczb, dozwolone zakresy i odseparowany odczyt/zapis pliku.
+qa_runtime.lua: aliasy flag, izolacja tożsamości zapisu, wirtualny tryb
+myszy podczas automatycznych prób, wyciszenie i uruchamianie trybów QA.
+release.lua: jedno źródło numeru wersji, tytułu i katalogu QA.
+test_suite.lua: kolejność historycznych regresji oraz nowych testów.
+main.lua: wejście użytkownika i przejścia ekranów, zamiast powielonych
+list flag i parsera preferencji. Zwykła gra zachowuje istniejącą tożsamość
+zapisu; tożsamość QA jest wybierana przed dostępem do preferencji i zapisu.
+
+CZYTELNOŚĆ GRAFIKI
+render_numbers.lua układa istniejące malowane cyfry w ograniczonym zbiorze
+pól: maksymalnie 24 ostatnie kontakty, z rezerwą dla celownika i granic
+sceny. Widoczność sprawdza w świecie, z tymi samymi okrągłymi filarami co
+balistyka. Liczby nie prześwietlają ścian i nie przechodzą na ekrany menu.
+Galeria mierzy rzeczywisty obrys malowanych liter wraz z marginesem.
+Podpis znika w całości, jeśli nie mieści się bezpiecznie; nie obcina się go
+na krawędzi ozdobnej planszy. Zachowano freskowy charakter zasobów.
+
+JAK ROZWIJAĆ DALEJ
+Nowe dane ciała trafiają do archetypes; nowa reguła do rules lub czystej
+matematyki; nowy sposób działania do odpowiedniego podsystemu symulacji;
+nowy efekt odczytuje wynik istniejącego kontaktu. Nie obliczamy osobnego
+„efektownego” trafienia dla grafiki. Nie dodajemy ECS ani kolejnej warstwy
+pośredniej bez konkretnego problemu, który ma rozwiązać.
+Wyniki wykonanych testów, renderów i pomiarów należą do work/qa-v15.
+
+
+########################################################################
+CZUCIE-WALKI-0.13.txt
+########################################################################
+SIGIL: BREACH — model walki i odpowiedzi 0.13
+
+OBRAŻENIA
+f(d) = 1 - (1 - minimum) * clamp((d - start)/(koniec - start), 0, 1)
+A = max(0, pancerz) * (1 - clamp(penetracja, 0, 1))
+R = clamp(odporność, -0,25, 0,60)
+S = moc * f(d) * strefa * ulepszenie
+obrażenia = baza * S * mnożnik_głowy * 100/(100 + A) * (1 - R)
+impet = bazowy_impet * S
+
+Strefa pozostaje współczynnikiem ataku. Mnożnik głowy wynosi 1 poza
+anatomiczną głową; na niej 1,15 dla śrutu i 1,35 dla rewolweru.
+Nie zmienia impetu. Odporność nie udaje metalowej płyty w efektach.
+Pancerz i penetracja działają także przy precyzyjnym trafieniu.
+Nadmiar obrażeń ponad HP nie zwiększa krwi ani raportu zabranych HP.
+
+ZDROWIE GRACZA
+Gracz ma 100 HP. Jego osłona jest zużywanym zapasem, a pancerz
+przeciwnika stałym ratingiem we wzorze powyżej. To dwa różne modele.
+pochłonięte = min(punkty_osłony, 0,55 * obrażenia_wejściowe)
+utrata_HP = min(HP, obrażenia_wejściowe - pochłonięte)
+nadmiar = max(0, obrażenia_wejściowe - pochłonięte - utrata_HP)
+HP oraz osłona nie spadają poniżej zera. 40% na HUD oznacza 40/100
+pozostałego zapasu, nie 40% redukcji. Po jego wyczerpaniu cios trafia
+pełną mocą. Ochrona przez 0,32 s po trafieniu zapobiega wielokrotnemu
+naliczeniu kontaktu. Unik ma osobne krótkie okno ochrony 0,20 s.
+Przy kolejnych ciosach po 27 i bez leczenia: bez osłony śmierć po
+czterech, z 40 punktami osłony po sześciu. To test modelu, nie mnożnik
+poziomu. Raport oddziela faktyczne HP, osłonę i nadmiar obrażeń.
+
+STRZELBA
+20 osobnych promieni z dwóch nabojów; 10 z jednego. Baza 12/śrucinę.
+Wektor każdego promienia normalizowany w lokalnej bazie kierunku.
+Stożek ±0,15 rad poziomo, ±0,09 pionowo; stałe pary symetryczne.
+Pierwsze 6 par tworzy gęstszy środek; ostatnie zachowują szerokość.
+Na płaszczyźnie prostopadłej do osi szerokość wynika z d*tan(kąta).
+Promienie spotykają pierwszą rzeczywistą bryłę lub powierzchnię,
+każdy ma własny dystans i spadek mocy. Wszystkie rozlicza się przed
+usuwaniem martwych celów. Brak przenikania przez ciało zabite
+pierwszą śruciną tej samej salwy. Rozrzut nie używa losowego RNG.
+
+Kontrolowany pomiar tej samej pozy i celowania w tułów przy 8 m:
+                   przed         gęstszy rdzeń
+Imp / 85 HP        81,19 / 2      101,60 / 1 salwa
+Stolas / 70 HP     60,70 / 2       80,95 / 1 salwa
+Pancerny /120 HP   52,91 / 3       66,19 / 2 salwy
+Pomiar izoluje rozrzut, bez dodawania bonusu głowy do porównania.
+Przy 10 m Imp nadal potrzebuje 2, Pancerny 3 salw. Dwa Impy oddalone
+od siebie o 1,2 m można zabić jedną salwą na 3–5 m przy dobrym ustawieniu.
+To konkretne ustawienia testowe; ruchome sylwetki mogą dać inny wynik.
+
+ANATOMIA I WYTRZYMAŁOŚĆ
+Trafienie wybiera najbliższą bryłę ciała w aktualnej pozie, nie prostokąt
+sprite'a. Głowy Stolasa i Buera skalibrowano do namalowanej czaszki,
+a nie do wysokości piór lub grzywy. Pochylony Buer ma dodatkową bryłę
+barku: obniżenie głowy nie usuwa trafialności widocznych ramion.
+To aproksymacja przestrzenna z kilku brył, nie dokładność każdego piksela.
+
+Bliski Sędzia — liczba trafień w tułów / głowę:
+Stolas 1/1, Sługa 2/1, Buer 2/2, Żelazny Sługa 3/2.
+Zachowano HP i pancerz sześciu archetypów. Różnią się progami i rolą,
+a celność nie jest ukrytym losowym krytykiem. Przy 8 m po kalibracji
+anatomii wycelowana w tułów salwa daje Stolasowi 80,93, Buerowi
+112,52/124,02 obrażeń w dwóch naprzemiennych układach śrutu.
+Wąska głowa może złapać mniej śrucin niż szeroki tułów; bonus głowy
+nie oznacza automatycznie większej sumy całej salwy.
+
+DURABILITY-REVIEW.txt w paczce podaje sześć archetypów, cztery dystanse,
+rzeczywiste promienie, zapas amunicji oraz zegar obu broni. Oddziela
+teoretyczne 20 trafień od śrucin rzeczywiście przecinających cel,
+ręczne przeładowanie od trzymania spustu i statyczny pomiar od walki.
+HEAD-CALIBRATION.txt opisuje rejestrację stref i testy punktów anatomii.
+
+KONTAKT RUCHU
+J = m * |v_przed - v_po|
+E_stracona = max(0, m/2 * (|v_przed|² - |v_po|²))
+F_średnia = J / czas_amortyzacji
+Masa względna 1. Amortyzacja ściany 0,09 s, lądowania 0,16 s,
+wybicia 0,20 s. Nigdy nie dzielimy impulsu przez klatkę renderowania.
+Kolizja zachowuje ruch styczny. Zatrzask kontaktu uniemożliwia ciągłe
+generowanie uderzeń przy wciskaniu się w ścianę.
+Skok: v0=5,5, g=18,5, wysokość v0²/(2g) ≈0,818 jednostki.
+Lądowanie korzysta z dokładnej prędkości przy przecięciu podłoża.
+Pył dopiero powyżej 28 jednostek utraconej energii. Upadek z wysokości
+2 daje E=37; zwykły skok E=15,125. Reakcja dłoni jest ograniczona.
+Nie dodano obrażeń od ścian ani nowego systemu wspinania na dekoracje.
+
+ODPOWIEDŹ MATERIAŁU
+Pozostała moc ataku wyznacza umowną energię wizualną E.
+cos = clamp(-kierunek_pocisku · normalna, 0, 1)
+E_normalna = E*cos²; E_styczna = max(0, E - E_normalna).
+Prędkość drobin zależy od sqrt(E), ich kierunek od normalnej i
+składowej stycznej. Liczba, czas i rozmiar mają limity czytelności.
+Tynk: ciepły pył; kamień: chłodniejsze odpryski; metal: krótkie
+żelazne iskry; pancerz Furfur: odłamki kości. Krew zależy od HP.
+Malowany efekt ściany odsunięty o 0,095 przed dekoracyjne lico,
+które wystaje przed płaszczyznę kolizji. Nie przesuwa to trafienia.
+Budżety: 240 drobin, 48 efektów, maksymalnie 8 chmur dymu.
+Pula efektów usuwa dawne tinty, prędkości i materiał po ponownym użyciu.
+
+ARCHITEKTURA
+damage.lua: czysta matematyka obrażeń i impetu.
+ballistics.lua / enemy_geometry.lua: tor i anatomia kontaktu.
+combat.lua: jedno rozliczenie salwy i raport.
+impact_response.lua: prezentacja już rozliczonego trafienia.
+movement_impact.lua: pomiar zakończonej kolizji i reakcja.
+weapon_motion.lua: ograniczone sprężyny dłoni, bez zmiany aimu.
+presentation.lua: interpolacja obrazu między krokami symulacji 120 Hz.
+Gra nie używa jittera obrażeń do ukrywania braku balansu.
+
+
+########################################################################
+KIERUNEK-FRESK-0.12.txt
+########################################################################
+SIGIL: BREACH — ożywiony fresk, kierunek oprawy 0.12
+20 października 2026
+
+CEL I GRANICE
+Gracz nie ogląda współczesnej gry przez filtr „starego obrazu”. Chodzi po przestrzeni, której materiały, ludzie, demony, broń, gesty, znaki i litery zostały namalowane tym samym językiem. Punktem odniesienia jest przesłany przez użytkownika widok jasnej, starej kaplicy z ochrowymi demonami i malowanym pasem HUD. Horror nie oznacza samego obniżenia jasności.
+
+Wciąż mamy jedno pole testowe: dotychczasową arenę 31×31, z nawą, bocznymi dziedzińcami i ołtarzem. Nie budujemy teraz kampanii ani następnych kręgów. Dopracowujemy oprawę, ruch, ataki, trafienia, broń, animację, interfejs i czytelność przed projektowaniem świata. F2 służy do powtarzalnych prób istniejących demonów, bossów, pieczęci i stanów walki. Człowiek pozostaje bez magii; manifest jest wskazówką dla jego wyglądu, nie nowym scenariuszem.
+
+CZTERY PUNKTY ODNIESIENIA — RÓŻNE ROLE, WSPÓLNY JĘZYK
+1. Giovanni da Modena, Inferno, kaplica Bolognini, San Petronio.
+   To główne odniesienie dla potworów i materialności malowidła: hybrydy człowieka i zwierzęcia, wydłużone gesty, wyraźny kontur, rozpoznawalne sceny, okrutny porządek zamiast przypadkowego zbioru kolców. Przewodnik kaplicy opisuje układ Sądu nad Infernem i przypisanie kar do win; zastrzega, że część ikonografii kar jest starsza od Dantego. Nie nazywamy całego malowidła ilustracją Dantego.
+   Wniosek projektowy: każdy typ ma odmienną sylwetkę i sposób grożenia. Róg, skrzydło czy dziób to czytelny znak tożsamości, nie dodatkowy prostokątny hitbox.
+   Źródło: https://mmg.inera.it/frontend/bologna/oggetti-esposti/cappella-bolognini
+
+2. Michał Anioł, Sąd Ostateczny, Kaplica Sykstyńska.
+   Muzea Watykańskie opisują kompozycję z dominującą figurą Chrystusa w chwili poprzedzającej wyrok.
+   Nasz wniosek z kompozycji: energia gestu powinna przebiegać przez całe ciało. Przygotowanie ciosu, uderzenie i bezwład po nim muszą być odrębnymi pozami, a nie samym przesunięciem ręki. Wielkie figury i małe postaci pozwalają odczuć skalę. Nie kopiujemy przedstawienia Chrystusa jako przeciwnika.
+   Źródło: https://www.museivaticani.va/content/museivaticani/en/collezioni/musei/cappella-sistina/giudizio-universale.html
+
+3. Hieronymus Bosch, Ogród rozkoszy ziemskich, szczególnie piekielne skrzydło.
+   Prado zwraca uwagę na wysoki horyzont, kolejne plany i przekształcenie znajomych przedmiotów w narzędzia piekła.
+   Wniosek projektowy: głębię tworzą nakładające się plany i małe, celowe zdarzenia. Panorama pokazuje odległe miasto i procesję. Gracz jest mały wobec tego porządku. Bliski przeciwnik pozostaje mocniejszym akcentem niż dalekie płomienie. Groteska nie powinna stać się komediowym potworkiem.
+   Źródło: https://www.museodelprado.es/en/the-collection/art-work/triptych-garden-earthly-delights/02388242-6d6a-4e9e-a992-e1311eab3609
+
+4. Hans Memling, Sąd Ostateczny, Muzeum Narodowe w Gdańsku.
+   MNG opisuje oś symetrii, ważenie dusz oraz kontrast uporządkowanej i chaotycznej części kompozycji. To dzieło temperowo-olejne na desce, nie fresk.
+   Wniosek projektowy: HUD i miejsca odpoczynku mają rytm, stabilne osie i spokojne wnętrza. Poczucie sądu wynika z układu, a nie z dodania czaszki do każdego przycisku. Ornament nie zabiera przestrzeni liczbom.
+   Źródło: https://sadostateczny.mng.gda.pl/
+
+Nie udajemy, że cztery prace powstały jedną techniką. Fresk jest wspólną konwencją gry; od pozostałych obrazów bierzemy kompozycję, anatomię i sens znaku.
+
+CO ZNACZY „FRESK” W IMPLEMENTACJI
+Pigment w fresku wiąże się z tynkiem. Materiał ma więc pochodzić z ilustracji przywiązanej do powierzchni, nie z pęknięć przyklejonych do kamery. Źródła konserwatorskie Getty opisują mokry wapienny tynk, pigmenty i rysunek przygotowawczy; nie wyprowadzamy z nich fikcyjnej „historycznej palety RGB”.
+Źródło: https://www.getty.edu/conservation/publications_resources/pdf_publications/pdf/omwp_report.pdf
+
+Nasza paleta robocza: stara kość słoniowa, ochra, żelazowa czerwień, umbra, siny grafit; szałwiowy płomień oznacza odpoczynek. Są to decyzje artystyczne dla gry, nie pomiary pigmentów konkretnych obrazów.
+
+Objętość: szerokie malowane płaszczyzny na ciele i kamieniu, z miękką zmianą tonu i cienkim brunatnym rysunkiem. Żadnego wymuszonego spłaszczenia całego ekranu do kilkunastu kolorów. Bez plastikowego połysku i chromowanej broni. Zużycie nie może pokrywać każdego centymetra równomiernym szumem.
+
+Trzy skale detalu:
+- Z daleka: sylwetka potwora, kształt wejścia, źródło odpoczynku.
+- Ze średniej odległości: gest ataku, żebra, szata, malowany motyw.
+- Z bliska: ślad pędzla, wapienna skaza, cienki rysunek.
+Jeśli trzecia skala niszczy pierwszą, upraszczamy ją.
+
+GŁĘBIA I KLIMAT BEZ DŹWIĘKU
+Świat: ciepły bliższy tynk, chłodniejsza i spokojniejsza dal, ciemne wnęki, warstwowa panorama. Mrok ma miejsca i powód. Nie zakrywamy przeciwników jednolitą czernią.
+Człowiek: ciężki ubiór, zmęczona twarz, ludzkie spojrzenie. Portret jest częścią malowanego pola, bez prostokątnego naklejonego tła. Zmienia wyraz po trafieniu i przy niskim zdrowiu.
+Demony: osobna anatomia, czytelna cisza przed ruchem i konsekwencja gestu. Stolas — sowa, Buer — niepokojący motyw lwa i odnóży, Furfur — jelenia forma i ogon, opancerzony sługa — obciążona żelazem sylwetka. Wszyscy należą do jednego malowidła.
+Broń: palna, namacalna. Otwieranie komór, ładowanie i zamykanie mają czytelny stan wizualny. Malowane płomienie, krew i pył pozostają krótkie, by nie zasłaniać dalszego celu.
+Otoczenie: figura żałobna, kości, relikwiarz, procesja i odległy świadek. Elementy dekoracyjne nie udają aktywnego przeciwnika. Dlatego daleki świadek pochodzi z panoramy, a nie z wielokrotnie powiększonego sprite'a bossa.
+
+GOETIA
+Źródłowe pieczęcie pozostają odrębnymi, niezmienionymi plikami i zachowują orientację. Nie regenerujemy historycznych znaków jako ornamentów. Kolor tuszu dopasowujemy do podłoża. Dekoracyjne łuki efektów nie są przedstawiane jako autentyczne pieczęcie. Kanał ESOTERICA wskazany przez użytkownika pozostaje dodatkową pomocą interpretacyjną; nazwy i znaki wymagają źródeł.
+
+PORÓWNANIA Z GRAMI
+Pentiment: studio deklaruje ograniczoną liczbę klatek, aby animacja zachowała charakter dawnych ilustracji. Istotna lekcja to wspólna reguła dla obrazu i ruchu. Zachowujemy dynamiczne sterowanie FPS, ale pozom nadajemy wyraźne akcenty zamiast płynnego gumowego zniekształcania obrazu. Strona pokazuje też osobne rozwiązania dla czytelności i stabilności kamery; styl nie usprawiedliwia nieczytelnego tekstu.
+Źródło: https://pentiment.obsidian.net/
+
+Apotheon: oficjalne materiały Alientrap prezentują akcję wewnątrz konsekwentnie stylizowanego świata greckiej mitologii. Nasza obserwacja wizualna: ograniczony język sylwetek i ornamentu daje wspólną tożsamość środowisku i postaciom. Nie przenosimy jego płaskiej estetyki wprost; nasze ciało potrzebuje malowanego modelunku.
+Źródło: https://www.alientrap.com/games/apotheon/
+
+Inkulinati: twórcy opisują grę osadzoną na stronach średniowiecznych rękopisów. Lekcja: historyczny nośnik staje się zasadą całego świata, nie dekoracyjną nakładką.
+Źródło: https://news.xbox.com/en-us/2024/02/22/inkulinati-1-0-is-now-available-to-play/
+
+Z tych przykładów nie wynika gwarancja sukcesu gry. To uzasadnienie konkretnych decyzji wizualnych.
+
+KOLEJNOŚĆ PRAC I WARUNKI ODBIORU
+1. Zachowanie poprzedniej wersji i render porównawczy.
+2. Nowe malowane atlasy sześciu archetypów, dwóch broni, ładunku, efektów, ogniska, dekoracji, materiałów, panoramy, malowideł i GUI.
+3. Kontrola przezroczystości, oddzielania klatek i rejestracji stóp; celowane poprawki ilustracji tam, gdzie skrzydła lub broń przechodzą do sąsiedniej komórki.
+4. Podłączenie ilustracji do istniejących czasów i stanów gry. Usunięcie posteryzacji i ekranowej siatki pęknięć.
+5. Pismo nadal z atlasów PNG. Ciemny pigment na jasnym polu, jasny na nieobramowanym świecie. Liczby składane z glifów, nigdy nieskończona lista osobnych obrazów.
+6. Kontrola HUD i wszystkich ekranów w pięciu formatach, również na bardzo długich liczbach, pustej amunicji, zranieniu i przeładowaniu. Liczy się wnętrze malowanego pola, nie sam prostokąt elementu.
+7. Oglądanie prawdziwych renderów, animacji strzału i ataków bez dźwięku. Same testy prostokątów nie oceniają kompozycji.
+8. Regresja fizyki, trafień, zapisów i prawdziwych callbacków sterowania. Osobny pomiar kosztu renderowania; nie nazywamy ograniczenia vsync pomiarem wydajności GPU.
+9. Nowa paczka Windows, porównanie jej źródeł i hashy oraz powtórzenie testów na paczce.
+
+To dokument decyzji i kryteriów, nie deklaracja, że subiektywna jakość osiągnęła „perfekcję”. Wykonane kontrole i ich faktyczne wyniki zapisujemy w raporcie wydania.
+
+
+########################################################################
+MIGRACJA.txt
+########################################################################
+Primary project moved to C:\Users\nahiko\Documents\dev\sigil-breach
+Verified source files: 199
+Runtime files: 14
+Migracja zakończona. Weryfikacja gotowego EXE i ZIP wykonana z nowego katalogu.
+837 testów mechaniki/zasobów oraz 41 testów sterowania/zapisu: PASS.
+TEST.ps1 -Suite Input: PASS z aktualnych źródeł i lokalnego runtime.
+Nowa paczka ZIP: outputs\SIGIL-BREACH-0.10-Windows.zip.
+Opis do nowego czatu: docs\KONTEKST-DO-NOWEGO-CHATA.txt.
+Główny priorytet: jeden poziom testowy; grafika, ruch, animacje i mechanika przed światem.

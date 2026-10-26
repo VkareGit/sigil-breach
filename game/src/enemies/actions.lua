@@ -54,31 +54,32 @@ local function usable(e, atk, d, now)
   local until_ = e.restUntil and e.restUntil[atk.id]
   return not (until_ and now and now < until_)
 end
--- Choose the first attack in the archetype list whose range and cadence fit.
--- 'every=n' means: only when the attack counter is a multiple of n.
--- Returns nil when nothing fits (the body keeps moving instead).
+-- Choose the first usable attack in the archetype list whose preference fits:
+-- 'maxRange' = only closer than that (it outranks 'every'); 'every=n' = only
+-- when the attack counter is a multiple of n (0 fits every n: the counter
+-- grows when an attack starts). When no attack fits its preference, the LAST
+-- attack of the list is the fallback: it still obeys range, minRange and
+-- rest, but not its own maxRange or every. A list puts last the attack meant
+-- for that; 'every' on the last attack is a preference, not a hard limit.
+-- Returns nil when nothing is usable (the body keeps moving instead).
 local function choose(e, d, now)
   local list = arch(e).attacks
-  local fallback
   for _, atk in ipairs(list) do
     if usable(e, atk, d, now) then
       if atk.maxRange then
         if d < atk.maxRange then
           return atk
         end
-      elseif atk.every then
-        if (e.attackCount % atk.every) == 0 then
-          return atk
-        end
-      else
+      elseif not atk.every or (e.attackCount % atk.every) == 0 then
         return atk
       end
-      fallback = fallback or (not atk.maxRange and not atk.every and atk)
     end
   end
   local last = list[#list]
-  return fallback or (usable(e, last, d, now) and last or nil)
+  return usable(e, last, d, now) and last or nil
 end
+-- The decision alone, without beginning the attack (contract tests, tools).
+Attacks.choose = choose
 -- The attack in progress; records prepared by hand (tests, catalogue poses)
 -- may name it only by attackKind, so look it up by id.
 local function current(e)

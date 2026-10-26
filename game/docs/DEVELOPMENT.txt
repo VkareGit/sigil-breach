@@ -5,7 +5,9 @@ C:\Users\nahiko\Documents\dev\sigil-breach
 
 Pracuj w game/, nie w outputs/*/source. outputs to zbudowane snapshoty.
 Poprzednie wydania i pełna kopia sprzed refaktoru pozostają w outputs/work.
-Aktualna architektura: game/docs/ARCHITEKTURA.txt. Historyczne opisy: docs/history.
+Aktualna architektura: game/docs/ARCHITEKTURA.txt. Historia zmian: game/docs/ZMIANY.txt
+(jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy: docs/history.
+Opis każdego pliku kodu: podręcznik docs/podrecznik-codex (nieśledzony, w toku).
 
 POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
 
@@ -84,7 +86,9 @@ Trafienia: --hit-review liczy same raporty trafień względem obrazu (hit-*,
 plan v7 H0–H9). Nowy punkt anatomiczny: wycinek tools/art/landmarks/crops.ps1,
 wpis w game/qa/data/hit_landmarks.lua, test hit-landmarks sprawdzi, czy leży
 na pigmencie lub w powietrzu tak, jak gra go rysuje.
-Zmiana numeru wersji wymaga też utworzenia odpowiadającego docs/ZMIANY-X.txt.
+Zmiana numeru wersji wymaga też nowej sekcji ZMIANY-X.txt na górze
+docs/ZMIANY.txt i sekcji ODBIOR-X.txt na górze docs/ODBIOR.txt; BUILD
+odmawia budowy bez nich.
 Do uruchamiania i testowania wystarcza dołączony runtime; Node/Python nie są
 zależnościami projektu. StyLua jest dołączonym narzędziem deweloperskim.
 
@@ -264,11 +268,13 @@ Narzędzia grafiki: tools/art; wymagają własnych zmiennych SIGIL_* wskazujący
 materiał wejściowy. Są zachowanym warsztatem produkcji, nie częścią uruchomienia
 gry. Nie uruchamiaj ich masowo: część zapisuje atlasy lub wygenerowane metadane.
 
-Archiwum 0.32: old/SIGIL-BREACH-old-weapons-0.32.zip zawiera wyłącznie
-wycofane shotgun-iron-v16.png i revolver-iron-v16.png. Osobny manifest SHA
-i RESTORE-WEAPONS-0.32.ps1 odtwarzają je bez nadpisywania innych plików.
-Aktualny warsztat obu broni: tools/art/weapon_cycles_v32, surowe wejścia
-i deterministyczny retusz. Stare archiwa old nie są potrzebne do grania.
+Broń w grze: shotgun-iron-v16.png i revolver-iron-v16.png (od 998b189
+ponownie aktywne). old/SIGIL-BREACH-old-weapons-0.32.zip zawiera ich kopię
+z chwili, gdy na krótko zastąpiły je arkusze v32; dziś jest zbędny.
+Warsztat retuszowanych arkuszy v32: tools/art/weapon_cycles_v32 (surowe
+wejścia i deterministyczny retusz). Same PNG v32/v33 leżą lokalnie
+w work/weapon-art-v32-v33-backup, poza grą i gitem. Archiwa old nie są
+potrzebne do grania.
 
 REFAKTOR 0.18 / DOWODY
 
