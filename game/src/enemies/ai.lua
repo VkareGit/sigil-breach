@@ -12,6 +12,7 @@ local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
 local Spatial = require('src.physics.spatial')
+local Navigation = require('src.world.navigation')
 local Bodies = require('src.combat.bodies')
 local Target = require('src.enemies.target')
 local AI = {}
@@ -122,9 +123,10 @@ local function route(g, e, tx, tz, dt)
     move(g, e, tx, tz, e.speed, dt)
     return
   end
+  local class = W.class(radius(e))
   e.pathTimer = (e.pathTimer or 0) - dt
   if e.pathTimer <= 0 or not e.path then
-    e.path = W.flow(g.world, tx, tz)
+    e.path = W.flow(g.world, tx, tz, class)
     e.pathTimer = Walk.replan
   end
   -- The next cell down the distance field from a cell (nil at the goal).
@@ -145,6 +147,14 @@ local function route(g, e, tx, tz, dt)
   local x, z = math.floor(e.x + 0.5), math.floor(e.z + 0.5)
   local bx, bz = downhill(x, z)
   if not bx then
+    -- Beyond the exact field around the goal (plan v10 V3): cross region by
+    -- region toward it (world/navigation.lua).
+    if Navigation.beyond(e.x, e.z, tx, tz) then
+      local wx, wz = Navigation.waypoint(g.world, e.x, e.z, tx, tz, class)
+      if wx then
+        move(g, e, wx, wz, e.speed, dt)
+      end
+    end
     return
   end
   local cx, cz = bx, bz

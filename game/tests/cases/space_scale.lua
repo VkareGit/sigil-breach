@@ -4,6 +4,7 @@ local Fixtures = require('tests.support.fixtures')
 local Maps = require('src.content.maps.index')
 local World = require('src.world.arena')
 local Grid = require('src.physics.grid')
+local Roles = require('src.core.roles')
 local Tests = {}
 -- A long hall: 48 cells along x, 16 along z.
 local long = {
@@ -42,11 +43,17 @@ function Tests.run(Game)
     local body = { x = 30, z = 4 }
     World.move(w, body, 12, 0, 0.3)
     check('a body walks past the old 31-cell edge', math.abs(body.x - 42) < 1e-9)
+    local Navigation = require('src.world.navigation')
     local field = World.flow(w, 46, 8)
-    local far = field[Grid.key(w, 3, 8)]
     check(
-      'a flow field spans the whole length with distinct keys per cell',
-      far ~= nil and far >= 43 and field[Grid.key(w, 3, 9)] ~= far
+      'the exact field covers its window around the goal, not the far end of the hall',
+      field[Grid.key(w, 20, 8)] ~= nil and field[Grid.key(w, 3, 8)] == nil
+    )
+    local distance = Navigation.distance(w, 3, 8, 46, 8)
+    local wx = Navigation.waypoint(w, 3, 8, 46, 8, 0)
+    check(
+      'beyond the window the regions give a distance and a step toward the goal',
+      distance ~= nil and distance >= 32 and wx ~= nil and wx > 3
     )
     check(
       'sight runs the length of the hall past its pillar side',
@@ -54,6 +61,86 @@ function Tests.run(Game)
     )
   end)
   Maps:unregister(long.id)
+  assert(ok, problem)
+
+  -- A 256 x 256 map of 16 x 16 rooms joined by one-cell doors.
+  local rooms, side = {}, 256
+  for rz = 0, 15 do
+    for rx = 0, 15 do
+      local x1, z1 = rx * 16 + 2, rz * 16 + 2
+      rooms[#rooms + 1] = { x1, z1, x1 + 13, z1 + 13 }
+      if rx < 15 then
+        rooms[#rooms + 1] = { x1 + 14, z1 + 7, x1 + 15, z1 + 7 }
+      end
+      if rz < 15 then
+        rooms[#rooms + 1] = { x1 + 7, z1 + 14, x1 + 7, z1 + 15 }
+      end
+    end
+  end
+  local maze = {
+    id = 'fixture_rooms',
+    size = side,
+    rooms = rooms,
+    portal = { x = 9, z = 9 },
+    spawn = { x = 9, z = 9, yaw = 0 },
+    ember = { x = 10, z = 9 },
+    zones = { { name = 'ROOMS' } },
+  }
+  Maps:register(maze.id, maze)
+  ok, problem = pcall(function()
+    local Navigation = require('src.world.navigation')
+    local g = Game.new('classic', maze.id)
+    g.testing = true
+    local w = g.world
+    -- The regions are built once per geometry; a query then stays local.
+    Navigation.distance(w, 9, 9, 249, 249)
+    local fine, coarse = World.stats.visited, Navigation.stats.visited
+    local distance = Navigation.distance(w, 25, 9, 233, 249)
+    local wx, wz = Navigation.waypoint(w, 25, 9, 233, 249, 0)
+    local visited = World.stats.visited - fine + Navigation.stats.visited - coarse
+    check(
+      'a path query across a 256 x 256 map visits a small part of it ('
+        .. visited
+        .. ' of 65536 cells)',
+      distance ~= nil and wx ~= nil and visited < 65536 / 10
+    )
+    -- A demon walks through many rooms to a far goal, door after door.
+    local demon = g:spawn('imp', 9, 9)
+    demon.awake, demon.memory, demon.attack, demon.spawnAge = true, 1e9, 1e9, 1
+    local goalX, goalZ = 89, 73
+    Roles.controlled(g).x, Roles.controlled(g).z = goalX, goalZ
+    g.state = 'playing'
+    for _ = 1, 120 * 90 do
+      demon.lastX, demon.lastZ, demon.visible = goalX, goalZ, false
+      demon.sense = 1
+      g:update(1 / 120, {})
+      if math.abs(demon.x - goalX) + math.abs(demon.z - goalZ) < 3 then
+        break
+      end
+    end
+    check(
+      'a demon crosses rooms of other sectors to reach a far goal',
+      math.abs(demon.x - goalX) + math.abs(demon.z - goalZ) < 3
+    )
+    -- Clearance: a wide body does not fit a one-cell door; a narrow one does.
+    local narrow = World.flow(w, 9, 9, 0)
+    local wide = World.flow(w, 9, 9, World.class(0.9))
+    check(
+      'a body wider than a door has no route through it; the usual demons do',
+      narrow[Grid.key(w, 25, 9)] ~= nil
+        and wide[Grid.key(w, 25, 9)] == nil
+        and World.class(0.55) == 0
+    )
+    -- The field cache keeps the most recently used fields.
+    local first = World.flow(w, 30, 30)
+    for i = 1, World.flowCacheSize - 1 do
+      World.flow(w, 30 + i, 31)
+      World.flow(w, 30, 30)
+    end
+    World.flow(w, 60, 60)
+    check('the least recently used field gives way first', World.flow(w, 30, 30) == first)
+  end)
+  Maps:unregister(maze.id)
   assert(ok, problem)
 
   -- The indexed crowd separation equals the pass over every pair, bit for

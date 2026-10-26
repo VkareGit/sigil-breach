@@ -90,6 +90,12 @@ return {
   collector = { pause = 100, stepmul = 400 },
   -- Distance fields (world/arena.lua: W.flow) kept for reuse, one per goal cell.
   flowFields = 16,
+  -- Navigation at scale (plan v10 V3; world/arena.lua, world/navigation.lua):
+  -- an exact field covers window cells around its goal (a map no larger is
+  -- covered whole); beyond it bodies cross regions of sector x sector cells.
+  -- classes: a body wider than classes[k] m in radius needs the open square
+  -- of k cells around every cell of its route.
+  navigation = { window = 32, sector = 16, classes = { 0.6, 1.6 } },
   -- Health of a supply that names no amount.
   healthPickup = 25,
   -- Reach (m): the Ember's rest and trade, a supply taken from the floor.

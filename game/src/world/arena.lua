@@ -196,17 +196,52 @@ function W.clear(w, x, z, tx, tz, r)
   return not Collision.solid(w, tx, tz, r) and Collision.cast(w, x, z, tx - x, tz - z, r) == nil
 end
 -- Breadth-first distance field gives every demon a path around pillars and through doors.
--- Fields are shared (plan v5 G2): one per goal cell while the map is unchanged
--- (its geometry revision), at most flowCacheSize of them. A field is read-only.
+-- Fields are shared (plan v5 G2): one per goal cell and clearance class while
+-- the map is unchanged (its geometry revision), at most flowCacheSize of them,
+-- the least recently used giving way. A field is read-only.
+-- Plan v10 V3: a field covers the window of navigation.window cells around
+-- its goal (a map no larger than the window is covered whole, as before);
+-- beyond it world/navigation.lua leads a body region by region.
 local neighbours = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }
+local Navigation = require('src.content.tuning').navigation
 W.flowCacheSize = require('src.content.tuning').flowFields
-local function flowField(w, sx, sz)
+-- Cells visited by every field built so far (tests read the growth).
+W.stats = { visited = 0 }
+-- Whether a body of clearance class k fits cell (x, z): class 0 needs the
+-- cell to be floor; class k the whole square of k cells around it.
+function W.open(w, x, z, k)
+  if k == nil or k == 0 then
+    return w.map[z] and w.map[z][x] == 0 or false
+  end
+  for oz = -k, k do
+    local row = w.map[z + oz]
+    for ox = -k, k do
+      if not (row and row[x + ox] == 0) then
+        return false
+      end
+    end
+  end
+  return true
+end
+-- The clearance class of a body of radius r (content/tuning.lua: navigation).
+function W.class(r)
+  local k = 0
+  for i, limit in ipairs(Navigation.classes) do
+    if r > limit then
+      k = i
+    end
+  end
+  return k
+end
+local function flowField(w, sx, sz, class)
   local qx, qz, head, tail = { sx }, { sz }, 1, 1
   local dist = {}
+  local window = Navigation.window
   dist[Grid.key(w, sx, sz)] = 0
   while head <= tail do
     local px, pz = qx[head], qz[head]
     head = head + 1
+    W.stats.visited = W.stats.visited + 1
     local d = dist[Grid.key(w, px, pz)]
     for i = 1, #neighbours do
       local a = neighbours[i]
@@ -216,8 +251,9 @@ local function flowField(w, sx, sz)
       -- climb from its own floor to this cell, not the other way round.
       local climb = Ground.cell(w, px, pz) - Ground.cell(w, nx, nz)
       if
-        w.map[nz]
-        and w.map[nz][nx] == 0
+        math.abs(nx - sx) <= window
+        and math.abs(nz - sz) <= window
+        and W.open(w, nx, nz, class)
         and dist[id] == nil
         and climb <= (w.stepHeight or Terrain.stepHeight)
       then
@@ -229,22 +265,45 @@ local function flowField(w, sx, sz)
   end
   return dist
 end
-function W.flow(w, x, z)
+-- class (optional): the clearance class of the bodies following it (W.class).
+function W.flow(w, x, z, class)
+  class = class or 0
   local sx, sz = math.floor(x + 0.5), math.floor(z + 0.5)
   local cache = w.flows
   if not cache or cache.revision ~= w.geometryRevision then
-    cache = { revision = w.geometryRevision, count = 0, fields = {} }
+    cache = { revision = w.geometryRevision, count = 0, clock = 0, fields = {} }
     w.flows = cache
   end
-  local goal = Grid.key(w, sx, sz)
-  local field = cache.fields[goal]
-  if not field then
-    if cache.count >= W.flowCacheSize then
-      cache.fields, cache.count = {}, 0
-    end
-    field = flowField(w, sx, sz)
-    cache.fields[goal], cache.count = field, cache.count + 1
+  cache.clock = cache.clock + 1
+  local byClass = cache.fields[class]
+  if not byClass then
+    byClass = {}
+    cache.fields[class] = byClass
   end
-  return field
+  local goal = Grid.key(w, sx, sz)
+  local entry = byClass[goal]
+  if not entry then
+    if cache.count >= W.flowCacheSize then
+      -- The least recently used field gives way (ties: lowest class, goal).
+      local oldClass, oldGoal, oldest
+      for k, fields in pairs(cache.fields) do
+        for id, item in pairs(fields) do
+          if
+            not oldest
+            or item.used < oldest
+            or (item.used == oldest and (k < oldClass or (k == oldClass and id < oldGoal)))
+          then
+            oldClass, oldGoal, oldest = k, id, item.used
+          end
+        end
+      end
+      cache.fields[oldClass][oldGoal] = nil
+      cache.count = cache.count - 1
+    end
+    entry = { field = flowField(w, sx, sz, class) }
+    byClass[goal], cache.count = entry, cache.count + 1
+  end
+  entry.used = cache.clock
+  return entry.field
 end
 return W

@@ -6,7 +6,7 @@ local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Waves = require('src.content.waves')
-local Grid = require('src.physics.grid')
+local Navigation = require('src.world.navigation')
 local K = Waves.portal
 local S = {}
 -- Portal colours name what is coming: each creature's appearance.portal
@@ -25,12 +25,12 @@ S.distance = distance
 -- flank: a later member of a pack prefers portals outside the player's view.
 function S.choosePortal(g, flank)
   local r, p = g.run, Roles.controlled(g)
-  local flow = W.flow(g.world, p.x, p.z)
   local best, bestScore
   local opening = r.queueIndex == 1 and r.wave <= K.openingWaves
   local P = K.score
   for i, s in ipairs(g.world.gates or S.portals) do
-    local path = flow[Grid.key(g.world, math.floor(s.x + 0.5), math.floor(s.z + 0.5))]
+    -- Walking distance from the portal to the knight (world/navigation.lua).
+    local path = Navigation.distance(g.world, s.x, s.z, p.x, p.z)
     local d = distance(p, s)
     local crowded = false
     for _, e in ipairs(Pools.of(g, 'enemies')) do
