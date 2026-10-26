@@ -8,7 +8,9 @@ ZMIANY: game\docs\ZMIANY.txt (wszystkie wersje w jednym pliku, najnowsza na gór
 ROZBUDOWA: game\docs\ROZSZERZANIE.txt (broń, dostawy, wyposażenie, granice)
 ODBIÓR: game\docs\ODBIOR.txt (sekcja 0.32: dowody techniczne i osobny B2 użytkownika)
 ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (uzupełnienia: ZMIANY.txt, sekcja 0.31)
-PLAN W REALIZACJI: game\docs\PLAN-FUNDAMENT-v9.md (zaakceptowany 2026-10-24).
+PLAN W REALIZACJI: game\docs\PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25; blokery
+skalowania B1–B7, etapy V0–V7). Plan v9 (2026-10-24) pozostaje źródłem
+kontraktów fundamentu 0.32.
 Kontrakty trafień: game\docs\PLAN-ROZWOJU-v7.md; B2 wymaga oceny gracza.
 KONTEKST DLA NOWEGO CZATU: docs\KONTEKST.txt
 PODRĘCZNIK KODU: docs\podrecznik-codex (opis każdego pliku; w toku, poza gitem)
