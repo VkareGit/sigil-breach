@@ -12,6 +12,8 @@ local Rules = require('src.combat.rules')
 local Hazards = require('src.enemies.hazards')
 local Tuning = require('src.content.tuning')
 local Kinematics = require('src.physics.kinematics')
+local Bodies = require('src.combat.bodies')
+local Target = require('src.enemies.target')
 local Attacks = {}
 local sin, cos, sqrt, atan2 = math.sin, math.cos, math.sqrt, math.atan2
 local len = MathX.len
@@ -41,6 +43,7 @@ local function projectile(g, e, a, speed, spec)
     big = spec.big or false,
     color = spec.color,
     owner = e.id,
+    side = Bodies.side(g, e),
     packet = Rules.packet(e, spec.packet),
     radius = spec.radius or (spec.big and K.bigBoltRadius or K.boltRadius),
   })
@@ -116,16 +119,41 @@ end
 -- without knowing which kind it is.
 local Kinds = {}
 Attacks.kinds = Kinds
-local function hurtPlayer(g, e, atk)
+-- The body an attack is for (enemies/target.lua) and its swept points: where
+-- it stood when the step began and where it stands now (plan v10 V2). The
+-- controlled knight's step start is the one the session passes down
+-- (previous); any other body's comes from Bodies.previous.
+local victimOf = Target.of
+local sweepFrom, sweepTo = {}, {}
+local function previousOf(g, t, given)
+  if t == Bodies.controlled(g) then
+    return given
+  end
+  return Bodies.sweep(g, Bodies.previous(g, t), sweepFrom)
+end
+local function pointOf(g, t)
+  return Bodies.sweep(g, t, sweepTo)
+end
+-- The controlled knight at the end of a sub-step: the body a moving demon
+-- meets (combat/body_contact.lua: moveEnemy). For the target it is the same
+-- point the contact uses.
+local function knightAt(g, t, current, given, step, dt)
+  local k = Bodies.controlled(g)
+  if t == k then
+    return current
+  end
+  return step < dt and Melee.playerAt(given or k, k, step / dt, nil, g.world) or k
+end
+local function hurt(g, e, atk, t)
   local packet = Rules.packet(e, atk.packet)
-  g:damagePlayer(packet.base, e.x, e.z, packet, e)
+  g:damageBody(t, packet.base, e.x, e.z, packet, e)
   e.didHit = true
 end
 -- A blow that missed the dodging knight but met his afterimage (where the
 -- dodge began) is spent on it: a perfect dodge (session/damage_outcomes.lua).
-local function dodged(g, e, atk)
+local function dodged(g, e, atk, t)
   e.didHit = true
-  Dodge.perfect(g, Rules.packet(e, atk.packet), e)
+  Dodge.perfect(g, Rules.packet(e, atk.packet), e, t)
 end
 -- Move the body along its rush; a blow that met the rush scales it.
 local function rush(g, e, speed, step, previous, current)
@@ -143,10 +171,18 @@ Kinds.lunge = {
       return
     end
     local step = math.min(dt, atk.lungeTime - ctx.before)
-    local p = g.player
-    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt, nil, g.world) or p
+    local t = victimOf(g, e)
+    local p, previous = pointOf(g, t), previousOf(g, t, ctx.previous)
+    local current = step < dt and Melee.playerAt(previous or p, p, step / dt, nil, g.world) or p
     -- A crippled or wounded body lunges shorter (the same speed conditions).
-    rush(g, e, atk.lungeSpeed * Rules.speedScale(e), step, ctx.previous, current)
+    rush(
+      g,
+      e,
+      atk.lungeSpeed * Rules.speedScale(e),
+      step,
+      ctx.previous,
+      knightAt(g, t, current, ctx.previous, step, dt)
+    )
     if e.didHit then
       return
     end
@@ -156,19 +192,20 @@ Kinds.lunge = {
         e,
         ctx.oldX,
         ctx.oldZ,
-        ctx.previous,
+        previous or p,
         ctx.before,
         e.phase,
         atk.lungeTime,
         atk.active,
-        nil,
-        atk
+        p,
+        atk,
+        t
       )
     then
-      hurtPlayer(g, e, atk)
+      hurt(g, e, atk, t)
       return
     end
-    local ghost = Dodge.afterimage(g)
+    local ghost = Dodge.afterimage(g, t)
     if
       ghost
       and Melee.claw(
@@ -182,10 +219,11 @@ Kinds.lunge = {
         atk.lungeTime,
         atk.active,
         ghost,
-        atk
+        atk,
+        t
       )
     then
-      dodged(g, e, atk)
+      dodged(g, e, atk, t)
     end
   end,
 }
@@ -201,22 +239,25 @@ Kinds.charge = {
     if ctx.before >= e.chargeTime then
       return
     end
-    local p = g.player
+    local t = victimOf(g, e)
+    local p, previous = pointOf(g, t), previousOf(g, t, ctx.previous)
     local step = math.min(dt, e.chargeTime - ctx.before)
-    local current = step < dt and Melee.playerAt(ctx.previous or p, p, step / dt, nil, g.world) or p
-    rush(g, e, atk.speed, step, ctx.previous, current)
+    local current = step < dt and Melee.playerAt(previous or p, p, step / dt, nil, g.world) or p
+    rush(g, e, atk.speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt))
     local r = atk.reach
     local x1, z1 = ctx.oldX + e.lungeX * r, ctx.oldZ + e.lungeZ * r
     local x2, z2 = e.x + e.lungeX * r, e.z + e.lungeZ * r
     local y1 = atk.contactY + Ground.height(g.world, ctx.oldX, ctx.oldZ) - Ground.height(g.world)
     local y2 = atk.contactY + Ground.height(g.world, e.x, e.z) - Ground.height(g.world)
     if not e.didHit then
-      if Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, ctx.previous, current, y2) then
-        hurtPlayer(g, e, atk)
+      if Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, previous, current, y2, t) then
+        hurt(g, e, atk, t)
       else
-        local ghost = Dodge.afterimage(g)
-        if ghost and Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, ghost, ghost, y2) then
-          dodged(g, e, atk)
+        local ghost = Dodge.afterimage(g, t)
+        if
+          ghost and Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, ghost, ghost, y2, t)
+        then
+          dodged(g, e, atk, t)
         end
       end
     end
@@ -243,6 +284,7 @@ Kinds.strike = {
     e.pendingHazard = Spawn.make(g, 'hazard', {
       kind = 'lightning',
       owner = e.id,
+      side = Bodies.side(g, e),
       x = e.aimX,
       z = e.aimZ,
       radius = atk.radius,
@@ -263,7 +305,7 @@ Kinds.leap = {
     if not atk.leadShare then
       return
     end
-    local p = g.player
+    local p = victimOf(g, e)
     local gravity = Tuning.gravity
     local flight = 2 * math.sqrt(2 * gravity * atk.height) / gravity
     local share = atk.leadShare + (1 - atk.leadShare) * (e.tierLead or 0)
@@ -290,16 +332,17 @@ Kinds.leap = {
   end,
   -- The landing strikes: the player within reach of the landing point.
   strike = function(g, e, atk, dt, ctx)
-    local p = g.player
+    local t = victimOf(g, e)
+    local p = pointOf(g, t)
     local _, used = Attacks.flight(g, e, dt, ctx and ctx.previous)
     if not e.leaping and not e.didHit then
       if used and used < dt then
-        p = Melee.playerAt(ctx and ctx.previous or p, p, used / dt, nil, g.world)
+        p = Melee.playerAt(previousOf(g, t, ctx and ctx.previous) or p, p, used / dt, nil, g.world)
       end
       e.didHit = true
       Attacks.land(g, e)
-      local reachLand = atk.landRadius + Rules.playerBody().radius
-      local ghost = Dodge.afterimage(g)
+      local reachLand = atk.landRadius + Bodies.extent(g, t)
+      local ghost = Dodge.afterimage(g, t)
       if
         len(p.x - e.x, p.z - e.z) < reachLand
         and math.abs(
@@ -308,7 +351,7 @@ Kinds.leap = {
           < K.jumpClear
       then
         local packet = Rules.packet(e, atk.packet)
-        g:damagePlayer(packet.base, e.x, e.z, packet, e)
+        g:damageBody(t, packet.base, e.x, e.z, packet, e)
       elseif
         ghost
         and len(ghost.x - e.x, ghost.z - e.z) < reachLand
@@ -319,7 +362,7 @@ Kinds.leap = {
           )
           < K.jumpClear
       then
-        dodged(g, e, atk)
+        dodged(g, e, atk, t)
       end
     end
   end,
@@ -335,6 +378,7 @@ Kinds.pool = {
       pulse = pool.pulse,
       condition = pool.condition,
       owner = pool.packet.effects and e.id or nil,
+      side = Bodies.side(g, e),
     })
     projectile(g, e, a, atk.bolt.speed, atk.bolt)
   end,
@@ -361,6 +405,7 @@ Kinds.fan = {
             packet = Rules.packet(e, line.packet),
             pulse = line.pulse,
             owner = line.packet.effects and e.id or nil,
+            side = Bodies.side(g, e),
           }
         )
       end
@@ -376,7 +421,6 @@ local function kindOf(atk)
   return Kinds[atk.kind] or error('unknown attack kind: ' .. tostring(atk.kind))
 end
 local function execute(g, e)
-  local p = g.player
   local a = atan2(e.aimX - e.x, e.aimZ - e.z)
   local atk = current(e)
   e.attackCount = e.attackCount + 1
@@ -410,9 +454,10 @@ local function beginAttack(g, e, d, chosen)
   e.attackKind = atk.id
   change(e, 'windup')
   e.windupDuration = atk.windup
-  local p = g.player
-  -- An attack from outside the player's view is announced longer (fairness).
-  local inView = cos(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) > K.viewCos
+  local p = victimOf(g, e)
+  -- An attack from outside a knight's view is announced longer (fairness);
+  -- a body without a view (a creature) gets no such grace.
+  local inView = not p.yaw or cos(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) > K.viewCos
   if not inView then
     e.windupDuration = e.windupDuration + K.unseenWindup
   end
@@ -456,7 +501,7 @@ local function beginAttack(g, e, d, chosen)
   end
   -- Commit only to a target in sight: a prediction behind cover falls back to
   -- the player's present position (the release check would otherwise cancel).
-  if not kind.unseen and not Rules.seesKnight(g, e, e.aimX, e.aimZ) then
+  if not kind.unseen and not Rules.sees(g, e, p, e.aimX, e.aimZ) then
     e.aimX, e.aimZ = p.x, p.z
   end
   Signal(g, 'AttackTelegraphed', { enemy = e, attack = atk })
@@ -494,7 +539,8 @@ function Attacks.flight(g, e, dt, previous)
   local gravity = Tuning.gravity
   if g.world.elevations then
     local elapsed = 0
-    local p = g.player
+    -- Body contact sweeps the controlled knight by sub-step (moveEnemy).
+    local p = Bodies.controlled(g)
     previous = previous or p
     while elapsed < dt do
       local landing = Kinematics.fallTime(e.leapY, e.leapVY, gravity)
@@ -522,7 +568,7 @@ function Attacks.flight(g, e, dt, previous)
   end
   local landing = (e.leapVY + math.sqrt(e.leapVY * e.leapVY + 2 * gravity * e.leapY)) / gravity
   local step = math.min(dt, landing)
-  local p = g.player
+  local p = Bodies.controlled(g)
   local current = step < dt and Melee.playerAt(previous or p, p, step / dt) or p
   local vx, vz =
     BodyContact.moveEnemy(g, e, (e.leapVX or 0) * step, (e.leapVZ or 0) * step, previous, current)

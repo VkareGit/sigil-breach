@@ -16,12 +16,13 @@ local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name } (the catalogue follows the loadout, never a count).
 function F.weapons(g)
   local list = {}
-  for slot, id in ipairs(g.player.loadout) do
+  for slot, id in ipairs(Roles.controlled(g).loadout) do
     list[slot] = { id = slot, name = Weapons.get(id).name }
   end
   return list
@@ -50,7 +51,7 @@ function F.refill(g)
     return false
   end
   require('src.combat.reload').cancel(g)
-  local p = g.player
+  local p = Roles.controlled(g)
   -- Health of the knight's body, the ward's cap, every dodge charge.
   p.hp, p.armor, p.souls = require('src.content.enemies').player.body.hp, Shop.maxWard, 0
   p.dash = require('src.content.tuning').knight.dashCharges
@@ -78,8 +79,9 @@ function F.reset(g)
   local motion = g.view.motion
   Feel.init(g)
   g.view.motion = motion
-  g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27.5, math.pi, 0
-  g.player.jump, g.player.jumpV, g.player.dashTimer = 0, 0, 0
+  Roles.controlled(g).x, Roles.controlled(g).z, Roles.controlled(g).yaw, Roles.controlled(g).pitch =
+    16, 27.5, math.pi, 0
+  Roles.controlled(g).jump, Roles.controlled(g).jumpV, Roles.controlled(g).dashTimer = 0, 0, 0
   g.run = {
     phase = 'wave',
     wave = 1,
@@ -134,9 +136,9 @@ function F.skirmish(g)
   g.testField.skirmish = true
   g.testField.invincible = false
   g.testField.frozen = false
-  g.player.armor = 40
-  for _, id in ipairs(g.player.loadout) do
-    g.player.arsenal[id].reserve = Weapons.get(id).startReserve
+  Roles.controlled(g).armor = 40
+  for _, id in ipairs(Roles.controlled(g).loadout) do
+    Roles.controlled(g).arsenal[id].reserve = Weapons.get(id).startReserve
   end
   F.spawn(g, 'imp', 1)
   F.spawn(g, 'imp', 1)
@@ -149,7 +151,7 @@ function F.close(g)
   if not g.testField then
     return false
   end
-  g.state = g.player.hp <= 0 and 'dead' or 'playing'
+  g.state = Roles.controlled(g).hp <= 0 and 'dead' or 'playing'
   g.run.phase = 'wave'
   g.help = false
   g.map = false
@@ -184,7 +186,7 @@ end
 -- A catalogue demon set on the knight: awake, remembering where he stands,
 -- facing him, its first blow a moment off.
 local function engage(g, e, kind)
-  local p = g.player
+  local p = Roles.controlled(g)
   e.fieldKind = kind
   e.awake = true
   e.memory = 60
@@ -219,7 +221,7 @@ local function place(g, kind, count)
     tell(g, 'Limit of 20 live demons. Reset the field or defeat some targets.')
     return nil, g.testField.message
   end
-  local p = g.player
+  local p = Roles.controlled(g)
   local radius = require('src.content.enemies').get(kind).appearance.fieldRing
   local spots = {}
   local function legal(x, z)
@@ -399,7 +401,7 @@ function F.visitSeal(g, name)
         tell(g, 'The seal is blocked by targets. Reset the field.')
         return false
       end
-      local p = g.player
+      local p = Roles.controlled(g)
       p.x, p.z = x, z
       p.yaw = math.atan2(s.x - x, s.z - z)
       p.pitch = 0.08
@@ -416,7 +418,7 @@ function F.shop(g)
   if not g.testField then
     return false
   end
-  local p = g.player
+  local p = Roles.controlled(g)
   p.x, p.z = 16, 27.5
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
@@ -489,7 +491,7 @@ end
 local function raise(g, entry)
   local e = g:spawn(entry.kind, entry.x, entry.z)
   e.fieldKind, e.dummy, e.spawnAge = entry.kind, true, 1
-  e.facing = math.atan2(g.player.x - e.x, g.player.z - e.z)
+  e.facing = math.atan2(Roles.controlled(g).x - e.x, Roles.controlled(g).z - e.z)
   e.displayName = entry.label
   entry.enemy, entry.down = e, nil
   return e
@@ -512,7 +514,7 @@ function F.range(g)
     return false
   end
   station(g, 'range')
-  local p = g.player
+  local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = 16, 27.5, math.pi, 0
   local lanes = { { 4, -1.7 }, { 8, 2.1 }, { 12, -2.4 }, { 16, 2.4 }, { 20, 0 } }
   for _, lane in ipairs(lanes) do
@@ -532,7 +534,7 @@ function F.physics(g)
     return false
   end
   station(g, 'physics')
-  local p = g.player
+  local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = 16, 24.5, math.pi, 0
   for i = 1, 3 do
     raise(g, post(g, 'imp', 16, 21.4 - (i - 1) * 0.8, 'Domino ' .. i))
@@ -565,7 +567,7 @@ function F.waves(g)
   -- a calm pacing director.
   Telemetry.reset(g)
   g.intensity = 0
-  g.player.armor = 40
+  Roles.controlled(g).armor = 40
   F.close(g)
   tell(g, 'Wave trial ' .. r.wave .. ' / real damage. F2: abort.')
   return true

@@ -33,6 +33,11 @@ function Tests.run(check)
       self.damage = self.damage + amount
       self.hitCount = self.hitCount + 1
     end
+    -- The one damage path of any body (plan v10 V2); here only the knight.
+    function g:damageBody(target, amount)
+      assert(target == self.player, 'only the knight can be hit here')
+      return self:damagePlayer(amount)
+    end
     local e = {
       kind = kind or 'imp',
       id = 1,

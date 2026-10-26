@@ -8,6 +8,7 @@
 -- This is the layout; the art and its drawing are render/gallery.lua.
 local W = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
+local Roles = require('src.core.roles')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
@@ -107,7 +108,7 @@ G.padLabel = padLabel
 function G.nearestPad(g)
   local best, d = nil, 1.05
   for _, p in ipairs(G.pads) do
-    local dp = dist(g.player, p.x, p.z)
+    local dp = dist(Roles.controlled(g), p.x, p.z)
     if dp < d then
       best, d = p, dp
     end

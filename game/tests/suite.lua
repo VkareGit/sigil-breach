@@ -336,6 +336,11 @@ Suite.registry = {
     module = 'tests.cases.entity_lifecycle',
   },
   {
+    id = 'factions',
+    title = 'Sides, targets and one damage path (plan v10 V2)',
+    module = 'tests.cases.factions',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',

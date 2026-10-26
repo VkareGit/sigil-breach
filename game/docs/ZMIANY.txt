@@ -40,6 +40,17 @@ V1 — encje z cyklem życia (2026-10-25)
 - Poprawka: interpolowana próbka prezentacji nie sięga do żywych pul.
 - Rozgrywka, balans, wygląd i zapisy bez zmian; skróty v2 bez zmian.
 
+V2 — strony, cele i jedna droga obrażeń (2026-10-26)
+- Strony (content/factions.lua) i cele stworzeń (enemies/target.lua):
+  demon walczy z najbliższym wrogim ciałem; domyślnie z rycerzem jak dotąd.
+- Ataki, zagrożenia, pociski, wybuch i efekty ranią każde ciało, które
+  ich strona może zranić; jedna droga obrażeń g:damageBody.
+- Rycerze jako pula: wszyscy się regenerują, każdy ma swój unik; rycerz
+  inny niż sterowany pada bez końca walki (KnightFell).
+- Pozy zwracają się do widza (core/roles.lua); druga kamera jest możliwa.
+- Zapadka knight-references 153 → 1. Rozgrywka, balans, wygląd i zapisy
+  bez zmian; skróty v2 bit w bit.
+
 
 ########################################################################
 ZMIANY-0.32.txt

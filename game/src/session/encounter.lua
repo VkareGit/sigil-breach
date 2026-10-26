@@ -3,6 +3,7 @@
 -- visual remnants and cached combat reports. Neither operation touches the
 -- player, run wallet/checkpoint, world geometry or persistent score.
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local Encounter = {}
 
 function Encounter.clearThreats(g)
@@ -33,7 +34,7 @@ function Encounter.clearWorld(g)
   g.bossSpawned = false
   g.bossDead = false
   g.threat = 0
-  g.player.effectState = nil
+  Roles.controlled(g).effectState = nil
 end
 
 return Encounter

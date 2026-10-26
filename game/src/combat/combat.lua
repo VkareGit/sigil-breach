@@ -12,6 +12,7 @@ local Deliveries = require('src.combat.weapon_delivery')
 local Observation = require('src.combat.observation')
 local Loadout = require('src.combat.loadout')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local C = { trace = B.trace }
 -- Body response comes from the shared rules (src/combat/rules.lua); the
 -- corpse's response to the contact starts here; measurements and the visible
@@ -43,7 +44,7 @@ local function ready(g)
   if g.state ~= 'playing' or g.map or g.help or g.cooldown > 0 then
     return nil
   end
-  if Rules.has(g.player, 'staggered') then
+  if Rules.has(Roles.controlled(g), 'staggered') then
     return nil
   end
   local profile, state = Weapons.inHand(g)
@@ -77,7 +78,7 @@ end
 
 -- 2. The discharge: rounds spent, cadence, recoil, sound, flash and powder.
 local function discharge(g, profile, command)
-  local p, fire = g.player, profile.fire
+  local p, fire = Roles.controlled(g), profile.fire
   local state = Weapons.state(g)
   local rounds = math.min(fire.rounds, state.mag)
   state.mag = state.mag - rounds
@@ -259,7 +260,7 @@ function Volley:pierce(first, d, dx, dy, dz, bodies, firstPart, firstSurface)
 end
 -- Trace pellet i of the volley: body contacts, or the surface it strikes.
 function Volley:trace(i, pellets, spread, bodies)
-  local g, fire, p, report = self.g, self.profile.fire, self.g.player, self.report
+  local g, fire, p, report = self.g, self.profile.fire, Roles.controlled(self.g), self.report
   local ox, oy = 0, 0
   if fire.pellets > 1 then
     ox, oy = B.pellet(i, g.shotSerial, pellets)
@@ -431,8 +432,8 @@ function C.shoot(g, command)
     serial = g.shotSerial,
     slot = g.weapon,
     origin = observed and Observation.copy(observation.origin) or { B.origin(g) },
-    yaw = command and command.yaw or g.player.yaw,
-    pitch = command and command.pitch or g.player.pitch,
+    yaw = command and command.yaw or Roles.controlled(g).yaw,
+    pitch = command and command.pitch or Roles.controlled(g).pitch,
     hit = false,
   }
   delivery.fire(g, shot, prepared)

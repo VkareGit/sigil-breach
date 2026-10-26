@@ -17,12 +17,13 @@ end
 -- The summoning gates of the default map (a session uses its world's gates).
 local Maps = require('src.content.maps.index')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 S.portals = Maps:get(Maps.default).gates
 local distance = MathX.distance
 S.distance = distance
 -- flank: a later member of a pack prefers portals outside the player's view.
 function S.choosePortal(g, flank)
-  local r, p = g.run, g.player
+  local r, p = g.run, Roles.controlled(g)
   local flow = W.flow(g.world, p.x, p.z)
   local best, bestScore
   local opening = r.queueIndex == 1 and r.wave <= K.openingWaves
@@ -79,14 +80,14 @@ end
 -- Extra demons alive at once for a calm, healthy knight.
 function S.extraCap(g)
   local d = Waves.director
-  local p = g.player
+  local p = Roles.controlled(g)
   local healthy = p.hp >= d.healthy * require('src.content.enemies').player.body.hp
   return (S.stress(g) < d.calm and healthy) and d.calmCap or 0
 end
 -- What a wave gives a demon stepping out of its gate: its reward, and the
 -- knight's place to hunt.
 function S.welcome(g, e, gate)
-  local p = g.player
+  local p = Roles.controlled(g)
   e.rewardId = gate.rewardId
   e.awake = true
   e.memory = K.hunt
@@ -104,7 +105,7 @@ end
 -- the newcomer what its mode does (S.welcome for a wave) before it is
 -- announced. In queue order, so a pack's demons appear as they were opened.
 function S.arrivals(g, dt, arrive)
-  local r, p = g.run, g.player
+  local r, p = g.run, Roles.controlled(g)
   local i = 1
   while i <= #r.pending do
     local s = r.pending[i]
@@ -134,7 +135,7 @@ function S.arrivals(g, dt, arrive)
 end
 -- arrive: what an arriving demon is given (S.welcome unless the mode says).
 function S.step(g, dt, arrive)
-  local r, p = g.run, g.player
+  local r, p = g.run, Roles.controlled(g)
   g.intensity = (g.intensity or 0) * math.exp(-dt / Waves.director.tau)
   r.phaseTime = (r.phaseTime or 0) + dt
   r.spawnTimer = (r.spawnTimer or 0) - dt

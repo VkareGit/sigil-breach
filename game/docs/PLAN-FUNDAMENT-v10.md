@@ -230,6 +230,38 @@ Odbiór:
 - render tej samej sceny z drugiego widza daje pozę liczoną względem niego;
 - unik idealny działa dla rycerza będącego celem.
 
+Wykonano (2026-10-26):
+- `content/factions.lua` (strony, wrogość, środki: blow, missile, hazard,
+  blast; wybuch rani każde ciało w zasięgu), `faction` w definicji
+  stworzenia (sprawdzana) i na ciele.
+- `combat/bodies.lua`: pytania o każde ciało; `core/roles.lua`: jedyne
+  miejsce, które nazywa sterowanego rycerza i widza.
+- `enemies/target.lua`: `e.target`, strategia `move.targeting` (domyślnie
+  najbliższe wrogie żywe ciało), odnawiana na zegarze wzroku, nigdy w trakcie
+  zaangażowanego ataku. Zmysły (`Rules.sees`), style ruchu, unik, zamach,
+  limit atakujących i tempo ataków liczą się per cel.
+- Ataki (wypad, szarża, skok, piorun, kałuża, wachlarz, pocisk), kontakt
+  wręcz i kontakt ciał, zagrożenia, pociski, wybuch i efekty trwające
+  rozstrzygają się na ciałach, które ich strona rani. Jedna droga obrażeń
+  `Outcomes.body` (`g:damageBody`); `KnightHit`/`KnightFell` dla rycerza
+  innego niż sterowany.
+- Wszyscy rycerze regenerują się; migawka kroku obejmuje każdego; unik
+  idealny i powidok należą do rycerza, który się uchylił.
+- Poza, klatki tyłem i billboard zwracają się do widza.
+- Zapadka `KNIGHT AS THE ONLY TARGET`: 153 → 1 (utworzenie rycerza).
+  Każde inne odwołanie do sterowanego rycerza mówi to wprost
+  (`Roles.controlled`).
+- Złoty wzorzec v2 bit w bit; zestaw `factions` (15 prób tylko z danych:
+  domyślne relacje 0.32, sojusznik, kałuża demonów na sojuszniku i demonie,
+  renegat, wieżyczka, dwóch rycerzy z upadkiem jednego, unik drugiego
+  rycerza, drugi widz, nieznana strona odrzucona). Bramki: 4011 sprawdzeń.
+- Pomiar (qa_crowd): krok 0,48 / 2,30 / 14,90 ms dla 96 / 256 / 512 ciał
+  (V1: 0,47 / 1,59 / 17,83; w granicach rozrzutu), pociski rycerza
+  0,34 ms na krok przy 96 ciałach (V1 0,29; sprawdzanie stron i rycerzy).
+- Granica jawna: rycerze inni niż sterowany podlegają już wszystkim regułom
+  walki, ale nie mają własnego sterowania (wejście, broń w ręku, kamera).
+  To zakres decyzji o grze wieloosobowej, nie reguł świata.
+
 ### V3 — przestrzeń w skali (B3)
 
 - Mapa prostokątna (`width`/`height`) z sektorami (np. 16×16 komórek).

@@ -11,12 +11,18 @@ local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
 local Rules = require('src.combat.rules')
 local Tuning = require('src.content.tuning')
+local Roles = require('src.core.roles')
 local Dodge = {}
 -- While the knight dodges and its perfect dodge is unspent: the body he left
 -- where the dodge began, at his present height (one shared record).
 local ghost = {}
-function Dodge.afterimage(g)
-  local p = g.player
+-- knight (optional): whose afterimage (default the controlled knight). A body
+-- that is no knight leaves none.
+function Dodge.afterimage(g, knight)
+  local p = knight or Roles.controlled(g)
+  if p.dashTimer == nil then
+    return nil
+  end
   if (p.dashTimer or 0) <= 0 or not p.dodgeFromX or p.perfectUsed then
     return nil
   end
@@ -24,9 +30,10 @@ function Dodge.afterimage(g)
   return ghost
 end
 -- A blow (its packet) dodged perfectly; source: the demon whose own body
--- delivered it (nil for a missile or a marked strike). True when granted.
-function Dodge.perfect(g, packet, source)
-  local player, rule = g.player, Rules.playerBody().perfectDodge
+-- delivered it (nil for a missile or a marked strike); knight (optional):
+-- who dodged (default the controlled knight). True when granted.
+function Dodge.perfect(g, packet, source, knight)
+  local player, rule = knight or Roles.controlled(g), Rules.playerBody().perfectDodge
   if
     not rule
     or player.perfectUsed

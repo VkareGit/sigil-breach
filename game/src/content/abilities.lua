@@ -9,6 +9,7 @@
 local Registry = require('src.core.registry')
 local Action = require('src.content.defs.action')
 local Ability = require('src.content.defs.ability')
+local Roles = require('src.core.roles')
 local Abilities = Registry:new('abilities')
 -- Powder charge (Q): a thrown fire charge. Fire meets no armour rating, so it
 -- answers iron; fire demons resist it. The throw was tuned under a private
@@ -70,7 +71,7 @@ end
 -- caster. Already equipped equipment keeps its slot and remaining uses.
 function Abilities.give(g, id)
   local def = Abilities:get(id)
-  local p = g.player
+  local p = Roles.controlled(g)
   for slot, equipped in ipairs(p.abilities) do
     if equipped == id then
       return slot
@@ -83,22 +84,22 @@ function Abilities.give(g, id)
 end
 -- The ability in a slot of the knight's loadout and its live record.
 function Abilities.slot(g, slot)
-  local p = g.player
+  local p = Roles.controlled(g)
   local id = p.abilities and p.abilities[slot or 1]
   return id and Abilities:find(id), id and p.abilityState[id]
 end
 -- Every ability back at rest (a new life, a reset): ready at once.
 function Abilities.rest(g)
-  for _, state in pairs(g.player.abilityState or {}) do
+  for _, state in pairs(Roles.controlled(g).abilityState or {}) do
     state.readyAt = 0
   end
 end
 -- What a checkpoint keeps: uses by id and the equipped ids in slot order.
 function Abilities.inventory(g)
   local uses, loadout = {}, {}
-  for slot, id in ipairs(g.player.abilities) do
+  for slot, id in ipairs(Roles.controlled(g).abilities) do
     loadout[slot] = id
-    uses[id] = g.player.abilityState[id].uses
+    uses[id] = Roles.controlled(g).abilityState[id].uses
   end
   return uses, loadout
 end
@@ -106,7 +107,7 @@ end
 -- absent from the default loadout still returns. Old in-memory checkpoints
 -- without a slot list keep the receiving knight's loadout.
 function Abilities.restore(g, uses, loadout)
-  local p = g.player
+  local p = Roles.controlled(g)
   local slots, states = {}, {}
   for slot, id in ipairs(loadout or p.abilities) do
     local def = Abilities:get(id)
@@ -121,8 +122,8 @@ function Abilities.restore(g, uses, loadout)
 end
 -- Every ability's uses (refill: to capacity; empty: 0).
 function Abilities.fill(g, empty)
-  for _, id in ipairs(g.player.abilities) do
-    g.player.abilityState[id].uses = empty and 0 or Abilities:get(id).capacity
+  for _, id in ipairs(Roles.controlled(g).abilities) do
+    Roles.controlled(g).abilityState[id].uses = empty and 0 or Abilities:get(id).capacity
   end
 end
 return Abilities

@@ -6,6 +6,7 @@
 local T = require('src.content.tuning')
 local Registry = require('src.core.registry')
 local Weapon = require('src.content.defs.weapon')
+local Roles = require('src.core.roles')
 local W = {}
 -- weight: the physical body of the weapon (src/feedback/weight.lua). Recoil impulse =
 -- momentum of a full discharge * power / mass; heavier guns lag the aim and
@@ -189,7 +190,7 @@ function W.arsenal(loadout)
   return arsenal
 end
 local function loadoutOf(g)
-  return g and g.player and g.player.loadout or W.defaultLoadout
+  return g and Roles.controlled(g) and Roles.controlled(g).loadout or W.defaultLoadout
 end
 -- The id of the weapon in a slot (default: the slot in hand).
 function W.idAt(g, slot)
@@ -211,7 +212,7 @@ end
 -- The definition and live record in hand (or in slot).
 function W.inHand(g, slot)
   local id = W.idAt(g, slot)
-  local arsenal = g and g.player and g.player.arsenal
+  local arsenal = g and Roles.controlled(g) and Roles.controlled(g).arsenal
   return id and registry:find(id), id and arsenal and arsenal[id]
 end
 function W.state(g, slot)
@@ -293,21 +294,21 @@ function W.load(g, slot)
 end
 -- Close every weapon's action and drop its spent cases (the shrine).
 function W.close(g)
-  for _, state in pairs(g.player.arsenal or {}) do
+  for _, state in pairs(Roles.controlled(g).arsenal or {}) do
     state.open, state.loaded, state.spent = false, false, 0
   end
 end
 -- Put every weapon's action back at rest, its cadence too (a new life).
 function W.rest(g)
   W.close(g)
-  for _, state in pairs(g.player.arsenal or {}) do
+  for _, state in pairs(Roles.controlled(g).arsenal or {}) do
     state.readyAt = 0
   end
 end
 -- What a checkpoint keeps of the arsenal: the loadout and each weapon's
 -- rounds and reserve.
 function W.inventory(g)
-  local p = g.player
+  local p = Roles.controlled(g)
   local loadout, weapons = {}, {}
   for i, id in ipairs(p.loadout) do
     loadout[i] = id
@@ -319,7 +320,7 @@ end
 -- Back from a checkpoint: its loadout (when it names one) and rounds; a
 -- weapon it does not mention starts full with its starting reserve.
 function W.restore(g, loadout, weapons)
-  local p = g.player
+  local p = Roles.controlled(g)
   if loadout then
     p.loadout = {}
     for i, id in ipairs(loadout) do
@@ -335,7 +336,7 @@ function W.restore(g, loadout, weapons)
 end
 -- Add a weapon to the knight's loadout (next slot), fresh from its definition.
 function W.give(g, id)
-  local p = g.player
+  local p = Roles.controlled(g)
   local def = W.get(id)
   if p.arsenal[id] then
     return W.slotOf(g, id)

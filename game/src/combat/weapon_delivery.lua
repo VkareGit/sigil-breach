@@ -4,13 +4,14 @@
 local Registry = require('src.core.registry')
 local Spawn = require('src.session.spawn')
 local B = require('src.combat.ballistics')
+local Roles = require('src.core.roles')
 local Delivery = Registry:new('weapon deliveries', function(entry, id)
   assert(type(entry.fire) == 'function', id .. ': delivery requires fire(g, shot, prepared)')
   assert(entry.prepare == nil or type(entry.prepare) == 'function', id .. ': invalid prepare')
 end)
 Delivery:register('projectile', {
   fire = function(g, shot)
-    local def, p = shot.profile.delivery, g.player
+    local def, p = shot.profile.delivery, Roles.controlled(g)
     local spread = shot.spread
     for i = 1, shot.count do
       local ox, oy = 0, 0

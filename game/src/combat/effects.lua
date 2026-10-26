@@ -8,6 +8,7 @@ local Rules = require('src.combat.rules')
 local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
 local Effects = {}
 Effects.kinds = Registry:new('effect handlers', function(entry, id)
   Definitions.kinds:get(id)
@@ -17,18 +18,20 @@ Effects.kinds = Registry:new('effect handlers', function(entry, id)
     'effect handler ' .. id .. ' needs a callable tick'
   )
 end)
+-- Who applied an effect: an explicit { side, id }, a body (its side and id;
+-- the controlled knight is recorded without an id), else the knights.
 local function sourceOf(g, source)
   if type(source) == 'table' and source.side then
     return source.side, source.id
   end
-  if type(source) == 'table' and source ~= g.player then
-    return 'demons', source.id
+  if type(source) == 'table' and source ~= Bodies.controlled(g) then
+    return Bodies.side(g, source), source.id
   end
   return 'knight', nil
 end
 local function aliveSource(g, instance)
-  if instance.sourceSide == 'knight' then
-    return g.player.hp > 0
+  if instance.sourceId == nil and instance.sourceSide == 'knight' then
+    return Bodies.controlled(g).hp > 0
   end
   local source = Pools.get(g, instance.sourceId)
   return source ~= nil and source.hp > 0
@@ -87,10 +90,11 @@ Effects.kinds:register('periodic', {
   tick = function(g, target, instance)
     local definition = instance.definition
     local before = target.hp
-    if target == g.player then
+    if Bodies.isKnight(g, target) then
       -- Exposure already began; it is not a new dodgeable contact and does
       -- not grant or consume contact invulnerability.
-      g:damagePlayer(
+      g:damageBody(
+        target,
         definition.packet,
         nil,
         nil,
@@ -157,7 +161,9 @@ function Effects.update(g, dt)
   if g.state ~= 'playing' or not Capabilities.groundActs(g) or Capabilities.held(g) then
     return
   end
-  updateBody(g, g.player, dt)
+  for _, knight in ipairs(Bodies.knights(g)) do
+    updateBody(g, knight, dt)
+  end
   for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     if g.state ~= 'playing' then
       break

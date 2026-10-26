@@ -17,6 +17,8 @@ local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
 local Archetypes = require('src.content.enemies')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
+local Roles = require('src.core.roles')
 local Contact = {}
 local len = MathX.len
 local defaults = Archetypes.defaults
@@ -65,30 +67,48 @@ local function clippedMove(world, body, oldX, oldZ, dx, dz, radius, t, nx, nz, o
   W.move(world, body, remainX - into * nx, remainZ - into * nz, radius)
   return body.x - oldX, body.z - oldZ
 end
--- Own attack movement obeys the same footprint as ordinary locomotion.
+-- The earliest contact of a demon's own move with knight p (previous: where
+-- p stood when the move began).
+local function knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous)
+  if not standing(g, e, p) then
+    return nil
+  end
+  return Contact.sweep(
+    oldX,
+    oldZ,
+    dx - (p.x - previous.x),
+    dz - (p.z - previous.z),
+    previous.x,
+    previous.z,
+    r + Rules.playerBody().radius
+  )
+end
+-- Own attack movement obeys the same footprint as ordinary locomotion. It
+-- stops at the earliest knight it meets: the controlled one swept between
+-- previous and current (sub-step positions), every other knight between
+-- its step snapshot and where it stands.
 function Contact.moveEnemy(g, e, dx, dz, previous, current)
   local oldX, oldZ, r = e.x, e.z, Rules.radius(e)
   local air, verticalVelocity = e.leapY, e.leapVY
   W.move(g.world, e, dx, dz, r)
   dx, dz = e.x - oldX, e.z - oldZ
-  local p = current or g.player
-  previous = previous or p
-  if standing(g, e, p) then
-    local t, nx, nz = Contact.sweep(
-      oldX,
-      oldZ,
-      dx - (p.x - previous.x),
-      dz - (p.z - previous.z),
-      previous.x,
-      previous.z,
-      r + Rules.playerBody().radius
-    )
-    if t then
-      if g.world.elevations then
-        e.leapVY = verticalVelocity
+  local controlled = Bodies.controlled(g)
+  local p = current or controlled
+  local t, nx, nz = knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous or p)
+  for _, knight in ipairs(Bodies.knights(g)) do
+    if knight ~= controlled and knight.hp > 0 then
+      local kt, kx, kz =
+        knightContact(g, e, oldX, oldZ, dx, dz, r, knight, Bodies.previous(g, knight))
+      if kt and (not t or kt < t) then
+        t, nx, nz = kt, kx, kz
       end
-      return clippedMove(g.world, e, oldX, oldZ, dx, dz, r, t, nx, nz, air)
     end
+  end
+  if t then
+    if g.world.elevations then
+      e.leapVY = verticalVelocity
+    end
+    return clippedMove(g.world, e, oldX, oldZ, dx, dz, r, t, nx, nz, air)
   end
   return dx, dz
 end
@@ -130,7 +150,7 @@ local function exchange(g, p, e, nx, nz)
 end
 -- After the knight moved: he stops at every living demon he walked into.
 function Contact.knight(g)
-  local p = g.player
+  local p = Roles.controlled(g)
   local radius = Rules.playerBody().radius
   local previous = g.frame and g.frame.previousPlayer
   if previous then
@@ -183,17 +203,21 @@ function Contact.knight(g)
     end
   end
 end
--- After the demons moved: every living demon that walked into the knight
--- steps back out of him; a shoved one hands him its momentum.
+-- After the demons moved: every living demon that walked into a knight
+-- steps back out of him; a shoved one hands him its momentum. Knights in
+-- pool order (the controlled one is the first).
 function Contact.demons(g)
-  local p = g.player
   local radius = Rules.playerBody().radius
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if standing(g, e, p) then
-      local depth, nx, nz = overlap(p, e, radius)
-      if depth then
-        exchange(g, p, e, nx, nz)
-        W.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e))
+  for _, p in ipairs(Bodies.knights(g)) do
+    if p.hp > 0 or p == Bodies.controlled(g) then
+      for _, e in ipairs(Pools.of(g, 'enemies')) do
+        if standing(g, e, p) then
+          local depth, nx, nz = overlap(p, e, radius)
+          if depth then
+            exchange(g, p, e, nx, nz)
+            W.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e))
+          end
+        end
       end
     end
   end

@@ -5,6 +5,13 @@ local Archetypes = require('src.content.enemies')
 local EnemyArt = require('src.content.enemy_art')
 local AbilityArt = require('src.content.ability_art')
 local AbilityPose = require('src.enemies.ability_pose')
+local Roles = require('src.core.roles')
+-- The bearing from body e to the viewer (core/roles.lua): what a
+-- billboard turns to and what its back frames are judged against.
+local function viewerYaw(g, e)
+  local v = Roles.viewer(g)
+  return math.atan2(v.x - e.x, v.z - e.z)
+end
 local Pose = {}
 function Pose.base(g, e)
   local frame, hover, lean, sx, sy = Animation.pose(g, e)
@@ -24,7 +31,7 @@ function Pose.anchor(g, e, name)
     assert(EnemyArt.layouts[atlas].frames[frame].registration[name], 'unknown art anchor')
   local y = baseY + anchor.y * height
   local shift = anchor.x * width + anchor.y * height * lean
-  local yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
+  local yaw = viewerYaw(g, e)
   return e.x + math.cos(yaw) * shift, y, e.z - math.sin(yaw) * shift
 end
 function Pose.sample(g, e, out)
@@ -41,7 +48,7 @@ function Pose.sample(g, e, out)
     local scale = (hy - hover) / (rise * region.height * size)
     sx, sy = region.width * scale, region.height * scale
     baseY = hover - sheet.feet[index] * size * sy
-    local yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
+    local yaw = viewerYaw(g, e)
     local targetX = (hx - e.x) * math.cos(yaw) - (hz - e.z) * math.sin(yaw)
     local headU = mirror == 1 and 1 - region.head[1] or region.head[1]
     local paintedX = (headU - 0.5) * sx * size + (1 - region.head[2]) * sy * size * lean
@@ -53,7 +60,7 @@ function Pose.sample(g, e, out)
   -- The anatomy annotation of the atlas frames (an ability sheet has its own).
   p.regions = Archetypes.look(e).regions or atlas
   p.sx, p.sy, p.lean, p.size, p.baseY = sx, sy, lean, size, baseY
-  p.yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
+  p.yaw = viewerYaw(g, e)
   p.shift, p.painted, p.sourcePath = shift, key ~= nil, sourcePath
   p.ability, p.abilityFrame = key, index
   return p

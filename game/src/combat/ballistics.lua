@@ -3,12 +3,13 @@ local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Surface = require('src.enemies.surface')
 local Corpse = require('src.enemies.corpse')
+local Roles = require('src.core.roles')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local eye = require('src.content.knight').body.eye
 -- The eye in world height: the ground under the knight, his eye, his jump.
 function B.origin(g)
-  local p = g.player
+  local p = Roles.controlled(g)
   return p.x, Ground.height(g.world, p.x, p.z) + eye + p.jump - (p.crouch or 0), p.z
 end
 function B.direction(yaw, pitch)

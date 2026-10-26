@@ -3,6 +3,7 @@
 -- Part of the rules facade (src/combat/rules.lua); functions are installed
 -- on the shared rules table R and call each other through it.
 local Archetypes = require('src.content.enemies')
+local Roles = require('src.core.roles')
 local defaults = Archetypes.defaults
 local sqrt, min, max = math.sqrt, math.min, math.max
 return function(R)
@@ -14,7 +15,7 @@ return function(R)
   -- counter (the blow met the body's own lunge or charge). strong is kept for
   -- older callers and no longer chooses a formula.
   function R.react(g, e, impact, strong, point, health, extra)
-    local p = g.player
+    local p = Roles.controlled(g)
     local b = R.body(e)
     extra = extra or {}
     local dx, dz = e.x - p.x, e.z - p.z

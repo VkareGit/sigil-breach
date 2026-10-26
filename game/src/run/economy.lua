@@ -10,6 +10,7 @@
 local W = require('src.content.weapons')
 local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
+local Roles = require('src.core.roles')
 local E = {}
 E.offers = Shop.offers
 local function missing(g, def)
@@ -55,7 +56,7 @@ E.kinds = {
   refill = rounds(missing, true),
   ward = {
     quote = function(g, offer)
-      local armor = g.player.armor
+      local armor = Roles.controlled(g).armor
       local price =
         math.ceil(math.min(offer.amount, Shop.maxWard - armor) * offer.price / offer.amount)
       if armor >= Shop.maxWard then
@@ -64,26 +65,27 @@ E.kinds = {
       return price
     end,
     apply = function(g, offer)
-      g.player.armor = math.min(Shop.maxWard, g.player.armor + offer.amount)
+      Roles.controlled(g).armor = math.min(Shop.maxWard, Roles.controlled(g).armor + offer.amount)
     end,
     label = function(g)
-      return g.player.armor >= Shop.maxWard and 'WARD FULL' or nil
+      return Roles.controlled(g).armor >= Shop.maxWard and 'WARD FULL' or nil
     end,
   },
   charge = {
     quote = function(g, offer)
-      local state, def = g.player.abilityState[offer.ability], Abilities:get(offer.ability)
+      local state, def =
+        Roles.controlled(g).abilityState[offer.ability], Abilities:get(offer.ability)
       if state.uses >= def.capacity then
         return 0, 'Charges full.'
       end
       return offer.price
     end,
     apply = function(g, offer)
-      local state = g.player.abilityState[offer.ability]
+      local state = Roles.controlled(g).abilityState[offer.ability]
       state.uses = state.uses + 1
     end,
     label = function(g, offer)
-      local state = g.player.abilityState[offer.ability]
+      local state = Roles.controlled(g).abilityState[offer.ability]
       return (state.uses or 0) >= Abilities:get(offer.ability).capacity and 'RESERVE FULL' or nil
     end,
   },
@@ -141,7 +143,7 @@ local function validUses(p)
   return true
 end
 local function validState(g)
-  local r, p = g.run, g.player
+  local r, p = g.run, Roles.controlled(g)
   return W.validAmmo(g)
     and type(r.wallet) == 'number'
     and r.wallet >= 0

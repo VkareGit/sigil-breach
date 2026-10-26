@@ -12,6 +12,7 @@ local Modes = require('src.run.modes')
 local Archetypes = require('src.content.enemies')
 local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
+local Roles = require('src.core.roles')
 local K = Tuning.rewards
 local Listeners = {}
 -- Break kill (0.24, the push-forward loop): a demon killed while off balance
@@ -20,7 +21,7 @@ local function breakKill(g, event)
   if not event.offBalance then
     return
   end
-  local player, knight = g.player, Rules.playerBody()
+  local player, knight = Roles.controlled(g), Rules.playerBody()
   local heal = Archetypes.defaults.breakKill.heal * Rules.body(event.enemy).poise
   local gained = math.max(0, math.min(knight.hp, player.hp + heal) - player.hp)
   player.hp = player.hp + gained

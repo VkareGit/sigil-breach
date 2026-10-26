@@ -213,6 +213,12 @@ function Tests.run(check)
         self.hit = true
       end
     end
+    -- The one damage path of any body (plan v10 V2); this fixture has only
+    -- its knight.
+    function game:damageBody(target, damage)
+      assert(target == self.player, 'only the knight can be hit here')
+      return self:damagePlayer(damage)
+    end
     -- 0.24: where a projectile ends is announced (ProjectileBurst).
     game.bus = require('src.session.event_catalog').newBus()
     game.bus:on('present', 'ProjectileBurst', function(e)

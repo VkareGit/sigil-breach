@@ -11,9 +11,26 @@ local knight = require('src.content.enemies').player.body
 local Defaults = require('src.content.combat_defaults')
 local D = require('src.combat.damage')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
+local Factions = require('src.content.factions')
+local Roles = require('src.core.roles')
 local K = Defaults.missiles
 local P = {}
 local finite = MathX.finite
+-- Whether a missile of this side can harm any creature: its hostile sides
+-- include one that is not the knights'.
+-- A missile made by hand (fixtures) without a side is a demon's, as in 0.32.
+local function sideOf(b)
+  return b.side or 'demons'
+end
+local function harmsCreatures(_, side)
+  for other in pairs(Factions:get(side).hostile) do
+    if other ~= 'knight' then
+      return true
+    end
+  end
+  return false
+end
 local function earlier(a, b)
   if a.time == b.time then
     return a.order < b.order
@@ -84,7 +101,9 @@ end
 -- (the bodies prepared once for the step, as a shot prepares them for its
 -- volley: the same painted surfaces and the same rule for falling bodies).
 -- Returns the share of the path, the body and the part struck.
-local function demonContact(b, dx, dy, dz, limit, bodies, g)
+-- side: the missile's; only creatures of a side it harms are met (a falling
+-- body of such a side still shields what is behind it).
+local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local length = math.sqrt(dx * dx + dy * dy + dz * dz)
   if length <= 1e-8 then
     return
@@ -93,10 +112,12 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g)
   local best, target, part, surface = limit * length
   local own = b.radius or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
   for _, entry in ipairs(bodies) do
-    local d, segment, contact =
-      B.body(g, entry.enemy, b.x, b.y, b.z, ux, uy, uz, best, entry.volumes, entry.surface, own)
-    if d and (d < best or (not target and d == best)) then
-      best, target, part, surface = d, entry.enemy, segment, contact
+    if Bodies.harms(g, side, entry.enemy, 'missile') then
+      local d, segment, contact =
+        B.body(g, entry.enemy, b.x, b.y, b.z, ux, uy, uz, best, entry.volumes, entry.surface, own)
+      if d and (d < best or (not target and d == best)) then
+        best, target, part, surface = d, entry.enemy, segment, contact
+      end
     end
   end
   if target then
@@ -127,7 +148,7 @@ local function strikeDemon(g, b, e, part, surface)
     dealt, _, impact = D.resolve(attack, e, 0, part)
   end
   local health = math.min(e.hp, dealt)
-  g:damageEnemy(e, dealt, 'ability', packet)
+  g:damageEnemy(e, dealt, sideOf(b) == 'knight' and 'ability' or 'creature', packet)
   local Combat = require('src.combat.combat')
   Combat.react(
     g,
@@ -145,7 +166,7 @@ function P.update(g, dt, previous)
   if not finite(dt) or dt <= 0 then
     return
   end
-  local player = g.player
+  local player = Roles.controlled(g)
   previous = previous or player
   local ground = Ground.height(g.world, player.x, player.z)
   local bullets = Pools.of(g, 'projectiles')
@@ -200,24 +221,41 @@ function P.update(g, dt, previous)
           wall = true
         end
       end
-      local knightSide = b.side == 'knight'
-      local hit, target, part, surface
-      if knightSide then
+      -- What the missile can meet (plan v10 V2): every knight and every
+      -- creature its side harms (content/factions.lua). Default relations
+      -- keep 0.32: a knight's missile meets the demons, a demon's the knight.
+      local hit, target, part, surface, struck
+      local function before(t)
+        return duration > 0 and t and t <= 1 and (not wall or t < worldT - 1e-6)
+      end
+      if harmsCreatures(g, sideOf(b)) then
         bodies = bodies or B.prepare(g)
-        hit, target, part, surface = demonContact(b, dx, dy, dz, worldT, bodies, g)
-      else
-        hit = playerContact(player, previous, b, dx, dy, dz, fraction, g.world)
-        -- Through the afterimage of a dodge: a perfect dodge; it flies on.
-        local ghost = not hit and b.packet and Dodge.afterimage(g)
-        if ghost then
-          local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, g.world)
-          if through and through <= 1 and (not wall or through < worldT) then
-            Dodge.perfect(g, b.packet, nil)
+        local share, body, segment, contact =
+          demonContact(b, dx, dy, dz, worldT, bodies, g, sideOf(b))
+        if before(share) then
+          hit, target, part, surface = share, body, segment, contact
+        end
+      end
+      for _, knight in ipairs(Bodies.knights(g)) do
+        if Bodies.harms(g, sideOf(b), knight, 'missile') then
+          local from = knight == player and previous or Bodies.previous(g, knight)
+          local share = playerContact(knight, from, b, dx, dy, dz, fraction, g.world)
+          if before(share) and (not hit or share < hit) then
+            hit, struck, target, part, surface = share, knight, nil, nil, nil
+          end
+          -- Through the afterimage of a dodge: a perfect dodge; it flies on.
+          local ghost = not share and b.packet and Dodge.afterimage(g, knight)
+          if ghost then
+            local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, g.world)
+            if through and through <= 1 and (not wall or through < worldT) then
+              Dodge.perfect(g, b.packet, nil, knight)
+            end
           end
         end
       end
-      local playerFirst = duration > 0 and hit and hit <= 1 and (not wall or hit < worldT - 1e-6)
+      local playerFirst = hit ~= nil
       local t = playerFirst and hit or worldT
+      local knightSide = not Bodies.harms(g, sideOf(b), player, 'missile')
       if not knightSide and not playerFirst and not b.whooshed and duration > 0 then
         -- Closest approach of this tick's path to the player's chest: a near miss
         -- is heard and marked, so dodging a shot is felt, not only survived.
@@ -247,6 +285,7 @@ function P.update(g, dt, previous)
         events[eventCount] = event
         event.bullet, event.player, event.time, event.order = b, playerFirst, duration * t, i
         event.enemy, event.part = playerFirst and target or nil, part
+        event.knight = playerFirst and struck or nil
         event.surface = surface
       end
     end
@@ -260,13 +299,14 @@ function P.update(g, dt, previous)
     if event.player and event.enemy then
       strikeDemon(g, b, event.enemy, event.part, event.surface)
     elseif event.player then
-      g:damagePlayer(
+      g:damageBody(
+        event.knight,
         b.packet and b.packet.base or (b.big and K.bigBoltDamage or K.boltDamage),
         b.x - b.vx,
         b.z - b.vz,
         b.packet,
         nil,
-        b.packet and b.packet.effects and { effectSource = { side = 'demons', id = b.owner } }
+        b.packet and b.packet.effects and { effectSource = { side = sideOf(b), id = b.owner } }
       )
     end
     Signal(g, 'ProjectileBurst', { bullet = b })

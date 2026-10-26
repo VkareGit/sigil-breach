@@ -26,6 +26,8 @@ local Catalog = {
   { 'ChargeBlocked', 'a rush ran into stone {enemy}' },
   { 'EnemyKilled', 'a demon died {enemy, source, offBalance, causes}' },
   { 'PlayerHit', 'the knight was hit {packet, events, x, z}' },
+  { 'KnightHit', 'a knight other than the controlled one was hit {knight, info}' },
+  { 'KnightFell', 'a knight other than the controlled one fell {knight}' },
   { 'PerfectDodge', 'a blow landed during a dodge {packet, source}' },
   { 'WallSlam', 'a body met stone faster than the slam speed {body, speed, lost, player}' },
   { 'BodiesCollided', 'a thrown body struck another {body, other}' },

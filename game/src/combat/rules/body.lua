@@ -47,6 +47,7 @@ return function(R)
     end
     return base, ground + Surface.top(g, o) + (o.hp <= 0 and o.fallY or 0)
   end
+  R.interval = interval
   function R.bodiesOverlap(g, a, b)
     if not g.world or not g.world.elevations then
       return true
@@ -71,16 +72,24 @@ return function(R)
     local _, head = Pose.anchor(g, o, 'head')
     return base + head
   end
-  -- Whether body o sees the knight: where he is now (his jump and crouch
-  -- included), or standing at (x, z) (a predicted or remembered place).
-  function R.seesKnight(g, o, x, z)
-    local world, p = g.world, g.player
+  -- Whether body o sees the body t (plan v10 V2: any body, any side): where
+  -- t is now (its jump, crouch or leap included), or standing at (x, z) (a
+  -- predicted or remembered place) with its own eye height over that floor.
+  function R.sees(g, o, t, x, z)
+    local world = g.world
     if not world.elevations then
       -- A flat map has no heights for sight to compare: no eye to pose.
-      return World.visible(world, o.x, o.z, x or p.x, z or p.z)
+      return World.visible(world, o.x, o.z, x or t.x, z or t.z)
     end
-    local target = x and Ground.height(world, x, z) + R.playerBody().eye or R.eye(g, p)
-    return World.visible(world, o.x, o.z, x or p.x, z or p.z, R.eye(g, o), target)
+    local target
+    if not x then
+      target = R.eye(g, t)
+    elseif t.jump ~= nil then
+      target = Ground.height(world, x, z) + R.playerBody().eye
+    else
+      target = Ground.height(world, x, z) + R.eye(g, t) - Ground.height(world, t.x, t.z)
+    end
+    return World.visible(world, o.x, o.z, x or t.x, z or t.z, R.eye(g, o), target)
   end
   function R.radius(e)
     return R.body(e).radius or 0.25

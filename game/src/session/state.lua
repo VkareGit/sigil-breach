@@ -4,6 +4,7 @@ local World = require('src.world.arena')
 local SessionWorld = require('src.session.world')
 local EventCatalog = require('src.session.event_catalog')
 local Rng = require('src.core.rng')
+local Roles = require('src.core.roles')
 local State = {}
 -- Seed of a session's simulation stream (deterministic; replays and the
 -- golden master depend on it). Presentation draws from its own stream.

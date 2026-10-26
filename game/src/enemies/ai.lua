@@ -10,7 +10,12 @@ local Body = require('src.enemies.body')
 local Attacks = require('src.enemies.actions')
 local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
+local Target = require('src.enemies.target')
 local AI = {}
+-- Whom e fights now (enemies/target.lua): the knight by default; any body of
+-- a hostile side when relations say so (plan v10 V2).
+local target = Target.of
 local sin, cos, sqrt, atan2 = math.sin, math.cos, math.sqrt, math.atan2
 local len = MathX.len
 local angle = MathX.wrapAngle
@@ -150,18 +155,34 @@ local function route(g, e, tx, tz, dt)
   end
   move(g, e, bx, bz, e.speed, dt)
 end
+-- Attack slots and spacing belong to the body attacked: the controlled
+-- knight's pacing is g.nextAttack, any other body's g.attackPacing[id].
 local function reserveAttack(g, e)
   local max = Rules.maxAttackers(e)
   local count = 0
   for _, other in ipairs(Pools.of(g, 'enemies')) do
-    if other.hp > 0 and (other.ai == 'windup' or other.ai == 'strike') then
+    if
+      other.hp > 0
+      and (other.ai == 'windup' or other.ai == 'strike')
+      and other.target == e.target
+    then
       count = count + 1
     end
   end
-  if count >= max or (g.nextAttack or 0) > g.elapsed then
+  local victim = target(g, e)
+  local controlled = victim == Bodies.controlled(g)
+  local pacing = g.attackPacing
+  local next = controlled and (g.nextAttack or 0) or (pacing and pacing[victim.id] or 0)
+  if count >= max or next > g.elapsed then
     return false
   end
-  g.nextAttack = g.elapsed + Archetypes.defaults.tiers.spacing / (e.tierPace or 1)
+  local at = g.elapsed + Archetypes.defaults.tiers.spacing / (e.tierPace or 1)
+  if controlled then
+    g.nextAttack = at
+  else
+    g.attackPacing = pacing or {}
+    g.attackPacing[victim.id] = at
+  end
   return true
 end
 -- Movement styles: 'flank' closes in and circles at claw range; 'keep' holds
@@ -182,8 +203,10 @@ local function evade(g, e, d, dt)
     e.walk = e.walk + len(e.x - ox, e.z - oz)
     return true
   end
-  local p = g.player
-  if e.evadeReady > 0 or not e.visible or d > Senses.evadeRange then
+  -- It sidesteps the aim of the body it fights; a body that does not aim
+  -- (a creature) gives it nothing to read.
+  local p = target(g, e)
+  if e.evadeReady > 0 or not e.visible or d > Senses.evadeRange or not p.yaw then
     return false
   end
   local toward = atan2(e.x - p.x, e.z - p.z)
@@ -209,7 +232,7 @@ local Styles = {}
 AI.styles = Styles
 -- 'flank' closes in and circles at claw range.
 function Styles.flank(g, e, d, dt)
-  local p = g.player
+  local p = target(g, e)
   local a = atan2(e.x - p.x, e.z - p.z)
   local F = Archetypes.defaults.flank
   if d > F.far then
@@ -233,7 +256,7 @@ function Styles.flank(g, e, d, dt)
 end
 -- 'keep' holds an ideal distance and strafes, switching side from time to time.
 function Styles.keep(g, e, d, dt)
-  local p = g.player
+  local p = target(g, e)
   local K = Archetypes.defaults.keep
   e.decision = e.decision - dt
   if e.decision <= 0 then
@@ -305,12 +328,21 @@ local function tickBody(g, e, dt, paused)
   return true
 end
 
--- Senses: sight on a short clock, memory of the last sighting, facing.
+-- Senses: sight on a short clock, memory of the last sighting, facing. The
+-- sight clock also renews whom it fights (never during a committed attack).
+-- Returns the distance to that body (renewed when the choice changed).
 local function perceive(g, e, d, dt)
-  local p = g.player
+  local p = target(g, e)
   e.sense = e.sense - dt
   if e.sense <= 0 then
-    e.visible = Rules.seesKnight(g, e)
+    if e.ai ~= 'windup' and e.ai ~= 'strike' then
+      local chosen = Target.choose(g, e)
+      if chosen ~= p then
+        p = chosen
+        d = len(p.x - e.x, p.z - e.z)
+      end
+    end
+    e.visible = Rules.sees(g, e, p)
     e.sense = Senses.interval + e.id % 3 * Senses.stagger
     if e.visible and d < Senses.alertRange then
       if not e.awake then
@@ -333,6 +365,7 @@ local function perceive(g, e, d, dt)
   if e.awake and d < Senses.threatRange then
     g.threat = g.threat + (arch(e).threat or 1)
   end
+  return d
 end
 
 -- Intent (0.24, State): one handler per state of the state machine
@@ -343,7 +376,7 @@ local States = {}
 AI.states = States
 -- The telegraph runs out: release the attack, or cancel it for real.
 function States.windup(g, e, d, dt)
-  local p = g.player
+  local p = target(g, e)
   e.windup = math.max(0, e.windup - dt)
   if e.windup > 0 then
     return
@@ -356,13 +389,13 @@ function States.windup(g, e, d, dt)
   local spec = Attacks.current(e)
   if
     not Attacks.kindOf(spec).unseen
-    and not Rules.seesKnight(g, e, e.aimX, e.aimZ)
-    and Rules.seesKnight(g, e)
+    and not Rules.sees(g, e, p, e.aimX, e.aimZ)
+    and Rules.sees(g, e, p)
   then
     e.aimX, e.aimZ = p.x, p.z
     g.retargets = (g.retargets or 0) + 1
   end
-  if Rules.seesKnight(g, e, e.aimX, e.aimZ) then
+  if Rules.sees(g, e, p, e.aimX, e.aimZ) then
     change(e, 'strike')
     Attacks.execute(g, e)
     return
@@ -444,7 +477,6 @@ end
 -- Every demon, one after another, through its own pipeline: body, senses,
 -- state. (Per demon, not per stage: the interleaving is part of the rules.)
 function AI.demons(g, dt, previousPlayer)
-  local p = g.player
   g.threat = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     -- A training dummy (proving-ground station) keeps its physics but never
@@ -459,8 +491,8 @@ function AI.demons(g, dt, previousPlayer)
         or e.spawnAge < Archetypes.defaults.spawnPause
       )
     if tickBody(g, e, dt, paused) then
-      local d = len(p.x - e.x, p.z - e.z)
-      perceive(g, e, d, dt)
+      local p = target(g, e)
+      local d = perceive(g, e, len(p.x - e.x, p.z - e.z), dt)
       if not paused then
         local handler = States[e.ai] or free
         handler(g, e, d, dt, previousPlayer)

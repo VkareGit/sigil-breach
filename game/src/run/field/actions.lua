@@ -8,6 +8,7 @@ local Weapons = require('src.content.weapons')
 local Occult = require('src.content.occult_catalog')
 local Settings = require('src.content.field')
 local Stations = require('src.run.field.stations')
+local Roles = require('src.core.roles')
 local Actions = {}
 Actions.fixed = Registry:new('field actions', function(entry, id)
   assert(type(entry.run) == 'function', 'field action ' .. id .. ' needs run(g, field)')
@@ -81,9 +82,10 @@ for _, entry in ipairs({ { 'field_pose_prev', -1 }, { 'field_pose_next', 1 } }) 
 end
 Actions.fixed:register('field_low', {
   run = function(g, field)
-    g.player.hp, g.player.armor, g.player.souls = Settings.lowHealth, 0, 0
+    Roles.controlled(g).hp, Roles.controlled(g).armor, Roles.controlled(g).souls =
+      Settings.lowHealth, 0, 0
     Abilities.fill(g, true)
-    for _, state in pairs(g.player.arsenal) do
+    for _, state in pairs(Roles.controlled(g).arsenal) do
       state.mag, state.reserve = 0, 0
     end
     field.tell(g, 'Low resources / HUD preview.')

@@ -18,6 +18,7 @@ local Simulation = require('src.session.simulation')
 local Fields = require('src.session.fields')
 local ContentContracts = require('src.session.content_contracts')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
@@ -128,13 +129,13 @@ end
 -- The pitch stays within the camera's limit (content/tuning.lua: camera).
 -- A command like any other, so a journal replays the aim exactly.
 function Game:look(dYaw, dPitch)
-  local p, limit = self.player, Tuning.camera.pitchLimit
+  local p, limit = Roles.controlled(self), Tuning.camera.pitchLimit
   p.yaw = p.yaw + (dYaw or 0)
   p.pitch = math.max(-limit, math.min(limit, p.pitch + (dPitch or 0)))
 end
 
 function Game:dash(dx, dz)
-  local player = self.player
+  local player = Roles.controlled(self)
   if
     self.state ~= 'playing'
     or self.map
@@ -183,6 +184,7 @@ function Game:burst(...)
 end
 Game.damageEnemy = Outcomes.enemy
 Game.damagePlayer = Outcomes.player
+Game.damageBody = Outcomes.body
 Game.recordPlayerDamage = Outcomes.recordPlayerDamage
 -- [E] and its prompt mean what the mode says (run/modes.lua: interact, context).
 function Game:interact()

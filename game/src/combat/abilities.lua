@@ -16,6 +16,7 @@ local B = require('src.combat.ballistics')
 local Explosives = require('src.combat.explosives')
 local Registry = require('src.core.registry')
 local Action = require('src.content.defs.action')
+local Roles = require('src.core.roles')
 local Cast = {}
 Cast.registry = Registry:new('equipment deliveries', function(handler, id)
   Action.kinds:get(id)
@@ -31,7 +32,7 @@ Cast.register('throw', function(g, ability)
 end)
 -- A missile from the eye along the aim, carrying the action's packet.
 Cast.register('bolt', function(g, ability)
-  local action, p = ability.action, g.player
+  local action, p = ability.action, Roles.controlled(g)
   local x, y, z = B.origin(g)
   local dx, dy, dz = B.direction(p.yaw, p.pitch)
   local reach = Defaults.attacks.muzzle
@@ -53,7 +54,7 @@ Cast.register('bolt', function(g, ability)
 end)
 -- The ability in a slot of the knight's loadout and its live record.
 function Cast.slot(g, slot)
-  local p = g.player
+  local p = Roles.controlled(g)
   local id = p.abilities and p.abilities[slot or 1]
   local ability = id and Abilities:find(id)
   return ability, ability and p.abilityState[id], id
@@ -101,7 +102,7 @@ function Cast.cast(g, slot)
 end
 -- Every ability of the loadout back at rest (a new life, a reset).
 function Cast.rest(g)
-  for _, state in pairs(g.player.abilityState or {}) do
+  for _, state in pairs(Roles.controlled(g).abilityState or {}) do
     state.readyAt = 0
   end
 end

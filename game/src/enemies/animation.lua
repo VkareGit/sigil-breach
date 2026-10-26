@@ -3,6 +3,13 @@ local Idle = require('src.enemies.idle')
 local Archetypes = require('src.content.enemies')
 local Corpse = require('src.enemies.corpse')
 local ActionPhase = require('src.enemies.action_phase')
+local Roles = require('src.core.roles')
+-- The bearing from body e to the viewer (core/roles.lua): what a
+-- billboard turns to and what its back frames are judged against.
+local function viewerYaw(g, e)
+  local v = Roles.viewer(g)
+  return math.atan2(v.x - e.x, v.z - e.z)
+end
 Anim.actionPhase = ActionPhase.sample
 -- Painted atlases come in two layouts: the extended one (6 columns: walk,
 -- windup, strike, pain, collapse, rear) and the compact one (4 columns).
@@ -84,7 +91,7 @@ function Anim.pose(g, e)
     frame = 1 + math.floor(phase) % count
     bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
     lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
-    local toCamera = math.atan2(g.player.x - e.x, g.player.z - e.z)
+    local toCamera = viewerYaw(g, e)
     if math.cos(toCamera - (e.facing or 0)) < -0.25 then
       frame = frame + (imp and 18 or 12)
     end
@@ -93,7 +100,7 @@ function Anim.pose(g, e)
     -- Never stretch armor, skull or the whole silhouette to fake breathing.
     local rear = e.awake
       and (e.memory or 0) > 0
-      and math.cos(math.atan2(g.player.x - e.x, g.player.z - e.z) - (e.facing or 0)) < -0.25
+      and math.cos(viewerYaw(g, e) - (e.facing or 0)) < -0.25
     frame = rear and (imp and 19 or 13) or Idle.sample(Idle.kind(e), g.time, e.id)
     quiet = true
   end

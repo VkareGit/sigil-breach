@@ -1,7 +1,8 @@
+local Roles = require('src.core.roles')
 local N = {}
 function N.shrine(g)
   local shrine = require('src.run.descent').shrine
-  local p = g.player
+  local p = Roles.controlled(g)
   local dx, dz = shrine.x - p.x, shrine.z - p.z
   local angle = (math.atan2(dx, dz) - p.yaw + math.pi) % (2 * math.pi) - math.pi
   return {

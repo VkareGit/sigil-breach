@@ -10,6 +10,13 @@ local EnemyArt = require('src.content.enemy_art')
 local HV = require('src.enemies.hit_volumes')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
+local Roles = require('src.core.roles')
+-- The bearing from body e to the viewer (core/roles.lua): what a
+-- billboard turns to and what its back frames are judged against.
+local function viewerYaw(g, e)
+  local v = Roles.viewer(g)
+  return math.atan2(v.x - e.x, v.z - e.z)
+end
 local Geometry = { layouts = EnemyArt.layouts }
 local profiles = HV.profiles
 local cache = setmetatable({}, { __mode = 'k' })
@@ -47,7 +54,7 @@ function Geometry.volumes(g, e)
     profile.frameShapes and profile.frameShapes[frame] or profile.shapes,
     'body-volume profile ' .. look.anatomy .. ' has no shapes for frame ' .. frame
   )
-  local yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
+  local yaw = viewerYaw(g, e)
   local rx, rz = math.cos(yaw), -math.sin(yaw)
   local ground = Ground.height(g.world, e.x, e.z)
   local volumes = cache[e] or {}

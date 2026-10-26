@@ -177,7 +177,9 @@ local scalingRatchets = {
     label = 'KNIGHT AS THE ONLY TARGET',
     hint = 'ask for the target or the controlled knight (plan v10 V2)',
     layers = simulationAndContent,
-    exempt = { 'src/player/', 'src/combat/rules/knight.lua' },
+    -- core/roles.lua is the one place that names the controlled knight
+    -- and the viewer; every other rule asks it.
+    exempt = { 'src/player/', 'src/combat/rules/knight.lua', 'src/core/roles.lua' },
     count = function(code)
       return fieldAccesses(code, { 'player' })
     end,

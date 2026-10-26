@@ -302,6 +302,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Mapa: content/maps/<id>.lua (z floor) + Maps:register; Game.new(kind, mapId).
   Tryb: Modes:register(id, { start, progress, policy, ready?, retry?, ... }).
   Ekran: Screens:register (klawisze) + Views:register (draw, controls).
+  Strona: Factions:register(id, { hostile = { ... } }) w content/factions.lua
+  (relację podają obie strony); stworzenie: faction w definicji albo pole
+  faction na ciele (sojusznik, renegat, wieżyczka bez ruchu). Strategia
+  celu: Target.strategies[nazwa] + move.targeting. Drugi rycerz: prefab
+  'knight' z id w puli knights (tests/cases/factions.lua).
   Zdarzenie: event_catalog + emiter + słuchacz. Pole sesji: fields.lua
   (sim) lub Fields.view (prezentacja). Liczba: nazwana w treści.
 
@@ -317,13 +322,26 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Krzywe animacji to dane w kodzie objęte zapadką tools/check/literals.txt
   (może maleć). Trafienia wszystkich dzisiejszych demonów: enemies/pose ->
   enemies/surface -> maska atlasu + adnotacja anatomii (appearance.regions).
-  Jeden widz: obrót billboardu, klatki tyłem, sylwetka i punkty pazura liczą
-  się względem pozycji rycerza (g.player). Dla jednego gracza to poprawne;
-  co-op, sojusznicy, wieżyczki, demony trafiające się nawzajem albo kamera
-  powtórki z innego miejsca wymagają pozy względem obserwatora (parametr
-  widza w Pose.sample) — świadomie nie dodane. Sprite nie ma głębi: maska
-  leży w płaszczyźnie billboardu; sweep pocisku jest konserwatywny o pół
-  przekątnej komórki maski.
+  Widz (plan v10 V2): obrót billboardu, klatki tyłem i sylwetka liczą się
+  względem Roles.viewer(g) (core/roles.lua): próbka prezentacji może
+  wskazać innego widza (druga kamera, kamera powtórki), domyślnie sterowany
+  rycerz. Strzał rycerza rozstrzyga się z jego oczu. Sprite nie ma głębi:
+  maska leży w płaszczyźnie billboardu; sweep pocisku jest konserwatywny
+  o pół przekątnej komórki maski.
+  Strony i cele (V2): content/factions.lua mówi, kto jest wrogi komu;
+  combat/bodies.lua odpowiada o każdym ciele (strona, wrogość, krzywda
+  danym środkiem, pozycja z początku kroku, zasięg kontaktu);
+  enemies/target.lua wybiera cel stworzenia (e.target, strategia
+  move.targeting, domyślnie najbliższe wrogie żywe ciało). Ciosy, pazur,
+  szarża, skok, piorun, kałuże, pociski, wybuch i efekty trwające ranią
+  ciała, które ich strona może zranić; jedna droga obrażeń Outcomes.body
+  (g:damageBody): rycerz prawem rycerza (osłona, garda, unik idealny),
+  stworzenie prawem stworzeń. Rycerz inny niż sterowany dostaje KnightHit
+  i KnightFell; jego upadek nie kończy walki. Sterowany rycerz i widz mają
+  jedno źródło nazwy: core/roles.lua (zapadka knight-references = 1,
+  utworzenie rycerza). Rycerze inni niż sterowany nie mają jeszcze
+  własnego sterowania (wejście, broń w ręku, kamera) — to nie zmienia
+  reguł walki, które ich już obejmują.
   Krok symulacji 1/120 s: wynik nie zależy od FPS (qa/step_study.lua, ten sam
   skrót przy 30/60/144/240/zmiennym FPS). Zmiana samego kroku (nie FPS):
   1/240 przesuwa czasy kontaktów o ≤ 1 krok (≤ 0,0042 s), 1/60 do 0,025 s

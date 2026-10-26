@@ -4,6 +4,7 @@ local B = require('src.combat.ballistics')
 local W = require('src.world.arena')
 local Ground = require('src.physics.ground')
 local Anchor = require('src.enemies.contact_anchor')
+local Bodies = require('src.combat.bodies')
 -- The knight's hit volume: radius, height and floor clearance (body data).
 local knight = require('src.content.enemies').player.body
 local Claw = require('src.content.combat_defaults').claw
@@ -43,15 +44,22 @@ local function clip(lo, hi, a, b)
   end
   return lo, hi
 end
-function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY)
-  local p = current or g.player
+-- body (optional): the body whose volume is met (plan v10 V2; default the
+-- knight's dimensions); previous/current: its swept points (x, z, jump,
+-- crouch) at the start and end of the interval.
+function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
+  local p = current or Bodies.controlled(g)
   previous = previous or p
+  local bodyRadius, feet, height = knight.radius, knight.feet, knight.height
+  if body then
+    bodyRadius, feet, height = Bodies.extent(g, body)
+  end
   local dx, dz = x2 - x1, z2 - z1
   local dy = (endY or y) - y
   local rx, rz = dx - (p.x - previous.x), dz - (p.z - previous.z)
   local ex, ez = x1 - previous.x, z1 - previous.z
   local a = rx * rx + rz * rz
-  local r = knight.radius + radius
+  local r = bodyRadius + radius
   local c = ex * ex + ez * ez - r * r
   local lo, hi = 0, 1
   if a < 1e-12 then
@@ -74,14 +82,14 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY)
   local datum = Ground.height(g.world)
   local jump = Ground.height(g.world, previous.x, previous.z) - datum + (previous.jump or 0)
   local jumpDelta = Ground.height(g.world, p.x, p.z) - datum + (p.jump or 0) - jump
-  lo, hi = clip(lo, hi, y - jump - knight.feet + radius, dy - jumpDelta)
+  lo, hi = clip(lo, hi, y - jump - feet + radius, dy - jumpDelta)
   if not lo then
     return false
   end
   lo, hi = clip(
     lo,
     hi,
-    jump + knight.height - (previous.crouch or 0) + radius - y,
+    jump + height - (previous.crouch or 0) + radius - y,
     jumpDelta - ((p.crouch or 0) - (previous.crouch or 0)) - dy
   )
   if not lo then
@@ -141,9 +149,23 @@ end
 function M.depths(action)
   return action and action.contactReach or reachSamples
 end
--- current (optional): the body swept against now (default the knight).
-function M.claw(g, e, oldX, oldZ, previous, before, after, movementEnd, active, current, action)
-  current = current or g.player
+-- current (optional): the swept point of the body met now (default the
+-- controlled knight); body (optional): whose volume it is (M.contact).
+function M.claw(
+  g,
+  e,
+  oldX,
+  oldZ,
+  previous,
+  before,
+  after,
+  movementEnd,
+  active,
+  current,
+  action,
+  body
+)
+  current = current or Bodies.controlled(g)
   -- The authored active window comes from the attack's data (default claw).
   local activeStart = active and active[1] or Claw.active[1]
   local activeEnd = active and active[2] or Claw.active[2]
@@ -153,7 +175,7 @@ function M.claw(g, e, oldX, oldZ, previous, before, after, movementEnd, active, 
   end
   local duration = after - before
   local movingDuration = math.max(1e-9, math.min(after, movementEnd or after) - before)
-  previous = previous or g.player
+  previous = previous or Bodies.controlled(g)
   local function point(phase)
     local time = math.min(1, (phase - before) / movingDuration)
     local x, z = lerp(oldX, e.x, time), lerp(oldZ, e.z, time)
@@ -181,7 +203,8 @@ function M.claw(g, e, oldX, oldZ, previous, before, after, movementEnd, active, 
         action and action.contactRadius or Claw.radius,
         from,
         to,
-        y2
+        y2,
+        body
       )
       if hit then
         return true, (t1 - before + (t2 - t1) * t) / duration

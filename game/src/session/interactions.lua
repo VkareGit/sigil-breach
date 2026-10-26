@@ -12,6 +12,7 @@ local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
 local Classic = require('src.content.classic')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local Interactions = {}
 
 local distance = MathX.distance
@@ -33,11 +34,13 @@ end
 
 local function nearSecret(g)
   local anchor = g.world.anchors and g.world.anchors.secret
-  return anchor and not g.secretFound and distance(g.player, anchor) < Classic.reach.secret
+  return anchor
+    and not g.secretFound
+    and distance(Roles.controlled(g), anchor) < Classic.reach.secret
 end
 
 local function breakSeal(g, seal, index)
-  local player, K = g.player, Classic.seal
+  local player, K = Roles.controlled(g), Classic.seal
   seal.active = true
   g.seals = g.seals + 1
   Presentation.cue(g, 'seal')
@@ -72,7 +75,7 @@ end
 
 -- [E] in the classic trial: the secret, a seal, the way out after the guardian.
 function Interactions.classicInteract(g)
-  local player = g.player
+  local player = Roles.controlled(g)
   if nearSecret(g) then
     g.secretFound = true
     local secret = Classic.secret
@@ -106,11 +109,11 @@ function Interactions.classicContext(g)
     return '[E]  SEARCH THE CRACKED RELIQUARY'
   end
   for _, seal in ipairs(g.world.seals) do
-    if not seal.active and distance(g.player, seal) < Classic.reach.seal then
+    if not seal.active and distance(Roles.controlled(g), seal) < Classic.reach.seal then
       return '[E]  BREAK THE SEAL  /  ' .. seal.name
     end
   end
-  if g.bossDead and distance(g.player, g.world.portal) < Classic.reach.portal then
+  if g.bossDead and distance(Roles.controlled(g), g.world.portal) < Classic.reach.portal then
     return '[E]  END THE LIMBO TRIAL'
   end
 end
@@ -147,7 +150,7 @@ Interactions.supplies = {
   },
 }
 function Interactions.collectSupplies(g)
-  local player = g.player
+  local player = Roles.controlled(g)
   local pickups = Pools.of(g, 'pickups')
   for i = #pickups, 1, -1 do
     local pickup = pickups[i]
@@ -197,7 +200,7 @@ function Interactions.advanceClassic(g)
   g:spawn(guardian.kind, anchor.x, anchor.z)
   g:notify('MARGRAVE OF ASH  /  Guardian of the first circle', 5)
   Presentation.cue(g, 'pulse')
-  local player = g.player
+  local player = Roles.controlled(g)
   player.hp = math.min(Rules.playerBody().hp, player.hp + guardian.health)
   local mainDef, main = mainWeapon(player)
   main.reserve = math.min(mainDef.maxReserve, main.reserve + guardian.rounds)

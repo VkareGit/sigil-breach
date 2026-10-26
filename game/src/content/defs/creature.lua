@@ -24,6 +24,11 @@ Creature.move = Schema:new('move', {
   ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
   heavy = { type = 'boolean', default = false },
   evade = { type = 'table', schema = Creature.evade },
+  targeting = {
+    type = 'string',
+    default = 'nearest',
+    desc = 'whom it chooses to fight (enemies/target.lua: Target.strategies)',
+  },
 })
 -- How a creature looks and is shown (0.24 F5): renderer, effects, portals,
 -- animation and HUD read this instead of asking for a creature by name.
@@ -91,6 +96,7 @@ Creature.schema = Schema:new('creature', {
     desc = 'the circle guardian: its arrival and death end the trial',
   },
   appearance = { type = 'table', required = true, desc = 'how it looks (Creature.appearance)' },
+  faction = { type = 'string', default = 'demons', desc = 'its side (content/factions.lua)' },
   threat = { type = 'number', default = 1, min = 0 },
   maxAttackers = { type = 'number', min = 1, desc = 'own cap of simultaneous attackers' },
   sounds = { type = 'table', default = {} },
@@ -164,6 +170,10 @@ function Creature.define(def)
   merged.appearance = Creature.appearance:build(merged.appearance, where .. '.appearance')
   merged.appearance.atlas = merged.appearance.atlas or merged.id
   merged.catalog = Creature.catalog:build(merged.catalog, where .. '.catalog')
+  assert(
+    require('src.content.factions'):has(merged.faction),
+    where .. '.faction: unknown side ' .. tostring(merged.faction)
+  )
   assert(#merged.attacks > 0, where .. '.attacks: at least one action required')
   local ids = {}
   for i, a in ipairs(merged.attacks) do

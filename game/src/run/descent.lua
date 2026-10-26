@@ -17,6 +17,7 @@ local R = { shrine = Sanctuary.shrine, totalWaves = K.totalWaves }
 local guardianWave = K.totalWaves + 1
 local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local portals = Spawner.portals
 R.portals = portals
 local distance = MathX.distance
@@ -27,7 +28,7 @@ local function expedition(g)
   return not g.mode or g.mode == 'expedition'
 end
 local function inventory(g)
-  local p = g.player
+  local p = Roles.controlled(g)
   local loadout, weapons = Weapons.inventory(g)
   local abilities, abilityLoadout = Abilities.inventory(g)
   return {
@@ -56,7 +57,7 @@ local function restoreEcho(g, echo)
   return { amount = echo.amount, x = x, z = z, wave = echo.wave }, not not relocated
 end
 local function restore(g, v)
-  local p = g.player
+  local p = Roles.controlled(g)
   p.hp = require('src.content.enemies').player.body.hp
   p.armor = v.armor
   Weapons.restore(g, v.loadout, v.weapons)
@@ -102,7 +103,7 @@ function R.init(g)
     deaths = 0,
     fragment = false,
   }
-  g.player.souls = 0
+  Roles.controlled(g).souls = 0
   g.run.checkpoint = inventory(g)
 end
 function R.snapshot(g)
@@ -170,7 +171,7 @@ function R.load(g, data)
     data.elapsed, data.kills, data.damage, data.secret, data.score
   g.state = data.phase == 'complete' and 'won' or (data.phase == 'defeated' and 'dead' or 'playing')
   if g.state == 'dead' then
-    g.player.hp = 0
+    Roles.controlled(g).hp = 0
   end
   if g.state == 'won' then
     g.bossDead = true
@@ -191,7 +192,8 @@ function R.start(g)
   g.state = 'playing'
   Presentation.capture(g, true)
   local shrine = Sanctuary.at(g)
-  g.player.yaw = math.atan2(shrine.x - g.player.x, shrine.z - g.player.z)
+  Roles.controlled(g).yaw =
+    math.atan2(shrine.x - Roles.controlled(g).x, shrine.z - Roles.controlled(g).z)
   g:notify('LIMBO / 4 waves and a guardian. [E] Merchant at the Ember. [ENTER] Ready.', 6)
   R.save(g)
 end
@@ -273,7 +275,8 @@ function R.lose(g)
   end
   r.deaths = r.deaths + 1
   r.lost = r.wallet
-  r.echo = r.wallet > 0 and { amount = r.wallet, x = g.player.x, z = g.player.z, wave = r.wave }
+  r.echo = r.wallet > 0
+      and { amount = r.wallet, x = Roles.controlled(g).x, z = Roles.controlled(g).z, wave = r.wave }
     or nil
   r.wallet = 0
   r.phase = 'defeated'
@@ -359,7 +362,7 @@ function R.context(g)
   if r.phase == 'preparing' and Sanctuary.near(g) then
     return '[E]  EMBER / REST AND TRADE'
   end
-  if r.echo and distance(g.player, r.echo) < K.echo.prompt then
+  if r.echo and distance(Roles.controlled(g), r.echo) < K.echo.prompt then
     return (r.phase == 'wave' or r.wave > r.echo.wave) and 'APPROACH / RECOVER LOST SOULS'
       or 'THE ECHO WAITS / BEGIN THE WAVE'
   end
@@ -403,8 +406,8 @@ function R.finishWave(g)
   g.threat = 0
   -- An echo not reached during combat remains reachable in the quiet aftermath.
   r.wallet = r.wallet + (r.wave == guardianWave and K.guardianReward or K.waveReward)
-  g.player.hp = require('src.content.enemies').player.body.hp
-  g.player.dash = T.knight.dashCharges
+  Roles.controlled(g).hp = require('src.content.enemies').player.body.hp
+  Roles.controlled(g).dash = T.knight.dashCharges
   require('src.combat.reload').cancel(g)
   g.reload = 0
   g.cooldown = 0
@@ -443,7 +446,7 @@ function R.update(g, dt)
   if not expedition(g) then
     return
   end
-  local r, p = g.run, g.player
+  local r, p = g.run, Roles.controlled(g)
   if r.phase == 'countdown' then
     r.countdown = math.max(0, r.countdown - dt)
     if r.countdown == 0 then

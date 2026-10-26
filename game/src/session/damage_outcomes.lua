@@ -12,6 +12,7 @@ local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
 local Effects = require('src.combat.effects')
+local Bodies = require('src.combat.bodies')
 local Outcomes = {}
 
 local function validDamage(amount)
@@ -53,9 +54,54 @@ function Outcomes.enemy(g, enemy, damage, source, payload)
   })
 end
 
+-- A blow from any side on a creature (plan v10 V2: an ally, a rival demon):
+-- the creatures' law, as a blast resolves it (armour, resistances, guard and
+-- shove from the source's place), never the knight's shield.
+local function creatureBlow(g, target, amount, x, z, packet, source)
+  local Damage = require('src.combat.damage')
+  local Ground = require('src.physics.ground')
+  local blow = {
+    base = amount,
+    impact = packet and packet.impact or 0,
+    push = packet and packet.push,
+    damageType = packet and packet.damageType,
+    effects = packet and packet.effects,
+  }
+  local dealt, _, impact, push = Damage.resolve(blow, target, 0)
+  local health = math.min(target.hp, dealt)
+  Outcomes.enemy(g, target, dealt, 'creature', blow)
+  local y = Ground.height(g.world, target.x, target.z) + (Rules.body(target).aimY or 1)
+  require('src.combat.combat').react(
+    g,
+    target,
+    impact,
+    true,
+    { target.x, y, target.z },
+    nil,
+    health,
+    { push = push, direction = { target.x - (x or target.x), target.z - (z or target.z) } },
+    { value = health, kill = target.hp <= 0, source = source }
+  )
+end
+-- One entry for harm to any body (plan v10 V2): a knight goes through the
+-- knight's law (shield, guard, dodge), a creature through the creatures'.
+-- Arguments as Outcomes.player, with the target first.
+function Outcomes.body(g, target, amount, x, z, packet, source, context)
+  if Bodies.isKnight(g, target) then
+    return Outcomes.player(g, amount, x, z, packet, source, context, target)
+  end
+  if type(amount) == 'table' then
+    packet, amount = amount, amount.base
+  end
+  if target.hp <= 0 or not validDamage(amount) or g.state ~= 'playing' then
+    return
+  end
+  creatureBlow(g, target, amount, x, z, packet, source)
+end
+
 -- Wall slams use this receipt without applying a second shove or damage pass.
 function Outcomes.recordPlayerDamage(g, info)
-  local player = g.player
+  local player = Bodies.controlled(g)
   g.playerDamageReport = {
     incoming = info.amount,
     healthDamage = info.lost,
@@ -73,9 +119,13 @@ end
 
 -- The amount is incoming damage; a packet adds type and physical impulse.
 -- source (optional): the demon whose own body delivered the blow, or 'self'
--- for the knight's own powder charge.
-function Outcomes.player(g, amount, x, z, packet, source, context)
-  local player = g.player
+-- for the knight's own powder charge. knight (optional): which knight
+-- (default the controlled one). Only the controlled knight's harm is the
+-- session's report, its feedback and its death; another knight is hit
+-- (KnightHit) and falls (KnightFell) without ending the fight.
+function Outcomes.player(g, amount, x, z, packet, source, context, knight)
+  local player = knight or Bodies.controlled(g)
+  local controlled = player == Bodies.controlled(g)
   local ongoing = context and context.ongoing
   if type(amount) == 'table' then
     packet, amount = amount, amount.base
@@ -99,14 +149,15 @@ function Outcomes.player(g, amount, x, z, packet, source, context)
   if not ongoing and player.invuln > 0 then
     -- Only a demon's blow can be dodged perfectly (not the knight's own charge).
     if (player.dashTimer or 0) > 0 and source ~= 'self' then
-      Dodge.perfect(g, packet, type(source) == 'table' and source or nil)
+      Dodge.perfect(g, packet, type(source) == 'table' and source or nil, player)
     end
     return
   end
 
-  local healthDamage, absorbed, overkill, incoming, events = Rules.hitPlayer(g, packet, x, z)
+  local healthDamage, absorbed, overkill, incoming, events =
+    Rules.hitPlayer(g, packet, x, z, player)
   events = events or {}
-  g:recordPlayerDamage({
+  local info = {
     amount = incoming or amount,
     requested = amount,
     lost = healthDamage,
@@ -119,7 +170,12 @@ function Outcomes.player(g, amount, x, z, packet, source, context)
     staggered = events.staggered,
     wounded = events.wounded,
     source = ongoing and source or nil,
-  })
+  }
+  if controlled then
+    g:recordPlayerDamage(info)
+  else
+    emit(g, 'KnightHit', { knight = player, info = info })
+  end
   if not ongoing then
     player.invuln = Rules.playerBody().iframes
   end
@@ -128,7 +184,12 @@ function Outcomes.player(g, amount, x, z, packet, source, context)
   end
   if player.hp <= 0 then
     Effects.clear(player)
-    player.hp, g.state = 0, 'dead'
+    player.hp = 0
+    if not controlled then
+      emit(g, 'KnightFell', { knight = player })
+      return
+    end
+    g.state = 'dead'
     Presentation.capture(g, false)
     -- What a death means is the mode's (run/modes.lua: lose).
     Modes.act(g, 'lose')

@@ -7,6 +7,7 @@ local Masks = require('src.content.art.hit_masks')
 local Surface = require('src.enemies.surface')
 local Geometry = require('src.enemies.geometry')
 local Pools = require('src.session.world')
+local Roles = require('src.core.roles')
 local O = { maxAge = require('src.content.tuning').observation.maxAge }
 local serial = 0
 local surfaceKeys = {
@@ -82,8 +83,8 @@ end
 function O.command(observation, g)
   return {
     observation = O.copy(observation),
-    yaw = g.player.yaw,
-    pitch = g.player.pitch,
+    yaw = Roles.controlled(g).yaw,
+    pitch = Roles.controlled(g).pitch,
   }
 end
 function O.valid(g, observation)

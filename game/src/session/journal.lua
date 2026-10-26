@@ -16,6 +16,7 @@ local Values = require('src.session.journal_values')
 local Build = require('src.core.build')
 local Pools = require('src.session.world')
 local finite = require('src.core.mathx').finite
+local Roles = require('src.core.roles')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 local Journal = { version = 3, build = Build.version }
@@ -109,8 +110,8 @@ function Journal.origin(g)
     kills = g.kills,
     alive = alive,
     nextId = g.nextId,
-    x = g.player.x,
-    z = g.player.z,
+    x = Roles.controlled(g).x,
+    z = Roles.controlled(g).z,
   }
 end
 -- What rebuilds the session a journal starts from: its mode, map and origin.
@@ -206,7 +207,7 @@ function Journal.record(g, limits, onLimit)
     if depth > 0 then
       return false
     end
-    local p = g.player
+    local p = Roles.controlled(g)
     if p.yaw ~= aimYaw or p.pitch ~= aimPitch then
       aimYaw, aimPitch = p.yaw, p.pitch
       append(entries, { 'aim', p.yaw, p.pitch })
@@ -269,7 +270,7 @@ function Journal.record(g, limits, onLimit)
         remember()
         -- The aim a 'look' left is already in the journal as that command.
         if name == 'look' then
-          aimYaw, aimPitch = self.player.yaw, self.player.pitch
+          aimYaw, aimPitch = Roles.controlled(self).yaw, Roles.controlled(self).pitch
         end
         -- All nested commands and their hit receipts are now complete. The
         -- boundary may exceed the estimate by one command; never truncate it.
@@ -413,7 +414,7 @@ function Journal.replay(g, journal)
           require('src.core.mathx').finite(entry[2]) and require('src.core.mathx').finite(entry[3]),
           'invalid journal aim'
         )
-        g.player.yaw, g.player.pitch = entry[2], entry[3]
+        Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
       elseif entry[1] == 'set' then
         assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
         write(g, entry[2], expand(entry[3]))

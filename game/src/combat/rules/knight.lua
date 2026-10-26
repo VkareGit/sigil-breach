@@ -11,9 +11,10 @@ return function(R)
   -- The player under the same rules: damage type and resistance first, then the
   -- consumable shield pool, then guard (poise), stagger, wound and shove.
   -- packet: {base, impact, push?, damageType}. Returns health lost, absorbed,
-  -- overkill, amount and the events of the blow.
-  function R.hitPlayer(g, packet, x, z)
-    local p = g.player
+  -- overkill, amount and the events of the blow. knight (optional): which
+  -- knight (default the controlled one; plan v10 V2).
+  function R.hitPlayer(g, packet, x, z, knight)
+    local p = knight or g.player
     local b = Archetypes.player.body
     if type(packet) == 'number' then
       packet = { base = packet, impact = 0 }

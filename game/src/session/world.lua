@@ -13,6 +13,7 @@
 -- knights (1..n; g.player is the knight this session controls).
 local World = require('src.core.ecs')
 local Components = require('src.session.components')
+local Roles = require('src.core.roles')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.

@@ -12,6 +12,8 @@ local chest = require('src.content.combat_defaults').missiles.chest
 -- (content/abilities.lua: powder), in the same format as demon attacks.
 local Abilities = require('src.content.abilities')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
+local Roles = require('src.core.roles')
 local function defaultAction()
   return Abilities:get('powder').action
 end
@@ -34,7 +36,7 @@ function X.launch(g, action)
   -- Every throw uses the same gravity, scaled from its authored reference.
   local throwScale = math.sqrt(Tuning.gravity / action.referenceGravity)
   local throwSpeed, throwLift = action.speed * throwScale, action.lift * throwScale
-  local p = g.player
+  local p = Roles.controlled(g)
   local x, y, z = B.origin(g)
   local dx, dy, dz = B.direction(p.yaw, p.pitch)
   local spawn = B.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
@@ -90,22 +92,31 @@ function X.explode(g, b)
       end
     end
   end
-  local p = g.player
-  -- The blast meets the knight at his chest, as a missile does (0.25).
-  local visible, d =
-    clear(g, b, p.x, Ground.height(g.world, p.x, p.z) + chest + p.jump - (p.crouch or 0), p.z)
-  if visible and d < action.radius then
-    local before = p.hp
-    local own = action.selfBlast
-    local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
-    -- source 'self': the knight's own charge is never a perfect dodge.
-    g:damagePlayer(own.base * f, b.x, b.z, {
-      base = own.base * f,
-      impact = own.impact * f,
-      damageType = own.damageType,
-      effects = own.effects,
-    }, 'self')
-    report.selfDamage = math.max(0, before - p.hp)
+  -- A blast hurts every knight in reach (content/factions.lua: indiscriminate),
+  -- its thrower included, at his chest as a missile meets him (0.25), by the
+  -- knights' own rule of the charge (selfBlast). The thrower is the
+  -- controlled knight; the report keeps his own loss.
+  local thrower = Bodies.controlled(g)
+  for _, p in ipairs(Bodies.knights(g)) do
+    if p == thrower or p.hp > 0 then
+      local visible, d =
+        clear(g, b, p.x, Ground.height(g.world, p.x, p.z) + chest + p.jump - (p.crouch or 0), p.z)
+      if visible and d < action.radius then
+        local before = p.hp
+        local own = action.selfBlast
+        local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
+        -- source 'self': a knight's own charge is never a perfect dodge.
+        g:damageBody(p, own.base * f, b.x, b.z, {
+          base = own.base * f,
+          impact = own.impact * f,
+          damageType = own.damageType,
+          effects = own.effects,
+        }, 'self')
+        if p == thrower then
+          report.selfDamage = math.max(0, before - p.hp)
+        end
+      end
+    end
   end
   g.explosionReport = report
   Signal(g, 'ChargeExploded', { charge = b })

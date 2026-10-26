@@ -158,9 +158,9 @@ function Test.run(Game, renderer)
     p.crouch = 0
     check(
       'a demon seeing the knight uses both bodies, or his eye at a remembered place',
-      Rules.seesKnight(g, imp)
+      Rules.sees(g, imp, g.player)
           == World.visible(w, imp.x, imp.z, p.x, p.z, Rules.eye(g, imp), Rules.eye(g, p))
-        and Rules.seesKnight(g, imp, 4, 6)
+        and Rules.sees(g, imp, g.player, 4, 6)
           == World.visible(
             w,
             imp.x,
