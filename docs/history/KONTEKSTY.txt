@@ -1,4 +1,4 @@
-SIGIL: BREACH / ARCHIWUM KONTEKSTÓW DLA NOWEGO CZATU (do 0.31)
+SIGIL: BREACH / ARCHIWUM KONTEKSTÓW DLA NOWEGO CZATU (do 0.32)
 
 Historyczne. Aktualny kontekst: docs/KONTEKST.txt i START-HERE.txt.
 Dawniej osobne pliki docs/KONTEKST-<wersja>.txt oraz zbiorczy
@@ -6,6 +6,82 @@ KONTEKST-DO-NOWEGO-CHATA.txt (najstarsze dopiski, do 0.15). Każda sekcja ma nag
 z dawną nazwą pliku; wskazane w nich ścieżki opisują tamtą chwilę.
 Pliki ZMIANY-*, ODBIOR-* i dawne plany są teraz sekcjami
 game/docs/ZMIANY.txt, game/docs/ODBIOR.txt i docs/history/PLANY.txt.
+
+
+########################################################################
+KONTEKST-0.32.txt
+########################################################################
+SIGIL: BREACH / aktualny kontekst Foundation 0.32 / 24.10.2026
+(uzupełniony 25.10.2026; dawne konteksty: docs/history/KONTEKSTY.txt)
+
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Pracuj w game/,
+nie w historycznym cwd Codex ani w snapshotach outputs/. LÖVE11.5 + LuaJIT.
+Wersja: game/src/core/build.lua. Tytuł/QA: src/app/release.lua.
+
+WIZJA I ZAKRES
+Nadal jeden istniejący poligon i dwie fizyczne bronie: Egzorcysta/Sędzia.
+Rycerz jest człowiekiem bez magii; Q to fizyczny ładunek. Nadnaturalne
+ataki należą do demonów. Dopiero po dopracowaniu bazy rozwijamy świat,
+mapy, fabułę, dodatkową zawartość i system łupów. Nie dodawać LIMBO TRIAL
+ani zmieniać zaakceptowanego HUD/menu pod pretekstem refaktoru.
+Feeling: szybki FPS, czytelne zamachy i precyzyjne kontakty; nie dowolne
+liczby bez nazwy, jednostek i spójnej drogi rozliczenia.
+
+STYL
+Żywy mroczny fresk: Giovanni da Modena, Michał Anioł, Bosch i Memling.
+Matowe pigmenty, ochra/umbra/zgaszona czerwień, bez błyszczącego nadmiaru
+detalu. Zachować zaakceptowane modele demonów i dopasowaną paletę ich
+skoku/uniku. Animowanie nie upoważnia do przeprojektowania sylwetek.
+Bitmapowe glify składają tekst/liczby; tusz ma mieścić się we wnętrzu
+planszy z odstępami, nie na jej ornamentach. Manifest Nikogo to inspiracja
+wyglądu bohatera, nie polecenie tworzenia fabuły.
+
+CO WDROŻONO W FUNDAMENCIE V9
+- Walidowane definicje, stan instancji i prezentacja mają osobnych właścicieli.
+- Rejestry transportu/efektów/akcji/pozy/grafiki; nowy algorytm dostaje
+  lokalnego wykonawcę, nowa treść korzysta z definicji istniejących zachowań.
+- Fabryka trybów wspólna dla aplikacji i replay; stos nawigacji i zapisy ID.
+- Mapa posiada dekoracje, miejsca, światła i heightfield. Ruch, pociski,
+  lot i renderer korzystają ze wspólnego podparcia. Próby schodów/podestu
+  są w testach; nie dodają nowej mapy do menu.
+- Zakresy własności zasobów, etapowy loader z retry/cancel, bez GPU w stanie.
+- Poligon ma katalogi/stanowiska/akcje/reset, większy UI ma stronicowanie.
+- Journal v3 współdzieli identyczne obserwacje. Import jest literalnym
+  parserem bez eval; preflight sprawdza źródła i referencje przed replay.
+- Broń: w grze znów sprawdzone arkusze v16 (od 998b189); katalog zachował
+  kotwice i warianty komór według rzeczywistego magazynka, więc nowy
+  atlas wejdzie jako dane. Retuszowane v32/v33 czekają poza gitem
+  w work/weapon-art-v32-v33-backup. Demony niezmienione.
+- Paczki Player i Developer; source/runtime SHA, świeże raporty, test EXE
+  i relokacja. Warsztat broni z surowymi wejściami jest w tools/art.
+
+ODBIÓR I DOWODY
+Plan: game/docs/PLAN-FUNDAMENT-v9.md. Aktualne API: ARCHITEKTURA.txt,
+ROZSZERZANIE.txt i DEVELOPMENT.txt w game/docs. Specyfikacja INSTRUKCJA.txt.
+Pełny raport końcowy: work/foundation-v9/final-report.txt, dopiero gdy
+powstanie z końcowych przebiegów. Same raporty focused nie certyfikują
+całego drzewa. Czytaj fingerprint, a nie wyłącznie napis wersji0.32.
+TEST.ps1 -Suite All; BUILD.ps1 uruchamia testy i pakuje. Wyniki work/qa-v32.
+Techniczny odbiór i B2 użytkownika są oddzielne. Nie ogłaszać perfekcyjnego
+feelingu na podstawie automatycznych testów lub pojedynczego screenshotu.
+
+GRANICE
+Jedna podłoga na x/z; bez wielopiętrowych mostów. Sprite to billboard,
+geometria obrażeń jest osobna od kolizji ruchu/ataku, jeden gracz/widz.
+Nowe algorytmy nie muszą być możliwe wyłącznie przez dane, lecz mają mieć
+lokalnego wykonawcę bez przepisywania niepowiązanych systemów.
+64MiB nagrania to estymacja tekstu, nie gwarancja czasu ani limit RAM.
+Etapowanie uploadu nie daje gwarancji16.7ms dla pojedynczego zasobu.
+Historii docs/history, ZMIANY i starych planów nie traktować jako bieżącego API.
+
+DOKUMENTY (od 25.10.2026)
+game/docs/ZMIANY.txt i ODBIOR.txt to jedne pliki z sekcjami wersji,
+najnowsza na górze; odwołanie „ZMIANY-0.29.txt” wskazuje nagłówek sekcji.
+Dawne konteksty, plany i opisy: docs/history/KONTEKSTY.txt, PLANY.txt,
+OPISY.txt. Opis każdego pliku kodu: docs/podrecznik-codex (Codex, w toku,
+nieśledzony; jego kontrola/ jest w .gitignore). Wcześniejszy szkic
+docs/podrecznik jest w old/ (ZIP + manifest).
+game/docs/matematyka/index.html to migawka 0.24/0.25, nie bieżące wzory.
 
 
 ########################################################################

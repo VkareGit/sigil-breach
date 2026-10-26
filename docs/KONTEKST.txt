@@ -1,8 +1,8 @@
-SIGIL: BREACH / aktualny kontekst Foundation 0.32 / 24.10.2026
-(uzupełniony 25.10.2026; dawne konteksty: docs/history/KONTEKSTY.txt)
+SIGIL: BREACH / aktualny kontekst Foundation 0.33 / 26.10.2026
+(dawne konteksty: docs/history/KONTEKSTY.txt)
 
 Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Pracuj w game/,
-nie w historycznym cwd Codex ani w snapshotach outputs/. LÖVE11.5 + LuaJIT.
+nie w historycznym cwd Codex ani w snapshotach outputs/. LÖVE 11.5 + LuaJIT.
 Wersja: game/src/core/build.lua. Tytuł/QA: src/app/release.lua.
 
 WIZJA I ZAKRES
@@ -23,49 +23,45 @@ Bitmapowe glify składają tekst/liczby; tusz ma mieścić się we wnętrzu
 planszy z odstępami, nie na jej ornamentach. Manifest Nikogo to inspiracja
 wyglądu bohatera, nie polecenie tworzenia fabuły.
 
-CO WDROŻONO W FUNDAMENCIE V9
-- Walidowane definicje, stan instancji i prezentacja mają osobnych właścicieli.
-- Rejestry transportu/efektów/akcji/pozy/grafiki; nowy algorytm dostaje
-  lokalnego wykonawcę, nowa treść korzysta z definicji istniejących zachowań.
-- Fabryka trybów wspólna dla aplikacji i replay; stos nawigacji i zapisy ID.
-- Mapa posiada dekoracje, miejsca, światła i heightfield. Ruch, pociski,
-  lot i renderer korzystają ze wspólnego podparcia. Próby schodów/podestu
-  są w testach; nie dodają nowej mapy do menu.
-- Zakresy własności zasobów, etapowy loader z retry/cancel, bez GPU w stanie.
-- Poligon ma katalogi/stanowiska/akcje/reset, większy UI ma stronicowanie.
-- Journal v3 współdzieli identyczne obserwacje. Import jest literalnym
-  parserem bez eval; preflight sprawdza źródła i referencje przed replay.
-- Broń: w grze znów sprawdzone arkusze v16 (od 998b189); katalog zachował
-  kotwice i warianty komór według rzeczywistego magazynka, więc nowy
-  atlas wejdzie jako dane. Retuszowane v32/v33 czekają poza gitem
-  w work/weapon-art-v32-v33-backup. Demony niezmienione.
-- Paczki Player i Developer; source/runtime SHA, świeże raporty, test EXE
-  i relokacja. Warsztat broni z surowymi wejściami jest w tools/art.
+CO WDROŻONO W FUNDAMENCIE V10 (0.33)
+Plan game/docs/PLAN-FUNDAMENT-v10.md, wykonany V0–V7; produkcja bez zmian.
+- V1: encje z cyklem życia (Pools, id w O(1), zwłoki w remains, pula
+  knights, definicje treści zapieczętowane w testach).
+- V2: strony i cele; jedna droga obrażeń dla każdego ciała; widz i
+  sterowany rycerz tylko w core/roles.lua.
+- V3: mapy width x depth, indeks przestrzenny, nawigacja w oknie i regionach,
+  płyty nad podłogą (most), dowolna liczba świateł, ciała rysowane po obrazie.
+- V4: zapis SIGIL09 jako drzewo sekcji ze schematem (Save.declare);
+  SIGIL06/07/08 przez adapter.
+- V5: Journal v4 (korytarze strzałów, delty geometrii): 10 minut walki
+  96 ciał = 29,6 MB.
+- V6: renderer w przejściach i rejestr obiektów świata; HUD z deklaracji
+  slotów; każdy napis w content/text.lua (języki: Text.language/use);
+  ekrany pytają tryb (run/queries).
+- V7: arkusze atlasów (content/art/sheets), narzędzia EXPORT-SHEET,
+  EXPORT-ANATOMY, ANATOMY-EDITOR, CHECK-CREATURE.
 
 ODBIÓR I DOWODY
-Plan: game/docs/PLAN-FUNDAMENT-v9.md. Aktualne API: ARCHITEKTURA.txt,
-ROZSZERZANIE.txt i DEVELOPMENT.txt w game/docs. Specyfikacja INSTRUKCJA.txt.
-Pełny raport końcowy: work/foundation-v9/final-report.txt, dopiero gdy
-powstanie z końcowych przebiegów. Same raporty focused nie certyfikują
-całego drzewa. Czytaj fingerprint, a nie wyłącznie napis wersji0.32.
-TEST.ps1 -Suite All; BUILD.ps1 uruchamia testy i pakuje. Wyniki work/qa-v32.
+Aktualne API: ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt
+w game/docs. Specyfikacja INSTRUKCJA.txt. Odbiór: ODBIOR.txt, sekcja 0.33.
+TEST.ps1 -Suite All; BUILD.ps1 uruchamia testy i pakuje. Wyniki work/qa-v33.
+Złoty wzorzec v2: playtest 07f73bfa/a9192235, human fe26df14/563c8d0f,
+drill c13bcaec/f105ca06 (+ skróty kontaktów). Zapadki w tools/check:
+knight-references 1, pool-arrays 0, mode-records 0, player-text 0.
 Techniczny odbiór i B2 użytkownika są oddzielne. Nie ogłaszać perfekcyjnego
 feelingu na podstawie automatycznych testów lub pojedynczego screenshotu.
 
 GRANICE
-Jedna podłoga na x/z; bez wielopiętrowych mostów. Sprite to billboard,
-geometria obrażeń jest osobna od kolizji ruchu/ataku, jeden gracz/widz.
-Nowe algorytmy nie muszą być możliwe wyłącznie przez dane, lecz mają mieć
-lokalnego wykonawcę bez przepisywania niepowiązanych systemów.
-64MiB nagrania to estymacja tekstu, nie gwarancja czasu ani limit RAM.
-Etapowanie uploadu nie daje gwarancji16.7ms dla pojedynczego zasobu.
+Sprite to billboard z maską w płaszczyźnie; geometria obrażeń jest osobna
+od kolizji ruchu/ataku. Drugi rycerz podlega regułom walki, ale nie ma
+własnego sterowania ani kamery. Jeden język tekstów (angielski).
+64 MiB nagrania to estymacja tekstu, nie gwarancja czasu ani limit RAM.
+Etapowanie uploadu nie daje gwarancji 16,7 ms dla pojedynczego zasobu.
 Historii docs/history, ZMIANY i starych planów nie traktować jako bieżącego API.
 
-DOKUMENTY (od 25.10.2026)
+DOKUMENTY
 game/docs/ZMIANY.txt i ODBIOR.txt to jedne pliki z sekcjami wersji,
 najnowsza na górze; odwołanie „ZMIANY-0.29.txt” wskazuje nagłówek sekcji.
 Dawne konteksty, plany i opisy: docs/history/KONTEKSTY.txt, PLANY.txt,
 OPISY.txt. Opis każdego pliku kodu: docs/podrecznik-codex (Codex, w toku,
-nieśledzony; jego kontrola/ jest w .gitignore). Wcześniejszy szkic
-docs/podrecznik jest w old/ (ZIP + manifest).
-game/docs/matematyka/index.html to migawka 0.24/0.25, nie bieżące wzory.
+nieśledzony). game/docs/matematyka/index.html to migawka 0.24/0.25.

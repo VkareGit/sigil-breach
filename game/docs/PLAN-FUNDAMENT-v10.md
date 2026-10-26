@@ -1,6 +1,7 @@
 # SIGIL: BREACH — fundament v10: baza bez założeń jednego poligonu
 
-Status: PRZYJĘTY przez użytkownika 2026-10-25; wdrażanie od V0.
+Status: PRZYJĘTY przez użytkownika 2026-10-25; WYKONANY 2026-10-26 (V0–V7,
+wydanie 0.33; zamknięcie na końcu dokumentu).
 Stan odniesienia: `b72d144`, wersja 0.32.
 Docelowa wersja wydania: 0.33. Kontrakty trafień planu v7 i zasady planu v9
 pozostają wymaganiami.
@@ -562,3 +563,30 @@ w płaszczyźnie i krok 1/120 s z opisanymi błędami O(dt).
   użytkownika z pomiarem i propozycją, zamiast obniżać kryterium.
 - Edytor anatomii (V7) to praca narzędziowa; jego wynik musi się zgadzać
   z dzisiejszymi danymi bit w bit, zanim zastąpi ręczne źródła.
+
+## Zamknięcie (2026-10-26)
+
+Wszystkie etapy V0–V7 wykonane, każdy w osobnym commicie z dowodami
+(sekcje „Wykonano”). Wersja 0.33 wydaje stan po V7. Produkcja nie zmieniła
+się: jeden poligon, dwie bronie, obecne demony, menu i HUD 0.30; jedyna
+widoczna zmiana to numer wersji w menu.
+
+| Zmiana z celu planu | Czym jest dziś | Dowód |
+|---|---|---|
+| nowy aktor dowolnej strony | wpis strony, faction na ciele, strategia celu; drugi rycerz to wpis w puli | test `factions` (V2) |
+| większa lub wielopoziomowa mapa | mapa `width` x `depth`, płyty `decks`, nawigacja w oknie i regionach | testy `space-scale`, `floor-layers`; mapa `qa_bridge` 256 x 128 (V3) |
+| setki ciał | pule z id, zwłoki poza pętlą kroku, indeks przestrzenny | krok 20/96/256/512 ciał: 0,145 / 0,451 / 0,974 / 2,848 ms (V3) |
+| nowy demon z nowym atlasem | arkusz z narzędzia, anatomia z warstw lub edytora, bake, CHECK-CREATURE | test `creature-pipeline` (V7) |
+| nowy rodzaj zapisywanego stanu | sekcja `Save.declare` w SIGIL09 | test `save-format` (V4) |
+| nowy obiekt świata lub slot HUD | `WorldObjects.register`, `ui/hud_slots.lua` | test `open-presentation` (V6) |
+| długie nagranie dużej walki | Journal v4: korytarze strzałów, delty geometrii | 10 min przy 96 ciałach = 29,6 MB z 64 MiB (V5) |
+
+Zapadki skalowania: knight-references 154 → 1 (jedyne miejsce:
+`core/roles.lua`), pool-arrays 99 → 0, mode-records 57 → 0, player-text
+340 → 0. Złoty wzorzec v2 bez zmian od V1-1 (playtest
+`07f73bfa/a9192235`, human `fe26df14/563c8d0f`, drill
+`c13bcaec/f105ca06` i skróty kontaktów).
+
+Poza zakresem v10, z decyzją użytkownika: sieć, sterowanie drugim
+rycerzem (wejście, kamera), produkcyjna treść korzystająca z nowych
+możliwości i odbiór gracza B2.

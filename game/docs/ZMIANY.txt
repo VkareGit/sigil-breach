@@ -14,10 +14,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.33.txt
 ########################################################################
-SIGIL: BREACH / 0.33 / FUNDAMENT v10 (W TOKU)
+SIGIL: BREACH / 0.33 / FUNDAMENT v10
 
-Plan: game/docs/PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25). Wersja w
-src/core/build.lua pozostaje 0.32 do wydania; ta sekcja zbiera etapy.
+Plan: game/docs/PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25, wykonany
+2026-10-26). Wydanie 0.33 (2026-10-26): baza bez założeń jednego poligonu.
+Każda z tych zmian to teraz definicja, dane i mały moduł z testem: nowy
+aktor dowolnej strony, większa lub wielopoziomowa mapa, setki ciał, nowy
+demon z nowym atlasem, nowy rodzaj zapisywanego stanu, nowy obiekt świata
+lub slot HUD, długie nagranie dużej walki (tabela: plan, 
 
 V0 — stan odniesienia i zapadki (2026-10-25)
 - Checker: cztery zapadki skalowania (knight-references 154, pool-arrays 99,

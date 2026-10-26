@@ -2,8 +2,8 @@
 -- The version itself lives in core/build.lua (the simulation reads it too).
 return {
   version = require('src.core.build').version,
-  title = 'SIGIL: BREACH — 0.32 / Foundation',
+  title = 'SIGIL: BREACH — 0.33 / Foundation',
   menuLabel = 'menu_release',
-  qaOutput = 'work/qa-v32',
-  qaIdentity = 'sigil-breach-qa-v32',
+  qaOutput = 'work/qa-v33',
+  qaIdentity = 'sigil-breach-qa-v33',
 }

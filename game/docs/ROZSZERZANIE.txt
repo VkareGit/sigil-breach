@@ -1,4 +1,4 @@
-SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.32
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.33
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
@@ -17,7 +17,8 @@ Niezależne części definicji:
   fire      liczba pocisków/amunicji, kadencja przez cycle, sygnały strzału
   mechanism przeładowanie (combat/reload mechanizmy)
   weight    parametry odczuwalnej masy i odrzutu
-  art/hud   wybór atlasu i nazwy; GUI czyta wyposażenie
+  art/hud   wybór atlasu i nazwy (name i pola hud to klucze tekstów,
+            content/text.lua); GUI czyta wyposażenie
 
 Variant można opisać jako extends = Weapons.get('exorcist'), z własnym id,
 name i zmianami pól. Rekordy łączą się, tablice listowe zastępują rodzica.
@@ -58,7 +59,8 @@ i testu. Nie należy udawać ich samym kolorem ani naliczać obrażeń w love.dr
 UMIEJĘTNOŚĆ / WYPOSAŻENIE
 
 content/defs/action opisuje dostawę i parametry ataku. Demon wykorzystuje
-enemies/actions.kinds, a gracz combat/abilities.kinds. Jeden rodzaj może
+enemies/actions.kinds (wykonawcy: enemies/melee_kinds.lua i ranged_kinds.lua),
+a gracz combat/abilities.kinds. Jeden rodzaj może
 mieć dwóch wykonawców ze względu na kierunek/cele. Dane i zachowanie są
 osobne, żeby content nie importował symulacji ani renderera.
 
@@ -72,9 +74,10 @@ Nowa logika: Action.defineKind + odpowiedni handler, jeden moduł importowany
 przy starcie. Caster sprawdza istnienie handlera przed zużyciem zasobów.
 Tryb gry nadal wyposaża człowieka wyłącznie w powder; próbne spelle nie
 zmieniają uzgodnienia "człowiek bez magii".
-Klawisze Q/F/C wynikają z app/bindings. HUD pozostaje w układzie 0.30;
-prezentacja wielu slotów wyposażenia nie jest wdrożona. Dodanie przedmiotu
-do produkcyjnego zestawu wymaga osobnej pracy nad HUD i jego odbioru.
+Klawisze Q/F/C wynikają z app/bindings. name, tag i empty to klucze tekstów.
+HUD pokazuje każdy slot z klawiszem (ui/hud_slots.lua, plan v10 V6): jeden
+przedmiot w układzie 0.30, kilka po wierszu; odbiór gracza nowego przedmiotu
+w produkcji pozostaje osobny.
 AbilityCast wskazuje użyty przedmiot, więc animacja dłoni nie wybiera
 bezwarunkowo pierwszego slotu. Art dłoni wybiera pole hands; inny model
 rejestruje własny atlas i gest w content/equipment_art, bez wyjątku
@@ -182,7 +185,8 @@ PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
    otrzymały nowych efektów ani zmienionych obrażeń w tym refaktorze.
 
 4. Nowy rodzaj akcji demona
-   Action.defineKind + wykonawca enemies/actions; następnie osobno
+   Action.defineKind + wykonawca w Attacks.kinds (enemies/melee_kinds.lua
+   lub ranged_kinds.lua, wspólny kontakt enemies/attack_contact.lua); osobno
    ActionPhase.register(kind, durationSampler) dla prezentacji czasu oraz
    AttackDebug.register(kind, painter) dla diagnostyki prawdziwego kontaktu.
    Animacja i debug niczego nie trafiają ani nie uruchamiają drugiego zegara.
@@ -192,8 +196,10 @@ PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
    Modes:register opisuje session = {world, map, prepare?}, init, start,
    progress oraz polityki i polecenia. Game.new(id, map) i Journal.session
    używają tego samego konstruktora. modeData jest miejscem prywatnego stanu.
-   Ogólna prezentacja pyta run/queries: world, tools, objective; widoki są
-   pożyczone i tylko do odczytu. Własny ekran trybu może znać jego stan.
+   Prezentacja pyta run/queries: run, field, world, tools, objective;
+   widoki buduje tryb z własnego rekordu (run/mode_views.lua), są pożyczone
+   i tylko do odczytu. Żaden ekran nie czyta g.run/g.testField (zapadka
+   mode-records = 0).
    app/navigation przechowuje powroty i je czyści przy resecie.
    Poligon: run/field/stations (rejestr), catalog, actions, targets, reset.
    Testy: mode-lifecycle i extension; nowy tryb oraz stanowisko działają
@@ -202,14 +208,16 @@ PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
 6. Przestrzeń testowa
    content/maps: geometria, elevations, decor, lamps i anchors. Wysokości
    elevations są nieujemne względem floor i zajmują rozłączne komórki.
-   Jest to heightfield: jedna podpora na x/z, bez pięter nad inną podłogą.
+   Heightfield ma jedną podporę na x/z; piętro nad inną podłogą to płyta
+   (decks, punkt 10).
    Scenografia ma kotwice mapy, nie współrzędne zaszyte w rendererze.
    Testy world-support i terrain-motion obejmują schody, podest, kolumnę,
    zejście z krawędzi, pociski, ciała, lądowanie i zgodność widocznej pozy.
    To geometria testów; produkcja nadal ma jeden dotychczasowy poligon.
 
 7. Więcej tekstu / pozycji
-   Text.register(key, template), Text.get(key, {nazwanyParametr = wartość}).
+   Text.register(key, template), Text.get(key, {nazwanyParametr = wartość});
+   języki: punkt 15.
    Nie generuj obrazka dla każdej liczby: gotowe bitmapowe glify składają
    dowolną wartość; cache pomiarów jest ograniczony. UI.pages i text_fit
    obsługują większe katalogi, opisy i długie polskie nazwy. Zachowane są
@@ -224,6 +232,63 @@ PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
    Inny filtr/wrap to inny wariant, nie mutacja tekstury drugiego odbiorcy.
    LoadPlan etapuje pracę, pokazuje błąd, pozwala anulować i ponowić.
    Nie kopiuj uchwytów GPU do świata/snapshotu. Maski kontaktu są osobne CPU.
+
+PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.33 (plan v10)
+
+Każdy punkt sprowadza się do definicji, danych i małego modułu z testem.
+Próby w testach dodają treść na czas próby i ją usuwają.
+
+9. Nowy aktor dowolnej strony (V2)
+   Strona: Factions:register(id, { hostile = { ... } }) w content/factions.lua
+   (relację podają obie strony). Stworzenie: faction w definicji albo na
+   ciele (sojusznik, przywołaniec, renegat, wieżyczka bez ruchu). Cel
+   wybiera enemies/target.lua (strategie Target.strategies, move.targeting).
+   Każde obrażenie idzie jedną drogą (g:damageBody, Outcomes.body); drugi
+   rycerz to prefab 'knight' w puli knights. Test: factions.
+
+10. Setki ciał i większa mapa (V1, V3)
+   Pule przez Pools (session/world.lua), id w O(1), zwłoki osiadłe w remains.
+   Ciała w indeksie przestrzennym (physics/spatial.lua). Mapa jest
+   prostokątem width x depth; nawigacja w oknie wokół celu, regiony
+   i klasy prześwitu (world/navigation.lua). Płyty nad podłogą (decks):
+   most nad drugim pomieszczeniem, Ground.height(w, x, z, y). Światła bez
+   limitu (14 najbliższych w shaderze). Testy: entity-lifecycle, space-scale,
+   floor-layers; mapy QA qa_crowd i qa_bridge.
+
+11. Nowy rodzaj zapisywanego stanu (V4)
+   Właściciel deklaruje sekcję: Save.declare({ name, file, version, schema,
+   pack, unpack, restore, migrations, default }) (storage/save.lua). Plik
+   SIGIL09 to drzewo sekcji; błąd odrzuca cały plik przed przywróceniem.
+   Test: save-format.
+
+12. Długie nagranie dużej walki (V5)
+   Journal v4: strzał zapisuje tylko ciała swojego korytarza, obraz bez
+   strzału sam nagłówek, ciało niezmienione jako odwołanie. Test:
+   fight-recording; koszt i limity: DEVELOPMENT.
+
+13. Nowy obiekt świata (V6)
+   WorldObjects.register(rodzaj, { { pass, order, draw }..., init?,
+   overlay?, release? }) w render/world_objects.lua. Renderer i przejścia
+   (render/passes/) nie znają nazw obiektów. Test: open-presentation.
+
+14. Slot HUD (V6)
+   ui/hud_slots.lua: arsenał N broni, wyposażenie każdego slotu z klawiszem
+   z app/bindings (Q, F, C). Jeden przedmiot zachowuje układ 0.30, kilka
+   dostaje po wierszu. Test: open-presentation (4 bronie, 3 sloty, audyt
+   w pięciu rozdzielczościach).
+
+15. Język (V6)
+   Każdy napis dla gracza jest kluczem content/text.lua (zapadka
+   player-text = 0); definicje treści niosą klucze. Text.language(nazwa,
+   szablony, malunki) + Text.use: zmiana języka bez zmian kodu; napis
+   malowany bez malunku pisze się glifami. Test: open-presentation.
+
+16. Nowy demon z nowym atlasem (V7)
+   Arkusz content/art/sheets/<id>.lua z EXPORT-SHEET.ps1, anatomia
+   z warstw części albo edytora regionów (EXPORT-ANATOMY.ps1,
+   ANATOMY-EDITOR.ps1), BAKE-HIT-MASKS.ps1, definicja, CHECK-CREATURE.ps1.
+   Kroki i czasy: DEVELOPMENT, „Nowy demon z nowym atlasem”. Test:
+   creature-pipeline.
 
 Wszystkie przykłady dodają treść testową na czas próby i usuwają ją po niej.
 Dowód rozszerzalności nie jest deklaracją obsługi dowolnego przyszłego

@@ -1,4 +1,4 @@
-SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.32
+SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.33
 
 LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
 zaklęć demonów, broni i wyposażenia rycerza, map, trybów). Model: sesja = świat ECS nad własnymi tablicami
@@ -437,8 +437,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Podłoga: Ground.height(map,x,z) obejmuje datum mapy i lokalny heightfield.
   Ruch, pociski, lot, lądowanie, renderer i dekoracje używają tego samego
   podparcia. Podparcie stóp jest punktowe; promień ruchu jest oddzielną
-  bryłą poziomą, a nie geometrią trafienia. Jedna podłoga na x/z oznacza,
-  że most nad drugim pomieszczeniem wymaga innego modelu przestrzeni.
+  bryłą poziomą, a nie geometrią trafienia. Most nad drugim pomieszczeniem
+  to płyta (decks, plan v10 V3): podłoga zależy od wysokości ciała.
   Strzały i pociski rycerza blokują żywe i padające ciała: padające = zabite,
   którego malowany upadek nie pokazuje jeszcze ostatniej klatki, nie przestało
   się pochylać (corpse.settle) albo jest w powietrzu (Corpse.settled); po

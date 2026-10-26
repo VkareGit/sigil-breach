@@ -1,4 +1,4 @@
-SIGIL: BREACH / główny projekt / Foundation 0.32
+SIGIL: BREACH / główny projekt / Foundation 0.33
 C:\Users\nahiko\Documents\dev\sigil-breach
 
 ZACZNIJ OD: game\docs\DEVELOPMENT.txt
@@ -6,11 +6,11 @@ SPECYFIKACJA GRY: game\docs\INSTRUKCJA.txt (tak gra działa teraz)
 ARCHITEKTURA: game\docs\ARCHITEKTURA.txt
 ZMIANY: game\docs\ZMIANY.txt (wszystkie wersje w jednym pliku, najnowsza na górze)
 ROZBUDOWA: game\docs\ROZSZERZANIE.txt (broń, dostawy, wyposażenie, granice)
-ODBIÓR: game\docs\ODBIOR.txt (sekcja 0.32: dowody techniczne i osobny B2 użytkownika)
+ODBIÓR: game\docs\ODBIOR.txt (sekcja 0.33: dowody techniczne i osobny B2 użytkownika)
 ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (uzupełnienia: ZMIANY.txt, sekcja 0.31)
-PLAN W REALIZACJI: game\docs\PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25; blokery
-skalowania B1–B7, etapy V0–V7). Plan v9 (2026-10-24) pozostaje źródłem
-kontraktów fundamentu 0.32.
+PLAN WYKONANY: game\docs\PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25, wykonany
+2026-10-26; blokery skalowania B1–B7, etapy V0–V7, zamknięcie na końcu).
+Plan v9 (2026-10-24) pozostaje źródłem kontraktów fundamentu 0.32.
 Kontrakty trafień: game\docs\PLAN-ROZWOJU-v7.md; B2 wymaga oceny gracza.
 KONTEKST DLA NOWEGO CZATU: docs\KONTEKST.txt
 PODRĘCZNIK KODU: docs\podrecznik-codex (opis każdego pliku; w toku, poza gitem)
@@ -26,6 +26,10 @@ Warsztat atlasów: tools/art.
 .\FORMAT.ps1                    formatowanie Lua z kontrolą AST
 .\FORMAT.ps1 -Check             kontrola stylu
 .\BAKE-HIT-MASKS.ps1             maski po zmianie ilustracji
+.\EXPORT-SHEET.ps1 <id>          arkusz atlasu demona (-Spec: nowy atlas)
+.\EXPORT-ANATOMY.ps1 <id>        anatomia jako dane (-Legend: z masek części)
+.\ANATOMY-EDITOR.ps1 <id>        edytor regionów anatomii
+.\CHECK-CREATURE.ps1 <id>        czego brakuje demonowi
 .\TEST.ps1                      architektura, mechanika, wejście, rendery
 .\TEST.ps1 -Suite Architecture   szybka kontrola kodu bez okna
 .\BUILD.ps1                     testy, snapshot, testy EXE i weryfikowany ZIP
@@ -33,8 +37,8 @@ Warsztat atlasów: tools/art.
 Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
 skrypty odczytują wersję z jednego źródła. Nowa wersja dopisuje sekcje
 ZMIANY-<wersja>.txt i ODBIOR-<wersja>.txt na górze ZMIANY.txt i ODBIOR.txt.
-Wyniki: work/qa-v32 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.32-Player/SIGIL-BREACH.exe.
-Paczki: outputs/SIGIL-BREACH-0.32-Player-Windows.zip oraz -Developer-Windows.zip.
+Wyniki: work/qa-v33 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.33-Player/SIGIL-BREACH.exe.
+Paczki: outputs/SIGIL-BREACH-0.33-Player-Windows.zip oraz -Developer-Windows.zip.
 Raport całości: work/foundation-v9/final-report.txt (tylko świeży dowód końcowy).
 telemetry.txt z gry: EXE %APPDATA%\sigil-breach-prototype\, źródła
 %APPDATA%\LOVE\sigil-breach-prototype\ (F9 pokazuje ścieżkę).
@@ -42,6 +46,10 @@ Pomiary planu v5 przed i po etapach: work/v5-measure.
 Zmiana źródeł nie zmienia zbudowanego EXE.
 Testy nie przejmują myszy i nie korzystają z zapisu użytkownika.
 
+0.33 (plan v10): encje z cyklem życia, strony i cele, mapy w skali i płyty,
+zapis SIGIL09 ze schematem, Journal v4, otwarta prezentacja (przejścia,
+rejestr obiektów świata, HUD ze slotów, tabela tekstów), arkusze atlasów
+i narzędzia demonów. Produkcja i rozgrywka bez zmian.
 0.32: właściciele danych/zasobów, schematy i rejestry efektów, fabryki trybów,
 dekoracje i wysokości mapy, etapowe ładowanie, rozszerzalne atlasy/UI,
 literalny parser i Journal v3, osobne paczki Player/Developer. Broń znów
@@ -50,11 +58,11 @@ Próby nowej treści pozostają w testach. Produkcja nadal ma dotychczasowy poli
 
 Jedna arena testowa. Dwie bronie fizyczne. Dopracowujemy ruch, strzelanie,
 animacje, fizykę i oprawę przed rozbudową świata. Styl: żywy, mroczny fresk.
-Historia wersji 0.2–0.31 jest w ZMIANY.txt.
+Historia wersji 0.2–0.32 jest w ZMIANY.txt.
 Stare grafiki, czcionki, narzędzia i szkic podręcznika: old/ (ZIP + manifest + README).
 
 Mapa starych i nowych modułów: work/module-migration-v18.json.
-outputs trzyma bieżące wydanie 0.32 i poprzednie 0.31 (do porównania w grze).
+outputs trzyma bieżące wydanie 0.33 i poprzednie 0.32, 0.31 (do porównania w grze).
 Kod, dokumenty i raporty tekstowe wydań 0.10–0.30 oraz dawnych kopii work/backup-*:
 old/SIGIL-BREACH-history-text-0.10-0.30.zip (git zaczyna się od 0.30).
 BUILD trzyma jedną poprzednią generację dostaw w work/qa-v<wersja>/rollback.

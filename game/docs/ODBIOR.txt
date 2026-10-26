@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.32 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.33 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -9,6 +9,52 @@ Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 
+
+########################################################################
+ODBIOR-0.33.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR FUNDAMENTU 0.33 (PLAN v10)
+
+Ważność dowodu: game SHA + uruchomiony EXE SHA + świeży raport procesu.
+Czytaj TESTY, STEROWANIE-TESTY, RENDER, GUI-UKLAD, PACKAGE-MANIFEST i raport
+relokacji z tej samej paczki. Brak któregoś dowodu nie oznacza PASS.
+Plan: game/docs/PLAN-FUNDAMENT-v10.md. Dowody każdego etapu są w jego
+sekcji „Wykonano”, zestawienie celów w sekcji „Zamknięcie”; pomiary etapów
+poza źródłami, w work/v10-*.
+
+Zakres regresji: walka na poligonie bez zmian (złoty wzorzec v2 i skróty
+kontaktów bit w bit), rendery showcase i audytu GUI identyczne piksel
+w piksel z bazą sprzed V3 poza numerem wersji w menu (5 obrazów menu),
+audyt GUI bez problemów układu, zapisy SIGIL06/07/08 wczytywane przez
+adapter, dzienniki v2/v3 odtwarzane. Próby nowych możliwości (aktor innej
+strony, most, setki ciał, sekcja zapisu, obiekt świata, HUD 4 + 3, język,
+demon z nowym atlasem, nagranie 10 minut) są w testach i poza menu.
+
+B2 — ODBIÓR GRACZA: NIE ZOSTAŁ ZASTĄPIONY TESTEM AUTOMATYCZNYM.
+Plan v10 nie zmieniał rozgrywki, więc lista 0.32 obowiązuje bez zmian.
+Do sprawdzenia przez użytkownika w normalnej grze:
+1. Obie bronie: pojedyncze i ciągłe strzały, szybka zamiana, pusty magazynek,
+   częściowy zapas, przerwanie i wznowienie przeładowania.
+2. Ruch: start/stop, skręt, ślizg, unik, skok, kolizja z kolumną i ciałem.
+3. Czy zamach demona jest czytelny, unik uzasadniony, a trafienie/zabójstwo
+   daje zrozumiałą i satysfakcjonującą odpowiedź obrazu i dźwięku.
+4. Zwykły HUD/F1/katalog: czy tekst siedzi w planszy, zachowuje oddech,
+   nie zlewa się z ornamentem i pozostaje czytelny w używanej rozdzielczości.
+5. Czy w normalnej grze nic się nie zmieniło względem 0.32 (wydajność przy
+   wielu demonach, napisy, zapis i wczytanie wyprawy).
+6. Chwyt i styl: pigment, proporcje i dłoń w całym cyklu, nie tylko idle.
+
+Ograniczenia jawne:
+- Sprite to billboard z maską w płaszczyźnie; cienie są ograniczoną
+  projekcją 2.5D.
+- Rycerze inni niż sterowany podlegają regułom walki, ale nie mają jeszcze
+  własnego sterowania (wejście, broń w ręku, kamera).
+- HUD wielu slotów wyposażenia jest gotowy, ale produkcja wyposaża tylko Q;
+  układ kilku przedmiotów (skrócone tagi w wąskim polu) nie przeszedł B2.
+- Tabela tekstów ma jeden język (angielski); drugi język wymaga tłumaczenia
+  i malowanych napisów albo zgody na napisy glifami.
+- Upload pojedynczego PNG może przekroczyć budżet jednej klatki mimo
+  etapowania. Limit nagrywania to szacowany tekst (64 MiB) i 216000 komend.
 
 ########################################################################
 ODBIOR-0.32.txt
