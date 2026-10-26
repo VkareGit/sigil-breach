@@ -2,6 +2,7 @@
 -- The bot knows objective positions; it receives no health, ammo or teleport cheats.
 local W = require('src.world.arena')
 local B = require('src.combat.ballistics')
+local Grid = require('src.physics.grid')
 local S = {}
 function S.run(G)
   local g = G.new()
@@ -29,7 +30,7 @@ function S.run(G)
     local bx, bz, best = cx, cz, 1e9
     for _, o in ipairs({ { 0, -1 }, { 1, 0 }, { -1, 0 }, { 0, 1 } }) do
       local nx, nz = cx + o[1], cz + o[2]
-      local d = field[nz * g.world.size + nx]
+      local d = field[Grid.key(g.world, nx, nz)]
       if d and d < best and not W.solid(g.world, nx, nz, 0.22) then
         bx, bz, best = nx, nz, d
       end

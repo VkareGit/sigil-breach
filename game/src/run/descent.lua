@@ -17,6 +17,7 @@ local R = { shrine = Sanctuary.shrine, totalWaves = K.totalWaves }
 local guardianWave = K.totalWaves + 1
 local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local Roles = require('src.core.roles')
 local portals = Spawner.portals
 R.portals = portals
@@ -50,7 +51,7 @@ local function restoreEcho(g, echo)
   local x, z = echo.x, echo.z
   local field = W.flow(g.world, g.world.spawn.x, g.world.spawn.z)
   local relocated = W.solid(g.world, x, z, K.echo.clearance)
-    or not field[math.floor(z + 0.5) * g.world.size + math.floor(x + 0.5)]
+    or not field[Grid.key(g.world, math.floor(x + 0.5), math.floor(z + 0.5))]
   if relocated then
     x, z = K.echo.fallback.x, K.echo.fallback.z
   end

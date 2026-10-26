@@ -6,6 +6,7 @@ local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Waves = require('src.content.waves')
+local Grid = require('src.physics.grid')
 local K = Waves.portal
 local S = {}
 -- Portal colours name what is coming: each creature's appearance.portal
@@ -29,7 +30,7 @@ function S.choosePortal(g, flank)
   local opening = r.queueIndex == 1 and r.wave <= K.openingWaves
   local P = K.score
   for i, s in ipairs(g.world.gates or S.portals) do
-    local path = flow[math.floor(s.z + 0.5) * g.world.size + math.floor(s.x + 0.5)]
+    local path = flow[Grid.key(g.world, math.floor(s.x + 0.5), math.floor(s.z + 0.5))]
     local d = distance(p, s)
     local crowded = false
     for _, e in ipairs(Pools.of(g, 'enemies')) do

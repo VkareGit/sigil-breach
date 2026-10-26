@@ -41,8 +41,20 @@ local function list(value, name)
 end
 function Schema.check(map, id)
   local label = 'map ' .. id
-  number(map.size, label .. '.size')
-  assert(map.size >= 1 and map.size % 1 == 0, label .. ' needs an integer size')
+  -- width (x) and depth (z) in cells, or size for a square map.
+  local width, depth = map.width or map.size, map.depth or map.size
+  number(width, label .. '.width')
+  number(depth, label .. '.depth')
+  assert(
+    width >= 1 and width % 1 == 0 and depth >= 1 and depth % 1 == 0,
+    label .. ' needs integer width and depth (or size)'
+  )
+  local function cellX(value, name)
+    cell(value, width, name)
+  end
+  local function cellZ(value, name)
+    cell(value, depth, name)
+  end
   number(map.floor or 0, label .. '.floor')
   if map.stepHeight ~= nil then
     number(map.stepHeight, label .. '.stepHeight')
@@ -61,7 +73,11 @@ function Schema.check(map, id)
   local opened = {}
   for _, area in ipairs(map.rooms) do
     for i = 1, 4 do
-      cell(area[i], map.size, label .. '.room')
+      if i % 2 == 1 then
+        cellX(area[i], label .. '.room.x')
+      else
+        cellZ(area[i], label .. '.room.z')
+      end
     end
     assert(area[1] <= area[3] and area[2] <= area[4], label .. ' room bounds are reversed')
     for z = area[2], area[4] do
@@ -72,8 +88,8 @@ function Schema.check(map, id)
     end
   end
   for _, p in ipairs(map.pillars or {}) do
-    cell(p[1], map.size, label .. '.pillar.x')
-    cell(p[2], map.size, label .. '.pillar.z')
+    cellX(p[1], label .. '.pillar.x')
+    cellZ(p[2], label .. '.pillar.z')
     assert(opened[p[2]] and opened[p[2]][p[1]], label .. ' pillar outside open room')
   end
   for _, key in ipairs({ 'spawn', 'portal', 'ember' }) do
@@ -118,7 +134,11 @@ function Schema.check(map, id)
   local used = {}
   for _, area in ipairs(map.elevations or {}) do
     for _, key in ipairs({ 'x1', 'x2', 'z1', 'z2' }) do
-      cell(area[key], map.size, label .. '.elevation.' .. key)
+      if key:sub(1, 1) == 'x' then
+        cellX(area[key], label .. '.elevation.' .. key)
+      else
+        cellZ(area[key], label .. '.elevation.' .. key)
+      end
     end
     number(area.height, label .. '.elevation.height')
     assert(area.height >= 0, label .. ': elevation is measured above the floor datum')
@@ -191,8 +211,12 @@ function Schema.check(map, id)
     for _, rect in ipairs(decor.muralWalls) do
       list(rect, label .. '.muralWalls rectangle')
       assert(#rect == 4, label .. '.muralWalls rectangle needs four cell coordinates')
-      for _, coord in ipairs(rect) do
-        cell(coord, map.size, label .. '.muralWalls coordinate')
+      for index, coord in ipairs(rect) do
+        if index % 2 == 1 then
+          cellX(coord, label .. '.muralWalls x')
+        else
+          cellZ(coord, label .. '.muralWalls z')
+        end
       end
       assert(rect[1] <= rect[3] and rect[2] <= rect[4], label .. '.muralWalls bounds reversed')
     end

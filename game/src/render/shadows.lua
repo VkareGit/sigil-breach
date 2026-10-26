@@ -3,6 +3,7 @@
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local S = {}
 local code = [[
 extern vec3 camera,rightDir,upDir,forwardDir,objectPos;
@@ -48,7 +49,7 @@ function S.draw(r, g)
   local s = r.castShadowShader
   r:cameraUniforms(s)
   s:send('shadowAtlas', r.lighting.visibility.image)
-  s:send('worldSize', g.world.size)
+  s:send('worldSize', Grid.span(g.world))
   lg.setShader(s)
   lg.setDepthMode('less', false)
   for _, e in ipairs(Pools.of(g, 'enemies')) do

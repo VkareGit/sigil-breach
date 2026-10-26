@@ -191,7 +191,10 @@ return {
   },
   -- Living bodies stay minimum m apart (or their radii), pushed apart by at
   -- most step m a frame, rate m/s, or share of the overlap.
-  separation = { minimum = 0.75, step = 0.035, rate = 1.4, share = 0.5 },
+  -- margin: of the spatial index (m; plan v10 V3), not a rule of the game. A
+  -- body that moved farther during its own pass gathers its neighbours again,
+  -- so the indexed pass equals the pass over every pair.
+  separation = { minimum = 0.75, step = 0.035, rate = 1.4, share = 0.5, margin = 0.5 },
   -- Attacks (enemies/actions.lua). A bolt leaves muzzle m in front of the
   -- body, rises toward the knight's chest (aimHeight m), lives boltLife s and
   -- collides with boltRadius (bigBoltRadius) m. A charge runs chargeMargin s

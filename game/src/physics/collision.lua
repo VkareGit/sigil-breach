@@ -2,6 +2,7 @@
 -- invisible square snagging; the remaining motion slides on the contact plane.
 local MathX = require('src.core.mathx')
 local Ground = require('src.physics.ground')
+local Grid = require('src.physics.grid')
 local C = {}
 local abs, sqrt, min, max = math.abs, math.sqrt, math.min, math.max
 local EPS = 1e-9
@@ -31,7 +32,7 @@ function C.solid(w, x, z, r, feet, step)
   if not finite(x) or not finite(z) or not finite(r) or r < 0 then
     return true
   end
-  if x - r < 0.5 or z - r < 0.5 or x + r > w.size + 0.5 or z + r > w.size + 0.5 then
+  if x - r < 0.5 or z - r < 0.5 or x + r > Grid.width(w) + 0.5 or z + r > Grid.depth(w) + 0.5 then
     return true
   end
   for tz = math.floor(z - r + 0.5), math.floor(z + r + 0.5) do
@@ -85,9 +86,9 @@ function C.cast(w, x, z, dx, dz, r, feet, step)
     end
   end
   local x1 = max(0, math.floor(min(x, x + dx) - r + 0.5))
-  local x2 = min(w.size + 1, math.floor(max(x, x + dx) + r + 0.5))
+  local x2 = min(Grid.width(w) + 1, math.floor(max(x, x + dx) + r + 0.5))
   local z1 = max(0, math.floor(min(z, z + dz) - r + 0.5))
-  local z2 = min(w.size + 1, math.floor(max(z, z + dz) + r + 0.5))
+  local z2 = min(Grid.depth(w) + 1, math.floor(max(z, z + dz) + r + 0.5))
   for tz = z1, z2 do
     for tx = x1, x2 do
       if pillar(w, tx, tz) then
@@ -177,8 +178,8 @@ local function separate(w, o, r, feet, step)
       return true
     end
     local best, bx, bz
-    for tz = max(0, math.floor(o.z - r + 0.5)), min(w.size + 1, math.floor(o.z + r + 0.5)) do
-      for tx = max(0, math.floor(o.x - r + 0.5)), min(w.size + 1, math.floor(o.x + r + 0.5)) do
+    for tz = max(0, math.floor(o.z - r + 0.5)), min(Grid.depth(w) + 1, math.floor(o.z + r + 0.5)) do
+      for tx = max(0, math.floor(o.x - r + 0.5)), min(Grid.width(w) + 1, math.floor(o.x + r + 0.5)) do
         if occupied(w, tx, tz, feet, step) then
           local qx = max(tx - 0.5, min(tx + 0.5, o.x))
           local qz = max(tz - 0.5, min(tz + 0.5, o.z))

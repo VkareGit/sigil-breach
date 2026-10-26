@@ -112,7 +112,10 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local best, target, part, surface = limit * length
   local own = b.radius or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
   for _, entry in ipairs(bodies) do
-    if Bodies.harms(g, side, entry.enemy, 'missile') then
+    if
+      Bodies.harms(g, side, entry.enemy, 'missile')
+      and B.near(entry, b.x, b.z, ux, uz, best, own)
+    then
       local d, segment, contact =
         B.body(g, entry.enemy, b.x, b.y, b.z, ux, uy, uz, best, entry.volumes, entry.surface, own)
       if d and (d < best or (not target and d == best)) then

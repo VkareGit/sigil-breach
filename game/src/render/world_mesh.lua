@@ -3,6 +3,7 @@
 local M = require('src.render.mesh')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
+local Grid = require('src.physics.grid')
 local Geometry = {}
 -- The weak map names worlds but owns no native resources. A live simulation
 -- world must not keep a mesh alive after its last renderer has closed.
@@ -28,8 +29,8 @@ local function build(w)
     end
     return false
   end
-  for z = 1, w.size do
-    for x = 1, w.size do
+  for z = 1, Grid.depth(w) do
+    for x = 1, Grid.width(w) do
       if w.map[z][x] == 0 then
         local elevation = Ground.cell(w, x, z)
         M.quad(

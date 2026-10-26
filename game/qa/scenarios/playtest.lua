@@ -2,6 +2,7 @@
 local W = require('src.world.arena')
 local B = require('src.combat.ballistics')
 local Run = require('src.run.descent')
+local Grid = require('src.physics.grid')
 local S = {}
 -- human (0.21): a human-like model for balance reports, not for pass/fail:
 -- reaction time, limited turn rate, aim error and a field of view; it only
@@ -112,7 +113,7 @@ function S.run(G, human, observer)
     local bx, bz, best = cx, cz, 1e9
     for _, o in ipairs({ { 0, -1 }, { 1, 0 }, { -1, 0 }, { 0, 1 } }) do
       local nx, nz = cx + o[1], cz + o[2]
-      local d = field[nz * g.world.size + nx]
+      local d = field[Grid.key(g.world, nx, nz)]
       if d and d < best and not W.solid(g.world, nx, nz, 0.22) then
         bx, bz, best = nx, nz, d
       end

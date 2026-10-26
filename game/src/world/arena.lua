@@ -9,6 +9,7 @@ local Terrain = require('src.content.tuning').terrain
 local SphereCast = require('src.physics.sphere_cast')
 local MathX = require('src.core.mathx')
 local SupportPath = require('src.physics.support_path')
+local Grid = require('src.physics.grid')
 local W = {}
 local function room(map, x1, z1, x2, z2)
   for z = z1, z2 do
@@ -24,8 +25,12 @@ end
 -- mapId: the map (default content/maps Maps.default).
 function W.new(mode, mapId)
   local data = Maps:get(mapId or Maps.default)
+  local width, depth = data.width or data.size, data.depth or data.size
   local w = {
-    size = data.size,
+    -- width x depth cells (physics/grid.lua); size only for a square world.
+    width = width,
+    depth = depth,
+    size = width == depth and width or nil,
     mode = mode,
     mapId = data.id,
     map = {},
@@ -39,9 +44,9 @@ function W.new(mode, mapId)
     floor = data.floor or 0,
     stepHeight = data.stepHeight or Terrain.stepHeight,
   }
-  for z = 1, w.size do
+  for z = 1, Grid.depth(w) do
     w.map[z] = {}
-    for x = 1, w.size do
+    for x = 1, Grid.width(w) do
       w.map[z][x] = 1
     end
   end
@@ -198,15 +203,15 @@ W.flowCacheSize = require('src.content.tuning').flowFields
 local function flowField(w, sx, sz)
   local qx, qz, head, tail = { sx }, { sz }, 1, 1
   local dist = {}
-  dist[sz * w.size + sx] = 0
+  dist[Grid.key(w, sx, sz)] = 0
   while head <= tail do
     local px, pz = qx[head], qz[head]
     head = head + 1
-    local d = dist[pz * w.size + px]
+    local d = dist[Grid.key(w, px, pz)]
     for i = 1, #neighbours do
       local a = neighbours[i]
       local nx, nz = px + a[1], pz + a[2]
-      local id = nz * w.size + nx
+      local id = Grid.key(w, nx, nz)
       -- Search runs backwards from the goal: a neighbour must be able to
       -- climb from its own floor to this cell, not the other way round.
       local climb = Ground.cell(w, px, pz) - Ground.cell(w, nx, nz)
@@ -231,7 +236,7 @@ function W.flow(w, x, z)
     cache = { revision = w.geometryRevision, count = 0, fields = {} }
     w.flows = cache
   end
-  local goal = sz * w.size + sx
+  local goal = Grid.key(w, sx, sz)
   local field = cache.fields[goal]
   if not field then
     if cache.count >= W.flowCacheSize then

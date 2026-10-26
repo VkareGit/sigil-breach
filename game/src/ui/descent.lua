@@ -11,6 +11,7 @@ local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')
 local Palette = require('src.ui.palette')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
 local gold = Skin.colors.gold
@@ -324,9 +325,9 @@ function D.map(g)
   end
   text('Proving field: the Limbo arena.', 136, 535, 20, ivory)
   text('One arena. Four waves and a guardian.', 136, 565, 16, muted)
-  local sz, ox, oy = 420 / g.world.size, 652, 121
-  for z = 1, g.world.size do
-    for x = 1, g.world.size do
+  local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
+  for z = 1, Grid.depth(g.world) do
+    for x = 1, Grid.width(g.world) do
       if g.world.map[z][x] == 0 then
         rect(ox + x * sz, oy + z * sz, sz - 1, sz - 1, Palette.stone)
       end

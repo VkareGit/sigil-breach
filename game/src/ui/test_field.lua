@@ -10,6 +10,7 @@ local Abilities = require('src.content.abilities')
 local ShotReport = require('src.ui.shot_report')
 local Palette = require('src.ui.palette')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local function box(ui, label, x, y, w, h, size, color)
   -- Step the size down if the illustrated glyphs would overrun the field.
   -- Only sizes that exist in the painted font (36 steps to 28, not 34).
@@ -231,9 +232,9 @@ function UI.map(g, ui)
   end
   box(ui, 'WHITE: YOU / RED: TARGET', 132, 535, 440, 28, 16, C.ivory)
   box(ui, 'The map pauses combat. No wave progression.', 132, 573, 440, 26, 16, C.muted)
-  local sz, ox, oy = 420 / g.world.size, 652, 121
-  for z = 1, g.world.size do
-    for x = 1, g.world.size do
+  local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
+  for z = 1, Grid.depth(g.world) do
+    for x = 1, Grid.width(g.world) do
       if g.world.map[z][x] == 0 then
         lg.setColor(0.20, 0.18, 0.16)
         lg.rectangle('fill', ox + x * sz, oy + z * sz, sz - 1, sz - 1)

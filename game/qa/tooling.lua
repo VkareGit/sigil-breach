@@ -1,6 +1,7 @@
 -- Shared QA contracts: finite workload profiles, state-driven waits and report
 -- provenance. None of these helpers changes the shipped simulation or its limits.
 local Build = require('src.core.build')
+local Grid = require('src.physics.grid')
 local Tooling = {}
 
 Tooling.catalog = {
@@ -95,8 +96,8 @@ function Tooling.crowd(Game, count)
   local game = Field.new(Game, Tooling.crowdMap())
   game.testing = true
   local index = 1
-  for z = 3, game.world.size - 3, 1.5 do
-    for x = 3, game.world.size - 3, 1.5 do
+  for z = 3, Grid.depth(game.world) - 3, 1.5 do
+    for x = 3, Grid.width(game.world) - 3, 1.5 do
       local kind = Field.catalog.enemies[1 + (index - 1) % #Field.catalog.enemies].id
       if index <= count and not World.solid(game.world, x, z, Enemies.get(kind).body.radius) then
         local enemy = game:spawn(kind, x, z)

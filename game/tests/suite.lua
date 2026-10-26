@@ -341,6 +341,11 @@ Suite.registry = {
     module = 'tests.cases.factions',
   },
   {
+    id = 'space-scale',
+    title = 'Rectangular maps and costs independent of world size (plan v10 V3)',
+    module = 'tests.cases.space_scale',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',

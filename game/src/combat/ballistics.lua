@@ -4,6 +4,7 @@ local Ground = require('src.physics.ground')
 local Surface = require('src.enemies.surface')
 local Corpse = require('src.enemies.corpse')
 local Roles = require('src.core.roles')
+local Masks = require('src.content.art.hit_masks')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local eye = require('src.content.knight').body.eye
@@ -289,6 +290,39 @@ end
 function B.blocks(e)
   return e.hp > 0 or Corpse.shields(e)
 end
+-- How far from its own position anything a ray or a sweep can meet on a
+-- prepared body may lie (plan v10 V3): the sheared quad of its painting
+-- (shift, half width, lean over its height, one mask cell) or its volumes.
+-- A ray that never comes that near cannot hit it; the test is exact.
+local function reachOf(e, entry)
+  local p = entry.surface
+  if p then
+    local cell = (p.width + p.height * (1 + math.abs(p.lean))) / Masks.grid
+    return math.abs(p.shift or 0) + p.width * 0.5 + p.height * math.abs(p.lean) + cell
+  end
+  local reach = 0
+  for _, v in ipairs(entry.volumes or {}) do
+    local dx, dz = v.x - e.x, v.z - e.z
+    reach = math.max(reach, sqrt(dx * dx + dz * dz) + v.radius)
+  end
+  return reach
+end
+-- Whether the ground track of a ray from (ox, oz) along (dx, dz) for limit
+-- passes within reach + radius of the body's position.
+function B.near(entry, ox, oz, dx, dz, limit, radius)
+  local reach = entry.reach
+  if not reach then
+    return true
+  end
+  local e = entry.enemy
+  local bound = reach + (radius or 0) + 1e-6
+  local sx, sz = dx * limit, dz * limit
+  local length2 = sx * sx + sz * sz
+  local t = length2 > 0 and math.max(0, math.min(1, ((e.x - ox) * sx + (e.z - oz) * sz) / length2))
+    or 0
+  local px, pz = ox + sx * t - e.x, oz + sz * t - e.z
+  return px * px + pz * pz <= bound * bound
+end
 function B.prepare(g)
   local bodies = g._shotBodies or {}
   g._shotBodies = bodies
@@ -305,6 +339,7 @@ function B.prepare(g)
         entry.volumes, entry.surface = nil, Surface.prepare(g, e, entry.surface or entry.spare)
         entry.spare = entry.surface
       end
+      entry.reach = reachOf(e, entry)
       bodies[count] = entry
     end
   end
@@ -322,7 +357,10 @@ function B.traceVector(g, dx, dy, dz, range, bodies, origin)
   local target, part, contact
   for _, entry in ipairs(bodies or Pools.of(g, 'enemies')) do
     local e = bodies and entry.enemy or entry
-    if (bodies and entry.observed) or B.blocks(e) then
+    if
+      ((bodies and entry.observed) or B.blocks(e))
+      and (not bodies or B.near(entry, ox, oz, dx, dz, distance))
+    then
       local d, segment, receipt = B.body(
         g,
         e,
@@ -363,7 +401,10 @@ function B.traceAll(g, dx, dy, dz, range, bodies, origin)
   local hits = {}
   for _, entry in ipairs(bodies or Pools.of(g, 'enemies')) do
     local e = bodies and entry.enemy or entry
-    if (bodies and entry.observed) or B.blocks(e) then
+    if
+      ((bodies and entry.observed) or B.blocks(e))
+      and (not bodies or B.near(entry, ox, oz, dx, dz, wall))
+    then
       local d, part, contact = B.body(
         g,
         e,

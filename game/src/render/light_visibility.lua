@@ -1,4 +1,7 @@
 -- A cached 2.5D shadow atlas for the arena's solid walls and pillars.
+
+local Grid = require('src.physics.grid')
+-- A cached 2.5D shadow atlas for the arena's solid walls and pillars.
 -- Each light has its own tile. Decorative arches are not geometry in this map.
 local V = { resolution = 128, columns = 4, capacity = 14 }
 local function solid(w, x, z)
@@ -16,7 +19,7 @@ function V.visible(w, lx, lz, x, z)
   local ix, iz = ax > 1e-8 and 1 / ax or math.huge, az > 1e-8 and 1 / az or math.huge
   local nx = ax > 1e-8 and math.abs(cx + sx * 0.5 - lx) / ax or math.huge
   local nz = az > 1e-8 and math.abs(cz + sz * 0.5 - lz) / az or math.huge
-  for _ = 1, w.size * 2 + 4 do
+  for _ = 1, Grid.width(w) + Grid.depth(w) + 4 do
     if cx == tx and cz == tz then
       return true
     end
@@ -60,7 +63,7 @@ end
 function V.build(w, sources, owner)
   assert(owner, 'visibility atlas requires an explicit resource owner')
   local parts =
-    { tostring(w.size), tostring(V.resolution), tostring(V.columns), tostring(V.capacity) }
+    { tostring(Grid.span(w)), tostring(V.resolution), tostring(V.columns), tostring(V.capacity) }
   for _, row in ipairs(w.map) do
     parts[#parts + 1] = table.concat(row, ',')
   end
@@ -74,7 +77,8 @@ function V.build(w, sources, owner)
     local ao, blocked = {}, {}
     for z = 0, n - 1 do
       for x = 0, n - 1 do
-        local wx, wz = 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n
+        local span = Grid.span(w)
+        local wx, wz = 0.5 + (x + 0.5) * span / n, 0.5 + (z + 0.5) * span / n
         ao[z * n + x + 1] = V.ambient(w, wx, wz)
         blocked[z * n + x + 1] = solid(w, math.floor(wx + 0.5), math.floor(wz + 0.5)) and 1 or 0
       end
@@ -84,8 +88,13 @@ function V.build(w, sources, owner)
       local ox, oz = ((i - 1) % 4) * n, math.floor((i - 1) / 4) * n
       for z = 0, n - 1 do
         for x = 0, n - 1 do
-          local visible =
-            V.visible(w, s.x, s.z, 0.5 + (x + 0.5) * w.size / n, 0.5 + (z + 0.5) * w.size / n)
+          local visible = V.visible(
+            w,
+            s.x,
+            s.z,
+            0.5 + (x + 0.5) * Grid.span(w) / n,
+            0.5 + (z + 0.5) * Grid.span(w) / n
+          )
           data:setPixel(
             ox + x,
             oz + z,
@@ -99,7 +108,7 @@ function V.build(w, sources, owner)
     end
     local image = love.graphics.newImage(data)
     image:setFilter('linear', 'linear')
-    return { key = key, image = image, data = data, size = w.size }
+    return { key = key, image = image, data = data, size = Grid.span(w) }
   end, function(entry)
     entry.image:release()
     entry.data:release()

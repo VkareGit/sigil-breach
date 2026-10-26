@@ -30,6 +30,7 @@ local Surface = require('src.enemies.surface')
 local AbilityArt = require('src.render.ability_art')
 local Catalog = require('src.render.fresco_enemies')
 local Tuning = require('src.content.tuning')
+local Grid = require('src.physics.grid')
 local S = {}
 local STEP = 1 / 120
 local FIT = { cols = 32, rows = 48 }
@@ -494,8 +495,8 @@ local function orderScenarios(G, truth, lines)
   -- A thrall half behind the nearest pillar in view.
   g = frozenField(G)
   local best
-  for z = 1, g.world.size do
-    for x = 1, g.world.size do
+  for z = 1, Grid.depth(g.world) do
+    for x = 1, Grid.width(g.world) do
       if g.world.map[z] and g.world.map[z][x] == 2 then
         local d = sqrt((x - p.x) ^ 2 + (z - p.z) ^ 2)
         if d > 4 and d < 12 and (not best or d < best.d) then

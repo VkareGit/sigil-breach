@@ -4,6 +4,7 @@
 -- expansion of round corners. Numerical spatial tolerance is 1e-8 m.
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
+local Grid = require('src.physics.grid')
 local Cast = {}
 local EPS = 1e-8
 local directionEpsilon = 1e-6
@@ -130,7 +131,7 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
   for axis = 1, 2 do
     local origin, direction = axis == 1 and ox or oz, axis == 1 and dx or dz
     for sign = -1, 1, 2 do
-      local plane = sign == 1 and 0.5 or w.size + 0.5
+      local plane = sign == 1 and 0.5 or (axis == 1 and Grid.width(w) or Grid.depth(w)) + 0.5
       local t, n =
         outside(origin, oy, direction, dy, plane, sign, radius, best, axis == 1 and 'x' or 'z')
       if t and (t < best or kind == 'range') then
@@ -140,9 +141,9 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
   end
   local endX, endZ = ox + dx * best, oz + dz * best
   local x1 = max(0, math.ceil(min(ox, endX) - radius - 0.5))
-  local x2 = min(w.size + 1, math.floor(max(ox, endX) + radius + 0.5))
+  local x2 = min(Grid.width(w) + 1, math.floor(max(ox, endX) + radius + 0.5))
   local z1 = max(0, math.ceil(min(oz, endZ) - radius - 0.5))
-  local z2 = min(w.size + 1, math.floor(max(oz, endZ) + radius + 0.5))
+  local z2 = min(Grid.depth(w) + 1, math.floor(max(oz, endZ) + radius + 0.5))
   for z = z1, z2 do
     for x = x1, x2 do
       local tile = w.map[z] and w.map[z][x]

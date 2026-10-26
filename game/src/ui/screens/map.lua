@@ -10,6 +10,7 @@ local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gol
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local D = require('src.ui.descent')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local S = {}
 function S.draw(g, s, U)
   if g.run then
@@ -20,8 +21,8 @@ function S.draw(g, s, U)
   text('CARTOGRAPHY OF LIMBO', 181, 81, 36, ivory)
   text(U.objective(g), 182, 136, 20, gold)
   local sz, ox, oy = 14, 590, 156
-  for z = 1, g.world.size do
-    for x = 1, g.world.size do
+  for z = 1, Grid.depth(g.world) do
+    for x = 1, Grid.width(g.world) do
       if g.world.map[z][x] == 0 then
         rect(ox + x * sz, oy + z * sz, sz - 1, sz - 1, Palette.stone)
       end

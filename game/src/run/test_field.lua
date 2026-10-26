@@ -16,6 +16,7 @@ local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
 local Pools = require('src.session.world')
+local Grid = require('src.physics.grid')
 local Roles = require('src.core.roles')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
@@ -258,8 +259,8 @@ local function place(g, kind, count)
   end
   if #spots < count then
     local candidates = {}
-    for z = 2, g.world.size - 1 do
-      for x = 2, g.world.size - 1 do
+    for z = 2, Grid.depth(g.world) - 1 do
+      for x = 2, Grid.width(g.world) - 1 do
         local d = distance(p, { x = x, z = z })
         if d >= 3 and d < 16 and legal(x, z) then
           candidates[#candidates + 1] = { x = x, z = z, d = d }
