@@ -264,6 +264,9 @@ return {
     lean = 0.035,
     leanGain = 0.045,
     settle = 0.33,
+    -- A corpse is drawn for visible s after death. Settled and at rest after
+    -- that, it leaves every simulation step for the remains (plan v10 V1).
+    visible = 25,
   },
   -- A body climbing out of a portal does not decide for spawnPause s.
   spawnPause = 0.6,

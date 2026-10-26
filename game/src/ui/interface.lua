@@ -15,6 +15,7 @@ local blue = Skin.colors.blue
 local green = Palette.green
 local Views = require('src.ui.views')
 local Kit = require('src.ui.kit')
+local Pools = require('src.session.world')
 Kit.ui = U
 local c = Kit.c
 function U.release()
@@ -90,7 +91,7 @@ function U.face(kind, x, y, w, h, label)
 end
 local function alive(g)
   local n = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       n = n + 1
     end

@@ -45,6 +45,8 @@ local Maps = require('src.content.maps.index')
 local Classic = require('src.content.classic')
 local Id = require('src.core.id')
 local Views = require('src.run.mode_views')
+local Pools = require('src.session.world')
+local Spawn = require('src.session.spawn')
 local function field()
   return require('src.run.test_field')
 end
@@ -74,8 +76,12 @@ local function prepareClassic(g)
   for _, entry in ipairs(Classic.garrison) do
     g:spawn(entry[1], entry[2], entry[3])
   end
-  for i, supply in ipairs(Classic.supplies) do
-    g.pickups[i] = { x = supply.x, z = supply.z, kind = supply.kind, amount = supply.amount }
+  for _, supply in ipairs(Classic.supplies) do
+    Spawn.make(
+      g,
+      'pickup',
+      { x = supply.x, z = supply.z, kind = supply.kind, amount = supply.amount }
+    )
   end
 end
 -- The proving ground (skirmish and stations). Required lazily: the proving
@@ -130,7 +136,7 @@ Modes:register('field', {
   end,
   remaining = function(g)
     local alive = 0
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       if e.hp > 0 then
         alive = alive + 1
       end

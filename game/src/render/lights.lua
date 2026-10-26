@@ -3,6 +3,7 @@ local Queries = require('src.run.queries')
 local Ground = require('src.physics.ground')
 local Visibility = require('src.render.light_visibility')
 local Resources = require('src.render.resources')
+local Pools = require('src.session.world')
 local L = { budget = 16 }
 function L.new()
   local l = setmetatable({ positions = {}, colors = {}, tiles = {}, sources = {} }, { __index = L })
@@ -95,7 +96,7 @@ function L:update(g)
   end
   -- Two short-radius projectile lights. Muzzle flash is a separate camera light.
   local best, second, bestD, secondD = nil, nil, 36, 36
-  for _, b in ipairs(g.bullets) do
+  for _, b in ipairs(Pools.of(g, 'projectiles')) do
     local d = (b.x - g.player.x) ^ 2 + (b.z - g.player.z) ^ 2
     if d < bestD then
       second, secondD, best, bestD = best, bestD, b, d

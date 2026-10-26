@@ -2,6 +2,7 @@
 -- This is a bounded 2.5D projection, not a full volumetric shadow map.
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
+local Pools = require('src.session.world')
 local S = {}
 local code = [[
 extern vec3 camera,rightDir,upDir,forwardDir,objectPos;
@@ -50,7 +51,7 @@ function S.draw(r, g)
   s:send('worldSize', g.world.size)
   lg.setShader(s)
   lg.setDepthMode('less', false)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       local ground = Ground.height(g.world, e.x, e.z)
       local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)

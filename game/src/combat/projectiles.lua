@@ -10,6 +10,7 @@ local Dodge = require('src.combat.dodge')
 local knight = require('src.content.enemies').player.body
 local Defaults = require('src.content.combat_defaults')
 local D = require('src.combat.damage')
+local Pools = require('src.session.world')
 local K = Defaults.missiles
 local P = {}
 local finite = MathX.finite
@@ -147,7 +148,7 @@ function P.update(g, dt, previous)
   local player = g.player
   previous = previous or player
   local ground = Ground.height(g.world, player.x, player.z)
-  local bullets = g.bullets
+  local bullets = Pools.of(g, 'projectiles')
   local events = g._projectileEvents or {}
   g._projectileEvents = events
   local eventCount = 0
@@ -166,7 +167,7 @@ function P.update(g, dt, previous)
         and finite(b.life)
       )
     then
-      table.remove(bullets, i)
+      Pools.removeAt(g, 'projectiles', i)
     else
       local duration = math.max(0, math.min(dt, b.life))
       local fraction = duration / dt
@@ -240,7 +241,7 @@ function P.update(g, dt, previous)
       end
       b.life = b.life - dt
       if playerFirst or wall or b.life <= 0 then
-        table.remove(bullets, i)
+        Pools.removeAt(g, 'projectiles', i)
         eventCount = eventCount + 1
         local event = events[eventCount] or {}
         events[eventCount] = event

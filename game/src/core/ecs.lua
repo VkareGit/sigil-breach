@@ -6,7 +6,11 @@
 -- arrays, and every member of a pool has the pool's components. A PREFAB is
 -- a named list of components plus the pool it spawns into (Factory).
 -- Queries return entities in pool order, then array order: deterministic.
--- Structural changes are immediate (append), as the simulation always did.
+-- Structural changes are immediate and go through the world (add, remove,
+-- keep, clear, move): it owns the arrays' membership and keeps the id index
+-- of pools declared with ids, so get(id) is O(1). Removing while iterating
+-- a pool forward is not supported: iterate backwards with removeAt, or use
+-- keep after the loop (stable compaction).
 local Class = require('src.core.class')
 local Schema = require('src.core.schema')
 local Strict = require('src.core.strict')
@@ -17,6 +21,10 @@ function World:init()
   self.pools = {}
   self.poolByName = {}
   self.prefabs = {}
+  -- id -> entity for the pools declared with ids; stamps record each such
+  -- pool's array and length when the index was last made whole.
+  self.byId = {}
+  self.stamps = {}
 end
 -- name: component; fields: { field = { default = v, desc = '...' }, ... }
 function World:component(name, fields)
@@ -31,11 +39,158 @@ local function set(list)
   return s
 end
 -- name: pool; get(): the live array; components: what every member has.
-function World:pool(name, get, components)
-  local pool = { name = name, get = get, has = set(components), list = components or {} }
+-- options (optional): set(list) replaces the array (clear); ids = true
+-- indexes its members by their id field.
+function World:pool(name, get, components, options)
+  options = options or {}
+  local pool = {
+    name = name,
+    get = get,
+    set = options.set,
+    ids = options.ids == true,
+    has = set(components),
+    list = components or {},
+  }
   self.pools[#self.pools + 1] = pool
   self.poolByName[name] = pool
   return pool
+end
+local function poolOf(world, name)
+  return assert(world.poolByName[name], 'unknown pool ' .. tostring(name))
+end
+-- The live array of a pool (read it; change membership through the world).
+function World:list(name)
+  return poolOf(self, name).get()
+end
+local function stamp(world, pool)
+  local list = pool.get()
+  world.stamps[pool.name] = { list = list, count = #list }
+end
+-- A member without an id (a hand-made fixture) is held but not indexed.
+local function index(world, pool, e)
+  local id = e.id
+  if id == nil then
+    return
+  end
+  local held = world.byId[id]
+  assert(
+    held == nil or held == e,
+    'id ' .. tostring(id) .. ' is already in the world (pool ' .. pool.name .. ')'
+  )
+  world.byId[id] = e
+end
+-- Rebuild the id index from the arrays (after a restore, or when an array
+-- was replaced or resized outside the world).
+function World:reindex()
+  self.byId = {}
+  for _, pool in ipairs(self.pools) do
+    if pool.ids then
+      for _, e in ipairs(pool.get()) do
+        index(self, pool, e)
+      end
+      stamp(self, pool)
+    end
+  end
+end
+local function fresh(world)
+  for _, pool in ipairs(world.pools) do
+    if pool.ids then
+      local seen, list = world.stamps[pool.name], pool.get()
+      if not seen or seen.list ~= list or seen.count ~= #list then
+        return false
+      end
+    end
+  end
+  return true
+end
+-- The entity with this id in an indexed pool, or nil.
+function World:get(id)
+  if not fresh(self) then
+    self:reindex()
+  end
+  return self.byId[id]
+end
+function World:add(name, e)
+  local pool = poolOf(self, name)
+  local list = pool.get()
+  if pool.ids then
+    if not fresh(self) then
+      self:reindex()
+    end
+    index(self, pool, e)
+  end
+  list[#list + 1] = e
+  if pool.ids then
+    stamp(self, pool)
+  end
+  return e
+end
+function World:removeAt(name, i)
+  local pool = poolOf(self, name)
+  local e = table.remove(pool.get(), i)
+  if pool.ids and e then
+    if self.byId[e.id] == e then
+      self.byId[e.id] = nil
+    end
+    stamp(self, pool)
+  end
+  return e
+end
+-- Remove e from the pool; false when it is not a member.
+function World:remove(name, e)
+  local list = poolOf(self, name).get()
+  for i = #list, 1, -1 do
+    if list[i] == e then
+      self:removeAt(name, i)
+      return true
+    end
+  end
+  return false
+end
+-- Keep only the members for which keep(e) is true, in order (stable).
+-- Returns how many were removed.
+function World:keep(name, keep)
+  local pool = poolOf(self, name)
+  local list = pool.get()
+  local n, removed = 0, 0
+  for i = 1, #list do
+    local e = list[i]
+    list[i] = nil
+    if keep(e) then
+      n = n + 1
+      list[n] = e
+    else
+      removed = removed + 1
+      if pool.ids and self.byId[e.id] == e then
+        self.byId[e.id] = nil
+      end
+    end
+  end
+  if pool.ids then
+    stamp(self, pool)
+  end
+  return removed
+end
+-- Empty the pool (a fresh array: what still refers to the old one keeps it).
+function World:clear(name)
+  local pool = poolOf(self, name)
+  assert(pool.set, 'pool ' .. name .. ' cannot be replaced')
+  if pool.ids then
+    for _, e in ipairs(pool.get()) do
+      if self.byId[e.id] == e then
+        self.byId[e.id] = nil
+      end
+    end
+  end
+  pool.set({})
+  if pool.ids then
+    stamp(self, pool)
+  end
+end
+-- Move e from one pool to the end of another (its id stays indexed).
+function World:move(from, to, e)
+  assert(self:remove(from, e), 'entity is not in pool ' .. tostring(from))
+  return self:add(to, e)
 end
 -- name: prefab; spec: { pool = 'enemies', components = { ... } }
 function World:prefab(name, spec)
@@ -92,8 +247,7 @@ function World:create(prefabName, values, insert)
   e.prefab = prefabName
   Strict.guard(e, prefab.fields, prefabName)
   if insert ~= false then
-    local list = prefab.pool.get()
-    list[#list + 1] = e
+    self:add(prefab.pool.name, e)
   end
   return e
 end

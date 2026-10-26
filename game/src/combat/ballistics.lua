@@ -30,6 +30,7 @@ end
 -- adjacent bodies. The cone remains angular, symmetric and deterministic.
 -- Damage is unchanged: each ray still resolves its own surface and distance.
 local halfPattern = require('src.content.ballistic_pattern')
+local Pools = require('src.session.world')
 function B.pellet(index, serial, count)
   -- Preserve the approved one/two-barrel patterns exactly. Other counts use
   -- mirrored golden-angle pairs in a bounded disc, with a centred odd pellet.
@@ -291,7 +292,7 @@ function B.prepare(g)
   local bodies = g._shotBodies or {}
   g._shotBodies = bodies
   local count = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if B.blocks(e) then
       count = count + 1
       local entry = bodies[count] or {}
@@ -318,7 +319,7 @@ function B.traceVector(g, dx, dy, dz, range, bodies, origin)
   end
   local distance, normal, kind = B.world(g.world, ox, oy, oz, dx, dy, dz, range)
   local target, part, contact
-  for _, entry in ipairs(bodies or g.enemies) do
+  for _, entry in ipairs(bodies or Pools.of(g, 'enemies')) do
     local e = bodies and entry.enemy or entry
     if (bodies and entry.observed) or B.blocks(e) then
       local d, segment, receipt = B.body(
@@ -359,7 +360,7 @@ function B.traceAll(g, dx, dy, dz, range, bodies, origin)
   end
   local wall = B.world(g.world, ox, oy, oz, dx, dy, dz, range)
   local hits = {}
-  for _, entry in ipairs(bodies or g.enemies) do
+  for _, entry in ipairs(bodies or Pools.of(g, 'enemies')) do
     local e = bodies and entry.enemy or entry
     if (bodies and entry.observed) or B.blocks(e) then
       local d, part, contact = B.body(

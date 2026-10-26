@@ -5,6 +5,7 @@
 --     (stunned, staggered, knocked down). High uptime = the player controls
 --     the fight; near 0 = the demons are never interrupted.
 --   time to kill: seconds from a demon's arrival to its death.
+local Pools = require('src.session.world')
 local T = {}
 local NONE = {}
 local percent = 100
@@ -111,7 +112,7 @@ end
 -- Every fixed step: demon lifetime and the part of it under control.
 function T.tick(g, dt)
   local t = T.get(g)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and not e.dummy and (e.spawnAge or 1) >= 0.6 then
       t.enemyTime = t.enemyTime + dt
       local record = bodyRecord(g, e)
@@ -140,7 +141,7 @@ function T.tick(g, dt)
   -- Records belong to bodies still in play: a kill releases its own
   -- (T.kill); a body removed alive (a cleared world) is released here.
   local records, alive = g.telemetryBodies, 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     alive = alive + (records and records[e.id] and 1 or 0)
   end
   local count = 0
@@ -149,11 +150,8 @@ function T.tick(g, dt)
   end
   if count > alive then
     for id in pairs(records) do
-      local present = false
-      for _, e in ipairs(g.enemies) do
-        present = present or (e.id == id and e.hp > 0)
-      end
-      if not present then
+      local body = Pools.get(g, id)
+      if not (body and body.hp > 0) then
         records[id] = nil
       end
     end

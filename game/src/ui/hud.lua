@@ -15,6 +15,7 @@ local Palette = require('src.ui.palette')
 local Modes = require('src.run.modes')
 local Text = require('src.content.text')
 local Fit = require('src.ui.text_fit')
+local Pools = require('src.session.world')
 local C = Skin.colors
 local U
 -- Guard (poise) under a health bar: gold fills as blows accumulate toward
@@ -253,7 +254,7 @@ function H.draw(g, settings, ui, descentUI)
   -- the blow's impact and damage, coloured by damage type (src/feedback/weight.lua).
   Weight.drawMarks(g, cx, cy, 92)
   if g.bossSpawned and not g.bossDead then
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then
         local exposed = Rules.has(e, 'exposed')

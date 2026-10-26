@@ -278,15 +278,17 @@ function M.run(G, output, smoke)
       separationMedian
     )
   )
-  -- Dead bodies stay in their encounter until it is cleared (0.32): the step
-  -- with the population killed in place and one demon left alive.
+  -- The population killed in place beside one living demon, measured once
+  -- the corpses are done (drawn window over, at rest): since plan v10 V1
+  -- they wait in the remains, outside every step.
   g = field(G, population)
   g.testField.invincible = true
   for i = 2, #g.enemies do
     local body = g.enemies[i]
     g:damageEnemy(body, body.hp + 1, 'weapon')
   end
-  for _ = 1, n(240, 4) do
+  local visible = require('src.content.combat_defaults').corpse.visible
+  for _ = 1, smoke and n(240, 4) or math.ceil((visible + 1) * 120) do
     g:update(1 / 120, {})
   end
   local alive = 0
@@ -298,9 +300,11 @@ function M.run(G, output, smoke)
   end)
   log(
     string.format(
-      'corpses: %d dead bodies kept beside %d alive; whole simulation step median %.4f ms, p95 %.4f ms',
-      #g.enemies - alive,
+      'corpses: %d dead beside %d alive (%d in the living pool, %d in the remains); whole simulation step median %.4f ms, p95 %.4f ms',
+      population - alive,
       alive,
+      #g.enemies,
+      #(g.remains or {}),
       corpseMedian,
       corpseTail
     )

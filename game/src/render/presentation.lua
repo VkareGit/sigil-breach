@@ -1,4 +1,5 @@
 -- Interpolate the fixed simulation without delaying raw mouse input or mutating gameplay.
+local Pools = require('src.session.world')
 local P = {}
 local playerKeys = { 'x', 'z', 'jump', 'crouch' }
 local gameKeys = { 'step' }
@@ -63,13 +64,13 @@ function P.capture(g)
     enemies = {},
     bullets = {},
   }
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     local v = values(e, enemyKeys)
     v.ai = e.ai
     v.alive = e.hp > 0
     old.enemies[e] = v
   end
-  for _, b in ipairs(g.bullets) do
+  for _, b in ipairs(Pools.of(g, 'projectiles')) do
     old.bullets[b] = values(b, { 'x', 'y', 'z' })
   end
   g.view.presentationPrevious = old
@@ -83,9 +84,13 @@ function P.sample(g, t)
   local out = blend(g, prev.game, gameKeys, t)
   out.view = blend(g.view, prev.view, viewKeys, t)
   out.player = blend(g.player, prev.player, playerKeys, t)
+  -- The sample is read as a session by the renderer; with no ECS world of its
+  -- own, Pools.of(sample, ...) returns these interpolated arrays, not the
+  -- live pools it would otherwise inherit from g.
+  out.ecs = false
   out.enemies = {}
   out.bullets = {}
-  for i, e in ipairs(g.enemies) do
+  for i, e in ipairs(Pools.of(g, 'enemies')) do
     local old = prev.enemies[e]
     local view = blend(e, old, enemyKeys, t)
     if old and (old.ai ~= e.ai or old.alive ~= (e.hp > 0)) then
@@ -94,7 +99,7 @@ function P.sample(g, t)
     end
     out.enemies[i] = view
   end
-  for i, b in ipairs(g.bullets) do
+  for i, b in ipairs(Pools.of(g, 'projectiles')) do
     out.bullets[i] = blend(b, prev.bullets[b], { 'x', 'y', 'z' }, t)
   end
   return out

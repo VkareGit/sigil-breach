@@ -16,6 +16,7 @@ local Physics = require('src.physics.body_physics')
 local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
 local Archetypes = require('src.content.enemies')
+local Pools = require('src.session.world')
 local Contact = {}
 local len = MathX.len
 local defaults = Archetypes.defaults
@@ -135,7 +136,7 @@ function Contact.knight(g)
   if previous then
     local dx, dz = p.x - previous.x, p.z - previous.z
     local first, normalX, normalZ, obstacle
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       if standing(g, e, p) then
         local t, nx, nz =
           Contact.sweep(previous.x, previous.z, dx, dz, e.x, e.z, radius + Rules.radius(e))
@@ -167,7 +168,7 @@ function Contact.knight(g)
       p.vx, p.vz = (p.vx or 0) - into * normalX, (p.vz or 0) - into * normalZ
     end
   end
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if standing(g, e, p) then
       local depth, nx, nz = overlap(p, e, radius)
       if depth then
@@ -187,7 +188,7 @@ end
 function Contact.demons(g)
   local p = g.player
   local radius = Rules.playerBody().radius
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if standing(g, e, p) then
       local depth, nx, nz = overlap(p, e, radius)
       if depth then

@@ -9,6 +9,7 @@ local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.
 local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gold
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local D = require('src.ui.descent')
+local Pools = require('src.session.world')
 local S = {}
 function S.draw(g, s, U)
   if g.run then
@@ -41,7 +42,7 @@ function S.draw(g, s, U)
   lg.circle('fill', x, y, 4)
   lg.setLineWidth(3)
   lg.line(x, y, x + math.sin(p.yaw) * 17, y + math.cos(p.yaw) * 17)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and e.awake then
       rect(ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4, red)
     end

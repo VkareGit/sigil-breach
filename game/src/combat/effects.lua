@@ -7,6 +7,7 @@ local Damage = require('src.combat.damage')
 local Rules = require('src.combat.rules')
 local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
+local Pools = require('src.session.world')
 local Effects = {}
 Effects.kinds = Registry:new('effect handlers', function(entry, id)
   Definitions.kinds:get(id)
@@ -29,12 +30,8 @@ local function aliveSource(g, instance)
   if instance.sourceSide == 'knight' then
     return g.player.hp > 0
   end
-  for _, enemy in ipairs(g.enemies) do
-    if enemy.id == instance.sourceId then
-      return enemy.hp > 0
-    end
-  end
-  return false
+  local source = Pools.get(g, instance.sourceId)
+  return source ~= nil and source.hp > 0
 end
 function Effects.cancel(target, id)
   local instances = target.effectState
@@ -161,7 +158,7 @@ function Effects.update(g, dt)
     return
   end
   updateBody(g, g.player, dt)
-  for _, enemy in ipairs(g.enemies) do
+  for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     if g.state ~= 'playing' then
       break
     end

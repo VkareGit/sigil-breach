@@ -33,7 +33,6 @@ src/session/journal.lua 7
 src/session/listeners.lua 1
 src/session/sanctuary.lua 1
 src/session/state.lua 1
-src/session/world.lua 1
 src/systems/clocks.lua 2
 src/systems/knight.lua 2
 src/world/gallery.lua 1

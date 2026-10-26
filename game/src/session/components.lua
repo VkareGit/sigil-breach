@@ -218,6 +218,7 @@ C.schemas.charge = {
 }
 -- The knight: body, motion, weapons in hand and abilities.
 C.schemas.knight = {
+  id = f(nil, "unique per session: 'knight' .. n (pool 'knights')"),
   x = f(16),
   z = f(27.5),
   yaw = f(math.pi),
@@ -306,7 +307,7 @@ C.pools = {
   hazards = { 'hazard' },
   pickups = { 'pickup' },
   charges = { 'charge' },
-  knight = { 'knight' },
+  knights = { 'knight' },
 }
 -- Pools whose members are still created by their systems (no strict schema
 -- yet): their component is a tag without declared fields.
@@ -326,6 +327,6 @@ function C.prefabs(world)
   world:prefab('hazard', { pool = 'hazards' })
   world:prefab('pickup', { pool = 'pickups' })
   world:prefab('charge', { pool = 'charges' })
-  world:prefab('knight', { pool = 'knight' })
+  world:prefab('knight', { pool = 'knights' })
 end
 return C

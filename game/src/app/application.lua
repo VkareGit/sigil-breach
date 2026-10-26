@@ -13,6 +13,7 @@ local Commands = require('src.app.commands')
 local Navigation = require('src.app.navigation')
 local Queries = require('src.run.queries')
 local SessionReport = require('src.app.session_report')
+local Pools = require('src.session.world')
 -- The presentation plugs itself into the simulation's hooks (sound, effects,
 -- feel, listeners); the simulation never requires it.
 require('src.feedback.install')
@@ -279,7 +280,8 @@ function Application:finishStartup()
     love.mouse.setRelativeMode(false)
     game.player.x, game.player.z, game.player.pitch = 16, 25.5, 0.04
     game.view.messageTimer = 0
-    game.enemies[1].z, game.enemies[1].awake = 21.6, false
+    local first = Pools.of(game, 'enemies')[1]
+    first.z, first.awake = 21.6, false
   end
 end
 

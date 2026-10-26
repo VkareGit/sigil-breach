@@ -17,6 +17,7 @@ local Outcomes = require('src.session.damage_outcomes')
 local Simulation = require('src.session.simulation')
 local Fields = require('src.session.fields')
 local ContentContracts = require('src.session.content_contracts')
+local Pools = require('src.session.world')
 local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
@@ -84,8 +85,7 @@ function Game:spawn(kind, x, z)
   Rules.applyTier(enemy, tier)
   enemy.variant = archetype.variant
   AI.init(enemy)
-  self.enemies[#self.enemies + 1] = enemy
-  return enemy
+  return Pools.add(self, 'enemies', enemy)
 end
 
 function Game:reloadGun()

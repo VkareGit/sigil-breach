@@ -8,6 +8,7 @@ local AttackDebug = require('src.render.attack_debug')
 local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local Queries = require('src.run.queries')
+local Pools = require('src.session.world')
 local E = {}
 E.colors = {
   coal = { 0.018, 0.016, 0.014 },
@@ -71,7 +72,7 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
 end
 function E.spells(r, g)
   love.graphics.setDepthMode('less', false)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     local look = Archetypes.look(e)
     local casts = look.casts
     if e.hp > 0 and e.ai == 'windup' and casts and (casts.all or casts[e.attackKind]) then
@@ -92,10 +93,10 @@ function E.spells(r, g)
       )
     end
   end
-  for _, b in ipairs(g.bullets) do
+  for _, b in ipairs(Pools.of(g, 'projectiles')) do
     E.spell(r, g, 1, (g.time * 9) % 1, b.x, b.y, b.z, b.big and 0.82 or 0.52, 0.9, false)
   end
-  for _, h in ipairs(g.hazards) do
+  for _, h in ipairs(Pools.of(g, 'hazards')) do
     local preparing = h.delay > 0
     local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
       or (1 - (h.life or 0) / 0.22)
@@ -138,7 +139,7 @@ function E.chargeAlpha(g, c)
   return progress * progress * (3 - 2 * progress)
 end
 function E.charges(r, g, image, frames)
-  if not image or not g.charges or #g.charges == 0 then
+  if not image or #Pools.of(g, 'charges') == 0 then
     return
   end
   frames = frames or require('src.render.weapon').chargeWorldFrames
@@ -154,7 +155,7 @@ function E.charges(r, g, image, frames)
   s:send('pain', 0)
   s:send('brightness', 1.1)
   s:send('objectScale', 0.4)
-  for _, c in ipairs(g.charges or {}) do
+  for _, c in ipairs(Pools.of(g, 'charges')) do
     local alpha = E.chargeAlpha(g, c)
     s:send('effectAlpha', alpha)
     love.graphics.setDepthMode('less', alpha >= 1)
@@ -316,7 +317,7 @@ function E.hitboxes(r, g)
     return
   end
   love.graphics.setDepthMode('lequal', false)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 or Corpse.shields(e) then
       if Geometry.uses(e) then
         love.graphics.setShader(r.shader)
@@ -329,7 +330,7 @@ function E.hitboxes(r, g)
   love.graphics.setShader(r.shader)
   love.graphics.setDepthMode('less', false)
   shotRays(r, g)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       r:object(
         r.warning,

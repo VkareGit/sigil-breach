@@ -161,6 +161,42 @@ Odbiór:
 - separacja i kontakty idą przez indeks przestrzenny z V3 (do tego czasu
   O(n²) tylko po żywych, z pomiarem).
 
+Wykonano (2026-10-25):
+- V1-1 (commit dowodowy `9658dd4`): skrót złotego wzorca v2. Opisuje
+  stworzenia w kolejności id z puli żywych i szczątków, a pomija zegar stanu
+  (`phase`) ciał martwych, którego nic nie czyta. Przeliczony na
+  niezmienionej symulacji 0.32 (zmienił się tylko `qa/golden.lua`):
+  playtest `07f73bfa/a9192235`, human `fe26df14/563c8d0f`, drill
+  `c13bcaec/f105ca06`; skróty kontaktów bez zmian.
+- `core/ecs`: cykl życia `add`/`removeAt`/`remove`/`keep`/`clear`/`move`,
+  indeks id O(1) (`get`) dla pul z id, samonaprawa indeksu po podmianie
+  tablicy z zewnątrz, odmowa zajętego id bez zmiany puli.
+  `session/world.lua` (moduł pul) daje `Pools.of/add/removeAt/remove/keep/
+  clear/get/retire/retireWhere`, także dla ręcznych sesji bez ECS.
+- Zapadka `DIRECT POOL ARRAYS`: 99 → 0. Zagrożenie, efekt i telemetria
+  szukają ciała po id.
+- Pula `remains`: zwłoki osiadłe, w spoczynku i po oknie rysowania
+  (`combat_defaults.corpse.visible` = 25 s, wcześniej liczba w rendererze)
+  przechodzą do niej w systemie `world.remains`. Żadna pętla kroku ich nie
+  odwiedza; `Pools.get` i snapshot je znają.
+- Pula `knights` (1..n, rycerz ma id `knight1`), `g.player` wskazuje
+  sterowanego.
+- Definicje treści pieczętowane w testach (`session/definitions.lua`):
+  pieczęć na starcie przebiegu, weryfikacja po każdym zestawie. Zmiana
+  pola istniejącej definicji jest błędem ze ścieżką; rejestry mogą zyskiwać
+  i tracić wpisy. Cały przebieg nie wykazał ani jednej zmiany.
+- Naprawione przy okazji: próbka prezentacji interpolacji czyta własne
+  tablice (`out.ecs = false`); bez tego renderer dostałby pozycje
+  nieinterpolowane.
+- Testy: zestaw `entity-lifecycle` (13 sprawdzeń, m.in. 300 zgonów w jednym
+  starciu → 300 w `remains`, 1 żywy w puli, zwłoki nie są już krokowane).
+  Sonda w scenariuszach złotego wzorca: 2 zwłoki przeniesione, skróty v2
+  bit w bit.
+- Pomiar (qa_crowd, n−1 martwych + 1 żywy): krok 0,014 / 0,011 / 0,008 ms
+  dla 95 / 255 / 511 zwłok (0.32: 0,032 / 0,175 / 0,292 ms). Koszt nie zależy
+  już od liczby zwłok. Separacja żywych pozostaje O(n²) do V3; jej czasy
+  wahają się między przebiegami (256 ciał: 0,7–3,9 ms).
+
 ### V2 — strony, cele i jedna droga obrażeń (B1)
 
 - Komponent `faction` i tabela relacji w treści (rycerz, demony, neutralni):

@@ -93,6 +93,10 @@ function Snapshot.restore(g, snapshot)
   for k, v in pairs(snapshot.data) do
     g[k] = copy(v, seen, shared)
   end
+  -- The world's id index follows the restored arrays.
+  if g.ecs then
+    g.ecs:reindex()
+  end
   return g
 end
 return Snapshot

@@ -27,6 +27,19 @@ V0 — stan odniesienia i zapadki (2026-10-25)
   dziennika. Tabela odniesienia w planie, sekcja V0.
 - Rozgrywka, balans, wygląd i zapisy bez zmian; złoty wzorzec bez zmian.
 
+V1 — encje z cyklem życia (2026-10-25)
+- Złoty wzorzec v2 (commit dowodowy na niezmienionej symulacji): stworzenia
+  w kolejności id z pul żywych i szczątków, bez zegara stanu martwych.
+- Świat ECS posiada członkostwo pul i indeks id; cały kod gry zmienia
+  i czyta pule przez session/world.lua (zapadka pool-arrays 99 → 0).
+- Zwłoki osiadłe i po 25 s rysowania przechodzą do puli remains i nie są
+  już krokowane; koszt kroku nie zależy od liczby zwłok.
+- Rycerze są pulą (knight1...), g.player to sterowany rycerz.
+- Definicje treści są pieczętowane w testach; zmiana pola istniejącej
+  definicji przerywa przebieg.
+- Poprawka: interpolowana próbka prezentacji nie sięga do żywych pul.
+- Rozgrywka, balans, wygląd i zapisy bez zmian; skróty v2 bez zmian.
+
 
 ########################################################################
 ZMIANY-0.32.txt

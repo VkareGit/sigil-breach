@@ -10,6 +10,7 @@ local Circles = require('src.content.circles')
 local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')
 local Palette = require('src.ui.palette')
+local Pools = require('src.session.world')
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
 local gold = Skin.colors.gold
@@ -344,7 +345,7 @@ function D.map(g)
     ox + p.x * sz + math.sin(p.yaw) * 15,
     oy + p.z * sz + math.cos(p.yaw) * 15
   )
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       rect(ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4, red)
     end

@@ -11,6 +11,7 @@ local chest = require('src.content.combat_defaults').missiles.chest
 -- The behaviour of the 'throw' delivery; the powder charge itself is data
 -- (content/abilities.lua: powder), in the same format as demon attacks.
 local Abilities = require('src.content.abilities')
+local Pools = require('src.session.world')
 local function defaultAction()
   return Abilities:get('powder').action
 end
@@ -38,7 +39,6 @@ function X.launch(g, action)
   local dx, dy, dz = B.direction(p.yaw, p.pitch)
   local spawn = B.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
   spawn = math.max(0, spawn - K.spawnClearance)
-  g.charges = g.charges or {}
   Spawn.make(g, 'charge', {
     action = action,
     x = x + dx * spawn,
@@ -59,7 +59,7 @@ function X.explode(g, b)
   local action = b.action or defaultAction()
   local report =
     { targets = 0, kills = 0, healthDamage = 0, blocked = 0, impact = 0, selfDamage = 0 }
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       -- The blast samples the physical body anchor. A leap moves it; visual bob
       -- and hover do not change exposure or damage.
@@ -116,7 +116,7 @@ function X.update(g, dt)
   if not finite(dt) or dt <= 0 then
     return
   end
-  local list = g.charges or {}
+  local list = Pools.of(g, 'charges')
   for i = #list, 1, -1 do
     local b = list[i]
     if
@@ -130,7 +130,7 @@ function X.update(g, dt)
         and finite(b.fuse)
       )
     then
-      table.remove(list, i)
+      Pools.removeAt(g, 'charges', i)
     else
       -- Its flight is solved in heights above the ground (physics/ground.lua).
       local ground = Ground.height(g.world)
@@ -144,7 +144,7 @@ function X.update(g, dt)
       Flight.advance(g.world, b, step, Tuning.gravity, floorHeight, K)
       b.y = b.y + ground
       if b.fuse <= 1e-9 then
-        table.remove(list, i)
+        Pools.removeAt(g, 'charges', i)
         X.explode(g, b)
         if g.state ~= 'playing' then
           break

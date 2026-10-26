@@ -8,12 +8,13 @@
 -- nothing. Report.afterWrite (optional) runs after an entry (the journal).
 local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
+local Pools = require('src.session.world')
 local Report = { file = 'telemetry.txt' }
 -- Per session: the counters and totals at its last entry.
 local marks = setmetatable({}, { __mode = 'k' })
 local function alive(g)
   local n = 0
-  for _, e in ipairs(g.enemies or {}) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       n = n + 1
     end

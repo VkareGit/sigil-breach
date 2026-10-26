@@ -10,6 +10,7 @@ local K = require('src.physics.kinematics')
 local Corpse = require('src.enemies.corpse')
 local Anim = require('src.enemies.animation')
 local SupportPath = require('src.physics.support_path')
+local Pools = require('src.session.world')
 local Body = {}
 local sqrt = math.sqrt
 local len = MathX.len
@@ -28,7 +29,7 @@ local function push(g, e, dt, drag)
       Signal(g, 'WallSlam', { body = e, lost = lost })
     end
   end
-  for _, o in ipairs(g.enemies) do
+  for _, o in ipairs(Pools.of(g, 'enemies')) do
     if
       o ~= e
       and o.hp > 0

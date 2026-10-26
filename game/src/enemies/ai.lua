@@ -9,6 +9,7 @@ local Rules = require('src.combat.rules')
 local Body = require('src.enemies.body')
 local Attacks = require('src.enemies.actions')
 local Hazards = require('src.enemies.hazards')
+local Pools = require('src.session.world')
 local AI = {}
 local sin, cos, sqrt, atan2 = math.sin, math.cos, math.sqrt, math.atan2
 local len = MathX.len
@@ -40,7 +41,7 @@ function AI.init(e)
   e.flinch = 0
 end
 function AI.noise(g, x, z, r)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and len(e.x - x, e.z - z) < r then
       e.awake = true
       e.memory = 4
@@ -152,7 +153,7 @@ end
 local function reserveAttack(g, e)
   local max = Rules.maxAttackers(e)
   local count = 0
-  for _, other in ipairs(g.enemies) do
+  for _, other in ipairs(Pools.of(g, 'enemies')) do
     if other.hp > 0 and (other.ai == 'windup' or other.ai == 'strike') then
       count = count + 1
     end
@@ -413,10 +414,11 @@ end
 -- including identical spawn coordinates.
 local function separate(g, dt)
   local S = Archetypes.defaults.separation
-  for i, a in ipairs(g.enemies) do
+  local bodies = Pools.of(g, 'enemies')
+  for i, a in ipairs(bodies) do
     if a.hp > 0 then
-      for j = i + 1, #g.enemies do
-        local b = g.enemies[j]
+      for j = i + 1, #bodies do
+        local b = bodies[j]
         local dx, dz = a.x - b.x, a.z - b.z
         local d = len(dx, dz)
         local minimum = math.max(S.minimum, radius(a) + radius(b))
@@ -444,7 +446,7 @@ end
 function AI.demons(g, dt, previousPlayer)
   local p = g.player
   g.threat = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     -- A training dummy (proving-ground station) keeps its physics but never
     -- decides, walks or attacks; stun, hit-stop, a perfect-dodge freeze and
     -- the climb out of a portal pause the intent too.

@@ -16,6 +16,7 @@ local K = require('src.content.expedition')
 local R = { shrine = Sanctuary.shrine, totalWaves = K.totalWaves }
 local guardianWave = K.totalWaves + 1
 local Spawner = require('src.run.spawner')
+local Pools = require('src.session.world')
 local portals = Spawner.portals
 R.portals = portals
 local distance = MathX.distance
@@ -69,7 +70,7 @@ local function restore(g, v)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.heat, p.overheat, p.heatDelay = nil, nil, nil
   Abilities.rest(g)
-  g.charges = {}
+  Pools.clear(g, 'charges')
   local motion = g.view.motion
   F.init(g)
   g.view.motion = motion
@@ -226,9 +227,9 @@ function R.ready(g)
   Encounter.clearStage(g)
   -- Supplies have a fixed wave budget; an old wave cannot leave free crates behind.
   if r.wave <= K.totalWaves then
-    g.pickups = {}
-    for i, s in ipairs(K.supplies) do
-      g.pickups[i] = { kind = s.kind, amount = s.amount, x = s.x, z = s.z }
+    Pools.clear(g, 'pickups')
+    for _, s in ipairs(K.supplies) do
+      Spawn.make(g, 'pickup', { kind = s.kind, amount = s.amount, x = s.x, z = s.z })
     end
   end
   g.state = 'playing'
@@ -343,7 +344,7 @@ function R.remaining(g)
     return 0
   end
   local alive = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       alive = alive + 1
     end
@@ -391,12 +392,12 @@ function R.finishWave(g)
   if r.phase ~= 'wave' then
     return false
   end
-  for _, a in ipairs(g.pickups) do
+  for _, a in ipairs(Pools.of(g, 'pickups')) do
     if a.kind == 'soul' then
       R.collectSoul(g, a)
     end
   end
-  g.pickups = {}
+  Pools.clear(g, 'pickups')
   Encounter.clearThreats(g)
   r.pending = {}
   g.threat = 0
@@ -459,14 +460,15 @@ function R.update(g, dt)
     end
   end
   -- Souls are physical drops; nearby ones drift toward you without crossing walls.
-  for i = #g.pickups, 1, -1 do
-    local a = g.pickups[i]
+  local pickups = Pools.of(g, 'pickups')
+  for i = #pickups, 1, -1 do
+    local a = pickups[i]
     if a.kind == 'soul' then
       local d = distance(p, a)
       if d < K.souls.reach and W.visible(g.world, p.x, p.z, a.x, a.z) then
         if d < K.souls.take then
           R.collectSoul(g, a)
-          table.remove(g.pickups, i)
+          Pools.removeAt(g, 'pickups', i)
         else
           local travel = math.min(d, dt * K.souls.drift)
           a.x = a.x + (p.x - a.x) / d * travel

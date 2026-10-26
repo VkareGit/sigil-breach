@@ -26,6 +26,7 @@ return {
   Combat.charges,
   Combat.effects,
   World.telemetry,
+  World.remains,
   World.stillPlaying,
   World.transientsAfter,
   World.supplies,

@@ -75,8 +75,18 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Game). Złoty test odrzuca niezadeklarowane pola obu.
 
   ECS (core/ecs + session/world.lua + session/components.lua): pule nad
-  tablicami sesji (enemies, projectiles=g.bullets, hazards, pickups,
-  charges) i rycerz (g.player). Prefaby, tryb ścisły w testach.
+  tablicami sesji (enemies, remains, projectiles=g.bullets, hazards,
+  pickups, charges, knights). Świat posiada członkostwo: kod gry czyta
+  i zmienia pule wyłącznie przez Pools (session/world.lua: of, add,
+  removeAt, remove, keep, clear, get, retire), nigdy przez pola tablic
+  sesji (zapadka pool-arrays = 0). Stworzenia i rycerze mają id; Pools.get
+  znajduje je w O(1), także martwe w remains. remains to zwłoki osiadłe,
+  w spoczynku i po oknie rysowania (Corpse.done, combat_defaults.corpse.
+  visible): żadna pętla kroku ich nie odwiedza. knights to pula 1..n;
+  g.player to sterowany rycerz. Prefaby, tryb ścisły w testach.
+  Usuwanie w trakcie pętli: wstecz przez removeAt albo keep po pętli.
+  Definicje treści są tylko do odczytu: testy pieczętują je
+  (session/definitions.lua) i przerywają przebieg przy zmianie pola.
 
   Rycerz: player.loadout + player.arsenal[id] = { mag, reserve, open, loaded,
   spent, readyAt }; player.abilities + player.abilityState[id] = { uses,
@@ -89,7 +99,7 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   knight.motion -> knight.contact -> world.effects -> world.transientsBefore
   -> knight.trigger -> combat.demons -> combat.separation -> combat.bodies ->
   combat.hazards -> combat.projectiles -> combat.charges -> combat.contactEffects -> world.telemetry ->
-  world.stillPlaying -> world.transientsAfter -> world.supplies ->
+  world.remains -> world.stillPlaying -> world.transientsAfter -> world.supplies ->
   world.progression (Modes.of(g).progress).
   Ciała (combat/body_contact.lua): kto wszedł w drugie żywe ciało, zatrzymuje
   się na kontakcie (rycerz po swoim ruchu, demony po swoim); pęd z ciosów
@@ -337,7 +347,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Ruch, droga ataku i podatna powierzchnia pozostają osobnymi reprezentacjami.
   Wybuch sprawdza ekspozycję kotwicy tułowia z fizycznym leapY, bez
   kosmetycznego bob/hover; nie jest promieniem anatomicznym.
-  Pętle po g.enemies zostają tablicami (LuaJIT).
+  Pule zostają tablicami (LuaJIT), ale ich członkostwem zarządza świat
+  ECS (Pools); separacja żywych jest O(n²) do etapu V3 planu v10.
 
 14. NARZĘDZIA
 

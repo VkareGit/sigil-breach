@@ -42,11 +42,13 @@ declare('session/state.lua', {
   'world', -- the arena: map cells, seals, lamps, portal, spawn
   'view', -- presentation state (Fields.view below)
   'enemies', -- demons (pool 'enemies')
+  'remains', -- corpses at rest, out of the step (pool 'remains')
   'bullets', -- missiles in flight (pool 'projectiles')
   'hazards', -- marked ground strikes and pools (pool 'hazards')
   'pickups', -- supplies and souls on the floor (pool 'pickups')
   'charges', -- thrown powder charges (pool 'charges')
-  'player', -- the knight (single 'knight')
+  'player', -- the knight this session controls (a member of 'knights')
+  'knights', -- every knight (pool 'knights', 1..n)
   'ecs', -- the ECS world over these arrays (machinery)
   'bus', -- the event bus with its listeners (machinery)
   'rng', -- the simulation and presentation random streams

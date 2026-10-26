@@ -7,6 +7,7 @@ local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
+local Pools = require('src.session.world')
 local Hazards = {}
 local len = MathX.len
 function Hazards.add(g, x, z, delay, r, life, spec)
@@ -28,15 +29,13 @@ function Hazards.add(g, x, z, delay, r, life, spec)
 end
 function Hazards.update(g, dt, previousPlayer)
   local p = g.player
-  for i = #g.hazards, 1, -1 do
-    local h = g.hazards[i]
+  local hazards = Pools.of(g, 'hazards')
+  for i = #hazards, 1, -1 do
+    local h = hazards[i]
     if h.kind == 'lightning' then
-      local owner
-      for _, e in ipairs(g.enemies) do
-        if e.id == h.owner and e.hp > 0 then
-          owner = e
-          break
-        end
+      local owner = Pools.get(g, h.owner)
+      if owner and owner.hp <= 0 then
+        owner = nil
       end
       if not owner or h.cancelled then
         h.life = 0
@@ -120,7 +119,7 @@ function Hazards.update(g, dt, previousPlayer)
       end
     end
     if h.life <= 0 then
-      table.remove(g.hazards, i)
+      Pools.removeAt(g, 'hazards', i)
     end
   end
 end

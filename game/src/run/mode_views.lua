@@ -2,6 +2,7 @@
 -- No renderer imports the expedition or field's mutable record layout.
 local Sanctuary = require('src.session.sanctuary')
 local Descent = require('src.run.descent')
+local Pools = require('src.session.world')
 local Views = {}
 local empty = {}
 local classic = { gates = empty, paintedPickups = false, classicSecret = true }
@@ -51,7 +52,7 @@ function Views.classicObjective(g)
     return 'Break the court seals  ' .. g.seals .. ' / 3'
   elseif not g.bossSpawned then
     local alive = 0
-    for _, enemy in ipairs(g.enemies) do
+    for _, enemy in ipairs(Pools.of(g, 'enemies')) do
       if enemy.hp > 0 then
         alive = alive + 1
       end

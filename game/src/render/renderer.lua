@@ -9,6 +9,7 @@ local Ritual = require('src.render.ritual_art')
 local Weapon = require('src.render.weapon')
 local WeaponArt = require('src.render.weapon_art')
 local Pose = require('src.enemies.pose')
+local Corpse = require('src.enemies.corpse')
 local Atlas = require('src.render.atlas')
 local AbilityArt = require('src.render.ability_art')
 local AbilityMetadata = require('src.content.ability_art')
@@ -58,6 +59,7 @@ local MURAL_RECTS = rects(2, 2, 0.001, 0.001)
 local Shaders = require('src.render.shaders')
 local Assets = require('src.render.assets')
 local Resources = require('src.render.resources')
+local Pools = require('src.session.world')
 function R.new(checkpoint)
   local r = setmetatable({}, { __index = R })
   r.native = Resources.new('renderer meshes and shaders')
@@ -643,7 +645,7 @@ function R:projectilesPass(g)
   local lg = love.graphics
   lg.setShader(self.shader)
   lg.setDepthMode('less', false)
-  for _, b in ipairs(g.bullets) do
+  for _, b in ipairs(Pools.of(g, 'projectiles')) do
     local packet = b.packet or {}
     local heavy = math.min(1, (packet.impact or (b.big and 60 or 40)) / 120)
     -- Fairness: the painted rim is the collision radius (orb mesh radius .09),
@@ -708,7 +710,7 @@ function R:groundPass(g, time)
   end
   self.particleBatch:draw(self, g)
   if not view.paintedPickups then
-    for _, a in ipairs(g.pickups) do
+    for _, a in ipairs(Pools.of(g, 'pickups')) do
       self:object(
         a.kind == 'ammo' and self.ammo or self.health,
         a.x,
@@ -805,7 +807,7 @@ function R:enemyMarksPass(g)
   local lg = love.graphics
   lg.setDepthMode('less', true)
   Shadows.draw(self, g)
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       lg.setDepthMode('less', false)
       local look = Archetypes.look(e)
@@ -852,7 +854,7 @@ end
 
 -- Pools, lines and lightning marks: telegraph colour, then the live ground.
 function R:hazardsPass(g, time)
-  for _, haz in ipairs(g.hazards or {}) do
+  for _, haz in ipairs(Pools.of(g, 'hazards')) do
     if haz.kind ~= 'lightning' then
       HazardArt.draw(self, g, haz)
     else
@@ -932,7 +934,7 @@ function R:spritesPass(g, time)
     )
   end
   if view.paintedPickups then
-    for _, a in ipairs(g.pickups) do
+    for _, a in ipairs(Pools.of(g, 'pickups')) do
       self:pickup(g, a)
     end
   end
@@ -941,8 +943,8 @@ function R:spritesPass(g, time)
     Gallery.draw(self, g)
     lg.setShader(self.spriteShader)
   end
-  for _, e in ipairs(g.enemies) do
-    if e.hp > 0 or (e.deathTime or 0) < 25 then
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.hp > 0 or Corpse.visible(e) then
       self:enemy(g, e)
     end
   end

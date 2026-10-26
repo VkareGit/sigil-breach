@@ -15,6 +15,7 @@ local Telemetry = require('src.combat.telemetry')
 local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
+local Pools = require('src.session.world')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name } (the catalogue follows the loadout, never a count).
@@ -60,7 +61,7 @@ function F.refill(g)
     state.mag, state.reserve = def.capacity, def.maxReserve
   end
   Weapons.rest(g)
-  g.charges = {}
+  Pools.clear(g, 'charges')
   p.heat, p.overheat, p.heatDelay, p.invuln = nil, nil, nil, 0
   g.reload, g.cooldown, g.fireBuffer = 0, 0, 0
   Abilities.rest(g)
@@ -170,7 +171,7 @@ function F.toggleFreeze(g)
     return false
   end
   g.testField.frozen = not g.testField.frozen
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     e.previewFrame = nil
   end
   tell(
@@ -209,7 +210,7 @@ local function place(g, kind, count)
     return nil, 'Choose one demon or a group of three.'
   end
   local alive = #g.run.pending
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       alive = alive + 1
     end
@@ -230,7 +231,7 @@ local function place(g, kind, count)
     then
       return false
     end
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       if e.hp > 0 and distance(e, candidate) < 1.8 then
         return false
       end
@@ -277,11 +278,10 @@ local function place(g, kind, count)
     return nil, g.testField.message
   end
   -- Remove old bodies only when adding a new batch, keeping death inspection intact.
-  for i = #g.enemies, 1, -1 do
-    if g.enemies[i].hp <= 0 then
-      table.remove(g.enemies, i)
-    end
-  end
+  Pools.keep(g, 'enemies', function(e)
+    return e.hp > 0
+  end)
+  Pools.clear(g, 'remains')
   g.testField.selected = kind
   g.testField.poseIndex = 1
   return spots
@@ -345,7 +345,7 @@ function F.pose(g, delta)
   local t = g.testField
   local kind = t.selected
   local targets = {}
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.fieldKind == kind then
       targets[#targets + 1] = e
     end
@@ -378,7 +378,7 @@ function F.visitSeal(g, name)
         if W.solid(g.world, x, z, 0.28) or not W.visible(g.world, x, z, s.x, s.z) then
           return false
         end
-        for _, e in ipairs(g.enemies) do
+        for _, e in ipairs(Pools.of(g, 'enemies')) do
           if e.hp > 0 and distance(e, { x = x, z = z }) < 2.2 then
             return false
           end
@@ -442,7 +442,7 @@ end
 -- The prompt away from a pad: the selected demon and its pose mode.
 function F.context(g)
   local field, manual = g.testField, false
-  for _, enemy in ipairs(g.enemies) do
+  for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     if enemy.fieldKind == field.selected and enemy.previewFrame then
       manual = true
     end
@@ -613,7 +613,7 @@ function F.update(g, dt)
     stations(g, dt)
   end
   local bosses = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.boss and e.hp > 0 then
       bosses = bosses + 1
     end

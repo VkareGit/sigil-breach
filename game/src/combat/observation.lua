@@ -6,6 +6,7 @@ local Anatomy = require('src.content.art.anatomy_regions')
 local Masks = require('src.content.art.hit_masks')
 local Surface = require('src.enemies.surface')
 local Geometry = require('src.enemies.geometry')
+local Pools = require('src.session.world')
 local O = { maxAge = require('src.content.tuning').observation.maxAge }
 local serial = 0
 local surfaceKeys = {
@@ -61,7 +62,7 @@ function O.capture(shown, owner)
     origin = { B.origin(shown) },
     bodies = {},
   }
-  for _, enemy in ipairs(shown.enemies) do
+  for _, enemy in ipairs(Pools.of(shown, 'enemies')) do
     if B.blocks(enemy) then
       local body = { id = enemy.id, kind = enemy.kind, x = enemy.x, z = enemy.z }
       if not Geometry.uses(enemy) then
@@ -97,7 +98,7 @@ end
 function O.prepare(g, observation)
   assert(O.valid(g, observation), 'expired or foreign shot observation')
   local live, bodies = {}, {}
-  for _, enemy in ipairs(g.enemies) do
+  for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     live[enemy.id] = enemy
   end
   for _, body in ipairs(observation.bodies) do

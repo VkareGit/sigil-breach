@@ -16,6 +16,7 @@ for id, def in require('src.content.enemies').each() do
 end
 -- The summoning gates of the default map (a session uses its world's gates).
 local Maps = require('src.content.maps.index')
+local Pools = require('src.session.world')
 S.portals = Maps:get(Maps.default).gates
 local distance = MathX.distance
 S.distance = distance
@@ -30,7 +31,7 @@ function S.choosePortal(g, flank)
     local path = flow[math.floor(s.z + 0.5) * g.world.size + math.floor(s.x + 0.5)]
     local d = distance(p, s)
     local crowded = false
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       if e.hp > 0 and distance(e, s) < K.crowd then
         crowded = true
       end
@@ -140,7 +141,7 @@ function S.step(g, dt, arrive)
   S.arrivals(g, dt, arrive or S.welcome)
   local wave = Waves[r.wave]
   local alive = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       alive = alive + 1
       -- Wave enemies search for the player even if the last sighting timed out.

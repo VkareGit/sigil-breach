@@ -9,6 +9,7 @@ local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local ShotReport = require('src.ui.shot_report')
 local Palette = require('src.ui.palette')
+local Pools = require('src.session.world')
 local function box(ui, label, x, y, w, h, size, color)
   -- Step the size down if the illustrated glyphs would overrun the field.
   -- Only sizes that exist in the painted font (36 steps to 28, not 34).
@@ -154,7 +155,7 @@ function UI.draw(g, ui)
   local t = g.testField
   local entry = Defs[t.selected]
   local count = 0
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       count = count + 1
     end
@@ -252,7 +253,7 @@ function UI.map(g, ui)
     ox + p.x * sz + math.sin(p.yaw) * 15,
     oy + p.z * sz + math.cos(p.yaw) * 15
   )
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       lg.setColor(C.red)
       lg.rectangle('fill', ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4)

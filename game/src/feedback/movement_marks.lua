@@ -9,6 +9,7 @@ local Ground = require('src.physics.ground')
 local Ballistics = require('src.combat.ballistics')
 local Transients = require('src.feedback.transients')
 local Data = require('src.content.movement_marks')
+local Pools = require('src.session.world')
 local Marks = {}
 local random = Transients.random
 local sin, cos, sqrt = math.sin, math.cos, math.sqrt
@@ -157,7 +158,7 @@ function Marks.update(g, dt)
   trail(g, 'slideTrail', dt, p.slideTimer > 0 and p.jump <= 0, function()
     Marks.move(g, 'slideTrail', knight(g, p.slideX, p.slideZ))
   end)
-  local charges = g.charges or {}
+  local charges = Pools.of(g, 'charges')
   trail(g, 'charge', dt, #charges > 0, function()
     for _, c in ipairs(charges) do
       Marks.move(g, 'charge', { charge = emitter(c.x, c.y, c.z, 0, 1, c.vx, c.vy, c.vz) })

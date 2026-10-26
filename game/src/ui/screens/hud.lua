@@ -14,6 +14,7 @@ local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local HUD = require('src.ui.hud')
 local D = require('src.ui.descent')
+local Pools = require('src.session.world')
 local S = {}
 function S.draw(g, s, U)
   -- A mode that reports status bar data (run/modes.lua: hud) gets the fresco
@@ -63,7 +64,7 @@ function S.draw(g, s, U)
     end
   end
   if g.bossSpawned and not g.bossDead then
-    for _, e in ipairs(g.enemies) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then
         center(e.hp < e.maxHp * 0.5 and banner.plainFury or banner.calm, 28, 20, ivory)

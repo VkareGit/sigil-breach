@@ -331,6 +331,11 @@ Suite.registry = {
     module = 'tests.cases.hazard_art',
   },
   {
+    id = 'entity-lifecycle',
+    title = 'Pools, ids, remains, knights and sealed definitions (plan v10 V1)',
+    module = 'tests.cases.entity_lifecycle',
+  },
+  {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',
@@ -357,8 +362,12 @@ function Suite.run(G, renderer, getGame, output, selected)
     assert(found, 'unknown test suite: ' .. tostring(selected))
   end
   Suite.contentAtStart = Suite.contentText()
-  -- Strict mode: an entity field no component declares is an error.
+  -- Strict mode: an entity field no component declares is an error, and so
+  -- is a changed content definition (src/session/definitions.lua): sealed
+  -- here, verified after every suite and sealed again with what it added.
   require('src.core.strict').enabled = true
+  local Definitions = require('src.session.definitions')
+  Definitions.seal()
   local initial = getGame()
   initial.testing = true
   -- A focused run must not replace evidence from the last complete run. Only
@@ -370,10 +379,15 @@ function Suite.run(G, renderer, getGame, output, selected)
     if not selected or entry.id == selected then
       report:run(entry.id, entry.title, function()
         local test = require(entry.module)
+        local lines
         if entry.application then
-          return test.run(G, initial, renderer, getGame)
+          lines = test.run(G, initial, renderer, getGame)
+        else
+          lines = test.run(G, renderer)
         end
-        return test.run(G, renderer)
+        Definitions.verify('suite ' .. entry.id)
+        Definitions.seal()
+        return lines
       end)
     end
   end

@@ -30,6 +30,8 @@ function State.new(mode, mapId)
       damageDir = 0,
     },
     enemies = {},
+    -- Corpses at rest, out of every step (session/world.lua: Pools.retire).
+    remains = {},
     bullets = {},
     pickups = {},
     charges = {},
@@ -77,7 +79,10 @@ function State.new(mode, mapId)
   for i, id in ipairs(Abilities.defaultLoadout) do
     abilities[i] = id
   end
+  -- Knights are a pool (1..n); g.player is the one this session controls.
+  session.knights = {}
   session.player = session.ecs:create('knight', {
+    id = 'knight1',
     hp = require('src.content.enemies').player.body.hp,
     -- The knight stands at the map's spawn.
     x = session.world.spawn.x,
@@ -87,7 +92,7 @@ function State.new(mode, mapId)
     arsenal = Weapons.arsenal(loadout),
     abilities = abilities,
     abilityState = Abilities.kit(abilities),
-  }, false)
+  })
   session.bus = EventCatalog.newBus()
   require('src.session.listeners').attach(session)
   session.rng = { sim = Rng:new(State.seed), present = Rng:new(State.seed + 1) }

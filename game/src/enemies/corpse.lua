@@ -80,6 +80,21 @@ function Corpse.settled(e)
     and (e.fallY or 0) <= 0
     and (e.fallVY or 0) <= 0
 end
+-- Done: settled, at rest after its fall and past the time it is drawn. Such a
+-- body changes nothing any more (no shield, no slide, no effects, no frame),
+-- so it leaves the simulation step for the remains (session/world.lua).
+function Corpse.done(e)
+  local fall = Archetypes.defaults.fall
+  return e.hp <= 0
+    and (e.deathTime or 0) >= max(K.visible, fall.life)
+    and (e.pushX or 0) == 0
+    and (e.pushZ or 0) == 0
+    and Corpse.settled(e)
+end
+-- Whether a dead body is drawn at all (the same window as Corpse.done).
+function Corpse.visible(e)
+  return (e.deathTime or 0) < K.visible
+end
 -- The one rule of a dead body in the way of the knight's shots and missiles:
 -- a falling body shields what is behind it (no wound, no reward: the dead
 -- take no damage); a settled one lets them pass. Blasts keep their own rule

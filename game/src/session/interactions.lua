@@ -11,6 +11,7 @@ local Tuning = require('src.content.tuning')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
 local Classic = require('src.content.classic')
+local Pools = require('src.session.world')
 local Interactions = {}
 
 local distance = MathX.distance
@@ -147,8 +148,9 @@ Interactions.supplies = {
 }
 function Interactions.collectSupplies(g)
   local player = g.player
-  for i = #g.pickups, 1, -1 do
-    local pickup = g.pickups[i]
+  local pickups = Pools.of(g, 'pickups')
+  for i = #pickups, 1, -1 do
+    local pickup = pickups[i]
     local supply = Interactions.supplies[pickup.kind]
     if
       supply
@@ -157,7 +159,7 @@ function Interactions.collectSupplies(g)
       and World.visible(g.world, player.x, player.z, pickup.x, pickup.z)
     then
       Signal(g, 'PickupTaken', { pickup = pickup, text = supply.take(player, pickup) })
-      table.remove(g.pickups, i)
+      Pools.removeAt(g, 'pickups', i)
     end
   end
 end
@@ -184,7 +186,7 @@ function Interactions.advanceClassic(g)
   if g.seals ~= #Classic.seal.ambush or g.bossSpawned then
     return
   end
-  for _, enemy in ipairs(g.enemies) do
+  for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     if enemy.hp > 0 then
       return
     end

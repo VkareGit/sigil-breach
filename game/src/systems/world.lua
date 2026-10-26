@@ -4,6 +4,8 @@ local Presentation = require('src.session.presentation')
 local Interactions = require('src.session.interactions')
 local Telemetry = require('src.combat.telemetry')
 local Modes = require('src.run.modes')
+local Pools = require('src.session.world')
+local Corpse = require('src.enemies.corpse')
 local World = {}
 -- Presentation updates keep their place inside the step (their timing is
 -- part of how effects look); without a presentation they do nothing.
@@ -13,6 +15,14 @@ World.telemetry = {
   name = 'telemetry',
   run = function(g, dt)
     Telemetry.tick(g, dt)
+  end,
+}
+-- Corpses that are done (enemies/corpse.lua) leave the step for the remains:
+-- the living loops never visit them again (plan v10 V1).
+World.remains = {
+  name = 'remains',
+  run = function(g)
+    Pools.retireWhere(g, Corpse.done)
   end,
 }
 -- The knight died (or a mode ended the fight): nothing else this step.

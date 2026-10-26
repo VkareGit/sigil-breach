@@ -11,6 +11,7 @@ local Materials = require('src.content.ballistic_surfaces')
 local Deliveries = require('src.combat.weapon_delivery')
 local Observation = require('src.combat.observation')
 local Loadout = require('src.combat.loadout')
+local Pools = require('src.session.world')
 local C = { trace = B.trace }
 -- Body response comes from the shared rules (src/combat/rules.lua); the
 -- corpse's response to the contact starts here; measurements and the visible
@@ -298,7 +299,7 @@ end
 -- 4. Apply the accumulated volley to every body it reached, in enemy order.
 function Volley:apply()
   local g, report, results = self.g, self.report, {}
-  for _, e in ipairs(g.enemies) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     local damage = self.damages[e]
     if damage then
       local pt = self.spots[e]

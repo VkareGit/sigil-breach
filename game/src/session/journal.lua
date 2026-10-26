@@ -14,6 +14,7 @@ local Integrity = require('src.session.integrity')
 local Observation = require('src.combat.observation')
 local Values = require('src.session.journal_values')
 local Build = require('src.core.build')
+local Pools = require('src.session.world')
 local finite = require('src.core.mathx').finite
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
@@ -100,7 +101,7 @@ end
 -- its replay says so instead of diverging silently.
 function Journal.origin(g)
   local alive = 0
-  for _, e in ipairs(g.enemies or {}) do
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
     alive = alive + (e.hp > 0 and 1 or 0)
   end
   return {

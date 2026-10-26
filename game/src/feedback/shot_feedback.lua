@@ -12,6 +12,7 @@ local Weight = require('src.feedback.weight')
 local Numbers = require('src.feedback.damage_numbers')
 local K = require('src.content.tuning').shot
 local Materials = require('src.content.ballistic_surfaces')
+local Pools = require('src.session.world')
 local Shot = {}
 -- The debris of a body surface that stops a shot without a wound (the
 -- margrave's cleaver): its material's, none for a soft one.
@@ -62,19 +63,17 @@ local function rays(g, e)
         seed = ray.seed,
       }, i % fire.surfaceEvery == 0)
     elseif ray.corpse and i % fire.surfaceEvery == 0 then
-      for _, body in ipairs(g.enemies) do
-        if body.id == ray.target then
-          -- Cosmetic wound on a falling corpse; never another HP transaction.
-          Impact.body(
-            g,
-            body,
-            { ray.x, ray.y, ray.z },
-            Impact.retained(e.attack, ray.distance),
-            0,
-            ray
-          )
-          break
-        end
+      local body = Pools.get(g, ray.target)
+      if body then
+        -- Cosmetic wound on a falling corpse; never another HP transaction.
+        Impact.body(
+          g,
+          body,
+          { ray.x, ray.y, ray.z },
+          Impact.retained(e.attack, ray.distance),
+          0,
+          ray
+        )
       end
     elseif ray.target and ray.part == false and debris(ray.material) then
       Impact.solid(g, Impact.retained(e.attack, ray.distance), {
