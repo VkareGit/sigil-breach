@@ -48,11 +48,9 @@ function State.new(mode, mapId)
     kills = 0,
     shots = 0,
     hits = 0,
-    seals = 0,
     nextId = 0,
-    bossSpawned = false,
-    bossDead = false,
-    secretFound = false,
+    -- The encounter's guardian (session/encounter.lua).
+    encounter = { guardianSpawned = false, guardianDead = false },
     flowTimer = 0,
     threat = 0,
     nextAttack = 0,

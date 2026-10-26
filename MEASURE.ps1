@@ -33,6 +33,28 @@ function Add-Sample([string]$Variant, [string]$Metric, [double]$Value) {
     if (-not $samples.ContainsKey($key)) { $samples[$key] = New-Object System.Collections.Generic.List[double] }
     $samples[$key].Add($Value)
 }
+# Every measured process runs at high priority on the same performance cores
+# (logical processors 2-7): a hybrid CPU otherwise moves it between core
+# kinds, which is most of the spread between processes.
+$affinity = [IntPtr]0xFC
+function Invoke-Pinned([string]$Tree, [string]$Flag, [string]$Log) {
+    $info = New-Object Diagnostics.ProcessStartInfo $runtime
+    $info.Arguments = '"' + $Tree + '" ' + $Flag
+    $info.UseShellExecute = $false
+    $info.RedirectStandardOutput = $true
+    $info.RedirectStandardError = $true
+    $process = [Diagnostics.Process]::Start($info)
+    try {
+        $process.ProcessorAffinity = $affinity
+        $process.PriorityClass = 'High'
+    }
+    catch { }
+    $out = $process.StandardOutput.ReadToEndAsync()
+    $err = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit()
+    [IO.File]::WriteAllText($Log, $out.Result + $err.Result)
+    if ($process.ExitCode -ne 0) { throw "$Flag failed in $Tree (exit $($process.ExitCode)); see $Log" }
+}
 function Invoke-Measure([string]$Variant, [string]$Tree, [int]$Index) {
     foreach ($count in $counts) {
         $dir = Join-Path $Out ("$Variant\core-$count-$Index")
@@ -43,7 +65,7 @@ function Invoke-Measure([string]$Variant, [string]$Tree, [int]$Index) {
         $env:SIGIL_CORE_WARMUP = '300'
         $env:SIGIL_CORE_STEPS = '2400'
         $env:SIGIL_CORE_JOURNAL_SECONDS = '1'
-        & $runtime $Tree --core-measure | Out-File -Encoding utf8 (Join-Path $dir 'stdout.txt')
+        Invoke-Pinned $Tree '--core-measure' (Join-Path $dir 'stdout.txt')
         $text = Get-Content -Raw (Join-Path $dir 'core-measure.txt')
         $m = [regex]::Match($text, 'step: (\d+) bodies awake; whole simulation step median ([\d.]+) ms')
         if (-not $m.Success) { throw "No step measurement in $dir" }
@@ -55,7 +77,7 @@ function Invoke-Measure([string]$Variant, [string]$Tree, [int]$Index) {
     $env:SIGIL_BENCH_POPULATIONS = $Populations
     $env:SIGIL_BENCH_WARMUP = '300'
     $env:SIGIL_BENCH_FRAMES = '720'
-    & $runtime $Tree --benchmark | Out-File -Encoding utf8 (Join-Path $dir 'stdout.txt')
+    Invoke-Pinned $Tree '--benchmark' (Join-Path $dir 'stdout.txt')
     foreach ($line in Get-Content (Join-Path $dir 'benchmark.txt')) {
         $m = [regex]::Match($line, '^(complete_\w+|prepared_population_\d+_live) total n=\d+ median_ms=([\d.]+)')
         if ($m.Success) { Add-Sample $Variant ('frame ' + $m.Groups[1].Value + ' (ms)') ([double]$m.Groups[2].Value) }
@@ -89,7 +111,7 @@ finally {
 $report = New-Object System.Collections.Generic.List[string]
 $report.Add('V11 MEASUREMENT PROTOCOL')
 foreach ($variant in $variants.Keys) { $report.Add("$variant = $($variants[$variant])") }
-$report.Add("pairs = $Pairs (order alternates), populations = $Populations, warm-up 300 steps/frames, 2400 steps and 720 frames sampled, map qa_crowd")
+$report.Add("pairs = $Pairs (order alternates), populations = $Populations, warm-up 300 steps/frames, 2400 steps and 720 frames sampled, map qa_crowd, high priority on logical processors 2-7")
 $metrics = $samples.Keys | ForEach-Object { $_.Split('|')[1] } | Sort-Object -Unique
 foreach ($metric in $metrics) {
     $stats = @{}

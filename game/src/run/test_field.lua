@@ -18,6 +18,7 @@ local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local World = require('src.world.arena')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name = text key } (the catalogue follows the loadout, never
@@ -97,11 +98,11 @@ function F.reset(g)
     fragment = false,
     pending = {},
   }
-  g.seals, g.kills, g.shots, g.hits, g.score, g.damageTaken, g.elapsed = 0, 0, 0, 0, 0, 0, 0
-  g.bossSpawned, g.bossDead, g.secretFound, g.map, g.help = false, false, false, false, false
-  for _, seal in ipairs(g.world.seals) do
-    seal.active = false
-  end
+  g.kills, g.shots, g.hits, g.score, g.damageTaken, g.elapsed = 0, 0, 0, 0, 0, 0
+  g.map, g.help = false, false
+  Encounter.setGuardian(g, false, false)
+  g.world.secretFound = false
+  World.breakSeals(g.world, 0)
   g.weapon = 1
   g.cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =
     0, 0, 0, 0, 0, 0
@@ -265,8 +266,7 @@ function F.update(g, dt)
       bosses = bosses + 1
     end
   end
-  g.bossSpawned = bosses == 1
-  g.bossDead = false
+  Encounter.setGuardian(g, bosses == 1, false)
 end
 function F.action(g, id)
   return Actions.dispatch(g, id, F)

@@ -28,7 +28,7 @@ function Tests.run(G, initial, renderer, getGame)
     g.comboTimer = 0
     g.view.feedbackTimer = 0
     g.damageTaken = 0
-    g.secretFound = false
+    g.world.secretFound = false
     g.help = false
     g.enemies = {}
     g.bullets = {}
@@ -42,9 +42,8 @@ function Tests.run(G, initial, renderer, getGame)
     g.hits = 0
     g.map = false
     g.elapsed = 0
-    g.seals = 0
-    g.bossSpawned = false
-    g.bossDead = false
+    require('src.world.arena').breakSeals(g.world, 0)
+    require('src.session.encounter').setGuardian(g, false, false)
     g.player = {
       x = 16,
       z = 27,
@@ -349,12 +348,15 @@ function Tests.run(G, initial, renderer, getGame)
     check('seal ' .. i .. ' cannot duplicate wave', #g.enemies == n)
   end
   tick(1 / 120)
-  check('boss waits for all defenders', not g.bossSpawned)
+  check('boss waits for all defenders', not require('src.session.encounter').guardianSpawned(g))
   for _, en in ipairs(g.enemies) do
     g:damageEnemy(en, 10000)
   end
   tick(1 / 120)
-  check('boss appears after three clear courts', g.bossSpawned and #g.enemies == 10)
+  check(
+    'boss appears after three clear courts',
+    require('src.session.encounter').guardianSpawned(g) and #g.enemies == 10
+  )
   local boss = g.enemies[#g.enemies]
   g.player.x, g.player.z = 16, 15
   g.player.hp = 100
@@ -373,7 +375,7 @@ function Tests.run(G, initial, renderer, getGame)
     )
   end
   check('boss is beatable through real combat', boss.hp <= 0 and g.state == 'playing')
-  check('boss death unlocks exit', g.bossDead)
+  check('boss death unlocks exit', require('src.session.encounter').guardianDead(g))
   g.player.x, g.player.z = 16, 4
   g:interact()
   check('exit reaches completion', g.state == 'won')
@@ -426,7 +428,10 @@ function Tests.run(G, initial, renderer, getGame)
   love.focus(false)
   check('focus loss auto pauses', getGame().state == 'paused')
   love.keypressed('r', 'r')
-  check('restart clears run progress', getGame().kills == 0 and getGame().seals == 0)
+  check(
+    'restart clears run progress',
+    getGame().kills == 0 and require('src.world.arena').activeSeals(getGame().world) == 0
+  )
   love.mouse.setRelativeMode(false)
   return lines
 end

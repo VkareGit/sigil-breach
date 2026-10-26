@@ -13,6 +13,7 @@ local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Palette = require('src.ui.palette')
 local Modes = require('src.run.modes')
+local Queries = require('src.run.queries')
 local Text = require('src.content.text')
 local Fit = require('src.ui.text_fit')
 local Pools = require('src.session.world')
@@ -273,7 +274,8 @@ function H.draw(g, settings, ui, descentUI)
   -- Incoming blows and near misses: arcs pointing at the source, sized by
   -- the blow's impact and damage, coloured by damage type (src/feedback/weight.lua).
   Weight.drawMarks(g, cx, cy, 92)
-  if g.bossSpawned and not g.bossDead then
+  local world = Queries.world(g)
+  if world.guardianSpawned and not world.guardianDead then
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then

@@ -149,7 +149,7 @@ function S.run(G, renderer)
   g.view.feedbackTimer = 0
   g.player.z = 25
   g.player.pitch = 0.1
-  g.bossSpawned = true
+  require('src.session.encounter').guardianArrived(g)
   g:spawn('boss', 16, 20)
   save('25-boss')
   g.enemies[1].hp = 420
@@ -164,7 +164,7 @@ function S.run(G, renderer)
   g.state = 'won'
   g.run.phase = 'complete'
   g.run.fragment = true
-  g.bossDead = true
+  require('src.session.encounter').guardianFell(g)
   g.run.wallet = 350
   save('27-victory')
   save('28-victory-4by3', 1024, 768)

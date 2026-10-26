@@ -77,7 +77,7 @@ function Tests.run(get, settings)
   end
   local original = get()
   local snapshot = Save.encode(Run.snapshot(original), 1)
-  local originalBoss = original.bossDead
+  local originalBoss = require('src.session.encounter').guardianDead(original)
   local before = files()
   key('f2')
   local field = get()
@@ -186,7 +186,7 @@ function Tests.run(get, settings)
     field.state == 'field_catalog'
       and #field.enemies == 0
       and #field.bullets == 0
-      and not field.bossDead
+      and not require('src.session.encounter').guardianDead(field)
       and field.run.wave == 1
   )
   click('field_spawn_furfur_1')
@@ -240,7 +240,7 @@ function Tests.run(get, settings)
     'leaving the sandbox restores the exact session it was entered from',
     get() == original
       and (original.state == 'paused' or original.state == 'menu')
-      and original.bossDead == originalBoss
+      and require('src.session.encounter').guardianDead(original) == originalBoss
       and Save.encode(Run.snapshot(original), 1) == snapshot
   )
   check(
@@ -261,8 +261,8 @@ function Tests.run(get, settings)
   arrive(field)
   local boss = field.enemies[1]
   field:damageEnemy(boss, 100000, 'weapon')
-  field.seals = 3
-  field.bossDead = true
+  require('src.world.arena').breakSeals(field.world, 3)
+  require('src.session.encounter').guardianFell(field)
   field.run.wave = 5
   field.player.x, field.player.z = field.world.portal.x, field.world.portal.z
   key('e')

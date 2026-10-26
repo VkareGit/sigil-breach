@@ -15,6 +15,7 @@ local Slots = require('src.ui.hud_slots')
 local HUD = require('src.ui.hud')
 local D = require('src.ui.descent')
 local Pools = require('src.session.world')
+local Queries = require('src.run.queries')
 local Text = require('src.content.text')
 local S = {}
 function S.draw(g, s, U)
@@ -46,7 +47,8 @@ function S.draw(g, s, U)
     20,
     gold
   )
-  if (g.threat or 0) < 1 and not g.bossSpawned then
+  local world = Queries.world(g)
+  if (g.threat or 0) < 1 and not world.guardianSpawned then
     local nearest, d = nil, 1e9
     for _, seal in ipairs(g.world.seals) do
       local ds = (seal.x - p.x) ^ 2 + (seal.z - p.z) ^ 2
@@ -73,7 +75,7 @@ function S.draw(g, s, U)
       )
     end
   end
-  if g.bossSpawned and not g.bossDead then
+  if world.guardianSpawned and not world.guardianDead then
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then

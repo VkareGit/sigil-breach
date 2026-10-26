@@ -134,5 +134,5 @@ rozmiar odrzuca.
   - liczby bez nazwy w `enemies/animation.lua` 77 → 43, łącznie 222 → 188;
   - pozostałe bez zmian.
 
-Pomiar przed/po (protokół, `work/v11-base` kontra drzewo E1): sekcja
-„Pomiar” niżej.
+Pomiar przed/po (protokół, `work/v11-base` kontra worktree E1):
+`PLAN-v11-POMIARY.md`.

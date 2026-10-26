@@ -15,6 +15,8 @@
 -- text. The reference is written once from 0.33 and never regenerated.
 local Weapons = require('src.content.weapons')
 local Roles = require('src.core.roles')
+local World = require('src.world.arena')
+local Encounter = require('src.session.encounter')
 local Projection = {}
 local format, floor = string.format, math.floor
 Projection.every = 30
@@ -104,10 +106,12 @@ function Projection.mode(g, out)
   put(out, 'mode.wallet', run and run.wallet)
   put(out, 'mode.glyph', run and run.glyph)
   put(out, 'mode.score', g.score)
-  put(out, 'mode.seals', g.seals)
-  put(out, 'mode.guardian.spawned', g.bossSpawned)
-  put(out, 'mode.guardian.dead', g.bossDead)
-  put(out, 'mode.secret', g.secretFound)
+  -- Plan v11 E2: the seals are the world's broken seals, the guardian the
+  -- encounter's record, the secret the world's (same names, same values).
+  put(out, 'mode.seals', World.activeSeals(g.world))
+  put(out, 'mode.guardian.spawned', Encounter.guardianSpawned(g))
+  put(out, 'mode.guardian.dead', Encounter.guardianDead(g))
+  put(out, 'mode.secret', g.world.secretFound)
   return out
 end
 -- The world: every body in id order with its health and place.

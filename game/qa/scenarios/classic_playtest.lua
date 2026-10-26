@@ -99,7 +99,7 @@ function S.run(G)
       dx, dz = pathTo(any.x, any.z)
     else
       local objective, dist = nil, 1e9
-      if g.bossDead then
+      if require('src.session.encounter').guardianDead(g) then
         objective = g.world.portal
       else
         for _, s in ipairs(g.world.seals) do
@@ -147,7 +147,7 @@ function S.run(G)
     hp = g.player.hp,
     damage = g.damageTaken,
     kills = g.kills,
-    seals = g.seals,
+    seals = require('src.world.arena').activeSeals(g.world),
     ammo = g.player.arsenal.exorcist.mag + g.player.arsenal.exorcist.reserve,
     shotgun = shotgun,
     revolver = revolver,

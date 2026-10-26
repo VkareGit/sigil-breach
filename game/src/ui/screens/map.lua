@@ -62,7 +62,11 @@ function S.draw(g, s, U)
       rect(ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4, red)
     end
   end
-  c(g.bossDead and blue or muted)
+  -- A mode's own marks (plan v11 E2): its world view's markers { x, z, done }.
+  for _, m in ipairs(Queries.world(g).markers or {}) do
+    rect(ox + m.x * sz - 3, oy + m.z * sz - 3, 6, 6, m.done and muted or gold)
+  end
+  c(Queries.world(g).guardianDead and blue or muted)
   lg.rectangle('line', ox + 16 * sz - 10, oy + 3 * sz - 6, 20, 12)
   text(Text.get('classic_map_gate'), ox + 16 * sz - 28, oy + 3 * sz - 29, 16, muted)
   text(Text.get('classic_map_legend'), 184, 492, 16, ivory)

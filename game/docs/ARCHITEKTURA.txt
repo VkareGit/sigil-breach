@@ -354,7 +354,16 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   i jaki zegar je wybiera (action, seconds, countdown, stride, world,
   breath); enemies/animation.lua pyta o pozę po nazwie i nie zna numeru
   klatki ani układu. Zwłoki mają własne liczby (body.corpse.settle
-  i landing): długość malowanego upadku decyduje tylko o tym, co widać. Anatomia z warstw części
+  i landing): długość malowanego upadku decyduje tylko o tym, co widać.
+  Stan trybu (plan v11 E2): strażnik należy do rekordu spotkania
+  (g.encounter, API session/encounter.lua), pieczęcie i sekret do świata
+  (World.activeSeals, world.secretFound), stan prywatny trybu do jego
+  rekordu (Modes: record = 'run' | 'testField' | 'modeData'; haki reset,
+  snapshot, load, save). Prezentacja czyta tylko widoki (run/queries.lua):
+  widok należy do sesji, jest ważny do następnego kroku albo polecenia,
+  Queries.copy daje kopię na własność. Nowy tryb trzyma stan w g.modeData,
+  cel w objective, znaczniki mapy w markers widoku świata (test mode-state:
+  tryb „ołtarze”). Anatomia z warstw części
   (EXPORT-ANATOMY.ps1 -Legend, qa/art/anatomy_layers.lua) albo z edytora
   regionów (ANATOMY-EDITOR.ps1, model qa/art/anatomy_editor.lua), jako dane
   (qa/art/anatomy_export.lua) i linia w content/art/anatomy/index.lua;

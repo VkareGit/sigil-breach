@@ -171,6 +171,8 @@ end
 -- closeShop, buy, catalog...): the application issues it through the session,
 -- so a journal records and replays it like any other command.
 function Game:act(name, ...)
+  -- A command renews the session's views (run/queries.lua, plan v11 E2).
+  require('src.run.queries').command(self)
   return Modes.act(self, name, ...)
 end
 

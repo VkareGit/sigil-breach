@@ -34,6 +34,15 @@
 --   runView(g), fieldView(g)  read-only views of its run and its proving
 --                       ground for the screens (run/mode_views.lua)
 --   posed(g)            its targets hold their catalogue pose
+--   result(g, out)      what its ending shows (the classic arena's rank)
+-- Its private state (plan v11 E2): one record, the session field named by
+-- record ('run' for the expedition, 'testField' for the proving ground,
+-- 'modeData', the default, for every other mode). The same hooks keep any
+-- of them (each optional): reset(g) back to the start, snapshot(g) the
+-- data of its checkpoint, load(g, data) and save(g); a file of its own is a
+-- section it declares (storage/save.lua: Save.declare). World and encounter
+-- state is not a mode's: the seals and the secret are the world's
+-- (world/arena.lua), the guardian the encounter's (session/encounter.lua).
 -- The application issues the player's ones through the session (Game:act),
 -- so the command journal records them.
 -- Every session names its mode (g.mode: Game.new, the proving ground); the
@@ -42,7 +51,7 @@ local Registry = require('src.core.registry')
 local Presentation = require('src.session.presentation')
 local Capabilities = require('src.session.capabilities')
 local Descent = require('src.run.descent')
-local Interactions = require('src.session.interactions')
+local ClassicMode = require('src.run.classic')
 local Encounter = require('src.session.encounter')
 local Maps = require('src.content.maps.index')
 local Classic = require('src.content.classic')
@@ -68,6 +77,7 @@ local Modes = Registry:new('modes', function(mode, id)
     mode.init == nil or type(mode.init) == 'function',
     'mode ' .. id .. ' needs an init function'
   )
+  assert(mode.record == nil or type(mode.record) == 'string', 'mode ' .. id .. ': record is a name')
   Capabilities.define(id, mode.policy or {}, mode)
 end)
 -- The original sessions seeded the classic fixture before initialization.
@@ -92,26 +102,30 @@ end
 -- ground uses the expedition's definitions and must not load in a cycle.
 Modes:register('field', {
   session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
+  record = 'testField',
   init = function(g)
     field().init(g)
+  end,
+  reset = function(g)
+    return field().reset(g)
   end,
   visit = function(g, previous)
     -- Text keys (content/text.lua).
     g.view.fieldReturnLabel = previous.state == 'menu' and 'return_menu'
       or (previous.state == 'settings' and 'return_settings' or 'return_expedition')
   end,
-  worldView = function(g)
-    return Views.fieldWorld(g, g.run)
+  worldView = function(g, out)
+    return Views.fieldWorld(g, g.run, out)
   end,
-  tools = function(g)
-    return Views.fieldTools(g, g.testField)
+  tools = function(g, out)
+    return Views.fieldTools(g, g.testField, out)
   end,
   objective = Views.fieldObjective,
-  runView = function(g)
-    return Views.run(g, g.run)
+  runView = function(g, out)
+    return Views.run(g, g.run, out)
   end,
-  fieldView = function(g)
-    return Views.field(g, g.testField)
+  fieldView = function(g, out)
+    return Views.field(g, g.testField, out)
   end,
   weaponModifier = function(g)
     return g.run.glyph
@@ -191,14 +205,15 @@ Modes:register('field', {
 -- The expedition: waves, shrine, shop and saves.
 Modes:register('expedition', {
   session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
-  worldView = function(g)
-    return Views.expeditionWorld(g, g.run)
+  record = 'run',
+  worldView = function(g, out)
+    return Views.expeditionWorld(g, g.run, out)
   end,
   objective = function(g)
     return Views.expeditionObjective(g, g.run)
   end,
-  runView = function(g)
-    return Views.run(g, g.run)
+  runView = function(g, out)
+    return Views.run(g, g.run, out)
   end,
   weaponModifier = function(g)
     return g.run.glyph
@@ -244,8 +259,12 @@ Modes:register('expedition', {
 -- The classic arena (regression coverage): seals, then the Margrave.
 Modes:register('classic', {
   session = { world = 'classic', map = Maps.default, prepare = prepareClassic },
+  record = 'modeData',
+  init = ClassicMode.init,
+  reset = ClassicMode.init,
   worldView = Views.classicWorld,
   objective = Views.classicObjective,
+  result = ClassicMode.result,
   test = function()
     return true
   end,
@@ -254,12 +273,10 @@ Modes:register('classic', {
     g:notify(Text.get('classic_start'), 4)
     Presentation.capture(g, true)
   end,
-  progress = function(g)
-    Interactions.advanceClassic(g)
-  end,
-  reward = Interactions.classicReward,
-  interact = Interactions.classicInteract,
-  context = Interactions.classicContext,
+  progress = ClassicMode.advance,
+  reward = ClassicMode.reward,
+  interact = ClassicMode.interact,
+  context = ClassicMode.context,
 })
 -- A session that names no mode (a hand-made record) is the first whose
 -- test holds (session/capabilities.lua asks).
@@ -298,6 +315,11 @@ function Modes.of(g)
       return mode
     end
   end
+end
+-- The private record of the session's mode (Modes contract: record).
+function Modes.record(g)
+  local mode = Modes.of(g)
+  return mode and g[mode.record or 'modeData']
 end
 -- What a command or a consequence means in the session's mode: the mode's
 -- handler name(g, ...), or false when the mode has none.

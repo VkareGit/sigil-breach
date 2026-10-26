@@ -1,13 +1,99 @@
 -- Common presentation asks for a mode's contract, not its private state.
--- Views are borrowed until the next call and must not be mutated or retained.
+-- The view contract (plan v11 E2):
+--   owner     a view belongs to its session: one table per session and view
+--             kind, weakly held, never shared between sessions;
+--   validity  until the session's next simulation step or command
+--             (Game:act); a call in the same step returns the same object,
+--             filled anew;
+--   keeping   a view is borrowed for one frame: never mutate or retain it.
+--             Queries.copy(view) is a copy of its own to keep;
+--             Queries.valid(g, view) tells a view retained too long.
+-- What every world view carries besides the mode's own fields: the
+-- encounter's guardian (guardianSpawned, guardianDead) and the world's
+-- hidden sigil (secretFound).
 local Modes = require('src.run.modes')
+local Encounter = require('src.session.encounter')
 local Queries = {}
-local empty = { gates = {}, paintedPickups = false, classicSecret = false }
+local sessions = setmetatable({}, { __mode = 'k' })
+local stamps = setmetatable({}, { __mode = 'k' })
+local function entry(g)
+  local e = sessions[g]
+  if not e then
+    e = { views = {}, commands = 0 }
+    sessions[g] = e
+  end
+  return e
+end
+-- A command of the session (Game:act): its views from before are stale.
+function Queries.command(g)
+  local e = entry(g)
+  e.commands = e.commands + 1
+end
+-- The session's table for a view kind, emptied and stamped.
+local function borrow(g, name)
+  local e = entry(g)
+  local view = e.views[name]
+  if not view then
+    view = {}
+    e.views[name] = view
+  else
+    for k in pairs(view) do
+      view[k] = nil
+    end
+  end
+  local s = stamps[view] or {}
+  s.session, s.time, s.commands = g, g.time or 0, e.commands
+  stamps[view] = s
+  return view
+end
+-- Whether view is still valid for session g (borrowed from it, in this step
+-- and since its last command).
+function Queries.valid(g, view)
+  local s = stamps[view]
+  return s ~= nil and s.session == g and s.time == (g.time or 0) and s.commands == entry(g).commands
+end
+local function copy(value)
+  if type(value) ~= 'table' then
+    return value
+  end
+  local out = {}
+  for k, v in pairs(value) do
+    out[k] = copy(v)
+  end
+  return out
+end
+-- A view of one's own to keep (a deep copy, shared with nothing).
+function Queries.copy(view)
+  return copy(view)
+end
+-- The mode's answer in the session's view table: a mode may fill it (the
+-- built-in ones) or return a table of its own, whose fields are taken over.
+local function ask(g, hook, name)
+  local view = borrow(g, name)
+  local answer = Modes.act(g, hook, view)
+  if not answer then
+    return nil, view
+  end
+  if answer ~= view then
+    for k, v in pairs(answer) do
+      view[k] = v
+    end
+  end
+  return view, view
+end
+local noGates = {}
 function Queries.world(g)
-  return Modes.act(g, 'worldView') or empty
+  local built, view = ask(g, 'worldView', 'world')
+  if not built then
+    view.gates, view.paintedPickups, view.classicSecret = noGates, false, false
+  end
+  view.guardianSpawned = Encounter.guardianSpawned(g)
+  view.guardianDead = Encounter.guardianDead(g)
+  view.secretFound = g.world ~= nil and g.world.secretFound == true
+  return view
 end
 function Queries.tools(g)
-  return Modes.act(g, 'tools') or nil
+  return (ask(g, 'tools', 'tools'))
 end
 function Queries.objective(g)
   return Modes.act(g, 'objective') or ''
@@ -15,9 +101,14 @@ end
 -- The run of the session's mode (phase, wave, wallet, echo...; nil when it
 -- keeps none) and its proving ground (nil outside one): read-only views.
 function Queries.run(g)
-  return Modes.act(g, 'runView') or nil
+  return (ask(g, 'runView', 'run'))
 end
 function Queries.field(g)
-  return Modes.act(g, 'fieldView') or nil
+  return (ask(g, 'fieldView', 'field'))
+end
+-- What a finished session shows of its mode (the classic arena: rank, best
+-- score, seals broken); nil for a mode with no result of its own.
+function Queries.result(g)
+  return (ask(g, 'result', 'result'))
 end
 return Queries

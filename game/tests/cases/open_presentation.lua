@@ -281,7 +281,8 @@ local function language(G, renderer, check)
     end,
     guardian = function()
       local g = expedition()
-      g.run.phase, g.run.wave, g.bossSpawned = 'wave', 5, true
+      g.run.phase, g.run.wave = 'wave', 5
+      require('src.session.encounter').guardianArrived(g)
       local boss = g:spawn('boss', 16, 22)
       boss.hp = boss.maxHp * 0.4
       return g

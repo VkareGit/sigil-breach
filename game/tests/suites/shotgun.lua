@@ -38,9 +38,8 @@ function Tests.run(G, initial, renderer, getGame)
     g.kills = 0
     g.shots = 0
     g.hits = 0
-    g.seals = 0
-    g.bossSpawned = false
-    g.bossDead = false
+    require('src.world.arena').breakSeals(g.world, 0)
+    require('src.session.encounter').setGuardian(g, false, false)
     g.player = {
       x = 16,
       z = 27,

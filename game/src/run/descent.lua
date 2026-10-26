@@ -128,7 +128,7 @@ function R.snapshot(g)
     kills = g.kills,
     damage = g.damageTaken,
     deaths = r.deaths,
-    secret = g.secretFound,
+    secret = g.world.secretFound,
     secretOpen = r.archivedSecretOpen,
     score = g.score,
     fragment = r.fragment,
@@ -170,20 +170,17 @@ function R.load(g, data)
     archivedSecretOpen = data.secretOpen,
   }
   restore(g, data.phase == 'defeated' and data.checkpoint or data.inventory)
-  g.elapsed, g.kills, g.damageTaken, g.secretFound, g.score =
-    data.elapsed, data.kills, data.damage, data.secret, data.score
+  g.elapsed, g.kills, g.damageTaken, g.score = data.elapsed, data.kills, data.damage, data.score
+  g.world.secretFound = data.secret
   g.state = data.phase == 'complete' and 'won' or (data.phase == 'defeated' and 'dead' or 'playing')
   if g.state == 'dead' then
     Roles.controlled(g).hp = 0
   end
   if g.state == 'won' then
-    g.bossDead = true
-    g.bossSpawned = true
+    Encounter.setGuardian(g, true, true)
   end
-  g.seals = math.min(3, data.wave - 1)
-  for i, s in ipairs(g.world.seals) do
-    s.active = i <= g.seals
-  end
+  -- A seal stands broken for every wave cleared (the world's, plan v11 E2).
+  W.breakSeals(g.world, math.min(3, data.wave - 1))
   -- The file's other sections, restored by their owners (plan v10 V4).
   if data.sections then
     SaveCore.restore('expedition', g, data.sections, 'run')
@@ -227,8 +224,7 @@ function R.ready(g)
   r.phaseTime = 0
   r.waveKills = 0
   r.soulGather = 0
-  g.bossDead = false
-  g.bossSpawned = false
+  Encounter.setGuardian(g, false, false)
   Encounter.clearStage(g)
   -- Supplies have a fixed wave budget; an old wave cannot leave free crates behind.
   if r.wave <= K.totalWaves then
@@ -324,7 +320,7 @@ function R.onKill(g, e, source)
     })
   end
   if (require('src.content.enemies').of(e) or {}).guardian then
-    g.bossDead = true
+    Encounter.guardianFell(g)
   end
 end
 function R.collectSoul(g, a)
@@ -428,17 +424,14 @@ function R.finishWave(g)
     end
     r.phase = 'complete'
     r.fragment = true
-    g.bossDead = true
+    Encounter.guardianFell(g)
     g.state = 'won'
     Presentation.capture(g, false)
     Presentation.cue(g, 'seal')
   else
     r.wave = r.wave + 1
     r.phase = 'preparing'
-    g.seals = math.min(3, r.wave - 1)
-    for i, s in ipairs(g.world.seals) do
-      s.active = i <= g.seals
-    end
+    W.breakSeals(g.world, math.min(3, r.wave - 1))
     g:notify(Text.get('run_cleansed', { souls = K.waveReward }), 5)
     Presentation.cue(g, 'seal')
   end

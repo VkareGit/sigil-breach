@@ -1,27 +1,18 @@
--- The original three-seal trial's world triggers and their prompts (the
--- classic mode's interact and context: run/modes.lua), and the supplies
--- every mode lays out. What [E] does and says in another mode is that
--- mode's own (the proving ground, the expedition).
+-- The supplies every mode lays out (health, ammunition) and how the knight
+-- takes them. What [E] does and says is each mode's own (the classic arena:
+-- run/classic.lua, plan v11 E2; the proving ground, the expedition).
 local Signal = require('src.session.signal')
-local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
 local World = require('src.world.arena')
-local Presentation = require('src.session.presentation')
 local Tuning = require('src.content.tuning')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
-local Classic = require('src.content.classic')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local Interactions = {}
 
 local distance = MathX.distance
--- The main weapon (first of the loadout): where the trial's rounds go.
-local function mainWeapon(player)
-  local id = player.loadout[1]
-  return Weapons.get(id), player.arsenal[id]
-end
 -- The weapon an ammunition pickup is for: its weapon id, or its loadout slot
 -- (the first by default). Nothing when the knight does not carry that weapon
 -- (an empty slot, a gun not in the arsenal): the pickup stays on the floor.
@@ -30,95 +21,6 @@ local function ammoFor(player, pickup)
   local state = id and player.arsenal[id]
   if state then
     return Weapons.get(id), state
-  end
-end
-
-local function nearSecret(g)
-  local anchor = g.world.anchors and g.world.anchors.secret
-  return anchor
-    and not g.secretFound
-    and distance(Roles.controlled(g), anchor) < Classic.reach.secret
-end
-
-local function breakSeal(g, seal, index)
-  local player, K = Roles.controlled(g), Classic.seal
-  seal.active = true
-  g.seals = g.seals + 1
-  Presentation.cue(g, 'seal')
-  g.view.surge = K.surge
-  g:notify(
-    Text.get(
-      'classic_seal_broken',
-      { name = Text.get(seal.name), count = g.seals, total = #K.ambush }
-    ),
-    4
-  )
-  g:burst(seal.x, K.burstHeight, seal.z, seal.color, K.burst, K.burstSpeed)
-  local ambush = K.ambush[index] or K.ambush[#K.ambush]
-  for i, position in ipairs(ambush.spots) do
-    local kind = i == 1 and ambush.leader or K.thrall
-    local enemy = g:spawn(kind, position[1], position[2])
-    enemy.awake, enemy.memory = true, K.memory
-    enemy.lastX, enemy.lastZ, enemy.spawnAge = player.x, player.z, 0
-  end
-  local _, main = mainWeapon(player)
-  main.reserve = math.min(Classic.maxRounds, main.reserve + Tuning.sealAmmo)
-  player.armor = math.min(Classic.maxWard, player.armor + K.ward)
-end
-
-local function finishClassic(g)
-  g.state = 'won'
-  local rank = Classic.rank
-  g.rank = g.elapsed < rank.S.time and g.damageTaken < rank.S.damage and 'S'
-    or (g.elapsed < rank.A.time and 'A' or 'B')
-  local previous = tonumber((love.filesystem.read('best-score-v03.txt'))) or 0
-  g.bestScore = math.max(previous, g.score)
-  if not g.testing then
-    love.filesystem.write('best-score-v03.txt', tostring(g.bestScore))
-  end
-  Presentation.capture(g, false)
-  Presentation.cue(g, 'seal')
-end
-
--- [E] in the classic trial: the secret, a seal, the way out after the guardian.
-function Interactions.classicInteract(g)
-  local player = Roles.controlled(g)
-  if nearSecret(g) then
-    g.secretFound = true
-    local secret = Classic.secret
-    player.armor = math.min(Classic.maxWard, player.armor + secret.ward)
-    local _, main = mainWeapon(player)
-    main.reserve = math.min(Classic.maxRounds, main.reserve + secret.rounds)
-    g.score = g.score + secret.score
-    g:notify(Text.get('classic_secret', { ward = secret.ward, rounds = secret.rounds }), 4)
-    Presentation.cue(g, 'seal')
-    return true
-  end
-  for i, seal in ipairs(g.world.seals) do
-    if not seal.active and distance(player, seal) < Classic.reach.seal then
-      breakSeal(g, seal, i)
-      return true
-    end
-  end
-  if g.bossDead and distance(player, g.world.portal) < Classic.reach.portal then
-    finishClassic(g)
-    return true
-  end
-  return false
-end
-
--- The classic trial's prompt where the knight stands.
-function Interactions.classicContext(g)
-  if nearSecret(g) then
-    return Text.get('classic_search')
-  end
-  for _, seal in ipairs(g.world.seals) do
-    if not seal.active and distance(Roles.controlled(g), seal) < Classic.reach.seal then
-      return Text.get('classic_break', { name = Text.get(seal.name) })
-    end
-  end
-  if g.bossDead and distance(Roles.controlled(g), g.world.portal) < Classic.reach.portal then
-    return Text.get('classic_end')
   end
 end
 
@@ -180,51 +82,4 @@ function Interactions.collectSupplies(g)
     end
   end
 end
--- A demon fell in the classic arena (run/modes.lua: reward): supplies every
--- few kills, and the Margrave's fall opens the way out.
-function Interactions.classicReward(g, event)
-  local enemy, K = event.enemy, Tuning.rewards
-  if g.kills % K.ammoEvery == 0 then
-    Spawn.make(
-      g,
-      'pickup',
-      { x = enemy.x, z = enemy.z, level = enemy.level, kind = 'ammo', amount = Tuning.killAmmo }
-    )
-  end
-  if g.kills % K.healthEvery == 0 then
-    Spawn.make(g, 'pickup', {
-      x = enemy.x + K.dropSpacing,
-      z = enemy.z,
-      level = enemy.level,
-      kind = 'health',
-      amount = Tuning.healthPickup,
-    })
-  end
-  if (require('src.content.enemies').of(enemy) or {}).guardian then
-    g.bossDead = true
-    event.guardianFell = true
-  end
-end
-function Interactions.advanceClassic(g)
-  if g.seals ~= #Classic.seal.ambush or g.bossSpawned then
-    return
-  end
-  for _, enemy in ipairs(Pools.of(g, 'enemies')) do
-    if enemy.hp > 0 then
-      return
-    end
-  end
-  g.bossSpawned = true
-  local guardian = Classic.guardian
-  local anchor = assert(g.world.anchors.boss, 'classic mode requires a boss anchor')
-  g:spawn(guardian.kind, anchor.x, anchor.z)
-  g:notify(Text.get('classic_guardian'), 5)
-  Presentation.cue(g, 'pulse')
-  local player = Roles.controlled(g)
-  player.hp = math.min(Rules.playerBody().hp, player.hp + guardian.health)
-  local mainDef, main = mainWeapon(player)
-  main.reserve = math.min(mainDef.maxReserve, main.reserve + guardian.rounds)
-  player.armor = math.min(Classic.maxWard, player.armor + guardian.ward)
-end
-
 return Interactions

@@ -7,11 +7,11 @@ src/player/feel.lua 3
 src/player/intent.lua 12
 src/render/weapon.lua 6
 src/render/weapon_art.lua 5
+src/run/classic.lua 6
 src/run/descent.lua 19
 src/run/field/trials.lua 2
 src/run/test_field.lua 13
 src/session/game.lua 5
-src/session/interactions.lua 6
 src/session/journal.lua 1
 src/session/listeners.lua 13
 src/ui/descent.lua 2

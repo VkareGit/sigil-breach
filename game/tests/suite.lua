@@ -381,6 +381,11 @@ Suite.registry = {
     module = 'tests.cases.named_poses',
   },
   {
+    id = 'mode-state',
+    title = 'Mode state owners, per-session views and an altars mode (plan v11 E2)',
+    module = 'tests.cases.mode_state',
+  },
+  {
     id = 'v033-reference',
     title = 'The 0.33 references: state projection, poses, kills and saves (plan v11 E0)',
     module = 'tests.cases.v033_reference',

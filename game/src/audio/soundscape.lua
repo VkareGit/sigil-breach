@@ -4,6 +4,7 @@
 -- the guardian's knell, death. Reads the session; never changes it.
 local Synth = require('src.audio.synth')
 local Score = require('src.audio.score')
+local Queries = require('src.run.queries')
 local S = { intensity = 0, music = 0.65, layers = {}, gains = {}, sources = {} }
 local floor = math.floor
 
@@ -262,7 +263,8 @@ function S.mood(g)
     if g.map or g.help then
       return 'rest'
     end
-    if g.bossSpawned and not g.bossDead then
+    local world = Queries.world(g)
+    if world.guardianSpawned and not world.guardianDead then
       return 'guardian'
     end
     return 'battle'

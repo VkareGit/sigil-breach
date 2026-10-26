@@ -305,7 +305,7 @@ function Tests.run(G, renderer)
     g.view.decals = { {} }
     g.view.shells = { {} }
     Field.spawn(g, 'boss', 1)
-    g.bossDead = true
+    require('src.session.encounter').guardianFell(g)
     Field.reset(g)
     local clean = true
     for _, name in ipairs({
@@ -324,8 +324,8 @@ function Tests.run(G, renderer)
     check(
       'reset removes targets, projectiles and combat residue and clears completion flags',
       clean
-        and not g.bossSpawned
-        and not g.bossDead
+        and not require('src.session.encounter').guardianSpawned(g)
+        and not require('src.session.encounter').guardianDead(g)
         and not g.run.fragment
         and g.state == 'field_catalog'
         and not World.solid(g.world, g.player.x, g.player.z, 0.22)

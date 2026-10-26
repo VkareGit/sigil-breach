@@ -70,8 +70,11 @@ function Tests.run()
     'the mood follows the session: menu, play, guardian, rest, death',
     S.mood({ state = 'menu' }) == 'menu'
       and S.mood({ state = 'playing' }) == 'battle'
-      and S.mood({ state = 'playing', bossSpawned = true }) == 'guardian'
-      and S.mood({ state = 'playing', bossSpawned = true, bossDead = true }) == 'battle'
+      and S.mood({ state = 'playing', encounter = { guardianSpawned = true } }) == 'guardian'
+      and S.mood({
+        state = 'playing',
+        encounter = { guardianSpawned = true, guardianDead = true },
+      }) == 'battle'
       and S.mood({ state = 'playing', map = true }) == 'rest'
       and S.mood({ state = 'dead' }) == 'death'
   )

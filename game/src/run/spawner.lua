@@ -21,6 +21,7 @@ end
 local Maps = require('src.content.maps.index')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Encounter = require('src.session.encounter')
 S.portals = Maps:get(Maps.default).gates
 local distance = MathX.distance
 S.distance = distance
@@ -120,7 +121,7 @@ function S.arrivals(g, r, dt, arrive)
         -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
         Signal(g, 'EnemyArrived', { enemy = e, gate = s })
         if (require('src.content.enemies').of(e) or {}).guardian then
-          g.bossSpawned = true
+          Encounter.guardianArrived(g)
         end
         table.remove(r.pending, i)
         spawned = true

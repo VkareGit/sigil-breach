@@ -24,10 +24,9 @@ function Tests.run(G, initial, renderer, getGame)
     g.impactSlow = 0
     g.pickups = {}
     g.damageTaken = 0
-    g.seals = 0
-    g.bossSpawned = false
-    g.bossDead = false
-    g.secretFound = false
+    require('src.world.arena').breakSeals(g.world, 0)
+    require('src.session.encounter').setGuardian(g, false, false)
+    g.world.secretFound = false
     g.score = 0
     g.combo = 0
     g.comboTimer = 0
@@ -192,7 +191,7 @@ function Tests.run(G, initial, renderer, getGame)
   g.player.x, g.player.z = 4, 20.4
   check(
     'secret can be discovered in existing west court',
-    g:interact() and g.secretFound and g.score == 500
+    g:interact() and g.world.secretFound and g.score == 500
   )
   g:interact()
   check('secret reward cannot be farmed', g.score == 500)

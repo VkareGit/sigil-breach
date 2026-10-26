@@ -21,11 +21,12 @@ function S.draw(g, s, U)
     return D.ending(g)
   end
   local won = g.state == 'won'
+  local result = Queries.result(g) or {}
   rect(0, 0, 1280, 720, Palette.veil, 0.94)
   center(Text.get(won and 'classic_won_title' or 'classic_lost_title'), 140, 48, ivory)
   center(Text.get(won and 'classic_won_line' or 'classic_lost_line'), 208, 22, muted)
   center(
-    won and Text.get('classic_rank', { rank = g.rank or 'A' }) or Text.get('classic_ended'),
+    won and Text.get('classic_rank', { rank = result.rank or 'A' }) or Text.get('classic_ended'),
     280,
     48,
     gold
@@ -35,7 +36,7 @@ function S.draw(g, s, U)
       minutes = string.format('%02d', math.floor(g.elapsed / 60)),
       seconds = string.format('%02d', math.floor(g.elapsed % 60)),
       kills = string.format('%d', g.kills),
-      seals = string.format('%d', g.seals),
+      seals = string.format('%d', result.seals or 0),
     }),
     365,
     24,
@@ -48,7 +49,7 @@ function S.draw(g, s, U)
     muted
   )
   if won then
-    center(Text.get('classic_best', { score = g.bestScore or g.score }), 450, 24, gold)
+    center(Text.get('classic_best', { score = result.bestScore or g.score }), 450, 24, gold)
     center(Text.get('classic_ranks'), 488, 16, muted)
   else
     center(Text.get('classic_hint'), 460, 20, gold)

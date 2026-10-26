@@ -112,7 +112,6 @@ declare('session/listeners.lua', {
   'comboTimer',
   'damageTaken',
   'intensity', -- the pacing director's faded damage (run/spawner.lua reads it)
-  'bossDead',
   -- the guard-break hit-stop (s): missiles, ground and charges wait
   -- (session/capabilities.lua: held; counted down by systems/clocks)
   'worldStop',
@@ -121,9 +120,9 @@ declare('session/damage_outcomes.lua', { 'playerDamageReport' })
 -- Modes.
 declare('run/descent.lua', { 'run', 'shopMessage', 'saveWarning' })
 declare('run/modes.lua', { 'mode', 'modeData' }) -- ID and optional private state of a registered mode
-declare('run/spawner.lua', { 'bossSpawned' })
 declare('run/test_field.lua', { 'testField', 'availableSave', 'tier' })
-declare('session/interactions.lua', { 'seals', 'secretFound', 'rank', 'bestScore' })
+-- The encounter's guardian, shared by every mode (plan v11 E2).
+declare('session/encounter.lua', { 'encounter' })
 declare('systems/clocks.lua', { 'zone', 'zoneTimer' })
 
 -- PRESENTATION --------------------------------------------------------------

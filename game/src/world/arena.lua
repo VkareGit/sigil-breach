@@ -22,6 +22,23 @@ end
 local function copy(t)
   return Schema.copy(t)
 end
+-- The seals of a world that are broken (active): the count every mode and
+-- screen reads, never a counter of its own (plan v11 E2).
+function W.activeSeals(w)
+  local count = 0
+  for _, seal in ipairs(w.seals or {}) do
+    if seal.active then
+      count = count + 1
+    end
+  end
+  return count
+end
+-- The first count seals broken, the rest whole (a checkpoint's progress).
+function W.breakSeals(w, count)
+  for i, seal in ipairs(w.seals or {}) do
+    seal.active = i <= count
+  end
+end
 -- mode: the session kind (an expedition hides the braziers by the Ember);
 -- mapId: the map (default content/maps Maps.default).
 function W.new(mode, mapId)
@@ -44,6 +61,9 @@ function W.new(mode, mapId)
     -- Height of the walkable floor (physics/ground.lua).
     floor = data.floor or 0,
     stepHeight = data.stepHeight or Terrain.stepHeight,
+    -- The map's hidden sigil was found (plan v11 E2: the world's, not a
+    -- mode's; the classic arena finds it, the expedition saves it).
+    secretFound = false,
   }
   for z = 1, Grid.depth(w) do
     w.map[z] = {}

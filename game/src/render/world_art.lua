@@ -335,8 +335,8 @@ WorldObjects.register('exit', {
   {
     pass = 'ground',
     order = 50,
-    draw = function(r, g, _, time)
-      if g.bossDead then
+    draw = function(r, g, view, time)
+      if view.guardianDead then
         local exit = g.world.portal
         r:object(
           r.sigil,
@@ -357,7 +357,7 @@ WorldObjects.register('secret', {
     order = 60,
     draw = function(r, g, view)
       local secret = g.world.anchors and g.world.anchors.secret
-      if view.classicSecret and not g.secretFound and secret then
+      if view.classicSecret and not view.secretFound and secret then
         r:object(
           r.sigil,
           secret.x,
@@ -375,9 +375,9 @@ WorldObjects.register('prop', {
   {
     pass = 'sprites',
     order = 40,
-    draw = function(r, g)
+    draw = function(r, g, view)
       for _, prop in ipairs((g.world.decor or {}).props or {}) do
-        local brightness = prop.secret and g.secretFound and 0.4 or prop.brightness
+        local brightness = prop.secret and view.secretFound and 0.4 or prop.brightness
         Art.prop(
           r,
           g,

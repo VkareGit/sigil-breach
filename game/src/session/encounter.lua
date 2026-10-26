@@ -6,6 +6,43 @@ local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Encounter = {}
 
+-- The circle's guardian (plan v11 E2): one record of the session's
+-- encounter (g.encounter), shared by every mode and changed only here.
+-- Modes say when it arrives and falls; screens, music and the world's exit
+-- read the world view (run/queries.lua), never the record.
+function Encounter.new()
+  return { guardianSpawned = false, guardianDead = false }
+end
+local function record(g)
+  local e = g.encounter
+  if not e then
+    e = Encounter.new()
+    g.encounter = e
+  end
+  return e
+end
+function Encounter.guardianSpawned(g)
+  return g.encounter ~= nil and g.encounter.guardianSpawned == true
+end
+function Encounter.guardianDead(g)
+  return g.encounter ~= nil and g.encounter.guardianDead == true
+end
+-- The guardian is on the field (and not yet fallen).
+function Encounter.guardianFighting(g)
+  return Encounter.guardianSpawned(g) and not Encounter.guardianDead(g)
+end
+function Encounter.guardianArrived(g)
+  record(g).guardianSpawned = true
+end
+function Encounter.guardianFell(g)
+  record(g).guardianDead = true
+end
+-- Both at once: a restored checkpoint, the proving ground's census.
+function Encounter.setGuardian(g, spawned, dead)
+  local e = record(g)
+  e.guardianSpawned, e.guardianDead = spawned == true, dead == true
+end
+
 function Encounter.clearThreats(g)
   Pools.clear(g, 'projectiles')
   Pools.clear(g, 'hazards')
@@ -31,8 +68,7 @@ function Encounter.clearWorld(g)
   g.view.shells = {}
   g.explosionReport = nil
   g._shotBodies = nil
-  g.bossSpawned = false
-  g.bossDead = false
+  Encounter.setGuardian(g, false, false)
   g.threat = 0
   Roles.controlled(g).effectState = nil
 end

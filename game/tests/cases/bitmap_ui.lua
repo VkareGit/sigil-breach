@@ -248,7 +248,7 @@ function Tests.run(G, renderer)
       function(g)
         active(g)
         g.run.wave = 5
-        g.bossSpawned = true
+        require('src.session.encounter').guardianArrived(g)
         local boss = g:spawn('boss', 16, 22)
         boss.hp = boss.maxHp * 0.4
         g.saveWarning = 'Could not save the expedition.'
@@ -260,7 +260,7 @@ function Tests.run(G, renderer)
       'furfur-boss-and-charges',
       function(g)
         active(g)
-        g.bossSpawned = true
+        require('src.session.encounter').guardianArrived(g)
         local boss = g:spawn('furfur', 16, 22)
         boss.hp = boss.maxHp * 0.4
         g.player.abilityState.powder.uses = 1

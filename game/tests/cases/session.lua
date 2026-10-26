@@ -84,15 +84,16 @@ function Tests.run(Game)
   )
 
   g.explosionReport, g._shotBodies = {}, {}
-  g.bossDead, g.bossSpawned, g.threat = true, true, 3
+  Encounter.setGuardian(g, true, true)
+  g.threat = 3
   Encounter.clearWorld(g)
   check(
     'full reset additionally discards shells, attack caches and boss flags',
     #g.view.shells == 0
       and g.explosionReport == nil
       and g._shotBodies == nil
-      and not g.bossDead
-      and not g.bossSpawned
+      and not Encounter.guardianDead(g)
+      and not Encounter.guardianSpawned(g)
       and g.threat == 0
   )
   check(
