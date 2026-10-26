@@ -16,7 +16,6 @@ return Creature.define({
     },
   },
   appearance = {
-    layout = 'extended',
     portal = { 0.48, 0.66, 1 },
     stain = { 0.10, 0.075, 0.055 },
     warning = { 0.82, 0.73, 0.52 },
@@ -26,7 +25,14 @@ return Creature.define({
   },
   -- One volley at 8 m (~81) or one Judge head shot (94.5) kills; a Judge
   -- body shot (70) does not.
-  body = { hp = 76, resist = { astral = 0.25 }, poise = 30, blood = { 0.18, 0.30, 0.44 } },
+  body = {
+    hp = 76,
+    resist = { astral = 0.25 },
+    poise = 30,
+    blood = { 0.18, 0.30, 0.44 },
+    -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
+    corpse = { settle = 0.44, landing = 0.22 },
+  },
   -- Evade: when the player aims at it, a short sidestep (tier 2 and up).
   move = {
     speed = 2.4,

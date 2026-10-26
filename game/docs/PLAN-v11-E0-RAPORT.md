@@ -259,3 +259,27 @@ Protokół próbkuje więc teraz 2400 kroków (`SIGIL_CORE_STEPS`) i 720 klatek
 Pomiar bazowy z drzewa commitu E0 (worktree, wariant „przed” dla E1–E6):
 `work/v11-measure/e0-base/summary.txt`. Wyniki zapisuje sekcja
 „Pomiar bazowy — wynik” poniżej.
+
+### Pomiar bazowy — wynik
+
+Drzewo `work/v11-base` (commit E0 `710d1ac`, kod gry identyczny z 0.33).
+Każda liczba pochodzi z 5 osobnych procesów:
+
+| Metryka | Mediana | IQR | Wartości |
+|---|---:|---:|---|
+| krok, 20 ciał | 0,1138 ms | 9,8 % | 0,1027–0,1259 |
+| krok, 96 ciał | 0,5574 ms | 3,5 % | 0,5282–0,5789 |
+| krok, 256 ciał | 2,3779 ms | 6,8 % | 1,9792–2,6683 |
+| klatka, scena normal | 4,2908 ms | 0,5 % | 4,1540–4,3460 |
+| klatka, scena heavy | 5,6409 ms | 2,6 % | 5,4570–5,9037 |
+| klatka, populacja 20 | 6,5938 ms | 9,5 % | 6,0226–6,8746 |
+| klatka, populacja 96 | 12,2956 ms | 12,6 % | 10,4470–13,1648 |
+| klatka, populacja 256 | 21,5423 ms | 7,0 % | 19,7683–23,1549 |
+
+Mimo dłuższego próbkowania część metryk przekracza 5% IQR. Rozrzut między
+procesami wynika z maszyny (taktowanie, procesy tła), a nie z obciążenia gry,
+które jest deterministyczne.
+
+Według protokołu porównanie takich metryk wychodzi nierozstrzygnięte.
+Wymaga wtedy kolejnych 5 par, a jeśli dalej jest nierozstrzygnięte, liczy się
+jak regresja i wymaga decyzji użytkownika.

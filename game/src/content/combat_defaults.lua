@@ -252,21 +252,18 @@ return {
   hazards = { clearance = 0.18, pulse = 0.45, damage = 8, jumpClear = 0.42, linger = 0.6 },
   -- A killed body (enemies/corpse.lua). Its death strength counts overkill
   -- up to overkill x its health and a killing contact's impact against
-  -- impactRef; it first touches the floor contact s after death (extended /
-  -- compact atlas); a grounded collapse falls from fallShare of its aim
-  -- height (aimHeight when the body names none), and a shove adds pushShare of
-  -- its square to the landing energy. The painted collapse: frames first..last
-  -- every frame s; its lean starts at lean + strength x leanGain and settles
-  -- over settle s.
+  -- impactRef; when it first touches the floor and when it has settled are
+  -- its body's own (body.corpse: landing, settle); a grounded collapse falls
+  -- from fallShare of its aim height (aimHeight when the body names none), and
+  -- a shove adds pushShare of its square to the landing energy. The painted
+  -- collapse is its atlas's collapse pose; its lean starts at lean + strength
+  -- x leanGain and settles over settle s.
   corpse = {
     overkill = 0.5,
     impactRef = 110,
-    contact = { extended = 0.22, compact = 0.14 },
     fallShare = 0.45,
     aimHeight = 1.1,
     pushShare = 0.18,
-    extended = { first = 14, last = 18, frame = 0.11 },
-    compact = { first = 10, last = 12, frame = 0.14 },
     lean = 0.035,
     leanGain = 0.045,
     settle = 0.33,

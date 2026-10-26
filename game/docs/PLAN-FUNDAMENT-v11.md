@@ -1,9 +1,9 @@
 # SIGIL: BREACH — fundament v11: pozy, stan trybów, aktorzy i obserwator
 
 Status: PRZYJĘTY przez użytkownika 2026-10-26 (wersja 3 z doprecyzowaniami
-początku nagrania, aktorów w dzienniku i pomiaru). W realizacji: E0 wykonany
-(raport `PLAN-v11-E0-RAPORT.md`, referencje `tests/fixtures/v033/`), dalej
-E1. Stan odniesienia: `c9334c1`, wersja 0.33 (plan v10
+początku nagrania, aktorów w dzienniku i pomiaru). W realizacji: E0 i E1 wykonane
+(raporty `PLAN-v11-E0-RAPORT.md`, `PLAN-v11-E1-RAPORT.md`; referencje
+`tests/fixtures/v033/`), dalej E2. Stan odniesienia: `c9334c1`, wersja 0.33 (plan v10
 wykonany). Docelowa wersja wydania: 0.34. Kontrakty planu v10 i kontrakty
 trafień planu v7 pozostają wymaganiami.
 

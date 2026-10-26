@@ -48,7 +48,6 @@ Creature.appearance = Schema:new('appearance', {
   -- chosen; the other is never prepared.
   hit = { type = 'string', default = 'painted', values = { 'painted', 'volumes' } },
   anatomy = { type = 'string', desc = "body-volume profile (hit = 'volumes' only)" },
-  layout = { type = 'string', default = 'compact', values = { 'extended', 'compact' } },
   portal = { type = 'table', required = true, desc = 'colour of its summoning portal' },
   stain = { type = 'table', desc = 'colour of its ground stain (default: blood)' },
   warning = { type = 'table', desc = 'colour of its wind-up ring (default: ember)' },
@@ -60,7 +59,6 @@ Creature.appearance = Schema:new('appearance', {
     default = { size = 0.55, height = 1.35 },
     desc = 'spell glow size, height',
   },
-  strikeFrames = { type = 'table', desc = 'attack id -> painted frame held in its strike' },
   motion = { type = 'string', desc = 'painted motion: hover, heavy, sway' },
   deathStain = { type = 'number', default = 0.65, min = 0, desc = 'stain size where it dies' },
   fieldRing = { type = 'number', default = 0.45, min = 0, desc = 'proving-ground spawn spacing' },

@@ -31,7 +31,7 @@ src/combat/weapon_delivery.lua 0
 src/enemies/ability_pose.lua 0
 src/enemies/actions.lua 0
 src/enemies/ai.lua 2
-src/enemies/animation.lua 77
+src/enemies/animation.lua 43
 src/enemies/art_contract.lua 0
 src/enemies/body.lua 0
 src/enemies/contact_anchor.lua 0

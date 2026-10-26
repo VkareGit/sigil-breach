@@ -8,7 +8,6 @@ local Archetypes = require('src.content.enemies')
 local Physics = require('src.physics.body_physics')
 local K = require('src.physics.kinematics')
 local Corpse = require('src.enemies.corpse')
-local Anim = require('src.enemies.animation')
 local SupportPath = require('src.physics.support_path')
 local Pools = require('src.session.world')
 local Body = {}
@@ -107,7 +106,7 @@ local function fall(g, e, dt)
   if e.deathTime + dt >= F.life then
     e.pushX, e.pushZ = 0, 0
   end
-  local contactTime = Corpse.contactTime(Anim.extended(e.kind))
+  local contactTime = Corpse.landing(e)
   if
     (e.fallY or 0) <= 0
     and (e.fallVY or 0) <= 0

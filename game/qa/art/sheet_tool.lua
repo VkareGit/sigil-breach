@@ -11,6 +11,7 @@
 --   text(sheet)     the sheet as a Lua data file.
 -- PNG access happens only here (QA, EXPORT-SHEET.ps1), never in play.
 local Sheet = require('src.content.art.sheet')
+local Templates = require('qa.art.pose_templates')
 local Tool = {}
 local OPAQUE, FEET_PIXELS = 0.65, 3
 local function image(path, cache)
@@ -124,16 +125,20 @@ function Tool.head(data, x0, x1, y0, y1)
   return { (sx / n + 0.5 - x0 - cw / 2) / cw, (y1 + 1 - (sy / n + 0.5)) / ch }
 end
 -- spec: { id, size, idle = { period, weights }?,
---   sources = { { path, columns, rows, scale?, idle? }... } }: every cell of
--- every source is a frame, in order.
+--   sources = { { path, columns, rows, scale?, idle? }... },
+--   poses = { ... } | template = 'extended' | 'compact' }: every cell of
+-- every source is a frame, in order. Without poses or a template the
+-- action atlas's columns choose the template (6: extended, else compact).
 function Tool.propose(spec)
   local cache = {}
+  local template = spec.template or (spec.sources[1].columns == 6 and 'extended' or 'compact')
   local sheet = {
     id = spec.id,
     size = spec.size,
     idle = spec.idle or { period = 3.5, weights = { 0.34, 0.18, 0.17, 0.31 } },
     sources = {},
     frames = {},
+    poses = spec.poses or Templates.copy(template),
   }
   for index, s in ipairs(spec.sources) do
     local data = image(s.path, cache)
@@ -191,6 +196,32 @@ local function list(values)
 end
 local SOURCE_FIELDS =
   { 'path', 'size', 'columns', 'rows', 'scale', 'idle', 'bands', 'columnBands', 'crops' }
+local POSE_FIELDS = { 'clock', 'frames', 'bounds', 'rate', 'step', 'ends', 'offset', 'fallback' }
+local function scalar(value)
+  return type(value) == 'string' and string.format('%q', value)
+    or (type(value) == 'table' and list(value))
+    or number(value)
+end
+-- The poses of a sheet as Lua, by name.
+local function poses(sheet, out)
+  local names = {}
+  for name in pairs(sheet.poses or {}) do
+    names[#names + 1] = name
+  end
+  table.sort(names)
+  out[#out + 1] = '  poses = {'
+  for _, name in ipairs(names) do
+    local pose, fields = sheet.poses[name], {}
+    for _, field in ipairs(POSE_FIELDS) do
+      if pose[field] ~= nil then
+        fields[#fields + 1] = field .. ' = ' .. scalar(pose[field])
+      end
+    end
+    local key = name:match('^[%a_][%w_]*$') and name or ('[' .. string.format('%q', name) .. ']')
+    out[#out + 1] = '    ' .. key .. ' = { ' .. table.concat(fields, ', ') .. ' },'
+  end
+  out[#out + 1] = '  },'
+end
 function Tool.text(sheet)
   local out = {
     '-- The ' .. sheet.id .. ' atlas sheet (content/art/sheet.lua): written by the sheet',
@@ -239,6 +270,7 @@ function Tool.text(sheet)
     )
   end
   out[#out + 1] = '  },'
+  poses(sheet, out)
   out[#out + 1] = '}'
   return table.concat(out, '\n') .. '\n'
 end

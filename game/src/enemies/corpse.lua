@@ -6,6 +6,8 @@
 local MathX = require('src.core.mathx')
 local Archetypes = require('src.content.enemies')
 local Presentation = require('src.session.presentation')
+local Poses = require('src.content.art.poses')
+local Body = require('src.content.defs.body')
 local K = Archetypes.defaults.corpse
 local Corpse = {}
 local sqrt, min, max = math.sqrt, math.min, math.max
@@ -44,9 +46,16 @@ function Corpse.struck(g, e, impact, strong, point, contact)
   Presentation.call(g, 'corpseStruck', e, strong, point, contact)
   return true
 end
--- extended: the body's atlas has the extended layout (enemies/animation.lua).
-function Corpse.contactTime(extended)
-  return extended and K.contact.extended or K.contact.compact
+-- A killed body's own numbers (body.corpse); a record without an archetype
+-- (a fixture) has the neutral body's.
+local function corpse(e)
+  local def = Archetypes.of(e)
+  return (def and def.body or Body.neutral).corpse
+end
+-- When a collapsing body strikes the floor (s after death): its own number
+-- (body.corpse.landing), never the length of its painting (plan v11 E1).
+function Corpse.landing(e)
+  return corpse(e).landing
 end
 -- Landing is a separate beat, after the wound. Airborne bodies use their
 -- calculated ground speed; a grounded collapse uses the torso's fall height.
@@ -69,16 +78,13 @@ function Corpse.land(g, e, speed, age)
   Presentation.call(g, 'corpseLanded', e, energy)
   return true
 end
--- Settled: the painted collapse shows its last frame and has stopped leaning,
--- and the body is on the floor (not thrown up). Until then a killed body is
--- falling. The death clock and the fall are simulation state, so every query
--- (a shot, a missile) gets the same answer at the same step.
+-- Settled: the body's shortest settling time (body.corpse.settle, its own
+-- number since plan v11 E1, not the length of the painted collapse) has
+-- passed and the body is on the floor (not thrown up). Until then a killed
+-- body is falling. The death clock and the fall are simulation state, so
+-- every query (a shot, a missile) gets the same answer at the same step.
 function Corpse.settled(e)
-  local layout = Archetypes.look(e).layout == 'extended' and K.extended or K.compact
-  local collapse = (layout.last - layout.first) * layout.frame
-  return (e.deathTime or 0) >= max(collapse, K.settle)
-    and (e.fallY or 0) <= 0
-    and (e.fallVY or 0) <= 0
+  return (e.deathTime or 0) >= corpse(e).settle and (e.fallY or 0) <= 0 and (e.fallVY or 0) <= 0
 end
 -- Done: settled, at rest after its fall and past the time it is drawn. Such a
 -- body changes nothing any more (no shield, no slide, no effects, no frame),
@@ -102,11 +108,12 @@ end
 function Corpse.shields(e)
   return e.hp <= 0 and not Corpse.settled(e)
 end
--- The painted collapse. Death advances while flying; landing never restarts it.
-function Corpse.pose(e, extended)
+-- The painted collapse (the atlas's collapse pose, content/art/poses.lua):
+-- only what is drawn and met by a shot mid-fall. Death advances while
+-- flying; landing never restarts it.
+function Corpse.pose(e, collapse)
   local t = max(0, e.deathTime or 0)
-  local layout = extended and K.extended or K.compact
-  local frame = min(layout.last, layout.first + math.floor(t / layout.frame))
+  local frame = Poses.frame(collapse, t)
   local response = e.deathResponse
   local strength = response and response.strength or 0
   local side = response and response.side or e.flinchSide or 0

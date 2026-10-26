@@ -1,7 +1,7 @@
 -- One check of a demon (plan v10 V7: CHECK-CREATURE.ps1 <id>): every element
 -- the game needs of it, each reported OK or MISSING with what is wrong:
--- definition, atlas (sheet, images), frames (count for its layout, quiet
--- poses, feet as measured), anatomy, masks (baked and bound to the source),
+-- definition, atlas (sheet, images), frames (action and quiet frames, feet as
+-- measured), named poses (each posed, annotated and baked), anatomy, masks (baked and bound to the source),
 -- anatomical points, gallery, bestiary, waves and its attack artwork.
 local Enemies = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
@@ -13,10 +13,21 @@ local Waves = require('src.content.waves')
 local Contract = require('src.enemies.art_contract')
 local Provenance = require('qa.mask_provenance')
 local Tool = require('qa.art.sheet_tool')
+local Poses = require('src.content.art.poses')
 local Check = {}
--- Frames of each layout (enemies/animation.lua): the action poses, then four
--- quiet poses.
-local ACTION_FRAMES = { extended = 24, compact = 16 }
+-- Every frame a named pose shows (content/art/poses.lua), sorted.
+local function posedFrames(poses)
+  local seen, out = {}, {}
+  for _, pose in pairs(poses or {}) do
+    for _, frame in ipairs(pose.frames or {}) do
+      if not seen[frame] then
+        seen[frame], out[#out + 1] = true, frame
+      end
+    end
+  end
+  table.sort(out)
+  return out
+end
 function Check.run(id)
   local lines, missing = {}, 0
   local function report(ok, what, detail)
@@ -59,20 +70,48 @@ function Check.run(id)
       #problems == 0 and (#sheet.sources .. ' images at their sizes')
         or table.concat(problems, '; ')
     )
-    local wanted = ACTION_FRAMES[look.layout] + 4
     local entry = Atlases.entries[atlas]
     local quiet = Atlases.idle[atlas]
     report(
-      #sheet.frames == wanted
-        and entry.originalCount == ACTION_FRAMES[look.layout]
+      #sheet.frames == entry.originalCount + Sheet.quietFrames
         and quiet.first == entry.originalCount + 1,
       'frames',
       #sheet.frames
         .. ' frames ('
-        .. look.layout
-        .. ' layout: '
-        .. wanted
-        .. ', the last four quiet)'
+        .. entry.originalCount
+        .. ' action frames, the last '
+        .. Sheet.quietFrames
+        .. ' quiet)'
+    )
+    -- Every frame a pose shows is posed, annotated and baked (plan v11 E1).
+    local poses = Atlases.poses[atlas]
+    local wrong = Poses.problems(poses, #sheet.frames, 'poses')
+    local regions = Anatomy.layouts[look.regions or atlas]
+    local masks = Masks.layouts[atlas]
+    local used = posedFrames(poses)
+    for _, frame in ipairs(used) do
+      local f = sheet.frames[frame]
+      if not (f and f.anchors and f.anchors.head) then
+        wrong[#wrong + 1] = 'frame ' .. frame .. ' has no head anchor'
+      end
+      if look.hit ~= 'volumes' and not (regions and regions.frames[frame]) then
+        wrong[#wrong + 1] = 'frame ' .. frame .. ' has no anatomy'
+      end
+      if look.hit ~= 'volumes' and not (masks and masks[frame]) then
+        wrong[#wrong + 1] = 'frame ' .. frame .. ' has no baked mask'
+      end
+    end
+    local names = {}
+    for name in pairs(poses or {}) do
+      names[#names + 1] = name
+    end
+    table.sort(names)
+    report(
+      #wrong == 0,
+      'poses',
+      #wrong == 0
+          and (#names .. ' named poses over ' .. #used .. ' frames: ' .. table.concat(names, ' '))
+        or table.concat(wrong, '; ')
     )
     if #problems == 0 then
       local measured, differ = Tool.measure(sheet), {}

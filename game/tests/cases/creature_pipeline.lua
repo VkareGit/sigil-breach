@@ -182,9 +182,32 @@ function Tests.run(G, renderer)
           { path = main, columns = 4, rows = 4 },
           { path = quiet, columns = 2, rows = 2, scale = 0.96, idle = true },
         },
+        -- A layout of its own (plan v11 E1): three walking frames and no back
+        -- (it falls back to the walk), a heavy pain of its own, a wind-up in
+        -- four phases; no frame number is written anywhere else.
+        poses = {
+          walk = { clock = 'stride', frames = { 1, 2, 3 }, rate = 3 },
+          windup = { clock = 'action', frames = { 4, 5, 6, 7 }, bounds = { 0.25, 0.5, 0.75 } },
+          strike = { frames = { 8 } },
+          recover = { frames = { 9 } },
+          pain = { frames = { 10 } },
+          painHeavy = { clock = 'seconds', frames = { 11, 10 }, bounds = { 0.1 } },
+          knockdown = { clock = 'seconds', frames = { 12 }, ends = 0.1 },
+          rise = { clock = 'countdown', frames = { 13, 12 }, bounds = { -0.1 } },
+          collapse = { clock = 'seconds', frames = { 12, 13, 14 }, step = 0.12 },
+        },
       })))
     end)
     Atlases.register(sheet)
+    local Poses = require('src.content.art.poses')
+    local own = Atlases.poses[id]
+    check(
+      'its own layout registers: no back walk (the walk stands in), four wind-up phases',
+      Poses.resolve(own, 'walkRear') == own.walk
+        and Poses.resolve(own, 'watchRear') == own.quiet
+        and #own.windup.frames == 4
+        and Poses.frame(own.windup, 0.5) == 6
+    )
     check(
       'the sheet tool cuts the new atlas into 16 action and 4 quiet frames in its gutters',
       #sheet.frames == 20
@@ -242,7 +265,7 @@ function Tests.run(G, renderer)
       kind = 'buer',
       variant = id,
       name = id,
-      appearance = { atlas = id, layout = 'compact' },
+      appearance = { atlas = id },
     })
     local report = require('qa.art.creature_check').run(id)
     local complete = 0
@@ -255,6 +278,7 @@ function Tests.run(G, renderer)
         'anatomy',
         'masks',
         'attack artwork',
+        'poses',
       }) do
         if line:find('OK      ' .. what .. ':', 1, true) == 1 then
           complete = complete + 1
@@ -262,8 +286,8 @@ function Tests.run(G, renderer)
       end
     end
     check(
-      'CHECK-CREATURE finds its atlas, frames, feet, anatomy, masks and artwork complete',
-      complete == 7
+      'CHECK-CREATURE finds its atlas, frames, poses, feet, anatomy, masks and artwork complete',
+      complete == 8
     )
     -- In play: the unchanged systems animate, draw and shoot it.
     local g = Fixtures.arena(G)
@@ -300,6 +324,47 @@ function Tests.run(G, renderer)
     check(
       'a shot aimed at its head meets its head',
       contact and contact.targetId == e.id and contact.zone == 'head' and e.hp < 1000
+    )
+    -- Every frame of every pose it uses: a shot at its painted head meets it
+    -- (the proving ground holds a posed frame: previewFrame).
+    local Field = require('src.run.test_field')
+    local field = Field.new(G)
+    field.testing = true
+    Field.reset(field)
+    Field.close(field)
+    local target = field:spawn(id, 16, 18)
+    target.spawnAge, target.dummy = 1, true
+    local used, met = {}, 0
+    for _, pose in pairs(own) do
+      for _, frame in ipairs(pose.frames) do
+        used[frame] = true
+      end
+    end
+    local wanted = 0
+    field.bus:on('sim', 'VolleyResolved', function(event)
+      local c = event.report.contacts[1]
+      if c and c.targetId == target.id and c.zone == 'head' then
+        met = met + 1
+      end
+    end)
+    for frame in pairs(used) do
+      wanted = wanted + 1
+      target.previewFrame, target.x, target.z, target.hp = frame, 16, 18, 1000
+      target.pushX, target.pushZ = 0, 0
+      local p = field.player
+      p.x, p.z = 16, 22
+      field:switchWeapon(2)
+      p.arsenal.judge.mag, p.arsenal.judge.readyAt, field.cooldown = 6, 0, 0
+      local aim = Surface.prepare(field, target)
+      local hx, hy, hz = Surface.locateZone(aim, 'head')
+      local sx, sy, sz = B.origin(field)
+      p.yaw = math.atan2(hx - sx, hz - sz)
+      p.pitch = math.atan2(hy - sy, math.sqrt((hx - sx) ^ 2 + (hz - sz) ^ 2))
+      field:shoot()
+    end
+    check(
+      string.format('a shot meets the painted head of every posed frame (%d of %d)', met, wanted),
+      wanted == 18 and met == wanted
     )
   end)
   for _, field in ipairs({ 'animations', 'feet', 'frames', 'frameImages', 'frameMirrors' }) do

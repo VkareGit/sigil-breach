@@ -7,11 +7,9 @@ return Creature.boss({
   name = 'creature_furfur',
   catalog = { field = 6 },
   appearance = {
-    layout = 'extended',
     portal = { 0.86, 0.86, 1 },
     stature = 'large',
     casts = { lightning = true },
-    strikeFrames = { charge = 10 },
     fieldRing = 0.85,
     banner = {
       calm = 'creature_furfur_calm',
@@ -22,6 +20,8 @@ return Creature.boss({
   },
   body = {
     hp = 1400,
+    -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
+    corpse = { settle = 0.44, landing = 0.22 },
     armor = 35,
     locationArmor = { head = 0, torso = 35, lower = 50 },
     mass = 1 / 0.12,

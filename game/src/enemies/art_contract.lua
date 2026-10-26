@@ -6,6 +6,7 @@ local Anatomy = require('src.content.art.anatomy_regions')
 local Masks = require('src.content.art.hit_masks')
 local Sources = require('src.content.art.sources')
 local AbilityPose = require('src.enemies.ability_pose')
+local Atlases = require('src.content.art.atlases')
 local Contract = {}
 
 function Contract.sequenceProblems(id)
@@ -98,9 +99,11 @@ function Contract.problems(def)
     end
     sequence(look.evadeArt)
   end
-  for action, frame in pairs(look.strikeFrames or {}) do
-    if not actions[action] or not (layout and layout.frames[frame]) then
-      bad('unknown strike frame/attack ' .. tostring(action) .. '/' .. tostring(frame))
+  -- An attack's own strike pose (strike.<attack id>) names one of its attacks.
+  for name in pairs(Atlases.poses[look.atlas or def.kind] or {}) do
+    local action = name:match('^strike%.(.+)$')
+    if action and not actions[action] then
+      bad('strike pose ' .. name .. ' names no attack of it')
     end
   end
   return out

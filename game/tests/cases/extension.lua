@@ -70,7 +70,7 @@ function Tests.run(G)
       and A.look(demon).stain == A.trial.appearance.stain
       and A.look(demon).casts.all
       and A.look(demon).atlas == 'imp'
-      and A.look(demon).layout == 'extended'
+      and require('src.enemies.animation').posed(demon, 'walk').rate == 4.2
   )
 
   -- A new mode, entered by name: its own progression runs in the world system.

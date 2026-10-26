@@ -294,11 +294,15 @@ local function dead(out, kind)
       end
     end
   end
+  -- The landing moment, and whether the atlas paints the long (six-frame)
+  -- walk of the 0.33 extended layout (plan v11 E1: read from the named pose).
+  local e = body(kind)
+  local extended = #Anim.posed(e, 'walk').frames == 6
   out[#out + 1] = kind
     .. '|landing|'
-    .. num(Corpse.contactTime(Anim.extended(kind)))
+    .. num(Corpse.landing(e))
     .. ',extended='
-    .. tostring(Anim.extended(kind))
+    .. tostring(extended)
 end
 -- Placement modifiers the frame choice never reads but every pose carries.
 local function modifiers(out, kind)

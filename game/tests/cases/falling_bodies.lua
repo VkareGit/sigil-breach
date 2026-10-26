@@ -34,13 +34,13 @@ end
 function Tests.run(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'falling bodies: ', 'falling bodies: ')
-  local extended = (Defaults.extended.last - Defaults.extended.first) * Defaults.extended.frame
-  local compact = math.max(
-    (Defaults.compact.last - Defaults.compact.first) * Defaults.compact.frame,
-    Defaults.settle
-  )
-  -- The painted collapse of a thrall lasts longer than its lean (the old
-  -- limit, corpse.settle 0.33 s): mid-fall it must still shield.
+  -- When a killed body has settled is its own number (body.corpse.settle,
+  -- plan v11 E1): a thrall's long collapse 0.44 s, a boss's 0.33 s.
+  local Enemies = require('src.content.enemies')
+  local extended = Enemies.imp.body.corpse.settle
+  local compact = Enemies.boss.body.corpse.settle
+  -- A thrall's settling lasts longer than its lean (corpse.settle 0.33 s):
+  -- mid-fall it must still shield.
   local g, front, rear, ray, pitch = line(G, (Defaults.settle + extended) * 0.5)
   check(
     string.format(
@@ -55,7 +55,7 @@ function Tests.run(G)
   front.deathTime = extended
   local after = trace(g, ray)
   check(
-    'the shield ends exactly when the collapse shows its last frame',
+    'the shield ends exactly when the body has settled (body.corpse.settle)',
     before == front and after == rear
   )
   g, front, rear, ray = line(G, extended + 0.2, 0.3)

@@ -11,8 +11,14 @@
 --                    feet: transparent pixels under the opaque feet;
 --                    anchors: named points, { x from the centre in widths,
 --                    y up from the base in heights }
+--   poses            name -> the frames a state shows and the clock that
+--                    chooses them (content/art/poses.lua, plan v11 E1); the
+--                    quiet pose is derived from the idle frames
 -- What the game reads of an atlas is derived here, never written by hand.
+local Poses = require('src.content.art.poses')
 local Sheet = {}
+-- The quiet poses an atlas appends after its action frames.
+Sheet.quietFrames = 4
 -- The pixel rectangle (inclusive) of a cell of a source: a crop, or a cell
 -- of its grid cut at its bands (rows, per column) and column bands (per row).
 function Sheet.cut(source, cell)
@@ -117,6 +123,26 @@ function Sheet.idle(sheet)
   end
   error('atlas ' .. tostring(sheet.id) .. ' has no quiet poses')
 end
+-- The named poses of a sheet: its own and the quiet breathing of its idle
+-- frames (content/art/poses.lua).
+function Sheet.poses(sheet)
+  local out = {}
+  for name, pose in pairs(sheet.poses or {}) do
+    out[name] = pose
+  end
+  for index, frame in ipairs(sheet.frames or {}) do
+    local source = sheet.sources and sheet.sources[frame.source]
+    if source and source.idle then
+      local frames = {}
+      for i = 0, Sheet.quietFrames - 1 do
+        frames[#frames + 1] = index + i
+      end
+      out.quiet = { clock = 'breath', frames = frames }
+      break
+    end
+  end
+  return out
+end
 -- What is wrong with a sheet (none: an empty list).
 function Sheet.problems(sheet)
   local out = {}
@@ -157,6 +183,15 @@ function Sheet.problems(sheet)
     end
     if not (frame.anchors and frame.anchors.head) then
       fail('frame ' .. index .. ' head anchor')
+    end
+  end
+  if type(sheet.poses) ~= 'table' then
+    fail('no poses')
+  elseif sheet.poses.quiet then
+    fail('the quiet pose is derived from the idle frames')
+  else
+    for _, problem in ipairs(Poses.problems(Sheet.poses(sheet), #(sheet.frames or {}))) do
+      fail(problem)
     end
   end
   return out

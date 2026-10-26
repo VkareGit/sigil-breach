@@ -41,6 +41,26 @@ Body.fields = {
   blood = { type = 'table', default = { 0.26, 0.025, 0.016 }, desc = 'blood colour' },
   struck = { type = 'string', default = 'flesh', values = { 'flesh', 'metal', 'bone' } },
   boss = { type = 'boolean', desc = 'falters instead of being interrupted' },
+  -- A killed body (plan v11 E1): its own numbers, not its painting's.
+  corpse = {
+    type = 'table',
+    default = {},
+    schema = Schema:new('corpse', {
+      settle = {
+        type = 'number',
+        default = 0.33,
+        min = 0,
+        desc = 'shortest settling (s): a falling body shields until then and on the floor',
+      },
+      landing = {
+        type = 'number',
+        default = 0.14,
+        min = 0,
+        desc = 'when a collapsing body strikes the floor (s after death)',
+      },
+    }),
+    desc = 'how its killed body settles (enemies/corpse.lua)',
+  },
   microStun = { type = 'number', min = 0, desc = 'boss: brief stun of a heavy unbroken blow' },
 }
 Body.schema = Schema:new('body', Body.fields)

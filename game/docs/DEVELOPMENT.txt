@@ -198,13 +198,25 @@ Nowy demon z nowym atlasem (plan v10 V7):
   Klatki (content/art/enemy_frames.lua), wpis katalogu (enemy_art), pozy
   spoczynku (enemy_idle) i rozmiary obrazów (art/sources) są jego wynikiem
   (content/art/atlases.lua), nie pisze się ich ręcznie. Kroki:
-  1. PNG atlasu akcji w układzie extended (6 x 4) albo compact (4 x 4)
-     i arkusz 2 x 2 czterech póz spoczynku, w assets/art/.
+  1. PNG atlasu akcji w dowolnej siatce (np. 6 x 4 albo 4 x 4) i arkusz
+     2 x 2 czterech póz spoczynku, w assets/art/.
   2. Specyfikacja (plik Lua: { id, size, idle?, sources = { { path,
-     columns, rows, scale?, idle? } } }) i .\EXPORT-SHEET.ps1 -Spec <plik>:
-     narzędzie znajduje cięcia w przezroczystych przerwach, mierzy stopy,
-     proponuje kotwicę głowy (szczyt sylwetki). Dopisz moduł arkusza do
-     content/art/sheets/index.lua.
+     columns, rows, scale?, idle? } }, poses? | template? }) i
+     .\EXPORT-SHEET.ps1 -Spec <plik>: narzędzie znajduje cięcia
+     w przezroczystych przerwach, mierzy stopy, proponuje kotwicę głowy
+     (szczyt sylwetki) i zapisuje nazwane pozy (plan v11 E1). Pozy podaje
+     specyfikacja (poses) albo szablon dawnego układu (template =
+     'extended' 6 x 4 lub 'compact' 4 x 4, qa/art/pose_templates.lua;
+     domyślnie według liczby kolumn). Poza to { clock, frames, bounds |
+     rate | step, ends? } (content/art/poses.lua): zegar action (faza akcji
+     0..1), seconds, countdown (minus pozostały czas), stride (droga chodu),
+     world (czas świata); granice to przedziały [a, b). Wymagane: walk,
+     windup, strike, recover, pain, knockdown, rise, collapse; walkRear,
+     watchRear, painHeavy, hover mają zastępniki, quiet wynika z klatek
+     spoczynku, strike.<atak> to osobna klatka ciosu. Arkusz z błędną pozą
+     (nierosnąca granica, klatka spoza arkusza, pusta sekwencja, cykl
+     zastępników, brak pozy) jest odrzucony z nazwą błędu. Dopisz moduł
+     arkusza do content/art/sheets/index.lua.
   3. Anatomia jedną z dwóch dróg:
      - warstwy części: maska na część (PNG wielkości źródła, nieprzezroczyste
        = część) i legenda ({ id, atlas, body, parts = { { id, zone,
@@ -216,11 +228,14 @@ Nowy demon z nowym atlasem (plan v10 V7):
      Dopisz moduł do content/art/anatomy/index.lua. Istniejącą adnotację
      zapisze jako dane .\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
   4. .\BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem).
-  5. Definicja: content/creatures/<id>.lua (appearance.layout, klucze
-     tekstów nazwy i karty bestiariusza), id w A.creatures; fale w
+  5. Definicja: content/creatures/<id>.lua (appearance.atlas, klucze
+     tekstów nazwy i karty bestiariusza; body.corpse = { settle, landing }
+     to czas osiadania zwłok i moment uderzenia o podłogę, niezależne od
+     długości malowanego upadku), id w A.creatures; fale w
      content/waves.lua; punkty anatomiczne w qa/data/hit_landmarks.lua.
   6. .\CHECK-CREATURE.ps1 <id> wypisuje każdy brakujący element (definicja,
-     arkusz, obrazy, klatki, stopy, anatomia, maski, punkty, galeria,
+     arkusz, obrazy, klatki, pozy (każda klatka pozy z kotwicą, anatomią
+     i maską), stopy, anatomia, maski, punkty, galeria,
      bestiariusz, fale, grafika ataków); kod wyjścia 0 = komplet.
   Zmierzony czas narzędzi (test creature-pipeline, 20 klatek nowego atlasu):
   arkusz 0,1 s, anatomia z warstw 0,16 s, maski 20 klatek 5,5 s.

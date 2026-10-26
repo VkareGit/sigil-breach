@@ -102,4 +102,24 @@ AbilityArt.timing = {
   minimumFlight = 0.001,
   evade = { 0.08, 0.20, 0.43, 0.64, 0.78, 0.90, 0.96 },
 }
+-- The thresholds are boundaries of action phases (0..1): the same check as
+-- the bounds of a sheet's named poses (content/art/poses.lua, plan v11 E1).
+-- AbilityPose (enemies/ability_pose.lua) stays the one mechanism that reads them.
+function AbilityArt.timingProblems(timing)
+  local Poses = require('src.content.art.poses')
+  local out = {}
+  for _, list in ipairs({ { timing.coil }, { timing.launch }, { timing.land, timing.rise } }) do
+    for _, problem in ipairs(Poses.boundsProblems(list, 0, 1)) do
+      out[#out + 1] = problem
+    end
+  end
+  for _, problem in ipairs(Poses.boundsProblems(timing.evade or {}, 0, 1)) do
+    out[#out + 1] = 'evade ' .. problem
+  end
+  return out
+end
+assert(
+  #AbilityArt.timingProblems(AbilityArt.timing) == 0,
+  'ability timing: ' .. table.concat(AbilityArt.timingProblems(AbilityArt.timing), '; ')
+)
 return AbilityArt

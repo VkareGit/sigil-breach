@@ -376,6 +376,11 @@ Suite.registry = {
     module = 'tests.cases.open_presentation',
   },
   {
+    id = 'named-poses',
+    title = 'Named poses, refused sheets, reordered frames and the corpse rule (plan v11 E1)',
+    module = 'tests.cases.named_poses',
+  },
+  {
     id = 'v033-reference',
     title = 'The 0.33 references: state projection, poses, kills and saves (plan v11 E0)',
     module = 'tests.cases.v033_reference',

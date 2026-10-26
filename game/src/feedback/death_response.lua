@@ -15,7 +15,7 @@ local body = Corpse.body
 Death.begin = Corpse.begin
 Death.contact = Corpse.struck
 Death.land = Corpse.land
-Death.contactTime = Corpse.contactTime
+Death.landing = Corpse.landing
 Death.pose = Corpse.pose
 
 -- Deterministic clots: no random-number draws can change the next AI choice.

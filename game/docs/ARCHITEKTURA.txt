@@ -347,9 +347,14 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   i efekty czytają politykę, nigdy nazwy. Masa i promień: ruch i kontakt ciał.
   Demon z NOWYM atlasem (plan v10 V7; kroki i czasy: DEVELOPMENT): PNG,
   arkusz content/art/sheets/<id>.lua z narzędzia (EXPORT-SHEET.ps1 -Spec:
-  cięcia w przerwach, stopy, kotwice, kolejność) i jego linia w
-  sheets/index.lua; klatki, wpis enemy_art, pozy spoczynku i rozmiary
-  wylicza content/art/atlases.lua. Anatomia z warstw części
+  cięcia w przerwach, stopy, kotwice, kolejność, nazwane pozy) i jego
+  linia w sheets/index.lua; klatki, wpis enemy_art, pozy spoczynku
+  i rozmiary wylicza content/art/atlases.lua. Nazwane pozy (plan v11 E1,
+  content/art/poses.lua): arkusz mówi, które klatki pokazuje każdy stan
+  i jaki zegar je wybiera (action, seconds, countdown, stride, world,
+  breath); enemies/animation.lua pyta o pozę po nazwie i nie zna numeru
+  klatki ani układu. Zwłoki mają własne liczby (body.corpse.settle
+  i landing): długość malowanego upadku decyduje tylko o tym, co widać. Anatomia z warstw części
   (EXPORT-ANATOMY.ps1 -Legend, qa/art/anatomy_layers.lua) albo z edytora
   regionów (ANATOMY-EDITOR.ps1, model qa/art/anatomy_editor.lua), jako dane
   (qa/art/anatomy_export.lua) i linia w content/art/anatomy/index.lua;

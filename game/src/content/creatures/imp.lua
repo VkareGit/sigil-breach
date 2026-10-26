@@ -17,13 +17,13 @@ return Creature.define({
     },
   },
   appearance = {
-    layout = 'extended',
     portal = { 1, 0.42, 0.14 },
     art = { leap = 'leap' },
   },
   -- 0.20: survives one volley at 8 m (~102), dies point blank (240) and when
   -- two thralls share one close volley (~120 each): the multi-kill stays.
-  body = { hp = 112 },
+  -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
+  body = { hp = 112, corpse = { settle = 0.44, landing = 0.22 } },
   -- 0.21: 4 m/s (76 % of the player) with mass-limited acceleration.
   move = { speed = 4.0, accel = 18, style = 'flank' },
   sounds = { alert = 'snarl', windup = 'snarl', strike = 'claw' },

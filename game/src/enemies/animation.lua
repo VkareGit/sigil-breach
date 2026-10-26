@@ -5,6 +5,8 @@ local Corpse = require('src.enemies.corpse')
 local ActionPhase = require('src.enemies.action_phase')
 local Roles = require('src.core.roles')
 local Capabilities = require('src.session.capabilities')
+local Atlases = require('src.content.art.atlases')
+local Poses = require('src.content.art.poses')
 -- The bearing from body e to the viewer (core/roles.lua): what a
 -- billboard turns to and what its back frames are judged against.
 local function viewerYaw(g, e)
@@ -12,20 +14,18 @@ local function viewerYaw(g, e)
   return math.atan2(v.x - e.x, v.z - e.z)
 end
 Anim.actionPhase = ActionPhase.sample
--- Painted atlases come in two layouts: the extended one (6 columns: walk,
--- windup, strike, pain, collapse, rear) and the compact one (4 columns).
--- A creature names its layout in its appearance (content/defs/creature.lua);
--- poses read only the layout.
-local function extendedKind(kind)
-  local def = Archetypes.get(kind)
-  return def ~= nil and def.appearance.layout == 'extended'
+-- A body's frames are chosen by name (plan v11 E1): its atlas's sheet names
+-- the poses and the clock of each (content/art/poses.lua); this module only
+-- says which pose a state shows and gives it the state's clock.
+function Anim.poses(e)
+  local atlas = Archetypes.look(e).atlas or e.kind
+  return assert(Atlases.poses[atlas], 'no named poses for atlas ' .. tostring(atlas))
 end
-function Anim.extended(kind)
-  return extendedKind(kind)
+-- The pose name stands for on a body's atlas (fallbacks followed).
+function Anim.posed(e, name)
+  return assert(Poses.resolve(Anim.poses(e), name), 'atlas has no pose ' .. name)
 end
-function Anim.layout(kind)
-  return extendedKind(kind) and 6 or 4, 4
-end
+local posed = Anim.posed
 function Anim.frameCount(kind)
   return Idle.total(kind)
 end
@@ -34,83 +34,77 @@ function Anim.pose(g, e)
     return e.previewFrame, 0, 0, 1, 1
   end
   local frame, bounce, lean, sx, sy = 1, 0, 0, 1, 1
-  local quiet = false
-  -- 'imp' here means the extended atlas layout, not the creature.
+  local quiet, rear = false, false
   local look = Archetypes.look(e)
-  local imp = look.layout == 'extended'
   if e.hp <= 0 then
-    frame, bounce, lean, sx, sy = Corpse.pose(e, imp)
+    frame, bounce, lean, sx, sy = Corpse.pose(e, posed(e, 'collapse'))
   -- Knocked down (0.24): the painted collapse frames carry the fall. The body
-  -- goes down in 0.12 s, stays low, and climbs back up in the last 0.15 s
-  -- (the hit volumes follow the painted pose).
+  -- goes down (knockdown, seconds since the fall), stays low and climbs back
+  -- up (rise, on the time it has left; the hit volumes follow the pose).
   elseif e.knockedDown and (e.stun or 0) > 0 then
     local total = math.max(e.knockTime or e.stun, e.stun)
-    local t = total - e.stun
-    if imp then
-      frame = (t < 0.06 and 14)
-        or (t < 0.12 and 15)
-        or (e.stun > 0.15 and 16)
-        or (e.stun > 0.07 and 15)
-        or 14
-    else
-      frame = (t < 0.08 and 10) or (e.stun > 0.12 and 11) or 10
-    end
+    frame = Poses.frame(posed(e, 'knockdown'), total - e.stun)
+      or Poses.frame(posed(e, 'rise'), -e.stun)
     lean = -0.06
   -- A heavy stagger throws the body back (the first painted recoil frame),
   -- then bows it in pain; a light falter only flinches in place.
   elseif e.ai == 'hurt' and (e.phase < 0.20 or (e.stun or 0) > 0) then
-    frame = imp and 13 or 9
+    frame = Poses.frame(posed(e, 'pain'), e.phase)
     lean = -0.03
     if e.heavyStagger then
-      frame = (e.phase < 0.12) and (imp and 14 or 10) or frame
+      frame = Poses.frame(posed(e, 'painHeavy'), e.phase)
       lean = -0.08
       sy = 0.95
     end
   -- A boss falter (broken guard): the pain pose for the pause itself, bowed.
   elseif (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0 then
-    frame = imp and 13 or 9
+    frame = Poses.frame(posed(e, 'pain'), e.phase or 0)
     lean = -0.05
     sy = 0.95
   elseif e.ai == 'windup' then
     local t = Anim.actionPhase(e)
-    frame = imp and (t < 0.22 and 7 or (t < 0.6 and 8 or 9)) or (t < 0.42 and 5 or 6)
+    frame = Poses.frame(posed(e, 'windup'), t)
     lean = -0.025 * t
     sx = 1 + t * 0.025
     sy = 1 - t * 0.025
   elseif e.ai == 'strike' then
     local t = Anim.actionPhase(e)
-    frame = (look.strikeFrames and look.strikeFrames[e.attackKind])
-      or (imp and (t < 0.5 and 10 or 11) or 7)
+    -- An attack may hold its own painted frame (strike.<attack id>).
+    frame = Poses.frame(posed(e, e.attackKind and ('strike.' .. e.attackKind) or 'strike'), t)
     lean = 0.06 * (1 - t)
     sx = 1 + 0.035 * math.sin(t * math.pi)
   elseif e.ai == 'recover' then
-    frame = imp and 12 or 8
-    sy = 0.98 + 0.02 * Anim.actionPhase(e)
+    local t = Anim.actionPhase(e)
+    frame = Poses.frame(posed(e, 'recover'), t)
+    sy = 0.98 + 0.02 * t
   elseif (e.walkSpeed or 0) > 0.1 then
-    local count = imp and 6 or 4
-    local phase = e.walk * (imp and 4.2 or 3.4)
-    frame = 1 + math.floor(phase) % count
+    local walk = posed(e, 'walk')
+    local count = #walk.frames
+    local phase = e.walk * (walk.rate or 0)
     bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
     lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
-    local toCamera = viewerYaw(g, e)
-    if math.cos(toCamera - (e.facing or 0)) < -0.25 then
-      frame = frame + (imp and 18 or 12)
-    end
+    rear = math.cos(viewerYaw(g, e) - (e.facing or 0)) < -0.25
+    frame = Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk)
   else
     -- Breath and vigilance are painted into the ribs, hands, wings and neck.
     -- Never stretch armor, skull or the whole silhouette to fake breathing.
-    local rear = e.awake
+    local watching = e.awake
       and (e.memory or 0) > 0
       and math.cos(viewerYaw(g, e) - (e.facing or 0)) < -0.25
-    frame = rear and (imp and 19 or 13) or Idle.sample(Idle.kind(e), g.time, e.id)
+    local pose = watching and posed(e, 'watchRear') or posed(e, 'quiet')
+    if pose.clock == 'breath' then
+      frame = Idle.sample(Idle.kind(e), g.time, e.id)
+    else
+      frame = Poses.frame(pose, 0)
+    end
     quiet = true
   end
   if look.motion == 'hover' and e.hp > 0 then
     bounce = 0.17 + math.sin(g.time * 2.6 + e.id) * 0.065
     lean = lean + math.sin(g.time * 1.7 + e.id) * 0.018
     if not quiet and (e.ai == 'idle' or e.ai == 'move') then
-      local rear = frame >= 19
-      frame = 1 + math.floor((g.time + e.id * 0.17) * 7) % 6 + (rear and 18 or 0)
+      local flight = posed(e, rear and 'hoverRear' or 'hover')
+      frame = Poses.frame(flight, g.time + e.id * (flight.offset or 0))
     end
   elseif look.motion == 'heavy' and e.hp > 0 and (e.walkSpeed or 0) > 0.1 then
     bounce = bounce * 0.3

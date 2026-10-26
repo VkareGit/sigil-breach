@@ -88,4 +88,17 @@ return {
     },
     { source = 3, cell = 4, feet = 53, anchors = { head = { 0.15, 0.8245114832535885 } } },
   },
+  poses = {
+    collapse = { clock = 'seconds', frames = { 10, 11, 12 }, step = 0.14 },
+    knockdown = { clock = 'seconds', frames = { 10 }, ends = 0.08 },
+    pain = { frames = { 9 } },
+    painHeavy = { clock = 'seconds', frames = { 10, 9 }, bounds = { 0.12 } },
+    recover = { frames = { 8 } },
+    rise = { clock = 'countdown', frames = { 11, 10 }, bounds = { -0.12 } },
+    strike = { frames = { 7 } },
+    walk = { clock = 'stride', frames = { 1, 2, 3, 4 }, rate = 3.4 },
+    walkRear = { clock = 'stride', frames = { 13, 14, 15, 16 }, rate = 3.4 },
+    watchRear = { frames = { 13 } },
+    windup = { clock = 'action', frames = { 5, 6 }, bounds = { 0.42 } },
+  },
 }
