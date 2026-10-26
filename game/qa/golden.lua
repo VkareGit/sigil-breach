@@ -17,7 +17,24 @@ local function append(out, ...)
     out[#out + 1] = num(select(i, ...))
   end
 end
+-- Every creature of the session in id order: the living pool and the
+-- remains (plan v10 V1), so where a body is stored never moves the digest.
+local function creatures(g)
+  local list = {}
+  for _, e in ipairs(g.enemies) do
+    list[#list + 1] = e
+  end
+  for _, e in ipairs(g.remains or {}) do
+    list[#list + 1] = e
+  end
+  table.sort(list, function(a, b)
+    return a.id < b.id
+  end)
+  return list
+end
 -- The simulation-relevant fields of a session, in a fixed order.
+-- Digest v2 (plan v10 V1): a dead body's state clock (phase) is left out.
+-- Nothing reads it, and a retired corpse is no longer stepped.
 function Golden.describe(g)
   local out = {}
   append(out, g.elapsed, g.kills, g.damageTaken, g.score, g.weapon, g.state)
@@ -34,8 +51,9 @@ function Golden.describe(g)
     p.arsenal.judge.mag
   )
   append(out, p.arsenal.judge.reserve, p.dash, p.jump, p.poise or 0, p.pushX or 0, p.pushZ or 0)
-  for _, e in ipairs(g.enemies) do
-    append(out, e.id, e.kind, e.x, e.z, e.hp, e.poise or 0, e.stun or 0, e.ai, e.phase or 0)
+  for _, e in ipairs(creatures(g)) do
+    local phase = e.hp > 0 and (e.phase or 0) or 'dead'
+    append(out, e.id, e.kind, e.x, e.z, e.hp, e.poise or 0, e.stun or 0, e.ai, phase)
     append(out, e.pushX or 0, e.pushZ or 0, e.windup or 0, e.recover or 0, e.attack or 0)
   end
   for _, b in ipairs(g.bullets) do
