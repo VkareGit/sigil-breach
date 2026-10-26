@@ -366,6 +366,11 @@ Suite.registry = {
     module = 'tests.cases.runtime_contracts',
   },
   {
+    id = 'creature-pipeline',
+    title = 'Sheets, anatomy tools and a demon from data alone (plan v10 V7)',
+    module = 'tests.cases.creature_pipeline',
+  },
+  {
     id = 'open-presentation',
     title = 'World objects by registration, HUD slots, switching languages (plan v10 V6)',
     module = 'tests.cases.open_presentation',

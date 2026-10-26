@@ -1,0 +1,159 @@
+-- The buer atlas sheet (content/art/sheet.lua): written by the sheet
+-- tool (qa/art/sheet_tool.lua, EXPORT-SHEET.ps1 buer). Cuts, order and anchors
+-- are authored here; feet and sizes are measured from the images.
+return {
+  id = 'buer',
+  size = 2.65,
+  idle = { period = 3.85, weights = { 0.34, 0.18, 0.17, 0.31 } },
+  sources = {
+    {
+      path = 'assets/art/buer-fresco-v12.png',
+      size = { 1254, 1254 },
+      columns = 4,
+      rows = 4,
+      bands = {
+        { 0, 313, 634, 940, 1254 },
+        { 0, 313, 633, 940, 1254 },
+        { 0, 314, 629, 940, 1254 },
+        { 0, 313, 635, 940, 1254 },
+      },
+      columnBands = {
+        { 0, 313, 627, 940, 1254 },
+        { 0, 313, 635, 946, 1254 },
+        { 0, 313, 627, 940, 1254 },
+        { 0, 313, 627, 940, 1254 },
+      },
+    },
+    {
+      path = 'assets/art/buer-idle-fresco-v13.png',
+      size = { 1254, 1254 },
+      columns = 2,
+      rows = 2,
+      scale = 0.96,
+      idle = true,
+      crops = {
+        { 35, 0, 590, 627 },
+        { 615, 0, 590, 627 },
+        { 55, 627, 590, 627 },
+        { 645, 627, 590, 627 },
+      },
+    },
+  },
+  frames = {
+    {
+      source = 1,
+      cell = 1,
+      feet = 4,
+      anchors = { head = { 0.1613418530351438, 0.6038338658146964 } },
+    },
+    {
+      source = 1,
+      cell = 2,
+      feet = 2,
+      anchors = { head = { 0.20700636942675155, 0.597444089456869 } },
+    },
+    {
+      source = 1,
+      cell = 3,
+      feet = 1,
+      anchors = { head = { 0.23162939297124596, 0.5796178343949043 } },
+    },
+    {
+      source = 1,
+      cell = 4,
+      feet = 4,
+      anchors = { head = { 0.21019108280254772, 0.5926517571884984 } },
+    },
+    {
+      source = 1,
+      cell = 5,
+      feet = 1,
+      anchors = { head = { 0.062300319488817875, 0.6962616822429907 } },
+    },
+    { source = 1, cell = 6, feet = 1, anchors = { head = { 0.012422360248447228, 0.71875 } } },
+    {
+      source = 1,
+      cell = 7,
+      feet = 1,
+      anchors = { head = { 0.13665594855305463, 0.6174603174603175 } },
+    },
+    {
+      source = 1,
+      cell = 8,
+      feet = 1,
+      anchors = { head = { 0.18506493506493504, 0.5450310559006211 } },
+    },
+    {
+      source = 1,
+      cell = 9,
+      feet = 24,
+      anchors = { head = { -0.09105431309904155, 0.800653594771242 } },
+    },
+    {
+      source = 1,
+      cell = 10,
+      feet = 30,
+      anchors = { head = { 0.18000000000000005, 0.7704807817589576 } },
+    },
+    {
+      source = 1,
+      cell = 11,
+      feet = 37,
+      anchors = { head = { 0.18000000000000005, 0.7734559485530546 } },
+    },
+    {
+      source = 1,
+      cell = 12,
+      feet = 39,
+      anchors = { head = { 0.18000000000000005, 0.7747016393442623 } },
+    },
+    {
+      source = 1,
+      cell = 13,
+      feet = 40,
+      anchors = { head = { 0.07827476038338654, 0.839171974522293 } },
+    },
+    {
+      source = 1,
+      cell = 14,
+      feet = 38,
+      anchors = { head = { 0.03821656050955413, 0.8264331210191083 } },
+    },
+    {
+      source = 1,
+      cell = 15,
+      feet = 37,
+      anchors = { head = { 0.05271565495207664, 0.823248407643312 } },
+    },
+    {
+      source = 1,
+      cell = 16,
+      feet = 38,
+      anchors = { head = { 0.1273885350318471, 0.8455414012738852 } },
+    },
+    {
+      source = 2,
+      cell = 1,
+      feet = 32,
+      anchors = { head = { 0.16610169491525428, 0.7001594896331739 } },
+    },
+    {
+      source = 2,
+      cell = 2,
+      feet = 32,
+      anchors = { head = { 0.15762711864406775, 0.715311004784689 } },
+    },
+    {
+      source = 2,
+      cell = 3,
+      feet = 72,
+      anchors = { head = { 0.22033898305084743, 0.7679425837320574 } },
+    },
+    {
+      source = 2,
+      cell = 4,
+      feet = 72,
+      anchors = { head = { 0.15762711864406775, 0.7352472089314195 } },
+    },
+  },
+}

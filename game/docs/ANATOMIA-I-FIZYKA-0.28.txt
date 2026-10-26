@@ -9,7 +9,7 @@ Kontrola SHA-256 155 obrazów względem paczki 0.27: brak zmian. Broń ma jedyni
 łagodniejsze różnice między sąsiednimi próbkami pigmentu; alfa i obrys bez zmian.
 
 ARCHITEKTURA
-content/enemy_art i content/ability_art: źródła ilustracji i niezmienna rejestracja
+content/enemy_art (z arkuszy content/art/sheets/, plan v10 V7) i content/ability_art: źródła ilustracji i niezmienna rejestracja
 klatek. enemies/pose: wspólny opis pozy. Renderer tylko dopina uchwyt obrazu.
 Zmiana strefy trafienia nie przesuwa głowy w animacji.
 content/art/anatomy/*: części jako dane; id kształtu, strefa obrażeń i materiał
@@ -161,9 +161,11 @@ ROZBUDOWA
 Wariant na istniejącej ilustracji: Creature.define({ extends = ... }),
 ewentualnie appearance.regions (własna adnotacja tych samych klatek),
 attacks/move.evade/appearance.art/evadeArt (połączenie istniejących ataków
-i uników). Nowa istota z nowym atlasem: PNG + content/art/sources.lua,
-enemy_art (klatki/rejestracja/stopy), regiony dowolnej liczby części każdej
-klatki, BAKE-HIT-MASKS.ps1, punkty źródłowe i --hit-review. Nowy materiał:
+i uników). Nowa istota z nowym atlasem (plan v10 V7): PNG, arkusz
+content/art/sheets/<id>.lua z narzędzia (EXPORT-SHEET.ps1), anatomia z warstw
+części lub edytora regionów (EXPORT-ANATOMY.ps1, ANATOMY-EDITOR.ps1),
+BAKE-HIT-MASKS.ps1, punkty źródłowe, --hit-review i CHECK-CREATURE.ps1.
+Nowy materiał:
 jeden wpis w content/ballistic_surfaces (wound, guard, penetrable, debris).
 Nowa broń: definicja Weapon; nowy mechanizm tylko przy innej zasadzie
 działania. Bez if kind == nowy_potwor w matematyce pocisku. Niszczenie

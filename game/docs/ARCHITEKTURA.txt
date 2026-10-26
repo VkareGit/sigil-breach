@@ -345,12 +345,18 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   appearance.art (atak -> arkusz) i appearance.evadeArt. Nowy materiał: wpis
   w content/ballistic_surfaces.lua (wound, guard, penetrable, debris) — strzał
   i efekty czytają politykę, nigdy nazwy. Masa i promień: ruch i kontakt ciał.
-  Demon z NOWYM atlasem: dodatkowo (kolejno, szczegóły w ANATOMIA-I-FIZYKA):
-  PNG + content/art/sources.lua (rozmiar), enemy_art (komórki/rejestracja,
-  stopy), adnotacja anatomii każdej klatki (Author.part/cellPolygon/fromPixels),
+  Demon z NOWYM atlasem (plan v10 V7; kroki i czasy: DEVELOPMENT): PNG,
+  arkusz content/art/sheets/<id>.lua z narzędzia (EXPORT-SHEET.ps1 -Spec:
+  cięcia w przerwach, stopy, kotwice, kolejność) i jego linia w
+  sheets/index.lua; klatki, wpis enemy_art, pozy spoczynku i rozmiary
+  wylicza content/art/atlases.lua. Anatomia z warstw części
+  (EXPORT-ANATOMY.ps1 -Legend, qa/art/anatomy_layers.lua) albo z edytora
+  regionów (ANATOMY-EDITOR.ps1, model qa/art/anatomy_editor.lua), jako dane
+  (qa/art/anatomy_export.lua) i linia w content/art/anatomy/index.lua;
   BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem), punkty anatomiczne
-  qa/data/hit_landmarks.lua, --hit-review, testy anatomy-data i hit-landmarks.
-  Bez narzędzia do rysowania regionów to ok. 28 klatek ręcznych wielokątów.
+  qa/data/hit_landmarks.lua, --hit-review. CHECK-CREATURE.ps1 <id> wypisuje
+  brakujące elementy. Sprawdzone w tests/cases/creature_pipeline.lua (demon
+  z nowym atlasem z samych danych i wyników narzędzi).
   Rodzaje ataków: enemies/melee_kinds.lua (lunge, charge, leap) i
   ranged_kinds.lua (strike, pool, fan, bolt), wspólny kontakt
   enemies/attack_contact.lua, lot ciała enemies/flight.lua; enemies/actions.lua

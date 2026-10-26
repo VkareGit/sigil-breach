@@ -502,6 +502,35 @@ Odbiór:
   narzędzi, bez zmian w kodzie gry;
 - opis kroków i zmierzony czas pracy w DEVELOPMENT.
 
+Wykonano (2026-10-26):
+- Arkusz atlasu: jeden plik danych na atlas, `content/art/sheets/<id>.lua`
+  (źródła z cięciami, kolejność klatek, stopy w pikselach, kotwice, oddech
+  spoczynku), lista w `sheets/index.lua`. `content/art/atlases.lua`
+  wylicza z nich klatki (`enemy_frames.lua`: 2781 → 5 wierszy, sam
+  wynik), wpisy `enemy_art`, pozy `enemy_idle` i rozmiary `art/sources`
+  (`content/art/sheet.lua`); `Atlases.register` przyjmuje atlas w biegu.
+- Narzędzie arkusza (`qa/art/sheet_tool.lua`, `EXPORT-SHEET.ps1`): mierzy
+  stopy i rozmiary z PNG; dla nowego atlasu znajduje cięcia w przezroczystych
+  przerwach (na atlasie buer odtwarza ręczne cięcia z dokładnością do 1 px)
+  i proponuje kotwicę głowy.
+- Anatomia: indeks `content/art/anatomy/index.lua`; eksport adnotacji jako
+  danych (`qa/art/anatomy_export.lua`, `EXPORT-ANATOMY.ps1`); edytor
+  regionów w LÖVE (`tools/art/anatomy_editor`, `ANATOMY-EDITOR.ps1`,
+  model `qa/art/anatomy_editor.lua`: wierzchołki, części, strefa,
+  materiał, kotwica, cofanie); generacja regionów z masek części
+  (`qa/art/anatomy_layers.lua`, `EXPORT-ANATOMY.ps1 -Legend`). Obie drogi
+  kończą się dotychczasowym `BAKE-HIT-MASKS.ps1`.
+- `CHECK-CREATURE.ps1 <id>` (`qa/art/creature_check.lua`): definicja,
+  arkusz, obrazy, klatki dla układu, stopy, anatomia, maski związane ze
+  źródłem, punkty, galeria, bestiariusz, fale, grafika ataków; OK / MISSING.
+- Odbiór:
+
+  | Warunek | Wynik |
+  |---|---|
+  | obecne demony z narzędzia: te same adnotacje i bit w bit te same maski | 6 arkuszy z narzędzia daje klatki identyczne co do bitu z dawnym `enemy_frames.lua` (152 klatki); 8 adnotacji eksportowanych odczytuje się dokładnie; pełny rebake 188 klatek daje te same dane masek; test `creature-pipeline` przelicza 18 klatek bit w bit |
+  | anatomy-data i hit-landmarks przechodzą | tak (TEST All: 4103 sprawdzenia, złote skróty bez zmian, 596 renderów identycznych) |
+  | demon z nowym atlasem samymi danymi i wynikami narzędzi | test `creature-pipeline`: nowe obrazy, arkusz zaproponowany przez narzędzie (20 klatek), anatomia z masek części, maski upieczone, definicja; CHECK-CREATURE: komplet atlasu, klatek, stóp, anatomii, masek i grafiki; animuje się, rysuje, strzał w głowę trafia w głowę |
+  | kroki i zmierzony czas w DEVELOPMENT | DEVELOPMENT „Nowy demon z nowym atlasem”: narzędzia 0,1 s / 0,16 s / 5,5 s na 20 klatek, skrypty 2–30 s; ręcznie zostają maski części i przegląd kotwic |
 ## Kolejność i zależności
 
 V0 → V1 → V2 → V3 → V4 → V5 → V6 → V7

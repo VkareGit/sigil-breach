@@ -2,20 +2,14 @@
 -- Each authored frame lists arbitrary stable part IDs with independent damage zones
 -- and materials. Polygons use local UV, top-left origin; last matching part wins.
 -- A surface with hittable=false is decorative; zone=false can still block a shot.
--- layouts: by annotation id; an atlas is annotated under its own id, and a
--- creature may name another annotation of the same frames (appearance.regions).
+-- layouts: by annotation id (content/art/anatomy/index.lua); an atlas is
+-- annotated under its own id, and a creature may name another annotation of
+-- the same frames (appearance.regions).
 local Materials = require('src.content.ballistic_surfaces')
 local Sequences = require('src.content.ability_art')
 local resolved = setmetatable({}, { __mode = 'k' })
 local Anatomy = {
-  layouts = {
-    imp = require('src.content.art.anatomy.imp'),
-    armored = require('src.content.art.anatomy.armored'),
-    stolas = require('src.content.art.anatomy.stolas'),
-    buer = require('src.content.art.anatomy.buer'),
-    boss = require('src.content.art.anatomy.boss'),
-    furfur = require('src.content.art.anatomy.furfur'),
-  },
+  layouts = {},
   abilities = setmetatable({}, {
     __index = function(_, id)
       local entry = Sequences.entries[id]
@@ -30,6 +24,15 @@ local Anatomy = {
     end,
   }),
 }
+local annotations = require('src.content.art.anatomy.index')
+local ids = {}
+for id in pairs(annotations) do
+  ids[#ids + 1] = id
+end
+table.sort(ids)
+for _, id in ipairs(ids) do
+  Anatomy.layouts[id] = require(annotations[id])
+end
 local ZONES = { head = true, torso = true, lower = true }
 local function polygonProblem(poly)
   if type(poly) ~= 'table' or #poly < 6 or #poly % 2 ~= 0 then

@@ -42,18 +42,35 @@ local captures = {
   ['--startup-fixture'] = true,
   ['--resource-plateau'] = true,
 }
+-- The creature pipeline tools (plan v10 V7), each --name=value: an atlas id,
+-- an annotation id, a spec or legend file, a creature id.
+local tools = {
+  ['--sheet-export'] = true,
+  ['--sheet-spec'] = true,
+  ['--anatomy-export'] = true,
+  ['--anatomy-layers'] = true,
+  ['--check-creature'] = true,
+}
 function Q.captureFlag(flag)
   return type(flag) == 'string'
-    and (not not captures[normalize(flag)] or flag:match('^%-%-suite=') ~= nil)
+    and (
+      not not captures[normalize(flag)]
+      or flag:match('^%-%-suite=') ~= nil
+      or tools[flag:match('^(%-%-[%w-]+)=') or ''] == true
+    )
 end
 function Q.new(arguments)
-  local q = setmetatable({ flags = {}, capture = false, isolated = false }, Q)
+  local q = setmetatable({ flags = {}, values = {}, capture = false, isolated = false }, Q)
   for _, flag in pairs(arguments or {}) do
     if type(flag) == 'string' then
       flag = normalize(flag)
       q.flags[flag] = true
       -- --suite=<id>: one registered test suite (tests/suite.lua), for work on it.
       q.suite = q.suite or flag:match('^%-%-suite=(.+)$')
+      local name, value = flag:match('^(%-%-[%w-]+)=(.+)$')
+      if name and tools[name] then
+        q.values[name] = value
+      end
       q.capture = q.capture or Q.captureFlag(flag)
     end
   end
@@ -97,6 +114,13 @@ function Q:runEarly()
     local count = require('qa.bake_hit_masks').run(self.output .. '/hit-masks.lua')
     print('Baked ' .. count .. ' painted frames; source images unchanged.')
     love.event.quit(0)
+    return true
+  end
+  if next(self.values) then
+    -- The creature pipeline tools write into the QA output; the scripts
+    -- (EXPORT-SHEET.ps1, EXPORT-ANATOMY.ps1, CHECK-CREATURE.ps1) install them.
+    local missing = require('qa.art.pipeline').run(self.values, self.output)
+    love.event.quit(missing > 0 and 1 or 0)
     return true
   end
   if self:has('--audio-export') then

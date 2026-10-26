@@ -29,6 +29,15 @@ function FrescoEnemies.load(kind, resources)
   end
   return image, Schema.copy(layout.feet), Schema.copy(layout.frames), images, mirrors, supplements
 end
+-- One atlas into the renderer (an atlas registered after it was built, a
+-- mod, a test: content/art/atlases.lua).
+function FrescoEnemies.add(renderer, kind)
+  local image, feet, frames, images, mirrors, supplements =
+    FrescoEnemies.load(kind, renderer.resources)
+  renderer.animations[kind], renderer.feet[kind], renderer.frames[kind] = image, feet, frames
+  renderer.frameImages[kind], renderer.frameMirrors[kind] = images, mirrors
+  renderer.frescoEnemySupplements[kind] = supplements
+end
 function FrescoEnemies.loadAll(renderer)
   renderer.animations = renderer.animations or {}
   renderer.feet = renderer.feet or {}
@@ -37,11 +46,7 @@ function FrescoEnemies.loadAll(renderer)
   renderer.frameMirrors = renderer.frameMirrors or {}
   renderer.frescoEnemySupplements = {}
   for _, kind in ipairs(FrescoEnemies.kinds) do
-    local image, feet, frames, images, mirrors, supplements =
-      FrescoEnemies.load(kind, renderer.resources)
-    renderer.animations[kind], renderer.feet[kind], renderer.frames[kind] = image, feet, frames
-    renderer.frameImages[kind], renderer.frameMirrors[kind] = images, mirrors
-    renderer.frescoEnemySupplements[kind] = supplements
+    FrescoEnemies.add(renderer, kind)
   end
 end
 return FrescoEnemies

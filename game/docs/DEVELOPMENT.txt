@@ -18,6 +18,10 @@ POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
   .\FORMAT.ps1                  sformatuj aktywny kod Lua
   .\FORMAT.ps1 -Check           sprawdź styl bez zapisywania zmian
   .\BAKE-HIT-MASKS.ps1           przelicz maski po zmianie ilustracji/klatek
+  .\EXPORT-SHEET.ps1 <id>        arkusz atlasu: zmierz stopy i rozmiary (-Spec: nowy)
+  .\EXPORT-ANATOMY.ps1 <id>      adnotacja jako dane (-Legend: z warstw części)
+  .\ANATOMY-EDITOR.ps1 <id>      edytor regionów anatomii na klatkach
+  .\CHECK-CREATURE.ps1 <id>      wszystkie elementy demona: OK / MISSING
   .\TEST.ps1 -Suite Architecture składnia, zależności i granice modułów
   .\TEST.ps1 -Suite Mechanics    mechanika, zasoby i kontrakty aplikacji
   .\TEST.ps1 -Suite Input        prawdziwe callbacki, menu i zapis
@@ -137,7 +141,8 @@ Strzał i przeładowanie:
 Przeciwnik / boss:
   content/enemies.lua opisuje ciało i listę ataków. enemies/actions.lua wykonuje
   ataki, animation.lua dobiera fazę, pose.lua jest wspólne dla trafień i obrazu.
-  content/enemy_art.lua i ability_art.lua rejestrują ilustracje; regiony części
+  Atlasy: arkusze content/art/sheets/ (enemy_art, enemy_frames i enemy_idle
+  są ich wynikiem); ability_art rejestruje arkusze umiejętności; regiony części
   są w content/art/anatomy/*.lua (id, zone, material, polygon, anchors) w UV
   klatki; inne jednostki tylko przez Author.fromPixels/fromCell/cellPolygon.
   Rozmiary obrazów źródłowych: content/art/sources.lua (test anatomy-data
@@ -186,6 +191,45 @@ Zapis:
   duplikat, brak rekordu slotów lub niezgodne użycia są odrzucane.
   Identity sigil-breach-prototype i dwie generacje zapisu zachowano.
   Nie zmieniaj formatu bez migracji i testów uszkodzonego/starego zapisu.
+
+Nowy demon z nowym atlasem (plan v10 V7):
+  Atlas to jeden plik danych arkusza: content/art/sheets/<id>.lua (źródła
+  z cięciami, kolejność klatek, stopy, kotwice, oddech pozy spoczynku).
+  Klatki (content/art/enemy_frames.lua), wpis katalogu (enemy_art), pozy
+  spoczynku (enemy_idle) i rozmiary obrazów (art/sources) są jego wynikiem
+  (content/art/atlases.lua), nie pisze się ich ręcznie. Kroki:
+  1. PNG atlasu akcji w układzie extended (6 x 4) albo compact (4 x 4)
+     i arkusz 2 x 2 czterech póz spoczynku, w assets/art/.
+  2. Specyfikacja (plik Lua: { id, size, idle?, sources = { { path,
+     columns, rows, scale?, idle? } } }) i .\EXPORT-SHEET.ps1 -Spec <plik>:
+     narzędzie znajduje cięcia w przezroczystych przerwach, mierzy stopy,
+     proponuje kotwicę głowy (szczyt sylwetki). Dopisz moduł arkusza do
+     content/art/sheets/index.lua.
+  3. Anatomia jedną z dwóch dróg:
+     - warstwy części: maska na część (PNG wielkości źródła, nieprzezroczyste
+       = część) i legenda ({ id, atlas, body, parts = { { id, zone,
+       material, hittable?, masks = { [obraz] = maska } } } });
+       .\EXPORT-ANATOMY.ps1 -Legend <plik> -Install;
+     - edytor regionów: .\ANATOMY-EDITOR.ps1 <id> (przeciąganie wierzchołków,
+       I/Del, nowe części, strefa, materiał, kotwica, cofanie; S zapisuje
+       work/anatomy/<id>.lua), potem kopia do content/art/anatomy/.
+     Dopisz moduł do content/art/anatomy/index.lua. Istniejącą adnotację
+     zapisze jako dane .\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
+  4. .\BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem).
+  5. Definicja: content/creatures/<id>.lua (appearance.layout, klucze
+     tekstów nazwy i karty bestiariusza), id w A.creatures; fale w
+     content/waves.lua; punkty anatomiczne w qa/data/hit_landmarks.lua.
+  6. .\CHECK-CREATURE.ps1 <id> wypisuje każdy brakujący element (definicja,
+     arkusz, obrazy, klatki, stopy, anatomia, maski, punkty, galeria,
+     bestiariusz, fale, grafika ataków); kod wyjścia 0 = komplet.
+  Zmierzony czas narzędzi (test creature-pipeline, 20 klatek nowego atlasu):
+  arkusz 0,1 s, anatomia z warstw 0,16 s, maski 20 klatek 5,5 s.
+  Skrypty z izolowanym uruchomieniem gry: BAKE-HIT-MASKS.ps1 (188 klatek)
+  29,3 s, CHECK-CREATURE.ps1 2,7 s, EXPORT-SHEET.ps1 2,5 s,
+  EXPORT-ANATOMY.ps1 2,3 s. Praca ręczna to już tylko namalowanie masek
+  części (przy dwóch częściach i dwóch obrazach: cztery maski) i przegląd
+  kotwic w edytorze, zamiast ok. 28 klatek ręcznych wielokątów
+  i ręcznego enemy_frames.lua.
 
 Wyposażenie i nowe rodzaje dostawy:
   Abilities.define(def) waliduje także Action i zakres całkowitych użyć;

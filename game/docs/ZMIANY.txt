@@ -96,6 +96,16 @@ V6 — otwarta prezentacja (2026-10-26)
 - Rozgrywka, balans i wygląd bez zmian; 596 renderów identycznych, skróty
   v2 bit w bit.
 
+V7 — potok treści dla nowych demonów (2026-10-26)
+- Każdy atlas demona to jeden plik arkusza (cięcia, kolejność, stopy,
+  kotwice); klatki gry są jego wynikiem.
+- Narzędzia: EXPORT-SHEET (arkusz z obrazów), EXPORT-ANATOMY (anatomia jako
+  dane albo z masek części), ANATOMY-EDITOR (edytor regionów), CHECK-CREATURE
+  (lista braków demona).
+- Próba: demon z nowym atlasem wchodzi do gry z samych danych i wyników
+  narzędzi.
+- Rozgrywka, balans i wygląd bez zmian; maski i klatki bit w bit, 596
+  renderów identycznych, skróty v2 bit w bit.
 
 ########################################################################
 ZMIANY-0.32.txt
