@@ -41,6 +41,7 @@ local captures = {
   ['--startup-check'] = true,
   ['--startup-fixture'] = true,
   ['--resource-plateau'] = true,
+  ['--v11-reference'] = true,
 }
 -- The creature pipeline tools (plan v10 V7), each --name=value: an atlas id,
 -- an annotation id, a spec or legend file, a creature id.
@@ -169,6 +170,9 @@ function Q:run(G, renderer, getGame, settings)
   elseif self:has('--step-study') then
     -- Frame-rate and physics-step sensitivity (qa/step_study.lua).
     require('qa.step_study').run(G, self.output, self:has('--qa-smoke'))
+  elseif self:has('--v11-reference') then
+    -- The 0.33 references of plan v11 E0 (qa/v11_reference.lua).
+    require('qa.v11_reference').run(G, self.output)
   elseif self:has('--core-measure') then
     -- Core costs before/after a change (qa/core_measure.lua).
     require('qa.core_measure').run(G, self.output, self:has('--qa-smoke'))

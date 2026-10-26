@@ -228,6 +228,91 @@ local scalingRatchets = {
       return playerText(strings)
     end,
   },
+  -- Plan v11 (E0): the assumptions the stages E1-E5 remove.
+  {
+    name = 'frame-numbers',
+    label = 'FRAME NUMBERS OUTSIDE SHEETS',
+    hint = 'ask the sheet for a named pose (plan v11 E1)',
+    layers = { 'enemies' },
+    exempt = {},
+    -- The layout flag a pose is chosen by (imp, extended) and every read of
+    -- a creature's painted layout.
+    count = function(code)
+      local count = 0
+      for _, pattern in ipairs({ '%f[%w_]imp%f[^%w_]', '%f[%w_]extended%f[^%w_]', '%.layout%s*==' }) do
+        for _ in code:gmatch(pattern) do
+          count = count + 1
+        end
+      end
+      return count
+    end,
+  },
+  {
+    name = 'mode-state',
+    label = 'MODE STATE ON THE SESSION',
+    hint = 'keep it with its owner: the encounter, the world, the mode (plan v11 E2)',
+    exempt = {},
+    count = function(code)
+      return fieldAccesses(
+        code,
+        { 'seals', 'secretFound', 'rank', 'bestScore', 'bossSpawned', 'bossDead' }
+      )
+    end,
+  },
+  {
+    name = 'actor-state',
+    label = 'ACTOR STATE ON THE SESSION',
+    hint = 'keep it on the actor (plan v11 E3)',
+    exempt = {},
+    count = function(code)
+      return fieldAccesses(code, {
+        'weapon',
+        'cooldown',
+        'reload',
+        'reloadWeapon',
+        'reloadStage',
+        'reloadDuration',
+        'reloadOffset',
+        'fireBuffer',
+        'fireCommand',
+        'shots',
+        'hits',
+        'kills',
+        'score',
+        'combo',
+        'comboTimer',
+        'damageTaken',
+      })
+    end,
+  },
+  {
+    name = 'viewer-in-simulation',
+    label = 'VIEWER IN SIMULATION',
+    hint = 'ask the observer of the query (plan v11 E4)',
+    layers = simulationAndContent,
+    exempt = {},
+    count = function(code)
+      local count = 0
+      for _ in code:gmatch('%f[%w_]Roles%.viewer%f[^%w_]') do
+        count = count + 1
+      end
+      return count
+    end,
+  },
+  {
+    name = 'one-player-presentation',
+    label = 'PRESENTATION ASSUMES ONE PLAYER',
+    hint = 'read the presentation context (plan v11 E5)',
+    layers = { 'app', 'audio', 'feedback', 'render', 'ui' },
+    exempt = {},
+    count = function(code)
+      local count = fieldAccesses(code, { 'player' })
+      for _ in code:gmatch('%f[%w_]Roles%.controlled%f[^%w_]') do
+        count = count + 1
+      end
+      return count
+    end,
+  },
 }
 local function inScope(rule, relative)
   if relative:sub(1, 4) ~= 'src/' then

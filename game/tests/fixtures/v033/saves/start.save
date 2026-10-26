@@ -1,0 +1,5 @@
+SIGIL09
+expedition
+1
+2129006611
+{["run"]={["data"]={["checkpoint"]={["abilities"]={["powder"]=2},["abilityLoadout"]={[1]="powder"},["armor"]=40,["essence"]=0,["loadout"]={[1]="exorcist",[2]="judge"},["weapon"]=1,["weapons"]={["exorcist"]={["mag"]=2,["reserve"]=28},["judge"]={["mag"]=6,["reserve"]=24}}},["claimed"]={},["damage"]=0,["deaths"]=0,["elapsed"]=0,["fragment"]=false,["glyph"]="none",["inventory"]={["abilities"]={["powder"]=2},["abilityLoadout"]={[1]="powder"},["armor"]=40,["essence"]=0,["loadout"]={[1]="exorcist",[2]="judge"},["weapon"]=1,["weapons"]={["exorcist"]={["mag"]=2,["reserve"]=28},["judge"]={["mag"]=6,["reserve"]=24}}},["kills"]=0,["mode"]="expedition",["owned"]={["choke"]=false,["pierce"]=false},["phase"]="preparing",["score"]=0,["secret"]=false,["secretOpen"]=false,["wallet"]=100,["wave"]=1},["version"]=1}}

@@ -1,0 +1,5 @@
+SIGIL09
+expedition
+2
+772613273
+{["run"]={["data"]={["checkpoint"]={["abilities"]={["powder"]=2},["abilityLoadout"]={[1]="powder"},["armor"]=40,["essence"]=0,["loadout"]={[1]="exorcist",[2]="judge"},["weapon"]=2,["weapons"]={["exorcist"]={["mag"]=2,["reserve"]=24},["judge"]={["mag"]=6,["reserve"]=14}}},["claimed"]={[1]="1_1",[2]="1_2",[3]="1_3",[4]="1_4",[5]="1_5",[6]="1_6",[7]="1_7"},["damage"]=0,["deaths"]=0,["elapsed"]=11.150000000000007,["fragment"]=false,["glyph"]="pierce",["inventory"]={["abilities"]={["powder"]=2},["abilityLoadout"]={[1]="powder"},["armor"]=40,["essence"]=0,["loadout"]={[1]="exorcist",[2]="judge"},["weapon"]=2,["weapons"]={["exorcist"]={["mag"]=2,["reserve"]=24},["judge"]={["mag"]=6,["reserve"]=14}}},["kills"]=7,["mode"]="expedition",["owned"]={["choke"]=false,["pierce"]=true},["phase"]="preparing",["score"]=1200,["secret"]=false,["secretOpen"]=false,["wallet"]=92,["wave"]=2},["version"]=1}}

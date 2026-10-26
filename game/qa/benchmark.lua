@@ -575,6 +575,11 @@ function B.run(output, smoke)
   -- These passes exercise the complete shipped frame, in addition to the
   -- historical world-only measurements above. Timers end before bookkeeping.
   r.present = presentToCanvas
+  -- SIGIL_BENCH_WARMUP: discarded frames before each prepared scene is
+  -- sampled (plan v11 measurement protocol: 300); unset keeps the defaults.
+  local warmup = tonumber(os.getenv('SIGIL_BENCH_WARMUP') or '')
+  -- SIGIL_BENCH_FRAMES: sampled frames of each prepared scene (default 240).
+  local sampled = tonumber(os.getenv('SIGIL_BENCH_FRAMES') or '')
   local function measurements()
     return { update = {}, world = {}, ui = {}, submit = {}, readback = {}, total = {} }
   end
@@ -653,11 +658,11 @@ function B.run(output, smoke)
       end
     end
     app:adopt(game)
-    for _ = 1, n(30, 2) do
+    for _ = 1, n(warmup or 30, 2) do
       completeFrame(false)
     end
     local samples, prior = measurements(), lg.getStats()
-    for i = 1, n(240, 4) do
+    for i = 1, n(sampled or 240, 4) do
       sample(samples, i, false)
     end
     summarize(label, samples, prior)
@@ -773,8 +778,11 @@ function B.run(output, smoke)
     app:adopt(crowd)
     finishLoading()
     completeFrame(false)
+    for _ = 1, n(warmup or 0, 2) do
+      completeFrame(true)
+    end
     local samples, prior = measurements(), lg.getStats()
-    for i = 1, n(240, 4) do
+    for i = 1, n(sampled or 240, 4) do
       sample(samples, i, true)
     end
     summarize('prepared_population_' .. count .. '_live', samples, prior)

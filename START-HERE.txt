@@ -13,7 +13,8 @@ PLAN WYKONANY: game\docs\PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25, wykonany
 Plan v9 (2026-10-24) pozostaje źródłem kontraktów fundamentu 0.32.
 PLAN W REALIZACJI: game\docs\PLAN-FUNDAMENT-v11.md (przyjęty 2026-10-26; luki C1–C5:
 pozy, stan trybów, stan aktora, obserwator geometrii, kontekst prezentacji;
-etapy E0–E6, docelowo 0.34).
+etapy E0–E6, docelowo 0.34; E0 wykonany: game\docs\PLAN-v11-E0-RAPORT.md,
+referencje 0.33 w game\tests\fixtures\v033\, pomiar: MEASURE.ps1).
 Kontrakty trafień: game\docs\PLAN-ROZWOJU-v7.md; B2 wymaga oceny gracza.
 KONTEKST DLA NOWEGO CZATU: docs\KONTEKST.txt
 PODRĘCZNIK KODU: docs\podrecznik-codex (opis każdego pliku; w toku, poza gitem)

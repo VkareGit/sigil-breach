@@ -375,6 +375,11 @@ Suite.registry = {
     title = 'World objects by registration, HUD slots, switching languages (plan v10 V6)',
     module = 'tests.cases.open_presentation',
   },
+  {
+    id = 'v033-reference',
+    title = 'The 0.33 references: state projection, poses, kills and saves (plan v11 E0)',
+    module = 'tests.cases.v033_reference',
+  },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }
 

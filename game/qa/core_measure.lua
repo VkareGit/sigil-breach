@@ -260,12 +260,17 @@ function M.run(G, output, smoke)
   local AI = require('src.enemies.ai')
   g = field(G, population)
   g.testField.invincible = true
-  for _ = 1, n(60, 2) do
+  -- SIGIL_CORE_WARMUP: discarded steps first (plan v11 measurement protocol: 300).
+  for _ = 1, n(tonumber(os.getenv('SIGIL_CORE_WARMUP') or '') or 60, 2) do
     g:update(1 / 120, {})
   end
-  local stepMedian, stepTail = spread(n(240, 4), function()
-    g:update(1 / 120, {})
-  end)
+  -- SIGIL_CORE_STEPS: measured steps (the protocol takes more for a stable median).
+  local stepMedian, stepTail = spread(
+    n(tonumber(os.getenv('SIGIL_CORE_STEPS') or '') or 240, 4),
+    function()
+      g:update(1 / 120, {})
+    end
+  )
   local separationMedian = spread(n(240, 4), function()
     AI.separate(g, 1 / 120)
   end)
