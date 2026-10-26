@@ -71,31 +71,42 @@ function Tests.run(G)
     for index = 1, 5 do
       local id = 'trial_caption_' .. index
       local def = Schema.copy(Enemies.imp)
-      def.id, def.name = id, 'STRAŻNIK ŻELAZNYCH WRÓT I ZAPOMNIANYCH PRZYSIĄG ' .. index
+      Fixtures.words({
+        [id] = 'STRAŻNIK ŻELAZNYCH WRÓT I ZAPOMNIANYCH PRZYSIĄG ' .. index,
+        trial_caption_text = 'Próbuje zamknąć wszystkie drogi ucieczki; śledź jego ramiona i odległość.',
+        trial_caption_tip = 'Zachowaj nabój na przerwanie zamachu i odejdź w stronę wolnej przestrzeni.',
+      })
+      def.id, def.name = id, id
       def.catalog.bestiary = {
         order = 4 + index,
         color = 'red',
-        text = 'Próbuje zamknąć wszystkie drogi ucieczki; śledź jego ramiona i odległość.',
-        tip = 'Zachowaj nabój na przerwanie zamachu i odejdź w stronę wolnej przestrzeni.',
+        text = 'trial_caption_text',
+        tip = 'trial_caption_tip',
       }
       def.catalog.field = nil
       Enemies[id], Enemies.creatures[#Enemies.creatures + 1], ids[#ids + 1] = def, id, id
     end
     for index = 1, 7 do
       local offer = Schema.copy(Shop.offers[3])
-      offer.id, offer.name =
-        'trial_offer_' .. index, 'PRZYWRÓCENIE OCHRONY STRAŻNIKA ŻELAZNEJ BRAMY ' .. index
-      offer.description =
-        'Uzupełnia ochronę przed kolejnym ciosem; koszt dotyczy wyłącznie brakującej części osłony.'
+      local id = 'trial_offer_' .. index
+      Fixtures.words({
+        [id] = 'PRZYWRÓCENIE OCHRONY STRAŻNIKA ŻELAZNEJ BRAMY ' .. index,
+        trial_offer_description = 'Uzupełnia ochronę przed kolejnym ciosem; koszt dotyczy wyłącznie brakującej części osłony.',
+      })
+      offer.id, offer.name, offer.description = id, id, 'trial_offer_description'
       Shop.offers[#Shop.offers + 1] = offer
     end
     for index = 1, 5 do
       local id = 'trial_label_gun_' .. index
+      Fixtures.words({
+        [id] = 'SĘDZIA ZAPOMNIANYCH ŚLUBÓW ' .. index,
+        [id .. '_tab'] = 'ŻELAZNY REWOLWER STRAŻNIKA ' .. index,
+      })
       Weapons.define({
         extends = Weapons.get('judge'),
         id = id,
-        name = 'SĘDZIA ZAPOMNIANYCH ŚLUBÓW ' .. index,
-        hud = { tab = 'ŻELAZNY REWOLWER STRAŻNIKA ' .. index },
+        name = id,
+        hud = { tab = id .. '_tab' },
       })
       guns[#guns + 1] = id
     end

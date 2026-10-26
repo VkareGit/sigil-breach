@@ -4,6 +4,7 @@ local Archetypes = require('src.content.enemies')
 local Corpse = require('src.enemies.corpse')
 local ActionPhase = require('src.enemies.action_phase')
 local Roles = require('src.core.roles')
+local Capabilities = require('src.session.capabilities')
 -- The bearing from body e to the viewer (core/roles.lua): what a
 -- billboard turns to and what its back frames are judged against.
 local function viewerYaw(g, e)
@@ -29,7 +30,7 @@ function Anim.frameCount(kind)
   return Idle.total(kind)
 end
 function Anim.pose(g, e)
-  if g.testField and e.previewFrame then
+  if e.previewFrame and Capabilities.posed(g) then
     return e.previewFrame, 0, 0, 1, 1
   end
   local frame, bounce, lean, sx, sy = 1, 0, 0, 1, 1

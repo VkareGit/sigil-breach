@@ -31,6 +31,9 @@
 --   hud(g)              the status bar's data { glyph, wallet, echo,
 --                       progress, fighting }; a mode with none draws the
 --                       classic arena's HUD (ui/screens/hud.lua)
+--   runView(g), fieldView(g)  read-only views of its run and its proving
+--                       ground for the screens (run/mode_views.lua)
+--   posed(g)            its targets hold their catalogue pose
 -- The application issues the player's ones through the session (Game:act),
 -- so the command journal records them.
 -- Every session names its mode (g.mode: Game.new, the proving ground); the
@@ -47,6 +50,7 @@ local Id = require('src.core.id')
 local Views = require('src.run.mode_views')
 local Pools = require('src.session.world')
 local Spawn = require('src.session.spawn')
+local Text = require('src.content.text')
 local function field()
   return require('src.run.test_field')
 end
@@ -92,12 +96,23 @@ Modes:register('field', {
     field().init(g)
   end,
   visit = function(g, previous)
-    g.view.fieldReturnLabel = previous.state == 'menu' and 'MAIN MENU'
-      or (previous.state == 'settings' and 'BACK TO SETTINGS' or 'BACK TO EXPEDITION')
+    -- Text keys (content/text.lua).
+    g.view.fieldReturnLabel = previous.state == 'menu' and 'return_menu'
+      or (previous.state == 'settings' and 'return_settings' or 'return_expedition')
   end,
-  worldView = Views.fieldWorld,
-  tools = Views.fieldTools,
+  worldView = function(g)
+    return Views.fieldWorld(g, g.run)
+  end,
+  tools = function(g)
+    return Views.fieldTools(g, g.testField)
+  end,
   objective = Views.fieldObjective,
+  runView = function(g)
+    return Views.run(g, g.run)
+  end,
+  fieldView = function(g)
+    return Views.field(g, g.testField)
+  end,
   weaponModifier = function(g)
     return g.run.glyph
   end,
@@ -105,6 +120,10 @@ Modes:register('field', {
     return g.run.phase == 'preparing'
   end,
   policy = { phased = true, freezable = true, invincible = true },
+  -- Its targets hold the catalogue pose they were given.
+  posed = function()
+    return true
+  end,
   test = function(g)
     return g.testField ~= nil
   end,
@@ -172,8 +191,15 @@ Modes:register('field', {
 -- The expedition: waves, shrine, shop and saves.
 Modes:register('expedition', {
   session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
-  worldView = Views.expeditionWorld,
-  objective = Views.expeditionObjective,
+  worldView = function(g)
+    return Views.expeditionWorld(g, g.run)
+  end,
+  objective = function(g)
+    return Views.expeditionObjective(g, g.run)
+  end,
+  runView = function(g)
+    return Views.run(g, g.run)
+  end,
   weaponModifier = function(g)
     return g.run.glyph
   end,
@@ -225,7 +251,7 @@ Modes:register('classic', {
   end,
   start = function(g)
     g.state = 'playing'
-    g:notify('Three courts. Three seals. One way out.', 4)
+    g:notify(Text.get('classic_start'), 4)
     Presentation.capture(g, true)
   end,
   progress = function(g)
@@ -235,6 +261,15 @@ Modes:register('classic', {
   interact = Interactions.classicInteract,
   context = Interactions.classicContext,
 })
+-- A session that names no mode (a hand-made record) is the first whose
+-- test holds (session/capabilities.lua asks).
+Capabilities.recognise = function(g)
+  for id, mode in Modes:each() do
+    if mode.test and mode.test(g) then
+      return id
+    end
+  end
+end
 -- The mode a new session is built for (Game.new(kind)).
 Modes.aliases = { descent = 'expedition' }
 -- Construction and replay accept the registered id. Only historic public

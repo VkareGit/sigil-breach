@@ -7,16 +7,17 @@
 local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Action = require('src.content.defs.action')
+local Text = require('src.content.text')
 local Ability = {}
 Ability.schema = Schema:new('ability', {
   id = { type = 'string', required = true },
-  name = { type = 'string', required = true },
-  tag = { type = 'string', required = true, desc = 'its word on the HUD key (Q CHARGE)' },
+  name = { type = 'string', required = true, desc = 'text key' },
+  tag = { type = 'string', required = true, desc = 'text key: its word on the HUD key (Q CHARGE)' },
   hands = { type = 'string', desc = 'equipment hands sequence (content/equipment_art.lua)' },
   action = { type = 'table', required = true, desc = 'Action.build(...): delivery and payload' },
   capacity = { type = 'number', required = true, min = 1, desc = 'uses carried at most' },
   start = { type = 'number', required = true, min = 0, desc = 'uses a fresh knight carries' },
-  empty = { type = 'string', required = true, desc = 'notice when no use is left' },
+  empty = { type = 'string', required = true, desc = 'text key: notice when no use is left' },
 })
 function Ability.define(def)
   local path = 'ability ' .. tostring(def.id)
@@ -29,6 +30,10 @@ function Ability.define(def)
   assert(built.capacity % 1 == 0, path .. '.capacity: expected an integer')
   assert(built.start % 1 == 0, path .. '.start: expected an integer')
   assert(built.start <= built.capacity, path .. '.start: exceeds capacity')
+  -- Its words are text keys (content/text.lua, plan v10 V6).
+  for _, field in ipairs({ 'name', 'tag', 'empty' }) do
+    assert(Text.has(built[field]), path .. '.' .. field .. ': unknown text key ' .. built[field])
+  end
   built.action = Action.build(built.action, path .. '.action')
   return built
 end

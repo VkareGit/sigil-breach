@@ -57,7 +57,7 @@ function Check.run(output)
   for _, entry in ipairs(report.timings) do
     costs[entry.stage] = (costs[entry.stage] or 0) + entry.seconds
   end
-  for _, stage in ipairs({ 'PREPARING SOUND', 'PREPARING THE INTERFACE', 'PREPARING THE WORLD' }) do
+  for _, stage in ipairs({ 'loading_sound', 'loading_interface', 'loading_world' }) do
     lines[#lines + 1] = string.format('%s: %.3f ms of work', stage, costs[stage] * 1000)
   end
   local slowest = {}
@@ -166,7 +166,7 @@ function Check.run(output)
   end
   check(
     'renderer cancellation fixture reaches an incomplete native constructor',
-    midway.loading and not midway.renderer and midway.loading.stage == 'PREPARING THE WORLD'
+    midway.loading and not midway.renderer and midway.loading.stage == 'loading_world'
   )
   originalQuit = love.event.quit
   love.event.quit = function() end

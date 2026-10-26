@@ -1,4 +1,5 @@
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local N = {}
 function N.shrine(g)
   local shrine = require('src.run.descent').shrine
@@ -9,8 +10,10 @@ function N.shrine(g)
     distance = math.sqrt(dx * dx + dz * dz),
     angle = angle,
     visible = require('src.world.arena').visible(g.world, p.x, p.z, shrine.x, shrine.z),
-    direction = math.abs(angle) > math.pi * 0.65 and 'BEHIND YOU'
-      or (angle < -0.18 and 'TO THE LEFT' or (angle > 0.18 and 'TO THE RIGHT' or 'AHEAD')),
+    direction = Text.get(
+      math.abs(angle) > math.pi * 0.65 and 'dir_behind'
+        or (angle < -0.18 and 'dir_left' or (angle > 0.18 and 'dir_right' or 'dir_ahead'))
+    ),
   }
 end
 return N

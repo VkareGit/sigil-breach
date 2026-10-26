@@ -2,6 +2,8 @@
 -- portals with a 1.2 s glow, packs that open several portals at once (the
 -- later members preferring the player's flanks), queue order and caps.
 -- Owns no rewards and no wave completion; callers decide what follows.
+-- The mode hands it its wave record r (wave, queueIndex, pending,
+-- spawnTimer, lastGate, phaseTime); the spawner reads no mode's record.
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
@@ -23,8 +25,8 @@ S.portals = Maps:get(Maps.default).gates
 local distance = MathX.distance
 S.distance = distance
 -- flank: a later member of a pack prefers portals outside the player's view.
-function S.choosePortal(g, flank)
-  local r, p = g.run, Roles.controlled(g)
+function S.choosePortal(g, r, flank)
+  local p = Roles.controlled(g)
   local best, bestScore
   local opening = r.queueIndex == 1 and r.wave <= K.openingWaves
   local P = K.score
@@ -66,9 +68,6 @@ function S.choosePortal(g, flank)
   end
   return best
 end
--- One tick of the wave in g.run (wave, queueIndex, pending, spawnTimer).
--- Returns the number of living demons and whether the wave is exhausted
--- (queue spawned, nothing pending, nobody alive).
 -- The director's reading of the fight: stress = faded damage / reference.
 function S.stress(g)
   return (g.intensity or 0) / Waves.director.reference
@@ -96,17 +95,17 @@ function S.welcome(g, e, gate)
   e.lastZ = p.z
 end
 -- A gate opened for a demon of kind at (x, z): it glows K.glow s before the
--- demon arrives. Drawn from g.run.pending (render/portals.lua).
+-- demon arrives. Drawn from the record's pending gates (render/portals.lua).
 function S.gate(kind, x, z)
   return { kind = kind, x = x, z = z, delay = K.glow, maxDelay = K.glow }
 end
--- The gates waiting in g.run.pending count down; at zero a gate's demon
+-- The gates waiting in r.pending count down; at zero a gate's demon
 -- arrives (spawnAge 0: the portal's arrival art, a short pause) unless the
 -- knight stands in it, when it waits K.retry more. arrive(g, e, gate) gives
 -- the newcomer what its mode does (S.welcome for a wave) before it is
 -- announced. In queue order, so a pack's demons appear as they were opened.
-function S.arrivals(g, dt, arrive)
-  local r, p = g.run, Roles.controlled(g)
+function S.arrivals(g, r, dt, arrive)
+  local p = Roles.controlled(g)
   local i = 1
   while i <= #r.pending do
     local s = r.pending[i]
@@ -134,13 +133,16 @@ function S.arrivals(g, dt, arrive)
     end
   end
 end
--- arrive: what an arriving demon is given (S.welcome unless the mode says).
-function S.step(g, dt, arrive)
-  local r, p = g.run, Roles.controlled(g)
+-- One tick of the wave in r. Returns the number of living demons and
+-- whether the wave is exhausted (queue spawned, nothing pending, nobody
+-- alive). arrive: what an arriving demon is given (S.welcome unless the
+-- mode says).
+function S.step(g, r, dt, arrive)
+  local p = Roles.controlled(g)
   g.intensity = (g.intensity or 0) * math.exp(-dt / Waves.director.tau)
   r.phaseTime = (r.phaseTime or 0) + dt
   r.spawnTimer = (r.spawnTimer or 0) - dt
-  S.arrivals(g, dt, arrive or S.welcome)
+  S.arrivals(g, r, dt, arrive or S.welcome)
   local wave = Waves[r.wave]
   local alive = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -161,7 +163,7 @@ function S.step(g, dt, arrive)
       if r.queueIndex > #wave.queue or alive + #r.pending >= cap then
         break
       end
-      local gate = S.choosePortal(g, k > 1)
+      local gate = S.choosePortal(g, r, k > 1)
       if not gate then
         break
       end

@@ -8,6 +8,8 @@
 -- expedition's own screens, the help and map overlays, then the screen.
 local Registry = require('src.core.registry')
 local Views = Registry:new('views')
+local Text = require('src.content.text')
+local Queries = require('src.run.queries')
 -- A screen file's draw (full module names: tools/check follows them).
 local function screen(module)
   return function(g, s, U)
@@ -61,21 +63,21 @@ local function pageControls(g, s)
   return {
     {
       id = 'resume',
-      label = settings and 'BACK TO MENU  [ ESC ]' or 'BACK TO COMBAT  [ ESC ]',
+      label = Text.get(settings and 'page_back_menu' or 'page_back_combat'),
       x = 380,
       y = 164,
       w = 520,
       h = 46,
     },
-    { id = 'sens_down', label = '−', x = 784, y = 249, w = 48, h = 34 },
-    { id = 'sens_up', label = '+', x = 852, y = 249, w = 48, h = 34 },
-    { id = 'fov_down', label = '−', x = 784, y = 297, w = 48, h = 34 },
-    { id = 'fov_up', label = '+', x = 852, y = 297, w = 48, h = 34 },
-    { id = 'music_down', label = '−', x = 784, y = 345, w = 48, h = 34 },
-    { id = 'music_up', label = '+', x = 852, y = 345, w = 48, h = 34 },
+    { id = 'sens_down', label = Text.get('page_minus'), x = 784, y = 249, w = 48, h = 34 },
+    { id = 'sens_up', label = Text.get('page_plus'), x = 852, y = 249, w = 48, h = 34 },
+    { id = 'fov_down', label = Text.get('page_minus'), x = 784, y = 297, w = 48, h = 34 },
+    { id = 'fov_up', label = Text.get('page_plus'), x = 852, y = 297, w = 48, h = 34 },
+    { id = 'music_down', label = Text.get('page_minus'), x = 784, y = 345, w = 48, h = 34 },
+    { id = 'music_up', label = Text.get('page_plus'), x = 852, y = 345, w = 48, h = 34 },
     {
       id = 'motion',
-      label = s.motion == false and 'OFF  [ C ]' or 'ON  [ C ]',
+      label = Text.get(s.motion == false and 'page_motion_off' or 'page_motion_on'),
       x = 670,
       y = 397,
       w = 230,
@@ -83,16 +85,16 @@ local function pageControls(g, s)
     },
     {
       id = 'hints',
-      label = s.hints == false and 'OFF' or 'ON',
+      label = Text.get(s.hints == false and 'page_off' or 'page_on'),
       x = 670,
       y = 445,
       w = 230,
       h = 42,
     },
-    { id = 'help', label = 'CONTROLS / DEMONS', x = 380, y = 510, w = 252, h = 42 },
+    { id = 'help', label = Text.get('page_help'), x = 380, y = 510, w = 252, h = 42 },
     {
       id = 'mute',
-      label = s.muted and 'UNMUTE [ M ]' or 'MUTE [ M ]',
+      label = Text.get(s.muted and 'page_unmute' or 'page_mute'),
       x = 648,
       y = 510,
       w = 252,
@@ -100,15 +102,15 @@ local function pageControls(g, s)
     },
     {
       id = settings and 'fullscreen' or 'restart',
-      label = settings and 'FULLSCREEN [ F11 ]' or 'NEW TRIAL  [ R ]',
+      label = Text.get(settings and 'page_fullscreen' or 'page_restart'),
       x = 380,
       y = 570,
       w = 252,
       h = 42,
     },
     {
-      id = g.testField and 'field_leave' or (settings and 'quit' or 'menu'),
-      label = g.view.fieldReturnLabel or (settings and 'QUIT GAME' or 'MAIN MENU'),
+      id = Queries.field(g) and 'field_leave' or (settings and 'quit' or 'menu'),
+      label = Text.get(g.view.fieldReturnLabel or (settings and 'quit_game' or 'return_menu')),
       x = 648,
       y = 570,
       w = 252,
@@ -118,20 +120,20 @@ local function pageControls(g, s)
 end
 local ending = function()
   return {
-    { id = 'restart', label = 'AGAIN  [ ENTER ]', x = 440, y = 530, w = 400, h = 50 },
-    { id = 'menu', label = 'MAIN MENU  [ ESC ]', x = 440, y = 596, w = 400, h = 40 },
+    { id = 'restart', label = Text.get('ending_again'), x = 440, y = 530, w = 400, h = 50 },
+    { id = 'menu', label = Text.get('ending_menu'), x = 440, y = 596, w = 400, h = 40 },
   }
 end
 Views:get('menu').controls = function()
   return {
-    { id = 'start', label = 'ENTER LIMBO   [ ENTER ]', x = 72, y = 410, w = 400, h = 56 },
-    { id = 'help', label = 'HELP  [ F1 ]', x = 72, y = 482, w = 194, h = 46 },
-    { id = 'settings', label = 'SETTINGS', x = 270, y = 482, w = 194, h = 46 },
-    { id = 'quit', label = 'QUIT', x = 72, y = 546, w = 194, h = 42 },
+    { id = 'start', label = Text.get('menu_start'), x = 72, y = 410, w = 400, h = 56 },
+    { id = 'help', label = Text.get('menu_help_wide'), x = 72, y = 482, w = 194, h = 46 },
+    { id = 'settings', label = Text.get('menu_settings'), x = 270, y = 482, w = 194, h = 46 },
+    { id = 'quit', label = Text.get('menu_quit'), x = 72, y = 546, w = 194, h = 42 },
     -- Under the proving-ground panel, not over its station list (this menu is
     -- the classic test session's; the expedition's own menu: ui/descent.lua).
-    { id = 'field_skirmish', label = 'QUICK SKIRMISH', x = 580, y = 620, w = 290, h = 44 },
-    { id = 'field_start', label = 'PROVING GROUND [ F2 ]', x = 880, y = 620, w = 290, h = 44 },
+    { id = 'field_skirmish', label = Text.get('menu_quick'), x = 580, y = 620, w = 290, h = 44 },
+    { id = 'field_start', label = Text.get('menu_field'), x = 880, y = 620, w = 290, h = 44 },
   }
 end
 Views:get('paused').controls = pageControls
@@ -141,7 +143,7 @@ Views:get('won').controls = ending
 -- The providers of buttons, in order; each returns a list or nil.
 Views.providers = {
   function(g)
-    if g.testField and g.state == 'field_archive' and not g.help and not g.map then
+    if Queries.field(g) and g.state == 'field_archive' and not g.help and not g.map then
       return require('src.ui.occult_archive').controls(g)
     end
   end,
@@ -158,7 +160,7 @@ Views.providers = {
   end,
   function(g)
     if g.map then
-      return { { id = 'map', label = 'BACK TO COMBAT  [ TAB ]', x = 810, y = 610, w = 290, h = 42 } }
+      return { { id = 'map', label = Text.get('map_back'), x = 810, y = 610, w = 290, h = 42 } }
     end
   end,
   function(g, s)

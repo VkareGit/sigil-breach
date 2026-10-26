@@ -552,6 +552,7 @@ function Tests.run(G, renderer)
       sent[key] = value
     end,
   }
+  local WorldArt = require('src.render.world_art')
   local originalShader = renderer.spriteShader
   local originalDraw = love.graphics.draw
   renderer.spriteShader = proxy
@@ -561,12 +562,12 @@ function Tests.run(G, renderer)
   used = {}
   for i = 0, 3 do
     g.time = i * 0.2 + 0.01
-    renderer:shrine(g)
+    WorldArt.shrine(renderer, g)
     used[sent.frameRect] = true
   end
   local preparing = sent.brightness
   g.run.phase = 'wave'
-  renderer:shrine(g)
+  WorldArt.shrine(renderer, g)
   local dormant = sent.brightness
   renderer.spriteShader = originalShader
   love.graphics.draw = originalDraw

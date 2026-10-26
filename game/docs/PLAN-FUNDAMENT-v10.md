@@ -439,6 +439,47 @@ Odbiór:
   z 4 broniami i 3 slotami wyposażenia czytelny w audycie;
 - zmiana języka tabeli tekstów zmienia wszystkie napisy bez zmian kodu.
 
+Wykonano (2026-10-26):
+- Renderer: klatka to lista ośmiu przejść w `render/passes/` (architecture,
+  projectiles, ground, enemy_marks, hazards, ash, sprites, effects).
+  Obiekty świata rejestrują rysowanie w `render/world_objects.lua`
+  (`register(rodzaj, { { pass, order, draw }..., init, overlay, release })`).
+  Wbudowane rodzaje są w `render/world_art.lua`: kaganek, pieczęć, zapasy,
+  Żar, freski, echo, brama, wyjście, sekret, rekwizyt i galeria. Renderer
+  i przejścia nie znają ich nazw; test to sprawdza w źródle.
+- HUD z deklaracji slotów (`ui/hud_slots.lua`). Arsenał pokazuje N broni
+  w dwóch wierszach wokół broni w ręku. Wyposażenie obejmuje każdy slot
+  z klawiszem z `app/bindings` (Q, F, C): jeden przedmiot w pełnym układzie
+  0.30, kilka po wierszu (klawisz, tag, użycia). To samo w HUD areny classic.
+- Teksty: `content/text.lua` ma 523 klucze (wcześniej 33) z parametrami.
+  Klucze niosą definicje broni, stworzeń, wyposażenia, ofert, kręgów, stref,
+  pieczęci, stanowisk, archiwum, galerii i fal; broń i wyposażenie
+  sprawdzają klucze przy definicji. Komunikaty trybów (wyprawa, ekonomia,
+  poligon, classic, interakcje, nawigacja) są kluczami. Języki:
+  `Text.language(nazwa, szablony, malunki)` + `Text.use`. Napisy malowane
+  mają rejestr (`painted_titles.names`, `has`); gdy brak malunku w atlasie
+  albo język nie ma własnych malunków, `Skin.inscription` pisze glifami.
+- Ekrany i HUD pytają tryb przez `run/queries` (`run`, `field`, `world`,
+  `tools`, `objective`). Widoki buduje tryb z własnego rekordu
+  (`run/mode_views.lua`); `Capabilities.posed` zastąpiło `g.testField`
+  w animacji.
+- `run/test_field.lua` (630 → 274 wierszy): cykl życia, komunikaty i akcje.
+  Odrębne moduły: `run/field/placement.lua` (cele i wezwania),
+  `visits.lua` (pieczęć, sklep), `trials.lua` (strzelnica, fizyka, próba
+  fal). Liczby poligonu są w `content/field.lua`. `enemies/actions.lua`
+  (599 → 216): wybór, zobowiązanie, wyzwolenie i stan uderzenia. Rodzaje
+  ataków są w `melee_kinds.lua` / `ranged_kinds.lua`, wspólny kontakt
+  w `attack_contact.lua`, lot ciała w `flight.lua`.
+- Odbiór:
+
+  | Warunek | Wynik |
+  |---|---|
+  | showcase i GUI audit piksel w piksel, 0 problemów układu | 596/596 obrazów identycznych z bazą sprzed V6; GUI audit 270 scen, 0 problemów |
+  | zapadki: teksty dla gracza = 0, `g.run`/`g.testField` poza trybem = 0 | player-text 340 → 0 (44 pliki), mode-records 57 → 0 (19 plików); bazy w tools/check są puste |
+  | nowy rodzaj obiektu świata samą rejestracją | test `open-presentation`: rodzaj `trial_obelisk` zarejestrowany w teście zmienia 954 próbki klatki, po wyrejestrowaniu znika |
+  | HUD z 4 broniami i 3 slotami czytelny w audycie | 10 audytów (5 rozdzielczości × broń 4 i broń 2), 0 problemów; obrazy `hud-slots-*` |
+  | zmiana języka zmienia wszystkie napisy bez zmian kodu | pseudojęzyk znaczy każdy szablon; 29 ekranów i etykiety galerii, 875 napisów, wszystkie znaczone; napisy malowane piszą się glifami |
+
 ### V7 — potok treści dla nowych demonów (B4)
 
 - Rejestracja atlasu z jednego pliku danych arkusza (komórki, stopy,

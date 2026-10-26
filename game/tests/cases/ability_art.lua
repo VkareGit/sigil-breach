@@ -60,9 +60,10 @@ function Tests.run(Game, renderer)
   check('broken guard retains the authoritative pain silhouette', Art.select(g, e) == nil)
   e.stun, e.spawnAge = 0, 0.2
   check('portal emergence cannot be overwritten by an ability preview', Art.select(g, e) == nil)
-  e.spawnAge, e.previewFrame, g.testField = 1, 9, {}
+  -- The proving ground poses its gallery (its mode answers posed).
+  e.spawnAge, e.previewFrame, g.mode, g.testField = 1, 9, 'field', {}
   check('explicit test-field gallery frames remain inspectable', Art.select(g, e) == nil)
-  g.testField, e.previewFrame = nil, nil
+  g.mode, g.testField, e.previewFrame = 'classic', nil, nil
 
   local owl = g:spawn('stolas', 18, 16)
   owl.ai, owl.spawnAge, owl.stun, owl.evadeSide = 'move', 1, 0, -1

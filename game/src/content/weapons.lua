@@ -19,16 +19,16 @@ local W = {}
 local definitions = {
   {
     id = 'exorcist',
-    name = 'EXORCIST',
-    -- HUD words: its title, what kind of gun, its slot tab, how it is drawn,
-    -- and the notice when one pull would be short of rounds.
+    name = 'weapon_exorcist',
+    -- HUD words (text keys): its title, what kind of gun, its slot tab, how it
+    -- is drawn, and the notice when one pull would be short of rounds.
     hud = {
-      title = 'EXORCIST',
-      kind = 'SHOTGUN',
-      tab = 'SHOTGUN',
-      draw = 'Exorcist shotgun',
-      partial = '1 BARREL / 10 PELLETS',
-      partialShort = 'ONE BARREL',
+      title = 'weapon_exorcist_title',
+      kind = 'weapon_exorcist_kind',
+      tab = 'weapon_exorcist_tab',
+      draw = 'weapon_exorcist_draw',
+      partial = 'weapon_exorcist_partial',
+      partialShort = 'weapon_exorcist_partial_short',
     },
     capacity = 2,
     startReserve = T.startReserve,
@@ -98,8 +98,13 @@ local definitions = {
   },
   {
     id = 'judge',
-    name = 'JUDGE',
-    hud = { title = 'JUDGE REVOLVER', kind = 'REVOLVER', tab = 'JUDGE', draw = 'Judge revolver' },
+    name = 'weapon_judge',
+    hud = {
+      title = 'weapon_judge_title',
+      kind = 'weapon_judge_kind',
+      tab = 'weapon_judge_tab',
+      draw = 'weapon_judge_draw',
+    },
     capacity = T.revolverCapacity,
     startReserve = T.revolverStartReserve,
     maxReserve = T.revolverMaxReserve,

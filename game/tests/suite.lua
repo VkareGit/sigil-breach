@@ -365,6 +365,11 @@ Suite.registry = {
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',
   },
+  {
+    id = 'open-presentation',
+    title = 'World objects by registration, HUD slots, switching languages (plan v10 V6)',
+    module = 'tests.cases.open_presentation',
+  },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }
 

@@ -51,21 +51,14 @@ Actions.fixed:register('field_archive', {
 Actions.fixed:register('field_tier', {
   run = function(g, field)
     g.testField.tier = (g.testField.tier or 1) % Settings.maxTier + 1
-    field.tell(
-      g,
-      'Tier ' .. g.testField.tier .. ' / new demons fight like wave ' .. g.testField.tier .. '.'
-    )
+    field.tell(g, 'field_tier', { tier = g.testField.tier })
     return true
   end,
 })
 Actions.fixed:register('field_hitboxes', {
   run = function(g, field)
     g.testField.hitboxes = not g.testField.hitboxes
-    field.tell(
-      g,
-      g.testField.hitboxes and 'Hitboxes on / shot surface, body ring, attack contact.'
-        or 'Hitboxes off.'
-    )
+    field.tell(g, g.testField.hitboxes and 'field_hitboxes_on' or 'field_hitboxes_off')
     return true
   end,
 })
@@ -88,7 +81,7 @@ Actions.fixed:register('field_low', {
     for _, state in pairs(Roles.controlled(g).arsenal) do
       state.mag, state.reserve = 0, 0
     end
-    field.tell(g, 'Low resources / HUD preview.')
+    field.tell(g, 'field_low')
     field.close(g)
     return true
   end,
@@ -96,7 +89,12 @@ Actions.fixed:register('field_low', {
 Actions.families:register('archive', {
   pattern = '^archive_(%d+)$',
   run = function(g, _, index)
-    return Occult.action(g, 'archive_' .. index)
+    index = tonumber(index)
+    if not Occult.entries[index] then
+      return false
+    end
+    g.testField.archiveSelection = index
+    return true
   end,
 })
 Actions.families:register('station', {

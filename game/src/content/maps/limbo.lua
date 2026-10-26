@@ -38,9 +38,32 @@ return {
     { 20, 15 },
   },
   seals = {
-    { x = 7, z = 17, name = 'ASMODAY', court = 'Court of Embers', color = { 1, 0.28, 0.07 } },
-    { x = 25, z = 17, name = 'STOLAS', court = 'Court of Stars', color = { 0.35, 0.65, 1 } },
-    { x = 16, z = 5.5, name = 'BUER', court = 'Court of Resin', color = { 0.38, 1, 0.57 } },
+    -- id: the seal's Goetic spirit (ui/goetic_sigils.lua); name, court:
+    -- text keys (content/text.lua).
+    {
+      x = 7,
+      z = 17,
+      id = 'asmoday',
+      name = 'seal_asmoday',
+      court = 'court_embers',
+      color = { 1, 0.28, 0.07 },
+    },
+    {
+      x = 25,
+      z = 17,
+      id = 'stolas',
+      name = 'seal_stolas',
+      court = 'court_stars',
+      color = { 0.35, 0.65, 1 },
+    },
+    {
+      x = 16,
+      z = 5.5,
+      id = 'buer',
+      name = 'seal_buer',
+      court = 'court_resin',
+      color = { 0.38, 1, 0.57 },
+    },
   },
   portal = { x = 16, z = 2.9 },
   spawn = { x = 16, z = 27.5, yaw = math.pi },
@@ -71,12 +94,12 @@ return {
     { x = 10, z = 18 },
     { x = 22, z = 18 },
   },
-  -- Zone names, the first that holds: x below / above, z below; the last
-  -- names the rest.
+  -- Zone names (text keys), the first that holds: x below / above, z below;
+  -- the last names the rest.
   zones = {
-    { name = 'COURT OF EMBERS', xBelow = 11 },
-    { name = 'COURT OF STARS', xAbove = 21 },
-    { name = 'CHOIR OF RESIN', zBelow = 9 },
-    { name = 'NAVE OF THE DAMNED' },
+    { name = 'zone_court_of_embers', xBelow = 11 },
+    { name = 'zone_court_of_stars', xAbove = 21 },
+    { name = 'zone_choir_of_resin', zBelow = 9 },
+    { name = 'zone_nave' },
   },
 }

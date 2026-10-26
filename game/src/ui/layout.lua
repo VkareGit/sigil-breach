@@ -1,11 +1,12 @@
 -- World and GUI share one viewport, including letterboxing and the status bar.
+local Queries = require('src.run.queries')
 local L = { width = 1280, height = 720, barTop = 600, aimX = 640, aimY = 300 }
 function L.viewport(w, h)
   local scale = math.min(w / L.width, h / L.height)
   return scale, (w - L.width * scale) / 2, (h - L.height * scale) / 2
 end
 function L.hasBar(g)
-  return g.run and (g.state == 'playing' or g.state == 'paused')
+  return Queries.run(g) ~= nil and (g.state == 'playing' or g.state == 'paused')
 end
 function L.scene(g, w, h)
   if not L.hasBar(g) then

@@ -20,6 +20,7 @@ local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
 local Navigation = require('src.world.navigation')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local portals = Spawner.portals
 R.portals = portals
 local distance = MathX.distance
@@ -109,7 +110,7 @@ function R.init(g)
 end
 function R.snapshot(g)
   if not expedition(g) then
-    return nil, 'Only an expedition is saved as one.'
+    return nil, Text.get('run_only_saved')
   end
   local r = g.run
   return {
@@ -135,7 +136,7 @@ function R.snapshot(g)
 end
 function R.save(g)
   if not expedition(g) then
-    return false, 'Only an expedition is saved as one.'
+    return false, Text.get('run_only_saved')
   end
   if g.testing then
     return true
@@ -151,7 +152,7 @@ function R.save(g)
 end
 function R.load(g, data)
   if not expedition(g) then
-    return false, 'Only an expedition session loads an expedition.'
+    return false, Text.get('run_only_loads')
   end
   R.clearWorld(g)
   local echo, relocated = restoreEcho(g, data.echo)
@@ -188,11 +189,7 @@ function R.load(g, data)
     SaveCore.restore('expedition', g, data.sections, 'run')
   end
   Presentation.capture(g, g.state == 'playing')
-  g:notify(
-    relocated and 'Echo moved to the proving field. All souls kept.'
-      or 'Expedition resumed. Souls and purchases kept.',
-    3
-  )
+  g:notify(Text.get(relocated and 'run_resumed_moved' or 'run_resumed'), 3)
 end
 function R.start(g)
   g.state = 'playing'
@@ -200,7 +197,7 @@ function R.start(g)
   local shrine = Sanctuary.at(g)
   Roles.controlled(g).yaw =
     math.atan2(shrine.x - Roles.controlled(g).x, shrine.z - Roles.controlled(g).z)
-  g:notify('LIMBO / 4 waves and a guardian. [E] Merchant at the Ember. [ENTER] Ready.', 6)
+  g:notify(Text.get('run_start'), 6)
   R.save(g)
 end
 function R.ready(g)
@@ -243,7 +240,7 @@ function R.ready(g)
   g.state = 'playing'
   g.fireBuffer = 0
   Presentation.capture(g, true)
-  g:notify(Waves[r.wave].tip, 5)
+  g:notify(Text.get(Waves[r.wave].tip), 5)
   return true
 end
 R.openShop = Sanctuary.openShop
@@ -261,7 +258,7 @@ function R.trade(g, id)
   local ok, reason = E.buy(g, id)
   if ok then
     Presentation.cue(g, 'pickup', 0.35)
-    g.shopMessage = 'Done. ' .. g.run.wallet .. ' souls left.'
+    g.shopMessage = Text.get('run_bought', { souls = g.run.wallet })
   else
     g.shopMessage = reason
   end
@@ -306,9 +303,8 @@ function R.retry(g)
   g.view.feedbackTimer = 0
   Presentation.capture(g, true)
   g:notify(
-    'Retry '
-      .. (r.wave == guardianWave and 'the guardian fight' or ('wave ' .. r.wave))
-      .. '. Recover the echo during the fight.',
+    r.wave == guardianWave and Text.get('run_retry_guardian')
+      or Text.get('run_retry_wave', { wave = r.wave }),
     5
   )
   R.save(g)
@@ -340,7 +336,7 @@ function R.collectSoul(g, a)
     r.claimed[a.rewardId] = true
     r.wallet = r.wallet + a.amount
     r.soulGather = (r.soulGather or 0) + a.amount
-    g.view.feedback = '+' .. a.amount .. ' SOULS'
+    g.view.feedback = Text.get('run_soul', { amount = a.amount })
     g.view.feedbackTimer = K.souls.notice
     Presentation.cue(g, 'pickup', 0.18)
   end
@@ -367,11 +363,12 @@ end
 function R.context(g)
   local r = g.run
   if r.phase == 'preparing' and Sanctuary.near(g) then
-    return '[E]  EMBER / REST AND TRADE'
+    return Text.get('run_ember')
   end
   if r.echo and distance(Roles.controlled(g), r.echo) < K.echo.prompt then
-    return (r.phase == 'wave' or r.wave > r.echo.wave) and 'APPROACH / RECOVER LOST SOULS'
-      or 'THE ECHO WAITS / BEGIN THE WAVE'
+    return Text.get(
+      (r.phase == 'wave' or r.wave > r.echo.wave) and 'run_echo_recover' or 'run_echo_waits'
+    )
   end
   return nil
 end
@@ -390,7 +387,8 @@ local report = {}
 function R.hud(g)
   local r = g.run
   report.glyph, report.wallet, report.echo = r.glyph, r.wallet, r.echo
-  report.progress = r.wave == guardianWave and 'BOSS' or ('WAVE ' .. r.wave .. '/' .. K.totalWaves)
+  report.progress = r.wave == guardianWave and Text.get('hud_boss')
+    or Text.get('hud_wave', { wave = r.wave, total = K.totalWaves })
   report.fighting = r.phase == 'wave'
   return report
 end
@@ -441,7 +439,7 @@ function R.finishWave(g)
     for i, s in ipairs(g.world.seals) do
       s.active = i <= g.seals
     end
-    g:notify('WAVE CLEANSED / +' .. K.waveReward .. ' souls. Rest: health restored.', 5)
+    g:notify(Text.get('run_cleansed', { souls = K.waveReward }), 5)
     Presentation.cue(g, 'seal')
   end
   r.checkpoint = inventory(g)
@@ -463,7 +461,7 @@ function R.update(g, dt)
     end
   end
   if r.phase == 'wave' then
-    local _, exhausted = Spawner.step(g, dt)
+    local _, exhausted = Spawner.step(g, g.run, dt)
     if exhausted then
       R.finishWave(g)
       return
@@ -496,7 +494,7 @@ function R.update(g, dt)
     local amount = r.echo.amount
     r.wallet = r.wallet + amount
     r.echo = nil
-    g:notify('RECOVERED ' .. amount .. ' SOULS', 3)
+    g:notify(Text.get('run_recovered', { amount = amount }), 3)
     Presentation.cue(g, 'seal', 0.6)
     if r.phase == 'preparing' then
       R.save(g)

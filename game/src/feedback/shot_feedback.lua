@@ -13,6 +13,7 @@ local Numbers = require('src.feedback.damage_numbers')
 local K = require('src.content.tuning').shot
 local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
+local Text = require('src.content.text')
 local Shot = {}
 -- The debris of a body surface that stops a shot without a wound (the
 -- margrave's cleaver): its material's, none for a soft one.
@@ -137,7 +138,7 @@ function Shot.volley(g, e)
     0.22 + g.view.hitWeight * 0.28
   )
   if report.kills >= 2 then
-    g.view.feedback = report.kills .. ' DEMONS / ONE SHOT'
+    g.view.feedback = Text.get('feedback_multikill', { count = report.kills })
     g.view.feedbackTimer = 2
     A.play('multikill', 0.34)
   end

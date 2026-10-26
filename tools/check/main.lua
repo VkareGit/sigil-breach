@@ -150,7 +150,16 @@ local function fieldAccesses(code, fields)
 end
 -- Text the player reads: an ALL-CAPS literal of three or more letters (the
 -- game's lettering), not an identifier (no '_', no digits without a space),
--- or any literal given straight to notify().
+-- or any literal given straight to notify(). Musical notation (pitch names:
+-- 'D2 A2 D3', 'Bb1', 'D3:2', '-') is not lettering.
+local function notation(value)
+  for token in value:gmatch('%S+') do
+    if token ~= '-' and not token:match('^%u[b#]?%d:?%d*$') then
+      return false
+    end
+  end
+  return true
+end
 local function playerText(strings)
   local count = 0
   for _, s in ipairs(strings) do
@@ -160,6 +169,7 @@ local function playerText(strings)
       count = count + 1
     elseif
       capitals >= 3
+      and not notation(value)
       and not value:find('%l')
       and not value:find('_', 1, true)
       and (value:find(' ', 1, true) or not value:find('%d'))
@@ -212,7 +222,8 @@ local scalingRatchets = {
     name = 'player-text',
     label = 'PLAYER TEXT OUTSIDE THE TEXT TABLE',
     hint = 'move it to content/text (plan v10 V6)',
-    exempt = { 'src/content/text.lua' },
+    -- The package smoke check's report is console output for QA.
+    exempt = { 'src/content/text.lua', 'src/app/package_smoke.lua' },
     count = function(_, strings)
       return playerText(strings)
     end,

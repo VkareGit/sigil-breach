@@ -158,7 +158,7 @@ function S.run(G, renderer)
   g.enemies[1].poise = 190
   save('26b-boss-guard')
   require('src.combat.rules').react(g, g.enemies[1], 200, true, nil, 0)
-  g.view.feedback, g.view.feedbackTimer = 'FALTER  /  EXPOSED', 1.6
+  g.view.feedback, g.view.feedbackTimer = require('src.content.text').get('feedback_falter'), 1.6
   save('26c-boss-falter')
   g.view.feedbackTimer = 0
   g.state = 'won'
@@ -626,9 +626,8 @@ function S.run(G, renderer)
   g.map = false
   Field.open(g)
   Field.action(g, 'field_archive')
-  local Archive = require('src.ui.occult_archive')
   for i = 1, 6 do
-    Archive.action(g, 'archive_' .. i)
+    Field.action(g, 'archive_' .. i)
     U.focus = i
     save('archive-sign-' .. i)
   end

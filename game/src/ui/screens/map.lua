@@ -11,14 +11,16 @@ local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local D = require('src.ui.descent')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
+local Queries = require('src.run.queries')
+local Text = require('src.content.text')
 local S = {}
 function S.draw(g, s, U)
-  if g.run then
+  if Queries.run(g) then
     return D.map(g)
   end
   rect(0, 0, 1280, 720, Palette.veilCool, 0.94)
   panel(150, 60, 980, 606)
-  text('CARTOGRAPHY OF LIMBO', 181, 81, 36, ivory)
+  text(Text.get('classic_map_title'), 181, 81, 36, ivory)
   text(U.objective(g), 182, 136, 20, gold)
   local sz, ox, oy = 14, 590, 156
   for z = 1, Grid.depth(g.world) do
@@ -34,8 +36,20 @@ function S.draw(g, s, U)
     lg.setLineWidth(2)
     lg.circle('line', x, y, 9)
     text(tostring(i), x - 4, y - 10, 16, s.color)
-    text('0' .. i .. '  ' .. s.name, 184, 218 + (i - 1) * 77, 24, s.color)
-    text(s.active and 'SEAL BROKEN' or 'APPROACH AND PRESS E', 184, 251 + (i - 1) * 77, 16, muted)
+    text(
+      Text.get('classic_map_seal', { index = i, name = Text.get(s.name) }),
+      184,
+      218 + (i - 1) * 77,
+      24,
+      s.color
+    )
+    text(
+      Text.get(s.active and 'classic_map_seal_broken' or 'classic_map_seal_open'),
+      184,
+      251 + (i - 1) * 77,
+      16,
+      muted
+    )
   end
   local p = g.player
   local x, y = ox + p.x * sz, oy + p.z * sz
@@ -50,8 +64,8 @@ function S.draw(g, s, U)
   end
   c(g.bossDead and blue or muted)
   lg.rectangle('line', ox + 16 * sz - 10, oy + 3 * sz - 6, 20, 12)
-  text('GATE', ox + 16 * sz - 28, oy + 3 * sz - 29, 16, muted)
-  text('WHITE: YOU     RED: DEMON', 184, 492, 16, ivory)
-  text('The map pauses combat.', 184, 619, 18, muted)
+  text(Text.get('classic_map_gate'), ox + 16 * sz - 28, oy + 3 * sz - 29, 16, muted)
+  text(Text.get('classic_map_legend'), 184, 492, 16, ivory)
+  text(Text.get('map_pause'), 184, 619, 18, muted)
 end
 return S

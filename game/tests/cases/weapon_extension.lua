@@ -15,12 +15,24 @@ function Tests.run(G, renderer)
   local parent = Weapons.get('exorcist')
   local before = Serialize.encode(parent)
   local id = 'trial_firearm'
+  Fixtures.words({
+    trial_firearm = 'TRIAL FIREARM',
+    trial_firearm_kind = 'CARBINE',
+    trial_firearm_tab = 'FIRE TEST',
+    trial_firearm_draw = 'trial firearm',
+    trial_fourth_tab = 'FOURTH',
+  })
   local def = Weapons.define({
     extends = parent,
     id = id,
-    name = 'TRIAL FIREARM',
+    name = 'trial_firearm',
     art = 'judge',
-    hud = { title = 'TRIAL FIREARM', kind = 'CARBINE', tab = 'FIRE TEST', draw = 'trial firearm' },
+    hud = {
+      title = 'trial_firearm',
+      kind = 'trial_firearm_kind',
+      tab = 'trial_firearm_tab',
+      draw = 'trial_firearm_draw',
+    },
     capacity = 4,
     startReserve = 8,
     maxReserve = 16,
@@ -230,7 +242,8 @@ function Tests.run(G, renderer)
       require('src.render.weapon_art').idOf(loaded) == 'judge'
         and require('src.render.weapon_art').frame(loaded) >= 1
     )
-    local fourth = Weapons.define({ extends = def, id = 'trial_fourth', hud = { tab = 'FOURTH' } })
+    local fourth =
+      Weapons.define({ extends = def, id = 'trial_fourth', hud = { tab = 'trial_fourth_tab' } })
     Snapshot.invalidateDefinitions()
     require('tests.cases.content_schema').run(G, check)
     local classic = setup()

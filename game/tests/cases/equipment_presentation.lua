@@ -15,14 +15,21 @@ function Tests.run(G, renderer)
   local originalText = Skin.text
   local ok, problem = xpcall(function()
     local trial = Schema.copy(Abilities:get('powder'))
-    trial.id, trial.name, trial.tag = id, 'TRIAL CHARGE', 'ASH'
+    Fixtures.words({
+      trial_charge = 'TRIAL CHARGE',
+      trial_charge_tag = 'ASH',
+      trial_bolt = 'TRIAL BOLT',
+      trial_bolt_tag = 'BOLT',
+      trial_bolt_empty = 'No trial bolts.',
+    })
+    trial.id, trial.name, trial.tag = id, 'trial_charge', 'trial_charge_tag'
     trial.action.id, trial.action.cooldown = id, 1.8
     Abilities.define(trial)
     Abilities.define({
       id = boltId,
-      name = 'TRIAL BOLT',
-      tag = 'BOLT',
-      empty = 'No trial bolts.',
+      name = 'trial_bolt',
+      tag = 'trial_bolt_tag',
+      empty = 'trial_bolt_empty',
       capacity = 2,
       start = 2,
       action = require('src.content.defs.action').bolt({
@@ -99,9 +106,9 @@ function Tests.run(G, renderer)
       'an item without hand artwork never borrows a powder throw',
       noHands.view.abilityCast.id == boltId and Weapon.throwFrame(noHands) == nil
     )
-    -- Extra equipment remains a content/API fixture. The approved production
-    -- HUD is intentionally unchanged; this verifies the existing renderer and
-    -- UI can present its hand feedback without mutating simulation state.
+    -- Extra equipment is shown on its own keyed slot (plan v10 V6: the HUD
+    -- from slot declarations); the renderer and UI present it and its hand
+    -- feedback without mutating simulation state.
     local labels = {}
     Skin.text = function(text, ...)
       labels[text] = true
@@ -121,7 +128,7 @@ function Tests.run(G, renderer)
         not Integrity.difference(before, Integrity.capture(g))
       )
     end
-    check('content fixture does not introduce another production HUD label', not labels['F ASH'])
+    check('the HUD lists the second equipment slot under its own key', labels['F ASH'])
     -- The powder throw uses the gun's support hand: the gun stands aside for
     -- the gesture and returns to the very same place, without simulation.
     local Feedback = require('src.feedback.ability_feedback')

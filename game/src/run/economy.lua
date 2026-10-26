@@ -6,11 +6,13 @@
 --   apply(g, offer, def)                     gives the purchase
 --   label(g, offer, price) -> text or nil    the button when not a price
 --   describe(g, offer, def) -> name, text    optional, else the offer's own
---   done                                     the message after a purchase
+--   done                                     the message after a purchase (a
+--                                            text key)
 local W = require('src.content.weapons')
 local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local E = {}
 E.offers = Shop.offers
 local function missing(g, def)
@@ -18,16 +20,16 @@ local function missing(g, def)
 end
 local function describeRounds(g, offer, def)
   local n = math.max(0, math.min(def.packSize, missing(g, def)))
-  local quantity = n == 0 and 'AMMO PACK' or (n .. (n == 1 and ' ROUND' or ' ROUNDS'))
-  return offer.id == 'ammo' and (quantity .. ' / ' .. def.name) or ('REFILL / ' .. def.name),
-    def.unitPrice
-      .. ' souls per round. Reserve cap: '
-      .. def.maxReserve
-      .. '. Pay for missing rounds.'
+  local quantity = n == 0 and Text.get('shop_pack')
+    or Text.get(n == 1 and 'shop_round' or 'shop_rounds', { count = n })
+  local weapon = Text.get(def.name)
+  return offer.id == 'ammo' and Text.get('shop_ammo_name', { quantity = quantity, weapon = weapon })
+    or Text.get('shop_refill_name', { weapon = weapon }),
+    Text.get('shop_rounds_text', { price = def.unitPrice, cap = def.maxReserve })
 end
 local function roundsFull(g)
   local _, reserve = W.ammo(g)
-  return reserve >= W.inHand(g).maxReserve and 'RESERVE FULL' or nil
+  return reserve >= W.inHand(g).maxReserve and Text.get('shop_reserve_full') or nil
 end
 -- Rounds for the weapon in hand, by count: a pack, or everything missing.
 local function rounds(count, fill)
@@ -36,7 +38,7 @@ local function rounds(count, fill)
       local n = count(g, def)
       local price = n * def.unitPrice
       if n <= 0 then
-        return price, 'Reserve full.'
+        return price, Text.get('shop_reserve_full_reason')
       end
       return price
     end,
@@ -60,7 +62,7 @@ E.kinds = {
       local price =
         math.ceil(math.min(offer.amount, Shop.maxWard - armor) * offer.price / offer.amount)
       if armor >= Shop.maxWard then
-        return 0, 'Ward full.'
+        return 0, Text.get('shop_ward_full_reason')
       end
       return price
     end,
@@ -68,7 +70,7 @@ E.kinds = {
       Roles.controlled(g).armor = math.min(Shop.maxWard, Roles.controlled(g).armor + offer.amount)
     end,
     label = function(g)
-      return Roles.controlled(g).armor >= Shop.maxWard and 'WARD FULL' or nil
+      return Roles.controlled(g).armor >= Shop.maxWard and Text.get('shop_ward_full') or nil
     end,
   },
   charge = {
@@ -76,7 +78,7 @@ E.kinds = {
       local state, def =
         Roles.controlled(g).abilityState[offer.ability], Abilities:get(offer.ability)
       if state.uses >= def.capacity then
-        return 0, 'Charges full.'
+        return 0, Text.get('shop_charges_full_reason')
       end
       return offer.price
     end,
@@ -86,7 +88,9 @@ E.kinds = {
     end,
     label = function(g, offer)
       local state = Roles.controlled(g).abilityState[offer.ability]
-      return (state.uses or 0) >= Abilities:get(offer.ability).capacity and 'RESERVE FULL' or nil
+      return (state.uses or 0) >= Abilities:get(offer.ability).capacity
+          and Text.get('shop_reserve_full')
+        or nil
     end,
   },
   -- An engraving is bought once; owned, it is equipped for free.
@@ -94,7 +98,7 @@ E.kinds = {
     quote = function(g, offer)
       local r = g.run
       if r.owned[offer.id] then
-        return 0, r.glyph == offer.id and 'Equipped.' or nil, true
+        return 0, r.glyph == offer.id and Text.get('shop_equipped_reason') or nil, true
       end
       return offer.price
     end,
@@ -104,9 +108,11 @@ E.kinds = {
     end,
     label = function(g, offer)
       local r = g.run
-      return r.owned[offer.id] and (r.glyph == offer.id and 'EQUIPPED' or 'EQUIP / FREE') or nil
+      return r.owned[offer.id]
+          and Text.get(r.glyph == offer.id and 'shop_equipped' or 'shop_equip_free')
+        or nil
     end,
-    done = 'Engraving equipped.',
+    done = 'shop_engraving_done',
   },
 }
 local function find(id)
@@ -125,7 +131,7 @@ function E.describe(g, id)
   if kind.describe then
     return kind.describe(g, offer, (W.inHand(g)))
   end
-  return offer.name, offer.description
+  return Text.get(offer.name), Text.get(offer.description)
 end
 -- Every ability's uses are whole and within its capacity.
 local function validUses(p)
@@ -158,14 +164,14 @@ end
 function E.quote(g, id)
   local r = g.run
   if not r then
-    return nil, 'No expedition.'
+    return nil, Text.get('shop_no_run')
   end
   if not validState(g) then
-    return nil, 'Invalid resource state.'
+    return nil, Text.get('shop_invalid')
   end
   local offer = find(id)
   if not offer then
-    return nil, 'Unknown offer.'
+    return nil, Text.get('shop_unknown')
   end
   -- final: the kind's answer stands even when the wallet could not pay.
   local price, reason, final = E.kinds[offer.kind].quote(g, offer, (W.inHand(g)))
@@ -173,7 +179,7 @@ function E.quote(g, id)
     return price, reason
   end
   if r.wallet < price then
-    return price, 'Missing ' .. (price - r.wallet) .. ' souls.'
+    return price, Text.get('shop_missing', { souls = price - r.wallet })
   end
   return price, nil
 end
@@ -182,12 +188,13 @@ function E.label(g, id)
   local offer = find(id)
   local price = E.quote(g, id)
   local kind = E.kinds[offer.kind]
-  return kind.label and kind.label(g, offer, price) or ((price or 0) .. ' SOULS')
+  return kind.label and kind.label(g, offer, price)
+    or Text.get('shop_price', { price = price or 0 })
 end
 function E.buy(g, id)
   local r = g.run
   if not r or g.state ~= 'shop' or r.phase ~= 'preparing' then
-    return false, 'Purchases are available at the Ember between waves.'
+    return false, Text.get('shop_closed')
   end
   local price, reason = E.quote(g, id)
   if reason or not price then
@@ -197,6 +204,6 @@ function E.buy(g, id)
   local kind = E.kinds[offer.kind]
   r.wallet = r.wallet - price
   kind.apply(g, offer, (W.inHand(g)))
-  return true, kind.done or 'Purchased.'
+  return true, Text.get(kind.done or 'shop_bought')
 end
 return E

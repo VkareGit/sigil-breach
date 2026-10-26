@@ -1,12 +1,13 @@
 -- The proving-ground catalogue follows registered content at query time.
 -- Existing screens retain their ordered arrays; adding a creature is data.
+-- Names are text keys (content/text.lua).
 local Archetypes = require('src.content.enemies')
 local Stations = require('src.run.field.stations')
 local Catalog = {
   seals = {
-    { id = 'asmoday', name = 'ASMODAY' },
-    { id = 'stolas', name = 'STOLAS' },
-    { id = 'buer', name = 'BUER' },
+    { id = 'asmoday', name = 'seal_asmoday' },
+    { id = 'stolas', name = 'seal_stolas' },
+    { id = 'buer', name = 'seal_buer' },
   },
 }
 function Catalog.contains(id)

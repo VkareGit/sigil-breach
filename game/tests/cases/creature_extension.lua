@@ -82,12 +82,13 @@ function Tests.run(G)
   Materials.trial_plate = { wound = 0.5, guard = 2, penetrable = false, debris = 'metal' }
   local annotation, counts = plated(Anatomy.layouts.imp, 'trial_plate')
   Anatomy.layouts.trial_plated = annotation
+  Fixtures.words({ trial_plated_thrall = 'Trial Plated Thrall' })
   A.trial_plated = Creature.define({
     extends = A.imp,
     id = 'trial_plated',
     kind = 'imp',
     variant = 'trial_plated',
-    name = 'Trial Plated Thrall',
+    name = 'trial_plated_thrall',
     appearance = { regions = 'trial_plated', evadeArt = 'evade' },
     move = { evade = { speed = 6.5, time = 0.24, cooldown = 3.5 } },
   })

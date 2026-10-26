@@ -8,6 +8,7 @@ local K = require('src.physics.kinematics')
 local A = require('src.audio.audio')
 local Archetypes = require('src.content.enemies')
 local Weapons = require('src.content.weapons')
+local Text = require('src.content.text')
 local W = {}
 local sin, cos, atan2, sqrt, min, max, abs, pi =
   math.sin, math.cos, math.atan2, math.sqrt, math.min, math.max, math.abs, math.pi
@@ -207,23 +208,23 @@ function W.confirm(g, report, results)
   -- Name the rule that just fired, once, unless a kill already speaks.
   local killed = report and (report.kills or 0) > 0
   if falter then
-    g.view.feedback, g.view.feedbackTimer = 'FALTER  /  EXPOSED', 1.6
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), 1.6
     A.play('break', 0.75)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.12)
   elseif not killed and stopped then
     -- 0.24: the blow reversed a rush; the body goes down.
-    g.view.feedback, g.view.feedbackTimer = 'KNOCKED DOWN', 1.0
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), 1.0
     A.play('thud', 0.55)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.10)
   elseif not killed and tripped then
-    g.view.feedback, g.view.feedbackTimer = 'TRIPPED', 1.0
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), 1.0
     A.play('thud', 0.5)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.08)
   elseif not killed and counter then
-    g.view.feedback, g.view.feedbackTimer = 'COUNTER', 0.9
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), 0.9
     A.play('crit', 0.32)
   elseif not killed and crippled then
-    g.view.feedback, g.view.feedbackTimer = 'CRIPPLED', 0.9
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_crippled'), 0.9
   end
   g.view.breakConfirm = broke and 0.22 or (g.view.breakConfirm or 0)
   if broke then

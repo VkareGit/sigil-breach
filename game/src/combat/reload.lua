@@ -1,6 +1,7 @@
 local Signal = require('src.session.signal')
 local T = require('src.content.tuning')
 local W = require('src.content.weapons')
+local Text = require('src.content.text')
 local R = {}
 -- Reload mechanisms (0.24, Strategy). A weapon names its mechanism in its
 -- profile (content/weapons.lua: mechanism); one timeline per mechanism drives
@@ -88,7 +89,9 @@ Mechanisms.breech = {
     return w.loaded
   end,
   label = function(t)
-    return t < B.labels[1] and 'OPEN' or (t < B.labels[2] and 'LOAD' or 'CLOSE')
+    return Text.get(
+      t < B.labels[1] and 'reload_open' or (t < B.labels[2] and 'reload_load' or 'reload_close')
+    )
   end,
 }
 
@@ -141,8 +144,13 @@ Mechanisms.cylinder = {
     return w.loaded
   end,
   label = function(t)
-    return t < C.labels[1] and 'OPEN'
-      or (t < C.labels[2] and 'EJECT' or (t < T.revolverLoadTime and 'LOAD' or 'CLOSE'))
+    return Text.get(
+      t < C.labels[1] and 'reload_open'
+        or (
+          t < C.labels[2] and 'reload_eject'
+          or (t < T.revolverLoadTime and 'reload_load' or 'reload_close')
+        )
+    )
   end,
 }
 

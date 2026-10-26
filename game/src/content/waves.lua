@@ -4,6 +4,7 @@
 local rotation = { 'imp', 'stolas', 'imp', 'buer', 'armored' }
 -- pack: how many demons arrive together (from different portals, the later
 -- ones preferring the player's flanks and back), Doom Eternal encounter style.
+-- tip: a text key (content/text.lua).
 local function wave(cap, tip, composition, pack)
   local queue = {}
   -- Interleave roles; specialists arrive throughout a wave rather than in one clump.
@@ -42,23 +43,13 @@ local function wave(cap, tip, composition, pack)
 end
 local list = {
   -- 0.21: one more demon alive at once in every wave (caps 5/6/7/8).
-  wave(5, 'Ember Thralls charge. An Acolyte covers them from range.', { imp = 6, stolas = 1 }, 2),
-  wave(
-    6,
-    'A Plague Gardener comes. Leave the marked venom ground.',
-    { imp = 5, stolas = 2, buer = 1 },
-    2
-  ),
-  wave(
-    7,
-    'The Iron Thrall is armoured. The Judge and Pierce will break it.',
-    { imp = 6, stolas = 2, buer = 1, armored = 1 },
-    3
-  ),
-  wave(8, 'Every role at once. Keep a way out.', { imp = 8, stolas = 3, buer = 1, armored = 1 }, 3),
+  wave(5, 'wave_tip_1', { imp = 6, stolas = 1 }, 2),
+  wave(6, 'wave_tip_2', { imp = 5, stolas = 2, buer = 1 }, 2),
+  wave(7, 'wave_tip_3', { imp = 6, stolas = 2, buer = 1, armored = 1 }, 3),
+  wave(8, 'wave_tip_4', { imp = 8, stolas = 3, buer = 1, armored = 1 }, 3),
   {
     cap = 1,
-    tip = 'Margrave of Ash: dodge the fans. Below half health it speeds up.',
+    tip = 'wave_tip_guardian',
     queue = {
       'boss',
     },

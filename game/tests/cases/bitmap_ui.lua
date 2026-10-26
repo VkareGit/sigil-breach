@@ -177,7 +177,7 @@ function Tests.run(G, renderer)
         g.comboTimer = 2
         g.view.message = 'WAVE 4 / Do not get boxed in between demons. Keep a way out.'
         g.view.messageTimer = 4
-        g.zone = 'NAVE OF THE DAMNED'
+        g.zone = 'zone_nave'
         g.zoneTimer = 3
       end,
     },
@@ -470,7 +470,7 @@ function Tests.run(G, renderer)
     function()
       local g = Field.new(G)
       Field.close(g)
-      g.view.fieldReturnLabel = 'BACK TO EXPEDITION'
+      g.view.fieldReturnLabel = 'return_expedition'
       g.state = 'paused'
       return g
     end,

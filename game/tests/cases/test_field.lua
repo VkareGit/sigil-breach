@@ -337,7 +337,7 @@ function Tests.run(G, renderer)
           and not World.solid(g.world, g.player.x, g.player.z, 0.22)
           and (function()
             for _, seal in ipairs(g.world.seals) do
-              if seal.name:lower() == entry.id then
+              if seal.id == entry.id then
                 return World.visible(g.world, g.player.x, g.player.z, seal.x, seal.z)
                   and near(g.player.z - seal.z, 3)
               end

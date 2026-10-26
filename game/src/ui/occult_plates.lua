@@ -3,10 +3,9 @@ local Palette = require('src.ui.palette')
 local Resources = require('src.render.resources')
 local P = { order = { 'saturn_1', 'saturn_2', 'saturn_3' } }
 P.entries = {
-  saturn_1 = { name = 'SATURN / PENTAKL I', figure = 11, page = '58', rect = { 291, 34, 289, 324 } },
-  saturn_2 = { name = 'SATURN / PENTAKL II', figure = 12, page = '59', rect = { 7, 433, 288, 322 } },
+  saturn_1 = { figure = 11, page = '58', rect = { 291, 34, 289, 324 } },
+  saturn_2 = { figure = 12, page = '59', rect = { 7, 433, 288, 322 } },
   saturn_3 = {
-    name = 'SATURN / PENTAKL III',
     figure = 13,
     page = '59',
     rect = { 291, 433, 289, 323 },

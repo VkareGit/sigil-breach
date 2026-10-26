@@ -19,6 +19,7 @@ local Fields = require('src.session.fields')
 local ContentContracts = require('src.session.content_contracts')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
@@ -99,7 +100,7 @@ function Game:reloadGun()
   local mag, reserve = Weapons.ammo(self)
   if mag == 0 and reserve == 0 then
     self.cooldown = 0.20
-    self:notify('No ammo / switch weapons or restock at the Ember.', 2)
+    self:notify(Text.get('no_ammo'), 2)
     Presentation.cue(self, 'empty')
   end
   return false

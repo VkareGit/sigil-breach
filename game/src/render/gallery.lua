@@ -7,93 +7,120 @@ local Archetypes = require('src.content.enemies')
 local Ritual = require('src.render.ritual_art')
 local Skin = require('src.ui.skin')
 local Resources = require('src.render.resources')
+local Queries = require('src.run.queries')
+local Text = require('src.content.text')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
 end
--- Active art, by hall. get(r) reuses an image the game already holds.
+-- Active art, by hall (group: the hall, world/gallery.lua; name: a text key).
+-- get(r) reuses an image the game already holds.
 G.boards = {
   {
-    group = 'WORLD',
-    name = 'Walls and floor',
+    group = 'world',
+    name = 'board_walls_and_floor',
     path = 'assets/art/textures-fresco-v12.png',
     get = function(r)
       return r.textures
     end,
   },
   {
-    group = 'WORLD',
-    name = 'Horizon',
+    group = 'world',
+    name = 'board_horizon',
     path = 'assets/art/horizon-fresco-v12.png',
     get = function(r)
       return r.horizon
     end,
   },
   {
-    group = 'WORLD',
-    name = 'Wall frescoes',
+    group = 'world',
+    name = 'board_wall_frescoes',
     path = 'assets/art/murals-fresco-v12.png',
     get = function(r)
       return r.frescoes
     end,
   },
   {
-    group = 'WORLD',
-    name = 'Props and braziers',
+    group = 'world',
+    name = 'board_props_and_braziers',
     path = 'assets/art/props-fresco-v12.png',
     get = function(r)
       return r.props
     end,
   },
   {
-    group = 'WORLD',
-    name = 'Ember shrine',
+    group = 'world',
+    name = 'board_ember_shrine',
     path = 'assets/art/shrine-fresco-v12.png',
     get = function(r)
       return r.shrineImage
     end,
   },
   {
-    group = 'WEAPONS',
-    name = 'Exorcist shotgun',
+    group = 'weapons',
+    name = 'board_exorcist_shotgun',
     path = require('src.render.weapon_art').exorcist.path,
   },
   {
-    group = 'WEAPONS',
-    name = 'Judge revolver',
+    group = 'weapons',
+    name = 'board_judge_revolver',
     path = require('src.render.weapon_art').judge.path,
   },
-  { group = 'WEAPONS', name = 'Muzzle flash', path = 'assets/art/muzzle-fresco-v12.png' },
-  { group = 'WEAPONS', name = 'Powder charge', path = 'assets/art/charge-fresco-v12.png' },
+  { group = 'weapons', name = 'board_muzzle_flash', path = 'assets/art/muzzle-fresco-v12.png' },
+  { group = 'weapons', name = 'board_powder_charge', path = 'assets/art/charge-fresco-v12.png' },
   {
-    group = 'EFFECTS',
-    name = 'Blood, smoke, sparks',
+    group = 'effects',
+    name = 'board_blood_smoke_sparks',
     path = 'assets/art/effects-fresco-v12.png',
     get = function(r)
       return r.effects
     end,
   },
   {
-    group = 'EFFECTS',
-    name = 'Demon spells',
+    group = 'effects',
+    name = 'board_demon_spells',
     path = 'assets/art/spells-fresco-v12.png',
     get = function(r)
       return r.spells
     end,
   },
-  { group = 'INTERFACE', name = 'Reliquary HUD', path = require('src.ui.reliquary').path },
-  { group = 'INTERFACE', name = 'Icons and panels', path = 'assets/art/ui-fresco-v12.png' },
-  { group = 'INTERFACE', name = 'Inscriptions', path = 'assets/art/lettering-en-v16.png' },
-  { group = 'INTERFACE', name = 'Painted numerals', path = 'assets/art/numerals-v16.png' },
-  { group = 'INTERFACE', name = 'Knight portrait', path = require('src.ui.portrait').path },
-  { group = 'INTERFACE', name = 'Alphabet, capitals', path = 'assets/art/alphabet-upper-v16.png' },
-  { group = 'INTERFACE', name = 'Alphabet, small', path = 'assets/art/alphabet-lower-v16.png' },
-  { group = 'DEMONS', name = 'Ember Thrall atlas', path = 'assets/art/imp-fresco-v12.png' },
-  { group = 'DEMONS', name = 'Iron Thrall atlas', path = 'assets/art/armored-fresco-v12.png' },
-  { group = 'DEMONS', name = 'Star Acolyte atlas', path = 'assets/art/stolas-fresco-v12.png' },
-  { group = 'DEMONS', name = 'Plague Gardener atlas', path = 'assets/art/buer-fresco-v12.png' },
-  { group = 'DEMONS', name = 'Margrave of Ash atlas', path = 'assets/art/boss-fresco-v12.png' },
-  { group = 'DEMONS', name = 'Furfur atlas', path = 'assets/art/furfur-fresco-v12.png' },
+  { group = 'interface', name = 'board_reliquary_hud', path = require('src.ui.reliquary').path },
+  { group = 'interface', name = 'board_icons_and_panels', path = 'assets/art/ui-fresco-v12.png' },
+  { group = 'interface', name = 'board_inscriptions', path = 'assets/art/lettering-en-v16.png' },
+  { group = 'interface', name = 'board_painted_numerals', path = 'assets/art/numerals-v16.png' },
+  { group = 'interface', name = 'board_knight_portrait', path = require('src.ui.portrait').path },
+  {
+    group = 'interface',
+    name = 'board_alphabet_capitals',
+    path = 'assets/art/alphabet-upper-v16.png',
+  },
+  {
+    group = 'interface',
+    name = 'board_alphabet_small',
+    path = 'assets/art/alphabet-lower-v16.png',
+  },
+  { group = 'demons', name = 'board_ember_thrall_atlas', path = 'assets/art/imp-fresco-v12.png' },
+  {
+    group = 'demons',
+    name = 'board_iron_thrall_atlas',
+    path = 'assets/art/armored-fresco-v12.png',
+  },
+  {
+    group = 'demons',
+    name = 'board_star_acolyte_atlas',
+    path = 'assets/art/stolas-fresco-v12.png',
+  },
+  {
+    group = 'demons',
+    name = 'board_plague_gardener_atlas',
+    path = 'assets/art/buer-fresco-v12.png',
+  },
+  {
+    group = 'demons',
+    name = 'board_margrave_of_ash_atlas',
+    path = 'assets/art/boss-fresco-v12.png',
+  },
+  { group = 'demons', name = 'board_furfur_atlas', path = 'assets/art/furfur-fresco-v12.png' },
 }
 -- Hang the boards in their halls (world/gallery.lua).
 function G.layout(world)
@@ -156,7 +183,7 @@ function G.loadingJobs(r)
   local jobs = {}
   for _ = 1, G.pending(r) do
     jobs[#jobs + 1] = {
-      label = 'PREPARING THE GALLERY',
+      label = 'loading_gallery',
       run = function()
         G.preloadStep(r)
       end,
@@ -190,7 +217,8 @@ local function billboard(r, g, img, x, y, z, width, height, tint, alpha, toward)
   love.graphics.draw(r.sprite)
 end
 function G.draw(r, g)
-  if not g.testField then
+  local tools = Queries.tools(g)
+  if not (tools and tools.gallery) then
     return
   end
   local lg = love.graphics
@@ -284,7 +312,14 @@ function G.labelBox(font, text, sx, sy, ox, oy, vw, vh, box)
 end
 -- Name plates over the nearest exhibits (screen space, after the frame).
 function G.labels(r, g, ox, oy, vw, vh)
-  if not g.testField or g.state ~= 'playing' or g.map or g.help or not r.galleryPlaced then
+  local tools = Queries.tools(g)
+  if
+    not (tools and tools.gallery)
+    or g.state ~= 'playing'
+    or g.map
+    or g.help
+    or not r.galleryPlaced
+  then
     return
   end
   local ui = require('src.ui.interface')
@@ -294,7 +329,7 @@ function G.labels(r, g, ox, oy, vw, vh)
   local font = ui.fonts[14]
   local lg = love.graphics
   local state = r.galleryLabelLayout
-  local stationLabels = g.testField.labels
+  local stationLabels = tools.labels
   if not state or state.placed ~= r.galleryPlaced or state.labels ~= stationLabels then
     state = { placed = r.galleryPlaced, labels = stationLabels, items = {}, taken = {}, boxes = {} }
     r.galleryLabelLayout = state
@@ -306,7 +341,10 @@ function G.labels(r, g, ox, oy, vw, vh)
         y = 0.95,
         focusY = 1.7,
         z = b.z,
-        text = b.group .. ' / ' .. b.name,
+        text = Text.get(
+          'gallery_exhibit',
+          { hall = Text.get('hall_' .. b.group), name = Text.get(b.name) }
+        ),
         kind = 'exhibit',
       }
     end
@@ -319,17 +357,17 @@ function G.labels(r, g, ox, oy, vw, vh)
         focusY = tall * 0.5,
         z = s.z,
         kind = 'exhibit',
-        text = a.name
-          .. ' / HP '
-          .. a.body.hp
-          .. (a.body.armor > 0 and (' / ARMOUR ' .. a.body.armor) or ''),
+        text = Text.get(
+          a.body.armor > 0 and 'gallery_statue_armour' or 'gallery_statue',
+          { name = Text.get(a.name), hp = a.body.hp, armour = a.body.armor }
+        ),
       }
     end
     for _, p in ipairs(WG.pads) do
-      local name = p.spawn and Archetypes.get(p.spawn).name
-        or (
-          p.weapon and require('src.content.weapons').get(p.weapon).name or 'HEALTH / WARD / AMMO'
-        )
+      local name = Text.get(
+        p.spawn and Archetypes.get(p.spawn).name
+          or (p.weapon and require('src.content.weapons').get(p.weapon).name or 'gallery_refill')
+      )
       state.items[#state.items + 1] =
         { x = p.x, y = 0.35, focusY = 0.1, z = p.z, text = name:upper(), reach = 3, kind = 'pad' }
     end

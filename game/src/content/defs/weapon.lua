@@ -8,6 +8,7 @@ local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Delivery = require('src.content.defs.delivery')
 local Effect = require('src.content.defs.effect')
+local Text = require('src.content.text')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
   bodies = { type = 'number', required = true, min = 0 },
@@ -163,8 +164,20 @@ function Weapon.define(def)
     )
   end
   if built.fire.rounds > 1 then
-    built.hud.partial = built.hud.partial or 'PARTIAL DISCHARGE'
-    built.hud.partialShort = built.hud.partialShort or 'PARTIAL'
+    built.hud.partial = built.hud.partial or 'weapon_partial'
+    built.hud.partialShort = built.hud.partialShort or 'weapon_partial_short'
+  end
+  -- Its words are text keys (content/text.lua, plan v10 V6).
+  assert(
+    Text.has(built.name),
+    'weapon ' .. built.id .. ': unknown text key ' .. tostring(built.name)
+  )
+  for _, field in ipairs({ 'title', 'kind', 'tab', 'draw', 'partial', 'partialShort' }) do
+    local key = built.hud[field]
+    assert(
+      key == nil or Text.has(key),
+      'weapon ' .. built.id .. ': unknown text key ' .. tostring(key)
+    )
   end
   assert(
     built.delivery.kind ~= 'projectile' or not built.attack.pierce,

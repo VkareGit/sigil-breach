@@ -56,7 +56,6 @@ src/run/economy.lua 0
 src/run/modes.lua 0
 src/run/navigation.lua 3
 src/run/spawner.lua 1
-src/run/test_field.lua 48
 src/session/capabilities.lua 0
 src/session/components.lua 5
 src/session/damage_outcomes.lua 0

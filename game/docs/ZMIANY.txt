@@ -82,6 +82,20 @@ V5 — nagrywanie dużych walk (2026-10-26)
   29,6 MB (limit 64 MiB); limit komend obejmuje 10 minut celowania myszą.
 - Rozgrywka, balans i wygląd bez zmian; skróty v2 bit w bit.
 
+V6 — otwarta prezentacja (2026-10-26)
+- Renderer w ośmiu przejściach; obiekty świata (pieczęć, Żar, bramy,
+  zapasy, dekoracje, galeria) rysują się przez rejestrację, nowy rodzaj
+  bez zmian renderera.
+- HUD z deklaracji slotów: dowolna liczba broni i każdy slot wyposażenia
+  z klawiszem (Q, F, C); z obecnym zestawem wygląda jak dotąd.
+- Wszystkie napisy dla gracza w tabeli tekstów (523 klucze). Zmiana języka
+  zmienia każdy napis bez zmian kodu; napisy malowane bez malunku piszą się
+  glifami.
+- Ekrany pytają tryb, nie czytają jego rekordu. Poligon i ataki demonów
+  podzielone na moduły.
+- Rozgrywka, balans i wygląd bez zmian; 596 renderów identycznych, skróty
+  v2 bit w bit.
+
 
 ########################################################################
 ZMIANY-0.32.txt

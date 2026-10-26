@@ -2,6 +2,7 @@
 -- Returns source-art keys and frame indices, without images or hit geometry.
 local MathX = require('src.core.mathx')
 local Animation = require('src.enemies.animation')
+local Capabilities = require('src.session.capabilities')
 local Archetypes = require('src.content.enemies')
 local AbilityArt = require('src.content.ability_art')
 local Timing = AbilityArt.timing
@@ -53,7 +54,7 @@ function AbilityPose.select(g, e)
     or e.ai == 'hurt'
     or (e.stun or 0) > 0
     or (e.spawnAge or 1) < Timing.arrival
-    or (g.testField and e.previewFrame)
+    or (e.previewFrame and Capabilities.posed(g))
   then
     return nil
   end

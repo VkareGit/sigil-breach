@@ -173,7 +173,8 @@ function Tests.run(G, check, spark)
   -- Two definitions share the throw behaviour without sharing their tuning.
   -- Keep the trial beside two bodies: only one lies inside its small blast.
   local trial = Schema.copy(Abilities:get('powder'))
-  trial.id, trial.name, trial.tag = 'trial_charge', 'TRIAL CHARGE', 'TRIAL'
+  Fixtures.words({ trial_charge = 'TRIAL CHARGE', trial_charge_short = 'TRIAL' })
+  trial.id, trial.name, trial.tag = 'trial_charge', 'trial_charge', 'trial_charge_short'
   trial.action.id = trial.id
   trial.action.speed, trial.action.lift, trial.action.fuse = 0, 0, 0.12
   trial.action.radius = 1.2

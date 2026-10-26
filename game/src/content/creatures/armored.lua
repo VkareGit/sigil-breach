@@ -7,14 +7,14 @@ return Creature.define({
   id = 'armored',
   kind = 'imp',
   variant = 'armored',
-  name = 'Iron Thrall',
+  name = 'creature_armored',
   souls = 12,
   catalog = {
     field = 2,
     bestiary = {
       order = 4,
-      text = 'Armour protects it.',
-      tip = 'Pierce or the Judge.',
+      text = 'creature_armored_text',
+      tip = 'creature_armored_tip',
       color = 'blue',
     },
   },

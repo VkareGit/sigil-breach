@@ -1,6 +1,7 @@
 -- The Ember's offers between waves. Each offer names a kind (run/economy.lua
 -- E.kinds: how it is priced, what it gives); a new offer of a known kind is
--- a new entry here, a new kind of offer is a new entry there.
+-- a new entry here, a new kind of offer is a new entry there. name,
+-- description, short: text keys (content/text.lua).
 local Shop = {
   -- A wallet beyond this is a corrupted save, not a purchase.
   maxWallet = 1000000,
@@ -11,53 +12,53 @@ local Shop = {
       id = 'ammo',
       icon = 'ammo',
       kind = 'rounds',
-      name = '4 SHELLS',
+      name = 'offer_ammo',
       price = 12,
-      description = 'Two full Exorcist volleys. Reserve up to 72.',
+      description = 'offer_ammo_text',
     },
     {
       id = 'fill',
       icon = 'ammo',
       kind = 'refill',
-      name = 'REFILL AMMO',
-      description = 'Full reserve. You only pay for missing rounds.',
+      name = 'offer_fill',
+      description = 'offer_fill_text',
     },
     {
       id = 'armor',
       icon = 'armor',
       kind = 'ward',
-      name = 'MEND +25 WARD',
+      name = 'offer_armor',
       -- amount of ward for price; a partial mend costs its share (rounded up).
       amount = 25,
       price = 35,
-      description = 'The ward absorbs 55% of a blow until spent.',
+      description = 'offer_armor_text',
     },
     {
       id = 'choke',
       icon = 'choke',
-      short = 'FOCUS',
+      short = 'offer_choke_short',
       kind = 'engraving',
-      name = 'ENGRAVING: FOCUS',
+      name = 'offer_choke',
       price = 100,
-      description = 'Spread 28% tighter. Fewer targets side by side.',
+      description = 'offer_choke_text',
     },
     {
       id = 'pierce',
       icon = 'pierce',
-      short = 'PIERCE',
+      short = 'offer_pierce_short',
       kind = 'engraving',
-      name = 'ENGRAVING: PIERCE',
+      name = 'offer_pierce',
       price = 100,
-      description = 'Ignores 60% of armour. 35% less impact.',
+      description = 'offer_pierce_text',
     },
     {
       id = 'charge',
       icon = 'ammo',
       kind = 'charge',
       ability = 'powder',
-      name = 'POWDER CHARGE',
+      name = 'offer_charge',
       price = 30,
-      description = 'One charge. Throw [Q], 1 s fuse. Room for 3.',
+      description = 'offer_charge_text',
     },
   },
 }

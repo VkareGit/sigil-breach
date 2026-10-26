@@ -117,7 +117,7 @@ function Ritual.pad(r, pad, floor)
   Ritual.draw(r, pad.x, (floor or 0) + 0.024, pad.z, 1.8, yaw, image, uv, ink)
 end
 function Ritual.seal(r, g, seal)
-  local image = Goetic.image(seal.name)
+  local image = Goetic.image(seal.id)
   if not image then
     return
   end

@@ -5,14 +5,14 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.define({
   id = 'imp',
-  name = 'Ember Thrall',
+  name = 'creature_imp',
   souls = 4,
   catalog = {
     field = 1,
     bestiary = {
       order = 1,
-      text = 'Flanks and lunges.',
-      tip = 'Sidestep its swing.',
+      text = 'creature_imp_text',
+      tip = 'creature_imp_tip',
       color = 'red',
     },
   },

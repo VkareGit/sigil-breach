@@ -8,7 +8,7 @@ local L = require('src.ui.layout')
 local Portrait = require('src.ui.portrait')
 local Numbers = require('src.ui.fonts.painted_numbers')
 local Weapons = require('src.content.weapons')
-local Abilities = require('src.content.abilities')
+local Slots = require('src.ui.hud_slots')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Palette = require('src.ui.palette')
@@ -109,19 +109,18 @@ function H.status(g, run)
   centered(Text.get('arsenal'), 478, 630, 14, C.muted)
   -- Two painted rows: scroll around the selected slot instead of silently
   -- dropping any third weapon or overflowing the fresco's lower ornament.
-  local count = Weapons.count(g)
-  local first = math.max(1, math.min(g.weapon - 1, count - 1))
-  for row = 0, math.min(2, count) - 1 do
-    local slot = first + row
-    local def = Weapons.profile(slot, g)
-    local tint = g.weapon == slot and C.gold or C.muted
-    local label = count > 2 and (Text.get('weapon_slot', { slot = slot, name = def.hud.tab }))
-      or def.name
-    fitted(label, 478, 648 + row * 16, 12, 114, tint)
+  local shown, count = Slots.weapons(g, 2)
+  for row, weapon in ipairs(shown) do
+    local tint = weapon.selected and C.gold or C.muted
+    local label = count > 2
+        and (Text.get('weapon_slot', { slot = weapon.slot, name = Text.get(weapon.def.hud.tab) }))
+      or Text.get(weapon.def.name)
+    fitted(label, 478, 648 + (row - 1) * 16, 12, 114, tint)
   end
   if run.glyph ~= 'none' then
-    local label =
+    local label = Text.get(
       assert(require('src.content.shop').get(run.glyph).short, 'missing engraving HUD label')
+    )
     fitted(label, 478, 681, 12, 114, C.gold)
   end
   Skin.endZone()
@@ -132,18 +131,39 @@ function H.status(g, run)
   Skin.meter(753, 686, 114, p.armor / 100, C.blue, 12)
   Skin.endZone()
   Skin.zone('HUD abilities', 908, 628, 113, 68)
-  -- The ability on Q (the first of the loadout): its uses of its capacity.
-  local ability, power = Abilities.slot(g, 1)
-  local uses, capacity = power and power.uses or 0, ability and ability.capacity or 1
-  text(Text.get('ability_key', { tag = ability and ability.tag or '' }), 912, 630, 12, C.gold)
-  text(
-    uses > 0 and Text.get('uses', { uses = uses, capacity = capacity }) or Text.get('none'),
-    912,
-    649,
-    14,
-    uses > 0 and C.ivory or C.red
-  )
-  Skin.meter(912, 667, 104, uses / capacity, C.gold, capacity)
+  -- The equipment of every keyed slot (ui/hud_slots.lua). One item: its key
+  -- and tag, its uses of its capacity and their meter; more: one row each.
+  local kit = Slots.equipment(g)
+  if #kit == 1 then
+    local item = kit[1]
+    local uses, capacity = item.uses, item.capacity
+    text(
+      Text.get('ability_key', { key = item.key, tag = item.def and Text.get(item.def.tag) or '' }),
+      912,
+      630,
+      12,
+      C.gold
+    )
+    text(
+      uses > 0 and Text.get('uses', { uses = uses, capacity = capacity }) or Text.get('none'),
+      912,
+      649,
+      14,
+      uses > 0 and C.ivory or C.red
+    )
+    Skin.meter(912, 667, 104, uses / capacity, C.gold, capacity)
+  else
+    for row, item in ipairs(kit) do
+      local y = 630 + (row - 1) * 15
+      -- A row is narrow: the uses left (red at none); the meter is a single item's.
+      local count = Text.get('uses_left', { uses = item.uses })
+      local ink = Skin.inkBounds(U.fonts[11], count)
+      text(count, 1021 - ink.w - ink.x, y, 11, item.uses > 0 and C.ivory or C.red)
+      local label = Text.get('ability_key', { key = item.key, tag = Text.get(item.def.tag) })
+      local fit = Fit.ellipsis(U.fonts[11], label, 107 - ink.w)
+      text(fit, 908 - Skin.inkBounds(U.fonts[11], fit).x, y, 11, C.gold)
+    end
+  end
   text(Text.get('shift'), 912, 678, 12, C.muted)
   for i = 1, 2 do
     Skin.meter(974 + (i - 1) * 24, 683, 20, p.dash - i + 1, C.ivory, 4)
@@ -172,7 +192,7 @@ function H.draw(g, settings, ui, descentUI)
   descentUI.heading(g)
   Skin.panel(1028, 12, 236, 68, 7, 10)
   Skin.zone('utility caption field', 1038, 22, 216, 48)
-  local utility = 'TAB MAP / F1 HELP'
+  local utility = Text.get('hud_utility')
   local utilitySize = 14
   if Skin.inkBounds(U.fonts[utilitySize], utility).w > 210 then
     utilitySize = 12
@@ -258,8 +278,9 @@ function H.draw(g, settings, ui, descentUI)
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then
         local exposed = Rules.has(e, 'exposed')
-        local name = exposed and banner.exposed
-          or (e.hp < e.maxHp * 0.5 and banner.fury or banner.calm)
+        local name = Text.get(
+          exposed and banner.exposed or (e.hp < e.maxHp * 0.5 and banner.fury or banner.calm)
+        )
         Skin.panel(426, 16, 428, 64, 2, 10)
         Skin.zone('boss field', 438, 27, 402, 43)
         Skin.icon('skull', 440, 28, 36)
@@ -275,7 +296,7 @@ function H.draw(g, settings, ui, descentUI)
       local shield = (target.armorRating or 0) > 0
       Skin.panel(503, 20, 274, 60, 2, 10)
       Skin.zone('target field', 514, 30, 252, 40)
-      local name = target.displayName or 'Demon'
+      local name = target.displayName and Text.show(target.displayName) or Text.get('hud_demon')
       local width = shield and 208 or 240
       local size = 16
       while size > 12 and Skin.inkBounds(U.fonts[size], name).w > width do
@@ -300,8 +321,10 @@ function H.draw(g, settings, ui, descentUI)
     local other = Weapons.nextSlot(g)
     local otherMag, otherReserve = Weapons.ammo(g, other)
     local notice = empty
-        and ((otherMag + otherReserve > 0) and ('NO AMMO / [' .. other .. ']') or 'NO AMMO')
-      or (mag == 0 and '[R] RELOAD' or def.hud.partial)
+        and ((otherMag + otherReserve > 0) and Text.get('hud_no_ammo_switch', { slot = other }) or Text.get(
+          'hud_no_ammo'
+        ))
+      or Text.get(mag == 0 and 'hud_reload' or def.hud.partial)
     Skin.zone('ammunition notice', 515, 540, 250, 32)
     Skin.panel(502, 530, 276, 52, 2, 10)
     Skin.boxText(notice, 516, 542, 248, 28, U.fonts[16], empty and C.red or C.ivory, true)
@@ -311,7 +334,7 @@ function H.draw(g, settings, ui, descentUI)
     notice(g.view.feedback, 486, 16, C.gold)
   end
   if g.comboTimer > 0 and g.combo > 1 then
-    notice('CHAIN x' .. g.combo, 438, 16, C.ivory)
+    notice(Text.get('hud_chain', { count = g.combo }), 438, 16, C.ivory)
   end
   local ctx = g:context()
   if ctx then
@@ -332,9 +355,9 @@ function H.draw(g, settings, ui, descentUI)
     Skin.endZone()
   end
   if settings.hints ~= false then
-    local hint = g.elapsed < 8 and 'WASD move / SHIFT dodge / CTRL slide / SPACE jump' or nil
+    local hint = g.elapsed < 8 and Text.get('hud_hint_moves') or nil
     if p.hp < 30 then
-      hint = 'Find medkits. The Ember lets you rest between waves.'
+      hint = Text.get('hud_hint_hurt')
     end
     if hint then
       local width = math.min(1040, Skin.inkBounds(U.fonts[16], hint).w + 32)

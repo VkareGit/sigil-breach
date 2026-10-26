@@ -76,10 +76,8 @@ function Application:adopt(game)
   if tools and tools.gallery and self.renderer then
     local remaining = require('src.render.gallery').pending(self.renderer)
     if remaining > 0 then
-      self.loading = LoadPlan.new(
-        'PREPARING THE GALLERY',
-        require('src.render.gallery').loadingJobs(self.renderer)
-      )
+      self.loading =
+        LoadPlan.new('loading_gallery', require('src.render.gallery').loadingJobs(self.renderer))
       self.loading.kind = 'transition'
       self.accumulator = 0
       self.input:reset(true)
@@ -90,7 +88,7 @@ function Application:adopt(game)
     self.journals = self.journals or setmetatable({}, { __mode = 'k' })
     self.journals[game] = self.journals[game]
       or require('src.session.journal').record(game, nil, function()
-        game:notify('Recording stopped: limit reached. F9 saves the completed recording.', 8)
+        game:notify(require('src.content.text').get('recording_full'), 8)
       end)
     self.journal = self.journals[game]
   end
@@ -135,7 +133,10 @@ end
 -- with --record the journal follows each entry), and where the file is.
 function Application:report()
   if SessionReport.write(self.game, 'F9') then
-    self.game:notify('Telemetry saved: ' .. SessionReport.path(), 4)
+    self.game:notify(
+      require('src.content.text').get('telemetry_saved', { path = SessionReport.path() }),
+      4
+    )
     return true
   end
   return false
@@ -200,9 +201,9 @@ end
 -- Jobs are providers, not special cases in the frame loop. A yielded checkpoint
 -- may resume only after the progress page has been submitted for display.
 function Application:beginStartup()
-  self.loading = LoadPlan.new('PREPARING SIGIL', {
+  self.loading = LoadPlan.new('loading_sigil', {
     {
-      label = 'PREPARING SOUND',
+      label = 'loading_sound',
       run = function(checkpoint)
         Audio.init(checkpoint)
         Audio.muted = self.settings.muted or self.qa.capture
@@ -211,13 +212,13 @@ function Application:beginStartup()
       end,
     },
     {
-      label = 'PREPARING THE INTERFACE',
+      label = 'loading_interface',
       run = function(checkpoint)
         UI.init(checkpoint)
       end,
     },
     {
-      label = 'PREPARING THE WORLD',
+      label = 'loading_world',
       run = function(checkpoint)
         require('src.enemies.art_contract').validateAll()
         checkpoint('art contracts')

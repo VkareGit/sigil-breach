@@ -17,6 +17,7 @@ local Explosives = require('src.combat.explosives')
 local Registry = require('src.core.registry')
 local Action = require('src.content.defs.action')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local Cast = {}
 Cast.registry = Registry:new('equipment deliveries', function(handler, id)
   Action.kinds:get(id)
@@ -89,7 +90,7 @@ function Cast.cast(g, slot)
     'ability ' .. ability.id .. ': unsupported delivery kind ' .. tostring(ability.action.kind)
   )
   if state.uses <= 0 then
-    g:notify(ability.empty, Abilities.noticeTime)
+    g:notify(Text.get(ability.empty), Abilities.noticeTime)
     return false
   end
   if not deliver(g, ability) then

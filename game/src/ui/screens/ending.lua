@@ -10,42 +10,48 @@ local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gol
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local D = require('src.ui.descent')
 local FieldUI = require('src.ui.test_field')
+local Queries = require('src.run.queries')
+local Text = require('src.content.text')
 local S = {}
 function S.draw(g, s, U)
-  if g.testField then
+  if Queries.field(g) then
     return FieldUI.ending(g, U)
   end
-  if g.run then
+  if Queries.run(g) then
     return D.ending(g)
   end
+  local won = g.state == 'won'
   rect(0, 0, 1280, 720, Palette.veil, 0.94)
-  center(g.state == 'won' and 'LIMBO BROKEN' or 'HELL KNOWS YOUR NAME', 140, 48, ivory)
+  center(Text.get(won and 'classic_won_title' or 'classic_lost_title'), 140, 48, ivory)
+  center(Text.get(won and 'classic_won_line' or 'classic_lost_line'), 208, 22, muted)
   center(
-    g.state == 'won' and 'Same arena. Another trial. Better mastery.'
-      or 'Raise your gun. Descend again.',
-    208,
-    22,
-    muted
+    won and Text.get('classic_rank', { rank = g.rank or 'A' }) or Text.get('classic_ended'),
+    280,
+    48,
+    gold
   )
-  center(g.state == 'won' and ('RANK ' .. (g.rank or 'A')) or 'TRIAL ENDED', 280, 48, gold)
   center(
-    string.format(
-      'TIME %02d:%02d   DEMONS %d   SEALS %d/3',
-      math.floor(g.elapsed / 60),
-      math.floor(g.elapsed % 60),
-      g.kills,
-      g.seals
-    ),
+    Text.get('classic_stats', {
+      minutes = string.format('%02d', math.floor(g.elapsed / 60)),
+      seconds = string.format('%02d', math.floor(g.elapsed % 60)),
+      kills = string.format('%d', g.kills),
+      seals = string.format('%d', g.seals),
+    }),
     365,
     24,
     ivory
   )
-  center('SCORE ' .. g.score .. '   DAMAGE TAKEN ' .. math.floor(g.damageTaken), 407, 20, muted)
-  if g.state == 'won' then
-    center('YOUR BEST: ' .. (g.bestScore or g.score), 450, 24, gold)
-    center('S: under 3 min and 100 damage. A: under 5 min.', 488, 16, muted)
+  center(
+    Text.get('classic_score', { score = g.score, damage = math.floor(g.damageTaken) }),
+    407,
+    20,
+    muted
+  )
+  if won then
+    center(Text.get('classic_best', { score = g.bestScore or g.score }), 450, 24, gold)
+    center(Text.get('classic_ranks'), 488, 16, muted)
   else
-    center('Hint: dodge after the swing. The shotgun interrupts common attacks.', 460, 20, gold)
+    center(Text.get('classic_hint'), 460, 20, gold)
   end
 end
 return S

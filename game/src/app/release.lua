@@ -3,7 +3,7 @@
 return {
   version = require('src.core.build').version,
   title = 'SIGIL: BREACH — 0.32 / Foundation',
-  menuLabel = 'FOUNDATION  /  0.32',
+  menuLabel = 'menu_release',
   qaOutput = 'work/qa-v32',
   qaIdentity = 'sigil-breach-qa-v32',
 }

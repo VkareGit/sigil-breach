@@ -4,6 +4,7 @@ local Screens = require('src.app.screens')
 local Bindings = require('src.app.bindings')
 local Tuning = require('src.content.tuning')
 local Observation = require('src.combat.observation')
+local Queries = require('src.run.queries')
 
 local Input = {}
 Input.__index = Input
@@ -103,7 +104,9 @@ function Input:keypressed(app, key, scancode, isrepeat)
     return
   end
   if key == 'f2' then
-    app:action(game.testField and game.state == 'field_catalog' and 'field_close' or 'field_open')
+    app:action(
+      Queries.field(game) and game.state == 'field_catalog' and 'field_close' or 'field_open'
+    )
     return
   end
   if key == 'escape' or key == 'tab' or key == 'f1' then
@@ -124,7 +127,7 @@ function Input:keypressed(app, key, scancode, isrepeat)
   end
   if key == 'f12' then
     love.graphics.captureScreenshot('screenshot-' .. os.time() .. '.png')
-    game:notify('Screenshot saved in the game data folder.', 2)
+    game:notify(require('src.content.text').get('screenshot_saved'), 2)
     return
   end
   if key == 'f1' then
@@ -171,7 +174,7 @@ end
 -- What each action of play does (its keys: app/bindings.lua).
 local gameplay = {}
 function gameplay.ready(_, app, game)
-  if game.run then
+  if Queries.run(game) then
     app:action('ready')
   end
 end

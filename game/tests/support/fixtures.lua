@@ -60,4 +60,14 @@ function Fixtures.expedition(G)
   g:start()
   return g
 end
+-- The words of a test-only definition as text keys (content/text.lua), as an
+-- extension registers its own; a key already there is kept.
+function Fixtures.words(words)
+  local Text = require('src.content.text')
+  for id, template in pairs(words) do
+    if not Text.has(id) then
+      Text.register(id, template)
+    end
+  end
+end
 return Fixtures

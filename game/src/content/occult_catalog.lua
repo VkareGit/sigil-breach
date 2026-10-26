@@ -1,52 +1,43 @@
 -- Catalogue and selection shared by the test field and its visual archive.
+-- name, source and detail are text keys (content/text.lua).
 local A = {}
 A.entries = {
   {
     id = 'asmoday',
-    name = 'ASMODAY',
-    source = 'GOETIA / MATHERS AND CROWLEY / 1904',
-    detail = 'Spirit 32 / figure 37 / second plate',
+    name = 'archive_asmoday',
+    source = 'archive_goetia',
+    detail = 'archive_asmoday_detail',
   },
   {
     id = 'stolas',
-    name = 'STOLAS',
-    source = 'GOETIA / MATHERS AND CROWLEY / 1904',
-    detail = 'Spirit 36 / figure 41 / second plate',
+    name = 'archive_stolas',
+    source = 'archive_goetia',
+    detail = 'archive_stolas_detail',
   },
   {
     id = 'buer',
-    name = 'BUER',
-    source = 'GOETIA / MATHERS AND CROWLEY / 1904',
-    detail = 'Spirit 10 / figure 11 / first plate',
+    name = 'archive_buer',
+    source = 'archive_goetia',
+    detail = 'archive_buer_detail',
   },
   {
     id = 'saturn_1',
-    name = 'SATURN / PENTAKL I',
-    source = 'KEY OF SOLOMON / MATHERS / 1889',
-    detail = 'Clavicula Salomonis / plate II / figure 11',
+    name = 'archive_saturn_1',
+    source = 'archive_clavicula',
+    detail = 'archive_saturn_1_detail',
   },
   {
     id = 'saturn_2',
-    name = 'SATURN / PENTAKL II',
-    source = 'KEY OF SOLOMON / MATHERS / 1889',
-    detail = 'Clavicula Salomonis / plate II / figure 12',
+    name = 'archive_saturn_2',
+    source = 'archive_clavicula',
+    detail = 'archive_saturn_2_detail',
   },
   {
     id = 'saturn_3',
-    name = 'SATURN / PENTAKL III',
-    source = 'KEY OF SOLOMON / MATHERS / 1889',
-    detail = 'Clavicula Salomonis / plate II / figure 13',
+    name = 'archive_saturn_3',
+    source = 'archive_clavicula',
+    detail = 'archive_saturn_3_detail',
   },
 }
-function A.action(g, id)
-  if not g.testField then
-    return false
-  end
-  local index = tonumber(tostring(id):match('^archive_(%d+)$'))
-  if not index or not A.entries[index] then
-    return false
-  end
-  g.testField.archiveSelection = index
-  return true
-end
+
 return A

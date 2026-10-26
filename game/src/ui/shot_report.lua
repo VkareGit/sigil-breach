@@ -1,43 +1,38 @@
 -- Read-only summary of the actual combat report, displayed inside the test catalog.
 local R = {}
 local Skin = require('src.ui.skin')
+local Text = require('src.content.text')
 local C = Skin.colors
 local function amount(value)
   return string.format('%.1f', math.max(0, value or 0))
 end
 function R.lines(report)
   if not report then
-    return 'LAST SHOT / NO MEASUREMENT', 'Fire on the proving ground. F2 shows the result.'
+    return Text.get('report_none'), Text.get('report_none_hint')
   end
-  local distance = 'NO HIT'
+  local distance = Text.get('report_no_hit')
   if report.distanceMin then
     distance = amount(report.distanceMin)
     if report.distanceMax and report.distanceMax - report.distanceMin >= 0.1 then
-      distance = distance .. '−' .. amount(report.distanceMax)
+      distance = Text.get('report_range', { near = distance, far = amount(report.distanceMax) })
     end
-    distance = distance .. ' M'
+    distance = Text.get('report_distance', { distance = distance })
   end
-  local weapon = report.weaponName or 'EXORCIST'
-  local first = 'SHOT: '
-    .. weapon
-    .. ' / '
-    .. distance
-    .. ' / HITS '
-    .. (report.pelletsHit or 0)
-    .. ' / '
-    .. (report.pellets or 0)
-    .. ' / TARGETS '
-    .. (report.targets or 0)
-  local second = 'HP −'
-    .. amount(report.healthDamage)
-    .. ' / ARMOUR '
-    .. amount(report.blocked)
-    .. ' / IMPACT '
-    .. amount(report.impact)
-    .. ' / OVERKILL '
-    .. amount(report.overkill)
+  local first = Text.get('report_first', {
+    weapon = Text.get(report.weaponName or 'weapon_exorcist'),
+    distance = distance,
+    hit = report.pelletsHit or 0,
+    pellets = report.pellets or 0,
+    targets = report.targets or 0,
+  })
+  local second = Text.get('report_second', {
+    health = amount(report.healthDamage),
+    blocked = amount(report.blocked),
+    impact = amount(report.impact),
+    overkill = amount(report.overkill),
+  })
   if (report.headHits or 0) > 0 then
-    second = second .. ' / HEAD ' .. report.headHits
+    second = second .. Text.get('report_head', { count = report.headHits })
   end
   return first, second
 end

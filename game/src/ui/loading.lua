@@ -1,6 +1,7 @@
 -- An application transition, drawn from the existing bitmap skin and glyphs.
 -- No world is displayed or sampled until the gallery cache is complete.
 local Skin = require('src.ui.skin')
+local Text = require('src.content.text')
 local Loading = {}
 function Loading.bootstrap(ui)
   local view = { viewport = ui.viewport, fonts = {} }
@@ -37,7 +38,7 @@ function Loading.draw(ui, remaining, total, w, h, loadError, stage, startup)
   Skin.panel(330, 268, 620, 184)
   Skin.zone('gallery loading text', 354, 290, 572, 142)
   Skin.boxText(
-    loadError and 'RESOURCES COULD NOT BE LOADED' or (stage or 'PREPARING THE GALLERY'),
+    Text.get(loadError and 'loading_failed' or (stage or 'loading_gallery')),
     362,
     296,
     556,
@@ -47,8 +48,8 @@ function Loading.draw(ui, remaining, total, w, h, loadError, stage, startup)
     true
   )
   Skin.boxText(
-    loadError and (startup and 'ENTER TO RETRY' or 'RETURN AND TRY AGAIN')
-      or ((total - remaining) .. ' / ' .. total),
+    loadError and Text.get(startup and 'loading_enter_retry' or 'loading_return')
+      or Text.get('loading_count', { done = total - remaining, total = total }),
     362,
     341,
     556,
@@ -59,7 +60,7 @@ function Loading.draw(ui, remaining, total, w, h, loadError, stage, startup)
   )
   Skin.meter(374, 382, 532, (total - remaining) / math.max(1, total), Skin.colors.gold, total)
   Skin.boxText(
-    startup and 'ESC TO QUIT' or 'ESC TO RETURN',
+    Text.get(startup and 'loading_quit' or 'loading_back'),
     362,
     406,
     556,

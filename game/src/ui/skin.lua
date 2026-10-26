@@ -8,6 +8,7 @@ local S = {
 }
 local lg = love.graphics
 local Resources = require('src.render.resources')
+local Text = require('src.content.text')
 local names = {
   'health',
   'armor',
@@ -260,7 +261,31 @@ function S.imageBounds(label, x, y, w, h)
   record('image', label, x, y, w, h)
 end
 S.recordImage = S.imageBounds
+-- The fonts a painted inscription falls back to (ui/interface.lua gives its
+-- sizes once loaded).
+function S.useFonts(fonts)
+  S.fallbackFonts = fonts
+end
+-- A painted inscription; one without a painting (none in the atlas, or a
+-- language without its own: content/text.lua) is written in glyphs: the
+-- largest font whose ink fits the field.
 function S.inscription(name, x, y, w, h)
+  local paintings = Text.paintings()
+  local painted = paintings == true or (paintings and paintings[name])
+  if not (painted and require('src.ui.fonts.painted_titles').has(name)) then
+    local font
+    for _, size in ipairs({ 48, 36, 28, 24, 20, 18, 16, 14 }) do
+      font = S.fallbackFonts and S.fallbackFonts[size]
+      if font then
+        local ink = measuredInk(font, Text.get('inscription_' .. name))
+        if ink.w <= w and ink.h <= h then
+          break
+        end
+      end
+    end
+    S.boxText(Text.get('inscription_' .. name), x, y, w, h, font, S.colors.gold, true)
+    return x, y, w, h
+  end
   local px, py, pw, ph = require('src.ui.fonts.painted_titles').draw(
     name,
     x,

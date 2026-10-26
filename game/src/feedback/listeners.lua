@@ -11,6 +11,7 @@ local WorldFeedback = require('src.feedback.world_feedback')
 local Numbers = require('src.feedback.damage_numbers')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local MovementMarks = require('src.feedback.movement_marks')
+local Text = require('src.content.text')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
@@ -57,16 +58,20 @@ local function enemyKilled(g, e)
     require('src.content.enemies').look(enemy).deathStain,
     enemy.kind
   )
-  g.view.feedback, g.view.feedbackTimer = '+' .. (e.reward or 0) .. '  /  DEMON DESTROYED', 1.8
+  g.view.feedback, g.view.feedbackTimer =
+    Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
   if e.offBalance then
     local healed = e.healed or 0
     g.view.feedback = healed > 0
-        and ('BREAK KILL  /  +' .. string.format('%.1f', healed):gsub('%.0$', '') .. ' HEALTH')
-      or 'BREAK KILL  /  HEALTH FULL'
+        and Text.get(
+          'feedback_break_heal',
+          { amount = (string.format('%.1f', healed):gsub('%.0$', '')) }
+        )
+      or Text.get('feedback_break_full')
   end
   Audio.play('kill', 0.65)
   if e.guardianFell then
-    g:notify('THE GUARDIAN HAS FALLEN.  Return to the gate and press E.', 7)
+    g:notify(Text.get('feedback_guardian_fell'), 7)
     Audio.play('seal')
   end
 end
@@ -85,7 +90,7 @@ end
 local function perfectDodge(g)
   g.view.perfectDodge = Feel.perfectDodgeFlash
   g.view.surge = math.max(g.view.surge or 0, Feel.perfectDodgeSurge)
-  g.view.feedback, g.view.feedbackTimer = 'PERFECT DODGE', 1.2
+  g.view.feedback, g.view.feedbackTimer = Text.get('feedback_perfect_dodge'), 1.2
   MovementMarks.afterimage(g)
   Audio.play('afterimage', Feel.perfectDodgeSound)
 end

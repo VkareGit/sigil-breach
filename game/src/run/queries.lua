@@ -12,4 +12,12 @@ end
 function Queries.objective(g)
   return Modes.act(g, 'objective') or ''
 end
+-- The run of the session's mode (phase, wave, wallet, echo...; nil when it
+-- keeps none) and its proving ground (nil outside one): read-only views.
+function Queries.run(g)
+  return Modes.act(g, 'runView') or nil
+end
+function Queries.field(g)
+  return Modes.act(g, 'fieldView') or nil
+end
 return Queries

@@ -9,6 +9,7 @@
 local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
 local Pools = require('src.session.world')
+local Queries = require('src.run.queries')
 local Report = { file = 'telemetry.txt' }
 -- Per session: the counters and totals at its last entry.
 local marks = setmetatable({}, { __mode = 'k' })
@@ -97,7 +98,8 @@ function Report.attach(g)
   end)
   -- The wave trial reports itself when it ends (WaveCleared).
   bus:on('present', 'EnemyKilled', function()
-    if g.testField and g.testField.station ~= 'waves' and alive(g) == 0 then
+    local field = Queries.field(g)
+    if field and field.station ~= 'waves' and alive(g) == 0 then
       Report.write(g, 'proving ground cleared')
     end
   end)

@@ -9,6 +9,7 @@
 local W = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
@@ -20,11 +21,11 @@ end
 -- order on every run. pairs() over string keys follows LuaJIT's per-process
 -- string hash seed, so it would reorder the overlapping boards run to run.
 local halls = {
-  { group = 'WORLD', xs = { 4.1, 6.5 }, zs = { 11, 12.9, 20.6, 22.4 } },
-  { group = 'WEAPONS', xs = { 4.1, 6.5 }, zs = { 14.8, 18.8 } },
-  { group = 'EFFECTS', xs = { 26, 28 }, zs = { 11, 12.9 } },
-  { group = 'INTERFACE', xs = { 26, 28 }, zs = { 14.8, 18.8, 20.6, 22.4 } },
-  { group = 'DEMONS', xs = { 9.2, 11.5, 14, 18, 20.5, 22.8 }, zs = { 3.3 } },
+  { group = 'world', xs = { 4.1, 6.5 }, zs = { 11, 12.9, 20.6, 22.4 } },
+  { group = 'weapons', xs = { 4.1, 6.5 }, zs = { 14.8, 18.8 } },
+  { group = 'effects', xs = { 26, 28 }, zs = { 11, 12.9 } },
+  { group = 'interface', xs = { 26, 28 }, zs = { 14.8, 18.8, 20.6, 22.4 } },
+  { group = 'demons', xs = { 9.2, 11.5, 14, 18, 20.5, 22.8 }, zs = { 3.3 } },
 }
 -- Pad places on the nave floor: the demons' (west column, then east), the
 -- weapons' and the refill. What stands on them is the content's: the demons
@@ -97,12 +98,18 @@ function G.layout(world, boards)
 end
 local function padLabel(p)
   if p.spawn then
-    return '[E] SPAWN ' .. string.upper(Archetypes.get(p.spawn).name)
+    return Text.get(
+      'gallery_pad_spawn',
+      { name = string.upper(Text.get(Archetypes.get(p.spawn).name)) }
+    )
   end
   if p.weapon then
-    return '[E] TAKE ' .. require('src.content.weapons').get(p.weapon).name
+    return Text.get(
+      'gallery_pad_take',
+      { name = Text.get(require('src.content.weapons').get(p.weapon).name) }
+    )
   end
-  return '[E] REFILL HEALTH, WARD AND AMMO'
+  return Text.get('gallery_pad_refill')
 end
 G.padLabel = padLabel
 function G.nearestPad(g)
@@ -134,7 +141,7 @@ function G.interact(g)
     if slot then
       g:switchWeapon(slot)
     end
-    g:notify(Weapons.get(p.weapon).name .. ' in hand.', 2)
+    g:notify(Text.get('gallery_in_hand', { name = Text.get(Weapons.get(p.weapon).name) }), 2)
     return true
   end
   return Field.refill(g)

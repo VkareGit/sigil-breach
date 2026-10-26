@@ -4,7 +4,7 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.boss({
   id = 'furfur',
-  name = 'Furfur, Storm Count',
+  name = 'creature_furfur',
   catalog = { field = 6 },
   appearance = {
     layout = 'extended',
@@ -14,10 +14,10 @@ return Creature.boss({
     strikeFrames = { charge = 10 },
     fieldRing = 0.85,
     banner = {
-      calm = 'FURFUR / STORM COUNT',
-      fury = 'FURFUR / STORM WRATH',
-      exposed = 'FURFUR / EXPOSED',
-      plainFury = 'FURFUR / STORM COUNT',
+      calm = 'creature_furfur_calm',
+      fury = 'creature_furfur_fury',
+      exposed = 'creature_furfur_exposed',
+      plainFury = 'creature_furfur_plain_fury',
     },
   },
   body = {

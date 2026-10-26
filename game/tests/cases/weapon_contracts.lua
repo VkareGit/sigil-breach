@@ -8,6 +8,7 @@ function Tests.run(G)
   local Delivery = require('src.combat.weapon_delivery')
   local Schema = require('src.core.schema')
   local B = require('src.combat.ballistics')
+  local Text = require('src.content.text')
   local parent = Weapons.get('exorcist')
   check(
     'invalid flash fails in the definition, not in the drawing callback',
@@ -20,7 +21,8 @@ function Tests.run(G)
   })
   check(
     'a multi-round variant has safe partial-discharge captions',
-    partial.hud.partial == 'PARTIAL DISCHARGE' and partial.hud.partialShort == 'PARTIAL'
+    Text.get(partial.hud.partial) == 'PARTIAL DISCHARGE'
+      and Text.get(partial.hud.partialShort) == 'PARTIAL'
   )
   for _, mod in ipairs({
     { spread = 'bad' },

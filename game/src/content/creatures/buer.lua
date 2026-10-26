@@ -4,14 +4,14 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.define({
   id = 'buer',
-  name = 'Plague Gardener',
+  name = 'creature_buer',
   souls = 12,
   catalog = {
     field = 4,
     bestiary = {
       order = 3,
-      text = 'Leaves venom pools.',
-      tip = 'Leave the marked ring.',
+      text = 'creature_buer_text',
+      tip = 'creature_buer_tip',
       color = 'green',
     },
   },

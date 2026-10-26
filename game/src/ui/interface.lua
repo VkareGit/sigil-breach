@@ -15,7 +15,7 @@ local blue = Skin.colors.blue
 local green = Palette.green
 local Views = require('src.ui.views')
 local Kit = require('src.ui.kit')
-local Pools = require('src.session.world')
+local Queries = require('src.run.queries')
 Kit.ui = U
 local c = Kit.c
 function U.release()
@@ -45,6 +45,7 @@ function U.init(checkpoint)
     U.fonts[size] = font
     Skin.registerFont(font)
   end
+  Skin.useFonts(U.fonts)
   -- HUD numerals are part of the UI load, not a surprise upload when the
   -- first catalogue closes and gameplay becomes visible.
   require('src.ui.fonts.painted_numbers').init(checkpoint)
@@ -89,32 +90,9 @@ function U.face(kind, x, y, w, h, label)
   lg.draw(U.faces[kind], q, x, y, 0, scale, scale)
   Skin.imageBounds(label or ('bestiary ' .. kind), x, y, dw, dh)
 end
-local function alive(g)
-  local n = 0
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
-      n = n + 1
-    end
-  end
-  return n
-end
+-- What the session's mode asks of the player now (run/queries.lua).
 function U.objective(g)
-  if g.testField then
-    return 'PROVING GROUND / [F2] Trial catalogue'
-  end
-  if g.run then
-    return D.objective(g)
-  end
-  if g.bossDead then
-    return 'Return to the gate and end the trial.'
-  end
-  if g.seals < 3 then
-    return 'Break the court seals  ' .. g.seals .. ' / 3'
-  end
-  if not g.bossSpawned then
-    return 'Defeat the remaining defenders: ' .. alive(g)
-  end
-  return 'Destroy the Margrave of Ash.'
+  return Queries.objective(g)
 end
 -- The screens live in ui/screens/ (0.24 F7); these names stay for callers.
 function U.hud(g, s)

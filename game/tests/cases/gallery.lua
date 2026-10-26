@@ -23,7 +23,7 @@ function Tests.run(G, check)
   end
   check(
     'the gallery covers world, weapons, effects, interface and demons',
-    groups.WORLD and groups.WEAPONS and groups.EFFECTS and groups.INTERFACE and groups.DEMONS
+    groups.world and groups.weapons and groups.effects and groups.interface and groups.demons
   )
   local kinds = {}
   for _, s in ipairs(Gallery.statues) do

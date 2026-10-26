@@ -1,29 +1,22 @@
 local M = require('src.render.mesh')
 local WorldMesh = require('src.render.world_mesh')
 local T = require('src.content.tuning')
-local Weight = require('src.feedback.weight')
-local Gallery = require('src.render.gallery')
-local Archetypes = require('src.content.enemies')
-local Portals = require('src.render.portals')
-local Ritual = require('src.render.ritual_art')
 local Weapon = require('src.render.weapon')
 local WeaponArt = require('src.render.weapon_art')
 local Pose = require('src.enemies.pose')
-local Corpse = require('src.enemies.corpse')
-local Atlas = require('src.render.atlas')
 local AbilityArt = require('src.render.ability_art')
 local AbilityMetadata = require('src.content.ability_art')
 local Pigment = require('src.render.creature_pigment')
 local FX = require('src.feedback.effects')
 local Queries = require('src.run.queries')
 local Ground = require('src.physics.ground')
-local Skin = require('src.ui.skin')
 local Layout = require('src.ui.layout')
 local Camera = require('src.render.camera')
 local Ballistics = require('src.combat.ballistics')
-local Goetic = require('src.ui.goetic_sigils')
--- The knight's body (reach rings are drawn with its real radius).
-local KNIGHT = require('src.content.enemies').player.body
+-- What stands in the world besides the bodies draws by registration
+-- (render/world_objects.lua); the renderer never names a kind of it.
+local WorldObjects = require('src.render.world_objects')
+require('src.render.world_art')
 local R = {}
 local Batch = require('src.render.batch')
 local Instances = require('src.render.instances')
@@ -34,29 +27,24 @@ local HazardArt = require('src.render.hazard_art')
 local SurfaceMarks = require('src.render.surface_marks')
 local Trails = require('src.feedback.shot_trails')
 local Death = require('src.feedback.death_response')
-local COLORS = RenderFX.colors
+-- The frame is a fixed sequence of passes (0.24; one module each, plan v10
+-- V6). The order is the depth and blending contract: opaque world,
+-- depth-tested transparent marks, then sprites, effects and the hands. A
+-- new kind of thing on screen belongs to one pass; the passes share only
+-- the renderer and the session. pass.draw(r, g, time, view).
+local Ash = require('src.render.passes.ash')
+R.passes = {
+  require('src.render.passes.architecture'),
+  require('src.render.passes.projectiles'),
+  require('src.render.passes.ground'),
+  require('src.render.passes.enemy_marks'),
+  require('src.render.passes.hazards'),
+  Ash,
+  require('src.render.passes.sprites'),
+  require('src.render.passes.effects'),
+}
 local WHITE = { 1, 1, 1 }
 local ZERO = { 0, 0, 0 }
-local UNIT = { 1, 1 }
-local ASH = { 0.30, 0.25, 0.22 }
-local EMBER = { 1.25, 0.52, 0.16 } -- dull cinder: fire accent, not a bright speck
-local ASH_COUNT = 96
--- A particle closer to the eye than this (m) shrinks away instead of
--- swelling into a block over the view (a fleck the knight runs through).
-local PARTICLE_NEAR = 0.7
-local function rects(cols, rows, padX, padY)
-  local t = {}
-  for i = 1, cols * rows do
-    t[i] = {
-      ((i - 1) % cols) / cols + padX,
-      math.floor((i - 1) / cols) / rows + padY,
-      1 / cols - 2 * padX,
-      1 / rows - 2 * padY,
-    }
-  end
-  return t
-end
-local MURAL_RECTS = rects(2, 2, 0.001, 0.001)
 -- The billboard quad: x in [-0.5, 0.5], y in [0, 1] (position, uv).
 local SPRITE_QUAD = {
   { -0.5, 0, 0, 0, 1 },
@@ -79,7 +67,6 @@ local BODY_FORMAT = {
 local Shaders = require('src.render.shaders')
 local Assets = require('src.render.assets')
 local Resources = require('src.render.resources')
-local Pools = require('src.session.world')
 function R.new(checkpoint)
   local r = setmetatable({}, { __index = R })
   r.native = Resources.new('renderer meshes and shaders')
@@ -100,23 +87,12 @@ function R.new(checkpoint)
   white:setPixel(0, 0, 1, 1, 1, 1)
   r.blank = r.native:own(love.graphics.newImage(white))
   white:release()
-  r.goetic = Goetic.init()
-  r.goeticShader = shader(Shaders.seal, 'seal shader')
   Assets.load(r)
   r.abilityArt = AbilityArt.load(r.resources)
   r.spriteShader:send('effectTint', WHITE)
   r.tracerShader = shader(Shaders.tracer, 'tracer shader')
   r.tracerMesh = M.dynamic(384)
-  -- The first effigy's hood starts above the nominal half-sheet boundary.
-  -- Cut through the empty gutter, not through the painted hood.
-  r.props, r.propFeet, r.propFrames = Atlas.load(
-    'assets/art/props-fresco-v12.png',
-    4,
-    2,
-    { { 0, 425, 887 }, { 0, 443, 887 }, { 0, 443, 887 }, { 0, 443, 887 } },
-    nil,
-    r.resources
-  )
+
   r.sprite = love.graphics.newMesh(
     { { 'VertexPosition', 'float', 3 }, { 'VertexTexCoord', 'float', 2 } },
     SPRITE_QUAD,
@@ -133,8 +109,6 @@ function R.new(checkpoint)
     Pigment.apply(r.bodyShader, r.bodyPigments[image] or nil)
   end
   r.stampShader = shader(Shaders.stamp, 'stamp shader')
-  Portals.init(r)
-  Ritual.init(r)
   HazardArt.init(r)
   local v = {}
   M.sphere(v, 0, 0, 0, 0.09, 0.09, 0.09, { 1, 1, 1, 1 }, 6)
@@ -143,7 +117,7 @@ function R.new(checkpoint)
   M.box(v, 0, -0.025, 0, 0.045, 0.045, 0.045, { 1, 1, 1, 0.6 })
   r.spark = M.finish(v)
   r.particleBatch = Batch.new(v, 240)
-  r.ashBatch = Batch.new(v, ASH_COUNT)
+  r.ashBatch = Batch.new(v, Ash.count)
   v = {}
   M.ring(v, 0, 0, 0, 0.48, 0.025, { 1, 1, 1, 1 }, 40, true)
   M.ring(v, 0, 0, 0, 0.37, 0.015, { 1, 1, 1, 1 }, 40, true)
@@ -160,14 +134,6 @@ function R.new(checkpoint)
     )
   end
   r.sigil = M.finish(v)
-  v = {}
-  M.box(v, 0, 0, 0, 0.22, 0.28, 0.15, { 0.5, 0.2, 0.09 })
-  M.box(v, 0, 0.27, 0, 0.23, 0.05, 0.16, { 1, 0.65, 0.2, 0.1 })
-  r.ammo = M.finish(v)
-  v = {}
-  M.box(v, 0, 0.1, 0, 0.30, 0.10, 0.10, { 0.25, 1, 0.6, 0.6 })
-  M.box(v, 0, 0, 0, 0.10, 0.30, 0.10, { 0.25, 1, 0.6, 0.6 })
-  r.health = M.finish(v)
   v = {}
   M.ring(v, 0, 0, 0, 1, 0.035, { 1, 1, 1, 0.7 }, 40)
   r.warning = M.finish(v)
@@ -213,15 +179,12 @@ function R.new(checkpoint)
     'particleShader',
     'skyShader',
     'blank',
-    'goeticShader',
     'tracerShader',
     'tracerMesh',
     'sprite',
     'orb',
     'spark',
     'sigil',
-    'ammo',
-    'health',
     'warning',
     'shadow',
     'stain',
@@ -232,8 +195,8 @@ function R.new(checkpoint)
   }) do
     r.native:own(r[name])
   end
-  r.native:own(r.ritualArt.mesh)
-  r.native:own(r.ritualArt.shader)
+  -- The world objects' own resources (render/world_objects.lua).
+  WorldObjects.init(r, shader)
   for _, batch in ipairs({ r.particleBatch, r.ashBatch, r.shadowStamps }) do
     r.native:own(batch.mesh)
     r.native:own(batch.instances)
@@ -264,7 +227,7 @@ function R:release()
     return
   end
   self.released = true
-  Gallery.release(self)
+  WorldObjects.release(self)
   self.lighting:release()
   self.targets:release()
   self.native:release()
@@ -404,28 +367,6 @@ function R:enemy(g, e, batch)
   key[1], key[2] = 0, 0
   s:send('keyLight', key) -- props and effects stay evenly lit
 end
-function R:prop(g, frame, x, y, z, scale, bright)
-  local region = self.propFrames[frame]
-  if frame > 4 then
-    local lr, lg, lb = self.lighting:sample(x, y + 1, z)
-    bright = (bright or 0.9) * (lr * 0.30 + lg * 0.59 + lb * 0.11)
-  end
-  self.spriteShader:send('silhouette', 0)
-  self.spriteShader:send('spriteStretch', self:vec2(region.width, region.height))
-  self.spriteShader:send('effectAlpha', 1)
-  self.spriteShader:send('soft', 0)
-  local s = self.spriteShader
-  self.sprite:setTexture(self.props)
-  s:send('frameRect', region.rect)
-  s:send('objectPos', self:vec3(x, y - self.propFeet[frame] * scale * region.height, z))
-  s:send('objectYaw', math.atan2(g.player.x - x, g.player.z - z))
-  s:send('objectScale', scale)
-  s:send('lean', 0)
-  s:send('pain', 0)
-  s:send('mirror', 0)
-  s:send('brightness', bright or 0.9)
-  love.graphics.draw(self.sprite)
-end
 function R:effect(g, e)
   local frame = FX.frame(e)
   local profile = FX.profile(e)
@@ -448,24 +389,6 @@ function R:effect(g, e)
   s:send('brightness', profile.brightness)
   love.graphics.draw(self.sprite)
   s:send('effectTint', WHITE)
-end
-function R:mural(frame, x, y, z, yaw, size)
-  local s = self.spriteShader
-  self.sprite:setTexture(self.frescoes)
-  s:send('silhouette', 0)
-  s:send('spriteStretch', UNIT)
-  s:send('effectAlpha', 1)
-  s:send('soft', 0)
-  s:send('mirror', 0)
-  s:send('frameRect', MURAL_RECTS[frame])
-  s:send('objectPos', self:vec3(x, y, z))
-  s:send('objectYaw', yaw)
-  s:send('objectScale', size)
-  local lr, lg, lb = self.lighting:sample(x, y + 1, z)
-  s:send('lean', 0)
-  s:send('pain', 0)
-  s:send('brightness', lr * 0.30 + lg * 0.59 + lb * 0.11)
-  love.graphics.draw(self.sprite)
 end
 -- Trauma rolls around the view axis; recoil pitch is handled by the shared
 -- presentation camera, whose projection also positions the HUD's firing reticle.
@@ -499,64 +422,6 @@ function R:weaponTint(g)
   c[2] = math.min(1, math.max(floor * 0.97, green) + f * 0.22)
   c[3] = math.min(1, math.max(floor * 0.95, b) + f * 0.06)
   return c
-end
-function R:seal(g, seal)
-  Ritual.seal(self, g, seal)
-end
-function R:pickup(g, a)
-  local name = a.kind == 'health' and 'health' or (a.kind == 'ammo' and 'ammo' or 'soul')
-  local icon = Skin.icons[name]
-  local x, y, w, h = icon.q:getViewport()
-  local iw, ih = Skin.image:getDimensions()
-  local s = self.spriteShader
-  self.sprite:setTexture(Skin.image)
-  s:send('spriteStretch', self:vec2(w / h, 1))
-  s:send('silhouette', 1)
-  s:send('soft', 0)
-  s:send('effectAlpha', 1)
-  s:send('frameRect', { x / iw, y / ih, w / iw, h / ih })
-  s:send(
-    'objectPos',
-    self:vec3(a.x, Ground.of(g.world, a) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
-  )
-  s:send('objectYaw', math.atan2(g.player.x - a.x, g.player.z - a.z))
-  s:send('objectScale', a.kind == 'soul' and 0.42 or 0.48)
-  s:send('lean', 0)
-  s:send('pain', 0)
-  s:send('mirror', 0)
-  s:send('brightness', 1.15)
-  s:send('paint', 1)
-  love.graphics.draw(self.sprite)
-  s:send('paint', 0)
-end
-function R:shrine(g, worldView)
-  worldView = worldView or Queries.world(g)
-  if not worldView.shrine then
-    return
-  end
-  local frame = 1 + math.floor(g.time * 5) % 4
-  local data = self.shrineFrames[frame]
-  local s = self.spriteShader
-  local size = 3
-  local active = worldView.shrineActive
-  local spot = worldView.shrine
-  self.sprite:setTexture(self.shrineImage)
-  s:send('spriteStretch', self:vec2(0.5, 1))
-  s:send('silhouette', 1)
-  s:send('soft', 0)
-  s:send('effectAlpha', 1)
-  s:send('frameRect', data.rect)
-  s:send(
-    'objectPos',
-    self:vec3(spot.x, Ground.of(g.world, spot) - self.shrineFeet[frame] * size, spot.z)
-  )
-  s:send('objectYaw', math.atan2(g.player.x - spot.x, g.player.z - spot.z))
-  s:send('objectScale', size)
-  s:send('lean', 0)
-  s:send('pain', 0)
-  s:send('mirror', 0)
-  s:send('brightness', active and 0.92 or 0.32)
-  love.graphics.draw(self.sprite)
 end
 function R:tracers(g)
   if #g.view.traces == 0 then
@@ -604,11 +469,6 @@ function R:tracers(g)
   love.graphics.setColor(1, 1, 1)
   love.graphics.draw(self.tracerMesh)
 end
--- The frame is a fixed sequence of passes (0.24). The order is the depth and
--- blending contract: opaque world, depth-tested transparent marks, then
--- sprites, effects and the hands. A new kind of thing on screen belongs to
--- one pass; the passes share only the renderer and the session.
-
 -- Camera basis from the authoritative view; the canvas follows the layout.
 function R:frameCamera(g, w, h)
   local lg = love.graphics
@@ -630,348 +490,6 @@ function R:frameCamera(g, w, h)
   self.camera[1], self.camera[2], self.camera[3] = Ballistics.origin(g)
   self.projection = (self.w / self.h) / math.tan(math.rad(fov) * 0.5)
 end
-
--- Opaque architecture, lamps' sparks and the seals.
-function R:architecturePass(g, time)
-  local lg = love.graphics
-  self:sky(g)
-  self:cameraUniforms(self.shader)
-  self:cameraUniforms(self.spriteShader)
-  -- The infernal witness is painted into the distant panorama. Reusing a live
-  -- boss sprite here made it read as a giant hovering combat target.
-  lg.setColor(1, 1, 1)
-  lg.setShader(self.shader)
-  lg.setDepthMode('less', true)
-  lg.setMeshCullMode('none')
-  self.shader:send('flash', g.view.muzzle * 7)
-  self.shader:send('flashColor', g.view.flashColor)
-  self.lighting:send(self.shader, g, self.camera, self.forward)
-  self:object(self.worldMesh)
-  for _, l in ipairs(g.world.lamps) do
-    self:object(
-      self.spark,
-      l.x + 0.06 * math.sin(time * 4 + l.phase),
-      l.y + 0.3 + (time * 0.6 + l.phase) % 0.4,
-      l.z,
-      0,
-      1,
-      { 1, 0.5, 0.1 }
-    )
-  end
-  for _, s in ipairs(g.world.seals) do
-    self:seal(g, s)
-  end
-end
-
--- Incoming weight is readable before it lands: the orb grows with the
--- packet's impact, its ember takes the damage-type colour and a short
--- trail behind it shows speed and direction (src/feedback/weight.lua colours).
-function R:projectilesPass(g)
-  local lg = love.graphics
-  lg.setShader(self.shader)
-  lg.setDepthMode('less', false)
-  for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    local packet = b.packet or {}
-    local heavy = math.min(1, (packet.impact or (b.big and 60 or 40)) / 120)
-    -- Fairness: the painted rim is the collision radius (orb mesh radius .09),
-    -- never smaller; impact shows in the trail and the core, not in the hitbox.
-    local radius = b.radius or (b.big and 0.26 or 0.12)
-    local scale = radius / 0.09 / 0.82 * 1.04
-    local tint = Weight.typeColor(packet.damageType)
-    -- Floor marker: where the projectile passes, readable while dodging.
-    lg.setDepthMode('less', false)
-    self:object(self.warning, b.x, Ground.of(g.world, b) + 0.03, b.z, 0, radius * 2.2, tint, 0.45)
-    local vx, vy, vz = b.vx or 0, b.vy or 0, b.vz or 0
-    local speed = math.sqrt(vx * vx + vy * vy + vz * vz)
-    if speed > 0.01 then
-      local step = math.min(0.22, speed * 0.035) / speed
-      for i = 3, 1, -1 do
-        local k = 1 - i * 0.24
-        local trail = self.trailTint or { 0, 0, 0 }
-        self.trailTint = trail
-        trail[1], trail[2], trail[3] = tint[1] * 0.55, tint[2] * 0.55, tint[3] * 0.55
-        self:object(
-          self.orb,
-          b.x - vx * step * i,
-          b.y - vy * step * i,
-          b.z - vz * step * i,
-          0,
-          scale * 0.62 * k,
-          trail
-        )
-      end
-    end
-    -- A dark rim of the same pigment (not a black disc) keeps the silhouette
-    -- readable on bright plaster without punching a hole in the fresco.
-    local rim = self.rimTint or { 0, 0, 0 }
-    self.rimTint = rim
-    rim[1], rim[2], rim[3] = 0.04 + tint[1] * 0.16, 0.03 + tint[2] * 0.12, 0.03 + tint[3] * 0.12
-    self:object(self.orb, b.x, b.y, b.z, 0, scale * 0.82, rim)
-    self:object(self.orb, b.x, b.y, b.z, 0, scale * 0.56, tint)
-    self:object(self.orb, b.x, b.y, b.z, 0, scale * (0.22 + 0.12 * heavy), COLORS.bone)
-  end
-end
-
--- Particles, ground objects of the mode (pickups, shrine, echo, portals,
--- sigils) and the stains on the floor.
-function R:groundPass(g, time)
-  local lg = love.graphics
-  local view = Queries.world(g)
-  lg.setDepthMode('less', true)
-  self.particleBatch:clear()
-  local cx, cy, cz = self.camera[1], self.camera[2], self.camera[3]
-  for _, a in ipairs(g.view.particles) do
-    local near = math.min(1, ((a.x - cx) ^ 2 + (a.y - cy) ^ 2 + (a.z - cz) ^ 2) / PARTICLE_NEAR ^ 2)
-    self.particleBatch:add(a.x, a.y, a.z, (a.size or 1) * math.min(1, a.life * 6) * near, a.color)
-  end
-  self.particleBatch:draw(self, g)
-  if not view.paintedPickups then
-    for _, a in ipairs(Pools.of(g, 'pickups')) do
-      self:object(
-        a.kind == 'ammo' and self.ammo or self.health,
-        a.x,
-        Ground.of(g.world, a) + 0.15 + math.sin(time * 3 + a.x) * 0.06,
-        a.z,
-        time * 0.4,
-        1.25
-      )
-    end
-  end
-  if view.shrine then
-    local active = view.shrineActive
-    local sx, sz = view.shrine.x, view.shrine.z
-    self:object(
-      self.warning,
-      sx,
-      Ground.height(g.world, sx, sz) + 0.035,
-      sz,
-      0,
-      0.72,
-      active and { 0.50, 0.85, 0.72 } or { 0.12, 0.13, 0.14 }
-    )
-  end
-  local echo = view.echo
-  if echo then
-    self:object(
-      self.sigil,
-      echo.x,
-      Ground.of(g.world, echo) + 1.1 + math.sin(time * 2) * 0.07,
-      echo.z,
-      time * 0.7,
-      0.8,
-      { 0.15, 0.7, 1 }
-    )
-    self:object(
-      self.warning,
-      echo.x,
-      Ground.of(g.world, echo) + 0.03,
-      echo.z,
-      0,
-      0.8,
-      { 0.2, 0.7, 1 }
-    )
-  end
-  lg.setDepthMode('less', false)
-  for _, gate in ipairs(view.gates) do
-    Portals.draw(self, gate, time, g.world)
-  end
-  lg.setDepthMode('less', true)
-  if g.bossDead then
-    local exit = g.world.portal
-    self:object(
-      self.sigil,
-      exit.x,
-      Ground.of(g.world, exit) + 2.1,
-      exit.z - 0.1,
-      time * 0.3,
-      2.9,
-      { 0.35, 0.85, 1 }
-    )
-  end
-  local secret = g.world.anchors and g.world.anchors.secret
-  if view.classicSecret and not g.secretFound and secret then
-    self:object(
-      self.sigil,
-      secret.x,
-      Ground.of(g.world, secret) + 1.15,
-      secret.z,
-      0.4,
-      0.34,
-      { 0.38, 0.26, 0.12 }
-    )
-  end
-  lg.setDepthMode('less', false)
-  for _, d in ipairs(g.view.decals or {}) do
-    local def = Archetypes.get(d.kind)
-    local color = def and def.appearance.stain or COLORS.blood
-    self:object(
-      self.stain,
-      d.x,
-      Ground.of(g.world, d) + 0.012,
-      d.z,
-      d.rotation,
-      d.size,
-      color,
-      0.75 * math.min(1, (24 - d.age) / 3)
-    )
-  end
-end
-
--- Under every living demon: shadows, the windup ring, the portal it climbs
--- out of and the landing point of a leap.
-function R:enemyMarksPass(g)
-  local lg = love.graphics
-  lg.setDepthMode('less', true)
-  Shadows.draw(self, g)
-  -- The pools under the bodies, all in one draw (in the bodies' order).
-  local stamps = self.shadowStamps
-  stamps:clear()
-  lg.setDepthMode('less', false)
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
-      local size = Archetypes.look(e).shadow
-      local ground = Ground.of(g.world, e)
-      if stamps.count + 2 > stamps.capacity then
-        stamps:draw(self, g)
-        stamps:clear()
-      end
-      stamps:add(e.x, ground + 0.015, e.z, size * 1.35, nil, 0.24)
-      stamps:add(e.x, ground + 0.016, e.z, size * 0.95, nil, 0.38)
-    end
-  end
-  stamps:draw(self, g)
-  lg.setDepthMode('less', true)
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
-      local look = Archetypes.look(e)
-      local ground = Ground.of(g.world, e)
-      if e.ai == 'windup' then
-        local progress = 1 - e.windup / (e.windupDuration or 1)
-        self:object(
-          self.warning,
-          e.x,
-          ground + 0.025,
-          e.z,
-          0,
-          0.42 + progress * 0.35,
-          look.warning or COLORS.ember
-        )
-      end
-      if (e.spawnAge or 1) < 0.6 then
-        Portals.arrival(self, g, e)
-      end
-      -- A leap marks its landing point from the crouch to the landing: the
-      -- player always sees where the arc ends (dodgeable, never a surprise).
-      -- The ring is the real reach: landing radius plus the knight's body.
-      local spec = e.attackSpec
-      if spec and spec.kind == 'leap' and (e.ai == 'windup' or e.leaping) and e.aimX then
-        local reachLand = spec.landRadius + KNIGHT.radius
-        self:object(
-          self.warning,
-          e.aimX,
-          Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + 0.03,
-          e.aimZ,
-          0,
-          reachLand * 1.04,
-          COLORS.ember,
-          0.85
-        )
-      end
-    end
-  end
-end
-
--- Pools, lines and lightning marks: telegraph colour, then the live ground.
-function R:hazardsPass(g, time)
-  for _, haz in ipairs(Pools.of(g, 'hazards')) do
-    if haz.kind ~= 'lightning' then
-      HazardArt.draw(self, g, haz)
-    else
-      local ground = Ground.of(g.world, haz)
-      self:object(
-        self.warning,
-        haz.x,
-        ground + 0.03,
-        haz.z,
-        0,
-        haz.radius,
-        haz.delay > 0 and COLORS.bone or COLORS.brimstone
-      )
-    end
-  end
-end
-
--- Deterministic ash stays in world space and respects depth; no screen-space
--- snow. Grey ash falls; every twelfth mote is a live cinder rising from the pit.
-function R:ashPass(g, time)
-  self.ashBatch:clear()
-  for i = 1, ASH_COUNT do
-    local x = 2.5 + (i * 7.31) % 26
-    local z = 2.5 + (i * 3.71) % 26
-    if i % 12 == 0 then
-      local y = (i * 0.53 + time * 0.55) % 4.6
-      self.ashBatch:add(x + math.sin(time * 1.7 + i) * 0.30, y, z, 0.10 + (i % 3) * 0.04, EMBER)
-    else
-      local y = 4.3 - (i * 0.37 + time * 0.16) % 4.3
-      self.ashBatch:add(x + math.sin(time * 0.5 + i) * 0.22, y, z, 0.12 + (i % 3) * 0.06, ASH)
-    end
-  end
-  self.ashBatch:draw(self, g)
-end
-
--- Painted sprites: murals, shrine, props, soul pickups, the gallery and the
--- demons themselves (alive, and dead for 25 s).
-function R:spritesPass(g, time)
-  local lg = love.graphics
-  local view = Queries.world(g)
-  local decor = g.world.decor or {}
-  lg.setShader(self.spriteShader)
-  if view.shrine then
-    for _, mural in ipairs(decor.murals or {}) do
-      self:mural(
-        mural.frame,
-        mural.x,
-        Ground.of(g.world, mural) + mural.y,
-        mural.z,
-        mural.yaw,
-        mural.size
-      )
-    end
-    self:shrine(g, view)
-  end
-  for _, l in ipairs(g.world.lamps) do
-    self:prop(g, 1 + math.floor(time * 7 + l.phase) % 4, l.x, Ground.of(g.world, l), l.z, 1.7, 1.1)
-  end
-  for _, prop in ipairs(decor.props or {}) do
-    local brightness = prop.secret and g.secretFound and 0.4 or prop.brightness
-    self:prop(
-      g,
-      prop.frame,
-      prop.x,
-      Ground.of(g.world, prop) + (prop.y or 0),
-      prop.z,
-      prop.size,
-      brightness
-    )
-  end
-  if view.paintedPickups then
-    for _, a in ipairs(Pools.of(g, 'pickups')) do
-      self:pickup(g, a)
-    end
-  end
-  local tools = Queries.tools(g)
-  if tools and tools.gallery then
-    Gallery.draw(self, g)
-    lg.setShader(self.spriteShader)
-  end
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 or Corpse.visible(e) then
-      self:enemy(g, e, self.bodies)
-    end
-  end
-  self:drawBodies()
-end
-
 -- This frame's bodies, one instanced draw per image. Bodies are opaque and
 -- depth tested, so drawing them by image changes nothing on screen.
 function R:drawBodies()
@@ -981,31 +499,6 @@ function R:drawBodies()
   self.bodies:draw(self.bodyPigment)
   love.graphics.setShader(self.spriteShader)
 end
-
--- Surface marks, sorted effects, charges, spells, debug volumes, tracers.
-function R:effectsPass(g)
-  local lg = love.graphics
-  SurfaceMarks.draw(self, g)
-  lg.setShader(self.spriteShader)
-  local effects = self.effectOrder
-  local count = #g.view.effects
-  for i = 1, count do
-    effects[i] = g.view.effects[i]
-  end
-  for i = #effects, count + 1, -1 do
-    effects[i] = nil
-  end
-  table.sort(effects, self.effectSort)
-  lg.setDepthMode('less', false)
-  for _, e in ipairs(effects) do
-    self:effect(g, e)
-  end
-  RenderFX.charges(self, g, Weapon.chargeImage)
-  RenderFX.spells(self, g)
-  RenderFX.hitboxes(self, g)
-  self:tracers(g)
-end
-
 function R:draw(g, w, h)
   assert(not self.released, 'renderer has been released')
   if self.meshWorld ~= g.world or self.meshRevision ~= g.world.geometryRevision then
@@ -1021,14 +514,10 @@ function R:draw(g, w, h)
   local lg = love.graphics
   local time = g.time
   self:frameCamera(g, w, h)
-  self:architecturePass(g, time)
-  self:projectilesPass(g)
-  self:groundPass(g, time)
-  self:enemyMarksPass(g)
-  self:hazardsPass(g, time)
-  self:ashPass(g, time)
-  self:spritesPass(g, time)
-  self:effectsPass(g)
+  local view = Queries.world(g)
+  for _, pass in ipairs(R.passes) do
+    pass.draw(self, g, time, view)
+  end
   lg.setDepthMode()
   lg.setShader()
   lg.setColor(1, 1, 1)
@@ -1068,7 +557,7 @@ function R:present(g, w, h)
   lg.draw(self.canvas, x, y, 0, vw / self.w, vh / self.h)
   lg.setShader()
   self:damageNumbers(g, x, y, vw, vh)
-  Gallery.labels(self, g, x, y, vw, vh)
+  WorldObjects.overlay(self, g, x, y, vw, vh)
 end
 -- Damage numbers painted where the blow landed (Risk of Rain-style feedback):
 -- they rise and fade in 0.7 s; heads and kills are larger and in red ochre.

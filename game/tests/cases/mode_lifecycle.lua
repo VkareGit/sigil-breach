@@ -136,7 +136,7 @@ function Tests.run(Game)
     )
     check(
       'return label is presentation rather than recorded mode data',
-      nested.view.fieldReturnLabel == 'BACK TO EXPEDITION' and nested.testField.returnLabel == nil
+      nested.view.fieldReturnLabel == 'return_expedition' and nested.testField.returnLabel == nil
     )
     check(
       'first return restores the same paused instance and its own state',
@@ -195,8 +195,9 @@ function Tests.run(Game)
       'a registered tool reaches the existing field dispatcher without editing Field',
       field:act('catalog', 'field_probe') and field.testField.probeUsed == true
     )
+    Fixtures.words({ fixture_station = 'FIXTURE STATION' })
     Stations:register('fixture_station', {
-      name = 'FIXTURE STATION',
+      name = 'fixture_station',
       run = function(g)
         g.testField.station = 'fixture_station'
         return true

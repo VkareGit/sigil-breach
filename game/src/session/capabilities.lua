@@ -5,8 +5,9 @@
 --   freezable     time may stop: frozen(g)
 --   invincible    the knight may be unhurt: invincible(g)
 -- A session names its mode (g.mode). A hand-made record without a mode (a
--- test fixture) is read from its flags as before. Systems, rules and
--- outcomes ask here, never the flags themselves.
+-- test fixture) is recognised by the modes themselves (run/modes.lua sets
+-- Capabilities.recognise). Systems, rules and outcomes ask here, never a
+-- mode's record.
 local Capabilities = { policies = {}, modes = {} }
 local policyHandlers = { phased = 'waveActive', freezable = 'frozen', invincible = 'invincible' }
 function Capabilities.define(id, policy, mode)
@@ -27,30 +28,30 @@ end
 function Capabilities.undefine(id)
   Capabilities.policies[id], Capabilities.modes[id] = nil, nil
 end
+local function modeOf(g)
+  return g.mode or (Capabilities.recognise and Capabilities.recognise(g))
+end
 local function policyOf(g)
-  return g.mode and Capabilities.policies[g.mode]
+  local id = modeOf(g)
+  return id and Capabilities.policies[id]
 end
 -- The mode's answer to name(g); false when it has no such handler.
 local function ask(g, name)
-  local handler = Capabilities.modes[g.mode][name]
+  local mode = Capabilities.modes[modeOf(g)]
+  local handler = mode and mode[name]
   return handler ~= nil and handler(g)
 end
+Capabilities.ask = ask
 -- The proving ground can stop time for inspection.
 function Capabilities.frozen(g)
   local policy = policyOf(g)
-  if policy then
-    return policy.freezable == true and ask(g, 'frozen') == true
-  end
-  return g.testField ~= nil and g.testField.frozen == true
+  return policy ~= nil and policy.freezable == true and ask(g, 'frozen') == true
 end
 -- A phased mode (expedition, proving ground) fights only in its wave phase;
 -- between waves the knight rests and shops.
 function Capabilities.combatPhase(g)
   local policy = policyOf(g)
-  if policy then
-    return not policy.phased or ask(g, 'waveActive') == true
-  end
-  return not g.run or g.run.phase == 'wave'
+  return not (policy and policy.phased) or ask(g, 'waveActive') == true
 end
 -- Demons decide, walk and attack.
 function Capabilities.demonsAct(g)
@@ -78,15 +79,14 @@ end
 function Capabilities.canTrade(g)
   return policyOf(g) ~= nil and ask(g, 'canTrade') == true
 end
+-- A proving ground holds a catalogue pose on its targets (previewFrame).
+function Capabilities.posed(g)
+  return ask(g, 'posed') == true
+end
 -- Blows and walls can hurt the knight.
 function Capabilities.vulnerable(g)
   local policy = policyOf(g)
-  local shielded
-  if policy then
-    shielded = policy.invincible and ask(g, 'invincible')
-  else
-    shielded = g.testField and g.testField.invincible
-  end
+  local shielded = policy and policy.invincible and ask(g, 'invincible')
   return not shielded and Capabilities.combatPhase(g)
 end
 return Capabilities

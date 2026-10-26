@@ -5,7 +5,7 @@ local Fit = require('src.ui.text_fit')
 local lg = love.graphics
 local E = require('src.run.economy')
 local Run = require('src.run.descent')
-local Modes = require('src.run.modes')
+local Queries = require('src.run.queries')
 local Circles = require('src.content.circles')
 local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')
@@ -61,24 +61,11 @@ local function waveName(r)
   return r.wave == Run.totalWaves + 1 and Text.get('guardian')
     or Text.get('wave', { wave = r.wave, total = Run.totalWaves })
 end
-function D.objective(g)
-  local r = g.run
-  if r.phase == 'complete' then
-    return Text.get('fragment_recovered')
-  end
-  if r.phase == 'preparing' then
-    return Text.get('preparing', { wave = waveName(r) })
-  end
-  if r.phase == 'countdown' then
-    return Text.get('countdown', { seconds = math.ceil(r.countdown) })
-  end
-  return Text.get('remaining', { wave = waveName(r), count = Modes.act(g, 'remaining') or 0 })
-end
 function D.controls(g)
-  if not g.run or g.help or g.map then
+  local r = Queries.run(g)
+  if not r or g.help or g.map then
     return nil
   end
-  local r = g.run
   if g.state == 'shop' then
     local list = {}
     local first, last, page, pages, rowHeight = D.shopPage(g)
@@ -97,14 +84,14 @@ function D.controls(g)
     end
     list[#list + 1] = {
       id = 'ready',
-      label = g.testField and 'BACK TO PROVING GROUND' or 'READY / BEGIN',
+      label = Queries.field(g) and Text.get('shop_ready_field') or Text.get('shop_ready'),
       x = 824,
       y = 593,
       w = 328,
       h = 48,
     }
     list[#list + 1] =
-      { id = 'shop_back', label = 'BACK TO ARENA [ ESC ]', x = 128, y = 593, w = 310, h = 48 }
+      { id = 'shop_back', label = Text.get('shop_back'), x = 128, y = 593, w = 310, h = 48 }
     if pages > 1 then
       list[#list + 1] = {
         id = 'shop_prev',
@@ -124,7 +111,12 @@ function D.controls(g)
       local mag, reserve = Weapons.ammo(g, slot)
       list[#list + 1] = {
         id = 'shop_weapon_' .. slot,
-        label = slot .. ' ' .. Weapons.profile(slot, g).hud.tab .. ' ' .. mag .. ' + ' .. reserve,
+        label = Text.get('shop_weapon', {
+          slot = slot,
+          tab = Text.get(Weapons.profile(slot, g).hud.tab),
+          mag = mag,
+          reserve = reserve,
+        }),
         x = 640 + (slot - 1) * step,
         y = 137,
         w = step - 12,
@@ -137,48 +129,58 @@ function D.controls(g)
     -- 0.22: the expedition is closed while combat is forged; only the
     -- proving ground is open (skirmish and the full catalogue of stations).
     local list = {
-      { id = 'field_skirmish', label = 'SKIRMISH [ SPACE ]', x = 72, y = 390, w = 400, h = 54 },
-      { id = 'field_start', label = 'PROVING GROUND [ F2 ]', x = 72, y = 455, w = 400, h = 44 },
+      {
+        id = 'field_skirmish',
+        label = Text.get('menu_skirmish'),
+        x = 72,
+        y = 390,
+        w = 400,
+        h = 54,
+      },
+      { id = 'field_start', label = Text.get('menu_field'), x = 72, y = 455, w = 400, h = 44 },
     }
-    list[#list + 1] = { id = 'help', label = 'HELP [ F1 ]', x = 72, y = 514, w = 194, h = 44 }
-    list[#list + 1] = { id = 'settings', label = 'SETTINGS', x = 270, y = 514, w = 194, h = 44 }
-    list[#list + 1] = { id = 'quit', label = 'QUIT', x = 72, y = 573, w = 194, h = 40 }
+    list[#list + 1] =
+      { id = 'help', label = Text.get('menu_help'), x = 72, y = 514, w = 194, h = 44 }
+    list[#list + 1] =
+      { id = 'settings', label = Text.get('menu_settings'), x = 270, y = 514, w = 194, h = 44 }
+    list[#list + 1] =
+      { id = 'quit', label = Text.get('menu_quit'), x = 72, y = 573, w = 194, h = 40 }
     return list
   elseif g.state == 'confirm_new' then
     return {
-      { id = 'new_confirm', label = 'START OVER', x = 440, y = 405, w = 400, h = 48 },
-      { id = 'new_cancel', label = 'KEEP EXPEDITION [ ESC ]', x = 440, y = 470, w = 400, h = 44 },
+      { id = 'new_confirm', label = Text.get('confirm_new'), x = 440, y = 405, w = 400, h = 48 },
+      { id = 'new_cancel', label = Text.get('confirm_keep'), x = 440, y = 470, w = 400, h = 44 },
     }
   elseif g.state == 'dead' then
     return {
       {
         id = 'retry',
-        label = r.wave == Run.totalWaves + 1 and 'RETRY GUARDIAN [ ENTER ]'
-          or ('RETRY WAVE ' .. r.wave .. ' [ ENTER ]'),
+        label = r.wave == Run.totalWaves + 1 and Text.get('dead_retry_guardian')
+          or Text.get('dead_retry_wave', { wave = r.wave }),
         x = 410,
         y = 524,
         w = 460,
         h = 50,
       },
-      { id = 'menu', label = 'SAVE / MAIN MENU', x = 410, y = 591, w = 460, h = 42 },
+      { id = 'menu', label = Text.get('dead_menu'), x = 410, y = 591, w = 460, h = 42 },
     }
   elseif g.state == 'won' then
     return {
-      { id = 'new_confirm', label = 'NEW LIMBO TRIAL', x = 410, y = 524, w = 460, h = 50 },
-      { id = 'menu', label = 'MAIN MENU [ ESC ]', x = 410, y = 591, w = 460, h = 42 },
+      { id = 'new_confirm', label = Text.get('won_new'), x = 410, y = 524, w = 460, h = 50 },
+      { id = 'menu', label = Text.get('won_menu'), x = 410, y = 591, w = 460, h = 42 },
     }
   end
 end
 function D.heading(g)
-  if g.testField then
+  if Queries.field(g) then
     return require('src.ui.test_field').heading(g, U)
   end
-  local r = g.run
+  local r = Queries.run(g)
   Skin.panel(20, 16, 378, 64, 2, 9)
   Skin.zone('objective field', 32, 26, 354, 44)
-  local title = 'I / LIMBO / PROVING FIELD'
+  local title = Text.get('heading_title')
   Skin.boxText(title, 35, 27, 348, 20, U.fonts[14], gold)
-  local objective = D.objective(g)
+  local objective = Queries.objective(g)
   local size = 16
   if Skin.inkBounds(U.fonts[size], objective).w > 348 then
     size = 14
@@ -192,7 +194,7 @@ function D.heading(g)
     Skin.zone('shrine compass field', 482, 26, 316, 44)
     Skin.icon('ring', 486, 29, 29)
     Skin.boxText(
-      'SEAL EMBER / ' .. math.max(1, math.ceil(n.distance)) .. ' M',
+      Text.get('compass_ember', { distance = math.max(1, math.ceil(n.distance)) }),
       526,
       27,
       268,
@@ -201,7 +203,7 @@ function D.heading(g)
       cold
     )
     Skin.boxText(
-      n.visible and n.direction or ('COVERED / ' .. n.direction),
+      n.visible and n.direction or Text.get('compass_covered', { direction = n.direction }),
       526,
       52,
       268,
@@ -218,7 +220,7 @@ function D.heading(g)
     end
     Skin.panel(950, 538, 312, 44, 7, 10)
     Skin.zone('ready caption field', 960, 548, 292, 24)
-    local ready = '[ENTER] BEGIN WAVE'
+    local ready = Text.get('ready_caption')
     local size = 16
     if Skin.inkBounds(U.fonts[size], ready).w > 288 then
       size = 14
@@ -229,11 +231,11 @@ function D.heading(g)
     center(tostring(math.ceil(r.countdown)), 250, 64, gold)
   end
   if g.saveWarning then
-    center('WARNING: ' .. g.saveWarning, 448, 18, red)
+    center(Text.get('save_warning', { reason = g.saveWarning }), 448, 18, red)
   end
 end
 function D.shop(g)
-  local r, p = g.run, g.player
+  local r, p = Queries.run(g), g.player
   rect(0, 0, 1280, 720, Palette.veilDeep, 0.9)
   Skin.panel(96, 44, 1088, 628, 5, 14)
   Skin.zone('shop writing field', 128, 78, 1024, 562)
@@ -242,14 +244,18 @@ function D.shop(g)
   Skin.icon('soul', 844, 84, 31)
   text(Text.get('souls_amount', { amount = r.wallet }), 892, 84, 28, gold)
   text(
-    g.testField and 'PROVING GROUND / UNSAVED SHOP' or (waveName(r) .. ' / PREPARATION'),
+    Queries.field(g) and Text.get('shop_field_title')
+      or Text.get('shop_wave_title', { wave = waveName(r) }),
     130,
     150,
     20,
     gold
   )
   text(
-    Text.get('shop_buying', { weapon = Weapons.inHand(g).hud.kind, ward = math.ceil(p.armor) }),
+    Text.get(
+      'shop_buying',
+      { weapon = Text.get(Weapons.inHand(g).hud.kind), ward = math.ceil(p.armor) }
+    ),
     650,
     120,
     14,
@@ -310,21 +316,28 @@ function D.shop(g)
   end
 end
 function D.map(g)
-  if g.testField then
+  if Queries.field(g) then
     return require('src.ui.test_field').map(g, U)
   end
+  local r = Queries.run(g)
   rect(0, 0, 1280, 720, Palette.veilCool, 0.96)
   panel(100, 40, 1080, 640)
   Skin.zone('map writing field', 132, 76, 1016, 570)
   Skin.inscription('circles', 132, 84, 400, 40)
-  text('RING  ' .. (g.run.fragment and '1' or '0') .. ' / 9', 132, 131, 20, gold)
+  text(Text.get('map_ring', { count = r.fragment and 1 or 0 }), 132, 131, 20, gold)
   for i, c in ipairs(Circles) do
     local y = 163 + (i - 1) * 39
-    text(c.roman .. '  ' .. c.name, 136, y, 22, i == 1 and gold or muted)
-    text(i == 1 and '4 WAVES + GUARDIAN' or 'IN DEVELOPMENT', 386, y + 5, 14, muted)
+    text(
+      Text.get('map_circle', { roman = Text.get(c.roman), name = Text.get(c.name) }),
+      136,
+      y,
+      22,
+      i == 1 and gold or muted
+    )
+    text(Text.get(i == 1 and 'map_circle_open' or 'map_circle_closed'), 386, y + 5, 14, muted)
   end
-  text('Proving field: the Limbo arena.', 136, 535, 20, ivory)
-  text('One arena. Four waves and a guardian.', 136, 565, 16, muted)
+  text(Text.get('map_field'), 136, 535, 20, ivory)
+  text(Text.get('map_field_tip'), 136, 565, 16, muted)
   local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
@@ -358,63 +371,61 @@ function D.map(g)
   lg.circle('line', sx, sy, 13)
   Skin.icon('ring', sx - 8, sy - 8, 16)
   text(
-    g.run.phase == 'preparing' and 'EMBER / MERCHANT' or 'EMBER DORMANT',
+    Text.get(r.phase == 'preparing' and 'map_ember_open' or 'map_ember_closed'),
     sx - 54,
     sy + 17,
     14,
     cold
   )
-  if g.run.echo then
-    local e = g.run.echo
+  if r.echo then
+    local e = r.echo
     color(blue)
     lg.circle('line', ox + e.x * sz, oy + e.z * sz, 7)
-    text('ECHO', ox + e.x * sz - 18, oy + e.z * sz - 25, 14, blue)
+    text(Text.get('map_echo'), ox + e.x * sz - 18, oy + e.z * sz - 25, 14, blue)
   end
-  text('CELADON: EMBER / MERCHANT    BLUE: ECHO', 132, 622, 16, muted)
-  text('WHITE: YOU    RED: DEMON', 652, 558, 14, muted)
-  text('The map pauses combat.', 652, 585, 14, gold)
+  text(Text.get('map_legend'), 132, 622, 16, muted)
+  text(Text.get('map_legend_marks'), 652, 558, 14, muted)
+  text(Text.get('map_pause'), 652, 585, 14, gold)
   Skin.endZone()
 end
 function D.ending(g)
-  local r = g.run
+  local r = Queries.run(g)
   rect(0, 0, 1280, 720, Palette.veil, 0.95)
   panel(96, 42, 1088, 628)
   Skin.icon(g.state == 'won' and 'ring' or 'skull', 612, 52, 56)
   Skin.zone('ending writing field', 128, 110, 1024, 402)
-  center(g.state == 'won' and 'FIRST FRAGMENT' or 'SOULS LEFT IN LIMBO', 116, 48, ivory)
+  center(Text.get(g.state == 'won' and 'ending_won_title' or 'ending_lost_title'), 116, 48, ivory)
   if g.state == 'won' then
-    center('The Margrave has fallen. The ring seal regains its shape.', 188, 22, muted)
-    center('I / IX', 250, 64, gold)
-    center('FOUR WAVES AND THE GUARDIAN DEFEATED', 340, 24, ivory)
-    center('Further circles are in development. Limbo remains the proving field.', 465, 20, muted)
+    center(Text.get('ending_won_line'), 188, 22, muted)
+    center(Text.get('ending_won_ring'), 250, 64, gold)
+    center(Text.get('ending_won_count'), 340, 24, ivory)
+    center(Text.get('ending_won_next'), 465, 20, muted)
   else
-    center('Gear and completed waves are kept.', 188, 22, muted)
+    center(Text.get('ending_lost_kept'), 188, 22, muted)
     center(
-      r.echo and (r.echo.amount .. ' SOULS IN THE ECHO') or 'NO SOULS TO RECOVER',
+      r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
       260,
       36,
       blue
     )
     center(
-      'Retry '
-        .. (r.wave == Run.totalWaves + 1 and 'the guardian' or ('wave ' .. r.wave))
-        .. '. Recover the echo during the fight.',
+      r.wave == Run.totalWaves + 1 and Text.get('ending_retry_guardian')
+        or Text.get('ending_retry_wave', { wave = r.wave }),
       326,
       22,
       ivory
     )
-    center('Dying again before recovery erases the previous echo.', 367, 18, muted)
-    center('Ammo and ward return to their state at the start of the wave.', 465, 20, gold)
+    center(Text.get('ending_echo_warning'), 367, 18, muted)
+    center(Text.get('ending_restore'), 465, 20, gold)
   end
   center(
-    string.format(
-      'TIME %02d:%02d   DEMONS %d   DEATHS %d   SOULS %d',
-      math.floor(g.elapsed / 60),
-      math.floor(g.elapsed % 60),
-      g.kills,
-      r.deaths,
-      r.wallet
-    ),
+    Text.get('ending_stats', {
+      minutes = string.format('%02d', math.floor(g.elapsed / 60)),
+      seconds = string.format('%02d', math.floor(g.elapsed % 60)),
+      kills = string.format('%d', g.kills),
+      deaths = string.format('%d', r.deaths),
+      souls = string.format('%d', r.wallet),
+    }),
     412,
     22,
     ivory
@@ -429,8 +440,8 @@ function D.confirm()
   panel(250, 144, 780, 432)
   Skin.zone('confirmation writing field', 282, 176, 716, 180)
   Skin.inscription('new_run', 410, 185, 460, 54)
-  center('This replaces the current expedition, its souls and gear.', 273, 22, muted)
-  center('Control settings are kept.', 315, 20, gold)
+  center(Text.get('confirm_line'), 273, 22, muted)
+  center(Text.get('confirm_kept'), 315, 20, gold)
   Skin.endZone()
 end
 return D

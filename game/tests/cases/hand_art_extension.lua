@@ -107,10 +107,11 @@ function Tests.run(G, renderer)
         and Visual.images.judge == originals[2]
         and Visual.chargeImage == originals[3]
     )
+    Fixtures.words({ trial_atlas = 'TRIAL ATLAS' })
     Weapons.define({
       extends = Weapons.get('judge'),
       id = id,
-      name = 'TRIAL ATLAS',
+      name = 'trial_atlas',
       art = id,
       capacity = 3,
       startReserve = 3,

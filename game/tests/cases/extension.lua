@@ -30,12 +30,13 @@ function Tests.run(G)
     end,
   }
   -- A new demon: a thrall variant that slams instead of clawing.
+  Fixtures.words({ trial_thrall = 'Trial Thrall' })
   A.trial = Creature.define({
     extends = A.imp,
     id = 'trial',
     kind = 'imp',
     variant = 'trial',
-    name = 'Trial Thrall',
+    name = 'trial_thrall',
     -- Its look is data too: a green portal and a dark stain, and its wind-up
     -- glows like a spell.
     appearance = { portal = { 0.2, 0.9, 0.4 }, stain = { 0.05, 0.1, 0.05 }, casts = { all = true } },
@@ -125,11 +126,21 @@ function Tests.run(G)
   -- A third weapon from data alone: it is drawn, fires, reloads and saves.
   local Weapons = require('src.content.weapons')
   local judge = Weapons.get('judge')
+  Fixtures.words({
+    trial_carbine = 'TRIAL CARBINE',
+    trial_carbine_kind = 'CARBINE',
+    trial_carbine_draw = 'trial carbine',
+  })
   local carbine = Weapons.define({
     id = 'trial_carbine',
-    name = 'TRIAL CARBINE',
+    name = 'trial_carbine',
     art = 'judge',
-    hud = { title = 'TRIAL CARBINE', kind = 'CARBINE', tab = 'CARBINE', draw = 'trial carbine' },
+    hud = {
+      title = 'trial_carbine',
+      kind = 'trial_carbine_kind',
+      tab = 'trial_carbine_kind',
+      draw = 'trial_carbine_draw',
+    },
     capacity = 5,
     startReserve = 10,
     maxReserve = 20,
@@ -187,13 +198,18 @@ function Tests.run(G)
   -- A spell from data alone: a bolt on the second ability slot, cast by the
   -- shared caster, flying through the shared projectile system into a demon.
   local Abilities = require('src.content.abilities')
+  Fixtures.words({
+    trial_spark = 'TRIAL SPARK',
+    trial_spark_tag = 'SPARK',
+    trial_spark_empty = 'No sparks left.',
+  })
   local spark = Abilities.define({
     id = 'trial_spark',
-    name = 'TRIAL SPARK',
-    tag = 'SPARK',
+    name = 'trial_spark',
+    tag = 'trial_spark_tag',
     capacity = 2,
     start = 2,
-    empty = 'No sparks left.',
+    empty = 'trial_spark_empty',
     action = Action.bolt({
       id = 'trial_spark',
       range = 20,

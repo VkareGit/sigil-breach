@@ -1,4 +1,7 @@
 -- Complete illustrated inscriptions. Crop their ink, never stretch letterforms.
+-- The registry of paintings (names): an inscription whose name has no
+-- painting in the atlas is written in glyphs instead (ui/skin.lua:
+-- inscription; its words: content/text.lua, inscription_<name>).
 local Resources = require('src.render.resources')
 local T = {
   names = {
@@ -24,11 +27,18 @@ function T.init()
   T.entries = {}
   local w, h = T.image:getDimensions()
   for _, name in ipairs(T.names) do
-    local e = assert(meta.entries[name], 'Missing painted inscription: ' .. name)
-    T.entries[name] =
-      { q = T.resources:own(love.graphics.newQuad(e.x, e.y, e.w, e.h, w, h)), w = e.w, h = e.h }
+    local e = meta.entries[name]
+    if e then
+      T.entries[name] =
+        { q = T.resources:own(love.graphics.newQuad(e.x, e.y, e.w, e.h, w, h)), w = e.w, h = e.h }
+    end
   end
   return T
+end
+-- Whether the atlas holds a painting of the inscription name.
+function T.has(name)
+  T.init()
+  return T.entries[name] ~= nil
 end
 function T.release()
   if T.resources then

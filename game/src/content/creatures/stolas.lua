@@ -4,14 +4,14 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.define({
   id = 'stolas',
-  name = 'Star Acolyte',
+  name = 'creature_stolas',
   souls = 8,
   catalog = {
     field = 3,
     bestiary = {
       order = 2,
-      text = 'Keeps away, shoots.',
-      tip = 'Heavy shots interrupt.',
+      text = 'creature_stolas_text',
+      tip = 'creature_stolas_tip',
       color = 'blue',
     },
   },

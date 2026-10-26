@@ -13,6 +13,7 @@ local Weapons = require('src.content.weapons')
 local Classic = require('src.content.classic')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Text = require('src.content.text')
 local Interactions = {}
 
 local distance = MathX.distance
@@ -45,7 +46,13 @@ local function breakSeal(g, seal, index)
   g.seals = g.seals + 1
   Presentation.cue(g, 'seal')
   g.view.surge = K.surge
-  g:notify('SEAL ' .. seal.name .. ' BROKEN  /  ' .. g.seals .. ' of ' .. #K.ambush, 4)
+  g:notify(
+    Text.get(
+      'classic_seal_broken',
+      { name = Text.get(seal.name), count = g.seals, total = #K.ambush }
+    ),
+    4
+  )
   g:burst(seal.x, K.burstHeight, seal.z, seal.color, K.burst, K.burstSpeed)
   local ambush = K.ambush[index] or K.ambush[#K.ambush]
   for i, position in ipairs(ambush.spots) do
@@ -83,10 +90,7 @@ function Interactions.classicInteract(g)
     local _, main = mainWeapon(player)
     main.reserve = math.min(Classic.maxRounds, main.reserve + secret.rounds)
     g.score = g.score + secret.score
-    g:notify(
-      'SECRET: THE TITHE  /  +' .. secret.ward .. ' ward  +' .. secret.rounds .. ' rounds',
-      4
-    )
+    g:notify(Text.get('classic_secret', { ward = secret.ward, rounds = secret.rounds }), 4)
     Presentation.cue(g, 'seal')
     return true
   end
@@ -106,15 +110,15 @@ end
 -- The classic trial's prompt where the knight stands.
 function Interactions.classicContext(g)
   if nearSecret(g) then
-    return '[E]  SEARCH THE CRACKED RELIQUARY'
+    return Text.get('classic_search')
   end
   for _, seal in ipairs(g.world.seals) do
     if not seal.active and distance(Roles.controlled(g), seal) < Classic.reach.seal then
-      return '[E]  BREAK THE SEAL  /  ' .. seal.name
+      return Text.get('classic_break', { name = Text.get(seal.name) })
     end
   end
   if g.bossDead and distance(Roles.controlled(g), g.world.portal) < Classic.reach.portal then
-    return '[E]  END THE LIMBO TRIAL'
+    return Text.get('classic_end')
   end
 end
 
@@ -132,7 +136,7 @@ Interactions.supplies = {
     take = function(player, pickup)
       local before = player.hp
       player.hp = math.min(Rules.playerBody().hp, player.hp + pickup.amount)
-      return '+' .. math.floor(player.hp - before + 0.5) .. ' HEALTH'
+      return Text.get('pickup_health', { amount = math.floor(player.hp - before + 0.5) })
     end,
   },
   -- Ammunition for one weapon (pickup.weapon, else pickup.slot, else the first).
@@ -145,7 +149,7 @@ Interactions.supplies = {
       local def, state = ammoFor(player, pickup)
       local before = state.reserve
       state.reserve = math.min(def.maxReserve, before + pickup.amount)
-      return '+' .. (state.reserve - before) .. ' ROUNDS'
+      return Text.get('pickup_rounds', { amount = state.reserve - before })
     end,
   },
 }
@@ -214,7 +218,7 @@ function Interactions.advanceClassic(g)
   local guardian = Classic.guardian
   local anchor = assert(g.world.anchors.boss, 'classic mode requires a boss anchor')
   g:spawn(guardian.kind, anchor.x, anchor.z)
-  g:notify('MARGRAVE OF ASH  /  Guardian of the first circle', 5)
+  g:notify(Text.get('classic_guardian'), 5)
   Presentation.cue(g, 'pulse')
   local player = Roles.controlled(g)
   player.hp = math.min(Rules.playerBody().hp, player.hp + guardian.health)

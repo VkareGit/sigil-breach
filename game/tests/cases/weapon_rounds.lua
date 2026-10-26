@@ -209,10 +209,11 @@ function Tests.run(G)
     end)
     local registered = Art.register(id, entry)
     check('reload leaves can omit a meaningless muzzle point', not registered.frames[17].muzzle)
+    Fixtures.words({ round_count_fixture = 'ROUND COUNT FIXTURE' })
     Weapons.define({
       extends = Weapons.get('judge'),
       id = id,
-      name = 'ROUND COUNT FIXTURE',
+      name = 'round_count_fixture',
       art = id,
       capacity = 2,
       startReserve = 1,

@@ -4,7 +4,7 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.boss({
   id = 'boss',
-  name = 'Margrave of Ash',
+  name = 'creature_boss',
   souls = 150,
   catalog = { field = 5 },
   guardian = true,
@@ -17,10 +17,10 @@ return Creature.boss({
     deathStain = 1.5,
     fieldRing = 0.7,
     banner = {
-      calm = 'MARGRAVE OF ASH',
-      fury = 'MARGRAVE / FURY',
-      exposed = 'MARGRAVE / EXPOSED',
-      plainFury = 'MARGRAVE OF ASH / FURY',
+      calm = 'creature_boss_calm',
+      fury = 'creature_boss_fury',
+      exposed = 'creature_boss_exposed',
+      plainFury = 'creature_boss_plain_fury',
     },
   },
   body = {

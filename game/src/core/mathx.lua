@@ -6,6 +6,10 @@ local sqrt, min, max, pi = math.sqrt, math.min, math.max, math.pi
 function M.clamp(v, low, high)
   return max(low, min(high, v))
 end
+-- A share (0..1) as a percentage.
+function M.percent(share)
+  return share * 100
+end
 function M.clamp01(v)
   return max(0, min(1, v))
 end

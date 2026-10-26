@@ -191,9 +191,10 @@ Wyposażenie i nowe rodzaje dostawy:
   Abilities.define(def) waliduje także Action i zakres całkowitych użyć;
   Abilities.give(g, id) dopina slot bez zmiany kodu postaci. Powtórne give
   zachowuje slot i użycia. W istniejącym rodzaju bolt/throw wystarczą dane.
-  AbilityCast wybiera animację rzeczywiście użytego wyposażenia. Menu/HUD
-  pozostają w układzie 0.30; HUD wielu slotów wyposażenia nie jest wdrożony
-  i wymaga osobnej pracy przed dodaniem przedmiotu do produkcyjnego zestawu.
+  AbilityCast wybiera animację rzeczywiście użytego wyposażenia. name, tag
+  i empty to klucze tekstów (content/text.lua; define sprawdza, że istnieją).
+  HUD pokazuje każdy slot z klawiszem z app/bindings (ui/hud_slots.lua):
+  jeden przedmiot w układzie 0.30, kilka po wierszu (klawisz, tag, użycia).
   Nowy rodzaj: Action.defineKind opisuje jego schemat; moduł zachowania
   zwraca funkcję (g, ability), rejestrowaną przy starcie jako
   Cast.kinds[id] = require('src.combat.<moduł>'). Treść nie importuje combat.

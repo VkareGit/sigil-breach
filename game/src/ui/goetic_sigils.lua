@@ -5,7 +5,6 @@ local Resources = require('src.render.resources')
 local commons = 'https://commons.wikimedia.org/wiki/File:'
 S.entries = {
   asmoday = {
-    name = 'ASMODAY',
     number = 32,
     file = 'asmoday-1904.png',
     printedPages = '20-21',
@@ -14,7 +13,6 @@ S.entries = {
     source = commons .. '32-Asmoday_seal.png',
   },
   stolas = {
-    name = 'STOLAS',
     number = 36,
     file = 'stolas-1904.png',
     printedPages = '22',
@@ -23,7 +21,6 @@ S.entries = {
     source = commons .. '36-Stolas_seal.png',
   },
   buer = {
-    name = 'BUER',
     number = 10,
     file = 'buer-1904.png',
     printedPages = '15',

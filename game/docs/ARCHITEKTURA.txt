@@ -186,6 +186,26 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
     komórki ma okno 32 komórek na światło i obraz podłoża całej mapy; płyta
     nie przepuszcza światła na drugą stronę. Ciała jednego obrazu to jedno
     wywołanie (render/instances.lua), cienie i plamy pod nimi tak samo.
+  Prezentacja otwarta (plan v10 V6):
+  - Klatka to lista przejść (render/passes/: architecture, projectiles,
+    ground, enemy_marks, hazards, ash, sprites, effects; R.passes); kolejność
+    to kontrakt głębi i mieszania.
+  - Obiekty świata rejestrują rysowanie (render/world_objects.lua:
+    register(rodzaj, { { pass, order, draw }..., init?, overlay?, release? })):
+    przejście rysuje zarejestrowanych w kolejności order. Wbudowane:
+    render/world_art.lua (kaganek, pieczęć, zapasy, Żar, freski, echo,
+    brama, wyjście, sekret, rekwizyt, galeria). Renderer nie zna ich nazw;
+    nowy rodzaj = jedna rejestracja (test open-presentation).
+  - Teksty: content/text.lua — klucz -> szablon z {parametrami}; definicje
+    treści (broń, stworzenie, wyposażenie, oferta, strefa, pieczęć,
+    stanowisko) niosą klucze, rysujący woła Text.get. Text.language(nazwa,
+    szablony, malunki) + Text.use: inny język bez zmian kodu (brakujący klucz
+    = szablon bazowy). Napisy malowane: rejestr ui/fonts/painted_titles
+    (names); bez malunku w atlasie albo w języku bez własnych malunków napis
+    pisany glifami (Skin.inscription). Zapadka player-text = 0.
+  - HUD z deklaracji slotów (ui/hud_slots.lua): arsenał N broni w dwóch
+    wierszach wokół broni w ręku; wyposażenie każdego slotu z klawiszem
+    (app/bindings: Q, F, C) — jeden pełny jak w 0.30, więcej po wierszu.
   - qa/data/bridge_map.lua (qa_bridge, 256 × 128, most, 200 kaganków) i
     qa/data/crowd_map.lua (qa_crowd) to mapy diagnostyczne QA.
   run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
@@ -195,8 +215,11 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   context), poziom nowego demona (tier), pozwolenia (waveActive, frozen,
   invincible dla polityk phased/freezable/invincible: session/capabilities),
   dane paska HUD (hud: glyph, wallet, echo, progress, fighting; tryb bez hud
-  rysuje HUD areny classic). Nowy tryb odpowiada tymi funkcjami. Nagłówek
-  HUD (ui/descent heading) i ekrany wyprawy wciąż czytają g.run. Wyprawa
+  rysuje HUD areny classic). Nowy tryb odpowiada tymi funkcjami. Ekrany i HUD
+  pytają tryb (plan v10 V6): run/queries.lua — run (fale, sakiewka, echo),
+  field (ustawienia i wybór poligonu), world, tools, objective; widoki buduje
+  tryb z własnego rekordu (run/mode_views.lua). Zapadka mode-records = 0.
+  Wyprawa
   (run/descent.lua) nie zna poligonu: jeden strażnik „tylko sesja wyprawy
   zapisuje, wczytuje i postępuje”; zakup Descent.trade (bez zapisu, poligon)
   i Descent.buy (trade + zapis). Żar: session/sanctuary.lua (Sanctuary.near).
@@ -209,9 +232,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
   ui/interface.lua tylko rozdziela.
   Game.new i Journal.session korzystają ze wspólnego Modes.session.
-  Nowy tryb nie tworzy najpierw wyprawy ani jej aktorów. Wspólne renderery
-  pytają run/queries o world/tools/objective; specyficzne ekrany czytają
-  stan swojego trybu. app/navigation posiada stos powrotów.
+  Nowy tryb nie tworzy najpierw wyprawy ani jej aktorów. Renderery i ekrany
+  pytają run/queries. app/navigation posiada stos powrotów.
+  Poligon (run/test_field.lua) to cykl życia, komunikaty i akcje katalogu;
+  stawianie celów i wezwania (run/field/placement.lua), odwiedziny pieczęci
+  i sklepu (visits.lua), stanowiska i próba fal (trials.lua); liczby
+  poligonu w content/field.lua.
   world_mesh posiada zasób GPU poza serializowanym rekordem świata.
   app/load_plan obsługuje także start: audio, bitmapy UI, renderer i broń
   mają punkty oddania sterowania między zasobami. Pojedynczy upload obrazu
@@ -325,9 +351,16 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem), punkty anatomiczne
   qa/data/hit_landmarks.lua, --hit-review, testy anatomy-data i hit-landmarks.
   Bez narzędzia do rysowania regionów to ok. 28 klatek ręcznych wielokątów.
+  Rodzaje ataków: enemies/melee_kinds.lua (lunge, charge, leap) i
+  ranged_kinds.lua (strike, pool, fan, bolt), wspólny kontakt
+  enemies/attack_contact.lua, lot ciała enemies/flight.lua; enemies/actions.lua
+  to wybór, zobowiązanie, wyzwolenie i stan uderzenia.
   Rodzaj ataku: Action.defineKind + Attacks.kinds[nazwa]; idealny unik przez
   powidok: test kontaktu także z Dodge.afterimage, potem Dodge.perfect.
-  Broń: Weapons.define({... hud, art?}) + Weapons.give(g, id) lub domyślny
+  Obiekt świata: WorldObjects.register(rodzaj, ...) (render/world_objects.lua).
+  Tekst: klucz w content/text.lua; język: Text.language + Text.use.
+  Broń: Weapons.define({... hud, art?}; name i pola hud to klucze tekstów)
+  + Weapons.give(g, id) lub domyślny
   loadout; mechanizm przeładowania: wpis w Reload.mechanisms z danymi czasu.
   Wyposażenie rycerza (Q, F, C; rycerz jest człowiekiem bez magii):
   Abilities.define({... action = Action.build(...)}) + slot w player.abilities
@@ -335,8 +368,8 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   (throw = ładunek prochowy; bolt = pocisk, dziś bez wyposażenia gracza).
   Abilities.give(g, id) dodaje slot bez zmiany postaci; define waliduje Action.
   AbilityCast wskazuje faktycznie użyty slot i jego animację dłoni.
-  HUD wielu slotów wyposażenia nie jest wdrożony. Dodanie przedmiotu do
-  gry wymaga osobnego domknięcia jego prezentacji w zachowanym HUD 0.30.
+  Nazwa, tag i komunikat braku to klucze tekstów (Text.register lub wpis
+  w content/text.lua); HUD pokazuje każdy slot z klawiszem (ui/hud_slots.lua).
   Checkpoint zapisuje kolejność slotów (także checkpointu); SIGIL06/07
   migrują przez adapter.
   Rzut niesie własną definicję: lot, zapalnik, promień i blast; wspólne

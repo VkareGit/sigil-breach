@@ -18,12 +18,12 @@ Abilities:register(
   'powder',
   Ability.define({
     id = 'powder',
-    name = 'POWDER CHARGE',
-    tag = 'CHARGE',
+    name = 'ability_powder',
+    tag = 'ability_powder_tag',
     hands = 'powder',
     capacity = 3,
     start = 2,
-    empty = 'No charges. Restock at the Ember.',
+    empty = 'ability_powder_empty',
     action = Action.build(Action.throw({
       id = 'powder',
       range = 8,

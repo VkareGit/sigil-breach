@@ -11,6 +11,7 @@ local Goetia = require('src.ui.goetic_sigils')
 local Text = require('src.content.text')
 local Fit = require('src.ui.text_fit')
 local Pages = require('src.ui.pages')
+local Queries = require('src.run.queries')
 local S = {}
 require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
 function S.page(g)
@@ -18,7 +19,11 @@ function S.page(g)
   local detailed = false
   for _, def in ipairs(cards) do
     local card = def.catalog.bestiary
-    for _, value in ipairs({ string.upper(def.name), card.text, card.tip }) do
+    for _, value in ipairs({
+      string.upper(Text.get(def.name)),
+      Text.get(card.text),
+      Text.get(card.tip),
+    }) do
       detailed = detailed or Kit.ui.fonts[11]:getInk(value).w > 208
     end
   end
@@ -58,27 +63,27 @@ function S.draw(g, s, U)
   Skin.zone('parchment writing field', 158, 106, 964, 492)
   Skin.inscription('limbo', 440, 112, 400, 50)
   center(
-    g and g.testField and Text.get('help_field')
-      or (g and g.run and Text.get('help_descent') or Text.get('help_classic')),
+    g and Queries.field(g) and Text.get('help_field')
+      or (g and Queries.run(g) and Text.get('help_descent') or Text.get('help_classic')),
     170,
     18,
     gold
   )
   local keys = {
-    { 'WASD', 'Move' },
-    { 'MOUSE', 'Aim' },
-    { 'LMB', 'Fire' },
-    { '1 / 2', 'Weapon' },
-    { 'SHIFT', 'Dodge x2' },
-    { 'SPACE', 'Jump' },
-    { 'Q', 'Charge' },
-    { 'CTRL', 'Slide' },
+    { 'key_move', 'help_move' },
+    { 'key_aim', 'help_aim' },
+    { 'key_fire', 'help_fire' },
+    { 'key_weapon', 'help_weapon' },
+    { 'key_dodge', 'help_dodge' },
+    { 'key_jump', 'help_jump' },
+    { 'key_charge', 'help_charge_key' },
+    { 'key_slide', 'help_slide' },
   }
   for i, k in ipairs(keys) do
     local x = 170 + ((i - 1) % 4) * 240
     local y = 200 + math.floor((i - 1) / 4) * 44
-    key(k[1], x, y, 88)
-    text(k[2], x + 100, y + 8, 18, ivory)
+    key(Text.get(k[1]), x, y, 88)
+    text(Text.get(k[2]), x + 100, y + 8, 18, ivory)
   end
   line(170, 294, 940, gold)
   -- One card per creature whose definition has one (catalog.bestiary), in
@@ -91,9 +96,9 @@ function S.draw(g, s, U)
     cards[#cards + 1] = {
       kind = def.id,
       artKind = def.appearance.atlas or def.kind or def.id,
-      name = string.upper(def.name),
-      desc = card.text,
-      tip = card.tip,
+      name = string.upper(Text.get(def.name)),
+      desc = Text.get(card.text),
+      tip = Text.get(card.tip),
       color = assert(Palette[card.color], 'unknown palette colour ' .. card.color),
     }
   end
