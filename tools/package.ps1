@@ -87,16 +87,35 @@ function Export-PlayerPackage([string]$Source, [string]$Destination, [string]$Ru
     Remove-Item -LiteralPath $checked -Recurse -Force
 }
 
+# Files git tracks under a folder (relative, '\' separators). A workspace
+# without git (a relocated developer package) has only tracked files anyway.
+function Get-TrackedFiles([string]$Root, [string]$Folder) {
+    if (-not (Test-Path -LiteralPath (Join-Path $Root '.git'))) {
+        return @(Get-ChildItem -LiteralPath (Join-Path $Root $Folder) -File -Recurse -Force |
+            ForEach-Object { $_.FullName.Substring($Root.Length + 1) })
+    }
+    $listed = @(& git -C $Root ls-files -z -- $Folder)
+    if ($LASTEXITCODE -ne 0) { throw "git ls-files failed for $Folder" }
+    return @(($listed -join '').Split([char]0, [StringSplitOptions]::RemoveEmptyEntries) |
+        Where-Object { Test-Path -LiteralPath (Join-Path $Root $_) -PathType Leaf } |
+        ForEach-Object { $_.Replace('/', '\') })
+}
+
 function Export-DeveloperWorkspace([string]$Root, [string]$Destination, [string]$RuntimeRoot) {
     New-Item -ItemType Directory -Path $Destination | Out-Null
     # Explicit allowlist: generators may contain service settings; private
     # machine config, work, previous deliveries and git are never traversed.
-    foreach ($name in @('game', 'tools/check', 'tools/art', 'docs')) {
+    foreach ($name in @('game', 'tools/check', 'tools/art')) {
         $path = Join-Path $Root $name
         foreach ($file in Get-ChildItem -LiteralPath $path -File -Recurse -Force) {
             $relative = $file.FullName.Substring($Root.Length + 1)
             Copy-PackageFile $file.FullName $Destination $relative
         }
+    }
+    # docs: only what the repository tracks. Untracked work in progress there
+    # (a handbook being written, its renderer and page renders) is not delivered.
+    foreach ($relative in @(Get-TrackedFiles $Root 'docs')) {
+        Copy-PackageFile (Join-Path $Root $relative) $Destination $relative
     }
     foreach ($name in @('BUILD.ps1', 'TEST.ps1', 'RUN.ps1', 'FORMAT.ps1', 'BAKE-HIT-MASKS.ps1', 'START-HERE.txt', '.stylua.toml')) {
         Copy-PackageFile (Join-Path $Root $name) $Destination $name

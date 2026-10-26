@@ -4,7 +4,9 @@ GŁÓWNY KATALOG
 C:\Users\nahiko\Documents\dev\sigil-breach
 
 Pracuj w game/, nie w outputs/*/source. outputs to zbudowane snapshoty.
-Poprzednie wydania i pełna kopia sprzed refaktoru pozostają w outputs/work.
+outputs ma bieżące i poprzednie wydanie; tekst starszych wydań i kopii jest w
+old/SIGIL-BREACH-history-text-0.10-0.30.zip. Przebudowa przenosi poprzednie
+dostawy do work/qa-v<wersja>/rollback (jedna generacja, następny build ją zastępuje).
 Aktualna architektura: game/docs/ARCHITEKTURA.txt. Historia zmian: game/docs/ZMIANY.txt
 (jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy: docs/history.
 Opis każdego pliku kodu: podręcznik docs/podrecznik-codex (nieśledzony, w toku).

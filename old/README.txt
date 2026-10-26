@@ -68,3 +68,16 @@ manifest-podrecznik-claude-0.32.csv: ścieżka, rozmiar i SHA256 każdego pliku.
 podrecznik-claude-0.32.sha256.txt: SHA256 archiwum.
 Przywracanie (z katalogu głównego): rozpakuj ZIP do katalogu projektu,
 np. Expand-Archive old\SIGIL-BREACH-podrecznik-claude-0.32.zip -DestinationPath .
+
+AKTUALIZACJA 2026-10-25 — TEKST WYDAŃ 0.10–0.30 I DAWNYCH KOPII
+Historia gita zaczyna się od 0.30. Przed usunięciem starych wydań z outputs
+(0.10–0.30, ok. 18 GB z EXE, runtime i grafiką) oraz kopii work/backup-*
+zachowano ich pliki tekstowe: kod Lua, dokumenty, skrypty, raporty i CSV.
+SIGIL-BREACH-history-text-0.10-0.30.zip (21,8 MiB, 7939 plików, 74,5 MiB
+tekstu): releases/<wersja>/... oraz backups/<nazwa>/...; w środku MANIFEST.csv
+ze ścieżką, rozmiarem i SHA256 każdego pliku (sprawdzone po spakowaniu).
+history-text-0.10-0.30.sha256.txt: SHA256 archiwum.
+Nie zawiera PNG, EXE ani DLL: grafiki wycofane w 0.31 są w archiwum 0.31,
+aktywne w game/assets. Wydanie 0.31 zostaje w outputs do porównania w grze.
+Rozpakowanie do osobnego katalogu, np.:
+  Expand-Archive old\SIGIL-BREACH-history-text-0.10-0.30.zip -DestinationPath work\history

@@ -19,7 +19,8 @@ function Get-Project {
         Root = $root; Source = (Join-Path $root 'game'); Qa = $qa
         Version = $values.version; Title = $values.title; Name = $releaseName
         Release = (Join-Path $root ('outputs\' + $releaseName))
-        Zip = (Join-Path $root ('outputs\' + $releaseName + '-Windows.zip'))
+        DeveloperZip = (Join-Path $root ('outputs\' + $releaseName + '-Developer-Windows.zip'))
+        PlayerZip = (Join-Path $root ('outputs\' + $releaseName + '-Player-Windows.zip'))
         RenderEvidence = @('lighting-review.txt','weapon-carry-readability.txt',
             'weapon-shotgun-16-poses.png','weapon-revolver-16-poses.png',
             'weapon-shotgun-partial-one.png','weapon-revolver-partial-one.png',
@@ -64,6 +65,16 @@ function Get-Project {
         # Each version adds its own section on top of these two documents.
         VersionSections = @(('docs\ZMIANY.txt', ('ZMIANY-' + $values.version + '.txt')), ('docs\ODBIOR.txt', ('ODBIOR-' + $values.version + '.txt')))
     }
+}
+
+# One previous generation per delivery: <qa>\rollback\<name>. The next build
+# replaces it, so rebuilding never accumulates copies of earlier deliveries.
+function Reset-Rollback([string]$Qa, [string]$Name) {
+    $folder = Join-Path $Qa 'rollback'
+    if (-not (Test-Path -LiteralPath $folder)) { $null = New-Item -ItemType Directory -Path $folder }
+    $path = Assert-ChildPath (Join-Path $folder $Name) $folder
+    if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
+    return $path
 }
 
 function Assert-ChildPath([string]$Path, [string]$Root) {

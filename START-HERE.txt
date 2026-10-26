@@ -51,8 +51,8 @@ animacje, fizykę i oprawę przed rozbudową świata. Styl: żywy, mroczny fresk
 Historia wersji 0.2–0.31 jest w ZMIANY.txt.
 Stare grafiki, czcionki, narzędzia i szkic podręcznika: old/ (ZIP + manifest + README).
 
-Kopia przed refaktorem: work/backup-before-v18-20261020-215538.
-Kopia przed poprawą strzałów: work/backup-before-v19-20261020-222530.
-Kopia przed animacjami portali: work/backup-before-art-v23-20261021-012413.
 Mapa starych i nowych modułów: work/module-migration-v18.json.
-Poprzednie wydania pozostają w outputs; nie są bieżącym źródłem.
+outputs trzyma bieżące wydanie 0.32 i poprzednie 0.31 (do porównania w grze).
+Kod, dokumenty i raporty tekstowe wydań 0.10–0.30 oraz dawnych kopii work/backup-*:
+old/SIGIL-BREACH-history-text-0.10-0.30.zip (git zaczyna się od 0.30).
+BUILD trzyma jedną poprzednią generację dostaw w work/qa-v<wersja>/rollback.

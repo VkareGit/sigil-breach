@@ -157,8 +157,7 @@ function Publish-PackageArchive([string]$Root, [string]$Destination, [string]$Ou
         finally { $archive.Dispose() }
         if ($seen.Count -ne @(Get-ChildItem -LiteralPath $Root -File -Recurse -Force).Count) { throw 'Delivery ZIP file count differs.' }
         if (Test-Path -LiteralPath $target) {
-            $backup = Assert-ChildPath (Join-Path $Qa ('previous-delivery-' + [Guid]::NewGuid().ToString('N') + '.zip')) $Qa
-            Move-Item -LiteralPath $target -Destination $backup
+            Move-Item -LiteralPath $target -Destination (Reset-Rollback $Qa ([IO.Path]::GetFileName($target)))
         }
         Move-Item -LiteralPath $staging -Destination $target
         $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash

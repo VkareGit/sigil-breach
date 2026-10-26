@@ -118,11 +118,11 @@ foreach ($candidate in @($releaseRoot, $playerRoot)) {
     }
 }
 
-# A rebuild preserves the previous current-release directory; earlier releases are untouched.
+# A rebuild keeps the previous current-release directories as the one rollback
+# generation (QA rollback/); earlier releases are untouched.
 if (Test-Path -LiteralPath $releaseRoot) {
-    $backup = Join-Path $qaRoot ('release-before-build-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
     $checkedRelease = Assert-ChildPath $releaseRoot $outputsRoot
-    $checkedBackup = Assert-ChildPath $backup $qaRoot
+    $checkedBackup = Reset-Rollback $qaRoot 'release'
     Move-Item -LiteralPath $checkedRelease -Destination $checkedBackup
     Write-Output ('Preserved previous current-release build: ' + $checkedBackup)
 }
@@ -130,8 +130,7 @@ $checkedStage = Assert-ChildPath $stageRoot $outputsRoot
 $checkedTarget = Assert-ChildPath $releaseRoot $outputsRoot
 Move-Item -LiteralPath $checkedStage -Destination $checkedTarget
 if (Test-Path -LiteralPath $playerRoot) {
-    $backup = Assert-ChildPath (Join-Path $qaRoot ('player-before-build-' + [Guid]::NewGuid().ToString('N'))) $qaRoot
-    Move-Item -LiteralPath $playerRoot -Destination $backup
+    Move-Item -LiteralPath $playerRoot -Destination (Reset-Rollback $qaRoot 'player')
 }
 Move-Item -LiteralPath $playerStage -Destination $playerRoot
 

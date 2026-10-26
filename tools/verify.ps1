@@ -15,7 +15,6 @@ $qaRoot = $project.Qa
 $exePath = Join-Path $releaseRoot 'SIGIL-BREACH.exe'
 $lovePath = Join-Path $releaseRoot 'SIGIL-BREACH.love'
 $runtimePath = Join-Path $RuntimeRoot 'love.exe'
-$zipPath = $project.Zip
 $documents = $project.Documents
 $playerRoot = Join-Path $taskRoot ('outputs/' + $project.Name + '-Player')
 $sourceFingerprint = Get-SourceFingerprint $taskRoot
@@ -229,23 +228,13 @@ $null = Assert-PackageManifest $playerRoot $sourceFingerprint
 
 # Publish both variants only after all source, package and relocated checks.
 $outputs = Join-Path $taskRoot 'outputs'
-$developerZip = Join-Path $outputs ($project.Name + '-Developer-Windows.zip')
-$playerZip = Join-Path $outputs ($project.Name + '-Player-Windows.zip')
+$developerZip = $project.DeveloperZip
+$playerZip = $project.PlayerZip
 $developerHash = Publish-PackageArchive $releaseRoot $developerZip $outputs $qaRoot
 $playerHash = Publish-PackageArchive $playerRoot $playerZip $outputs $qaRoot
-# Preserve the old Windows.zip name as a byte-identical developer alias.
-$checkedZip = Assert-ChildPath $zipPath $outputs
-if (Test-Path -LiteralPath $checkedZip) {
-    $backup = Assert-ChildPath (Join-Path $qaRoot ('previous-legacy-delivery-' + [Guid]::NewGuid().ToString('N') + '.zip')) $qaRoot
-    Move-Item -LiteralPath $checkedZip -Destination $backup
-}
-Copy-Item -LiteralPath $developerZip -Destination $checkedZip
-Check-Hash $developerHash (Get-FileHash -LiteralPath $checkedZip -Algorithm SHA256).Hash 'legacy developer ZIP alias'
-($developerHash + '  ' + [IO.Path]::GetFileName($checkedZip)) | Set-Content -LiteralPath ($checkedZip + '.sha256') -Encoding ascii
 $zipResult = @(
     ('Developer ZIP SHA256: ' + $developerHash), ('Developer ZIP: ' + $developerZip),
-    ('Player ZIP SHA256: ' + $playerHash), ('Player ZIP: ' + $playerZip),
-    ('Legacy developer alias: ' + $checkedZip)
+    ('Player ZIP SHA256: ' + $playerHash), ('Player ZIP: ' + $playerZip)
 )
 ($lines + '' + $zipResult) | Set-Content -LiteralPath (Join-Path $qaRoot 'package-verification.txt') -Encoding utf8
 Exit-QaSession $session
