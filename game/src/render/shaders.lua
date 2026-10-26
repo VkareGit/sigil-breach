@@ -30,9 +30,12 @@ local worldCode = vertex
 extern Image atlas;
 extern number flash,objectAlpha;
 extern vec3 flashColor,tint,lights[16],lightColors[16];
-extern Image shadowAtlas;
-extern vec2 shadowTiles[16];
-extern number worldSize;
+// Each lit slot's tile covers tileSpan cells from its light's origin; the
+// ground image carries the map's contact shade (g) and walls (b).
+extern Image shadowAtlas,groundAtlas;
+extern vec2 shadowTiles[16],lightOrigins[16];
+extern number tileSpan,groundScale;
+extern vec2 groundSpan,groundLow,groundHigh;
 varying vec3 normal;
 varying vec4 material;
 varying vec3 materialPos;
@@ -49,8 +52,8 @@ float shortRayVisibility(vec2 from,vec2 to){
  float visible=1.0;
  for(int k=1;k<12;k++){
   vec2 q=mix(from,to,float(k)/12.0);
-  vec2 uv=clamp((q-.5)/worldSize*.25,vec2(.5/512.0),vec2(127.5/512.0));
-  visible*=1.0-smoothstep(.45,.8,Texel(shadowAtlas,uv).b);
+  vec2 uv=clamp((q-.5)/groundSpan*groundScale,groundLow,groundHigh);
+  visible*=1.0-smoothstep(.45,.8,Texel(groundAtlas,uv).b);
  }
  return visible;
 }
@@ -78,11 +81,13 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   }
   // Cool reflected sky retains navigable darks. Warm pools belong to actual
   // sources and stop at the arena's walls, instead of following the camera.
-  vec2 shadowUV=clamp((worldPos.xz+n.xz*.09-.5)/worldSize*.25,vec2(.5/512.0),vec2(127.5/512.0));
-  float ao=Texel(shadowAtlas,shadowUV).g;
+  vec2 surface=worldPos.xz+n.xz*.09;
+  vec2 groundUV=clamp((surface-.5)/groundSpan*groundScale,groundLow,groundHigh);
+  float ao=Texel(groundAtlas,groundUV).g;
   vec3 light=(vec3(.29,.31,.35)+vec3(.09)*max(0.0,dot(n,normalize(vec3(.35,1.0,-.25)))))*mix(1.0,ao,.8);
   for(int i=0;i<16;i++){
    vec3 delta=lights[i]-worldPos;float d2=dot(delta,delta);
+   vec2 shadowUV=clamp((surface-lightOrigins[i])/tileSpan*.25,vec2(.5/512.0),vec2(127.5/512.0));
    float visible=shadowTiles[i].x<0.0?1.0:Texel(shadowAtlas,shadowTiles[i]+shadowUV).r;
    float radius2=shadowTiles[i].x<0.0?9.0:72.0;
    if(shadowTiles[i].x<0.0 && d2<9.0 && dot(lightColors[i],lightColors[i])>.001)
@@ -196,6 +201,68 @@ particleCode = particleCode:gsub(
   'material=VertexColor;materialPos=vp.xyz;',
   'material=VertexColor;material.rgb*=InstanceTint;vp.xyz=vp.xyz*InstanceScale+InstanceOffset;materialPos=vp.xyz;'
 )
+-- Replace one exact passage of a shader (plain text, found once).
+local function swap(code, old, new)
+  local i, j = code:find(old, 1, true)
+  assert(i and not code:find(old, j + 1, true), 'shader passage not found once: ' .. old)
+  return code:sub(1, i - 1) .. new .. code:sub(j + 1)
+end
+-- Instanced variants (plan v10 V3): what a single draw sends as uniforms
+-- comes from per-instance attributes; the pixel code is the same text.
+local placed = 'extern vec3 camera,rightDir,upDir,forwardDir;\n'
+  .. 'extern number aspect,projectionScale;\n'
+  .. 'vec3 objectPos;float objectYaw,objectScale;'
+local function instanced(code)
+  return swap(
+    code,
+    'extern vec3 camera,rightDir,upDir,forwardDir,objectPos;\n'
+      .. 'extern number objectYaw,objectScale,aspect,projectionScale;',
+    placed
+  )
+end
+-- A world mesh stamped many times (the shadow pools under bodies): the
+-- particle attributes and an alpha of its own per stamp.
+local stampCode = swap(
+  particleCode,
+  'extern number flash,objectAlpha;',
+  'extern number flash;\nvarying float objectAlpha;'
+)
+stampCode = swap(
+  stampCode,
+  'attribute float InstanceScale;',
+  'attribute float InstanceScale;\nattribute float InstanceAlpha;'
+)
+stampCode = swap(
+  stampCode,
+  'material=VertexColor;material.rgb',
+  'objectAlpha=InstanceAlpha;material=VertexColor;material.rgb'
+)
+-- Painted bodies: one draw per image (render/instances.lua, R:enemy).
+local bodyCode = swap(
+  instanced(spriteCode),
+  'extern vec4 frameRect;\n'
+    .. 'extern number pain,brightness,lean,mirror,effectAlpha,soft,silhouette,paint;\n'
+    .. 'extern vec2 keyLight;\n'
+    .. 'extern vec2 spriteStretch;',
+  'varying vec4 frameRect;\n'
+    .. 'varying float pain,brightness,mirror,silhouette;\n'
+    .. 'varying vec2 keyLight;\n'
+    .. 'extern number effectAlpha,soft,paint;\n'
+    .. 'vec2 spriteStretch;float lean;\n'
+    .. '#ifdef VERTEX\n'
+    .. 'attribute vec4 BodyPlace,BodyShape,BodyFrame,BodyLook;\n'
+    .. 'attribute vec2 BodyKey;\n'
+    .. '#endif'
+)
+bodyCode = swap(
+  bodyCode,
+  'vec4 position(mat4 tp,vec4 vp){vp.xy*=spriteStretch;',
+  'vec4 position(mat4 tp,vec4 vp){'
+    .. 'objectPos=BodyPlace.xyz;objectYaw=BodyPlace.w;objectScale=BodyShape.x;'
+    .. 'spriteStretch=BodyShape.yz;lean=BodyShape.w;frameRect=BodyFrame;'
+    .. 'mirror=BodyLook.x;pain=BodyLook.y;brightness=BodyLook.z;silhouette=BodyLook.w;'
+    .. 'keyLight=BodyKey;vp.xy*=spriteStretch;'
+)
 local surfaceCode = vertex
   .. atmosphere
   .. [[
@@ -248,8 +315,12 @@ local Fresco = require('src.render.fresco_scene_shaders')
 return {
   hands = handsCode,
   particle = particleCode,
+  stamp = stampCode,
   world = worldCode,
   sprite = spriteCode,
+  body = bodyCode,
+  instanced = instanced,
+  swap = swap,
   seal = sealCode,
   texture = textureCode,
   post = Fresco.post,

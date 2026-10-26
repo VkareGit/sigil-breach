@@ -26,6 +26,7 @@ local Goetic = require('src.ui.goetic_sigils')
 local KNIGHT = require('src.content.enemies').player.body
 local R = {}
 local Batch = require('src.render.batch')
+local Instances = require('src.render.instances')
 local Lights = require('src.render.lights')
 local Shadows = require('src.render.shadows')
 local RenderFX = require('src.render.effects')
@@ -56,6 +57,25 @@ local function rects(cols, rows, padX, padY)
   return t
 end
 local MURAL_RECTS = rects(2, 2, 0.001, 0.001)
+-- The billboard quad: x in [-0.5, 0.5], y in [0, 1] (position, uv).
+local SPRITE_QUAD = {
+  { -0.5, 0, 0, 0, 1 },
+  { 0.5, 0, 0, 1, 1 },
+  { 0.5, 1, 0, 1, 0 },
+  { -0.5, 0, 0, 0, 1 },
+  { 0.5, 1, 0, 1, 0 },
+  { -0.5, 1, 0, 0, 0 },
+}
+-- A painted body's record (render/instances.lua, shaders: body): place and
+-- yaw, size, stretch and lean, the frame, mirror, pain, brightness and
+-- silhouette, the key light.
+local BODY_FORMAT = {
+  { 'BodyPlace', 'float', 4 },
+  { 'BodyShape', 'float', 4 },
+  { 'BodyFrame', 'float', 4 },
+  { 'BodyLook', 'float', 4 },
+  { 'BodyKey', 'float', 2 },
+}
 local Shaders = require('src.render.shaders')
 local Assets = require('src.render.assets')
 local Resources = require('src.render.resources')
@@ -99,29 +119,20 @@ function R.new(checkpoint)
   )
   r.sprite = love.graphics.newMesh(
     { { 'VertexPosition', 'float', 3 }, { 'VertexTexCoord', 'float', 2 } },
-    {
-      { -0.5, 0, 0, 0, 1 },
-      { 0.5, 0, 0, 1, 1 },
-      { 0.5, 1, 0, 1, 0 },
-      { -0.5, 0, 0, 0, 1 },
-      {
-        0.5,
-        1,
-        0,
-        1,
-        0,
-      },
-      {
-        -0.5,
-        1,
-        0,
-        0,
-        0,
-      },
-    },
+    SPRITE_QUAD,
     'triangles',
     'static'
   )
+  -- Bodies and their cast shadows: one draw per image (plan v10 V3).
+  r.bodyShader = shader(Shaders.body, 'body shader')
+  r.bodyShader:send('effectAlpha', 1)
+  r.bodyShader:send('effectTint', WHITE)
+  r.bodies = Instances.new(SPRITE_QUAD, BODY_FORMAT, r.native)
+  r.bodyPigments = {}
+  r.bodyPigment = function(image)
+    Pigment.apply(r.bodyShader, r.bodyPigments[image] or nil)
+  end
+  r.stampShader = shader(Shaders.stamp, 'stamp shader')
   Portals.init(r)
   Ritual.init(r)
   HazardArt.init(r)
@@ -163,6 +174,7 @@ function R.new(checkpoint)
   v = {}
   M.cone(v, 0, 0, 0, 0.44, 0.44, 0.006, { 0.025, 0.018, 0.025, 0.05 }, 24)
   r.shadow = M.finish(v)
+  r.shadowStamps = Batch.new(v, 2 * 1024, true)
   v = {}
   M.cone(v, 0, 0, 0, 0.45, 0.45, 0.003, { 1, 1, 1, 0.05 }, 16)
   for i = 1, 7 do
@@ -174,6 +186,7 @@ function R.new(checkpoint)
   r.stain = M.finish(v)
   r.lighting = Lights.new()
   r.castShadowShader = Shadows.new()
+  r.castShadows = Instances.new(SPRITE_QUAD, Shadows.format, r.native)
   r.vector2 = { 0, 0 }
   r.vector3 = { 0, 0, 0 }
   r.camera = { 0, 0, 0 }
@@ -221,7 +234,7 @@ function R.new(checkpoint)
   end
   r.native:own(r.ritualArt.mesh)
   r.native:own(r.ritualArt.shader)
-  for _, batch in ipairs({ r.particleBatch, r.ashBatch }) do
+  for _, batch in ipairs({ r.particleBatch, r.ashBatch, r.shadowStamps }) do
     r.native:own(batch.mesh)
     r.native:own(batch.instances)
   end
@@ -337,7 +350,9 @@ function R:enemyPlacement(g, e)
   end
   return p
 end
-function R:enemy(g, e)
+-- batch (optional): add the body to this frame's bodies (R:drawBodies)
+-- instead of drawing it now.
+function R:enemy(g, e, batch)
   local p = self:enemyPlacement(g, e)
   -- Demons emerge from darkness: a low ambient, torchlight from one side (its
   -- direction becomes the lit and shadow sides of the body), a faint presence
@@ -353,6 +368,21 @@ function R:enemy(g, e)
   self.keyLight = key
   key[1] = math.max(-1, math.min(1, side * 6))
   key[2] = strength * (1 - math.min(1, flash * 3))
+  local yaw, shift = p.yaw, p.shift
+  if batch then
+    local v = batch:add(p.image)
+    self.bodyPigments[p.image] = p.ability and AbilityMetadata[p.ability].pigment or false
+    v[1], v[2], v[3], v[4] = e.x + math.cos(yaw) * shift, p.baseY, e.z - math.sin(yaw) * shift, yaw
+    v[5], v[6], v[7], v[8] = p.size, p.sx, p.sy, p.lean
+    local rect = p.region.rect
+    v[9], v[10], v[11], v[12] = rect[1], rect[2], rect[3], rect[4]
+    v[13], v[14] = p.mirror, e.hp > 0 and R.tell(e) or Death.pain(e)
+    v[15] = e.hp > 0 and brightness or brightness * Death.shade(e)
+    v[16] = e.hp > 0 and 1 or 0
+    v[17], v[18] = key[1], key[2]
+    key[1], key[2] = 0, 0
+    return
+  end
   local s = self.spriteShader
   Pigment.apply(s, p.ability and AbilityMetadata[p.ability].pigment)
   self.sprite:setTexture(p.image)
@@ -362,7 +392,6 @@ function R:enemy(g, e)
   s:send('soft', 0)
   s:send('mirror', p.mirror)
   s:send('frameRect', p.region.rect)
-  local yaw, shift = p.yaw, p.shift
   s:send('objectPos', self:vec3(e.x + math.cos(yaw) * shift, p.baseY, e.z - math.sin(yaw) * shift))
   s:send('objectYaw', yaw)
   s:send('objectScale', p.size)
@@ -620,7 +649,7 @@ function R:architecturePass(g, time)
   lg.setMeshCullMode('none')
   self.shader:send('flash', g.view.muzzle * 7)
   self.shader:send('flashColor', g.view.flashColor)
-  self.lighting:send(self.shader, g)
+  self.lighting:send(self.shader, g, self.camera, self.forward)
   self:object(self.worldMesh)
   for _, l in ipairs(g.world.lamps) do
     self:object(
@@ -807,15 +836,28 @@ function R:enemyMarksPass(g)
   local lg = love.graphics
   lg.setDepthMode('less', true)
   Shadows.draw(self, g)
+  -- The pools under the bodies, all in one draw (in the bodies' order).
+  local stamps = self.shadowStamps
+  stamps:clear()
+  lg.setDepthMode('less', false)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
-      lg.setDepthMode('less', false)
-      local look = Archetypes.look(e)
-      local size = look.shadow
+      local size = Archetypes.look(e).shadow
       local ground = Ground.height(g.world, e.x, e.z)
-      self:object(self.shadow, e.x, ground + 0.015, e.z, 0, size * 1.35, nil, 0.24)
-      self:object(self.shadow, e.x, ground + 0.016, e.z, 0, size * 0.95, nil, 0.38)
-      lg.setDepthMode('less', true)
+      if stamps.count + 2 > stamps.capacity then
+        stamps:draw(self, g)
+        stamps:clear()
+      end
+      stamps:add(e.x, ground + 0.015, e.z, size * 1.35, nil, 0.24)
+      stamps:add(e.x, ground + 0.016, e.z, size * 0.95, nil, 0.38)
+    end
+  end
+  stamps:draw(self, g)
+  lg.setDepthMode('less', true)
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.hp > 0 then
+      local look = Archetypes.look(e)
+      local ground = Ground.height(g.world, e.x, e.z)
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         self:object(
@@ -945,9 +987,20 @@ function R:spritesPass(g, time)
   end
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 or Corpse.visible(e) then
-      self:enemy(g, e)
+      self:enemy(g, e, self.bodies)
     end
   end
+  self:drawBodies()
+end
+
+-- This frame's bodies, one instanced draw per image. Bodies are opaque and
+-- depth tested, so drawing them by image changes nothing on screen.
+function R:drawBodies()
+  local s = self.bodyShader
+  self:cameraUniforms(s)
+  love.graphics.setShader(s)
+  self.bodies:draw(self.bodyPigment)
+  love.graphics.setShader(self.spriteShader)
 end
 
 -- Surface marks, sorted effects, charges, spells, debug volumes, tracers.

@@ -42,6 +42,14 @@ function Resources:own(handle)
   return handle
 end
 
+-- Release one owned handle before the scope ends (a buffer replaced by a
+-- larger one).
+function Resources:free(handle)
+  assert(self.owned[handle], 'resource is not owned by this scope')
+  self.owned[handle] = nil
+  handle:release()
+end
+
 -- A variant is named once per (options table, path) and then reused, so the
 -- lookup a renderer repeats every frame allocates nothing. An options table
 -- is a descriptor: read when first seen, never changed after.

@@ -186,8 +186,137 @@ function T.run(G, check, r)
     math.abs(dynamicFar - baseFar) < 0.012
   )
   mesh:release()
-  target:release()
   lighting:release()
+
+  -- Plan v10 V3: a long hall (80 x 12, wider than one tile's window) with 30
+  -- braziers west of a wall across it at x = 40, more than the slots.
+  local hall = { width = 80, depth = 12, map = {}, lamps = {}, seals = {} }
+  for z = 1, 12 do
+    hall.map[z] = {}
+    for x = 1, 80 do
+      hall.map[z][x] = (x == 1 or z == 1 or x == 80 or z == 12 or x == 40) and 1 or 0
+    end
+  end
+  for i = 1, 30 do
+    hall.lamps[i] = { x = 1.9 + i * 1.25, y = 1.18, z = 6, phase = i }
+  end
+  local big = Lights.new()
+  local function look(x)
+    big:update(
+      { world = hall, time = 0, player = { x = x, z = 6 }, bullets = {} },
+      { x, 1.6, 6 },
+      { 1, 0, 0 }
+    )
+  end
+  local function slotOf(lamp)
+    for i = 1, Lights.capacity do
+      if big.slots[i] and big.slots[i].lamp == lamp then
+        return i
+      end
+    end
+  end
+  look(10)
+  local near, full = true, 0
+  for _, lamp in ipairs(hall.lamps) do
+    if math.abs(lamp.x - 10) < Lights.reach then
+      local i = slotOf(lamp)
+      near = near and i ~= nil and big.colors[i][1] > 1.5
+      full = full + 1
+    end
+  end
+  check(
+    'a map may have any number of lights: every brazier near the camera takes a slot, fully lit',
+    #big.sources == 30 and near and full >= 6
+  )
+  check(
+    'lights left out of the slots are reported, never dropped in silence',
+    big.report.left == 30 - Lights.capacity and big.report.frames == 1 and big.report.most == 16
+  )
+  local edge = slotOf(hall.lamps[14])
+  check(
+    'the last chosen light fades toward the cut instead of popping',
+    edge and big.colors[edge][1] > 0 and big.colors[edge][1] < 1.5
+  )
+  local kept = slotOf(hall.lamps[6])
+  look(14)
+  check(
+    'a light keeps its slot while it stays chosen; a newly chosen one takes a free slot',
+    kept
+      and slotOf(hall.lamps[6]) == kept
+      and slotOf(hall.lamps[16]) ~= nil
+      and slotOf(hall.lamps[1]) == nil
+  )
+  look(34)
+  local last = slotOf(hall.lamps[30])
+  check(
+    'on a large map a light tile covers the window around its light, walls included',
+    last ~= nil
+      and big.origins[last][1] == hall.lamps[30].x - V.window / 2
+      and V.sample(big.visibility, last, 37, 6) > 0.95
+      and V.sample(big.visibility, last, 41.5, 6) < 0.05
+  )
+  local groundWidth, groundDepth = big.ground.image:getDimensions()
+  check(
+    'a large map keeps its contact shade and walls in a ground image of the whole map',
+    big.ground.image ~= big.visibility.image
+      and groundWidth == 80 * V.texels
+      and groundDepth == 12 * V.texels
+  )
+  -- The fragment shader on the large map: the floor among the braziers is
+  -- lit; the floor past the wall at x 40 is not.
+  vertices = {}
+  Mesh.quad(vertices, { 30, 0, 2 }, { 30, 0, 10 }, { 46, 0, 10 }, { 46, 0, 2 }, { 0.3, 0.3, 0.3 })
+  mesh = Mesh.finish(vertices)
+  local function hallSample(enabled)
+    look(34)
+    if not enabled then
+      for i = 1, 16 do
+        big.colors[i] = { 0, 0, 0 }
+      end
+    end
+    lg.push('all')
+    lg.setCanvas(target)
+    lg.origin()
+    lg.setShader(s)
+    lg.setScissor()
+    lg.setDepthMode()
+    lg.clear(0, 0, 0, 1)
+    lg.setColor(1, 1, 1)
+    s:send('camera', { 38, 10, 6 })
+    s:send('rightDir', { 1, 0, 0 })
+    s:send('upDir', { 0, 0, -1 })
+    s:send('forwardDir', { 0, -1, 0 })
+    s:send('aspect', 1)
+    s:send('projectionScale', 1.25)
+    s:send('objectPos', { 0, 0, 0 })
+    s:send('objectYaw', 0)
+    s:send('objectScale', 1)
+    s:send('flash', 0)
+    s:send('flashColor', { 1, 1, 1 })
+    s:send('tint', { 1, 1, 1 })
+    s:send('objectAlpha', 1)
+    big:bind(s)
+    lg.draw(mesh)
+    lg.pop()
+    local data = target:newImageData()
+    -- Screen x of world x: 128 + (x - 38) * 1.25 / 10 * 128.
+    local red, green, blue = data:getPixel(128 + math.floor((36 - 38) * 16), 128)
+    local lit = red * 0.3 + green * 0.59 + blue * 0.11
+    red, green, blue = data:getPixel(128 + math.floor((41.5 - 38) * 16), 128)
+    local past = red * 0.3 + green * 0.59 + blue * 0.11
+    data:release()
+    return lit, past
+  end
+  local darkLit, darkPast = hallSample(false)
+  local onLit, onPast = hallSample(true)
+  check('the world shader lights the floor beside a brazier of a large map', onLit - darkLit > 0.04)
+  check(
+    'and its light stops at the wall, as the window tile says',
+    math.abs(onPast - darkPast) < 0.012 or onPast - darkPast < (onLit - darkLit) * 0.25
+  )
+  mesh:release()
+  target:release()
+  big:release()
   resources:release()
 end
 return T
