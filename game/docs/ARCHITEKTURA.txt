@@ -522,6 +522,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Złoty wzorzec obejmuje także skrót kontaktów.
   Literalny parser danych nie wykonuje kodu Lua. Weryfikacja formatu,
   referencji i fingerprintu źródeł poprzedza mutację sesji replay.
+  Zewnętrzne fakty i wyniki checkpointu trafiają do journal.externalInputs
+  przez storage/execution (nazwane skalary, kolejność konsumowania).
+  Replay odtwarza je bez czytania bieżącego profilu i bez trwałych zapisów;
+  zakres blokady jest zdejmowany także po błędzie. Stary dziennik bez
+  zapisanego rekordu classic przy wygranej zgłasza brak wejścia, zamiast
+  pobierać dzisiejszy plik. Nie wpływa to na odczyt zapisów SIGIL06–09.
   Obserwacja trafienia jest częścią komendy. Nagrywanie ma limit szacowanych
   64 MiB serializowanego tekstu albo 216000 komend (10 min aktualizacji 120/s
   i celowania 240/s; nie jest to limit RAM).
@@ -531,3 +537,26 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   [-Points "x,y;..."] (wycinek z siatką pikseli źródła, po --hit-review).
   Celowa zmiana rozgrywki: skopiuj work/qa-v<wersja>/golden-current.lua do
   tests/golden/baseline.lua i opisz w ZMIANY (najpierw wyjaśnij różnice).
+
+15. KONTRAKTY DOMKNIĘCIA v11 (27 października 2026)
+
+  Efekt: sourceId jest ID ciała, nie etykietą typu kontaktu. sourceSide
+  opisuje stronę; nieznany sprawca to world/nil. Efekt zachowuje sprawcę
+  po zmianie sterowania lub jego odejściu; cancelOnSourceDeath sprawdza
+  to konkretne ciało. Ładunek używa swojego owner w raporcie obrażeń własnych.
+  Etykieta self dla kontaktu ładunku z rycerzem zachowuje dotychczasową
+  regułę braku perfect-dodge; to nie zastępnik ID sprawcy.
+  Flinch: jedna sprężyna w układzie billboardu skierowanym do źródła
+  kontaktu, rzutowana dla obserwatora. Źródło pozostaje odniesieniem,
+  dopóki jest w świecie; potem używany jest zapisany punkt kontaktu.
+  Zmiana źródła przelicza skalar i prędkość, a prezentacja nie miesza
+  skalarów z różnych baz. To jawna reguła sprite'a, nie pełne ciało 3D.
+  Geometry.volumes(..., into) zapisuje bryły w buforze odbiorcy. Wariant
+  bez into pożycza scratch ważny tylko do kolejnego volumes/find tego ciała.
+  Ballistics.prepare używa własnego into; Observation nadal utrwala kopię.
+  Registry.register odrzuca duplikat; replace wymaga istniejącego ID,
+  waliduje wpis i zachowuje kolejność. AI.style/targeting sprawdzane przy
+  kompozycji sesji, przed walką, łącznie z istnieniem funkcji wykonawczej.
+  SIGIL09 rodzaju session to zapis mapy i pul, nie dowolny quicksave
+  całego starcia. Interakcje zapasów/sanktuarium należą do sterowanego
+  rycerza. Kooperacja i kolizja rycerz–rycerz nie są gotowymi funkcjami.

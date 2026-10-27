@@ -156,6 +156,9 @@ C.schemas = {
     flinchSide = f(nil),
     flinchLean = f(nil),
     flinchLeanV = f(nil),
+    flinchOwner = f(nil, 'body defining the painted reaction basis, never the current viewer'),
+    flinchOriginX = f(nil, 'contact origin retained after the source leaves'),
+    flinchOriginZ = f(nil),
   },
 }
 -- A projectile in flight (enemies/actions.lua: projectile).

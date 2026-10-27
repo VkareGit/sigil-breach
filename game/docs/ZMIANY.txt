@@ -71,8 +71,27 @@ Poprawki po przeglądzie E5–E6
   drugiego urządzenia oraz generację jego obserwacji. Wcześniej taki
   przebieg rozjeżdżał się przy odtworzeniu.
 
-Rozgrywka, balans, grafiki, układ HUD-u i dostępne menu nie są zmieniane.
-Jedyna planowana różnica wizualna wydania to numer 0.34 w menu/tytule.
+Domknięcie audytu — 27 października 2026
+- Efekty okresowe zachowują ID sprawcy (także demona), anulowanie po jego
+  śmierci i przypisanie pulsów. Pełny reset czyści efekty wszystkich rycerzy.
+- Podkroki symulacji zachowują wejście każdego aktora; unik/ślizg to nadal
+  pojedyncze zdarzenia. Teleport poligonu unieważnia obserwację i bufor strzału.
+- Pochylenie trafionego demona korzysta ze źródła kontaktu, a widoki rzutują
+  tę samą reakcję. Zmiana źródła nie interpoluje dwóch różnych układów.
+  Bufory brył dwóch obserwatorów nie nadpisują się. Wybuch raportuje
+  obrażenia własne rzucającego, niezależnie od sterowanej postaci.
+- Walidacja odrzuca nieznane style ruchu i strategie celowania przed grą.
+  Registry odrzuca powtórne register; jawne replace zachowuje walidację
+  i kolejność wpisów.
+- Journal zapisuje externalInputs: rekord classic i wynik checkpointu.
+  Replay nie odczytuje aktualnego rekordu i nie zapisuje plików, także
+  bez flagi testing. Stary dziennik bez utrwalonego rekordu przy wygranej
+  classic daje jawny błąd brakującego wejścia, zamiast zależeć od dysku.
+- Wskaźnik stożka śrutu uwzględnia glif choke w obu istniejących HUD-ach.
+  Ich układ, grafiki i menu pozostają bez zmian; poprawiono obliczenie.
+
+Balans i pliki graficzne nie są zmieniane. Różnice wizualne względem 0.33
+to numer 0.34, poprawiony stożek z choke oraz reakcje z jawnym sprawcą.
 Źródła i dowody: PLAN-v11-E0…E6-RAPORT.md oraz PLAN-v11-POMIARY.md.
 
 ########################################################################

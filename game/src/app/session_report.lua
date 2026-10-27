@@ -13,6 +13,7 @@ local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
 local Pools = require('src.session.world')
 local Queries = require('src.run.queries')
+local Execution = require('src.storage.execution')
 local Report = { file = 'telemetry.txt' }
 -- Per session: the counters and totals at its last entry.
 local marks = setmetatable({}, { __mode = 'k' })
@@ -78,7 +79,11 @@ function Report.lines(g, reason)
 end
 -- Append an entry; true when it was written.
 function Report.write(g, reason)
-  if not g or g.testing or not (love and love.filesystem and love.filesystem.append) then
+  if
+    not g
+    or not Execution.canWrite(g)
+    or not (love and love.filesystem and love.filesystem.append)
+  then
     return false
   end
   local text = table.concat(Report.lines(g, reason), '\n') .. '\n\n'

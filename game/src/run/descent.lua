@@ -6,6 +6,7 @@ local W = require('src.world.arena')
 local F = require('src.player.feel')
 local Save = require('src.storage.run_save')
 local SaveCore = require('src.storage.save')
+local Execution = require('src.storage.execution')
 local E = require('src.run.economy')
 local Waves = require('src.content.waves')
 local Weapons = require('src.content.weapons')
@@ -139,17 +140,17 @@ function R.save(g)
   if not expedition(g) then
     return false, Text.get('run_only_saved')
   end
-  if g.testing then
-    return true
-  end
   local r = g.run
   if r.phase ~= 'preparing' and r.phase ~= 'defeated' and r.phase ~= 'complete' then
     return false
   end
   -- The checkpoint and every other section of the expedition's file.
-  local ok, reason = Save.write(R.snapshot(g), nil, g)
-  g.saveWarning = not ok and reason or nil
-  return ok
+  local reason = Execution.effect(g, 'expedition.checkpoint', function()
+    local ok, problem = Save.write(R.snapshot(g), nil, g)
+    return not ok and problem or nil
+  end)
+  g.saveWarning = reason
+  return reason == nil
 end
 function R.load(g, data)
   if not expedition(g) then

@@ -109,6 +109,13 @@ function Tests.run()
     checks = checks + 1
   end)
   local accepted = registry:register('accepted', {})
+  check(
+    'duplicate registration fails before entry callbacks can have side effects',
+    not pcall(registry.register, registry, 'accepted', {})
+      and checks == 1
+      and registry:get('accepted') == accepted
+      and #registry:ids() == 1
+  )
   local weaponIds, abilityIds =
     table.concat(Weapons.registry:ids(), ','), table.concat(Abilities:ids(), ',')
   for _, id in ipairs({ 'iron-rifle', '', 'with space', 'a:b', 'a,b', 'line\nbreak' }) do

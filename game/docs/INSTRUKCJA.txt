@@ -1,8 +1,8 @@
-SIGIL: BREACH — prototyp Foundation 0.33
-26 października 2026
+SIGIL: BREACH — prototyp Foundation 0.34
+27 października 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
-jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v10.md (wykonany) i PLAN-ROZWOJU-v7.md
+jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
 GDZIE JEST TELEMETRY.TXT

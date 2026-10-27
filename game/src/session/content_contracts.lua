@@ -9,6 +9,8 @@ local Reload = require('src.combat.reload')
 local Cast = require('src.combat.abilities')
 local Attacks = require('src.enemies.actions')
 local Effects = require('src.combat.effects')
+local AI = require('src.enemies.ai')
+local Target = require('src.enemies.target')
 local Contracts = {}
 local function effects(value, seen)
   if type(value) ~= 'table' then
@@ -57,6 +59,15 @@ function Contracts.ability(definition)
   effects(definition)
 end
 function Contracts.creature(definition)
+  local movement = definition.move
+  assert(
+    type(AI.styles[movement.style]) == 'function',
+    'creature ' .. definition.id .. ': unknown movement style ' .. tostring(movement.style)
+  )
+  assert(
+    type(Target.strategies[movement.targeting]) == 'function',
+    'creature ' .. definition.id .. ': unknown targeting strategy ' .. tostring(movement.targeting)
+  )
   for _, action in ipairs(definition.attacks) do
     local executor = Attacks.kinds[action.kind]
     assert(

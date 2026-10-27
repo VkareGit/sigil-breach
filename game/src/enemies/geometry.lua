@@ -43,8 +43,10 @@ function Geometry.uses(e)
   return Archetypes.look(e).hit == 'volumes'
 end
 -- The body's volumes in world height for the current pose. Only for a body
--- that uses them (Geometry.uses); a painted body has none.
-function Geometry.volumes(g, e, observer)
+-- that uses them (Geometry.uses); a painted body has none. An explicit into
+-- owns its result until its next refill. Without one, this is borrowed scratch
+-- valid only until the next volumes/find call for the same body.
+function Geometry.volumes(g, e, observer, into)
   local look = Archetypes.look(e)
   assert(look.hit == 'volumes', 'a painted body meets shots on its surface (enemies/surface.lua)')
   local profile =
@@ -57,8 +59,10 @@ function Geometry.volumes(g, e, observer)
   local yaw = viewerYaw(g, e, observer)
   local rx, rz = math.cos(yaw), -math.sin(yaw)
   local ground = Ground.of(g.world, e)
-  local volumes = cache[e] or {}
-  cache[e] = volumes
+  local volumes = into or cache[e] or {}
+  if not into then
+    cache[e] = volumes
+  end
   local body = Archetypes.of(e)
   for index, shape in ipairs(shapes) do
     assert(

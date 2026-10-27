@@ -18,6 +18,7 @@ local Pools = require('src.session.world')
 local finite = require('src.core.mathx').finite
 local Roles = require('src.core.roles')
 local Stats = require('src.session.stats')
+local Execution = require('src.storage.execution')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 -- Version 4 (plan v10 V5): a shot keeps only the bodies of its corridor
@@ -28,6 +29,10 @@ local Stats = require('src.session.stats')
 -- and actorControl change the pool and the controlled knight. Every id is
 -- checked before the replay touches the session. Journals of versions 4, 3
 -- and 2 still replay (all their commands are the controlled knight's).
+-- externalInputs (optional in older archives): ordered scalar facts read from
+-- the profile and receipts of checkpoint writes. Replay consumes these without
+-- touching disk. An old archive that needs an absent profile fact fails with
+-- an explicit diagnostic; it never substitutes today's profile data.
 local Journal = { version = 5, build = Build.version }
 -- LuaJIT weak keys are not ephemerons: a strongly held callback that captures
 -- its key (or the session) would keep abandoned sessions alive forever. The
@@ -219,6 +224,7 @@ function Journal.record(g, limits, onLimit)
     observations = {},
     bodies = {},
     receipts = {},
+    externalInputs = {},
     header = Journal.header(g),
     budget = Observation.copy(limits),
     commands = 0,
@@ -241,11 +247,15 @@ function Journal.record(g, limits, onLimit)
   local detachReceipts = observe(g, function(receipt)
     append(journal.receipts, receipt)
   end)
+  local detachInputs = Execution.observe(g, function(entry)
+    append(journal.externalInputs, entry)
+  end)
   local usage = g.bus:on('sim', 'ObservationUsed', function(event)
     used(event.observation)
   end)
   control.detach = function()
     detachReceipts()
+    detachInputs()
     g.bus:off('sim', 'ObservationUsed', usage)
   end
   observers[journal] = control.detach
@@ -446,6 +456,7 @@ function Journal.replay(g, journal)
     assert(type(bodies) == 'table', 'invalid journal body pool')
   end
   local validate = Values.validator(pooled and journal.observations or nil, bodies)
+  Execution.validate(journal.externalInputs)
   validate(header)
   validate(journal.final)
   validate(journal.receipts)
@@ -577,6 +588,7 @@ function Journal.replay(g, journal)
           .. receipt
       )
     end)
+  local finishReplay, inputsConsumed = Execution.beginReplay(g, journal.externalInputs)
   local ok, reason = pcall(function()
     local function expand(value)
       return pooled and Values.expand(value, journal.observations, bodies)
@@ -601,11 +613,13 @@ function Journal.replay(g, journal)
       end
     end
     assert(not journal.receipts or count == #journal.receipts, 'journal hit receipt count differs')
+    inputsConsumed()
     if journal.final then
       local difference = Integrity.difference(journal.final, Integrity.capture(g))
       assert(not difference, 'journal final state differs: ' .. tostring(difference))
     end
   end)
+  finishReplay()
   if detach then
     detach()
   end

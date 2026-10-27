@@ -96,9 +96,28 @@ function Tests.run()
     r:get('c') == accepted and table.concat(r:ids(), ',') == 'b,a,c'
   )
   check(
-    'a rejected replacement preserves the accepted entry and its order',
-    not pcall(r.register, r, 'c', {})
+    'a duplicate id is rejected without replacing its accepted definition',
+    not pcall(r.register, r, 'c', { run = function() end })
       and r:get('c') == accepted
+      and table.concat(r:ids(), ',') == 'b,a,c'
+  )
+  check(
+    'a rejected replacement preserves the accepted entry and its order',
+    not pcall(r.replace, r, 'c', {})
+      and r:get('c') == accepted
+      and table.concat(r:ids(), ',') == 'b,a,c'
+  )
+  local replacement = { run = function() end }
+  check(
+    'an explicit replacement validates and keeps the existing iteration slot',
+    r:replace('c', replacement) == replacement
+      and r:get('c') == replacement
+      and table.concat(r:ids(), ',') == 'b,a,c'
+  )
+  check(
+    'replacement never silently registers a misspelled or missing id',
+    not pcall(r.replace, r, 'missing', replacement)
+      and not r:has('missing')
       and table.concat(r:ids(), ',') == 'b,a,c'
   )
 

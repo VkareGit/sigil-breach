@@ -265,7 +265,8 @@ local function evade(g, e, d, dt)
 end
 -- Movement styles (0.24, Strategy): how a body closes on the player while it
 -- waits for an attack. The archetype names its style (move.style); a new
--- style is a new entry here. tests/cases/content_schema.lua checks the names.
+-- style is a new entry here. Session composition validates the names before
+-- a world is built; an explicit unknown name is never a request for 'keep'.
 local Styles = {}
 AI.styles = Styles
 -- 'flank' closes in and circles at claw range.
@@ -318,7 +319,9 @@ function AI.apart(g, e, p)
   return math.abs(Ground.of(g.world, e) - Ground.of(g.world, p)) > (g.world.stepHeight or 0)
 end
 local function approach(g, e, d, dt)
-  local style = Styles[arch(e).move.style] or Styles.keep
+  local name = arch(e).move.style
+  local style = Styles[name]
+  assert(type(style) == 'function', 'unknown movement style ' .. tostring(name))
   style(g, e, d, dt)
 end
 

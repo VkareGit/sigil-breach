@@ -12,6 +12,47 @@ for _, system in ipairs(Systems) do
   Step:add(system.name, system.run)
 end
 Simulation.systems = Step
+-- Reuse held input; copy only records with one-shot edges. Unknown fields
+-- remain part of the envelope, including actor inputs supplied by controllers.
+local function withoutEdges(input)
+  if not (input.dash or input.slide) then
+    return input
+  end
+  local held = {}
+  for key, value in pairs(input) do
+    held[key] = value
+  end
+  held.dash, held.slide = nil, nil
+  return held
+end
+local function heldInput(input)
+  local held = withoutEdges(input)
+  local actors
+  if input.actors then
+    for id, own in pairs(input.actors) do
+      local nextInput = withoutEdges(own)
+      if nextInput ~= own then
+        if not actors then
+          actors = {}
+          for key, value in pairs(input.actors) do
+            actors[key] = value
+          end
+        end
+        actors[id] = nextInput
+      end
+    end
+  end
+  if actors then
+    if held == input then
+      held = {}
+      for key, value in pairs(input) do
+        held[key] = value
+      end
+    end
+    held.actors = actors
+  end
+  return held
+end
 function Simulation.step(g, dt, input)
   g.time = g.time + dt
   Presentation.call(g, 'audio', dt)
@@ -44,15 +85,8 @@ function Simulation.update(g, dt, input)
     local step = math.min(remaining, 1 / 120)
     g:simulate(step, input)
     remaining = remaining - step
-    if remaining > 1e-10 and (input.dash or input.slide) then
-      input = {
-        forward = input.forward,
-        strafe = input.strafe,
-        turn = input.turn,
-        shoot = input.shoot,
-        fireCommand = input.fireCommand,
-        jump = input.jump,
-      }
+    if remaining > 1e-10 then
+      input = heldInput(input)
     end
   end
 end

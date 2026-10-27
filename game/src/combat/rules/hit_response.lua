@@ -4,6 +4,7 @@
 -- on the shared rules table R and call each other through it.
 local Archetypes = require('src.content.enemies')
 local Roles = require('src.core.roles')
+local Flinch = require('src.enemies.flinch')
 local defaults = Archetypes.defaults
 local sqrt, min, max = math.sqrt, math.min, math.max
 return function(R)
@@ -106,15 +107,14 @@ return function(R)
     if result.wounded then
       e.hitPause = max(e.hitPause or 0, defaults.woundPause)
     end
-    -- Visual flinch, read by the animation: strength and the side that was hit
-    -- (seen from the player), so a pellet on the left shoulder leans it right.
+    -- The hit's source defines the painted reaction, not the controlled view.
+    -- Drawing projects this basis for each observer without changing the body.
     -- Heavier bodies give way less: flinch = impact / (scale * sqrt(mass)).
     local spring = defaults.flinch
     local f = min(1, impact / (spring.scale * sqrt(b.mass)))
     e.flinch = max(e.flinch or 0, f)
     if point then
-      local toPlayer = math.atan2(p.x - e.x, p.z - e.z)
-      local sideX, sideZ = math.cos(toPlayer), -math.sin(toPlayer)
+      local sideX, sideZ = Flinch.begin(g, e, extra.origin or p)
       local side = (point[1] - e.x) * sideX + (point[3] - e.z) * sideZ
       e.flinchSide = side > defaults.flinchSide and 1 or (side < -defaults.flinchSide and -1 or 0)
       e.flinchLeanV = (e.flinchLeanV or 0) - spring.impulse * f * e.flinchSide

@@ -3,7 +3,7 @@
 -- visual remnants and cached combat reports. Neither operation touches the
 -- player, run wallet/checkpoint, world geometry or persistent score.
 local Pools = require('src.session.world')
-local Roles = require('src.core.roles')
+local Bodies = require('src.combat.bodies')
 local Encounter = {}
 
 -- The circle's guardian (plan v11 E2): one record of the session's
@@ -70,7 +70,9 @@ function Encounter.clearWorld(g)
   g._shotBodies = nil
   Encounter.setGuardian(g, false, false)
   g.threat = 0
-  Roles.controlled(g).effectState = nil
+  for _, knight in ipairs(Bodies.knights(g)) do
+    knight.effectState = nil
+  end
 end
 
 return Encounter

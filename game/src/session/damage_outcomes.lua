@@ -48,8 +48,9 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner)
     target = enemy.id,
   })
   if enemy.hp > 0 then
-    local applier = type(owner) == 'string' and { side = 'knight', id = owner } or source
-    Effects.apply(g, enemy, payload and payload.effects, applier)
+    if payload and payload.effects then
+      Effects.apply(g, enemy, payload.effects, Effects.origin(g, owner))
+    end
     return
   end
   Effects.clear(enemy)
@@ -73,7 +74,7 @@ end
 -- A blow from any side on a creature (plan v10 V2: an ally, a rival demon):
 -- the creatures' law, as a blast resolves it (armour, resistances, guard and
 -- shove from the source's place), never the knight's shield.
-local function creatureBlow(g, target, amount, x, z, packet, source)
+local function creatureBlow(g, target, amount, x, z, packet, source, context)
   local Damage = require('src.combat.damage')
   local Ground = require('src.physics.ground')
   local blow = {
@@ -86,7 +87,8 @@ local function creatureBlow(g, target, amount, x, z, packet, source)
   local dealt, _, impact, push = Damage.resolve(blow, target, 0)
   local health = math.min(target.hp, dealt)
   -- The chain belongs to the body that struck (a demon: no knight behind it).
-  local owner = type(source) == 'table' and source.id or nil
+  local origin = context and context.effectSource or source
+  local owner = type(origin) == 'table' and origin.id or nil
   Outcomes.enemy(g, target, dealt, 'creature', blow, owner)
   local y = Ground.of(g.world, target) + (Rules.body(target).aimY or 1)
   require('src.combat.combat').react(
@@ -97,7 +99,11 @@ local function creatureBlow(g, target, amount, x, z, packet, source)
     { target.x, y, target.z },
     nil,
     health,
-    { push = push, direction = { target.x - (x or target.x), target.z - (z or target.z) } },
+    {
+      push = push,
+      direction = { target.x - (x or target.x), target.z - (z or target.z) },
+      origin = type(source) == 'table' and source or { x = x or target.x, z = z or target.z },
+    },
     { value = health, kill = target.hp <= 0, source = source }
   )
 end
@@ -114,7 +120,7 @@ function Outcomes.body(g, target, amount, x, z, packet, source, context)
   if target.hp <= 0 or not validDamage(amount) or g.state ~= 'playing' then
     return
   end
-  creatureBlow(g, target, amount, x, z, packet, source)
+  creatureBlow(g, target, amount, x, z, packet, source, context)
 end
 
 -- Wall slams use this receipt without applying a second shove or damage pass.
@@ -188,6 +194,7 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     staggered = events.staggered,
     wounded = events.wounded,
     source = ongoing and source or nil,
+    owner = context and context.owner,
   }
   if controlled then
     g:recordPlayerDamage(info)

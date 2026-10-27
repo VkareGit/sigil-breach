@@ -2,7 +2,8 @@
 -- kinds, movement styles, AI states, reload mechanisms, supplies,
 -- conditions, game modes, event kinds. Entries keep registration order
 -- (deterministic iteration). An optional check(entry, id) validates an
--- entry when it is registered (schemas, required functions).
+-- entry when it is registered (schemas, required functions). Registration
+-- introduces an id once; deliberate replacement is a separate operation.
 local Class = require('src.core.class')
 local Id = require('src.core.id')
 local Registry = Class:extend('Registry')
@@ -12,16 +13,27 @@ function Registry:init(name, check)
   self.entries = {}
   self.order = {}
 end
+local function validate(registry, id, entry)
+  assert(entry ~= nil, registry.name .. ': empty entry ' .. id)
+  if registry.check then
+    registry.check(entry, id)
+  end
+end
 function Registry:register(id, entry)
   Id.check(id, self.name .. '.id')
-  assert(entry ~= nil, self.name .. ': empty entry ' .. id)
-  if self.check then
-    self.check(entry, id)
-  end
+  assert(self.entries[id] == nil, self.name .. ': already registered ' .. id .. '; use replace')
+  validate(self, id, entry)
   -- A rejected definition changes neither the entries nor their order.
-  if self.entries[id] == nil then
-    self.order[#self.order + 1] = id
-  end
+  self.order[#self.order + 1] = id
+  self.entries[id] = entry
+  return entry
+end
+-- A deliberate override (tool or mod). It must name an existing entry and
+-- pass the same validator; success preserves that id's iteration position.
+function Registry:replace(id, entry)
+  Id.check(id, self.name .. '.id')
+  assert(self.entries[id] ~= nil, self.name .. ': cannot replace missing ' .. id)
+  validate(self, id, entry)
   self.entries[id] = entry
   return entry
 end

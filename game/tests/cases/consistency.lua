@@ -55,6 +55,24 @@ function Tests.run(G)
     shotgun == Weapons.get('exorcist').glyphs.choke.spread
       and require('src.combat.loadout').spread(g) == 1
   )
+  local HUD = require('src.ui.hud')
+  g.player.weapon = 1
+  local focused = HUD.spreadRadius(g)
+  g.run.glyph = 'none'
+  local ordinary = HUD.spreadRadius(g)
+  check('the displayed shotgun cone narrows with the active engraving', focused < ordinary)
+  g.player.weapon = 2
+  local revolver = HUD.spreadRadius(g)
+  g.run.glyph = 'choke'
+  check(
+    'the displayed revolver cone ignores a shotgun-only engraving',
+    HUD.spreadRadius(g) == revolver
+  )
+  g.player.weapon = 1
+  g.view.motion, g.view.fovKick = false, 12
+  local still = HUD.spreadRadius(g)
+  g.view.fovKick = 0
+  check('disabled camera motion does not distort the displayed cone', HUD.spreadRadius(g) == still)
 
   -- A4: the reload timeline is data; the opened breech announces its cases.
   g = Field.new(G)

@@ -433,7 +433,7 @@ function Tests.run(G, renderer)
   p = g.player
   p.hp = 80
   p.armor = 0
-  X.explode(g, { x = p.x, y = 1, z = p.z })
+  X.explode(g, { x = p.x, y = 1, z = p.z, owner = p.id })
   check(
     'a point-blank blast has bounded real self-damage and no life steal',
     near(p.hp, 35) and near(g.explosionReport.selfDamage, 45)

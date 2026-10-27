@@ -1,5 +1,6 @@
 local Context = require('src.session.context')
 local Roles = require('src.core.roles')
+local Flinch = require('src.enemies.flinch')
 -- Interpolate the fixed simulation without delaying raw mouse input or mutating gameplay.
 local Pools = require('src.session.world')
 local P = {}
@@ -96,6 +97,8 @@ function P.capture(g)
     local v = values(e, enemyKeys)
     v.ai = e.ai
     v.alive = e.hp > 0
+    v.flinchOwner = e.flinchOwner
+    v.flinchOriginX, v.flinchOriginZ = e.flinchOriginX, e.flinchOriginZ
     scene.enemies[e] = v
   end
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
@@ -160,6 +163,13 @@ function P.sample(g, t)
     if old and (old.ai ~= e.ai or old.alive ~= (e.hp > 0)) then
       view.phase = e.phase
       view.deathTime = e.deathTime
+    end
+    if old and not Flinch.sameBasis(old, e) then
+      -- The contact already rebased the spring into its new source basis.
+      -- Blending its old scalar with the new one would reverse the apparent
+      -- direction for an observer on the other side. Like a phase change,
+      -- this contact uses the current value; later steps blend normally.
+      view.flinchLean = e.flinchLean or 0
     end
     out.enemies[i] = view
   end

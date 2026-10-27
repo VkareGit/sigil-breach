@@ -17,6 +17,7 @@ local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local Encounter = require('src.session.encounter')
 local Stats = require('src.session.stats')
+local Score = require('src.storage.classic_score')
 local Mode = {}
 
 local distance = MathX.distance
@@ -71,11 +72,9 @@ local function finish(g)
   local rank, data = Classic.rank, record(g)
   data.rank = g.elapsed < rank.S.time and Stats.total(g, 'damageTaken') < rank.S.damage and 'S'
     or (g.elapsed < rank.A.time and 'A' or 'B')
-  local previous = tonumber((love.filesystem.read('best-score-v03.txt'))) or 0
+  local previous = Score.read(g)
   data.bestScore = math.max(previous, Stats.total(g, 'score'))
-  if not g.testing then
-    love.filesystem.write('best-score-v03.txt', tostring(data.bestScore))
-  end
+  Score.write(g, data.bestScore)
   Presentation.capture(g, false)
   Presentation.cue(g, 'seal')
 end

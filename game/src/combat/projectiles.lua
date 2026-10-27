@@ -149,7 +149,7 @@ end
 -- A falling body only stops it: the dead take no wound and give no reward.
 local function strikeDemon(g, b, e, part, surface)
   if b.shot then
-    require('src.combat.combat').projectile(g, b, e, part, surface)
+    require('src.combat.combat').projectile(g, b, e, part, surface, P.observer(g, b))
     return
   end
   if e.hp <= 0 then
@@ -179,7 +179,7 @@ local function strikeDemon(g, b, e, part, surface)
     { b.x, b.y, b.z },
     nil,
     health,
-    nil,
+    { origin = P.observer(g, b) },
     { value = health, kill = e.hp <= 0, head = part == 'head' }
   )
 end

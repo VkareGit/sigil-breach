@@ -12,6 +12,7 @@
 -- payload: { [section] = { version = n, data = <tree> }, ... }
 local Serialize = require('src.core.serialize')
 local Reader = require('src.core.data_reader')
+local Execution = require('src.storage.execution')
 local Save = { format = 'SIGIL09' }
 -- Bounds of a save file the reader accepts.
 Save.limits =
@@ -187,6 +188,9 @@ function Save.read(file, name)
 end
 -- Write text as the save name: beside it first, verified, then swapped in.
 function Save.write(name, text)
+  if not Execution.canWrite() then
+    return false, 'save writes are disabled during replay'
+  end
   local temp, previous = name .. '.tmp', name .. '.previous'
   if not love.filesystem.write(temp, text) or love.filesystem.read(temp) ~= text then
     return false, 'could not write the save'

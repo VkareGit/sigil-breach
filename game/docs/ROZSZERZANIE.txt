@@ -373,3 +373,32 @@ KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
     obserwatora jawnie do Pose/Surface/Geometry, zgodnie z E4.
     Dwie nogi mogą mieć osobne id kształtu i jedną strefę obrażeń;
     kolizja ruchu i podatna powierzchnia nadal są osobnymi kontraktami.
+
+23. Sprawca efektu i reakcja kontaktu
+    Przekaż ID źródła całym łańcuchem obrażeń; efekt okresowy korzysta
+    z Effects.origin(g, owner), bez podmieniania na etykietę 'creature'.
+    Nieznane źródło to world/nil. Kontakt pocisku/hazardu z rycerzem
+    podaje context.effectSource={side=..., id=...}; impuls/pochylenie
+    dostaje extra.origin. Nie zastępuj autora bieżącą kamerą ani sterowanym.
+    Sprawdź śmierć/odejście źródła, zmianę sterowania, snapshot i replay.
+    Pełny reset czyści efekty wszystkich rycerzy; granica fali zachowuje
+    poprzednią politykę trwania ekspozycji. Nie zmieniaj jej przypadkiem.
+
+24. Zewnętrzny fakt i zapis podczas sesji
+    Execution.read(g, 'profil.nazwa', callback) utrwala skalarny wynik
+    w dzienniku. Execution.effect analogicznie utrwala wynik zapisu,
+    np. komunikat błędu; callback nie wykonuje się podczas replaya.
+    Trwałe zapisy przeprowadzaj przez storage/save lub jawne canWrite.
+    Nie czytaj pliku bezpośrednio z reguły wpływającej na Integrity.
+    Test: nagraj A, zmień dane dysku na B, odtwórz A bez odczytu/zapisu.
+    Sprawdź też błąd i zwolnienie blokady. Stary journal bez potrzebnego
+    faktu ma zgłosić brak danych, nie uzupełniać go dzisiejszym plikiem.
+
+25. Nowe ID, podmiana, wejście wielu aktorów
+    Registry:register służy tylko nowemu ID. Zamierzoną podmianę istniejącej
+    definicji wykonaj przez replace; ta sama walidacja nadal obowiązuje.
+    Nowy move.style/targeting musi mieć funkcję wykonawczą, zarejestrowaną
+    przed kompozycją sesji. Literówka ma zakończyć walidację, nie walkę.
+    Wejście ciągłe zachowuj przez wszystkie podkroki, także w input.actors.
+    Nowe jednorazowe pole dopisz do withoutEdges w session/simulation.lua
+    i przetestuj dt większe niż 1/120 bez mutacji wejścia wywołującego.

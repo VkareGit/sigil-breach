@@ -27,7 +27,9 @@ end
 local function strategy(e)
   local def = (e.archetype or e.kind) and Archetypes.of(e)
   local name = def and def.move and def.move.targeting or 'nearest'
-  return assert(Target.strategies[name], 'unknown targeting strategy ' .. tostring(name))
+  local select = Target.strategies[name]
+  assert(type(select) == 'function', 'unknown targeting strategy ' .. tostring(name))
+  return select
 end
 local function standIn(g)
   return Bodies.knights(g)[1]

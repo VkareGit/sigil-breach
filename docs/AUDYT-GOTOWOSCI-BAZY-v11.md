@@ -2,6 +2,9 @@
 
 Data: 27 października 2026. Audytowany kod: `7a4787c`, po poprawkach Claude'a z `a4dada8` i ich odbiorze. Zakres: gotowość architektury do rozwijania zawartości; bez przebudowy grafiki, HUD-u, balansu ani świata.
 
+Aktualizacja po wdrożeniu napraw: [DOMKNIECIE-AUDYTU-v11.md](DOMKNIECIE-AUDYTU-v11.md).
+Poniższy audyt zachowuje ustalenia i reprodukcje stanu sprzed napraw.
+
 ## Ocena
 
 **Projekt ma solidną strukturę do stopniowego dodawania broni, demonów, ataków, efektów i map w obrębie obecnego modelu gry. Nie wymaga kolejnej masowej przebudowy architektury. Nie nazwałbym jednak obecnego stanu bezwarunkowo domkniętą bazą.**

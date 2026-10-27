@@ -8,8 +8,23 @@ local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local K = require('src.content.field')
+local Observation = require('src.combat.observation')
+local Intent = require('src.player.intent')
 local Visits = {}
 local distance = MathX.distance
+-- Teleport is a simulation operation, even without an application transition.
+-- Only the moved knight forgets shots seen/buffered at his previous place.
+local function relocate(g, p, x, z, resetsHeight)
+  local moved = p.x ~= x
+    or p.z ~= z
+    or (resetsHeight and ((p.jump or 0) ~= 0 or (p.crouch or 0) ~= 0))
+  p.x, p.z = x, z
+  if moved then
+    Observation.invalidateActor(g, p)
+    Intent.clear(g, p)
+    g.view.presentationPrevious = nil
+  end
+end
 -- Stand the knight on the first clear spot around the seal id, facing it.
 function Visits.seal(field, g, id)
   if not g.testField then
@@ -44,7 +59,7 @@ function Visits.seal(field, g, id)
         return false
       end
       local p = Roles.controlled(g)
-      p.x, p.z = x, z
+      relocate(g, p, x, z, true)
       p.yaw = math.atan2(s.x - x, s.z - z)
       p.pitch = S.pitch
       p.vx, p.vz, p.jump, p.jumpV, p.crouch = 0, 0, 0, 0, 0
@@ -63,7 +78,7 @@ function Visits.shop(_, g)
     return false
   end
   local p = Roles.controlled(g)
-  p.x, p.z = K.start.x, K.start.z
+  relocate(g, p, K.start.x, K.start.z)
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.pitch = 0

@@ -10,6 +10,7 @@ local L = require('src.ui.layout')
 local Portrait = require('src.ui.portrait')
 local Numbers = require('src.ui.fonts.painted_numbers')
 local Weapons = require('src.content.weapons')
+local Loadout = require('src.combat.loadout')
 local Slots = require('src.ui.hud_slots')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
@@ -21,6 +22,14 @@ local Fit = require('src.ui.text_fit')
 local Pools = require('src.session.world')
 local C = Skin.colors
 local U
+-- Both HUD layouts show the same resolved cone the actor actually fires.
+function H.spreadRadius(g)
+  return 640
+    * math.tan(T.pelletSpread * Loadout.spread(g, Context.actor(g)))
+    / math.tan(
+      math.rad((g.view.fov or T.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0)) / 2
+    )
+end
 -- Guard (poise) under a health bar: gold fills as blows accumulate toward
 -- the break; after a break the strip is grey and shrinks with the lock; a
 -- boss's exposed window pulses pale gold. The rule made readable.
@@ -264,11 +273,7 @@ function H.draw(g, settings, ui, descentUI)
     end
   end
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
-    local cone = 640
-      * math.tan(T.pelletSpread * Weapons.spread(g, nil, Context.actor(g)))
-      / math.tan(
-        math.rad((g.view.fov or T.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0)) / 2
-      )
+    local cone = H.spreadRadius(g)
     for _, side in ipairs({ -1, 1 }) do
       line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, Palette.inkSoft, 3)
       line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, C.muted, 1)

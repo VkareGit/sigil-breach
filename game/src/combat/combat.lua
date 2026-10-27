@@ -350,6 +350,7 @@ function Volley:apply()
         push = self.pushes[e],
         lower = self.lowers[e],
         direction = self.directions[e],
+        origin = self.reactionOrigin or self.shooter,
       }
       local result = C.react(g, e, self.impacts[e], report.strong, pt, detail, nil, extra) or {}
       detail.counter, detail.crippled = result.counter, result.crippled
@@ -403,9 +404,12 @@ Deliveries:register('hitscan', {
 -- original payload/slot/serial, and use the same material, armour, response and
 -- presentation receipt as instantaneous rounds. The shared shot counts one hit
 -- even if several projectiles from this discharge reach different bodies.
-function C.projectile(g, b, e, part, surface)
+function C.projectile(g, b, e, part, surface, observer)
   local shot = b.shot
   local volley = newVolley(g, shot.profile, shot.attack, 1, shot.shooter)
+  -- Use the same basis that prepared the contacted painted surface. A dead
+  -- or departed shooter leaves the muzzle origin, not his later position.
+  volley.reactionOrigin = assert(observer, 'projectile contact requires its observer')
   volley.report.weapon, volley.report.shotSerial = shot.slot, shot.serial
   volley.sequence = shot.sequence
   volley.report.origin = shot.origin

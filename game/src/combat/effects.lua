@@ -18,16 +18,27 @@ Effects.kinds = Registry:new('effect handlers', function(entry, id)
     'effect handler ' .. id .. ' needs a callable tick'
   )
 end)
--- Who applied an effect: an explicit { side, id }, a body (its side and id;
--- the controlled knight is recorded without an id), else the knights.
+-- Chain ownership is independent of a contact's display label. Keep even a
+-- departed body's id; nil is an unknown source, never the current controller.
+function Effects.origin(g, owner)
+  local body = owner ~= nil and Pools.get(g, owner)
+  local side = body and Bodies.side(g, body)
+    or (
+      type(owner) == 'string' and owner ~= 'world' and 'knight'
+      or (type(owner) == 'number' and 'demons' or 'world')
+    )
+  return { side = side, id = owner }
+end
+-- An explicit origin or a live body identifies the source. A textual label
+-- such as 'creature'/'weapon' describes a contact, not a body's identity.
 local function sourceOf(g, source)
   if type(source) == 'table' and source.side then
     return source.side, source.id
   end
-  if type(source) == 'table' and source ~= Bodies.controlled(g) then
+  if type(source) == 'table' then
     return Bodies.side(g, source), source.id
   end
-  return 'knight', nil
+  return 'world', nil
 end
 local function aliveSource(g, instance)
   if instance.sourceId == nil and instance.sourceSide == 'knight' then
@@ -100,15 +111,19 @@ Effects.kinds:register('periodic', {
         nil,
         nil,
         'effect:' .. definition.id,
-        { ongoing = true }
+        { ongoing = true, owner = instance.sourceId }
       )
     else
       local damage = Damage.resolve(definition.packet, target, 0)
       -- The effect's applier owns its damage (a knight: his chain).
       g:damageEnemy(target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
     end
-    local receipt =
-      { target = target, definition = definition, health = math.max(0, before - target.hp) }
+    local receipt = {
+      target = target,
+      definition = definition,
+      health = math.max(0, before - target.hp),
+      owner = instance.sourceId,
+    }
     Signal(g, 'EffectPulse', receipt)
   end,
 })

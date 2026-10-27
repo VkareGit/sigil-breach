@@ -4,6 +4,7 @@ local Archetypes = require('src.content.enemies')
 local Corpse = require('src.enemies.corpse')
 local ActionPhase = require('src.enemies.action_phase')
 local Roles = require('src.core.roles')
+local Flinch = require('src.enemies.flinch')
 local Capabilities = require('src.session.capabilities')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
@@ -39,8 +40,9 @@ function Anim.pose(g, e, observer)
   local frame, bounce, lean, sx, sy = 1, 0, 0, 1, 1
   local quiet, rear = false, false
   local look = Archetypes.look(e)
+  local flinchProjection = Flinch.projection(g, e, observer or Roles.controlled(g))
   if e.hp <= 0 then
-    frame, bounce, lean, sx, sy = Corpse.pose(e, posed(e, 'collapse'))
+    frame, bounce, lean, sx, sy = Corpse.pose(e, posed(e, 'collapse'), flinchProjection)
   -- Knocked down (0.24): the painted collapse frames carry the fall. The body
   -- goes down (knockdown, seconds since the fall), stays low and climbs back
   -- up (rise, on the time it has left; the hit volumes follow the pose).
@@ -120,7 +122,7 @@ function Anim.pose(g, e, observer)
   -- The calibrated hit volumes use the same transform, so they follow it.
   local f = e.hp > 0 and (e.flinch or 0) or 0
   if e.hp > 0 then
-    lean = lean + (e.flinchLean or 0)
+    lean = lean + (e.flinchLean or 0) * flinchProjection
   end
   if f > 0 then
     sx = sx * (1 + 0.05 * f)

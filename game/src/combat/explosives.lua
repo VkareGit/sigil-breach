@@ -13,6 +13,7 @@ local chest = require('src.content.combat_defaults').missiles.chest
 local Abilities = require('src.content.abilities')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
+local Effects = require('src.combat.effects')
 local Roles = require('src.core.roles')
 local function defaultAction()
   return Abilities:get('powder').action
@@ -84,7 +85,7 @@ function X.explode(g, b)
           { e.x, y, e.z },
           nil,
           health,
-          { push = push, direction = { e.x - b.x, e.z - b.z } },
+          { push = push, direction = { e.x - b.x, e.z - b.z }, origin = b },
           { value = health, kill = e.hp <= 0 }
         )
         report.targets = report.targets + 1
@@ -97,9 +98,9 @@ function X.explode(g, b)
   end
   -- A blast hurts every knight in reach (content/factions.lua: indiscriminate),
   -- its thrower included, at his chest as a missile meets him (0.25), by the
-  -- knights' own rule of the charge (selfBlast). The thrower is the
-  -- controlled knight; the report keeps his own loss.
-  local thrower = Bodies.controlled(g)
+  -- knights' own rule of the charge (selfBlast). Report the actual thrower's
+  -- loss, even after control changes; an absent owner is not another knight.
+  local thrower = b.owner and Bodies.actor(g, b.owner)
   for _, p in ipairs(Bodies.knights(g)) do
     if p == thrower or p.hp > 0 then
       local visible, d =
@@ -108,13 +109,14 @@ function X.explode(g, b)
         local before = p.hp
         local own = action.selfBlast
         local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
-        -- source 'self': a knight's own charge is never a perfect dodge.
+        -- All knight charges retain the existing no-perfect-dodge policy.
+        -- The effect source is separate, so it still names the actual caster.
         g:damageBody(p, own.base * f, b.x, b.z, {
           base = own.base * f,
           impact = own.impact * f,
           damageType = own.damageType,
           effects = own.effects,
-        }, 'self')
+        }, 'self', own.effects and { effectSource = Effects.origin(g, b.owner) })
         if p == thrower then
           report.selfDamage = math.max(0, before - p.hp)
         end

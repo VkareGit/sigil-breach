@@ -366,6 +366,11 @@ Suite.registry = {
     module = 'tests.cases.runtime_contracts',
   },
   {
+    id = 'replay-io',
+    title = 'External journal inputs, checkpoint receipts and read-only replay',
+    module = 'tests.cases.replay_io',
+  },
+  {
     id = 'creature-pipeline',
     title = 'Sheets, anatomy tools and a demon from data alone (plan v10 V7)',
     module = 'tests.cases.creature_pipeline',
@@ -391,9 +396,24 @@ Suite.registry = {
     module = 'tests.cases.damage_chain',
   },
   {
+    id = 'damage-origin',
+    title = 'Periodic effect ownership, charge receipts and reset lifetimes',
+    module = 'tests.cases.damage_origin',
+  },
+  {
     id = 'observer',
     title = 'The observer of geometry and shot observations by actor (plan v11 E4)',
     module = 'tests.cases.observer',
+  },
+  {
+    id = 'input-geometry-contracts',
+    title = 'Substep actor input, owned volume buffers and teleport observations',
+    module = 'tests.cases.input_geometry_contracts',
+  },
+  {
+    id = 'flinch-observers',
+    title = 'Source-facing painted flinch and presentation interpolation',
+    module = 'tests.cases.flinch_observers',
   },
   {
     id = 'view-context',

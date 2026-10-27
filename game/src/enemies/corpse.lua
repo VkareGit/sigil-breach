@@ -111,13 +111,16 @@ end
 -- The painted collapse (the atlas's collapse pose, content/art/poses.lua):
 -- only what is drawn and met by a shot mid-fall. Death advances while
 -- flying; landing never restarts it.
-function Corpse.pose(e, collapse)
+function Corpse.pose(e, collapse, projection)
   local t = max(0, e.deathTime or 0)
   local frame = Poses.frame(collapse, t)
   local response = e.deathResponse
   local strength = response and response.strength or 0
   local side = response and response.side or e.flinchSide or 0
-  local lean = -side * (K.lean + strength * K.leanGain) * max(0, 1 - t / K.settle)
+  local lean = -side
+    * (K.lean + strength * K.leanGain)
+    * max(0, 1 - t / K.settle)
+    * (projection or 1)
   return frame, e.fallY or 0, lean, 1, 1
 end
 return Corpse

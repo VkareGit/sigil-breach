@@ -107,11 +107,7 @@ function S.draw(g, s, U)
   end
   local inHand = Weapons.inHand(g, nil, Context.actor(g))
   if inHand.fire.pellets > 1 then
-    local cone = 640
-      * math.tan(T.pelletSpread * Weapons.spread(g, nil, Context.actor(g)))
-      / math.tan(
-        math.rad((g.view.fov or T.baseFov) + ((g.view.motion ~= false) and g.view.fovKick or 0)) / 2
-      )
+    local cone = HUD.spreadRadius(g)
     c(muted, 0.45)
     lg.setLineWidth(1)
     lg.line(cx - cone, cy - 4, cx - cone, cy + 4)

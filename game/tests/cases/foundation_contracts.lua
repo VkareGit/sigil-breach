@@ -9,6 +9,10 @@ function Tests.run(Game)
   local Delivery = require('src.content.defs.delivery')
   local Executors = require('src.combat.weapon_delivery')
   local Contracts = require('src.session.content_contracts')
+  local Creature = require('src.content.defs.creature')
+  local Archetypes = require('src.content.enemies')
+  local AI = require('src.enemies.ai')
+  local Target = require('src.enemies.target')
   local Cast = require('src.combat.abilities')
   local lines = {}
   local check = Fixtures.checker(lines, 'foundation contracts: ', 'foundation contracts: ')
@@ -51,6 +55,56 @@ function Tests.run(Game)
   world.gates[1].x = gateX + 1
   check('the copied map arrays remain instance-owned', map.gates[1].x == gateX)
   local ok, problem = xpcall(function()
+    local creatureId, behaviorId = 'fixture_ai_contract', 'fixture_ai_behavior'
+    Archetypes.creatures[#Archetypes.creatures + 1] = creatureId
+    local function creature(move)
+      local definition = Creature.define({
+        extends = Archetypes.imp,
+        id = creatureId,
+        kind = 'imp',
+        variant = creatureId,
+        move = move,
+      })
+      Archetypes[creatureId] = definition
+      return definition
+    end
+    for _, field in ipairs({ 'style', 'targeting' }) do
+      creature({ [field] = 'missing_ai_behavior' })
+      local created, message = pcall(Game.new, 'classic')
+      check(
+        'unknown ' .. field .. ' is rejected at composition before starting a world',
+        not created and tostring(message):find('missing_ai_behavior', 1, true)
+      )
+    end
+    AI.styles[behaviorId], Target.strategies[behaviorId] = {}, {}
+    for _, field in ipairs({ 'style', 'targeting' }) do
+      local definition = creature({ [field] = behaviorId })
+      check(
+        'noncallable ' .. field .. ' is rejected at composition',
+        not pcall(Contracts.creature, definition)
+      )
+    end
+    local moved, targeted = 0, 0
+    AI.styles[behaviorId] = function()
+      moved = moved + 1
+    end
+    Target.strategies[behaviorId] = function(g)
+      targeted = targeted + 1
+      return g.player
+    end
+    creature({ style = behaviorId, targeting = behaviorId })
+    local scene = Fixtures.arena(Game)
+    local demon = scene:spawn(creatureId, 16, 20)
+    demon.awake, demon.memory, demon.spawnAge, demon.attack = true, 30, 1, 30
+    AI.update(scene, 1 / 120)
+    check(
+      'new movement and targeting strategies execute through the unchanged AI',
+      moved > 0 and targeted > 0 and demon.target == scene.player.id
+    )
+    AI.styles[behaviorId], Target.strategies[behaviorId] = nil, nil
+    Archetypes[creatureId] = nil
+    table.remove(Archetypes.creatures)
+
     local body = {}
     check(
       'unknown condition is refused before creating state',
@@ -110,6 +164,13 @@ function Tests.run(Game)
   Weapons.registry:unregister('fixture_contract_gun')
   Executors:unregister('fixture_transport')
   Delivery.kinds:unregister('fixture_transport')
+  AI.styles.fixture_ai_behavior, Target.strategies.fixture_ai_behavior = nil, nil
+  Archetypes.fixture_ai_contract = nil
+  for i = #Archetypes.creatures, 1, -1 do
+    if Archetypes.creatures[i] == 'fixture_ai_contract' then
+      table.remove(Archetypes.creatures, i)
+    end
+  end
   require('src.session.snapshot').invalidateDefinitions()
   assert(ok, problem)
   return lines

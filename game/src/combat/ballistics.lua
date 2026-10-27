@@ -340,7 +340,7 @@ function B.prepare(g, observer, into)
       entry.enemy = e
       -- Only the representation the body uses is prepared.
       if Geometry.uses(e) then
-        entry.volumes, entry.surface = Geometry.volumes(g, e, observer), nil
+        entry.volumes, entry.surface = Geometry.volumes(g, e, observer, entry.volumes or {}), nil
       else
         entry.volumes, entry.surface =
           nil, Surface.prepare(g, e, entry.surface or entry.spare, observer)
