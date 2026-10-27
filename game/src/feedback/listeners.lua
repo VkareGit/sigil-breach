@@ -37,7 +37,7 @@ local function blow(g, e)
 end
 local function bodyHit(g, e)
   local enemy = e.enemy
-  local personal = Recipient.context(g, e.owner)
+  local personal = Recipient.chain(g, e.owner)
   if personal then
     personal.view.hitmarker, personal.view.precisionHit = Feel.hitmarker, false
     personal.view.lastDamage = math.floor(e.health + 0.5)
@@ -49,7 +49,7 @@ local function bodyHit(g, e)
 end
 local function enemyKilled(g, e)
   local enemy = e.enemy
-  local personal = Recipient.context(g, e.owner)
+  local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
     personal.view.breakKill = Feel.breakKillFlash
     personal.view.killPunch = math.max(personal.view.killPunch or 0, Feel.breakKillPunch)

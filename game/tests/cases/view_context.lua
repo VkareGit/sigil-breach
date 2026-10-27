@@ -552,7 +552,7 @@ function Tests.run(G, renderer)
   -- A kill by a chain no knight began (a demon's blow; its owner is the
   -- demon's id) is presented as the ledger counts it: to the only knight,
   -- as in 0.33; with several knights to nobody.
-  local function demonKill(withSecond)
+  local function demonKill(withSecond, unknownOwner)
     local scene = arena()
     if withSecond then
       join(scene)
@@ -560,7 +560,11 @@ function Tests.run(G, renderer)
     local victim = scene:spawn('imp', 16, 21)
     victim.spawnAge = 1
     scene.view.feedbackTimer = 0
-    scene:damageEnemy(victim, 9999, 'creature', nil, victim.id + 1)
+    local owner
+    if not unknownOwner then
+      owner = victim.id + 1
+    end
+    scene:damageEnemy(victim, 9999, 'creature', nil, owner)
     scene:update(dt, {})
     return scene.view.feedbackTimer
   end
@@ -572,6 +576,11 @@ function Tests.run(G, renderer)
       shared
     ),
     alone > 0 and shared == 0
+  )
+  local unknownAlone, unknownShared = demonKill(false, true), demonKill(true, true)
+  check(
+    'an unknown damage-chain owner follows the same feedback rule as a demon owner',
+    unknownAlone > 0 and unknownShared == 0
   )
 
   -- Borrowed answers are distinct for actors and interpolated samples, but

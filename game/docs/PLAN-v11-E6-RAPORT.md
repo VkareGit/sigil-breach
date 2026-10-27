@@ -131,6 +131,14 @@ ma test regresji w `view-context`, który bez poprawki pada:
 
 ## Interpretacja końcowa i decyzja użytkownika
 
+Dodatkowa weryfikacja po `a4dada8` potwierdziła brakujący wariant:
+`owner == nil` oznacza nieznanego sprawcę obrażeń, a nie domyślnego
+sterowanego rycerza. `Recipient.chain` rozwiązuje właściciela przez
+`Stats.owner` także w tym przypadku; używają go BodyHit i EnemyKilled.
+Test bez poprawki pada. Domyślny aktor komend i wygląd jednego gracza
+pozostają bez zmian. Aktualny odbiór, budżet klatki i dowody są opisane
+w `../../docs/ODBIOR-POPRAWEK-v11.md`; nie zastępują historycznych pomiarów.
+
 Powtórzenia nie zastępują pierwszych serii: zestawienia n=10 zawierają
 wszystkie próbki. Poniższa tabela pokazuje wartości po powtórzeniach,
 a dla niepowtarzanego rdzenia E5 nadal n=5. Nie oznacza przyjęcia

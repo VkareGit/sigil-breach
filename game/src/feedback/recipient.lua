@@ -28,6 +28,11 @@ function Recipient.context(g, id)
     return Context.of(g, actor)
   end
 end
+-- A missing command actor means the controlled knight; a missing damage
+-- owner means an unknown chain. Resolve that distinction before routing.
+function Recipient.chain(g, owner)
+  return Recipient.context(g, Stats.owner(g, owner))
+end
 function Recipient.each(g, callback)
   local controlled = Context.controlled(g)
   if controlled then
