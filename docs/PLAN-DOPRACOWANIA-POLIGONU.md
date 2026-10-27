@@ -13,7 +13,7 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 |---|---|---|
 | 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Wdrożony i zweryfikowany; przerwa na test użytkownika |
-| 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Oczekuje |
+| 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Wdrożony i zweryfikowany; przerwa na test użytkownika |
 | 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Oczekuje |
 | 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Oczekuje |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
@@ -150,6 +150,95 @@ Uwaga do punktu 3 po teście użytkownika: pociski nadal potrafią trafić
 podczas ślizgu. Należy zmierzyć wysokość i promień konkretnych ataków oraz
 zgodność ich obrazu z kontaktem. Sam fakt, że środek pocisku jest ponad
 kamerą, nie dowodzi minięcia całego ciała; nie zmieniać hitboxów na ślepo.
+
+## Punkt 3 — pionowy zasięg i chwila kontaktu
+
+Zachowana bryła rycerza: promień 0,22 m, przedział od 0,08 do 1,80 m
+nad podłożem i skokiem. Pełny ślizg obniża górną granicę o 0,43 m do
+1,37 m. Pocisk celujący na około 1,15 m przecina ją prawidłowo. Nie dodano
+ukrytej odporności, nie obniżono ciała dla łatwiejszego unikania strzałów.
+
+| Dostawa | Obecny kontrakt |
+|---|---|
+| Pocisk | Sfera swept przeciw ciału/światu; wspólny promień obrazu i kontaktu; definiowane height/aimHeight/radius |
+| Pazur i szarża | Sfera kontaktu, aktywne okno i kotwice obecnych animacji; continuous cylinder cast z punktu 1 |
+| Kałuża / linia | Skończony walec, domyślnie stopy w [0; 0,42) m nad własnym podłożem |
+| Lądowanie | Domyślnie stopy w [0; 1) m, z promieniem ciała w zasięgu poziomym; sprawdza osłonę |
+| Piorun | Skończona kolumna 0–2,9 m, przecięcie ciała i promienia, ograniczona stropem nad źródłem |
+| Ładunek | Sferyczny dystans 3D do kotwicy ekspozycji ciała, falloff i promień osłony; nie nieskończony walec |
+
+`content/defs/area.lua` waliduje `volume` i `landVolume`: `bottom`, `top`,
+`sample` i `includeRadius`. `combat/area_contact.lua` wykonuje wspólne
+sprawdzenie i zwraca diagnostykę przyjętego kontaktu. Zmiana wysokości
+obszaru jest zmianą danych ataku; nie wymaga nowego kodu demona. Nowy
+kształt, np. łuk poruszającej się ściany, nadal wymaga właściwego wykonawcy
+i testu — nie udajemy go samą zmianą liczby. Testowy wariant podniesionego
+pasma pokazuje to rozszerzenie; nie został dodany do publicznej rozgrywki.
+
+Naprawione przypadki:
+
+- Piorun nie trafia dowolnie wysoko ani przez strop. Kałuża z górnego
+  poziomu nie trafia rycerza na dolnym; lądowanie nie przenika ściany.
+- Puls interpoluje wysokość świata między pozycjami. Nie przenosi całego
+  skoku na podłoże komórki końcowej. Opóźniony piorun próbkuje czas
+  wygaśnięcia znacznika; świeżo wykonany przez AI bierze pozycję po ruchu.
+- `ballistics.world` pomijał stropy w promieniach punktowych, mimo że
+  fizyczne pociski je uwzględniały. Teraz blokują też hitscan i ekspozycję
+  wybuchu. Światy bez stropów korzystają z dotychczasowej szybkiej ścieżki.
+- Kierunek pionowy pocisku uwzględnia przesunięty wylot (d−muzzle zamiast d)
+  i leapY strzelca. aimHeight jest danymi ataku, bez śledzenia celu w locie.
+- Kałuża zachowuje ID sprawcy również bez efektów okresowych. Geometria
+  jest deklarowanym polem komponentu; snapshot nie traci jej ani nie
+  pozostawia referencji do mutowanego egzemplarza.
+
+Ograniczenia są jawne: ekspozycja wybuchu nadal jest pojedynczą kotwicą,
+obszary są walcami, a próbkowanie pulsu korzysta z interpolacji liniowej
+wewnątrz kroku. To różne kontrakty od anatomicznej maski trafień demona.
+Malowana aura pocisku jest dekoracją; nowy promień skaluje ją wraz z rdzeniem.
+Nowa forma efektu nadal wymaga oceny grafiki i jej zapowiedzi przed publikacją.
+Nie zmieniono atlasów, HUD-u, HP, obrażeń ani amunicji istniejących broni.
+
+### Złoty wzorzec i zgodność
+
+Świadoma korekta kąta lotu zmienia pośrednie skróty stanów: playtest
+`07f73bfa` → `31e0ff45`, human `fe26df14` → `c34e3780`, drill
+`c13bcaec` → `0bc736d6`. Końcowe stany i wszystkie trzy skróty kontaktów
+są identyczne. W izolowanym procesie przywrócono **wyłącznie mianownik
+prędkości pionowej** w pamięci: 6/6 starych wyników wróciło. Stąd aktualizacja
+trzech wpisów `tests/golden/baseline.lua`, z komentarzem uzasadniającym.
+Referencje 0.33 nie zostały przepisane. Dowód lokalny:
+`work/point3-final/golden-attribution/legacy-aim.csv`.
+
+### Odbiór punktu 3
+
+`FORMAT.ps1` i `TEST.ps1 -Suite All -TestTimeoutSeconds 600`: PASS.
+4509 sprawdzeń mechaniki/zasobów (39 nowych w attack-volumes), 36 testów
+wejścia, 538 plików Lua, zero problemów architektury. Referencje 0.33:
+58 sprawdzeń PASS bez regeneracji. Testy nowych granic obejmują 60/120/240 Hz
+dla pocisków i różne rozmiary kroku przy opóźnionym piorunie, świat ze
+stropem i podniesionym podłożem, własną geometrię ataku i dwóch rycerzy.
+
+Renderowanie sprawdziło 5466 granic tekstu/obrazów/wskaźników oraz 15
+publicznych ekranów poligonu w pięciu rozmiarach. Obejrzano aktualne sceny
+pioruna, pocisku, HUD i katalog. Porównanie 606 obrazów z E0 nadal daje
+245 identycznych; względem raportu punktu 2 jedyna zmieniona metryka różnic
+dotyczy `attack-stolas-2-projectile.png` (przesunięcie pocisku po korekcie
+toru). Nie zmieniono żadnego pliku assetów ani układu interfejsu.
+
+Wszystkie osiem przebiegów All miało stabilne źródła i kod wyjścia 0;
+skrót źródeł: `AD4266BCBE1E56A1ED0D0CA8C91ABE76A2C4C19F42EFE392F847C2FF86DF9B5B`.
+Dowody: `work/point3-final/all/`, `pixels.csv`, `render-new-differences.csv`
+i osobna próba przypisująca zmianę golden do toru pocisku. Narzędzia
+wydajności w All działały jako smoke, nie jako odbiór regresji punktu 1.
+
+Przywołać Stolas/Buer/Margrave/Furfur przez F2, wyłączyć GOD MODE.
+Niski pocisk może trafić przy ślizgu; pocisk, którego cała sfera przechodzi
+nad ciałem, powinien chybić. Skok nad kałużą zależy od chwili jej pulsu.
+Piorun dochodzi do ziemi — ślizg nie zastępuje wyjścia poza jego obszar.
+Po sprawdzeniu wykonać RESET FIELD. Nowe piętra/stropy testuje automatyczna
+geometria techniczna; nie dodano mapy do rozgrywki.
+Punkt 4 (strategie AI i fazy bossa) zaczynamy po przerwie na tę próbę.
+Otwarta regresja wydajności z punktu 1 pozostaje do osobnego domknięcia.
 
 ## Zasady następnych etapów
 

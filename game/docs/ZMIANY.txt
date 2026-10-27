@@ -16,6 +16,30 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Dopracowanie poligonu — punkt 3 (27 października 2026)
+- Ataki obszarowe mają skończone, walidowane volume/landVolume w danych:
+  bottom, top, sample (feet/body), includeRadius. Kałuża domyślnie sięga
+  do 0,42 m, lądowanie do 1 m, piorun do 2,9 m nad własnym podłożem.
+- combat/area_contact wspólnie sprawdza obszar, podłoże, strop i osłonę.
+  Piorun nie trafia już na dowolnej wysokości; lądowanie nie przenika ścian.
+  Kałuża z górnego poziomu nie rani rycerza na dolnym. Puls interpoluje
+  wysokość świata, a nie wyłącznie jump względem końcowej komórki.
+- Opóźniony piorun próbkuje cel w chwili wygaśnięcia znacznika; świeżo
+  wypuszczony przez AI — po ruchu tego kroku. Te same reguły dla uników.
+- Promień sprawdzający osłonę (ballistics.world) uwzględnia teraz stropy;
+  dotyczy również wybuchu i hitscanu. Mapy bez stropów mają dawną szybką ścieżkę.
+- Pocisk ma aimHeight w definicji. Uwzględnia wysokość skaczącego strzelca
+  i odległość od wylotu przy obliczaniu vy. Promień kontaktu i prezentacji
+  pochodzi ze wspólnego projectile_shape; bazowe grafiki/rozmiary bez zmian.
+- Kałuże zachowują ID sprawcy także bez efektu okresowego. Ich geometria
+  jest polem komponentu, więc obejmuje ją snapshot i kontrola integralności.
+- Świadoma aktualizacja trzech pośrednich skrótów golden: zmiana vy od
+  wylotu. Końcowe stany i wszystkie skróty trafień pozostały identyczne.
+  Próba przywracająca tylko stary mianownik W PAMIĘCI odtworzyła 6/6
+  oryginałów: work/point3-final/golden-attribution/legacy-aim.csv.
+- Brak przebudowy HUD-u, modeli, parametrów obrażeń, HP i amunicji.
+  Niski pocisk nadal może prawidłowo trafić podczas ślizgu (głowa: 1,37 m).
+
 Dopracowanie poligonu — punkt 2 (27 października 2026)
 - Publiczny poligon nie oferuje sklepu ani próby fal. Wyłączone są też
   interakcja handlu przy Żarze i zakup przez polecenie trybu; reset nie

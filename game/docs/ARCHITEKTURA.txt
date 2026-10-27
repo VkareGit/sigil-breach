@@ -8,6 +8,14 @@ Symulacja nie zna prezentacji (działa bez grafiki i dźwięku). Zachowanie gry
 jest zamrożone złotym wzorcem (tests/golden/baseline.lua); świadoma zmiana
 rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 
+Geometria ataków (punkt 3 poligonu): content/defs/area waliduje skończone
+pasma wysokości; combat/area_contact rozstrzyga kolumny/kałuże/lądowanie
+z osłoną i próbkowaniem czasu. Sfery pocisków i ciosów korzystają z
+physics/cylinder_cast; projectile_shape dzieli promień z prezentacją.
+ballistics.world rozlicza również stropy przy sprawdzaniu osłony wybuchów
+i ataków obszarowych. Nie utożsamiamy maski strzału, kolizji ruchu,
+próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
+
 1. PRZEPŁYW STEROWANIA
 
   main.lua (callbacki LÖVE)

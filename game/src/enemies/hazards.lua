@@ -1,18 +1,18 @@
 -- Timed attack footprints. Telegraph and damage share the same owner clock;
 -- pool pulses sample movement at pulse time, independent of frame rate.
 local Spawn = require('src.session.spawn')
-local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
-local Ground = require('src.physics.ground')
+local Area = require('src.combat.area_contact')
+local Volumes = require('src.content.defs.area')
+local Schema = require('src.core.schema')
 local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Hazards = {}
-local len = MathX.len
 -- Scratch swept points of a creature sampled by a pool pulse.
-local sampled, current = {}, {}
+local sampled = {}
 function Hazards.add(g, x, z, delay, r, life, spec)
   if not W.solid(g.world, x, z, K.clearance) then
     Spawn.make(g, 'hazard', {
@@ -21,6 +21,7 @@ function Hazards.add(g, x, z, delay, r, life, spec)
       delay = delay,
       maxDelay = delay,
       radius = r,
+      volume = Schema.copy(spec and spec.volume or Volumes.defaults.pool),
       life = life,
       pulse = 0,
       packet = spec and spec.packet,
@@ -35,37 +36,26 @@ end
 -- The marked bolt falls once: every body of a hostile side within reach and
 -- in sight is struck; a knight who left his afterimage there instead dodges
 -- perfectly (knights first, then creatures; plan v10 V2).
-local function strike(g, h)
+local function strike(g, h, t, previousPlayer, dt)
   local effectSource = h.packet and h.packet.effects and { side = h.side or 'demons', id = h.owner }
     or nil
   Bodies.each(g, function(b)
     if not Bodies.harms(g, h.side or 'demons', b, 'hazard') then
       return false
     end
-    local reach = h.radius + Bodies.extent(g, b)
+    local previous = b == Bodies.controlled(g) and previousPlayer or Bodies.previous(g, b)
+    local point = Area.sample(g, b, previous, t, sampled)
+    local volume = h.volume or Volumes.defaults.lightning
+    local hit, contact = Area.test(g, h, volume, b, point)
     local ghost = Dodge.afterimage(g, b)
-    if len(b.x - h.x, b.z - h.z) < reach and W.visible(g.world, h.x, h.z, b.x, b.z) then
+    if hit then
+      contact.kind, contact.id, contact.owner, contact.target = 'hazard', h.id, h.owner, b.id
+      contact.delivery, contact.time, contact.fraction = 'lightning', t * dt, t
       g:damageBody(b, h.packet and h.packet.base or h.damage, h.x, h.z, h.packet, nil, {
         effectSource = effectSource,
-        contact = {
-          kind = 'hazard',
-          id = h.id,
-          owner = h.owner,
-          target = b.id,
-          geometry = 'radial-column',
-          delivery = 'lightning',
-          sourcePoint = { x = h.x, z = h.z },
-          samplePoint = { x = b.x, z = b.z },
-          radius = h.radius,
-          bounds = { radius = reach, heightPolicy = 'unbounded' },
-        },
+        contact = contact,
       })
-    elseif
-      ghost
-      and h.packet
-      and len(ghost.x - h.x, ghost.z - h.z) < reach
-      and W.visible(g.world, h.x, h.z, ghost.x, ghost.z)
-    then
+    elseif ghost and h.packet and Area.test(g, h, volume, b, ghost) then
       -- The bolt fell where the dodge began: a perfect dodge.
       Dodge.perfect(g, h.packet, nil, b)
     end
@@ -82,37 +72,15 @@ local function pulse(g, h, t, interval, previousPlayer, dt)
     if not Bodies.harms(g, h.side or 'demons', b, 'hazard') then
       return false
     end
-    local before
-    if b == Bodies.controlled(g) then
-      before = previousPlayer or b
-    else
-      before = Bodies.sweep(g, Bodies.previous(g, b), sampled)
-    end
-    local now = Bodies.sweep(g, b, current)
-    local x = before.x + (now.x - before.x) * t
-    local z = before.z + (now.z - before.z) * t
-    local jump = before.jump + (now.jump - before.jump) * t
-    if
-      len(x - h.x, z - h.z) < h.radius
-      and math.abs(Ground.height(g.world, x, z, now.level) + jump - Ground.of(g.world, h)) < K.jumpClear
-      and W.visible(g.world, h.x, h.z, x, z)
-    then
+    local previous = b == Bodies.controlled(g) and previousPlayer or Bodies.previous(g, b)
+    local point = Area.sample(g, b, previous, t, sampled)
+    local hit, contact = Area.test(g, h, h.volume or Volumes.defaults.pool, b, point)
+    if hit then
+      contact.kind, contact.id, contact.owner, contact.target = 'hazard', h.id, h.owner, b.id
+      contact.delivery, contact.fraction, contact.time = 'pool', t, t * dt
       g:damageBody(b, h.packet and h.packet.base or K.damage, h.x, h.z, h.packet, nil, {
         effectSource = effectSource,
-        contact = {
-          kind = 'hazard',
-          id = h.id,
-          owner = h.owner,
-          target = b.id,
-          geometry = 'radial-feet',
-          delivery = 'pool',
-          sourcePoint = { x = h.x, y = Ground.of(g.world, h), z = h.z },
-          samplePoint = { x = x, y = Ground.height(g.world, x, z, now.level) + jump, z = z },
-          radius = h.radius,
-          bounds = { verticalClearance = K.jumpClear },
-          fraction = t,
-          time = t * dt,
-        },
+        contact = contact,
       })
       if h.condition then
         Rules.addCondition(b, h.condition, interval + K.linger)
@@ -122,6 +90,9 @@ local function pulse(g, h, t, interval, previousPlayer, dt)
   end)
 end
 function Hazards.update(g, dt, previousPlayer)
+  if not require('src.core.mathx').finite(dt) or dt <= 0 then
+    return
+  end
   local hazards = Pools.of(g, 'hazards')
   for i = #hazards, 1, -1 do
     local h = hazards[i]
@@ -142,14 +113,18 @@ function Hazards.update(g, dt, previousPlayer)
           h.delay = owner.windup
         end
       else
-        local active = h.justReleased and 0 or math.max(0, dt - math.max(0, h.delay))
+        local released = h.justReleased
+        local waiting = math.max(0, h.delay)
+        local active = released and 0 or math.max(0, dt - waiting)
         h.justReleased = nil
         h.delay = h.delay - dt
         if h.delay <= 0 then
           h.life = h.life - active
           if not h.struck then
             h.struck = true
-            strike(g, h)
+            -- A just-released cast executes after movement in this step.
+            -- A previously placed mark expires at its own point within the step.
+            strike(g, h, released and 1 or math.min(1, waiting / dt), previousPlayer, dt)
           end
         end
       end

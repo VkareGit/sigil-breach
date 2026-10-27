@@ -9,6 +9,8 @@ local Rules = require('src.combat.rules')
 local Hazards = require('src.enemies.hazards')
 local Bodies = require('src.combat.bodies')
 local Contact = require('src.enemies.attack_contact')
+local Shape = require('src.combat.projectile_shape')
+local Schema = require('src.core.schema')
 local K = require('src.content.combat_defaults').attacks
 local sin, cos = math.sin, math.cos
 local len = MathX.len
@@ -17,7 +19,7 @@ local Kinds = {}
 local function projectile(g, e, a, speed, spec)
   -- Launched and aimed at heights above the ground (physics/ground.lua).
   local ground = Ground.of(g.world, e)
-  local y = ground + spec.height
+  local y = ground + (e.leapY or 0) + spec.height
   local d = len(e.aimX - e.x, e.aimZ - e.z)
   -- radius: the projectile's own collision radius, also its painted size.
   Spawn.make(g, 'projectile', {
@@ -26,16 +28,16 @@ local function projectile(g, e, a, speed, spec)
     z = e.z + cos(a) * K.muzzle,
     vx = sin(a) * speed,
     vz = cos(a) * speed,
-    vy = (Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + K.aimHeight - y)
+    vy = (Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + (spec.aimHeight or K.aimHeight) - y)
       * speed
-      / math.max(1, d),
+      / math.max(1, d - K.muzzle),
     life = K.boltLife,
     big = spec.big or false,
     color = spec.color,
     owner = e.id,
     side = Bodies.side(g, e),
     packet = Rules.packet(e, spec.packet),
-    radius = spec.radius or (spec.big and K.bigBoltRadius or K.boltRadius),
+    radius = Shape.radius(spec),
   })
 end
 Kinds.strike = {
@@ -54,6 +56,7 @@ Kinds.strike = {
       z = e.aimZ,
       level = e.aimLevel,
       radius = atk.radius,
+      volume = Schema.copy(atk.volume),
       delay = e.windupDuration,
       maxDelay = e.windupDuration,
       life = atk.life,
@@ -72,7 +75,8 @@ Kinds.pool = {
       packet = Rules.packet(e, pool.packet),
       pulse = pool.pulse,
       condition = pool.condition,
-      owner = pool.packet.effects and e.id or nil,
+      volume = pool.volume,
+      owner = e.id,
       level = e.aimLevel,
       side = Bodies.side(g, e),
     })
@@ -100,7 +104,8 @@ Kinds.fan = {
           {
             packet = Rules.packet(e, line.packet),
             pulse = line.pulse,
-            owner = line.packet.effects and e.id or nil,
+            volume = line.volume,
+            owner = e.id,
             side = Bodies.side(g, e),
             level = e.aimLevel,
           }

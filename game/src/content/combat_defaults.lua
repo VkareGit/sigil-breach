@@ -202,7 +202,7 @@ return {
   -- body, rises toward the knight's chest (aimHeight m), lives boltLife s and
   -- collides with boltRadius (bigBoltRadius) m. A charge runs chargeMargin s
   -- past its target; a leap flies at most leapSpeed m/s and misses a knight
-  -- jumping jumpClear m; a fan rages below rageAt of health. An attack from
+  -- above its action's landVolume; a fan rages below rageAt of health. An attack from
   -- outside the knight's view (cosine under viewCos) is announced
   -- unseenWindup s longer. A predicted target keeps aimClearance m from
   -- walls, pulled back by halves up to aimTries times; leadPasses refine an
@@ -215,7 +215,6 @@ return {
     bigBoltRadius = 0.26,
     chargeMargin = 0.08,
     leapSpeed = 11,
-    jumpClear = 1.0,
     rageAt = 0.5,
     viewCos = 0.25,
     unseenWindup = 0.26,
@@ -248,8 +247,9 @@ return {
   },
   -- Ground hazards (enemies/hazards.lua): placed at least clearance m from
   -- walls; pools pulse every pulse s (without a packet: damage), miss a knight
-  -- jumping above jumpClear m, and their condition outlasts a pulse by linger s.
-  hazards = { clearance = 0.18, pulse = 0.45, damage = 8, jumpClear = 0.42, linger = 0.6 },
+  -- above their authored volume (defs/area.lua), and their condition outlasts
+  -- a pulse by linger s.
+  hazards = { clearance = 0.18, pulse = 0.45, damage = 8, linger = 0.6 },
   -- A killed body (enemies/corpse.lua). Its death strength counts overkill
   -- up to overkill x its health and a killing contact's impact against
   -- impactRef; when it first touches the floor and when it has settled are

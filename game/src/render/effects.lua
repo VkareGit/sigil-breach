@@ -10,6 +10,7 @@ local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local Queries = require('src.run.queries')
 local Pools = require('src.session.world')
+local ProjectileShape = require('src.combat.projectile_shape')
 local E = {}
 E.colors = {
   coal = { 0.018, 0.016, 0.014 },
@@ -98,7 +99,10 @@ function E.spells(r, g)
     end
   end
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    E.spell(r, g, 1, (g.time * 9) % 1, b.x, b.y, b.z, b.big and 0.82 or 0.52, 0.9, false)
+    -- The painted aura scales with authored radius; it is not an extra hitbox.
+    -- Default bolts retain their accepted size and artwork.
+    local scale = ProjectileShape.radius(b) / ProjectileShape.defaultRadius(b.big)
+    E.spell(r, g, 1, (g.time * 9) % 1, b.x, b.y, b.z, (b.big and 0.82 or 0.52) * scale, 0.9, false)
   end
   for _, h in ipairs(Pools.of(g, 'hazards')) do
     local preparing = h.delay > 0

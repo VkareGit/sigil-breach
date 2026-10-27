@@ -9,9 +9,10 @@ local Melee = require('src.combat.melee')
 local Dodge = require('src.combat.dodge')
 local Rules = require('src.combat.rules')
 local Tuning = require('src.content.tuning')
-local Bodies = require('src.combat.bodies')
 local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
+local Area = require('src.combat.area_contact')
+local Volumes = require('src.content.defs.area')
 local K = require('src.content.combat_defaults').attacks
 local sin, cos = math.sin, math.cos
 local len = MathX.len
@@ -174,34 +175,19 @@ Kinds.leap = {
       end
       e.didHit = true
       Flight.land(g, e)
-      local reachLand = atk.landRadius + Bodies.extent(g, t)
+      local source = { x = e.x, z = e.z, level = e.level, radius = atk.landRadius }
+      local volume = atk.landVolume or Volumes.defaults.landing
+      local hit, contact = Area.test(g, source, volume, t, p)
       local ghost = Dodge.afterimage(g, t)
-      if
-        len(p.x - e.x, p.z - e.z) < reachLand
-        and math.abs(Ground.of(g.world, p) + (p.jump or 0) - Ground.of(g.world, e)) < K.jumpClear
-      then
+      if hit then
         local packet = Rules.packet(e, atk.packet)
+        contact.kind, contact.id, contact.owner, contact.target = 'melee', atk.id, e.id, t.id
+        contact.geometry, contact.time, contact.fraction =
+          'landing-radius', used, used and used / dt
         g:damageBody(t, packet.base, e.x, e.z, packet, e, {
-          contact = {
-            kind = 'melee',
-            id = atk.id,
-            owner = e.id,
-            target = t.id,
-            geometry = 'landing-radius',
-            sourcePoint = { x = e.x, y = Ground.of(g.world, e), z = e.z },
-            samplePoint = { x = p.x, y = Ground.of(g.world, p) + (p.jump or 0), z = p.z },
-            radius = atk.landRadius,
-            bounds = { radius = reachLand, verticalClearance = K.jumpClear },
-            time = used,
-            fraction = used and used / dt,
-          },
+          contact = contact,
         })
-      elseif
-        ghost
-        and len(ghost.x - e.x, ghost.z - e.z) < reachLand
-        and math.abs(Ground.of(g.world, ghost) + (ghost.jump or 0) - Ground.of(g.world, e))
-          < K.jumpClear
-      then
+      elseif ghost and Area.test(g, source, volume, t, ghost) then
         dodged(g, e, atk, t)
       end
     end

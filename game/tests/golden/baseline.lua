@@ -19,10 +19,15 @@
 -- on the unchanged 0.32 simulation (only qa/golden.lua differed); the digests
 -- of v1 were 57ba111d/960187d6, 98255b1c/361bb557 and 4192c0b6/8200078d. The
 -- three contact digests are unchanged.
+-- 0.34 / proving-ground point 3: projectile elevation uses travel from the
+-- muzzle, not from the caster's centre (d - muzzle). Only the intermediate
+-- state digests change; final states and all three contact digests are equal.
+-- Restoring just that denominator IN MEMORY reproduces all six old hashes:
+-- work/point3-final/golden-attribution/legacy-aim.csv. No fixture weakened.
 return {
-  playtest = '07f73bfa/a9192235',
-  human = 'fe26df14/563c8d0f',
-  drill = 'c13bcaec/f105ca06',
+  playtest = '31e0ff45/a9192235',
+  human = 'c34e3780/563c8d0f',
+  drill = '0bc736d6/f105ca06',
   playtestContacts = 'aab9a46e/299',
   humanContacts = '4be34edb/671',
   drillContacts = '663b77fc/178',

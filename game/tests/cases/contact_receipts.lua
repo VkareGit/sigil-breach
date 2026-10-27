@@ -254,13 +254,14 @@ function Tests.run(Game)
   Hazards.update(g, 0.1, g.player)
   c = caught[1] and caught[1].info.contact
   check(
-    'lightning explicitly reports its current vertical policy, without invented TOI',
+    'lightning reports finite heights and the sampled strike instant',
     c
       and c.delivery == 'lightning'
       and c.geometry == 'radial-column'
-      and c.bounds.heightPolicy == 'unbounded'
-      and c.time == nil
-      and c.samplePoint.y == nil
+      and c.bounds.top > c.bounds.bottom
+      and c.bounds.top < math.huge
+      and c.time == 0
+      and c.samplePoint.y == Ground.of(g.world, g.player)
   )
 
   g, caught = fresh()

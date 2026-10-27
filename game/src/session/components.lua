@@ -188,6 +188,7 @@ C.schemas.hazard = {
   delay = f(0, 'telegraph left (s)'),
   maxDelay = f(0),
   radius = f(0),
+  volume = f(nil, 'finite ground cylinder: bottom/top, feet/body sample and radius policy'),
   life = f(0),
   pulse = f(0, 'time to the next damage pulse'),
   interval = f(nil),

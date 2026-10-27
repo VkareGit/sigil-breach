@@ -3,6 +3,7 @@
 -- trail behind it shows speed and direction (src/feedback/weight.lua colours).
 local Weight = require('src.feedback.weight')
 local Ground = require('src.physics.ground')
+local Shape = require('src.combat.projectile_shape')
 local Pools = require('src.session.world')
 local COLORS = require('src.render.effects').colors
 local Pass = {}
@@ -15,7 +16,7 @@ function Pass.draw(r, g)
     local heavy = math.min(1, (packet.impact or (b.big and 60 or 40)) / 120)
     -- Fairness: the painted rim is the collision radius (orb mesh radius .09),
     -- never smaller; impact shows in the trail and the core, not in the hitbox.
-    local radius = b.radius or (b.big and 0.26 or 0.12)
+    local radius = Shape.radius(b)
     local scale = radius / 0.09 / 0.82 * 1.04
     local tint = Weight.typeColor(packet.damageType)
     -- Floor marker: where the projectile passes, readable while dodging.

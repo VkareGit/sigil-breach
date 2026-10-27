@@ -60,6 +60,32 @@ i testu. Nie należy udawać ich samym kolorem ani naliczać obrażeń w love.dr
 
 UMIEJĘTNOŚĆ / WYPOSAŻENIE
 
+GEOMETRIA ATAKU (punkt 3 poligonu)
+Pocisk: height to wylot nad podłożem strzelca (plus jego leapY), aimHeight
+to stała wysokość celu nad jego podłożem; radius to rzeczywista sfera.
+speed jest prędkością poziomą. Celowanie nie śledzi potem ruchu ofiary.
+combat/projectile_shape jest jedynym źródłem promienia dla kolizji i
+renderowania. Malowana aura jest dekoracją, nie dodatkową strefą obrażeń.
+
+Kałuża/linia/piorun: volume. Lądowanie: landVolume. Przykład innego pasma
+trafienia na istniejącym wykonawcy (bez przerabiania postaci):
+  volume = { bottom = 1.5, top = 2, sample = 'body', includeRadius = true }
+Stojący rycerz wchodzi w to pasmo, pełny ślizg może je ominąć. Domyślne
+profile opisuje content/defs/area.lua; pełne dane powstają przez Action.build.
+bottom jest włączone, top wyłączone dla próbki stóp; kolumna sprawdza
+przecięcie przedziałów ciała. includeRadius powiększa poziomy zasięg o
+promień ciała, niezależnie od wybranej próbki pionowej.
+Strop nad źródłem ogranicza top. Osłonę sprawdza promień 3D w paśmie
+kontaktu; obszar nie przechodzi przez ściany ani pod własne podłoże.
+
+Nie kopiować kolejnego hit-testu do AI/renderera. Area.test zwraca zarówno
+wynik, jak i opis rozstrzygniętego kontaktu. Area.sample interpoluje
+wysokość świata na czas pulsu. Komponent hazard.volume przenosi geometrię
+do snapshotu i replay. Test rozszerzenia i granic: tests/cases/attack_volumes.lua.
+Ładunek prochowy nadal ma sferyczny zasięg 3D i promień osłony do kotwicy
+ciała. To jawna próbka ekspozycji, nie anatomiczny test każdego fragmentu
+powierzchni; promień wybuchu nie jest nieskończonym walcem.
+
 content/defs/action opisuje dostawę i parametry ataku. Demon wykorzystuje
 enemies/actions.kinds (wykonawcy: enemies/melee_kinds.lua i ranged_kinds.lua),
 a gracz combat/abilities.kinds. Jeden rodzaj może

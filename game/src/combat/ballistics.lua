@@ -109,7 +109,7 @@ local function pillar(oy, dy, x, z, entry, exit)
   local l = math.max(1e-6, sqrt(hx * hx + hz * hz))
   return math.max(t, entry), hx / l, 0, hz / l
 end
-local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
+local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
   local tile = w.map[z] and w.map[z][x]
   local elevation = Ground.cell(w, x, z)
   if tile == 2 then
@@ -141,9 +141,39 @@ local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
     end
   end
 end
+-- Deck slabs also occlude point rays (shots, blast exposure and area attacks).
+-- Finite projectiles already sweep these slabs in physics/sphere_cast.lua.
+local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
+  local best, ax, ay, az = terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
+  local decks = Ground.decks(w, x, z)
+  if decks then
+    for _, deck in ipairs(decks) do
+      local lo, hi = entry, exit
+      if abs(dy) < 1e-12 then
+        if oy < deck[1] or oy > deck[2] then
+          lo = math.huge
+        end
+      else
+        local a, b = (deck[1] - oy) / dy, (deck[2] - oy) / dy
+        lo, hi = math.max(lo, math.min(a, b)), math.min(hi, math.max(a, b))
+      end
+      if lo <= hi and (not best or lo < best) then
+        best = lo
+        if lo > entry then
+          ax, ay, az = 0, dy > 0 and -1 or 1, 0
+        else
+          ax, ay, az = nx, 0, nz
+        end
+      end
+    end
+  end
+  return best, ax, ay, az
+end
 -- A ray from a point in world height: the floor, walls and pillars rise from
 -- the ground (physics/ground.lua), so heights below are taken from it.
 function B.world(w, ox, oy, oz, dx, dy, dz, range)
+  -- Keep the established fast path on maps without deck slabs.
+  local castCell = w.decks and cell or terrainCell
   oy = oy - Ground.height(w)
   local hit, normal, kind = range, { 0, 0, 0 }, 'range'
   ray.ox, ray.oz, ray.dx, ray.dz = ox, oz, dx, dz
@@ -174,22 +204,22 @@ function B.world(w, ox, oy, oz, dx, dy, dz, range)
       break
     end
     local exit = math.min(nextX, nextZ, hit)
-    local d, ax, ay, az = cell(w, oy, dy, cx, cz, entry, exit, nx, nz)
+    local d, ax, ay, az = castCell(w, oy, dy, cx, cz, entry, exit, nx, nz)
     -- A ray running exactly along a grid face also touches its other cell.
     if edgeX then
-      local t, bx, by, bz = cell(w, oy, dy, cx - 1, cz, entry, exit, 1, 0)
+      local t, bx, by, bz = castCell(w, oy, dy, cx - 1, cz, entry, exit, 1, 0)
       if t and (not d or t < d) then
         d, ax, ay, az = t, bx, by, bz
       end
     end
     if edgeZ then
-      local t, bx, by, bz = cell(w, oy, dy, cx, cz - 1, entry, exit, 0, 1)
+      local t, bx, by, bz = castCell(w, oy, dy, cx, cz - 1, entry, exit, 0, 1)
       if t and (not d or t < d) then
         d, ax, ay, az = t, bx, by, bz
       end
     end
     if edgeX and edgeZ then
-      local t, bx, by, bz = cell(w, oy, dy, cx - 1, cz - 1, entry, exit, 0, 0)
+      local t, bx, by, bz = castCell(w, oy, dy, cx - 1, cz - 1, entry, exit, 0, 0)
       if t and (not d or t < d) then
         d, ax, ay, az = t, bx, by, bz
       end
@@ -202,8 +232,8 @@ function B.world(w, ox, oy, oz, dx, dy, dz, range)
     end
     if abs(nextX - nextZ) <= 1e-10 then
       entry = math.min(nextX, nextZ)
-      local tx = cell(w, oy, dy, cx + sx, cz, entry, entry, -sx, 0)
-      local tz = cell(w, oy, dy, cx, cz + sz, entry, entry, 0, -sz)
+      local tx = castCell(w, oy, dy, cx + sx, cz, entry, entry, -sx, 0)
+      local tz = castCell(w, oy, dy, cx, cz + sz, entry, entry, 0, -sz)
       if tx or tz then
         local scale = tx and tz and 1 / sqrt(2) or 1
         return entry, { tx and -sx * scale or 0, 0, tz and -sz * scale or 0 }, 'wall'

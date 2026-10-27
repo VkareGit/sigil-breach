@@ -5,6 +5,7 @@ local B = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local SphereCast = require('src.physics.sphere_cast')
 local CylinderCast = require('src.physics.cylinder_cast')
+local Shape = require('src.combat.projectile_shape')
 local Receipt = require('src.combat.contact_receipt')
 local floorSurface = require('src.content.tuning').floorSurface
 local Dodge = require('src.combat.dodge')
@@ -46,7 +47,7 @@ local function playerContact(player, previous, b, dx, dy, dz, fraction, world)
   local rz = dz - (player.z - previous.z) * fraction
   local ox, oz = b.x - previous.x, b.z - previous.z
   -- The knight's radius plus the projectile's own radius (its painted size).
-  local own = b.radius or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
+  local own = Shape.radius(b)
   -- The knight's feet in world height: the ground and his jump.
   local ground = Ground.of(world, previous)
   local jump = ground + (previous.jump or 0)
@@ -98,7 +99,7 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   end
   local ux, uy, uz = dx / length, dy / length, dz / length
   local best, target, part, surface = limit * length
-  local own = b.radius or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
+  local own = Shape.radius(b)
   for _, entry in ipairs(bodies) do
     if
       Bodies.harms(g, side, entry.enemy, 'missile')
@@ -187,8 +188,7 @@ function P.update(g, dt, previous)
       local dx, dy, dz = b.vx * duration, b.vy * duration, b.vz * duration
       local length = math.sqrt(dx * dx + dy * dy + dz * dz)
       local worldT, wall = 1, false
-      local own = b.radius
-        or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
+      local own = Shape.radius(b)
       if length > 1e-8 then
         local distance, _, kind = SphereCast.world(
           g.world,

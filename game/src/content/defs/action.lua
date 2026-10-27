@@ -8,6 +8,8 @@ local Schema = require('src.core.schema')
 local Registry = require('src.core.registry')
 local Packet = require('src.content.defs.packet')
 local Claw = require('src.content.combat_defaults').claw
+local Area = require('src.content.defs.area')
+local AttackDefaults = require('src.content.combat_defaults').attacks
 local Action = {}
 -- Fields of every action, whatever its delivery.
 Action.common = {
@@ -40,6 +42,11 @@ Action.common = {
 Action.projectile = {
   speed = { type = 'number', required = true, min = 0 },
   height = { type = 'number', default = 1.4, desc = 'launch height (m)' },
+  aimHeight = {
+    type = 'number',
+    default = AttackDefaults.aimHeight,
+    desc = 'aim height over target ground (m); fixed at release, not homing',
+  },
   color = { type = 'table' },
   radius = { type = 'number', min = 0, desc = 'collision radius (default by size)' },
   big = { type = 'boolean', default = false },
@@ -64,6 +71,7 @@ local function kind(name, fields, required)
   return Schema:new('action ' .. name, merged)
 end
 local Line = Schema:new('hazard line', {
+  volume = Area.field('pool'),
   every = { type = 'number', required = true, min = 1 },
   count = { type = 'number', required = true, min = 1 },
   step = { type = 'number', required = true },
@@ -74,6 +82,7 @@ local Line = Schema:new('hazard line', {
   packet = { type = 'table', required = true, schema = Packet.schema },
 })
 local Pool = Schema:new('hazard pool', {
+  volume = Area.field('pool'),
   delay = { type = 'number', required = true, min = 0 },
   radius = { type = 'number', required = true, min = 0 },
   life = { type = 'number', required = true, min = 0 },
@@ -120,6 +129,7 @@ Action.kinds:register(
     height = { type = 'number', default = 1, min = 0, desc = 'apex of the arc (m)' },
     leadShare = { type = 'number', min = 0, max = 1, desc = 'predicted share of player motion' },
     landRadius = { type = 'number', default = 0.65, min = 0 },
+    landVolume = Area.field('landing'),
   }, { 'packet' })
 )
 local bolt = {}
@@ -150,6 +160,7 @@ Action.kinds:register(
 Action.kinds:register(
   'strike',
   kind('strike', {
+    volume = Area.field('lightning'),
     radius = { type = 'number', min = 0 },
     life = { type = 'number', min = 0 },
   }, { 'radius', 'life', 'packet' })
@@ -257,7 +268,11 @@ function Action.build(def, where)
     )
   elseif built.kind == 'leap' then
     assert(built.height > 0, path .. '.height: must be positive')
+    Area.validate(built.landVolume, path .. '.landVolume')
+  elseif built.kind == 'strike' then
+    Area.validate(built.volume, path .. '.volume')
   elseif built.kind == 'pool' then
+    Area.validate(built.pool.volume, path .. '.pool.volume')
     assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
     assert(
       not built.pool.condition or require('src.content.conditions').find(built.pool.condition),
@@ -268,6 +283,7 @@ function Action.build(def, where)
     integer(built.count, path .. '.count')
     integer(built.rageCount, path .. '.rageCount')
     if built.line then
+      Area.validate(built.line.volume, path .. '.line.volume')
       assert(built.line.pulse > 0, path .. '.line.pulse: must be positive')
       integer(built.line.count, path .. '.line.count')
       integer(built.line.every, path .. '.line.every')
