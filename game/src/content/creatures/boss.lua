@@ -39,6 +39,24 @@ return Creature.boss({
   },
   move = { speed = 2.2, accel = 8, ideal = 5.5 },
   sounds = { alert = 'growl', windup = 'growl', strike = 'cast' },
+  phases = {
+    { id = 'ash', tactics = { moves = { { attack = 'ember-fan', ideal = 5 } } } },
+    {
+      id = 'cinders',
+      at = 0,
+      refill = 0.4,
+      recovery = 1.4,
+      pace = 1.2,
+      speed = 1.1,
+      tactics = {
+        repeatPenalty = 0.2,
+        moves = {
+          { attack = 'ember-fan', ideal = 5, weight = 1 },
+          { attack = 'ash-lance', ideal = 8, weight = 1.2, min = 2.5 },
+        },
+      },
+    },
+  },
   attacks = {
     Action.fan({
       id = 'ember-fan',
@@ -65,6 +83,25 @@ return Creature.boss({
         pulse = 0.45,
         packet = packet(8, 0, 'fire'),
       },
+    }),
+    -- Same painted cast and projectile, another readable lane: narrow,
+    -- quicker flight, longer warning. No new model or invisible hitbox.
+    Action.fan({
+      id = 'ash-lance',
+      range = 11,
+      minRange = 2.5,
+      windup = 1.05,
+      recover = 0.9,
+      cooldown = 1.5,
+      rest = 3.8,
+      speed = 6.2,
+      count = 3,
+      spread = 0.11,
+      aimLead = 0.65,
+      height = 1.9,
+      big = true,
+      color = { 0.95, 0.38, 0.12 },
+      packet = packet(22, 60, 'fire'),
     }),
   },
 })

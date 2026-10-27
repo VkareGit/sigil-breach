@@ -32,6 +32,33 @@ return Creature.boss({
   },
   move = { speed = 2.6, accel = 8 },
   sounds = { alert = 'growl', windup = 'growl', strike = 'antler' },
+  tactics = {
+    repeatPenalty = 0.2,
+    moves = {
+      { attack = 'melee', ideal = 1.5, max = 3, weight = 1.5 },
+      { attack = 'charge', ideal = 6, min = 3, weight = 1 },
+      { attack = 'lightning', ideal = 8, weight = 0.9 },
+    },
+  },
+  phases = {
+    { id = 'storm' },
+    {
+      id = 'tempest',
+      at = 0,
+      refill = 0.5,
+      recovery = 1.5,
+      pace = 1.25,
+      speed = 1.12,
+      tactics = {
+        repeatPenalty = 0.15,
+        moves = {
+          { attack = 'melee', ideal = 1.5, max = 3.2, weight = 1.6 },
+          { attack = 'charge', ideal = 5, min = 2.5, weight = 1.2 },
+          { attack = 'lightning', ideal = 7, weight = 1.2 },
+        },
+      },
+    },
+  },
   attacks = {
     Action.lunge({
       id = 'melee',
@@ -47,6 +74,7 @@ return Creature.boss({
     -- push 230: the charge can drive the knight into a wall (3.4 m/s > 3.2).
     Action.charge({
       id = 'charge',
+      rest = 4.0,
       range = 11,
       every = 2,
       windup = 0.95,
@@ -61,6 +89,7 @@ return Creature.boss({
     }),
     Action.strike({
       id = 'lightning',
+      rest = 3.4,
       range = 11,
       windup = 1.1,
       duration = 0.32,

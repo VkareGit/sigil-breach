@@ -514,6 +514,10 @@ function Tests.run(G, renderer)
     e.awake = true
     e.attack = 0
     e.attackCount = count or 0
+    -- Selection now reads committed history, not the parity of a counter.
+    if count == 1 then
+      e.lastAttack, e.attackRepeats = 'charge', 1
+    end
     tick(trial, 0.02)
     return trial, e
   end

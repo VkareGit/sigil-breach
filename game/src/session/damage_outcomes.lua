@@ -13,6 +13,7 @@ local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
 local Effects = require('src.combat.effects')
 local Bodies = require('src.combat.bodies')
+local Encounter = require('src.enemies.encounter')
 local Outcomes = {}
 
 local function validDamage(amount)
@@ -32,10 +33,11 @@ Outcomes.emit = emit
 -- (slams, collisions) and an effect it applies keeps it.
 function Outcomes.enemy(g, enemy, damage, source, payload, owner)
   if enemy.hp <= 0 or not validDamage(damage) then
-    return
+    return 0
   end
   local healthDamage = math.min(enemy.hp, damage)
   enemy.hp = math.max(0, enemy.hp - damage)
+  Encounter.advance(g, enemy)
   enemy.hit, enemy.awake = Defaults.hitFlash, true
   if owner ~= nil then
     enemy.pushOwner = owner
@@ -51,7 +53,7 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner)
     if payload and payload.effects then
       Effects.apply(g, enemy, payload.effects, Effects.origin(g, owner))
     end
-    return
+    return healthDamage
   end
   Effects.clear(enemy)
   -- Off balance at the moment of death, and why (combat/rules/balance.lua:
@@ -69,6 +71,7 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner)
     owner = owner,
     target = enemy.id,
   })
+  return healthDamage
 end
 
 -- A blow from any side on a creature (plan v10 V2: an ally, a rival demon):

@@ -4,6 +4,41 @@ Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
 Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
 
+TAKTYKA I FAZY (punkt 4 poligonu)
+
+W Creature.define/boss opcjonalnie:
+  tactics = { repeatPenalty = 0.2, moves = {
+    { attack = 'claw', ideal = 1.5, max = 3, weight = 1.5 },
+    { attack = 'bolt', ideal = 7, min = 3, fromTier = 2 },
+  }}
+Id muszą istnieć w attacks. range/minRange/rest ataku pozostają twardymi
+granicami; min/max wyboru tylko je zawężają. Ocena to
+weight/(1+abs(distance-ideal)), pomnożona przez repeatPenalty^powtórzenia
+dla ostatniego rozpoczętego ataku. Remis: kolejność definicji. Brak tactics
+zachowuje dawne maxRange/every i ostatni atak jako fallback.
+
+Przykład etapów:
+  phases = {
+    { id = 'vigil' },
+    { id = 'wounded', at = 0.5, recovery = 1.2, pace = 1.1 },
+    { id = 'last_stand', at = 0, refill = 0.4, recovery = 1.4,
+      pace = 1.2, speed = 1.1, tactics = { moves = ... } },
+  }
+Pierwszy etap bierze HP ze spawnu. at to udział bieżącego maxHp, refill
+to udział początkowego HP po TIER (nie narastające mnożenie poprzednich
+zapasów). Bez refill zdrowie zostaje; z refill nadmiar tego trafienia
+przepada, ale następny kontakt od razu zadaje obrażenia. recovery jest
+oknem odpowiedzi gracza, nie odpornością. pace skaluje cooldown/rest
+i odstęp przydziału ataku; nie windup/recover ani obrażenia.
+
+Przejście nie czyści efektów, warunków, gardy ani odnowień; anuluje
+nierozliczony znak i bieżący atak ciałem. Już wystrzelone pociski oraz
+aktywne pola trwają. Jeden EnemyKilled i nagrody dopiero po ostatnim
+etapie. Nowy typ dostawy nadal dodaje lokalnego wykonawcę actions.kinds,
+bez zmiany modułu faz. Test referencyjny: tests/cases/encounters.lua.
+Zmianę grafiki najpierw przedstaw użytkownikowi; dobór nowego ataku
+nie upoważnia do zamiany zatwierdzonego atlasu lub HUD-u.
+
 BROŃ = DEFINICJA + STAN + KOMPOZYCJA ZACHOWAŃ
 
 Definicja: content/defs/weapon.lua, rejestr: content/weapons.lua.

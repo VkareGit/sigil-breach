@@ -41,6 +41,9 @@ return function(R)
       e.hp = math.floor(e.hp * (1 + T.health * k) + 0.5)
       e.maxHp = e.hp
     end
+    if R.archetype(e).phases then
+      e.phaseBaseHp = e.maxHp
+    end
     return e
   end
   -- How many demons of this tier may attack at once (bosses keep their own).

@@ -38,6 +38,9 @@ function S.run(G, r, output)
     local e = g:spawn(kind, 16, 18.8)
     e.attack = 0
     e.attackCount = attackCount or 0
+    if kind == 'furfur' and attackCount == 1 then
+      e.lastAttack, e.attackRepeats = 'charge', 1
+    end
     e.awake = true
     e.memory = 5
     e.facing = 0

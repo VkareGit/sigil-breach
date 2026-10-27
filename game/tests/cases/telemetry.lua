@@ -91,6 +91,8 @@ function Tests.run(Game)
     both.offBalance and both.causes.guard and both.causes.wound and not both.causes.micro
   )
   local margrave = g:spawn('boss', 16, 18)
+  -- Cause attribution at the final death, not exhaustion of its first stock.
+  margrave.phaseIndex = #require('src.content.enemies').boss.phases
   margrave.spawnAge = 1
   Rules.stunBriefly(margrave, 0.035, 'micro')
   g:damageEnemy(margrave, margrave.hp + 1, 'weapon')

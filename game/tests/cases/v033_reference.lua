@@ -15,9 +15,19 @@ local function read(name)
   return love.filesystem.read(Reference.directory .. '/' .. name)
 end
 function Tests.run(G)
+  G = require('tests.support.v033_encounters').game(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'v0.33 reference ', '')
-  local files = Reference.build(G)
+  local files, digests = Reference.build(G)
+  -- Strong attribution: the previous build's exact hashes return when ONLY
+  -- the encounter content is restored. No solver or runtime function is patched.
+  for name, expected in pairs({
+    playtest = '31e0ff45/a9192235',
+    human = 'c34e3780/563c8d0f',
+    drill = '0bc736d6/f105ca06',
+  }) do
+    check(name .. ' with old encounters reproduces point 3 exact digest', digests[name] == expected)
+  end
   -- The projections, the attribution and the pose table.
   local texts = { 'attribution.txt', 'pose-table.txt' }
   for _, run in ipairs(Reference.runs) do
@@ -26,7 +36,22 @@ function Tests.run(G)
   for _, name in ipairs(texts) do
     local reference, difference = read(name), 'no reference file'
     if reference then
-      difference = Projection.compare(reference, files[name])
+      local current = files[name]
+      if name == 'pose-table.txt' then
+        -- New actions add rows, not changes to the old paintings. Compare
+        -- EVERY old row (including absence/order/value), allowing extra ids.
+        local keys, retained = {}, {}
+        for row in reference:gmatch('[^\n]+') do
+          keys[row:match('^(.-)|[^|]*$') or row] = true
+        end
+        for row in current:gmatch('[^\n]+') do
+          if keys[row:match('^(.-)|[^|]*$') or row] then
+            retained[#retained + 1] = row
+          end
+        end
+        current = table.concat(retained, '\n') .. '\n'
+      end
+      difference = Projection.compare(reference, current)
     end
     check(name .. ' reproduces 0.33 (' .. (difference or 'equal') .. ')', difference == nil)
   end

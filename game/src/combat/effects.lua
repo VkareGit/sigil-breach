@@ -101,6 +101,7 @@ Effects.kinds:register('periodic', {
   tick = function(g, target, instance)
     local definition = instance.definition
     local before = target.hp
+    local health
     if Bodies.isKnight(g, target) then
       -- Exposure already began; it is not a new dodgeable contact and does
       -- not grant or consume contact invulnerability.
@@ -118,12 +119,12 @@ Effects.kinds:register('periodic', {
     else
       local damage = Damage.resolve(definition.packet, target, 0)
       -- The effect's applier owns its damage (a knight: his chain).
-      g:damageEnemy(target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
+      health = g:damageEnemy(target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
     end
     local receipt = {
       target = target,
       definition = definition,
-      health = math.max(0, before - target.hp),
+      health = health or math.max(0, before - target.hp),
       owner = instance.sourceId,
     }
     Signal(g, 'EffectPulse', receipt)

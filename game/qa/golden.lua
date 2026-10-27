@@ -66,6 +66,9 @@ function Golden.describe(g)
     local phase = e.hp > 0 and (e.phase or 0) or 'dead'
     append(out, e.id, e.kind, e.x, e.z, e.hp, e.poise or 0, e.stun or 0, e.ai, phase)
     append(out, e.pushX or 0, e.pushZ or 0, e.windup or 0, e.recover or 0, e.attack or 0)
+    if e.phaseIndex or e.lastAttack then
+      append(out, 'encounter', e.phaseIndex or 1, e.phaseBaseHp, e.lastAttack, e.attackRepeats)
+    end
   end
   for _, b in ipairs(g.bullets) do
     append(out, b.x, b.y, b.z, b.life)

@@ -71,6 +71,13 @@ end
 function A.of(e)
   return e.archetype or A.get(e.kind, e.variant)
 end
+function A.phase(e)
+  local def = A.of(e)
+  return def and def.phases and def.phases[e.phaseIndex or 1]
+end
+function A.furious(e)
+  return (e.phaseIndex or 1) > 1 or e.hp < e.maxHp * A.defaults.attacks.rageAt
+end
 -- How a body in play looks (its creature's appearance; a neutral look for a
 -- record of no known creature, e.g. a hand-made test body).
 A.neutralLook = require('src.content.defs.creature').appearance:build({ portal = { 0.65, 0.4, 1 } })

@@ -66,7 +66,30 @@ local function incoming(g, model)
   end
   return false
 end
-function S.run(G, human, observer)
+-- Optional projectile defence for the new encounter acceptance run. The
+-- historical perfect/human traces keep their original input policy. This
+-- only issues the real dodge input from a visible, approaching trajectory;
+-- it does not modify resources, health, collisions or enemy decisions.
+local function approachingBolt(g)
+  local p = g.player
+  for _, b in ipairs(g.bullets) do
+    local dx, dz = b.x - p.x, b.z - p.z
+    local yaw = math.atan2(dx, dz)
+    if math.abs(wrap(yaw - p.yaw)) < 0.9 then
+      local vx, vz = b.vx - (p.vx or 0), b.vz - (p.vz or 0)
+      local speed2 = vx * vx + vz * vz
+      if speed2 > 0 then
+        local t = -(dx * vx + dz * vz) / speed2
+        local reach = (b.radius or 0.12) + 0.22 + 0.1
+        if t > 0 and t < 0.14 and (dx + vx * t) ^ 2 + (dz + vz * t) ^ 2 < reach * reach then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+function S.run(G, human, observer, defence)
   -- human: true for the reference model, or a model table (population).
   -- observer (optional): called after every simulation step (golden master).
   local population = type(human) == 'table'
@@ -275,6 +298,9 @@ function S.run(G, human, observer)
       -- Skilled: a dash timed into a seen blow (a perfect dodge when it lands).
       if human and human.dodge then
         dash = incoming(g, human)
+      end
+      if defence and defence.projectiles then
+        dash = dash or approachingBolt(g)
       end
     end
     local len = math.sqrt(dx * dx + dz * dz)

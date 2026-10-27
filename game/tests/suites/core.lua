@@ -364,13 +364,37 @@ function Tests.run(G, initial, renderer, getGame)
     if boss.hp <= 0 or g.state == 'dead' then
       break
     end
+    -- The two-stock fight can exhaust the Judge. Use the carried shotgun
+    -- through the real command; do not refill ammunition or reduce boss HP.
+    if
+      g.player.weapon == 2
+      and g.player.arsenal.judge.mag == 0
+      and g.player.arsenal.judge.reserve == 0
+    then
+      g:switchWeapon(1)
+    end
     g.player.yaw = math.atan2(boss.x - g.player.x, boss.z - g.player.z)
     g:update(
       1 / 120,
       { shoot = true, strafe = math.sin(i / 75) > 0 and 1 or -1, dash = i % 180 == 0 }
     )
   end
-  check('boss is beatable through real combat', boss.hp <= 0 and g.state == 'playing')
+  check(
+    'boss is beatable through real combat (state='
+      .. g.state
+      .. ', boss='
+      .. boss.hp
+      .. ', phase='
+      .. tostring(boss.phaseIndex)
+      .. ', knight='
+      .. g.player.hp
+      .. ', rounds='
+      .. g.player.arsenal.judge.mag
+      .. '/'
+      .. g.player.arsenal.judge.reserve
+      .. ')',
+    boss.hp <= 0 and g.state == 'playing'
+  )
   check('boss death unlocks exit', require('src.session.encounter').guardianDead(g))
   g.player.x, g.player.z = 16, 4
   g:interact()

@@ -289,7 +289,8 @@ function H.draw(g, settings, ui, descentUI)
       if banner and e.hp > 0 then
         local exposed = Rules.has(e, 'exposed')
         local name = Text.get(
-          exposed and banner.exposed or (e.hp < e.maxHp * 0.5 and banner.fury or banner.calm)
+          exposed and banner.exposed
+            or (require('src.content.enemies').furious(e) and banner.fury or banner.calm)
         )
         Skin.panel(426, 16, 428, 64, 2, 10)
         Skin.zone('boss field', 438, 27, 402, 43)

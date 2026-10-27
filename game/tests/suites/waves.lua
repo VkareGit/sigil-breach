@@ -402,9 +402,17 @@ function Tests.run(G, renderer)
       b.x >= 0 and b.y >= 0 and b.x + b.w <= 1280 and b.y + b.h <= 720
     )
   end
-  local result = require('qa.scenarios.playtest').run(G)
+  local result = require('qa.scenarios.playtest').run(G, false, nil, { projectiles = true })
+  local living = {}
+  for _, body in ipairs(result.session.enemies) do
+    if body.hp > 0 then
+      living[#living + 1] = body.kind .. ':' .. body.hp .. '/phase:' .. tostring(body.phaseIndex)
+    end
+  end
   check(
-    'full wave trial completes through real movement and weapons',
+    'full wave trial completes through real movement and weapons ('
+      .. table.concat(living, ', ')
+      .. ')',
     result.state == 'won' and result.fragment
   )
   -- Balance report only (no pass/fail on difficulty): a human-like player.

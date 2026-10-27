@@ -18,6 +18,10 @@ local function sounds(e)
 end
 -- event kind -> function(g, event)
 World.handlers = {
+  EnemyPhaseChanged = function(g, ev)
+    local e = ev.enemy
+    A.playAt(sounds(e).alert or 'growl', e.x, e.z, Context.viewer(g), 0.75)
+  end,
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
     A.playAt(sounds(e).windup or 'growl', e.x, e.z, Context.viewer(g), 0.7)

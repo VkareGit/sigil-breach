@@ -175,6 +175,7 @@ function Tests.run(G, check)
   g = fresh()
   e = g:spawn('furfur', 16, 20)
   e.attackCount = 1
+  e.lastAttack, e.attackRepeats = 'charge', 1
   Attacks.begin(g, e, 5)
   local hazard = e.pendingHazard
   check(

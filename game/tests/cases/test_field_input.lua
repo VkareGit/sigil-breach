@@ -263,6 +263,7 @@ function Tests.run(get, settings)
   arrive(field)
   local boss = field.enemies[1]
   field:damageEnemy(boss, 100000, 'weapon')
+  field:damageEnemy(boss, 100000, 'weapon') -- final stock, not its phase transition
   require('src.world.arena').breakSeals(field.world, 3)
   require('src.session.encounter').guardianFell(field)
   field.run.wave = 5

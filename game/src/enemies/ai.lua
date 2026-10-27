@@ -8,6 +8,7 @@ local W = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Body = require('src.enemies.body')
 local Attacks = require('src.enemies.actions')
+local Selection = require('src.enemies.attack_selection')
 local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
 local Ground = require('src.physics.ground')
@@ -83,7 +84,8 @@ local function move(g, e, tx, tz, speed, dt)
   dx, dz = dx / d, dz / d
   local defaults = Archetypes.defaults
   local accel = ((arch(e).move or {}).accel or defaults.accel) / math.sqrt(Rules.body(e).mass or 1)
-  speed = speed * Rules.speedScale(e) * (e.tierSpeed or 1)
+  local stage = Archetypes.phase(e)
+  speed = speed * Rules.speedScale(e) * (e.tierSpeed or 1) * (stage and stage.speed or 1)
   speed = math.min(speed, math.sqrt(2 * accel * defaults.brake * d))
   -- A body that stopped walking (attack, stagger, idle) starts again at rest.
   local now = g.elapsed or 0
@@ -214,7 +216,7 @@ local function reserveAttack(g, e)
   if count >= max or next > g.elapsed then
     return false
   end
-  local at = g.elapsed + Archetypes.defaults.tiers.spacing / (e.tierPace or 1)
+  local at = g.elapsed + Archetypes.defaults.tiers.spacing / Selection.pace(e)
   if controlled then
     g.nextAttack = at
   else

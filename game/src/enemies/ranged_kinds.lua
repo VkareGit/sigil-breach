@@ -85,7 +85,7 @@ Kinds.pool = {
 }
 Kinds.fan = {
   execute = function(g, e, atk, a)
-    local rage = e.hp < e.maxHp * K.rageAt
+    local rage = require('src.content.enemies').furious(e)
     local n = rage and atk.rageCount or atk.count
     for j = 1, n do
       projectile(g, e, a + (j - (n + 1) / 2) * atk.spread, rage and atk.rageSpeed or atk.speed, atk)

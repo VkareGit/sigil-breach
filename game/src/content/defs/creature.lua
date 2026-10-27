@@ -8,6 +8,7 @@
 local Schema = require('src.core.schema')
 local Body = require('src.content.defs.body')
 local Action = require('src.content.defs.action')
+local Encounter = require('src.content.defs.encounter')
 local Defaults = require('src.content.combat_defaults')
 local Creature = {}
 Creature.evade = Schema:new('evade', {
@@ -88,6 +89,8 @@ Creature.schema = Schema:new('creature', {
   variant = { type = 'string', desc = 'id of the variant of its kind' },
   name = { type = 'string', required = true },
   souls = { type = 'number', default = 0, min = 0 },
+  tactics = { type = 'table', schema = Encounter.tactics },
+  phases = { type = 'table', list = Encounter.phase },
   guardian = {
     type = 'boolean',
     default = false,
@@ -179,7 +182,9 @@ function Creature.define(def)
     assert(not ids[a.id], where .. '.attacks: repeated action id ' .. a.id)
     ids[a.id] = true
   end
-  return Creature.schema:validate(merged, where)
+  Creature.schema:validate(merged, where)
+  Encounter.validate(merged, where)
+  return merged
 end
 function Creature.boss(def)
   return Creature.define(Schema.inherit(Creature.bossTemplate, def))

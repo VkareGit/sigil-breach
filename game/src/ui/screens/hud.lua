@@ -81,7 +81,12 @@ function S.draw(g, s, U)
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       local banner = require('src.content.enemies').look(e).banner
       if banner and e.hp > 0 then
-        center(Text.get(e.hp < e.maxHp * 0.5 and banner.plainFury or banner.calm), 28, 20, ivory)
+        center(
+          Text.get(require('src.content.enemies').furious(e) and banner.plainFury or banner.calm),
+          28,
+          20,
+          ivory
+        )
         bar(435, 60, 410, e.hp / e.maxHp, red)
       end
     end

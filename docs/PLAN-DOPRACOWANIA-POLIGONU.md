@@ -12,9 +12,9 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 | Punkt | Zakres | Stan |
 |---|---|---|
 | 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
-| 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Wdrożony i zweryfikowany; przerwa na test użytkownika |
-| 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Wdrożony i zweryfikowany; przerwa na test użytkownika |
-| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Oczekuje |
+| 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
+| 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
+| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Wdrożony i zweryfikowany; przerwa na test użytkownika |
 | 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Oczekuje |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
 | 7 | Osobny rozwój nowych grafik i modeli | Odłożony przez użytkownika |
@@ -239,6 +239,146 @@ Po sprawdzeniu wykonać RESET FIELD. Nowe piętra/stropy testuje automatyczna
 geometria techniczna; nie dodano mapy do rozgrywki.
 Punkt 4 (strategie AI i fazy bossa) zaczynamy po przerwie na tę próbę.
 Otwarta regresja wydajności z punktu 1 pozostaje do osobnego domknięcia.
+
+## Punkt 4 — decyzje w walce i fazy istniejących bossów
+
+### Wnioski z odniesień
+
+Sekiro wiąże Vitality z regeneracją Posture, a silniejszy przeciwnik może
+wymagać kilku Deathblow. Przejmujemy rozdział wyczerpania etapu od finalnej
+śmierci; nie dodajemy obowiązkowego finiszera ani mechaniki parowania do FPS.
+Źródło: [oficjalny opis mechanik Sekiro, Activision](https://support.activision.com/sekiro/articles/sekiro-shadows-die-twice-game-mechanics).
+
+Bloodborne wymaga obserwowania zamachu, właściwego momentu uniku/parowania
+i zarządzania przerwą na odzyskanie sił. W naszym modelu zapowiedź, wykonanie
+i odzyskanie gotowości pozostają osobnymi zegarami. Zwiększenie tempa nie
+skraca zapowiedzi ani przerwy, podczas której gracz może odpowiedzieć.
+Źródło: [poradnik walki Bloodborne, PlayStation](https://blog.playstation.com/archive/2018/03/06/12-tips-for-surviving-the-first-few-brutal-hours-of-bloodborne-this-months-ps-plus-headliner).
+
+Opis serii Souls wydawcy podkreśla adaptację do zasięgu i ataków obszarowych
+oraz pojedynki wielofazowe. Tutaj odległość wybiera właściwy atak, zaś jego
+geometrię nadal rozstrzygają wspólne solvery. Nie twierdzimy, że odtwarzamy
+wewnętrzny algorytm FromSoftware. To nasze reguły projektowe, oparte na
+obserwowalnych zasadach walki.
+Źródło: [omówienie walk z bossami, Bandai Namco](https://en.bandainamcoent.eu/elden-ring/news/elden-ring-the-best-of-the-souls-series).
+
+### Wykonanie i granice
+
+- `enemies/attack_selection.lua` oddziela decyzję od cyklu wykonania.
+  Bez `tactics` obowiązuje dawny porządek listy i jawny fallback.
+  `tactics.moves` wskazuje stabilne id ataku, preferowany dystans, wagę,
+  twarde granice dystansu i minimalny TIER. Wybór jest deterministyczny:
+  `waga / (1 + |dystans - ideal|)`, pomnożona przez
+  `repeatPenalty ^ liczba_powtórzeń` dla ostatnio rozpoczętego ataku.
+  Remis rozstrzyga kolejność autora. To użyteczność decyzji, nie wzór obrażeń.
+- Zasięg i odnowienie nadal są twardymi warunkami. Brak dostępnego ruchu
+  oznacza dalsze przemieszczanie, nigdy cios poza zasięgiem. Decyzja nie zna
+  przycisków gracza, nie zmienia celu w środku zapowiedzianego ataku i nie
+  zużywa RNG. Historia zapamiętuje rozpoczęcie, także przy późniejszym
+  anulowaniu; odczyty renderera nie tworzą historii.
+- `content/defs/encounter.lua` waliduje odwołania, powtórzone id, puste
+  listy, skończone parametry i nieosiągalne zakresy. Definicje są niezmienne.
+  Nowy atak istniejącego rodzaju wymaga danych; nowy sposób dostawy wymaga
+  lokalnego wykonawcy, jak wcześniej. Nie powstał drugi automat stanów.
+- `phases` definiuje kolejne etapy. `at` odnosi się do bieżącego maksimum
+  HP. Opcjonalne `refill` przywraca nowy zapas jako udział zdrowia ze spawnu,
+  już po zastosowaniu TIER. Próg bez refill zachowuje HP i maxHp; daje np.
+  zmianę zachowania przy połowie zdrowia. Etap zerowego HP musi mieć refill.
+- `session/damage_outcomes.lua` rozstrzyga etap przed `BodyHit` i
+  `EnemyKilled`. Przy nowym zapasie nadmiar pojedynczego trafienia przepada;
+  następny kontakt może od razu zranić bossa. Nie ma ukrytej odporności.
+  Kilka przekroczonych progów bez refill może zostać rozliczonych jednym
+  uderzeniem, ale jedno uderzenie nie zabiera kilku odnawianych zapasów.
+- Przejście anuluje przygotowywany znak i atak wykonywany ciałem. Już
+  wystrzelone pociski oraz aktywne pola zostają, z właściwym właścicielem.
+  Lot i pchnięcie pozostają fizyczne. Efekty okresowe, osłabienia, uszkodzenie
+  gardy i odnowienia umiejętności nie są czyszczone. Efekt zależny od życia
+  sprawcy kończy się dopiero przy jego finalnej śmierci.
+- Powrót HP nie daje dusz, punktów, leczenia za zabójstwo, zwłok ani otwartego
+  wyjścia. `EnemyPhaseChanged` obsługuje istniejący głos. Zgodnie z uwagą
+  użytkownika nie tworzy kafelka ani napisu z numerem fazy; test pilnuje,
+  by przejście nie nadpisywało komunikatów HUD-u.
+  Wynik `damageEnemy` zwraca rzeczywistą utratę HP; puls efektu nie wylicza
+  jej jako różnicy zdrowia przed i po odnowieniu.
+- Zapis, snapshot i journal obejmują indeks etapu, podstawę jego zdrowia,
+  ostatni atak i liczbę powtórzeń. Reset poligonu nie przenosi ich do
+  kolejnego przeciwnika. Ruch w drugiej fazie mnoży prędkość, zaś `pace`
+  mnoży tempo odnowień i odstęp przydziału ataku; nie obrażenia, promień,
+  czas zamachu ani minimalną przerwę po ciosie.
+
+| Boss, TIER 1 | Pierwszy zapas | Drugi zapas | Zmiana walki |
+|---|---:|---:|---|
+| Margrave of Ash | 1000 HP | 400 HP | Zachowany wachlarz; naprzemiennie węższa, szybsza salwa 3 pocisków z dłuższą zapowiedzią; tempo odnowień ×1,2, chód ×1,1 |
+| Furfur | 1400 HP | 700 HP | Dystans i historia wybierają pazur, szarżę lub piorun; osobne odnowienia 4/3,4 s; w drugiej fazie inne wagi, tempo ×1,25, chód ×1,12 |
+
+Przerwy wejścia do drugiej fazy: odpowiednio 1,4 i 1,5 s. Dotychczasowe
+grafiki, animacje, paleta i rozmieszczenie HUD są zachowane. Nowa salwa
+używa istniejącego malowanego rzutu i pocisków; tytuł furii wykorzystuje
+istniejące napisy. Odbiór i końcowe wyważenie wymagają próby użytkownika.
+
+### Kontrola zmian w testach
+
+Stare testy ostatecznej śmierci bossa muszą odróżniać ją od wyczerpania
+pierwszego zapasu. Test mikroogłuszenia wskazuje ostatni etap; test wejścia
+na poligon rzeczywiście wyczerpuje oba. Test pioruna ustawia historię
+poprzedniej szarży, bo parzystość licznika nie wybiera już ataku Furfur.
+Przegląd renderów śmiertelnego strzału również ustawia ostatni etap bossa;
+nadal wymaga faktycznego trafienia, jednej śmierci i ustania ruchu zwłok.
+
+W pełnej próbie klasycznej walki skrypt przełącza się na niesioną strzelbę
+po wyczerpaniu rewolweru. Nie dostaje dodatkowej amunicji. Dotychczasowy
+model z doskonałym celowaniem, ale bez unikania pocisków, przegrywa z nową
+fazą: zachowano go bez zmiany jako
+porównanie i złoty wzorzec przebiegu. Oddzielna próba ukończenia wyprawy
+korzysta z opcjonalnego reagowania przyciskiem uniku na widoczne, zbliżające
+się pociski. To wyłącznie sterowanie QA, nie wspomaganie gracza w grze.
+Nowy skrypt nie modyfikuje HP, amunicji ani kolizji. Wygrana automatu nie
+potwierdza ludzkiego feelingu ani poziomu trudności.
+
+Zamrożone referencje 0.33 pozostają bez zmian. Adapter testowy przywraca
+wyłącznie poprzednie definicje dwóch starć w danej sesji, bez podmiany
+matematyki ani wykonawców silnika. W tej konfiguracji wracają dokładne
+trzy skróty przebiegów z punktu 3. Tabela poz porównuje każdą starą pozycję;
+nowe id ataku mogą dodać osobne wiersze. Aktywna konfiguracja ma oddzielnie
+zaktualizowany złoty wzorzec, obejmujący także etap walki i historię wyboru.
+Nowa suita sprawdza rzeczywiste strzały przez granicę etapów i finalną śmierć
+w serializowanym dzienniku, a nie tylko ręczną zmianę stanu przeciwnika.
+
+### Weryfikacja i próba punktu 4
+
+`TEST.ps1 -Suite All -TestTimeoutSeconds 600` zakończył się powodzeniem:
+4558 sprawdzeń mechaniki/zasobów (w tym 46 nowych sprawdzeń starć), 36 wejścia,
+543 skompilowane pliki Lua i zero naruszeń architektury. Wszystkie osiem
+przebiegów zakończyło się kodem 0, ze stabilnymi źródłami i jednym skrótem:
+`F2BD23DBC447C5933AB3C539677DC376E6EAED6F829D031F4ECCB901B7C589D8`.
+Dowody: `work/point4-final/all/`.
+
+Render sprawdził 5466 granic elementów interfejsu; audyt wnętrz i kolizji
+również nie zgłosił problemów. Dodano 10 ujęć obu faz: przejścia w trzech
+rozmiarach oraz faktyczne wybranie ataku, jego zapowiedź i wykonanie.
+Obejrzano m.in. oba przejścia (960×540 i 1024×768), zapowiedź Margrave'a
+i wykonanie Furfur. Nie ma dodatkowego kafelka fazy. Scena ma właściwą
+etykietę wybranego bossa, wygasłe powiadomienie przywołania i jest po
+samouczku wejściowym. Używa normalnego update, nie zamraża błysku trafienia
+na późniejszych klatkach. Zachowano malowane postacie, broń i układ HUD-u.
+
+Porównanie 606 wcześniejszych renderów z E0: nadal 245 identycznych.
+Pozostałe 361 ma te same liczby i obszary różnic co raport punktu 3;
+nie pojawiła się nowa metryka różnic. To porównanie z E0, nie deklaracja
+identyczności pikseli z niearchiwizowanym pełnym zestawem punktu 3.
+Nowe ujęcia i zestawienia: `work/point4-final/review/`, `pixels.csv`.
+Próby strzałów (bezpośrednio, mousepress, bufor naciśnięcia) objęły łącznie
+1176 przypadków przy różnych harmonogramach klatek: zero chybień wewnątrz
+ważnej powierzchni, zmian stref ani obrażeń w tym zestawie.
+
+Smoke narzędzi wydajności przeszedł; nie jest odbiorem regresji z punktu 1,
+która nadal pozostaje otwarta. Automaty nie potwierdzają ludzkiego feelingu.
+
+Próba użytkownika: F2, TIER 1, osobno Margrave i Furfur, GOD MODE wyłączony.
+Sprawdzić odpowiedź po zapowiedzi, przerwę po ciosie, przejście po wyczerpaniu
+pierwszego zapasu oraz nagrodę dopiero na końcu. Następnie RESET FIELD
+i ponowne przywołanie; boss ma zacząć od pierwszego zapasu. Punkt 5
+(pokoje/stanowiska) czeka na tę próbę, zgodnie z uzgodnionym trybem pracy.
 
 ## Zasady następnych etapów
 

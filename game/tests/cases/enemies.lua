@@ -199,6 +199,7 @@ function Tests.run(check)
   e.awake = true
   e.attack = 0
   e.attackCount = 1
+  e.lastAttack, e.attackRepeats = 'charge', 1
   AI.update(g, 0.01)
   local h = g.hazards[1]
   local delay = e.windup
@@ -218,6 +219,7 @@ function Tests.run(check)
   e.awake = true
   e.attack = 0
   e.attackCount = 1
+  e.lastAttack, e.attackRepeats = 'charge', 1
   AI.update(g, 0.01)
   e.hp = 0
   advance(g, 2, 0.02)
@@ -229,6 +231,7 @@ function Tests.run(check)
   e.awake = true
   e.attack = 0
   e.attackCount = 1
+  e.lastAttack, e.attackRepeats = 'charge', 1
   AI.update(g, 0.01)
   g.world.map[13][10] = 1
   advance(g, 2, 0.02)

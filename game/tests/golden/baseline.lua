@@ -24,11 +24,16 @@
 -- state digests change; final states and all three contact digests are equal.
 -- Restoring just that denominator IN MEMORY reproduces all six old hashes:
 -- work/point3-final/golden-attribution/legacy-aim.csv. No fixture weakened.
+-- 0.34 / proving-ground point 4: contextual boss decisions and a second HP
+-- stock deliberately change combat. The digest also covers phase/history.
+-- tests/support/v033_encounters.lua restores only the old CONTENT per session;
+-- v033_reference verifies all three exact point-3 digests on the current engine.
+-- Frozen v0.33 references remain unchanged; current content is recorded here.
 return {
-  playtest = '31e0ff45/a9192235',
-  human = 'c34e3780/563c8d0f',
-  drill = '0bc736d6/f105ca06',
-  playtestContacts = 'aab9a46e/299',
-  humanContacts = '4be34edb/671',
-  drillContacts = '663b77fc/178',
+  playtest = '6480f137/3d28295e',
+  human = '29709c9b/cb9bf41a',
+  drill = 'e56819a1/30b3dc8d',
+  playtestContacts = '8a29c37c/302',
+  humanContacts = 'ecb18871/680',
+  drillContacts = '3d5ce09d/260',
 }

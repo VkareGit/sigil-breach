@@ -82,6 +82,8 @@ function Review.run(output, Game, renderer)
       g.testField.selected = kind
       e = g:spawn(kind, 16, kind == 'boss' and 22.5 or 23.5)
       e.hp = 1 -- Explicit finishing-blow fixture, not a damage/balance claim.
+      local phases = require('src.content.enemies').of(e).phases
+      e.phaseIndex = phases and #phases or nil -- Review the final death, not a refill.
       e.facing = 0
       local _, eye = Ballistics.origin(g)
       g.player.pitch = math.atan2(Rules.body(e).aimY - eye, g.player.z - e.z)

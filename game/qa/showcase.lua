@@ -834,6 +834,44 @@ function S.run(G, renderer)
   g = archived
   reports[#reports + 1] =
     'Public proving ground: 15 catalogue, help and unchanged HUD captures across five viewport sizes.'
+  -- Actual phase event, existing portrait/HUD and cast art; no mock labels.
+  for _, kind in ipairs({ 'boss', 'furfur' }) do
+    g = G.new('field', nil, require('src.app.release').sessionOptions.field)
+    g.testing, g.state = true, 'playing'
+    g.player.x, g.player.z, g.player.yaw = 16, 25, math.pi
+    g.elapsed = 70 -- Inspect combat after the entry tutorial, not behind its overlay.
+    local enemy = assert(Field.spawn(g, kind, 1))[1]
+    g.view.messageTimer = 0 -- The old summon notice has expired before a phase transition.
+    enemy.x, enemy.z = 16, 17
+    enemy.spawnAge, enemy.awake, enemy.target = 2, true, g.player.id
+    g:damageEnemy(enemy, enemy.hp, 'weapon')
+    for _, size in ipairs({ { 'small', 960, 540 }, { '4by3', 1024, 768 }, { 'normal', 1280, 720 } }) do
+      save('encounter-' .. kind .. '-transition-' .. size[1], size[2], size[3])
+    end
+    local function advanceUntil(predicate)
+      for _ = 1, 1200 do
+        if predicate() then
+          return
+        end
+        g:update(1 / 120, {})
+      end
+      error(kind .. ': phase review did not reach the expected action')
+    end
+    -- Actual choice, recovery, windup and release. Do not hold the hit flash
+    -- from the transition over a manually posed later attack.
+    advanceUntil(function()
+      return enemy.ai == 'windup' and enemy.windup <= enemy.windupDuration * 0.5
+    end)
+    assert(enemy.attackKind == (kind == 'boss' and 'ash-lance' or 'lightning'))
+    save('encounter-' .. kind .. '-phase2-windup')
+    advanceUntil(function()
+      return enemy.ai == 'strike'
+    end)
+    save('encounter-' .. kind .. '-phase2-release')
+  end
+  g = archived
+  reports[#reports + 1] =
+    'Encounter phases: 10 real transition/windup/release captures with unchanged artwork and HUD.'
   local foundationChecks = require('qa.reviews.foundation_ui').run(G, renderer, output)
   reports[#reports + 1] = 'Foundation UI / charge handoff: '
     .. foundationChecks

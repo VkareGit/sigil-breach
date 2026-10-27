@@ -163,7 +163,11 @@ function Tests.run(G)
     saved = swap(Atlases, reversed)
     Anatomy.layouts.buer, Masks.layouts.buer = reordered, rebaked
     local recorder = Projection.recorder(120)
-    require('qa.scenarios.drill').run(G, recorder.observe, 40)
+    require('qa.scenarios.drill').run(
+      require('tests.support.v033_encounters').game(G),
+      recorder.observe,
+      40
+    )
     return Projection.compare(reference, recorder.text())
   end)
   if saved then

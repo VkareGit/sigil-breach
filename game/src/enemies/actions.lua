@@ -9,6 +9,7 @@ local W = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
+local Selection = require('src.enemies.attack_selection')
 local Attacks = {}
 local cos, atan2 = math.cos, math.atan2
 local len = MathX.len
@@ -20,39 +21,7 @@ local function change(e, state)
   e.phase = 0
   e.rushVX, e.rushVZ = nil, nil
 end
--- An attack is usable at distance d when it is in range, beyond its minimum
--- range (minRange) and its own skill cooldown (rest) has elapsed.
-local function usable(e, atk, d, now)
-  if not atk or d > atk.range or d < atk.minRange then
-    return false
-  end
-  local until_ = e.restUntil and e.restUntil[atk.id]
-  return not (until_ and now and now < until_)
-end
--- Choose the first usable attack in the archetype list whose preference fits:
--- 'maxRange' = only closer than that (it outranks 'every'); 'every=n' = only
--- when the attack counter is a multiple of n (0 fits every n: the counter
--- grows when an attack starts). When no attack fits its preference, the LAST
--- attack of the list is the fallback: it still obeys range, minRange and
--- rest, but not its own maxRange or every. A list puts last the attack meant
--- for that; 'every' on the last attack is a preference, not a hard limit.
--- Returns nil when nothing is usable (the body keeps moving instead).
-local function choose(e, d, now)
-  local list = arch(e).attacks
-  for _, atk in ipairs(list) do
-    if usable(e, atk, d, now) then
-      if atk.maxRange then
-        if d < atk.maxRange then
-          return atk
-        end
-      elseif not atk.every or (e.attackCount % atk.every) == 0 then
-        return atk
-      end
-    end
-  end
-  local last = list[#list]
-  return usable(e, last, d, now) and last or nil
-end
+local choose = Selection.choose
 -- The attack in progress; records prepared by hand (tests, catalogue poses)
 -- may name it only by attackKind, so look it up by id.
 local function current(e)
@@ -126,10 +95,11 @@ local function beginAttack(g, e, d, chosen)
   end
   if atk.rest then
     e.restUntil = e.restUntil or {}
-    e.restUntil[atk.id] = (g.elapsed or 0) + atk.rest / (e.tierPace or 1)
+    e.restUntil[atk.id] = (g.elapsed or 0) + atk.rest / Selection.pace(e)
   end
   e.attackSpec = atk
   e.attackKind = atk.id
+  Selection.committed(e, atk)
   change(e, 'windup')
   e.windupDuration = atk.windup
   local p = victimOf(g, e)
@@ -200,7 +170,7 @@ local function strike(g, e, dt, previousPlayer)
     change(e, 'recover')
     e.recover = atk.recover
     -- Tier aggression shortens the pause between attacks, never a windup.
-    e.attack = atk.cooldown / (e.tierPace or 1)
+    e.attack = atk.cooldown / Selection.pace(e)
   end
 end
 -- A body in the air and its landing (enemies/flight.lua).

@@ -16,6 +16,30 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Dopracowanie poligonu — punkt 4 (27 października 2026)
+- Dane tactics wybierają ataki według dystansu, historii i odnowień.
+  Bez nich pozostaje dawny algorytm. Brak nowego FSM i odczytu wejścia
+  gracza przez decyzję przeciwnika; definicje pozostają niezmienne.
+- Margrave ma 1000 + 400 HP i wariant wąskiej salwy z dotychczasową
+  grafiką. Furfur: 1400 + 700 HP, dobór trzech istniejących ciosów,
+  osobne odnowienia i inne wagi w drugiej fazie. TIER skaluje zapasy.
+- Faza to ciąg dalszy tej samej walki, nie śmierć/spawn: przejście przed
+  BodyHit/EnemyKilled, odrzucony nadmiar trafienia, okno recover bez
+  odporności, zachowane efekty i wystrzelone pociski. Pending cast
+  jest anulowany. Punktacja, zwłoki, dusze i wyjście tylko raz na końcu.
+- damageEnemy zwraca rzeczywistą utratę HP, także przy odnowieniu;
+  EffectPulse używa wyniku. Snapshot/zapis/replay obejmują etap i historię.
+- Bez wymiany PNG/modeli/HUD-u; użyto istniejącego tytułu furii i głosu.
+  Zgodnie z uwagą użytkownika nie ma kafelka ani napisu PHASE 2.
+  Nowe rendery obejmują rzeczywiste przejście, zapowiedź i wykonanie.
+- Zmiana jest świadomą zmianą rozgrywki, więc aktualizuje złoty wzorzec.
+  Referencje v0.33 pozostają nietknięte: test odtwarza stare definicje
+  starć przez adapter wyłącznie QA, bez podmiany funkcji silnika.
+  Tabela pozy porównuje wszystkie stare wiersze, dopuszcza dodanie
+  nowego id ataku. Dokładne hash-e punktu 3 również są sprawdzane.
+  Próba ukończenia fal ma jawny dodatkowy wariant sterowania QA
+  unikający widocznych pocisków; oryginalne przebiegi pozostają w golden.
+
 Dopracowanie poligonu — punkt 3 (27 października 2026)
 - Ataki obszarowe mają skończone, walidowane volume/landVolume w danych:
   bottom, top, sample (feet/body), includeRadius. Kałuża domyślnie sięga

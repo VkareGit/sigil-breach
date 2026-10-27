@@ -83,6 +83,8 @@ C.schemas = {
     collideLock = f(nil),
   },
   brain = {
+    phaseIndex = f(nil, 'encounter phase (nil means first); not the action clock'),
+    phaseBaseHp = f(nil, 'spawn HP including tier, basis of later health stocks'),
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
     phase = f(0, 'time in the state'),
     recover = f(0),
@@ -107,6 +109,8 @@ C.schemas = {
     attackSpec = f(nil),
     attackKind = f(nil),
     attackCount = f(0),
+    lastAttack = f(nil, 'last committed attack, for contextual selection'),
+    attackRepeats = f(nil, 'consecutive commitments of that attack'),
     restUntil = f(nil),
     aimX = f(nil),
     aimZ = f(nil),
