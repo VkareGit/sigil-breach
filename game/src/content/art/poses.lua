@@ -67,7 +67,9 @@ Poses.fallbacks = {
   hoverRear = 'walkRear',
 }
 local function clockOf(name)
-  return Poses.clockOf[name] or (name:match('^strike%.') and 'action') or nil
+  return Poses.clockOf[name]
+    or ((name:match('^strike%.') or name:match('^windup%.')) and 'action')
+    or nil
 end
 local function fallbackOf(poses, name)
   local entry = poses[name]
@@ -77,7 +79,10 @@ local function fallbackOf(poses, name)
   if entry then
     return nil
   end
-  return Poses.fallbacks[name] or (name:match('^strike%.') and 'strike') or nil
+  return Poses.fallbacks[name]
+    or (name:match('^strike%.') and 'strike')
+    or (name:match('^windup%.') and 'windup')
+    or nil
 end
 -- The pose a name stands for (its fallbacks followed), or nil.
 function Poses.resolve(poses, name)

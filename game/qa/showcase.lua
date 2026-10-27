@@ -845,6 +845,9 @@ function S.run(G, renderer)
     enemy.x, enemy.z = 16, 17
     enemy.spawnAge, enemy.awake, enemy.target = 2, true, g.player.id
     g:damageEnemy(enemy, enemy.hp, 'weapon')
+    for _ = 1, 78 do
+      g:update(1 / 120, {})
+    end
     for _, size in ipairs({ { 'small', 960, 540 }, { '4by3', 1024, 768 }, { 'normal', 1280, 720 } }) do
       save('encounter-' .. kind .. '-transition-' .. size[1], size[2], size[3])
     end
@@ -862,16 +865,22 @@ function S.run(G, renderer)
     advanceUntil(function()
       return enemy.ai == 'windup' and enemy.windup <= enemy.windupDuration * 0.5
     end)
-    assert(enemy.attackKind == (kind == 'boss' and 'ash-lance' or 'lightning'))
+    assert(enemy.attackKind == (kind == 'boss' and 'ash-lance' or 'tempest-cross'))
     save('encounter-' .. kind .. '-phase2-windup')
     advanceUntil(function()
       return enemy.ai == 'strike'
     end)
     save('encounter-' .. kind .. '-phase2-release')
+    for beat, ticks in ipairs({ 94, 48, 42 }) do
+      for _ = 1, ticks do
+        g:update(1 / 120, {})
+      end
+      save('encounter-' .. kind .. '-phase2-beat-' .. beat)
+    end
   end
   g = archived
   reports[#reports + 1] =
-    'Encounter phases: 10 real transition/windup/release captures with unchanged artwork and HUD.'
+    'Encounter phases: 16 real transition/windup/release/ground-pattern captures with unchanged artwork and HUD.'
   -- Public room layout uses the same painted assets; inspect live portals,
   -- attacks, physical doorways and the existing HUD at small viewports too.
   local release = require('src.app.release')
@@ -924,7 +933,7 @@ function S.run(G, renderer)
   save('chambers-complete-small', 960, 540)
   g = archived
   reports[#reports + 1] =
-    'Authored chambers: 33 basilica layout, live portal/attack and completion captures; existing art/HUD.'
+    'Authored chambers: 35 basilica layout, live portal/attack and completion captures; existing art/HUD.'
   local foundationChecks = require('qa.reviews.foundation_ui').run(G, renderer, output)
   reports[#reports + 1] = 'Foundation UI / charge handoff: '
     .. foundationChecks

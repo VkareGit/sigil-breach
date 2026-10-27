@@ -15,7 +15,7 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
 | 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Commit 1b97658; użytkownik zezwolił kontynuować |
-| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Wdrożony i zweryfikowany; przerwa na test użytkownika |
+| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Commit f3ff4f2, razem z korektą atmosfery, ołtarzy i ognia |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
 | 7 | Osobny rozwój nowych grafik i modeli | Odłożony przez użytkownika |
 | 8 | Pełny sprawdzian rozszerzenia: boss, komnata, reset, replay, wydajność i odbiór w dłuższej grze | Oczekuje |
@@ -518,6 +518,71 @@ ataków w 960×540 i 1024×768 oraz rzeczywiste zakończenie próby bez płomien
 Raporty i obrazy: `work/point5-refinement/all`, `review`, `hud-comparison.txt`.
 Showcase zawiera 35 ujęć komnat; jego historyczna etykieta nadal podaje 33.
 Smoke narzędzi nadal nie zamyka formalnej regresji wydajności punktu 1.
+
+## Korekta drugich faz — osobno po commicie punktu 5
+
+Zgodnie z kolejnością wskazaną przez użytkownika najpierw zamknięto oprawę
+kaplic, ołtarze i ogień w `f3ff4f2`. Dopiero potem rozwinięto drugie fazy.
+Nie wymieniono żadnego PNG, modelu ani elementu HUD-u. Numery faz nadal
+nie pojawiają się w osobnych kafelkach. Gesty korzystają z zatwierdzonych
+klatek i ich istniejących masek trafień.
+
+| Boss | Pierwszy / drugi zapas HP (TIER 1) | Odrębność drugiego życia |
+|---|---|---|
+| Margrave of Ash | 1000 / 650 | Trzy pola ognia wzdłuż zamrożonej osi celowania; początek 0,65 / 0,95 / 1,25 s po release; zejście w bok lub skok nad ogniem |
+| Furfur | 1400 / 980 | Sekwencja pięciu wyładowań: środek, boki, druga oś; 0,75 / 1,15 / 1,55 s; ukośne przejścia i powrót do opróżnionego środka |
+
+Pierwsze życie zachowuje swoje zestawy ataków. Drugie łączy nowy wzór
+z dotychczasowymi atakami przez contextual tactics i historię wyborów.
+Nie zmniejszono windup ani czasu recovery. Przejście nadal jest okazją
+do trafienia, bez ukrytej odporności. Zwiększony drugi zapas daje nowym
+sekwencjom więcej czasu, ale nie przesądza końcowego balansu.
+
+`Action.pattern` to nowy typ dostawy, nie osobny FSM. Definicja zawiera
+1..12 punktów w lokalnych współrzędnych, opóźnienia, promień, rodzaj
+zagrożenia, packet i volume. `enemies/ground_pattern` wypuszcza je przez
+dotychczasowy system hazards. Pola nie podążają za graczem i nie powstają
+za osłoną. Na brzegu komnaty część wzoru może się prawidłowo nie zmieścić.
+Objętości i kontakt z podłożem pozostają wspólne z wcześniejszymi atakami.
+
+`transitionPose`, `windup.<id>` i `strike.<id>` wybierają nazwane sekwencje
+z atlasu. `phaseEnteredAt` należy do komponentu brain i zapisu sesji.
+Wspólny sampler nadal wyznacza obraz oraz geometrię trafienia, a zapis
+obserwacji strzału przechowuje faktycznie pokazaną pozę. Walidacja wykrywa
+błędne odwołania do póz/ataków przed rozpoczęciem gry.
+
+Sprawdzono osobno: wysokość ognia przy staniu, ślizgu i skoku, brak obrażeń
+przed zapowiedzią, jednorazowy kontakt pioruna, stałe położenie po uniku,
+ścianę na drodze wzoru, zapisywanie aktywnych zagrożeń i deterministyczne
+odtworzenie nowego ataku wybranego przez rzeczywiste AI.
+Przegląd `--ritual-review` pokazał oba przejścia oraz kolejne uderzenia
+w publicznych kaplicach (3 znaczniki ognia, 5 wyładowań), finalną śmierć
+i wygaszenie obwodu areny. Aparat przeglądu cofa się po rzuceniu zaklęcia,
+aby pokazać również miejsca ukrywane przez broń podczas stania na celu.
+
+Wzorzec walki zmieniono świadomie po sprawdzeniu przyczyny: przywrócenie
+wyłącznie poprzednich definicji creature i sheet w pamięci bieżącego silnika
+odtworzyło **6/6** poprzednich skrótów, także stref trafień. Dowód:
+`work/phase2-refinement/golden-attribution/content-attribution.csv`.
+Zamrożone referencje 0.33 nie zostały przepisane; ich adapter nadal podaje
+trzy historyczne ataki Furfura. Bieżące wzory mają własne regresje i replay.
+
+Pełne `TEST.ps1 -Suite All -TestTimeoutSeconds 600` zakończyło się poprawnie:
+4672 sprawdzenia mechaniki/zasobów (w tym 76 encounter, 84 chambers i 61
+referencji 0.33), 36 sterowania, 550 skompilowanych plików Lua, zero
+naruszeń architektury. Wszystkie osiem przebiegów ma stabilne źródła:
+`F6E5624F2DA3530830B6E9F6CAA9A55AD17C14E2441BE9582C0DB0CE774ACFC0`.
+Audyt UI: 17753 granice / 544 ekrany / zero problemów. Trzy zestawy
+pomiarów faktycznie wyświetlonych trafień wykazują zero nietrafień,
+zmian stref i zmian obrażeń w próbkach wewnętrznych; każdy jawnie wyłącza
+trzy przypadki brzegowe. Obejrzano również przejścia w 960×540 i 1024×768.
+Raporty: `work/phase2-refinement/all`, obrazy: `work/phase2-refinement/review`.
+Testy nie są potwierdzeniem przyjemności ani ostatecznego poziomu trudności.
+
+Ocena gracza po commicie: rozegrać obie drugie fazy, sprawdzić rozpoznanie
+gestów, reakcję na sekwencję i długość walki. W F2 można wyłączyć GOD MODE;
+domyślne testowe ustawienie pozostaje bez zmian. Audio nadal jest następnym
+osobnym punktem, a formalna regresja wydajności punktu 1 pozostaje otwarta.
 
 ## Zasady następnych etapów
 

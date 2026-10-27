@@ -92,6 +92,13 @@ return {
     { source = 2, cell = 4, feet = 51, anchors = { head = { 0.32999999999999996, 0.6 } } },
   },
   poses = {
+    ['phase.tempest'] = {
+      clock = 'action',
+      frames = { 13, 7, 8, 9 },
+      bounds = { 0.18, 0.38, 0.68 },
+    },
+    ['windup.tempest-cross'] = { clock = 'action', frames = { 7, 8, 9 }, bounds = { 0.18, 0.4 } },
+    ['strike.tempest-cross'] = { clock = 'action', frames = { 9, 8, 12 }, bounds = { 0.4, 0.78 } },
     collapse = { clock = 'seconds', frames = { 14, 15, 16, 17, 18 }, step = 0.11 },
     knockdown = { clock = 'seconds', frames = { 14, 15 }, bounds = { 0.06 }, ends = 0.12 },
     pain = { frames = { 13 } },

@@ -89,6 +89,9 @@ return {
     { source = 3, cell = 4, feet = 53, anchors = { head = { 0.15, 0.8245114832535885 } } },
   },
   poses = {
+    ['phase.cinders'] = { clock = 'action', frames = { 9, 5, 6, 7 }, bounds = { 0.18, 0.42, 0.76 } },
+    ['windup.ash-lance'] = { clock = 'action', frames = { 8, 5, 6 }, bounds = { 0.25, 0.65 } },
+    ['strike.ash-lance'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.55 } },
     collapse = { clock = 'seconds', frames = { 10, 11, 12 }, step = 0.14 },
     knockdown = { clock = 'seconds', frames = { 10 }, ends = 0.08 },
     pain = { frames = { 9 } },

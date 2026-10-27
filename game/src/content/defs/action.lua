@@ -165,6 +165,25 @@ Action.kinds:register(
     life = { type = 'number', min = 0 },
   }, { 'radius', 'life', 'packet' })
 )
+-- A bounded arrangement of independently warned ground contacts. Offsets are
+-- in the locked aim basis, never in the camera basis and never homing.
+local Mark = Schema:new('pattern mark', {
+  forward = { type = 'number', required = true },
+  lateral = { type = 'number', required = true },
+  delay = { type = 'number', required = true, min = 0 },
+})
+Action.kinds:register(
+  'pattern',
+  kind('pattern', {
+    origin = { type = 'string', default = 'target', values = { 'target', 'caster' } },
+    marks = { type = 'table', required = true, list = Mark },
+    hazard = { type = 'string', required = true, values = { 'pool', 'lightning' } },
+    volume = Area.field('pool'),
+    radius = { type = 'number', required = true, min = 0 },
+    life = { type = 'number', required = true, min = 0 },
+    pulse = { type = 'number', required = true, min = 0 },
+  }, { 'packet' })
+)
 -- The blast of an area action: a full damage profile (combat/damage.lua).
 Action.blast = Schema:new('blast', {
   effects = { type = 'table', list = require('src.content.defs.effect').schema },
@@ -271,6 +290,16 @@ function Action.build(def, where)
     Area.validate(built.landVolume, path .. '.landVolume')
   elseif built.kind == 'strike' then
     Area.validate(built.volume, path .. '.volume')
+  elseif built.kind == 'pattern' then
+    Area.validate(built.volume, path .. '.volume')
+    assert(#built.marks > 0 and #built.marks <= 12, path .. ': needs 1..12 marks')
+    assert(
+      built.radius > 0 and built.life > 0 and built.pulse > 0,
+      path .. ': positive footprint and cadence required'
+    )
+    for _, mark in ipairs(built.marks) do
+      assert(mark.delay > 0, path .. ': every released mark needs a warning')
+    end
   elseif built.kind == 'pool' then
     Area.validate(built.pool.volume, path .. '.pool.volume')
     assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')

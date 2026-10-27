@@ -133,7 +133,7 @@ function Tests.run(Game)
   g:damageEnemy(e, hp, 'effect')
   check(
     'new stock uses tiered spawn HP, not base definition HP',
-    e.hp == math.floor(hp * 0.5 + 0.5)
+    e.hp == math.floor(hp * A.furfur.phases[2].refill + 0.5)
   )
   local attack = A.furfur.attacks[3]
   e.recover, e.attack, e.hitPause, e.stun = 0, 0, 0, 0
@@ -180,7 +180,8 @@ function Tests.run(Game)
     'disk save retains phase, stock basis and attack history',
     loaded.phaseIndex == 2
       and loaded.phaseBaseHp == 1400
-      and loaded.hp == 700
+      and loaded.hp == 980
+      and loaded.phaseEnteredAt == e.phaseEnteredAt
       and loaded.lastAttack == 'charge'
       and loaded.attackRepeats == 1
   )
@@ -318,6 +319,159 @@ function Tests.run(Game)
   check(
     'field reset cannot carry phases or histories into the next trial',
     new.id ~= old.id and new.phaseIndex == nil and new.lastAttack == nil and new.hp == new.maxHp
+  )
+  -- New second-life patterns use actual hazards, not visual-only circles.
+  local Hazards = require('src.enemies.hazards')
+  local Animation = require('src.enemies.animation')
+  for _, kind in ipairs({ 'boss', 'furfur' }) do
+    g, e = fresh(kind)
+    g.player.x, g.player.z, e.x, e.z = 16, 22, 16, 16
+    local phase = A.of(e).phases[2]
+    local expected = kind == 'boss' and 'ash-lance' or 'tempest-cross'
+    check(kind .. ' first life excludes the new pattern', Actions.choose(e, 8, 0).id ~= expected)
+    g:damageEnemy(e, e.hp, 'weapon')
+    check(
+      kind .. ' second life has a distinct midrange opening',
+      Actions.choose(e, 8, 0).id == expected
+    )
+    local frames = {}
+    for _, progress in ipairs({ 0.1, 0.3, 0.5, 0.9 }) do
+      g.elapsed = e.phaseEnteredAt + phase.recovery * progress
+      frames[Animation.pose(g, e)] = true
+    end
+    local count = 0
+    for _ in pairs(frames) do
+      count = count + 1
+    end
+    check(kind .. ' transition actually uses several original painted poses', count >= 3)
+    e.recover, e.attack, e.stun, e.hitPause = 0, 0, 0, 0
+    local chosen = Actions.choose(e, 8, g.elapsed)
+    Actions.begin(g, e, 6, chosen)
+    check(kind .. ' windup creates no damaging pattern before release', #g.hazards == 0)
+    Actions.execute(g, e)
+    local marks = kind == 'boss' and 3 or 5
+    local all = #g.hazards == marks
+    for _, h in ipairs(g.hazards) do
+      all = all
+        and h.delay > 0
+        and h.maxDelay == h.delay
+        and h.owner == e.id
+        and h.packet.damageType == (kind == 'boss' and 'fire' or 'lightning')
+    end
+    check(kind .. ' release makes fully warned, attributed finite volumes', all)
+    local sx, sz = g.hazards[1].x, g.hazards[1].z
+    g.player.x, g.player.z = 18, 24
+    check(
+      kind .. ' marks stay fixed after the knight dodges',
+      g.hazards[1].x == sx and g.hazards[1].z == sz
+    )
+    local health = g.player.hp
+    Hazards.update(g, 0.5)
+    check(kind .. ' no damage before the first warning expires', g.player.hp == health)
+    Hazards.update(g, 1.4)
+    check(kind .. ' diagonal escape is genuinely outside the pattern', g.player.hp == health)
+    local saved, stamp = Snapshot.capture(g), Integrity.capture(g)
+    Hazards.update(g, 3)
+    Snapshot.restore(g, saved)
+    check(
+      kind .. ' snapshot restores released pattern clocks and phase',
+      not Integrity.difference(stamp, Integrity.capture(g))
+    )
+  end
+  -- A real lightning contact arrives at the announced first beat, once.
+  g, e = fresh('furfur')
+  g.player.x, g.player.z, e.x, e.z = 16, 22, 16, 16
+  e.phaseIndex = 2
+  Actions.begin(g, e, 6, A.furfur.attacks[4])
+  Actions.execute(g, e)
+  local hpBefore = g.player.hp
+  Hazards.update(g, 0.74)
+  check('tempest centre remains safe before 0.75 seconds', g.player.hp == hpBefore)
+  Hazards.update(g, 0.02)
+  check('tempest centre contacts on its timed beat', g.player.hp < hpBefore)
+  local after = g.player.hp
+  Hazards.update(g, 0.1)
+  check('a lightning mark cannot repeatedly hit during its visible tail', g.player.hp == after)
+  -- The fire lane is shallow: jump height matters, crouching does not remove
+  -- the feet from its volume. Exercise delivery and pulses, not just Area.test.
+  for _, stance in ipairs({ 'standing', 'sliding', 'jumping' }) do
+    g, e = fresh('boss')
+    g.player.x, g.player.z, e.x, e.z = 16, 22, 16, 16
+    if stance == 'jumping' then
+      g.player.jump = 0.6
+    elseif stance == 'sliding' then
+      g.player.crouch = 0.6
+    end
+    Actions.begin(g, e, 6, A.boss.attacks[2])
+    Actions.execute(g, e)
+    local before = g.player.hp
+    Hazards.update(g, 1.0)
+    check(
+      'ash lane respects ' .. stance .. ' height',
+      (g.player.hp < before) == (stance ~= 'jumping')
+    )
+  end
+  -- An offset beyond cover is omitted, rather than creating an unseen mark.
+  g, e = fresh('furfur')
+  g.player.x, g.player.z, e.x, e.z = 16, 22, 16, 16
+  Actions.begin(g, e, 6, A.furfur.attacks[4])
+  for x = 12, 20 do
+    g.world.map[19][x] = 1
+  end
+  require('src.world.arena').rebuild(g.world)
+  Actions.execute(g, e)
+  check('released pattern cannot place marks through a solid wall', #g.hazards == 0)
+  -- Real AI, warning clocks, projectiles and health all replay deterministically.
+  local function patternScene()
+    local scene, caster = fresh('furfur')
+    scene.player.x, scene.player.z, caster.x, caster.z = 16, 24, 16, 16
+    scene:damageEnemy(caster, caster.hp, 'weapon')
+    return scene
+  end
+  local scene = patternScene()
+  local record = Journal.record(scene)
+  local sawWarning, sawBolt = false, false
+  for _ = 1, 660 do
+    scene:update(1 / 120, {})
+    for _, h in ipairs(scene.hazards) do
+      sawWarning = sawWarning or (h.kind == 'lightning' and h.delay > 0)
+      sawBolt = sawBolt or (h.kind == 'lightning' and h.struck)
+    end
+  end
+  Journal.stop(scene)
+  local replay = patternScene()
+  Journal.replay(replay, Journal.decode(Journal.encode(record)))
+  check(
+    'live AI releases its new pattern and the complete sequence replays',
+    sawWarning
+      and sawBolt
+      and not Integrity.difference(Integrity.capture(scene), Integrity.capture(replay))
+  )
+  local invalidPose = Schema.copy(A.furfur)
+  invalidPose.phases[2].transitionPose = 'phase.misspelled'
+  check(
+    'unknown phase artwork fails composition validation',
+    #require('src.enemies.art_contract').problems(invalidPose) > 0
+  )
+  check(
+    'pattern refuses an unannounced mark',
+    rejected(function(d)
+      d.attacks[4].marks[1].delay = 0
+    end)
+  )
+  check(
+    'pattern refuses nonfinite offsets',
+    rejected(function(d)
+      d.attacks[4].marks[1].forward = math.huge
+    end)
+  )
+  check(
+    'pattern refuses an unbounded number of marks',
+    rejected(function(d)
+      for i = 1, 13 do
+        d.attacks[4].marks[i] = { forward = i, lateral = 0, delay = 1 }
+      end
+    end)
   )
   return lines
 end

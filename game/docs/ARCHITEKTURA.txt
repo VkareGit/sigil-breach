@@ -1,5 +1,22 @@
 SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.34
 
+Korekta drugich faz (po punkcie 5): Action.pattern opisuje do 12 lokalnych
+punktów kontaktu (forward/lateral/delay) względem zamrożonego kierunku
+celowania. enemies/ground_pattern jest wykonawcą dostawy w ranged_kinds;
+nie dodaje drugiego AI ani osobnego systemu obrażeń. Po release zwykłe
+hazards posiadają ostrzeżenie, volume, packet, owner/side i czas życia.
+Nie ma obrażeń w windup ani znaczników śledzących późniejsze wejście gracza.
+Punkty za ścianą lub w bryle odpadają. pool pulsuje, lightning trafia raz;
+kontakt nadal uwzględnia wysokość, skok, strop i osłonę przez area_contact.
+Tak jak wcześniej: śmierć właściciela anuluje pioruny, wypuszczony ogień
+żyje do końca swojego czasu. Reset próby usuwa oba rodzaje.
+Opcjonalne phase.transitionPose wybiera nazwany przebieg istniejącego
+atlasu; phaseEnteredAt jest serializowanym polem brain. Wspólny sampler
+animation wybiera klatkę zarówno dla obrazu, jak i geometrii trafienia.
+windup.<id> i strike.<id> pozwalają odróżniać gesty ataków danymi; brak
+własnej pozy wraca do podstawowej. ArtContract sprawdza te referencje.
+HUD i pliki graficzne tej korekty pozostają bez zmian.
+
 Punkt 5 poligonu: app/release.sessionMaps wybiera mapę proving przy wejściu
 z menu; jawny mapId wygrywa. Domyślna mapa biblioteki limbo nie zmienia się.
 Mapa proving opisuje komnaty, wejścia, miejsca przywołań, próby i medale

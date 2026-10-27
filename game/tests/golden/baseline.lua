@@ -29,11 +29,16 @@
 -- tests/support/v033_encounters.lua restores only the old CONTENT per session;
 -- v033_reference verifies all three exact point-3 digests on the current engine.
 -- Frozen v0.33 references remain unchanged; current content is recorded here.
+-- 0.34 / second-life refinement after point 5: distinct ground patterns,
+-- longer second stocks and named phase/cast poses intentionally change combat.
+-- Restoring ONLY the committed creature/sheet definitions IN MEMORY on the
+-- new engine reproduces 6/6 previous digests (including per-part contacts):
+-- work/phase2-refinement/golden-attribution/content-attribution.csv.
 return {
-  playtest = '6480f137/3d28295e',
-  human = '29709c9b/cb9bf41a',
-  drill = 'e56819a1/30b3dc8d',
-  playtestContacts = '8a29c37c/302',
-  humanContacts = 'ecb18871/680',
-  drillContacts = '3d5ce09d/260',
+  playtest = '3c856978/301242d4',
+  human = '95a431e1/747474d2',
+  drill = '5d15bf47/85f1b452',
+  playtestContacts = '1e9304e3/302',
+  humanContacts = '8c5cb44d/680',
+  drillContacts = 'f91dc609/250',
 }

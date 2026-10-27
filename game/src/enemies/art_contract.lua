@@ -57,6 +57,15 @@ function Contract.problems(def)
     out[#out + 1] = 'creature ' .. tostring(def.id) .. ': ' .. message
   end
   local atlas = look.atlas or def.kind or def.id
+  for _, phase in ipairs(def.phases or {}) do
+    if phase.transitionPose then
+      local poses = Atlases.poses[atlas]
+      local pose = poses and require('src.content.art.poses').resolve(poses, phase.transitionPose)
+      if not pose or pose.clock ~= 'action' then
+        bad('phase transition needs a named action-clock pose: ' .. phase.transitionPose)
+      end
+    end
+  end
   local layout = Art.layouts[atlas]
   if not Art.entries[atlas] or not layout then
     bad('unknown atlas ' .. tostring(atlas))
@@ -99,11 +108,11 @@ function Contract.problems(def)
     end
     sequence(look.evadeArt)
   end
-  -- An attack's own strike pose (strike.<attack id>) names one of its attacks.
-  for name in pairs(Atlases.poses[look.atlas or def.kind] or {}) do
-    local action = name:match('^strike%.(.+)$')
+  -- An attack's own windup/strike pose names one of its attacks.
+  for name in pairs(Atlases.poses[atlas] or {}) do
+    local action = name:match('^strike%.(.+)$') or name:match('^windup%.(.+)$')
     if action and not actions[action] then
-      bad('strike pose ' .. name .. ' names no attack of it')
+      bad('action pose ' .. name .. ' names no attack of it')
     end
   end
   return out

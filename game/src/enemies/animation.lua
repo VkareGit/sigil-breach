@@ -40,6 +40,8 @@ function Anim.pose(g, e, observer)
   local frame, bounce, lean, sx, sy = 1, 0, 0, 1, 1
   local quiet, rear = false, false
   local look = Archetypes.look(e)
+  local encounter = Archetypes.phase(e)
+  local transitionAge = e.phaseEnteredAt and (g.elapsed - e.phaseEnteredAt)
   local flinchProjection = Flinch.projection(g, e, observer or Roles.controlled(g))
   if e.hp <= 0 then
     frame, bounce, lean, sx, sy = Corpse.pose(e, posed(e, 'collapse'), flinchProjection)
@@ -66,9 +68,18 @@ function Anim.pose(g, e, observer)
     frame = Poses.frame(posed(e, 'pain'), e.phase or 0)
     lean = -0.05
     sy = 0.95
+  elseif
+    e.ai == 'recover'
+    and encounter
+    and encounter.transitionPose
+    and transitionAge
+    and transitionAge >= 0
+    and transitionAge < encounter.recovery
+  then
+    frame = Poses.frame(posed(e, encounter.transitionPose), transitionAge / encounter.recovery)
   elseif e.ai == 'windup' then
     local t = Anim.actionPhase(e)
-    frame = Poses.frame(posed(e, 'windup'), t)
+    frame = Poses.frame(posed(e, e.attackKind and ('windup.' .. e.attackKind) or 'windup'), t)
     lean = -0.025 * t
     sx = 1 + t * 0.025
     sy = 1 - t * 0.025

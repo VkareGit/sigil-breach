@@ -84,6 +84,7 @@ C.schemas = {
   },
   brain = {
     phaseIndex = f(nil, 'encounter phase (nil means first); not the action clock'),
+    phaseEnteredAt = f(nil, 'simulation time of the current encounter phase transition'),
     phaseBaseHp = f(nil, 'spawn HP including tier, basis of later health stocks'),
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
     phase = f(0, 'time in the state'),

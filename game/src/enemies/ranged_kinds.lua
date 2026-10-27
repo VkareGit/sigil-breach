@@ -15,6 +15,7 @@ local K = require('src.content.combat_defaults').attacks
 local sin, cos = math.sin, math.cos
 local len = MathX.len
 local Kinds = {}
+Kinds.pattern = { execute = require('src.enemies.ground_pattern').release }
 -- A bolt carries its archetype's damage packet to the projectile system.
 local function projectile(g, e, a, speed, spec)
   -- Launched and aimed at heights above the ground (physics/ground.lua).

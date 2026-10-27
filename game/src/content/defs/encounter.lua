@@ -19,6 +19,7 @@ E.phase = Schema:new('encounter phase', {
   at = { type = 'number', min = 0, max = 1, desc = 'enter at this share of current maximum HP' },
   refill = { type = 'number', min = 0, desc = 'new HP stock, share of spawn HP including tier' },
   recovery = { type = 'number', default = 1.2, min = 0 },
+  transitionPose = { type = 'string', desc = 'named atlas pose on the recovery clock' },
   pace = { type = 'number', default = 1, min = 1, desc = 'cooldowns only, never windup/recovery' },
   speed = { type = 'number', default = 1, min = 0 },
   tactics = { type = 'table', schema = E.tactics },

@@ -86,10 +86,43 @@ function Review.run(Game, renderer, output)
     capture('14-' .. id .. '-arena', x, 20, x, 1.6, 12)
     local boss = assert(g.enemies[1])
     g:damageEnemy(boss, boss.hp, 'weapon')
-    for _ = 1, 360 do
-      g:update(1 / 120, {})
+    for _, pose in ipairs({ 'gather', 'rise', 'release' }) do
+      for _ = 1, 42 do
+        g:update(1 / 120, {})
+      end
+      capture('15-' .. id .. '-transition-' .. pose, x, 20, x, 1.6, 12)
     end
-    capture('15-' .. id .. '-second-life', x, 20, x, 1.6, 12)
+    -- Approach into the court before commitment; at the rear wall some
+    -- offsets correctly fall outside the room. Retreat after release so
+    -- the ground contacts under the knight can be inspected in these stills.
+    g.player.z = 18
+    local expected = id == 'ash' and 'ash-lance' or 'tempest-cross'
+    local function advanceUntil(predicate)
+      for _ = 1, 1800 do
+        if predicate() then
+          return
+        end
+        g:update(1 / 120, {})
+      end
+      error('phase review did not reach ' .. expected .. ' / ' .. boss.ai)
+    end
+    advanceUntil(function()
+      return boss.attackKind == expected
+        and boss.ai == 'windup'
+        and boss.windup <= boss.windupDuration * 0.5
+    end)
+    capture('15-' .. id .. '-pattern-windup', x, 18, x, 1.0, 15)
+    advanceUntil(function()
+      return boss.ai == 'strike'
+    end)
+    notes[#notes + 1] = id .. ': ' .. expected .. ', released marks ' .. #g.hazards
+    capture('15-' .. id .. '-pattern-warning', x, 20, x, 0.7, 16)
+    for beat, ticks in ipairs({ 94, 48, 42 }) do
+      for _ = 1, ticks do
+        g:update(1 / 120, {})
+      end
+      capture('15-' .. id .. '-pattern-beat-' .. beat, x, 20, x, 0.7, 16)
+    end
     g:damageEnemy(boss, boss.hp, 'weapon')
     for _ = 1, 60 do
       g:update(1 / 120, {})

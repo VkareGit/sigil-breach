@@ -16,6 +16,7 @@ local sampled = {}
 function Hazards.add(g, x, z, delay, r, life, spec)
   if not W.solid(g.world, x, z, K.clearance) then
     Spawn.make(g, 'hazard', {
+      kind = spec and spec.kind,
       x = x,
       z = z,
       delay = delay,

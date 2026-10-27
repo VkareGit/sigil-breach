@@ -12,6 +12,7 @@ function M.game(Game)
     def.phases, def.tactics = nil, nil
   end
   old.boss.attacks = { old.boss.attacks[1] }
+  old.furfur.attacks = { old.furfur.attacks[1], old.furfur.attacks[2], old.furfur.attacks[3] }
   old.furfur.attacks[2].rest, old.furfur.attacks[3].rest = nil, nil
   return setmetatable({
     new = function(...)

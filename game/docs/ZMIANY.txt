@@ -16,6 +16,27 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Wyraźniejsze drugie fazy — po commicie punktu 5 (27 października 2026)
+- Margrave: drugi zapas 650 HP (65% startowego po TIER), zamiast 400.
+  ash-lance zmienia się z wąskiej salwy w trzy następujące po sobie pola
+  ognia: zapowiedzi 0,65/0,95/1,25 s od wypuszczenia, promień 1 m,
+  wysokość 0,42 m. Unik w bok lub skok pozwala minąć kontakt.
+- Furfur: drugi zapas 980 HP (70% startowego po TIER), zamiast 700.
+  tempest-cross w drugiej fazie zastępuje pojedynczy piorun: środek,
+  dwa boki, pozostała oś (0,75/1,15/1,55 s), promień 1,05 m. Ukośne
+  przejścia zostają wolne, środek jest bezpieczny po pierwszym uderzeniu.
+  Pozycje zostają w miejscu zapowiedzi; nie ma późniejszego namierzania.
+- Oba przejścia grają sekwencje istniejących klatek. Gesty nowych ataków
+  mają własne nazwane pozy, zgodne z maskami trafień. Bez podmiany PNG,
+  bez nowych paneli HUD-u i bez ukrytej odporności podczas odnowienia HP.
+- Nowa dostawa pattern jest wspólna: walidowane dane, wykonawca lokalny,
+  istniejące kontakty/pule/zapis/replay. Pierwsze fazy zachowują ataki.
+  Niezmieniona geometria zachowuje osłony, wysokości i śmierć tylko raz.
+- Celowa zmiana drugich faz zmienia golden bieżącej walki; zamrożone
+  referencje 0.33 zachowują swoje trzy ataki Furfura przez adapter treści.
+  Testy obejmują rzeczywiste uniki/skok, zegary, sprawcę, osłonę, AI,
+  snapshot i odtwarzanie sekwencji; rendery sprawdzają gesty i uderzenia.
+
 Dopracowanie poligonu — punkt 5 (27 października 2026)
 - Publiczna mapa proving to układ zrujnowanej bazyliki: wysoka nawa,
   boczne arkady, transept, cztery kaplice prób i stopniowane prezbiterium.

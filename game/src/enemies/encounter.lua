@@ -23,6 +23,7 @@ function Encounter.advance(g, e)
       e.hp = e.maxHp
     end
     e.phaseIndex = index + 1
+    e.phaseEnteredAt = g.elapsed
     if e.pendingHazard then
       e.pendingHazard.cancelled = true
       e.pendingHazard = nil

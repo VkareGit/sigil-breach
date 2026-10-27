@@ -70,6 +70,34 @@ nierozliczony znak i bieżący atak ciałem. Już wystrzelone pociski oraz
 aktywne pola trwają. Jeden EnemyKilled i nagrody dopiero po ostatnim
 etapie. Nowy typ dostawy nadal dodaje lokalnego wykonawcę actions.kinds,
 bez zmiany modułu faz. Test referencyjny: tests/cases/encounters.lua.
+Druga faza może podać transitionPose='phase.last_stand'. W poses atlasu
+dodaj tę nazwę z clock='action', istniejącymi frames i bounds w 0..1.
+Zegar biegnie od phaseEnteredAt przez recovery; nie ma nowego stanu AI.
+windup.<id ataku> / strike.<id ataku> mają ten sam mechanizm z zegarem
+samego ataku. Kompozycja odrzuca nieistniejącą pozę lub nieznany id ataku.
+
+Sekwencja zagrożeń na ziemi jest osobnym typem dostawy Action.pattern:
+  Action.pattern({id='cross', range=10, windup=1.2, duration=1,
+    recover=1, cooldown=1.6, rest=4, origin='target',
+    hazard='lightning', radius=1, life=0.22, pulse=0.45,
+    volume={bottom=0,top=2.9,sample='body',includeRadius=true},
+    marks={{forward=0,lateral=0,delay=0.75},
+           {forward=0,lateral=2.8,delay=1.15}},
+    packet=packet(26,80,'lightning')})
+packet to src.content.defs.packet.new. origin: target albo caster.
+Offsety są w metrach w układzie kierunku celowania z chwili wykonania;
+cel jest zamrożony na początku przygotowania. Delay biegnie od release,
+każdy punkt jest ostrzegany od release, niezależnie od pozostałych.
+1..12 punktów, skończone offsety i dodatnie radius/life/pulse/delay są
+walidowane. Wpisanie pattern do attacks nie udostępnia go samo w każdej
+fazie: dodaj jego id w tactics.moves właściwego etapu. Można zmieniać
+układ, rytm, promienie i obrażenia bez zmiany AI lub renderera.
+hazard='pool' używa domyślnie volume 0..0,42 m/sample='feet'; lightning
+powinien podać własne volume jak powyżej. Ogień można przeskoczyć, ślizg
+zostawia stopy w jego zasięgu. Piorun jest jednorazowym kontaktem.
+Najpierw sprawdź miejsce na sekwencję w docelowej arenie: ściany pomijają
+zasłonięte punkty. Przy krawędzi mapy układ celowo może być niepełny.
+
 Zmianę grafiki najpierw przedstaw użytkownikowi; dobór nowego ataku
 nie upoważnia do zamiany zatwierdzonego atlasu lub HUD-u.
 

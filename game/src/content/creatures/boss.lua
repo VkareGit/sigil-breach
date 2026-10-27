@@ -44,15 +44,16 @@ return Creature.boss({
     {
       id = 'cinders',
       at = 0,
-      refill = 0.4,
+      refill = 0.65,
       recovery = 1.4,
+      transitionPose = 'phase.cinders',
       pace = 1.2,
       speed = 1.1,
       tactics = {
         repeatPenalty = 0.2,
         moves = {
           { attack = 'ember-fan', ideal = 5, weight = 1 },
-          { attack = 'ash-lance', ideal = 8, weight = 1.2, min = 2.5 },
+          { attack = 'ash-lance', ideal = 8, weight = 1.4, min = 2.5 },
         },
       },
     },
@@ -84,24 +85,27 @@ return Creature.boss({
         packet = packet(8, 0, 'fire'),
       },
     }),
-    -- Same painted cast and projectile, another readable lane: narrow,
-    -- quicker flight, longer warning. No new model or invisible hitbox.
-    Action.fan({
+    -- Phase two breaks a lane of floor in three advancing beats. Leaving
+    -- the lane sideways (or jumping the shallow fire) is the response.
+    Action.pattern({
       id = 'ash-lance',
       range = 11,
       minRange = 2.5,
       windup = 1.05,
-      recover = 0.9,
+      duration = 0.65,
+      recover = 1.0,
       cooldown = 1.5,
       rest = 3.8,
-      speed = 6.2,
-      count = 3,
-      spread = 0.11,
-      aimLead = 0.65,
-      height = 1.9,
-      big = true,
-      color = { 0.95, 0.38, 0.12 },
-      packet = packet(22, 60, 'fire'),
+      hazard = 'pool',
+      radius = 1.0,
+      life = 1.3,
+      pulse = 0.45,
+      marks = {
+        { forward = -2.2, lateral = 0, delay = 0.65 },
+        { forward = 0, lateral = 0, delay = 0.95 },
+        { forward = 2.2, lateral = 0, delay = 1.25 },
+      },
+      packet = packet(12, 25, 'fire'),
     }),
   },
 })
