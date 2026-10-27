@@ -5,6 +5,7 @@ local Surface = require('src.enemies.surface')
 local Corpse = require('src.enemies.corpse')
 local Roles = require('src.core.roles')
 local Masks = require('src.content.art.hit_masks')
+local CylinderCast = require('src.physics.cylinder_cast')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local eye = require('src.content.knight').body.eye
@@ -224,7 +225,22 @@ function B.world(w, ox, oy, oz, dx, dy, dz, range)
   end
   return hit, normal, kind
 end
-function B.cylinderShape(e, ox, oy, oz, dx, dy, dz, limit, radius, bottom, top)
+function B.cylinderShape(e, ox, oy, oz, dx, dy, dz, limit, radius, bottom, top, projectileRadius)
+  if projectileRadius and projectileRadius > 0 then
+    local t = CylinderCast.sweep(
+      ox - e.x,
+      oz - e.z,
+      dx * limit,
+      dz * limit,
+      bottom - oy,
+      -dy * limit,
+      top - oy,
+      -dy * limit,
+      radius,
+      projectileRadius
+    )
+    return t and t * limit
+  end
   local ex, ez = ox - e.x, oz - e.z
   local a = dx * dx + dz * dz
   local lo, hi = 0, limit
@@ -270,17 +286,40 @@ function B.body(g, e, ox, oy, oz, dx, dy, dz, limit, volumes, surface, radius)
   local contact
   volumes = volumes or Geometry.volumes(g, e)
   for _, v in ipairs(volumes) do
-    local d =
-      B.cylinderShape(v, ox, oy, oz, dx, dy, dz, nearest or limit, v.radius, v.bottom, v.top)
+    local d = B.cylinderShape(
+      v,
+      ox,
+      oy,
+      oz,
+      dx,
+      dy,
+      dz,
+      nearest or limit,
+      v.radius,
+      v.bottom,
+      v.top,
+      radius
+    )
     if d and (not nearest or d < nearest) then
       nearest, part = d, v.zone
       local x, z = ox + dx * d - v.x, oz + dz * d - v.z
       local length = math.max(1e-8, sqrt(x * x + z * z))
+      local normal = { x / length, 0, z / length }
+      if radius and radius > 0 then
+        -- Closest point on the capped shape, including its rounded sweep rim.
+        local scale = 1 - math.min(1, v.radius / length)
+        local y = oy + dy * d
+        local nx, ny, nz = x * scale, y - math.max(v.bottom, math.min(v.top, y)), z * scale
+        local separation = sqrt(nx * nx + ny * ny + nz * nz)
+        if separation > 1e-8 then
+          normal = { nx / separation, ny / separation, nz / separation }
+        end
+      end
       contact = {
         shapeId = v.id,
         zone = v.zone,
         material = v.material,
-        normal = { x / length, 0, z / length },
+        normal = normal,
       }
     end
   end

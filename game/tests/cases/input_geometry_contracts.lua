@@ -160,6 +160,40 @@ function Tests.geometry(G, check)
       'the usual shot scratch reuses volume arrays and shapes',
       usual[1].volumes == usualVolumes and usual[1].volumes[1] == usualShape
     )
+    local fixed = {
+      {
+        id = 'test-body',
+        zone = 'torso',
+        material = 'flesh',
+        x = 16,
+        z = 20,
+        radius = 0.5,
+        bottom = 0,
+        top = 2,
+      },
+    }
+    local d, zone, receipt = B.body(g, e, 16.6, 2.15, 18, 0, 0, 1, 4, fixed, nil, 0.2)
+    local expected = 2 - math.sqrt((0.5 + math.sqrt(0.2 ^ 2 - 0.15 ^ 2)) ^ 2 - 0.6 ^ 2)
+    check(
+      'finite projectile reaches explicit volume at rounded rim',
+      d
+        and math.abs(d - expected) < 2e-7
+        and zone == 'torso'
+        and receipt.shapeId == 'test-body'
+        and receipt.normal[2] > 0.7
+    )
+    check(
+      'same zero-radius ray misses explicit volume',
+      not B.body(g, e, 16.6, 2.15, 18, 0, 0, 1, 4, fixed)
+    )
+    check(
+      'explicit volume rejects inflated square corner',
+      not B.body(g, e, 16.65, 2.15, 18, 0, 0, 1, 4, fixed, nil, 0.2)
+    )
+    check(
+      'finite volume sweep respects remaining range',
+      not B.body(g, e, 16.6, 2.15, 18, 0, 0, 1, 1, fixed, nil, 0.2)
+    )
   end, debug.traceback)
   A[id], profiles[id] = nil, nil
   assert(ok, reason)

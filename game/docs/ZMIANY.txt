@@ -16,6 +16,21 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Dopracowanie poligonu — punkt 1 (27 października 2026)
+- Wspólny ciągły kontakt sfery z cylindrem: projectile i melee nie trafiają
+  już w puste naroża bryły rycerza. Ruch, skok i zmiana crouch są rozliczane
+  w tym samym przedziale czasu. Punktowy hitscan i malowane maski bez zmian.
+- Opcjonalne bryły demonów uwzględniają promień pocisku oraz normalną
+  kontaktu obrzeża; nie podmieniono produkcyjnych modeli na bryły.
+- Pełny reset próby usuwa rany, stagger, impulsy, hit-stop i opóźniony
+  feedback. Uzupełnienie zasobów oraz granica fali zachowują własne reguły.
+- PlayerHit/KnightHit.info.contact niesie diagnostykę rzeczywistego źródła
+  kontaktu. To dane zdarzenia, bez dodatkowego hit-testu i bez nowego HUD-u.
+- Opcjonalny eksport benchmarku zachowuje wspólny numer klatki dla faz
+  renderowania i symulacji. Analiza nie uzasadniła jeszcze zmiany runtime
+  ani wyłączenia GC; odbiór wydajności v11 pozostaje osobnym otwartym punktem.
+- Etapy, zakres i odbiór: docs/PLAN-DOPRACOWANIA-POLIGONU.md w korzeniu repo.
+
 E0 — odniesienie sprzed refaktoru
 - Zamrożone rzuty stanu okresowe i przy zdarzeniach, przypisanie nagród,
   tabela póz i pięć checkpointów SIGIL09 z 0.33. Referencje nie były

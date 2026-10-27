@@ -2,6 +2,9 @@
 -- content and physics included. Core depends on nothing but core, so any
 -- module may use it without creating a dependency cycle.
 local M = {}
+-- Bounded interval refinement with double precision, independent of game
+-- balance. Solvers may stop earlier at their own spatial tolerance.
+M.bisectionIterations = 64
 local sqrt, min, max, pi = math.sqrt, math.min, math.max, math.pi
 function M.clamp(v, low, high)
   return max(low, min(high, v))

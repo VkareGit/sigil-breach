@@ -195,6 +195,7 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     wounded = events.wounded,
     source = ongoing and source or nil,
     owner = context and context.owner,
+    contact = context and context.contact,
   }
   if controlled then
     g:recordPlayerDamage(info)

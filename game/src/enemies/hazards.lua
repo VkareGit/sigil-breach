@@ -45,15 +45,21 @@ local function strike(g, h)
     local reach = h.radius + Bodies.extent(g, b)
     local ghost = Dodge.afterimage(g, b)
     if len(b.x - h.x, b.z - h.z) < reach and W.visible(g.world, h.x, h.z, b.x, b.z) then
-      g:damageBody(
-        b,
-        h.packet and h.packet.base or h.damage,
-        h.x,
-        h.z,
-        h.packet,
-        nil,
-        effectSource and { effectSource = effectSource }
-      )
+      g:damageBody(b, h.packet and h.packet.base or h.damage, h.x, h.z, h.packet, nil, {
+        effectSource = effectSource,
+        contact = {
+          kind = 'hazard',
+          id = h.id,
+          owner = h.owner,
+          target = b.id,
+          geometry = 'radial-column',
+          delivery = 'lightning',
+          sourcePoint = { x = h.x, z = h.z },
+          samplePoint = { x = b.x, z = b.z },
+          radius = h.radius,
+          bounds = { radius = reach, heightPolicy = 'unbounded' },
+        },
+      })
     elseif
       ghost
       and h.packet
@@ -69,7 +75,7 @@ end
 -- One pulse of a pool at time t of the step: every body of a hostile side
 -- standing in it (sampled where it moved to by then; poison does not leak
 -- through walls) takes the pulse and its condition.
-local function pulse(g, h, t, interval, previousPlayer)
+local function pulse(g, h, t, interval, previousPlayer, dt)
   local effectSource = h.packet and h.packet.effects and { side = h.side or 'demons', id = h.owner }
     or nil
   Bodies.each(g, function(b)
@@ -91,15 +97,23 @@ local function pulse(g, h, t, interval, previousPlayer)
       and math.abs(Ground.height(g.world, x, z, now.level) + jump - Ground.of(g.world, h)) < K.jumpClear
       and W.visible(g.world, h.x, h.z, x, z)
     then
-      g:damageBody(
-        b,
-        h.packet and h.packet.base or K.damage,
-        h.x,
-        h.z,
-        h.packet,
-        nil,
-        effectSource and { effectSource = effectSource }
-      )
+      g:damageBody(b, h.packet and h.packet.base or K.damage, h.x, h.z, h.packet, nil, {
+        effectSource = effectSource,
+        contact = {
+          kind = 'hazard',
+          id = h.id,
+          owner = h.owner,
+          target = b.id,
+          geometry = 'radial-feet',
+          delivery = 'pool',
+          sourcePoint = { x = h.x, y = Ground.of(g.world, h), z = h.z },
+          samplePoint = { x = x, y = Ground.height(g.world, x, z, now.level) + jump, z = z },
+          radius = h.radius,
+          bounds = { verticalClearance = K.jumpClear },
+          fraction = t,
+          time = t * dt,
+        },
+      })
       if h.condition then
         Rules.addCondition(b, h.condition, interval + K.linger)
       end
@@ -149,7 +163,7 @@ function Hazards.update(g, dt, previousPlayer)
         local interval = h.interval or K.pulse
         while h.pulse <= active + 1e-9 and h.pulse < h.life - 1e-9 do
           local t = math.max(0, math.min(1, (waiting + h.pulse) / dt))
-          pulse(g, h, t, interval, previousPlayer)
+          pulse(g, h, t, interval, previousPlayer, dt)
           h.pulse = h.pulse + interval
         end
         h.pulse = h.pulse - active

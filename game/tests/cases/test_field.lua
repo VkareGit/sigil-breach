@@ -2,6 +2,218 @@
 -- No testing flag is used to make sandbox writes disappear.
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
+-- Headless as well as part of the field suite: reset is a combat boundary,
+-- distinct from resupply, and must not depend on a rendered frame to settle.
+function Tests.resetTrial(G)
+  local Field = require('src.run.test_field')
+  local Rules = require('src.combat.rules')
+  local Effects = require('src.combat.effects')
+  local Capabilities = require('src.session.capabilities')
+  local Snapshot = require('src.session.snapshot')
+  local Journal = require('src.session.journal')
+  local Integrity = require('src.session.integrity')
+  local lines = {}
+  local check = Fixtures.checker(lines, 'test field reset ', '')
+  local near = Fixtures.within(1e-9, true)
+  local g = Field.new(G)
+  local p = g.player
+  g.testField.invincible = false
+  Field.close(g)
+  p.armor = 0
+  local source = g:spawn('imp', p.x + 2, p.z)
+  g:damagePlayer(
+    { base = 35, impact = Rules.playerBody().poise + 1 },
+    source.x,
+    source.z,
+    nil,
+    source
+  )
+  p.invuln = 0
+  g:damagePlayer({ base = 1, impact = 9 }, source.x, source.z, nil, source)
+  Effects.apply(g, p, {
+    {
+      id = 'field-reset-burn',
+      kind = 'periodic',
+      duration = 2,
+      interval = 0.01,
+      stacking = 'replace',
+      packet = { base = 1, damageType = 'fire' },
+    },
+  }, source)
+  check(
+    'a real blow leaves wounds, stagger, guard damage, momentum and world hit-stop',
+    Rules.has(p, 'wounded')
+      and Rules.has(p, 'staggered')
+      and p.poise == 9
+      and p.guardQuiet == 0
+      and (p.pushX or 0) ~= 0
+      and Capabilities.held(g)
+      and p.effectState
+  )
+  local conditions, effects, push = p.conditions, p.effectState, p.pushX
+  Field.refill(g)
+  check(
+    'resupply preserves an ongoing fight and is not a full trial reset',
+    p.hp == Rules.playerBody().hp
+      and p.conditions == conditions
+      and p.effectState == effects
+      and p.poise == 9
+      and p.guardQuiet == 0
+      and p.pushX == push
+      and Capabilities.held(g)
+      and #g.enemies == 1
+  )
+  p.slamLock, p.pushOwner = 0.4, source.id
+  p.airCap, p.level = 14, 3
+  p.dashX, p.dashZ, p.perfectUsed, p.dodgeFromX, p.dodgeFromZ = 1, 0, true, p.x - 1, p.z
+  p.slideX, p.slideZ = 0, -1
+  p.faction, p.resist = 'knight', { fire = 0.2 }
+  g.frame = { supportLift = 2, supportLifts = { [p.id] = 2 } }
+  g.lastSlam = { x = p.x, z = p.z, speed = 12, player = true }
+  g.collisions, g.slams = 4, 2
+  g.cancelledAttacks, g.evadeCount, g.retargets, g.attackStarts, g.leapStarts = 1, 2, 3, 4, 5
+  g.testField.tier, g.testField.hitboxes = 3, true
+  g.view.motion = false
+  g.view.damageNumbers, g.view.numberSerial = { { value = 35, age = 0 } }, 7
+  g.view.staggerFlash, g.view.killPunch, g.view.breakKill, g.view.perfectDodge = 0.2, 0.3, 0.4, 0.5
+  g.view.markClocks = { slide = 0.1 }
+  g:look(0.1, 0)
+  local id, loadout, arsenal = p.id, p.loadout, p.arsenal
+  local abilities, abilityState, resist = p.abilities, p.abilityState, p.resist
+  local clock, nextId, rng = g.time, g.nextId, g.rng
+  local generation = g._observationGeneration
+  local stalePresentation = 0
+  g.bus:on('present', 'PlayerStaggered', function()
+    stalePresentation = stalePresentation + 1
+  end)
+  g.bus:beginStep()
+  g.bus:emit('PlayerStaggered', { time = 0.2, actor = p.id })
+  local initial = Snapshot.capture(g)
+  local stage = Field.new(G)
+  Snapshot.restore(stage, initial)
+  require('src.session.encounter').clearStage(stage)
+  check(
+    "clearing a wave still preserves the knight's conditions, guard and ongoing exposure",
+    Rules.has(stage.player, 'wounded')
+      and Rules.has(stage.player, 'staggered')
+      and stage.player.poise == 9
+      and stage.player.effectState
+      and Capabilities.held(stage)
+  )
+  local recording = Journal.record(g)
+  assert(g:act('catalog', 'field_reset'))
+  Journal.stop(g)
+  check(
+    'reset cancels wounds, stagger, periodic exposure, guard damage and every shove',
+    p.conditions == nil
+      and p.effectState == nil
+      and (p.poise or 0) == 0
+      and p.guardQuiet == nil
+      and (p.pushX or 0) == 0
+      and (p.pushZ or 0) == 0
+      and p.pushOwner == nil
+      and (p.slamLock or 0) == 0
+      and not Capabilities.held(g)
+  )
+  check(
+    'reset forgets the previous floor, air cap, dodge and slide direction latches',
+    p.level == nil
+      and p.airCap == nil
+      and p.dashX == nil
+      and p.dashZ == nil
+      and p.perfectUsed == nil
+      and p.dodgeFromX == nil
+      and p.dodgeFromZ == nil
+      and p.slideX == nil
+      and p.slideZ == nil
+  )
+  check(
+    'reset discards old support snapshots, contact receipts and encounter counters',
+    g.frame == nil
+      and g.lastSlam == nil
+      and (g.intensity or 0) == 0
+      and (g.collisions or 0) == 0
+      and (g.slams or 0) == 0
+      and (g.cancelledAttacks or 0) == 0
+      and (g.evadeCount or 0) == 0
+      and (g.retargets or 0) == 0
+      and (g.attackStarts or 0) == 0
+      and (g.leapStarts or 0) == 0
+  )
+  g.bus:flush()
+  check(
+    'no old damage numbers, flashes or queued hit presentation escape into the next trial',
+    stalePresentation == 0
+      and not g.view.damageNumbers
+      and not g.view.numberSerial
+      and not g.view.markClocks
+      and (g.view.staggerFlash or 0) == 0
+      and (g.view.killPunch or 0) == 0
+      and (g.view.breakKill or 0) == 0
+      and (g.view.perfectDodge or 0) == 0
+  )
+  check(
+    'reset preserves actor identity, equipment, configuration and lifetime identities',
+    g.player == p
+      and p.id == id
+      and p.loadout == loadout
+      and p.arsenal == arsenal
+      and p.abilities == abilities
+      and p.abilityState == abilityState
+      and p.resist == resist
+      and p.faction == 'knight'
+      and g.time == clock
+      and g.nextId == nextId
+      and g.rng == rng
+      and g._observationGeneration > generation
+      and g.testField.tier == 3
+      and g.testField.hitboxes
+      and not g.testField.invincible
+      and not g.view.motion
+  )
+  local replay = Field.new(G)
+  Snapshot.restore(replay, initial)
+  Journal.replay(replay, Journal.decode(Journal.encode(recording)))
+  local difference = Integrity.difference(recording.final, Integrity.capture(replay))
+  check(
+    'a reset command replays exactly from a wounded mid-fight snapshot: ' .. (difference or 'equal'),
+    difference == nil
+  )
+  Field.close(g)
+  local clean = Field.new(G)
+  clean.testField.invincible = false
+  clean.player.resist = { fire = 0.2 }
+  Field.close(clean)
+  -- Cross multiple old pulse intervals and accelerate beyond the wounded
+  -- speed cap; one short step at rest could hide both residual effects.
+  for _ = 1, 12 do
+    g:update(1 / 120, { forward = 1 })
+    clean:update(1 / 120, { forward = 1 })
+  end
+  check(
+    'resumed movement matches a fresh trial across old pulse intervals without damage or world hold',
+    near(p.x, clean.player.x)
+      and near(p.z, clean.player.z)
+      and near(p.vx, clean.player.vx)
+      and near(p.vz, clean.player.vz)
+      and p.hp == clean.player.hp
+      and Rules.speedScale(p) == 1
+      and Rules.recoveryScale(p) == 1
+      and Capabilities.missilesFly(g)
+  )
+  g:damagePlayer({ base = 1, impact = 9 }, p.x + 2, p.z)
+  clean:damagePlayer({ base = 1, impact = 9 }, clean.player.x + 2, clean.player.z)
+  check(
+    'the next blow starts from clean guard and has the same result as a fresh trial',
+    p.poise == clean.player.poise
+      and p.hp == clean.player.hp
+      and p.armor == clean.player.armor
+      and near(p.pushX, clean.player.pushX)
+      and near(p.pushZ, clean.player.pushZ)
+      and not Rules.has(p, 'staggered')
+  )
+  return lines
+end
 function Tests.run(G, renderer)
   local Field = require('src.run.test_field')
   local Run = require('src.run.descent')
@@ -24,6 +236,9 @@ function Tests.run(G, renderer)
     return false
   end
   local ok, problem = xpcall(function()
+    for _, line in ipairs(Tests.resetTrial(G)) do
+      lines[#lines + 1] = line
+    end
     local expedition = G.new('descent')
     expedition.testing = true
     expedition:start()

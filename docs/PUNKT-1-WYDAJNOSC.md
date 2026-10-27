@@ -1,0 +1,104 @@
+# Punkt 1 — diagnoza czasu klatki z 20 demonami
+
+Stan: 27 października 2026. Wdrożono instrumentację QA, wykonano porównanie trzech wersji i kontrolowaną próbę wpływu GC. Nie zmieniono renderowania, HUD, zasobów ani ustawień odśmiecania w grze. **Wcześniejszy formalny wynik +13,2% względem E0 pozostaje otwarty. Ten raport nie uznaje go za naprawiony.**
+
+## Co było wiadomo przed tą pracą
+
+Zachowany pełny pomiar `work/v11-close-final/perf/` obejmował pięć naprzemiennych par E0 i źródeł po domknięciu v11, przed ich commitem. `run.json` zawiera commit rodzica oraz skróty faktycznie zmierzonych źródeł — sam `AfterCommit` nie oznacza czystego drzewa tego commita. Stabilność źródeł w tamtym przebiegu jest potwierdzona.
+
+W scenie `prepared_population_20_live` mediana median wyniosła 6,1360 → 6,9475 ms, czyli +13,2%. Ten wynik porównuje **cały v11 z E0**, nie koszt ostatniej poprawki. W tamtych pięciu przebiegach:
+
+| Faza | E0: mediana median [ms] | Źródła po domknięciu [ms] |
+|---|---:|---:|
+| update | 0,8144 | 0,9748 |
+| world, łącznie z interpolacją | 1,3074 | 1,6435 |
+| UI, łącznie z obserwacją strzału | 1,0501 | 1,3046 |
+| readback | 2,8235 | 2,8609 |
+
+Wzrost median jest widoczny przede wszystkim przed synchronizującym odczytem obrazu. Nie przesądza to, ile przypada na Lua, sterownik czy GC. Niezależnie posortowane listy faz nie pozwalają ustalić, co wydarzyło się w **tej samej** wolnej klatce. Nie wolno również dodawać median osobnych faz, aby odtworzyć medianę całkowitą.
+
+## Wdrożona instrumentacja
+
+- `game/qa/benchmark.lua`: `SIGIL_BENCH_RAW=1` zapisuje chronologiczne CSV **przed** sortowaniem do percentyli. Istniejące pomiary i workload domyślny zostają zachowane.
+- `SIGIL_BENCH_PHASE_DETAIL=1`: dodatkowe znaczniki wydzielają `Presentation.sample`, sam HUD, `Input:present` i końcowy flush z dotychczasowych faz world/UI. Sama obecność dodatkowych zegarów oznacza, że jest to instrumentowany przebieg diagnostyczny.
+- `SIGIL_BENCH_HEAP=1`: zapisuje wielkość sterty Lua przed/po klatce. Odczyty sterty i zapis wyników są poza mierzonym przedziałem. Spadek sterty oznacza odzyskanie pamięci; jego brak nie dowodzi, że GC nic nie zrobił.
+- `game/qa/frame_samples.lua`: wspólny zapis `frames-<scena>.csv`, kontrola zgodności długości i skończonych wartości. Zapis nie sortuje ani nie zmienia tablic pomiarów.
+- `game/tests/cases/qa_tools.lua`: regresja sprawdza dwa wiersze o przeciwnie uporządkowanych kosztach update/readback, zachowanie kolejności i odrzucanie niepełnej serii. Suity `qa-tools`: **30 sprawdzeń PASS**.
+
+Podstawowe kolumny to `frame, update_ms, world_ms, ui_ms, submit_ms, readback_ms, total_ms`. Dodatkowe: `sample_ms, hud_ms, observation_ms, flush_ms, heapBefore_KiB, heapAfter_KiB`. `sample_ms` należy do `world_ms`; trzy kolejne podfazy należą do `ui_ms`. Nie należy dodawać ich drugi raz do total.
+
+W normalnej grze nie działają te sondy. Przy wyłączonych zmiennych benchmark nie wykonuje dodatkowych zegarów ani odczytów sterty i nie tworzy CSV.
+
+## Porównanie E0 / przed domknięciem / po domknięciu
+
+Izolowane kopie w `work/punkt-1-perf/`:
+
+| Nazwa | Commit | Znaczenie |
+|---|---|---|
+| e0 | `710d1ac` | Początek pomiarów v11 |
+| pre | `6ffb306` | Czysty stan przed ostatnim domknięciem audytu |
+| current | `386b82a` | Stan rozpoczynający bieżący punkt 1 |
+
+Wszystkie trzy dostały identyczny plik diagnostycznego benchmarku i serializator CSV. Zasoby między tymi commitami nie różnią się; kopie czytają wspólny katalog zasobów. Skróty każdego mierzonego pliku `src/` i `qa/` są w `focused/run.json`; ponowna kontrola w `focused/source-after.json` wykazała **Stable=true**.
+
+Protokół diagnostyczny: pięć świeżych procesów na wersję, kolejność rotowana między trzema wersjami; High priority, bez zmiany affinity; 1280×720, scena wysokości 450, Intel Arc iGPU, OpenGL, VSync 0; 20 demonów z rzeczywistej fabryki na `qa_crowd`; 300 klatek rozgrzewki i 720 pełnych klatek pomiaru. Audio aktualizuje się przy wyciszonym wyjściu. W czasie pomiarów pozostali agenci nie uruchamiali gry/testów.
+
+**Różnica wobec formalnego `MEASURE.ps1`:** pominięto wcześniejsze workloady legacy, frozen i lifecycle. Przygotowana scena i pojedyncza klatka są takie same, ale historia rozgrzewki, JIT, alokacji i sterownika jest inna. To ukierunkowana diagnoza, nie ponowne przejście formalnego kryterium. Testy bieżących poprawek kontaktu/resetu nie są częścią tych trzech historycznych kopii.
+
+| Wersja | Mediana median total [ms] | IQR median [ms] | Najwyższe p95 w przebiegu [ms] | Najwyższe p99 [ms] | Najgorsza klatka [ms] |
+|---|---:|---:|---:|---:|---:|
+| E0 | 6,5556 | 0,7302 | 13,1212 | 16,4801 | 26,2261 |
+| przed domknięciem | 7,4546 | 0,6955 | 15,9184 | 18,8682 | 29,3891 |
+| po domknięciu | 6,8575 | 1,0857 | 14,9123 | 19,2081 | 25,4472 |
+
+Current/E0 to około +4,6%, lecz duży rozrzut nie daje podstaw do ogłoszenia wygranej ani przypisania poprawy konkretnej zmianie. Wynik ukierunkowany nie unieważnia poprzedniego formalnego +13,2%. Percentyle tej tabeli policzono interpolacją liniową w skrypcie analizy; oryginalny log benchmarku zachowuje dotychczasowy wybór próbki przez `ceil(n*p)`, dlatego ostatnie cyfry mogą się różnić.
+
+Rozbicie bieżącej wersji, mediana median:
+
+| Faza | ms |
+|---|---:|
+| update — dwa kroki symulacji i capture w klatce 1/60 s | 0,9631 |
+| world razem | 1,5476 |
+| w tym `Presentation.sample` | 0,0326 |
+| UI razem | 1,3746 |
+| w tym sam HUD | 1,0970 |
+| w tym `Input:present` / obserwacja strzału | 0,2146 |
+| w tym końcowy flush | 0,0054 |
+| synchronizujący readback | 2,8648 |
+
+To nie uzasadnia dużego refaktoru interpolacji: jej próbka kosztuje zwykle setne części milisekundy. Nie oznacza to, że `Presentation.capture` w update jest darmowe; nie było osobnym miernikiem w tej próbie. HUD jest istotnym kosztem, ale badanie samego czasu fazy nie identyfikuje jeszcze kosztownej funkcji i nie upoważnia do zmiany wyglądu.
+
+Przykład prawdziwie sparowanych danych: `current-4`, klatka 500, total **25,4472 ms** = update 8,3430 + world 6,3542 + UI 6,0709 + readback 4,6791 ms. W tej klatce sterta spadła o około 985 KiB. Natomiast `current-1`, klatka 220, trwała **25,0390 ms**, a sterta wzrosła o około 472 KiB. Same spadki sterty nie wyjaśniają wszystkich skoków. W E0 wystąpiła też klatka z samym readback 22,8166 ms — nie można każdego skoku przypisać nowemu kodowi Lua.
+
+## Kontrolowany eksperyment z GC
+
+Trzy naprzemienne pary na **tym samym `386b82a`**, takie same ustawienia przygotowanej sceny. Oba warianty wykonują pełne collect po 300 klatkach rozgrzewki, przed pomiarem. Jeden zachowuje działający GC, drugi zatrzymuje go wyłącznie na 720 zmierzonych klatek i następnie przywraca. Zmiana znajduje się tylko w kopiach `work/punkt-1-perf/gc-on` i `gc-off`; nie trafiła do gry.
+
+| Wariant | Mediana median total [ms] | IQR [ms] | Najwyższe p95 [ms] | Najwyższe p99 [ms] | Najgorsza klatka [ms] | Maksymalna sterta Lua |
+|---|---:|---:|---:|---:|---:|---:|
+| GC włączony | 6,8619 | 0,4082 | 14,7776 | 18,3696 | 25,3693 | ok. 21,4 MiB |
+| GC zatrzymany na pomiar | 6,3370 | 0,1115 | 12,5027 | 14,8917 | 18,1537 | ok. 177,1 MiB |
+
+Wszystkie trzy mediany GC-off są niższe od odpowiadających im GC-on; mediana median spadła około **7,6%**. To dowód udziału odśmiecania/alokacji w koszcie tego workloadu. **Nie dowodzi, że GC spowodował regresję między E0 i v11, ani że odpowiada za każdy skok.** Nie ma osobnego równoważnego porównania E0 z/bez GC. Nadal występują klatki ponad 16,7 ms, a koszt pamięci bez GC narasta bardzo szybko; zatrzymywanie GC nie jest rozwiązaniem do wdrożenia.
+
+Próba dodatkowego statystycznego profilu LuaJIT nie dała kompletnego pełnego raportu i została przerwana. Krótki smoke narzędzia przeszedł, ale jego kilka klatek nie służy do wskazywania hotspotów. Nie użyto tych danych jako dowodu. Sposób działania i ograniczenia próbkowania opisuje [dokumentacja profilera LuaJIT](https://luajit.org/ext_profiler.html).
+
+## Decyzja i następny krok
+
+1. Zostawić nową instrumentację i testy; nie zmieniać kryteriów akceptacji.
+2. Nie wdrażać na podstawie tych danych poolingu snapshotów, wyłączania GC ani zmiany jakości renderowania. Snapshot strzału ma kontrakt niezmienności; oszczędność alokacji nie może wprowadzić ponownie błędu zgodności trafienia z obrazem.
+3. Następna optymalizacja wymaga wskazania konkretnej ścieżki alokacji lub kosztownej funkcji w update/HUD/obserwacji, krótkiej izolowanej zmiany i porównania przed/po. Obecne dane wskazują obszary, nie dowodzą winy konkretnej funkcji.
+4. Po takiej zmianie ponowić pełny `MEASURE.ps1` względem E0, kontrolę identyczności renderów i właściwe testy deterministyczne. Ten etap nie jest wykonany w ramach obecnej diagnozy; **nie deklarujemy zamknięcia regresji wydajności**.
+
+Pomiar kończy się na synchronizującym odczycie 1 piksela z końcowego canvas. `submit` może zawierać oczekiwanie sterownika, `readback` zawiera synchronizację/kopiowanie. Żaden nie jest czystym timestampem GPU. Nie jest to pomiar desktopowego present, opóźnienia wejścia ani gwarancja stałych 60 FPS w grze.
+
+## Artefakty i odtworzenie
+
+- Zachowany pełny protokół: `work/v11-close-final/perf/summary.txt`, `run.json`, `before/`, `after/`.
+- Przygotowanie izolowanych kopii: `work/punkt-1-perf/prepare.ps1`.
+- Ukierunkowana seria: `work/punkt-1-perf/run-focused.ps1`, `focused/run.json`, `focused/source-after.json`, `focused/*/frames-prepared_population_20_live.csv`.
+- Analiza: `work/punkt-1-perf/analyze.ps1`, `focused/analysis.txt`, `focused/per-run.csv`, `focused/worst-paired-frames.csv`.
+- Eksperyment GC: `prepare-experiments.ps1`, katalog `gc/` z analogicznymi metadanymi i wynikami, `gc/source-after.json`: **Stable=true**.
+- `work/` to nieśledzone artefakty lokalne. Trwałym kontraktem w repo są instrumentacja QA, test i niniejszy raport. Skrypty w `work/` mają ochronę przed nadpisaniem poprzednich wyników.
+
+Do zebrania pełnych surowych próbek bez zmiany standardowego workloadu należy ustawić trzy opisane zmienne `SIGIL_BENCH_*` i uruchomić dotychczasowy `--benchmark`. Po pomiarze trzeba je usunąć/przywrócić; nie służą do konfiguracji normalnej gry. Nie należy wykonywać pomiaru równolegle z innymi testami lub renderowaniem.

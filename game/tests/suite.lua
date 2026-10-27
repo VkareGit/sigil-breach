@@ -21,6 +21,16 @@ Suite.registry = {
     module = 'tests.cases.painted_surfaces',
   },
   {
+    id = 'cylinder-cast',
+    title = 'Finite projectile and melee body contacts',
+    module = 'tests.cases.cylinder_cast',
+  },
+  {
+    id = 'contact-receipts',
+    title = 'Event-only incoming contact provenance',
+    module = 'tests.cases.contact_receipts',
+  },
+  {
     id = 'attack-contact',
     title = 'Continuous rush and leap contact',
     module = 'tests.cases.attack_contact',

@@ -103,20 +103,41 @@ function X.explode(g, b)
   local thrower = b.owner and Bodies.actor(g, b.owner)
   for _, p in ipairs(Bodies.knights(g)) do
     if p == thrower or p.hp > 0 then
-      local visible, d =
-        clear(g, b, p.x, Ground.of(g.world, p) + chest + p.jump - (p.crouch or 0), p.z)
+      local sampleY = Ground.of(g.world, p) + chest + p.jump - (p.crouch or 0)
+      local visible, d = clear(g, b, p.x, sampleY, p.z)
       if visible and d < action.radius then
         local before = p.hp
         local own = action.selfBlast
         local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
         -- All knight charges retain the existing no-perfect-dodge policy.
         -- The effect source is separate, so it still names the actual caster.
-        g:damageBody(p, own.base * f, b.x, b.z, {
-          base = own.base * f,
-          impact = own.impact * f,
-          damageType = own.damageType,
-          effects = own.effects,
-        }, 'self', own.effects and { effectSource = Effects.origin(g, b.owner) })
+        g:damageBody(
+          p,
+          own.base * f,
+          b.x,
+          b.z,
+          {
+            base = own.base * f,
+            impact = own.impact * f,
+            damageType = own.damageType,
+            effects = own.effects,
+          },
+          'self',
+          {
+            effectSource = own.effects and Effects.origin(g, b.owner) or nil,
+            contact = {
+              kind = 'explosion',
+              id = b.id,
+              owner = b.owner,
+              target = p.id,
+              geometry = 'sphere-anchor',
+              sourcePoint = { x = b.x, y = b.y, z = b.z },
+              samplePoint = { x = p.x, y = sampleY, z = p.z },
+              radius = action.radius,
+              distance = d,
+            },
+          }
+        )
         if p == thrower then
           report.selfDamage = math.max(0, before - p.hp)
         end

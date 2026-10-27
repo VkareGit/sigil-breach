@@ -17,6 +17,11 @@ function B.run(output, smoke)
     return Tooling.count(smoke, full, short)
   end
   local lg = love.graphics
+  -- Opt-in instrumentation of the same complete-frame workload. The default
+  -- protocol has no additional timer/heap calls. All CSV work is outside timing.
+  local phaseDetail = os.getenv('SIGIL_BENCH_PHASE_DETAIL') == '1'
+  local heapDetail = os.getenv('SIGIL_BENCH_HEAP') == '1'
+  local rawFrames = phaseDetail or heapDetail or os.getenv('SIGIL_BENCH_RAW') == '1'
   love.window.setVSync(0)
   lg.setDefaultFilter('nearest', 'nearest')
   local clock = love.timer.getTime
@@ -26,6 +31,15 @@ function B.run(output, smoke)
   local function log(s)
     lines[#lines + 1] = s
     print(s)
+  end
+  if rawFrames then
+    log(
+      string.format(
+        'paired_frames=true phase_detail=%s heap_detail=%s; CSV exported before percentile sorting; optional probes and bookkeeping are outside phase totals except explicit phase clocks',
+        tostring(phaseDetail),
+        tostring(heapDetail)
+      )
+    )
   end
   local name, version, vendor, device = lg.getRendererInfo()
   log('SIGIL renderer benchmark / ' .. os.date('!%Y-%m-%dT%H:%M:%SZ'))
@@ -227,10 +241,13 @@ function B.run(output, smoke)
     local updated = clock()
     local game = app.game
     local shown = Presentation.sample(game, app.accumulator * 120)
+    local sampledAt = phaseDetail and clock()
     r:draw(shown, 1280, 720)
     local world = clock()
     UI.draw(shown, 1280, 720, app.settings)
+    local hudAt = phaseDetail and clock()
     app.input:present(game, shown)
+    local observedAt = phaseDetail and clock()
     lg.setCanvas() -- flush the full image before timing its readback separately
     local submitted = clock()
     local pixel = complete:newImageData(1, 1, 0, 0, 1, 1)
@@ -241,7 +258,11 @@ function B.run(output, smoke)
       (submitted - world) * 1000,
       (submitted - start) * 1000,
       (finished - submitted) * 1000,
-      (finished - start) * 1000
+      (finished - start) * 1000,
+      sampledAt and (sampledAt - updated) * 1000,
+      hudAt and (hudAt - world) * 1000,
+      observedAt and (observedAt - hudAt) * 1000,
+      observedAt and (submitted - observedAt) * 1000
   end
   local function captureComplete(filename)
     local pixels = complete:newImageData()
@@ -581,16 +602,37 @@ function B.run(output, smoke)
   -- SIGIL_BENCH_FRAMES: sampled frames of each prepared scene (default 240).
   local sampled = tonumber(os.getenv('SIGIL_BENCH_FRAMES') or '')
   local function measurements()
-    return { update = {}, world = {}, ui = {}, submit = {}, readback = {}, total = {} }
+    local samples = { update = {}, world = {}, ui = {}, submit = {}, readback = {}, total = {} }
+    if phaseDetail then
+      samples.sample, samples.hud, samples.observation, samples.flush = {}, {}, {}, {}
+    end
+    if heapDetail then
+      samples.heapBefore, samples.heapAfter = {}, {}
+    end
+    return samples
   end
   local function sample(samples, i, advance)
-    local update, world, ui, submit, readback, total = completeFrame(advance)
+    if heapDetail then
+      samples.heapBefore[i] = collectgarbage('count')
+    end
+    local update, world, ui, submit, readback, total, sampledAt, hud, observation, flush =
+      completeFrame(advance)
+    if heapDetail then
+      samples.heapAfter[i] = collectgarbage('count')
+    end
     samples.update[i], samples.world[i], samples.ui[i] = update, world, ui
     samples.submit[i], samples.readback[i], samples.total[i] = submit, readback, total
+    if phaseDetail then
+      samples.sample[i], samples.hud[i], samples.observation[i], samples.flush[i] =
+        sampledAt, hud, observation, flush
+    end
   end
   local function summarize(label, samples, prior)
     local count = #samples.total
     local stats = lg.getStats()
+    if rawFrames then
+      require('qa.frame_samples').write(output, label, samples)
+    end
     for _, key in ipairs({ 'update', 'world', 'ui', 'submit', 'readback', 'total' }) do
       local values = samples[key]
       log(

@@ -402,3 +402,17 @@ KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
     Wejście ciągłe zachowuj przez wszystkie podkroki, także w input.actors.
     Nowe jednorazowe pole dopisz do withoutEdges w session/simulation.lua
     i przetestuj dt większe niż 1/120 bez mutacji wejścia wywołującego.
+
+26. Stan przejściowy i reset próby poligonu
+    Nowy rodzaj stanu ma właściciela i czas życia: zasoby/wyposażenie,
+    próba walki albo cała sesja. Warunki w conditions i ekspozycje w
+    effectState już podlegają pełnemu resetowi niezależnie od ich ID.
+    Inny nowy transient dopisz jawnie do swojego resetu i wywołaj go na
+    granicy run/test_field.reset (pomocniczy run/field/reset.lua).
+    Nie odbudowuj aktora z prefabu i nie kasuj wszystkich nieznanych pól;
+    zniszczyłoby to przyszłe wyposażenie i trwałe rozszerzenia postaci.
+    Refill nie usuwa oszołomienia/poise/worldStop ani trwającej ekspozycji.
+    Granica fali nadal ma osobny kontrakt Encounter.clearStage.
+    Testuj reset po rzeczywistym trafieniu, pierwszy ruch i kolejne
+    trafienie po resecie, zachowanie wyposażenia oraz zapis/odtworzenie
+    polecenia resetu z snapshotu w trakcie walki (tests/cases/test_field).

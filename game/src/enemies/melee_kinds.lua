@@ -41,23 +41,22 @@ Kinds.lunge = {
     if e.didHit then
       return
     end
-    if
-      Melee.claw(
-        g,
-        e,
-        ctx.oldX,
-        ctx.oldZ,
-        previous or p,
-        ctx.before,
-        e.phase,
-        atk.lungeTime,
-        atk.active,
-        p,
-        atk,
-        t
-      )
-    then
-      hurt(g, e, atk, t)
+    local hit, _, contact = Melee.claw(
+      g,
+      e,
+      ctx.oldX,
+      ctx.oldZ,
+      previous or p,
+      ctx.before,
+      e.phase,
+      atk.lungeTime,
+      atk.active,
+      p,
+      atk,
+      t
+    )
+    if hit then
+      hurt(g, e, atk, t, contact)
       return
     end
     local ghost = Dodge.afterimage(g, t)
@@ -107,8 +106,11 @@ Kinds.charge = {
       - Ground.height(g.world)
     local y2 = atk.contactY + Ground.of(g.world, e) - Ground.height(g.world)
     if not e.didHit then
-      if Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, previous, current, y2, t) then
-        hurt(g, e, atk, t)
+      local hit, share, contact =
+        Melee.contact(g, x1, z1, x2, z2, y1, atk.contactRadius, previous, current, y2, t)
+      if hit then
+        contact.time, contact.fraction = share * step, share * step / dt
+        hurt(g, e, atk, t, contact)
       else
         local ghost = Dodge.afterimage(g, t)
         if
@@ -179,7 +181,21 @@ Kinds.leap = {
         and math.abs(Ground.of(g.world, p) + (p.jump or 0) - Ground.of(g.world, e)) < K.jumpClear
       then
         local packet = Rules.packet(e, atk.packet)
-        g:damageBody(t, packet.base, e.x, e.z, packet, e)
+        g:damageBody(t, packet.base, e.x, e.z, packet, e, {
+          contact = {
+            kind = 'melee',
+            id = atk.id,
+            owner = e.id,
+            target = t.id,
+            geometry = 'landing-radius',
+            sourcePoint = { x = e.x, y = Ground.of(g.world, e), z = e.z },
+            samplePoint = { x = p.x, y = Ground.of(g.world, p) + (p.jump or 0), z = p.z },
+            radius = atk.landRadius,
+            bounds = { radius = reachLand, verticalClearance = K.jumpClear },
+            time = used,
+            fraction = used and used / dt,
+          },
+        })
       elseif
         ghost
         and len(ghost.x - e.x, ghost.z - e.z) < reachLand

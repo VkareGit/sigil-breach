@@ -104,15 +104,17 @@ Effects.kinds:register('periodic', {
     if Bodies.isKnight(g, target) then
       -- Exposure already began; it is not a new dodgeable contact and does
       -- not grant or consume contact invulnerability.
-      g:damageBody(
-        target,
-        definition.packet,
-        nil,
-        nil,
-        nil,
-        'effect:' .. definition.id,
-        { ongoing = true, owner = instance.sourceId }
-      )
+      g:damageBody(target, definition.packet, nil, nil, nil, 'effect:' .. definition.id, {
+        ongoing = true,
+        owner = instance.sourceId,
+        contact = {
+          kind = 'periodic',
+          id = definition.id,
+          owner = instance.sourceId,
+          target = target.id,
+          geometry = 'ongoing-exposure',
+        },
+      })
     else
       local damage = Damage.resolve(definition.packet, target, 0)
       -- The effect's applier owns its damage (a knight: his chain).

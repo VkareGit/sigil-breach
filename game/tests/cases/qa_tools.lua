@@ -8,6 +8,30 @@ local Tests = {}
 function Tests.run(Game)
   local lines = {}
   local check = Fixtures.checker(lines, 'QA tools: ', 'QA tools: ')
+  local Samples = require('qa.frame_samples')
+  -- Opposite rankings: sorting a phase before export would silently pair the
+  -- long update of frame one with the long readback of frame two.
+  local paired = {
+    update = { 9, 1 },
+    world = { 2, 3 },
+    ui = { 1, 2 },
+    submit = { 12, 6 },
+    readback = { 1, 9 },
+    total = { 13, 15 },
+  }
+  local csv = Samples.csv(paired)
+  check(
+    'raw frame rows retain chronological cross-phase pairing',
+    csv:find('1,9.000000,2.000000,1.000000,12.000000,1.000000,13.000000', 1, true)
+      and csv:find('2,1.000000,3.000000,2.000000,6.000000,9.000000,15.000000', 1, true)
+      and paired.update[1] == 9
+      and paired.readback[1] == 1
+  )
+  paired.readback[2] = nil
+  check(
+    'incomplete phase series cannot be exported as paired frames',
+    not pcall(Samples.csv, paired)
+  )
   local advances = 0
   local steps = Tooling.advanceUntil('already ready', function()
     return true

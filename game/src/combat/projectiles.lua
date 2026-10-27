@@ -4,6 +4,8 @@ local MathX = require('src.core.mathx')
 local B = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local SphereCast = require('src.physics.sphere_cast')
+local CylinderCast = require('src.physics.cylinder_cast')
+local Receipt = require('src.combat.contact_receipt')
 local floorSurface = require('src.content.tuning').floorSurface
 local Dodge = require('src.combat.dodge')
 -- The knight's hit volume, the same as for melee (content/enemies.lua).
@@ -45,56 +47,24 @@ local function playerContact(player, previous, b, dx, dy, dz, fraction, world)
   local ox, oz = b.x - previous.x, b.z - previous.z
   -- The knight's radius plus the projectile's own radius (its painted size).
   local own = b.radius or (b.big and Defaults.attacks.bigBoltRadius or Defaults.attacks.boltRadius)
-  local radius = knight.radius + own
-  local a = rx * rx + rz * rz
-  local lo, hi = 0, 1
-  if a < 1e-12 then
-    if ox * ox + oz * oz > radius * radius then
-      return
-    end
-  else
-    local halfB = ox * rx + oz * rz
-    local c = ox * ox + oz * oz - radius * radius
-    local disc = halfB * halfB - a * c
-    if disc < 0 then
-      return
-    end
-    local root = math.sqrt(disc)
-    lo = math.max(lo, (-halfB - root) / a)
-    hi = math.min(hi, (-halfB + root) / a)
-  end
   -- The knight's feet in world height: the ground and his jump.
   local ground = Ground.of(world, previous)
   local jump = ground + (previous.jump or 0)
   local jumpDelta = (Ground.of(world, player) + (player.jump or 0) - jump) * fraction
   local crouch = previous.crouch or 0
   local crouchDelta = ((player.crouch or 0) - crouch) * fraction
-  -- Each inequality value + slope*t >= 0 narrows the same contact interval.
-  local lower = b.y + own - (jump + knight.feet)
-  local lowerSlope = dy - jumpDelta
-  if math.abs(lowerSlope) < 1e-12 then
-    if lower < 0 then
-      return
-    end
-  elseif lowerSlope > 0 then
-    lo = math.max(lo, -lower / lowerSlope)
-  else
-    hi = math.min(hi, -lower / lowerSlope)
-  end
-  local upper = jump + knight.height + own - crouch - b.y
-  local upperSlope = jumpDelta - crouchDelta - dy
-  if math.abs(upperSlope) < 1e-12 then
-    if upper < 0 then
-      return
-    end
-  elseif upperSlope > 0 then
-    lo = math.max(lo, -upper / upperSlope)
-  else
-    hi = math.min(hi, -upper / upperSlope)
-  end
-  if lo <= hi and hi >= 0 and lo <= 1 then
-    return math.max(0, lo)
-  end
+  return CylinderCast.sweep(
+    ox,
+    oz,
+    rx,
+    rz,
+    jump + knight.feet - b.y,
+    jumpDelta - dy,
+    jump + knight.height - crouch - b.y,
+    jumpDelta - crouchDelta - dy,
+    knight.radius,
+    own
+  )
 end
 -- A knight's missile meets the first body in its way along its path this tick
 -- (the bodies prepared once for the step, as a shot prepares them for its
@@ -246,7 +216,7 @@ function P.update(g, dt, previous)
       -- What the missile can meet (plan v10 V2): every knight and every
       -- creature its side harms (content/factions.lua). Default relations
       -- keep 0.32: a knight's missile meets the demons, a demon's the knight.
-      local hit, target, part, surface, struck
+      local hit, target, part, surface, struck, struckFrom
       local function before(t)
         return duration > 0 and t and t <= 1 and (not wall or t < worldT - 1e-6)
       end
@@ -272,6 +242,7 @@ function P.update(g, dt, previous)
           local share = playerContact(knight, from, b, dx, dy, dz, fraction, g.world)
           if before(share) and (not hit or share < hit) then
             hit, struck, target, part, surface = share, knight, nil, nil, nil
+            struckFrom = from
           end
           -- Through the afterimage of a dodge: a perfect dodge; it flies on.
           local ghost = not share and b.packet and Dodge.afterimage(g, knight)
@@ -317,6 +288,30 @@ function P.update(g, dt, previous)
         event.enemy, event.part = playerFirst and target or nil, part
         event.knight = playerFirst and struck or nil
         event.surface = surface
+        event.contact = nil
+        if playerFirst and struck then
+          local share = fraction * t
+          local from = struckFrom
+          local feetFrom = Ground.of(g.world, from) + (from.jump or 0)
+          local feetTo = Ground.of(g.world, struck) + (struck.jump or 0)
+          local feet = feetFrom + (feetTo - feetFrom) * share
+          local crouch = (from.crouch or 0) + ((struck.crouch or 0) - (from.crouch or 0)) * share
+          local contact = Receipt.sphere(
+            b.x,
+            b.y,
+            b.z,
+            own,
+            from.x + (struck.x - from.x) * share,
+            from.z + (struck.z - from.z) * share,
+            feet + knight.feet,
+            feet + knight.height - crouch,
+            knight.radius
+          )
+          contact.kind, contact.id, contact.owner, contact.target =
+            'projectile', b.id, b.owner, struck.id
+          contact.time, contact.fraction = duration * t, share
+          event.contact = contact
+        end
       end
     end
   end
@@ -336,7 +331,11 @@ function P.update(g, dt, previous)
         b.z - b.vz,
         b.packet,
         nil,
-        b.packet and b.packet.effects and { effectSource = { side = sideOf(b), id = b.owner } }
+        {
+          effectSource = b.packet and b.packet.effects and { side = sideOf(b), id = b.owner }
+            or nil,
+          contact = event.contact,
+        }
       )
     end
     Signal(g, 'ProjectileBurst', { bullet = b })

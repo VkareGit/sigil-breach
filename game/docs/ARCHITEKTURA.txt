@@ -238,6 +238,15 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   stawianie celów i wezwania (run/field/placement.lua), odwiedziny pieczęci
   i sklepu (visits.lua), stanowiska i próba fal (trials.lua); liczby
   poligonu w content/field.lua.
+  Pełny reset próby korzysta też z run/field/reset.lua: dla sterowanego
+  rycerza usuwa warunki (w tym oszołomienie), poise i impulsy; kończy
+  ekspozycje oraz worldStop, usuwa stare
+  podparcie, zapadki ruchu i diagnostykę walki. Zrzuca oczekujące efekty
+  prezentacji, zachowuje tożsamość aktora, wyposażenie i ustawienia poligonu.
+  Reset.actor przyjmuje jawnie rycerza; Reset.session ma zakres sesji.
+  Refill uzupełnia zasoby; clearStage kończy falę. Żaden nie staje się
+  pełnym resetem próby. ID, RNG i czas sesji nie są przewijane; obserwacje
+  zostają unieważnione, a czas próby i pomiary zaczynają od nowa.
   world_mesh posiada zasób GPU poza serializowanym rekordem świata.
   app/load_plan obsługuje także start: audio, bitmapy UI, renderer i broń
   mają punkty oddania sterowania między zasobami. Pojedynczy upload obrazu

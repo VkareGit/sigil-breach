@@ -34,9 +34,12 @@ function Contact.knightAt(g, t, current, given, step, dt)
   end
   return step < dt and Melee.playerAt(given or k, k, step / dt, nil, g.world) or k
 end
-function Contact.hurt(g, e, atk, t)
+function Contact.hurt(g, e, atk, t, contact)
   local packet = Rules.packet(e, atk.packet)
-  g:damageBody(t, packet.base, e.x, e.z, packet, e)
+  if contact then
+    contact.kind, contact.id, contact.owner, contact.target = 'melee', atk.id, e.id, t.id
+  end
+  g:damageBody(t, packet.base, e.x, e.z, packet, e, contact and { contact = contact })
   e.didHit = true
 end
 -- A blow that missed the dodging knight but met his afterimage (where the

@@ -3,6 +3,8 @@ local MathX = require('src.core.mathx')
 local B = require('src.combat.ballistics')
 local W = require('src.world.arena')
 local Ground = require('src.physics.ground')
+local CylinderCast = require('src.physics.cylinder_cast')
+local Receipt = require('src.combat.contact_receipt')
 local Anchor = require('src.enemies.contact_anchor')
 local Bodies = require('src.combat.bodies')
 -- The knight's hit volume: radius, height and floor clearance (body data).
@@ -29,26 +31,6 @@ local function playerAt(previous, current, t, out, world)
   return out
 end
 M.playerAt = playerAt
--- Restrict [lo, hi] to a + b*t >= 0. Preserve a crouching/jumping
--- body's moving upper and lower planes instead of its largest pose.
-local function clip(lo, hi, a, b)
-  if math.abs(b) < 1e-10 then
-    if a < 0 then
-      return nil
-    end
-    return lo, hi
-  end
-  local t = -a / b
-  if b > 0 then
-    lo = math.max(lo, t)
-  else
-    hi = math.min(hi, t)
-  end
-  if lo > hi then
-    return nil
-  end
-  return lo, hi
-end
 -- body (optional): the body whose volume is met (plan v10 V2; default the
 -- knight's dimensions); previous/current: its swept points (x, z, jump,
 -- crouch) at the start and end of the interval.
@@ -63,39 +45,20 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
   local dy = (endY or y) - y
   local rx, rz = dx - (p.x - previous.x), dz - (p.z - previous.z)
   local ex, ez = x1 - previous.x, z1 - previous.z
-  local a = rx * rx + rz * rz
-  local r = bodyRadius + radius
-  local c = ex * ex + ez * ez - r * r
-  local lo, hi = 0, 1
-  if a < 1e-12 then
-    if c > 0 then
-      return false
-    end
-  else
-    local b = ex * rx + ez * rz
-    local disc = b * b - a * c
-    if disc < 0 then
-      return false
-    end
-    local root = math.sqrt(disc)
-    lo = math.max(0, (-b - root) / a)
-    hi = math.min(1, (-b + root) / a)
-    if lo > hi then
-      return false
-    end
-  end
   local datum = Ground.height(g.world)
   local jump = Ground.of(g.world, previous) - datum + (previous.jump or 0)
   local jumpDelta = Ground.of(g.world, p) - datum + (p.jump or 0) - jump
-  lo, hi = clip(lo, hi, y - jump - feet + radius, dy - jumpDelta)
-  if not lo then
-    return false
-  end
-  lo, hi = clip(
-    lo,
-    hi,
-    jump + height - (previous.crouch or 0) + radius - y,
-    jumpDelta - ((p.crouch or 0) - (previous.crouch or 0)) - dy
+  local lo = CylinderCast.sweep(
+    ex,
+    ez,
+    rx,
+    rz,
+    jump + feet - y,
+    jumpDelta - dy,
+    jump + height - (previous.crouch or 0) - y,
+    jumpDelta - ((p.crouch or 0) - (previous.crouch or 0)) - dy,
+    bodyRadius,
+    radius
   )
   if not lo then
     return false
@@ -123,7 +86,19 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
   then
     return false
   end
-  return true, lo
+  local contact = Receipt.sphere(
+    lerp(x1, x2, lo),
+    datum + lerp(y, endY or y, lo),
+    lerp(z1, z2, lo),
+    radius,
+    px,
+    pz,
+    datum + jump + jumpDelta * lo + feet,
+    datum + jump + jumpDelta * lo + height - lerp(previous.crouch or 0, p.crouch or 0, lo),
+    bodyRadius
+  )
+  contact.fraction = lo
+  return true, lo, contact
 end
 -- The active window of a strike's contact: the attack's own, or the claw's.
 function M.window(action)
@@ -204,7 +179,7 @@ function M.claw(
     local x1, y1, z1, dx1, dz1 = point(t1)
     local x2, y2, z2, dx2, dz2 = point(t2)
     for _, reach in ipairs(M.depths(action)) do
-      local hit, t = M.contact(
+      local hit, t, contact = M.contact(
         g,
         x1 + dx1 * reach,
         z1 + dz1 * reach,
@@ -218,7 +193,10 @@ function M.claw(
         body
       )
       if hit then
-        return true, (t1 - before + (t2 - t1) * t) / duration
+        local fraction = (t1 - before + (t2 - t1) * t) / duration
+        contact.fraction = fraction
+        contact.time = fraction * duration
+        return true, fraction, contact
       end
     end
   end

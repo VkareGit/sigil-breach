@@ -11,6 +11,7 @@ local Archetypes = require('src.content.enemies')
 local Actions = require('src.run.field.actions')
 local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
+local TrialReset = require('src.run.field.reset')
 local Visits = require('src.run.field.visits')
 local Telemetry = require('src.combat.telemetry')
 local Observation = require('src.combat.observation')
@@ -81,6 +82,8 @@ function F.reset(g)
     return false
   end
   Encounter.clearWorld(g)
+  TrialReset.actor(Roles.controlled(g))
+  TrialReset.session(g)
   -- A reset ends every observation of the field before it (plan v11 E4).
   Observation.invalidate(g)
   -- A fresh field measures anew (skirmish, stations, real-play reports).
@@ -90,7 +93,6 @@ function F.reset(g)
   g.view.motion = motion
   Roles.controlled(g).x, Roles.controlled(g).z, Roles.controlled(g).yaw, Roles.controlled(g).pitch =
     K.start.x, K.start.z, math.pi, 0
-  Roles.controlled(g).jump, Roles.controlled(g).jumpV, Roles.controlled(g).dashTimer = 0, 0, 0
   g.run = {
     phase = 'wave',
     wave = 1,
