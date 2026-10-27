@@ -11,12 +11,13 @@ local Delivery = Registry:new('weapon deliveries', function(entry, id)
 end)
 Delivery:register('projectile', {
   fire = function(g, shot)
-    local def, p = shot.profile.delivery, Roles.controlled(g)
+    local def, p = shot.profile.delivery, shot.shooter or Roles.controlled(g)
     local spread = shot.spread
     for i = 1, shot.count do
       local ox, oy = 0, 0
       if shot.profile.fire.pellets > 1 then
-        ox, oy = B.pellet(i, shot.serial, shot.count)
+        -- The shooter's own sequence chooses the pattern (plan v11 E3).
+        ox, oy = B.pellet(i, shot.sequence or shot.serial, shot.count)
         ox, oy = ox * spread, oy * spread
       end
       local dx, dy, dz = B.spreadDirection(shot.yaw or p.yaw, shot.pitch or p.pitch, ox, oy)
@@ -34,6 +35,7 @@ Delivery:register('projectile', {
         color = def.color,
         big = def.big,
         side = 'knight',
+        owner = p.id,
         packet = shot.attack,
         shot = shot,
         travelled = 0,

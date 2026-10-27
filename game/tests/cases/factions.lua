@@ -157,12 +157,13 @@ function Tests.run(Game)
     second.perfectUsed == true and not g.player.perfectUsed and second.hp == 100
   )
 
-  -- Poses are seen from a viewer: a second camera turns the billboard to it.
+  -- Poses are seen from an explicit observer (plan v11 E4): the billboard
+  -- turns to it; a camera's viewer on the session is never asked.
   second.x, second.z = 19, 15
   local view = setmetatable({ viewer = second }, { __index = g })
-  local own, seen = Pose.sample(g, demon), Pose.sample(view, demon)
+  local own, seen = Pose.sample(view, demon), Pose.sample(g, demon, nil, second)
   check(
-    'a second viewer sees the pose turned to itself',
+    'an explicit observer sees the pose turned to itself; the camera is not asked',
     math.abs(seen.yaw - math.atan2(second.x - demon.x, second.z - demon.z)) < 1e-9
       and math.abs(own.yaw - math.atan2(g.player.x - demon.x, g.player.z - demon.z)) < 1e-9
       and math.abs(seen.yaw - own.yaw) > 1e-3

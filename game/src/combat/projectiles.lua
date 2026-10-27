@@ -102,6 +102,25 @@ end
 -- Returns the share of the path, the body and the part struck.
 -- side: the missile's; only creatures of a side it harms are met (a falling
 -- body of such a side still shields what is behind it).
+-- Whose eyes a missile's targets are seen from (plan v11 E4): its owner while
+-- he stands and is present; a fallen or departed owner leaves the point it was
+-- fired from. (A compromise named in the plan: a painted body turns to that
+-- point; two observers would see two silhouettes.)
+function P.observer(g, b)
+  local owner = b.shot and b.shot.shooter
+  if not owner and b.owner ~= nil then
+    owner = Pools.get(g, b.owner)
+  end
+  local present = owner
+    and (owner == Roles.controlled(g) or (owner.id ~= nil and Pools.get(g, owner.id) == owner))
+  if present and (owner.hp or 1) > 0 then
+    return owner
+  end
+  local from = b.shot and b.shot.origin or b.from
+  if from then
+    return { x = from[1], z = from[3] }
+  end
+end
 local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local length = math.sqrt(dx * dx + dy * dy + dz * dz)
   if length <= 1e-8 then
@@ -176,7 +195,8 @@ function P.update(g, dt, previous)
   g._projectileEvents = events
   local eventCount = 0
   -- The bodies a knight's missile can meet this step, prepared on first need.
-  local bodies
+  -- Prepared bodies by observer (one table per observer of the step).
+  local bodies = {}
   for i = #bullets, 1, -1 do
     local b = bullets[i]
     if
@@ -231,9 +251,17 @@ function P.update(g, dt, previous)
         return duration > 0 and t and t <= 1 and (not wall or t < worldT - 1e-6)
       end
       if harmsCreatures(g, sideOf(b)) then
-        bodies = bodies or B.prepare(g)
+        -- Bodies prepared once per observer and step.
+        local observer = P.observer(g, b)
+        local key = observer or b
+        if observer == nil or observer == player then
+          key = player
+        end
+        if not bodies[key] then
+          bodies[key] = B.prepare(g, observer, next(bodies) and {} or nil)
+        end
         local share, body, segment, contact =
-          demonContact(b, dx, dy, dz, worldT, bodies, g, sideOf(b))
+          demonContact(b, dx, dy, dz, worldT, bodies[key], g, sideOf(b))
         if before(share) then
           hit, target, part, surface = share, body, segment, contact
         end

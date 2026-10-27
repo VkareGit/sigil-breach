@@ -223,6 +223,7 @@ function Game:actorLeave(id)
     return false
   end
   Pools.remove(self, 'knights', knight)
+  require('src.combat.observation').invalidateActor(self, knight)
   return true
 end
 -- Control passes to the knight id: the one losing it lets go of the trigger.
@@ -234,7 +235,10 @@ function Game:actorControl(id)
   end
   require('src.player.intent').clear(self, previous)
   Roles.control(self, knight)
-  require('src.combat.observation').invalidate(self)
+  -- Both knights' observations end; the others' stay (plan v11 E4).
+  local Observation = require('src.combat.observation')
+  Observation.invalidateActor(self, previous)
+  Observation.invalidateActor(self, knight)
   self.view.presentationPrevious = nil
   return true
 end

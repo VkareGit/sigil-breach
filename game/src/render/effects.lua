@@ -1,5 +1,6 @@
 -- Visual interpretation of authoritative attack clocks. No gameplay timers,
 -- extra hit regions, or hidden randomness are introduced by the renderer.
+local Roles = require('src.core.roles')
 local Archetypes = require('src.content.enemies')
 local Geometry = require('src.enemies.geometry')
 local Surface = require('src.enemies.surface')
@@ -272,7 +273,7 @@ local function overlay(r, p)
 end
 local FULL = { 0, 0, 1, 1 }
 local function surfaceOverlay(r, g, e)
-  local p = Surface.prepare(g, e, r.hitSurface)
+  local p = Surface.prepare(g, e, r.hitSurface, Roles.viewer(g))
   r.hitSurface = p
   local place = r:enemyPlacement(g, e)
   local s = r.spriteShader
@@ -294,7 +295,7 @@ local function surfaceOverlay(r, g, e)
   love.graphics.draw(r.sprite)
 end
 local function volumes(r, g, e)
-  for _, v in ipairs(Geometry.volumes(g, e)) do
+  for _, v in ipairs(Geometry.volumes(g, e, Roles.viewer(g))) do
     local color = E.hitColors[v.zone] or E.hitColors.blocks
     r:object(r.warning, v.x, v.bottom + 0.025, v.z, 0, v.radius, color, 0.85)
     r:object(r.warning, v.x, v.top, v.z, 0, v.radius, color, 0.85)

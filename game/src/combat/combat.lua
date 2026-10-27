@@ -391,7 +391,13 @@ local function resolveVolley(g, shot, bodies)
     })
   end
 end
-Deliveries:register('hitscan', { prepare = B.prepare, fire = resolveVolley })
+-- Hitscan bodies are seen from the shooter's eye (plan v11 E4).
+Deliveries:register('hitscan', {
+  prepare = function(g, _, shooter)
+    return B.prepare(g, shooter)
+  end,
+  fire = resolveVolley,
+})
 
 -- Finite rounds arrive later, possibly after a weapon swap. They retain their
 -- original payload/slot/serial, and use the same material, armour, response and
@@ -437,7 +443,7 @@ function C.shoot(g, command, who)
     return false
   end
   local observation = command and command.observation
-  if observation and not Observation.valid(g, observation) then
+  if observation and not Observation.valid(g, observation, a) then
     return false
   end
   local profile = ready(g, a)
@@ -448,8 +454,8 @@ function C.shoot(g, command, who)
   -- before noise can wake/turn them; finite rounds sample at actual contact.
   local delivery = Deliveries:get(profile.delivery.kind)
   local observed = observation and profile.delivery.kind == 'hitscan'
-  local prepared = observed and Observation.prepare(g, observation)
-    or (delivery.prepare and delivery.prepare(g, profile))
+  local prepared = observed and Observation.prepare(g, observation, a)
+    or (delivery.prepare and delivery.prepare(g, profile, a))
   if observed then
     -- The journal keeps the bodies of an observation a shot used.
     Signal(g, 'ObservationUsed', { observation = observation })

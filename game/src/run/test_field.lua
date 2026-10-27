@@ -13,6 +13,7 @@ local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
 local Visits = require('src.run.field.visits')
 local Telemetry = require('src.combat.telemetry')
+local Observation = require('src.combat.observation')
 local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
@@ -80,6 +81,8 @@ function F.reset(g)
     return false
   end
   Encounter.clearWorld(g)
+  -- A reset ends every observation of the field before it (plan v11 E4).
+  Observation.invalidate(g)
   -- A fresh field measures anew (skirmish, stations, real-play reports).
   Telemetry.reset(g)
   local motion = g.view.motion

@@ -10,10 +10,12 @@ local Anchor = {}
 -- the result is the same as with fresh tables: every field is written first.
 local view, lens, pose = {}, {}, {}
 setmetatable(view, lens)
-function Anchor.point(g, e, phase, x, z, name)
+-- observer (plan v11 E4): the body the strike is aimed at (default: the
+-- creature's target, enemies/pose.lua: observerOf).
+function Anchor.point(g, e, phase, x, z, name, observer)
   lens.__index = e
   view.phase, view.x, view.z = phase, x, z
-  local p = Pose.sample(g, view, pose)
+  local p = Pose.sample(g, view, pose, observer or Pose.observerOf(g, e))
   lens.__index = nil
   local layout = p.ability and Anatomy.abilities[p.ability] or Anatomy.layouts[p.regions]
   local frame = layout and layout.frames[p.abilityFrame or p.frame]

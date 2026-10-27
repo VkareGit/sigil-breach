@@ -279,7 +279,12 @@ Obserwacja strzału i skończone nagrywanie:
   z materiałem i penetracją broni, bez ponownej rany lub nagrody.
   Pocisk w locie używa aktualnej geometrii; nie odtwarza historycznego trafienia.
   Obserwacja wygasa po 320 ms (limit catch-up 200 ms + bufor 120 ms), po pauzie,
-  utracie focusu, zmianie sesji lub wyczyszczeniu etapu. Journal zapisuje
+  utracie focusu, zmianie sesji lub wyczyszczeniu etapu.
+  Obserwacja należy do strzelca (plan v11 E4): ma jego id i generację, a
+  komenda innego aktora jest odrzucana. Wygasa też przy jego śmierci,
+  odejściu albo zmianie sterowania; obserwacje innych aktorów zostają.
+  Geometria pocisku i wzroku stworzeń ma jawnego obserwatora; widza kamery
+  (Roles.viewer) podaje tylko prezentacja. Journal zapisuje
   kopię komendy i jej przestrzeń identyfikatorów; replay nie wymaga rysowania.
   Bez --record obserwacje nie tworzą historii: aplikacja trzyma bieżący widok.
 

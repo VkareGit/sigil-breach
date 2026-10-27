@@ -1,3 +1,0 @@
-src/enemies/animation.lua 1
-src/enemies/geometry.lua 1
-src/enemies/pose.lua 1

@@ -42,19 +42,29 @@ function Input:forget(game)
     Observation.invalidate(game)
     Intent.clear(game)
   end
-  self.observation, self.observationOwner = nil, nil
+  self.observation, self.observationOwner, self.observations = nil, nil, nil
 end
-function Input:present(game, shown)
+-- The view shown is observed for the knight it is shown to (plan v11 E4: one
+-- observation per actor, by its shooter; default the controlled knight); a
+-- command takes its actor's own.
+function Input:present(game, shown, actor)
   if game.state == 'playing' and not game.map and not game.help then
-    self.observation = Observation.capture(shown, game)
+    local observation = Observation.capture(shown, game, actor)
+    if self.observationOwner ~= game then
+      self.observations = {}
+    end
+    self.observations = self.observations or {}
+    self.observations[observation.shooter or false] = observation
+    self.observation = observation
     self.observationOwner = game
   elseif self.observationOwner then
     self:forget(game)
   end
 end
-function Input:command(game)
-  if game and self.observationOwner == game and self.observation then
-    return Observation.command(self.observation, game)
+function Input:command(game, actor)
+  if game and self.observationOwner == game and self.observations then
+    local observation = Observation.mine(game, self.observations, actor)
+    return observation and Observation.command(observation, game, actor)
   end
 end
 function Input:sample(game)

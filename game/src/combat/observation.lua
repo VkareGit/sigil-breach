@@ -44,9 +44,17 @@ function O.copy(value)
   end
   return out
 end
+-- Two scopes (plan v11 E4). The world's generation (a reset, a new map, the
+-- application leaving play) ends every observation; an actor's (his teleport,
+-- death, loss or gain of control, leave) ends only his.
 function O.invalidate(g)
   O.session(g)
   g._observationGeneration = g._observationGeneration + 1
+end
+function O.invalidateActor(_, actor)
+  if actor then
+    actor.observationGeneration = (actor.observationGeneration or 0) + 1
+  end
 end
 function O.session(g)
   if not g._observationSession then
@@ -55,30 +63,42 @@ function O.session(g)
   end
   return g._observationSession
 end
-function O.capture(shown, owner)
+-- An observation of the view shown to a shooter (plan v11 E4): the drawn
+-- sample shown, the live session owner, the shooter (default the controlled
+-- knight of both). The origin and every body come from that one sample, seen
+-- from that shooter's eye; it names him and his generation.
+function O.capture(shown, owner, shooter)
   owner = owner or shown
+  shooter = shooter or Roles.controlled(owner)
+  -- The eye is the shooter as the sample shows him.
+  local eye = Roles.controlled(shown)
+  if shooter and eye and shooter.id ~= eye.id then
+    eye = Pools.get(shown, shooter.id) or shooter
+  end
   owner._observationSequence = (owner._observationSequence or 0) + 1
   local out = {
     version = 1,
     session = O.session(owner),
     generation = owner._observationGeneration,
+    shooter = shooter and shooter.id,
+    actorGeneration = shooter and shooter.observationGeneration or 0,
     time = owner.elapsed,
     sequence = owner._observationSequence,
     map = owner.world.mapId,
-    origin = { B.origin(shown) },
+    origin = { B.origin(shown, eye) },
     bodies = {},
   }
   for _, enemy in ipairs(Pools.of(shown, 'enemies')) do
     if B.blocks(enemy) then
       local body = { id = enemy.id, kind = enemy.kind, x = enemy.x, z = enemy.z }
       if not Geometry.uses(enemy) then
-        local surface = Surface.prepare(shown, enemy)
+        local surface = Surface.prepare(shown, enemy, nil, eye)
         body.surface = {}
         for _, key in ipairs(surfaceKeys) do
           body.surface[key] = surface[key]
         end
       else
-        body.volumes = O.copy(Geometry.volumes(shown, enemy))
+        body.volumes = O.copy(Geometry.volumes(shown, enemy, eye))
       end
       out.bodies[#out.bodies + 1] = body
     end
@@ -94,8 +114,8 @@ local patternBound = 1
 for _, v in ipairs(Pattern) do
   patternBound = math.max(patternBound, math.abs(v[1]), math.abs(v[2]))
 end
-function O.corridor(g)
-  local p = Roles.controlled(g)
+function O.corridor(g, shooter)
+  local p = shooter or Roles.controlled(g)
   local widest, range = 0, 0
   for _, id in ipairs(p.loadout or {}) do
     local def = Weapons.get(id)
@@ -152,9 +172,12 @@ function O.inCorridor(body, origin, yaw, pitch, half, range)
   local cosine = math.max(-1, math.min(1, (vx * fx + vy * fy + vz * fz) / d))
   return math.acos(cosine) <= half + math.asin(math.min(1, r / d)) + corridorSlack
 end
-function O.command(observation, g)
-  local yaw, pitch = Roles.controlled(g).yaw, Roles.controlled(g).pitch
-  local half, range = O.corridor(g)
+-- The command of a shooter (default the controlled knight) from his
+-- observation: his aim now, the bodies in his weapons' corridor.
+function O.command(observation, g, shooter)
+  shooter = shooter or Roles.controlled(g)
+  local yaw, pitch = shooter.yaw, shooter.pitch
+  local half, range = O.corridor(g, shooter)
   local kept = {}
   for key, value in pairs(observation) do
     if key ~= 'bodies' then
@@ -169,17 +192,29 @@ function O.command(observation, g)
   end
   return { observation = kept, yaw = yaw, pitch = pitch }
 end
-function O.valid(g, observation)
+-- An actor's (default the controlled knight's) observation among those kept
+-- by shooter.
+function O.mine(g, store, actor)
+  local shooter = actor or Roles.controlled(g)
+  return store[shooter and shooter.id or false]
+end
+-- Valid for shooter (default the controlled knight): the same session,
+-- world generation and map, his own observation of his own generation, and
+-- not older than maxAge.
+function O.valid(g, observation, shooter)
+  shooter = shooter or Roles.controlled(g)
   return observation
     and observation.version == 1
     and observation.session == g._observationSession
     and observation.generation == g._observationGeneration
+    and (observation.shooter == nil or (shooter and observation.shooter == shooter.id))
+    and (observation.actorGeneration or 0) == (shooter and shooter.observationGeneration or 0)
     and observation.map == g.world.mapId
     and observation.time <= g.elapsed + 1e-8
     and g.elapsed - observation.time <= O.maxAge
 end
-function O.prepare(g, observation)
-  assert(O.valid(g, observation), 'expired or foreign shot observation')
+function O.prepare(g, observation, shooter)
+  assert(O.valid(g, observation, shooter), 'expired or foreign shot observation')
   local live, bodies = {}, {}
   for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     live[enemy.id] = enemy

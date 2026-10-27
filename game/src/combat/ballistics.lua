@@ -324,9 +324,14 @@ function B.near(entry, ox, oz, dx, dz, limit, radius)
   local px, pz = ox + sx * t - e.x, oz + sz * t - e.z
   return px * px + pz * pz <= bound * bound
 end
-function B.prepare(g)
-  local bodies = g._shotBodies or {}
-  g._shotBodies = bodies
+-- observer (plan v11 E4): the eye the bodies are seen from (a shooter, a
+-- missile's owner; default the controlled knight). into (optional): the
+-- array to fill, for a second observer in one step.
+function B.prepare(g, observer, into)
+  local bodies = into or g._shotBodies or {}
+  if not into then
+    g._shotBodies = bodies
+  end
   local count = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if B.blocks(e) then
@@ -335,9 +340,10 @@ function B.prepare(g)
       entry.enemy = e
       -- Only the representation the body uses is prepared.
       if Geometry.uses(e) then
-        entry.volumes, entry.surface = Geometry.volumes(g, e), nil
+        entry.volumes, entry.surface = Geometry.volumes(g, e, observer), nil
       else
-        entry.volumes, entry.surface = nil, Surface.prepare(g, e, entry.surface or entry.spare)
+        entry.volumes, entry.surface =
+          nil, Surface.prepare(g, e, entry.surface or entry.spare, observer)
         entry.spare = entry.surface
       end
       entry.reach = reachOf(e, entry)

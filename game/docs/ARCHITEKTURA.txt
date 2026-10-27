@@ -371,7 +371,12 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   jego wejściu (input.actors[id]). Każde obrażenie niesie właściciela
   łańcucha (owner): zabójstwo, wynik, leczenie i nagroda należą do niego.
   Dziennik v5: header.actors, actorJoin/actorLeave/actorControl, preflight
-  id. Pola sesji przeniesione w v11 są wycofane (session/fields.lua:
+  id. Obserwacja strzału (E4) nazywa strzelca i jego generację. Komenda
+  innego aktora jest odrzucana bez zużycia amunicji. Unieważnianie ma dwa
+  zakresy:
+  - świat: reset, mapa, sesja, wyjście z gry;
+  - aktor: jego śmierć, zmiana sterowania, actorLeave.
+  app/input.lua trzyma obserwację na aktora. Pola sesji przeniesione w v11 są wycofane (session/fields.lua:
   retire) i ich użycie kończy się błędem ze wskazaniem nowego miejsca. Anatomia z warstw części
   (EXPORT-ANATOMY.ps1 -Legend, qa/art/anatomy_layers.lua) albo z edytora
   regionów (ANATOMY-EDITOR.ps1, model qa/art/anatomy_editor.lua), jako dane
@@ -427,10 +432,16 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   Krzywe animacji to dane w kodzie objęte zapadką tools/check/literals.txt
   (może maleć). Trafienia wszystkich dzisiejszych demonów: enemies/pose ->
   enemies/surface -> maska atlasu + adnotacja anatomii (appearance.regions).
-  Widz (plan v10 V2): obrót billboardu, klatki tyłem i sylwetka liczą się
-  względem Roles.viewer(g) (core/roles.lua): próbka prezentacji może
-  wskazać innego widza (druga kamera, kamera powtórki), domyślnie sterowany
-  rycerz. Strzał rycerza rozstrzyga się z jego oczu. Sprite nie ma głębi:
+  Obserwator (plan v11 E4): obrót billboardu, klatki tyłem i sylwetka liczą
+  się względem jawnego obserwatora (argument Pose.sample/anchor/base,
+  Surface.prepare, Geometry.volumes). Symulacja nigdy nie pyta widza kamery
+  (zapadka VIEWER IN SIMULATION = 0):
+  - strzał: oko strzelca z jego obserwacji albo z bieżącego kroku;
+  - pocisk: oko żywego i obecnego właściciela, inaczej punkt wystrzału
+    (Projectiles.observer);
+  - stworzenie: jego cel (Pose.observerOf).
+  Tylko prezentacja podaje Roles.viewer(g), czyli widza kamery (druga
+  kamera, kamera powtórki; domyślnie sterowany rycerz). Sprite nie ma głębi:
   maska leży w płaszczyźnie billboardu; sweep pocisku jest konserwatywny
   o pół przekątnej komórki maski.
   Strony i cele (V2): content/factions.lua mówi, kto jest wrogi komu;

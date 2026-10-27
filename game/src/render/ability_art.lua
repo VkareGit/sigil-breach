@@ -1,5 +1,6 @@
 -- GPU handles for authored ability animations. Placement is owned by enemies.pose;
 -- changing a hit shape cannot move, scale or otherwise repaint an ability.
+local Roles = require('src.core.roles')
 local Metadata = require('src.content.ability_art')
 local AbilityPose = require('src.enemies.ability_pose')
 local Pose = require('src.enemies.pose')
@@ -18,7 +19,7 @@ function AbilityArt.load(resources)
 end
 -- Compatibility adapter for source-art QA; no geometry or numeric shape index.
 function AbilityArt.resolve(loaded, g, e)
-  local p = Pose.sample(g, e)
+  local p = Pose.sample(g, e, nil, Roles.viewer(g))
   if not p.ability then
     return nil
   end

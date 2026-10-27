@@ -52,8 +52,10 @@ local stature = {}
 -- How high the painted body reaches above the floor under it, as posed now:
 -- its stature, crouch, flinch, leap and ability sheet, the same pose a shot
 -- meets. Its fall frames lie where they are drawn.
-function Surface.top(g, e)
-  local p = Pose.sample(g, e, stature)
+-- observer (plan v11 E4): whose eyes the pose is seen from (default: the
+-- creature's target, enemies/pose.lua: observerOf).
+function Surface.top(g, e, observer)
+  local p = Pose.sample(g, e, stature, observer or Pose.observerOf(g, e))
   local masks = p.ability and Masks.abilities[p.ability] or Masks.layouts[p.atlas]
   local mask = assert(masks and masks[p.abilityFrame or p.frame], 'missing baked pigment mask')
   return p.baseY + (1 - Surface.crown(mask)) * p.sy * p.size
@@ -77,8 +79,10 @@ function Surface.part(parts, u, v)
     end
   end
 end
-function Surface.prepare(g, e, out)
-  local p = Pose.sample(g, e, out)
+-- observer (plan v11 E4): the point the billboard turns to (a shooter's eye,
+-- a missile's owner); default the controlled knight.
+function Surface.prepare(g, e, out, observer)
+  local p = Pose.sample(g, e, out, observer)
   -- Art registration is local to the feet. Queries, like the shooter's eye,
   -- use world height even on an authored map with a non-zero ground datum.
   p.baseY = p.baseY + Ground.of(g.world, e)

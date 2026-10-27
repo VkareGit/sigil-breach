@@ -7,10 +7,13 @@ local Roles = require('src.core.roles')
 local Capabilities = require('src.session.capabilities')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
--- The bearing from body e to the viewer (core/roles.lua): what a
--- billboard turns to and what its back frames are judged against.
-local function viewerYaw(g, e)
-  local v = Roles.viewer(g)
+-- The bearing from body e to its observer (plan v11 E4): the point a
+-- billboard turns to and its back frames are judged against. The caller names
+-- it (a shooter's eye, a missile's owner, a creature's target, the camera of
+-- a view); none given, the controlled knight. The simulation never asks the
+-- camera.
+local function viewerYaw(g, e, observer)
+  local v = observer or Roles.controlled(g)
   return math.atan2(v.x - e.x, v.z - e.z)
 end
 Anim.actionPhase = ActionPhase.sample
@@ -29,7 +32,7 @@ local posed = Anim.posed
 function Anim.frameCount(kind)
   return Idle.total(kind)
 end
-function Anim.pose(g, e)
+function Anim.pose(g, e, observer)
   if e.previewFrame and Capabilities.posed(g) then
     return e.previewFrame, 0, 0, 1, 1
   end
@@ -83,14 +86,14 @@ function Anim.pose(g, e)
     local phase = e.walk * (walk.rate or 0)
     bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
     lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
-    rear = math.cos(viewerYaw(g, e) - (e.facing or 0)) < -0.25
+    rear = math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < -0.25
     frame = Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk)
   else
     -- Breath and vigilance are painted into the ribs, hands, wings and neck.
     -- Never stretch armor, skull or the whole silhouette to fake breathing.
     local watching = e.awake
       and (e.memory or 0) > 0
-      and math.cos(viewerYaw(g, e) - (e.facing or 0)) < -0.25
+      and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < -0.25
     local pose = watching and posed(e, 'watchRear') or posed(e, 'quiet')
     if pose.clock == 'breath' then
       frame = Idle.sample(Idle.kind(e), g.time, e.id)

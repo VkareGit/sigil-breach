@@ -391,6 +391,11 @@ Suite.registry = {
     module = 'tests.cases.damage_chain',
   },
   {
+    id = 'observer',
+    title = 'The observer of geometry and shot observations by actor (plan v11 E4)',
+    module = 'tests.cases.observer',
+  },
+  {
     id = 'mode-state',
     title = 'Mode state owners, per-session views and an altars mode (plan v11 E2)',
     module = 'tests.cases.mode_state',

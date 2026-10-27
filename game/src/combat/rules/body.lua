@@ -102,7 +102,8 @@ return function(R)
     if eye then
       return base + (o.leapY or 0) + eye
     end
-    local _, head = Pose.anchor(g, o, 'head')
+    -- Seen from the body it fights (plan v11 E4), never from the camera.
+    local _, head = Pose.anchor(g, o, 'head', Pose.observerOf(g, o))
     return base + head
   end
   -- Whether body o sees the body t (plan v10 V2: any body, any side): where

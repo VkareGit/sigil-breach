@@ -299,6 +299,8 @@ C.schemas.knight = {
   shots = f(0),
   hits = f(0),
   shotSequence = f(0, "this actor's shots: its pellet pattern and contact seeds"),
+  -- His observations' generation (plan v11 E4: combat/observation.lua).
+  observationGeneration = f(0),
 }
 -- Weapon fields of the knight before the arsenal (0.24 F3).
 require('src.core.strict').retire('knight', {

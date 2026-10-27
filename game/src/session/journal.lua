@@ -148,6 +148,15 @@ function Journal.origin(g)
     z = Roles.controlled(g).z,
   }
 end
+-- Each knight's observation generation (plan v11 E4), by id: a journal begun
+-- after a change of control replays its observations against the same.
+function Journal.actorGenerations(g)
+  local out = {}
+  for _, knight in ipairs(Pools.of(g, 'knights')) do
+    out[knight.id] = knight.observationGeneration
+  end
+  return out
+end
 -- What rebuilds the session a journal starts from: its mode, map and origin.
 function Journal.header(g)
   return {
@@ -157,6 +166,7 @@ function Journal.header(g)
     provenance = Build.provenance,
     observationSession = Observation.session(g),
     observationGeneration = g._observationGeneration,
+    actorGenerations = Journal.actorGenerations(g),
     mode = g.mode,
     map = g.world and g.world.mapId,
     origin = Journal.origin(g),
@@ -502,6 +512,14 @@ function Journal.replay(g, journal)
   -- Runtime divergence is diagnostic: replay should use a disposable session.
   g._observationSession = header.observationSession
   g._observationGeneration = header.observationGeneration
+  for id, generation in
+    pairs(type(header.actorGenerations) == 'table' and header.actorGenerations or {})
+  do
+    local knight = Pools.get(g, id)
+    if knight and type(generation) == 'number' then
+      knight.observationGeneration = generation
+    end
+  end
   local count = 0
   local detach = journal.receipts
     and observe(g, function(receipt)

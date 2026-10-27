@@ -204,6 +204,8 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     Effects.clear(player)
     player.hp = 0
     if not controlled then
+      -- His observations end with him (plan v11 E4).
+      require('src.combat.observation').invalidateActor(g, player)
       emit(g, 'KnightFell', { knight = player })
       return
     end

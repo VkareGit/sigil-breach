@@ -1,5 +1,6 @@
 -- Painted floor silhouettes follow the same pose/feet as the body.
 -- This is a bounded 2.5D projection, not a full volumetric shadow map.
+local Roles = require('src.core.roles')
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
@@ -76,7 +77,8 @@ function S.draw(r, g)
       local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)
       local length = math.sqrt(lx * lx + lz * lz)
       if index > 0 and strength > 0.025 and length > 0.001 then
-        local frame, _, lean, sx, sy, size, _, _, baseY, atlas = Geometry.pose(g, e)
+        local frame, _, lean, sx, sy, size, _, _, baseY, atlas =
+          Geometry.pose(g, e, Roles.viewer(g))
         local image = (r.frameImages[atlas] and r.frameImages[atlas][frame]) or r.animations[atlas]
         local rect, tile, origin =
           r.frames[atlas][frame].rect, r.lighting.tiles[index], r.lighting.origins[index]

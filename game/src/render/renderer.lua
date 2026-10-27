@@ -1,3 +1,4 @@
+local Roles = require('src.core.roles')
 local M = require('src.render.mesh')
 local WorldMesh = require('src.render.world_mesh')
 local T = require('src.content.tuning')
@@ -304,7 +305,8 @@ end
 -- table; copy it to keep it.
 local placement = {}
 function R:enemyPlacement(g, e)
-  local p = Pose.sample(g, e, placement)
+  -- Drawn as the camera's viewer sees it (presentation only, plan v11 E4).
+  local p = Pose.sample(g, e, placement, Roles.viewer(g))
   p.baseY = p.baseY + Ground.of(g.world, e)
   if p.ability then
     p.image = self.abilityArt[p.ability].image

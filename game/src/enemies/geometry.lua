@@ -11,10 +11,10 @@ local HV = require('src.enemies.hit_volumes')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
 local Roles = require('src.core.roles')
--- The bearing from body e to the viewer (core/roles.lua): what a
--- billboard turns to and what its back frames are judged against.
-local function viewerYaw(g, e)
-  local v = Roles.viewer(g)
+-- The bearing from body e to its observer (plan v11 E4): named by the caller,
+-- else the controlled knight. Never the camera.
+local function viewerYaw(g, e, observer)
+  local v = observer or Roles.controlled(g)
   return math.atan2(v.x - e.x, v.z - e.z)
 end
 local Geometry = { layouts = EnemyArt.layouts }
@@ -44,17 +44,17 @@ function Geometry.uses(e)
 end
 -- The body's volumes in world height for the current pose. Only for a body
 -- that uses them (Geometry.uses); a painted body has none.
-function Geometry.volumes(g, e)
+function Geometry.volumes(g, e, observer)
   local look = Archetypes.look(e)
   assert(look.hit == 'volumes', 'a painted body meets shots on its surface (enemies/surface.lua)')
   local profile =
     assert(profiles[look.anatomy], 'unknown body-volume profile ' .. tostring(look.anatomy))
-  local frame, _, lean, _, _, size, width, height, baseY = Geometry.pose(g, e)
+  local frame, _, lean, _, _, size, width, height, baseY = Geometry.pose(g, e, observer)
   local shapes = assert(
     profile.frameShapes and profile.frameShapes[frame] or profile.shapes,
     'body-volume profile ' .. look.anatomy .. ' has no shapes for frame ' .. frame
   )
-  local yaw = viewerYaw(g, e)
+  local yaw = viewerYaw(g, e, observer)
   local rx, rz = math.cos(yaw), -math.sin(yaw)
   local ground = Ground.of(g.world, e)
   local volumes = cache[e] or {}
@@ -83,8 +83,8 @@ function Geometry.volumes(g, e)
   end
   return volumes
 end
-function Geometry.find(g, e, id)
-  for _, shape in ipairs(Geometry.volumes(g, e)) do
+function Geometry.find(g, e, id, observer)
+  for _, shape in ipairs(Geometry.volumes(g, e, observer)) do
     if shape.id == id then
       return shape
     end
