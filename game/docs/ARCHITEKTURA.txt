@@ -266,7 +266,9 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   session/journal.lua: polecenia (look, update, shoot, cast, reloadGun,
   switchWeapon, dash, interact, start, act = polecenia trybu przez Game:act)
   + 'aim' (bezpośrednie ustawienie) + 'set' (stan, pauza, mapa, pomoc,
-  zamiary ustawione przez aplikację między poleceniami) + origin w nagłówku;
+  zamiary ustawione przez aplikację między poleceniami) + 'actorSet' (te
+  same zamiary i generacja obserwacji innych rycerzy: drugie urządzenie,
+  Journal.actorExternal) + origin w nagłówku;
   --record + F9 zapisuje dziennik (każdej sesji przyjętej przez adopt, także
   poligonu: akcje katalogu to polecenie 'field', a nagłówek niesie warunki
   początkowe poligonu).

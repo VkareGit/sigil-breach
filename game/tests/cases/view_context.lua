@@ -484,6 +484,16 @@ function Tests.run(G, renderer)
         trial:update(dt, {})
       end
       driver:mousepressed(app, 640, 300, 1)
+      -- Changes outside any command: a press buffered while the weapon
+      -- cycles, a buffered jump and a device forgetting its observations.
+      driver:present(trial, trial)
+      driver:mousepressed(app, 640, 300, 1)
+      driver:keypressed(app, 'space', 'space', false)
+      for _ = 1, 30 do
+        trial:update(dt, {})
+      end
+      driver:present(trial, trial)
+      driver:forget(trial)
       driver:keypressed(app, 'r', 'r', false)
       driver:keypressed(app, 'q', 'q', false)
       driver:wheelmoved(app, 0, 1)
@@ -506,17 +516,25 @@ function Tests.run(G, renderer)
     check(
       (bound and 'bound' or 'default')
         .. ' keyboard/mouse commands replay bit for bit: '
-        .. tostring(replayError or diff or 'equal'),
+        .. tostring(replayOK and (diff or 'equal') or replayError),
       replayOK and not diff
     )
     local actorSlots = { look = 3, shoot = 2, reloadGun = 1, cast = 2, switchWeapon = 2 }
-    local checked, idsOnly = {}, true
+    local checked, idsOnly, set = {}, true, {}
     for _, entry in ipairs(loaded.entries) do
       local slot = actorSlots[entry[1]]
       if slot then
         checked[entry[1]] = true
         idsOnly = idsOnly and (entry[2][slot] == (bound and knight.id or nil))
+      elseif entry[1] == 'actorSet' and entry[2] == knight.id then
+        set[entry[3]] = true
       end
+    end
+    if bound then
+      check(
+        "a bound device's buffered press, jump and forgotten observations are journaled",
+        set.fireBuffer and set.fireCommand and set.jumpBuffer and set.observationGeneration
+      )
     end
     check(
       (bound and 'bound' or 'default') .. ' input preserves the actor-id command contract',
@@ -530,6 +548,31 @@ function Tests.run(G, renderer)
   end
   inputTrial(false)
   inputTrial(true)
+
+  -- A kill by a chain no knight began (a demon's blow; its owner is the
+  -- demon's id) is presented as the ledger counts it: to the only knight,
+  -- as in 0.33; with several knights to nobody.
+  local function demonKill(withSecond)
+    local scene = arena()
+    if withSecond then
+      join(scene)
+    end
+    local victim = scene:spawn('imp', 16, 21)
+    victim.spawnAge = 1
+    scene.view.feedbackTimer = 0
+    scene:damageEnemy(victim, 9999, 'creature', nil, victim.id + 1)
+    scene:update(dt, {})
+    return scene.view.feedbackTimer
+  end
+  local alone, shared = demonKill(false), demonKill(true)
+  check(
+    string.format(
+      "a demon's kill is the only knight's feedback, nobody's with two knights (%.3f %.3f)",
+      alone,
+      shared
+    ),
+    alone > 0 and shared == 0
+  )
 
   -- Borrowed answers are distinct for actors and interpolated samples, but
   -- a command at unchanged simulation time invalidates the entire session.

@@ -110,6 +110,25 @@ ODBIOR-0.34 i ZMIANY-0.34 oraz status planu. Wersja źródeł to 0.34;
 źródeł nie poświadcza nowej paczki ZIP/EXE — taka paczka wymaga BUILD.
 Nie wykonano push. Nie zmieniono `docs/podrecznik-codex/`.
 
+## Poprawki po przeglądzie (po `1ed58b6`)
+
+Przegląd E5–E6 potwierdził próbami dwa błędy. Oba są naprawione, a każdy
+ma test regresji w `view-context`, który bez poprawki pada:
+
+- **Feedback zabójstwa z łańcucha bez rycerza.**
+  - Objaw: `Recipient.actor` traktował id demona (właściciela ciosu
+    demona lub jego pchnięcia) jak aktora. W grze jednoosobowej takie
+    zabójstwo nie dawało napisu ani błysku złamania, choć 0.33 je dawało.
+  - Poprawka: odbiorcę wyznacza teraz reguła `Stats.owner`.
+- **Dziennik i drugie urządzenie.**
+  - Objaw: buforowany spust, skok i zapomniane obserwacje urządzenia
+    przypisanego do innego rycerza zmieniały jego pola poza komendami
+    i dziennikiem. Odtworzenie takiego przebiegu się rozjeżdżało.
+  - Poprawka: wpis `actorSet` (`Journal.actorExternal`) zapisuje te pola
+    tak, jak `set` zapisuje pola sterowanego. Sterowany dostaje dodatkowo
+    ścieżkę `player.observationGeneration`.
+  - Starsze dzienniki odtwarzają się bez zmian.
+
 ## Interpretacja końcowa i decyzja użytkownika
 
 Powtórzenia nie zastępują pierwszych serii: zestawienia n=10 zawierają

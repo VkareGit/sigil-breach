@@ -360,7 +360,10 @@ KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
     tykaj raz na właściciela. Światowe smugi/krew/plamy emituj raz na
     zdarzenie, bez pętli po kamerach. Łuski ekranu należą do aktora.
     Feedback zdarzenia rozwiązuje właściciela przez Recipient; nie tworzy
-    przy tym widoku dla nieobserwowanego aktora. Efekt nie zmienia HP,
+    przy tym widoku dla nieobserwowanego aktora. Właściciel, który nie jest
+    rycerzem (demon), trafia tam, gdzie liczy go księga (Stats.owner).
+    Nowe pole aktora zmieniane przez aplikację poza komendą dopisz do
+    Journal.actorExternal, bo inaczej dziennik się rozjedzie. Efekt nie zmienia HP,
     czasu przeładowania ani promienia trafienia.
 
 22. Jawny obserwator trafienia

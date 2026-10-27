@@ -109,9 +109,18 @@ Journal.external = {
   'player.fireBuffer',
   'player.fireCommand',
   'player.jumpBuffer',
+  'player.observationGeneration',
   '_observationSession',
   '_observationGeneration',
 }
+-- The same fields of every other knight (a second input device buffers its
+-- presses and forgets its observations outside any command): an 'actorSet'
+-- entry { 'actorSet', id, field, value } before the next command (v5).
+Journal.actorExternal = { 'fireBuffer', 'fireCommand', 'jumpBuffer', 'observationGeneration' }
+local actorExternal = {}
+for _, field in ipairs(Journal.actorExternal) do
+  actorExternal[field] = true
+end
 -- Paths of earlier journals of this build's formats: the trigger buffer was
 -- the session's until plan v11 E3 moved it to the actor.
 Journal.renamed = { fireBuffer = 'player.fireBuffer', fireCommand = 'player.fireCommand' }
@@ -252,10 +261,28 @@ function Journal.record(g, limits, onLimit)
   end
   boundaries[journal] = control.boundary
   local aimYaw, aimPitch
-  local known = {}
+  local known, knownActors = {}, {}
+  -- The knights other than the controlled one, in pool order.
+  local function others()
+    local out, controlled = {}, Roles.controlled(g)
+    for _, knight in ipairs(Pools.of(g, 'knights')) do
+      if knight ~= controlled then
+        out[#out + 1] = knight
+      end
+    end
+    return out
+  end
   local function remember()
     for i, path in ipairs(Journal.external) do
       known[i] = read(g, path)
+    end
+    knownActors = {}
+    for _, knight in ipairs(others()) do
+      local values = {}
+      for i, field in ipairs(Journal.actorExternal) do
+        values[i] = knight[field]
+      end
+      knownActors[knight.id] = values
     end
   end
   local function sync()
@@ -271,6 +298,14 @@ function Journal.record(g, limits, onLimit)
       local value = read(g, path)
       if value ~= known[i] then
         append(entries, { 'set', path, pack(value) })
+      end
+    end
+    for _, knight in ipairs(others()) do
+      local was = knownActors[knight.id] or {}
+      for i, field in ipairs(Journal.actorExternal) do
+        if knight[field] ~= was[i] then
+          append(entries, { 'actorSet', knight.id, field, pack(knight[field]) })
+        end
       end
     end
     remember()
@@ -427,6 +462,12 @@ function Journal.replay(g, journal)
       assert(finite(entry[2]) and finite(entry[3]), 'invalid journal aim')
     elseif entry[1] == 'set' then
       assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
+    elseif entry[1] == 'actorSet' then
+      assert(header.version == 5, 'journal actorSet needs format 5')
+      assert(
+        type(entry[2]) == 'string' and actorExternal[entry[3]],
+        'journal cannot set ' .. tostring(entry[3]) .. ' of an actor'
+      )
     else
       assert(
         permitted[entry[1]] and type(entry[2]) == 'table',
@@ -486,7 +527,9 @@ function Journal.replay(g, journal)
     end
     for _, entry in ipairs(journal.entries) do
       local name = entry[1]
-      if name ~= 'aim' and name ~= 'set' then
+      if name == 'actorSet' then
+        named(entry[2], name)
+      elseif name ~= 'aim' and name ~= 'set' then
         local args = plain(entry[2])
         local index = Journal.actorArgument[name]
         if index and args[index] ~= nil then
@@ -549,6 +592,8 @@ function Journal.replay(g, journal)
       elseif entry[1] == 'set' then
         assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
         write(g, Journal.renamed[entry[2]] or entry[2], expand(entry[3]))
+      elseif entry[1] == 'actorSet' then
+        Pools.get(g, entry[2])[entry[3]] = expand(entry[4])
       else
         assert(permitted[entry[1]], 'unknown journal command ' .. tostring(entry[1]))
         local args = expand(entry[2])

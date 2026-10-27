@@ -61,6 +61,16 @@ E6 — zgodność i zasoby
   drugiego widoku. Formalny odbiór wydajności wymaga decyzji użytkownika
   o kryterium wobec rozrzutu A/A. B2 pozostaje oceną człowieka.
 
+Poprawki po przeglądzie E5–E6
+- Zabójstwo z łańcucha bez rycerza (cios demona, jego pchnięcie) znów daje
+  napis zabójstwa i błysk złamania jedynemu rycerzowi, jak w 0.33.
+  Odbiorcę feedbacku wyznacza ta sama reguła co księga statystyk. Przy
+  kilku rycerzach takie zabójstwo nie należy do nikogo.
+- Dziennik v5 zapisuje stan zmieniany poza komendami także dla rycerzy
+  innych niż sterowany (wpis 'actorSet'): buforowany spust i skok
+  drugiego urządzenia oraz generację jego obserwacji. Wcześniej taki
+  przebieg rozjeżdżał się przy odtworzeniu.
+
 Rozgrywka, balans, grafiki, układ HUD-u i dostępne menu nie są zmieniane.
 Jedyna planowana różnica wizualna wydania to numer 0.34 w menu/tytule.
 Źródła i dowody: PLAN-v11-E0…E6-RAPORT.md oraz PLAN-v11-POMIARY.md.
