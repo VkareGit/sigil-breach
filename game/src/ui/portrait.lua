@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- A mortal soldier behind a closed visor. Six authored changes of bearing
 -- retain the portrait's reactions without inventing supernatural eyes.
 -- The bust sits inside the painted arch, including the helmet's crown.
@@ -44,7 +45,7 @@ function P.release()
   P.resources, P.image, P.quads, P.shader = nil, nil, nil, nil
 end
 function P.frame(g)
-  if g.player.hp < 30 then
+  if Context.actor(g).hp < 30 then
     return 5
   end
   if g.view.hurt > 0.25 then

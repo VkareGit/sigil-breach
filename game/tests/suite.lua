@@ -396,6 +396,11 @@ Suite.registry = {
     module = 'tests.cases.observer',
   },
   {
+    id = 'view-context',
+    title = 'Two canvases, independent personal feedback and viewers (plan v11 E5)',
+    module = 'tests.cases.view_context',
+  },
+  {
     id = 'mode-state',
     title = 'Mode state owners, per-session views and an altars mode (plan v11 E2)',
     module = 'tests.cases.mode_state',

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The proving-ground gallery drawn: the active art boards (by hall), the
 -- statues, the pads and their name plates. The layout (halls, statues,
 -- pads, interaction) is world/gallery.lua.
@@ -209,7 +210,7 @@ local function billboard(r, g, img, x, y, z, width, height, tint, alpha, toward)
   s:send('brightness', 1)
   s:send('frameRect', UV)
   s:send('spriteStretch', r:vec2(width / height, 1))
-  local yaw = math.atan2(g.player.x - x, g.player.z - z)
+  local yaw = math.atan2(Context.viewer(g).x - x, Context.viewer(g).z - z)
   x, z = x - math.sin(yaw) * (toward or 0), z - math.cos(yaw) * (toward or 0)
   s:send('objectPos', r:vec3(x, y, z))
   s:send('objectYaw', yaw)
@@ -380,7 +381,7 @@ function G.labels(r, g, ox, oy, vw, vh)
   for i = #taken, 1, -1 do
     taken[i] = nil
   end
-  local p = g.player
+  local p = Context.viewer(g)
   local overlap = require('src.render.numbers').overlap
   -- Only the exhibit under the gaze and one nearby pad get captions. Station
   -- rulers retain their separate distance labels for actual measurement drills.

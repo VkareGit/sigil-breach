@@ -83,8 +83,8 @@ function Abilities.give(g, id)
   return slot
 end
 -- The ability in a slot of the knight's loadout and its live record.
-function Abilities.slot(g, slot)
-  local p = Roles.controlled(g)
+function Abilities.slot(g, slot, actor)
+  local p = actor or Roles.controlled(g)
   local id = p.abilities and p.abilities[slot or 1]
   return id and Abilities:find(id), id and p.abilityState[id]
 end

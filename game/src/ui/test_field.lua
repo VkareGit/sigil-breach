@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 local UI = {}
 local Stats = require('src.session.stats')
 local Field = require('src.run.test_field')
@@ -116,7 +117,7 @@ function UI.controls(g)
   end
   list[#list + 1] = button(
     'field_close',
-    Text.get(g.player.hp <= 0 and 'fui_close_dead' or 'fui_close'),
+    Text.get(Context.actor(g).hp <= 0 and 'fui_close_dead' or 'fui_close'),
     86,
     616,
     440,
@@ -215,15 +216,16 @@ function UI.draw(g, ui)
     C.muted
   )
   local arms = {}
-  for slot = 1, Weapons.count(g) do
-    local mag, reserve = Weapons.ammo(g, slot)
-    arms[slot] = Text.get(
-      'fui_arm',
-      { tab = Text.get(Weapons.profile(slot, g).hud.tab), mag = mag, reserve = reserve }
-    )
+  for slot = 1, Weapons.count(g, Context.actor(g)) do
+    local mag, reserve = Weapons.ammo(g, slot, Context.actor(g))
+    arms[slot] = Text.get('fui_arm', {
+      tab = Text.get(Weapons.profile(slot, g, Context.actor(g)).hud.tab),
+      mag = mag,
+      reserve = reserve,
+    })
   end
   -- The ability on Q: uses left of its capacity.
-  local ability, power = Abilities.slot(g, 1)
+  local ability, power = Abilities.slot(g, 1, Context.actor(g))
   local quick = ability
       and Text.get('fui_quick', { uses = power.uses or 0, capacity = ability.capacity })
     or ''
@@ -289,7 +291,7 @@ function UI.map(g, ui)
     lg.setColor(seal.color)
     lg.circle('line', ox + seal.x * sz, oy + seal.z * sz, 9)
   end
-  local p = g.player
+  local p = Context.actor(g)
   lg.setColor(C.ivory)
   lg.circle('fill', ox + p.x * sz, oy + p.z * sz, 4)
   lg.line(

@@ -12,6 +12,8 @@ local Numbers = require('src.feedback.damage_numbers')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local MovementMarks = require('src.feedback.movement_marks')
 local Text = require('src.content.text')
+local Context = require('src.session.context')
+local Recipient = require('src.feedback.recipient')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
@@ -35,18 +37,22 @@ local function blow(g, e)
 end
 local function bodyHit(g, e)
   local enemy = e.enemy
-  g.view.hitmarker, g.view.precisionHit = Feel.hitmarker, false
-  g.view.lastDamage = math.floor(e.health + 0.5)
-  g.view.lastKill = enemy.hp <= 0
+  local personal = Recipient.context(g, e.owner)
+  if personal then
+    personal.view.hitmarker, personal.view.precisionHit = Feel.hitmarker, false
+    personal.view.lastDamage = math.floor(e.health + 0.5)
+    personal.view.lastKill = enemy.hp <= 0
+  end
   if e.source ~= 'weapon' then
     g:burst(enemy.x, Feel.bloodHeight, enemy.z, Rules.body(enemy).blood, 4, 1.0)
   end
 end
 local function enemyKilled(g, e)
   local enemy = e.enemy
-  if e.offBalance then
-    g.view.breakKill = Feel.breakKillFlash
-    g.view.killPunch = math.max(g.view.killPunch or 0, Feel.breakKillPunch)
+  local personal = Recipient.context(g, e.owner)
+  if personal and e.offBalance then
+    personal.view.breakKill = Feel.breakKillFlash
+    personal.view.killPunch = math.max(personal.view.killPunch or 0, Feel.breakKillPunch)
     if (e.healed or 0) > 0 then
       Audio.play('seal', 0.22)
     end
@@ -58,6 +64,16 @@ local function enemyKilled(g, e)
     require('src.content.enemies').look(enemy).deathStain,
     enemy.kind
   )
+  if not personal then
+    -- A world death leaves its stain regardless of who owns the blow.
+    Audio.play('kill', 0.65)
+    if e.guardianFell then
+      g:notify(Text.get('feedback_guardian_fell'), 7)
+      Audio.play('seal')
+    end
+    return
+  end
+  g = personal
   g.view.feedback, g.view.feedbackTimer =
     Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
   if e.offBalance then
@@ -76,7 +92,7 @@ local function enemyKilled(g, e)
   end
 end
 local function playerHit(g, e)
-  local info, player = e.info, g.player
+  local info, player = e.info, Context.actor(g)
   if info.x and info.z then
     g.view.damageDir = math.atan2(info.x - player.x, info.z - player.z)
   end
@@ -106,27 +122,41 @@ function Listeners.attach(g)
     enemyKilled(g, e)
   end)
   bus:on('present', 'PlayerHit', function(e)
-    playerHit(g, e)
+    local personal = Recipient.context(g, e.actor)
+    if personal then
+      playerHit(personal, e)
+    end
+  end)
+  bus:on('present', 'KnightHit', function(e)
+    local personal = Recipient.context(g, e.knight)
+    if personal then
+      playerHit(personal, e)
+    end
+  end)
+  bus:on('present', 'KnightFell', function(e)
+    -- During a step KnightHit is queued before the fall. The simulation's
+    -- immediate reset cannot clear feedback that has not been presented yet.
+    -- Finish this lifecycle after the queued hurt response has run.
+    Context.reset(g, e.knight)
   end)
   bus:on('present', 'PerfectDodge', function(e)
-    perfectDodge(g, e)
-  end)
-  -- Another actor's shots and casts are not presented until plan v11 E5
-  -- gives every viewer its context (the simulation marks the controlled
-  -- knight's own: byControlled).
-  bus:on('present', 'ShotFired', function(e)
-    if e.byControlled ~= false then
-      Shot.discharge(g, e)
+    local personal = Recipient.context(g, e.actor)
+    if personal then
+      perfectDodge(personal, e)
     end
+  end)
+  -- World shot effects are resolved once; the shot module routes only the
+  -- personal recoil and confirmation to its observed owner.
+  bus:on('present', 'ShotFired', function(e)
+    Shot.discharge(g, e)
   end)
   bus:on('present', 'VolleyResolved', function(e)
-    if e.report.byControlled ~= false then
-      Shot.volley(g, e)
-    end
+    Shot.volley(g, e)
   end)
   bus:on('present', 'AbilityCast', function(e)
-    if e.byControlled ~= false then
-      AbilityFeedback.cast(g, e)
+    local personal = Recipient.context(g, e.actor)
+    if personal then
+      AbilityFeedback.cast(personal, e)
     end
   end)
   WorldFeedback.attach(g)

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The map's lights in the world shader's slots. A map may have any number
 -- of lights (braziers, seals, the Ember); capacity slots hold the ones
 -- nearest the camera that can reach what it sees (plan v10 V3). A light
@@ -223,11 +224,12 @@ function L:choose(x, z, fx, fz)
   return chosen
 end
 -- camera, forward (optional): the view's eye and direction; by default the
--- controlled knight's place.
+-- context viewer's place.
 function L:update(g, camera, forward)
   self:prepare(g.world)
   local view = Queries.world(g)
-  local cx, cz = camera and camera[1] or g.player.x, camera and camera[3] or g.player.z
+  local cx, cz =
+    camera and camera[1] or Context.viewer(g).x, camera and camera[3] or Context.viewer(g).z
   local fade = self:choose(cx, cz, forward and forward[1] or 0, forward and forward[3] or 0)
   for i = 1, L.budget do
     local c = self.colors[i]
@@ -260,7 +262,7 @@ function L:update(g, camera, forward)
   -- Two short-radius projectile lights. Muzzle flash is a separate camera light.
   local best, second, bestD, secondD = nil, nil, 36, 36
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    local d = (b.x - g.player.x) ^ 2 + (b.z - g.player.z) ^ 2
+    local d = (b.x - Context.viewer(g).x) ^ 2 + (b.z - Context.viewer(g).z) ^ 2
     if d < bestD then
       second, secondD, best, bestD = best, bestD, b, d
     elseif d < secondD then

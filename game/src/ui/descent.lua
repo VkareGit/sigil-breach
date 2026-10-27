@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 local D = {}
 local Stats = require('src.session.stats')
 local Text = require('src.content.text')
@@ -106,15 +107,15 @@ function D.controls(g)
         { id = 'shop_next', label = Text.get('next_short'), x = 638, y = 593, w = 170, h = 48 }
     end
     -- One button per weapon of the loadout across the shop's right half.
-    local count = Weapons.count(g)
+    local count = Weapons.count(g, Context.actor(g))
     local step = count <= 2 and 262 or math.floor(524 / count)
     for slot = 1, count do
-      local mag, reserve = Weapons.ammo(g, slot)
+      local mag, reserve = Weapons.ammo(g, slot, Context.actor(g))
       list[#list + 1] = {
         id = 'shop_weapon_' .. slot,
         label = Text.get('shop_weapon', {
           slot = slot,
-          tab = Text.get(Weapons.profile(slot, g).hud.tab),
+          tab = Text.get(Weapons.profile(slot, g, Context.actor(g)).hud.tab),
           mag = mag,
           reserve = reserve,
         }),
@@ -122,7 +123,7 @@ function D.controls(g)
         y = 137,
         w = step - 12,
         h = 40,
-        active = Weapons.slot(g) == slot,
+        active = Weapons.slot(g, Context.actor(g)) == slot,
       }
     end
     return list
@@ -236,7 +237,7 @@ function D.heading(g)
   end
 end
 function D.shop(g)
-  local r, p = Queries.run(g), g.player
+  local r, p = Queries.run(g), Context.actor(g)
   rect(0, 0, 1280, 720, Palette.veilDeep, 0.9)
   Skin.panel(96, 44, 1088, 628, 5, 14)
   Skin.zone('shop writing field', 128, 78, 1024, 562)
@@ -253,10 +254,10 @@ function D.shop(g)
     gold
   )
   text(
-    Text.get(
-      'shop_buying',
-      { weapon = Text.get(Weapons.inHand(g).hud.kind), ward = math.ceil(p.armor) }
-    ),
+    Text.get('shop_buying', {
+      weapon = Text.get(Weapons.inHand(g, nil, Context.actor(g)).hud.kind),
+      ward = math.ceil(p.armor),
+    }),
     650,
     120,
     14,
@@ -351,7 +352,7 @@ function D.map(g)
     color(s.color)
     lg.circle('line', ox + s.x * sz, oy + s.z * sz, 9)
   end
-  local p = g.player
+  local p = Context.actor(g)
   color(ivory)
   lg.circle('fill', ox + p.x * sz, oy + p.z * sz, 4)
   lg.line(

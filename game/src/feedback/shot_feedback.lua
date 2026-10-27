@@ -14,6 +14,8 @@ local K = require('src.content.tuning').shot
 local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
 local Text = require('src.content.text')
+local Context = require('src.session.context')
+local Recipient = require('src.feedback.recipient')
 local Shot = {}
 -- The debris of a body surface that stops a shot without a wound (the
 -- margrave's cleaver): its material's, none for a soft one.
@@ -22,18 +24,29 @@ local function debris(material)
 end
 -- ShotFired: { profile, shotPower }
 function Shot.discharge(g, e)
-  local p, fire = g.player, e.profile.fire
-  g.view.shotPower = e.shotPower
-  g.view.muzzle = fire.muzzle
-  g.view.shake = fire.shake
-  g.view.flashColor = { fire.flash[1], fire.flash[2], fire.flash[3] }
-  -- Recoil from the weapon in hand: its own profile (mass, momentum).
-  Weight.shot(g, Weapons.inHand(g) or Weapons.profile(1, g), g.view.shotPower or 1)
-  A.play(fire.sound, fire.volume + fire.volumePower * g.view.shotPower)
+  local p, fire = Recipient.actor(g, e.actor), e.profile.fire
+  if not p then
+    return
+  end
+  local personal = Recipient.context(g, p)
+  if personal then
+    personal.view.shotPower = e.shotPower
+    personal.view.muzzle = fire.muzzle
+    personal.view.shake = fire.shake
+    personal.view.flashColor = { fire.flash[1], fire.flash[2], fire.flash[3] }
+    -- Recoil belongs to the firing actor, never to whichever view renders next.
+    Weight.shot(personal, Weapons.inHand(g, nil, p) or e.profile, e.shotPower or 1)
+  end
+  local volume = fire.volume + fire.volumePower * e.shotPower
+  if Context.isControlled(g, p) then
+    A.play(fire.sound, volume)
+  else
+    A.playAt(fire.sound, p.x, p.z, Context.viewer(g), volume)
+  end
   -- Powder hangs where it was fired, then rises; the revolver gets a smaller
   -- wisp. Clip the emitter before cover so a close wall cannot swallow it.
   local fx, fy, fz = B.direction(p.yaw, p.pitch)
-  local ox, oy, oz = B.origin(g)
+  local ox, oy, oz = B.origin(g, p)
   local cover = B.world(g.world, ox, oy, oz, fx, fy, fz, K.smokeReach)
   local muzzleDistance = math.min(K.smokeMax, math.max(K.smokeMin, cover - K.smokeClearance))
   FX.emit(
@@ -113,6 +126,11 @@ function Shot.volley(g, e)
       result.crippled or result.tripped
     )
   end
+  local personal = Recipient.context(g, report.actor)
+  if not personal then
+    return
+  end
+  g = personal
   g.view.armorHit = report.blocked > report.damage * K.armorShare
   g.view.shotReport = report
   g.view.precisionHit = report.headHits > 0

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The knight's movement as the painted world shows it: flecks of the
 -- fresco's pigments (content/movement_marks.lua) where a dodge leaves the
 -- stone, along a dodge and a slide, round a jump and a landing, behind a
@@ -88,7 +89,7 @@ end
 -- The knight's emitters for a move towards (dx, dz) (his travel when not
 -- given): his boots, the spot the dodge left, before his eyes.
 local function knight(g, dx, dz)
-  local p = g.player
+  local p = Context.actor(g)
   if not dx then
     local v = sqrt(p.vx * p.vx + p.vz * p.vz)
     if v > 0.1 then
@@ -98,7 +99,7 @@ local function knight(g, dx, dz)
     end
   end
   local ground = Ground.of(g.world, p)
-  local ex, ey, ez = Ballistics.origin(g)
+  local ex, ey, ez = Ballistics.origin(g, p)
   local vy = p.jumpV or 0
   return {
     feet = emitter(p.x, ground + p.jump, p.z, dx, dz, p.vx, vy, p.vz),
@@ -113,7 +114,7 @@ function Marks.dash(g, dx, dz)
 end
 -- A slide begins (player/feel.lua).
 function Marks.slide(g)
-  local p = g.player
+  local p = Context.actor(g)
   Marks.move(g, 'slide', knight(g, p.slideX, p.slideZ))
 end
 -- The knight leaves the ground.
@@ -151,19 +152,23 @@ end
 -- Each step: the dodge and the slide under way, every charge's fuse.
 function Marks.update(g, dt)
   g.view.markClocks = g.view.markClocks or {}
-  local p = g.player
+  local p = Context.actor(g)
   trail(g, 'dashTrail', dt, p.dashTimer > 0, function()
     Marks.move(g, 'dashTrail', knight(g, p.dashX, p.dashZ))
   end)
   trail(g, 'slideTrail', dt, p.slideTimer > 0 and p.jump <= 0, function()
     Marks.move(g, 'slideTrail', knight(g, p.slideX, p.slideZ))
   end)
-  local charges = Pools.of(g, 'charges')
-  trail(g, 'charge', dt, #charges > 0, function()
-    for _, c in ipairs(charges) do
-      Marks.move(g, 'charge', { charge = emitter(c.x, c.y, c.z, 0, 1, c.vx, c.vy, c.vz) })
-    end
-  end)
+  -- Every actor has movement trails, but fuse embers are one shared world
+  -- emission. Additional observed views must not advance this clock again.
+  if Context.isControlled(g, p) then
+    local charges = Pools.of(g, 'charges')
+    trail(g, 'charge', dt, #charges > 0, function()
+      for _, c in ipairs(charges) do
+        Marks.move(g, 'charge', { charge = emitter(c.x, c.y, c.z, 0, 1, c.vx, c.vy, c.vz) })
+      end
+    end)
+  end
 end
 
 Presentation.hook('motion.dash', Marks.dash)

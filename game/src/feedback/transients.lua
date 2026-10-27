@@ -4,6 +4,8 @@
 local Audio = require('src.audio.audio')
 local Trails = require('src.feedback.shot_trails')
 local Presentation = require('src.session.presentation')
+local Context = require('src.session.context')
+local Recipient = require('src.feedback.recipient')
 local Transients = {}
 -- Particles draw from the session's presentation stream (core/rng: present),
 -- never the simulation's: repeatable from its seed (fixed in QA, the clock in
@@ -50,23 +52,11 @@ function Transients.burst(g, x, y, z, color, count, force)
   end
 end
 
-function Transients.beforeCombat(g, dt)
+local function personalBeforeCombat(g, dt)
   local close = g.view.interruptedClose
   if close and g.elapsed >= close.started + close.duration then
     g.view.interruptedClose = nil
   end
-  local numbers = g.view.damageNumbers
-  if numbers then
-    for i = #numbers, 1, -1 do
-      local number = numbers[i]
-      number.age = number.age + dt
-      if number.age >= 0.7 then
-        table.remove(numbers, i)
-      end
-    end
-  end
-  Trails.update(g, dt)
-
   for i = #g.view.shells, 1, -1 do
     local shell = g.view.shells[i]
     shell.life = shell.life - dt
@@ -80,7 +70,9 @@ function Transients.beforeCombat(g, dt)
         shell.bounced = true
         shell.vy = -shell.vy * 0.24
         shell.vx = shell.vx * 0.65
-        Audio.play('shell', 0.12)
+        if Context.isControlled(g, Context.actor(g)) then
+          Audio.play('shell', 0.12)
+        end
       else
         shell.vy = 0
         shell.vx = shell.vx * math.exp(-dt * 12)
@@ -90,6 +82,24 @@ function Transients.beforeCombat(g, dt)
       table.remove(g.view.shells, i)
     end
   end
+end
+
+function Transients.beforeCombat(g, dt)
+  -- These belong to the world, regardless of how many actors are observed.
+  local numbers = g.view.damageNumbers
+  if numbers then
+    for i = #numbers, 1, -1 do
+      local number = numbers[i]
+      number.age = number.age + dt
+      if number.age >= 0.7 then
+        table.remove(numbers, i)
+      end
+    end
+  end
+  Trails.update(g, dt)
+  Recipient.each(g, function(personal)
+    personalBeforeCombat(personal, dt)
+  end)
 end
 
 function Transients.afterCombat(g, dt)

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Read-only hand-animation sampler over the CPU artwork catalogue. The
 -- compatibility facade exposes existing metadata, never owns a second copy.
 local Metadata = require('src.content.weapon_art')
@@ -5,7 +6,7 @@ local Weapons = require('src.content.weapons')
 local Reload = require('src.combat.reload')
 local WeaponArt = setmetatable({}, { __index = Metadata })
 function WeaponArt.idOf(g, slot)
-  local def = Weapons.inHand(g, slot)
+  local def = Weapons.inHand(g, slot, Context.actor(g))
   return def and (def.art or def.id)
 end
 function WeaponArt.of(g, slot)
@@ -16,14 +17,19 @@ local function rounds(g, entry, index)
   if not variants then
     return index
   end
-  local state = assert(Weapons.state(g), 'rounds illustration needs weapon state')
+  local state =
+    assert(Weapons.state(g, nil, Context.actor(g)), 'rounds illustration needs weapon state')
   local count = state.mag
   local source = entry.frames[index].roundsSource
   if source == 'pending' or source == 'loading' then
     -- The rounds this transaction can transfer. Cylinder or barrel contents
     -- in the simulation remain unchanged until combat/reload performs the load.
-    assert(Weapons.validAmmo(g), 'reload illustration needs valid ammunition')
-    local pending = math.min(Weapons.inHand(g).capacity - state.mag, state.reserve)
+    assert(
+      Weapons.validAmmo(g, nil, Context.actor(g)),
+      'reload illustration needs valid ammunition'
+    )
+    local pending =
+      math.min(Weapons.inHand(g, nil, Context.actor(g)).capacity - state.mag, state.reserve)
     if source == 'pending' then
       -- The held loader carries them all.
       count = pending
@@ -49,7 +55,11 @@ end
 -- Presentation does not advance another reload or cooldown clock.
 function WeaponArt.interruptedProgress(g)
   local close = g.view.interruptedClose
-  if not close or close.weapon ~= Weapons.idAt(g) or not WeaponArt.of(g).interruptedClose then
+  if
+    not close
+    or close.weapon ~= Weapons.idAt(g, nil, Context.actor(g))
+    or not WeaponArt.of(g).interruptedClose
+  then
     return nil
   end
   local progress = (g.elapsed - close.started) / close.duration
@@ -59,13 +69,16 @@ function WeaponArt.interruptedProgress(g)
 end
 function WeaponArt.frame(g)
   local entry = WeaponArt.of(g)
-  if Reload.left(g) > 0 and Reload.slot(g) == Weapons.slot(g) then
-    local age = Reload.age(g)
+  if
+    Reload.left(g, Context.actor(g)) > 0
+    and Reload.slot(g, Context.actor(g)) == Weapons.slot(g, Context.actor(g))
+  then
+    local age = Reload.age(g, Context.actor(g))
     -- Automatic opening may include the real discharge. Manual/resumed
     -- opening never manufactures a recoil or advances an ammunition clock.
     if
-      Weapons.inHand(g).fire.autoReload
-      and Reload.offset(g) == 0
+      Weapons.inHand(g, nil, Context.actor(g)).fire.autoReload
+      and Reload.offset(g, Context.actor(g)) == 0
       and age < entry.automaticFireUntil
     then
       local fire = WeaponArt.fireFrame(g)
@@ -88,10 +101,10 @@ function WeaponArt.frame(g)
       end
     end
   end
-  local state = g.player and Weapons.state(g)
+  local state = Context.actor(g) and Weapons.state(g, nil, Context.actor(g))
   if state and state.open then
-    local name = Reload.mechanism(g, Weapons.slot(g)).primed(state) and entry.open.primed
-      or entry.open.empty
+    local name = Reload.mechanism(g, Weapons.slot(g, Context.actor(g)), Context.actor(g))
+      .primed(state) and entry.open.primed or entry.open.empty
     return rounds(g, entry, Metadata.frame(entry, name))
   end
   return WeaponArt.fireFrame(g) or rounds(g, entry, Metadata.frame(entry, entry.ready))

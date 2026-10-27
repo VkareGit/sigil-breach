@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Draw the selected firearm and equipment hands over the world. CPU atlas
 -- metadata owns registration/timing; this module owns only GPU realization.
 local V = {}
@@ -190,13 +191,13 @@ end
 function V.pose(g)
   local x, y, roll = 0, 0, 0
   local closeProgress, close = Art.interruptedProgress(g)
-  local left = Reload.left(g)
+  local left = Reload.left(g, Context.actor(g))
   if left > 0 then
     closeProgress = nil
   end
   if left > 0 or closeProgress then
     local keys = Art.of(g).reloadMotion
-    local age = left > 0 and Reload.age(g)
+    local age = left > 0 and Reload.age(g, Context.actor(g))
       or close.reloadAge + (keys[#keys][1] - close.reloadAge) * closeProgress
     for i = 2, #keys do
       local a, b = keys[i - 1], keys[i]
@@ -210,7 +211,7 @@ function V.pose(g)
       end
     end
     local entry = closeProgress and 1
-      or math.max(0, math.min(1, (Reload.duration(g) - left) / 0.08))
+      or math.max(0, math.min(1, (Reload.duration(g, Context.actor(g)) - left) / 0.08))
     entry = entry * entry * (3 - 2 * entry)
     x, y, roll = x * entry, y * entry, roll * entry
   end
@@ -258,7 +259,7 @@ function V.shellPosition(g, shell, w, h)
   if not shell.originX then
     local entry = Art.of(g)
     local frame = entry.frames[V.sourceFrame(g)]
-    if shell.weapon ~= Weapons.idAt(g) or not frame.eject then
+    if shell.weapon ~= Weapons.idAt(g, nil, Context.actor(g)) or not frame.eject then
       shell.hidden = true
       return nil
     end

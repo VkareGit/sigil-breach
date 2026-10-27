@@ -9,6 +9,9 @@ local Rules = require('src.combat.rules')
 local Reload = require('src.combat.reload')
 local Weapons = require('src.content.weapons')
 local K = require('src.content.tuning').world
+local Context = require('src.session.context')
+local Recipient = require('src.feedback.recipient')
+local Bodies = require('src.combat.bodies')
 local World = {}
 local function sounds(e)
   return Rules.archetype(e).sounds or {}
@@ -17,48 +20,55 @@ end
 World.handlers = {
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
-    A.playAt(sounds(e).windup or 'growl', e.x, e.z, g.player, 0.7)
+    A.playAt(sounds(e).windup or 'growl', e.x, e.z, Context.viewer(g), 0.7)
   end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
-    A.playAt(ev.attack.sound or sounds(e).strike or 'cast', e.x, e.z, g.player, 0.65)
+    A.playAt(ev.attack.sound or sounds(e).strike or 'cast', e.x, e.z, Context.viewer(g), 0.65)
   end,
   ChargeBlocked = function(g, ev)
-    A.playAt('thud', ev.enemy.x, ev.enemy.z, g.player, 0.5)
+    A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.5)
   end,
   -- A body meets the floor: low dust, a thud, a tremor felt only near it.
   Landed = function(g, ev)
-    local e, p = ev.enemy, g.player
+    local e, p = ev.enemy, Context.viewer(g)
     FX.emit(g, 'stone', e.x, K.dustHeight, e.z, ev.heavy and 0.75 or 0.5)
     A.playAt('thud', e.x, e.z, p, ev.heavy and 0.55 or 0.42)
-    local d = math.sqrt((p.x - e.x) ^ 2 + (p.z - e.z) ^ 2)
-    if d < K.tremorReach then
-      g.view.shake = math.max(g.view.shake or 0, K.tremor * (1 - d / K.tremorReach))
-    end
+    Recipient.each(g, function(personal, actor)
+      local d = math.sqrt((actor.x - e.x) ^ 2 + (actor.z - e.z) ^ 2)
+      if d < K.tremorReach then
+        personal.view.shake = math.max(personal.view.shake or 0, K.tremor * (1 - d / K.tremorReach))
+      end
+    end)
   end,
   Evaded = function(g, ev)
-    A.playAt('whoosh', ev.enemy.x, ev.enemy.z, g.player, 0.45)
+    A.playAt('whoosh', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.45)
   end,
   Alerted = function(g, ev)
     local e = ev.enemy
-    A.playAt(sounds(e).alert or 'snarl', e.x, e.z, g.player, 0.4)
+    A.playAt(sounds(e).alert or 'snarl', e.x, e.z, Context.viewer(g), 0.4)
   end,
   -- A body driven into stone lands in the frame too.
   WallSlam = function(g, ev)
-    if ev.player then
-      g.view.shake = math.max(g.view.shake or 0, K.knightSlamShake)
+    if ev.player or Bodies.isKnight(g, ev.body) then
+      local personal = Recipient.context(g, ev.body)
+      if personal then
+        personal.view.shake = math.max(personal.view.shake or 0, K.knightSlamShake)
+      end
       return
     end
     local e = ev.body
-    g.view.killPunch = math.max(g.view.killPunch or 0, K.slamPunch)
-    A.playAt('thud', e.x, e.z, g.player, 0.30 + 0.08 * (ev.lost or 0))
+    Recipient.each(g, function(personal)
+      personal.view.killPunch = math.max(personal.view.killPunch or 0, K.slamPunch)
+    end)
+    A.playAt('thud', e.x, e.z, Context.viewer(g), 0.30 + 0.08 * (ev.lost or 0))
     g:burst(e.x, 1.0, e.z, Rules.body(e).blood, 6, 1.4)
   end,
   BodiesCollided = function(g, ev)
-    A.playAt('hit', ev.other.x, ev.other.z, g.player, 0.35)
+    A.playAt('hit', ev.other.x, ev.other.z, Context.viewer(g), 0.35)
   end,
   PortalOpened = function(g, ev)
-    A.playAt('cast', ev.gate.x, ev.gate.z, g.player, 0.3)
+    A.playAt('cast', ev.gate.x, ev.gate.z, Context.viewer(g), 0.3)
   end,
   -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
   EnemyArrived = function(g, ev)
@@ -66,9 +76,13 @@ World.handlers = {
     local color = require('src.content.enemies').look(e).portal
     FX.emit(g, 'smoke', s.x, 0.7, s.z, 0.9)
     g:burst(s.x, 1.0, s.z, color, 14, 2.6)
-    A.playAt('pulse', s.x, s.z, g.player, 0.45)
+    A.playAt('pulse', s.x, s.z, Context.viewer(g), 0.45)
   end,
-  PlayerStaggered = function(g)
+  PlayerStaggered = function(g, ev)
+    g = Recipient.context(g, ev.actor)
+    if not g then
+      return
+    end
     g.view.recoilV = (g.view.recoilV or 0) + K.staggerRecoil
     g.view.staggerFlash = K.staggerFlash
     g.view.shake = math.max(g.view.shake or 0, K.staggerShake)
@@ -80,14 +94,19 @@ World.handlers = {
   end,
   ChargeExploded = function(g, ev)
     local b = ev.charge
-    g.view.shake = math.max(g.view.shake, K.blastShake)
+    Recipient.each(g, function(personal)
+      personal.view.shake = math.max(personal.view.shake or 0, K.blastShake)
+    end)
     g:burst(b.x, b.y + 0.15, b.z, K.blastColor, 24, 4.5)
     FX.emit(g, 'smoke', b.x, b.y + 0.25, b.z, 1.2)
     FX.emit(g, 'stone', b.x, b.y + 0.15, b.z, 0.9)
-    A.playAt('blast', b.x, b.z, g.player, 0.85)
+    A.playAt('blast', b.x, b.z, Context.viewer(g), 0.85)
   end,
   NearMiss = function(g, ev)
-    Weight.nearMiss(g, ev.bullet, ev.distance)
+    local personal = Recipient.context(g, ev.actor)
+    if personal then
+      Weight.nearMiss(personal, ev.bullet, ev.distance)
+    end
   end,
   ProjectileBurst = function(g, ev)
     local b = ev.bullet
@@ -96,13 +115,31 @@ World.handlers = {
   -- A reload stage sounds as its mechanism's voice for it (the breech's
   -- lever and shells, the cylinder's crane and ratchet).
   ReloadStage = function(g, ev)
-    -- Another actor's reload is not presented yet (plan v11 E5).
-    if ev.byControlled == false then
+    local actor = Recipient.actor(g, ev.actor)
+    if not actor then
       return
     end
     local mechanism = Reload.mechanisms[ev.mechanism]
-    A.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
-    if ev.interrupted and ev.weapon == Weapons.idAt(g) and g.elapsed < ev.started + ev.duration then
+    if Context.isControlled(g, actor) then
+      A.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
+    else
+      A.playAt(
+        mechanism.voices[ev.stage],
+        actor.x,
+        actor.z,
+        Context.viewer(g),
+        mechanism.sounds[ev.stage]
+      )
+    end
+    g = Recipient.context(g, actor)
+    if not g then
+      return
+    end
+    if
+      ev.interrupted
+      and ev.weapon == Weapons.idAt(g, nil, actor)
+      and g.elapsed < ev.started + ev.duration
+    then
       g.view.interruptedClose = {
         weapon = ev.weapon,
         started = ev.started,

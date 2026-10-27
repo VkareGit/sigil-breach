@@ -16,22 +16,27 @@ local Encounter = require('src.session.encounter')
 local Queries = {}
 local sessions = setmetatable({}, { __mode = 'k' })
 local stamps = setmetatable({}, { __mode = 'k' })
+local function canonical(g)
+  return g._contextRoot or g
+end
 local function entry(g)
   local e = sessions[g]
   if not e then
-    e = { views = {}, commands = 0 }
+    e = { views = {}, commands = 0, ownerToken = {} }
     sessions[g] = e
   end
   return e
 end
 -- A command of the session (Game:act): its views from before are stale.
 function Queries.command(g)
-  local e = entry(g)
+  local e = entry(canonical(g))
   e.commands = e.commands + 1
 end
 -- The session's table for a view kind, emptied and stamped.
 local function borrow(g, name)
   local e = entry(g)
+  local root = canonical(g)
+  local revision = root == g and e or entry(root)
   local view = e.views[name]
   if not view then
     view = {}
@@ -42,7 +47,13 @@ local function borrow(g, name)
     end
   end
   local s = stamps[view] or {}
-  s.session, s.time, s.commands = g, g.time or 0, e.commands
+  -- LuaJIT weak-key tables are not ephemerons. A stamp pointing back to g
+  -- would keep the session alive through sessions[g].views -> stamps[view].
+  -- An identity token proves ownership without retaining the owner.
+  -- Different actors/samples keep separate result tables, but all answers
+  -- become stale when a command changes their one authoritative session.
+  s.ownerToken, s.time = e.ownerToken, root.time or 0
+  s.revisionToken, s.commands = revision.ownerToken, revision.commands
   stamps[view] = s
   return view
 end
@@ -50,7 +61,16 @@ end
 -- and since its last command).
 function Queries.valid(g, view)
   local s = stamps[view]
-  return s ~= nil and s.session == g and s.time == (g.time or 0) and s.commands == entry(g).commands
+  local owner = sessions[g]
+  local root = canonical(g)
+  local revision = root == g and owner or sessions[root]
+  return s ~= nil
+    and owner ~= nil
+    and revision ~= nil
+    and s.ownerToken == owner.ownerToken
+    and s.revisionToken == revision.ownerToken
+    and s.time == (root.time or 0)
+    and s.commands == revision.commands
 end
 local function copy(value)
   if type(value) ~= 'table' then

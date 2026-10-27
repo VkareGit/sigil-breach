@@ -1,0 +1,15 @@
+defeated-SIGIL06
+defeated-SIGIL07
+defeated-SIGIL08
+end-human-SIGIL06
+end-human-SIGIL07
+end-human-SIGIL08
+end-playtest-SIGIL06
+end-playtest-SIGIL07
+end-playtest-SIGIL08
+preparing-SIGIL06
+preparing-SIGIL07
+preparing-SIGIL08
+start-SIGIL06
+start-SIGIL07
+start-SIGIL08

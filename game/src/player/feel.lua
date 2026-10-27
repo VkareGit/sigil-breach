@@ -6,27 +6,13 @@ local Reload = require('src.combat.reload')
 local K = require('src.physics.kinematics')
 local Rules = require('src.combat.rules')
 local Intent = require('src.player.intent')
+local Context = require('src.session.context')
 local F = {}
 local M, C = T.motion, T.camera
 local approach = MathX.approach
 local spring = K.spring
-local cameraKeys = {
-  'recoil',
-  'recoilV',
-  'swayX',
-  'swayY',
-  'bank',
-  'fovKick',
-  'land',
-  'landV',
-  'bobWeight',
-  'shake',
-}
-local function clearCamera(g)
-  for _, key in ipairs(cameraKeys) do
-    g.view[key] = 0
-  end
-end
+local ViewState = require('src.session.view_state')
+local clearCamera = ViewState.clearCamera
 -- A setting change may happen twice while paused, with no simulation between.
 -- Discard decoration now; never reset firing/reload clocks, jump, contact
 -- latches, input intentions, physical gait or combat confirmation.
@@ -34,10 +20,20 @@ function F.clearMotion(g)
   clearCamera(g)
   Presentation.call(g, 'motion.clear')
   g.view.presentationPrevious = nil
+  for id in pairs(Context.watched(g)) do
+    local actor = require('src.session.world').get(g, id)
+    if actor then
+      local shown = Context.of(g, actor)
+      clearCamera(shown)
+      Presentation.call(shown, 'motion.clear')
+      shown.view.presentationPrevious = nil
+    end
+  end
+  for _, observer in ipairs(Context.observers(g)) do
+    observer.state.presentationPrevious = nil
+  end
 end
--- The camera springs of a knight that is not presented (plan v11 E3b): his
--- own, so another knight's step never moves the presented view. The
--- presentation context of plan v11 E5 replaces this.
+-- Minimal springs for unobserved actors; watched actors use Context.view.
 local bodyViews = setmetatable({}, { __mode = 'k' })
 local function bodyView(p)
   local v = bodyViews[p]
@@ -60,49 +56,35 @@ local function bodyView(p)
   end
   return v
 end
+F.initView = ViewState.init
 function F.init(g)
   local p = g.player
   p.vx, p.vz = 0, 0
   require('src.content.weapons').rest(g)
   p.slideTimer, p.slideCooldown, p.slideAge, p.crouch = 0, 0, 0, 0
-  clearCamera(g)
-  g.view.shotAge, g.view.swapAge, g.impactSlow, g.view.stepSound = 10, 1, 0, 0
-  g.view.shotReport = nil
-  g.view.interruptedClose = nil
+  g.impactSlow = 0
   g.playerDamageReport = nil
-  g.view.precisionHit = false
-  g.view.hitWeight = 0
-  g.view.shotPower = 1
-  -- The actor's reload timeline and shot sequence start again with it; the
-  -- world's shot id restarts with the encounter (one knight: the same count).
-  p.reloadOffset = 0
-  p.shotSequence = 0
-  g.shotSerial = 0
-  p.reloadStage = 0
-  p.reloadDuration = 0
-  g.view.lastDamage = 0
-  g.view.lastKill = false
-  g.view.traces = {}
-  g.view.surfaceMarks = {}
-  g.view.corpses = {}
-  g.view.shells = {}
-  g.view.effects = {}
-  g.view.decals = {}
+  p.reloadOffset, p.shotSequence, g.shotSerial = 0, 0, 0
+  p.reloadStage, p.reloadDuration = 0, 0
+  g.view.traces, g.view.surfaceMarks, g.view.corpses = {}, {}, {}
+  g.view.effects, g.view.decals = {}, {}
+  g.view.actors, g.view.observers = nil, nil
   g.view.motion = true
-  g.view.flashColor = { 1, 0.45, 0.12 }
-  Presentation.call(g, 'motion.init')
+  F.initView(g)
   Intent.init(g)
 end
--- actor: the knight that moves (default the controlled one). Only the
--- controlled knight's step is presented (the camera, the hands, the sounds);
--- another keeps its camera springs in a view of its own (plan v11 E3b).
+-- actor: the knight that moves. Watched actors keep separate hands/camera
+-- state; only the controlled actor produces local movement audio.
 function F.update(g, dt, input, actor)
   if type(dt) ~= 'number' or dt <= 0 or dt ~= dt or dt == math.huge then
     return
   end
   local p = actor or g.player
-  local presented = p == g.player
-  local view = presented and g.view or bodyView(p)
+  local controlled = p == g.player
+  local personal = Context.view(g, p)
+  local presented = personal ~= nil
+  local shown = presented and Context.of(g, p) or nil
+  local view = personal or bodyView(p)
   view.recoil, view.recoilV =
     spring(view.recoil, view.recoilV, 0, C.recoilSpring[1], C.recoilSpring[2], dt)
   view.land, view.landV = spring(view.land, view.landV, 0, C.landSpring[1], C.landSpring[2], dt)
@@ -111,7 +93,7 @@ function F.update(g, dt, input, actor)
   view.shotAge = view.shotAge + dt
   view.swapAge = math.min(1, view.swapAge + dt)
   if presented then
-    Presentation.call(g, 'motion.weight', dt)
+    Presentation.call(shown, 'motion.weight', dt)
   end
   view.fovKick = approach(view.fovKick, p.dashTimer > 0 and C.dashFov or 0, dt * C.dashFovRate)
   p.yaw = p.yaw + (input.turn or 0) * dt * M.turn
@@ -138,11 +120,11 @@ function F.update(g, dt, input, actor)
     p.slideTimer = T.slideTime
     p.slideAge = 0
     p.slideCooldown = T.slideCooldown
-    if presented then
+    if controlled then
       Presentation.cue(g, 'slide', C.sounds.slide)
     end
     if presented then
-      Presentation.call(g, 'motion.slide')
+      Presentation.call(shown, 'motion.slide')
     end
   end
   -- Conditions from the shared rules (stagger, wound) slow the body, not the aim.
@@ -230,7 +212,7 @@ function F.update(g, dt, input, actor)
   local slidX, slidZ, collided, supportLift, supportDrop =
     W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p, Rules.tall(g, p))
   if g.world.elevations and g.frame then
-    if presented then
+    if controlled then
       g.frame.supportLift = supportLift or 0
     else
       g.frame.supportLifts = g.frame.supportLifts or {}
@@ -248,7 +230,7 @@ function F.update(g, dt, input, actor)
     if over > 0 then
       p.pushX, p.pushZ = 0, 0
       -- A damaging contact already sounds through the shared damage receipt.
-      if presented and not recorded then
+      if controlled and not recorded then
         Presentation.cue(g, 'thud', C.sounds.thud)
       end
     end
@@ -257,7 +239,7 @@ function F.update(g, dt, input, actor)
   -- a dash's normal exit-speed cap below must not masquerade as a wall hit.
   if presented then
     Presentation.call(
-      g,
+      shown,
       'motion.wall',
       collided,
       contactVX,
@@ -280,7 +262,7 @@ function F.update(g, dt, input, actor)
   local travelled = math.sqrt((p.x - oldx) ^ 2 + (p.z - oldz) ^ 2)
   view.moving = travelled > M.moving
   if presented then
-    g.step = g.step + travelled * C.steps
+    shown.step = shown.step + travelled * C.steps
   end
   if p.slideTimer > 0 and math.sqrt(p.vx * p.vx + p.vz * p.vz) < 2 then
     p.slideTimer = 0
@@ -298,14 +280,14 @@ function F.update(g, dt, input, actor)
   if jumped then
     p.jumpV = T.jumpSpeed
     if presented then
-      Presentation.call(g, 'motion.takeoff', p.jumpV)
+      Presentation.call(shown, 'motion.takeoff', p.jumpV)
     end
     if p.slideTimer > 0 then
       p.slideTimer = 0
       -- Keep the slide's speed; the air cap absorbs the excess over time.
       p.airCap = math.sqrt(p.vx * p.vx + p.vz * p.vz)
     end
-    if presented then
+    if controlled then
       Presentation.cue(g, 'jump', C.sounds.jump)
     end
   end
@@ -332,12 +314,14 @@ function F.update(g, dt, input, actor)
     if wasAir then
       view.landV = math.max(-C.landDipMax, -math.abs(impact or 0) * C.landDip)
       if presented then
-        landingImpact = Presentation.call(g, 'motion.landing', impact)
-        Presentation.cue(
-          g,
-          'land',
-          C.sounds.land + math.min(C.sounds.landMax, math.abs(impact or 0) * C.sounds.landGain)
-        )
+        landingImpact = Presentation.call(shown, 'motion.landing', impact)
+        if controlled then
+          Presentation.cue(
+            g,
+            'land',
+            C.sounds.land + math.min(C.sounds.landMax, math.abs(impact or 0) * C.sounds.landGain)
+          )
+        end
       end
     end
     p.jumpV = 0
@@ -345,7 +329,7 @@ function F.update(g, dt, input, actor)
   view.stepSound = math.max(0, (view.stepSound or 0) - dt)
   local footfalls = presented
     and Presentation.call(
-      g,
+      shown,
       'motion.weapon',
       dt,
       travelled,
@@ -354,13 +338,13 @@ function F.update(g, dt, input, actor)
       landingImpact,
       plantedTravel
     )
-  if footfalls and footfalls > 0 and view.stepSound == 0 then
+  if controlled and footfalls and footfalls > 0 and view.stepSound == 0 then
     view.stepSound = C.stepEvery
     Presentation.cue(g, 'step', C.sounds.step)
   end
   -- The trails of the step's movement (feedback/movement_marks.lua).
   if presented then
-    Presentation.call(g, 'motion.marks', dt)
+    Presentation.call(shown, 'motion.marks', dt)
   end
 end
 function F.reloadUpdate(g, dt, actor)

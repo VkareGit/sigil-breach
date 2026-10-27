@@ -1,10 +1,12 @@
+local Context = require('src.session.context')
+local Ballistics = require('src.combat.ballistics')
 -- Presentation-only camera and the projection of the authoritative firing ray.
 -- Recoil can move the view; the reticle must still mark where the shot goes.
 local T = require('src.content.tuning')
 local Layout = require('src.ui.layout')
 local Camera = {}
 function Camera.roll(g)
-  if g.view.motion == false then
+  if g.view.motion == false or Context.viewer(g) ~= Context.actor(g) then
     return 0
   end
   local t = g.time or 0
@@ -14,7 +16,8 @@ function Camera.roll(g)
     + (g.view.rollPunch or 0)
 end
 function Camera.basis(g, right, up, forward)
-  local p, motion = g.player, g.view.motion ~= false
+  local p = Context.viewer(g)
+  local motion = g.view.motion ~= false and p == Context.actor(g)
   local yaw, pitch = p.yaw, p.pitch
   if g.state == 'menu' then
     yaw, pitch = math.pi - 0.30 + math.sin(g.time * 0.06) * 0.10, 0.22
@@ -30,6 +33,15 @@ function Camera.basis(g, right, up, forward)
   forward[1], forward[2], forward[3] = sy * cp, sp, cy * cp
   return (g.view.fov or T.baseFov) + (motion and (g.view.fovKick or 0) or 0)
 end
+-- A detached camera supplies absolute world eye height. Knight viewers use
+-- the same physical eye as shooting; actor recoil never moves another viewer.
+function Camera.origin(g)
+  local viewer = Context.viewer(g)
+  if viewer ~= Context.actor(g) and viewer.y ~= nil then
+    return viewer.x, viewer.y, viewer.z
+  end
+  return Ballistics.origin(g, viewer)
+end
 local right, up, forward = {}, {}, {}
 function Camera.dimensions(g, w, h)
   local _, _, vw, vh = Layout.scene(g, w, h)
@@ -40,7 +52,7 @@ end
 -- viewports (the classic scene fills the window; the field has a status bar).
 function Camera.reticle(g, w, h)
   local fov = Camera.basis(g, right, up, forward)
-  local p = g.player
+  local p = Context.actor(g)
   local cp = math.cos(p.pitch)
   local dx, dy, dz = math.sin(p.yaw) * cp, math.sin(p.pitch), math.cos(p.yaw) * cp
   local depth = dx * forward[1] + dy * forward[2] + dz * forward[3]

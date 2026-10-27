@@ -63,8 +63,18 @@ function Test.run(Game)
   local text = Journal.encode(journal)
   local loaded = Journal.decode(text)
   check(
-    'v4 round trip replays the exact final state and receipts',
-    pcall(Journal.replay, fresh(), loaded)
+    'v5 round trip replays the exact final state and receipts',
+    loaded.header.version == 5 and pcall(Journal.replay, fresh(), loaded)
+  )
+  -- Exercise the actual v4 decoder route, not a current-format archive
+  -- carrying an obsolete test label. This trial has only the default actor.
+  local v4, v4Game = Observation.copy(loaded), fresh()
+  v4.header.version = 4
+  local v4OK = pcall(Journal.replay, v4Game, v4)
+  local Integrity = require('src.session.integrity')
+  check(
+    'v4 pooled journals replay to exactly the current-format final state',
+    v4OK and not Integrity.difference(Integrity.capture(g), Integrity.capture(v4Game))
   )
   local legacy = Observation.copy(loaded)
   legacy.header.version = 2

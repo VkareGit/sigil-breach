@@ -1,6 +1,6 @@
+local Context = require('src.session.context')
 -- Visual interpretation of authoritative attack clocks. No gameplay timers,
 -- extra hit regions, or hidden randomness are introduced by the renderer.
-local Roles = require('src.core.roles')
 local Archetypes = require('src.content.enemies')
 local Geometry = require('src.enemies.geometry')
 local Surface = require('src.enemies.surface')
@@ -64,7 +64,10 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   shader:send('mirror', 0)
   shader:send('frameRect', data.rect)
   shader:send('objectPos', r:vec3(x, ground and y or y - size * data.height * 0.5, z))
-  shader:send('objectYaw', ground and 0 or math.atan2(g.player.x - x, g.player.z - z))
+  shader:send(
+    'objectYaw',
+    ground and 0 or math.atan2(Context.viewer(g).x - x, Context.viewer(g).z - z)
+  )
   shader:send('objectScale', size)
   shader:send('lean', 0)
   shader:send('pain', 0)
@@ -78,7 +81,7 @@ function E.spells(r, g)
     local casts = look.casts
     if e.hp > 0 and e.ai == 'windup' and casts and (casts.all or casts[e.attackKind]) then
       local progress = 1 - e.windup / math.max(0.01, e.windupDuration or 1)
-      local yaw = math.atan2(g.player.x - e.x, g.player.z - e.z)
+      local yaw = math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
       local size = look.cast.size
       E.spell(
         r,
@@ -154,7 +157,7 @@ function E.charges(r, g, image, frames)
     s:send('spriteStretch', r:vec2(region.width, region.height))
     s:send('frameRect', region.rect)
     s:send('objectPos', r:vec3(c.x, c.y - 0.16, c.z))
-    s:send('objectYaw', math.atan2(g.player.x - c.x, g.player.z - c.z))
+    s:send('objectYaw', math.atan2(Context.viewer(g).x - c.x, Context.viewer(g).z - c.z))
     if alpha > 0 then
       love.graphics.draw(r.sprite)
     end
@@ -273,7 +276,7 @@ local function overlay(r, p)
 end
 local FULL = { 0, 0, 1, 1 }
 local function surfaceOverlay(r, g, e)
-  local p = Surface.prepare(g, e, r.hitSurface, Roles.viewer(g))
+  local p = Surface.prepare(g, e, r.hitSurface, Context.viewer(g))
   r.hitSurface = p
   local place = r:enemyPlacement(g, e)
   local s = r.spriteShader
@@ -295,7 +298,7 @@ local function surfaceOverlay(r, g, e)
   love.graphics.draw(r.sprite)
 end
 local function volumes(r, g, e)
-  for _, v in ipairs(Geometry.volumes(g, e, Roles.viewer(g))) do
+  for _, v in ipairs(Geometry.volumes(g, e, Context.viewer(g))) do
     local color = E.hitColors[v.zone] or E.hitColors.blocks
     r:object(r.warning, v.x, v.bottom + 0.025, v.z, 0, v.radius, color, 0.85)
     r:object(r.warning, v.x, v.top, v.z, 0, v.radius, color, 0.85)

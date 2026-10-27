@@ -8,12 +8,19 @@ local K = require('src.content.tuning').clocks
 local Roles = require('src.core.roles')
 local Pools = require('src.session.world')
 local Stats = require('src.session.stats')
+local Context = require('src.session.context')
 local Clocks = { name = 'clocks' }
 local plain = { 'zoneTimer', 'impactSlow', 'worldStop' }
 -- Each actor's own weapon cadence (plan v11 E3).
 local actor = { 'cooldown' }
 local plainView = { 'feedbackTimer', 'muzzle' }
 local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer', 'perfectDodge' }
+local function tickView(view, dt)
+  Timers.tick(view, plainView, dt)
+  view.hurt = Timers.down(view.hurt, dt * K.hurtFade)
+  view.surge = Timers.down(view.surge, dt * K.surgeFade)
+  Timers.tick(view, after, dt)
+end
 function Clocks.run(g, dt)
   Timers.tick(g, plain, dt)
   -- Each actor's combo window (session/stats.lua, plan v11 E3d).
@@ -26,14 +33,14 @@ function Clocks.run(g, dt)
       Timers.tick(knight, actor, dt)
     end
   end
-  Timers.tick(g.view, plainView, dt)
   local zone = Arena.zone(g.world, Roles.controlled(g).x, Roles.controlled(g).z)
   if zone ~= g.zone then
     g.zone, g.zoneTimer = zone, K.zoneBanner
     Presentation.cue(g, 'bell', K.zoneBell)
   end
-  g.view.hurt = Timers.down(g.view.hurt, dt * K.hurtFade)
-  g.view.surge = Timers.down(g.view.surge, dt * K.surgeFade)
-  Timers.tick(g.view, after, dt)
+  tickView(g.view, dt)
+  for _, view in pairs(Context.watched(g)) do
+    tickView(view, dt)
+  end
 end
 return Clocks

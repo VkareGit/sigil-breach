@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The presentation plugged into the simulation (0.24 F1): loading this
 -- module registers every presentation hook and the per-session event
 -- listeners (session/presentation.lua). The application loads it once; a
@@ -13,7 +14,7 @@ local Install = {}
 -- A sound cue from the simulation, at a place when it names one.
 function Install.cue(g, sound, volume, x, z)
   if x then
-    return Audio.playAt(sound, x, z, g.player, volume)
+    return Audio.playAt(sound, x, z, Context.viewer(g), volume)
   end
   return Audio.play(sound, volume)
 end

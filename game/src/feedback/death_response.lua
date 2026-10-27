@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Presentation of an already resolved death. This module cannot deal damage,
 -- move a body or award a kill. Contact power selects pigment and timing only.
 -- The death itself (strength, contact, landing, collapse pose) is simulation:
@@ -23,7 +24,7 @@ Death.pose = Corpse.pose
 -- the whole silhouette with the same radial particle cloud on every kill.
 function Death.clots(g, e, strong, point, contact)
   local response = e.deathResponse
-  local dx, dz = e.x - g.player.x, e.z - g.player.z
+  local dx, dz = e.x - Context.viewer(g).x, e.z - Context.viewer(g).z
   if contact then
     dx, dz = contact.dx or dx, contact.dz or dz
   end
@@ -61,7 +62,7 @@ end
 function Death.landed(g, e, energy)
   local response = e.deathResponse
   local size = clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.66)
-  Audio.playAt('thud', e.x, e.z, g.player, clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.58))
+  Audio.playAt('thud', e.x, e.z, Context.viewer(g), clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.58))
   -- Two low, lateral pigment strokes leave the falling face and hands visible.
   for _, side in ipairs({ -1, 1 }) do
     Effects.emit(g, 'stone', e.x + side * size * 0.33, 0.10, e.z, size, {

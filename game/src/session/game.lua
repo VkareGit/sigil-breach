@@ -21,6 +21,7 @@ local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
+local Context = require('src.session.context')
 local Game = {}
 Game.__index = Game
 -- Presentation state lives in g.view (session/fields.lua): reading or writing
@@ -144,10 +145,9 @@ function Game:switchWeapon(which, who)
   Reload.cancel(self, actor)
   actor.weapon = which
   actor.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
-  if presented then
-    self.view.swapAge = 0
-    self.view.shotAge = 10
-    self.view.interruptedClose = nil
+  local view = Context.view(self, actor)
+  if view then
+    view.swapAge, view.shotAge, view.interruptedClose = 0, 10, nil
   end
   -- An action left open finishes its reload when the weapon is back in hand.
   if state.open then
@@ -197,8 +197,10 @@ function Game:dash(dx, dz, who)
   end
   player.dashX, player.dashZ = dx, dz
   -- Its flash and the flecks it throws: feedback/movement_marks.lua.
+  if Context.view(self, player) then
+    Presentation.call(Context.of(self, player), 'motion.dash', dx, dz)
+  end
   if presented then
-    Presentation.call(self, 'motion.dash', dx, dz)
     Presentation.cue(self, 'dash')
   end
   return true
@@ -222,6 +224,7 @@ function Game:actorLeave(id)
   if not knight or knight == Roles.controlled(self) then
     return false
   end
+  Context.unwatch(self, knight.id)
   Pools.remove(self, 'knights', knight)
   require('src.combat.observation').invalidateActor(self, knight)
   return true
@@ -235,6 +238,7 @@ function Game:actorControl(id)
   end
   require('src.player.intent').clear(self, previous)
   Roles.control(self, knight)
+  Context.controlChanged(self, previous, knight)
   -- Both knights' observations end; the others' stay (plan v11 E4).
   local Observation = require('src.combat.observation')
   Observation.invalidateActor(self, previous)

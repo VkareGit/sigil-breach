@@ -440,7 +440,7 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   - pocisk: oko żywego i obecnego właściciela, inaczej punkt wystrzału
     (Projectiles.observer);
   - stworzenie: jego cel (Pose.observerOf).
-  Tylko prezentacja podaje Roles.viewer(g), czyli widza kamery (druga
+  Tylko prezentacja podaje Context.viewer(g), czyli widza kamery (druga
   kamera, kamera powtórki; domyślnie sterowany rycerz). Sprite nie ma głębi:
   maska leży w płaszczyźnie billboardu; sweep pocisku jest konserwatywny
   o pół przekątnej komórki maski.
@@ -455,9 +455,22 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   stworzenie prawem stworzeń. Rycerz inny niż sterowany dostaje KnightHit
   i KnightFell; jego upadek nie kończy walki. Sterowany rycerz i widz mają
   jedno źródło nazwy: core/roles.lua (zapadka knight-references = 1,
-  utworzenie rycerza). Rycerze inni niż sterowany nie mają jeszcze
-  własnego sterowania (wejście, broń w ręku, kamera) — to nie zmienia
-  reguł walki, które ich już obejmują.
+  utworzenie rycerza). Rycerze inni niż sterowany mają własne wejście,
+  uzbrojenie i prezentację (plan v11 E3–E5). Input.new(actorId, device)
+  produkuje actors[id], a publiczne komendy przechodzą przez ID aktora
+  zgodne z dziennikiem v5. Nie dodano split-screenu do menu.
+  session/context.lua rozdziela actor (HUD/ręce) i viewer (kamera/audio).
+  Pola g.view deklarują scope: world, actor, view; ustawienia motion/fov
+  są wspólne. watch tworzy osobisty widok, unwatch usuwa go wraz z kamerami
+  zależnymi; unobserve kończy oddzielną kamerę. Kamera ma stałą tożsamość.
+  view_state inicjalizuje prezentację bez zależności od player/feel.
+  Interpolacja obejmuje wszystkich rycerzy i oddzielne historie kamer.
+  Symulacja wykonuje się raz, efekty świata są pojedyncze; feedback
+  osobisty trafia do właściciela zdarzenia. Śmierć dodatkowego rycerza
+  zeruje widok także po flush kolejki; ekran śmierci sterowanego zachowuje
+  0.33. Reset/zmiana sterowania usuwa stare widoki i historie.
+  Queries stempluje pożyczone widoki neutralnym ownerToken, nigdy
+  referencją zwrotną do sesji (LuaJIT: słabe klucze nie są ephemeronami).
   Krok symulacji 1/120 s: wynik nie zależy od FPS (qa/step_study.lua, ten sam
   skrót przy 30/60/144/240/zmiennym FPS). Zmiana samego kroku (nie FPS):
   1/240 przesuwa czasy kontaktów o ≤ 1 krok (≤ 0,0042 s), 1/60 do 0,025 s

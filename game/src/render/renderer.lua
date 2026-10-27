@@ -1,4 +1,4 @@
-local Roles = require('src.core.roles')
+local Context = require('src.session.context')
 local M = require('src.render.mesh')
 local WorldMesh = require('src.render.world_mesh')
 local T = require('src.content.tuning')
@@ -13,7 +13,6 @@ local Queries = require('src.run.queries')
 local Ground = require('src.physics.ground')
 local Layout = require('src.ui.layout')
 local Camera = require('src.render.camera')
-local Ballistics = require('src.combat.ballistics')
 -- What stands in the world besides the bodies draws by registration
 -- (render/world_objects.lua); the renderer never names a kind of it.
 local WorldObjects = require('src.render.world_objects')
@@ -306,7 +305,7 @@ end
 local placement = {}
 function R:enemyPlacement(g, e)
   -- Drawn as the camera's viewer sees it (presentation only, plan v11 E4).
-  local p = Pose.sample(g, e, placement, Roles.viewer(g))
+  local p = Pose.sample(g, e, placement, Context.viewer(g))
   p.baseY = p.baseY + Ground.of(g.world, e)
   if p.ability then
     p.image = self.abilityArt[p.ability].image
@@ -383,7 +382,7 @@ function R:effect(g, e)
   s:send('effectAlpha', math.min(1, (1 - e.age / e.duration) * 3) * profile.alpha)
   s:send('frameRect', region.rect)
   s:send('objectPos', self:vec3(e.x, e.y - size * region.height * 0.5, e.z))
-  s:send('objectYaw', math.atan2(g.player.x - e.x, g.player.z - e.z))
+  s:send('objectYaw', math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z))
   s:send('objectScale', size)
   s:send('lean', 0)
   s:send('pain', 0)
@@ -412,7 +411,7 @@ function R:sky(g)
 end
 -- The first-person weapon is lit by the same torches, presence and muzzle flash.
 function R:weaponTint(g)
-  local p = g.player
+  local p = Context.actor(g)
   local r, green, b = self.lighting:sample(p.x, Ground.of(g.world, p) + 1, p.z)
   local f = math.min(1, (g.view.muzzle or 0) * 16)
   local c = self.weaponColor or { 1, 1, 1 }
@@ -489,7 +488,7 @@ function R:frameCamera(g, w, h)
   -- The HUD uses this same camera to project the physical ray, including a
   -- still-settling kick when another weapon is drawn before the old cycle ends.
   local fov = Camera.basis(g, self.right, self.up, self.forward)
-  self.camera[1], self.camera[2], self.camera[3] = Ballistics.origin(g)
+  self.camera[1], self.camera[2], self.camera[3] = Camera.origin(g)
   self.projection = (self.w / self.h) / math.tan(math.rad(fov) * 0.5)
 end
 -- This frame's bodies, one instanced draw per image. Bodies are opaque and
@@ -529,7 +528,7 @@ function R:draw(g, w, h)
 end
 -- Below 40 HP the frame drains of colour and the edges darken with a heartbeat.
 function R.lowHealth(g)
-  local p = g.player
+  local p = Context.actor(g)
   if not p or g.state ~= 'playing' or (p.hp or 100) <= 0 then
     return 0
   end

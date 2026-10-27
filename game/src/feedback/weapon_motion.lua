@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Presentation only: this module never changes the camera, aim, collision,
 -- weapon clocks or ammunition. Units are pixels at the 450 px scene height.
 local MathX = require('src.core.mathx')
@@ -19,13 +20,13 @@ local function smooth(v)
   return v * v * (3 - 2 * v)
 end
 function M.grip(g)
-  local left = Reload.left(g)
+  local left = Reload.left(g, Context.actor(g))
   if left <= 0 then
     return 1
   end
   -- Blend the hand brace on elapsed presentation time, including a resumed
   -- reload. The physical action still uses its unchanged absolute timeline.
-  local elapsed = math.max(0, Reload.duration(g) - left)
+  local elapsed = math.max(0, Reload.duration(g, Context.actor(g)) - left)
   local brace = math.min(smooth(elapsed / 0.10), smooth(left / 0.12))
   return 1 - 0.52 * brace
 end
@@ -95,7 +96,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   if type(dt) ~= 'number' or dt <= 0 or dt ~= dt or dt == math.huge then
     return
   end
-  local p = g.player
+  local p = Context.actor(g)
   local planted = Gait.planted(p) and plantedTravel ~= false
   local before = g.view.gaitPhase or 0
   local footsteps = Gait.advance(g, travelled, planted)
@@ -211,7 +212,7 @@ function M.pose(g)
     + (g.view.weaponAimX or 0) * 0.0012
     + (g.view.weaponImpactRoll or 0)
     + (g.view.weaponStepRoll or 0)
-  roll = roll - (g.player.crouch or 0) * 0.045
+  roll = roll - (Context.actor(g).crouch or 0) * 0.045
   -- Reload actions retain their clear silhouette while the hands keep weight.
   return clamp(x * grip, -13, 13), clamp(y * grip, -8, 14), clamp(roll * grip, -0.04, 0.04)
 end

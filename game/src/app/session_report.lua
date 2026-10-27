@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Real-play measurements for the playtest (plan v5). An entry is appended to
 -- telemetry.txt in the game's save folder (Report.path) when the knight
 -- dies, when the demons on the proving ground are all down, when a wave or
@@ -61,7 +62,7 @@ function Report.lines(g, reason)
   for key, value in pairs(now) do
     encounter[key] = value - (before[key] or 0)
   end
-  local hp = g.player and g.player.hp or 0
+  local hp = Context.actor(g) and Context.actor(g).hp or 0
   local lines = {
     os.date('%Y-%m-%d %H:%M') .. ' / ' .. reason .. ' / mode ' .. tostring(g.mode),
     summary('This encounter', encounter, hp),
@@ -94,7 +95,7 @@ end
 function Report.attach(g)
   local bus = g.bus
   bus:on('present', 'PlayerHit', function()
-    if g.player.hp <= 0 then
+    if Context.actor(g).hp <= 0 then
       Report.write(g, 'death')
     end
   end)

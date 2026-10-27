@@ -56,7 +56,11 @@ function Dodge.perfect(g, packet, source, knight)
     local broke, heavy = Rules.guard(source, packet.impact * rule.guardReturn)
     returned = { staggered = broke, heavy = heavy }
   end
-  Signal(g, 'PerfectDodge', { packet = packet, source = source, returned = returned })
+  Signal(
+    g,
+    'PerfectDodge',
+    { packet = packet, source = source, returned = returned, actor = player.id }
+  )
   return true
 end
 return Dodge

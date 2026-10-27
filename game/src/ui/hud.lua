@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 local H = {}
 local lg = love.graphics
 local Stats = require('src.session.stats')
@@ -85,14 +86,14 @@ end
 -- is the mode's report (run/modes.lua: hud), never its record read here.
 function H.status(g, run)
   run = run or Modes.act(g, 'hud')
-  local p = g.player
+  local p = Context.actor(g)
   require('src.ui.reliquary').status()
   Skin.lightField(0, 584, 1280, 136)
   Skin.zone('HUD ammunition', 133, 628, 105, 68)
-  local mag, reserve = Weapons.ammo(g)
+  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
   fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
   number(tostring(mag), 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
-  local ammoCaption = Reload.left(g) > 0 and Reload.label(g)
+  local ammoCaption = Reload.left(g, Context.actor(g)) > 0 and Reload.label(g, Context.actor(g))
     or Text.get('reserve', { count = reserve })
   fitted(
     ammoCaption,
@@ -100,7 +101,7 @@ function H.status(g, run)
     678,
     14,
     100,
-    Reload.left(g) > 0 and C.gold or (reserve == 0 and C.red or C.muted)
+    Reload.left(g, Context.actor(g)) > 0 and C.gold or (reserve == 0 and C.red or C.muted)
   )
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
@@ -189,7 +190,7 @@ function H.status(g, run)
 end
 function H.draw(g, settings, ui, descentUI)
   U = ui
-  local p = g.player
+  local p = Context.actor(g)
   local run = Modes.act(g, 'hud')
   local cx, cy = U.aimX or L.aimX, U.aimY or L.aimY
   descentUI.heading(g)
@@ -262,9 +263,9 @@ function H.draw(g, settings, ui, descentUI)
       end
     end
   end
-  if Weapons.inHand(g).fire.pellets > 1 then
+  if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = 640
-      * math.tan(T.pelletSpread * require('src.content.weapons').spread(g))
+      * math.tan(T.pelletSpread * Weapons.spread(g, nil, Context.actor(g)))
       / math.tan(
         math.rad((g.view.fov or T.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0)) / 2
       )
@@ -295,7 +296,8 @@ function H.draw(g, settings, ui, descentUI)
       end
     end
   elseif run.fighting then
-    local target = B.trace(g, p.yaw, p.pitch, 25)
+    local dx, dy, dz = B.direction(p.yaw, p.pitch)
+    local target = B.traceVector(g, dx, dy, dz, 25, B.prepare(g, p, {}), { B.origin(g, p) })
     if target and target.hp > 0 then
       local shield = (target.armorRating or 0) > 0
       Skin.panel(503, 20, 274, 60, 2, 10)
@@ -316,14 +318,14 @@ function H.draw(g, settings, ui, descentUI)
     end
   end
   H.status(g, run)
-  local mag, reserve = Weapons.ammo(g)
+  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.
-  local def = Weapons.inHand(g)
-  if Reload.left(g) <= 0 and (mag == 0 or mag < def.fire.rounds) then
+  local def = Weapons.inHand(g, nil, Context.actor(g))
+  if Reload.left(g, Context.actor(g)) <= 0 and (mag == 0 or mag < def.fire.rounds) then
     local empty = mag + reserve == 0
-    local other = Weapons.nextSlot(g)
-    local otherMag, otherReserve = Weapons.ammo(g, other)
+    local other = Weapons.nextSlot(g, Context.actor(g))
+    local otherMag, otherReserve = Weapons.ammo(g, other, Context.actor(g))
     local notice = empty
         and ((otherMag + otherReserve > 0) and Text.get('hud_no_ammo_switch', { slot = other }) or Text.get(
           'hud_no_ammo'
@@ -337,7 +339,7 @@ function H.draw(g, settings, ui, descentUI)
   if g.view.feedbackTimer > 0 then
     notice(g.view.feedback, 486, 16, C.gold)
   end
-  local stats = Stats.readControlled(g)
+  local stats = Stats.read(g, Context.actor(g).id)
   if stats.comboTimer > 0 and stats.combo > 1 then
     notice(Text.get('hud_chain', { count = stats.combo }), 438, 16, C.ivory)
   end

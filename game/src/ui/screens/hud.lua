@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The classic arena HUD: health, ward, weapon, ability, boss banner, objective.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
 local Stats = require('src.session.stats')
@@ -25,7 +26,7 @@ function S.draw(g, s, U)
   if require('src.run.modes').of(g).hud then
     return HUD.draw(g, s, U, D)
   end
-  local p = g.player
+  local p = Context.actor(g)
   do
     text(Text.get('chud_title'), 28, 20, 20, gold)
     text(U.objective(g), 28, 48, 20, ivory)
@@ -104,10 +105,10 @@ function S.draw(g, s, U)
     lg.line(cx - 11, cy + 11, cx - 6, cy + 6)
     lg.line(cx + 6, cy - 6, cx + 11, cy - 11)
   end
-  local inHand = Weapons.inHand(g)
+  local inHand = Weapons.inHand(g, nil, Context.actor(g))
   if inHand.fire.pellets > 1 then
     local cone = 640
-      * math.tan(T.pelletSpread * require('src.content.weapons').spread(g))
+      * math.tan(T.pelletSpread * Weapons.spread(g, nil, Context.actor(g)))
       / math.tan(
         math.rad((g.view.fov or T.baseFov) + ((g.view.motion ~= false) and g.view.fovKick or 0)) / 2
       )
@@ -116,8 +117,14 @@ function S.draw(g, s, U)
     lg.line(cx - cone, cy - 4, cx - cone, cy + 4)
     lg.line(cx + cone, cy - 4, cx + cone, cy + 4)
   end
-  if Reload.left(g) > 0 then
-    bar(cx - 25, cy + 29, 50, 1 - Reload.left(g) / Reload.duration(g), gold)
+  if Reload.left(g, Context.actor(g)) > 0 then
+    bar(
+      cx - 25,
+      cy + 29,
+      50,
+      1 - Reload.left(g, Context.actor(g)) / Reload.duration(g, Context.actor(g)),
+      gold
+    )
   end
   require('src.feedback.weight').drawMarks(g, cx, cy, 100)
   panel(24, 602, 260, 94)
@@ -128,7 +135,7 @@ function S.draw(g, s, U)
   bar(42, 687, 148, p.hp / 100, p.hp < 30 and red or ivory)
   panel(1000, 602, 256, 94)
   text(Text.get(inHand.hud.title), 1016, 610, 18, gold)
-  local mag, reserve = Weapons.ammo(g)
+  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
   text(tostring(mag), 1016, 634, 42, mag == 0 and red or ivory)
   text(Text.get('chud_rounds', { count = reserve }), 1077, 650, 16, muted)
   -- A multi-round pull shows its rounds one by one (the two barrels).
@@ -137,8 +144,8 @@ function S.draw(g, s, U)
       rect(1210 + (i - 1) * 15, 640, 9, 20, mag >= i and gold or Palette.emptyRound)
     end
   end
-  if Reload.left(g) > 0 then
-    right(Reload.label(g), 1250, 551, 14, gold)
+  if Reload.left(g, Context.actor(g)) > 0 then
+    right(Reload.label(g, Context.actor(g)), 1250, 551, 14, gold)
   elseif mag > 0 and mag < inHand.fire.rounds then
     right(Text.get(inHand.hud.partialShort), 1250, 551, 14, muted)
   end
@@ -208,7 +215,7 @@ function S.draw(g, s, U)
   if g.view.feedbackTimer > 0 then
     text(g.view.feedback, 29, 548, 18, gold)
   end
-  local stats = Stats.readControlled(g)
+  local stats = Stats.read(g, Context.actor(g).id)
   if stats.comboTimer > 0 and stats.combo > 1 then
     text(Text.get('hud_chain', { count = stats.combo }), 29, 520, 20, ivory)
   end
@@ -228,12 +235,15 @@ function S.draw(g, s, U)
     if p.hp < 30 then
       hint = Text.get('hud_hint_hurt')
     elseif
-      Weapons.slot(g) == 1
-      and Weapons.count(g) > 1
-      and Weapons.ammo(g) == 0
-      and select(2, Weapons.ammo(g)) == 0
+      Weapons.slot(g, Context.actor(g)) == 1
+      and Weapons.count(g, Context.actor(g)) > 1
+      and Weapons.ammo(g, nil, Context.actor(g)) == 0
+      and select(2, Weapons.ammo(g, nil, Context.actor(g))) == 0
     then
-      hint = Text.get('chud_hint_draw', { weapon = Text.get(Weapons.profile(2, g).hud.draw) })
+      hint = Text.get(
+        'chud_hint_draw',
+        { weapon = Text.get(Weapons.profile(2, g, Context.actor(g)).hud.draw) }
+      )
     elseif g.elapsed > 8 and g.elapsed < 14 then
       hint = Text.get('chud_hint_guns')
     end

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 local Game = require('src.session.game')
 local Renderer = require('src.render.renderer')
 local UI = require('src.ui.interface')
@@ -279,7 +280,7 @@ function Application:finishStartup()
     local game = self.game
     game:start()
     love.mouse.setRelativeMode(false)
-    game.player.x, game.player.z, game.player.pitch = 16, 25.5, 0.04
+    Context.actor(game).x, Context.actor(game).z, Context.actor(game).pitch = 16, 25.5, 0.04
     game.view.messageTimer = 0
     local first = Pools.of(game, 'enemies')[1]
     first.z, first.awake = 21.6, false

@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- Presentation responses to real kinematic contacts, not a second collision
 -- solver. Mass 1 is the reference equipped human; momentum/energy/force are
 -- relative game quantities, not kilograms, joules or a firearm simulation.
@@ -69,7 +70,7 @@ local function record(g, report, kind)
   return report
 end
 function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previousX, previousZ)
-  local p = g.player
+  local p = Context.actor(g)
   local state = g.view.movementContact
   if not state then
     I.init(g)
@@ -157,7 +158,7 @@ function I.landing(g, speed)
   -- Only a drop considerably harder than the normal jump sheds pigment dust.
   -- Energy threshold is deliberate; it is independent of render or tick rate.
   if g.view.motion ~= false and report.energyLost > 28 then
-    local p = g.player
+    local p = Context.actor(g)
     local radius = 0.38 + math.min(0.20, (report.energyLost - 28) / 180)
     for side = -1, 1, 2 do
       -- The two short plumes spread outward from the boots, outside the gun's

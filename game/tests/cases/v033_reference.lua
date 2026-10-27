@@ -72,6 +72,26 @@ function Tests.run(G)
         'checkpoint ' .. name .. ' saved again reads into the same state',
         Projection.compare(loaded, Reference.loadedProjection(G, again)) == nil
       )
+      -- Old-format inputs AND expected projections come from E0, before
+      -- any refactor. tostring in legacy formats had lower precision than
+      -- SIGIL09: comparing a legacy load with an unrounded new file is wrong.
+      for _, version in ipairs({ 'SIGIL06', 'SIGIL07', 'SIGIL08' }) do
+        local path = 'tests/fixtures/legacy-v033/' .. name .. '-' .. version
+        local legacy = assert(love.filesystem.read(path .. '.save'))
+        local expected = assert(love.filesystem.read(path .. '.txt'))
+        local migrated = Reference.loadedProjection(G, legacy)
+        local mismatch = Projection.compare(expected, migrated)
+        check(
+          name .. ' ' .. version .. ' restores its E0 projection (' .. (mismatch or 'equal') .. ')',
+          not mismatch
+        )
+        local oldGame = Trial.loaded(G, legacy)
+        local rewritten = RunSave.encode(Run.snapshot(oldGame), 3, oldGame)
+        check(
+          name .. ' ' .. version .. ' -> current -> read preserves the loaded projection',
+          not Projection.compare(migrated, Reference.loadedProjection(G, rewritten))
+        )
+      end
     end
   end
   check(

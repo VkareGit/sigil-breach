@@ -44,7 +44,7 @@ return function(R)
         local stagger = R.staggerTime(p.poise, b.poise, b)
         p.poise = 0
         R.addCondition(p, 'staggered', stagger)
-        Signal(g, 'PlayerStaggered', { time = stagger })
+        Signal(g, 'PlayerStaggered', { time = stagger, actor = p.id })
         events.staggered = true
         events.staggerTime = stagger
       end

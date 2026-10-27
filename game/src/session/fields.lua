@@ -14,14 +14,21 @@ end
 -- Presentation fields live in g.view (0.24 F2), never on the session.
 Fields.viewGroups = {}
 local viewIndex = {}
+local viewScopes = {}
+function Fields.viewScope(name)
+  return viewScopes[name]
+end
 function Fields.viewOwner(name)
   return viewIndex[name]
 end
-function Fields.declareView(owner, names)
-  Fields.viewGroups[#Fields.viewGroups + 1] = { owner = owner, names = names }
+function Fields.declareView(owner, names, scope)
+  scope = scope or 'actor'
+  assert(scope == 'actor' or scope == 'view' or scope == 'world', 'invalid view scope')
+  Fields.viewGroups[#Fields.viewGroups + 1] = { owner = owner, names = names, scope = scope }
   for _, name in ipairs(names) do
     assert(not viewIndex[name], 'view field declared twice: ' .. name)
     viewIndex[name] = owner
+    viewScopes[name] = scope
   end
 end
 -- Fields that moved off the session (plan v11): reading or writing one on a
@@ -41,7 +48,9 @@ function Fields.declare(owner, names)
 end
 local declare = Fields.declare
 local declareView = Fields.declareView
-declareView('run/modes.lua', { 'fieldReturnLabel' })
+declareView('run/modes.lua', { 'fieldReturnLabel' }, 'world')
+declareView('session/context.lua', { 'actors', 'observers' }, 'world')
+declareView('session/context.lua', { 'actorStep' }, 'actor')
 
 -- SIMULATION ----------------------------------------------------------------
 -- The session itself (session/state.lua): the world, the pools' arrays, the
@@ -143,8 +152,9 @@ declare('systems/clocks.lua', { 'zone', 'zoneTimer' })
 
 -- PRESENTATION --------------------------------------------------------------
 declareView('session/game.lua', { 'message', 'messageTimer' })
-declareView('feedback/damage_numbers.lua', { 'damageNumbers', 'numberSerial' })
-declareView('app/commands.lua', { 'motion', 'fov', 'confirmReturn', 'presentationPrevious' })
+declareView('feedback/damage_numbers.lua', { 'damageNumbers', 'numberSerial' }, 'world')
+declareView('app/commands.lua', { 'motion', 'fov', 'confirmReturn' }, 'world')
+declareView('app/commands.lua', { 'presentationPrevious' }, 'view')
 declareView('app/input.lua', { 'swayX', 'swayY' })
 declareView('feedback/listeners.lua', {
   'feedback',
@@ -189,10 +199,11 @@ declareView('feedback/weight.lua', {
   'aimKickV',
   'aimKickRate',
 })
-declareView('feedback/effects.lua', { 'effects', 'effectPool', 'decals', 'decalPool' })
-declareView('feedback/surface_marks.lua', { 'surfaceMarks', 'surfaceMarkPool' })
-declareView('feedback/shot_trails.lua', { 'traces', 'tracePool' })
-declareView('feedback/death_response.lua', { 'particles', 'corpses', 'shells' })
+declareView('feedback/effects.lua', { 'effects', 'effectPool', 'decals', 'decalPool' }, 'world')
+declareView('feedback/surface_marks.lua', { 'surfaceMarks', 'surfaceMarkPool' }, 'world')
+declareView('feedback/shot_trails.lua', { 'traces', 'tracePool' }, 'world')
+declareView('feedback/death_response.lua', { 'particles', 'corpses' }, 'world')
+declareView('feedback/death_response.lua', { 'shells' })
 declareView('feedback/movement_marks.lua', { 'markClocks' })
 declareView('feedback/world_feedback.lua', { 'interruptedClose' })
 declareView('feedback/movement_impact.lua', {

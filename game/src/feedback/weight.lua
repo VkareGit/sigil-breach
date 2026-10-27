@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- WEIGHT: the rules of the world made felt. Presentation only: nothing here
 -- moves the firing ray, ammunition, clocks or damage. Every magnitude comes
 -- from the numbers the rules already used (impact, mass, damage, guard), so
@@ -104,11 +105,15 @@ function W.shot(g, profile, power)
 end
 -- Aim inertia of the carried weapon (1 = light revolver, lower = heavier).
 function W.aimFactor(g)
-  local profile = (Weapons.inHand(g) or Weapons.profile(1, g))
+  local profile = (
+    Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))
+  )
   return profile and profile.weight and profile.weight.aim or 1
 end
 function W.carryFactor(g)
-  local profile = (Weapons.inHand(g) or Weapons.profile(1, g))
+  local profile = (
+    Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))
+  )
   return profile and profile.weight and profile.weight.carry or 1
 end
 -- Severity of a blow against the player: 1 = it breaks a fresh guard.
@@ -118,7 +123,7 @@ end
 -- The player is struck. info: amount, lost, absorbed, impact, damageType,
 -- x/z (source), staggered, wounded.
 function W.playerHit(g, info)
-  local p = g.player
+  local p = Context.actor(g)
   local severity = W.severity(info.impact)
   local harm = clamp((info.amount or 0) / 30, 0, 1)
   local rel = info.x and W.relative(p, info.x, info.z) or 0
@@ -170,7 +175,7 @@ function W.playerHit(g, info)
 end
 -- A projectile passed close without touching: the player hears and sees it.
 function W.nearMiss(g, b, distance)
-  local p = g.player
+  local p = Context.actor(g)
   if type(p.yaw) ~= 'number' then
     return
   end
@@ -275,7 +280,7 @@ function W.update(g, dt)
     local rate = g.view.aimKickRate or 30
     g.view.aimKick, g.view.aimKickV =
       K.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, rate * rate, 2 * rate, dt)
-    local w = (Weapons.inHand(g) or Weapons.profile(1, g)).weight
+    local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
     g.view.weaponShotRoll, g.view.weaponShotRollV =
       K.spring(g.view.weaponShotRoll or 0, g.view.weaponShotRollV or 0, 0, w.wristK, w.wristD, dt)
     local limit = w.wristLimit
@@ -302,7 +307,7 @@ function W.update(g, dt)
 end
 -- The hero's own body: below 30 HP the heart is heard, faster as it fails.
 function W.heart(g, dt)
-  local p = g.player
+  local p = Context.actor(g)
   if not p or g.state ~= 'playing' or (p.hp or 100) >= 30 or (p.hp or 0) <= 0 then
     g.view.heartTimer = 0
     return
@@ -315,7 +320,9 @@ function W.heart(g, dt)
     -- Preserve the remainder like the planted footfall clock. Low frame rates
     -- must not silently lengthen the physical pulse; a hitch plays one cue.
     g.view.heartTimer = g.view.heartTimer + beats * period
-    A.play('heart', 0.18 + 0.30 * fear)
+    if Context.isControlled(g, p) then
+      A.play('heart', 0.18 + 0.30 * fear)
+    end
     g.view.heartbeats = (g.view.heartbeats or 0) + beats
   end
 end
@@ -334,7 +341,7 @@ function W.drawMarks(g, cx, cy, radius)
     return
   end
   local lg = love.graphics
-  local yaw = g.player.yaw or 0
+  local yaw = Context.actor(g).yaw or 0
   lg.setLineStyle('smooth')
   for _, m in ipairs(marks) do
     local a = angle(m.angle - yaw) - pi / 2

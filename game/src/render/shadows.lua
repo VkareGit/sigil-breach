@@ -1,6 +1,6 @@
+local Context = require('src.session.context')
 -- Painted floor silhouettes follow the same pose/feet as the body.
 -- This is a bounded 2.5D projection, not a full volumetric shadow map.
-local Roles = require('src.core.roles')
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
@@ -78,12 +78,13 @@ function S.draw(r, g)
       local length = math.sqrt(lx * lx + lz * lz)
       if index > 0 and strength > 0.025 and length > 0.001 then
         local frame, _, lean, sx, sy, size, _, _, baseY, atlas =
-          Geometry.pose(g, e, Roles.viewer(g))
+          Geometry.pose(g, e, Context.viewer(g))
         local image = (r.frameImages[atlas] and r.frameImages[atlas][frame]) or r.animations[atlas]
         local rect, tile, origin =
           r.frames[atlas][frame].rect, r.lighting.tiles[index], r.lighting.origins[index]
         local v = batch:add(image)
-        v[1], v[2], v[3], v[4] = e.x, baseY, e.z, math.atan2(g.player.x - e.x, g.player.z - e.z)
+        v[1], v[2], v[3], v[4] =
+          e.x, baseY, e.z, math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
         v[5], v[6], v[7], v[8] = size, sx, sy, lean
         v[9], v[10], v[11], v[12] = rect[1], rect[2], rect[3], rect[4]
         v[13], v[14] = -lx / length * 0.95, -lz / length * 0.95

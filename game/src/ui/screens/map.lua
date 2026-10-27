@@ -1,3 +1,4 @@
+local Context = require('src.session.context')
 -- The map overlay (TAB): the arena, the knight, seals and objective.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
 local Kit = require('src.ui.kit')
@@ -51,7 +52,7 @@ function S.draw(g, s, U)
       muted
     )
   end
-  local p = g.player
+  local p = Context.actor(g)
   local x, y = ox + p.x * sz, oy + p.z * sz
   c(ivory)
   lg.circle('fill', x, y, 4)
