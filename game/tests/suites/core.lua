@@ -401,7 +401,13 @@ function Tests.run(G, initial, renderer, getGame)
     data:release()
   end
   love.keypressed('return', 'return')
-  check('Enter starts new game', getGame().state == 'playing')
+  check('old classic death confirmation cannot launch a disabled mode', getGame().state == 'dead')
+  love.keypressed('f2', 'f2')
+  love.keypressed('escape', 'escape')
+  check(
+    'the real controller opens free combat on the proving ground',
+    getGame().state == 'playing' and getGame().mode == 'field'
+  )
   love.keypressed('2', '2')
   check('number key switches weapon', getGame().player.weapon == 2)
   love.mousemoved(640, 360, 40, -30)

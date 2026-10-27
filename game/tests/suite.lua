@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'field-access',
+    title = 'Public proving ground and retained mode tools',
+    module = 'tests.cases.field_access',
+  },
+  {
     id = 'shot-observation',
     title = 'Explicit displayed shot observations',
     module = 'tests.cases.shot_observation',

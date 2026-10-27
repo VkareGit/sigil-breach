@@ -61,9 +61,16 @@ function S.draw(g, s, U)
     Skin.endZone()
   end
   Skin.zone('parchment writing field', 158, 106, 964, 492)
-  Skin.inscription('limbo', 440, 112, 400, 50)
+  local field = g and Queries.field(g)
+  local public = g and (g.state == 'menu' or g.state == 'settings')
+    or (field and not require('src.run.field.access').allows(field, 'waves'))
+  if public then
+    Skin.boxText(Text.get('menu_proving'), 440, 112, 400, 50, U.fonts[28], gold)
+  else
+    Skin.inscription('limbo', 440, 112, 400, 50)
+  end
   center(
-    g and Queries.field(g) and Text.get('help_field')
+    (field or public) and Text.get('help_field')
       or (g and Queries.run(g) and Text.get('help_descent') or Text.get('help_classic')),
     170,
     18,

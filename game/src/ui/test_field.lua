@@ -16,6 +16,7 @@ local Grid = require('src.physics.grid')
 local Queries = require('src.run.queries')
 local FieldData = require('src.content.field')
 local Text = require('src.content.text')
+local Access = require('src.run.field.access')
 local function box(ui, label, x, y, w, h, size, color)
   -- Step the size down if the illustrated glyphs would overrun the field.
   -- Only sizes that exist in the painted font (36 steps to 28, not 34).
@@ -95,17 +96,25 @@ function UI.controls(g)
   for _, item in ipairs({
     { 'field_pose_prev', Text.get('fui_pose_prev') },
     { 'field_pose_next', Text.get('fui_pose_next') },
-    { 'field_shop', Text.get('fui_shop') },
+    { 'field_shop', Text.get('fui_shop'), 'trade' },
     { 'field_low', Text.get('fui_low') },
   }) do
     items[#items + 1] = item
   end
   for i, item in ipairs(items) do
-    list[#list + 1] =
-      button(item[1], item[2], 654 + (i - 1) % 2 * 264, 174 + math.floor((i - 1) / 2) * 52, 250, 44)
+    if Access.allows(t, item[3]) then
+      list[#list + 1] = button(
+        item[1],
+        item[2],
+        654 + (i - 1) % 2 * 264,
+        174 + math.floor((i - 1) / 2) * 52,
+        250,
+        44
+      )
+    end
   end
   -- 0.22 stations of the proving ground (seal visits remain in Field.visitSeal).
-  for i, station in ipairs(Field.catalog.stations) do
+  for i, station in ipairs(Field.catalog.stationsFor(t)) do
     list[#list + 1] = button(
       'field_station_' .. station.id,
       Text.get(station.name),
@@ -146,16 +155,7 @@ function UI.controls(g)
 end
 function UI.heading(g, ui)
   Skin.panel(20, 16, 378, 64, 2, 9)
-  box(
-    ui,
-    Text.get('fui_heading', { count = require('src.run.descent').remaining(g) }),
-    35,
-    27,
-    348,
-    20,
-    14,
-    C.gold
-  )
+  box(ui, Text.get('fui_heading', { count = Queries.remaining(g) }), 35, 27, 348, 20, 14, C.gold)
   local t = Queries.field(g)
   box(
     ui,
@@ -239,7 +239,15 @@ function UI.draw(g, ui)
     14,
     C.ivory
   )
-  box(ui, Text.get('fui_stations'), 654, 476, 514, 22, 16, C.muted)
+  local stations = Text.get('fui_stations')
+  if t.features then
+    local names = {}
+    for _, station in ipairs(Field.catalog.stationsFor(t)) do
+      names[#names + 1] = Text.get(station.name)
+    end
+    stations = Text.get('fui_available_stations', { names = table.concat(names, ', ') })
+  end
+  box(ui, stations, 654, 476, 514, 22, 16, C.muted)
   ShotReport.draw(g.view.shotReport, ui)
 end
 function UI.ending(g, ui)

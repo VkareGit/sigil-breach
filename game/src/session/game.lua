@@ -47,7 +47,9 @@ function Game.__newindex(session, key, value)
   rawset(session, key, value)
 end
 
-function Game.new(mode, mapId)
+-- Optional constructor data belongs to the mode; its init copies persistent
+-- options into its record, so snapshots/replays retain the selected policy.
+function Game.new(mode, mapId, options)
   local id, kind = Modes.resolve(mode)
   ContentContracts.validate()
   local descriptor = kind.session
@@ -58,7 +60,7 @@ function Game.new(mode, mapId)
   end
   g.mode = id
   if kind.init then
-    kind.init(g)
+    kind.init(g, options)
   end
   return g
 end

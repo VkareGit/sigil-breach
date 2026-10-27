@@ -3,6 +3,9 @@
 -- targets may stand, where the knight is set, its stations' layout.
 -- Distances in metres, times in seconds.
 return {
+  -- Names used by optional tool requirements. Availability is per session;
+  -- new tool families declare their feature here, not in application branches.
+  toolFeatures = { trade = true, waves = true },
   -- The low-resources preview's health; the TIER dial's highest tier.
   lowHealth = 25,
   maxTier = 5,

@@ -19,6 +19,7 @@ local finite = require('src.core.mathx').finite
 local Roles = require('src.core.roles')
 local Stats = require('src.session.stats')
 local Execution = require('src.storage.execution')
+local Modes = require('src.run.modes')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 -- Version 4 (plan v10 V5): a shot keeps only the bodies of its corridor
@@ -182,6 +183,7 @@ function Journal.header(g)
     observationGeneration = g._observationGeneration,
     actorGenerations = Journal.actorGenerations(g),
     mode = g.mode,
+    options = Modes.act(g, 'construction'),
     map = g.world and g.world.mapId,
     origin = Journal.origin(g),
     initial = Integrity.capture(g),
@@ -191,7 +193,7 @@ end
 -- A fresh session as the journal's began (Game: session/game.lua).
 function Journal.session(Game, journal)
   local header = journal.header or {}
-  return Game.new(header.mode or 'classic', header.map)
+  return Game.new(header.mode or 'classic', header.map, header.options)
 end
 -- pcall's status and results with their count: trailing nils survive.
 local function outcome(...)

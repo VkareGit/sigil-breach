@@ -31,6 +31,7 @@ function Application.new()
     input = Input.new(),
     accumulator = 0,
     screenshotCaptured = false,
+    sessionOptions = require('src.app.release').sessionOptions,
   }, Application)
 end
 

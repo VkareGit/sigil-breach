@@ -5,6 +5,8 @@
 --   id            registry name
 --   test(g)       true when the session is in this mode (checked in order)
 --   init(g)       optional: prepare a new session of this mode
+--   construction(g) optional: copied constructor options for journal replay;
+--                   init(g, options) owns their validation and persistent state
 --   start(g)      leave the menu and begin
 --   progress(g, dt)
 --   policy        what it allows the simulation (session/capabilities.lua:
@@ -78,6 +80,10 @@ local Modes = Registry:new('modes', function(mode, id)
     'mode ' .. id .. ' needs an init function'
   )
   assert(mode.record == nil or type(mode.record) == 'string', 'mode ' .. id .. ': record is a name')
+  assert(
+    mode.construction == nil or type(mode.construction) == 'function',
+    'mode ' .. id .. ' needs construction(g) for constructor options'
+  )
   Capabilities.define(id, mode.policy or {}, mode)
 end)
 -- The original sessions seeded the classic fixture before initialization.
@@ -103,8 +109,11 @@ end
 Modes:register('field', {
   session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
   record = 'testField',
-  init = function(g)
-    field().init(g)
+  init = function(g, options)
+    field().init(g, options)
+  end,
+  construction = function(g)
+    return field().options(g)
   end,
   reset = function(g)
     return field().reset(g)
@@ -131,7 +140,7 @@ Modes:register('field', {
     return g.run.glyph
   end,
   canTrade = function(g)
-    return g.run.phase == 'preparing'
+    return field().allows(g, 'trade') and g.run.phase == 'preparing'
   end,
   policy = { phased = true, freezable = true, invincible = true },
   -- Its targets hold the catalogue pose they were given.
@@ -159,7 +168,9 @@ Modes:register('field', {
     return g.state == 'shop' and field().close(g)
   end,
   -- Trial souls: the purchase without the expedition's save.
-  buy = Descent.trade,
+  buy = function(g, offer)
+    return field().allows(g, 'trade') and Descent.trade(g, offer) or false
+  end,
   catalog = function(g, id)
     return field().action(g, id)
   end,

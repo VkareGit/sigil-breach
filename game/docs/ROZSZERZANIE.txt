@@ -207,6 +207,19 @@ PRAKTYCZNE ROZSZERZENIA FUNDAMENTU 0.32
    Testy: mode-lifecycle i extension; nowy tryb oraz stanowisko działają
    wraz z snapshotem i replay bez zmian Journal/Game/ogólnego renderera.
 
+   Dostępność w wydaniu jest oddzielna od rejestracji. app/release opisuje
+   playableModes i sessionOptions. Navigation przekazuje opcje do
+   Game.new(id, map, options); init(g, options) waliduje je i kopiuje
+   trwałe wartości do rekordu trybu. construction(g) zwraca ich kopię do
+   nagłówka Journal; odtworzenie nie czyta aktualnego profilu aplikacji.
+   Brak tego haka/opcji zachowuje dotychczasowy konstruktor.
+   Dla narzędzia poligonu: zadeklaruj nazwę w content/field.toolFeatures,
+   przypisz feature do stanowiska/akcji i sprawdź dostępność także u jego
+   właściciela. Publiczny profil wyłącza trade i waves; zwykłe Game.new('field')
+   zachowuje komplet narzędzi dla QA. UI czyta Queries.field, a catalog.stationsFor
+   filtruje ten sam rejestr, który obsługuje wykonanie. Test: field-access
+   i rzeczywiste callbacki w input-test. Nie używaj samego ukrycia przycisku.
+
 6. Przestrzeń testowa
    content/maps: geometria, elevations, decor, lamps i anchors. Wysokości
    elevations są nieujemne względem floor i zajmują rozłączne komórki.

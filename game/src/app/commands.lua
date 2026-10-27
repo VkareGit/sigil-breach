@@ -5,9 +5,13 @@ local Navigation = require('src.app.navigation')
 local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
 local Intent = require('src.player.intent')
+local Release = require('src.app.release')
 
 local Commands = {}
 local handlers = {}
+local function playable(mode)
+  return Release.playableModes[Modes.aliases[mode] or mode] == true
+end
 local immediateSettings = {
   fullscreen = true,
   mute = true,
@@ -66,6 +70,9 @@ handlers.continue = function(app)
     return
   end
   local saved = app.game.availableSave
+  if not playable(saved.mode or app.game.mode) then
+    return
+  end
   Navigation.replace(app, saved.mode or app.game.mode, saved.map)
   Modes.act(app.game, 'load', saved)
   app.input.suppressFire = true
@@ -73,12 +80,15 @@ end
 
 local function start(app, id)
   local game = app.game
+  if not playable(game.mode) then
+    return
+  end
   if Modes.act(game, 'newRequiresConfirmation', id) then
     game.view.confirmReturn = game.state
     game.state, UI.focus = 'confirm_new', 1
     love.mouse.setRelativeMode(false)
   else
-    app:reset(true)
+    Navigation.replace(app, game.mode, game.world.mapId):start()
   end
 end
 -- 0.22: the expedition is closed; 'start' (menu SPACE / ENTER) opens a
@@ -89,7 +99,9 @@ handlers.start = function(app)
 end
 handlers.restart = start
 handlers.new_confirm = function(app)
-  app:reset(true)
+  if playable(app.game.mode) then
+    Navigation.replace(app, app.game.mode, app.game.world.mapId):start()
+  end
 end
 handlers.new_cancel = function(app)
   app.game.state = app.game.view.confirmReturn or 'menu'

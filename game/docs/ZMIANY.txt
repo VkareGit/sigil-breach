@@ -16,6 +16,21 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Dopracowanie poligonu — punkt 2 (27 października 2026)
+- Publiczny poligon nie oferuje sklepu ani próby fal. Wyłączone są też
+  interakcja handlu przy Żarze i zakup przez polecenie trybu; reset nie
+  odblokowuje tych narzędzi. Katalog zachowuje strzelnicę, fizykę i cele.
+- Menu i pomoc opisują poligon zamiast scenariusza Limbo. Układ i grafiki
+  HUD-u, arena, modele, atlasy i parametry walki pozostają bez zmian.
+- Licznik celów poligonu czyta żywe ciała przez zapytanie trybu; pusty
+  poligon nie pokazuje siedmiu przeciwników z nieaktywnej kolejki fali.
+- Profil wydania (app/release) wybiera opcje konstrukcji sesji. Tryb kopiuje
+  je do swojego rekordu; menu i wykonawcy korzystają z tej samej dostępności.
+- Journal zachowuje opcje przez hak construction(g); brak opcji odtwarza
+  wcześniejsze zachowanie. Backend fal, handlu i wypraw nadal jest testowany.
+- Publiczne restart/continue/new_confirm nie uruchamiają wyłączonego trybu.
+  Nowa sesja przez potwierdzenie zachowuje wybrany tryb i mapę.
+
 Dopracowanie poligonu — punkt 1 (27 października 2026)
 - Wspólny ciągły kontakt sfery z cylindrem: projectile i melee nie trafiają
   już w puste naroża bryły rycerza. Ruch, skok i zmiana crouch są rozliczane

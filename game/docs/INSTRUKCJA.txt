@@ -19,12 +19,12 @@ Nie trzeba instalować LÖVE. QUICK SKIRMISH rozpoczyna szybką potyczkę.
 PROVING GROUND / F2 otwiera katalog testowy. Menu i HUD mają układ 0.30;
 nie dodano nowego trybu. Poligon działa w pamięci i nie zmienia zapisu wyprawy.
 Gra zachowuje angielski interfejs ze źródeł 0.14.
-Jedna arena Limbo 31 x 31, z otwartą galerią i 588 polami posadzki.
+Jedna arena testowa 31 x 31, z otwartą galerią i 588 polami posadzki.
 Dopracowujemy ruch, dwie bronie, animacje, fizykę, grafikę i trafienia.
 Kolejne mapy, fabuła i łupy pozostają na później. Manifest Nikogo to
-materiał do wyglądu bohatera, nie scenariusz. WAVE TRIAL uruchamia jedną
-wybraną falę lub strażnika jako próbę na poligonie; sklep jest osobnym
-narzędziem katalogu. Pełny normalny cykl wyprawy nie jest dostępny w menu.
+materiał do wyglądu bohatera, nie scenariusz. Sklep i WAVE TRIAL są wyłączone
+w publicznym poligonie. Nie ma dostępnego scenariusza Limbo, cyklu fal,
+handlu ani kontynuowania wyprawy. Ich kod i testy pozostają w bibliotece.
 
 STEROWANIE
 WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
@@ -32,13 +32,12 @@ WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
 Shift — unik w kierunku ruchu; dwa odnawialne ładunki.
 Ctrl — ślizg; Spacja — skok (przytrzymanie powtarza skok po lądowaniu).
 Q — fizyczny ładunek prochowy (slot 1); F / C — sloty 2 i 3 na przyszłe
-wyposażenie (puste; rycerz nie używa magii). E — interakcja/sklep przy Żarze.
-Enter — gotowość do fali. Tab — mapa; F1 — pomoc; Esc — pauza.
+wyposażenie (puste; rycerz nie używa magii). E — interakcja z polami galerii.
+Enter nie rozpoczyna fali. Tab — mapa; F1 — pomoc; Esc — pauza.
 F2 — katalog poligonu; F11 — pełny ekran; M — wyciszenie.
 F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
 (telemetry.txt w katalogu danych gry; ścieżka wyżej i na ekranie po F9).
-Menu: mysz, strzałki, Tab i Enter. Sklep: 1 / 2 wybiera broń,
-Enter kupuje ofertę. Ustawienie MOTION ogranicza ruch obrazu.
+Menu: mysz, strzałki, Tab i Enter. Ustawienie MOTION ogranicza ruch obrazu.
 Wyłączenie MOTION pozostawia klatki strzału i przeładowania; usuwa kołysanie
 i dekoracyjny ruch kamery. Broń nadal pokazuje wykonane działanie.
 Krótkie naciśnięcie skoku lub strzału może czekać do 0,12 s na
@@ -76,7 +75,8 @@ Kolumny mają okrągły przekrój także dla granatu; odbicie zależy od normaln
 w punkcie kontaktu. Eksplozja odrzuca od swojego środka, nie od gracza.
 Zasięg i osłonę wybuchu sprawdzamy do kotwicy tułowia z fizyczną wysokością
 skoku. To jawne uproszczenie wybuchu; nie osobny test każdego piksela ciała.
-Własny wybuch też rani, do 45 HP przed ochroną. Zakup: 30 dusz.
+Własny wybuch też rani, do 45 HP przed ochroną. Zasoby odnawiasz w katalogu
+lub na polu uzupełnienia; handel pozostaje wyłączony.
 Nadnaturalne ataki należą do demonów.
 
 DWIE BRONIE
@@ -138,7 +138,7 @@ przychodzi przez portal: brama świeci 1,2 s, potem demon z niej wychodzi
 (jak w falach). Manekiny stanowisk, szybka potyczka, pola galerii i podgląd
 pozy stawiają demona od razu.
 Katalog: cele/grupy, zasoby, GOD MODE, AI / PROJECTILES, HITBOXES,
-pozy, sklep, podgląd HUD, RESET FIELD. Galeria ma posągi, tablice
+pozy, podgląd HUD, RESET FIELD. Galeria ma posągi, tablice
 materiałów, pola przywołań i znaki. Furfur jest dostępny na poligonie;
 ma poroże, szarżę po ustalonym kierunku i piorun z ostrzeżeniem 1,1 s.
 HITBOXES pokazuje dokładnie to, czym gra rozstrzyga, w bieżącej pozie:
@@ -153,19 +153,20 @@ Archiwum: 3 reprodukcje pieczęci Goetii i 3 pentakle Saturna.
 Poligon ma osobny stan w pamięci. F2 i powrót zachowują poprzednią sesję
 aplikacji; próby nie zmieniają zapisu wyprawy.
 
-FALE, HANDEL I ZAPIS
-WAVE TRIAL wybiera falę 1–4 albo strażnika (TIER 5) i kończy tę jedną
-próbę. Reset poligonu uzupełnia zasoby; sklep katalogu przyznaje 1000
-testowych dusz. Szybka potyczka ma początkowe zapasy amunicji i osłonę 40,
-lecz nadal jest sandboxem. Nie tworzy ciągłego cyklu ekonomii i odzyskiwania
-duszy po śmierci. Te narzędzia służą do sprawdzania elementów walki.
-Żar ma wysoki zimny płomień. Handel wymaga bliskości, widoczności
-i przerwy w walce. Uzupełniaj naboje i osłonę.
-Grawer FOCUS zwęża wiązkę o 28%. PIERCE: penetracja 60%, impet -35%.
-Każdy kosztuje 100 dusz; aktywny jeden. Kupione przełączasz za darmo.
-Biblioteka wypraw zachowuje fale, ekonomię, śmierć/echo, checkpointy i zapis;
-te ścieżki są sprawdzane testami, lecz nie są oferowane jako tryb z menu.
-Format SIGIL08 i odczyt starszych SIGIL06/07 pozostają w kodzie.
+FALE, HANDEL I ZAPIS — ZAKRES PUBLICZNEGO POLIGONU
+Sklep i próba fal nie są oferowane ani przez katalog, ani przez interakcję
+przy Żarze. Reset nie włącza ich ponownie. Strzelnica, fizyka, wybór demona,
+grupy, poziom TIER i szybka potyczka pozostają dostępne.
+Szybka potyczka ma początkowe zapasy amunicji i osłonę 40; jest pojedynczym
+starciem bez automatycznej następnej fali, handlu i cyklu ekonomii.
+Pełny RESET FIELD uzupełnia zasoby, usuwa rany, oszołomienie, odrzut,
+stary feedback i przeciwników. Samo uzupełnienie zasobów ma węższy zakres.
+Dotychczasowy HUD oraz dekoracja Żaru są zachowane. Wartość SOULS jest
+pozostałością testowego portfela, nie obietnicą czynnego sklepu.
+Biblioteka nadal zawiera klasyczną arenę, wyprawę, fale, ekonomię, śmierć,
+echo, checkpointy, grawery i zapis. Bezpośrednie narzędzia QA ćwiczą te
+ścieżki poza publiczną rozgrywką. Zapis SIGIL09 i odczyt dawnych formatów
+pozostają w kodzie; ten etap nie zmienia plików zapisanych wypraw.
 Dawne zapisy pozostają nietknięte podczas korzystania z poligonu.
 
 OPRAWA

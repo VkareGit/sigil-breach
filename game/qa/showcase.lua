@@ -811,6 +811,29 @@ function S.run(G, renderer)
   )
   require('qa.reviews.creature_pigment').run(G, renderer, output)
   require('qa.reviews.ritual_art').run(G, renderer, output)
+  -- Public release controls are a separate profile; keep legacy shop/wave
+  -- captures above as regression coverage for their retained implementations.
+  local archived = g
+  g = G.new('field', nil, require('src.app.release').sessionOptions.field)
+  g.testing = true
+  g.time, g.elapsed, g.view.messageTimer = 70, 70, 0
+  for _, size in ipairs({
+    { 'small', 960, 540 },
+    { '4by3', 1024, 768 },
+    { 'normal', 1280, 720 },
+    { 'wide', 1720, 720 },
+    { 'large', 1920, 1080 },
+  }) do
+    g.state, g.help = 'field_catalog', false
+    save('public-field-catalog-' .. size[1], size[2], size[3])
+    g.help = true
+    save('public-field-help-' .. size[1], size[2], size[3])
+    g.state, g.help = 'playing', false
+    save('public-field-hud-' .. size[1], size[2], size[3])
+  end
+  g = archived
+  reports[#reports + 1] =
+    'Public proving ground: 15 catalogue, help and unchanged HUD captures across five viewport sizes.'
   local foundationChecks = require('qa.reviews.foundation_ui').run(G, renderer, output)
   reports[#reports + 1] = 'Foundation UI / charge handoff: '
     .. foundationChecks

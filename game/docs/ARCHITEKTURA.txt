@@ -549,6 +549,19 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
 
 15. KONTRAKTY DOMKNIĘCIA v11 (27 października 2026)
 
+  Profil publicznego poligonu (punkt 2): app/release wybiera dostępne tryby
+  i sessionOptions. Opcje docierają przez Navigation do Game.new i init
+  trybu, przed adopt/rozpoczęciem nagrywania. Field kopiuje features do
+  testField; reset nie zmienia tej polityki. run/field/access jest wspólną
+  regułą dla katalogu, akcji, interakcji i zakupu. Nie usuwa wykonawców
+  starszych narzędzi. construction(g) eksportuje opcje do nagłówka Journal;
+  odtworzenie nie zależy od bieżącej dostępności w menu. Starsze nagłówki
+  bez options i bezpośrednie sesje QA zachowują dotychczasowe działanie.
+  Menu używa dawnej sesji wyłącznie jako tła; polecenia aplikacji nie
+  rozpoczynają ani nie kontynuują niedostępnego trybu. Biblioteka nadal
+  pozwala konstruować go w testach. UI nie odczytuje mutable testField,
+  lecz widok Queries.field. Grafiki i układ paska HUD są zachowane.
+
   Efekt: sourceId jest ID ciała, nie etykietą typu kontaktu. sourceSide
   opisuje stronę; nieznany sprawca to world/nil. Efekt zachowuje sprawcę
   po zmianie sterowania lub jego odejściu; cancelOnSourceDeath sprawdza

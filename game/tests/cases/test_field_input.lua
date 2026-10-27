@@ -157,27 +157,29 @@ function Tests.run(get, settings)
     hitboxes and not field.testField.hitboxes
   )
   click('field_refill')
-  click('field_shop')
-  click('shop_weapon_1')
-  field.player.arsenal.exorcist.reserve = 71
-  draw()
-  click('buy_ammo')
+  local offered = {}
+  for _, b in ipairs(U.controls(field, settings)) do
+    offered[b.id] = true
+  end
   check(
-    'sandbox shop uses the real controller and partial-ammunition price',
-    field.state == 'shop'
-      and field.player.arsenal.exorcist.reserve == 72
-      and field.run.wallet == 997
+    'public catalogue omits trade and waves while retaining range and physics',
+    not offered.field_shop
+      and not offered.field_station_waves
+      and offered.field_station_range
+      and offered.field_station_physics
   )
-  key('2')
-  field.player.arsenal.judge.reserve = 71
-  draw()
-  click('buy_ammo')
+  click('field_close')
+  local shrine = require('src.session.sanctuary').at(field)
+  field.player.x, field.player.z = shrine.x, shrine.z
+  local wallet, reserve = field.run.wallet, field.player.arsenal.exorcist.reserve
+  key('e')
+  key('return')
   check(
-    'shop weapon shortcut redirects the real partial purchase to revolver ammunition',
-    field.player.weapon == 2
-      and field.player.arsenal.judge.reserve == 72
-      and field.player.arsenal.exorcist.reserve == 72
-      and field.run.wallet == 994
+    'E at the Ember and Enter do not open trade or start a wave in the public field',
+    field.state == 'playing'
+      and field.testField.trial == nil
+      and field.run.wallet == wallet
+      and field.player.arsenal.exorcist.reserve == reserve
   )
   key('f2')
   click('field_reset')

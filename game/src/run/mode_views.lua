@@ -44,6 +44,7 @@ function Views.run(_, state, run)
 end
 -- The proving ground's settings and selection, for its screens.
 function Views.field(_, state, proving)
+  proving.features = state.features
   proving.message, proving.station, proving.selected = state.message, state.station, state.selected
   proving.frozen, proving.invincible, proving.hitboxes =
     state.frozen, state.invincible, state.hitboxes

@@ -11,8 +11,8 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 
 | Punkt | Zakres | Stan |
 |---|---|---|
-| 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Wdrożony do testu użytkownika; regresja wydajności pozostaje otwarta |
-| 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Oczekuje |
+| 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
+| 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Wdrożony i zweryfikowany; przerwa na test użytkownika |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Oczekuje |
 | 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Oczekuje |
 | 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Oczekuje |
@@ -86,6 +86,70 @@ Przerwa po commicie: użytkownik sprawdza loty pocisków przy ślizgu/skoku
 oraz pełny `F2 → RESET FIELD` po otrzymaniu obrażeń. Nie każdy pocisk nad
 kamerą mija całe ciało; rozmiary i wysokości ataków będą strojone jawnie
 w punkcie 3. Punkt 2 zaczynamy po tej próbie i informacji od użytkownika.
+
+## Punkt 2 — publiczny poligon i zachowana biblioteka
+
+`app/release.lua` opisuje dostępne tryby i opcje wejścia do poligonu.
+`Navigation` przekazuje je do konstruktora sesji przed `adopt` i nagrywaniem.
+`init(g, options)` kopiuje politykę do rekordu trybu. Nie ma globalnego
+przełącznika zmieniającego zachowanie wszystkich istniejących sesji.
+
+W publicznym poligonie `trade=false` i `waves=false` obowiązują zarówno
+wyświetlane narzędzia, jak i ich wykonanie: katalog, interakcję przy Żarze,
+zakup oraz właścicieli prób. Reset zachowuje ograniczenia. Nazwy funkcji
+narzędzi są walidowane; literówka w wymaganiu lub konfiguracji kończy się
+błędem podczas rejestracji/konstrukcji. Strzelnica, fizyka, poziom TIER,
+przywołania, szybka potyczka i zasoby pozostają dostępne.
+
+Kod klasycznej areny, wyprawy, sklepu i fal pozostaje w bibliotece razem
+z testami. Bezpośrednie `Game.new('field')` bez opcji zachowuje historyczne
+narzędzia QA. Publiczne polecenia aplikacji nie wznawiają niedostępnych
+trybów. Sesja za menu jest tłem; wejście tworzy odrębny poligon.
+
+Tryb eksportuje opcje przez `construction(g)` do nagłówka Journal.
+Odtworzenie korzysta z zapisanej polityki, a nie z aktualnej konfiguracji
+menu. Starsze nagłówki bez opcji zachowują dawną semantykę.
+
+Zmiany prezentacji ograniczają się do usunięcia niedostępnych przycisków
+i poprawienia opisów menu/pomocy. Zatwierdzony pasek HUD, grafiki, arena,
+modele, parametry walki oraz pliki zapisanych wypraw nie są przebudowywane.
+Przegląd zrzutów wykazał też błędne „7 celów” na pustym poligonie: nagłówek
+korzystał z licznika wyprawy i nieaktywnej kolejki fali. Teraz pyta tryb
+przez `Queries.remaining`; pusty poligon pokazuje zero, a martwe ciała
+nie są żywymi celami. To korekta danych w istniejącym nagłówku.
+
+### Weryfikacja punktu 2
+
+`FORMAT.ps1` i `TEST.ps1 -Suite All -TestTimeoutSeconds 600` przeszły:
+4470 sprawdzeń mechaniki/zasobów, 36 sprawdzeń prawdziwych wejść aplikacji,
+534 skompilowane pliki Lua i zero naruszeń architektury. Nowa suita
+`field-access` ma 22 sprawdzenia: blokady narzędzi i ich właścicieli,
+reset, walidacja, niezależność opcji, snapshot, zapis/odtworzenie dziennika,
+zgodność historycznych sesji oraz licznik rzeczywistych celów.
+Złote wzorce przeszły bez aktualizacji oczekiwań. Osiem przebiegów All
+zakończyło się kodem zero przy jednym stabilnym skrócie źródeł:
+`8BC87761C858B5AEA66CCA8D9B4ECAEEE29F32BC37925DC64097A057310BC84D`.
+
+Renderer sprawdził 5466 granic tekstu/obrazów/wskaźników. Dodano 15 zrzutów
+publicznego katalogu, pomocy i HUD-u w pięciu rozmiarach; obejrzano także
+menu. Przegląd potwierdził usunięcie sklepu/fal, poprawną liczbę celów
+oraz zachowanie obecnych ramek, liter, grafiki i dolnego paska.
+
+Porównanie z 606 obrazami E0: 245 identycznych. Różnice obejmują nowe opisy
+menu, poprawiony licznik celów (również w złożonych arkuszach klatek) oraz
+wcześniejsze zmiany opisane w punkcie 1. Nie zmieniono plików graficznych.
+Lokalne dowody i porównanie obszarów: `work/point2-final/`.
+Testy benchmarku w All były smoke; nie zamykają regresji wydajności punktu 1.
+
+Próba użytkownika: wejść na poligon, otworzyć F2, przywołać przeciwnika,
+użyć RESET FIELD i sprawdzić powrót licznika do zera. Sklep i WAVE TRIAL
+nie są dostępne, E przy Żarze nie otwiera handlu, Enter nie uruchamia fal.
+Po commicie punktu 2 zatrzymujemy wdrożenie przed punktem 3.
+
+Uwaga do punktu 3 po teście użytkownika: pociski nadal potrafią trafić
+podczas ślizgu. Należy zmierzyć wysokość i promień konkretnych ataków oraz
+zgodność ich obrazu z kontaktem. Sam fakt, że środek pocisku jest ponad
+kamerą, nie dowodzi minięcia całego ciała; nie zmieniać hitboxów na ślepo.
 
 ## Zasady następnych etapów
 

@@ -31,12 +31,14 @@ function S.draw(g, s, U)
   Skin.panel(580, 324, 590, 284, 5, 12)
   Skin.zone('test field menu', 612, 358, 526, 226)
   Skin.boxText(Text.get('menu_proving'), 612, 360, 526, 35, U.fonts[28], gold)
-  local stations = {
-    'menu_station_range',
-    'menu_station_physics',
-    'menu_station_waves',
-    'menu_station_gallery',
-  }
+  local stations = {}
+  local field = require('src.app.release').sessionOptions.field
+  for _, station in ipairs(require('src.run.field.catalog').stationsFor(field)) do
+    if station.menuText then
+      stations[#stations + 1] = station.menuText
+    end
+  end
+  stations[#stations + 1] = 'menu_station_gallery'
   for i, line in ipairs(stations) do
     Skin.boxText(Text.get(line), 612, 400 + (i - 1) * 34, 526, 25, U.fonts[18], ivory)
   end

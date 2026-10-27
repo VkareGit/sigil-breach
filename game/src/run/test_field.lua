@@ -9,6 +9,7 @@ local Encounter = require('src.session.encounter')
 local Sanctuary = require('src.session.sanctuary')
 local Archetypes = require('src.content.enemies')
 local Actions = require('src.run.field.actions')
+local Access = require('src.run.field.access')
 local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
 local TrialReset = require('src.run.field.reset')
@@ -44,15 +45,25 @@ F.tell = tell
 function F.new(Game, mapId)
   return Game.new('field', mapId)
 end
-function F.init(g)
+function F.init(g, options)
   g.testField = {
     invincible = true,
     frozen = false,
     selected = 'imp',
     poseIndex = 1,
+    features = Access.copy(options),
   }
   g.view.fieldReturnLabel = 'return_menu'
   F.reset(g)
+end
+function F.allows(g, feature)
+  return Access.allows(g.testField, feature)
+end
+-- The journal reconstructs this session's policy, not today's release default.
+function F.options(g)
+  if g.testField.features then
+    return { features = Access.copy(g.testField) }
+  end
 end
 function F.refill(g)
   if not g.testField then
@@ -207,6 +218,9 @@ function F.visitSeal(g, id)
   return Visits.seal(F, g, id)
 end
 function F.shop(g)
+  if not F.allows(g, 'trade') then
+    return false
+  end
   return Visits.shop(F, g)
 end
 function F.range(g)
@@ -216,12 +230,15 @@ function F.physics(g)
   return Trials.physics(F, g)
 end
 function F.waves(g)
+  if not F.allows(g, 'waves') then
+    return false
+  end
   return Trials.waves(F, g)
 end -- What the proving ground answers for its session (run/modes.lua handlers;
 -- the gallery's pads answer first there: world/gallery.lua).
 -- [E] away from a pad: the Ember's trial shop.
 function F.interact(g)
-  if Sanctuary.near(g) then
+  if F.allows(g, 'trade') and Sanctuary.near(g) then
     return F.shop(g)
   end
   return false

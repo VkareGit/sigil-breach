@@ -9,16 +9,19 @@ local Occult = require('src.content.occult_catalog')
 local Settings = require('src.content.field')
 local Stations = require('src.run.field.stations')
 local Roles = require('src.core.roles')
+local Access = require('src.run.field.access')
 local Actions = {}
 Actions.fixed = Registry:new('field actions', function(entry, id)
   assert(type(entry.run) == 'function', 'field action ' .. id .. ' needs run(g, field)')
+  Access.check(entry.feature)
 end)
 Actions.families = Registry:new('field action families', function(entry, id)
   assert(type(entry.pattern) == 'string', 'field family ' .. id .. ' needs a pattern')
   assert(type(entry.run) == 'function', 'field family ' .. id .. ' needs run(g, field, value)')
 end)
-local function call(method, close)
+local function call(method, close, feature)
   return {
+    feature = feature,
     run = function(g, field)
       local result = field[method](g)
       if result and close then
@@ -36,9 +39,9 @@ for _, entry in ipairs({
   { 'field_refill', 'refill' },
   { 'field_god', 'toggleGod' },
   { 'field_freeze', 'toggleFreeze' },
-  { 'field_shop', 'shop' },
+  { 'field_shop', 'shop', 'trade' },
 }) do
-  Actions.fixed:register(entry[1], call(entry[2]))
+  Actions.fixed:register(entry[1], call(entry[2], false, entry[3]))
 end
 Actions.fixed:register('field_archive', {
   run = function(g)
@@ -101,7 +104,7 @@ Actions.families:register('station', {
   pattern = '^field_station_([%w_]+)$',
   run = function(g, field, id)
     local station = Stations:find(id)
-    if not station then
+    if not station or not Access.allows(g.testField, station.feature) then
       return false
     end
     return station.run(g, field)
@@ -156,6 +159,9 @@ function Actions.dispatch(g, id, field)
   end
   local exact = Actions.fixed:find(id)
   if exact then
+    if not Access.allows(g.testField, exact.feature) then
+      return false
+    end
     return exact.run(g, field)
   end
   for _, family in Actions.families:each() do

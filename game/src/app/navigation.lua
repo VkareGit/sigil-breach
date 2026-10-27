@@ -4,6 +4,10 @@ local Game = require('src.session.game')
 local Modes = require('src.run.modes')
 local UI = require('src.ui.interface')
 local Navigation = {}
+local function create(app, modeId, mapId)
+  local options = app.sessionOptions and app.sessionOptions[modeId]
+  return Game.new(modeId, mapId, options)
+end
 
 local function settleInput(app)
   app.input:reset(true)
@@ -17,7 +21,7 @@ function Navigation.clear(app)
   app.navigation = nil
 end
 function Navigation.replace(app, modeId, mapId)
-  local session = Game.new(modeId, mapId)
+  local session = create(app, modeId, mapId)
   Navigation.clear(app)
   app:adopt(session)
   settleInput(app)
@@ -26,7 +30,7 @@ end
 function Navigation.enter(app, modeId, mapId)
   -- Resolve and construct before changing the stack: an invalid target cannot
   -- consume the return destination or detach the current session.
-  local nextSession = Game.new(modeId, mapId)
+  local nextSession = create(app, modeId, mapId)
   local previous = app.game
   if previous then
     Modes.act(nextSession, 'visit', previous)
