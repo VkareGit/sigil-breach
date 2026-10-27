@@ -109,7 +109,7 @@ function Review.run(output, Game, renderer)
       g.player.cooldown,
       g.player.arsenal.exorcist.mag,
       g.player.arsenal.judge.mag,
-      g.kills,
+      require('src.session.stats').total(g, 'kills'),
       #g.view.effects,
       effects,
       e and e.hp or 0,
@@ -228,7 +228,7 @@ function Review.run(output, Game, renderer)
       g.player.weapon == 1 and g.player.arsenal.exorcist.reserve or g.player.arsenal.judge.reserve,
       g.player.shots,
       g.player.hits,
-      g.kills,
+      require('src.session.stats').total(g, 'kills'),
       e and e.hp or -1,
       e and e.armorRating or -1,
       enemyFrame,
@@ -262,7 +262,7 @@ function Review.run(output, Game, renderer)
         'gun %d / body %d / kills %d / contact %d',
         Weapon.sourceFrame(g),
         enemyFrame,
-        g.kills,
+        require('src.session.stats').total(g, 'kills'),
         response.contacts or 0
       ),
       dx + 8,
@@ -320,7 +320,7 @@ function Review.run(output, Game, renderer)
         assert(g:shoot(), case.name .. ': trigger did not fire')
         if e then
           assert(
-            e.hp == 0 and g.kills == 1,
+            e.hp == 0 and require('src.session.stats').total(g, 'kills') == 1,
             case.name .. ': finishing shot must kill the real target'
           )
         end
@@ -349,7 +349,9 @@ function Review.run(output, Game, renderer)
           end
           assert(distinct >= 3, case.name .. ': death held a static source pose')
           assert(
-            e.deathTime >= 2.39 and e.hp == 0 and g.kills == 1,
+            e.deathTime >= 2.39
+              and e.hp == 0
+              and require('src.session.stats').total(g, 'kills') == 1,
             case.name .. ': corpse or kill receipt was lost'
           )
           assert(

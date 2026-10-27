@@ -247,7 +247,7 @@ Modes:register('expedition', {
   buy = Descent.buy,
   lose = Descent.lose,
   reward = function(g, event)
-    Descent.onKill(g, event.enemy, event.source)
+    Descent.onKill(g, event.enemy, event.source, event.owner)
   end,
   remaining = Descent.remaining,
   interact = Descent.openShop,

@@ -12,6 +12,21 @@ local Bodies = {}
 local knightBody = Archetypes.player.body
 -- The knight this session's player controls (core/roles.lua).
 Bodies.controlled = Roles.controlled
+-- The actor a command names (plan v11 E3b): nil, the controlled knight; a
+-- knight's id, that knight of the pool; a knight record, itself. nil when
+-- the id names no knight (the command is refused).
+function Bodies.actor(g, who)
+  if who == nil then
+    return Roles.controlled(g)
+  elseif type(who) == 'table' then
+    return who
+  end
+  local knight = type(who) == 'string' and Pools.get(g, who)
+  if knight and knight.prefab == 'knight' then
+    return knight
+  end
+  return nil
+end
 function Bodies.isKnight(g, b)
   return b == Roles.controlled(g) or b.prefab == 'knight'
 end

@@ -27,7 +27,11 @@ function Tests.run(Game)
   g:damageEnemy(e, 10, 'weapon')
   check('a survivable wound cannot start the death response', e.hp > 0 and not e.deathResponse)
   g:damageEnemy(e, e.maxHp, 'weapon')
-  local score, kills, hp, yaw = g.score, g.kills, e.hp, g.player.yaw
+  local score, kills, hp, yaw =
+    require('src.session.stats').total(g, 'score'),
+    require('src.session.stats').total(g, 'kills'),
+    e.hp,
+    g.player.yaw
   local contacted = Death.contact(g, e, 90, true, { e.x, 1.1, e.z }, { dx = 0, dz = -1 })
   check(
     'a resolved lethal hit starts one local contact response',
@@ -35,7 +39,10 @@ function Tests.run(Game)
   )
   check(
     'kill feedback cannot change rewards, health or aim',
-    g.score == score and g.kills == kills and e.hp == hp and g.player.yaw == yaw
+    require('src.session.stats').total(g, 'score') == score
+      and require('src.session.stats').total(g, 'kills') == kills
+      and e.hp == hp
+      and g.player.yaw == yaw
   )
   local count = #g.view.particles
   check(

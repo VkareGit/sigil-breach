@@ -150,7 +150,7 @@ local function strikeDemon(g, b, e, part, surface)
     dealt, _, impact = D.resolve(attack, e, 0, part)
   end
   local health = math.min(e.hp, dealt)
-  g:damageEnemy(e, dealt, sideOf(b) == 'knight' and 'ability' or 'creature', packet)
+  g:damageEnemy(e, dealt, sideOf(b) == 'knight' and 'ability' or 'creature', packet, b.owner)
   local Combat = require('src.combat.combat')
   Combat.react(
     g,

@@ -71,6 +71,7 @@ C.schemas = {
   },
   motion = {
     pushX = f(0, 'shove velocity (m/s)'),
+    pushOwner = f(nil, 'the owner of the blow that shoves it (plan v11 E3d: slams, collisions)'),
     pushZ = f(0),
     walk = f(0, 'distance walked (animation)'),
     walkSpeed = f(0),
@@ -168,7 +169,7 @@ C.schemas.projectile = {
   life = f(5, 'seconds before it expires'),
   big = f(false),
   color = f(nil),
-  owner = f(nil, 'id of the demon that fired it'),
+  owner = f(nil, 'id of the body that fired it: a demon, or a knight (plan v11 E3d)'),
   side = f('demons', "the shooter's side (content/factions.lua): it hurts bodies of a hostile one"),
   packet = f(nil, 'damage it delivers'),
   radius = f(nil, 'collision radius (m)'),
@@ -208,10 +209,12 @@ C.schemas.pickup = {
   slot = f(nil, 'weapon slot of ammunition'),
   weapon = f(nil, 'weapon id of ammunition (before slot)'),
   rewardId = f(nil),
+  owner = f(nil, 'whose kill left it (plan v11 E3d: the reward noted with its owner)'),
 }
 -- A thrown powder charge (combat/explosives.lua).
 C.schemas.charge = {
   action = f(nil, 'immutable throw definition: flight, fuse and blast'),
+  owner = f(nil, 'id of the knight that threw it (plan v11 E3d)'),
   x = f(0),
   y = f(0),
   z = f(0),
@@ -243,6 +246,7 @@ C.schemas.knight = {
   poise = f(nil),
   guardQuiet = f(nil),
   pushX = f(nil),
+  pushOwner = f(nil, 'the owner of the blow that shoves him'),
   pushZ = f(nil),
   slamLock = f(nil),
   invuln = f(0),

@@ -104,7 +104,8 @@ Effects.kinds:register('periodic', {
       )
     else
       local damage = Damage.resolve(definition.packet, target, 0)
-      g:damageEnemy(target, damage, 'effect:' .. definition.id)
+      -- The effect's applier owns its damage (a knight: his chain).
+      g:damageEnemy(target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
     end
     local receipt =
       { target = target, definition = definition, health = math.max(0, before - target.hp) }

@@ -1,4 +1,5 @@
 local D = {}
+local Stats = require('src.session.stats')
 local Text = require('src.content.text')
 local Pages = require('src.ui.pages')
 local Fit = require('src.ui.text_fit')
@@ -422,7 +423,7 @@ function D.ending(g)
     Text.get('ending_stats', {
       minutes = string.format('%02d', math.floor(g.elapsed / 60)),
       seconds = string.format('%02d', math.floor(g.elapsed % 60)),
-      kills = string.format('%d', g.kills),
+      kills = string.format('%d', Stats.total(g, 'kills')),
       deaths = string.format('%d', r.deaths),
       souls = string.format('%d', r.wallet),
     }),

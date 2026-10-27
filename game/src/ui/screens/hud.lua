@@ -1,5 +1,6 @@
 -- The classic arena HUD: health, ward, weapon, ability, boss banner, objective.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
+local Stats = require('src.session.stats')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
 local Palette = require('src.ui.palette')
@@ -207,8 +208,9 @@ function S.draw(g, s, U)
   if g.view.feedbackTimer > 0 then
     text(g.view.feedback, 29, 548, 18, gold)
   end
-  if g.comboTimer > 0 and g.combo > 1 then
-    text(Text.get('hud_chain', { count = g.combo }), 29, 520, 20, ivory)
+  local stats = Stats.readControlled(g)
+  if stats.comboTimer > 0 and stats.combo > 1 then
+    text(Text.get('hud_chain', { count = stats.combo }), 29, 520, 20, ivory)
   end
   local ctx = g:context()
   if ctx then

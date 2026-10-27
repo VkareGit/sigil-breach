@@ -371,6 +371,9 @@ local function tickBody(g, e, dt, paused)
   end
   if math.abs(e.pushX) + math.abs(e.pushZ) > Walk.minPush then
     Body.push(g, e, dt, Rules.body(e).drag or defaults.drag)
+  else
+    -- The shove is over: so is its owner's claim on a slam (plan v11 E3d).
+    e.pushOwner = nil
   end
   return true
 end

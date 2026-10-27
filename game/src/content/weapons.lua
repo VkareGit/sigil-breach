@@ -194,55 +194,64 @@ function W.arsenal(loadout)
   end
   return arsenal
 end
-local function loadoutOf(g)
-  return g and Roles.controlled(g) and Roles.controlled(g).loadout or W.defaultLoadout
+-- Every query below is about one actor (plan v11 E3b): the knight given, else
+-- the controlled one. A hand-made session without a knight has the default
+-- loadout and the first slot.
+local function holder(g, actor)
+  return actor or (g and Roles.controlled(g))
 end
--- The slot in the controlled actor's hand.
-function W.slot(g)
-  local actor = g and Roles.controlled(g)
-  return actor and actor.weapon or 1
+W.holder = holder
+local function loadoutOf(g, actor)
+  local a = holder(g, actor)
+  return a and a.loadout or W.defaultLoadout
+end
+-- The slot in the actor's hand.
+function W.slot(g, actor)
+  local a = holder(g, actor)
+  return a and a.weapon or 1
 end
 -- The id of the weapon in a slot (default: the slot in hand).
-function W.idAt(g, slot)
-  return loadoutOf(g)[slot or W.slot(g)]
+function W.idAt(g, slot, actor)
+  return loadoutOf(g, actor)[slot or W.slot(g, actor)]
 end
 -- The slot of a weapon id in the knight's loadout.
-function W.slotOf(g, id)
-  for slot, known in ipairs(loadoutOf(g)) do
+function W.slotOf(g, id, actor)
+  for slot, known in ipairs(loadoutOf(g, actor)) do
     if known == id then
       return slot
     end
   end
 end
 -- The definition in a slot (g: whose loadout; default the starting one).
-function W.profile(slot, g)
-  local id = loadoutOf(g)[slot]
+function W.profile(slot, g, actor)
+  local id = loadoutOf(g, actor)[slot]
   return id and registry:find(id)
 end
 -- The definition and live record in hand (or in slot).
-function W.inHand(g, slot)
-  local id = W.idAt(g, slot)
-  local arsenal = g and Roles.controlled(g) and Roles.controlled(g).arsenal
+function W.inHand(g, slot, actor)
+  local id = W.idAt(g, slot, actor)
+  local a = holder(g, actor)
+  local arsenal = a and a.arsenal
   return id and registry:find(id), id and arsenal and arsenal[id]
 end
-function W.state(g, slot)
-  local _, state = W.inHand(g, slot)
+function W.state(g, slot, actor)
+  local _, state = W.inHand(g, slot, actor)
   return state
 end
-function W.count(g)
-  return #loadoutOf(g)
+function W.count(g, actor)
+  return #loadoutOf(g, actor)
 end
 -- The slot after the one in hand (wrapping), for cycling weapons.
-function W.nextSlot(g)
-  return W.slot(g) % W.count(g) + 1
+function W.nextSlot(g, actor)
+  return W.slot(g, actor) % W.count(g, actor) + 1
 end
-function W.ammo(g, slot)
-  local def, state = W.inHand(g, slot)
+function W.ammo(g, slot, actor)
+  local def, state = W.inHand(g, slot, actor)
   assert(def and state, 'invalid weapon slot')
   return state.mag, state.reserve, def.capacity
 end
-function W.validAmmo(g, slot)
-  local def, state = W.inHand(g, slot)
+function W.validAmmo(g, slot, actor)
+  local def, state = W.inHand(g, slot, actor)
   if not def or not state then
     return false
   end
@@ -257,8 +266,8 @@ function W.validAmmo(g, slot)
     and reserve == math.floor(reserve)
 end
 -- The attack of a weapon as fired now: its data with the run's glyph applied.
-function W.attack(g, slot, glyph)
-  local def = assert(W.inHand(g, slot), 'invalid weapon slot')
+function W.attack(g, slot, glyph, actor)
+  local def = assert(W.inHand(g, slot, actor), 'invalid weapon slot')
   local attack = {}
   for k, v in pairs(def.attack) do
     attack[k] = v
@@ -275,16 +284,16 @@ function W.attack(g, slot, glyph)
   return attack
 end
 -- The pellet cone of the weapon in hand under the run's glyph (1: as made).
-function W.spread(g, glyph)
-  local def = W.inHand(g)
+function W.spread(g, glyph, actor)
+  local def = W.inHand(g, nil, actor)
   local mod = def and glyph and def.glyphs and def.glyphs[glyph]
   return (def and def.fire.spread or 1) * (mod and mod.spread or 1)
 end
-function W.canFire(g)
-  if not W.validAmmo(g) then
+function W.canFire(g, actor)
+  if not W.validAmmo(g, nil, actor) then
     return false
   end
-  local def, state = W.inHand(g)
+  local def, state = W.inHand(g, nil, actor)
   if state.open then
     return false
   end
@@ -292,33 +301,33 @@ function W.canFire(g)
   return type(mag) == 'number' and mag == math.floor(mag) and mag > 0 and mag <= def.capacity
 end
 -- Move rounds from the reserve into the weapon; returns how many.
-function W.load(g, slot)
-  if not W.validAmmo(g, slot) then
+function W.load(g, slot, actor)
+  if not W.validAmmo(g, slot, actor) then
     return 0
   end
-  local def, state = W.inHand(g, slot)
+  local def, state = W.inHand(g, slot, actor)
   local amount = math.max(0, math.min(def.capacity - state.mag, state.reserve))
   state.mag = state.mag + amount
   state.reserve = state.reserve - amount
   return amount
 end
 -- Close every weapon's action and drop its spent cases (the shrine).
-function W.close(g)
-  for _, state in pairs(Roles.controlled(g).arsenal or {}) do
+function W.close(g, actor)
+  for _, state in pairs(holder(g, actor).arsenal or {}) do
     state.open, state.loaded, state.spent = false, false, 0
   end
 end
 -- Put every weapon's action back at rest, its cadence too (a new life).
-function W.rest(g)
-  W.close(g)
-  for _, state in pairs(Roles.controlled(g).arsenal or {}) do
+function W.rest(g, actor)
+  W.close(g, actor)
+  for _, state in pairs(holder(g, actor).arsenal or {}) do
     state.readyAt = 0
   end
 end
 -- What a checkpoint keeps of the arsenal: the loadout and each weapon's
 -- rounds and reserve.
-function W.inventory(g)
-  local p = Roles.controlled(g)
+function W.inventory(g, actor)
+  local p = holder(g, actor)
   local loadout, weapons = {}, {}
   for i, id in ipairs(p.loadout) do
     loadout[i] = id
@@ -329,8 +338,8 @@ function W.inventory(g)
 end
 -- Back from a checkpoint: its loadout (when it names one) and rounds; a
 -- weapon it does not mention starts full with its starting reserve.
-function W.restore(g, loadout, weapons)
-  local p = Roles.controlled(g)
+function W.restore(g, loadout, weapons, actor)
+  local p = holder(g, actor)
   if loadout then
     p.loadout = {}
     for i, id in ipairs(loadout) do
@@ -345,20 +354,20 @@ function W.restore(g, loadout, weapons)
   end
 end
 -- Add a weapon to the knight's loadout (next slot), fresh from its definition.
-function W.give(g, id)
-  local p = Roles.controlled(g)
+function W.give(g, id, actor)
+  local p = holder(g, actor)
   local def = W.get(id)
   if p.arsenal[id] then
-    return W.slotOf(g, id)
+    return W.slotOf(g, id, actor)
   end
   p.loadout[#p.loadout + 1] = id
   p.arsenal[id] = W.newState(def)
   return #p.loadout
 end
 -- Load every weapon from its reserve.
-function W.loadAll(g)
-  for slot = 1, W.count(g) do
-    W.load(g, slot)
+function W.loadAll(g, actor)
+  for slot = 1, W.count(g, actor) do
+    W.load(g, slot, actor)
   end
 end
 return W

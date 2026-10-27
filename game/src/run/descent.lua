@@ -20,6 +20,7 @@ local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
 local Navigation = require('src.world.navigation')
 local Roles = require('src.core.roles')
+local Stats = require('src.session.stats')
 local Text = require('src.content.text')
 local portals = Spawner.portals
 R.portals = portals
@@ -82,8 +83,8 @@ local function restore(g, v)
   g.view.presentationPrevious = nil
   g.nextAttack = 0
   g.view.hitmarker = 0
-  g.combo = 0
-  g.comboTimer = 0
+  local stats = Stats.controlled(g)
+  stats.combo, stats.comboTimer = 0, 0
   g.zoneTimer = 0
 end
 R.clearWorld = Encounter.clearWorld
@@ -125,12 +126,12 @@ function R.snapshot(g)
     inventory = inventory(g),
     echo = r.echo,
     elapsed = g.elapsed,
-    kills = g.kills,
-    damage = g.damageTaken,
+    kills = Stats.total(g, 'kills'),
+    damage = Stats.total(g, 'damageTaken'),
     deaths = r.deaths,
     secret = g.world.secretFound,
     secretOpen = r.archivedSecretOpen,
-    score = g.score,
+    score = Stats.total(g, 'score'),
     fragment = r.fragment,
   }
 end
@@ -170,7 +171,8 @@ function R.load(g, data)
     archivedSecretOpen = data.secretOpen,
   }
   restore(g, data.phase == 'defeated' and data.checkpoint or data.inventory)
-  g.elapsed, g.kills, g.damageTaken, g.score = data.elapsed, data.kills, data.damage, data.score
+  g.elapsed = data.elapsed
+  Stats.restore(g, data.kills, data.score, data.damage)
   g.world.secretFound = data.secret
   g.state = data.phase == 'complete' and 'won' or (data.phase == 'defeated' and 'dead' or 'playing')
   if g.state == 'dead' then
@@ -306,7 +308,8 @@ function R.retry(g)
   R.save(g)
   return true
 end
-function R.onKill(g, e, source)
+-- owner: the kill's owner (plan v11 E3d): the soul it leaves is noted as his.
+function R.onKill(g, e, source, owner)
   local r = g.run
   r.waveKills = (r.waveKills or 0) + 1
   if e.rewardId and not r.claimed[e.rewardId] then
@@ -317,6 +320,7 @@ function R.onKill(g, e, source)
       level = e.level,
       amount = e.rewardSouls,
       rewardId = e.rewardId,
+      owner = owner,
     })
   end
   if (require('src.content.enemies').of(e) or {}).guardian then
@@ -414,7 +418,7 @@ function R.finishWave(g)
   Roles.controlled(g).cooldown = 0
   Weapons.close(g)
   Weapons.loadAll(g)
-  g.comboTimer = 0
+  Stats.controlled(g).comboTimer = 0
   g.view.feedbackTimer = 0
   if r.wave == guardianWave then
     -- The victory screen closes exploration; return any remaining echo first.

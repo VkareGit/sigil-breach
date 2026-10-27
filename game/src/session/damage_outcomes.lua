@@ -26,16 +26,30 @@ local function emit(g, kind, event)
 end
 Outcomes.emit = emit
 
-function Outcomes.enemy(g, enemy, damage, source, payload)
+-- owner (plan v11 E3d): the id of the body whose action began the damage
+-- chain (a knight's id, a demon's id, nil: unknown), carried by every
+-- consequence: the hit and the death name it, the body's shove remembers it
+-- (slams, collisions) and an effect it applies keeps it.
+function Outcomes.enemy(g, enemy, damage, source, payload, owner)
   if enemy.hp <= 0 or not validDamage(damage) then
     return
   end
   local healthDamage = math.min(enemy.hp, damage)
   enemy.hp = math.max(0, enemy.hp - damage)
   enemy.hit, enemy.awake = Defaults.hitFlash, true
-  emit(g, 'BodyHit', { enemy = enemy, health = healthDamage, source = source })
+  if owner ~= nil then
+    enemy.pushOwner = owner
+  end
+  emit(g, 'BodyHit', {
+    enemy = enemy,
+    health = healthDamage,
+    source = source,
+    owner = owner,
+    target = enemy.id,
+  })
   if enemy.hp > 0 then
-    Effects.apply(g, enemy, payload and payload.effects, source)
+    local applier = type(owner) == 'string' and { side = 'knight', id = owner } or source
+    Effects.apply(g, enemy, payload and payload.effects, applier)
     return
   end
   Effects.clear(enemy)
@@ -51,6 +65,8 @@ function Outcomes.enemy(g, enemy, damage, source, payload)
     source = source,
     offBalance = offBalance,
     causes = causes,
+    owner = owner,
+    target = enemy.id,
   })
 end
 
@@ -69,7 +85,9 @@ local function creatureBlow(g, target, amount, x, z, packet, source)
   }
   local dealt, _, impact, push = Damage.resolve(blow, target, 0)
   local health = math.min(target.hp, dealt)
-  Outcomes.enemy(g, target, dealt, 'creature', blow)
+  -- The chain belongs to the body that struck (a demon: no knight behind it).
+  local owner = type(source) == 'table' and source.id or nil
+  Outcomes.enemy(g, target, dealt, 'creature', blow, owner)
   local y = Ground.of(g.world, target) + (Rules.body(target).aimY or 1)
   require('src.combat.combat').react(
     g,

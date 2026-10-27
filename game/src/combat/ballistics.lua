@@ -9,8 +9,9 @@ local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local eye = require('src.content.knight').body.eye
 -- The eye in world height: the ground under the knight, his eye, his jump.
-function B.origin(g)
-  local p = Roles.controlled(g)
+-- The eye a shot leaves from: the actor's (default the controlled knight's).
+function B.origin(g, actor)
+  local p = actor or Roles.controlled(g)
   return p.x, Ground.of(g.world, p) + eye + p.jump - (p.crouch or 0), p.z
 end
 function B.direction(yaw, pitch)

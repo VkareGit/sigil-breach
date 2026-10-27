@@ -90,11 +90,14 @@ Fields.retire({
   'shots',
   'hits',
 }, "the actor's record (g.player.<field>, session/components.lua: knight)")
+Fields.retire(
+  { 'kills', 'score', 'combo', 'comboTimer', 'damageTaken' },
+  "the actors' ledger (session/stats.lua: Stats.total, Stats.controlled)"
+)
 Fields.retire({ 'bossSpawned', 'bossDead' }, 'the encounter (session/encounter.lua)')
 Fields.retire({ 'seals', 'secretFound' }, 'the world (world/arena.lua: activeSeals, secretFound)')
 Fields.retire({ 'rank', 'bestScore' }, 'the classic record (g.modeData)')
 declare('combat/combat.lua', {
-  'kills',
   'shotSerial', -- the world's shot id: every shot of any actor (journal, observations)
   '_shotBodies', -- per-shot scratch (combat/ballistics.lua)
 })
@@ -121,11 +124,9 @@ declare('enemies/ai.lua', {
 })
 declare('enemies/actions.lua', { 'attackStarts', 'leapStarts' })
 -- Consequences of damage and kills (session/listeners.lua, damage_outcomes).
+-- The fight's counters by actor id (plan v11 E3d).
+declare('session/stats.lua', { 'stats' })
 declare('session/listeners.lua', {
-  'score',
-  'combo',
-  'comboTimer',
-  'damageTaken',
   'intensity', -- the pacing director's faded damage (run/spawner.lua reads it)
   -- the guard-break hit-stop (s): missiles, ground and charges wait
   -- (session/capabilities.lua: held; counted down by systems/clocks)

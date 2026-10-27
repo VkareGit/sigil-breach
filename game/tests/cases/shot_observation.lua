@@ -89,7 +89,7 @@ function T.run(G, renderer)
     if removed then
       dead.enemies = { back }
     end
-    local kills = dead.kills
+    local kills = require('src.session.stats').total(dead, 'kills')
     local contacts
     dead.bus:on('sim', 'VolleyResolved', function(event)
       contacts = event.report.contacts
@@ -99,7 +99,7 @@ function T.run(G, renderer)
       (removed and 'removed' or 'dead')
         .. ' observed body retains first contact without a new wound or reward',
       front.hp == 0
-        and dead.kills == kills
+        and require('src.session.stats').total(dead, 'kills') == kills
         and contacts[1].targetId == front.id
         and contacts[1].kind == 'corpse'
         and contacts[1].damage == 0

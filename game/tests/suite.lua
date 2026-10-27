@@ -381,6 +381,16 @@ Suite.registry = {
     module = 'tests.cases.named_poses',
   },
   {
+    id = 'actors',
+    title = 'Independent actors, journal v5 and shot sequences (plan v11 E3)',
+    module = 'tests.cases.actors',
+  },
+  {
+    id = 'damage-chain',
+    title = 'Damage chains: owners of kills, healing and rewards (plan v11 E3d)',
+    module = 'tests.cases.damage_chain',
+  },
+  {
     id = 'mode-state',
     title = 'Mode state owners, per-session views and an altars mode (plan v11 E2)',
     module = 'tests.cases.mode_state',

@@ -56,9 +56,12 @@ return function(R)
     return lost, absorbed, overkill, amount, events
   end
   -- The player shoved into a wall: the same slam rule, through the same
-  -- player resolution (shield, guard), without a new shove.
-  function R.slamPlayer(g, speed, sourceX, sourceZ)
-    local p = g.player
+  -- player resolution (shield, guard), without a new shove. knight: whose
+  -- body (default the controlled knight; only his slam is the session's
+  -- damage receipt).
+  function R.slamPlayer(g, speed, sourceX, sourceZ, knight)
+    local p = knight or g.player
+    local controlled = p == g.player
     local over = speed - defaults.slamSpeed
     if over <= 0 or (p.slamLock or 0) > 0 or g.state ~= 'playing' then
       return 0
@@ -72,14 +75,14 @@ return function(R)
         impact = over * defaults.slamPoise,
         damageType = 'physical',
       }
-      local lost, absorbed, overkill, incoming, events = R.hitPlayer(g, packet)
+      local lost, absorbed, overkill, incoming, events = R.hitPlayer(g, packet, nil, nil, p)
       -- Preserve the nonlethal wall rule without healing a player below .5 HP.
       if p.hp <= 0 then
         p.hp = math.min(previousHP, 0.5)
         lost = previousHP - p.hp
         overkill = math.max(0, incoming - absorbed - lost)
       end
-      if g.recordPlayerDamage then
+      if controlled and g.recordPlayerDamage then
         g:recordPlayerDamage({
           amount = incoming,
           requested = packet.base,
@@ -97,8 +100,8 @@ return function(R)
         recorded = true
       end
     end
-    g.lastSlam = { x = p.x, z = p.z, speed = speed, player = true }
-    Signal(g, 'WallSlam', { body = p, speed = speed, player = true })
+    g.lastSlam = { x = p.x, z = p.z, speed = speed, player = controlled }
+    Signal(g, 'WallSlam', { body = p, speed = speed, player = controlled })
     return over, recorded
   end
 end

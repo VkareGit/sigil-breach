@@ -211,7 +211,7 @@ function T.run(G, check)
   }
   local g = {
     view = { effects = {}, decals = {}, particles = {} },
-    score = 9,
+    stats = { knight = { kills = 0, score = 9, combo = 0, comboTimer = 0, damageTaken = 0 } },
     player = { hp = 84, shots = 12 },
   }
   local rng = love.math.getRandomState()
@@ -229,7 +229,9 @@ function T.run(G, check)
   )
   check(
     'calling visual contact responses cannot award points, shoot or remove health',
-    g.player.shots == 12 and g.score == 9 and g.player.hp == 84
+    g.player.shots == 12
+      and require('src.session.stats').total(g, 'score') == 9
+      and g.player.hp == 84
   )
   FX.update(g, 2)
   check(

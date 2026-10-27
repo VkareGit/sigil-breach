@@ -23,13 +23,10 @@ function Tests.run(G, initial, renderer, getGame)
     g.player.arsenal.exorcist.readyAt = 0
     g.impactSlow = 0
     g.pickups = {}
-    g.damageTaken = 0
     require('src.world.arena').breakSeals(g.world, 0)
     require('src.session.encounter').setGuardian(g, false, false)
     g.world.secretFound = false
-    g.score = 0
-    g.combo = 0
-    g.comboTimer = 0
+    require('src.session.stats').reset(g)
     local p = g.player
     p.x, p.z = 16, 26
     p.yaw = math.pi
@@ -191,18 +188,25 @@ function Tests.run(G, initial, renderer, getGame)
   g.player.x, g.player.z = 4, 20.4
   check(
     'secret can be discovered in existing west court',
-    g:interact() and g.world.secretFound and g.score == 500
+    g:interact() and g.world.secretFound and require('src.session.stats').total(g, 'score') == 500
   )
   g:interact()
-  check('secret reward cannot be farmed', g.score == 500)
+  check('secret reward cannot be farmed', require('src.session.stats').total(g, 'score') == 500)
   reset()
   e = g:spawn('imp', 16, 24)
   g:damageEnemy(e, 1000)
   e = g:spawn('imp', 17, 24)
   g:damageEnemy(e, 1000)
-  check('rapid kills reward a chain', g.combo == 2 and g.score == 225)
+  check(
+    'rapid kills reward a chain',
+    require('src.session.stats').readControlled(g).combo == 2
+      and require('src.session.stats').total(g, 'score') == 225
+  )
   g:damagePlayer(5, 17, 26)
-  check('taking damage breaks chain and records direction', g.combo == 0 and g.view.damageDir > 1)
+  check(
+    'taking damage breaks chain and records direction',
+    require('src.session.stats').readControlled(g).combo == 0 and g.view.damageDir > 1
+  )
   local settings = { sensitivity = 1, fov = 100, music = 0.65, motion = true, hints = true }
   g.state = 'paused'
   check('mouse can adjust sensitivity', U.actionAt(g, settings, 870, 260) == 'sens_up')

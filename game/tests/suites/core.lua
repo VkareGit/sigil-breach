@@ -23,11 +23,8 @@ function Tests.run(G, initial, renderer, getGame)
   local function fresh()
     g.nextAttack = 0
     g.hazards = {}
-    g.score = 0
-    g.combo = 0
-    g.comboTimer = 0
+    require('src.session.stats').reset(g)
     g.view.feedbackTimer = 0
-    g.damageTaken = 0
     g.world.secretFound = false
     g.help = false
     g.enemies = {}
@@ -35,7 +32,6 @@ function Tests.run(G, initial, renderer, getGame)
     g.view.particles = {}
     g.pickups = {}
     g.state = 'playing'
-    g.kills = 0
     g.map = false
     g.elapsed = 0
     require('src.world.arena').breakSeals(g.world, 0)
@@ -430,7 +426,8 @@ function Tests.run(G, initial, renderer, getGame)
   love.keypressed('r', 'r')
   check(
     'restart clears run progress',
-    getGame().kills == 0 and require('src.world.arena').activeSeals(getGame().world) == 0
+    require('src.session.stats').total(getGame(), 'kills') == 0
+      and require('src.world.arena').activeSeals(getGame().world) == 0
   )
   love.mouse.setRelativeMode(false)
   return lines

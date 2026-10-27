@@ -96,6 +96,10 @@ World.handlers = {
   -- A reload stage sounds as its mechanism's voice for it (the breech's
   -- lever and shells, the cylinder's crane and ratchet).
   ReloadStage = function(g, ev)
+    -- Another actor's reload is not presented yet (plan v11 E5).
+    if ev.byControlled == false then
+      return
+    end
     local mechanism = Reload.mechanisms[ev.mechanism]
     A.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
     if ev.interrupted and ev.weapon == Weapons.idAt(g) and g.elapsed < ev.started + ev.duration then

@@ -40,7 +40,8 @@ function Tests.run(Game)
   )
   g:start()
   local player, world, run = g.player, g.world, g.run
-  g.score, g.kills, g.elapsed = 1800, 7, 16
+  local counted = require('src.session.stats').controlled(g)
+  counted.score, counted.kills, g.elapsed = 1800, 7, 16
   local body, shell, receipt = {}, {}, {}
   g.enemies, g.view.shells, g.view.shotReport = { body }, { shell }, receipt
   g.pickups, g.view.effects = { {} }, { {} }
@@ -77,8 +78,8 @@ function Tests.run(Game)
       and g.world == world
       and g.run == run
       and g.run.wallet == 100
-      and g.score == 1800
-      and g.kills == 7
+      and require('src.session.stats').total(g, 'score') == 1800
+      and require('src.session.stats').total(g, 'kills') == 7
       and g.elapsed == 16
       and g.view.shotReport == receipt
   )
@@ -98,7 +99,10 @@ function Tests.run(Game)
   )
   check(
     'full encounter reset still preserves run ownership and score',
-    g.player == player and g.world == world and g.run == run and g.score == 1800
+    g.player == player
+      and g.world == world
+      and g.run == run
+      and require('src.session.stats').total(g, 'score') == 1800
   )
 
   local steps, elapsed, presses = 0, 0, 0
@@ -137,14 +141,19 @@ function Tests.run(Game)
   end
   check(
     'invalid enemy damage cannot change health or award kills',
-    enemy.hp == hp and g.kills == 0 and g.score == 0
+    enemy.hp == hp
+      and require('src.session.stats').total(g, 'kills') == 0
+      and require('src.session.stats').total(g, 'score') == 0
   )
   g:damageEnemy(enemy, hp * 2, 'weapon')
-  local score, particles = g.score, #g.view.particles
+  local score, particles = require('src.session.stats').total(g, 'score'), #g.view.particles
   g:damageEnemy(enemy, hp, 'weapon')
   check(
     'enemy death awards score and effects only once',
-    g.kills == 1 and g.score == score and score > 0 and #g.view.particles == particles
+    require('src.session.stats').total(g, 'kills') == 1
+      and require('src.session.stats').total(g, 'score') == score
+      and score > 0
+      and #g.view.particles == particles
   )
 
   g = fresh('descent')

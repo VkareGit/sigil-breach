@@ -35,6 +35,31 @@ function F.clearMotion(g)
   Presentation.call(g, 'motion.clear')
   g.view.presentationPrevious = nil
 end
+-- The camera springs of a knight that is not presented (plan v11 E3b): his
+-- own, so another knight's step never moves the presented view. The
+-- presentation context of plan v11 E5 replaces this.
+local bodyViews = setmetatable({}, { __mode = 'k' })
+local function bodyView(p)
+  local v = bodyViews[p]
+  if not v then
+    v = {
+      recoil = 0,
+      recoilV = 0,
+      land = 0,
+      landV = 0,
+      swayX = 0,
+      swayY = 0,
+      shotAge = math.huge,
+      swapAge = 1,
+      fovKick = 0,
+      bobWeight = 0,
+      bank = 0,
+      stepSound = 0,
+    }
+    bodyViews[p] = v
+  end
+  return v
+end
 function F.init(g)
   local p = g.player
   p.vx, p.vz = 0, 0
@@ -68,21 +93,27 @@ function F.init(g)
   Presentation.call(g, 'motion.init')
   Intent.init(g)
 end
-function F.update(g, dt, input)
+-- actor: the knight that moves (default the controlled one). Only the
+-- controlled knight's step is presented (the camera, the hands, the sounds);
+-- another keeps its camera springs in a view of its own (plan v11 E3b).
+function F.update(g, dt, input, actor)
   if type(dt) ~= 'number' or dt <= 0 or dt ~= dt or dt == math.huge then
     return
   end
-  local p = g.player
-  g.view.recoil, g.view.recoilV =
-    spring(g.view.recoil, g.view.recoilV, 0, C.recoilSpring[1], C.recoilSpring[2], dt)
-  g.view.land, g.view.landV =
-    spring(g.view.land, g.view.landV, 0, C.landSpring[1], C.landSpring[2], dt)
-  g.view.swayX = g.view.swayX * math.exp(-dt * C.swayDecay)
-  g.view.swayY = g.view.swayY * math.exp(-dt * C.swayDecay)
-  g.view.shotAge = g.view.shotAge + dt
-  g.view.swapAge = math.min(1, g.view.swapAge + dt)
-  Presentation.call(g, 'motion.weight', dt)
-  g.view.fovKick = approach(g.view.fovKick, p.dashTimer > 0 and C.dashFov or 0, dt * C.dashFovRate)
+  local p = actor or g.player
+  local presented = p == g.player
+  local view = presented and g.view or bodyView(p)
+  view.recoil, view.recoilV =
+    spring(view.recoil, view.recoilV, 0, C.recoilSpring[1], C.recoilSpring[2], dt)
+  view.land, view.landV = spring(view.land, view.landV, 0, C.landSpring[1], C.landSpring[2], dt)
+  view.swayX = view.swayX * math.exp(-dt * C.swayDecay)
+  view.swayY = view.swayY * math.exp(-dt * C.swayDecay)
+  view.shotAge = view.shotAge + dt
+  view.swapAge = math.min(1, view.swapAge + dt)
+  if presented then
+    Presentation.call(g, 'motion.weight', dt)
+  end
+  view.fovKick = approach(view.fovKick, p.dashTimer > 0 and C.dashFov or 0, dt * C.dashFovRate)
   p.yaw = p.yaw + (input.turn or 0) * dt * M.turn
   local forward, strafe = input.forward or 0, input.strafe or 0
   local dx, dz =
@@ -107,8 +138,12 @@ function F.update(g, dt, input)
     p.slideTimer = T.slideTime
     p.slideAge = 0
     p.slideCooldown = T.slideCooldown
-    Presentation.cue(g, 'slide', C.sounds.slide)
-    Presentation.call(g, 'motion.slide')
+    if presented then
+      Presentation.cue(g, 'slide', C.sounds.slide)
+    end
+    if presented then
+      Presentation.call(g, 'motion.slide')
+    end
   end
   -- Conditions from the shared rules (stagger, wound) slow the body, not the aim.
   local condition = Rules.speedScale(p)
@@ -155,7 +190,7 @@ function F.update(g, dt, input)
     end
   end
   if input.dash then
-    g:dash(dx, dz)
+    g:dash(dx, dz, p)
   end
   plantedTravel = plantedTravel and p.dashTimer == 0
   local dashEnded = false
@@ -195,7 +230,12 @@ function F.update(g, dt, input)
   local slidX, slidZ, collided, supportLift, supportDrop =
     W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p, Rules.tall(g, p))
   if g.world.elevations and g.frame then
-    g.frame.supportLift = supportLift or 0
+    if presented then
+      g.frame.supportLift = supportLift or 0
+    else
+      g.frame.supportLifts = g.frame.supportLifts or {}
+      g.frame.supportLifts[p.id] = supportLift or 0
+    end
   end
   -- Shoved into a wall: the same slam rule as the demons (src/combat/rules.lua).
   -- The wall removes the normal part of the requested step; that is the
@@ -204,30 +244,32 @@ function F.update(g, dt, input)
     local blockedX, blockedZ = moveX - (slidX or 0), moveZ - (slidZ or 0)
     local lost = math.sqrt(blockedX * blockedX + blockedZ * blockedZ) / dt
     local over, recorded =
-      Rules.slamPlayer(g, math.min(pushSpeed, lost), p.x + blockedX, p.z + blockedZ)
+      Rules.slamPlayer(g, math.min(pushSpeed, lost), p.x + blockedX, p.z + blockedZ, p)
     if over > 0 then
       p.pushX, p.pushZ = 0, 0
       -- A damaging contact already sounds through the shared damage receipt.
-      if not recorded then
+      if presented and not recorded then
         Presentation.cue(g, 'thud', C.sounds.thud)
       end
     end
   end
   -- Measure only the collision solver's velocity projection. In particular,
   -- a dash's normal exit-speed cap below must not masquerade as a wall hit.
-  Presentation.call(
-    g,
-    'motion.wall',
-    collided,
-    contactVX,
-    contactVZ,
-    p.vx,
-    p.vz,
-    oldx,
-    oldz,
-    previousVX,
-    previousVZ
-  )
+  if presented then
+    Presentation.call(
+      g,
+      'motion.wall',
+      collided,
+      contactVX,
+      contactVZ,
+      p.vx,
+      p.vz,
+      oldx,
+      oldz,
+      previousVX,
+      previousVZ
+    )
+  end
   if dashEnded then
     local speed = onGround and T.moveSpeed * M.exitShare or T.airMomentumCap
     local v = math.sqrt(p.vx * p.vx + p.vz * p.vz)
@@ -236,30 +278,36 @@ function F.update(g, dt, input)
     end
   end
   local travelled = math.sqrt((p.x - oldx) ^ 2 + (p.z - oldz) ^ 2)
-  g.view.moving = travelled > M.moving
-  g.step = g.step + travelled * C.steps
+  view.moving = travelled > M.moving
+  if presented then
+    g.step = g.step + travelled * C.steps
+  end
   if p.slideTimer > 0 and math.sqrt(p.vx * p.vx + p.vz * p.vz) < 2 then
     p.slideTimer = 0
   end
-  g.view.bobWeight = approach(
-    g.view.bobWeight,
-    g.view.moving and onGround and p.slideTimer == 0 and 1 or 0,
+  view.bobWeight = approach(
+    view.bobWeight,
+    view.moving and onGround and p.slideTimer == 0 and 1 or 0,
     dt * C.bobRate
   )
   -- Lean follows resolved travel, including collision response. A pressed
   -- strafe key against stone must not tilt an otherwise stationary view.
   local lateral = (p.vx * math.cos(p.yaw) - p.vz * math.sin(p.yaw)) / T.moveSpeed
-  g.view.bank = approach(g.view.bank, -math.max(-1, math.min(1, lateral)) * C.bank, dt * C.bankRate)
-  local jumped = Intent.jump(g, dt, input.jump, onGround)
+  view.bank = approach(view.bank, -math.max(-1, math.min(1, lateral)) * C.bank, dt * C.bankRate)
+  local jumped = Intent.jump(g, dt, input.jump, onGround, actor)
   if jumped then
     p.jumpV = T.jumpSpeed
-    Presentation.call(g, 'motion.takeoff', p.jumpV)
+    if presented then
+      Presentation.call(g, 'motion.takeoff', p.jumpV)
+    end
     if p.slideTimer > 0 then
       p.slideTimer = 0
       -- Keep the slide's speed; the air cap absorbs the excess over time.
       p.airCap = math.sqrt(p.vx * p.vx + p.vz * p.vz)
     end
-    Presentation.cue(g, 'jump', C.sounds.jump)
+    if presented then
+      Presentation.cue(g, 'jump', C.sounds.jump)
+    end
   end
   p.crouch = approach(
     p.crouch,
@@ -282,35 +330,40 @@ function F.update(g, dt, input)
   local landingImpact
   if p.jump == 0 then
     if wasAir then
-      g.view.landV = math.max(-C.landDipMax, -math.abs(impact or 0) * C.landDip)
-      landingImpact = Presentation.call(g, 'motion.landing', impact)
-      Presentation.cue(
-        g,
-        'land',
-        C.sounds.land + math.min(C.sounds.landMax, math.abs(impact or 0) * C.sounds.landGain)
-      )
+      view.landV = math.max(-C.landDipMax, -math.abs(impact or 0) * C.landDip)
+      if presented then
+        landingImpact = Presentation.call(g, 'motion.landing', impact)
+        Presentation.cue(
+          g,
+          'land',
+          C.sounds.land + math.min(C.sounds.landMax, math.abs(impact or 0) * C.sounds.landGain)
+        )
+      end
     end
     p.jumpV = 0
   end
-  g.view.stepSound = math.max(0, (g.view.stepSound or 0) - dt)
-  local footfalls = Presentation.call(
-    g,
-    'motion.weapon',
-    dt,
-    travelled,
-    previousVX,
-    previousVZ,
-    landingImpact,
-    plantedTravel
-  )
-  if footfalls and footfalls > 0 and g.view.stepSound == 0 then
-    g.view.stepSound = C.stepEvery
+  view.stepSound = math.max(0, (view.stepSound or 0) - dt)
+  local footfalls = presented
+    and Presentation.call(
+      g,
+      'motion.weapon',
+      dt,
+      travelled,
+      previousVX,
+      previousVZ,
+      landingImpact,
+      plantedTravel
+    )
+  if footfalls and footfalls > 0 and view.stepSound == 0 then
+    view.stepSound = C.stepEvery
     Presentation.cue(g, 'step', C.sounds.step)
   end
   -- The trails of the step's movement (feedback/movement_marks.lua).
-  Presentation.call(g, 'motion.marks', dt)
+  if presented then
+    Presentation.call(g, 'motion.marks', dt)
+  end
 end
-function F.reloadUpdate(g, dt)
-  Reload.update(g, dt)
+function F.reloadUpdate(g, dt, actor)
+  Reload.update(g, dt, actor)
 end
 return F

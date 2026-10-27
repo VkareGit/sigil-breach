@@ -363,7 +363,16 @@ rozgrywki aktualizuje bazę i jest opisana w ZMIANY.
   widok należy do sesji, jest ważny do następnego kroku albo polecenia,
   Queries.copy daje kopię na własność. Nowy tryb trzyma stan w g.modeData,
   cel w objective, znaczniki mapy w markers widoku świata (test mode-state:
-  tryb „ołtarze”). Anatomia z warstw części
+  tryb „ołtarze”).
+  Aktorzy (plan v11 E3): broń w ręku, przeładowanie, spust, strzały
+  i sekwencja strzałów są polami rycerza; statystyki są w księdze
+  session/stats.lua (na id aktora, sumy przez Stats.total). Polecenia sesji
+  przyjmują id aktora, systemy rycerza obsługują każdego rycerza puli na
+  jego wejściu (input.actors[id]). Każde obrażenie niesie właściciela
+  łańcucha (owner): zabójstwo, wynik, leczenie i nagroda należą do niego.
+  Dziennik v5: header.actors, actorJoin/actorLeave/actorControl, preflight
+  id. Pola sesji przeniesione w v11 są wycofane (session/fields.lua:
+  retire) i ich użycie kończy się błędem ze wskazaniem nowego miejsca. Anatomia z warstw części
   (EXPORT-ANATOMY.ps1 -Legend, qa/art/anatomy_layers.lua) albo z edytora
   regionów (ANATOMY-EDITOR.ps1, model qa/art/anatomy_editor.lua), jako dane
   (qa/art/anatomy_export.lua) i linia w content/art/anatomy/index.lua;

@@ -129,8 +129,9 @@ function S.run(G, human, observer)
     local visible = false
     local dash = false
     if g.run.wave ~= previousWave then
-      waveDamage[#waveDamage + 1] = g.damageTaken - damageStart
-      damageStart = g.damageTaken
+      waveDamage[#waveDamage + 1] = require('src.session.stats').total(g, 'damageTaken')
+        - damageStart
+      damageStart = require('src.session.stats').total(g, 'damageTaken')
       waveTimes[#waveTimes + 1] = g.elapsed - waveStarted
       waveStarted = g.elapsed
       previousWave = g.run.wave
@@ -307,7 +308,7 @@ function S.run(G, human, observer)
     lastX, lastZ = p.x, p.z
   end
   waveTimes[#waveTimes + 1] = g.elapsed - waveStarted
-  waveDamage[#waveDamage + 1] = g.damageTaken - damageStart
+  waveDamage[#waveDamage + 1] = require('src.session.stats').total(g, 'damageTaken') - damageStart
   closeSegment()
   for i, segment in ipairs(segments) do
     segment.time, segment.damage = waveTimes[i], waveDamage[i]
@@ -316,8 +317,8 @@ function S.run(G, human, observer)
     state = g.state,
     time = g.elapsed,
     hp = g.player.hp,
-    damage = g.damageTaken,
-    kills = g.kills,
+    damage = require('src.session.stats').total(g, 'damageTaken'),
+    kills = require('src.session.stats').total(g, 'kills'),
     ammo = g.player.arsenal.exorcist.mag + g.player.arsenal.exorcist.reserve,
     shotgun = shotgun,
     revolver = revolver,

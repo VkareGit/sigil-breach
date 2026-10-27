@@ -1,5 +1,6 @@
 -- The ending screen: a broken or a lost trial.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
+local Stats = require('src.session.stats')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
 local Palette = require('src.ui.palette')
@@ -35,7 +36,7 @@ function S.draw(g, s, U)
     Text.get('classic_stats', {
       minutes = string.format('%02d', math.floor(g.elapsed / 60)),
       seconds = string.format('%02d', math.floor(g.elapsed % 60)),
-      kills = string.format('%d', g.kills),
+      kills = string.format('%d', Stats.total(g, 'kills')),
       seals = string.format('%d', result.seals or 0),
     }),
     365,
@@ -43,13 +44,21 @@ function S.draw(g, s, U)
     ivory
   )
   center(
-    Text.get('classic_score', { score = g.score, damage = math.floor(g.damageTaken) }),
+    Text.get('classic_score', {
+      score = Stats.total(g, 'score'),
+      damage = math.floor(Stats.total(g, 'damageTaken')),
+    }),
     407,
     20,
     muted
   )
   if won then
-    center(Text.get('classic_best', { score = result.bestScore or g.score }), 450, 24, gold)
+    center(
+      Text.get('classic_best', { score = result.bestScore or Stats.total(g, 'score') }),
+      450,
+      24,
+      gold
+    )
     center(Text.get('classic_ranks'), 488, 16, muted)
   else
     center(Text.get('classic_hint'), 460, 20, gold)

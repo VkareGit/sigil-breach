@@ -262,4 +262,61 @@ Save.declare({
     M.reindex(g)
   end,
 })
+-- A knight as one member of the pools section (plan v11 E3: what a journal's
+-- actorJoin carries): its components, place, level and facing, its
+-- equipment and arsenal, health and ward, side and actor state, written by
+-- the same coder as the save (core/data_tree.lua).
+function M.memberRecord(knight)
+  members[knight] = true
+  local record = Tree.encode(knight, transient)
+  members[knight] = nil
+  return record
+end
+local finite = function(v)
+  return type(v) == 'number' and v == v and v > -math.huge and v < math.huge
+end
+-- A new knight of session g from a member record, checked as a save's member
+-- is: the coder, the knight's declared fields, existing definitions and an id
+-- the session does not use. Returns the knight (not yet in the pool) or nil
+-- and the reason.
+function M.knightFromRecord(g, record)
+  local ok, knight = pcall(Tree.decode, record)
+  if not ok or type(knight) ~= 'table' then
+    return nil, 'not a member record'
+  end
+  if type(knight.id) ~= 'string' or not knight.id:match('^[%w_]+$') then
+    return nil, 'a knight needs an id'
+  end
+  if M.get(g, knight.id) or knight.id == (Roles.controlled(g) or {}).id then
+    return nil, 'id already used: ' .. knight.id
+  end
+  local fields = g.ecs:fields('knight')
+  for key in pairs(knight) do
+    if not (fields[key] or key == 'prefab' or key == 'components') then
+      return nil, 'not a field of a knight: ' .. tostring(key)
+    end
+  end
+  if knight.prefab ~= nil and knight.prefab ~= 'knight' then
+    return nil, 'not a knight'
+  end
+  for _, key in ipairs({ 'x', 'z', 'hp' }) do
+    if knight[key] ~= nil and not finite(knight[key]) then
+      return nil, 'invalid ' .. key
+    end
+  end
+  local Weapons = require('src.content.weapons')
+  for _, id in ipairs(knight.loadout or {}) do
+    if not Weapons.registry:has(id) or not (knight.arsenal and knight.arsenal[id]) then
+      return nil, 'unknown weapon ' .. tostring(id)
+    end
+  end
+  local Abilities = require('src.content.abilities')
+  for _, id in ipairs(knight.abilities or {}) do
+    if not Abilities:has(id) then
+      return nil, 'unknown ability ' .. tostring(id)
+    end
+  end
+  knight.prefab, knight.components = nil, nil
+  return g.ecs:create('knight', knight, false)
+end
 return M

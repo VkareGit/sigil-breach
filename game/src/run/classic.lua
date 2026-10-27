@@ -16,6 +16,7 @@ local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local Encounter = require('src.session.encounter')
+local Stats = require('src.session.stats')
 local Mode = {}
 
 local distance = MathX.distance
@@ -68,10 +69,10 @@ end
 local function finish(g)
   g.state = 'won'
   local rank, data = Classic.rank, record(g)
-  data.rank = g.elapsed < rank.S.time and g.damageTaken < rank.S.damage and 'S'
+  data.rank = g.elapsed < rank.S.time and Stats.total(g, 'damageTaken') < rank.S.damage and 'S'
     or (g.elapsed < rank.A.time and 'A' or 'B')
   local previous = tonumber((love.filesystem.read('best-score-v03.txt'))) or 0
-  data.bestScore = math.max(previous, g.score)
+  data.bestScore = math.max(previous, Stats.total(g, 'score'))
   if not g.testing then
     love.filesystem.write('best-score-v03.txt', tostring(data.bestScore))
   end
@@ -88,7 +89,8 @@ function Mode.interact(g)
     player.armor = math.min(Classic.maxWard, player.armor + secret.ward)
     local _, main = mainWeapon(player)
     main.reserve = math.min(Classic.maxRounds, main.reserve + secret.rounds)
-    g.score = g.score + secret.score
+    local stats = Stats.controlled(g)
+    stats.score = stats.score + secret.score
     g:notify(Text.get('classic_secret', { ward = secret.ward, rounds = secret.rounds }), 4)
     Presentation.cue(g, 'seal')
     return true
@@ -128,14 +130,15 @@ end
 -- few kills, and the Margrave's fall opens the way out.
 function Mode.reward(g, event)
   local enemy, K = event.enemy, Tuning.rewards
-  if g.kills % K.ammoEvery == 0 then
+  local kills = Stats.total(g, 'kills')
+  if kills % K.ammoEvery == 0 then
     Spawn.make(
       g,
       'pickup',
       { x = enemy.x, z = enemy.z, level = enemy.level, kind = 'ammo', amount = Tuning.killAmmo }
     )
   end
-  if g.kills % K.healthEvery == 0 then
+  if kills % K.healthEvery == 0 then
     Spawn.make(g, 'pickup', {
       x = enemy.x + K.dropSpacing,
       z = enemy.z,

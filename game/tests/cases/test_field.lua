@@ -240,7 +240,9 @@ function Tests.run(G, renderer)
     g:damagePlayer(30)
     check(
       'disabling invincibility restores normal health and armor damage',
-      g.player.hp < 100 and g.player.armor < 100 and g.damageTaken == 30
+      g.player.hp < 100
+        and g.player.armor < 100
+        and require('src.session.stats').total(g, 'damageTaken') == 30
     )
     g = fresh()
     Field.close(g)

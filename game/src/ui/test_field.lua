@@ -1,4 +1,5 @@
 local UI = {}
+local Stats = require('src.session.stats')
 local Field = require('src.run.test_field')
 local Skin = require('src.ui.skin')
 local Goetia = require('src.ui.goetic_sigils')
@@ -202,7 +203,10 @@ function UI.draw(g, ui)
   )
   box(
     ui,
-    Text.get('fui_live_targets', { count = count, limit = Field.limit, kills = g.kills }),
+    Text.get(
+      'fui_live_targets',
+      { count = count, limit = Field.limit, kills = Stats.total(g, 'kills') }
+    ),
     86,
     535,
     530,
@@ -246,8 +250,8 @@ function UI.ending(g, ui)
   box(
     ui,
     Text.get('fui_fell_stats', {
-      kills = g.kills,
-      damage = math.floor(g.damageTaken),
+      kills = Stats.total(g, 'kills'),
+      damage = math.floor(Stats.total(g, 'damageTaken')),
       control = math.floor(100 * require('src.combat.telemetry').uptime(g) + 0.5),
     }),
     328,

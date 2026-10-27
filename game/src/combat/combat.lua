@@ -13,6 +13,7 @@ local Observation = require('src.combat.observation')
 local Loadout = require('src.combat.loadout')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Bodies = require('src.combat.bodies')
 local C = { trace = B.trace }
 -- The controlled actor's shots and the shots that reached a body.
 function C.counters(g)
@@ -45,14 +46,15 @@ end
 -- 1. May the trigger be pulled now? A closed or empty action reloads instead.
 -- A knight off balance (staggered) cannot aim (0.25, D2); a pull may stop a
 -- reload while rounds remain in the gun (combat/reload.lua: interrupt).
-local function ready(g)
-  if g.state ~= 'playing' or g.map or g.help or Roles.controlled(g).cooldown > 0 then
+-- a: the shooting actor (a knight; plan v11 E3b).
+local function ready(g, a)
+  if g.state ~= 'playing' or g.map or g.help or a.cooldown > 0 or a.hp <= 0 then
     return nil
   end
-  if Rules.has(Roles.controlled(g), 'staggered') then
+  if Rules.has(a, 'staggered') then
     return nil
   end
-  local profile, state = Weapons.inHand(g)
+  local profile, state = Weapons.inHand(g, nil, a)
   if not profile or not state then
     return nil
   end
@@ -62,29 +64,29 @@ local function ready(g)
     Reload.mechanisms[profile.mechanism],
     'weapon ' .. profile.id .. ': unknown reload mechanism ' .. profile.mechanism
   )
-  if Reload.left(g) > 0 and not Reload.interrupt(g) then
+  if Reload.left(g, a) > 0 and not Reload.interrupt(g, a) then
     return nil
   end
   if not Capabilities.armed(g) then
     return nil
   end
-  if not profile or not Weapons.validAmmo(g) then
+  if not profile or not Weapons.validAmmo(g, nil, a) then
     return nil
   end
   if (state.readyAt or 0) > g.elapsed + 1e-8 then
     return nil
   end
-  if state.open or (state.mag or 0) <= 0 or not Weapons.canFire(g) then
-    g:reloadGun()
+  if state.open or (state.mag or 0) <= 0 or not Weapons.canFire(g, a) then
+    g:reloadGun(a.id)
     return nil
   end
   return profile
 end
 
 -- 2. The discharge: rounds spent, cadence, recoil, sound, flash and powder.
-local function discharge(g, profile, command)
-  local p, fire = Roles.controlled(g), profile.fire
-  local state = Weapons.state(g)
+local function discharge(g, profile, command, p)
+  local fire = profile.fire
+  local state = Weapons.state(g, nil, p)
   local rounds = math.min(fire.rounds, state.mag)
   state.mag = state.mag - rounds
   if fire.ejects then
@@ -100,7 +102,15 @@ local function discharge(g, profile, command)
   state.readyAt = g.elapsed + profile.cycle
   -- Recoil, flash, sound and powder: feedback/shot_feedback.lua.
   if g.bus then
-    local event = { profile = profile, shotPower = rounds / fire.rounds, command = command }
+    local event = {
+      profile = profile,
+      shotPower = rounds / fire.rounds,
+      command = command,
+      actor = p.id,
+      -- Whether the controlled knight fired: until plan v11 E5 gives every
+      -- viewer its context, only his shots are presented.
+      byControlled = p == Roles.controlled(g),
+    }
     Signal(g, 'ShotFired', event)
   end
   return fire.pellets * rounds / fire.rounds
@@ -111,9 +121,10 @@ end
 -- can never open a hole through a body killed by an earlier one.
 local Volley = {}
 Volley.__index = Volley
-local function newVolley(g, profile, attack, pellets)
+local function newVolley(g, profile, attack, pellets, shooter)
   return setmetatable({
     g = g,
+    shooter = shooter,
     profile = profile,
     attack = attack,
     damages = {},
@@ -126,7 +137,7 @@ local function newVolley(g, profile, attack, pellets)
     lowers = {},
     blocked = 0,
     report = {
-      weapon = Weapons.slot(g),
+      weapon = Weapons.slot(g, shooter),
       weaponName = profile.name,
       pellets = pellets,
       pelletsHit = 0,
@@ -143,7 +154,9 @@ local function newVolley(g, profile, attack, pellets)
       contacts = {},
       hitTargets = {},
       strong = profile.fire.heavy,
-      origin = { B.origin(g) },
+      origin = { B.origin(g, shooter) },
+      actor = shooter and shooter.id,
+      byControlled = shooter == nil or shooter == Roles.controlled(g),
     },
   }, Volley)
 end
@@ -268,7 +281,7 @@ function Volley:pierce(first, d, dx, dy, dz, bodies, firstPart, firstSurface)
 end
 -- Trace pellet i of the volley: body contacts, or the surface it strikes.
 function Volley:trace(i, pellets, spread, bodies)
-  local g, fire, p, report = self.g, self.profile.fire, Roles.controlled(self.g), self.report
+  local g, fire, p, report = self.g, self.profile.fire, self.shooter, self.report
   local ox, oy = 0, 0
   if fire.pellets > 1 then
     ox, oy = B.pellet(i, self.sequence, pellets)
@@ -316,7 +329,7 @@ function Volley:apply()
         pt[j] = pt[j] / self.counts[e]
       end
       local healthBefore = e.hp
-      g:damageEnemy(e, damage, 'weapon', self.attack)
+      g:damageEnemy(e, damage, 'weapon', self.attack, self.shooter and self.shooter.id)
       local actual = math.min(math.max(0, healthBefore), damage)
       report.healthDamage = report.healthDamage + actual
       report.overkill = report.overkill + math.max(0, damage - actual)
@@ -356,7 +369,7 @@ end
 
 local function resolveVolley(g, shot, bodies)
   local profile, pellets = shot.profile, shot.count
-  local volley = newVolley(g, profile, shot.attack, pellets)
+  local volley = newVolley(g, profile, shot.attack, pellets, shot.shooter)
   volley.origin, volley.yaw, volley.pitch = shot.origin, shot.yaw, shot.pitch
   volley.sequence = shot.sequence
   volley.report.origin = shot.origin
@@ -366,7 +379,7 @@ local function resolveVolley(g, shot, bodies)
   end
   local results = volley:apply()
   if volley.report.targets > 0 then
-    Roles.controlled(g).hits = Roles.controlled(g).hits + 1
+    shot.shooter.hits = shot.shooter.hits + 1
   end
   -- Marks, trails, numbers, hitmarker, named rules: feedback/shot_feedback.lua.
   if g.bus then
@@ -386,7 +399,7 @@ Deliveries:register('hitscan', { prepare = B.prepare, fire = resolveVolley })
 -- even if several projectiles from this discharge reach different bodies.
 function C.projectile(g, b, e, part, surface)
   local shot = b.shot
-  local volley = newVolley(g, shot.profile, shot.attack, 1)
+  local volley = newVolley(g, shot.profile, shot.attack, 1, shot.shooter)
   volley.report.weapon, volley.report.shotSerial = shot.slot, shot.serial
   volley.sequence = shot.sequence
   volley.report.origin = shot.origin
@@ -417,12 +430,17 @@ function C.projectile(g, b, e, part, surface)
   )
 end
 
-function C.shoot(g, command)
+-- who: the shooting actor (its id, or nil for the controlled knight).
+function C.shoot(g, command, who)
+  local a = Bodies.actor(g, who)
+  if not a then
+    return false
+  end
   local observation = command and command.observation
   if observation and not Observation.valid(g, observation) then
     return false
   end
-  local profile = ready(g)
+  local profile = ready(g, a)
   if not profile then
     return false
   end
@@ -436,8 +454,9 @@ function C.shoot(g, command)
     -- The journal keeps the bodies of an observation a shot used.
     Signal(g, 'ObservationUsed', { observation = observation })
   end
-  local attack, spread = Loadout.attack(g, Weapons.slot(g)), Loadout.spread(g)
-  local pellets = discharge(g, profile, command)
+  local slot = Weapons.slot(g, a)
+  local attack, spread = Loadout.attack(g, slot, a), Loadout.spread(g, a)
+  local pellets = discharge(g, profile, command, a)
   local shot = {
     profile = profile,
     attack = attack,
@@ -445,17 +464,17 @@ function C.shoot(g, command)
     count = pellets,
     serial = g.shotSerial,
     -- Its shooter and the shooter's own shot sequence (plan v11 E3).
-    shooter = Roles.controlled(g),
-    sequence = Roles.controlled(g).shotSequence,
-    slot = Weapons.slot(g),
-    origin = observed and Observation.copy(observation.origin) or { B.origin(g) },
-    yaw = command and command.yaw or Roles.controlled(g).yaw,
-    pitch = command and command.pitch or Roles.controlled(g).pitch,
+    shooter = a,
+    sequence = a.shotSequence,
+    slot = slot,
+    origin = observed and Observation.copy(observation.origin) or { B.origin(g, a) },
+    yaw = command and command.yaw or a.yaw,
+    pitch = command and command.pitch or a.pitch,
     hit = false,
   }
   delivery.fire(g, shot, prepared)
-  if profile.fire.autoReload and (Weapons.state(g).reserve or 0) > 0 then
-    Reload.start(g, true)
+  if profile.fire.autoReload and (Weapons.state(g, nil, a).reserve or 0) > 0 then
+    Reload.start(g, true, a)
   end
   return true
 end

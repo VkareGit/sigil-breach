@@ -31,18 +31,21 @@ local function clear(g, b, x, y, z)
 end
 -- The 'throw' delivery: a charge leaves the eye along the aim (gates and
 -- uses are the caster's: combat/abilities.lua).
-function X.launch(g, action)
+-- actor: the thrower (default the controlled knight).
+function X.launch(g, action, actor)
   action = action or defaultAction()
   -- Every throw uses the same gravity, scaled from its authored reference.
   local throwScale = math.sqrt(Tuning.gravity / action.referenceGravity)
   local throwSpeed, throwLift = action.speed * throwScale, action.lift * throwScale
-  local p = Roles.controlled(g)
-  local x, y, z = B.origin(g)
+  local p = actor or Roles.controlled(g)
+  local x, y, z = B.origin(g, p)
   local dx, dy, dz = B.direction(p.yaw, p.pitch)
   local spawn = B.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
   spawn = math.max(0, spawn - K.spawnClearance)
   Spawn.make(g, 'charge', {
     action = action,
+    -- The thrower owns the blast and every consequence of it (plan v11 E3d).
+    owner = p.id,
     x = x + dx * spawn,
     y = y + dy * spawn,
     z = z + dz * spawn,
@@ -53,7 +56,7 @@ function X.launch(g, action)
     maxFuse = action.fuse,
     spin = 0,
   })
-  Signal(g, 'ChargeThrown', {})
+  Signal(g, 'ChargeThrown', { actor = p.id })
   require('src.enemies.ai').noise(g, p.x, p.z, action.noise)
   return true
 end
@@ -72,7 +75,7 @@ function X.explode(g, b)
       if visible and d < action.radius then
         local dealt, blocked, impact, push = D.resolve(action.blast, e, d)
         local health = math.min(e.hp, dealt)
-        g:damageEnemy(e, dealt, 'charge', action.blast)
+        g:damageEnemy(e, dealt, 'charge', action.blast, b.owner)
         require('src.combat.combat').react(
           g,
           e,

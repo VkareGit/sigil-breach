@@ -65,3 +65,54 @@ Wniosek dla E1:
 - Według protokołu nierozstrzygnięty wynik po powtórzeniu liczy się jak
   regresja i wymaga decyzji użytkownika. Wniosek jest przedstawiony
   w raporcie końcowym.
+
+## Kontrola A/A (ten sam kod po obu stronach, 5 par, wysoki priorytet, bez przypinania)
+
+Oba warianty to `work/v11-base`.
+
+| Metryka | Po/przed | Werdykt |
+|---|---:|---|
+| klatka, scena heavy | 0,983 | nierozstrzygnięty |
+| klatka, scena normal | 0,997 | brak regresji |
+| klatka, populacja 20 | 0,996 | nierozstrzygnięty |
+| klatka, populacja 96 | 1,033 | nierozstrzygnięty |
+| klatka, populacja 256 | 1,004 | nierozstrzygnięty |
+| krok, 20 ciał | 0,918 | brak regresji |
+| krok, 96 ciał | 0,907 | nierozstrzygnięty |
+| krok, 256 ciał | 1,033 | nierozstrzygnięty |
+
+Identyczny kod daje mediany w zakresie 0,91–1,03 i IQR powyżej 5 % w
+większości metryk. Na tej maszynie warunek „IQR ≤ 5 % po obu stronach” nie
+jest osiągalny niezależnie od zmiany. Protokół w obecnej postaci uznałby
+każdy etap za nierozstrzygnięty, a po powtórzeniu za regresję.
+
+Rozstrzygnięcie należy do użytkownika (zasada protokołu). Proponowane
+kryterium praktyczne: brak regresji, gdy mediana „po” ≤ 1,05 × „przed”
+albo różnica median mieści się w rozrzucie A/A danej metryki.
+
+## E2 (worktree `work/v11-e2`, commit `a33705f`)
+
+Pierwszy pomiar (5 par, przypięte rdzenie 2–7):
+- sceny `complete_*` bez regresji (1,002 i 1,022);
+- populacja 20: 1,059 przy IQR 1–3 %, czyli „regresja” według protokołu;
+- reszta nierozstrzygnięta.
+
+Powtórzenie bez przypinania (5 par):
+
+| Metryka | Przed: mediana (IQR) | Po: mediana (IQR) | Po/przed |
+|---|---|---|---:|
+| krok, 20 ciał | 0,1305 ms (8,1 %) | 0,1310 ms (5,8 %) | 1,004 |
+| krok, 96 ciał | 0,6141 ms (3,3 %) | 0,5844 ms (8,5 %) | 0,952 |
+| krok, 256 ciał | 2,7407 ms (16,0 %) | 2,9492 ms (12,4 %) | 1,076 |
+| klatka, scena normal | 4,0710 ms (5,3 %) | 4,2134 ms (3,2 %) | 1,035 |
+| klatka, scena heavy | 5,6444 ms (11,1 %) | 5,4332 ms (5,9 %) | 0,963 |
+| klatka, populacja 20 | 6,9140 ms (9,1 %) | 6,8301 ms (4,4 %) | 0,988 |
+| klatka, populacja 96 | 12,4545 ms (12,4 %) | 12,6965 ms (8,7 %) | 1,019 |
+| klatka, populacja 256 | 22,7526 ms (5,5 %) | 21,5007 ms (5,5 %) | 0,945 |
+
+„Regresja” populacji 20 z przebiegu z przypięciem nie powtarza się
+(0,988). Wszystkie mediany mieszczą się w ±5 % oprócz kroku 256 ciał
+(1,076), a tam rozrzut po obu stronach to 12–16 % (A/A: 1,033).
+
+E2 dokłada kilka zapytań o widoki na klatkę. Każde zapytanie to wypełnienie
+małej tabeli sesji, bez pętli po ciałach.

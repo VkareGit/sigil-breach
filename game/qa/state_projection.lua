@@ -17,6 +17,7 @@ local Weapons = require('src.content.weapons')
 local Roles = require('src.core.roles')
 local World = require('src.world.arena')
 local Encounter = require('src.session.encounter')
+local Stats = require('src.session.stats')
 local Projection = {}
 local format, floor = string.format, math.floor
 Projection.every = 30
@@ -77,12 +78,9 @@ function Projection.actor(g, knight, out)
     put(out, name .. '.ammo.' .. id .. '.reserve', w.reserve)
     put(out, name .. '.ammo.' .. id .. '.open', w.open == true)
   end
-  if knight ~= Roles.controlled(g) then
-    return out
-  end
   -- Plan v11 E3a: the hands, the reload, the shots and the shot sequence are
-  -- the actor's (same names, same values).
-  put(out, name .. '.weapon', knight.weapon and Weapons.idAt(g, knight.weapon) or nil)
+  -- the actor's (same names, same values), for every knight since E3b.
+  put(out, name .. '.weapon', knight.weapon and Weapons.idAt(g, knight.weapon, knight) or nil)
   put(out, name .. '.slot', knight.weapon)
   put(out, name .. '.cooldown', knight.cooldown)
   put(out, name .. '.reload.time', knight.reload)
@@ -91,11 +89,16 @@ function Projection.actor(g, knight, out)
   put(out, name .. '.sequence', knight.shotSequence)
   put(out, name .. '.stats.shots', knight.shots)
   put(out, name .. '.stats.hits', knight.hits)
-  put(out, name .. '.stats.kills', g.kills)
-  put(out, name .. '.stats.score', g.score)
-  put(out, name .. '.stats.combo', g.combo)
-  put(out, name .. '.stats.comboTimer', g.comboTimer)
-  put(out, name .. '.stats.damageTaken', g.damageTaken)
+  if knight ~= Roles.controlled(g) then
+    return out
+  end
+  -- Plan v11 E3d: the counters are the actors' ledger (session/stats.lua);
+  -- one knight: the totals are his.
+  put(out, name .. '.stats.kills', Stats.total(g, 'kills'))
+  put(out, name .. '.stats.score', Stats.total(g, 'score'))
+  put(out, name .. '.stats.combo', Stats.readControlled(g).combo)
+  put(out, name .. '.stats.comboTimer', Stats.readControlled(g).comboTimer)
+  put(out, name .. '.stats.damageTaken', Stats.total(g, 'damageTaken'))
   return out
 end
 -- The mode's state: its phase and progress, the guardian and the secret.
@@ -107,7 +110,7 @@ function Projection.mode(g, out)
   put(out, 'mode.wave', run and run.wave)
   put(out, 'mode.wallet', run and run.wallet)
   put(out, 'mode.glyph', run and run.glyph)
-  put(out, 'mode.score', g.score)
+  put(out, 'mode.score', Stats.total(g, 'score'))
   -- Plan v11 E2: the seals are the world's broken seals, the guardian the
   -- encounter's record, the secret the world's (same names, same values).
   put(out, 'mode.seals', World.activeSeals(g.world))
@@ -230,9 +233,9 @@ function Projection.death(g, event, out)
   put(out, 'death.reward', event.reward)
   put(out, 'death.souls', souls(g, e))
   put(out, name .. '.hp', p.hp)
-  put(out, name .. '.stats.kills', g.kills)
-  put(out, name .. '.stats.score', g.score)
-  put(out, name .. '.stats.combo', g.combo)
+  put(out, name .. '.stats.kills', Stats.total(g, 'kills'))
+  put(out, name .. '.stats.score', Stats.total(g, 'score'))
+  put(out, name .. '.stats.combo', Stats.readControlled(g).combo)
   put(out, 'mode.wallet', g.run and g.run.wallet)
   return out
 end

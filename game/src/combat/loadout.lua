@@ -3,10 +3,11 @@
 local Weapons = require('src.content.weapons')
 local Modes = require('src.run.modes')
 local Loadout = {}
-function Loadout.attack(g, slot)
-  return Weapons.attack(g, slot, Modes.act(g, 'weaponModifier'))
+-- actor (optional): whose weapon (default the controlled knight's).
+function Loadout.attack(g, slot, actor)
+  return Weapons.attack(g, slot, Modes.act(g, 'weaponModifier'), actor)
 end
-function Loadout.spread(g)
-  return Weapons.spread(g, Modes.act(g, 'weaponModifier'))
+function Loadout.spread(g, actor)
+  return Weapons.spread(g, Modes.act(g, 'weaponModifier'), actor)
 end
 return Loadout

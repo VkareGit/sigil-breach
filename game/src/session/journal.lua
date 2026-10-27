@@ -17,12 +17,18 @@ local Build = require('src.core.build')
 local Pools = require('src.session.world')
 local finite = require('src.core.mathx').finite
 local Roles = require('src.core.roles')
+local Stats = require('src.session.stats')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 -- Version 4 (plan v10 V5): a shot keeps only the bodies of its corridor
--- (combat/observation.lua) and unchanged body geometry is a reference;
--- journals of version 3 (and 2) still replay.
-local Journal = { version = 4, build = Build.version }
+-- (combat/observation.lua) and unchanged body geometry is a reference.
+-- Version 5 (plan v11 E3): actors. The header lists the knights the session
+-- was built with (actors); commands may name the actor they are for (its
+-- id, the last argument; an update's input.actors); actorJoin, actorLeave
+-- and actorControl change the pool and the controlled knight. Every id is
+-- checked before the replay touches the session. Journals of versions 4, 3
+-- and 2 still replay (all their commands are the controlled knight's).
+local Journal = { version = 5, build = Build.version }
 -- LuaJIT weak keys are not ephemerons: a strongly held callback that captures
 -- its key (or the session) would keep abandoned sessions alive forever. The
 -- active command wrappers own callbacks; these tables are lookup indexes only.
@@ -69,7 +75,29 @@ Journal.commands = {
   'interact',
   'start',
   'act',
+  'actorJoin',
+  'actorLeave',
+  'actorControl',
 }
+-- Where a command names its actor (argument index; nil: the controlled one).
+Journal.actorArgument = {
+  look = 3,
+  shoot = 2,
+  cast = 2,
+  reloadGun = 1,
+  switchWeapon = 2,
+  dash = 3,
+  actorLeave = 1,
+  actorControl = 1,
+}
+-- The ids of a session's knights, in pool order.
+function Journal.actors(g)
+  local ids = {}
+  for i, knight in ipairs(Pools.of(g, 'knights')) do
+    ids[i] = knight.id
+  end
+  return ids
+end
 -- Session fields the application sets directly, outside any command (a
 -- pause, the help or the map, cleared intents). A change between two
 -- commands is recorded as a 'set' entry before the next one, the way an
@@ -113,7 +141,7 @@ function Journal.origin(g)
   end
   return {
     elapsed = g.elapsed,
-    kills = g.kills,
+    kills = Stats.total(g, 'kills'),
     alive = alive,
     nextId = g.nextId,
     x = Roles.controlled(g).x,
@@ -133,6 +161,7 @@ function Journal.header(g)
     map = g.world and g.world.mapId,
     origin = Journal.origin(g),
     initial = Integrity.capture(g),
+    actors = Journal.actors(g),
   }
 end
 -- A fresh session as the journal's began (Game: session/game.lua).
@@ -264,6 +293,13 @@ function Journal.record(g, limits, onLimit)
       -- Only the player's own commands; a command issued by another one (an
       -- update that fires) is its consequence and replays by itself.
       if depth == 0 then
+        -- A command for a knight the session does not hold is refused, not
+        -- recorded: the game cannot issue it (a replay's preflight rejects it).
+        local index = Journal.actorArgument[name]
+        local who = index and select(index, ...)
+        if who ~= nil and not (type(who) == 'string' and Pools.get(self, who)) then
+          return false
+        end
         control.sync()
         journal.final = nil
         local args = pack({ ... })
@@ -336,7 +372,10 @@ function Journal.replay(g, journal)
   end
   if header.version then
     assert(
-      header.version == Journal.version or header.version == 3 or header.version == 2,
+      header.version == Journal.version
+        or header.version == 4
+        or header.version == 3
+        or header.version == 2,
       'unsupported journal format'
     )
     assert(
@@ -356,9 +395,9 @@ function Journal.replay(g, journal)
   for old in pairs(Journal.renamed) do
     external[old] = true
   end
-  local pooled = header.version == 3 or header.version == 4
-  local bodies = header.version == 4 and journal.bodies or nil
-  if header.version == 4 then
+  local pooled = header.version == 3 or header.version == 4 or header.version == 5
+  local bodies = (header.version == 4 or header.version == 5) and journal.bodies or nil
+  if header.version == 4 or header.version == 5 then
     assert(type(bodies) == 'table', 'invalid journal body pool')
   end
   local validate = Values.validator(pooled and journal.observations or nil, bodies)
@@ -410,6 +449,53 @@ function Journal.replay(g, journal)
           .. tostring(now[key])
           .. '): replay needs a session in the same state'
       )
+    end
+  end
+  -- Actors (version 5): every id a command names is known from the header
+  -- (the knights the session was built with, checked against it) or from its
+  -- actorJoin, and present until its actorLeave. A dead knight that is still
+  -- present takes commands without effect. Checked before any mutation.
+  if header.version == 5 then
+    assert(type(header.actors) == 'table', 'journal names no actors')
+    local here = Journal.actors(g)
+    assert(#here == #header.actors, 'journal actors differ from the session')
+    local known, present = {}, {}
+    for i, id in ipairs(header.actors) do
+      assert(here[i] == id, 'journal actors differ from the session')
+      known[id], present[id] = true, true
+    end
+    local function plain(value)
+      return pooled and Values.expand(value, journal.observations, bodies)
+        or Observation.copy(value)
+    end
+    local function named(id, what)
+      assert(
+        type(id) == 'string' and known[id] and present[id],
+        'journal ' .. what .. ' names an unknown or absent actor: ' .. tostring(id)
+      )
+    end
+    for _, entry in ipairs(journal.entries) do
+      local name = entry[1]
+      if name ~= 'aim' and name ~= 'set' then
+        local args = plain(entry[2])
+        local index = Journal.actorArgument[name]
+        if index and args[index] ~= nil then
+          named(args[index], name)
+        end
+        if name == 'update' and type(args[2]) == 'table' and args[2].actors ~= nil then
+          assert(type(args[2].actors) == 'table', 'journal update actors')
+          for id in pairs(args[2].actors) do
+            named(id, 'update')
+          end
+        elseif name == 'actorJoin' then
+          local knight, reason = Pools.knightFromRecord(g, args[1])
+          assert(knight, 'journal actorJoin refused: ' .. tostring(reason))
+          assert(not known[knight.id], 'journal actorJoin reuses id ' .. knight.id)
+          known[knight.id], present[knight.id] = true, true
+        elseif name == 'actorLeave' then
+          present[args[1]] = nil
+        end
+      end
     end
   end
   -- Only a structurally valid, matching archive can enter this namespace.

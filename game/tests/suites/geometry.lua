@@ -324,7 +324,9 @@ function Tests.run(G, renderer)
   Projectiles.update(g, 1 / 30)
   check(
     'dash invulnerability consumes the impacting projectile without damage',
-    g.player.hp == 100 and #g.bullets == 0 and g.damageTaken == 0
+    g.player.hp == 100
+      and #g.bullets == 0
+      and require('src.session.stats').total(g, 'damageTaken') == 0
   )
   g = fresh()
   g.bullets = { bullet(16, 1.2, 23, 0, 0, 200, 0.005) }
@@ -384,7 +386,9 @@ function Tests.run(G, renderer)
   Projectiles.update(g, 1 / 30)
   check(
     'multiple impacts respect the existing damage grace interval',
-    g.player.hp == 86 and g.damageTaken == 14 and #g.bullets == 0
+    g.player.hp == 86
+      and require('src.session.stats').total(g, 'damageTaken') == 14
+      and #g.bullets == 0
   )
   g = fresh()
   g.player.hp = 1

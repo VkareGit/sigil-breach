@@ -79,7 +79,7 @@ function Review.run(output, Game, renderer)
       g.player.hp,
       g.player.armor,
       g.player.arsenal.exorcist.mag,
-      g.kills,
+      require('src.session.stats').total(g, 'kills'),
       #g.view.effects,
       #g.bullets,
       #g.hazards,

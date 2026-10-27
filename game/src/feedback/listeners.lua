@@ -111,14 +111,23 @@ function Listeners.attach(g)
   bus:on('present', 'PerfectDodge', function(e)
     perfectDodge(g, e)
   end)
+  -- Another actor's shots and casts are not presented until plan v11 E5
+  -- gives every viewer its context (the simulation marks the controlled
+  -- knight's own: byControlled).
   bus:on('present', 'ShotFired', function(e)
-    Shot.discharge(g, e)
+    if e.byControlled ~= false then
+      Shot.discharge(g, e)
+    end
   end)
   bus:on('present', 'VolleyResolved', function(e)
-    Shot.volley(g, e)
+    if e.report.byControlled ~= false then
+      Shot.volley(g, e)
+    end
   end)
   bus:on('present', 'AbilityCast', function(e)
-    AbilityFeedback.cast(g, e)
+    if e.byControlled ~= false then
+      AbilityFeedback.cast(g, e)
+    end
   end)
   WorldFeedback.attach(g)
 end

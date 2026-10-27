@@ -154,11 +154,17 @@ local function exchange(g, p, e, nx, nz)
   Rules.guard(e, received * defaults.collidePoise)
   g.collisions = (g.collisions or 0) + 1
 end
--- After the knight moved: he stops at every living demon he walked into.
-function Contact.knight(g)
-  local p = Roles.controlled(g)
+-- After a knight moved (actor; default the controlled one): he stops at
+-- every living demon he walked into.
+function Contact.knight(g, actor)
+  local controlled = Roles.controlled(g)
+  local p = actor or controlled
   local radius = Rules.playerBody().radius
-  local previous = g.frame and g.frame.previousPlayer
+  local frame = g.frame
+  local previous = frame
+    and (p == controlled and frame.previousPlayer or (frame.previousKnights or {})[p.id])
+  local lift = frame and (p == controlled and frame.supportLift or (frame.supportLifts or {})[p.id])
+    or 0
   if previous then
     local dx, dz = p.x - previous.x, p.z - previous.z
     local first, normalX, normalZ, obstacle
@@ -178,10 +184,8 @@ function Contact.knight(g)
       -- the drop height a second time when rewinding its position.
       local air = p.jump
       if g.world.elevations then
-        air = math.max(
-          0,
-          Ground.of(g.world, p) + p.jump - Ground.of(g.world, previous) - (g.frame.supportLift or 0)
-        )
+        air =
+          math.max(0, Ground.of(g.world, p) + p.jump - Ground.of(g.world, previous) - (lift or 0))
         if air == 0 and p.jumpV < 0 then
           p.jumpV = 0
         end

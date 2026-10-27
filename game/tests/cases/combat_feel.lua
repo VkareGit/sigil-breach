@@ -208,12 +208,12 @@ function Tests.run(G, check)
     g.player.hp == 91 and g.player.armor == 29 and g.playerDamageReport == receipt
   )
   local foe = g.enemies[1]
-  local kills = g.kills
+  local kills = require('src.session.stats').total(g, 'kills')
   g:damageEnemy(foe, 10000, 'weapon')
   g:damageEnemy(foe, 10000, 'weapon')
   check(
     'enemy HP stops at zero and lethal overkill cannot award a second kill',
-    foe.hp == 0 and g.kills == kills + 1
+    foe.hp == 0 and require('src.session.stats').total(g, 'kills') == kills + 1
   )
   g = G.new('descent')
   g.testing = true

@@ -35,7 +35,7 @@ function Tests.run(G, initial, renderer, getGame)
     g.player.cooldown = 0
     g.player.reload = 0
     g.player.weapon = 1
-    g.kills = 0
+    require('src.session.stats').reset(g)
     g.player.shots = 0
     g.player.hits = 0
     require('src.world.arena').breakSeals(g.world, 0)

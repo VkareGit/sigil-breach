@@ -1,5 +1,6 @@
 local H = {}
 local lg = love.graphics
+local Stats = require('src.session.stats')
 local Skin = require('src.ui.skin')
 local T = require('src.content.tuning')
 local Reload = require('src.combat.reload')
@@ -336,8 +337,9 @@ function H.draw(g, settings, ui, descentUI)
   if g.view.feedbackTimer > 0 then
     notice(g.view.feedback, 486, 16, C.gold)
   end
-  if g.comboTimer > 0 and g.combo > 1 then
-    notice(Text.get('hud_chain', { count = g.combo }), 438, 16, C.ivory)
+  local stats = Stats.readControlled(g)
+  if stats.comboTimer > 0 and stats.combo > 1 then
+    notice(Text.get('hud_chain', { count = stats.combo }), 438, 16, C.ivory)
   end
   local ctx = g:context()
   if ctx then

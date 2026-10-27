@@ -253,7 +253,7 @@ fragment=0]]
     check(
       'legacy discovery ' .. i .. ' remains metadata without reopening deferred geometry',
       g.world.secretFound
-        and g.score == 500
+        and require('src.session.stats').total(g, 'score') == 500
         and g.run.claimed['1_1']
         and Run.snapshot(g).secretOpen
         and not g.world.secretOpen

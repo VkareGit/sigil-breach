@@ -45,9 +45,10 @@ function Tests.run(G, renderer)
   end
   local function maxima(g)
     g.elapsed = 10000000
-    g.kills = 1000000
-    g.damageTaken = 100000000
-    g.score = 1000000000
+    local counted = require('src.session.stats').controlled(g)
+    counted.kills = 1000000
+    counted.damageTaken = 100000000
+    counted.score = 1000000000
     g.run.deaths = 100000
     g.run.wallet = 1000000
     g.player.hp = 100
@@ -173,8 +174,9 @@ function Tests.run(G, renderer)
         g.saveWarning = 'Could not verify the save. Try again at the Ember.'
         g.view.feedback = 'CLOSE EXECUTION / +5 HEALTH'
         g.view.feedbackTimer = 2
-        g.combo = 12
-        g.comboTimer = 2
+        local counted = require('src.session.stats').controlled(g)
+        counted.combo = 12
+        counted.comboTimer = 2
         g.view.message = 'WAVE 4 / Do not get boxed in between demons. Keep a way out.'
         g.view.messageTimer = 4
         g.zone = 'zone_nave'

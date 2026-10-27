@@ -18,6 +18,7 @@ local Abilities = require('src.content.abilities')
 local Shop = require('src.content.shop')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Stats = require('src.session.stats')
 local World = require('src.world.arena')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
@@ -98,7 +99,8 @@ function F.reset(g)
     fragment = false,
     pending = {},
   }
-  g.kills, g.score, g.damageTaken, g.elapsed = 0, 0, 0, 0
+  Stats.reset(g)
+  g.elapsed = 0
   Roles.controlled(g).shots, Roles.controlled(g).hits = 0, 0
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
@@ -107,7 +109,7 @@ function F.reset(g)
   Roles.controlled(g).weapon = 1
   Roles.controlled(g).cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =
     0, 0, 0, 0, 0, 0
-  g.view.feedbackTimer, g.comboTimer, g.zoneTimer, g.nextAttack = 0, 0, 0, 0
+  g.view.feedbackTimer, g.zoneTimer, g.nextAttack = 0, 0, 0
   g.view.presentationPrevious = nil
   g.availableSave = nil
   g.saveWarning = nil

@@ -39,7 +39,17 @@ function Golden.describe(g)
   local out = {}
   local p = g.player
   -- The weapon in hand is the actor's since plan v11 E3 (the same value).
-  append(out, g.elapsed, g.kills, g.damageTaken, g.score, p.weapon, g.state)
+  -- The counters are the actors' ledger since plan v11 E3d (sums, the same values).
+  local Stats = require('src.session.stats')
+  append(
+    out,
+    g.elapsed,
+    Stats.total(g, 'kills'),
+    Stats.total(g, 'damageTaken'),
+    Stats.total(g, 'score'),
+    p.weapon,
+    g.state
+  )
   append(
     out,
     p.x,

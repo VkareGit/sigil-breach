@@ -141,12 +141,12 @@ function Tests.run(Game)
 
     g, enemy = fresh()
     g:shoot()
-    local kills = g.kills
+    local kills = require('src.session.stats').total(g, 'kills')
     g:damageEnemy(enemy, enemy.hp, 'fixture')
     tick(g, 120)
     check(
       'target death clears exposure and cannot award a second kill',
-      enemy.effectState == nil and g.kills == kills + 1
+      enemy.effectState == nil and require('src.session.stats').total(g, 'kills') == kills + 1
     )
     g, enemy = fresh()
     local packet = Packet.schema:build({ base = 1, impact = 0, effects = { Schema.copy(binding) } })

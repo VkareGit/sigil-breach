@@ -109,7 +109,7 @@ function Tests.run(G, renderer)
   require('src.combat.explosives').explode(g, { x = 16, y = 1, z = 25.5 })
   check(
     'charge kills cannot refund their own ammunition',
-    g.player.abilityState.powder.uses == 1 and g.kills == 3
+    g.player.abilityState.powder.uses == 1 and require('src.session.stats').total(g, 'kills') == 3
   )
   check(
     'charge kills still create the ordinary soul drops',

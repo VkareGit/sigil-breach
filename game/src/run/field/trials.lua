@@ -3,6 +3,7 @@
 -- that neither move nor attack (AI 'dummy'), heal fully between shots and
 -- stand up again after a lethal blow, so every number on screen is real.
 -- Every function takes the field module (run/test_field.lua).
+local Stats = require('src.session.stats')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local Spawner = require('src.run.spawner')
@@ -103,7 +104,7 @@ function Trials.waves(field, g)
   local r = g.run
   r.wave = math.min(K.lastWave, tier)
   r.queueIndex, r.pending, r.spawnTimer, r.phaseTime, r.lastGate = 1, {}, 0, 0, nil
-  g.testField.trial = { started = g.elapsed, damage = g.damageTaken, wave = r.wave }
+  g.testField.trial = { started = g.elapsed, damage = Stats.total(g, 'damageTaken'), wave = r.wave }
   -- Each trial is measured on its own (combat/telemetry.lua) and starts with
   -- a calm pacing director.
   Telemetry.reset(g)
@@ -140,7 +141,7 @@ function Trials.tick(field, g, dt)
       field.tell(g, 'field_trial_cleared', {
         wave = string.format('%d', trial.wave),
         seconds = string.format('%.1f', g.elapsed - trial.started),
-        damage = string.format('%.0f', g.damageTaken - trial.damage),
+        damage = string.format('%.0f', Stats.total(g, 'damageTaken') - trial.damage),
         control = string.format('%.0f', MathX.percent(Telemetry.uptime(g))),
         kill = string.format('%.1f', m.ttkCount > 0 and m.ttkSum / m.ttkCount or 0),
       })

@@ -19,6 +19,7 @@ local Fields = require('src.session.fields')
 local ContentContracts = require('src.session.content_contracts')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
+local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
 local Game = {}
 Game.__index = Game
@@ -97,39 +98,60 @@ function Game:spawn(kind, x, z)
   return Pools.add(self, 'enemies', enemy)
 end
 
-function Game:reloadGun()
-  if Reload.left(self) > 0 or not Weapons.inHand(self) then
+-- The commands below act for one actor (plan v11 E3b): who is a knight's id,
+-- or nil for the controlled one. An id that names no knight is refused, a
+-- dead actor's command does nothing; what is seen and heard (the view, the
+-- cues) answers the controlled knight's commands only.
+local function commander(self, who)
+  local actor = Bodies.actor(self, who)
+  if not actor or (actor.hp or 1) <= 0 then
+    return nil
+  end
+  return actor, actor == Roles.controlled(self)
+end
+
+function Game:reloadGun(who)
+  local actor, presented = commander(self, who)
+  if not actor or Reload.left(self, actor) > 0 or not Weapons.inHand(self, nil, actor) then
     return false
   end
-  if Reload.start(self, false) then
+  if Reload.start(self, false, actor) then
     return true
   end
-  local mag, reserve = Weapons.ammo(self)
+  local mag, reserve = Weapons.ammo(self, nil, actor)
   if mag == 0 and reserve == 0 then
-    Roles.controlled(self).cooldown = 0.20
-    self:notify(Text.get('no_ammo'), 2)
-    Presentation.cue(self, 'empty')
+    actor.cooldown = 0.20
+    if presented then
+      self:notify(Text.get('no_ammo'), 2)
+      Presentation.cue(self, 'empty')
+    end
   end
   return false
 end
 
-function Game:switchWeapon(which)
+function Game:switchWeapon(which, who)
   if type(which) ~= 'number' then
     return false
   end
-  local actor = Roles.controlled(self)
-  local def, state = Weapons.inHand(self, which)
+  local actor, presented = commander(self, who)
+  if not actor then
+    return false
+  end
+  local def, state = Weapons.inHand(self, which, actor)
   if not def or actor.weapon == which then
     return false
   end
-  Reload.cancel(self)
-  actor.weapon, self.view.swapAge = which, 0
+  Reload.cancel(self, actor)
+  actor.weapon = which
   actor.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
-  self.view.shotAge = 10
-  self.view.interruptedClose = nil
+  if presented then
+    self.view.swapAge = 0
+    self.view.shotAge = 10
+    self.view.interruptedClose = nil
+  end
   -- An action left open finishes its reload when the weapon is back in hand.
   if state.open then
-    Reload.start(self, false)
+    Reload.start(self, false, actor)
   end
   return true
 end
@@ -137,16 +159,21 @@ end
 -- Turn the view (the mouse, app/input.lua): yaw and pitch change in radians.
 -- The pitch stays within the camera's limit (content/tuning.lua: camera).
 -- A command like any other, so a journal replays the aim exactly.
-function Game:look(dYaw, dPitch)
-  local p, limit = Roles.controlled(self), Tuning.camera.pitchLimit
+function Game:look(dYaw, dPitch, who)
+  local p = commander(self, who)
+  if not p then
+    return false
+  end
+  local limit = Tuning.camera.pitchLimit
   p.yaw = p.yaw + (dYaw or 0)
   p.pitch = math.max(-limit, math.min(limit, p.pitch + (dPitch or 0)))
 end
 
-function Game:dash(dx, dz)
-  local player = Roles.controlled(self)
+function Game:dash(dx, dz, who)
+  local player, presented = commander(self, who)
   if
-    self.state ~= 'playing'
+    not player
+    or self.state ~= 'playing'
     or self.map
     or self.help
     or player.dash < 1
@@ -170,8 +197,45 @@ function Game:dash(dx, dz)
   end
   player.dashX, player.dashZ = dx, dz
   -- Its flash and the flecks it throws: feedback/movement_marks.lua.
-  Presentation.call(self, 'motion.dash', dx, dz)
-  Presentation.cue(self, 'dash')
+  if presented then
+    Presentation.call(self, 'motion.dash', dx, dz)
+    Presentation.cue(self, 'dash')
+  end
+  return true
+end
+-- Actors joining, leaving and taking control (plan v11 E3, journal v5): each
+-- a command, so a journal records it and its replay builds the same pool.
+-- record: a knight as a member of the pools section (session/world.lua:
+-- memberRecord). False and the reason when it does not join.
+function Game:actorJoin(record)
+  local knight, reason = Pools.knightFromRecord(self, record)
+  if not knight then
+    return false, reason
+  end
+  Pools.add(self, 'knights', knight)
+  return true
+end
+-- A knight leaves the pool (never the controlled one). His missiles,
+-- charges and effects stay in the world with his id as their owner.
+function Game:actorLeave(id)
+  local knight = Bodies.actor(self, id)
+  if not knight or knight == Roles.controlled(self) then
+    return false
+  end
+  Pools.remove(self, 'knights', knight)
+  return true
+end
+-- Control passes to the knight id: the one losing it lets go of the trigger.
+function Game:actorControl(id)
+  local knight = Bodies.actor(self, id)
+  local previous = Roles.controlled(self)
+  if not knight or knight == previous or (knight.hp or 1) <= 0 then
+    return false
+  end
+  require('src.player.intent').clear(self, previous)
+  Roles.control(self, knight)
+  require('src.combat.observation').invalidate(self)
+  self.view.presentationPrevious = nil
   return true
 end
 

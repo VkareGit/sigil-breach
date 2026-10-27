@@ -7,6 +7,7 @@
 -- after the step) and never changes the session. A test session writes
 -- nothing. Report.afterWrite (optional) runs after an entry (the journal).
 local Combat = require('src.combat.combat')
+local Stats = require('src.session.stats')
 local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
 local Pools = require('src.session.world')
@@ -26,8 +27,8 @@ end
 local function totals(g)
   return {
     elapsed = g.elapsed or 0,
-    kills = g.kills or 0,
-    damage = g.damageTaken or 0,
+    kills = Stats.total(g, 'kills'),
+    damage = Stats.total(g, 'damageTaken'),
     shots = select(1, Combat.counters(g)) or 0,
     hits = select(2, Combat.counters(g)) or 0,
   }

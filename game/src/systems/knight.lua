@@ -9,6 +9,24 @@ local BodyContact = require('src.combat.body_contact')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Knight = {}
+-- The actors of a step (plan v11 E3b): every knight in pool order; one
+-- that has fallen does nothing more (the controlled one is the session's).
+-- Each acts on its own input: the controlled knight on the step's input,
+-- another on input.actors[its id] (a controller: a second device, a bot, a
+-- journal), else on none.
+local none = {}
+local function actors(g)
+  return Bodies.knights(g)
+end
+local function acting(g, knight)
+  return knight == Bodies.controlled(g) or (knight.hp or 1) > 0
+end
+local function inputOf(g, knight, input)
+  if knight == Bodies.controlled(g) then
+    return input
+  end
+  return input.actors and input.actors[knight.id] or none
+end
 -- Every knight recovers (plan v10 V2: knights are a pool; the controlled one
 -- first, the others in pool order).
 local function recover(knight, dt)
@@ -35,7 +53,11 @@ Knight.recovery = {
 Knight.reload = {
   name = 'reload',
   run = function(g, dt)
-    Feel.reloadUpdate(g, dt)
+    for _, knight in ipairs(actors(g)) do
+      if acting(g, knight) then
+        Feel.reloadUpdate(g, dt, knight)
+      end
+    end
   end,
 }
 Knight.snapshot = {
@@ -72,20 +94,34 @@ Knight.snapshot = {
 Knight.motion = {
   name = 'knightMotion',
   run = function(g, dt, input)
-    Feel.update(g, dt, input)
+    for _, knight in ipairs(actors(g)) do
+      if acting(g, knight) then
+        Feel.update(g, dt, inputOf(g, knight, input), knight)
+      end
+    end
   end,
 }
 -- The knight stops at the demons he walked into (combat/body_contact.lua).
 Knight.contact = {
   name = 'knightContact',
   run = function(g)
-    BodyContact.knight(g)
+    for _, knight in ipairs(actors(g)) do
+      if acting(g, knight) then
+        BodyContact.knight(g, knight)
+      end
+    end
   end,
 }
 Knight.trigger = {
   name = 'trigger',
   run = function(g, dt, input)
-    Intent.fire(g, dt, input.shoot, input.fireCommand)
+    for _, knight in ipairs(actors(g)) do
+      if acting(g, knight) then
+        local own = inputOf(g, knight, input)
+        local actor = knight ~= Bodies.controlled(g) and knight or nil
+        Intent.fire(g, dt, own.shoot, own.fireCommand, actor)
+      end
+    end
   end,
 }
 return Knight
