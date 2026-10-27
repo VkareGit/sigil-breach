@@ -26,10 +26,8 @@ local function engage(g, e, kind)
   e.facing = math.atan2(p.x - e.x, p.z - e.z)
   e.attack = K.engage.firstBlow
 end
--- Where count demons of kind may stand (free, in sight, 3 m or more from
--- the knight, apart from the living and from open gates), or nil and why.
--- Gates still opening count toward the limit of live demons.
-local function place(field, g, kind, count)
+-- Check catalogue requests before a caller replaces an active trial.
+function Placement.request(field, g, kind, count)
   if not g.testField or not Archetypes.get(kind) then
     return nil, Text.get('field_unknown_kind')
   end
@@ -41,6 +39,16 @@ local function place(field, g, kind, count)
   end
   if not allowed or (count ~= 1 and count ~= 3) then
     return nil, Text.get('field_count')
+  end
+  return true
+end
+-- Where count demons of kind may stand (free, in sight, 3 m or more from
+-- the knight, apart from the living and from open gates), or nil and why.
+-- Gates still opening count toward the limit of live demons.
+local function place(field, g, kind, count)
+  local allowed, reason = Placement.request(field, g, kind, count)
+  if not allowed then
+    return nil, reason
   end
   local alive = #g.run.pending
   for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -169,6 +177,7 @@ end
 -- What a demon stepping out of a gate here is given: a catalogue summons
 -- is set on the knight, a wave trial's demon gets the wave's welcome.
 function Placement.arrive(g, e, gate)
+  require('src.run.field.chambers').arrived(g, e, gate)
   if gate.fieldKind then
     engage(g, e, gate.fieldKind)
   else

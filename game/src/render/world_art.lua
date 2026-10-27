@@ -199,6 +199,10 @@ WorldObjects.register('seal', {
     r.native:own(r.ritualArt.shader)
   end,
 })
+WorldObjects.register('arena_fire', {
+  { pass = 'sprites', order = 35, draw = require('src.render.arena_fire').draw },
+  init = props,
+})
 -- Supplies: painted icons in the expedition and the proving ground, the
 -- classic arena's boxes otherwise (view.paintedPickups).
 WorldObjects.register('supplies', {

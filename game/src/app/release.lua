@@ -8,5 +8,6 @@ return {
   qaIdentity = 'sigil-breach-qa-v33',
   -- Public entry points, separate from registered modes and regression tools.
   playableModes = { field = true },
+  sessionMaps = { field = 'proving' },
   sessionOptions = { field = { features = { trade = false, waves = false } } },
 }

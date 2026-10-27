@@ -12,6 +12,7 @@ local Actions = require('src.run.field.actions')
 local Access = require('src.run.field.access')
 local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
+local Chambers = require('src.run.field.chambers')
 local TrialReset = require('src.run.field.reset')
 local Visits = require('src.run.field.visits')
 local Telemetry = require('src.combat.telemetry')
@@ -46,6 +47,7 @@ function F.new(Game, mapId)
   return Game.new('field', mapId)
 end
 function F.init(g, options)
+  Chambers.validate(g)
   g.testField = {
     invincible = true,
     frozen = false,
@@ -132,6 +134,7 @@ function F.reset(g)
   g.shopMessage = nil
   g.testField.poseIndex = 1
   g.testField.skirmish = false
+  g.testField.roomTrial = nil
   g.testField.station, g.testField.posts, g.testField.labels, g.testField.trial = nil, nil, nil, nil
   g.state = 'field_catalog'
   F.refill(g)
@@ -209,7 +212,27 @@ function F.spawn(g, kind, count)
   return Placement.spawn(F, g, kind, count)
 end
 function F.summon(g, kind, count)
+  local allowed, reason = Placement.request(F, g, kind, count)
+  if not allowed then
+    return nil, reason
+  end
+  local trial = Chambers.forCreature(g, kind)
+  if trial then
+    return Chambers.start(F, g, trial, count)
+  end
+  -- Newly registered content without an authored chamber still has a clean
+  -- free trial; adding a creature does not require editing this dispatcher.
+  if Chambers.layout(g) then
+    F.reset(g)
+  end
   return Placement.summon(F, g, kind, count)
+end
+function F.chamber(g, id, count)
+  return Chambers.start(F, g, id, count)
+end
+function F.retry(g)
+  local trial = g.testField and g.testField.roomTrial
+  return trial and Chambers.start(F, g, trial.id, trial.count) or F.reset(g)
 end
 function F.pose(g, delta)
   return Placement.pose(F, g, delta)
@@ -245,6 +268,10 @@ function F.interact(g)
 end
 -- The prompt away from a pad: the selected demon and its pose mode.
 function F.context(g)
+  local trialContext = Chambers.context(g)
+  if trialContext then
+    return trialContext
+  end
   local field, manual = g.testField, false
   for _, enemy in ipairs(Pools.of(g, 'enemies')) do
     if enemy.fieldKind == field.selected and enemy.previewFrame then
@@ -284,6 +311,7 @@ end
 function F.update(g, dt)
   if g.testField and dt and dt > 0 then
     Trials.tick(F, g, dt)
+    Chambers.update(g)
   end
   local bosses = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do

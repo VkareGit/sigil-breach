@@ -142,22 +142,23 @@ local function build(w)
     end
   end
   -- Elevated rib arches across the nave, open to an impossible sky.
-  -- 0.14: every rib springs from a real pillar (x 12 / 20): no column you can walk through.
+  -- Ribs spring from map-authored walls/pillars. Yaw also allows longitudinal
+  -- arcades and chapel entrances without a separate church renderer.
   for _, arch in ipairs(decor.arches or {}) do
     local first = #v + 1
+    local function point(angle, side)
+      local dx = side * arch.halfSpan * math.cos(angle)
+      local x, z = arch.x + dx, arch.z
+      if arch.yaw then
+        x, z = arch.x + dx * math.cos(arch.yaw), arch.z + dx * math.sin(arch.yaw)
+      end
+      return { x, arch.spring + arch.rise * math.sin(angle), z }
+    end
     for side = -1, 1, 2 do
       for i = 0, 11 do
         local a = i / 12 * math.pi / 2
         local b = (i + 1) / 12 * math.pi / 2
-        M.beam(v, {
-          arch.x + side * arch.halfSpan * math.cos(a),
-          arch.spring + arch.rise * math.sin(a),
-          arch.z,
-        }, {
-          arch.x + side * arch.halfSpan * math.cos(b),
-          arch.spring + arch.rise * math.sin(b),
-          arch.z,
-        }, 0.18, stone)
+        M.beam(v, point(a, side), point(b, side), 0.18, stone)
       end
     end
     raise(first, arch.x, arch.z, arch.y)

@@ -229,8 +229,10 @@ function G.draw(r, g)
     r.galleryWorld = g.world
   end
   -- Painted, fixed floor medallions; no floating geometry obscures exhibits.
-  for _, p in ipairs(WG.pads) do
-    Ritual.pad(r, p, g.world.floor)
+  for _, p in ipairs(WG.padsFor(g.world)) do
+    if not p.altar then
+      Ritual.pad(r, p, g.world.floor)
+    end
   end
   lg.setShader(r.spriteShader)
   -- Boards: a dark plate behind the atlas so transparent sheets stay readable.
@@ -264,7 +266,7 @@ function G.draw(r, g)
   r.spriteShader:send('mirror', 0)
   -- Statues: real demon sprites breathing with their idle cycle.
   local Idle = require('src.enemies.idle')
-  for i, s in ipairs(WG.statues) do
+  for i, s in ipairs(WG.statuesFor(g.world)) do
     local e = s.record
       or {
         hp = 1,
@@ -349,7 +351,7 @@ function G.labels(r, g, ox, oy, vw, vh)
         kind = 'exhibit',
       }
     end
-    for _, s in ipairs(WG.statues) do
+    for _, s in ipairs(WG.statuesFor(g.world)) do
       local a = Archetypes.get(s.id)
       local tall = a.appearance.stature == 'large' and 4.1 or 2.7
       state.items[#state.items + 1] = {
@@ -364,13 +366,20 @@ function G.labels(r, g, ox, oy, vw, vh)
         ),
       }
     end
-    for _, p in ipairs(WG.pads) do
+    for _, p in ipairs(WG.padsFor(g.world)) do
       local name = Text.get(
         p.spawn and Archetypes.get(p.spawn).name
           or (p.weapon and require('src.content.weapons').get(p.weapon).name or 'gallery_refill')
       )
-      state.items[#state.items + 1] =
-        { x = p.x, y = 0.35, focusY = 0.1, z = p.z, text = name:upper(), reach = 3, kind = 'pad' }
+      state.items[#state.items + 1] = {
+        x = p.x,
+        y = p.altar and p.y - 0.20 or 0.35,
+        focusY = p.altar and p.y + 0.70 or 0.1,
+        z = p.z,
+        text = name:upper(),
+        reach = p.altar and 5 or 3,
+        kind = 'pad',
+      }
     end
     -- Station captions (range distances, physics drills) from the proving ground.
     for _, l in ipairs(stationLabels or {}) do

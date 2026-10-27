@@ -872,6 +872,59 @@ function S.run(G, renderer)
   g = archived
   reports[#reports + 1] =
     'Encounter phases: 10 real transition/windup/release captures with unchanged artwork and HUD.'
+  -- Public room layout uses the same painted assets; inspect live portals,
+  -- attacks, physical doorways and the existing HUD at small viewports too.
+  local release = require('src.app.release')
+  local function chamberSession()
+    g = G.new('field', release.sessionMaps.field, release.sessionOptions.field)
+    g.testing, g.state = true, 'playing'
+    g.elapsed, g.view.messageTimer = 70, 0
+  end
+  for _, view in ipairs({
+    { 'nave', 16, 27.5, math.pi },
+    { 'west-door', 14, 17, -math.pi / 2 },
+    { 'east-door', 18, 17, math.pi / 2 },
+    { 'north-passage', 16, 13, math.pi },
+    { 'chapel-door', 16, 7, -math.pi / 2 },
+    { 'basilica-ribs', 16, 26, math.pi, 0.18 },
+    { 'side-arcade', 10.3, 28.5, math.pi, 0.12 },
+    { 'presbytery', 16, 9, math.pi, 0.08 },
+    { 'ash-altar', 6.8, 17, -math.pi / 2, 0.06 },
+    { 'storm-altar', 25.2, 17, math.pi / 2, 0.06 },
+  }) do
+    chamberSession()
+    g.player.x, g.player.z, g.player.yaw = view[2], view[3], view[4]
+    g.player.pitch = view[5] or 0
+    save('chambers-' .. view[1])
+  end
+  for _, trial in
+    ipairs(require('src.content.maps.index'):get(release.sessionMaps.field).proving.trials)
+  do
+    chamberSession()
+    assert(g:act('catalog', 'field_chamber_' .. trial.id))
+    for _ = 1, 70 do
+      g:update(1 / 120, {})
+    end
+    save('chambers-' .. trial.id .. '-portal')
+    for _ = 1, 900 do
+      g:update(1 / 120, {})
+      if g.enemies[1] and g.enemies[1].ai == 'windup' then
+        break
+      end
+    end
+    assert(g.enemies[1], 'room review requires an actual arrival')
+    for _, size in ipairs({ { 'small', 960, 540 }, { '4by3', 1024, 768 }, { 'normal', 1280, 720 } }) do
+      save('chambers-' .. trial.id .. '-active-' .. size[1], size[2], size[3])
+    end
+  end
+  local enemy = g.enemies[1]
+  g:damageEnemy(enemy, enemy.hp, 'weapon')
+  g:update(1 / 120, {})
+  assert(g.testField.roomTrial.status == 'complete')
+  save('chambers-complete-small', 960, 540)
+  g = archived
+  reports[#reports + 1] =
+    'Authored chambers: 33 basilica layout, live portal/attack and completion captures; existing art/HUD.'
   local foundationChecks = require('qa.reviews.foundation_ui').run(G, renderer, output)
   reports[#reports + 1] = 'Foundation UI / charge handoff: '
     .. foundationChecks

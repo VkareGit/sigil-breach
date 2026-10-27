@@ -82,3 +82,12 @@ The game preserves the complete circular marks and the planetary marker above ea
 Figure numbers/captions and neighboring figures are excluded only by runtime quads;
 the stored PNG is not edited. No generated pseudo-Hebrew substitutes its original ink.
 Uses: optional visual archive in the isolated test field, no magical player ability.
+
+FURFUR ADDITION (2026-10-27)
+furfur-1904.png: spirit 34. Original 450x450 bytes, no image edits.
+Description: https://commons.wikimedia.org/wiki/File:34-Furfur_seal.png
+Bytes: https://upload.wikimedia.org/wikipedia/commons/c/cd/34-Furfur_seal.png
+Commons credits S. L. MacGregor Mathers and Aleister Crowley, 1904;
+uploader Bioika0201, 2018-06-28; public domain (PD-old-70-expired / PDM 1.0).
+SHA256: 70A272DDA99872824C713866FEE77E302127F3E7A6D6CE2CE5804B5CE446F9AA
+Used on Furfur's proving altar. Historic symbol, not an invented substitute.

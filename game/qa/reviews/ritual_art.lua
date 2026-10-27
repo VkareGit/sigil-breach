@@ -70,6 +70,35 @@ function Review.run(Game, renderer, output)
   g.run.pending = { { x = 16, z = 21, kind = 'stolas', delay = 0.45, maxDelay = 1.2 } }
   capture('10-spawn-portal', 16, 25.5, 16, 0.8, 21)
   g.run.pending = {}
+  local release = require('src.app.release')
+  g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
+  g.testing, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
+  capture('11-basilica-nave', 16, 27.5, 16, 2.8, 14)
+  capture('12-ash-altar', 6.8, 17, 4.1, 1.7, 17)
+  capture('13-storm-altar', 25.2, 17, 27.9, 1.7, 17)
+  capture('13-storm-altar-small', 25.2, 17, 27.9, 1.7, 17, 960, 540)
+  for _, id in ipairs({ 'ash', 'storm' }) do
+    g:act('catalog', 'field_chamber_' .. id)
+    for _ = 1, 160 do
+      g:update(1 / 120, {})
+    end
+    local x = g.player.x
+    capture('14-' .. id .. '-arena', x, 20, x, 1.6, 12)
+    local boss = assert(g.enemies[1])
+    g:damageEnemy(boss, boss.hp, 'weapon')
+    for _ = 1, 360 do
+      g:update(1 / 120, {})
+    end
+    capture('15-' .. id .. '-second-life', x, 20, x, 1.6, 12)
+    g:damageEnemy(boss, boss.hp, 'weapon')
+    for _ = 1, 60 do
+      g:update(1 / 120, {})
+    end
+    assert(g.testField.roomTrial.status == 'complete', 'completion capture needs final death')
+    capture('16-' .. id .. '-complete', x, 20, x, 1.6, 12)
+  end
+  Field.reset(g)
+  capture('17-reset-nave', 16, 27.5, 16, 2.8, 14)
   local file = assert(io.open(output .. '/ritual-review.txt', 'w'))
   file:write(table.concat(notes, '\n') .. '\n')
   file:close()

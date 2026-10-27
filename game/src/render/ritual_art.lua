@@ -4,7 +4,7 @@ local Goetic = require('src.ui.goetic_sigils')
 local Skin = require('src.ui.skin')
 local Ritual = { path = 'assets/art/ritual-medallion-v31.png' }
 local UV, WHITE, INK = { 0, 0, 1, 1 }, { 1, 1, 1 }, { 0.88, 0.77, 0.58 }
-Ritual.seals = { stolas = 'stolas', buer = 'buer', boss = 'asmoday' }
+Ritual.seals = { stolas = 'stolas', buer = 'buer', boss = 'asmoday', furfur = 'furfur' }
 -- In the game's camera basis, looking north puts +X at screen left. These
 -- UVs preserve source orientation from the south; yaw rotates the whole slab.
 Ritual.vertices = {
@@ -30,8 +30,18 @@ function Ritual.init(r)
     shader = love.graphics.newShader(require('src.render.shaders').texture),
     light = { 1, 1, 1 },
   }
+  r.ritualArt.upright = r.native:own(
+    love.graphics.newMesh({ { 'VertexPosition', 'float', 3 }, { 'VertexTexCoord', 'float', 2 } }, {
+      { 0.5, 0, 0, 0, 1 },
+      { -0.5, 0, 0, 1, 1 },
+      { -0.5, 1, 0, 1, 0 },
+      { 0.5, 0, 0, 0, 1 },
+      { -0.5, 1, 0, 1, 0 },
+      { 0.5, 1, 0, 0, 0 },
+    }, 'triangles', 'static')
+  )
 end
-function Ritual.layer(r, image, x, y, z, diameter, yaw, uv, ink, alpha, tint)
+function Ritual.layer(r, image, x, y, z, diameter, yaw, uv, ink, alpha, tint, mesh)
   local art = r.ritualArt
   local shader = art.shader
   local red, green, blue = r.lighting:sample(x, y, z)
@@ -45,9 +55,10 @@ function Ritual.layer(r, image, x, y, z, diameter, yaw, uv, ink, alpha, tint)
   shader:send('tint', tint or (ink and INK or WHITE))
   shader:send('inkMask', ink and 1 or 0)
   shader:send('objectAlpha', alpha or 1)
-  art.mesh:setTexture(image)
+  mesh = mesh or art.mesh
+  mesh:setTexture(image)
   love.graphics.setShader(shader)
-  love.graphics.draw(art.mesh)
+  love.graphics.draw(mesh)
 end
 -- At most one source illustration belongs to a pad. Uncatalogued demons keep
 -- the ornament empty: a decorative medallion is never an invented Goetic seal.
@@ -122,18 +133,30 @@ function Ritual.seal(r, g, seal)
     return
   end
   local yaw = seal.x < 16 and math.pi / 2 or (seal.x > 16 and -math.pi / 2 or 0)
-  Ritual.draw(
-    r,
-    seal.x,
-    (g.world and g.world.floor or 0) + 1.046,
-    seal.z,
-    1.18,
-    yaw,
-    image,
-    nil,
-    true,
-    1,
-    seal.active
-  )
+  local y = require('src.physics.ground').of(g.world, seal) + require('src.content.field').altar.top
+  Ritual.draw(r, seal.x, y, seal.z, 1.18, yaw, image, nil, true, 1, seal.active)
+  if seal.summoning then
+    local viewer = require('src.session.context').viewer(g)
+    love.graphics.push('all')
+    -- Ink is a cutout, not a translucent screen overlay: it must occlude a
+    -- mural behind it and be occluded by a brazier/actor in front of it.
+    love.graphics.setDepthMode('less', true)
+    love.graphics.setColor(1, 1, 1)
+    Ritual.layer(
+      r,
+      image,
+      seal.x,
+      y + 0.10,
+      seal.z,
+      1.25,
+      math.atan2(viewer.x - seal.x, viewer.z - seal.z),
+      nil,
+      true,
+      1,
+      { 1.0, 0.82, 0.55 },
+      r.ritualArt.upright
+    )
+    love.graphics.pop()
+  end
 end
 return Ritual

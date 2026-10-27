@@ -1,9 +1,14 @@
 -- Historical seals, not generated pseudo-writing. See assets/art/sigils/SOURCES.txt.
 -- PNG files are kept byte-for-byte as downloaded; the shader only displays their ink.
-local S = { images = {}, order = { 'asmoday', 'stolas', 'buer' } }
+local S = { images = {}, order = { 'asmoday', 'stolas', 'buer', 'furfur' } }
 local Resources = require('src.render.resources')
 local commons = 'https://commons.wikimedia.org/wiki/File:'
 S.entries = {
+  furfur = {
+    number = 34,
+    file = 'furfur-1904.png',
+    source = commons .. '34-Furfur_seal.png',
+  },
   asmoday = {
     number = 32,
     file = 'asmoday-1904.png',

@@ -30,6 +30,7 @@ local worldCode = vertex
 extern Image atlas;
 extern number flash,objectAlpha;
 extern vec3 flashColor,tint,lights[16],lightColors[16];
+extern vec3 ambientLight;
 // Each lit slot's tile covers tileSpan cells from its light's origin; the
 // ground image carries the map's contact shade (g) and walls (b).
 extern Image shadowAtlas,groundAtlas;
@@ -90,7 +91,7 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   vec2 surface=worldPos.xz+n.xz*.09;
   vec2 groundUV=clamp((surface-.5)/groundSpan*groundScale,groundLow,groundHigh);
   float ao=Texel(groundAtlas,groundUV).g;
-  vec3 light=(vec3(.29,.31,.35)+vec3(.09)*max(0.0,dot(n,normalize(vec3(.35,1.0,-.25)))))*mix(1.0,ao,.8);
+  vec3 light=(ambientLight+vec3(.09)*max(0.0,dot(n,normalize(vec3(.35,1.0,-.25)))))*mix(1.0,ao,.8);
   vec4 deck=Texel(deckAtlas,(floor(worldPos.xz-n.xz*.09+.5)-.5)/deckSpan);
   float deckBottom=deckDatum+deck.r*deckHeight,deckTop=deckDatum+deck.g*deckHeight;
   for(int i=0;i<16;i++){

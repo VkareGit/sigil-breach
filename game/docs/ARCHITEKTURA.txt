@@ -1,5 +1,20 @@
 SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.34
 
+Punkt 5 poligonu: app/release.sessionMaps wybiera mapę proving przy wejściu
+z menu; jawny mapId wygrywa. Domyślna mapa biblioteki limbo nie zmienia się.
+Mapa proving opisuje komnaty, wejścia, miejsca przywołań, próby i medale
+interakcji. content/defs/proving sprawdza strukturę/identyfikatory/powiązania,
+run/field/chambers weryfikuje bryły postaci względem zbudowanej geometrii.
+Komendy katalogu i E korzystają z tego samego właściciela próby: reset,
+ustawienie gracza, prawdziwe portale, rejestr przybyłych id, końcowa śmierć.
+Nie ma drugiego AI ani nagród komnaty, ścian niewidzialnych czy smyczy.
+roomTrial należy do testField, więc obejmują go snapshot oraz journal.
+Poligon nie zapisuje wyprawy na dysk. SIGIL09 (mapa/ciała) nadal nie jest
+pełnym checkpointem trybu; nie dodano częściowego zapisu samych komnat.
+exhibits=false pomija plansze atlasów i posągi w publicznej walce; stara
+galeria, mapa i scenariusze pozostają dostępne dla narzędzi bibliotecznych.
+Tekst próby mieści się w istniejącym polu kontekstu; brak panelu PHASE.
+
 Punkt 4 poligonu: enemies/attack_selection wybiera atak, actions wykonuje
 jego istniejący cykl. Bez tactics działa dawny wybór uporządkowany; tactics
 dobiera odległość, wagę, odnowienie i historię rozpoczęć. Phases w danych

@@ -124,7 +124,7 @@ Modes:register('field', {
       or (previous.state == 'settings' and 'return_settings' or 'return_expedition')
   end,
   worldView = function(g, out)
-    return Views.fieldWorld(g, g.run, out)
+    return Views.fieldWorld(g, g.run, out, g.testField)
   end,
   tools = function(g, out)
     return Views.fieldTools(g, g.testField, out)
@@ -162,7 +162,7 @@ Modes:register('field', {
     return field().close(g)
   end,
   retry = function(g)
-    return field().reset(g)
+    return field().retry(g)
   end,
   closeShop = function(g)
     return g.state == 'shop' and field().close(g)
@@ -175,6 +175,7 @@ Modes:register('field', {
     return field().action(g, id)
   end,
   lose = function(g)
+    require('src.run.field.chambers').failed(g)
     Encounter.clearThreats(g)
     return false
   end,

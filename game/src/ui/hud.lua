@@ -368,7 +368,9 @@ function H.draw(g, settings, ui, descentUI)
     Skin.endZone()
   end
   if settings.hints ~= false then
-    local hint = g.elapsed < 8 and Text.get('hud_hint_moves') or nil
+    local tools = Queries.tools(g)
+    local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
+      or nil
     if p.hp < 30 then
       hint = Text.get('hud_hint_hurt')
     end

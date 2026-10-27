@@ -25,10 +25,13 @@ end
 function Views.expeditionWorld(g, state, out)
   return world(g, state, out)
 end
-function Views.fieldWorld(g, state, out)
+function Views.fieldWorld(g, state, out, field)
+  out.arenaFire = require('src.run.field.chambers').arena(g, field)
+  out.arenaStarted = field.roomTrial and field.roomTrial.started
   return world(g, state, out)
 end
 function Views.fieldTools(_, state, tools)
+  tools.combatTrial = state.roomTrial and true or nil
   tools.gallery, tools.hitboxes = true, state.hitboxes == true
   tools.labels = state.labels or empty
   return tools

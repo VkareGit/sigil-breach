@@ -16,6 +16,27 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Dopracowanie poligonu — punkt 5 (27 października 2026)
+- Publiczna mapa proving to układ zrujnowanej bazyliki: wysoka nawa,
+  boczne arkady, transept, cztery kaplice prób i stopniowane prezbiterium.
+  Rytm łuków opiera się na realnych kolumnach/ścianach; opcjonalne yaw
+  w danych obraca żebra wraz z ich normalnymi. Zachowuje tekstury,
+  broń, demony i HUD. Ołtarze boczne nie stoją na osi walki z bossem.
+  Pierwotna mapa limbo oraz galeria atlasów zostają w bibliotece i QA.
+- Sześć prób obecnych demonów korzysta z danych mapy i normalnych portali.
+  E na medalu lub F2/przywołanie zaczyna jedną czystą próbę. Przejścia
+  pozostają otwarte; przeciwnicy używają zwykłej nawigacji i kolizji.
+- Następna próba usuwa stare pociski/efekty/ciała; druga faza bossa nie
+  kończy starcia. Retry powtarza komnatę, RESET FIELD wraca do nawy.
+  TIER i wybrany GOD MODE pozostają. Na początku GOD MODE jest włączony.
+- Opisy prób używają dolnego pola kontekstu. Brak dodatkowych centralnych
+  kafelków, informacji PHASE oraz instrukcji ruchu zasłaniającej starcie.
+- Testy obejmują przejścia, stanowiska, walidację, komendy, fazy, reset,
+  snapshot/replay i rozszerzenie samymi danymi; rendery obejmują sześć prób.
+- Benchmark zachowuje historyczne obciążenia 4/20 ciał na mapie limbo.
+  Osobno mierzy publiczny cykl komnat 1/3 ciał; nowe przywołanie zastępuje
+  próbę, więc nie służy już do kumulowania dwudziestu kolejnych przywołań.
+
 Dopracowanie poligonu — punkt 4 (27 października 2026)
 - Dane tactics wybierają ataki według dystansu, historii i odnowień.
   Bez nich pozostaje dawny algorytm. Brak nowego FSM i odczytu wejścia

@@ -10,7 +10,20 @@ local W = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
+local Maps = require('src.content.maps.index')
 local G = {}
+local empty = {}
+local ProvingPads = require('src.world.proving_pads')
+local function authored(world)
+  return Maps:get(world.mapId).proving
+end
+function G.padsFor(world)
+  return ProvingPads.forWorld(world) or G.pads
+end
+function G.statuesFor(world)
+  local data = authored(world)
+  return data and not data.exhibits and empty or G.statues
+end
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
 end
@@ -58,6 +71,10 @@ end
 G.pads[#G.pads + 1] = { x = refillPad[1], z = refillPad[2], refill = true }
 -- boards: the exhibits to hang (render/gallery.lua owns the art list).
 function G.layout(world, boards)
+  local data = authored(world)
+  if data and not data.exhibits then
+    return {}
+  end
   local placed = {}
   for _, b in ipairs(boards) do
     b.x = nil
@@ -97,6 +114,12 @@ function G.layout(world, boards)
   return placed
 end
 local function padLabel(p)
+  if p.trial then
+    return Text.get(
+      'gallery_pad_trial',
+      { name = string.upper(Text.get(Archetypes.get(p.spawn).name)) }
+    )
+  end
   if p.spawn then
     return Text.get(
       'gallery_pad_spawn',
@@ -113,10 +136,14 @@ local function padLabel(p)
 end
 G.padLabel = padLabel
 function G.nearestPad(g)
-  local best, d = nil, 1.05
-  for _, p in ipairs(G.pads) do
+  local best, d = nil, math.huge
+  for _, p in ipairs(G.padsFor(g.world)) do
     local dp = dist(Roles.controlled(g), p.x, p.z)
-    if dp < d then
+    if
+      dp < (p.reach or 1.05)
+      and dp < d
+      and W.visible(g.world, Roles.controlled(g).x, Roles.controlled(g).z, p.x, p.z)
+    then
       best, d = p, dp
     end
   end
@@ -132,6 +159,9 @@ function G.interact(g)
     return false
   end
   local Field = require('src.run.test_field')
+  if p.trial then
+    return Field.chamber(g, p.trial, 1)
+  end
   if p.spawn then
     return Field.spawn(g, p.spawn, 1) ~= nil
   end

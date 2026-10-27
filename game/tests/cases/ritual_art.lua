@@ -23,11 +23,16 @@ function Tests.run(_, r)
     corner == 0 and center > 0.98
   )
   source:release()
-  for _, pair in ipairs({ { 'stolas', 'stolas' }, { 'buer', 'buer' }, { 'boss', 'asmoday' } }) do
+  for _, pair in ipairs({
+    { 'stolas', 'stolas' },
+    { 'buer', 'buer' },
+    { 'boss', 'asmoday' },
+    { 'furfur', 'furfur' },
+  }) do
     local image, _, ink = Ritual.symbol({ spawn = pair[1] })
     check(pair[1] .. ' uses its actual historical source', image == Sigils.image(pair[2]) and ink)
   end
-  for _, name in ipairs({ 'imp', 'armored', 'furfur', 'unknown' }) do
+  for _, name in ipairs({ 'imp', 'armored', 'unknown' }) do
     check(name .. ' has no invented Goetic alias', Ritual.symbol({ spawn = name }) == nil)
   end
   local saved = {}

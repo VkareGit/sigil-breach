@@ -40,6 +40,7 @@ local function list(value, name)
   end
 end
 function Schema.check(map, id)
+  require('src.content.defs.proving').check(map)
   local label = 'map ' .. id
   -- width (x) and depth (z) in cells, or size for a square map.
   local width, depth = map.width or map.size, map.depth or map.size
@@ -123,6 +124,10 @@ function Schema.check(map, id)
   for _, seal in ipairs(map.seals or {}) do
     spot(seal, label .. '.seal')
     assert(
+      seal.summoning == nil or type(seal.summoning) == 'boolean',
+      'seal.summoning must be boolean'
+    )
+    assert(
       type(seal.name) == 'string' and type(seal.court) == 'string',
       label .. '.seal needs name and court'
     )
@@ -200,6 +205,17 @@ function Schema.check(map, id)
     end
   end
   local decor = map.decor or {}
+  if decor.atmosphere then
+    for _, key in ipairs({ 'ambient', 'figures', 'sky' }) do
+      local rgb = decor.atmosphere[key]
+      list(rgb, label .. '.atmosphere.' .. key)
+      assert(#rgb == 3, 'atmosphere needs RGB')
+      for _, component in ipairs(rgb) do
+        number(component, 'atmosphere component')
+        assert(component >= 0 and component <= 1, 'atmosphere outside [0,1]')
+      end
+    end
+  end
   for _, key in ipairs({
     'arches',
     'rituals',
@@ -224,6 +240,9 @@ function Schema.check(map, id)
     assert(decor.portal.radius > 0.2, label .. '.decor.portal radius cannot invert its inner ring')
   end
   for _, arch in ipairs(decor.arches or {}) do
+    if arch.yaw ~= nil then
+      number(arch.yaw, label .. '.arch.yaw')
+    end
     for _, key in ipairs({ 'halfSpan', 'spring', 'rise' }) do
       positive(arch[key], label .. '.arch.' .. key)
     end

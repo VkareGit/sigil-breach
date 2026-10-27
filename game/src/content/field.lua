@@ -3,6 +3,7 @@
 -- targets may stand, where the knight is set, its stations' layout.
 -- Distances in metres, times in seconds.
 return {
+  altar = { top = 1.046, reach = 1.85 }, -- painted pedestal surface and walk-up interaction
   -- Names used by optional tool requirements. Availability is per session;
   -- new tool families declare their feature here, not in application branches.
   toolFeatures = { trade = true, waves = true },

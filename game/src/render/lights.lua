@@ -280,6 +280,8 @@ function L:update(g, camera, forward)
   end
 end
 function L:bind(shader)
+  local look = self.world.decor and self.world.decor.atmosphere
+  shader:send('ambientLight', look and look.ambient or { 0.29, 0.31, 0.35 })
   shader:send('lights', unpack(self.positions))
   shader:send('lightColors', unpack(self.colors))
   shader:send('shadowTiles', unpack(self.tiles))
@@ -305,6 +307,10 @@ end
 -- The light at a world point from the lights in the slots.
 function L:sample(x, y, z)
   local r, g, b = 0.51, 0.53, 0.57
+  local look = self.world and self.world.decor and self.world.decor.atmosphere
+  if look then
+    r, g, b = unpack(look.figures)
+  end
   local lx, lz = 0, 0
   local dominant, strongest = 0, 0
   for i = 1, L.capacity do

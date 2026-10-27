@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'chambers',
+    title = 'Authored proving chambers and isolated trials',
+    module = 'tests.cases.chambers',
+  },
+  {
     id = 'encounters',
     title = 'Attack choices and boss life stocks',
     module = 'tests.cases.encounters',

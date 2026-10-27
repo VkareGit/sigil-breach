@@ -716,17 +716,23 @@ function B.run(output, smoke)
   -- Audio voices run with zero output volume; this is no listening assessment.
   Audio.muted = false
   resources('lifecycle_before')
-  local function lifecycle(cycle)
+  local function lifecycle(cycle, authored)
     local heavy = cycle % 2 == 0
-    local count = heavy and 20 or 4
+    local count = authored and (heavy and 3 or 1) or (heavy and 20 or 4)
+    local label = (authored and 'chamber_cycle_' or 'cycle_') .. cycle
     local started = clock()
     app:action('field_start')
     local created = (clock() - started) * 1000
     app.game.testing = true
     local loadingSteps = finishLoading()
-    for i = 1, count do
-      local kind = Field.catalog.enemies[1 + (i - 1) % #Field.catalog.enemies].id
-      app:action('field_spawn_' .. kind .. '_1')
+    if authored then
+      app:action('field_spawn_' .. (heavy and 'furfur' or 'boss') .. '_' .. count)
+      assert(app.game.testField.roomTrial, 'public entry did not start a room trial')
+    else
+      for i = 1, count do
+        local kind = Field.catalog.enemies[1 + (i - 1) % #Field.catalog.enemies].id
+        app:action('field_spawn_' .. kind .. '_1')
+      end
     end
     app:action('field_close')
     assert(
@@ -744,8 +750,8 @@ function B.run(output, smoke)
     end, 1 / 60, 5)
     log(
       string.format(
-        'cycle_%d preparation loading_steps=%d arrival_steps=%d arrival_simulated_s=%.3f arrival_wall_ms=%.3f (excluded from steady-state samples)',
-        cycle,
+        '%s preparation loading_steps=%d arrival_steps=%d arrival_simulated_s=%.3f arrival_wall_ms=%.3f (excluded from steady-state samples)',
+        label,
         loadingSteps,
         arrivalSteps,
         arrivalSeconds,
@@ -759,8 +765,8 @@ function B.run(output, smoke)
     local _, _, _, submitted, waited, total = completeFrame(false)
     log(
       string.format(
-        'cycle_%d arena_enemies=%d create_session_ms=%.3f first_submit_ms=%.3f first_readback_wait_ms=%.3f first_complete_ms=%.3f',
-        cycle,
+        '%s arena_enemies=%d create_session_ms=%.3f first_submit_ms=%.3f first_readback_wait_ms=%.3f first_complete_ms=%.3f',
+        label,
         count,
         created,
         submitted,
@@ -772,11 +778,11 @@ function B.run(output, smoke)
     for i = 1, n(540, 8) do
       sample(samples, i, true)
     end
-    summarize('cycle_' .. cycle .. '_arena_live', samples, prior)
+    summarize(label .. '_arena_live', samples, prior)
     log(
       string.format(
-        'cycle_%d final_enemies=%d simulated_elapsed=%.3f effects=%d particles=%d',
-        cycle,
+        '%s final_enemies=%d simulated_elapsed=%.3f effects=%d particles=%d',
+        label,
         #app.game.enemies,
         app.game.elapsed,
         #app.game.view.effects,
@@ -793,8 +799,8 @@ function B.run(output, smoke)
     _, _, _, submitted, waited, total = completeFrame(false)
     log(
       string.format(
-        'cycle_%d return_session_ms=%.3f first_menu_submit_ms=%.3f first_menu_readback_wait_ms=%.3f first_menu_complete_ms=%.3f',
-        cycle,
+        '%s return_session_ms=%.3f first_menu_submit_ms=%.3f first_menu_readback_wait_ms=%.3f first_menu_complete_ms=%.3f',
+        label,
         returned,
         submitted,
         waited,
@@ -805,11 +811,20 @@ function B.run(output, smoke)
     for i = 1, n(60, 2) do
       sample(samples, i, true)
     end
-    summarize('cycle_' .. cycle .. '_menu', samples, prior)
+    summarize(label .. '_menu', samples, prior)
   end
+  -- Keep the historical 4/20-body workload for comparable regressions.
+  -- Public chambers replace encounters and have their own 1/3-body lifecycle.
+  local publicMaps = app.sessionMaps
+  app.sessionMaps = { field = 'limbo' }
   for cycle = 1, n(4, 2) do
     lifecycle(cycle)
     resources('lifecycle_after_cycle_' .. cycle)
+  end
+  app.sessionMaps = publicMaps
+  for cycle = 1, 2 do
+    lifecycle(cycle, true)
+    resources('lifecycle_after_chamber_cycle_' .. cycle)
   end
   -- Larger populations are diagnostics built with the real factory. The
   -- catalogue still limits ordinary play to 20; this does not raise that cap.

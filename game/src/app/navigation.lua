@@ -6,6 +6,7 @@ local UI = require('src.ui.interface')
 local Navigation = {}
 local function create(app, modeId, mapId)
   local options = app.sessionOptions and app.sessionOptions[modeId]
+  mapId = mapId or (app.sessionMaps and app.sessionMaps[modeId])
   return Game.new(modeId, mapId, options)
 end
 

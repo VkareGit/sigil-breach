@@ -232,7 +232,9 @@ function S.draw(g, s, U)
     center(g.view.message, 119, 20, ivory)
   end
   if s.hints ~= false then
-    local hint = g.elapsed < 8 and Text.get('chud_hint_moves') or nil
+    local tools = Queries.tools(g)
+    local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('chud_hint_moves')
+      or nil
     if p.hp < 30 then
       hint = Text.get('hud_hint_hurt')
     elseif
@@ -245,7 +247,7 @@ function S.draw(g, s, U)
         'chud_hint_draw',
         { weapon = Text.get(Weapons.profile(2, g, Context.actor(g)).hud.draw) }
       )
-    elseif g.elapsed > 8 and g.elapsed < 14 then
+    elseif g.elapsed > 8 and g.elapsed < 14 and not (tools and tools.combatTrial) then
       hint = Text.get('chud_hint_guns')
     end
     if hint then

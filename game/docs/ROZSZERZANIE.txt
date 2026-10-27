@@ -4,6 +4,40 @@ Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
 Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
 
+KOMNATA PRÓB (punkt 5 poligonu)
+
+Układ bazyliki używa istniejących rooms/pillars/elevations/decor. Żebra
+decor.arches mogą podać yaw (radiany), aby obracać tę samą geometrię
+wzdłuż nawy lub nad wejściem. Spring/rise/halfSpan pozostają w metrach.
+Łuk nie tworzy nowej niewidzialnej kolumny: autor opiera jego końce na
+prawdziwych ścianach/pillars. tests/cases/chambers pilnuje obecnej mapy.
+
+Mapa może zawierać proving = { exhibits=false, chambers={}, trials={}, pads={} }.
+Przykład (pozycje trzeba dobrać do rzeczywistej podłogi i promienia ciała):
+  chambers = {{ id='court', entry={x=7,z=20,yaw=math.pi},
+    slots={{x=7,z=12},{x=4,z=12},{x=8,z=15}} }}
+  trials = {{id='ash',chamber='court',creature='boss'}}
+  pads = {{x=8.2,z=17.5,trial='ash',spawn='boss'}}
+Każdy medal ma dokładnie jedną akcję: trial, weapon albo refill=true.
+spawn w medalu próby wskazuje tę samą definicję co creature, aby podpis
+i istniejąca grafika znaku odpowiadały przywołaniu. Id: litery/cyfry/_ .
+Polecenie Game:act('catalog','field_chamber_ash') lub E na medalu rozpoczyna
+jedną próbę po pełnym resecie. Field.chamber(g,id,count) dopuszcza od 1 do
+liczby slots; F2 zachowuje przyciski 1/3. Pierwsza próba danego creature
+jest domyślna dla F2, kolejne można wybrać własnymi medalami/poleceniami.
+Nowy demon bez przypisanej komnaty nadal korzysta ze swobodnego przywołania
+na wyczyszczonym poligonie. Zmiana geometrii nie zmienia rendererów/AI.
+Konstrukcja sprawdza referencje, skończone współrzędne, wejście i miejsca
+przywołania z realnym promieniem ciał, odstęp od wejścia i innych slotów.
+Test autora powinien dodatkowo wykazać osiągalność wejść, widoczność znaków
+i dostateczną przestrzeń na konkretne ataki. Schemat nie ocenia grywalności.
+RANGE/PHYSICS nadal korzystają z content/field.lua; inna mapa musi zapewnić
+im miejsce lub osobno rozwinąć definicję stanowisk, nie wpisywać wyjątki
+nazw map w rdzeniu. tests/cases/chambers sprawdza obie istniejące stacje.
+Snapshot/journal odtwarza całą próbę, także oczekujące portale. Nie mylić
+tego z pełnym checkpointem SIGIL09. Poligon pozostaje trybem bez zapisu
+wyprawy; przyszły zapis trybu wymaga jawnej sekcji właściciela i migracji.
+
 TAKTYKA I FAZY (punkt 4 poligonu)
 
 W Creature.define/boss opcjonalnie:

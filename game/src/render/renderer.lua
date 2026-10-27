@@ -405,8 +405,14 @@ function R:sky(g)
   s:send('projectionScale', self.projection)
   s:send('time', g.time or 0)
   love.graphics.setShader(s)
-  love.graphics.setColor(1, 1, 1)
+  local look = g.world.decor and g.world.decor.atmosphere
+  if look then
+    love.graphics.setColor(look.sky)
+  else
+    love.graphics.setColor(1, 1, 1)
+  end
   love.graphics.draw(self.blank, 0, 0, 0, self.w, self.h)
+  love.graphics.setColor(1, 1, 1)
   love.graphics.setShader()
 end
 -- The first-person weapon is lit by the same torches, presence and muzzle flash.

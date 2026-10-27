@@ -110,6 +110,12 @@ Actions.families:register('station', {
     return station.run(g, field)
   end,
 })
+Actions.families:register('chamber', {
+  pattern = '^field_chamber_([%w_]+)$',
+  run = function(g, field, id)
+    return field.chamber(g, id, 1)
+  end,
+})
 Actions.families:register('select', {
   pattern = '^field_select_([%w_]+)$',
   run = function(g, _, id)

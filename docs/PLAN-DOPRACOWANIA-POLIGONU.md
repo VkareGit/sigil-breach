@@ -14,8 +14,8 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 | 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
-| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Wdrożony i zweryfikowany; przerwa na test użytkownika |
-| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Oczekuje |
+| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Commit 1b97658; użytkownik zezwolił kontynuować |
+| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Wdrożony i zweryfikowany; przerwa na test użytkownika |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
 | 7 | Osobny rozwój nowych grafik i modeli | Odłożony przez użytkownika |
 | 8 | Pełny sprawdzian rozszerzenia: boss, komnata, reset, replay, wydajność i odbiór w dłuższej grze | Oczekuje |
@@ -379,6 +379,145 @@ Sprawdzić odpowiedź po zapowiedzi, przerwę po ciosie, przejście po wyczerpan
 pierwszego zapasu oraz nagrodę dopiero na końcu. Następnie RESET FIELD
 i ponowne przywołanie; boss ma zacząć od pierwszego zapasu. Punkt 5
 (pokoje/stanowiska) czeka na tę próbę, zgodnie z uzgodnionym trybem pracy.
+
+## Punkt 5 — komnaty istniejącego poligonu
+
+Publiczne wejście wybiera `proving` przez `Release.sessionMaps`; jawny mapId
+jest nadrzędny. Mapa jest podziałem dotychczasowej areny, z tymi samymi
+materiałami, freskami, bronią i przeciwnikami. Nie dodano świata kampanii.
+`limbo` pozostaje domyślną mapą biblioteki, aby zachować dawne narzędzia,
+galerię atlasów, scenariusze i referencje QA. Publiczne komnaty pomijają
+plansze atlasów oraz posągi podglądu, które przesłaniały pole walki.
+
+Po dodatkowej uwadze użytkownika układ przyjmuje formę zrujnowanej bazyliki:
+wysoka centralna nawa ze strzelnicą i stanowiskiem fizyki, podłużne arkady,
+nawy boczne, transept, zachodnia kaplica Margrave, wschodnia Furfur,
+północno-zachodnia kaplica dla impa
+i opancerzonego oraz północno-wschodnia dla Stolas/Buer. To przypisania
+prób, nie ostateczna fabularna geografia. Drzwi są otwarte; kolizja,
+osłona i trasy to zwykłe reguły świata, bez niewidzialnej granicy walki.
+
+Prezbiterium ma dwa rzeczywiste stopnie 0,16/0,32 m. Otwarte pozostałości
+sklepienia zachowują dotychczasowy malowany horyzont. Łuki obsługują
+opcjonalne yaw w danych; wspólny konstruktor liczy geometrię i normalne
+w orientacji łuku. Test sprawdza podparcie każdego końca realną ścianą
+lub kolumną. Ołtarze boczne stoją poza osią walki; paleniska nie pokrywają
+miejsc przywołania. Nie zmieniono tekstur ani stylu istniejących zasobów.
+
+`map.proving` zawiera komnaty, wejścia, sloty, próby oraz medale. Schemat
+sprawdza identyfikatory, strukturę i referencje; właściciel prób sprawdza
+realny promień ciała przy podłodze/ścianach, odległość od wejścia i odstępy
+między slotami. Nie ma gałęzi `if boss == ...` w obsłudze komnaty.
+Kilka prób może wskazywać jednego demona; pierwsza jest domyślna dla F2.
+Dodanie testowej odmiany tej samej próby w innym pomieszczeniu sprawdzono
+wyłącznie zmianą danych. Nowy typ zachowania nadal wymaga własnego modułu,
+nie rozszerzania tego właściciela o mechaniki pojedynczego przeciwnika.
+
+E na medalu lub dotychczasowe F2/przywołanie rozpoczyna nową czystą próbę.
+Pełny reset usuwa poprzednie ciała, portale, pociski i efekty. Rycerz trafia
+do wejścia, a demony wychodzą z normalnych portali. Wariant 3 celów ma trzy
+autorskie sloty. TIER i GOD MODE zostają wybrane przez użytkownika.
+Domyślnie GOD MODE jest włączony, więc do oceny trudności trzeba go wyłączyć.
+
+Stan trybu przechowuje id próby, żądaną liczbę, id przybyłych ciał oraz
+chwile/status. Zakończenie następuje dopiero po wszystkich przybyciach
+i końcowych śmierciach; odnowienie HP w drugiej fazie nie kończy próby.
+Retry po śmierci ponawia tę samą próbę, RESET FIELD wraca do nawy.
+Rozpoczęcie RANGE/PHYSICS zastępuje walkę, nie dokłada do niej manekinów.
+Nie dodano osobnej nagrody ani ekonomii komnat.
+
+Interfejs zachowuje dotychczasową grafikę i układ. Stan próby używa
+istniejącego dolnego pola kontekstu. Start nie dodaje centralnego komunikatu,
+a instrukcja podstawowego ruchu nie zasłania starcia. PHASE 2 pozostaje
+usunięte. Nazwa aktywnej próby nie zmienia się od przeglądania innego
+przeciwnika w katalogu.
+
+Snapshot oraz journal obejmują próbę i oczekujące portale; test używa
+prawdziwych poleceń, przybyć i strzału. To nie rozszerza SIGIL09 do pełnego
+checkpointu: istniejący format mapy/ciał nie przechowuje całego stanu trybu,
+a poligon nadal nie zapisuje wyprawy. Przyszły checkpoint wymaga jawnych
+sekcji właścicieli, migracji i testu całego cyklu.
+
+### Weryfikacja punktu 5
+
+`TEST.ps1 -Suite All -TestTimeoutSeconds 600` przeszedł: 4630 sprawdzeń
+mechaniki/zasobów, 36 wejścia, 547 skompilowanych plików Lua i zero naruszeń
+architektury. Nowa suita `chambers` ma 72 sprawdzenia. Wszystkie osiem
+przebiegów zakończyło się kodem zero i stabilnymi źródłami:
+`EF7AF2A11840B9340660322E69752AAF058B1FA0120D2269887751E110E58C13`.
+Lokalna dokumentacja dowodów: `work/point5-final/all/` oraz `review/`.
+
+Showcase ma 33 dodatkowe zrzuty układu, portali, sześciu prób i zakończenia.
+Obejrzano nawę, arkady boczne, prezbiterium, obie kaplice bossów oraz
+pozostałe cztery starcia, także w 960×540 i 1024×768. Zbiorczy audyt
+sprawdził 16639 granic malowanych elementów UI w 511 przebiegach ekranu:
+zero zgłoszonych problemów. Przegląd nie zastępuje testu ludzkiego feelingu.
+
+Porównanie 606 wcześniejszych PNG z E0: 245 identycznych. W porównaniu
+z raportem punktu 4 tylko `startup-first-field.png` ma inną liczbę/obszar
+różnic: pierwsze publiczne wejście rzeczywiście pokazuje nową bazylikę.
+Obszar zmiany kończy się nad dolnym HUD-em (y=584). Pozostałe 360 wierszy
+różnic ma te same metryki co punkt 4; to nie jest deklaracja identyczności
+z niearchiwizowanym kompletem jego obrazów. Żaden PNG zasobów nie zmienił się.
+
+Pierwszy smoke benchmarku wykrył stare założenie, że kolejne przywołania
+F2 kumulują cele. Zachowano dawny scenariusz 4/20 ciał na jawnie wybranej
+mapie bibliotecznej i dodano oddzielne cykle publicznych komnat 1/3.
+Oba sprawdzają prawdziwe wejście aplikacji, portale, przybycia, grę i powrót
+do menu. Nie usunięto asercji ani nie zmniejszono historycznego obciążenia.
+Pełny startup-check oraz smoke narzędzi przeszły. Smoke nadal nie zamyka
+formalnej regresji wydajności punktu 1; ta praca pozostaje otwarta.
+
+Próba użytkownika po commicie: przejść bocznymi i północnymi drzwiami,
+użyć E przy medalu, następnie F2/przywołania 1 i 3. Sprawdzić swobodę uniku,
+widoczność zapowiedzi, drugie życie obu bossów, śmierć/retry oraz przejście
+do RANGE/PHYSICS. Dopiero po tej próbie zaczynamy punkt 6 — audio.
+
+### Korekta oprawy punktu 5 — ołtarze i ogień (27 października)
+
+Na prośbę użytkownika uzupełnienie należy do tego samego commita co bazylika.
+Publiczna mapa ma własne `decor.atmosphere`: niższe światło odbite, ciemniejsze
+niebo i oddzielny poziom czytelności sylwetek. Nie ma filtra nakładanego na HUD
+ani edycji pikseli broni, demonów i otoczenia. Mapy bez tej konfiguracji zachowują
+dotychczasowe wartości oświetlenia.
+
+Medale bossów wskazują `altar = id` zamiast powielać x/z na podłodze. Wspólny
+`world/proving_pads` rozwiązuje położenie z rzeczywistego ołtarza oraz wysokości
+podłoża; używają go interakcja i podpis. Punkt E sięga do krawędzi podestu.
+Znaki stoją bezpośrednio nad blatami, a podpis znajduje się pod znakiem.
+Wycięty tusz zapisuje głębię: nie znika za dalszym freskiem i nie prześwituje
+przez bliższe obiekty. Furfur używa własnej pieczęci nr 34 z wydania Goetii
+Mathersa/Crowleya (1904); oryginalny PNG i pochodzenie są w assets/art/sigils.
+
+Opcjonalna lista `chamber.fire` określa obrzeże scenograficzne, do 96 płomieni.
+Obie sale bossów mają płomienie przy ścianach, z otwartym przejściem transeptu.
+To oprawa, nie nowy hazard, niewidzialna ściana ani zmiana zasad obrażeń.
+`Queries.world().arenaFire` udostępnia ją tylko dla aktywnej próby; źródłem jest
+id komnaty, nie nazwa demona. Drugie życie zachowuje oprawę, końcowa śmierć,
+śmierć rycerza i reset ją usuwają. Render używa czterech istniejących malowanych
+płomieni paleniska, z różnymi przesunięciami animacji, bez osobnej puli cząstek.
+
+Testy obejmują kotwicę ołtarza, E, fazy, śmierć/retry/reset, odrzucenie błędnych
+danych i utrzymanie dawnych prób. `--ritual-review` obejmuje teraz również nawę,
+oba ołtarze, areny, drugie życie i zakończenie. Zrzuty są wykonywane aktualnym
+rendererem, z kontrolą braku mutacji symulacji. Przegląd wizualny wykrył i usunął
+zasłanianie znaku przez dalszy fresk; samo sprawdzenie współrzędnych tego nie łapało.
+
+Po commicie tej korekty: osobny etap drugich faz bossów, zgodnie z kolejną
+uwagą użytkownika. Obecne mechaniczne przejście fazy nie jest jeszcze dowodem,
+że zmiana zachowania jest dostatecznie wyrazista w normalnej grze.
+
+Weryfikacja korekty: pełne `TEST.ps1 -Suite All -TestTimeoutSeconds 600` przeszło;
+4642 sprawdzenia mechaniki/zasobów, 84 w komnatach, 36 wejścia, 549 plików Lua
+bez naruszeń architektury. Wszystkie osiem przebiegów ma stabilny fingerprint
+`3D404580E634D50DBF4FF37DB906E1505633BDA26C0A70761787AAC090FBEB4C`.
+Audyt UI: 17093 granice w 524 ekranach, zero problemów. Cztery bezpośrednie
+porównania PNG z poprzednią wersją punktu 5 (nawa, żebra, obie walki) mają
+zero zmienionych pikseli dolnego HUD-u. Obejrzano dodatkowo ołtarze, zapowiedzi
+ataków w 960×540 i 1024×768 oraz rzeczywiste zakończenie próby bez płomieni.
+Raporty i obrazy: `work/point5-refinement/all`, `review`, `hud-comparison.txt`.
+Showcase zawiera 35 ujęć komnat; jego historyczna etykieta nadal podaje 33.
+Smoke narzędzi nadal nie zamyka formalnej regresji wydajności punktu 1.
 
 ## Zasady następnych etapów
 

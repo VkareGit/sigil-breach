@@ -32,6 +32,7 @@ function Application.new()
     accumulator = 0,
     screenshotCaptured = false,
     sessionOptions = require('src.app.release').sessionOptions,
+    sessionMaps = require('src.app.release').sessionMaps,
   }, Application)
 end
 
