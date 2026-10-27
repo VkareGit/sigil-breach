@@ -564,7 +564,7 @@ local definitions = {
   { 'recording_full', 'Recording stopped: limit reached. F9 saves the completed recording.' },
   { 'telemetry_saved', 'Telemetry saved: {path}' },
   { 'screenshot_saved', 'Screenshot saved in the game data folder.' },
-  { 'menu_release', 'FOUNDATION  /  0.33' },
+  { 'menu_release', 'FOUNDATION  /  0.34' },
   { 'menu_trial', 'TRIAL BY FIRE' },
   { 'menu_tagline', 'Guns, demons and heavy combat.' },
   { 'menu_circle', 'I  /  LIMBO' },

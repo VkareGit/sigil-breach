@@ -1,4 +1,4 @@
-SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.33
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.34
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
@@ -7,8 +7,10 @@ Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
 BROŃ = DEFINICJA + STAN + KOMPOZYCJA ZACHOWAŃ
 
 Definicja: content/defs/weapon.lua, rejestr: content/weapons.lua.
-Stan (mag/reserve/open/loaded/spent/readyAt): player.arsenal[id].
-Kolejność wyposażenia: player.loadout. Dodawanie: Weapons.give(game, id).
+Stan (mag/reserve/open/loaded/spent/readyAt): actor.arsenal[id].
+Kolejność wyposażenia: actor.loadout. Dodawanie: Weapons.give(game, id, actor).
+Pominięty actor oznacza sterowanego. Prezentacja jawnie przekazuje aktora
+kontekstu; Weapons.state/inHand/idAt przyjmują go po argumencie slot.
 Postać nie zna nazw typów ani numeru ostatniego slotu.
 
 Niezależne części definicji:
@@ -294,3 +296,77 @@ Wszystkie przykłady dodają treść testową na czas próby i usuwają ją po n
 Dowód rozszerzalności nie jest deklaracją obsługi dowolnego przyszłego
 algorytmu samymi danymi. Nowe zachowanie otrzymuje mały lokalny wykonawca;
 wspólne kontrakty pozostałych systemów mają pozostać stabilne.
+
+KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
+
+17. Inny układ atlasu i nowa animacja
+    Arkusz content/art/sheets/<id>.lua deklaruje poses: nazwę, clock,
+    frames oraz bounds/rate/step. Przykład: strike = { clock='action',
+    frames={7,9,12}, bounds={0.25,0.6} }. Granice należą do następnego
+    przedziału. Geometria i renderer pytają tę samą nazwaną pozę; zmiana
+    kolejności atlasu nie wymaga edycji rendererów ani logiki zwłok.
+    Testy: named-poses, anatomy-data oraz v033-reference.
+
+18. Nowy tryb i jego stan
+    Modes:register(id, descriptor) nazywa record (domyślnie modeData),
+    session oraz haki start/progress/reset/snapshot/load/save. Obiekty
+    świata i Encounter pozostają wspólne, wynik trybu jest jego rekordem.
+    UI pyta Queries, nie rozpoznaje id nowego trybu przez if/elseif.
+    Testowy tryb trial_altars: tests/cases/mode_state.lua; obejmuje
+    własną sekcję Save.declare i komendy poprzez Game:act.
+    Pożyczony widok ważny do następnego kroku/komendy: Queries.valid.
+    Chcesz zatrzymać dane: Queries.copy. Nie zatrzymuj referencji sesji
+    w globalnym stemplu widoku; ownerToken nie jest referencją właściciela.
+    Próba: mode-state i tryb ołtarzy w testach, poza menu.
+
+19. Drugi rycerz i urządzenie
+    Utwórz rekord prefabu knight i zgłoś przez game:actorJoin(record).
+    Publiczne komendy przyjmują ID: game:shoot(command, id),
+    game:reloadGun(id), game:switchWeapon(slot, id), game:cast(slot, id),
+    game:look(yawDelta, pitchDelta, id). Wywołujący nie przekazuje całej
+    tabeli aktora przez granicę dziennika. Rekord dołączenia powstaje
+    przez Pools.memberRecord, tak jak rekord członka sekcji pools. Broń,
+    przeładowanie i intencje należą do aktora. Statystyki mają osobne
+    rekordy według ID w księdze Stats, zamiast jednego wyniku sesji.
+    Input.new(id, device) przypisuje wejście; device.held(name) i
+    device.mouseDown() dostarczają próbkę. Wynik: input.actors[id].
+    Przy prezentacji: input:present(game, shown, actor). Potem komenda
+    używa obserwacji tego samego strzelca. Testy: actors, observer,
+    view-context; journal v5 odtwarza komendy i właścicieli.
+
+20. Drugi widok lub kamera
+    Context.watch(game, id); local actor = Pools.get(game, id);
+    local shown = Context.of(game, actor).
+    renderer:draw(shown, width, height) i UI.draw(shown, width, height,
+    settings) z src.ui.interface korzystają z aktora HUD/rąk i widza kamery.
+    Gotowy przykład przechwycenia
+    każdego obrazu na własny canvas: qa/view_measure.lua (lokalny
+    adapter renderer.present). Samo setCanvas przed renderer:draw
+    nie wystarcza: renderer używa własnego celu i kończy go przed present.
+    P.capture(game) raz przed krokiem, P.sample(shown, alpha) na widok.
+    Drugi widok NIE uruchamia drugiego kroku symulacji.
+    Wolna kamera: Context.of(game, actor, camera), gdzie camera ma
+    x/y/z/yaw/pitch i stałą tożsamość tabeli, zmieniane są jej współrzędne.
+    Zamknięcie kamery: Context.unobserve(game, actor, camera).
+    Zamknięcie widoku aktora: Context.unwatch(game, id).
+    Nie twórz nowej tabeli kamery co klatkę bez zwolnienia poprzedniej.
+    Split-screen jest sprawdzany technicznie, nie udostępniony w menu.
+
+21. Nowe pole prezentacji i efekt
+    Fields.declareView(owner, names, scope): world = wspólny świat;
+    actor = osobisty feedback; view = historia konkretnej kamery.
+    Bez scope domyślnie actor. Najpierw określ właściciela i reset.
+    Własne transienty inicjalizuj przez view_state/hak motion.init,
+    tykaj raz na właściciela. Światowe smugi/krew/plamy emituj raz na
+    zdarzenie, bez pętli po kamerach. Łuski ekranu należą do aktora.
+    Feedback zdarzenia rozwiązuje właściciela przez Recipient; nie tworzy
+    przy tym widoku dla nieobserwowanego aktora. Efekt nie zmienia HP,
+    czasu przeładowania ani promienia trafienia.
+
+22. Jawny obserwator trafienia
+    Geometria pocisku używa żywego właściciela lub punktu wystrzału,
+    wzrok i oczy stworzenia jego celu, strzał obserwacji strzelca.
+    Kamera dekoracyjna nie jest obserwatorem symulacji. Wykonawca dostawy podaje
+    obserwatora jawnie do Pose/Surface/Geometry, zgodnie z E4.
+    Dwie nogi mogą mieć osobne id kształtu i jedną strefę obrażeń;
+    kolizja ruchu i podatna powierzchnia nadal są osobnymi kontraktami.

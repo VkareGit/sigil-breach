@@ -1,11 +1,14 @@
 # SIGIL: BREACH — fundament v11: pozy, stan trybów, aktorzy i obserwator
 
-Status: PRZYJĘTY przez użytkownika 2026-10-26 (wersja 3 z doprecyzowaniami
-początku nagrania, aktorów w dzienniku i pomiaru). W realizacji: E0–E5 wdrożone
-(raporty `PLAN-v11-E0…E5-RAPORT.md`, pomiary `PLAN-v11-POMIARY.md`;
-referencje `tests/fixtures/v033/`), dalej odbiór E6 i pomiary. Stan odniesienia: `c9334c1`, wersja 0.33 (plan v10
-wykonany). Docelowa wersja wydania: 0.34. Kontrakty planu v10 i kontrakty
-trafień planu v7 pozostają wymaganiami.
+Status: WYKONANO TECHNICZNIE E0–E6, źródła wydania 0.34 (2026-10-27).
+Plan przyjęty przez użytkownika 2026-10-26, wersja 3. Raporty etapów:
+`PLAN-v11-E0…E6-RAPORT.md`; pomiary: `PLAN-v11-POMIARY.md`.
+Formalny odbiór punktu 7 pozostaje OTWARTY: decyzja użytkownika o kryterium
+wydajności/odstępstwie wobec rozrzutu A/A. Nie uznano go automatycznie za
+zaliczony. B2 pozostaje oceną człowieka w normalnej grze.
+Stan odniesienia: `c9334c1`, wersja 0.33; E0: `710d1ac`. Kontrakty v10
+i kontrakty trafień v7 nadal obowiązują. Zakres produktu, grafiki i HUD
+pozostają bez zmian; zmienił się jedynie numer wydania w menu/tytule.
 
 ## Cel
 
@@ -787,3 +790,31 @@ Pozostają poza v11 i wymagają osobnej decyzji:
 - split-screen, nowy tryb i drugi rycerz w menu;
 - głębia sprite'ów: demon pozostaje billboardem z maską w płaszczyźnie.
   Trafienie zależy od obserwatora, ale reguła jest jawna (E4).
+
+## Stan końcowy wdrożenia 0.34
+
+| Etap | Wdrożenie / dowód |
+|---|---|
+| E0 | `710d1ac`, zamrożone referencje i baza renderów |
+| E1 | `12d4bed`, nazwane pozy, niezależna reguła osiadania zwłok |
+| E2 | `a33705f`, własność stanu trybów i widoków |
+| E3 | `8707dab`, `8797d30`, stan aktora, komendy i Journal v5 |
+| E4 | `4a03cb4`, jawny obserwator geometrii i obserwacje na aktora |
+| E5 | `e00c817`, konteksty prezentacji, wejście i lifecycle; 43 sprawdzenia view-context |
+| E6 | Fixture legacy, odtworzenia, zasoby, dokumenty i źródła 0.34; raport PLAN-v11-E6-RAPORT |
+
+Warunki funkcjonalne są sprawdzane końcowym All na jednym drzewie:
+4285 sprawdzeń mechaniki/zasobów, 36 wejścia, 519 plików Lua, 0 naruszeń
+architektury. Sześć skrótów złotego wzorca i referencje 0.33 są niezmienione.
+Rendery refaktoru przed numerem wydania: 606/606 identycznych; końcowy
+raport pikseli pokazuje wyłącznie wyjątek numeru 0.34 na stronie menu.
+Dowody z fingerprintami i osobnymi ID procesów: work/v11-final-evidence.json.
+
+Osiem cykli aplikacji sprawdza zasoby i referencje do zamkniętych sesji.
+Pomiary E3–E5 mają po pięć par; podejrzany krok E4 i klatki E5 powtórzono
+i pokazano razem z pierwszą serią. Dodatkowe dwa widoki zachowują ten sam
+stan symulacji co jeden. Dane, IQR oraz odstępstwa: PLAN-v11-POMIARY.md.
+
+Nie zamknięto formalnego odbioru wydajności ani B2 za użytkownika.
+Wdrożenie techniczne nie oznacza włączenia wyprawy, ołtarzy, dodatkowych
+aktorów lub split-screenu do menu. Nie powstały nowe grafiki ani układ HUD.

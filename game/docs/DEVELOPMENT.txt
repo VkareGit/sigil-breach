@@ -284,7 +284,7 @@ Obserwacja strzału i skończone nagrywanie:
   komenda innego aktora jest odrzucana. Wygasa też przy jego śmierci,
   odejściu albo zmianie sterowania; obserwacje innych aktorów zostają.
   Geometria pocisku i wzroku stworzeń ma jawnego obserwatora; widza kamery
-  (Roles.viewer) podaje tylko prezentacja. Journal zapisuje
+  (Context.viewer) podaje tylko prezentacja. Journal zapisuje
   kopię komendy i jej przestrzeń identyfikatorów; replay nie wymaga rysowania.
   Bez --record obserwacje nie tworzą historii: aplikacja trzyma bieżący widok.
 
@@ -358,3 +358,48 @@ Przed migracją nazw porównano 2460 pełnych stanów symulacji z kopią 0.17
 przy jednakowym ziarnie RNG: identyczne. Źródłowy audyt bitmap: 260 widoków,
 6670 granic tekstu, 71820 porównań obrazów, 3275 wnętrz HUD, zero problemów.
 To weryfikacja automatyczna; nie zastępuje ludzkiej oceny balansu i feelingu.
+
+FUNDAMENT v11 / ODBIÓR 0.34
+
+Receptury nowych póz, trybu, rycerza, urządzenia i widoku znajdują się
+w ROZSZERZANIE (punkty 17–22). Ich działające próby: named-poses,
+mode-state, actors, observer, view-context. W produkcji nadal jeden
+poligon, jeden gracz i ten sam HUD. Kolejny widok nie wykonuje kroku świata.
+
+Pomiary E3–E5: PLAN-v11-POMIARY.md, pełne tabele median/IQR i surowe logi
+work/v11-measure-final-e3, e4, e5. Baza: E0 710d1ac; etapy: 8797d30,
+4a03cb4, e00c817. Każdy wariant w świeżym procesie, pięć naprzemiennych
+par, High bez affinity; rozgrzewka 300, kroków 2400, klatek 720.
+Nie uruchamiaj innych QA ani nie edytuj game podczas pomiaru.
+
+--view-measure przy SIGIL_VIEW_COUNT=1 albo 2 mierzy cały krok i pełne
+obrazy 1280x720 (renderer, HUD, postprocessing, interpolacja, odczyt
+1 piksela dla synchronizacji). Świat z dwoma rycerzami jest taki sam;
+zmienia się tylko liczba obserwowanych widoków. W fazie rysowania świat
+jest zamrożony, bez present/VSync. Pełne próbki: work/v11-views-final.
+To koszt dwóch pełnych obrazów, nie dwa mniejsze okna ani pomiar FPS.
+
+--resource-plateau wykonuje osiem rzeczywistych cykli aplikacji przez
+menu, poligon, dodatkowy widok, replay i wyprawę. Mierzy zasoby natywne
+i stertę Lua, sprawdza właścicieli po zamknięciu. Normalne cykle nie
+wyłączają JIT; pojedyncze końcowe usunięcie trace'ów jest tylko audytem
+rozróżniającym referencje aplikacji od referencji skompilowanych domknięć.
+Nie kopiuj tego jit.flush do kodu produkcyjnego. Liczby tekstur wracają
+do poziomu pierwszego rozgrzanego cyklu; sterta Lua jest raportowana
+oddzielnie, bez arbitralnego progu obietnicy stałego RAM.
+
+Końcowe dowody source-*.evidence.json pozostają w work/qa-v33 oraz jego
+tool-smoke. To historyczna nazwa katalogu, nie wersja źródeł. Wydanie
+jest odczytywane z src/core/build.lua. Nie regeneruj tests/fixtures/v033;
+osobne legacy-v033 powstały kodem E0, z uwzględnieniem niższej precyzji
+dawnego formatu tostring. Nagrania 0.33 nie stają się nagraniami 0.34.
+
+Ścisły protokół wydajności nie jest automatycznie zaliczony: duży IQR
+występuje też w A/A. Decyzja o kryterium praktycznym należy do użytkownika.
+Odbiór B2 pozostaje osobny od testów technicznych.
+
+Zmierzony koszt drugiego widoku (mediana pięciu procesów, ms):
+  cały krok z capture: 1 widok 0.1817, 2 widoki 0.2072, iloraz 1.140.
+  pełny obraz z HUD i synchronizacją: 1 widok 5.1249, 2 widoki 9.4206, iloraz 1.838.
+  W obu wariantach ta sama symulacja dwóch rycerzy; dziesięć prób
+  daje identyczny SHA-256 stanu. Pełne IQR: PLAN-v11-POMIARY.md.

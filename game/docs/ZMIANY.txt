@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.33 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.34 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -10,6 +10,60 @@ BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
+
+########################################################################
+ZMIANY-0.34.txt
+########################################################################
+SIGIL: BREACH / 0.34 / FUNDAMENT v11
+
+E0 — odniesienie sprzed refaktoru
+- Zamrożone rzuty stanu okresowe i przy zdarzeniach, przypisanie nagród,
+  tabela póz i pięć checkpointów SIGIL09 z 0.33. Referencje nie były
+  regenerowane po zmianach. Zachowany złoty wzorzec i 606 obrazów bazy.
+
+E1 — nazwane pozy
+- Arkusz deklaruje nazwane sekwencje i ich zegary. Numery klatek nie
+  należą do AI ani reguł zwłok. Dłuższy malowany upadek nie przedłuża
+  osłaniania przed pociskiem. Próby przestawienia atlasu chronią trafienia.
+
+E2 — właściciel stanu trybu
+- Tryb ma własny rekord i wspólne haki cyklu życia, świat posiada
+  pieczęcie/sekret, a spotkanie strażnika. Queries udostępnia pożyczone
+  widoki i jawne kopiowanie. Nowy tryb ołtarzy jest tylko próbą QA.
+
+E3 — niezależny aktor i źródło skutków
+- Broń, przeładowanie, spust i sekwencja strzałów należą do rycerza.
+  Statystyki i skutki łańcucha obrażeń zachowują właściciela.
+- Komendy i próbki wejścia wskazują aktora. Journal v5 rejestruje
+  dołączenie, odejście i zmianę sterowania; preflight odrzuca obce ID
+  przed mutacją. Zgodność formatu v2–v5 dotyczy tego samego wydania.
+
+E4 — obserwator trafienia
+- Symulacja jawnie podaje obserwatora geometrii. Kamera nie zmienia
+  wyniku strzału. Obserwacja łączy punkt wystrzału i geometrię tej samej
+  próbki tego samego strzelca; generacje świata i aktora są oddzielne.
+
+E5 — kontekst prezentacji
+- Aktor odpowiada za HUD/ręce, widz za kamerę/światła/audio. Prywatny stan
+  powstaje tylko dla obserwowanych rycerzy; ślady świata powstają raz.
+- Osobne historie interpolacji, reset i jawne zwalnianie widoków.
+  Input.new(actor, device) wiąże urządzenie z aktorem. Dwa płótna są
+  próbą techniczną, bez opcji split-screen w menu.
+
+E6 — zgodność i zasoby
+- Adaptery SIGIL06–08 porównane z osobnymi projekcjami utworzonymi przez
+  kod E0. Odczyt, ponowny zapis i odczyt zachowują stan starego formatu.
+- Rozszerzony resource-plateau ćwiczy rzeczywiste przejścia aplikacji,
+  replay, dodatkowy widok i zwalnianie zasobów. Usunięty cykl utrzymujący
+  sesję przez stempel pożyczonego widoku; ważność pytań kontekstów
+  unieważnia ta sama komenda sesji.
+- Przepisy rozbudowy 17–22, raport E6 i pomiary etapów E3–E5 oraz kosztu
+  drugiego widoku. Formalny odbiór wydajności wymaga decyzji użytkownika
+  o kryterium wobec rozrzutu A/A. B2 pozostaje oceną człowieka.
+
+Rozgrywka, balans, grafiki, układ HUD-u i dostępne menu nie są zmieniane.
+Jedyna planowana różnica wizualna wydania to numer 0.34 w menu/tytule.
+Źródła i dowody: PLAN-v11-E0…E6-RAPORT.md oraz PLAN-v11-POMIARY.md.
 
 ########################################################################
 ZMIANY-0.33.txt

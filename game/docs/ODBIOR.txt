@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.33 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.34 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -9,6 +9,50 @@ Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 
+
+########################################################################
+ODBIOR-0.34.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR FUNDAMENTU 0.34 (PLAN v11)
+
+Zakres techniczny: nazwane pozy, właściciele stanu trybu i aktora,
+obserwator geometrii, konteksty prezentacji, niezależne wejście oraz
+zgodność zapisów, dzienników i cyklu życia zasobów. Jeden dotychczasowy
+poligon, dwie bronie, dotychczasowy HUD i oprawa pozostają produkcją.
+Tryb ołtarzy, dodatkowi rycerze i dwa płótna są próbami poza menu.
+
+Dowód końcowy: TEST.ps1 -Suite All na nieruchomym game/, następnie
+resource-plateau i porównanie pikseli. Raport PLAN-v11-E6-RAPORT.md
+oddziela wyniki techniczne od oceny człowieka i decyzji wydajnościowej.
+Evidence source-*.evidence.json w work/qa-v33 wiąże źródła, runtime
+i świeży proces. Nazwa qa-v33 jest zachowanym katalogiem narzędzi;
+numer wydania bierze się z src/core/build.lua, nie z nazwy tego folderu.
+Test źródeł nie jest poświadczeniem nowego ZIP/EXE — to wymaga BUILD.
+
+B2 — nadal do oceny gracza w normalnej grze:
+1. Obie bronie, szybka zamiana, strzały pojedyncze i ciągłe; puste oraz
+   częściowe magazynki; przerwanie i wznowienie przeładowania.
+2. Ruch, unik, ślizg, skok, lądowanie i kontakt z kolumnami/ciałami.
+3. Czytelność zamachu i trafienia oraz satysfakcja ze strzelania.
+4. HUD, F1 i katalog w używanej rozdzielczości; pigment i chwyt broni.
+5. Wydajność podczas zwykłej walki i wejścia na poligon, stare zapisy.
+
+Formalny odbiór wydajności (punkt 7 zakończenia planu) jest otwarty.
+Pomiary mają mediany i IQR; A/A ujawnia rozrzut samej maszyny. Praktyczne
+kryterium mediana <= 1,05x albo różnica w rozrzucie A/A wymaga wyraźnej
+akceptacji użytkownika. Automatyczny PASS mechaniki tego nie zastępuje.
+
+Ograniczenia jawne:
+- Drugi rycerz ma niezależną broń, wejście i prezentację, ale split-screen
+  nie został włączony w menu ani odebrany jako funkcja produktu.
+- Billboard z maską w płaszczyźnie zachowuje kompromis geometrii opisany
+  w E4. Nowa kamera nie jest obserwatorem fizyki.
+- Dziennik odrzuca inne wydanie/odcisk źródeł. v2–v5 oznacza zgodność
+  formatu w obrębie wydania, nie odtwarzanie nagrań 0.33 w 0.34.
+- Nagrywanie startuje przy konstrukcji sesji. Sieć, predykcja i wspólny
+  ekran kilku graczy wymagają osobnego zakresu, nie wynikają z tych prób.
+- Nowe zachowanie wymaga lokalnego wykonawcy w rejestrze. Baza nie
+  obiecuje dowolnej nowej mechaniki wyłącznie przez zmianę danych.
 
 ########################################################################
 ODBIOR-0.33.txt

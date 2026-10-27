@@ -116,3 +116,160 @@ Powtórzenie bez przypinania (5 par):
 
 E2 dokłada kilka zapytań o widoki na klatkę. Każde zapytanie to wypełnienie
 małej tabeli sesji, bez pętli po ciałach.
+
+## E3–E5: końcowe pomiary (5 par, High, bez przypinania)
+
+### E3 — `8797d30`
+
+| Metryka | E0 mediana ms (IQR %) | Po mediana ms (IQR %) | Po/E0 | Ścisły protokół |
+|---|---:|---:|---:|---|
+| frame complete_heavy20_frozen_fx (ms) | 5.3157 (6.3 %) | 5.3060 (3.0 %) | 0.998 | nierozstrzygnięty |
+| frame complete_normal4_frozen_fx (ms) | 4.0927 (3.3 %) | 4.2437 (2.4 %) | 1.037 | brak regresji |
+| frame prepared_population_20_live (ms) | 6.7552 (10.7 %) | 6.4178 (9.9 %) | 0.950 | nierozstrzygnięty |
+| frame prepared_population_256_live (ms) | 22.6715 (10.5 %) | 21.3813 (11.7 %) | 0.943 | nierozstrzygnięty |
+| frame prepared_population_96_live (ms) | 12.5223 (11.0 %) | 11.6560 (7.6 %) | 0.931 | nierozstrzygnięty |
+| step 20 bodies (ms) | 0.1266 (1.4 %) | 0.1329 (7.1 %) | 1.050 | nierozstrzygnięty |
+| step 256 bodies (ms) | 2.8343 (4.1 %) | 2.4861 (33.0 %) | 0.877 | nierozstrzygnięty |
+| step 96 bodies (ms) | 0.6345 (7.0 %) | 0.5849 (11.0 %) | 0.922 | nierozstrzygnięty |
+
+Źródło: `work/v11-measure-final-e3/summary.txt`; pełne próbki i logi obok.
+
+### E4 — `4a03cb4`
+
+| Metryka | E0 mediana ms (IQR %) | Po mediana ms (IQR %) | Po/E0 | Ścisły protokół |
+|---|---:|---:|---:|---|
+| frame complete_heavy20_frozen_fx (ms) | 5.5669 (15.5 %) | 5.4732 (0.3 %) | 0.983 | nierozstrzygnięty |
+| frame complete_normal4_frozen_fx (ms) | 4.0421 (9.6 %) | 3.7898 (10.6 %) | 0.938 | nierozstrzygnięty |
+| frame prepared_population_20_live (ms) | 6.3841 (7.0 %) | 6.5142 (20.0 %) | 1.020 | nierozstrzygnięty |
+| frame prepared_population_256_live (ms) | 22.7254 (8.7 %) | 18.9008 (22.0 %) | 0.832 | nierozstrzygnięty |
+| frame prepared_population_96_live (ms) | 12.2745 (1.8 %) | 10.7363 (35.1 %) | 0.875 | nierozstrzygnięty |
+| step 20 bodies (ms) | 0.1095 (13.5 %) | 0.1237 (4.8 %) | 1.130 | nierozstrzygnięty |
+| step 256 bodies (ms) | 2.3129 (6.8 %) | 2.3458 (21.6 %) | 1.014 | nierozstrzygnięty |
+| step 96 bodies (ms) | 0.6644 (8.7 %) | 0.5614 (0.9 %) | 0.845 | nierozstrzygnięty |
+
+Źródło: `work/v11-measure-final-e4/summary.txt`; pełne próbki i logi obok.
+
+### E5 — `e00c817`
+
+| Metryka | E0 mediana ms (IQR %) | Po mediana ms (IQR %) | Po/E0 | Ścisły protokół |
+|---|---:|---:|---:|---|
+| frame complete_heavy20_frozen_fx (ms) | 5.3027 (0.8 %) | 5.4296 (2.6 %) | 1.024 | brak regresji |
+| frame complete_normal4_frozen_fx (ms) | 4.1884 (5.8 %) | 4.1272 (3.8 %) | 0.985 | nierozstrzygnięty |
+| frame prepared_population_20_live (ms) | 6.1014 (13.5 %) | 7.2530 (10.6 %) | 1.189 | nierozstrzygnięty |
+| frame prepared_population_256_live (ms) | 20.1392 (16.1 %) | 22.3141 (5.3 %) | 1.108 | nierozstrzygnięty |
+| frame prepared_population_96_live (ms) | 11.4551 (17.7 %) | 13.0127 (8.9 %) | 1.136 | nierozstrzygnięty |
+| step 20 bodies (ms) | 0.1171 (8.7 %) | 0.1234 (6.3 %) | 1.054 | nierozstrzygnięty |
+| step 256 bodies (ms) | 2.4023 (11.7 %) | 2.3069 (1.1 %) | 0.960 | nierozstrzygnięty |
+| step 96 bodies (ms) | 0.5724 (15.8 %) | 0.5533 (2.2 %) | 0.967 | nierozstrzygnięty |
+
+Źródło: `work/v11-measure-final-e5/summary.txt`; pełne próbki i logi obok.
+
+## Koszt dodatkowego widoku
+
+Pięć naprzemiennych par, każdy wariant w świeżym procesie. W obu: dwóch
+rycerzy i 20 demonów, 300 kroków/klatek rozgrzewki, 2400 kroków i 720
+pełnych klatek. Każdy canvas ma 1280×720; dwie kamery oznaczają dwa pełne
+obrazy, a nie dwa obrazy o połowie rozdzielczości. Klatka obejmuje renderer,
+HUD, postprocessing, interpolację i synchroniczny odczyt 1 piksela. Symulacja
+jest mierzona oddzielnie od rysowania; podczas pomiaru klatek pozostaje
+zamrożona. To koszt diagnostyczny, nie pomiar FPS ani latencji wejścia.
+
+| Metryka | Jeden widok: mediana ms (IQR ms) | Dwa widoki: mediana ms (IQR ms) | Iloraz |
+|---|---:|---:|---:|
+| whole_step | 0.1817 (0.0108) | 0.2072 (0.0086) | 1.140 |
+| complete_frame | 5.1249 (0.0934) | 9.4206 (2.0987) | 1.838 |
+
+Wszystkie 10 prób dało ten sam SHA-256 stanu symulacji:
+`1f1463a0818e6f43d7624432261369b08002678f46d6bee3d6ad691976212f13`.
+Rysowanie w każdej próbie zachowało Integrity. Próby nie dodają split-screenu do menu.
+
+Źródło: `work/v11-views-final/`; `source-stable.txt` nazywa niezmienione źródło.
+
+## E4: powtórzenie kroku dla 20 ciał
+
+Pierwsze pięć par dało 1,130× przy IQR bazy 13,5%. Powtórzono pięć
+par dla tej populacji, tym samym kodem, rozgrzewką i liczbą kroków.
+MEASURE uruchomił też swoje sceny klatek dla 20 ciał; powtórzenie
+nie obejmuje populacji 96/256. Niżej wynik powtórzenia i wszystkich
+dziesięciu prób, bez wybierania korzystniejszej serii.
+
+| Seria | Przed mediana ms (IQR ms) | Po mediana ms (IQR ms) | Po/przed | Ścisły protokół |
+|---|---:|---:|---:|---|
+| Powtórzenie, n=5 | 0.1200 (0.0052) | 0.1161 (0.0131) | 0.968 | nierozstrzygnięty |
+| Łącznie, n=10 | 0.1200 (0.0120) | 0.1218 (0.0085) | 1.016 | nierozstrzygnięty |
+
+Surowe dane: `work/v11-measure-final-e4-repeat20/summary.txt` oraz
+`work/v11-measure-final-e4/summary.txt`. Wynik nierozstrzygnięty
+po powtórzeniu nadal wymaga decyzji użytkownika według protokołu.
+
+## E5: powtórzenie pełnych klatek
+
+W pierwszej serii mediana pełnych klatek żywych populacji wzrosła
+o 11–19%, przy IQR do 18%. Powtórzono pięć naprzemiennych par
+pełnego benchmarku w świeżych procesach: High bez affinity,
+300 rozgrzewki i 720 klatek, populacje 20/96/256 w qa_crowd, ten sam kod E0/E5.
+Powtórzenie dotyczy klatek; nie uruchamia ponownie core-measure.
+Niżej pokazano obie serie razem, bez wybierania korzystniejszych prób.
+
+### Powtórzenie, n=5 na wariant
+
+| Metryka | E0 mediana ms (IQR %) | E5 mediana ms (IQR %) | E5/E0 | Ścisły protokół |
+|---|---:|---:|---:|---|
+| complete_normal4_frozen_fx | 3.9347 (3.5 %) | 4.1538 (4.9 %) | 1.056 | nierozstrzygnięty |
+| complete_heavy20_frozen_fx | 5.3664 (2.2 %) | 5.4237 (1.4 %) | 1.011 | brak regresji |
+| prepared_population_20_live | 6.2327 (13.7 %) | 6.5222 (3.7 %) | 1.046 | nierozstrzygnięty |
+| prepared_population_96_live | 11.5422 (10.5 %) | 11.9678 (3.4 %) | 1.037 | nierozstrzygnięty |
+| prepared_population_256_live | 20.8660 (8.0 %) | 21.2237 (2.1 %) | 1.017 | nierozstrzygnięty |
+
+### Wszystkie próby, n=10 na wariant
+
+| Metryka | E0 mediana ms (IQR %) | E5 mediana ms (IQR %) | E5/E0 | Ścisły protokół |
+|---|---:|---:|---:|---|
+| complete_normal4_frozen_fx | 4.0248 (6.3 %) | 4.1405 (4.7 %) | 1.029 | nierozstrzygnięty |
+| complete_heavy20_frozen_fx | 5.3430 (2.2 %) | 5.4267 (2.0 %) | 1.016 | brak regresji |
+| prepared_population_20_live | 6.1670 (13.8 %) | 6.5526 (11.6 %) | 1.063 | nierozstrzygnięty |
+| prepared_population_96_live | 11.4986 (13.8 %) | 12.2659 (10.2 %) | 1.067 | nierozstrzygnięty |
+| prepared_population_256_live | 20.5026 (9.8 %) | 21.3985 (5.1 %) | 1.044 | nierozstrzygnięty |
+
+Surowe próby: `work/v11-measure-final-e5-repeat-frames-crowd/` oraz
+`work/v11-measure-final-e5/`. Nierozstrzygnięty wynik po powtórzeniu
+nie jest automatycznym zaliczeniem; wymaga decyzji według protokołu.
+
+Pierwsze uruchomienie pomocniczego wrappera nie przekazało qa_crowd:
+proces zatrzymał się przed końcem na walidacji pojemności domyślnej
+areny. Nie powstał kompletny benchmark.txt i żadne jego próbki nie
+weszły do zestawienia. Log zachowano w work/v11-measure-final-e5-repeat-frames.
+Poprawiono wyłącznie konfigurację wrappera poza game; całą serię
+wykonano od początku w osobnym katalogu wymienionym powyżej.
+
+## Interpretacja końcowa i decyzja użytkownika
+
+Powtórzenia nie zastępują pierwszych serii: zestawienia n=10 zawierają
+wszystkie próbki. Poniższa tabela pokazuje wartości po powtórzeniach,
+a dla niepowtarzanego rdzenia E5 nadal n=5. Nie oznacza przyjęcia
+nowego kryterium odbioru ani zgody użytkownika na odstępstwo.
+
+| Zakres | Po/przed | Różnica median ms | Suma IQR A/A ms | Ścisły wynik |
+|---|---:|---:|---:|---|
+| E4 krok 20, n=10 | 1.016 | +0.0019 | 0.0105 | nierozstrzygnięty |
+| E5 complete_normal4_frozen_fx, n=10 | 1.029 | +0.1158 | 0.2209 | nierozstrzygnięty |
+| E5 complete_heavy20_frozen_fx, n=10 | 1.016 | +0.0836 | 0.5188 | brak regresji |
+| E5 prepared_population_20_live, n=10 | 1.063 | +0.3856 | 0.6357 | nierozstrzygnięty |
+| E5 prepared_population_96_live, n=10 | 1.067 | +0.7673 | 2.6384 | nierozstrzygnięty |
+| E5 prepared_population_256_live, n=10 | 1.044 | +0.8958 | 3.8350 | nierozstrzygnięty |
+| E5 step 20 bodies (ms), n=5 | 1.054 | +0.0063 | 0.0105 | nierozstrzygnięty |
+| E5 step 256 bodies (ms), n=5 | 0.960 | -0.0954 | 0.4805 | nierozstrzygnięty |
+| E5 step 96 bodies (ms), n=5 | 0.967 | -0.0191 | 0.0654 | nierozstrzygnięty |
+
+A/A: `work/v11-measure/aa/summary.txt`, ten sam kod E0 po obu stronach.
+Suma obu IQR jest tu jawną, proponowaną interpretacją rozrzutu A/A
+dla tej samej metryki, nie potwierdzoną granicą regresji ani formalnie
+zaakceptowanym progiem. Wartości ujemne różnicy oznaczają krótszy czas.
+
+Zgodnie z przekazaną instrukcją decyzja należy do użytkownika:
+czy przyjąć kryterium praktyczne: mediana po <= 1,05x mediany przed,
+albo dodatnia różnica median nie większa niż suma IQR obu wariantów A/A?
+Do czasu decyzji punkt 7 pozostaje otwarty. Duży IQR, także przy
+mediana <= 1,05x, nie daje PASS według pierwotnego protokołu.
+B2 (feeling, czytelność, płynność podczas zwykłej gry) również pozostaje
+do oceny człowieka. Próba dwóch widoków nie jest funkcją w menu.
