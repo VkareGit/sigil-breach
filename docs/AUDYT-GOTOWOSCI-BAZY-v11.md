@@ -6,11 +6,11 @@ Data: 27 października 2026. Audytowany kod: `7a4787c`, po poprawkach Claude'a z
 
 **Projekt ma solidną strukturę do stopniowego dodawania broni, demonów, ataków, efektów i map w obrębie obecnego modelu gry. Nie wymaga kolejnej masowej przebudowy architektury. Nie nazwałbym jednak obecnego stanu bezwarunkowo domkniętą bazą.**
 
-W dodatkowych reprodukcjach znalazłem trzy konkretne luki: utratę wejścia drugiego aktora przy dzieleniu większego kroku czasu, niepełną walidację strategii AI oraz utratę sprawcy okresowego efektu demona. To poprawki lokalnych kontraktów. Nie unieważniają wykonanej pracy v10/v11, ale należy je zamknąć, zanim uznamy te kontrakty za wzorzec dla nowej zawartości.
+W pierwszej części reprodukcji znalazłem trzy konkretne luki: utratę wejścia drugiego aktora przy dzieleniu większego kroku czasu, niepełną walidację strategii AI oraz utratę sprawcy okresowego efektu demona. Następnie zweryfikowałem dodatkowy przegląd Claude'a i odtworzyłem sześć dalszych problemów, opisanych w sekcji 10 — w tym zależność replaya od pliku rekordu i zapis podczas odtwarzania. To poprawki lokalnych kontraktów. Nie unieważniają wykonanej pracy v10/v11, ale należy je zamknąć, zanim uznamy te kontrakty za wzorzec dla nowej zawartości.
 
 Odrębnie pozostają odbiór płynności i feelingu oraz nierozstrzygnięte kryterium regresji wydajności z punktu 7 v11. Testy potwierdzają wiele własności kodu; nie potwierdzają, że strzelanie jest satysfakcjonujące. Nie ma też podstaw do deklaracji stałych 60 FPS.
 
-**Rekomendacja:** trzy ograniczone naprawy z testami, domknięcie pomiaru i odbiór normalnej gry; następnie rozwój małymi, kompletnymi rozszerzeniami. Nie proponuję kolejnego wielkiego „fundamentu v12” ani przygotowania całego przyszłego świata przed dodaniem pierwszej nowej broni.
+**Rekomendacja:** ograniczony pakiet napraw z obu części audytu, domknięcie pomiaru i odbiór normalnej gry; następnie rozwój małymi, kompletnymi rozszerzeniami. Nie proponuję kolejnego wielkiego „fundamentu v12” ani przygotowania całego przyszłego świata przed dodaniem pierwszej nowej broni.
 
 ## 1. Co sprawdzono i co zostało już wykonane
 
@@ -185,12 +185,15 @@ Przykład istotny dla przyszłych broni: checkpoint `run_save` zachowuje z ekwip
 
 Przed nazwaniem bazy domkniętą:
 
-1. Naprawić A — źródło efektu okresowego — i dodać testy właściciela, śmierci źródła oraz odtworzenia.
-2. Naprawić B — wejście w podkrokach — i udowodnić równoważny ruch dwóch aktorów bez wielokrotnego wykonania przycisków jednorazowych.
-3. Naprawić C — walidację strategii AI — bez zmiany zachowania istniejących demonów.
-4. Wykonać pełne All na końcowych, stabilnych źródłach. Zachować referencje i nie poprawiać golden po to, żeby ukryć zmianę mechaniki. Rendery/HUD mają pozostać zgodne.
-5. Domknąć punkt 7 uczciwym wynikiem par przed/po lub jawną decyzją o udokumentowanym odstępstwie. Równolegle ocenić kwantyle i zacięcia zwykłej gry; nie redukować płynności do mediany.
-6. Przeprowadzić B2 na obecnym poligonie. Oddzielić konkretne uwagi gracza o strzelaniu, ruchu i czytelności od wyników automatycznych.
+1. Odizolować plik rekordu i zapis postępu od replaya — szczegóły w sekcji 10. Wynik ma być powtarzalny także po zmianie danych na dysku; odtwarzanie nie może zapisywać postępu.
+2. Naprawić A — źródło efektu okresowego — i dodać testy właściciela, śmierci źródła oraz odtworzenia. Poprawić również rozpoznanie właściciela w raporcie ładunku, nie zmieniając przy okazji zasad obrażeń sojuszniczych.
+3. Naprawić B — wejście w podkrokach — i udowodnić równoważny ruch dwóch aktorów bez wielokrotnego wykonania przycisków jednorazowych.
+4. Naprawić C — walidację strategii AI — bez zmiany zachowania istniejących demonów.
+5. Uszczelnić pochylenie po trafieniu, niezależność buforów geometrii i unieważnianie obserwacji po teleportacji. Testy mają używać także publicznych poleceń bez ochrony ze strony aplikacji.
+6. Poprawić źródło danych stożka śrutu, aktualność instrukcji oraz jawnie rozdzielić rejestrację nowego ID od zamierzonego zastąpienia wpisu. Nie projektować nowego HUD-u.
+7. Wykonać pełne All na końcowych, stabilnych źródłach. Zachować referencje i nie poprawiać golden po to, żeby ukryć zmianę mechaniki. Wyjątki wynikające z napraw muszą mieć osobny dowód; np. poprawny stożek z glifem zmieni swój rozstaw, ale nie układ i styl HUD-u.
+8. Domknąć punkt 7 uczciwym wynikiem par przed/po lub jawną decyzją o udokumentowanym odstępstwie. Równolegle ocenić kwantyle i zacięcia zwykłej gry; nie redukować płynności do mediany.
+9. Przeprowadzić B2 na obecnym poligonie. Oddzielić konkretne uwagi gracza o strzelaniu, ruchu i czytelności od wyników automatycznych.
 
 Po tym proponuję **jeden mały pionowy etap zawartości**, a nie od razu dziewięć kręgów: jedna broń lub jeden demon obejmujący definicję, animację, kontakt, feedback, zapis i test. To praktyczne potwierdzenie, że autor nie musi dopisywać wyjątków w kilkunastu rdzeniowych modułach. Jeśli musi — poprawić ten punkt rozszerzenia na podstawie konkretnego przypadku.
 
@@ -212,3 +215,52 @@ Nie wymaga to produkcyjnego split-screenu, sieci, pełnego 3D ani dowolnego syst
 Najważniejsze zmiany architektoniczne są już wykonane. Pozostałe potwierdzone problemy mają mały, określony zakres. Po ich naprawie i uczciwym odbiorze wydajności/feelingu rozsądniej będzie rozwijać zawartość na istniejących kontraktach niż ponownie projektować całą bazę od początku.
 
 W trakcie tej drugiej, audytowej części zadania nie zmieniono plików gry. Nie zmieniono także `docs/podrecznik-codex/`, grafiki, HUD-u ani zawartości menu.
+
+## 10. Weryfikacja dodatkowego przeglądu Claude'a
+
+Uzupełnienie z 27 października 2026, na niezmienionym kodzie gry z `7a4787c`. Przed przeglądem potwierdzono, że poprzednie zmiany i raport były już zapisane (`7a4787c`, `3157139`). Nie było nowych zmian runtime do commitowania.
+
+**Ogólny wniosek Claude'a jest trafny, ale jego końcowa lista „trzy luki + pochylenie” jest za krótka.** Pomija własne istotne znaleziska z odtwarzaniem i efektami ubocznymi. Należy zamknąć te kontrakty, nie tylko zakwalifikować je jako temat przyszłej przeglądarki replayów. Rozszerzony zakres napraw jest ujęty w sekcji 8.
+
+### Reprodukcje dodatkowych problemów
+
+W osobnym headless procesie LÖVE wykonano sześć reprodukcji. Odczyt rekordu i zapis wyprawy zastąpiono funkcjami testowymi w pamięci procesu; nie zmieniano zapisów użytkownika ani źródeł gry. Dowody: `work/v11-claude-review-20261027/probes/main.lua`, `review.stdout.txt` i `review.evidence.json`. Odcisk źródeł przed/po pozostał taki sam jak wyżej. To lokalne, ignorowane przez Git materiały audytu, nie nowe testy zarejestrowane w All.
+
+| Przypadek | Wynik reprodukcji | Ocena |
+|---|---|---|
+| `classic`: zakończenie przez rzeczywiste `Game:interact`, zapis i replay | Podstawiony rekord 1000 podczas nagrania, 2000 podczas replaya. Błąd końcowy: `modeData["bestScore"]: expected 1000, got 2000` | Potwierdzony problem także w jednoosobowej sesji; `testing=true` blokuje zapis, ale nie ten odczyt |
+| Wyprawa: odtworzenie nagranego `start` | `Journal.replay` wywołał `run_save.write` jeden raz; testowy zapis niczego nie zapisywał na dysk | Odtwarzanie nie ma własnej gwarancji braku zapisów; poleganie na ustawieniu `testing` przez wywołującego jest za słabe |
+| Ten sam kontakt i kierunek impulsu, sterowany rycerz po przeciwnej stronie | `flinchSide` zmieniło się z 1 na -1, `flinchLeanV` z -0,1875 na +0,1875 | Źródło pochylenia zależy od sterowanego rycerza, mimo niezmienionego kontaktu |
+| `B.prepare` dla dwóch obserwatorów, osobne tablice wyników, testowy demon `hit='volumes'` | Wewnętrzna tablica brył jest wspólna; x bryły pierwszego wyniku zmieniło się z 16,655527 na 15,344473 po drugim przygotowaniu | Potwierdzony alias bufora; nie dotyczy obecnych malowanych demonów |
+| Ładunek rycerza B; A poza zasięgiem, B w wybuchu | B traci 45 HP, `explosionReport.selfDamage=0` | Błędny raport właściciela; nie oznacza utraty `b.owner` w całej obsłudze wybuchu |
+| Publiczne `Game:act('catalog', 'field_seal_…')` | Pozycja zmieniona, generacje obserwacji bez zmiany; `Game:shoot` zaakceptował komendę z obserwacją sprzed teleportacji | Unieważnienie musi należeć do teleportacji, nie tylko do przejścia ekranu aplikacji |
+
+**I/O i deterministyczność.** Źródła: [run/classic.lua](../game/src/run/classic.lua), `finish`; [run/descent.lua](../game/src/run/descent.lua), `save`; [session/journal.lua](../game/src/session/journal.lua), `replay`. Wynik aktualnej walki powinien być deterministyczny, a trwały rekord profilu obsługiwany przez właściciela I/O. Jeśli zewnętrzny rekord ma należeć do odtwarzanego stanu, trzeba jawnie utrwalić go jako wejście. Replay powinien mieć własną politykę zakazującą trwałych zapisów, również przy błędzie; nie wystarczy wymagać od przyszłego UI pamiętania o fladze testów. Test odbiorczy: różne dane profilu na dysku, ten sam wynik symulacji, zero wywołań trwałego zapisu w replayu.
+
+**Pochylenie.** Źródła: [combat/rules/hit_response.lua](../game/src/combat/rules/hit_response.lua), końcówka `R.react`; [enemies/animation.lua](../game/src/enemies/animation.lua), dodanie `flinchLean` do pozy. To nie jest wyłącznie kosmetyka, bo wspólna poza wpływa na powierzchnię trafienia. Poprawka powinna określić przestrzeń reakcji: kontakt/kierunek i sprawca są danymi świata, a ich przedstawienie zależy od obserwatora. Samo zastąpienie „sterowany” przez „strzelec” bez sprawdzenia obu widoków może pozostawić inny wariant tego samego problemu.
+
+**Bryły.** Źródła: [enemies/geometry.lua](../game/src/enemies/geometry.lua), `cache[e]`; [combat/ballistics.lua](../game/src/combat/ballistics.lua), `prepare`. Kontrakt osobnych tablic `into` jest pozorny dla wewnętrznych brył. Powinny należeć do konkretnego przygotowanego wyniku lub mieć jawnie krótką żywotność, której konsumenci przestrzegają. Ważne doprecyzowanie: `Observation.capture` już kopiuje bryły, więc drugi widok nie nadpisuje automatycznie wcześniej utrwalonej obserwacji strzału. Obecny katalog `hit_volumes` jest pusty.
+
+**Ładunek.** Źródło: [combat/explosives.lua](../game/src/combat/explosives.lua), `explode`. Start zapisuje `owner=p.id`, a obrażenia demonów dostają poprawne `b.owner`. Błędny wybór `Bodies.controlled(g)` dotyczy `thrower` przy rozliczeniu rycerzy i raportu `selfDamage`. Wszystkie obrażenia rycerzy są ponadto oznaczane etykietą `'self'`; jej znaczenie dla uniku i trafień sojuszniczych należy ustalić jawnie. Nie należy opisywać tego jako błędnego przypisania wszystkich zabójstw ładunkiem.
+
+**Teleport.** Źródło: [run/field/visits.lua](../game/src/run/field/visits.lua), `seal`. Podniesienie generacji obserwacji i unieważnienie powiązanych buforowanych komend powinno następować przy faktycznej zmianie miejsca, z testem wywołania przez publiczne API. Reset poligonu ma własną ochronę; ten wynik dotyczy odwiedzenia pieczęci.
+
+### Pozostałe uwagi: prawdziwe, ale wymagające właściwego zakresu
+
+- **Zapasy i sanktuarium:** odczytują sterowanego rycerza. To ograniczenie interakcji, nie dowód niesprawnego ruchu czy strzelania drugiego aktora. Przy rozwoju należy jawnie wskazać wykonującego interakcję i zasady wspólnych zasobów. Nie trzeba przy tym dodawać split-screenu do menu.
+- **Czyszczenie efektów:** `Encounter.clearWorld` usuwa `effectState` tylko sterowanego. `clearStage`, używane przy rozpoczęciu fali, jest inną funkcją. Nie należy utożsamiać tych cykli życia. Warto przetestować pełny reset i nową falę osobno, dla wszystkich aktorów, zgodnie z ustaloną regułą trwania efektu.
+- **Rycerz–rycerz:** brak obsługi kolizji między nimi potwierdza zakres implementacji. Czy sojusznicy mają się blokować, to reguła gry, a nie automatycznie błąd matematyki. Trzeba ją określić przed dodaniem towarzyszy/kooperacji; nie zmieniać po cichu pod pretekstem refaktoru.
+- **SIGIL09:** zapis rodzaju `session` obejmuje sekcje mapy i pul, nie pełny dowolny moment rozgrywki. To nie jest snapshot ani checkpoint wyprawy. Nie potwierdzałem w tym uzupełnieniu identycznego zakresu w wydaniu 0.33. Potrzebny jest uczciwy opis zakresu, a kompletne wznawianie w środku walki wymaga dodatkowych sekcji i testów.
+- **Stożek śrutu:** oba rysowania HUD-u używają `Weapons.spread(g, nil, actor)`, a strzał `Loadout.spread`, które uwzględnia modyfikator trybu. Dla `choke` dane mają mnożnik 0,72. Ujednolicenie odczytu usunie rozbieżność; nie wymaga zmiany stylu ani kompozycji interfejsu.
+- **Duplikaty ID:** `Registry.register` rzeczywiście zastępuje istniejący wpis. To zachowanie API, a nie przypadkowa korupcja. Bezpieczniejszy kontrakt to osobna, jawna operacja zastąpienia oraz odrzucenie przypadkowego duplikatu. Trzeba jednak zachować zamierzone przypadki podmiany w narzędziach i testach.
+- **Instrukcja:** nagłówek `INSTRUKCJA.txt` nadal wskazuje Foundation 0.33, a odniesienie do bieżącego planu wymaga aktualizacji.
+- **Liczby testów:** 119 plików w `tests/cases` potwierdzone. „Prawie 1900” nie jest licznikiem całego bieżącego All: ostatni pełny przebieg ma 4288 sprawdzeń mechaniki/zasobów i 36 wejścia. Liczby należy porównywać w tym samym zakresie. Nie traktuję liczby asercji jako dowodu jakości wszystkich testów.
+- **Sekrety:** w tym zadaniu nie przeprowadzałem pełnego skanowania sekretów ani historii Git. Nie powtarzam ogólnego zapewnienia o ich braku jako własnego wyniku audytu.
+
+### Wydajność i kolejność dalszych prac
+
+Nowe „A/A **i** p95 ≤ 16,7 ms” jest logicznie lepsze od wcześniejszego „lub”, ale sam szeroki rozrzut A/A nadal nie stanowi dowodu braku regresji. Przy niestabilnym pomiarze wynik powinien pozostać nierozstrzygnięty. Próg absolutny p95 i względna regresja odpowiadają na inne pytania; p95 nie wyklucza zacięć ogona rozkładu.
+
+Przypuszczenie o GC nie jest jeszcze ustaleniem. Potrzebne jest powiązanie wolnych klatek z alokacjami/GC oraz czasem symulacji, renderowania i oczekiwania na GPU. Bez tego nie należy zmieniać ustawień odśmiecania ani nazywać ich przyczyną. W tej części nie powtarzano pełnych benchmarków, ponieważ źródła gry nie zmieniły się.
+
+Po naprawach kolejna broń lub demon jako kompletny, mały etap rzeczywiście będzie lepszym sprawdzianem rozszerzalności niż kolejna duża reorganizacja. Nie rekomenduję jednak zaczynać tego etapu po samych czterech poprawkach wymienionych w zakończeniu Claude'a, pozostawiając potwierdzone problemy replaya i trwałych zapisów bez rozwiązania.
