@@ -41,11 +41,15 @@
 -- 2026-10-28: one-stock bosses, observed-velocity lead and physical horn thrusts.
 -- Old creature/sheet data on the current engine reproduces 6/6 old hashes:
 -- work/basilica-duel/golden/content-attribution.csv. v033 fixtures unchanged.
+-- 2026-10-28: denser faster ash fan / spear and committed ground prediction
+-- for the larger public halls. Restoring ONLY 63f6a85 creature/sheet content
+-- reproduces 6/6 former digests on this engine:
+-- work/basilica-duel/majestic-golden/content-attribution.csv.
 return {
-  playtest = '6869e6e8/827ed232',
-  human = '0fea9e67/f9a39de8',
+  playtest = 'a4c51064/827ed232',
+  human = '9a9c8b3e/3fe2a5e3',
   drill = '4d10e68a/d2882200',
   playtestContacts = '12c5a2a1/422',
-  humanContacts = '0745020f/738',
+  humanContacts = 'b51abe2b/739',
   drillContacts = '63c4ba22/193',
 }
