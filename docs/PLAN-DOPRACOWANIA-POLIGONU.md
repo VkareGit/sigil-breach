@@ -765,3 +765,31 @@ spójność nazw, rytm, brak mutacji), 556 plików / zero problemów architektur
 Pełny eksport wszystkich 52 efektów i pięciu warstw muzyki zakończony;
 nowe próbki mają skończone wartości i szczyty poniżej 1. Raporty i WAV:
 `work/basilica-duel/audio-export/`. Eksport nie zastępuje odsłuchu gracza.
+
+## Punkt 7 — zatwierdzone nisze i spójna oprawa komnat
+
+Użytkownik zaakceptował pokazany moduł loculi. Jedyny nowy PNG:
+`assets/art/catacomb-loculi-fresco.png`, wygenerowany narzędziem imagegen
+28.10.2026 i skopiowany bez retuszu pikseli. To autorska dekoracja inspirowana
+układem grobów katakumb, nie kopia historycznej pieczęci. Nie podmieniono
+żadnego dotychczasowego pliku graficznego. Oryginalne pieczęcie Goetii,
+modele, ręce, broń, portret i HUD zachowane.
+
+Mapa ma niskie, boczne galerie grobowe połączone z komorami testów. Nawa
+pozostaje czytelna, kaplice bossów mają wolny środek i dotychczasowy obwód
+malowanego ognia. Nisze leżą w polach ścian, nie w drzwiach. `mural.art`
+odwołuje się do nazwanego zasobu w `content/art/environment.lua`; nowe
+malowidło nie wymaga nowej gałęzi renderera. Zasób jest ładowany przed grą,
+ma właściciela Resources, filtrowanie i mipmapy. To płaskie malowidło na
+ścianie, nie otwór, do którego wolno wejść ani osobna bryła trafień.
+
+Weryfikacja: 91 testów komnat, w tym dojście do obu galerii, strop 3 m,
+rzeczywista osłona, odrzucenie nieznanej grafiki; 557 plików / zero naruszeń
+architektury. Przegląd rendererem `--ritual-review`: nawa, sklepienie,
+obie galerie, ołtarze, wszystkie nowe ataki i zakończenia, 960×540 oraz
+1024×768. Obejrzano PNG nawy, zachodniej galerii i areny Margrave'a;
+`work/basilica-duel/review-final/`. Każde ujęcie sprawdza brak mutacji
+symulacji przez rysowanie. Nowa topologia zachowuje testy presji; w próbie
+reaktywnej Margrave'a pozostało 90,1 HP / 27,9 ward (zamiast wcześniejszych
+100/40), obie próby reaktywne nadal przeżywają 30 s. To nie jest ostateczny
+odbiór balansu.

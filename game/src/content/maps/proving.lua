@@ -18,6 +18,8 @@ local map = {
     { 20, 2, 24, 8 }, -- smaller creature chapels
     { 12, 6, 14, 8 },
     { 18, 6, 20, 8 },
+    { 5, 3, 8, 8 }, -- lower burial galleries, reached from the creature chambers
+    { 24, 3, 27, 8 },
   },
   pillars = {},
   elevations = {
@@ -71,6 +73,8 @@ local map = {
     { 23, 7 },
     { 14, 4 },
     { 18, 4 },
+    { 6.7, 7.7 },
+    { 25.3, 7.7 },
   },
   lampHeight = 1.18,
   emberClear = 2,
@@ -118,6 +122,26 @@ local map = {
     },
   },
 }
+-- Loculi repeat by bay, not across doors or around the combatant's feet.
+for _, bay in ipairs({
+  { 4.58, 4.3, math.pi / 2 },
+  { 4.58, 7.0, math.pi / 2 },
+  { 27.42, 4.3, -math.pi / 2 },
+  { 27.42, 7.0, -math.pi / 2 },
+  { 10.58, 12.5, math.pi / 2 },
+  { 21.42, 12.5, -math.pi / 2 },
+  { 10.58, 21.5, math.pi / 2 },
+  { 21.42, 21.5, -math.pi / 2 },
+}) do
+  map.decor.murals[#map.decor.murals + 1] = {
+    art = 'catacomb_loculi',
+    x = bay[1],
+    z = bay[2],
+    yaw = bay[3],
+    y = 0.18,
+    size = 2.65,
+  }
+end
 -- Four repeated bays, no free-standing obstacles in either duel centre.
 for _, x in ipairs({ 12, 20 }) do
   for _, z in ipairs({ 10, 15, 20, 25, 30 }) do
@@ -165,6 +189,8 @@ for z = 1, map.size do
         bottom = 4.9 + 1.5 * math.sqrt(1 - edge * edge)
       elseif x >= 14 and x <= 18 and z >= 3 and z <= 8 then
         bottom = 5.2
+      elseif (x <= 7 or x >= 25) and z <= 8 then
+        bottom = 3.0
       end
       -- Adjacent cells of equal underside are one solid, not one draw/cast
       -- candidate per tile. Shape and silhouette are exactly the same.

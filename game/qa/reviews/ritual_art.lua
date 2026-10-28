@@ -82,6 +82,9 @@ function Review.run(Game, renderer, output)
   capture('11-basilica-presbytery', 16, 11, 16, 1.8, 3)
   capture('11-basilica-reverse', 16, 9, 16, 3.2, 26)
   capture('11-basilica-nave-small', 16, 27.5, 16, 2.8, 14, 960, 540)
+  capture('11-catacomb-west', 7.5, 7.7, 4.6, 1.5, 4.5)
+  capture('11-catacomb-east', 24.5, 7.7, 27.4, 1.5, 4.5)
+  capture('11-loculi-aisle', 13.2, 22.2, 10.6, 1.5, 21.5)
   for _, id in ipairs({ 'ash', 'storm' }) do
     g:act('catalog', 'field_chamber_' .. id)
     g.testField.invincible = true -- art inspection only, live entry is mortal

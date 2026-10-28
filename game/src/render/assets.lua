@@ -18,6 +18,9 @@ function A.load(r)
   r.shrineImage, r.shrineFeet, r.shrineFrames =
     Atlas.load('assets/art/shrine-fresco-v12.png', 4, 1, nil, nil, r.resources)
   r.frescoes = r.resources:image('assets/art/murals-fresco-v12.png', { filter = 'linear' })
+  for _, entry in pairs(require('src.content.art.environment')) do
+    r.resources:image(entry.path, entry)
+  end
   require('src.render.fresco_effects').load(r)
 end
 return A

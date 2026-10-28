@@ -95,6 +95,18 @@ function Tests.run(Game)
     not W.visible(g.world, 7, 12, 16, 12) and W.visible(g.world, 7, 17, 16, 17)
   )
   local Ground = require('src.physics.ground')
+  for _, x in ipairs({ 6, 26 }) do
+    check(
+      'burial gallery is reachable and lower than nave ' .. x,
+      seen[key(x, 5)] and Ground.ceiling(g.world, x, 5, 1.7) == 3
+    )
+  end
+  local invalidArt = Schema.copy(Maps:get('proving'))
+  invalidArt.decor.murals[1].art = 'missing-panel'
+  check(
+    'unknown environment artwork rejected before rendering',
+    not pcall(require('src.content.maps.schema').check, invalidArt, 'invalid-art')
+  )
   local Ballistics = require('src.combat.ballistics')
   for _, location in ipairs({ { 16, 25 }, { 7, 16 }, { 25, 16 }, { 10, 5 }, { 22, 5 } }) do
     local x, z = location[1], location[2]

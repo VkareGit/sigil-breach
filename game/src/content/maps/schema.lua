@@ -266,7 +266,12 @@ function Schema.check(map, id)
     assert(banner.side == 1 or banner.side == -1, label .. '.banner.side must be -1 or 1')
   end
   for _, mural in ipairs(decor.murals or {}) do
-    integer(mural.frame, label .. '.mural.frame', 1, 4)
+    if mural.art then
+      assert(require('src.content.art.environment')[mural.art], label .. '.mural.art is unknown')
+      assert(mural.frame == nil, label .. '.mural cannot combine art and frame')
+    else
+      integer(mural.frame, label .. '.mural.frame', 1, 4)
+    end
     positive(mural.size, label .. '.mural.size')
     number(mural.y, label .. '.mural.y')
     number(mural.yaw, label .. '.mural.yaw')

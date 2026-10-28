@@ -18,6 +18,7 @@ local Queries = require('src.run.queries')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Art = {}
+local Environment = require('src.content.art.environment')
 local UNIT = { 1, 1 }
 local SPARK = { 1, 0.5, 0.1 }
 local function rects(cols, rows, padX, padY)
@@ -71,15 +72,16 @@ function Art.prop(r, g, frame, x, y, z, scale, bright)
   s:send('brightness', bright or 0.9)
   love.graphics.draw(r.sprite)
 end
-function Art.mural(r, frame, x, y, z, yaw, size)
+function Art.mural(r, frame, x, y, z, yaw, size, art)
   local s = r.spriteShader
-  r.sprite:setTexture(r.frescoes)
+  local entry = art and Environment[art]
+  r.sprite:setTexture(entry and r.resources:image(entry.path, entry) or r.frescoes)
   s:send('silhouette', 0)
   s:send('spriteStretch', UNIT)
   s:send('effectAlpha', 1)
   s:send('soft', 0)
   s:send('mirror', 0)
-  s:send('frameRect', MURAL_RECTS[frame])
+  s:send('frameRect', entry and entry.rect or MURAL_RECTS[frame])
   s:send('objectPos', r:vec3(x, y, z))
   s:send('objectYaw', yaw)
   s:send('objectScale', size)
@@ -293,7 +295,8 @@ WorldObjects.register('mural', {
           Ground.of(g.world, mural) + mural.y,
           mural.z,
           mural.yaw,
-          mural.size
+          mural.size,
+          mural.art
         )
       end
     end,
