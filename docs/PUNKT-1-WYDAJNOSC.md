@@ -147,3 +147,51 @@ Oszczędność nie pochodzi ze zmiany tekstur, HUD-u ani jakości cieni.
 Kontrola obejmuje powrót do lamp, przekroczenie limitu cache, odtworzenie
 wyrzuconego kafelka, porzucenie zasobów oraz awarię tworzenia mapy stropu
 i ponowienie przygotowania bez oznaczenia niepełnej rewizji jako gotowej.
+
+### Końcowe A/B tej samej treści: 44f4060 → 3a35b56
+
+Pięć par w naprzemiennej kolejności, kopie źródeł poza katalogiem gry,
+te same assety i definicje mapy/ataków; protokół MEASURE bez zmiany progów.
+Wyniki: `work/basilica-duel/cache-perf/results/summary.txt`.
+
+| Scena | Przed mediana [ms] | Po mediana [ms] | Wynik |
+|---|---:|---:|---|
+| 20 ciał, nieruchome efekty | 5,7895 | 5,7245 | NO REGRESSION |
+| 4 ciała, nieruchome efekty | 3,8210 | 4,0273 | INCONCLUSIVE |
+| 20 ciał, żywa walka, pełna klatka | 8,2016 | 8,6236 | INCONCLUSIVE |
+| 20 ciał, sam krok | 0,1649 | 0,1673 | INCONCLUSIVE |
+
+Żywa walka ma +5,1% mediany, lecz różnica mieści się w sumie IQR.
+Zmiana nie dotyka symulacji; w kroku też widać rozrzut pomiaru. To nie
+uprawnia do zaliczenia bramki: protokół traktuje nierozstrzygnięty wynik
+jako brak zamknięcia regresji. Nie powtarzano pomiaru aż do trafienia
+korzystnego zestawu ani nie poluzowano kryterium.
+
+Rzeczywiste publiczne sale z tego samego pełnego benchmarku, pięć przebiegów
+po 540 klatek (mediana median; zakres p95; najgorsza pojedyncza klatka):
+
+| Scena po zmianie | Mediana [ms] | p95 [ms] | Najgorsza [ms] |
+|---|---:|---:|---:|
+| Jeden Margrabia | 5,81 | 9,23–9,49 | 38,76 |
+| Trzech Furfurów | 5,91 | 10,29–11,56 | 19,05 |
+| Przygotowany tłum 20 | 8,62 | 15,05–18,11 | 28,81 |
+
+Przed cache najgorsza klatka publicznego Margrabiego miała 171,40 ms;
+po nim 38,76 ms. Pozostałych skoków nie przypisujemy bez dowodu samemu GC.
+P95 sal mieści się w budżecie 60 FPS, lecz outliery i cięższy tłum nadal
+pozostają ograniczeniem. Pomiar kończy się na readback, nie desktopowym
+present; nie jest testem opóźnienia wejścia.
+
+W pełnym benchmarku historyczne pole `first_field_world_draw...` wywołuje
+renderer bez aplikacyjnego LoadPlan i nadal może obejmować wypiekanie świata.
+Nie opisuje ścieżki użytkownika po tej zmianie. Jej osobnym pomiarem jest
+pełny `startup-check` przez Application: ostatnio katalog 10,590 ms,
+gra 12,850 ms, bez odroczonych obrazów, 63 kroki / 2488,387 ms do gotowości.
+
+Pełna kontrola `--resource-plateau`, osiem cykli menu/poligon/drugi widok/
+replay/wyprawa/zwolnienie, przeszła. Liczba obrazów, canvas i bajtów GPU
+nie rośnie ponad pierwszy rozgrzany cykl. Po pojedynczym końcowym usunięciu
+śladów JIT pozostało zero sesji/dzienników/aplikacji utrzymywanych przez
+badane korzenie. Rozrzut sterty ostatnich trzech cykli to 2024,395 KiB;
+nie użyto arbitralnego progu RAM. Dowody:
+`work/basilica-duel/resource-final/`, źródła stabilne, kod wyjścia 0.

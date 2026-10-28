@@ -13,11 +13,15 @@ Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Uż
 | 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
-| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Commit 1b97658 i 006a6ff; ponowna korekta odbioru 28 października do próby gracza |
-| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Commit f3ff4f2; korekta kaplic 28 października do próby razem z walką |
-| 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
-| 7 | Osobny rozwój nowych grafik, animacji i modeli, podglądy przed podmianą | Przywrócony przez użytkownika 28 października; po audio |
-| 8 | Pełny sprawdzian rozszerzenia: boss, komnata, reset, replay, wydajność i odbiór w dłuższej grze | Oczekuje |
+| 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060; presja/replay sprawdzone; ludzki odbiór do próby |
+| 5 | Nawa, dwie monumentalne sale pojedynków, absydy, krypty, stanowiska mapy i aktywny obwód ognia | bca9642; dojścia, osłony, reset, przywołania i rendery sprawdzone |
+| 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b; testy i pełny eksport zakończone; odsłuch gracza do wykonania |
+| 7 | Zatwierdzone nisze, oprawa nowych ataków na istniejących klatkach, zachowanie bazowych modeli i HUD-u | 9449bb3 oraz istniejące efekty/pozy; bez nowych gatunków i podmiany bazowych PNG |
+| 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56; testy integracji zaliczone, pełne A/B w raporcie; stara regresja E0 pozostaje odrębnym otwartym kryterium |
+
+Opisy niżej zachowują historię kolejnych korekt. Bieżący stan i granice
+odbioru opisuje [raport końcowy tego etapu](RAPORT-POLIGON-2026-10.md),
+a samodzielne zmiany [poradnik](PORADNIK-POLIGON-WALKA-2026-10.md).
 
 ## Zakres punktu 1
 
