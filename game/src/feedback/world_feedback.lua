@@ -24,11 +24,27 @@ World.handlers = {
   end,
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
-    A.playAt(sounds(e).windup or 'growl', e.x, e.z, Context.viewer(g), 0.7)
+    A.playAt(
+      ev.attack.windupSound or sounds(e).windup or 'growl',
+      e.x,
+      e.z,
+      Context.viewer(g),
+      0.7,
+      3,
+      g.world
+    )
   end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
-    A.playAt(ev.attack.sound or sounds(e).strike or 'cast', e.x, e.z, Context.viewer(g), 0.65)
+    A.playAt(
+      ev.attack.sound or sounds(e).strike or 'cast',
+      e.x,
+      e.z,
+      Context.viewer(g),
+      0.65,
+      2,
+      g.world
+    )
   end,
   ChargeBlocked = function(g, ev)
     A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.5)
@@ -115,6 +131,15 @@ World.handlers = {
   ProjectileBurst = function(g, ev)
     local b = ev.bullet
     g:burst(b.x, b.y, b.z, b.color or K.boltColor, 6, 1.2)
+    A.playAt(
+      b.packet and b.packet.damageType == 'fire' and 'ember_impact' or 'hit',
+      b.x,
+      b.z,
+      Context.viewer(g),
+      0.23,
+      1,
+      g.world
+    )
   end,
   -- A reload stage sounds as its mechanism's voice for it (the breech's
   -- lever and shells, the cylinder's crane and ratchet).

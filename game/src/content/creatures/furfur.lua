@@ -48,7 +48,7 @@ return Creature.boss({
     aimY = 1.55,
   },
   move = { speed = 4.2, accel = 24, style = 'flank' },
-  sounds = { alert = 'growl', windup = 'growl', strike = 'antler' },
+  sounds = { step = 'heavy_step', alert = 'growl', windup = 'growl', strike = 'antler' },
   tactics = {
     repeatPenalty = 0.2,
     moves = {
@@ -86,6 +86,7 @@ return Creature.boss({
     charge,
     Action.strike({
       id = 'lightning',
+      windupSound = 'storm_warning',
       rest = 3.4,
       range = 11,
       windup = 0.72,
@@ -102,6 +103,7 @@ return Creature.boss({
     -- centre again after the first bolt. No repeated tracking of the knight.
     Action.pattern({
       id = 'tempest-cross',
+      windupSound = 'storm_warning',
       range = 11,
       windup = 0.7,
       duration = 0.65,

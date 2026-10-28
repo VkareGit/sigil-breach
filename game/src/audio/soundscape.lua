@@ -7,6 +7,7 @@ local Score = require('src.audio.score')
 local Queries = require('src.run.queries')
 local S = { intensity = 0, music = 0.65, layers = {}, gains = {}, sources = {} }
 local floor = math.floor
+local duckRates = { rise = 2.5, fall = 18 }
 
 -- A note's frequency: 'Bb1', 'D3'...
 function S.pitch(name)
@@ -231,6 +232,7 @@ function S.release()
     source:release()
   end
   S.layers, S.gains, S.sources, S.intensity = {}, {}, {}, 0
+  S.duck = 1
 end
 function S.init(checkpoint)
   S.release()
@@ -267,6 +269,12 @@ function S.mood(g)
     if world.guardianSpawned and not world.guardianDead then
       return 'guardian'
     end
+    -- Public chamber trials do not set expedition guardian flags.
+    for _, e in ipairs(require('src.session.world').of(g, 'enemies')) do
+      if e.hp > 0 and e.boss and e.awake then
+        return 'guardian'
+      end
+    end
     return 'battle'
   end
   return Score.states[g.state] or 'rest'
@@ -286,17 +294,19 @@ local function follow(value, target, dt, rates)
   return value + (target - value) * math.min(1, dt * rate)
 end
 
-function S.update(_, dt, g)
+function S.update(audio, dt, g)
   local mood = S.mood(g)
   local danger = Score.danger
   local target = mood == 'battle' and math.min(1, (g.threat or 0) / danger.full) or 0
   S.intensity = follow(S.intensity, target, dt, danger)
+  local duck = audio and (audio.warningHold or 0) > 0 and 0.48 or 1
+  S.duck = follow(S.duck or 1, duck, dt, duckRates)
   for _, layer in ipairs(Score.layers) do
     local id = layer.id
     local source = S.layers[id]
     if source then
       S.gains[id] = follow(S.gains[id], S.gain(mood, id, S.intensity), dt, Score.follow)
-      source:setVolume(S.music * S.gains[id])
+      source:setVolume(S.music * S.gains[id] * S.duck)
     end
   end
 end

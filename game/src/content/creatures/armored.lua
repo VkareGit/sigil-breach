@@ -29,6 +29,7 @@ return Creature.define({
   -- wound, a head shot (72.7) does: threshold 68.
   body = { hp = 170, armor = 60, mass = 1.4, woundAt = 0.40, struck = 'metal' },
   move = { speed = 3.0, accel = 12, heavy = true },
+  sounds = { step = 'iron_step' },
   attacks = {
     -- The thrall's claw with hyperarmour (guard x2 while it attacks).
     { from = 'claw', hyper = 2, packet = packet(15, 70) },

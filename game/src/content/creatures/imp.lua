@@ -26,7 +26,7 @@ return Creature.define({
   body = { hp = 112, corpse = { settle = 0.44, landing = 0.22 } },
   -- 0.21: 4 m/s (76 % of the player) with mass-limited acceleration.
   move = { speed = 4.0, accel = 18, style = 'flank' },
-  sounds = { alert = 'snarl', windup = 'snarl', strike = 'claw' },
+  sounds = { step = 'cloven_step', alert = 'snarl', windup = 'snarl', strike = 'claw' },
   attacks = {
     Action.lunge({
       id = 'claw',

@@ -43,6 +43,7 @@ Action.common = {
   },
   hyper = { type = 'number', min = 1, desc = 'guard multiplier while winding up and striking' },
   sound = { type = 'string' },
+  windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   packet = { type = 'table', schema = Packet.schema },
 }
 -- A projectile as part of an action (bolt, pool's spit, fan orbs).

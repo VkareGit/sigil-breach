@@ -39,7 +39,7 @@ return Creature.define({
     accel = 14,
     evade = { speed = 6.5, time = 0.24, cooldown = 3.5, fromTier = 2 },
   },
-  sounds = { alert = 'owl', windup = 'owl', strike = 'cast' },
+  sounds = { step = 'wing_fold', alert = 'owl', windup = 'owl', strike = 'cast' },
   tactics = {
     moves = {
       { attack = 'star', ideal = 7, weight = 1 },

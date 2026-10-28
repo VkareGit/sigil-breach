@@ -736,3 +736,32 @@ modeli ani HUD-u. Rozwinięcie otoczenia należy do punktu 7.
 Pozostałe etapy: 6 audio → 7 efekty/otoczenie → 8 odbiór integracji i kosztu
 → praktyczny poradnik edycji. Nie nazywamy punktu 5 końcem całego zadania.
 
+
+## Punkt 6 — dźwięk walki i podziemia
+
+Wdrożono kroki z odległościowego zegara istniejącej animacji (dwa kontakty
+na cykl), osobne głosy kopyt, żelaza, ciała, ciężkiego kroku i skrzydeł.
+Wybór jest w `creature.sounds.step`; żaden wykonawca nie przełącza po nazwie
+demona. Martwe/leżące w locie ciała nie wydają kroków, jedna aktualizacja
+nie odgrywa naraz zaległych kontaktów po przycięciu. Słabe klucze prezentacji
+nie utrzymują usuniętych ciał ani opuszczonej sesji.
+
+`attack.windupSound` pozwala rozdzielić ostrzeżenie od release. Margrave ma
+niski oddech paleniska, pioruny Furfura narastający sygnał burzy. Pula nadal
+ma limit 28 aktywnych i 28 zapasowych głosów, ale odrzuca drobne efekty,
+gdy zajmują ją ważniejsze ostrzeżenia. Ostrzeżenie przycisza muzykę z szybkim
+wejściem i wolniejszym powrotem. Boss w komnacie wybiera miks strażnika,
+bez zależności od wyłączonego trybu wyprawy. Zachowano obecny chorał,
+organy, puls i dzwony zamiast dokładać drugą przypadkową muzykę.
+
+Lot pobliskiego pocisku ma krótki szelest, kontakt ognia własny odgłos;
+przeszkoda tłumi pozycjonowane kroki/zapowiedzi. To uproszczona osłona
+promieniem, nie propagacja akustyczna ani prawdziwy pogłos geometrii.
+W ciszy pod rzeczywistym stropem odzywa się rzadka kropla; nie udaje ataku.
+Dźwięki nie zużywają RNG symulacji i nie zmieniają jej stanu.
+
+Odbiór: 45 sprawdzeń audio PASS (priorytety, limity, powtórne użycie Source,
+spójność nazw, rytm, brak mutacji), 556 plików / zero problemów architektury.
+Pełny eksport wszystkich 52 efektów i pięciu warstw muzyki zakończony;
+nowe próbki mają skończone wartości i szczyty poniżej 1. Raporty i WAV:
+`work/basilica-duel/audio-export/`. Eksport nie zastępuje odsłuchu gracza.

@@ -2,7 +2,15 @@
 -- then played from a pool of voices; the score is audio/soundscape.lua.
 local Synth = require('src.audio.synth')
 local Recipes = require('src.audio.recipes')
-local A = { sources = {}, live = {}, muted = false, pool = {}, pooled = 0, voiceNames = {} }
+local A = {
+  sources = {},
+  live = {},
+  muted = false,
+  pool = {},
+  pooled = 0,
+  voiceNames = {},
+  priorities = {},
+}
 A.rate = 44100
 -- Every sound has its own seeded noise (Synth.seed of its name), so the order
 -- of rendering decides nothing and a new recipe changes no other sound.
@@ -22,6 +30,9 @@ function A.release()
     end
   end
   A.sources, A.live, A.pool, A.voiceNames, A.pooled = {}, {}, {}, {}, 0
+  A.priorities = {}
+  A.warningHold = 0
+  require('src.audio.world_cues').reset()
   require('src.audio.soundscape').release()
 end
 function A.init(checkpoint)
@@ -49,6 +60,7 @@ local function recycle(s)
   s:stop()
   local name = A.voiceNames[s]
   A.voiceNames[s] = nil
+  A.priorities[s] = nil
   if name and A.pooled < 28 then
     A.pool[name] = A.pool[name] or {}
     local list = A.pool[name]
@@ -58,12 +70,23 @@ local function recycle(s)
     s:release()
   end
 end
-function A.play(name, volume)
+function A.play(name, volume, priority)
   if A.muted or not A.sources[name] then
     return
   end
-  while #A.live >= 28 do
-    recycle(table.remove(A.live, 1))
+  priority = priority or Recipes[name].priority or 1
+  if #A.live >= 28 then
+    local victim = 1
+    for i = 2, #A.live do
+      if (A.priorities[A.live[i]] or 0) < (A.priorities[A.live[victim]] or 0) then
+        victim = i
+      end
+    end
+    -- A drip/footfall cannot steal an attack warning or the player's shot.
+    if (A.priorities[A.live[victim]] or 0) > priority then
+      return
+    end
+    recycle(table.remove(A.live, victim))
   end
   local list = A.pool[name]
   local s
@@ -74,6 +97,10 @@ function A.play(name, volume)
     s = A.sources[name]:clone()
   end
   A.voiceNames[s] = name
+  A.priorities[s] = priority
+  if priority >= 3 then
+    A.warningHold = 0.65
+  end
   s:setVolume(volume or 0.65)
   s:setPitch(1)
   s:setRelative(true)
@@ -87,10 +114,17 @@ function A.play(name, volume)
   A.live[#A.live + 1] = s
   return s
 end
-function A.playAt(name, x, z, p, volume)
+function A.playAt(name, x, z, p, volume, priority, world)
   local dx, dz = x - p.x, z - p.z
   local d = math.sqrt(dx * dx + dz * dz)
-  local s = A.play(name, (volume or 0.6) / (1 + d * 0.13))
+  if d > 32 then
+    return
+  end
+  local gain = (volume or 0.6) / (1 + d * 0.13)
+  if world and not require('src.world.arena').visible(world, x, z, p.x, p.z) then
+    gain = gain * 0.38
+  end
+  local s = A.play(name, gain, priority)
   if s then
     local side =
       math.max(-1, math.min(1, (dx * math.cos(p.yaw) - dz * math.sin(p.yaw)) / math.max(1, d)))
@@ -101,6 +135,7 @@ function A.playAt(name, x, z, p, volume)
   return s
 end
 function A.update(dt, g)
+  A.warningHold = math.max(0, (A.warningHold or 0) - dt)
   if g then
     require('src.audio.soundscape').update(A, dt, g)
   end
@@ -108,6 +143,9 @@ function A.update(dt, g)
     if not A.live[i]:isPlaying() then
       recycle(table.remove(A.live, i))
     end
+  end
+  if g and dt > 0 then
+    require('src.audio.world_cues').update(A, g, dt)
   end
 end
 function A.toggle()

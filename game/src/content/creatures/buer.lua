@@ -30,7 +30,7 @@ return Creature.define({
     blood = { 0.20, 0.26, 0.08 },
   },
   move = { speed = 3.0, accel = 12, ideal = 4.5 },
-  sounds = { alert = 'growl', windup = 'growl', strike = 'cast' },
+  sounds = { step = 'flesh_step', alert = 'growl', windup = 'growl', strike = 'cast' },
   tactics = {
     moves = {
       { attack = 'spore', ideal = 5, weight = 1 },

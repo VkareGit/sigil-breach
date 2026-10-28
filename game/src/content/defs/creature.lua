@@ -11,6 +11,12 @@ local Action = require('src.content.defs.action')
 local Encounter = require('src.content.defs.encounter')
 local Defaults = require('src.content.combat_defaults')
 local Creature = {}
+Creature.sounds = Schema:new('creature sounds', {
+  alert = { type = 'string' },
+  windup = { type = 'string' },
+  strike = { type = 'string' },
+  step = { type = 'string' },
+})
 Creature.evade = Schema:new('evade', {
   speed = { type = 'number', required = true, min = 0 },
   time = { type = 'number', required = true, min = 0 },
@@ -100,7 +106,7 @@ Creature.schema = Schema:new('creature', {
   faction = { type = 'string', default = 'demons', desc = 'its side (content/factions.lua)' },
   threat = { type = 'number', default = 1, min = 0 },
   maxAttackers = { type = 'number', min = 1, desc = 'own cap of simultaneous attackers' },
-  sounds = { type = 'table', default = {} },
+  sounds = { type = 'table', default = {}, schema = Creature.sounds },
   body = { type = 'table', required = true },
   move = { type = 'table', required = true },
   attacks = { type = 'table', required = true },

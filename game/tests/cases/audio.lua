@@ -31,11 +31,72 @@ function Tests.run()
     total = total + #pool
   end
   check('cached Source count matches the bounded idle pools', total == A.pooled)
+  for _ = 1, 28 do
+    A.play('storm_warning', 0.01)
+  end
+  local warning = A.live[1]
+  check(
+    'ambient cannot displace a full warning mix',
+    A.play('crypt_drip', 0.01) == nil and A.live[1] == warning
+  )
+  for _, s in ipairs(A.live) do
+    s:stop()
+  end
+  A.update(0)
+  for _ = 1, 28 do
+    A.play('crypt_drip', 0.01)
+  end
+  check(
+    'an attack warning displaces ambience at the bounded cap',
+    A.play('ember_warning', 0.01) ~= nil and #A.live == 28
+  )
+  for _, s in ipairs(A.live) do
+    s:stop()
+  end
+  A.update(0)
+  local C = require('src.audio.world_cues')
+  local Game = require('src.session.game')
+  local g = Fixtures.arena(Game)
+  local e = g:spawn('imp', g.player.x + 3, g.player.z)
+  e.spawnAge, e.walkSpeed, e.walk = 1, 2, 0
+  local calls = {}
+  local fake = {
+    playAt = function(name)
+      calls[#calls + 1] = name
+    end,
+  }
+  C.update(fake, g, 0.01)
+  e.walk = 1
+  local Integrity = require('src.session.integrity')
+  local before = Integrity.capture(g)
+  C.update(fake, g, 0.01)
+  check(
+    'painted stride produces one spatial foot contact without simulation mutation',
+    calls[1] == 'cloven_step' and not Integrity.difference(before, Integrity.capture(g))
+  )
+  C.update(fake, g, 0.01)
+  check('standing at the same stride produces no duplicate footstep', #calls == 1)
+  e.leaping, e.walk = true, 2
+  C.update(fake, g, 0.01)
+  check('an airborne stride produces no ground contact', #calls == 1)
+  C.reset()
   -- Every recipe is a sound; the knight's movement has its own voices.
   local Recipes = require('src.audio.recipes')
   local all = true
   for name in pairs(Recipes) do
     all = all and A.sources[name] ~= nil
+  end
+  for id, def in require('src.content.enemies').each() do
+    for role, name in pairs(def.sounds) do
+      check(id .. ' sound ' .. role .. ' resolves', Recipes[name] ~= nil)
+    end
+    for _, attack in ipairs(def.attacks) do
+      for _, key in ipairs({ 'sound', 'windupSound' }) do
+        if attack[key] then
+          check(id .. '/' .. attack.id .. ' ' .. key .. ' resolves', Recipes[attack[key]] ~= nil)
+        end
+      end
+    end
   end
   check(
     'every sound recipe is rendered, the perfect dodge and the fuse included',

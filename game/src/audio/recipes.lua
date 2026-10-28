@@ -490,4 +490,90 @@ R.fuse = {
     end
   end,
 }
+-- Distinct material/weight cues. Kept as recipes so adding a creature changes
+-- its sound data, not an audio switch on its name.
+local function foot(pitch, metal, wet)
+  return {
+    duration = 0.38,
+    jitter = 0.045,
+    priority = 0,
+    voice = function(t, _, noise, low, slower)
+      local body = sin(2 * pi * pitch * t) * exp(-t * 18) * 0.38
+      local grit = low * exp(-t * 40) * 0.25 + slower * exp(-t * 15) * 0.8
+      return clip(
+        body
+          + grit
+          + metal * mail(t, { 0.01, 0.04, 0.085 }, { 0.08, 0.04, 0.02 })
+          + wet * noise * sin(2 * pi * 37 * t) ^ 2 * exp(-t * 25) * 0.16
+      )
+    end,
+  }
+end
+R.cloven_step, R.iron_step = foot(115, 0, 0), foot(75, 1, 0)
+R.flesh_step, R.heavy_step = foot(90, 0, 1), foot(42, 0.25, 0)
+R.wing_fold = {
+  duration = 0.5,
+  priority = 0,
+  voice = function(t, u, _, low, _, high)
+    return (low * 0.3 + high * 0.04) * sin(pi * u) ^ 2 * exp(-t * 3)
+  end,
+}
+R.ember_warning = {
+  duration = 0.65,
+  priority = 3,
+  make = function(rate)
+    local throat = Synth.resonator(310, 3.5, rate)
+    return function(t, u, noise, low)
+      return clip(
+        (throat(noise) * 0.9 + low * 0.45 + sin(2 * pi * 67 * t) * 0.15)
+          * min(1, t / 0.025)
+          * (0.3 + 0.7 * u)
+          * min(1, (1 - u) * 15)
+      )
+    end
+  end,
+}
+R.storm_warning = {
+  duration = 0.65,
+  priority = 3,
+  make = function(rate)
+    local air = Synth.resonator(1600, 2, rate)
+    return function(t, u, noise)
+      return clip(
+        (air(noise) * 0.5 + sin(2 * pi * (360 * t + 180 * t * t)) * 0.16)
+          * min(1, t / 0.04)
+          * (0.35 + 0.65 * u)
+          * min(1, (1 - u) * 20)
+      )
+    end
+  end,
+}
+R.ember_flight = {
+  duration = 0.38,
+  priority = 0,
+  voice = function(_, u, _, low, _, high)
+    return (low * 0.4 + high * 0.1) * sin(pi * u) ^ 2
+  end,
+}
+R.ember_impact = {
+  duration = 0.45,
+  priority = 1,
+  voice = function(t, _, noise, low, slower)
+    return clip(noise * 0.12 * exp(-t * 90) + low * 0.65 * exp(-t * 18) + slower * exp(-t * 8))
+      * 0.6
+  end,
+}
+R.crypt_drip = {
+  duration = 1.2,
+  priority = 0,
+  make = function(rate)
+    local hall = Synth.reflections(rate, { { 0.11, 0.38 }, { 0.24, 0.22 }, { 0.43, 0.09 } })
+    return function(t)
+      return hall(sin(2 * pi * (1400 * t - 420 * t * t)) * exp(-t * 65) * 0.22)
+    end
+  end,
+}
+for _, name in ipairs({ 'shot', 'revolver', 'blast', 'thunder', 'afterimage' }) do
+  R[name].priority = 2
+end
 return R

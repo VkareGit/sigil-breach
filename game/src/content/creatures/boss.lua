@@ -38,7 +38,7 @@ return Creature.boss({
     microStun = 0.035,
   },
   move = { speed = 3.6, accel = 20, ideal = 3.6 },
-  sounds = { alert = 'growl', windup = 'growl', strike = 'cast' },
+  sounds = { step = 'heavy_step', alert = 'growl', windup = 'ember_warning', strike = 'cast' },
   -- One life, the complete base encounter. Phase transitions remain a library
   -- capability, deliberately unused until this duel is accepted in play.
   tactics = {
