@@ -6,6 +6,16 @@ ruchy dostępne w tej walce, zachowanie HUD-u i bazowych demonów.
 To raport zmian i ich weryfikacji, nie deklaracja ukończonej gry ani
 ponowny audyt każdej linii całego projektu.
 
+**Korekta po zgłoszeniu użytkownika:** punkt 7 nie jest ukończony. Zatwierdzone
+nisze, istniejące klatki i poprawione portale stanowią częściowy wkład, a nie
+realizację całego zadania wizualnego. Nowy przegląd ujawnił brak wspólnej
+kompozycji wnętrza, słabą separację sylwetki Margrave'a oraz współdzielone
+gesty różnych ataków. Konkretne prace i odbiór opisuje sekcja „Punkt 7 —
+korekta zakresu” w [planie](PLAN-DOPRACOWANIA-POLIGONU.md). Koncepcja otoczenia
+jest podglądem do akceptacji; nie została podłączona do gry. HUD i modele
+pozostają niezmienione. Wyniki testów poniżej potwierdzają wskazane kontrakty
+techniczne, nie jakość artystyczną ani ukończenie punktu 7.
+
 ## Co jest w grze
 
 Korekta portali po zgłoszeniu użytkownika: prześwitujące przywołania, zanikanie
@@ -177,11 +187,13 @@ Po poprawce p95 20 demonów wynosi 14,92–16,18 ms, najgorsza klatka
 24,63 ms; publiczne sale mają p95 8,50–11,22 ms. To wyniki tej maszyny,
 nie gwarancja ani dowód zamknięcia historycznej regresji E0.
 
-**Stan ośmiu punktów:** wszystkie zakresy mają wdrożenie i sprawdzenia.
-Punkty 2–7 są gotowe do próby użytkownika. Punkt 1 i kosztowa część punktu 8
-nie mają pełnego formalnego odbioru z powodu wydajności. Pozostałe części
-integracji punktu 8, w tym poradnik, reset/replay, render, wejście i ładowanie,
-są wykonane. Nie deklarujemy „zamknięte 8/8” ani perfekcyjnego balansu.
+**Stan ośmiu punktów:** punkty 2–6 mają wdrożenie gotowe do próby użytkownika;
+nie oznacza to akceptacji ich wyglądu, feelingu ani odsłuchu. **Punkt 7 wymaga
+dalszego wykonania**, a nie wyłącznie testu gracza. Punkt 1 i kosztowa część
+punktu 8 nie mają pełnego formalnego odbioru z powodu wydajności. Dotychczasowe
+części integracji punktu 8, w tym poradnik, reset/replay, render, wejście
+i ładowanie, są wykonane dla obecnej wersji; po wdrożeniu grafik trzeba
+sprawdzić zmienione ścieżki ponownie. Nie deklarujemy „zamknięte 8/8”.
 
 ## Skalowanie i co pozostaje świadomą granicą
 

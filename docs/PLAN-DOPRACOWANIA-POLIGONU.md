@@ -16,13 +16,14 @@ Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Uż
 | 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060, 2704b4b; bossowie oraz 16 walk zwykłych demonów obiema broniami; ludzki odbiór do próby |
 | 5 | Nawa, dwie monumentalne sale pojedynków, absydy, krypty, stanowiska mapy i aktywny obwód ognia | bca9642; dojścia, osłony, reset, przywołania i rendery sprawdzone |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b; testy i pełny eksport zakończone; odsłuch gracza do wykonania |
-| 7 | Zatwierdzone nisze, oprawa nowych ataków na istniejących klatkach, zachowanie bazowych modeli i HUD-u | 9449bb3, f3547ad; wszystkie rodzaje portali sprawdzone na GPU, bez nowych gatunków i podmiany bazowych PNG |
+| 7 | Spójność freskowego otoczenia, odróżnialne gesty obecnych demonów, malowane efekty i odbiór w ruchu | **NIEUKOŃCZONY.** Nisze (9449bb3) i korekta portali (f3547ad) to częściowe prace. Przegląd wizualny i propozycja kierunku poniżej; nowe zasoby wymagają akceptacji |
 | 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56, f27ba3f i pełne All: 5006 + 36 sprawdzeń; zakres funkcjonalny sprawdzony, kryterium kosztu pełnej klatki niezaliczone — szczegóły w raporcie |
 
-Wszystkie osiem zakresów ma wdrożenie i dowody kontroli, ale **nie są w pełni
-odebrane 8/8**: punkty 1 i 8 mają otwarte kryterium wydajności. Feeling,
-czytelność w długiej walce i odsłuch wymagają też próby użytkownika.
-Nie utożsamiamy ukończenia implementacji z zaliczeniem wszystkich bramek.
+**Nie ukończono 8/8.** Punkt 7 jest niekompletny także na poziomie wykonania,
+nie tylko akceptacji użytkownika. Nisze i naprawa kolejności rysowania portali
+nie realizują całego zakresu artystycznego. Punkty 1 i 8 mają ponadto otwarte
+kryterium wydajności. Feeling, czytelność w długiej walce i odsłuch wymagają
+próby użytkownika. Poprzednia deklaracja gotowości punktów 2–7 była zbyt szeroka.
 
 Opisy niżej zachowują historię kolejnych korekt. Bieżący stan i granice
 odbioru opisuje [raport końcowy tego etapu](RAPORT-POLIGON-2026-10.md),
@@ -775,7 +776,7 @@ Pełny eksport wszystkich 52 efektów i pięciu warstw muzyki zakończony;
 nowe próbki mają skończone wartości i szczyty poniżej 1. Raporty i WAV:
 `work/basilica-duel/audio-export/`. Eksport nie zastępuje odsłuchu gracza.
 
-## Punkt 7 — zatwierdzone nisze i spójna oprawa komnat
+## Punkt 7 — dotychczasowa część: zatwierdzone nisze
 
 Użytkownik zaakceptował pokazany moduł loculi. Jedyny nowy PNG:
 `assets/art/catacomb-loculi-fresco.png`, wygenerowany narzędziem imagegen
@@ -802,6 +803,77 @@ symulacji przez rysowanie. Nowa topologia zachowuje testy presji; w próbie
 reaktywnej Margrave'a pozostało 90,1 HP / 27,9 ward (zamiast wcześniejszych
 100/40), obie próby reaktywne nadal przeżywają 30 s. To nie jest ostateczny
 odbiór balansu.
+
+## Punkt 7 — korekta zakresu po przeglądzie wizualnym 28 października
+
+Status: **do wykonania**, po pokazaniu i zatwierdzeniu kierunku nowych grafik.
+Ta sekcja zastępuje wcześniejsze stwierdzenia, że punkt 7 jest gotowy.
+Zachowujemy obecny HUD, broń, portret i bazowe grafiki demonów. Jedno życie
+bossa i obecna matematyka walki pozostają bazą; nie przywracamy drugich faz.
+
+### Co rzeczywiście widać
+
+Obejrzano rendery nawy i aktywnej sali Margrave'a z `work/qa-v33/` oraz
+galerię loculi, przygotowanie i wykonanie cinder-spear/furnace i przygotowanie
+antler-return z `work/closure-28/portal-review/`. To ocena konkretnych klatek,
+nie deklaracja zaliczonej próby w ruchu.
+
+- Najbliższe misy ognia dominują kontrastem. Podobne plamy ciepłego światła
+  powtarzają się w głębi; kolejne plany słabo się od siebie oddzielają.
+- Duże puste bloki filarów i niewielkie prostokątne malowidła dają wrażenie
+  zestawionych modułów. Fresk nie organizuje jeszcze wnętrza.
+- Brązowa sylwetka Margrave'a na brązowo-pomarańczowym tle traci czytelność.
+  Globalne przyciemnienie tylko nasili ten problem.
+- `content/art/sheets/boss.lua` używa klatek 7–8 dla wykonania cinder-spear,
+  furnace i ash-lance. Przygotowania też współdzielą większość klatek.
+  Różna logika ataków nie dostała równie odróżnialnych gestów.
+- `render/effects.lua` korzysta ze wspólnej sekwencji ładowania; w widokach
+  z bliska efekt na ciele i znaczniki podłogi konkurują z sylwetką. Obraz
+  antler-return ma poziome pasy na tułowiu; przyczynę trzeba potwierdzić
+  w ruchu i izolowanym renderze, zanim zmieni się teksturę lub shader.
+
+### Kolejność pracy i kryteria
+
+| Część | Konkretna zmiana | Odbiór |
+|---|---|---|
+| 7A — kompozycja | Jeden czytelny punkt kończący oś komnaty: absyda/ołtarz. Ciemniejsze boczne arkady, spokojne tło za demonem. Filary, podpory i żebra tworzą wspólny rytm. Środek walki pozostaje wolny | Podgląd kierunku → rzeczywiste ujęcie gry z wejścia, boku i środka. Oceniamy także plecy bossa i walkę przy bocznej ścianie |
+| 7B — powierzchnie | Fresk dopasowany do pól architektury, powtarzalne malowane bordiury, zgodny tynk i skala pigmentu przy niszach. Duże płaszczyzny i selektywne ubytki zamiast szumu na każdym kamieniu | Widok daleki i bliski w docelowej rozdzielczości; brak ostrego prostokąta lub obcego materiału wokół nisz; brak podmiany bazowych atlasów |
+| 7C — gesty | Nowe klatki tylko potrzebnych działań istniejących demonów: osobne przygotowanie rzutu, nacisku ku ziemi oraz zamaszystego/punktowego ataku. Furfur: opuszczenie poroża do szarży, boczny zamach do powrotnego ciosu i wyprost do burzy | Krótkie sekwencje bez dźwięku pokazane do akceptacji. Identyczna anatomia, pigment, proporcje i skala jak w zaakceptowanej bazie; bez zmian czasu/dostawy ataku |
+| 7D — efekty | Powiązane z gestem przygotowanie → uwolnienie → kontakt → wygaszenie. Matowe żarzące pęknięcia dla popiołu, oszczędny jasny błysk dla burzy. Czytelne granice aktywnego zagrożenia i wolnego miejsca | Efekt pobiera rzeczywisty czas, wysokość i promień. Dekoracyjna aureola nie sugeruje dodatkowych obrażeń. Oceniony lot nad ślizgiem, nakładanie zagrożeń i widoczność sylwetki |
+| 7E — trafienie i koniec ruchu | Kontrola istniejących reakcji trafienia, ciężaru końca ataku, osiadania ciała i kontaktu z podłożem. Korekta dopiero po wskazaniu konkretnego braku w nagraniu | Oglądanie z kilku odległości, obu broni i przy wielu przeciwnikach. Bez zasłaniającej walkę chmury i bez ciągłego trzęsienia kamery |
+| 7F — wspólny odbiór | Jedna zintegrowana próba komnaty, postaci i VFX; dopiero później przeniesienie zatwierdzonego języka na resztę poligonu | Nagranie w rzeczywistym tempie, także wyciszone, rozdzielczości 960×540 / 1280×720 / 1024×768. Zgodność pozy z maską, brak mutacji przez renderer, znikanie efektów po resetach i pomiar kosztu |
+
+Pierwszy podgląd 7A: `work/art-direction-point7/apse-preview.png`, wygenerowany
+z prawdziwego `work/qa-v33/chambers-ash-active-normal.png`. To propozycja
+kompozycji, nie wdrożenie ani obraz do wklejenia w grę. Generator przerysował
+też pierwszy plan; te różnice HUD-u, broni i demona nie są proponowanymi
+zmianami. Detal gotowych zasobów ma odpowiadać dotychczasowym demonom,
+nie rozdzielczości koncepcji. Kierunek otoczenia oczekuje na akceptację.
+
+Odwołania artystyczne pozostają cztery, z rozdzielonym zastosowaniem:
+Giovanni da Modena — cykl piekła wkomponowany w kaplicę; Michał Anioł — ciężar
+gestu i hierarchia figur; Bosch — głębia ciemnych planów i punktowy ogień;
+Memling — rytm obramowań i czytelny porządek sceny. Nie kopiujemy całej
+palety ani drobnego detalu każdego obrazu jednocześnie. Dokumentacja
+[kaplicy Bolognini](https://mmg.inera.it/frontend/bologna/oggetti-esposti/cappella-bolognini)
+opisuje rozmieszczenie cykli na ścianach, a
+[Muzea Watykańskie](https://www.museivaticani.va/content/museivaticani/es/collezioni/musei/cappella-sistina/giudizio-universale.html)
+kompozycję Sądu Ostatecznego. Przeniesienie tych zasad do naszej sceny jest
+decyzją artystyczną, nie rekonstrukcją historyczną. Pieczęcie Goetii nadal
+pochodzą z istniejących źródeł; generator nie zastępuje ich wymyślonym pismem.
+
+Integracja korzysta z nazwanych zasobów środowiska, danych mapy, rejestru
+sekwencji i zegarów działań. Nowe pozy wymagają masek, anatomii i kotwic
+tej samej obserwowanej klatki; nie wolno dodać wyłącznie renderowanej pozy
+rozjeżdżającej się z trafieniem. Dekoracja nie zasłania przejścia, a jeżeli
+zmienia bryłę przeszkody, musi otrzymać zgodną geometrię świata.
+Nowy profil efektu należy do danych/ogólnego wykonawcy, nie do warunku
+`if boss.name == ...` w rendererze. Liczba świateł, efektów i zajętej pamięci
+ma zmierzony koszt — nie przenosimy problemu wizualnego w otwartą regresję.
+
+Nie zamykamy punktu na podstawie samego PNG, większej liczby assetów,
+testu ładowania ani tego, że nie zmieniono HUD-u. Warunkiem zakończenia jest
+zatwierdzony wygląd w działającej grze oraz czytelność różnych działań.
 
 ## Korekta przestrzeni 28 października — monumentalne sale
 
