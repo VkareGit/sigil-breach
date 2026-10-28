@@ -13,11 +13,12 @@ return function(map)
       size = height,
       y = y or 0.18,
       brightness = brightness or 1,
+      wallMounted = art ~= 'chapel_judgment_crown',
     }
   end
   for _, cx in ipairs({ 10, 38 }) do
     -- Pale surviving plaster on the axis gives the brown demon a quiet foil.
-    paint('chapel_witnesses', cx, 5.62, 0, 8.76, 3.68, 0.10, 1.22)
+    paint('chapel_witnesses', cx, 5.62, 0, 7.0, 3.68, 0.10, 1.22)
     -- The upper register lies on the vertical face of the perimeter slab,
     -- not a floating card across the open apse (slab begins at y = 4.2).
     paint('chapel_judgment_crown', cx, 6.62, 0, 8.76, 4.12, 3.90, 1.28)
@@ -37,10 +38,15 @@ return function(map)
       end
       -- A red-ivory dado continues underneath the two bays, joining the cycle.
       for _, z in ipairs({ 15.3, 22.3, 27.65 }) do
-        paint('chapel_frieze', cx + side * 7.36, z, yaw, z > 26 and 3.65 or 6.4, 0.24, 0.12, 0.80)
+        -- The inner side of each hall opens into the nave at z=25.5.
+        -- A dado belongs to masonry; it cannot bridge that opening.
+        local entrance = (cx == 10 and side == 1) or (cx == 38 and side == -1)
+        if not (entrance and z > 26) then
+          paint('chapel_frieze', cx + side * 7.36, z, yaw, z > 26 and 3.65 or 6.4, 0.24, 0.12, 0.80)
+        end
       end
       -- The lateral shoulders of the stepped apse continue its materials.
-      paint('chapel_mourners', cx + side * 4.38, 10, yaw, 3.5, 3.6, 0.18, 0.80)
+      paint('chapel_mourners', cx + side * 4.38, 9.75, yaw, 3.0, 3.6, 0.18, 0.80)
     end
     for _, offset in ipairs({ -4.65, 0, 4.65 }) do
       paint(
@@ -68,6 +74,7 @@ return function(map)
       y = y or 0,
       size = height,
       yaw = yaw,
+      wallMounted = yaw ~= nil,
       brightness = 0.90,
     }
   end
@@ -77,7 +84,7 @@ return function(map)
   for _, cx in ipairs({ 10, 38 }) do
     for _, side in ipairs({ -1, 1 }) do
       relic('ossuary_niche', cx + side * 4.65, 29.32, 1.65, 0.30, math.pi)
-      relic('funerary_shelf', cx + side * 7.30, 26.6, 0.66, 1.0, -side * math.pi / 2)
+      relic('funerary_shelf', cx + side * 7.30, 23.4, 0.66, 1.0, -side * math.pi / 2)
       relic('fallen_masonry', cx + side * 6.8, 18.2, 0.18)
       relic('broken_capital', cx + side * 7.20, 28.5, 0.23)
       relic('fallen_masonry', cx + side * 4.1, 11.0, 0.15)
@@ -85,8 +92,8 @@ return function(map)
   end
   relic('ossuary_niche', 13.64, 3.5, 1.75, 0.15, math.pi / 2)
   relic('ossuary_niche', 34.36, 3.5, 1.75, 0.15, -math.pi / 2)
-  relic('funerary_shelf', 18.60, 35.5, 0.65, 1.0, math.pi / 2)
-  relic('funerary_shelf', 29.40, 35.5, 0.65, 1.0, -math.pi / 2)
+  relic('funerary_shelf', 17.60, 35.5, 0.65, 1.0, math.pi / 2)
+  relic('funerary_shelf', 30.40, 35.5, 0.65, 1.0, -math.pi / 2)
   for _, spot in ipairs({ { 21.0, 35.1 }, { 27.0, 32.8 }, { 20.9, 18.1 }, { 27.1, 25.1 } }) do
     relic('fallen_masonry', spot[1], spot[2], 0.13)
   end

@@ -197,6 +197,14 @@ mocuje go do ściany, brak yaw obraca go do obserwatora. Przykład małego gruzu
 relic('fallen_masonry', 21, 35.1, 0.13)
 ```
 
+Płaskie dekoracje na ścianie mają `wallMounted = true`. Walidacja sprawdza
+podparcie **całej szerokości** przez komórki muru; bordiura nie może przejść
+przez drzwi, a półka wisieć w otworze. Dotyczy ścian ustawionych w osiach
+siatki, z odsunięciem grafiki 0,08–0,20 m od powierzchni. To kontrola
+poziomego podparcia, nie test pionowego kształtu stropu. Obraz na czole
+sklepienia wymaga osobnego sprawdzenia jego rzeczywistej geometrii.
+Po przesunięciu drzwi obejrzyj dekorację z obu stron, nie tylko od ołtarza.
+
 Nie wstawiaj wielkiego głazu bez kolizji w środek przejścia. Te relikwie
 są dekoracją: większe umieszczaj przy fizycznej ścianie, drobne poniżej
 progu kroku. Materiał muru wybiera `decor.stonePaint`. `lamp.scale` określa

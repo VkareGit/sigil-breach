@@ -326,6 +326,14 @@ function Schema.check(map, id)
     end
     number(mural.y, label .. '.mural.y')
     number(mural.yaw, label .. '.mural.yaw')
+    require('src.content.maps.wall_mounts').check(
+      mural,
+      mural.width or mural.size,
+      opened,
+      label .. '.mural ' .. (mural.art or mural.frame),
+      width,
+      depth
+    )
   end
   for _, item in ipairs(decor.inscriptions or {}) do
     assert(require('src.content.art.inscriptions')[item.id], label .. '.inscription.id is unknown')
@@ -345,6 +353,15 @@ function Schema.check(map, id)
     end
     positive(prop.size, label .. '.prop.size')
     positive(prop.brightness, label .. '.prop.brightness')
+    local art = prop.art and require('src.content.art.environment')[prop.art]
+    require('src.content.maps.wall_mounts').check(
+      prop,
+      prop.size * (art and art.aspect or 1),
+      opened,
+      label .. '.prop ' .. (prop.art or prop.frame),
+      width,
+      depth
+    )
   end
   if decor.muralWalls then
     list(decor.muralWalls, label .. '.muralWalls')
