@@ -834,9 +834,12 @@ function S.run(G, renderer)
   g = archived
   reports[#reports + 1] =
     'Public proving ground: 15 catalogue, help and unchanged HUD captures across five viewport sizes.'
-  -- Actual phase event, existing portrait/HUD and cast art; no mock labels.
+  -- Archived multi-stock capability: public bosses now have a single life.
+  -- Use frozen content explicitly; current public attacks are captured by
+  -- ritual_art above and the chamber scenes below, with production content.
+  local PhaseGame = require('tests.support.phase_encounters').game(G)
   for _, kind in ipairs({ 'boss', 'furfur' }) do
-    g = G.new('field', nil, require('src.app.release').sessionOptions.field)
+    g = PhaseGame.new('field', nil, require('src.app.release').sessionOptions.field)
     g.testing, g.state = true, 'playing'
     g.player.x, g.player.z, g.player.yaw = 16, 25, math.pi
     g.elapsed = 70 -- Inspect combat after the entry tutorial, not behind its overlay.
@@ -880,7 +883,7 @@ function S.run(G, renderer)
   end
   g = archived
   reports[#reports + 1] =
-    'Encounter phases: 16 real transition/windup/release/ground-pattern captures with unchanged artwork and HUD.'
+    'Archived phase fixtures: 16 real transition/windup/release/ground-pattern captures; public bosses have one life.'
   -- Public room layout uses the same painted assets; inspect live portals,
   -- attacks, physical doorways and the existing HUD at small viewports too.
   local release = require('src.app.release')
