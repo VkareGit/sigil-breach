@@ -49,6 +49,32 @@ mechaniki, 36 wejścia, 566 plików Lua bez naruszeń architektury, rendery,
 narzędzia i startup. To dowód poprawności i usunięcia niewykorzystywanej pracy,
 nie samodzielny dowód zamknięcia bramki czasu całej klatki.
 
+### Pomiar ostatniej poprawki: 2704b4b → f27ba3f
+
+Pięć naprzemiennych par na tej samej treści, ten sam protokół 300 / 2400 /
+720. Źródła obu kopii pozostały stabilne. Wyniki i manifesty:
+`work/closure-28/catchup-measure/summary.txt`, `catchup-source-before.json`,
+`catchup-source-after.json` w tym samym `work/closure-28/`.
+
+| Miara | Przed mediana [ms] | Po mediana [ms] | Wynik |
+|---|---:|---:|---|
+| Ciężka scena nieruchoma | 5,5072 | 5,5079 | NO REGRESSION |
+| Lekka scena nieruchoma | 4,0632 | 4,0953 | NO REGRESSION |
+| Pełna klatka, 20 walczących | 8,2468 | 8,1008 | INCONCLUSIVE |
+| Krok symulacji, 20 ciał | 0,0994 | 0,1026 | INCONCLUSIVE |
+
+Mediana żywej klatki jest niższa o 1,8%, lecz IQR wariantu przed wynosi
+12,7% (po: 2,6%). Nie deklarujemy mierzalnego przyspieszenia całości ani
+formalnego zaliczenia tej metryki. Niewykorzystywane kopie są usunięte,
+zgodność obrazu i walki potwierdzona, brak obniżania jakości zasobów.
+
+W ostatnich pięciu przebiegach p95 sali Margrabiego wynosi 8,50–9,43 ms,
+Furfurów 10,34–11,22 ms. Najgorsze klatki: 23,28 / 19,39 ms.
+Dla 20 demonów p95 to **14,92–16,18 ms**, p99 **17,68–20,90 ms**,
+najgorsza klatka **24,63 ms**. Obecny p95 mieści się w budżecie 60 FPS,
+ale sam ten fakt nie kasuje regresji historycznego E0 ani outlierów.
+Punkt 1 i część kosztowa punktu 8 pozostają otwarte w formalnym odbiorze.
+
 ## Aktualizacja 28.10 — usunięcie alokacji z testu przesunięcia
 
 Profiler LuaJIT na 2400 pełnych klatkach wskazał zbieranie pamięci przy

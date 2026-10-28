@@ -15,7 +15,7 @@ przez ściany. Test GPU obejmuje cztery rodzaje (także znak ołtarza), każdy
 przed dekoracją, za dekoracją i za ścianą: 12 przypadków. Oryginalna kolejność
 nie przechodzi kontroli negatywnej dla pojawienia się demona (0 widocznych
 pikseli przed dalszą dekoracją); po zmianie wszystkie przypadki przechodzą.
-Pełny zestaw Mechanics: 4947 sprawdzeń. Native rendery obejrzano w
+Na etapie tej poprawki Mechanics miał 4947 sprawdzeń. Native rendery obejrzano w
 `work/closure-28/portal-review`. Nie zmieniono PNG, HUD-u ani reguł walki.
 
 | Commit | Wdrożony zakres |
@@ -27,6 +27,10 @@ Pełny zestaw Mechanics: 4947 sprawdzeń. Native rendery obejrzano w
 | `bca9642` | Nowe proporcje mapy: nawa procesyjna, absydy i dwie wysokie sale pojedynków, stanowiska mapy |
 | `44f4060` | Jawna aktualizacja golden po udowodnieniu wpływu samych danych nowych ataków |
 | `3a35b56` | Przygotowanie świata w widocznym ładowaniu i ograniczony cache kafelków cieni |
+| `f3547ad` | Wspólna korekta kolejności rysowania portali i 12 testów GPU |
+| `e5ab727` | Usunięcie alokacji zamknięć w każdym sweep kolizji, bez zmiany matematyki |
+| `2704b4b` | Presja zwykłych demonów, konfigurowalne otwarcie próby i walki obiema broniami |
+| `f27ba3f` | Kopia pozy tylko przed ostatnim nadrabianym tickiem; zgodność trzech widoków ze starą ścieżką |
 
 Poprzednie punkty 1–3 (kontakt sfery z ciałem, reset, wysokości ataków,
 poligon bez handlu i fal) pozostają częścią bazy. Nie przywrócono Limbo
@@ -123,37 +127,61 @@ próbki i brak mutacji symulacji; nie deklarujemy wykonanego ludzkiego odsłuchu
 
 ## Weryfikacja i granice
 
-- Pełne `TEST.ps1 -Suite All -TestTimeoutSeconds 600`: mechanika, rzeczywiste
-  wejście, render, smoke czterech narzędzi oraz pełny startup — PASS.
-- Po ostatnim doprecyzowaniu transakcji tworzenia mapy stropu ponowiono
-  mechanikę i Tools: **4935 sprawdzeń mechaniki/zasobów**, PASS. Wejście
-  i render poprzedniego pełnego przebiegu mają odpowiednio 36 sprawdzeń
-  sterowania i poprawne zrzuty. Zmiana transakcji nie zmienia obrazu.
-- **558 plików Lua**, format poprawny, zero naruszeń architektury.
-- 48 par ujęć przed/po optymalizacji światła: identyczne SHA-256 plików PNG.
-  Obejrzano nawę, salę Margrabiego, ołtarz i galerię z niszami. Przegląd
-  obejmuje też aktywne ataki, zakończenie, reset i różne rozmiary ekranu.
-- Sześć poprzednich golden wraca po podstawieniu wyłącznie poprzednich
-  definicji ataków/arkuszy na bieżącym silniku. Zmiana oczekiwań została
-  przypisana do zamierzonego balansu. Zamrożone referencje 0.33 zachowane.
-- Ostatnie pokwitowania testów wskazują stabilne źródła i kod wyjścia 0.
-  Surowe artefakty są lokalnie w `work/qa-v33` i `work/basilica-duel`.
+- **5006 sprawdzeń mechaniki/zasobów**, **36 sprawdzeń rzeczywistego wejścia**,
+  **566 skompilowanych plików Lua**; format poprawny, zero naruszeń architektury.
+- Końcowy `TEST.ps1 -Suite All -TestTimeoutSeconds 600` zakończył się PASS
+  w jednym przebiegu, na stabilnych źródłach: mechanika, wejście, showcase,
+  benchmark/core-measure/step-study/audio-export smoke i pełny startup.
+  Kontrola świeżości raportów pozostała aktywna. W poprzedniej iteracji
+  poprawnie odrzuciła proces showcase bez nowego raportu mimo kodu wyjścia 0.
+- Audyt bitmapowego UI: 270 scen, 7085 granic tekstu, 67995 porównań chronionych
+  obrazów, 3415 kontroli wnętrz HUD-u; zero problemów. Native review obejmuje
+  komnaty, aktywne ataki, portale, reset oraz różne proporcje ekranu.
+  Obejrzano portal przed dekoracją, ołtarz, nawę i salę walki.
+- W poprzednim etapie 48 par ujęć przed/po optymalizacji światła miało identyczne
+  SHA-256 PNG. Obecna poprawka portali ma własne 12 sprawdzeń kontaktu obrazu
+  z głębią GPU. Żaden bazowy PNG ani kod `src/ui` nie zmienił się od `686264f`.
+- Kontrola przypisania nowych wyników golden: zamiana **wyłącznie czterech
+  definicji zwykłych demonów** na dawne daje wszystkie sześć poprzednich digestów.
+  Weryfikacja izolowanego drzewa ze stabilnym hashem:
+  `work/closure-28/golden-attribution/verified/`. Referencje v0.33 zachowane.
+- Pokwitowania końcowych testów mają `sourceStable=true`, `exitCode=0` i wspólny
+  fingerprint `AE289FB9BE72F369155F2EB66C812B69A928A8553FC2F7D64DEAD8D81E025B54`.
+  Artefakty: `work/qa-v33/`, `work/closure-28/`.
 
 Wydajność i koszty ładowania są opisane w
 [osobnym raporcie](PUNKT-1-WYDAJNOSC.md). Smoke narzędzia nie zamyka
 kryterium wydajności. Pierwszy widok gry po przygotowaniu świata nie tworzy
-odroczonych obrazów; w ostatnim pełnym startup miał 12,85 ms, katalog
-10,59 ms. Ładowanie miało 63 widoczne kroki i 2,49 s do gotowości.
-Najdłuższy provider trwał 149,44 ms; nie obiecujemy klatek 16,7 ms
+odroczonych obrazów; w ostatnim pełnym startup miał 21,72 ms, katalog
+9,72 ms. Ładowanie miało 63 widoczne kroki i 1,87 s do gotowości.
+Najdłuższy provider trwał 120,60 ms; nie obiecujemy klatek 16,7 ms
 podczas niepodzielnego dekodowania/uploadu obrazu.
 
-Końcowe A/B tej samej mapy i ataków (`44f4060` / `3a35b56`), pięć par:
-nieruchoma ciężka scena bez regresji; pozostałe trzy metryki mają wynik
-nierozstrzygnięty, więc formalna bramka nie jest zaliczona. P95 publicznych
-sal w pięciu przebiegach wynosi 9,23–11,56 ms; ich najgorsza klatka 38,76 ms.
-Przy 20 walczących demonach p95 dochodzi do 18,11 ms. Nie ukrywamy skoków
-za samą medianą. Osiem pełnych cykli testu zasobów nie wykazało narastania
+Pięć par E0 (`710d1ac`) / stan przed ostatnią optymalizacją (`2704b4b`) wykazuje
+**regresję pełnej klatki 20 żywych demonów: 6,3142 → 8,7204 ms (+38,1%)**.
+P95 tej próby: 16,70–19,52 ms. P95 publicznych sal: 8,66–12,03 ms, lecz
+pojedyncza klatka Margrabiego osiągnęła 86 ms. Nie zamykamy kryterium
+wydajności medianą ani pominięciem outlierów. To porównanie całej ewolucji
+gry, z nową treścią, nie izolowane A/B jednego algorytmu.
+Osiem pełnych cykli wcześniejszego testu zasobów nie wykazało narastania
 obrazów/canvas/pamięci GPU; pokwitowanie źródeł jest stabilne.
+
+Po tym pomiarze `f27ba3f` usunął kopie historii, których aplikacja nigdy
+nie wyświetlała. Nie połączono mutowalnych snapshotów ani nie zmieniono
+czasu strzału. W 48 klatkach o różnych dt stan walki, powierzchnie trafień
+i pola obrazu zgadzają się ze starą ścieżką dla trzech obserwatorów.
+Osobne pięć par tej samej treści `2704b4b` / `f27ba3f`: mediana pełnej
+żywej klatki 8,2468 → 8,1008 ms, wynik **INCONCLUSIVE**, ponieważ IQR
+wcześniejszego wariantu to 12,7%. Nieruchome sceny: NO REGRESSION.
+Po poprawce p95 20 demonów wynosi 14,92–16,18 ms, najgorsza klatka
+24,63 ms; publiczne sale mają p95 8,50–11,22 ms. To wyniki tej maszyny,
+nie gwarancja ani dowód zamknięcia historycznej regresji E0.
+
+**Stan ośmiu punktów:** wszystkie zakresy mają wdrożenie i sprawdzenia.
+Punkty 2–7 są gotowe do próby użytkownika. Punkt 1 i kosztowa część punktu 8
+nie mają pełnego formalnego odbioru z powodu wydajności. Pozostałe części
+integracji punktu 8, w tym poradnik, reset/replay, render, wejście i ładowanie,
+są wykonane. Nie deklarujemy „zamknięte 8/8” ani perfekcyjnego balansu.
 
 ## Skalowanie i co pozostaje świadomą granicą
 
@@ -162,11 +190,36 @@ są danymi mapy. Zmiana tych danych nie wymaga nowego trybu ani gałęzi
 renderera. Nowe ataki używają wspólnych dostaw, pakietów i nazwanych póz.
 Zegary audio są tylko prezentacją. Cache światła ma limit i właściciela.
 
+Przegląd integracji objął granice danych i wykonawców, kolejność systemów,
+własność stanu/efektów, zapis/replay, geometrię, rysowanie, audio oraz
+testowe rozszerzenia. Nie jest to ponowne czytanie każdego wygenerowanego
+atlasu/maski linia po linii. Ocena: **baza nadaje się do kolejnego przyrostu
+treści bez nowego masowego refaktoru**, przy zachowaniu poniższych kontraktów.
+
+| Rozszerzenie | Miejsce zmiany | Co chroni przed przebudową rdzenia |
+|---|---|---|
+| Broń o istniejącym sposobie strzelania | `content/weapons.lua`, profil/napisy/art | Rekord `arsenal[id]`, oddzielne dostawy i przeładowania; test `weapon-extension` |
+| Nowy fizyczny efekt lub pocisk | Definicja i wykonawca w `combat/weapon_delivery.lua` / `combat/effects.lua` | Wspólne obrażenia, sprawca, kontakt, przerwanie/reset; walidacja wykonawcy |
+| Nowy demon / wariant | Definicja `creatures/`, wpis w `content/enemies.lua`, art | Wspólna maszyna stanów i wybór ataków; katalog budowany z danych |
+| Nowy wzór ataku bossa | `attacks`, `tactics.moves`, nazwane pozy | Commitment, własny cooldown, skończona objętość i kontynuacje nie zależą od nazwy bossa |
+| Komnata / ołtarz / nowa mapa | `content/maps/` | Walidacja referencji, dojścia, stanowiska oraz reset/replay mapy |
+| Nowy obiekt przezroczysty | Rejestr obiektów świata, etap `translucent` | Odczyt gotowej głębi sceny; brak wymuszania widoczności przez ściany |
+
+Nowy **rodzaj** mechaniki nadal może wymagać nowego schematu i modułu.
+Rejestr demonów pozostaje ręczną listą; checker wykrywa brak pliku/wpisu.
+Nie ma potrzeby zmieniać go teraz w automatyczne odkrywanie plików, kosztem
+kolejności i czytelności. Cache widoku musi używać korzenia sesji, a snapshot
+strzału pozostaje niezmienny — te zasady są ważniejsze niż kolejna warstwa klas.
+
 Pozostają konkretne ograniczenia: demony są płaskimi sprite'ami, mapa
 używa geometrii 2.5D, strzelnica ma ustaloną oś, Q ma jeden publiczny slot,
 a bank cieni przygotowuje najwyżej 64 różne pozycje lamp. Przekroczenie
 tych założeń wymaga lokalnego rozszerzenia kontraktu, nie obietnicy, że
 cała przyszła gra będzie wyłącznie zmianą liczb.
+
+Zapis `SIGIL09` rodzaju session obejmuje mapę i ciała; nie jest pełnym
+quicksave w dowolnym momencie walki. Kooperacja, sieć i kolizje rycerz–rycerz
+nie są ukończonym produktem. Edytor mapy jest nadal tekstowy (Lua).
 
 Ocena dłuższej gry i odsłuch należą do odbioru użytkownika. Starego
 ujemnego wyniku względem E0 nie nazywamy zaliczonym przez zmianę progów

@@ -10,14 +10,19 @@ Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Uż
 
 | Punkt | Zakres | Stan |
 |---|---|---|
-| 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
+| 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | bd9eff9, e5ab727; kontrakty i golden zaliczone, regresja pełnej klatki nadal otwarta |
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
-| 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060; presja/replay sprawdzone; ludzki odbiór do próby |
+| 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060, 2704b4b; bossowie oraz 16 walk zwykłych demonów obiema broniami; ludzki odbiór do próby |
 | 5 | Nawa, dwie monumentalne sale pojedynków, absydy, krypty, stanowiska mapy i aktywny obwód ognia | bca9642; dojścia, osłony, reset, przywołania i rendery sprawdzone |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b; testy i pełny eksport zakończone; odsłuch gracza do wykonania |
-| 7 | Zatwierdzone nisze, oprawa nowych ataków na istniejących klatkach, zachowanie bazowych modeli i HUD-u | 9449bb3 oraz istniejące efekty/pozy; bez nowych gatunków i podmiany bazowych PNG |
-| 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56; testy integracji zaliczone, pełne A/B w raporcie; stara regresja E0 pozostaje odrębnym otwartym kryterium |
+| 7 | Zatwierdzone nisze, oprawa nowych ataków na istniejących klatkach, zachowanie bazowych modeli i HUD-u | 9449bb3, f3547ad; wszystkie rodzaje portali sprawdzone na GPU, bez nowych gatunków i podmiany bazowych PNG |
+| 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56, f27ba3f i pełne All: 5006 + 36 sprawdzeń; zakres funkcjonalny sprawdzony, kryterium kosztu pełnej klatki niezaliczone — szczegóły w raporcie |
+
+Wszystkie osiem zakresów ma wdrożenie i dowody kontroli, ale **nie są w pełni
+odebrane 8/8**: punkty 1 i 8 mają otwarte kryterium wydajności. Feeling,
+czytelność w długiej walce i odsłuch wymagają też próby użytkownika.
+Nie utożsamiamy ukończenia implementacji z zaliczeniem wszystkich bramek.
 
 Opisy niżej zachowują historię kolejnych korekt. Bieżący stan i granice
 odbioru opisuje [raport końcowy tego etapu](RAPORT-POLIGON-2026-10.md),
