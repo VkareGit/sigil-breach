@@ -12,6 +12,7 @@ local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local K = require('src.content.field')
 local Placement = require('src.run.field.placement')
+local Stations = require('src.run.field.station_layout')
 local Trials = {}
 local function post(g, kind, x, z, label)
   local posts = g.testField.posts or {}
@@ -47,7 +48,8 @@ function Trials.range(field, g)
   end
   station(field, g, 'range')
   local p = Roles.controlled(g)
-  p.x, p.z, p.yaw, p.pitch = K.start.x, K.start.z, math.pi, 0
+  local start = Stations.get(g).start
+  p.x, p.z, p.yaw, p.pitch = start.x, start.z, math.pi, 0
   for _, lane in ipairs(K.range.lanes) do
     local d, dx = lane[1], lane[2]
     local x, z = p.x + dx, p.z - math.sqrt(d * d - dx * dx)
@@ -65,7 +67,7 @@ function Trials.physics(field, g)
     return false
   end
   station(field, g, 'physics')
-  local P = K.physics
+  local P = Stations.get(g).physics
   local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = P.stand.x, P.stand.z, math.pi, 0
   for i = 1, P.domino.count do

@@ -78,7 +78,8 @@ function Visits.shop(_, g)
     return false
   end
   local p = Roles.controlled(g)
-  relocate(g, p, K.start.x, K.start.z)
+  local start = require('src.run.field.station_layout').get(g).start
+  relocate(g, p, start.x, start.z)
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.pitch = 0

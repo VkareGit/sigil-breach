@@ -57,7 +57,10 @@ function T.run(Game)
       else
         check(
           id .. ' punishes ' .. style .. ' without raising HP',
-          g.state == 'dead' and g.elapsed < 26
+          -- The 15 x 18 m halls allow a longer orbit than the former cramped
+          -- courts. It must still fail within the full 30 s sample; reacting
+          -- to the same windups must survive. This is not a human skill score.
+          g.state == 'dead' and g.elapsed < 30
         )
       end
       print(

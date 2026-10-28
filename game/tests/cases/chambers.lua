@@ -60,11 +60,12 @@ function Tests.run(Game)
   )
   -- Reachability uses the real footprint against walls/pillars, not the
   -- author's rectangle list. Doorways connect all entry/pad positions.
-  local seen, queue = {}, { { 16, 27 } }
+  local start = layout.stations.start
+  local seen, queue = {}, { { start.x, start.z } }
   local function key(x, z)
     return x .. ':' .. z
   end
-  seen[key(16, 27)] = true
+  seen[key(start.x, start.z)] = true
   local index = 1
   while queue[index] do
     local at = queue[index]
@@ -92,13 +93,13 @@ function Tests.run(Game)
   end
   check(
     'court wall blocks a shot; doorway is genuinely open',
-    not W.visible(g.world, 7, 12, 16, 12) and W.visible(g.world, 7, 17, 16, 17)
+    not W.visible(g.world, 10, 18, 24, 18) and W.visible(g.world, 10, 28, 24, 28)
   )
   local Ground = require('src.physics.ground')
-  for _, x in ipairs({ 6, 26 }) do
+  for _, x in ipairs({ 16, 32 }) do
     check(
       'burial gallery is reachable and lower than nave ' .. x,
-      seen[key(x, 5)] and Ground.ceiling(g.world, x, 5, 1.7) == 3
+      seen[key(x, 4)] and Ground.ceiling(g.world, x, 4, 1.7) == 3
     )
   end
   local invalidArt = Schema.copy(Maps:get('proving'))
@@ -108,7 +109,7 @@ function Tests.run(Game)
     not pcall(require('src.content.maps.schema').check, invalidArt, 'invalid-art')
   )
   local Ballistics = require('src.combat.ballistics')
-  for _, location in ipairs({ { 16, 25 }, { 7, 16 }, { 25, 16 }, { 10, 5 }, { 22, 5 } }) do
+  for _, location in ipairs({ { 24, 25 }, { 10, 16 }, { 38, 16 }, { 16, 4 }, { 32, 4 } }) do
     local x, z = location[1], location[2]
     local roof = Ground.ceiling(g.world, x, z, 1.7)
     local distance, _, hit = Ballistics.world(g.world, x, 1.7, z, 0, 1, 0, 20)
@@ -133,16 +134,16 @@ function Tests.run(Game)
   )
   check(
     'basilica presbytery has two real shallow steps',
-    Ground.height(g.world, 16, 6) == 0
-      and Ground.height(g.world, 16, 4.5) == 0.16
-      and Ground.height(g.world, 16, 2.5) == 0.32
+    Ground.height(g.world, 24, 6) == 0
+      and Ground.height(g.world, 24, 4.5) == 0.16
+      and Ground.height(g.world, 24, 2.5) == 0.32
   )
   check(
     'chapel duel lanes no longer contain the old central pillars',
-    not W.solid(g.world, 5, 14, 0.55)
-      and not W.solid(g.world, 5, 19, 0.55)
-      and not W.solid(g.world, 27, 14, 0.55)
-      and not W.solid(g.world, 27, 19, 0.55)
+    not W.solid(g.world, 10, 14, 0.55)
+      and not W.solid(g.world, 10, 24, 0.55)
+      and not W.solid(g.world, 38, 14, 0.55)
+      and not W.solid(g.world, 38, 24, 0.55)
   )
   check(
     'combat layout omits exhibition boards and statues, keeps painted pads',
@@ -271,7 +272,7 @@ function Tests.run(Game)
   -- The pad uses ordinary E interaction and cannot be activated through stone.
   g = fresh()
   g.state = 'playing'
-  g.player.x, g.player.z = 5.65, 17
+  g.player.x, g.player.z = 10, 8.5
   check('walk-up E starts the named room', g:interact() and g.testField.roomTrial.id == 'ash')
   -- This unsaved mode uses snapshots and journals, including real portals.
   -- SIGIL09's existing map/pools export is not a full session checkpoint.
@@ -325,8 +326,8 @@ function Tests.run(Game)
     'full reset returns to nave and drops trial ownership',
     not g.testField.roomTrial
       and #g.run.pending == 0
-      and g.player.x == 16
-      and g.player.z == 27.5
+      and g.player.x == start.x
+      and g.player.z == start.z
       and not Queries.world(g).arenaFire
   )
   -- Invalid authoring fails before a playable session; registry remains intact.
@@ -341,6 +342,24 @@ function Tests.run(Game)
     Maps:unregister(data.id)
     return not ok
   end
+  check(
+    'blocked authored station rejected',
+    reject(function(d)
+      d.proving.stations.start = { x = 1, z = 1 }
+    end)
+  )
+  check(
+    'fractional domino count rejected',
+    reject(function(d)
+      d.proving.stations.physics.domino.count = 1.5
+    end)
+  )
+  check(
+    'negative domino spacing rejected',
+    reject(function(d)
+      d.proving.stations.physics.domino.step = -1
+    end)
+  )
   check(
     'unknown chamber rejected',
     reject(function(d)
@@ -438,7 +457,7 @@ function Tests.run(Game)
       'data-only extra trial uses another chamber',
       extra:act('catalog', 'field_chamber_ash_alternate')
         and extra.testField.roomTrial.id == 'ash_alternate'
-        and extra.player.x == 25
+        and extra.player.x == extension.proving.chambers[2].entry.x
     )
   end)
   Maps:unregister(extension.id)

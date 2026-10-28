@@ -793,3 +793,41 @@ symulacji przez rysowanie. Nowa topologia zachowuje testy presji; w próbie
 reaktywnej Margrave'a pozostało 90,1 HP / 27,9 ward (zamiast wcześniejszych
 100/40), obie próby reaktywne nadal przeżywają 30 s. To nie jest ostateczny
 odbiór balansu.
+
+## Korekta przestrzeni 28 października — monumentalne sale
+
+Publiczny poligon ma teraz siatkę 49 × 43 m: nawę procesyjną, niskie
+przejścia, dwie sale walki 15 × 18 m z bocznymi kolumnadami, podniesione
+absydy i boczne galerie grobowe. Wysokość centralnego sklepienia sali
+wynosi 9,3 m; wejścia mają 3,1 m, galerie 3 m. To świadomy kontrast
+proporcji. Wzdłuż osi pozostaje dziesięciometrowy pas między podporami.
+Ogień wyznacza boki aktywnej próby; nie zadaje ukrytych obrażeń.
+
+Odniesienia kompozycji, nie obietnica identycznego odbioru:
+- [San Nicola: arkady prowadzące ku łukowi i cyborium](https://www.basilicasannicola.it/sez/2/93/114/interno).
+- [Krypta San Nicola: rytm podpór i sklepienia](https://www.basilicasannicola.it/sez/2/95/la-cripta).
+- [Nawa Durham: proporcje monumentalnej przestrzeni](https://www.durhamcathedral.co.uk/explore/the-cathedral-building-and-grounds/the-nave).
+- [Twórcy Demon's Souls o zagrożeniu i skali bossów](https://blog.playstation.com/2020/11/18/the-bosses-of-demons-souls-devs-detail-their-favorite-fearsome-foes/).
+
+Strop jest rzeczywistą geometrią pocisków. Obrzeżny gzyms domyka go
+nad ścianami; nie zastępuje kolizji narysowanym tłem. Współrzędne resetu,
+strzelnicy i prób fizyki są teraz w `proving.stations`, z walidacją miejsc
+przeciw rzeczywistym ścianom. Starsze mapy zachowują dotychczasowe ustawienia.
+
+W większej sali pięć wolnych kul Margrabiego pozwalało na bezpieczny obieg.
+Wachlarz ma dziewięć kul co 0,10 rad, prędkość 16 m/s i udział predykcji
+0,75. Zapowiedź 0,65 s, HP i obrażenia pojedynczego pocisku pozostały.
+Lanca przewiduje obserwowaną prędkość z wyprzedzeniem 0,8 s; po zobowiązaniu
+cel nie śledzi gracza. Wąski pocisk kończący sekwencję ma 16 m/s oraz
+zachowane długie odsłonięcie po rzuceniu.
+
+Próba 30 s bez strzelania, 100 HP / 40 osłony: bezruch przegrywa po
+11,500 s / 13,258 s (Margrabia / Furfur), stały obieg po 26,458 s /
+20,992 s, reakcja na zapowiedzi przeżywa z 80,2 / 62 HP. Limit testu
+obiegu zmieniono z 26 na pełne 30 s wraz z powiększeniem sal; nie jest
+to ocena ludzkiej trudności ani dowód przyjemności. Te same walki odtwarzają
+się dokładnie z dziennika. Przeszły 31 sprawdzeń presji, 94 komnat,
+45 kontynuacji ataków i 76 archiwalnych spotkań.
+
+Obejrzano rodzime rendery nawy, aktywnej sali, sklepienia, ołtarza i nisz
+(`work/basilica-duel/majestic-final/`). Nie zmieniono HUD-u, broni ani PNG demonów.

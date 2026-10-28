@@ -13,6 +13,7 @@ local Access = require('src.run.field.access')
 local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
 local Chambers = require('src.run.field.chambers')
+local Stations = require('src.run.field.station_layout')
 local TrialReset = require('src.run.field.reset')
 local Visits = require('src.run.field.visits')
 local Telemetry = require('src.combat.telemetry')
@@ -48,6 +49,10 @@ function F.new(Game, mapId)
 end
 function F.init(g, options)
   Chambers.validate(g)
+  -- Legacy maps retain their historical tools; authored stations are checked.
+  if Chambers.layout(g) and Chambers.layout(g).stations then
+    Stations.validate(g)
+  end
   g.testField = {
     invincible = true,
     frozen = false,
@@ -104,8 +109,9 @@ function F.reset(g)
   local motion = g.view.motion
   Feel.init(g)
   g.view.motion = motion
+  local start = Stations.get(g).start
   Roles.controlled(g).x, Roles.controlled(g).z, Roles.controlled(g).yaw, Roles.controlled(g).pitch =
-    K.start.x, K.start.z, math.pi, 0
+    start.x, start.z, math.pi, 0
   g.run = {
     phase = 'wave',
     wave = 1,

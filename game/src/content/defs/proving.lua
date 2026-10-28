@@ -26,7 +26,24 @@ local Pad = Schema:new('trial pad', {
   weapon = { type = 'string' },
   refill = { type = 'boolean' },
 })
+local Row = Schema:new('domino row', {
+  x = { type = 'number', required = true },
+  z = { type = 'number', required = true },
+  step = { type = 'number', required = true, min = 0.01 },
+  count = { type = 'number', required = true, min = 1, max = 20 },
+})
+local Physics = Schema:new('physics station', {
+  stand = { type = 'table', required = true, schema = Spot },
+  slam = { type = 'table', required = true, schema = Spot },
+  domino = { type = 'table', required = true, schema = Row },
+  tripLabel = { type = 'number', required = true, min = 0 },
+})
+local Stations = Schema:new('field stations', {
+  start = { type = 'table', required = true, schema = Spot },
+  physics = { type = 'table', required = true, schema = Physics },
+})
 local Definition = Schema:new('proving layout', {
+  stations = { type = 'table', schema = Stations },
   exhibits = { type = 'boolean', required = true },
   chambers = { type = 'table', required = true, list = Chamber },
   trials = { type = 'table', required = true, list = Trial },
@@ -39,6 +56,9 @@ function P.check(map)
     return
   end
   Definition:validate(data, 'map ' .. map.id .. '.proving')
+  if data.stations then
+    assert(data.stations.physics.domino.count % 1 == 0, 'domino count must be integer')
+  end
   local chambers, trials = {}, {}
   for _, c in ipairs(data.chambers) do
     Id.check(c.id, 'chamber id')

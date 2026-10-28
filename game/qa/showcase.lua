@@ -893,16 +893,16 @@ function S.run(G, renderer)
     g.elapsed, g.view.messageTimer = 70, 0
   end
   for _, view in ipairs({
-    { 'nave', 16, 27.5, math.pi },
-    { 'west-door', 14, 17, -math.pi / 2 },
-    { 'east-door', 18, 17, math.pi / 2 },
-    { 'north-passage', 16, 13, math.pi },
-    { 'chapel-door', 16, 7, -math.pi / 2 },
-    { 'basilica-ribs', 16, 26, math.pi, 0.18 },
-    { 'side-arcade', 10.3, 28.5, math.pi, 0.12 },
-    { 'presbytery', 16, 9, math.pi, 0.08 },
-    { 'ash-altar', 6.8, 17, -math.pi / 2, 0.06 },
-    { 'storm-altar', 25.2, 17, math.pi / 2, 0.06 },
+    { 'nave', 24, 36, math.pi },
+    { 'west-door', 19, 28, -math.pi / 2 },
+    { 'east-door', 29, 28, math.pi / 2 },
+    { 'north-passage', 24, 13, math.pi },
+    { 'chapel-door', 24, 7, -math.pi / 2 },
+    { 'basilica-ribs', 24, 34, math.pi, 0.18 },
+    { 'side-arcade', 7, 28, math.pi, 0.12 },
+    { 'presbytery', 24, 9, math.pi, 0.08 },
+    { 'ash-altar', 10, 11, math.pi, 0.06 },
+    { 'storm-altar', 38, 11, math.pi, 0.06 },
   }) do
     chamberSession()
     g.player.x, g.player.z, g.player.yaw = view[2], view[3], view[4]

@@ -73,18 +73,18 @@ function Review.run(Game, renderer, output)
   local release = require('src.app.release')
   g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
   g.testing, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
-  capture('11-basilica-nave', 16, 27.5, 16, 2.8, 14)
-  capture('12-ash-altar', 6.8, 17, 4.1, 1.7, 17)
-  capture('13-storm-altar', 25.2, 17, 27.9, 1.7, 17)
-  capture('13-storm-altar-small', 25.2, 17, 27.9, 1.7, 17, 960, 540)
-  capture('11-basilica-vault', 16, 27.5, 16, 5.8, 18)
-  capture('11-basilica-aisle', 11, 26, 11, 2.8, 14)
-  capture('11-basilica-presbytery', 16, 11, 16, 1.8, 3)
-  capture('11-basilica-reverse', 16, 9, 16, 3.2, 26)
-  capture('11-basilica-nave-small', 16, 27.5, 16, 2.8, 14, 960, 540)
-  capture('11-catacomb-west', 7.5, 7.7, 4.6, 1.5, 4.5)
-  capture('11-catacomb-east', 24.5, 7.7, 27.4, 1.5, 4.5)
-  capture('11-loculi-aisle', 13.2, 22.2, 10.6, 1.5, 21.5)
+  capture('11-basilica-nave', 24, 36, 24, 3.8, 15)
+  capture('12-ash-altar', 10, 11, 10, 1.7, 7)
+  capture('13-storm-altar', 38, 11, 38, 1.7, 7)
+  capture('13-storm-altar-small', 38, 11, 38, 1.7, 7, 960, 540)
+  capture('11-basilica-vault', 24, 36, 24, 7.0, 22)
+  capture('11-basilica-aisle', 17, 25, 10, 3.8, 13)
+  capture('11-basilica-presbytery', 24, 11, 24, 1.8, 3)
+  capture('11-basilica-reverse', 24, 10, 24, 4.2, 32)
+  capture('11-basilica-nave-small', 24, 36, 24, 3.8, 15, 960, 540)
+  capture('11-catacomb-west', 18, 4, 13.58, 1.5, 3.5)
+  capture('11-catacomb-east', 30, 4, 34.42, 1.5, 3.5)
+  capture('11-loculi-aisle', 16, 4, 18, 1.5, 1.58)
   for _, id in ipairs({ 'ash', 'storm' }) do
     g:act('catalog', 'field_chamber_' .. id)
     g.testField.invincible = true -- art inspection only, live entry is mortal
@@ -92,8 +92,8 @@ function Review.run(Game, renderer, output)
       g:update(1 / 120, {})
     end
     local x = g.player.x
-    capture('14-' .. id .. '-arena', x, 20, x, 2.4, 12)
-    capture('14-' .. id .. '-vault', x, 20, x, 5.0, 14)
+    capture('14-' .. id .. '-arena', x, 25, x, 3.2, 10)
+    capture('14-' .. id .. '-vault', x, 25, x, 7.0, 15)
     local boss = assert(g.enemies[1])
     for _ = 1, 300 do
       if boss.ai == 'strike' then
@@ -101,16 +101,16 @@ function Review.run(Game, renderer, output)
       end
       g:update(1 / 120, {})
     end
-    capture('15-' .. id .. '-opening', x, 20, boss.x, 1.5, boss.z)
+    capture('15-' .. id .. '-opening', x, 25, boss.x, 1.5, boss.z)
     g:damageEnemy(boss, boss.hp, 'weapon')
     for _ = 1, 60 do
       g:update(1 / 120, {})
     end
     assert(g.testField.roomTrial.status == 'complete', 'one stock must end the trial')
-    capture('16-' .. id .. '-complete', x, 20, x, 1.6, 12)
+    capture('16-' .. id .. '-complete', x, 25, x, 2.8, 10)
   end
   Field.reset(g)
-  capture('17-reset-nave', 16, 27.5, 16, 2.8, 14)
+  capture('17-reset-nave', 24, 36, 24, 3.8, 15)
   -- Focused read of each new response, with real warning/contact clocks.
   -- Directly choosing an action here is deliberate art QA; the combat suite
   -- separately requires the unassisted AI to choose/finish a live string.
