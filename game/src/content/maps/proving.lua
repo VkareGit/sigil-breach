@@ -291,10 +291,12 @@ map.proving = {
   trials = {
     { id = 'ash', chamber = 'ash', creature = 'boss' },
     { id = 'storm', chamber = 'storm', creature = 'furfur' },
-    { id = 'claws', chamber = 'flesh', creature = 'imp' },
-    { id = 'iron', chamber = 'flesh', creature = 'armored' },
-    { id = 'stars', chamber = 'bindings', creature = 'stolas' },
-    { id = 'resin', chamber = 'bindings', creature = 'buer' },
+    -- Warning + the shared 0.6 s arrival grace already give preparation.
+    -- Ordinary live trials need no additional 1.2 s as harmless dummies.
+    { id = 'claws', chamber = 'flesh', creature = 'imp', readyDelay = 0.2 },
+    { id = 'iron', chamber = 'flesh', creature = 'armored', readyDelay = 0.2 },
+    { id = 'stars', chamber = 'bindings', creature = 'stolas', readyDelay = 0.2 },
+    { id = 'resin', chamber = 'bindings', creature = 'buer', readyDelay = 0.2 },
   },
   pads = {
     { altar = 'asmoday', trial = 'ash', spawn = 'boss' },

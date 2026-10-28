@@ -16,6 +16,11 @@ local Trial = Schema:new('chamber trial', {
   id = { type = 'string', required = true },
   chamber = { type = 'string', required = true },
   creature = { type = 'string', required = true },
+  readyDelay = {
+    type = 'number',
+    min = 0,
+    desc = 'opening attack cooldown after arrival (s); arrival grace and telegraph still apply',
+  },
 })
 local Pad = Schema:new('trial pad', {
   x = { type = 'number' },

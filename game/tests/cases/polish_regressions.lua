@@ -32,9 +32,12 @@ function Tests.run(G, check)
   runner.rushVX, runner.rushVZ = 0, A.imp.attacks[1].lungeSpeed
   Rules.react(g, runner, 60, false, nil, 0, { push = 25 })
   check(
-    'a lunge broken out of its attack keeps sliding with its own momentum',
+    'a broken lunge keeps its momentum up to the shared shove ceiling',
     runner.ai == 'hurt'
-      and near(runner.pushZ, A.imp.attacks[1].lungeSpeed - Rules.shove(25, 1))
+      and near(
+        runner.pushZ,
+        math.min(A.defaults.impulse.vmax, A.imp.attacks[1].lungeSpeed - Rules.shove(25, 1))
+      )
       and runner.knockedDown
   )
   -- The knight's own powder charge is never a perfect dodge.

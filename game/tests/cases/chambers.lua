@@ -182,6 +182,11 @@ function Tests.run(Game)
       (trial.chamber == 'ash' or trial.chamber == 'storm') == (fire ~= nil)
     )
     local body = g.enemies[1]
+    local expectedDelay = trial.readyDelay or require('src.content.field').engage.firstBlow
+    check(
+      trial.id .. ' opening delay is authored independently of arrival grace',
+      math.abs(body.attack - expectedDelay) < 0.02 and body.spawnAge < 0.02
+    )
     check(
       trial.id .. ' registers the real spawned identity',
       body
@@ -343,6 +348,12 @@ function Tests.run(Game)
     return not ok
   end
   check(
+    'negative opening delay rejected',
+    reject(function(d)
+      d.proving.trials[1].readyDelay = -0.01
+    end)
+  )
+  check(
     'blocked authored station rejected',
     reject(function(d)
       d.proving.stations.start = { x = 1, z = 1 }
@@ -445,7 +456,7 @@ function Tests.run(Game)
   local extension = Schema.copy(Maps:get('proving'))
   extension.id = 'qa_chamber_extension'
   extension.proving.trials[#extension.proving.trials + 1] =
-    { id = 'ash_alternate', chamber = 'storm', creature = 'boss' }
+    { id = 'ash_alternate', chamber = 'storm', creature = 'boss', readyDelay = 0 }
   Maps:register(extension.id, extension)
   local ok, err = pcall(function()
     local extra = Game.new('field', extension.id, Release.sessionOptions.field)
@@ -458,6 +469,16 @@ function Tests.run(Game)
       extra:act('catalog', 'field_chamber_ash_alternate')
         and extra.testField.roomTrial.id == 'ash_alternate'
         and extra.player.x == extension.proving.chambers[2].entry.x
+    )
+    arrive(extra)
+    check(
+      'zero opening delay is valid, without removing spawn grace',
+      extra.enemies[1].attack <= 0 and extra.enemies[1].spawnAge < 0.02
+    )
+    check(
+      'alternate opening does not mutate the original trial or definition',
+      Maps:get('proving').proving.trials[1].readyDelay == nil
+        and require('src.content.field').engage.firstBlow == 1.2
     )
   end)
   Maps:unregister(extension.id)

@@ -37,7 +37,7 @@ function Tests.run(G, check)
     Rules.packet(base, claw) == claw
       and near(Rules.packet(t3, claw).base, claw.base * (1 + 2 * D.tiers.damage))
       and Rules.packet(t3, claw) == Rules.packet(t3, claw)
-      and claw.base == 15
+      and claw.base == 20
   )
   local ok = true
   for _, id in ipairs({ 'imp', 'armored', 'stolas', 'buer', 'boss', 'furfur' }) do
@@ -52,7 +52,7 @@ function Tests.run(G, check)
     'the thrall claws close, leaps at mid range and waits in between',
     Attacks.choose(imp, 1.5, 0).id == 'claw'
       and Attacks.choose(imp, 5, 0).id == 'leap'
-      and Attacks.choose(imp, 3, 0) == nil
+      and Attacks.choose(imp, 2.3, 0) == nil
   )
   imp.restUntil = { leap = 10 }
   check('a skill on its own cooldown is not chosen', Attacks.choose(imp, 5, 1) == nil)
@@ -137,7 +137,7 @@ function Tests.run(G, check)
     'a thrall shot out of its leap falls and lands knocked down',
     airborne and flyer.ai == 'hurt' and landed and flyer.stun > 0.2
   )
-  -- Predictive aim: tier 1 aims at the player, tier 3 at the intercept.
+  -- Predictive aim exists at tier one, with unchanged readable windups.
   local function aim(tier)
     local t = fresh(tier)
     local s = t:spawn('stolas', 16, 17)
@@ -148,11 +148,11 @@ function Tests.run(G, check)
   local lead1, windup1 = aim(1)
   local lead3, windup3 = aim(3)
   check(
-    'tier 3 acolytes lead a moving player; tier 1 aims where the player is',
-    near(lead1, 0) and lead3 > 1.5
+    'acolytes lead observed movement at both tier one and tier three',
+    lead1 > 1.5 and lead3 >= lead1
   )
   check('tiers never shorten a telegraph', near(windup1, windup3))
-  -- Evasion: an aimed-at acolyte (tier 2+) sidesteps once, then waits.
+  -- Evasion: an aimed-at acolyte sidesteps once, then waits even at tier one.
   local function aimedAt(tier)
     local t = fresh(tier)
     local s = t:spawn('stolas', 16, 17)
@@ -167,8 +167,8 @@ function Tests.run(G, check)
   local moved1, ev1 = aimedAt(1)
   local moved2, ev2 = aimedAt(2)
   check(
-    'from tier 2 an acolyte sidesteps out of the aim line, once per cooldown',
-    ev1 == 0 and ev2 == 1 and moved2 > 1.0 and moved2 > moved1 + 0.8
+    'acolytes sidestep out of the aim line once per cooldown, including tier one',
+    ev1 == 1 and ev2 == 1 and moved1 > 1.0 and moved2 > 1.0
   )
   -- Hyperarmour: the iron thrall's guard doubles while it attacks.
   g = fresh(1)

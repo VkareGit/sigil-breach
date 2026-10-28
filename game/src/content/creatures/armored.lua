@@ -28,20 +28,21 @@ return Creature.define({
   -- Armour protects from a major wound: a Judge body shot (53.8) does not
   -- wound, a head shot (72.7) does: threshold 68.
   body = { hp = 170, armor = 60, mass = 1.4, woundAt = 0.40, struck = 'metal' },
-  move = { speed = 3.0, accel = 12, heavy = true },
+  move = { speed = 3.8, accel = 16, heavy = true },
   sounds = { step = 'iron_step' },
   attacks = {
     -- The thrall's claw with hyperarmour (guard x2 while it attacks).
-    { from = 'claw', hyper = 2, packet = packet(15, 70) },
-    -- 0.24 shoulder charge: closes 3-7 m in a straight rush; a leg shot or a
+    { from = 'claw', hyper = 2, packet = packet(22, 70) },
+    -- Shoulder charge: closes 2.6-8 m in a straight rush; a leg shot or a
     -- dodge answers it, a Judge round into it breaks the hyperarmour.
     Action.charge({
       id = 'shoulder',
-      minRange = 3,
-      range = 7,
-      rest = 4.5,
+      minRange = 2.6,
+      range = 8,
+      rest = 3.0,
       windup = 0.8,
-      speed = 8.5,
+      lead = 0.45,
+      speed = 10.5,
       minTime = 0.25,
       maxTime = 0.7,
       contactY = 1.0,
@@ -50,7 +51,7 @@ return Creature.define({
       recover = 0.9,
       cooldown = 1.0,
       hyper = 2,
-      packet = packet(20, 120),
+      packet = packet(28, 120),
     }),
   },
 })

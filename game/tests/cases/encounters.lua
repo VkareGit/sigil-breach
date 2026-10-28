@@ -58,7 +58,8 @@ function Tests.run(Game)
   check(
     'legacy choice still respects separated claw/leap bands',
     Actions.choose(imp, 1, 0).id == 'claw'
-      and not Actions.choose(imp, 3, 0)
+      and not Actions.choose(imp, 2.3, 0)
+      and Actions.choose(imp, 3, 0).id == 'leap'
       and Actions.choose(imp, 5, 0).id == 'leap'
   )
   for _, kind in ipairs({ 'boss', 'furfur' }) do

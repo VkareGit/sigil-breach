@@ -45,11 +45,15 @@
 -- for the larger public halls. Restoring ONLY 63f6a85 creature/sheet content
 -- reproduces 6/6 former digests on this engine:
 -- work/basilica-duel/majestic-golden/content-attribution.csv.
+-- 2026-10-28: ordinary-creature movement, predictive casts and attack cadence.
+-- Only the four old creature definitions on the current engine reproduce all
+-- six previous hashes: work/closure-28/golden-attribution/evidence/.
+-- Geometry and HP were not inflated; v033 fixture files remain unchanged.
 return {
-  playtest = 'a4c51064/827ed232',
-  human = '9a9c8b3e/3fe2a5e3',
-  drill = '4d10e68a/d2882200',
-  playtestContacts = '12c5a2a1/422',
-  humanContacts = 'b51abe2b/739',
-  drillContacts = '63c4ba22/193',
+  playtest = '36bcd2cb/1b7f9d35',
+  human = 'f2ce0fcf/5eb6fa97',
+  drill = '58d7c0f4/7adcb216',
+  playtestContacts = '697b04fd/350',
+  humanContacts = '6568fd4a/740',
+  drillContacts = 'd1f949e0/182',
 }

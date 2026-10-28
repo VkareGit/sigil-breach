@@ -119,6 +119,10 @@ function C.arrived(g, e, gate)
   local trial = g.testField and g.testField.roomTrial
   if trial and gate.roomTrial == trial.id then
     trial.actors[#trial.actors + 1] = e.id
+    local definition = find(C.layout(g).trials, trial.id)
+    if definition.readyDelay ~= nil then
+      e.attack = definition.readyDelay
+    end
   end
 end
 function C.update(g)

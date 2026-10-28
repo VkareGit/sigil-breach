@@ -29,7 +29,7 @@ return Creature.define({
     woundAt = 0.40,
     blood = { 0.20, 0.26, 0.08 },
   },
-  move = { speed = 3.0, accel = 12, ideal = 4.5 },
+  move = { speed = 3.5, accel = 16, ideal = 5.5 },
   sounds = { step = 'flesh_step', alert = 'growl', windup = 'growl', strike = 'cast' },
   tactics = {
     moves = {
@@ -42,8 +42,10 @@ return Creature.define({
       id = 'spore',
       range = 8,
       windup = 0.74,
-      cooldown = 2.5,
-      lead = 0.16,
+      recover = 0.4,
+      cooldown = 1.15,
+      aimLead = 0.95,
+      leadFloor = 1,
       pool = {
         delay = 0.65,
         radius = 1.35,
@@ -52,7 +54,7 @@ return Creature.define({
         packet = packet(8, 0, 'poison'),
         condition = 'poisoned',
       },
-      bolt = { speed = 5.0, color = { 0.46, 0.39, 0.14 }, packet = packet(14, 40, 'poison') },
+      bolt = { speed = 8.5, color = { 0.46, 0.39, 0.14 }, packet = packet(20, 40, 'poison') },
     }),
     -- Close the forward approach, leave the flanks clear. It can be
     -- interrupted like the ordinary cast; the three marks never chase.

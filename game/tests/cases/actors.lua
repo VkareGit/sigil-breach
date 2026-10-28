@@ -65,6 +65,11 @@ function Tests.run(G)
     end
     if thrall then
       local e = g:spawn('imp', 19, 27)
+      -- This sequence tests commands before B's planned death. Keep its
+      -- historical attacker; live balance has separate creature-pressure fights.
+      local Rules = require('src.combat.rules')
+      Rules.equip(e, require('tests.support.content.imp_pre_pressure'))
+      Rules.applyTier(e, e.tier)
       e.awake, e.memory, e.spawnAge = true, 60, 1
     end
     return g

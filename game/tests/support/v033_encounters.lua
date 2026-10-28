@@ -4,14 +4,15 @@
 -- expected result. The current encounters have their own golden/replay/tests.
 -- No production flag, global mutation, or patch to an executor.
 local Schema = require('src.core.schema')
-local A = require('src.content.enemies')
 local M = {}
 function M.game(Game)
   local old = {
     boss = Schema.copy(require('tests.support.content.boss_v1')),
     furfur = Schema.copy(require('tests.support.content.furfur_v1')),
-    stolas = Schema.copy(A.stolas),
-    buer = Schema.copy(A.buer),
+    imp = Schema.copy(require('tests.support.content.imp_pre_pressure')),
+    armored = Schema.copy(require('tests.support.content.armored_pre_pressure')),
+    stolas = Schema.copy(require('tests.support.content.stolas_pre_pressure')),
+    buer = Schema.copy(require('tests.support.content.buer_pre_pressure')),
   }
   for _, def in pairs(old) do
     def.phases, def.tactics = nil, nil

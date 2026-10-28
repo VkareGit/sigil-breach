@@ -177,12 +177,12 @@ end
 -- What a demon stepping out of a gate here is given: a catalogue summons
 -- is set on the knight, a wave trial's demon gets the wave's welcome.
 function Placement.arrive(g, e, gate)
-  require('src.run.field.chambers').arrived(g, e, gate)
   if gate.fieldKind then
     engage(g, e, gate.fieldKind)
   else
     Spawner.welcome(g, e, gate)
   end
+  require('src.run.field.chambers').arrived(g, e, gate)
 end
 function Placement.pose(field, g, delta)
   if not g.testField then

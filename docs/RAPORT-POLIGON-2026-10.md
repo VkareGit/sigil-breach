@@ -60,6 +60,39 @@ korzystają z istniejących malowanych klatek i efektów.
 
 ## Walka i dźwięk
 
+### Korekta zwykłych demonów po kolejnym zgłoszeniu
+
+Cztery zwykłe typy mają krótsze przerwy, szybsze podejście lub dostawy,
+a strzelcy przewidują obserwowany ruch już na TIER 1. Imp wykonuje silniejsze
+dosunięcie pazurem i wcześniej wybiera skok; żelazny sługa ma szybszą,
+przewidywaną szarżę. Stolas unika utrzymywanego na nim celownika na TIER 1,
+Buer częściej zmusza do opuszczenia miejsca. Trafienia kosztują więcej HP.
+HP demonów, ich bazowe grafiki, geometria i czasy zapowiedzi pozostały takie same.
+Tempo zwykłego biegu nadal nie przewyższa biegu rycerza nawet na TIER 5.
+
+`trial.readyDelay` to opcjonalne ustawienie spotkania, odrębne od czasu portalu,
+pauzy pojawiania się i windup ataku. Zwykłe komnaty używają 0,2 s zamiast
+domyślnych 1,2 s. Bossowie zachowują swoje otwarcia i jedno życie.
+
+Nowe 45 sprawdzeń `creature-pressure` rozgrywa 16 walk: cztery komnaty,
+dwie bronie, bezruch albo reakcja. Zwykłe magazynki, rezerwa i przeładowanie;
+brak dopisywania życia czy amunicji. Przykład trzech żelaznych sług ze strzelbą:
+stanie kończy z 83,8 HP / 9,2 osłony, reakcja ze 100 HP / 24,6 osłony.
+Próby reaktywne pozostają wygrywalne. Idealne celowanie rewolwerem potrafi
+przerwać słabych strzelców przed rzutem — to zachowana kontra, nie błąd testu.
+Te wyniki nie są ludzką oceną trudności ani deklaracją ostatecznego balansu.
+
+Obie bronie przeszły walki z rzeczywistym przeładowaniem; cała reaktywna
+walka rewolwerem z żelaznymi sługami odtwarza się bitowo. Dodatkowe testy
+sprawdzają zamrożony cel rzutu, zero/ujemny readyDelay, brak mutacji definicji
+i zachowanie pauzy pojawienia się. Pełna mechanika: **5001 sprawdzeń PASS**.
+Poprzednie sześć skrótów golden wraca po przywróceniu samych czterech
+definicji demonów na nowym silniku. Dawne projekcje v0.33 nie zostały zmienione.
+Test poleceń dwóch aktorów korzysta z zamrożonego dawnego napastnika, aby
+nowy balans nie zabijał drugiego rycerza przed zaplanowanym przełączeniem broni.
+
+### Zachowane walki bossów i audio
+
 Margrabia łączy wachlarz z presją na kierunek ruchu, linię ognia na ziemi,
 odpowiedź pociskiem po lancy oraz bliski wybuch wokół siebie. Furfur ma
 pchnięcie, szarżę, powrót po szarży i wzory piorunów. Wyraźna zapowiedź
