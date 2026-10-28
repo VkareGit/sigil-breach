@@ -7,6 +7,9 @@
 -- same density (plan v10 V3). Tiles are baked when a light takes a slot.
 local Grid = require('src.physics.grid')
 local V = { resolution = 128, columns = 4, capacity = 14, texels = 4 }
+-- CPU tiles only: 64 * 128 * 128 * RGBA8 = 4 MiB per moving atlas.
+-- A world revision owns this cache; leaving it releases every native tile.
+V.cacheCapacity = 64
 -- Cells covered by one tile around its light on a large map.
 V.window = V.resolution / V.texels
 local function solid(w, x, z)
@@ -146,7 +149,7 @@ end
 -- slots: the sources in the atlas's slots at first (at most capacity).
 -- private: the slots will change (V.place), so the atlas is the owner's
 -- alone rather than shared with another owner of the same world.
-function V.build(w, slots, owner, private)
+function V.build(w, slots, owner, private, checkpoint)
   assert(owner, 'visibility atlas requires an explicit resource owner')
   local parts =
     { tostring(Grid.span(w)), tostring(V.resolution), tostring(V.columns), tostring(V.capacity) }
@@ -176,15 +179,32 @@ function V.build(w, slots, owner, private)
     for i, s in ipairs(slots) do
       assert(i <= V.capacity, 'Static light atlas capacity exceeded')
       paint(w, data, i, s, ao, blocked)
+      if checkpoint then
+        checkpoint('visibility ' .. i)
+      end
     end
     local image = love.graphics.newImage(data)
     image:setFilter('linear', 'linear')
     local entry = { key = key, image = image, data = data, size = Grid.span(w), world = w }
+    entry.cached, entry.cacheOrder, entry.bakes = {}, {}, #slots
     entry.shade = whole and { ao, blocked } or nil
     entry.origins = {}
     for i, s in ipairs(slots) do
       local fx, fz = V.frame(w, s.x, s.z)
       entry.origins[i] = { fx, fz }
+      if private then
+        local tile = love.image.newImageData(n, n)
+        local ox, oz = corner(i)
+        tile:paste(data, 0, 0, ox, oz, n, n)
+        local name = ('%.17g,%.17g'):format(s.x, s.z)
+        -- Coincident lights share one visibility tile, irrespective of colour.
+        if entry.cached[name] then
+          tile:release()
+        else
+          entry.cached[name] = tile
+          entry.cacheOrder[#entry.cacheOrder + 1] = name
+        end
+      end
     end
     if whole then
       entry.ground, entry.groundData = image, nil
@@ -199,11 +219,18 @@ function V.build(w, slots, owner, private)
       entry.ground:release()
       entry.groundData:release()
     end
+    for _, tile in pairs(entry.cached) do
+      tile:release()
+    end
+    entry.cached, entry.cacheOrder = {}, {}
   end, { kind = 'generated visibility', width = V.resolution * 4, height = V.resolution * 4 })
 end
 -- Bake source s into slot i of a built atlas (a light taking a free slot).
-function V.place(entry, i, s)
-  assert(i <= V.capacity, 'Static light atlas capacity exceeded')
+function V.prime(entry, s)
+  local key = ('%.17g,%.17g'):format(s.x, s.z)
+  if entry.cached[key] then
+    return entry.cached[key]
+  end
   local w, n = entry.world, V.resolution
   local tile = love.image.newImageData(n, n)
   if V.whole(w) then
@@ -212,10 +239,23 @@ function V.place(entry, i, s)
   else
     paint(w, tile, 1, s)
   end
+  if #entry.cacheOrder >= V.cacheCapacity then
+    local oldest = table.remove(entry.cacheOrder, 1)
+    entry.cached[oldest]:release()
+    entry.cached[oldest] = nil
+  end
+  entry.cached[key] = tile
+  entry.cacheOrder[#entry.cacheOrder + 1] = key
+  entry.bakes = entry.bakes + 1
+  return tile
+end
+function V.place(entry, i, s)
+  assert(i <= V.capacity, 'Static light atlas capacity exceeded')
+  local w, n = entry.world, V.resolution
+  local tile = V.prime(entry, s)
   local ox, oz = corner(i)
   entry.data:paste(tile, ox, oz, 0, 0, n, n)
   entry.image:replacePixels(tile, 1, 1, ox, oz, false)
-  tile:release()
   local fx, fz = V.frame(w, s.x, s.z)
   entry.origins[i] = { fx, fz }
 end

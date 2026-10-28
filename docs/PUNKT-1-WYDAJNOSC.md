@@ -102,3 +102,48 @@ Pomiar kończy się na synchronizującym odczycie 1 piksela z końcowego canvas.
 - `work/` to nieśledzone artefakty lokalne. Trwałym kontraktem w repo są instrumentacja QA, test i niniejszy raport. Skrypty w `work/` mają ochronę przed nadpisaniem poprzednich wyników.
 
 Do zebrania pełnych surowych próbek bez zmiany standardowego workloadu należy ustawić trzy opisane zmienne `SIGIL_BENCH_*` i uruchomić dotychczasowy `--benchmark`. Po pomiarze trzeba je usunąć/przywrócić; nie służą do konfiguracji normalnej gry. Nie należy wykonywać pomiaru równolegle z innymi testami lub renderowaniem.
+
+## 28 października — nowe starcia i przygotowanie światła
+
+Pięć naprzemiennych par E0 (`710d1ac`) / `9449bb3`, po 300 klatkach
+rozgrzewki, 720 klatek pomiaru i 2400 krokach, dało:
+
+| Scena | E0 mediana [ms] | Po zmianach [ms] | Wynik protokołu |
+|---|---:|---:|---|
+| 4 ciała, nieruchome efekty | 4,1132 | 4,2855 | NO REGRESSION |
+| 20 ciał, nieruchome efekty | 5,4102 | 5,4165 | INCONCLUSIVE |
+| 20 ciał, żywa walka, pełna klatka | 6,5114 | 8,7823 | REGRESSION |
+| 20 ciał, sam krok symulacji | 0,1234 | 0,1550 | REGRESSION |
+
+Surowe wyniki: `work/basilica-duel/perf/summary.txt`. To porównanie całego
+produktu, także nowych ataków, AI i hazardów; nie izoluje kosztu silnika.
+W żywej walce rozrzut po zmianach wynosi 22,4%. Nie unieważnia to ujemnego
+wyniku protokołu. W pierwszym przebiegu 20 ciał p95 wyniosło 17,82 ms,
+p99 21,95 ms. Nie deklarujemy stałych 60 FPS ani zamknięcia starej regresji.
+
+Znaleziono osobną, konkretną przyczynę zacięcia przy wejściu: atlas cieni
+i geometria świata powstawały dopiero w pierwszym rysowaniu. Poprzedni
+pełny test wejścia zarejestrował 345,72 ms w pierwszym katalogu i trzy
+odroczone natywne obrazy. Teraz `Renderer:prepareWorld` jest zadaniem
+widocznego LoadPlan. Symulacja i wejście pozostają zatrzymane do końca
+przygotowania. Kafelki widoczności powstają po jednym kroku ładowania.
+
+Atlas zachowuje najwyżej 64 kafelki CPU po 128×128 RGBA8 (4 MiB) i tylko
+14 miejsc GPU. Powrót do wcześniej widzianej lampy kopiuje gotowy kafelek,
+zamiast jeszcze raz liczyć widoczność i AO. Nowa geometria unieważnia cache;
+zwolnienie właściciela zwalnia też ImageData. Na obecnej mapie wszystkie
+30 źródeł mieści się w przygotowanej puli. Mapa z ponad 64 różnymi
+pozycjami świateł może nadal potrzebować obliczeń podczas eksploracji.
+
+Pierwszy pełny test po tej zmianie: katalog 10,737 ms (submit 5,273 ms),
+gra 15,450 ms (submit 11,930 ms), oba bez późnych obrazów PNG i natywnych.
+63 klatki ładowania, 17 PNG, 1917,894 ms do gotowości, najdłuższy provider
+127,738 ms. Dekodowanie PNG i upload pozostają niepodzielne. To świeży
+proces, nie wyczyszczony cache systemu/sterownika; przebudowana mapa też
+różni się od starszej. Liczby opisują obserwację, nie izolowane A/B.
+
+48 ujęć `majestic-final` i `optimized-review` ma identyczne SHA-256 PNG.
+Oszczędność nie pochodzi ze zmiany tekstur, HUD-u ani jakości cieni.
+Kontrola obejmuje powrót do lamp, przekroczenie limitu cache, odtworzenie
+wyrzuconego kafelka, porzucenie zasobów oraz awarię tworzenia mapy stropu
+i ponowienie przygotowania bez oznaczenia niepełnej rewizji jako gotowej.

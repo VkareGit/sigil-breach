@@ -1,7 +1,7 @@
 -- Runs only under the isolated --input-test identity, using real callbacks.
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
-function Tests.run(get, settings)
+function Tests.run(get, settings, settle)
   local U = require('src.ui.interface')
   local Run = require('src.run.descent')
   local Save = require('src.storage.run_save')
@@ -13,6 +13,9 @@ function Tests.run(get, settings)
   end
   local function key(k)
     love.keypressed(k, k)
+    if settle then
+      settle()
+    end
     draw()
   end
   local function click(id)
@@ -21,6 +24,9 @@ function Tests.run(get, settings)
     for _, b in ipairs(U.controls(get(), settings)) do
       if b.id == id then
         love.mousepressed(ox + (b.x + b.w / 2) * scale, oy + (b.y + b.h / 2) * scale, 1)
+        if settle then
+          settle()
+        end
         draw()
         return
       end

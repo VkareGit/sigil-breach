@@ -483,7 +483,7 @@ function Suite.contentText()
   end
   return table.concat(parts, '|')
 end
-function Suite.run(G, renderer, getGame, output, selected)
+function Suite.run(G, renderer, getGame, output, selected, getLoading)
   if selected then
     local found = false
     for _, entry in ipairs(Suite.registry) do
@@ -511,7 +511,7 @@ function Suite.run(G, renderer, getGame, output, selected)
         local test = require(entry.module)
         local lines
         if entry.application then
-          lines = test.run(G, initial, renderer, getGame)
+          lines = test.run(G, initial, renderer, getGame, getLoading)
         else
           lines = test.run(G, renderer)
         end

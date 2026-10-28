@@ -1,12 +1,15 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
-function Tests.run(get, settings)
+function Tests.run(get, settings, settle)
   local U = require('src.ui.interface')
   local Intent = require('src.player.intent')
   local lines = {}
   local check = Fixtures.checker(lines, '', '')
   local function key(value, repeatKey)
     love.keypressed(value, value, repeatKey)
+    if settle then
+      settle()
+    end
   end
   local function click(id)
     for _, button in ipairs(U.controls(get(), settings)) do
@@ -18,6 +21,9 @@ function Tests.run(get, settings)
           (h - 720 * scale) * 0.5 + (button.y + button.h * 0.5) * scale,
           1
         )
+        if settle then
+          settle()
+        end
         return
       end
     end

@@ -34,7 +34,7 @@ function ColdField.run(app, output, lines, check)
     local actionTime, plan = clock() - start, app.loading
     check(
       'first field uses a cold, pending gallery plan',
-      pending > 0 and plan and plan.kind == 'transition' and plan.total == pending
+      pending > 0 and plan and plan.kind == 'transition' and plan.total == pending + 1
     )
     app:update(1 / 60)
     check(
@@ -59,7 +59,7 @@ function ColdField.run(app, output, lines, check)
       plan.done
         and not app.loading
         and plan.steps == displayed
-        and displayed == pending
+        and displayed > pending
         and Gallery.pending(app.renderer) == 0
         and app.game.elapsed == elapsed
     )
@@ -98,7 +98,10 @@ function ColdField.run(app, output, lines, check)
         latePaths[#latePaths + 1] = filePaths[index]
       end
       local detail = #latePaths > 0 and (' (' .. table.concat(latePaths, ', ') .. ')') or ''
-      check(label .. ' has no deferred gallery PNG upload' .. detail, lazyFiles == 0)
+      check(
+        label .. ' has no deferred image allocation' .. detail,
+        lazyFiles == 0 and lazyNative == 0
+      )
       lines[#lines + 1] = string.format(
         '%s: submit %.3f ms; readback %.3f ms; complete %.3f ms; lazy file images %d; native images %d',
         label,
@@ -127,6 +130,11 @@ function ColdField.run(app, output, lines, check)
     app:action('field_leave')
     local returned = app.game == menu
     app:action('field_start')
+    while app.loading do
+      assert(not app.loading.error, app.loading.error)
+      app:draw()
+      app:update(1 / 60)
+    end
     check(
       'loaded field returns to the original menu and reenters warm',
       returned and app.game.mode == 'field' and not app.loading

@@ -1,6 +1,6 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
-function Tests.run(G, initial, renderer, getGame)
+function Tests.run(G, initial, renderer, getGame, getLoading)
   local W = require('src.world.arena')
   local F = require('src.player.feel')
   local C = require('src.combat.combat')
@@ -427,6 +427,13 @@ function Tests.run(G, initial, renderer, getGame)
   love.keypressed('return', 'return')
   check('old classic death confirmation cannot launch a disabled mode', getGame().state == 'dead')
   love.keypressed('f2', 'f2')
+  require('qa.tooling').advanceUntil('controller field preparation', function()
+    return not getLoading or not getLoading()
+  end, function()
+    assert(not getLoading().error, getLoading().error)
+    love.draw()
+    love.update(0)
+  end, 1 / 60, 10)
   love.keypressed('escape', 'escape')
   check(
     'the real controller opens free combat on the proving ground',

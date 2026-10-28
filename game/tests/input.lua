@@ -1,15 +1,26 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
-function Tests.run(get, settings, output)
+function Tests.run(get, settings, output, getLoading)
   local U = require('src.ui.interface')
   local lines = {}
   local check = Fixtures.checker(lines, '', '')
+  local function settle()
+    local steps = 0
+    while getLoading and getLoading() do
+      assert(not getLoading().error, getLoading().error)
+      assert(steps < 500, 'controller loading did not converge')
+      love.draw()
+      love.update(0)
+      steps = steps + 1
+    end
+  end
   local function draw()
     local w, h = love.graphics.getDimensions()
     U.draw(get(), w, h, settings)
   end
   local function key(k)
     love.keypressed(k, k)
+    settle()
     draw()
   end
   local function click(id)
@@ -18,6 +29,7 @@ function Tests.run(get, settings, output)
     for _, b in ipairs(U.controls(get(), settings)) do
       if b.id == id then
         love.mousepressed(ox + (b.x + b.w / 2) * scale, oy + (b.y + b.h / 2) * scale, 1)
+        settle()
         draw()
         return
       end
@@ -38,14 +50,8 @@ function Tests.run(get, settings, output)
     ids.field_skirmish and ids.field_start and not ids.start and not ids.continue
   )
   key('return')
-  -- The first field prepares at most one catalogue image per displayed frame.
-  -- Advance that real application boundary before sending gameplay commands;
-  -- zero delta leaves the skirmish clocks unchanged. Its cancellation and
-  -- per-frame work limits are covered separately by gallery_loading.
-  for _ = 1, #require('src.render.gallery').boards + 1 do
-    love.draw()
-    love.update(0)
-  end
+  -- Every real transition completes its visible preparation with zero delta;
+  -- control tests must not bypass the loader or advance combat while waiting.
   check(
     'Enter opens a skirmish through the real controller',
     get().state == 'playing' and get().testField and get().testField.skirmish
@@ -61,10 +67,10 @@ function Tests.run(get, settings, output)
   )
   key('escape')
   click('field_leave')
-  for _, line in ipairs(require('tests.cases.test_field_input').run(get, settings)) do
+  for _, line in ipairs(require('tests.cases.test_field_input').run(get, settings, settle)) do
     lines[#lines + 1] = line
   end
-  for _, line in ipairs(require('tests.cases.input_lifecycle').run(get, settings)) do
+  for _, line in ipairs(require('tests.cases.input_lifecycle').run(get, settings, settle)) do
     lines[#lines + 1] = line
   end
   lines[#lines + 1] = '\n'

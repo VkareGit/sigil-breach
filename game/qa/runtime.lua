@@ -138,9 +138,9 @@ function Q:runEarly()
   love.event.quit(0)
   return true
 end
-function Q:run(G, renderer, getGame, settings)
+function Q:run(G, renderer, getGame, settings, getLoading)
   if self.suite then
-    require('tests.suite').run(G, renderer, getGame, self.output, self.suite)
+    require('tests.suite').run(G, renderer, getGame, self.output, self.suite, getLoading)
   elseif self:has('--detail-test') then
     require('tests.suite').run(G, renderer, getGame, self.output, 'details')
   elseif self:has('--detail-review') then
@@ -183,9 +183,9 @@ function Q:run(G, renderer, getGame, settings)
     -- Balance tuning (plan v5): the human-model populations alone.
     require('qa.scenarios.playtest').population(G)
   elseif self:has('--selftest') then
-    require('tests.suite').run(G, renderer, getGame, self.output)
+    require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading)
   elseif self:has('--input-test') then
-    require('tests.input').run(getGame, settings, self.output .. '/input-results.txt')
+    require('tests.input').run(getGame, settings, self.output .. '/input-results.txt', getLoading)
   elseif self:has('--ui-audit') then
     for _, line in ipairs(require('tests.cases.bitmap_ui').run(G, renderer) or {}) do
       print(line)

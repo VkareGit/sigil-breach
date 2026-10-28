@@ -90,23 +90,29 @@ function Tests.run(G, renderer)
     end
     check('bitmap progress fits five physical viewports', (Skin.auditFailureCount or 0) == failures)
     local beforePreload = calls
+    local plan = app.loading
     local steps = 0
     while app.loading do
       app:draw()
       check('loading never publishes a world shot observation', app.input.observation == nil)
       local before = calls
+      local beforePaths, job = #paths, plan.index
       app:update(0.1)
       steps = steps + 1
-      check('preload step creates at most one image ' .. steps, calls - before == 1)
+      if job < total then
+        check('PNG provider creates exactly one image ' .. steps, calls - before == 1)
+      else
+        check('world provider never loads an unplanned PNG ' .. steps, #paths == beforePaths)
+      end
       check(
         'loading step leaves all simulation clocks and totals unchanged ' .. steps,
         not Integrity.difference(initial, Integrity.capture(loadingGame))
       )
-      assert(steps <= total, 'preload did not converge')
+      assert(steps < 500, 'preload did not converge')
     end
     check(
       'finite preload fills the shared cache exactly once',
-      steps == total and Gallery.pending(renderer) == 0
+      steps >= total and Gallery.pending(renderer) == 0
     )
     app:update(0.1)
     check(
@@ -116,15 +122,23 @@ function Tests.run(G, renderer)
     app:action('field_leave')
     app:action('field_start')
     check(
-      'second entry has zero loading steps and preserves return routing',
-      not app.loading and Navigation.previous(app) == previous
+      'second entry only prepares its world and preserves return routing',
+      app.loading and app.loading.total == 1 and Navigation.previous(app) == previous
     )
+    local warmPaths = #paths
+    require('qa.tooling').advanceUntil('warm world preparation', function()
+      return not app.loading
+    end, function(dt)
+      app:draw()
+      app:update(dt)
+    end, 1 / 60, 10)
+    check('warm entry reloads no file image', #paths == warmPaths)
     local beforeDraw = calls
     paths = {}
     app:draw()
     check(
       'rendering the fully prepared gallery loads no more PNGs',
-      Gallery.preloadStep(renderer) == 0 and #paths == 0 and beforeDraw == beforePreload + total
+      Gallery.preloadStep(renderer) == 0 and #paths == 0 and calls == beforeDraw
     )
     app:action('field_leave')
     check(

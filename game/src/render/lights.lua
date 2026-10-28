@@ -102,7 +102,7 @@ local function decks(w, owner)
     datum = w.floor or 0,
   }
 end
-function L:prepare(w)
+function L:prepare(w, checkpoint)
   if self.world == w and self.revision == w.geometryRevision then
     return
   end
@@ -128,14 +128,21 @@ function L:prepare(w)
   end
   local previous = self.resources
   local resources = Resources.new('world light visibility')
-  local visibility = Visibility.build(w, first, resources, #sources > L.capacity)
+  local visibility = Visibility.build(w, first, resources, #sources > L.capacity, checkpoint)
+  if checkpoint and #sources > L.capacity then
+    -- Bound preparation even for authoring maps with hundreds of lamps.
+    for i = 1, math.min(#sources, Visibility.cacheCapacity) do
+      Visibility.prime(visibility, sources[i])
+      checkpoint('light tile ' .. i)
+    end
+  end
+  local preparedGround, preparedDecks = ground(w, visibility), decks(w, resources)
   -- Commit only a complete replacement. Failed native allocation leaves the
   -- previous world's atlas usable and this revision eligible for a retry.
   self.world, self.revision, self.sources = w, w.geometryRevision, sources
   self.visibility = visibility
   self.resources = resources
-  self.ground = ground(w, visibility)
-  self.decks = decks(w, resources)
+  self.ground, self.decks = preparedGround, preparedDecks
   self.tileSpan = select(3, Visibility.frame(w, 0, 0))
   if previous then
     previous:release()

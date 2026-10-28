@@ -77,10 +77,17 @@ function Application:adopt(game)
   self:applySettings()
   local tools = Queries.tools(game)
   if tools and tools.gallery and self.renderer then
-    local remaining = require('src.render.gallery').pending(self.renderer)
-    if remaining > 0 then
-      self.loading =
-        LoadPlan.new('loading_gallery', require('src.render.gallery').loadingJobs(self.renderer))
+    local jobs = require('src.render.gallery').loadingJobs(self.renderer)
+    if self.renderer.prepareWorld then
+      jobs[#jobs + 1] = {
+        label = 'loading_world',
+        run = function(checkpoint)
+          self.renderer:prepareWorld(game, checkpoint)
+        end,
+      }
+    end
+    if #jobs > 0 then
+      self.loading = LoadPlan.new('loading_gallery', jobs)
       self.loading.kind = 'transition'
       self.accumulator = 0
       self.input:reset(true)
@@ -269,9 +276,19 @@ function Application:finishStartup()
     love.audio.stop()
     love.audio.setVolume(0)
   end
-  if self.qa:run(Game, self.renderer, function()
-    return self.game
-  end, self.settings) then
+  if
+    self.qa:run(
+      Game,
+      self.renderer,
+      function()
+        return self.game
+      end,
+      self.settings,
+      function()
+        return self.loading
+      end
+    )
+  then
     return
   end
   if self:has('--ui-test') and self:has('--shop') then

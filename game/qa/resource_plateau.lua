@@ -80,6 +80,15 @@ function Plateau.run(Game, renderer, initial, settings, output)
     app:adopt(menu)
     draw(menu)
     app:action('field_start')
+    local function prepare()
+      require('qa.tooling').advanceUntil('resource cycle preparation', function()
+        return not app.loading
+      end, function(dt)
+        app:draw()
+        app:update(dt)
+      end, 1 / 60, 10)
+    end
+    prepare()
     local game = app.game
     game.testing = true
     assert(game.mode == 'field' and Navigation.previous(app) == menu, 'field navigation lost menu')
@@ -103,6 +112,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     replay.testing = true
     Journal.replay(replay, journal)
     app:adopt(replay)
+    prepare()
     draw(replay)
     -- The expedition remains closed in the player menu. Exercise its real
     -- navigation/session lifecycle through the registered mode API, not a

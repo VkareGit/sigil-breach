@@ -506,7 +506,7 @@ function R:drawBodies()
   self.bodies:draw(self.bodyPigment)
   love.graphics.setShader(self.spriteShader)
 end
-function R:draw(g, w, h)
+function R:prepareWorld(g, checkpoint)
   assert(not self.released, 'renderer has been released')
   if self.meshWorld ~= g.world or self.meshRevision ~= g.world.geometryRevision then
     local resources = Resources.new('renderer world geometry')
@@ -518,6 +518,13 @@ function R:draw(g, w, h)
       previous:release()
     end
   end
+  if checkpoint then
+    checkpoint('world mesh')
+  end
+  self.lighting:prepare(g.world, checkpoint)
+end
+function R:draw(g, w, h)
+  self:prepareWorld(g)
   local lg = love.graphics
   local time = g.time
   self:frameCamera(g, w, h)

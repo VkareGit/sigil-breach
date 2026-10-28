@@ -58,6 +58,30 @@ function T.run(G, check, r)
   g.bullets = {}
   local lighting = Lights.new()
   lighting:update(g)
+  local originalWorld, originalAtlas = lighting.world, lighting.visibility
+  local replacement = fixture()
+  local createImage = love.graphics.newImage
+  love.graphics.newImage = function(data, ...)
+    if type(data) == 'userdata' and data:getWidth() == 1 and data:getHeight() == 1 then
+      error('injected deck image allocation failure')
+    end
+    return createImage(data, ...)
+  end
+  local success, failure = pcall(lighting.prepare, lighting, replacement)
+  love.graphics.newImage = createImage
+  check(
+    'failed deck allocation preserves the previous complete lighting revision',
+    not success
+      and tostring(failure):find('injected deck', 1, true)
+      and lighting.world == originalWorld
+      and lighting.visibility == originalAtlas
+  )
+  lighting:prepare(replacement)
+  check(
+    'failed world preparation can retry its uncommitted revision',
+    lighting.world == replacement
+  )
+  lighting:update(g)
   local previousAtlas = lighting.visibility
   g.world.map[23][16] = 1
   require('src.world.arena').rebuild(g.world)
@@ -256,6 +280,29 @@ function T.run(G, check, r)
       and V.sample(big.visibility, last, 41.5, 6) < 0.05
   )
   local groundWidth, groundDepth = big.ground.image:getDimensions()
+  local baked = big.visibility.bakes
+  local litBefore, shadeBefore, wallBefore = V.sample(big.visibility, last, 37, 6)
+  look(10)
+  look(34)
+  local litAfter, shadeAfter, wallAfter = V.sample(big.visibility, slotOf(hall.lamps[30]), 37, 6)
+  check(
+    'revisiting lamps reuses bounded tiles with identical visibility pixels',
+    big.visibility.bakes == baked
+      and litBefore == litAfter
+      and shadeBefore == shadeAfter
+      and wallBefore == wallAfter
+  )
+  for i = 1, V.cacheCapacity + 2 do
+    V.prime(big.visibility, { x = 2 + i * 0.01, z = 6 })
+  end
+  check(
+    'light tile cache stays bounded even with many distinct source positions',
+    #big.visibility.cacheOrder == V.cacheCapacity
+  )
+  look(10)
+  look(34)
+  local restored = V.sample(big.visibility, slotOf(hall.lamps[30]), 37, 6)
+  check('an evicted light is reconstructed without changing its shadow', restored == litBefore)
   check(
     'a large map keeps its contact shade and walls in a ground image of the whole map',
     big.ground.image ~= big.visibility.image
