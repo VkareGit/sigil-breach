@@ -6,6 +6,16 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'roof-cells',
+    title = 'Visible vaults, point rays and finite projectiles',
+    module = 'tests.cases.roof_cells',
+  },
+  {
+    id = 'seal-motion',
+    title = 'Read-only summoning animation and identity',
+    module = 'tests.cases.seal_motion',
+  },
+  {
     id = 'creature-pressure',
     title = 'Ordinary creatures against finite ammunition and reactive movement',
     module = 'tests.cases.creature_pressure',

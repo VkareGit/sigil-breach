@@ -65,6 +65,20 @@ function C.arena(g, state)
   local room = trial and find(layout.chambers, trial.chamber)
   return room and room.fire
 end
+-- Presentation receives authored identity and authoritative encounter clocks,
+-- not a renderer-owned timer which can restart on camera changes or replay.
+function C.ritual(g, state, out)
+  local active = state.roomTrial
+  local layout = active and C.layout(g)
+  for _, pad in ipairs(layout and layout.pads or {}) do
+    if pad.trial == active.id and pad.altar then
+      out.summoningSeal = pad.altar
+      out.summoningStarted, out.summoningFinished = active.started, active.finished
+      out.summoningStatus = active.status
+      return
+    end
+  end
+end
 function C.forCreature(g, kind)
   local layout = C.layout(g)
   for _, trial in ipairs(layout and layout.trials or {}) do

@@ -85,6 +85,19 @@ function Review.run(Game, renderer, output)
   capture('11-catacomb-west', 18, 4, 13.58, 1.5, 3.5)
   capture('11-catacomb-east', 30, 4, 34.42, 1.5, 3.5)
   capture('11-loculi-aisle', 16, 4, 18, 1.5, 1.58)
+  capture('19-ossuary', 16, 4, 13.64, 1.4, 3.5)
+  capture('19-threshold', 24, 35.5, 24, 2.8, 39.34)
+  capture('19-relic-shelf', 20.2, 35.5, 18.60, 1.4, 35.5)
+  g:act('catalog', 'field_chamber_ash')
+  g.testField.invincible = true
+  for index = 0, 5 do
+    if index > 0 then
+      for _ = 1, 24 do
+        g:update(1 / 120, {})
+      end
+    end
+    capture('19-seal-activation-' .. index, 10, 11, 10, 2.0, 7)
+  end
   for _, id in ipairs({ 'ash', 'storm' }) do
     g:act('catalog', 'field_chamber_' .. id)
     g.testField.invincible = true -- art inspection only, live entry is mortal
@@ -93,6 +106,7 @@ function Review.run(Game, renderer, output)
     end
     local x = g.player.x
     capture('14-' .. id .. '-arena', x, 25, x, 3.2, 10)
+    capture('14-' .. id .. '-arena-4x3', x, 25, x, 3.2, 10, 1024, 768)
     capture('14-' .. id .. '-vault', x, 25, x, 7.0, 15)
     local boss = assert(g.enemies[1])
     for _ = 1, 300 do

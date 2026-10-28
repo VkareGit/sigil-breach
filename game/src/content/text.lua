@@ -100,6 +100,10 @@ function Text.get(id, parameters)
   return table.concat(out)
 end
 local definitions = {
+  { 'inscription_binding_1', 'AND NOT TO DEPART' },
+  { 'inscription_binding_2', 'WITHOUT MY LICENCE' },
+  { 'inscription_threshold_1', 'PER ME SI VA' },
+  { 'inscription_threshold_2', 'TRA LA PERDUTA GENTE' },
   { 'health', 'HEALTH' },
   { 'ward', 'WARD' },
   { 'arsenal', 'ARSENAL' },

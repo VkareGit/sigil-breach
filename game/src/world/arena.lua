@@ -97,7 +97,7 @@ function W.new(mode, mapId)
     w.decks = {}
     local merged = {}
     for _, area in ipairs(data.decks) do
-      local slab = { area.top - area.thickness, area.top }
+      local slab = { area.top - area.thickness, area.top, area.bottoms and copy(area.bottoms) }
       local alone = { slab }
       for z = area.z1, area.z2 do
         w.decks[z] = w.decks[z] or {}
@@ -141,8 +141,17 @@ function W.rebuild(w)
     -- p[3] (optional): it stands on the surface under that height (a deck).
     local stand = p[3] and Ground.height(w, p[1], p[2], (w.floor or 0) + p[3])
       or Ground.height(w, p[1], p[2])
-    w.lamps[#w.lamps + 1] =
-      { x = p[1], y = stand + data.lampHeight, z = p[2], phase = #w.lamps, level = p[3] and stand }
+    local height = p.lightHeight or data.lampHeight
+    w.lamps[#w.lamps + 1] = {
+      x = p[1],
+      y = stand + height,
+      z = p[2],
+      phase = #w.lamps,
+      level = p[3] and stand,
+      color = p.color and copy(p.color),
+      scale = p.scale,
+      brightness = p.brightness,
+    }
   end
   if w.mode == 'descent' then
     local ember, clear = data.ember, data.emberClear or 0

@@ -1,6 +1,7 @@
 -- Opaque architecture: the sky, the world mesh, then the world objects of
 -- this pass (render/world_objects.lua: the lamps' sparks, the seals).
 local WorldObjects = require('src.render.world_objects')
+local Environment = require('src.content.art.environment')
 local Pass = {}
 function Pass.draw(r, g, time, view)
   local lg = love.graphics
@@ -16,6 +17,12 @@ function Pass.draw(r, g, time, view)
   r.shader:send('flash', g.view.muzzle * 7)
   r.shader:send('flashColor', g.view.flashColor)
   r.lighting:send(r.shader, g, r.camera, r.forward)
+  local paint = g.world.decor and Environment[g.world.decor.stonePaint]
+  r.shader:send('useStonePaint', paint and 1 or 0)
+  if paint then
+    r.shader:send('stoneAtlas', r.resources:image(paint.path, paint))
+    r.shader:send('stoneRect', paint.rect)
+  end
   r:object(r.worldMesh)
   WorldObjects.draw(r, g, 'architecture', view, time)
 end

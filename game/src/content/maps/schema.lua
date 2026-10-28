@@ -147,6 +147,23 @@ function Schema.check(map, id)
     if lamp[3] ~= nil then
       number(lamp[3], label .. '.lamp.surface')
     end
+    if lamp.scale ~= nil then
+      positive(lamp.scale, label .. '.lamp.scale')
+    end
+    if lamp.lightHeight ~= nil then
+      positive(lamp.lightHeight, label .. '.lamp.lightHeight')
+    end
+    if lamp.brightness ~= nil then
+      positive(lamp.brightness, label .. '.lamp.brightness')
+    end
+    if lamp.color ~= nil then
+      list(lamp.color, label .. '.lamp.color')
+      assert(#lamp.color == 3, label .. '.lamp.color requires RGB')
+      for _, component in ipairs(lamp.color) do
+        number(component, label .. '.lamp.color')
+        assert(component >= 0 and component <= 4, label .. '.lamp.color outside [0,4]')
+      end
+    end
   end
   local used = {}
   for _, area in ipairs(map.elevations or {}) do
@@ -185,6 +202,20 @@ function Schema.check(map, id)
     positive(area.thickness, label .. '.deck.thickness')
     assert(area.x1 <= area.x2 and area.z1 <= area.z2, label .. ': deck bounds reversed')
     local bottom = area.top - area.thickness
+    if area.bottoms ~= nil then
+      list(area.bottoms, label .. '.deck.bottoms')
+      assert(
+        (#area.bottoms == 4 or #area.bottoms == 5) and area.x1 == area.x2 and area.z1 == area.z2,
+        label .. ': a profiled slab needs four corners in a single cell'
+      )
+      local lowest = math.huge
+      for _, height in ipairs(area.bottoms) do
+        number(height, label .. '.deck.bottoms')
+        assert(height < area.top, label .. ': underside must remain below top')
+        lowest = math.min(lowest, height)
+      end
+      assert(math.abs(lowest - bottom) < 1e-8, label .. ': thickness must bound the lowest corner')
+    end
     for z = area.z1, area.z2 do
       slabs[z] = slabs[z] or {}
       for x = area.x1, area.x2 do
@@ -205,6 +236,16 @@ function Schema.check(map, id)
     end
   end
   local decor = map.decor or {}
+  if decor.stonePaint ~= nil then
+    assert(
+      require('src.content.art.environment')[decor.stonePaint],
+      label .. '.decor.stonePaint is unknown'
+    )
+  end
+  assert(
+    decor.pillarStyle == nil or decor.pillarStyle == 'shaft',
+    label .. '.decor.pillarStyle is unknown'
+  )
   assert(
     decor.niches == nil or type(decor.niches) == 'boolean',
     label .. '.decor.niches must be boolean'
@@ -228,6 +269,7 @@ function Schema.check(map, id)
     'candles',
     'reliquaries',
     'murals',
+    'inscriptions',
     'props',
   }) do
     if decor[key] then
@@ -244,6 +286,9 @@ function Schema.check(map, id)
     assert(decor.portal.radius > 0.2, label .. '.decor.portal radius cannot invert its inner ring')
   end
   for _, arch in ipairs(decor.arches or {}) do
+    if arch.radius ~= nil then
+      positive(arch.radius, label .. '.arch.radius')
+    end
     if arch.yaw ~= nil then
       number(arch.yaw, label .. '.arch.yaw')
     end
@@ -273,11 +318,31 @@ function Schema.check(map, id)
       integer(mural.frame, label .. '.mural.frame', 1, 4)
     end
     positive(mural.size, label .. '.mural.size')
+    if mural.width ~= nil then
+      positive(mural.width, label .. '.mural.width')
+    end
+    if mural.brightness ~= nil then
+      positive(mural.brightness, label .. '.mural.brightness')
+    end
     number(mural.y, label .. '.mural.y')
     number(mural.yaw, label .. '.mural.yaw')
   end
+  for _, item in ipairs(decor.inscriptions or {}) do
+    assert(require('src.content.art.inscriptions')[item.id], label .. '.inscription.id is unknown')
+    positive(item.width, label .. '.inscription.width')
+    number(item.y, label .. '.inscription.y')
+    number(item.yaw, label .. '.inscription.yaw')
+  end
   for _, prop in ipairs(decor.props or {}) do
-    integer(prop.frame, label .. '.prop.frame', 1, 8)
+    if prop.art ~= nil then
+      assert(require('src.content.art.environment')[prop.art], label .. '.prop.art is unknown')
+      assert(prop.frame == nil, label .. '.prop cannot combine art and frame')
+    else
+      integer(prop.frame, label .. '.prop.frame', 1, 8)
+    end
+    if prop.yaw ~= nil then
+      number(prop.yaw, label .. '.prop.yaw')
+    end
     positive(prop.size, label .. '.prop.size')
     positive(prop.brightness, label .. '.prop.brightness')
   end

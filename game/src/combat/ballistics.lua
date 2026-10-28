@@ -6,6 +6,7 @@ local Corpse = require('src.enemies.corpse')
 local Roles = require('src.core.roles')
 local Masks = require('src.content.art.hit_masks')
 local CylinderCast = require('src.physics.cylinder_cast')
+local Roof = require('src.physics.roof_cell')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local eye = require('src.content.knight').body.eye
@@ -148,21 +149,28 @@ local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
   local decks = Ground.decks(w, x, z)
   if decks then
     for _, deck in ipairs(decks) do
-      local lo, hi = entry, exit
-      if abs(dy) < 1e-12 then
-        if oy < deck[1] or oy > deck[2] then
-          lo = math.huge
+      if deck[3] then
+        local t, n = Roof.cast(deck, x, z, ray.ox, oy, ray.oz, ray.dx, dy, ray.dz, 0, exit)
+        if t and t >= entry - 1e-8 and (not best or t < best) then
+          best, ax, ay, az = t, n[1], n[2], n[3]
         end
       else
-        local a, b = (deck[1] - oy) / dy, (deck[2] - oy) / dy
-        lo, hi = math.max(lo, math.min(a, b)), math.min(hi, math.max(a, b))
-      end
-      if lo <= hi and (not best or lo < best) then
-        best = lo
-        if lo > entry then
-          ax, ay, az = 0, dy > 0 and -1 or 1, 0
+        local lo, hi = entry, exit
+        if abs(dy) < 1e-12 then
+          if oy < deck[1] or oy > deck[2] then
+            lo = math.huge
+          end
         else
-          ax, ay, az = nx, 0, nz
+          local a, b = (deck[1] - oy) / dy, (deck[2] - oy) / dy
+          lo, hi = math.max(lo, math.min(a, b)), math.min(hi, math.max(a, b))
+        end
+        if lo <= hi and (not best or lo < best) then
+          best = lo
+          if lo > entry then
+            ax, ay, az = 0, dy > 0 and -1 or 1, 0
+          else
+            ax, ay, az = nx, 0, nz
+          end
         end
       end
     end

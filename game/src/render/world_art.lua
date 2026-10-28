@@ -72,12 +72,12 @@ function Art.prop(r, g, frame, x, y, z, scale, bright)
   s:send('brightness', bright or 0.9)
   love.graphics.draw(r.sprite)
 end
-function Art.mural(r, frame, x, y, z, yaw, size, art)
+function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   local s = r.spriteShader
   local entry = art and Environment[art]
   r.sprite:setTexture(entry and r.resources:image(entry.path, entry) or r.frescoes)
   s:send('silhouette', 0)
-  s:send('spriteStretch', UNIT)
+  s:send('spriteStretch', width and r:vec2(width / size, 1) or UNIT)
   s:send('effectAlpha', 1)
   s:send('soft', 0)
   s:send('mirror', 0)
@@ -88,7 +88,7 @@ function Art.mural(r, frame, x, y, z, yaw, size, art)
   local lr, lg, lb = r.lighting:sample(x, y + 1, z)
   s:send('lean', 0)
   s:send('pain', 0)
-  s:send('brightness', lr * 0.30 + lg * 0.59 + lb * 0.11)
+  s:send('brightness', (lr * 0.30 + lg * 0.59 + lb * 0.11) * (brightness or 1))
   love.graphics.draw(r.sprite)
 end
 function Art.pickup(r, g, a)
@@ -175,8 +175,8 @@ WorldObjects.register('lamp', {
           l.x,
           Ground.of(g.world, l),
           l.z,
-          1.7,
-          1.1
+          l.scale or 1.7,
+          l.brightness or 1.1
         )
       end
     end,
@@ -187,9 +187,9 @@ WorldObjects.register('seal', {
   {
     pass = 'architecture',
     order = 20,
-    draw = function(r, g)
+    draw = function(r, g, view)
       for _, s in ipairs(g.world.seals) do
-        Ritual.seal(r, g, s)
+        Ritual.seal(r, g, s, view)
       end
     end,
   },
@@ -204,6 +204,10 @@ WorldObjects.register('seal', {
 WorldObjects.register('arena_fire', {
   { pass = 'sprites', order = 35, draw = require('src.render.arena_fire').draw },
   init = props,
+})
+WorldObjects.register('inscription', {
+  { pass = 'architecture', order = 25, draw = require('src.render.inscriptions').draw },
+  init = require('src.render.inscriptions').init,
 })
 -- Supplies: painted icons in the expedition and the proving ground, the
 -- classic arena's boxes otherwise (view.paintedPickups).
@@ -296,7 +300,9 @@ WorldObjects.register('mural', {
           mural.z,
           mural.yaw,
           mural.size,
-          mural.art
+          mural.art,
+          mural.width,
+          mural.brightness
         )
       end
     end,
@@ -383,16 +389,34 @@ WorldObjects.register('prop', {
     draw = function(r, g, view)
       for _, prop in ipairs((g.world.decor or {}).props or {}) do
         local brightness = prop.secret and view.secretFound and 0.4 or prop.brightness
-        Art.prop(
-          r,
-          g,
-          prop.frame,
-          prop.x,
-          Ground.of(g.world, prop) + (prop.y or 0),
-          prop.z,
-          prop.size,
-          brightness
-        )
+        if prop.art then
+          local viewer = Context.viewer(g)
+          local yaw = prop.yaw or math.atan2(viewer.x - prop.x, viewer.z - prop.z)
+          local entry = Environment[prop.art]
+          Art.mural(
+            r,
+            nil,
+            prop.x,
+            Ground.of(g.world, prop) + (prop.y or 0),
+            prop.z,
+            yaw,
+            prop.size,
+            prop.art,
+            prop.size * (entry.aspect or 1),
+            brightness
+          )
+        else
+          Art.prop(
+            r,
+            g,
+            prop.frame,
+            prop.x,
+            Ground.of(g.world, prop) + (prop.y or 0),
+            prop.z,
+            prop.size,
+            brightness
+          )
+        end
       end
     end,
   },

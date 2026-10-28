@@ -16,12 +16,12 @@ Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Uż
 | 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060, 2704b4b; bossowie oraz 16 walk zwykłych demonów obiema broniami; ludzki odbiór do próby |
 | 5 | Nawa, dwie monumentalne sale pojedynków, absydy, krypty, stanowiska mapy i aktywny obwód ognia | bca9642; dojścia, osłony, reset, przywołania i rendery sprawdzone |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b; testy i pełny eksport zakończone; odsłuch gracza do wykonania |
-| 7 | Spójność freskowego otoczenia, odróżnialne gesty obecnych demonów, malowane efekty i odbiór w ruchu | **NIEUKOŃCZONY.** Nisze (9449bb3) i korekta portali (f3547ad) to częściowe prace. Przegląd wizualny i propozycja kierunku poniżej; nowe zasoby wymagają akceptacji |
+| 7 | Spójność freskowego otoczenia, odróżnialne gesty obecnych demonów, malowane efekty i odbiór w ruchu | **CZĘŚCIOWO.** Zatwierdzony kierunek otoczenia wdrożony: sklepienia, freski, malowany mur, ossuarium i aktywacja pieczęci. Nowe gesty demonów oraz pełny odbiór 7C–7F pozostają otwarte |
 | 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56, f27ba3f i pełne All: 5006 + 36 sprawdzeń; zakres funkcjonalny sprawdzony, kryterium kosztu pełnej klatki niezaliczone — szczegóły w raporcie |
 
 **Nie ukończono 8/8.** Punkt 7 jest niekompletny także na poziomie wykonania,
-nie tylko akceptacji użytkownika. Nisze i naprawa kolejności rysowania portali
-nie realizują całego zakresu artystycznego. Punkty 1 i 8 mają ponadto otwarte
+nie tylko akceptacji użytkownika. Wdrożone otoczenie, nisze i animacja pieczęci
+nie realizują zakresu nowych gestów i całej oprawy walki. Punkty 1 i 8 mają ponadto otwarte
 kryterium wydajności. Feeling, czytelność w długiej walce i odsłuch wymagają
 próby użytkownika. Poprzednia deklaracja gotowości punktów 2–7 była zbyt szeroka.
 
@@ -848,7 +848,10 @@ z prawdziwego `work/qa-v33/chambers-ash-active-normal.png`. To propozycja
 kompozycji, nie wdrożenie ani obraz do wklejenia w grę. Generator przerysował
 też pierwszy plan; te różnice HUD-u, broni i demona nie są proponowanymi
 zmianami. Detal gotowych zasobów ma odpowiadać dotychczasowym demonom,
-nie rozdzielczości koncepcji. Kierunek otoczenia oczekuje na akceptację.
+nie rozdzielczości koncepcji. Użytkownik zaakceptował kierunek otoczenia,
+następnie poprosił o ciemniejszą przestrzeń, wyższe sklepienia, znaczące
+inskrypcje, aktywację pieczęci, degradację muru i detale ossuarium. Ta część
+jest teraz wdrożona; nie obejmuje akceptacji nowych sylwetek demonów.
 
 Odwołania artystyczne pozostają cztery, z rozdzielonym zastosowaniem:
 Giovanni da Modena — cykl piekła wkomponowany w kaplicę; Michał Anioł — ciężar

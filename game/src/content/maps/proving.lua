@@ -13,9 +13,9 @@ local map = {
     { 3, 12, 17, 29 },
     { 31, 12, 45, 29 }, -- clear duelling floors
     { 6, 8, 14, 12 },
-    { 8, 6, 12, 8 }, -- western apse
+    { 6, 6, 14, 8 }, -- western apse
     { 34, 8, 42, 12 },
-    { 36, 6, 40, 8 }, -- eastern apse
+    { 34, 6, 42, 8 }, -- eastern apse
     { 17, 26, 20, 29 },
     { 28, 26, 31, 29 }, -- low thresholds
     { 18, 2, 21, 8 },
@@ -92,18 +92,17 @@ local map = {
   },
   decor = {
     atmosphere = {
-      ambient = { 0.19, 0.16, 0.145 },
+      ambient = { 0.145, 0.14, 0.15 },
       figures = { 0.46, 0.45, 0.44 },
       sky = { 0.4, 0.3, 0.25 },
     },
     niches = false,
+    pillarStyle = 'shaft',
+    stonePaint = 'chapel_masonry',
     arches = {},
     rituals = { { x = 24, z = 14, rings = { 2.2, 2.3 }, orbit = 2.1, seals = 9 } },
     aisles = { { x = 22.4, z = 24, length = 28 }, { x = 25.6, z = 24, length = 28 } },
-    murals = {
-      { frame = 3, x = 24, y = 0.8, z = 1.65, yaw = 0, size = 3 },
-      { frame = 4, x = 24, y = 0.8, z = 39.35, yaw = math.pi, size = 4 },
-    },
+    murals = {},
     banners = { { x = 19.3, z = 34, side = 1 }, { x = 28.7, z = 34, side = -1 } },
     candles = {
       { x = 22, z = 37 },
@@ -122,23 +121,17 @@ for index, cx in ipairs({ 10, 38 }) do
       map.pillars[#map.pillars + 1] = { x, z }
     end
     map.decor.arches[#map.decor.arches + 1] =
-      { x = cx, z = z, halfSpan = 5, spring = 4.6, rise = 4.4 }
+      { x = cx, z = z, halfSpan = 5, spring = 4.6, rise = 7.2 }
   end
   for _, x in ipairs({ cx - 5, cx + 5 }) do
     for _, z in ipairs({ 16.5, 23.5 }) do
       map.decor.arches[#map.decor.arches + 1] =
-        { x = x, z = z, yaw = math.pi / 2, halfSpan = 3.5, spring = 3.8, rise = 1.5 }
+        { x = x, z = z, yaw = math.pi / 2, halfSpan = 3.5, spring = 4.6, rise = 7.0 }
     end
   end
   -- A high triumphal arch frames the smaller, raised altar chamber.
   map.decor.arches[#map.decor.arches + 1] =
     { x = cx, z = 9, halfSpan = 5, spring = 4.2, rise = 3.0 }
-  map.decor.murals[#map.decor.murals + 1] =
-    { frame = index, x = cx, y = 0.65, z = 5.65, yaw = 0, size = 3.5 }
-  map.decor.murals[#map.decor.murals + 1] =
-    { frame = index, x = cx - 7.35, y = 0.5, z = 17, yaw = math.pi / 2, size = 4.1 }
-  map.decor.murals[#map.decor.murals + 1] =
-    { frame = index + 2, x = cx + 7.35, y = 0.5, z = 24, yaw = -math.pi / 2, size = 4.1 }
   map.decor.rituals[#map.decor.rituals + 1] =
     { x = cx, z = 21, rings = { 2.6, 2.7 }, orbit = 2.4, seals = 9 }
   for _, side in ipairs({ -1, 1 }) do
@@ -160,12 +153,12 @@ for _, x in ipairs({ 20, 28 }) do
   end
   for _, z in ipairs({ 13.5, 20.5, 27.5, 34.5 }) do
     map.decor.arches[#map.decor.arches + 1] =
-      { x = x, z = z, yaw = math.pi / 2, halfSpan = 3.5, spring = 3.8, rise = 1.5 }
+      { x = x, z = z, yaw = math.pi / 2, halfSpan = 3.5, spring = 4.6, rise = 7.0 }
   end
 end
 for _, z in ipairs({ 10, 17, 24, 31, 38 }) do
   map.decor.arches[#map.decor.arches + 1] =
-    { x = 24, z = z, halfSpan = 4, spring = 4.6, rise = 3.5 }
+    { x = 24, z = z, halfSpan = 4, spring = 4.6, rise = 7.0 }
 end
 for _, bay in ipairs({
   { 13.58, 3.5, math.pi / 2 },
@@ -176,65 +169,10 @@ for _, bay in ipairs({
   map.decor.murals[#map.decor.murals + 1] =
     { art = 'catacomb_loculi', x = bay[1], z = bay[2], yaw = bay[3], y = 0.18, size = 2.65 }
 end
--- Roof authoring, in priority order. A band covers floor cells; centre and
--- halfWidth describe the cross-section, spring/rise its physical underside.
--- Without a band the low roof is 4.2 m. Editing a room does not require a
--- renderer branch: update these authored bands along with its floor bounds.
-local bands = {
-  { x1 = 17, x2 = 19, z1 = 26, z2 = 29, spring = 3.1 },
-  { x1 = 29, x2 = 31, z1 = 26, z2 = 29, spring = 3.1 },
-  { x1 = 14, x2 = 18, z1 = 2, z2 = 5, spring = 3.0 },
-  { x1 = 30, x2 = 34, z1 = 2, z2 = 5, spring = 3.0 },
-  { x1 = 21, x2 = 27, z1 = 10, z2 = 38, spring = 4.9, rise = 3.7, centre = 24, halfWidth = 4 },
-  { x1 = 4, x2 = 16, z1 = 12, z2 = 28, spring = 4.8, rise = 4.5, centre = 10, halfWidth = 6.5 },
-  { x1 = 32, x2 = 44, z1 = 12, z2 = 28, spring = 4.8, rise = 4.5, centre = 38, halfWidth = 6.5 },
-  { x1 = 6, x2 = 14, z1 = 6, z2 = 11, spring = 7.4 },
-  { x1 = 34, x2 = 42, z1 = 6, z2 = 11, spring = 7.4 },
-  { x1 = 22, x2 = 26, z1 = 2, z2 = 9, spring = 5.4 },
-}
-local cells, strips = {}, {}
-for _, room in ipairs(map.rooms) do
-  for z = room[2], room[4] do
-    cells[z] = cells[z] or {}
-    for x = room[1], room[3] do
-      cells[z][x] = true
-    end
-  end
-end
-map.decks = {}
-for z = 1, map.depth do
-  for x = 1, map.width do
-    if cells[z] and cells[z][x] then
-      local bottom = 4.2
-      for _, band in ipairs(bands) do
-        if x >= band.x1 and x <= band.x2 and z >= band.z1 and z <= band.z2 then
-          local edge = band.rise and math.max(0, math.abs(x - band.centre) - 0.5) / band.halfWidth
-            or 0
-          bottom = band.spring + (band.rise or 0) * math.sqrt(math.max(0, 1 - edge * edge))
-          break
-        end
-      end
-      -- A perimeter cornice closes the vault against the existing 4.2 m
-      -- stone walls. It is a real slab, so high shots cannot leave a gap
-      -- that merely looks closed. Central bays keep their full height.
-      if
-        not (cells[z - 1] and cells[z - 1][x])
-        or not (cells[z + 1] and cells[z + 1][x])
-        or not cells[z][x - 1]
-        or not cells[z][x + 1]
-      then
-        bottom = math.min(bottom, 4.2)
-      end
-      local previous = strips[x]
-      if previous and previous.z2 == z - 1 and previous.thickness == 10.4 - bottom then
-        previous.z2 = z
-      else
-        local deck = { x1 = x, x2 = x, z1 = z, z2 = z, top = 10.4, thickness = 10.4 - bottom }
-        map.decks[#map.decks + 1], strips[x] = deck, deck
-      end
-    end
-  end
-end
+-- The fresco cycle and light accents are authored separately from routes,
+-- collision, encounter slots and roof slabs.
+require('src.content.maps.proving_art')(map)
+require('src.content.maps.proving_roof')(map)
 local function courtFire(cx, doorSide)
   local points = {}
   for z = 12.2, 29.2, 0.9 do

@@ -55,7 +55,7 @@ function Tests.run(_, r)
     r.camera, r.forward = { 0, distance, 0 }, { 0, -1, 0 }
     r.right, r.up = { -cy, 0, sy }, { -sy, 0, -cy }
   end
-  local function render(image, yaw, ink, occlude)
+  local function render(image, yaw, ink, occlude, reveal)
     camera(yaw)
     local canvas = lg.newCanvas(size, size)
     lg.push('all')
@@ -71,7 +71,7 @@ function Tests.run(_, r)
       Ritual.layer(r, r.blank, 0, 0.1, 0, 1, yaw, nil, false, 1, { 0.15, 0.12, 0.1 })
     end
     lg.setDepthMode('less', false)
-    Ritual.layer(r, image, 0, 0, 0, 1, yaw, nil, ink)
+    Ritual.layer(r, image, 0, 0, 0, 1, yaw, nil, ink, nil, nil, nil, nil, reveal)
     lg.pop()
     local pixels = canvas:newImageData()
     canvas:release()
@@ -120,6 +120,23 @@ function Tests.run(_, r)
     end
     source:release()
   end
+  local function inkCount(reveal)
+    local pixels = render(Sigils.image('asmoday'), 0, true, false, reveal)
+    local amount = 0
+    for y = 64, 447, 3 do
+      for x = 64, 447, 3 do
+        local _, _, _, alpha = pixels:getPixel(x, y)
+        amount = amount + alpha
+      end
+    end
+    pixels:release()
+    return amount
+  end
+  local initial, middle, full = inkCount(0), inkCount(0.5), inkCount(1)
+  check(
+    'activation reveals original ink progressively on the real GPU',
+    initial == 0 and middle > full * 0.2 and middle < full * 0.8 and full > 100
+  )
   local function brightness(pixels)
     local sum = 0
     for y = 128, 383, 7 do

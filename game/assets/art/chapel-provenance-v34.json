@@ -1,0 +1,41 @@
+{
+  "scope": "Approved environmental direction. Original HUD, weapons and demons unchanged.",
+  "assets": [
+    {
+      "file": "chapel-fresco-v34.png",
+      "prompt": "Use case: historical-scene. Create an opaque square production texture atlas for a low-resolution medieval chapel game environment, exactly FOUR square cells in a precise 2x2 grid with no gutters. Each cell is a flat front-facing painted plaster surface, no perspective and no room render. Matte weathered fresco, broad soft pigment, simplified faces and folds, few subdued colors: charcoal, burnt umber, oxide red, ash ivory, dull ochre. Dark solemn religious atmosphere. All human figures MUST be fully clothed from neck to feet in loose opaque robes, including all arms and legs, no nudity. No violence or wounds, no corpses, no weapons. Do not make a sharp realistic HD texture.\nTop left quarter: a faded Judgment fresco in a painted semicircular red-ivory arch, a small fully robed enthroned judge high up, arranged groups of entirely robed mourners and hooded witnesses beneath. The LOWER HALF is quiet pale ash plaster, very faint figures, to serve as a readable backdrop to gameplay. Dark umber corners, no black outer frame.\nTop right quarter: shadowy Gothic procession of fully hooded monks descending steps in two registers, alternating empty charcoal fields and faded silhouettes, dark red and ivory painted border. Faces almost erased by age. Very understated and ominous.\nBottom left quarter: three fully robed, hooded funerary mourners under narrow PAINTED arches, aged ivory against charcoal, solemn flat medieval painting and worn red border. No actual open doorway, no perspective recess.\nBottom right quarter: no figures; quiet limestone/umber plaster with broad subtle pigment loss, a charcoal stain across middle; bottom quarter a continuous oxide-red horizontal frieze with simple widely spaced ivory quatrefoils. Same surface at all outer edges, useable for wall and column material crops.\nKeep large painterly forms, uneven historical pigment, selective damage rather than noisy uniform cracks. No text, lettering, emblems, skulls, photorealism, shiny gold, embossed material, hard glossy highlights, dramatic spotlight, depth of field, game HUD or borders around the atlas itself. Exactly aligned four equal square cells, full bleed.",
+      "generated": "exec-cfc6db4c-8008-483d-9b83-308ee7933dce.png",
+      "tool": "image_gen built-in",
+      "date": "2026-10-28",
+      "note": "Copied verbatim. No post-generation raster edits. UV crops and lighting are runtime metadata.",
+      "references": []
+    },
+    {
+      "file": "chapel-masonry-v34.png",
+      "prompt": "Create one square seamless painted limestone masonry texture for the SAME GAME as the two reference sprite sheets. Match the first reference's stone statue and the second reference's broad fresco-painted modelling, softness, ochre/grey/brown palette. Do NOT depict any characters or flames. This is NOT a photograph of an old fresco: it is stone illustrated BY the painter who painted those sprites. Six courses of old large hand-cut blocks with uneven thin recessed mortar; worn limewash in broad quiet shapes; several chipped corners, three larger branching cracks, subdued damp umber patches toward lower third. Minimal scattered specks. Painted contour edges and two or three broad tonal bands model every block, just as anatomy is modelled in the reference. Simplify microdetail so it survives a 16-bit game rendering, no photographic crackle or grain, no uniformly noisy erosion, no hard embossed highlight, no smooth modern wall, no hyperreal sharpness. Flat orthographic diffuse surface with no perspective or cast shadows, matte old muted pigments, full bleed, four edges tile continuously. It should look like part of a Giovanni da Modena infernal fresco rather than a scanned museum wall.",
+      "generated": "exec-04707193-8545-47fe-9d74-8b09dceccf49.png",
+      "tool": "image_gen built-in",
+      "date": "2026-10-28",
+      "note": "Copied verbatim. No post-generation raster edits. UV crops and lighting are runtime metadata.",
+      "references": [
+        "props-fresco-v12.png",
+        "imp-idle-fresco-v13.png"
+      ]
+    },
+    {
+      "file": "chapel-ossuary-v34.png",
+      "prompt": "Generate a new FOUR-PROP sprite atlas for the SAME GAME as these reference sprite sheets. The first reference is the exact painting treatment to match: soft ochre modelling, dark drawn contours, subdued charcoal shadow shapes, matte fresco tempera, restrained red cloth. The second only shows the same treatment on anatomy. DO NOT copy the monster or any character. Transparent background, four equal square cells in 2x2 grid. TOP LEFT: low medieval ossuary wall niche, rows of dry ancient bones and seven skulls arranged like the reference's small bone pile, inside a chipped dark stone arched surround. TOP RIGHT: low rubble pile of six larger fractured limestone blocks and two broken red plaster fragments. BOTTOM LEFT: one old skull with two short unlit candle stubs on a worn funerary stone shelf. BOTTOM RIGHT: fallen chipped Gothic acanthus capital with two stones. Paint these objects in the style of the original reference props, not photographs, not scans of frescoes, not 3D renders. Model volumes with broad soft deliberate strokes and a few dark contours, no blanket grain or parchment overlay, no polished bright highlights. The whole atlas must feel as though the very same artist painted the original reference statue and bone pile then these new objects. Damage is visible as missing chunks and broken silhouettes, NOT millions of tiny cracks. No blood, no weapons, no people, no text, no glow. Each object fits wholly inside its cell with margins and bottom at 92% cell height. Actual alpha transparency, no ground or background rectangles.",
+      "generated": "exec-94de5fc8-6826-4d08-8107-5d8670e683f7.png",
+      "tool": "image_gen built-in",
+      "date": "2026-10-28",
+      "note": "Copied verbatim. No post-generation raster edits. UV crops and lighting are runtime metadata.",
+      "references": [
+        "props-fresco-v12.png",
+        "imp-idle-fresco-v13.png"
+      ]
+    }
+  ],
+  "rejected": [
+    "Initial grainy masonry/ossuary variants retained only under work/art-direction-point7/rejected-*.png; not used by the game."
+  ]
+}

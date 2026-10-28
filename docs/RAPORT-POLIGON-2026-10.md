@@ -12,9 +12,76 @@ realizację całego zadania wizualnego. Nowy przegląd ujawnił brak wspólnej
 kompozycji wnętrza, słabą separację sylwetki Margrave'a oraz współdzielone
 gesty różnych ataków. Konkretne prace i odbiór opisuje sekcja „Punkt 7 —
 korekta zakresu” w [planie](PLAN-DOPRACOWANIA-POLIGONU.md). Koncepcja otoczenia
-jest podglądem do akceptacji; nie została podłączona do gry. HUD i modele
-pozostają niezmienione. Wyniki testów poniżej potwierdzają wskazane kontrakty
+została zaakceptowana i wdrożona w zakresie otoczenia opisanym niżej. HUD,
+broń i bazowe modele pozostają niezmienione. Wyniki testów potwierdzają wskazane kontrakty
 techniczne, nie jakość artystyczną ani ukończenie punktu 7.
+
+## Otoczenie i pieczęcie — dalsza korekta 28.10
+
+Schodkowe stropy zastąpiły ciągłe, triangulowane sklepienia krzyżowe
+(nawa 11,8 m, sale do 12 m). Renderer, wysokość sufitu, promienie strzałów
+i skończone sfery pocisków korzystają z tych samych punktów powierzchni.
+Stare płaskie decks zachowały swoją ścieżkę. Profil jest opcjonalnymi danymi
+komórki, bez warunku po nazwie mapy w matematyce trafień.
+
+Absydy mają spokojny, starty rejestr fresku za demonem i Sąd powyżej;
+po bokach są ciemniejsze procesje. Malowany mur pokazuje spoiny i ubytki.
+Ossuaria, półki z czaszkami, drobny gruz i fragmenty kapiteli należą do
+bocznych galerii. Większe dekoracje przylegają do fizycznych ścian;
+odłamki na podłodze są niższe od progu chodu, a oś walki pozostaje wolna.
+To sprite'y środowiska, nie nowe przestrzenne modele 3D.
+
+Pierwsze ziarniste materiały odrzucono po uwadze użytkownika. Wybrane
+warianty wygenerowano z `props-fresco-v12.png` i `imp-idle-fresco-v13.png`
+jako wzorców malowania. Prompty i źródła są w
+`game/assets/art/chapel-provenance-v34.json`. PNG skopiowano bez retuszu;
+kadry, mipmapy i światło są metadanymi. Odrzucone próby są poza assets,
+w `work/art-direction-point7/`. HUD, broń i bazowe atlasy demonów bez zmian.
+
+Znaki dwóch ołtarzy przywołania są większe i czytelniejsze w cieniu.
+Aktywacja odsłania historyczny pigment od dołu, lekko unosi znak i wygasza
+obrys do spokojnego żaru. Czas i tożsamość pochodzą z realnej próby przez
+`Queries.world`; renderer nie tworzy timera symulacji. Reset i zmiana próby
+gaszą stary znak. Teleport do sali nadal jest natychmiastowy: po aktywacji
+ołtarz ogląda się z oddali, nie dodano pauzy ani nakładki. Głębia i orientacja
+historycznych symboli są zachowane.
+
+Znaczenie odniesień:
+
+- Wysokość i rytm podpór inspirowane są m.in. opisem
+  [nawy Durham](https://www.durhamcathedral.co.uk/explore/the-cathedral-building-and-grounds/the-nave).
+  To adaptacja do walki, nie rekonstrukcja kościoła.
+- Warstwy kości i czaszek odpowiadają zasadzie opisanej przez
+  [Katakumby Paryskie](https://www.catacombes.paris.fr/en/history/ossuary).
+  [Sedlec](https://www.sedlec.info/en/ossuary/) wiąże ornamentykę ossuarium
+  z Sądem i zmartwychwstaniem — odniesienie do pamięci o zmarłych.
+- Przy progu: „Per me si va tra la perduta gente”,
+  [Dante, Inferno III, w. 3](https://it.wikisource.org/wiki/Divina_Commedia/Inferno/Canto_III).
+  Przy ołtarzu: „and not to depart without my licence”,
+  [Goetia, wydanie 1904, The Welcome unto the Spirit, s. 51](https://www.astrumargenteum.org/wp-content/uploads/2015/06/The-Goetia-of-the-Lemegeton-of-Solomon-the-King-ed.-by-Aleister-Crowley.pdf#page=67).
+  Ciemnoczerwony napis korzysta z istniejących graficznych glifów. Dante
+  i Goetia to różne źródła. Pieczęć Asmodaya przy fikcyjnym Margrabim jest
+  adaptacją gry, nie historycznym utożsamieniem postaci.
+
+Weryfikacja:
+
+- `TEST.ps1 -Suite All -TestTimeoutSeconds 600`: PASS. 5040 sprawdzeń
+  mechaniki/zasobów, 36 wejścia, render, wszystkie narzędzia smoke i pełny
+  startup. Golden i referencje bez zmian. 574 pliki Lua, zero problemów
+  sprawdzania architektury.
+- Po przeniesieniu przygotowania inskrypcji do ładowania: ponowny pełny
+  startup i native review PASS, 60 PNG w `work/art-direction-point7/final`.
+  Obejmują 960×540, 1280×720, 1024×768, sześć chwil aktywacji, sklepienia,
+  nisze i reset. Każde ujęcie sprawdza brak mutacji symulacji. Obejrzano
+  kluczowe obrazy; to nie deklaracja osobistego sprawdzenia każdego PNG.
+- Pełny benchmark, 540 klatek na próbę: jedna postać bossa mediana 5,49 ms,
+  p95 9,06 ms; trzy postacie 6,68 / 12,13 ms. W drugiej próbie p99 wyniosło
+  18,51 ms, maksimum 86,18 ms. To pomiar procesu z odczytem obrazu, nie
+  gwarancja 60 FPS ani pomiar opóźnienia wejścia. Źródło:
+  `work/art-direction-point7/performance/benchmark.txt`.
+
+Nowe gesty 7C–7F i historyczne kryterium wydajności punktów 1/8 pozostają
+otwarte. Niska mediana nie zastępuje porównania A/A ani kontroli skoków.
 
 ## Co jest w grze
 

@@ -5,6 +5,7 @@
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
+local Roof = require('src.physics.roof_cell')
 local Cast = {}
 local EPS = 1e-8
 local directionEpsilon = 1e-6
@@ -168,7 +169,12 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
       end
       for _, deck in ipairs(Ground.decks(w, x, z) or none) do
         local top = deck[2] + floorSurface
-        local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, false, radius, best, deck[1])
+        local t, n
+        if deck[3] then
+          t, n = Roof.cast(deck, x, z, ox, oy, oz, dx, dy, dz, radius, best)
+        else
+          t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, false, radius, best, deck[1])
+        end
         if t and (t < best or kind == 'range') then
           best, normal, kind = t, n, 'wall'
         end

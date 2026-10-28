@@ -4,12 +4,64 @@ local M = require('src.render.mesh')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
+local Roof = require('src.physics.roof_cell')
 local Geometry = {}
 -- The weak map names worlds but owns no native resources. A live simulation
 -- world must not keep a mesh alive after its last renderer has closed.
 local identities, serial = setmetatable({}, { __mode = 'k' }), 0
 local stone, dark, trim, glow =
   { 0.24, 0.29, 0.30 }, { 0.095, 0.12, 0.14 }, { 0.42, 0.36, 0.24 }, { 1, 0.28, 0.055, 1 }
+local function roofCell(v, w, x, z, deck)
+  local p, top = Roof.corners(deck, x, z), deck[2]
+  if deck[3][5] then
+    local middle = { x, deck[3][5], z }
+    for i = 1, 4 do
+      M.tri(v, p[i], p[i % 4 + 1], middle, stone)
+    end
+  else
+    M.tri(v, p[1], p[2], p[3], stone)
+    M.tri(v, p[1], p[3], p[4], stone)
+  end
+  M.quad(
+    v,
+    { x - 0.5, top, z - 0.5 },
+    { x - 0.5, top, z + 0.5 },
+    { x + 0.5, top, z + 0.5 },
+    { x + 0.5, top, z - 0.5 },
+    stone
+  )
+  for i, d in ipairs({ { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } }) do
+    local j = i % 4 + 1
+    local shared = false
+    local highA, highB = top, top
+    for _, other in ipairs(Ground.decks(w, x + d[1], z + d[2]) or {}) do
+      local h = other[3]
+      if h and other[2] == top then
+        -- Opposite edge, reversed orientation, at the exact shared vertices.
+        local a, b = (i + 2) % 4 + 1, (i + 1) % 4 + 1
+        highA, highB = math.min(highA, h[a]), math.min(highB, h[b])
+        shared = shared or (highA <= p[i][2] + 1e-8 and highB <= p[j][2] + 1e-8)
+      end
+    end
+    if not shared then
+      local a, b = p[i], p[j]
+      local da, db = highA - a[2], highB - b[2]
+      -- If the exposed step crosses this edge, clip at the crossing instead
+      -- of drawing a folded quad over the neighbouring solid.
+      if da * db < 0 then
+        local t = da / (da - db)
+        local middle =
+          { a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t }
+        if da < 0 then
+          a, highA = middle, middle[2]
+        else
+          b, highB = middle, middle[2]
+        end
+      end
+      M.quad(v, a, { a[1], highA, a[3] }, { b[1], highB, b[3] }, b, stone)
+    end
+  end
+end
 local function build(w)
   local v = {}
   local decor = w.decor or {}
@@ -58,7 +110,10 @@ local function build(w)
               stone
             )
           end
-          if w.map[nz] and w.map[nz][nx] and w.map[nz][nx] > 0 then
+          local tile = w.map[nz] and w.map[nz][nx]
+          -- A round shaft must not be hidden behind the adjacent wall faces.
+          -- Older maps retain their authored boxed-pier appearance.
+          if tile and tile > 0 and not (tile == 2 and decor.pillarStyle == 'shaft') then
             local first = #v + 1
             local h = Collision.top(w.map[nz][nx])
             local px, pz = x + d[1] * 0.55, z + d[2] * 0.55
@@ -103,39 +158,43 @@ local function build(w)
   for z = 1, Grid.depth(w) do
     for x = 1, Grid.width(w) do
       for _, deck in ipairs(Ground.decks(w, x, z) or {}) do
-        local bottom, top = deck[1], deck[2]
-        M.quad(
-          v,
-          { x - 0.5, top, z - 0.5 },
-          { x - 0.5, top, z + 0.5 },
-          { x + 0.5, top, z + 0.5 },
-          { x + 0.5, top, z - 0.5 },
-          { 0.30, 0.33, 0.32 }
-        )
-        M.quad(
-          v,
-          { x - 0.5, bottom, z + 0.5 },
-          { x - 0.5, bottom, z - 0.5 },
-          { x + 0.5, bottom, z - 0.5 },
-          { x + 0.5, bottom, z + 0.5 },
-          dark
-        )
-        for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
-          local shared = false
-          for _, other in ipairs(Ground.decks(w, x + d[1], z + d[2]) or {}) do
-            shared = shared or other == deck
-          end
-          if not shared then
-            local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
-            local tx, tz = d[2] * 0.5, -d[1] * 0.5
-            M.quad(
-              v,
-              { px - tx, bottom, pz - tz },
-              { px - tx, top, pz - tz },
-              { px + tx, top, pz + tz },
-              { px + tx, bottom, pz + tz },
-              trim
-            )
+        if deck[3] then
+          roofCell(v, w, x, z, deck)
+        else
+          local bottom, top = deck[1], deck[2]
+          M.quad(
+            v,
+            { x - 0.5, top, z - 0.5 },
+            { x - 0.5, top, z + 0.5 },
+            { x + 0.5, top, z + 0.5 },
+            { x + 0.5, top, z - 0.5 },
+            { 0.30, 0.33, 0.32 }
+          )
+          M.quad(
+            v,
+            { x - 0.5, bottom, z + 0.5 },
+            { x - 0.5, bottom, z - 0.5 },
+            { x + 0.5, bottom, z - 0.5 },
+            { x + 0.5, bottom, z + 0.5 },
+            dark
+          )
+          for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
+            local shared = false
+            for _, other in ipairs(Ground.decks(w, x + d[1], z + d[2]) or {}) do
+              shared = shared or other == deck
+            end
+            if not shared then
+              local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
+              local tx, tz = d[2] * 0.5, -d[1] * 0.5
+              M.quad(
+                v,
+                { px - tx, bottom, pz - tz },
+                { px - tx, top, pz - tz },
+                { px + tx, top, pz + tz },
+                { px + tx, bottom, pz + tz },
+                decor.stonePaint and stone or trim
+              )
+            end
           end
         end
       end
@@ -158,7 +217,7 @@ local function build(w)
       for i = 0, 11 do
         local a = i / 12 * math.pi / 2
         local b = (i + 1) / 12 * math.pi / 2
-        M.beam(v, point(a, side), point(b, side), 0.18, stone)
+        M.beam(v, point(a, side), point(b, side), arch.radius or 0.18, stone)
       end
     end
     raise(first, arch.x, arch.z, arch.y)

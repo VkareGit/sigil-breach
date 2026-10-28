@@ -23,6 +23,8 @@ sprawdzaj DAMAGE ON i AI LIVE. Zmieniaj jeden problem naraz, w tej samej próbie
 | Co zmieniasz | Plik w `game/src/` |
 |---|---|
 | Układ poligonu, pokoje, ołtarze, światła | `content/maps/proving.lua` |
+| Freski, relikwie, podpisy ścienne, rozmiary płomieni | `content/maps/proving_art.lua` |
+| Kształt i wysokość sklepień | `content/maps/proving_roof.lua` |
 | Dostępny tryb i mapę | `app/release.lua` |
 | Margrabiego / Furfura | `content/creatures/boss.lua` / `furfur.lua` |
 | Zwykłe demony | Ten sam folder: `imp.lua`, `armored.lua`, `stolas.lua`, `buer.lua` |
@@ -134,9 +136,13 @@ Reszta jest ścianą. `pillars` dodaje przeszkody. `elevations` podnosi podłog�
 ```
 
 Próg chodu to 0,32 m (`tuning.terrain.stepHeight`); wyższy stopień może wymagać
-skoku. Lokalne `bands` budują sklepienie: spring to podstawa, rise wznios,
-centre oś, halfWidth rozpiętość. Pierwsze pasujące pasmo wygrywa. Wynikiem są
-fizyczne decks. Sam łuk w decor.arches pozostaje dekoracją. Przy zmianie
+skoku. `proving_roof.lua` buduje sklepienie z próbek powierzchni: `bay` określa
+oś, półszerokość, początek przęseł i wznios; `raw` wybiera obszary mapy.
+Wynikiem są fizyczne decks. Ich opcjonalne `bottoms` to wysokości rogów
+NW, NE, SE, SW i opcjonalnie środka. Profil zajmuje jedną komórkę; `top`
+musi leżeć nad wszystkimi próbkami, a `thickness = top - min(bottoms)`.
+Te same trójkąty widzi render i trafiają pociski. Sam łuk w decor.arches
+pozostaje dekoracją — dopasuj jego spring/rise do powierzchni. Przy zmianie
 pokoju dopasuj strop, przejścia, lampy i miejsca pojawiania się demonów.
 
 `proving.chambers`: entry to start rycerza, slots to miejsca demonów.
@@ -183,7 +189,28 @@ PNG nie naprawi kotwic przy innym układzie. Obraz przeładowania musi pasować
 do momentu doładowania w combat/reload.lua; renderer nie dopisuje amunicji.
 
 Nowe malowidło: wpis w art/environment.lua, umieszczenie w decor.murals.
-Nie tworzy automatycznie kolizji. Zachowaj paletę i skalę detalu obecnych
+W `proving_art.lua` helper `paint` przyjmuje id grafiki, x/z, yaw, szerokość,
+wysokość, y i jasność. `relic` dodaje nazwany sprite środowiska; podany yaw
+mocuje go do ściany, brak yaw obraca go do obserwatora. Przykład małego gruzu:
+
+```lua
+relic('fallen_masonry', 21, 35.1, 0.13)
+```
+
+Nie wstawiaj wielkiego głazu bez kolizji w środek przejścia. Te relikwie
+są dekoracją: większe umieszczaj przy fizycznej ścianie, drobne poniżej
+progu kroku. Materiał muru wybiera `decor.stonePaint`. `lamp.scale` określa
+rozmiar płomienia, `brightness` jego obraz, `color` kolor światła,
+`lightHeight` wysokość źródła; nie jest to zmiana obrażeń ognia.
+
+Inskrypcja: źródło i id w `content/art/inscriptions.lua`, słowa w
+`content/text.lua`, położenie/width/yaw w `decor.inscriptions`. Cytat musi
+mieć sprawdzone źródło i wszystkie glify. Zostaw margines od pieczęci
+i obramowania fresku. Ruch pieczęci jest w `render/seal_motion.lua`;
+`chambers.lua` przekazuje tożsamość próby i czas do widoku. Krzywa
+światła nie steruje czasem pojawienia się bossa ani jego obrażeniami.
+
+Malowidło nie tworzy automatycznie kolizji. Zachowaj paletę i skalę detalu obecnych
 demonów; HUD i bazowe modele pozostają wzorcem. Przezroczyste portale są
 rysowane po obiektach nieprzezroczystych, nadal z kontrolą głębokości.
 

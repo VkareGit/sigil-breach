@@ -28,6 +28,11 @@ local worldCode = vertex
   .. atmosphere
   .. [[
 extern Image atlas;
+// Optional map-authored plaster shares the fresco's source pigment. Floors,
+// red trim and recesses retain their own materials; old maps opt out.
+extern Image stoneAtlas;
+extern vec4 stoneRect;
+extern number useStonePaint;
 extern number flash,objectAlpha;
 extern vec3 flashColor,tint,lights[16],lightColors[16];
 extern vec3 ambientLight;
@@ -81,6 +86,10 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
     // Preserve painted modelling, with UVs anchored to the actual wall.
     vec2 pixelUV=(floor(fract(t)*512.0)+.5)/512.0;
     base=Texel(atlas,(tile+pixelUV)*.5).rgb*tint;
+    if(useStonePaint>.5 && !floorTile && tile.x<.5 && tile.y<.5){
+      vec2 stoneUV=(floor(fract(t)*128.0)+.5)/128.0;
+      base=Texel(stoneAtlas,stoneRect.xy+stoneUV*stoneRect.zw).rgb*tint;
+    }
     if(floorTile)base=mix(base,vec3(dot(base,vec3(.30,.59,.11))),.14)*.87;
     if(abs(n.y)<.7){
       base*=mix(.72,1.0,smoothstep(0.0,1.4,worldPos.y));
@@ -180,14 +189,14 @@ local textureCode = vertex
   .. [[
 extern vec4 frameRect;
 extern vec3 light,tint;
-extern number inkMask,objectAlpha;
+extern number inkMask,objectAlpha,inkReveal;
 #ifdef VERTEX
 vec4 position(mat4 tp,vec4 vp){return projectVertex(vp);}
 #endif
 #ifdef PIXEL
 vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
  vec4 p=Texel(tex,frameRect.xy+uv*frameRect.zw);
- if(inkMask>.5){p.a*=1.0-min(p.r,min(p.g,p.b));p.rgb=vec3(1.0);}
+ if(inkMask>.5){if(uv.y<1.0-inkReveal)discard;p.a*=1.0-min(p.r,min(p.g,p.b));p.rgb=vec3(1.0);}
  if(p.a<.02)discard;
  return vec4(atmosphere(p.rgb*tint*light,worldPos,camera,.040),p.a*objectAlpha);
 }

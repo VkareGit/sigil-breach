@@ -41,11 +41,31 @@ function Ritual.init(r)
     }, 'triangles', 'static')
   )
 end
-function Ritual.layer(r, image, x, y, z, diameter, yaw, uv, ink, alpha, tint, mesh)
+function Ritual.layer(
+  r,
+  image,
+  x,
+  y,
+  z,
+  diameter,
+  yaw,
+  uv,
+  ink,
+  alpha,
+  tint,
+  mesh,
+  lightFloor,
+  reveal
+)
   local art = r.ritualArt
   local shader = art.shader
   local red, green, blue = r.lighting:sample(x, y, z)
   art.light[1], art.light[2], art.light[3] = red, green, blue
+  if lightFloor then
+    for i = 1, 3 do
+      art.light[i] = math.max(art.light[i], lightFloor)
+    end
+  end
   r:cameraUniforms(shader)
   shader:send('objectPos', r:vec3(x, y, z))
   shader:send('objectYaw', yaw or 0)
@@ -54,6 +74,7 @@ function Ritual.layer(r, image, x, y, z, diameter, yaw, uv, ink, alpha, tint, me
   shader:send('light', art.light)
   shader:send('tint', tint or (ink and INK or WHITE))
   shader:send('inkMask', ink and 1 or 0)
+  shader:send('inkReveal', reveal or 1)
   shader:send('objectAlpha', alpha or 1)
   mesh = mesh or art.mesh
   mesh:setTexture(image)
@@ -127,7 +148,7 @@ function Ritual.pad(r, pad, floor)
   local yaw = pad.z > 28 and math.pi or (pad.x < 16 and math.pi / 2 or -math.pi / 2)
   Ritual.draw(r, pad.x, (floor or 0) + 0.024, pad.z, 1.8, yaw, image, uv, ink)
 end
-function Ritual.seal(r, g, seal)
+function Ritual.seal(r, g, seal, view)
   local image = Goetic.image(seal.id)
   if not image then
     return
@@ -136,7 +157,13 @@ function Ritual.seal(r, g, seal)
   local y = require('src.physics.ground').of(g.world, seal) + require('src.content.field').altar.top
   Ritual.draw(r, seal.x, y, seal.z, 1.18, yaw, image, nil, true, 1, seal.active)
   if seal.summoning then
+    local glow, reveal, lift, complete = require('src.render.seal_motion').sample(
+      view or require('src.run.queries').world(g),
+      seal.id,
+      g.elapsed
+    )
     local viewer = require('src.session.context').viewer(g)
+    local facing = math.atan2(viewer.x - seal.x, viewer.z - seal.z)
     love.graphics.push('all')
     -- Ink is a cutout, not a translucent screen overlay: it must occlude a
     -- mural behind it and be occluded by a brazier/actor in front of it.
@@ -146,16 +173,53 @@ function Ritual.seal(r, g, seal)
       r,
       image,
       seal.x,
-      y + 0.10,
+      y + 0.10 + lift,
       seal.z,
-      1.25,
-      math.atan2(viewer.x - seal.x, viewer.z - seal.z),
+      1.55,
+      facing,
       nil,
       true,
       1,
-      { 1.0, 0.82, 0.55 },
-      r.ritualArt.upright
+      complete and { 0.58, 0.51, 0.40 } or { 1.0, 0.87, 0.66 },
+      r.ritualArt.upright,
+      0.58
     )
+    if glow > 0 then
+      -- Trace the original historical ink, never invent or rotate its strokes.
+      -- Move toward the viewer by 3 mm to avoid a coplanar depth fight.
+      love.graphics.setDepthMode('less', false)
+      Ritual.layer(
+        r,
+        image,
+        seal.x + math.sin(facing) * 0.003,
+        y + 0.10 + lift,
+        seal.z + math.cos(facing) * 0.003,
+        1.55,
+        facing,
+        nil,
+        true,
+        glow,
+        { 1, 0.92, 0.73 },
+        r.ritualArt.upright,
+        1.15,
+        reveal
+      )
+      Ritual.layer(
+        r,
+        r.ritualArt.image,
+        seal.x,
+        y + 0.006,
+        seal.z,
+        1.18 + glow * 0.15,
+        yaw,
+        nil,
+        false,
+        glow * 0.48,
+        { 1, 0.65, 0.32 },
+        nil,
+        0.85
+      )
+    end
     love.graphics.pop()
   end
 end

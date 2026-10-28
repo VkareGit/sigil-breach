@@ -26,8 +26,10 @@ function Views.expeditionWorld(g, state, out)
   return world(g, state, out)
 end
 function Views.fieldWorld(g, state, out, field)
-  out.arenaFire = require('src.run.field.chambers').arena(g, field)
+  local Chambers = require('src.run.field.chambers')
+  out.arenaFire = Chambers.arena(g, field)
   out.arenaStarted = field.roomTrial and field.roomTrial.started
+  Chambers.ritual(g, field, out)
   return world(g, state, out)
 end
 function Views.fieldTools(_, state, tools)
