@@ -15,7 +15,7 @@ Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Uż
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
 | 4 | Strategie wyboru i kontynuacji ataków, nagroda i śmierć raz; jedno życie zgodnie z ostatnią decyzją użytkownika | ba8df4c, bca9642, 44f4060, 2704b4b; bossowie oraz 16 walk zwykłych demonów obiema broniami; ludzki odbiór do próby |
 | 5 | Nawa, dwie monumentalne sale pojedynków, absydy, krypty, stanowiska mapy i aktywny obwód ognia | bca9642; dojścia, osłony, reset, przywołania i rendery sprawdzone |
-| 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b; testy i pełny eksport zakończone; odsłuch gracza do wykonania |
+| 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | 5ccd19b oraz rozszerzenie 28.10 po obrazie 06f2051: adaptacyjny miks sal i walki, osobne głosy ataków, rzeczywiste aktywacje hazardów i stałe źródła tła; 5120 PASS i pełny eksport; odsłuch gracza do wykonania |
 | 7 | Spójność freskowego otoczenia, odróżnialne gesty obecnych demonów, malowane efekty i odbiór w ruchu | **CZĘŚCIOWO.** Zatwierdzony kierunek otoczenia wdrożony: sklepienia, freski, malowany mur, ossuarium i aktywacja pieczęci. Nowe gesty demonów oraz pełny odbiór 7C–7F pozostają otwarte |
 | 8 | Integracja, reset/replay, render, wejście, ładowanie i koszt | 3a35b56, f27ba3f i pełne All: 5006 + 36 sprawdzeń; zakres funkcjonalny sprawdzony, kryterium kosztu pełnej klatki niezaliczone — szczegóły w raporcie |
 

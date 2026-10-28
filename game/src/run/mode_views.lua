@@ -29,6 +29,9 @@ function Views.fieldWorld(g, state, out, field)
   local Chambers = require('src.run.field.chambers')
   out.arenaFire = Chambers.arena(g, field)
   out.arenaStarted = field.roomTrial and field.roomTrial.started
+  out.encounterStatus = field.roomTrial and field.roomTrial.status
+  out.encounterStarted = field.roomTrial and field.roomTrial.started
+  out.encounterFinished = field.roomTrial and field.roomTrial.finished
   Chambers.ritual(g, field, out)
   return world(g, state, out)
 end

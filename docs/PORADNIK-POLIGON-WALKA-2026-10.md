@@ -227,6 +227,50 @@ szczególną zapowiedź. Receptury są w audio/recipes.lua, muzyka w score.lua.
 Po edycji odsłuchaj kilka demonów z wystrzałami. Eksport WAV nie dowodzi,
 że ostrzeżenie da się dobrze usłyszeć w walce.
 
+### Muzyka sali i dźwięki ataków
+
+Otwórz `game/src/content/maps/proving_soundscape.lua`. W `regions` zmieniasz
+prostokąt sali (`x1,z1,x2,z2`), szerokość płynnego przejścia `fade` w metrach
+i `mix`. Warstwy: `ison` — dron, `chant` — chorał, `organum` — drugi głos
+i organ, `heart` — puls, `knell` — dzwony. Wzmocnienia 0–1; brak warstwy
+oznacza ciszę. Przykład: `mix = { ison = 0.25, chant = 0.08 }` daje
+spokojne tło z odległym chorałem. Utwór biegnie dalej podczas przejścia,
+zmieniają się głośności, a nie pozycja odtwarzania.
+
+`summoning`, `duel`, `pressure`, `aftermath` to miksy przywołania, walki,
+większego nacisku oraz ciszy po ukończeniu próby. `aftermathHold` i
+`aftermathFade` są sekundami. O tym, jaki stan naprawdę trwa, decyduje
+`audio/scene.lua`, czytając wspólny widok trybu i istniejące postacie.
+Nie dopisuj osobnego zegara walki w muzyce ani warunku po nazwie bossa.
+
+W `sources` ustawiasz stały punkt tła, np.:
+```lua
+{ voice = 'chain_settle', x = 18.5, z = 25.7,
+  volume = 0.2, interval = 19, offset = 5, reach = 10 }
+```
+To łańcuch w konkretnym miejscu, z odstępem 19 s, pierwszą próbą po 5 s
+i zasięgiem 10 m. Poza zasięgiem lub w zagrożeniu cue jest pomijany;
+nie zbiera się kolejka do późniejszego odtworzenia. Odległość i ściany
+dodatkowo tłumią dźwięk.
+
+W definicji demona `sounds.summon`, `sounds.arrival`, `sounds.death`
+wybierają przywołanie, wejście i upadek. W konkretnym ataku ustawiasz np.:
+```lua
+windupSound = 'ash_spear_warning',
+sound = 'ash_spear_release',
+```
+Są to zapowiedź i uwolnienie, a nie moment trafienia celu. Odgłos aktywacji
+podłogowego ognia/pioruna obsługuje `audio/world_cues.lua` na podstawie
+prawdziwego `delay`, rodzaju obrażeń i aktywności pola. Nowe receptury
+kaplicy są w `audio/ritual_voices.lua`; loader łączy je z `recipes.lua`.
+Nieznane głosy lub warstwy są zgłaszane przy uruchomieniu.
+
+Pełny eksport odsłuchowy: z folderu `game` uruchom `love . --audio-export`.
+W katalogu wyjściowym QA powstaną `sounds/`, `music/`, raporty poziomów
+oraz `music/chapel-listening-excerpt.wav`. Ten ostatni to przykład miksu,
+nie nagranie gry. Po zmianie głośności sprawdź również realną walkę:
+zapowiedź pod wystrzałem, przerwany atak, kilka wybuchów, koniec i reset.
+
 ## Sprawdzenie przed commitem
 
 Z katalogu głównego, w PowerShell:

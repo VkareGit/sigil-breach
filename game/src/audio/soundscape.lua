@@ -5,9 +5,13 @@
 local Synth = require('src.audio.synth')
 local Score = require('src.audio.score')
 local Queries = require('src.run.queries')
+local Scene = require('src.audio.scene')
+local scene = {}
 local S = { intensity = 0, music = 0.65, layers = {}, gains = {}, sources = {} }
 local floor = math.floor
 local duckRates = { rise = 2.5, fall = 18 }
+local sceneRates = { rise = 0.8, fall = 1.5 }
+S.sceneRates = sceneRates
 
 -- A note's frequency: 'Bb1', 'D3'...
 function S.pitch(name)
@@ -233,6 +237,7 @@ function S.release()
   end
   S.layers, S.gains, S.sources, S.intensity = {}, {}, {}, 0
   S.duck = 1
+  scene = {}
 end
 function S.init(checkpoint)
   S.release()
@@ -291,13 +296,18 @@ end
 
 local function follow(value, target, dt, rates)
   local rate = target > value and rates.rise or rates.fall
-  return value + (target - value) * math.min(1, dt * rate)
+  return value + (target - value) * (1 - math.exp(-math.max(0, dt) * rate))
 end
+S.follow = follow
 
 function S.update(audio, dt, g)
-  local mood = S.mood(g)
+  Scene.sample(g, scene)
+  local mood = scene.config and 'battle' or S.mood(g)
   local danger = Score.danger
   local target = mood == 'battle' and math.min(1, (g.threat or 0) / danger.full) or 0
+  if scene.config then
+    target = scene.pressure
+  end
   S.intensity = follow(S.intensity, target, dt, danger)
   local duck = audio and (audio.warningHold or 0) > 0 and 0.48 or 1
   S.duck = follow(S.duck or 1, duck, dt, duckRates)
@@ -305,7 +315,10 @@ function S.update(audio, dt, g)
     local id = layer.id
     local source = S.layers[id]
     if source then
-      S.gains[id] = follow(S.gains[id], S.gain(mood, id, S.intensity), dt, Score.follow)
+      local wanted = scene.config and Scene.gain(scene, id, S.intensity)
+        or S.gain(mood, id, S.intensity)
+      local rates = scene.config and sceneRates or Score.follow
+      S.gains[id] = follow(S.gains[id], wanted, dt, rates)
       source:setVolume(S.music * S.gains[id] * S.duck)
     end
   end

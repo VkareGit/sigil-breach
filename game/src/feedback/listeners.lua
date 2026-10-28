@@ -49,6 +49,10 @@ local function bodyHit(g, e)
 end
 local function enemyKilled(g, e)
   local enemy = e.enemy
+  local death = Rules.archetype(enemy).sounds.death
+  if death then
+    Audio.playAt(death, enemy.x, enemy.z, Context.viewer(g), 0.65, 2, g.world)
+  end
   local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
     personal.view.breakKill = Feel.breakKillFlash

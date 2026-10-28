@@ -14,7 +14,7 @@ local Install = {}
 -- A sound cue from the simulation, at a place when it names one.
 function Install.cue(g, sound, volume, x, z)
   if x then
-    return Audio.playAt(sound, x, z, Context.viewer(g), volume)
+    return Audio.playAt(sound, x, z, Context.viewer(g), volume, nil, g.world)
   end
   return Audio.play(sound, volume)
 end

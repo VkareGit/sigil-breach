@@ -1,0 +1,48 @@
+-- Cross references checked before native voices are built. Data schemas
+-- validate numbers; this boundary ensures every named stem/voice exists.
+local Recipes = require('src.audio.recipes')
+local Score = require('src.audio.score')
+local C = {}
+function C.scene(scene)
+  if not scene then
+    return
+  end
+  local layers = {}
+  for _, layer in ipairs(Score.layers) do
+    layers[layer.id] = true
+  end
+  local function mix(value)
+    for id in pairs(value) do
+      assert(layers[id], 'unknown soundscape stem ' .. id)
+    end
+  end
+  for _, key in ipairs({ 'base', 'summoning', 'duel', 'pressure', 'aftermath' }) do
+    mix(scene[key])
+  end
+  for _, region in ipairs(scene.regions or {}) do
+    mix(region.mix)
+  end
+  for _, source in ipairs(scene.sources or {}) do
+    assert(Recipes[source.voice], 'unknown ambient voice ' .. source.voice)
+  end
+end
+function C.validate()
+  for _, map in require('src.content.maps.index'):each() do
+    C.scene(map.decor and map.decor.soundscape)
+  end
+  for id, def in require('src.content.enemies').each() do
+    for _, name in pairs(def.sounds) do
+      assert(Recipes[name], id .. ': unknown voice ' .. name)
+    end
+    for _, attack in ipairs(def.attacks) do
+      for _, key in ipairs({ 'sound', 'windupSound' }) do
+        local name = attack[key]
+        assert(
+          not name or Recipes[name],
+          id .. '/' .. attack.id .. ': unknown voice ' .. tostring(name)
+        )
+      end
+    end
+  end
+end
+return C

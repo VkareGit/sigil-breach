@@ -186,3 +186,51 @@ sprawdzenia zależne od liczby świateł), architektura 580 plików Lua / zero
 błędów. Dziesięć nowych regresji sprawdza podparcie płaskich śladów i
 rzeczywistą wysokość wejścia. Po ostatniej korekcie półki ponowiono rodzime
 rendery; każdy kontroluje brak mutacji symulacji. Nie są oceną gracza.
+
+## Wdrożenie po obrazie — dźwięk
+
+Zgodnie z kolejnością wskazaną przez użytkownika najpierw zapisano obraz
+w `06f2051`, następnie rozszerzono audio. Muzyka nadal ma pięć zsynchronizowanych
+warstw istniejącego chorału, organum, dronu, pulsu i dzwonów. Nie są to
+nagrania chóru: brzmienia powstają z receptur syntezy. Nie dodano drugiego
+odtwarzacza ani restartowania utworu przy przekroczeniu drzwi.
+
+`content/maps/proving_soundscape.lua` opisuje stonowane wejście, pełniejszą
+nawę, cofnięcie chorału przy zerwanym wiązaniu, krypty i oczekiwanie przy
+absydach. Wspólny widok trybu udostępnia status oraz czasy próby. Portal
+wycofuje warstwy walki; żywy przeciwnik wprowadza puls, a bliskość, zapowiedź
+i wykonanie ataku oraz zdrowie obserwowanego rycerza podnoszą napięcie.
+Po ukończonej próbie pozostaje sześć sekund spokojnego dronu, potem powrót
+do miksu sali przez osiem sekund. Nie jest to nowa faza bossa ani zmiana AI.
+
+Margrave ma cztery różne odgłosy przygotowania. Furfur rozróżnia bliski
+cios, szarżę, powrót poroża, pojedynczy piorun i krzyż burzy. Przywołanie,
+wejście i upadek mają własne dźwięki wybierane przez dane postaci.
+`AttackCancelled`, uwolnienie ataku i śmierć kończą jego odgłos przygotowania.
+Bilet konkretnego odtworzenia chroni przed zatrzymaniem innego dźwięku,
+który dostał ten sam Source z puli.
+
+Opóźnione pola brzmią przy rzeczywistym przejściu do aktywności. Osiem
+równoczesnych plam ognia nie uruchamia ośmiu nałożonych wybuchów; późniejsze
+uderzenia lancy i krzyża nadal są osobnymi odgłosami. Odgłosy łańcuchów,
+kropli, muru i żaru mają stałe pozycje, odległość odsłuchu i tłumienie przez
+ściany. Zaległe odgłosy nie nadrabiają po przycięciu. Zachowano limit
+28 głosów i 28 buforowanych Source oraz priorytet ostrzeżeń nad tłem.
+
+Kontrola: 5120 sprawdzeń mechaniki/zasobów PASS, 586 plików Lua / zero
+błędów architektury. Nowe sprawdzenia obejmują prawdziwe polecenie próby,
+przywołanie i koniec walki, przerwanie dźwięku, ponowne użycie Source,
+czas aktywacji hazardu, nakładanie wybuchów, walidację odwołań do głosów,
+ciągłość przejścia między regionami i brak zmiany symulacji.
+Eksport początkowo ujawnił zbyt duży poziom oddechów; skorygowano ich
+wzmocnienie i dodano sprawdzenie zapasu oraz końcówki każdej nowej receptury.
+
+Dowody: `work/atmosphere-implementation/audio-final/` (73 efekty, pięć warstw,
+sześć miksów i 48-sekundowy przykład przejścia), `av-final/` (rodzime rendery),
+`work/qa-v33/test-results.txt`. Ostatni fingerprint źródeł:
+`AD61DDB2358E0D799E2ED6D42CE2988D575E3CB767651E734555245C1384053A`.
+Przykład odsłuchowy jest zmontowany z prawdziwych receptur i miksów, nie jest
+nagraniem sesji gry. Szczyt 0,432, RMS 0,051, ponowne odkodowanie WAV PASS.
+Pomiary próbek nie potwierdzają subiektywnego odbioru grozy ani ostatecznego
+balansu głośności podczas długiej gry. Zakres 7C–7F i kryterium kosztu
+punktów 1/8 pozostają osobnymi, otwartymi pracami.

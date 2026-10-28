@@ -16,6 +16,9 @@ Creature.sounds = Schema:new('creature sounds', {
   windup = { type = 'string' },
   strike = { type = 'string' },
   step = { type = 'string' },
+  summon = { type = 'string' },
+  arrival = { type = 'string' },
+  death = { type = 'string' },
 })
 Creature.evade = Schema:new('evade', {
   speed = { type = 'number', required = true, min = 0 },

@@ -4,6 +4,8 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 local charge = Action.charge({
   id = 'charge',
+  windupSound = 'charge_warning',
+  sound = 'antler_rush',
   rest = 3.0,
   range = 11,
   every = 2,
@@ -48,7 +50,15 @@ return Creature.boss({
     aimY = 1.55,
   },
   move = { speed = 4.2, accel = 24, style = 'flank' },
-  sounds = { step = 'heavy_step', alert = 'growl', windup = 'growl', strike = 'antler' },
+  sounds = {
+    step = 'heavy_step',
+    alert = 'growl',
+    windup = 'growl',
+    strike = 'antler',
+    summon = 'binding_release',
+    arrival = 'storm_arrival',
+    death = 'boss_collapse',
+  },
   tactics = {
     repeatPenalty = 0.2,
     moves = {
@@ -68,6 +78,7 @@ return Creature.boss({
   attacks = {
     Action.charge({
       id = 'melee',
+      windupSound = 'antler_warning',
       maxRange = 3,
       range = 11,
       windup = 0.5,
@@ -95,7 +106,7 @@ return Creature.boss({
       cooldown = 0.85,
       radius = 1.55,
       life = 0.22,
-      sound = 'thunder',
+      sound = 'storm_release',
       packet = packet(30, 90, 'lightning'),
     }),
     -- Centre, sides, then the other axis. All five locations are warned
@@ -103,7 +114,7 @@ return Creature.boss({
     -- centre again after the first bolt. No repeated tracking of the knight.
     Action.pattern({
       id = 'tempest-cross',
-      windupSound = 'storm_warning',
+      windupSound = 'cross_warning',
       range = 11,
       windup = 0.7,
       duration = 0.65,
@@ -115,7 +126,7 @@ return Creature.boss({
       radius = 1.05,
       life = 0.22,
       pulse = 0.45,
-      sound = 'thunder',
+      sound = 'storm_release',
       marks = {
         { forward = 0, lateral = 0, delay = 0.75 },
         { forward = 0, lateral = -2.8, delay = 1.15 },
@@ -129,6 +140,7 @@ return Creature.boss({
     -- New windup, new locked aim, normal contact geometry, then a full rest.
     Action.charge({
       id = 'antler-return',
+      windupSound = 'return_warning',
       range = 3.3,
       windup = 0.55,
       speed = 6.5,

@@ -38,7 +38,15 @@ return Creature.boss({
     microStun = 0.035,
   },
   move = { speed = 3.6, accel = 20, ideal = 3.6 },
-  sounds = { step = 'heavy_step', alert = 'growl', windup = 'ember_warning', strike = 'cast' },
+  sounds = {
+    step = 'heavy_step',
+    alert = 'growl',
+    windup = 'ember_warning',
+    strike = 'cast',
+    summon = 'binding_release',
+    arrival = 'ash_arrival',
+    death = 'boss_collapse',
+  },
   -- One life, the complete base encounter. Phase transitions remain a library
   -- capability, deliberately unused until this duel is accepted in play.
   tactics = {
@@ -59,6 +67,8 @@ return Creature.boss({
   attacks = {
     Action.fan({
       id = 'ember-fan',
+      windupSound = 'ash_fan_warning',
+      sound = 'ash_fan_release',
       range = 11,
       windup = 0.65,
       recover = 0.65,
@@ -89,6 +99,8 @@ return Creature.boss({
     -- the lane sideways (or jumping the shallow fire) is the response.
     Action.pattern({
       id = 'ash-lance',
+      windupSound = 'ash_lance_warning',
+      sound = 'ground_sunder',
       lead = 0.8,
       range = 11,
       minRange = 2.5,
@@ -112,6 +124,8 @@ return Creature.boss({
     -- is taken at its own visible windup, then frozen. End in a long opening.
     Action.bolt({
       id = 'cinder-spear',
+      windupSound = 'ash_spear_warning',
+      sound = 'ash_spear_release',
       range = 11,
       minRange = 2,
       windup = 0.62,
@@ -130,6 +144,8 @@ return Creature.boss({
     -- the lane, retreating or jumping beats standing inside the eruption.
     Action.pattern({
       id = 'furnace',
+      windupSound = 'furnace_warning',
+      sound = 'ground_sunder',
       origin = 'caster',
       range = 3.4,
       windup = 0.55,

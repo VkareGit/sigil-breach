@@ -44,6 +44,7 @@ function Schema.check(map, id)
   local label = 'map ' .. id
   -- width (x) and depth (z) in cells, or size for a square map.
   local width, depth = map.width or map.size, map.depth or map.size
+  require('src.content.defs.soundscape').check(map.decor and map.decor.soundscape, width, depth)
   number(width, label .. '.width')
   number(depth, label .. '.depth')
   assert(

@@ -13,6 +13,14 @@ local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Bodies = require('src.combat.bodies')
 local World = {}
+local warnings = setmetatable({}, { __mode = 'k' })
+local function stopWarning(enemy)
+  local voice = warnings[enemy]
+  if voice then
+    A.stopVoice(voice.source, voice.ticket)
+    warnings[enemy] = nil
+  end
+end
 local function sounds(e)
   return Rules.archetype(e).sounds or {}
 end
@@ -24,7 +32,8 @@ World.handlers = {
   end,
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
-    A.playAt(
+    stopWarning(e)
+    local source, ticket = A.playAt(
       ev.attack.windupSound or sounds(e).windup or 'growl',
       e.x,
       e.z,
@@ -33,9 +42,19 @@ World.handlers = {
       3,
       g.world
     )
+    if source then
+      warnings[e] = { source = source, ticket = ticket }
+    end
+  end,
+  AttackCancelled = function(_, ev)
+    stopWarning(ev.enemy)
+  end,
+  EnemyKilled = function(_, ev)
+    stopWarning(ev.enemy)
   end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
+    stopWarning(e)
     A.playAt(
       ev.attack.sound or sounds(e).strike or 'cast',
       e.x,
@@ -88,7 +107,9 @@ World.handlers = {
     A.playAt('hit', ev.other.x, ev.other.z, Context.viewer(g), 0.35)
   end,
   PortalOpened = function(g, ev)
-    A.playAt('cast', ev.gate.x, ev.gate.z, Context.viewer(g), 0.3)
+    local def = require('src.content.enemies').get(ev.gate.kind)
+    local voice = def and def.sounds and def.sounds.summon or 'cast'
+    A.playAt(voice, ev.gate.x, ev.gate.z, Context.viewer(g), 0.45, 2, g.world)
   end,
   -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
   EnemyArrived = function(g, ev)
@@ -96,7 +117,7 @@ World.handlers = {
     local color = require('src.content.enemies').look(e).portal
     FX.emit(g, 'smoke', s.x, 0.7, s.z, 0.9)
     g:burst(s.x, 1.0, s.z, color, 14, 2.6)
-    A.playAt('pulse', s.x, s.z, Context.viewer(g), 0.45)
+    A.playAt(sounds(e).arrival or 'pulse', s.x, s.z, Context.viewer(g), 0.55, 2, g.world)
   end,
   PlayerStaggered = function(g, ev)
     g = Recipient.context(g, ev.actor)

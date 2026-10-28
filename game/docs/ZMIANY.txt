@@ -16,6 +16,24 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Kaplica po nieudanym obrzędzie i oprawa dźwiękowa — 28 października 2026
+- Najpierw obraz: zimne paleniska, wyrwane mocowania, osmalenia, spokojniejsze
+  boczne freski, obniżony profil wejścia i łukowe przejścia do sal. Pozostałości
+  używają wspólnego atlasu i oświetlenia; ślady podłogowe mają walidację podparcia.
+- Następnie dźwięk: regiony muzyki kaplicy, wycofanie przy przywołaniu, zmiana
+  nacisku podczas walki i wyciszenie po niej. Pięć istniejących warstw pozostaje
+  zsynchronizowanych. Bez restartu chorału na progu i bez drugiej fazy bossów.
+- Osobne zapowiedzi działań obu bossów, odgłosy przywołania/wejścia/upadku;
+  przerwanie lub śmierć ucisza przygotowanie. Pola ognia i pioruny brzmią
+  przy rzeczywistej aktywacji, z ograniczeniem nakładania równoczesnych plam.
+- Stałe, przestrzenne źródła kropli, łańcuchów, muru i żaru. Walidacja nazw,
+  zachowane pule i priorytety; odtwarzanie nie zmienia symulacji.
+- HUD, broń i bazowe PNG demonów bez zmian. Mechanika i czasy ataków bez zmian
+  w etapie audio. 5120 PASS, golden zgodny, 586 plików Lua / zero naruszeń.
+- Pełny eksport: 73 efekty, pięć warstw, sześć miksów i przykład odsłuchowy
+  przejścia kaplica/walka/cisza. Techniczne sprawdzenie nie zastępuje odsłuchu
+  gracza. Szczegóły i otwarte punkty w docs/KIERUNEK-ATMOSFERY-POLIGONU.md.
+
 Korekta odbioru walki i kaplic — 28 października 2026
 - Margrave: ash-lance ma teraz krótki środkowy odpoczynek; może nastąpić
   cinder-spear z własną zapowiedzią i długim końcowym recovery. Z bliska

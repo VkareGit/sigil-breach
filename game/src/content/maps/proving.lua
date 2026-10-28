@@ -82,6 +82,7 @@ local map = {
     { name = 'zone_nave' },
   },
   decor = {
+    soundscape = require('src.content.maps.proving_soundscape'),
     atmosphere = {
       ambient = { 0.175, 0.18, 0.19 },
       figures = { 0.46, 0.45, 0.44 },

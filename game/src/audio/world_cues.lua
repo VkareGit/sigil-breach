@@ -5,8 +5,8 @@ local Pools = require('src.session.world')
 local Creatures = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
-local Ground = require('src.physics.ground')
 local C = {}
+local impacts = { fire = 'ash_eruption', lightning = 'thunder' }
 local sessions = setmetatable({}, { __mode = 'k' })
 function C.reset()
   sessions = setmetatable({}, { __mode = 'k' })
@@ -31,10 +31,16 @@ function C.update(audio, g, dt)
     state = {
       feet = setmetatable({}, { __mode = 'k' }),
       flights = setmetatable({}, { __mode = 'k' }),
-      ambient = 3,
-      serial = 0,
+      hazards = setmetatable({}, { __mode = 'k' }),
+      impactCooldown = {},
+      ambient = {},
+      world = g.world,
     }
     sessions[root] = state
+  end
+  if state.world ~= g.world then
+    sessions[root] = nil
+    return C.update(audio, g, dt)
   end
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     local now, before = C.stepIndex(e), state.feet[e]
@@ -61,16 +67,43 @@ function C.update(audio, g, dt)
       audio.playAt(kind == 'fire' and 'ember_flight' or 'whoosh', b.x, b.z, p, 0.12, 0, g.world)
     end
   end
-  state.ambient = state.ambient - dt
-  if state.ambient <= 0 then
-    state.serial = state.serial + 1
-    state.ambient = 6 + (state.serial * 7 % 9)
-    -- Sparse non-verbal room tone, only under an actual roof. No fake enemy
-    -- calls, no jump-scare scheduler, no simulation RNG consumed.
-    if (g.threat or 0) < 1 and Ground.ceiling(g.world, p.x, p.z, 2) then
-      local side = state.serial % 2 == 0 and -1 or 1
-      audio.playAt('crypt_drip', p.x + side * 3, p.z - 2, p, 0.12, 0)
+  for kind, time in pairs(state.impactCooldown) do
+    state.impactCooldown[kind] = math.max(0, time - dt)
+  end
+  for _, h in ipairs(Pools.of(g, 'hazards')) do
+    if
+      not state.hazards[h]
+      and h.delay <= 0
+      and h.life > 0
+      and not h.cancelled
+      and not h.waitForCast
+    then
+      state.hazards[h] = true
+      local kind = h.packet and h.packet.damageType
+      local voice = impacts[kind]
+      -- A ring of eight simultaneous marks is one audible eruption. Advancing
+      -- lane/cross beats remain separate. This state is presentation only.
+      if voice and (state.impactCooldown[kind] or 0) <= 0 then
+        audio.playAt(voice, h.x, h.z, p, 0.40, 2, g.world)
+        state.impactCooldown[kind] = 0.09
+      end
     end
+  end
+  local scene = g.world.decor and g.world.decor.soundscape
+  local budget = 2
+  for i, source in ipairs(scene and scene.sources or {}) do
+    local remaining = (state.ambient[i] or source.offset) - dt
+    if remaining <= 0 then
+      -- No burst of missed cues after a hitch. Fixed authored sources stay in
+      -- the room when the listener moves; walls occlude them in playAt.
+      remaining = source.interval
+      local d2 = (source.x - p.x) ^ 2 + (source.z - p.z) ^ 2
+      if budget > 0 and (g.threat or 0) < 1 and d2 < source.reach ^ 2 then
+        audio.playAt(source.voice, source.x, source.z, p, source.volume, 0, g.world)
+        budget = budget - 1
+      end
+    end
+    state.ambient[i] = remaining
   end
 end
 return C

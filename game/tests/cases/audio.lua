@@ -31,6 +31,20 @@ function Tests.run()
     total = total + #pool
   end
   check('cached Source count matches the bounded idle pools', total == A.pooled)
+  -- This name is already in the full idle pool above. Borrowing it opens a
+  -- cache slot, guaranteeing reuse instead of testing the eviction policy.
+  local oldVoice, oldTicket = A.play('revolver', 0.01)
+  A.stopVoice(oldVoice, oldTicket)
+  check('owned voice can stop when an attack is cancelled', not oldVoice:isPlaying())
+  A.update(0)
+  local nextVoice = A.play('revolver', 0.01)
+  A.stopVoice(oldVoice, oldTicket)
+  check(
+    'stale cancellation cannot silence a recycled Source',
+    nextVoice == oldVoice and nextVoice:isPlaying()
+  )
+  nextVoice:stop()
+  A.update(0)
   for _ = 1, 28 do
     A.play('storm_warning', 0.01)
   end
@@ -102,6 +116,33 @@ function Tests.run()
     'every sound recipe is rendered, the perfect dodge and the fuse included',
     all and A.sources.afterimage and A.sources.fuse and A.sources.slide
   )
+  local Synth = require('src.audio.synth')
+  for name, recipe in pairs(require('src.audio.ritual_voices')) do
+    local data = Synth.effect(recipe.duration, A.rate, Synth.seed(name), recipe.make(A.rate))
+    local peak, sum = 0, 0
+    for i = 0, data:getSampleCount() - 1 do
+      local value = data:getSample(i)
+      peak, sum = math.max(peak, math.abs(value)), sum + value * value
+    end
+    check(
+      'ritual voice is audible with headroom and a faded end: ' .. name,
+      peak < 0.95
+        and sum / data:getSampleCount() > 0.00001
+        and math.abs(data:getSample(data:getSampleCount() - 1)) < 0.001
+    )
+    data:release()
+  end
+  local handlers = require('src.feedback.world_feedback').handlers
+  local demon = { kind = 'boss', x = g.player.x, z = g.player.z }
+  handlers.AttackTelegraphed(g, { enemy = demon, attack = { windupSound = 'ash_lance_warning' } })
+  local voice = A.live[#A.live]
+  handlers.AttackCancelled(g, { enemy = demon })
+  check('actual cancellation event stops its windup', not voice:isPlaying())
+  handlers.AttackTelegraphed(g, { enemy = demon, attack = { windupSound = 'ash_fan_warning' } })
+  voice = A.live[#A.live]
+  handlers.EnemyKilled(g, { enemy = demon })
+  check('death stops the pending warning', not voice:isPlaying())
+  A.update(0)
   -- The score: its layers loop together; the mood follows the session.
   local S = require('src.audio.soundscape')
   local Score = require('src.audio.score')
@@ -161,6 +202,7 @@ function Tests.run()
     S.gains[id] = gain
   end
   A.muted = oldMuted
+  require('tests.cases.audio_scene').run(check)
   return lines
 end
 return Tests

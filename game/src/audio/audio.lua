@@ -12,6 +12,7 @@ local A = {
   priorities = {},
 }
 A.rate = 44100
+local tickets, serial = setmetatable({}, { __mode = 'k' }), 0
 -- Every sound has its own seeded noise (Synth.seed of its name), so the order
 -- of rendering decides nothing and a new recipe changes no other sound.
 function A.release()
@@ -32,10 +33,12 @@ function A.release()
   A.sources, A.live, A.pool, A.voiceNames, A.pooled = {}, {}, {}, {}, 0
   A.priorities = {}
   A.warningHold = 0
+  tickets = setmetatable({}, { __mode = 'k' })
   require('src.audio.world_cues').reset()
   require('src.audio.soundscape').release()
 end
 function A.init(checkpoint)
+  require('src.audio.contracts').validate()
   A.release()
   local names = {}
   for name in pairs(Recipes) do
@@ -61,6 +64,7 @@ local function recycle(s)
   local name = A.voiceNames[s]
   A.voiceNames[s] = nil
   A.priorities[s] = nil
+  tickets[s] = nil
   if name and A.pooled < 28 then
     A.pool[name] = A.pool[name] or {}
     local list = A.pool[name]
@@ -112,7 +116,16 @@ function A.play(name, volume, priority)
   end
   s:play()
   A.live[#A.live + 1] = s
-  return s
+  serial = serial + 1
+  tickets[s] = serial
+  return s, serial
+end
+-- A Source may have been recycled for another voice since its caller held it.
+-- The playback ticket prevents cancelling that unrelated sound.
+function A.stopVoice(source, ticket)
+  if source and ticket and tickets[source] == ticket then
+    source:stop()
+  end
 end
 function A.playAt(name, x, z, p, volume, priority, world)
   local dx, dz = x - p.x, z - p.z
@@ -124,7 +137,7 @@ function A.playAt(name, x, z, p, volume, priority, world)
   if world and not require('src.world.arena').visible(world, x, z, p.x, p.z) then
     gain = gain * 0.38
   end
-  local s = A.play(name, gain, priority)
+  local s, ticket = A.play(name, gain, priority)
   if s then
     local side =
       math.max(-1, math.min(1, (dx * math.cos(p.yaw) - dz * math.sin(p.yaw)) / math.max(1, d)))
@@ -132,7 +145,7 @@ function A.playAt(name, x, z, p, volume, priority, world)
     s:setPosition(side * 0.8, 0, -0.6)
     s:setRolloff(0)
   end
-  return s
+  return s, ticket
 end
 function A.update(dt, g)
   A.warningHold = math.max(0, (A.warningHold or 0) - dt)

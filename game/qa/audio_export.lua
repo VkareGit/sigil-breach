@@ -75,6 +75,91 @@ local function report(dir, lines, smoke)
   print(table.concat(lines, '\n'))
 end
 
+-- A staged listening excerpt, explicitly not a recording of a play session.
+-- Uses the real chapel mix data, runtime gain follower and rendered voices.
+local function chapelExcerpt(buffers, rate, dir, lines)
+  local Scene = require('src.audio.scene')
+  local config = require('src.content.maps.proving_soundscape')
+  local route = {
+    { seconds = 6, stage = 'traversal', x = 24, z = 36 },
+    { seconds = 8, stage = 'traversal', x = 24, z = 20 },
+    { seconds = 5, stage = 'traversal', x = 18.5, z = 27.5 },
+    { seconds = 4, stage = 'summoning' },
+    { seconds = 7, stage = 'duel', pressure = 0.2 },
+    { seconds = 10, stage = 'duel', pressure = 0.9 },
+    { seconds = 8, stage = 'aftermath' },
+  }
+  local mix, gains, index, clock = {}, {}, 1, 0
+  local loop = #buffers[Score.layers[1].id]
+  for _, scene in ipairs(route) do
+    scene.config, scene.returning = config, 0
+    scene.x, scene.z = scene.x or 10, scene.z or 18
+    lines[#lines + 1] = string.format(
+      'chapel excerpt %.1fs: %s (pressure %.1f)',
+      clock,
+      scene.stage,
+      scene.pressure or 0
+    )
+    for n = 1, math.floor(scene.seconds * rate) do
+      if n % math.floor(rate / 60) == 1 then
+        for _, layer in ipairs(Score.layers) do
+          local id = layer.id
+          gains[id] = Soundscape.follow(
+            gains[id] or 0,
+            Scene.gain(scene, id, scene.pressure or 0),
+            1 / 60,
+            Soundscape.sceneRates
+          )
+        end
+      end
+      local sample = 0
+      for _, layer in ipairs(Score.layers) do
+        sample = sample + buffers[layer.id][(index - 1) % loop + 1] * (gains[layer.id] or 0)
+      end
+      mix[index], index = sample * Soundscape.music, index + 1
+    end
+    clock = clock + scene.seconds
+  end
+  for _, cue in ipairs({
+    { 19, 'binding_release', 0.32 },
+    { 23, 'ash_arrival', 0.38 },
+    { 26, 'ash_fan_warning', 0.4 },
+    { 26.65, 'ash_fan_release', 0.4 },
+    { 30, 'ash_lance_warning', 0.4 },
+    { 30.65, 'ground_sunder', 0.35 },
+    { 31.30, 'ash_eruption', 0.3 },
+    { 31.60, 'ash_eruption', 0.3 },
+    { 31.90, 'ash_eruption', 0.3 },
+    { 35, 'furnace_warning', 0.4 },
+    { 35.55, 'ground_sunder', 0.35 },
+    { 36.03, 'ash_eruption', 0.3 },
+    { 40, 'boss_collapse', 0.4 },
+  }) do
+    local recipe = Recipes[cue[2]]
+    local sound =
+      Synth.effect(recipe.duration, rate, Synth.seed(cue[2]), recipe.voice or recipe.make(rate))
+    local start = math.floor(cue[1] * rate) + 1
+    for i = 0, sound:getSampleCount() - 1 do
+      if mix[start + i] then
+        mix[start + i] = mix[start + i] + sound:getSample(i) * cue[3]
+      end
+    end
+    sound:release()
+  end
+  -- End the exported excerpt gracefully; runtime stems continue indefinitely.
+  for i = math.max(1, #mix - rate), #mix do
+    mix[i] = mix[i] * (#mix - i) / rate
+  end
+  local peak, rms = levels(mix)
+  assert(peak < 1, 'chapel listening excerpt clips')
+  write(dir .. '/chapel-listening-excerpt.wav', mix, rate, 1, true)
+  lines[#lines + 1] = string.format(
+    'chapel excerpt peak %.3f rms %.3f; staged mono listening example, not gameplay recording or subjective approval',
+    peak,
+    rms
+  )
+end
+
 -- Every recipe rendered as the game renders it (Audio.rate, its own seed).
 function Export.sounds(smoke)
   local dir = directory('sounds')
@@ -151,6 +236,8 @@ function Export.run(smoke)
   if smoke then
     lines[#lines + 1] =
       'Smoke exports one full sound effect, one layer excerpt and one mixed-mood excerpt (1 s each); every WAV was decoded back and its sample count/rate verified. Full score synthesis is exercised; this is not a complete audio export or listening assessment.'
+  else
+    chapelExcerpt(buffers, rate, dir, lines)
   end
   report(dir, lines, smoke)
   local summary = Tooling.header('AUDIO EXPORT', smoke)
