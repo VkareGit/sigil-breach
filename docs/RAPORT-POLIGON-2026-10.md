@@ -8,6 +8,16 @@ ponowny audyt każdej linii całego projektu.
 
 ## Co jest w grze
 
+Korekta portali po zgłoszeniu użytkownika: prześwitujące przywołania, zanikanie
+bramy przy narodzinach demona i wyjście są rysowane po obiektach
+nieprzezroczystych, z odczytem ich głębokości. Nie zastosowano rysowania
+przez ściany. Test GPU obejmuje cztery rodzaje (także znak ołtarza), każdy
+przed dekoracją, za dekoracją i za ścianą: 12 przypadków. Oryginalna kolejność
+nie przechodzi kontroli negatywnej dla pojawienia się demona (0 widocznych
+pikseli przed dalszą dekoracją); po zmianie wszystkie przypadki przechodzą.
+Pełny zestaw Mechanics: 4947 sprawdzeń. Native rendery obejrzano w
+`work/closure-28/portal-review`. Nie zmieniono PNG, HUD-u ani reguł walki.
+
 | Commit | Wdrożony zakres |
 |---|---|
 | `ba8df4c` | Zamknięta bazylika, pełne zestawy ataków w jednym życiu, presja i odpowiedzi na zapowiedzi |

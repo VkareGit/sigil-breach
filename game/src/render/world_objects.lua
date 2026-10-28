@@ -4,7 +4,7 @@
 -- pass. The renderer runs the passes and never names a kind; a new kind of
 -- world object is one registration (render/world_art.lua holds the built-in
 -- ones). An entry:
---   { { pass = 'architecture' | 'ground' | 'sprites', order = n,
+--   { { pass = 'architecture' | 'ground' | 'sprites' | 'translucent', order = n,
 --       draw = function(r, g, view, time) }, ...,
 --     init = function(r, shader)       its GPU resources, with the renderer's
 --     overlay = function(r, g, x, y, w, h)  screen space, after the frame
@@ -13,7 +13,8 @@
 -- drawings run by order (then kind), so what overlaps what never depends on
 -- when a kind was registered.
 local Registry = require('src.core.registry')
-local WorldObjects = { passes = { architecture = true, ground = true, sprites = true } }
+local WorldObjects =
+  { passes = { architecture = true, ground = true, sprites = true, translucent = true } }
 local optional = { 'init', 'overlay', 'release' }
 local kinds = Registry:new('world object kind', function(entry, kind)
   assert(type(entry) == 'table', 'world object ' .. kind .. ': expected an entry')

@@ -29,7 +29,8 @@ local Trails = require('src.feedback.shot_trails')
 local Death = require('src.feedback.death_response')
 -- The frame is a fixed sequence of passes (0.24; one module each, plan v10
 -- V6). The order is the depth and blending contract: opaque world,
--- depth-tested transparent marks, then sprites, effects and the hands. A
+-- floor marks, opaque sprites, depth-tested translucent portals, effects
+-- and the hands. A
 -- new kind of thing on screen belongs to one pass; the passes share only
 -- the renderer and the session. pass.draw(r, g, time, view).
 local Ash = require('src.render.passes.ash')
@@ -41,6 +42,7 @@ R.passes = {
   require('src.render.passes.hazards'),
   Ash,
   require('src.render.passes.sprites'),
+  require('src.render.passes.translucent'),
   require('src.render.passes.effects'),
 }
 local WHITE = { 1, 1, 1 }

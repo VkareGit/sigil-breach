@@ -3,7 +3,7 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 
-function Tests.run(_, renderer)
+function Tests.run(Game, renderer)
   local Portal = require('src.render.portals')
   local Spawner = require('src.run.spawner')
   local lines = {}
@@ -139,6 +139,7 @@ function Tests.run(_, renderer)
     depth:release()
     renderer.projection = previousProjection
     assert(ok, err)
+    require('tests.support.portal_depth').run(Game, renderer, check)
   end
   return lines
 end

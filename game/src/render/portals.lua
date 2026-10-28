@@ -2,6 +2,7 @@
 local Atlas = require('src.render.atlas')
 local Ritual = require('src.render.ritual_art')
 local Ground = require('src.physics.ground')
+local Pools = require('src.session.world')
 local P = {}
 local Archetypes = require('src.content.enemies')
 P.colors = require('src.run.spawner').colors
@@ -132,5 +133,44 @@ function P.arrival(r, g, e)
   )
   paint(r, e.x, e.z, kind, frame, 1 - (age / 0.6) ^ 2, 1.05 - age * 0.25, ground)
   love.graphics.pop()
+end
+-- Pending and arriving portals share a stable back-to-front order. The list
+-- borrows bodies only for this draw; no session survives in renderer scratch.
+local function backToFront(a, b)
+  if a.depth == b.depth then
+    return a.order < b.order
+  end
+  return a.depth > b.depth
+end
+function P.scene(r, g, gates, time)
+  local queue, count = r.portalOrder or {}, 0
+  r.portalOrder = queue
+  local function add(body, arriving)
+    count = count + 1
+    local entry = queue[count] or {}
+    queue[count] = entry
+    entry.body, entry.arriving, entry.order = body, arriving, count
+    entry.depth = (body.x - r.camera[1]) * r.forward[1] + (body.z - r.camera[3]) * r.forward[3]
+  end
+  for _, gate in ipairs(gates or {}) do
+    add(gate, false)
+  end
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.hp > 0 and P.arrivalFrame(e.spawnAge) then
+      add(e, true)
+    end
+  end
+  for i = #queue, count + 1, -1 do
+    queue[i] = nil
+  end
+  table.sort(queue, backToFront)
+  for _, entry in ipairs(queue) do
+    if entry.arriving then
+      P.arrival(r, g, entry.body)
+    else
+      P.draw(r, entry.body, time, g.world)
+    end
+    entry.body = nil
+  end
 end
 return P

@@ -2,9 +2,9 @@ local Context = require('src.session.context')
 -- The built-in world objects and how each is drawn (render/world_objects.lua):
 -- the lamps, the seals, the supplies, the Ember and its murals, the echo,
 -- the gates, the classic exit and secret, the decor props and the proving
--- ground's gallery. Orders keep the 0.30 frame: in the ground pass supplies,
--- the Ember's ring, the echo, gates, exit, secret; in the sprites pass
--- murals, the Ember, lamps, props, painted supplies, the gallery.
+-- ground's gallery. Ground supplies/marks precede opaque sprites. Portals
+-- blend after their depth is complete, so a later distant mural cannot
+-- overwrite a nearer portal with no depth writes.
 local WorldObjects = require('src.render.world_objects')
 local M = require('src.render.mesh')
 local Atlas = require('src.render.atlas')
@@ -326,14 +326,10 @@ WorldObjects.register('echo', {
 })
 WorldObjects.register('gate', {
   {
-    pass = 'ground',
+    pass = 'translucent',
     order = 40,
     draw = function(r, g, view, time)
-      love.graphics.setDepthMode('less', false)
-      for _, gate in ipairs(view.gates) do
-        Portals.draw(r, gate, time, g.world)
-      end
-      love.graphics.setDepthMode('less', true)
+      Portals.scene(r, g, view.gates, time)
     end,
   },
   init = Portals.init,
@@ -341,10 +337,11 @@ WorldObjects.register('gate', {
 -- The classic arena: its exit once the guardian fell, its hidden sigil.
 WorldObjects.register('exit', {
   {
-    pass = 'ground',
+    pass = 'translucent',
     order = 50,
     draw = function(r, g, view, time)
       if view.guardianDead then
+        love.graphics.setShader(r.shader)
         local exit = g.world.portal
         r:object(
           r.sigil,

@@ -6,6 +6,7 @@ local Corpse = require('src.enemies.corpse')
 local Pools = require('src.session.world')
 local Pass = {}
 function Pass.draw(r, g, time, view)
+  love.graphics.setDepthMode('less', true)
   love.graphics.setShader(r.spriteShader)
   WorldObjects.draw(r, g, 'sprites', view, time)
   for _, e in ipairs(Pools.of(g, 'enemies')) do

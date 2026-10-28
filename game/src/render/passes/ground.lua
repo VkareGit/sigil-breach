@@ -1,5 +1,5 @@
 -- Particles, the world objects on the ground (render/world_objects.lua:
--- supplies, the Ember's ring, the echo, gates, exits) and the stains on the
+-- supplies, the Ember's ring and the echo) and the stains on the
 -- floor.
 local WorldObjects = require('src.render.world_objects')
 local Archetypes = require('src.content.enemies')

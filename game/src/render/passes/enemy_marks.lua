@@ -4,7 +4,6 @@ local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Shadows = require('src.render.shadows')
-local Portals = require('src.render.portals')
 local COLORS = require('src.render.effects').colors
 -- The knight's body (reach rings are drawn with its real radius).
 local KNIGHT = Archetypes.player.body
@@ -46,9 +45,6 @@ function Pass.draw(r, g)
           0.42 + progress * 0.35,
           look.warning or COLORS.ember
         )
-      end
-      if (e.spawnAge or 1) < 0.6 then
-        Portals.arrival(r, g, e)
       end
       -- A leap marks its landing point from the crouch to the landing: the
       -- player always sees where the arc ends (dodgeable, never a surprise).
