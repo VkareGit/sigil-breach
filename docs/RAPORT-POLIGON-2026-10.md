@@ -6,6 +6,13 @@ ruchy dostępne w tej walce, zachowanie HUD-u i bazowych demonów.
 To raport zmian i ich weryfikacji, nie deklaracja ukończonej gry ani
 ponowny audyt każdej linii całego projektu.
 
+Aktualizacja po zgłoszeniu wiszących dekoracji: poprawiono podparcie
+bordiur, półek i końców fresków, dodano walidację pełnej szerokości.
+5047 sprawdzeń mechaniki/zasobów oraz architektura przechodzą. Nowy
+[przegląd atmosfery](KIERUNEK-ATMOSFERY-POLIGONU.md) zawiera diagnozę,
+rzeczywiste podglądy kolorystyki i szkic muzyczny. Te propozycje pozostają
+poza publiczną rozgrywką do akceptacji użytkownika.
+
 **Korekta po zgłoszeniu użytkownika:** punkt 7 nie jest ukończony. Zatwierdzone
 nisze, istniejące klatki i poprawione portale stanowią częściowy wkład, a nie
 realizację całego zadania wizualnego. Nowy przegląd ujawnił brak wspólnej

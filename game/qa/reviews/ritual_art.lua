@@ -88,6 +88,15 @@ function Review.run(Game, renderer, output)
   capture('19-ossuary', 16, 4, 13.64, 1.4, 3.5)
   capture('19-threshold', 24, 35.5, 24, 2.8, 39.34)
   capture('19-relic-shelf', 20.2, 35.5, 18.60, 1.4, 35.5)
+  -- Look along both thresholds, not only down the visually flattering axis.
+  -- Regression: a dado and a funerary shelf used to float in these openings.
+  capture('20-west-door-from-nave', 21.5, 27.6, 13, 1.3, 27.6)
+  capture('20-west-door-from-hall', 14.5, 28, 23, 1.3, 27.5)
+  capture('20-east-door-from-nave', 26.5, 27.6, 35, 1.3, 27.6)
+  capture('20-east-door-from-hall', 33.5, 28, 25, 1.3, 27.5)
+  g:spawn('boss', 10, 15)
+  require('qa.reviews.atmosphere').run(g, capture, renderer)
+  Field.reset(g)
   g:act('catalog', 'field_chamber_ash')
   g.testField.invincible = true
   for index = 0, 5 do
