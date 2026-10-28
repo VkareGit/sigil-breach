@@ -92,8 +92,6 @@ return {
     { source = 2, cell = 4, feet = 51, anchors = { head = { 0.32999999999999996, 0.6 } } },
   },
   poses = {
-    ['windup.tempest-charge'] = { clock = 'action', frames = { 7, 8, 9 }, bounds = { 0.22, 0.6 } },
-    ['strike.tempest-charge'] = { frames = { 10 } },
     ['windup.antler-return'] = { clock = 'action', frames = { 12, 7, 8 }, bounds = { 0.24, 0.7 } },
     ['strike.antler-return'] = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
     ['phase.tempest'] = {

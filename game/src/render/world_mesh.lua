@@ -68,7 +68,7 @@ local function build(w)
             M.box(v, px, h - 0.25, pz, bw, 0.25, bd, trim)
             -- Leave continuous lime behind the three narrative wall paintings:
             -- a black niche stripe through a fresco reads as a pasted decal.
-            if (x + z) % 3 == 0 and not muralWall(x, z) then
+            if decor.niches ~= false and (x + z) % 3 == 0 and not muralWall(x, z) then
               M.box(v, px - d[1] * 0.06, 0.55, pz - d[2] * 0.06, bw * 0.92, 2.8, bd * 0.92, dark)
               M.box(
                 v,

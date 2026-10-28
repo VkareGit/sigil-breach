@@ -1,0 +1,159 @@
+-- Furfur, Storm Count: antlered boss with a charge and lightning.
+local Creature = require('src.content.defs.creature')
+local Action = require('src.content.defs.action')
+local packet = require('src.content.defs.packet').new
+local charge = Action.charge({
+  id = 'charge',
+  rest = 4.0,
+  range = 11,
+  every = 2,
+  windup = 0.95,
+  speed = 12,
+  minTime = 0.30,
+  maxTime = 0.85,
+  contactY = 1.18,
+  contactRadius = 0.42,
+  reach = 0.75,
+  recover = 0.75,
+  packet = packet(28, 160, 'physical', 230),
+})
+return Creature.boss({
+  id = 'furfur',
+  name = 'creature_furfur',
+  catalog = { field = 6 },
+  appearance = {
+    portal = { 0.86, 0.86, 1 },
+    stature = 'large',
+    casts = { lightning = true, ['tempest-cross'] = true },
+    fieldRing = 0.85,
+    banner = {
+      calm = 'creature_furfur_calm',
+      fury = 'creature_furfur_fury',
+      exposed = 'creature_furfur_exposed',
+      plainFury = 'creature_furfur_plain_fury',
+    },
+  },
+  body = {
+    hp = 1400,
+    -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
+    corpse = { settle = 0.44, landing = 0.22 },
+    armor = 35,
+    locationArmor = { head = 0, torso = 35, lower = 50 },
+    mass = 1 / 0.12,
+    poise = 400,
+    radius = 0.55,
+    struck = 'bone',
+    aimY = 1.55,
+  },
+  move = { speed = 2.6, accel = 8 },
+  sounds = { alert = 'growl', windup = 'growl', strike = 'antler' },
+  tactics = {
+    repeatPenalty = 0.2,
+    moves = {
+      { attack = 'melee', ideal = 1.5, max = 3, weight = 1.5 },
+      { attack = 'charge', ideal = 6, min = 3, weight = 1 },
+      { attack = 'lightning', ideal = 8, weight = 0.9 },
+    },
+  },
+  phases = {
+    { id = 'storm' },
+    {
+      id = 'tempest',
+      at = 0,
+      refill = 0.7,
+      recovery = 1.5,
+      transitionPose = 'phase.tempest',
+      pace = 1.25,
+      speed = 1.12,
+      ideal = 3.2,
+      tactics = {
+        repeatPenalty = 0.15,
+        moves = {
+          { attack = 'melee', ideal = 1.5, max = 3.2, weight = 1.6 },
+          { attack = 'tempest-charge', ideal = 5, min = 2.5, weight = 1.2 },
+          { attack = 'tempest-cross', ideal = 7, weight = 1.6 },
+          {
+            attack = 'antler-return',
+            ideal = 2,
+            min = 0,
+            max = 3.3,
+            weight = 9,
+            after = { attack = 'tempest-charge', within = 1.0 },
+          },
+        },
+      },
+    },
+  },
+  attacks = {
+    Action.lunge({
+      id = 'melee',
+      maxRange = 3,
+      range = 11,
+      windup = 0.75,
+      lungeSpeed = 3,
+      lungeTime = 0.20,
+      duration = 0.32,
+      recover = 0.75,
+      packet = packet(24, 120),
+    }),
+    -- push 230: the charge can drive the knight into a wall (3.4 m/s > 3.2).
+    charge,
+    Action.strike({
+      id = 'lightning',
+      rest = 3.4,
+      range = 11,
+      windup = 1.1,
+      duration = 0.32,
+      recover = 0.75,
+      radius = 1.25,
+      life = 0.22,
+      sound = 'thunder',
+      packet = packet(30, 90, 'lightning'),
+    }),
+    -- Centre, sides, then the other axis. All five locations are warned
+    -- together and remain fixed, leaving diagonal escape lanes and a safe
+    -- centre again after the first bolt. No repeated tracking of the knight.
+    Action.pattern({
+      id = 'tempest-cross',
+      range = 11,
+      windup = 1.25,
+      duration = 1.15,
+      recover = 1.0,
+      cooldown = 1.6,
+      rest = 4.8,
+      hazard = 'lightning',
+      volume = { bottom = 0, top = 2.9, sample = 'body', includeRadius = true },
+      radius = 1.05,
+      life = 0.22,
+      pulse = 0.45,
+      sound = 'thunder',
+      marks = {
+        { forward = 0, lateral = 0, delay = 0.75 },
+        { forward = 0, lateral = -2.8, delay = 1.15 },
+        { forward = 0, lateral = 2.8, delay = 1.15 },
+        { forward = -2.8, lateral = 0, delay = 1.55 },
+        { forward = 2.8, lateral = 0, delay = 1.55 },
+      },
+      packet = packet(26, 80, 'lightning'),
+    }),
+    require('src.core.schema').inherit(charge, {
+      id = 'tempest-charge',
+      recover = 0.24,
+      cooldown = 0.24,
+      rest = 4.8,
+    }),
+    -- A second physical beat when the knight stays beside the charge's end.
+    -- New windup, new locked aim, normal contact geometry, then a full rest.
+    Action.lunge({
+      id = 'antler-return',
+      range = 3.3,
+      windup = 0.55,
+      lungeSpeed = 5.4,
+      lungeTime = 0.20,
+      duration = 0.32,
+      recover = 1.25,
+      cooldown = 1.8,
+      packet = packet(24, 120),
+    }),
+  },
+})

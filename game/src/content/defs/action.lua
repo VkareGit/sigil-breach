@@ -34,6 +34,13 @@ Action.common = {
   },
   lead = { type = 'number', min = 0, desc = 'aim this far ahead of the player (s)' },
   aimLead = { type = 'number', default = 0, min = 0, desc = 'intercept share (tier-scaled)' },
+  leadFloor = {
+    type = 'number',
+    default = 0,
+    min = 0,
+    max = 1,
+    desc = 'minimum observed-velocity prediction at any tier',
+  },
   hyper = { type = 'number', min = 1, desc = 'guard multiplier while winding up and striking' },
   sound = { type = 'string' },
   packet = { type = 'table', schema = Packet.schema },

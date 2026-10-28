@@ -6,8 +6,7 @@ spójnych mechanizmów gry przez definicje i lokalnych wykonawców. Nowy rodzaj
 zachowania może wymagać nowego modułu; nie powinien wymagać przepisywania
 każdej postaci, broni, ekranu i trybu.
 
-Każdy punkt kończy się weryfikacją, osobnym commitem i przerwą na test
-użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
+Aktualizacja 28 października: commit po każdym etapie, bez przerw na test. Użytkownik sprawdza całość na końcu. Dawne opisy przerw poniżej są historią.
 
 | Punkt | Zakres | Stan |
 |---|---|---|
@@ -690,3 +689,50 @@ przez użytkownika; nie zamyka audio, punktu 7 ani odbioru całości.
 - Wzorzec estetyczny: obecne demony i GUI, kierunek malowanego fresku zapisany
   w `game/docs/KIERUNEK-ARTYSTYCZNY.txt`. Brak samowolnych zmian HUD-u,
   modeli, palety, ostrości lub gęstości detalu.
+
+
+## Bieżąca korekta: jedna walka, zamknięta bazylika
+
+Obowiązujące wymagania: usunięte drugie życie obu bossów z publicznych
+definicji, wszystkie ukończone ataki od początku. HUD, broń i bazowe PNG
+demonów bez zmian. Mechanizm faz pozostaje biblioteką z zamrożonymi
+przykładami testowymi; nie wymusza projektowania drugiej formy teraz.
+
+Próba w komnacie wyłącza odziedziczony GOD MODE i daje zwykłe 40 pancerza.
+F2 nadal pozwala jawnie włączyć nietykalność do oglądania animacji.
+Margrave przewiduje zaobserwowaną prędkość przy commitment, bez śledzenia
+zmiany kierunku po rozpoczęciu zapowiedzi. Pierścień ma osobno ostrzegany
+środek, aby stanie pod bossem nie było automatycznie bezpieczne. Furfur
+zbliża się zamiast stale zachowywać dystans; blisko używa fizycznego pchnięcia
+zamiast pazura, którego malowana kotwica mijała stojącego naprzeciw rycerza.
+Wszystkie ataki mają skończoną objętość, zapowiedź i okno odpowiedzi.
+
+Pomiar 30 s bez strzelania, TIER 1, 100 HP / 40 ward:
+
+| Boss | Stanie | Ciągłe krążenie | Reakcja unikiem/skokiem na zapowiedzi |
+|---|---|---|---|
+| Margrave | śmierć 11,50 s | śmierć 17,21 s | przeżycie, 100 HP |
+| Furfur | śmierć 12,59 s | śmierć 21,38 s | przeżycie, 76,6 HP |
+
+To dowód presji i istnienia odpowiedzi, nie dowód końcowego balansu ani frajdy.
+`boss-pressure` ma 31 asercji, w tym replay całej śmiertelnej próby i nagrodę
+raz po zerowym HP. Dawne testy mechanizmu faz/pazura korzystają z jawnych
+fixture danych; aktualna walka ma osobną regresję. Pełna mechanika PASS.
+Sześć dawnych golden wraca po przywróceniu samych poprzednich definicji
+w pamięci bieżącego silnika; referencje 0.33 nie są regenerowane.
+
+Mapa `proving` jest teraz niezależna od `limbo`: oś wejście–nawa–podniesione
+prezbiterium, rytm podpór i łuków, dwie otwarte w środku kaplice pojedynku,
+małe komory na północy. Sklepienie jest prawdziwym stropem dla obrazu,
+strzałów i kolizji. Równe przyległe fragmenty scalono bez zmiany kształtu.
+Nie jest to replika konkretnego zabytku. Inspiracje przestrzenne:
+[San Clemente](https://www.basilicasanclemente.com/eng/history/) — nawa,
+przejścia boczne i podziemna warstwa bazyliki;
+[San Callisto](https://www.catacombesancallisto.it/en/cubicoli-sacramenti.php)
+— galerie z loculi prowadzące do komór, zamiast losowych dekoracji.
+Nowa grafika nisz została pokazana oddzielnie; nie zastępuje zaakceptowanych
+modeli ani HUD-u. Rozwinięcie otoczenia należy do punktu 7.
+
+Pozostałe etapy: 6 audio → 7 efekty/otoczenie → 8 odbiór integracji i kosztu
+→ praktyczny poradnik edycji. Nie nazywamy punktu 5 końcem całego zadania.
+

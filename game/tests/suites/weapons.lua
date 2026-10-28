@@ -511,6 +511,8 @@ function Tests.run(G, renderer)
   local function furfur(count)
     local trial = fresh()
     local e = trial:spawn('furfur', 16, 21)
+    -- Historical delivery timing regression; live pressure has its own suite.
+    require('src.combat.rules').equip(e, require('tests.support.content.furfur_v1'))
     e.awake = true
     e.attack = 0
     e.attackCount = count or 0

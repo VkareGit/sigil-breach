@@ -205,6 +205,10 @@ function Schema.check(map, id)
     end
   end
   local decor = map.decor or {}
+  assert(
+    decor.niches == nil or type(decor.niches) == 'boolean',
+    label .. '.decor.niches must be boolean'
+  )
   if decor.atmosphere then
     for _, key in ipairs({ 'ambient', 'figures', 'sky' }) do
       local rgb = decor.atmosphere[key]

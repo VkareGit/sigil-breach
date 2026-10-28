@@ -97,6 +97,10 @@ function C.start(field, g, id, count)
   local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = room.entry.x, room.entry.z, room.entry.yaw, 0
   g.testField.selected, g.testField.frozen = trial.creature, false
+  -- Entering a live fight is not an invulnerable atlas inspection. The
+  -- explicit GOD MODE tool can still be enabled after starting the trial.
+  g.testField.invincible = false
+  p.armor = K.armor
   g.testField.roomTrial =
     { id = id, count = count, actors = {}, status = 'active', started = g.elapsed }
   for i = 1, count do

@@ -77,57 +77,33 @@ function Review.run(Game, renderer, output)
   capture('12-ash-altar', 6.8, 17, 4.1, 1.7, 17)
   capture('13-storm-altar', 25.2, 17, 27.9, 1.7, 17)
   capture('13-storm-altar-small', 25.2, 17, 27.9, 1.7, 17, 960, 540)
+  capture('11-basilica-vault', 16, 27.5, 16, 5.8, 18)
+  capture('11-basilica-aisle', 11, 26, 11, 2.8, 14)
+  capture('11-basilica-presbytery', 16, 11, 16, 1.8, 3)
+  capture('11-basilica-reverse', 16, 9, 16, 3.2, 26)
+  capture('11-basilica-nave-small', 16, 27.5, 16, 2.8, 14, 960, 540)
   for _, id in ipairs({ 'ash', 'storm' }) do
     g:act('catalog', 'field_chamber_' .. id)
+    g.testField.invincible = true -- art inspection only, live entry is mortal
     for _ = 1, 160 do
       g:update(1 / 120, {})
     end
     local x = g.player.x
-    capture('14-' .. id .. '-arena', x, 20, x, 1.6, 12)
+    capture('14-' .. id .. '-arena', x, 20, x, 2.4, 12)
+    capture('14-' .. id .. '-vault', x, 20, x, 5.0, 14)
     local boss = assert(g.enemies[1])
-    g:damageEnemy(boss, boss.hp, 'weapon')
-    for _, pose in ipairs({ 'gather', 'rise', 'release' }) do
-      for _ = 1, 42 do
-        g:update(1 / 120, {})
+    for _ = 1, 300 do
+      if boss.ai == 'strike' then
+        break
       end
-      capture('15-' .. id .. '-transition-' .. pose, x, 20, x, 1.6, 12)
+      g:update(1 / 120, {})
     end
-    -- Approach into the court before commitment; at the rear wall some
-    -- offsets correctly fall outside the room. Retreat after release so
-    -- the ground contacts under the knight can be inspected in these stills.
-    g.player.z = 18
-    local expected = id == 'ash' and 'ash-lance' or 'tempest-cross'
-    local function advanceUntil(predicate)
-      for _ = 1, 1800 do
-        if predicate() then
-          return
-        end
-        g:update(1 / 120, {})
-      end
-      error('phase review did not reach ' .. expected .. ' / ' .. boss.ai)
-    end
-    advanceUntil(function()
-      return boss.attackKind == expected
-        and boss.ai == 'windup'
-        and boss.windup <= boss.windupDuration * 0.5
-    end)
-    capture('15-' .. id .. '-pattern-windup', x, 18, x, 1.0, 15)
-    advanceUntil(function()
-      return boss.ai == 'strike'
-    end)
-    notes[#notes + 1] = id .. ': ' .. expected .. ', released marks ' .. #g.hazards
-    capture('15-' .. id .. '-pattern-warning', x, 20, x, 0.7, 16)
-    for beat, ticks in ipairs({ 94, 48, 42 }) do
-      for _ = 1, ticks do
-        g:update(1 / 120, {})
-      end
-      capture('15-' .. id .. '-pattern-beat-' .. beat, x, 20, x, 0.7, 16)
-    end
+    capture('15-' .. id .. '-opening', x, 20, boss.x, 1.5, boss.z)
     g:damageEnemy(boss, boss.hp, 'weapon')
     for _ = 1, 60 do
       g:update(1 / 120, {})
     end
-    assert(g.testField.roomTrial.status == 'complete', 'completion capture needs final death')
+    assert(g.testField.roomTrial.status == 'complete', 'one stock must end the trial')
     capture('16-' .. id .. '-complete', x, 20, x, 1.6, 12)
   end
   Field.reset(g)
@@ -145,6 +121,7 @@ function Review.run(Game, renderer, output)
     g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
     g.testing, g.view.motion = true, false
     g:act('catalog', 'field_chamber_' .. sample.trial)
+    g.testField.invincible = true
     for _ = 1, 160 do
       g:update(1 / 120, {})
     end

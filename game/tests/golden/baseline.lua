@@ -38,11 +38,14 @@
 -- Restoring ONLY HEAD creature/sheet definitions on the current engine gives
 -- 6/6 previous hashes: work/combat-revision/golden-attribution/content-attribution.csv.
 -- A completed follow-up opportunity is now included when present.
+-- 2026-10-28: one-stock bosses, observed-velocity lead and physical horn thrusts.
+-- Old creature/sheet data on the current engine reproduces 6/6 old hashes:
+-- work/basilica-duel/golden/content-attribution.csv. v033 fixtures unchanged.
 return {
-  playtest = '628ad29a/3c0ba222',
-  human = '998de25c/0c86ed37',
-  drill = '448e3bb8/543f2f58',
-  playtestContacts = '1989c738/332',
-  humanContacts = '91176f57/678',
-  drillContacts = '2a562002/225',
+  playtest = '6869e6e8/827ed232',
+  human = '0fea9e67/f9a39de8',
+  drill = '4d10e68a/d2882200',
+  playtestContacts = '12c5a2a1/422',
+  humanContacts = '0745020f/738',
+  drillContacts = '63c4ba22/193',
 }

@@ -95,6 +95,16 @@ function Tests.run(Game)
     not W.visible(g.world, 7, 12, 16, 12) and W.visible(g.world, 7, 17, 16, 17)
   )
   local Ground = require('src.physics.ground')
+  local Ballistics = require('src.combat.ballistics')
+  for _, location in ipairs({ { 16, 25 }, { 7, 16 }, { 25, 16 }, { 10, 5 }, { 22, 5 } }) do
+    local x, z = location[1], location[2]
+    local roof = Ground.ceiling(g.world, x, z, 1.7)
+    local distance, _, hit = Ballistics.world(g.world, x, 1.7, z, 0, 1, 0, 20)
+    check(
+      'enclosed roof is actual projectile geometry ' .. x .. ':' .. z,
+      roof < 10 and hit ~= 'range' and math.abs(distance - (roof - 1.7)) < 0.001
+    )
+  end
   local unsupported = {}
   for _, arch in ipairs(g.world.decor.arches) do
     for side = -1, 1, 2 do

@@ -130,7 +130,7 @@ local function beginAttack(g, e, d, chosen)
   -- Predictive aim for bolts and fans (tier-unlocked): intercept the
   -- player's velocity at commitment. Then the target is frozen: a change of
   -- direction after the windup starts still dodges the shot.
-  local lead = atk.aimLead * (e.tierLead or 0)
+  local lead = atk.aimLead * math.max(atk.leadFloor or 0, e.tierLead or 0)
   local speed = atk.speed or (atk.bolt and atk.bolt.speed)
   if lead > 0 and speed and speed > 0 then
     local vx, vz = (p.vx or 0) * lead, (p.vz or 0) * lead

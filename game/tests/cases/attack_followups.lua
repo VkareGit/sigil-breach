@@ -1,5 +1,5 @@
 local F = require('tests.support.fixtures')
-local A = require('src.content.enemies')
+local A = require('tests.support.phase_encounters')
 local Actions = require('src.enemies.actions')
 local Select = require('src.enemies.attack_selection')
 local Schema = require('src.core.schema')
@@ -17,6 +17,7 @@ local function attack(e, id)
   error('missing action ' .. id)
 end
 function Tests.run(Game)
+  Game = A.game(Game)
   local lines = {}
   local check = F.checker(lines, 'follow-ups: ', 'follow-ups: ')
   local function fresh(kind)

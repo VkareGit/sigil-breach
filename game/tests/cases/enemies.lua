@@ -55,6 +55,9 @@ function Tests.run(check)
       pushZ = 0,
     }
     AI.init(e)
+    if kind == 'furfur' then
+      e.archetype = require('tests.support.content.furfur_v1')
+    end
     e.awake = false
     e.aimX, e.aimZ = g.player.x, g.player.z
     g.enemies[1] = e

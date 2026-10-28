@@ -1,5 +1,5 @@
 local Fixtures = require('tests.support.fixtures')
-local A = require('src.content.enemies')
+local A = require('tests.support.phase_encounters')
 local Creature = require('src.content.defs.creature')
 local Schema = require('src.core.schema')
 local Actions = require('src.enemies.actions')
@@ -10,6 +10,7 @@ local Integrity = require('src.session.integrity')
 local Stats = require('src.session.stats')
 local Tests = {}
 function Tests.run(Game)
+  Game = A.game(Game)
   local lines = {}
   local check = Fixtures.checker(lines, 'encounter: ', 'encounter: ')
   local near = Fixtures.within(1e-7)

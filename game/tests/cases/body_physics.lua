@@ -174,9 +174,14 @@ function Tests.run(G, check)
   )
   g = fresh()
   e = g:spawn('furfur', 16, 20)
-  e.attackCount = 1
-  e.lastAttack, e.attackRepeats = 'charge', 1
-  Attacks.begin(g, e, 5)
+  -- This is a delivery lifecycle check, not a particular tactical ranking.
+  local lightning
+  for _, attack in ipairs(Archetypes.furfur.attacks) do
+    if attack.id == 'lightning' then
+      lightning = attack
+    end
+  end
+  Attacks.begin(g, e, 5, assert(lightning))
   local hazard = e.pendingHazard
   check(
     'lightning telegraph belongs to its committed caster',

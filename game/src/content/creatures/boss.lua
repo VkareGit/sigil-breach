@@ -37,33 +37,22 @@ return Creature.boss({
     aimY = 1.6,
     microStun = 0.035,
   },
-  move = { speed = 2.2, accel = 8, ideal = 5.5 },
+  move = { speed = 3.6, accel = 20, ideal = 3.6 },
   sounds = { alert = 'growl', windup = 'growl', strike = 'cast' },
-  phases = {
-    { id = 'ash', tactics = { moves = { { attack = 'ember-fan', ideal = 5 } } } },
-    {
-      id = 'cinders',
-      at = 0,
-      refill = 0.65,
-      recovery = 1.4,
-      transitionPose = 'phase.cinders',
-      pace = 1.2,
-      speed = 1.1,
-      ideal = 3.8,
-      tactics = {
-        repeatPenalty = 0.2,
-        moves = {
-          { attack = 'ember-fan', ideal = 5, weight = 1 },
-          { attack = 'ash-lance', ideal = 8, weight = 1.4, min = 2.5 },
-          { attack = 'furnace', ideal = 2, weight = 3, max = 3.4 },
-          {
-            attack = 'cinder-spear',
-            ideal = 6,
-            weight = 8,
-            min = 2,
-            after = { attack = 'ash-lance', within = 1.4 },
-          },
-        },
+  -- One life, the complete base encounter. Phase transitions remain a library
+  -- capability, deliberately unused until this duel is accepted in play.
+  tactics = {
+    repeatPenalty = 0.25,
+    moves = {
+      { attack = 'ember-fan', ideal = 7, min = 2.4, weight = 1.5 },
+      { attack = 'ash-lance', ideal = 5, min = 2.5, weight = 1.3 },
+      { attack = 'furnace', ideal = 1.5, max = 3.4, weight = 3 },
+      {
+        attack = 'cinder-spear',
+        ideal = 6,
+        min = 2,
+        weight = 12,
+        after = { attack = 'ash-lance', within = 1.4 },
       },
     },
   },
@@ -71,14 +60,16 @@ return Creature.boss({
     Action.fan({
       id = 'ember-fan',
       range = 11,
-      windup = 0.9,
-      recover = 0.75,
-      speed = 4.6,
-      rageSpeed = 5.3,
+      windup = 0.65,
+      recover = 0.65,
+      cooldown = 0.8,
+      speed = 10.5,
+      rageSpeed = 10.5,
       count = 5,
-      rageCount = 7,
-      spread = 0.19,
-      aimLead = 0.5,
+      rageCount = 5,
+      spread = 0.24,
+      aimLead = 1,
+      leadFloor = 1,
       height = 1.9,
       big = true,
       color = { 0.95, 0.38, 0.12 },
@@ -94,17 +85,17 @@ return Creature.boss({
         packet = packet(8, 0, 'fire'),
       },
     }),
-    -- Phase two breaks a lane of floor in three advancing beats. Leaving
+    -- A committed cast breaks a lane of floor in three advancing beats. Leaving
     -- the lane sideways (or jumping the shallow fire) is the response.
     Action.pattern({
       id = 'ash-lance',
       range = 11,
       minRange = 2.5,
-      windup = 1.05,
+      windup = 0.65,
       duration = 0.35,
       recover = 0.38,
       cooldown = 0.38,
-      rest = 5.2,
+      rest = 4.2,
       hazard = 'pool',
       radius = 1.0,
       life = 1.3,
@@ -114,7 +105,7 @@ return Creature.boss({
         { forward = 0, lateral = 0, delay = 0.95 },
         { forward = 2.2, lateral = 0, delay = 1.25 },
       },
-      packet = packet(12, 25, 'fire'),
+      packet = packet(18, 25, 'fire'),
     }),
     -- The lane is the first beat, not the end of the string. The next aim
     -- is taken at its own visible windup, then frozen. End in a long opening.
@@ -126,29 +117,31 @@ return Creature.boss({
       duration = 0.28,
       recover = 1.25,
       cooldown = 1.8,
-      speed = 9,
+      speed = 13,
       height = 1.9,
-      aimLead = 0.7,
+      aimLead = 1,
+      leadFloor = 1,
       big = true,
       color = { 0.95, 0.38, 0.12 },
       packet = packet(22, 60, 'fire'),
     }),
-    -- A shallow ring around the caster, leaving an inner pocket. Unlike
-    -- the lane, blindly backing away into this ring is the wrong response.
+    -- A shallow eruption at the caster, then its ring. Unlike
+    -- the lane, retreating or jumping beats standing inside the eruption.
     Action.pattern({
       id = 'furnace',
       origin = 'caster',
       range = 3.4,
-      windup = 0.95,
+      windup = 0.55,
       duration = 0.5,
       recover = 1.15,
       cooldown = 1.7,
-      rest = 5,
+      rest = 3.4,
       hazard = 'pool',
-      radius = 0.88,
-      life = 1.25,
+      radius = 1.05,
+      life = 1.6,
       pulse = 0.45,
       marks = {
+        { forward = 0, lateral = 0, delay = 0.48 },
         { forward = 2.2, lateral = 0, delay = 0.7 },
         { forward = 1.56, lateral = 1.56, delay = 0.7 },
         { forward = 0, lateral = 2.2, delay = 0.7 },
@@ -158,7 +151,7 @@ return Creature.boss({
         { forward = 0, lateral = -2.2, delay = 0.7 },
         { forward = 1.56, lateral = -1.56, delay = 0.7 },
       },
-      packet = packet(12, 25, 'fire'),
+      packet = packet(18, 25, 'fire'),
     }),
   },
 })

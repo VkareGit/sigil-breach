@@ -8,8 +8,8 @@ local A = require('src.content.enemies')
 local M = {}
 function M.game(Game)
   local old = {
-    boss = Schema.copy(A.boss),
-    furfur = Schema.copy(A.furfur),
+    boss = Schema.copy(require('tests.support.content.boss_v1')),
+    furfur = Schema.copy(require('tests.support.content.furfur_v1')),
     stolas = Schema.copy(A.stolas),
     buer = Schema.copy(A.buer),
   }
@@ -28,7 +28,9 @@ function M.game(Game)
       g.spawn = function(self, kind, x, z)
         local e = spawn(self, kind, x, z)
         if old[kind] then
-          e.archetype = old[kind]
+          local Rules = require('src.combat.rules')
+          Rules.equip(e, old[kind])
+          Rules.applyTier(e, e.tier)
           e.phaseBaseHp = nil
         end
         return e

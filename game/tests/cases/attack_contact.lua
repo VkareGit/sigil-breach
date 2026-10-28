@@ -92,6 +92,11 @@ function Tests.run(Game)
   for _, kind in ipairs({ 'imp', 'armored', 'furfur' }) do
     g = Fixtures.arena(Game)
     e = g:spawn(kind, 16, 22)
+    if kind == 'furfur' then
+      -- Keep the authored claw contract covered after the live creature's
+      -- close action became a horn thrust. This fixture is not live balance.
+      Rules.equip(e, require('tests.support.content.furfur_v1'))
+    end
     local atk = Rules.archetype(e).attacks[1]
     e.ai, e.phase, e.spawnAge, e.attackKind, e.attackSpec = 'strike', 0.08, 1, atk.id, atk
     e.lungeX, e.lungeZ = 0, 1
