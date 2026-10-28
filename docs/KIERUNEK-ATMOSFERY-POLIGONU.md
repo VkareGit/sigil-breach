@@ -2,8 +2,11 @@
 
 28 października 2026. Korekta po uwadze o bordiurze przecinającej wejście.
 Stan: błędy osadzenia dekoracji poprawione; nowa kolorystyka i przebieg
-muzyki są **propozycją do akceptacji**, dostępną w podglądach QA. Zwykła
+muzyki są **niezaakceptowaną propozycją**, dostępną w podglądach QA. Zwykła
 gra zachowuje dotychczasową paletę, miks, HUD, broń i demony.
+Po podglądzie użytkownik wskazał główny problem: „Brak grozy i znaczenia —
+miejsce nadal nie wywołuje emocji”. Sama korekta temperatury koloru nie
+jest wystarczającym następnym wdrożeniem.
 
 ## Co osłabia obecny obraz
 
@@ -71,6 +74,55 @@ wycofanie przed przywołaniem, 27 s walka, 38 s pustka po walce. To sam miks
 mono, bez kroków, wystrzałów i przestrzennego pogłosu. Nie jest nową ścieżką
 dźwiękową ani dowodem dobrego miksu pełnej walki. Próbka dekoduje się poprawnie,
 nie przesterowuje; peak 0,27857, RMS 0,03191. Jest poza zasobami gry.
+
+## Korekta kierunku: ślady przerwanego obrzędu
+
+To nadal propozycja scenograficzna do obejrzenia, nie nowy kanon fabuły.
+Ma wywołać pytanie: **co próbowano tutaj zatrzymać i czy zabezpieczenia
+jeszcze działają?** Układ musi pozwalać wywnioskować związek między śladami,
+zanim wyjaśni go opis. Trzy ujęcia szkicu pokazują:
+
+1. **Ludzki porządek.** Niski próg, zadbana nisza wotywna, wydeptana droga
+   i wysoka nawa. Małe przedmioty podają skalę człowieka. Ołtarz jest
+   widoczny fragmentarycznie; pełne odsłonięcie następuje przy wejściu do
+   sali. Fresk prowadzi spojrzeniem figur w tę samą stronę co architektura.
+2. **Ślad niepowodzenia.** Zerwane mocowanie łańcucha, przemieszczone
+   naczynie, przerwany stary ślad obrzędu i kierunkowe osmalenie. To jedna
+   grupa przyczynowo powiązanych śladów przy progu, nie gruz na całej arenie.
+   Stary ślad jest matowy; nie udaje aktywnej pieczęci ani pola obrażeń.
+3. **Obecność.** Ołtarz i obecny demon stają się punktem skupienia. Wysoka
+   przestrzeń pozostaje pusta nad graczem, tło za sylwetką spokojniejsze,
+   światło boczne oszczędne. Gracz widzi ciało i przygotowanie ataku.
+
+Pierwszy wygenerowany szkic miał zbyt ostry kamień i zbyt wiele palenisk.
+Drugi upraszcza pigment oraz wygasza większość mis. Oba są ilustracjami
+koncepcyjnymi, **nie renderami LÖVE ani gotowymi teksturami**. Nie potwierdzają
+grozy w grze. Generowany znak na pulpicie nie zastępuje źródłowego PNG
+Goetii; w implementacji korzystamy z obecnych reprodukcji. Widoczna w szkicu
+szczelina nie zatwierdza nowej przeszkody: płytki ślad może być dekoracją,
+ale rzeczywista wyrwa musi mieć zgodną geometrię, kolizję i nawigację.
+
+Dźwięk powinien dopowiadać tę samą sytuację: głos z konkretnej głębi,
+wycofanie warstw przy aktywacji, odpowiedź powiązana z rozpoczęciem próby,
+czytelna zapowiedź pierwszego ataku i pustka po zakończeniu. Nie losowe
+odgłosy udające pociski lub przeciwników za plecami. W testowym trybie
+powtarzanie starcia nie może wymuszać długiego wstępu ani odbierać sterowania.
+
+Frictional opisuje budowanie oczekiwania i znaczenia otoczenia oraz utratę
+grozy, gdy gracz rozpozna nieskuteczność przeciwnika. Przejmujemy te obserwacje,
+bez przenoszenia do FPS-a rezygnacji z walki lub niejasnych zasad obrażeń.
+[9 Years, 9 Lessons on Horror](https://frictionalgames.com/2019-10-9-years-9-lessons-on-horror/).
+Prado opisuje przemianę instrumentów muzycznych w narzędzia kary u Boscha.
+Inspiracją jest tutaj zmiana znaczenia znajomego przedmiotu — ochronne
+mocowanie staje się dowodem porażki — a nie zwiększanie liczby ozdób.
+[Prado — The Garden of Earthly Delights](https://www.museodelprado.es/en/the-collection/art-work/the-garden-of-earthly-delights-triptych/02388242-6d6a-4e9e-a992-e1311eab3609).
+
+Odbiór sprawdzamy najpierw na krótkim przebiegu wejście–próg–ołtarz,
+z niezmienionym HUD-em, bronią i demonem, bez rozszerzania całej mapy.
+Bez wyjaśnienia słownego gracz powinien móc wskazać ślad uszkodzenia,
+powiązać go z ołtarzem i odróżnić starą pozostałość od aktywnej pieczęci.
+Osobno oceniamy oczekiwanie przed walką i zagrożenie w walce: dekoracja
+nie zamyka problemów z AI, animacjami, czytelnością ani wydajnością.
 
 ## Wdrożenie po akceptacji, bez drugiego silnika atmosfery
 
