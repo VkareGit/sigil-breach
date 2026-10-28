@@ -21,6 +21,7 @@ require('src.feedback.install')
 
 local Application = {}
 Application.__index = Application
+local fixedStep = 1 / 120
 
 -- One owner for session replacement, preferences, renderer, and frame timing.
 -- Gameplay modules never need a reference to the application or its callbacks.
@@ -341,12 +342,18 @@ function Application:update(dt)
   end
   local input = self.input:sample(self.game)
   self.accumulator = math.min(0.20, self.accumulator + dt)
-  while self.accumulator >= 1 / 120 do
-    Presentation.capture(self.game)
-    self.game:update(1 / 120, input)
+  while self.accumulator >= fixedStep do
+    -- Only the last tick's starting pose can be interpolated for this draw.
+    -- Earlier captures were immediately replaced without being presented.
+    -- Input observations still describe the last displayed frame; these
+    -- temporary motion samples never supply authoritative shot geometry.
+    if self.accumulator - fixedStep < fixedStep then
+      Presentation.capture(self.game)
+    end
+    self.game:update(fixedStep, input)
     -- Held controls repeat; dash and slide edges belong to one simulation tick.
     self.input:consumeEdges(input)
-    self.accumulator = self.accumulator - 1 / 120
+    self.accumulator = self.accumulator - fixedStep
   end
   if self:has('--screenshot') and self.game.time > 0.1 then
     self.game.state = 'paused'

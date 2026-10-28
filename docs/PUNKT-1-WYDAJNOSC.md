@@ -1,5 +1,54 @@
 # Punkt 1 — diagnoza czasu klatki z 20 demonami
 
+## Odbiór końcowy 28.10 — pełna ścieżka względem E0
+
+Pięć naprzemiennych par `710d1ac` → `2704b4b`, bez profilerów i zmiany
+progów, 300 kroków rozgrzewki, 2400 kroków CPU / 720 pełnych klatek.
+Obie kopie źródeł miały niezmienione fingerprinty przed i po pomiarze.
+Dowody: `work/closure-28/e0-comparison/summary.txt` oraz
+`work/closure-28/formal-source-{before,after}.json`.
+
+| Miara | E0 mediana [ms] | Po mediana [ms] | Wynik protokołu |
+|---|---:|---:|---|
+| 20 ciał, nieruchome efekty | 5,3484 | 5,4830 | NO REGRESSION (+2,5%) |
+| 4 ciała, nieruchome efekty | 4,0490 | 4,1092 | INCONCLUSIVE |
+| 20 ciał, żywa walka, pełna klatka | 6,3142 | 8,7204 | REGRESSION (+38,1%) |
+| 20 ciał, krok symulacji | 0,1232 | 0,1279 | INCONCLUSIVE |
+
+To pomiar ewolucji całej gry, obejmujący nowe zachowania, audio i poprawki;
+nie izolowany koszt jednego algorytmu. Różnica pełnej żywej klatki przekracza
+sumę IQR obu wariantów. Nie wolno jej tłumaczyć samym szumem ani zaliczać
+na podstawie mediany poniżej 16,7 ms.
+
+Publiczne sale po zmianach: p95 Margrabiego 8,66–9,86 ms, p95 sali trzech
+Furfurów 10,54–12,03 ms. Najgorsze klatki odpowiednio **86,00 ms** i
+**28,41 ms**. Tłum 20: p95 **16,70–19,52 ms**, p99 **20,06–24,29 ms**.
+Wartości obejmują aktualizację, obraz, UI, obserwację strzału i readback;
+nie są pomiarem desktopowego present ani opóźnienia myszy.
+
+Profil diagnostyczny finalnej treści (`work/closure-28/profile-final/evidence/`)
+wskazał powtarzalne przydzielanie pamięci w historii interpolacji i obserwacji
+trafień. Nie przypisujemy wszystkich skoków jednemu miejscu: collector może
+wykonać zaległą pracę przy następnej alokacji. Obserwacje strzału muszą pozostać
+niezmienne; nie wprowadzono ich współdzielonej puli ani wyłączenia GC w grze.
+
+### Usunięcie niewyświetlanych kopii pozy
+
+Przy nadrabianiu kilku kroków `Application:update` tworzy teraz historię
+interpolacji tylko przed ostatnim krokiem. Wcześniejsze kopie były zastępowane
+przed jakimkolwiek rysowaniem. Przy dwóch tickach na klatkę powstaje jedna
+kopia zamiast dwóch; przy 24 tickach jedna zamiast 24. Nie zmienia się liczba
+kroków symulacji, częstotliwość wejścia ani ostatnia wyświetlona obserwacja strzału.
+
+Test porównuje obie ścieżki na realnych sesjach przez 48 klatek z dt od 1/240
+do 0,2 s. Ruch, skok, ślizg, unik i strzały dają identyczne digesty, malowane
+powierzchnie trafień oraz wszystkie skalarne pola prezentacji. Sprawdza
+widok główny, drugiego aktora i odłączoną kamerę. Nie recyklinguje snapshotów.
+Pełny `TEST.ps1 -Suite All -TestTimeoutSeconds 600` przeszedł: 5006 sprawdzeń
+mechaniki, 36 wejścia, 566 plików Lua bez naruszeń architektury, rendery,
+narzędzia i startup. To dowód poprawności i usunięcia niewykorzystywanej pracy,
+nie samodzielny dowód zamknięcia bramki czasu całej klatki.
+
 ## Aktualizacja 28.10 — usunięcie alokacji z testu przesunięcia
 
 Profiler LuaJIT na 2400 pełnych klatkach wskazał zbieranie pamięci przy
