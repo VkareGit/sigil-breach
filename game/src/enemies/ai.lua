@@ -305,7 +305,8 @@ function Styles.keep(g, e, d, dt)
     e.decision = K.hold + (e.id % 3) * K.holdStep
   end
   local dx, dz = (p.x - e.x) / math.max(K.minDistance, d), (p.z - e.z) / math.max(K.minDistance, d)
-  local ideal = arch(e).move.ideal
+  local stage = Archetypes.phase(e)
+  local ideal = stage and stage.ideal or arch(e).move.ideal
   local radial = d < ideal - K.slack and -1 or (d > ideal + K.slack and 1 or 0)
   local tx, tz =
     e.x + dx * radial + dz * e.side * K.strafe, e.z + dz * radial - dx * e.side * K.strafe
@@ -463,6 +464,7 @@ function States.windup(g, e, d, dt)
     e.pendingHazard = nil
   end
   change(e, 'recover')
+  Selection.clear(e)
   e.recover = defaults.interruptRecover
   e.attack = defaults.cancelPause / (e.tierPace or 1)
   e.side = -e.side

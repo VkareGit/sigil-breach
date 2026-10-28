@@ -1,6 +1,31 @@
 -- Deterministic policies. No input reading, RNG or mutation of definitions.
 local A = require('src.content.enemies')
 local Selection = {}
+local function policy(e)
+  local def, stage = A.of(e), A.phase(e)
+  return stage and stage.tactics or def.tactics
+end
+local function follows(e, choice, now)
+  local after = choice.after
+  if not after then
+    return true
+  end
+  local age = now and e.finishedAt and now - e.finishedAt
+  return e.finishedAttack == after.attack
+    and e.finishedTarget == e.target
+    and age
+    and age >= 0
+    and age <= after.within
+end
+local function offersFollowup(e, id)
+  local tactics = policy(e)
+  for _, choice in ipairs(tactics and tactics.moves or {}) do
+    if choice.after and choice.after.attack == id then
+      return true
+    end
+  end
+  return false
+end
 local function usable(e, attack, distance, now)
   if distance > attack.range or distance < attack.minRange then
     return false
@@ -30,6 +55,7 @@ local function context(e, distance, now, list, tactics)
       (e.tier or 1) >= choice.fromTier
       and distance >= choice.min
       and (not choice.max or distance <= choice.max)
+      and follows(e, choice, now)
     then
       for _, attack in ipairs(list) do
         if attack.id == choice.attack and usable(e, attack, distance, now) then
@@ -50,20 +76,34 @@ local function context(e, distance, now, list, tactics)
 end
 function Selection.choose(e, distance, now)
   local def = A.of(e)
-  local stage = A.phase(e)
-  local tactics = stage and stage.tactics or def.tactics
+  local tactics = policy(e)
   if tactics and tactics.policy == 'context' then
     return context(e, distance, now, def.attacks, tactics)
   end
   return ordered(e, distance, now, def.attacks)
 end
-function Selection.committed(e, attack)
+function Selection.committed(e, attack, target)
+  Selection.clear(e)
+  if offersFollowup(e, attack.id) then
+    e.finishedTarget = target or e.target
+  end
   local def, stage = A.of(e), A.phase(e)
   if not (def.tactics or (stage and stage.tactics)) then
     return
   end
   e.attackRepeats = e.lastAttack == attack.id and (e.attackRepeats or 0) + 1 or 1
   e.lastAttack = attack.id
+end
+function Selection.clear(e)
+  e.finishedAttack, e.finishedAt, e.finishedTarget = nil, nil, nil
+end
+function Selection.finished(e, attack, now)
+  -- No new state for the historical ordered policy or ordinary choices.
+  if offersFollowup(e, attack.id) and e.finishedTarget == e.target then
+    e.finishedAttack, e.finishedAt = attack.id, now
+    return
+  end
+  Selection.clear(e)
 end
 function Selection.pace(e)
   local stage = A.phase(e)

@@ -34,11 +34,15 @@
 -- Restoring ONLY the committed creature/sheet definitions IN MEMORY on the
 -- new engine reproduces 6/6 previous digests (including per-part contacts):
 -- work/phase2-refinement/golden-attribution/content-attribution.csv.
+-- 2026-10-28: finite follow-ups, distinct close defences and phase distances.
+-- Restoring ONLY HEAD creature/sheet definitions on the current engine gives
+-- 6/6 previous hashes: work/combat-revision/golden-attribution/content-attribution.csv.
+-- A completed follow-up opportunity is now included when present.
 return {
-  playtest = '3c856978/301242d4',
-  human = '95a431e1/747474d2',
-  drill = '5d15bf47/85f1b452',
-  playtestContacts = '1e9304e3/302',
-  humanContacts = '8c5cb44d/680',
-  drillContacts = 'f91dc609/250',
+  playtest = '628ad29a/3c0ba222',
+  human = '998de25c/0c86ed37',
+  drill = '448e3bb8/543f2f58',
+  playtestContacts = '1989c738/332',
+  humanContacts = '91176f57/678',
+  drillContacts = '2a562002/225',
 }

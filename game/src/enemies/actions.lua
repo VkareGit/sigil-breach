@@ -99,10 +99,10 @@ local function beginAttack(g, e, d, chosen)
   end
   e.attackSpec = atk
   e.attackKind = atk.id
-  Selection.committed(e, atk)
   change(e, 'windup')
   e.windupDuration = atk.windup
   local p = victimOf(g, e)
+  Selection.committed(e, atk, p.id)
   -- An attack from outside a knight's view is announced longer (fairness);
   -- a body without a view (a creature) gets no such grace.
   local inView = not p.yaw or cos(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) > K.viewCos
@@ -167,6 +167,7 @@ local function strike(g, e, dt, previousPlayer)
   end
   local duration = kind.duration and kind.duration(e, atk) or atk.duration
   if e.phase > duration then
+    Selection.finished(e, atk, g.elapsed)
     change(e, 'recover')
     e.recover = atk.recover
     -- Tier aggression shortens the pause between attacks, never a windup.

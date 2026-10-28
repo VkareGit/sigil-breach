@@ -14,10 +14,10 @@ użytkownika. Nie rozpoczynamy kolejnego punktu przed tą przerwą.
 | 1 | Kontakt pocisków i melee, pełny reset próby, diagnostyka przyczyn obrażeń i profilowanie regresji | Commit bd9eff9; użytkownik zezwolił kontynuować; regresja wydajności otwarta |
 | 2 | Dostępny wyłącznie poligon; wyłączenie wejść do Limbo, fal i handlu, zachowanie ich kodu i testów | Commit e625210; użytkownik zezwolił kontynuować |
 | 3 | Jawna geometria i pionowy zasięg pocisków, ciosów, wybuchów oraz zagrożeń podłogowych | Commit c288bfb; użytkownik zezwolił kontynuować |
-| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Commit 1b97658; użytkownik zezwolił kontynuować |
-| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Commit f3ff4f2, razem z korektą atmosfery, ołtarzy i ognia |
+| 4 | Strategie wyboru ataku i trudności, fazy istniejącego bossa, nagroda i finalna śmierć dokładnie raz | Commit 1b97658 i 006a6ff; ponowna korekta odbioru 28 października do próby gracza |
+| 5 | Pokoje i stanowiska na bazie obecnej areny, opisane danymi; początkowo jedna aktywna próba | Commit f3ff4f2; korekta kaplic 28 października do próby razem z walką |
 | 6 | Dźwięki ruchu, zapowiedzi, kontaktów i lotu, priorytety głosów, przestrzeń, ambient i miks muzyki | Oczekuje |
-| 7 | Osobny rozwój nowych grafik i modeli | Odłożony przez użytkownika |
+| 7 | Osobny rozwój nowych grafik, animacji i modeli, podglądy przed podmianą | Przywrócony przez użytkownika 28 października; po audio |
 | 8 | Pełny sprawdzian rozszerzenia: boss, komnata, reset, replay, wydajność i odbiór w dłuższej grze | Oczekuje |
 
 ## Zakres punktu 1
@@ -584,6 +584,91 @@ gestów, reakcję na sekwencję i długość walki. W F2 można wyłączyć GOD 
 domyślne testowe ustawienie pozostaje bez zmian. Audio nadal jest następnym
 osobnym punktem, a formalna regresja wydajności punktu 1 pozostaje otwarta.
 
+## Aktualizacja 28 października — odbiór walki i powrót punktu 7
+
+Użytkownik ponownie otwiera odbiór punktów 4/5: fazy nadal są zbyt podobne,
+a zwykli przeciwnicy zbyt prości. Punkt 7 wraca do zakresu. Zachowana zostaje
+kolejność odbioru: korekta walki i komnat → commit/próba → audio (6) →
+podglądy grafiki i zatwierdzone wdrożenie (7) → pełny odbiór (8), wraz z
+otwartą regresją wydajności punktu 1. Nie jest to zgoda na zastąpienie HUD-u
+ani zaakceptowanych demonów przypadkowymi nowymi modelami.
+
+Korekta 4/5:
+- Margrave: kontrola alei, krótka kontynuacja pociskiem, bliskodystansowy
+  pierścień z bezpiecznym środkiem. Różne ataki wymagają różnych odpowiedzi.
+- Furfur: druga faza skraca dystans; szarża może przejść w osobno zapowiedziany
+  cios, jeżeli rycerz pozostaje blisko. Po końcu sekwencji pełna przerwa.
+- Stolas i Buer: własna odpowiedź na podejście, inna niż daleki rzut;
+  zachowane HP, pancerz, broń gracza i geometria kontaktów.
+- Komnaty: filary przy obrzeżu i łuki kaplic zamiast przeszkód pośrodku
+  pojedynku. Ta sama mapa testowa, obecne materiały i pieczęcie ołtarzy.
+
+Przenosimy zasadę nauki zachowania i wykorzystania przerw, nie wewnętrzne
+AI FromSoftware. [Opis walki Souls wydawcy](https://en.bandainamcoent.eu/elden-ring/news/elden-ring-the-best-of-the-souls-series)
+podkreśla pozycjonowanie, wzory ataków i otwarcia;
+[poradnik Bloodborne PlayStation](https://blog.playstation.com/archive/2018/03/06/12-tips-for-surviving-the-first-few-brutal-hours-of-bloodborne-this-months-ps-plus-headliner/)
+obserwację i moment uniku. Nasze konkretne sekwencje są decyzją projektową,
+nie twierdzeniem o identycznej implementacji czy osiągnięciu jakości tych gier.
+
+Punkt 6 obejmuje odróżnialne ostrzeżenia ruchów i faz, ciężar kroków,
+kontakty, przestrzeń i dynamiczny miks, bez odczytu wejścia gracza przez AI.
+Punkt 7 zaczyna się od podglądów istniejących postaci w nowych pozach,
+czytelności zapowiedzi oraz wyglądu kaplicy. Dopiero zatwierdzone propozycje
+trafiają do gry, z maskami/anatomią i kontrolą spójności w normalnej skali.
+Nowe treści nie zastępują odbioru obecnej walki.
+
+### Kontrakt i odbiór korekty 28 października
+
+`tactics.moves[].after = {attack, within}` dopuszcza kontynuację po ukończonym
+strike, na tym samym celu i w skończonym oknie. Nie wymusza jej ponad wzrok,
+zasięg, rest, budżet atakujących czy recovery. Windup i release nie są
+ukończeniem. Następny commitment zużywa okazję; anulowanie i zmiana fazy
+ją usuwają. Walidacja odrzuca cykle. Historia należy do komponentu attacker,
+snapshotu, zapisu ciał i journal, bez osobnego automatu bossów.
+
+Furfur: `tempest-charge` zachowuje fizykę pierwszej szarży, ale ma 0,24 s
+przerwy; `antler-return` wymaga ponownego windup 0,55 s i zasięgu ≤3,3 m,
+po czym daje recovery 1,25 s. Margrave: `ash-lance` ma środkową przerwę
+0,38 s; `cinder-spear` osobny windup 0,62 s i końcowe recovery 1,25 s.
+`furnace` ma osiem ostrzeganych punktów wokół rzucającego i wolny środek.
+Nie zwiększono HP, pancerza, promienia ciał ani siły broni.
+
+Zapora Buera po pierwszym przeglądzie wizualnym została przesunięta bliżej
+demona: wcześniejsza wersja umieszczała ostrzeżenia pod bronią. Obecna
+zatrzymuje podejście, a pozwala wycofać się lub obejść ją bokiem; ma własną
+sekwencję istniejących klatek. To korekta miejsca zagrożenia, nie filtr ani
+podmiana tekstury. Stolas ma osobny wachlarz do bliskiego dystansu.
+
+Próba po commicie: `RUN.ps1`, F2, wyłączyć GOD MODE (domyślnie poligon jest
+nietykalny), po jednej postaci na TIER 1. U Margrave'a zmieniać dystans i
+sprawdzić ogień → pocisk; u Furfura porównać odskok od końca szarży z
+pozostaniem obok niego. Sprawdzić koniec sekwencji jako szansę na strzał,
+oba życia i retry. U Stolas/Buer porównać daleki i bliski dystans. Dopiero
+po tej próbie rusza osobny commit punktu 6. Automaty nie dowodzą frajdy.
+
+Końcowa weryfikacja korekty: `TEST.ps1 -Suite All -TestTimeoutSeconds 600`
+PASS na stabilnym zestawie źródeł
+`9B39862F1670775CE7E20B84A1AC3B9600299E7F28B53457DA96CC8AF48983DB`.
+4718 sprawdzeń mechaniki/zasobów (45 nowych sekwencji, 85 komnat, 76
+encounter, 61 referencji 0.33), 36 rzeczywistych wejść, 551 plików Lua,
+zero naruszeń architektury. Wszystkie osiem przebiegów All zakończone
+kodem zero i z tym samym fingerprintem. Raporty: `work/combat-revision/all/`.
+
+Audyt UI: 18242 granice / 14958 kontroli wnętrz / 559 ekranów / zero
+problemów. Osobny `--ritual-review`: 52 ujęcia, sprawdzenie braku mutacji
+symulacji podczas rysowania. Obejrzano obie kaplice, nowe gesty i aktywne
+zagrożenia, także 960×540. Porównanie dolnego HUD-u z poprzednią wersją
+w nawie i dwóch kaplicach: zero różniących się pikseli. Żaden PNG zasobów
+nie został zmieniony. Dowody: `review-final/`, `hud-check/results.txt`.
+Przywrócenie wyłącznie poprzednich danych czterech demonów i ich zmienionych
+arkuszy w bieżącym silniku odtwarza 6/6 dawnych wyników golden; zamrożone
+referencje 0.33 pozostały niezmienione. Dane dowodowe:
+`work/combat-revision/golden-attribution/content-attribution.csv`.
+
+Smoke wydajności jest zaliczony, ale formalna regresja z punktu 1 nadal
+pozostaje otwarta. Obecny commit czeka na ocenę trudności i rytmu walki
+przez użytkownika; nie zamyka audio, punktu 7 ani odbioru całości.
+
 ## Zasady następnych etapów
 
 - Tryb poligonu nie rozstrzyga przyszłego systemu kampanii, fal ani ekonomii.
@@ -598,7 +683,8 @@ osobnym punktem, a formalna regresja wydajności punktu 1 pozostaje otwarta.
   strojenia i oceny odbioru, a nie powiększania lub kurczenia hitboxu w ukryciu.
 - Audio reaguje na istniejące zdarzenia i ma osobną losowość prezentacyjną.
   Renderer nie uruchamia dźwięku przy każdym rysowaniu postaci.
-- Nie dodajemy teraz nowej broni ani potworów jako osobnego etapu treści.
+- Rozwój grafik i modeli ponownie ma osobny punkt 7. Priorytetem są obecne
+  postacie, ich nowe gesty i spójność sceny, a nie liczba nowych demonów.
   Grafiki konieczne do nowych umiejętności mogą powstać w ich etapie, lecz
   zmiany wyglądu wymagają podglądu i akceptacji przed włączeniem do gry.
 - Wzorzec estetyczny: obecne demony i GUI, kierunek malowanego fresku zapisany

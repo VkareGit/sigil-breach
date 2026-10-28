@@ -4,6 +4,35 @@ Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
 Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
 
+KONTYNUACJE ATAKÓW I DYSTANS FAZY (28 października 2026)
+
+tactics.moves może zawierać np.:
+  {attack='antler-return', ideal=2, max=3.3, weight=9,
+   after={attack='tempest-charge', within=1.0}}
+To kandydat do wyboru, nie automatyczne wykonanie ani kolejka wymuszonych
+ciosów. Staje się dostępny po ukończeniu poprzedniego strike, przez within
+sekund czasu symulacji i tylko dla tego samego celu. Zasięg, własne cooldowny,
+wzrok, budżet atakujących, pełny windup i recovery nadal obowiązują.
+Inny wybrany atak zużywa okazję; zmiana fazy ją usuwa. Anulowany windup nie
+daje kontynuacji. Stracony cel w trakcie pierwszego ciosu nie przekazuje
+kontynuacji następnemu. Podczas własnej zapowiedzi drugi cios bierze nowy,
+zamrożony cel; nie śledzi uniku ani przycisków gracza w trakcie wykonania.
+
+Walidacja odrzuca nieistniejących/wyłączonych poprzedników, nieskończone
+okna, powtórzenia i cykle. Autor kończy sekwencję ruchem bez następcy oraz
+czytelną przerwą. Bieżące sekwencje mają dwa uderzenia; typ danych może
+opisać dłuższy acykliczny ciąg bez gałęzi z nazwą konkretnego demona.
+finishedAttack/finishedAt/finishedTarget należą do komponentu attacker,
+snapshotu i zapisu ciała; pełny journal obejmuje rzeczywiste wykonanie.
+finishedTarget rezerwuje cel już przy commitment poprzednika.
+
+Opcjonalne phases[i].ideal nadpisuje preferowany dystans stylu ruchu keep
+w metrach; nie zmienia zasięgu żadnego ciosu. speed/pace zachowują wcześniejszy
+kontrakt. Krótsza przerwa wewnątrz sekwencji jest jawnie nową definicją
+ataku, nie ukrytym mnożnikiem wszystkich zamachów w drugiej fazie.
+Miejsca pracy: content/defs/encounter.lua, enemies/attack_selection.lua,
+creatures/*.lua. Regresje: tests/cases/attack_followups.lua.
+
 KOMNATA PRÓB (punkt 5 poligonu)
 
 Układ bazyliki używa istniejących rooms/pillars/elevations/decor. Żebra

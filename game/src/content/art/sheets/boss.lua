@@ -89,6 +89,10 @@ return {
     { source = 3, cell = 4, feet = 53, anchors = { head = { 0.15, 0.8245114832535885 } } },
   },
   poses = {
+    ['windup.cinder-spear'] = { clock = 'action', frames = { 5, 6 }, bounds = { 0.6 } },
+    ['strike.cinder-spear'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.4 } },
+    ['windup.furnace'] = { clock = 'action', frames = { 9, 5, 6 }, bounds = { 0.3, 0.72 } },
+    ['strike.furnace'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.55 } },
     ['phase.cinders'] = { clock = 'action', frames = { 9, 5, 6, 7 }, bounds = { 0.18, 0.42, 0.76 } },
     ['windup.ash-lance'] = { clock = 'action', frames = { 8, 5, 6 }, bounds = { 0.25, 0.65 } },
     ['strike.ash-lance'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.55 } },

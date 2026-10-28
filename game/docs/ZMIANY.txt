@@ -16,6 +16,32 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Korekta odbioru walki i kaplic — 28 października 2026
+- Margrave: ash-lance ma teraz krótki środkowy odpoczynek; może nastąpić
+  cinder-spear z własną zapowiedzią i długim końcowym recovery. Z bliska
+  furnace zostawia płytki pierścień ognia z bezpiecznym środkiem. Faza 2
+  dąży do 3,8 m zamiast 5,5 m. HP, broń gracza i siła dawnych ataków bez zmian.
+- Furfur: faza 2 dąży do 3,2 m. tempest-charge zachowuje ostrzeżenie,
+  szybkość i kontakt zwykłej szarży; po niej może nastąpić antler-return
+  przeciw celowi w zasięgu 3,3 m. Koniec daje 1,25 s recovery. Szarża
+  pierwszego życia pozostaje bez zmian. Zniknięcie celu zrywa kontynuację.
+- Stolas ma bliski wachlarz trzech pocisków, Buer ostrzeganą zaporę przed
+  sobą z wolnymi bokami. Zachowane zdrowie i pancerz; nowe ataki mają
+  osobne rest i recovery, używają normalnych dostaw oraz kontaktów.
+  Przegląd obrazu przesunął zaporę bliżej Buera, aby ostrzeżenia nie ginęły
+  pod bronią. Jej własny gest używa starych klatek i tych samych masek.
+- Dane after/within opisują skończone kontynuacje przez wspólny wybór
+  ataków. Stan zapisany w komponentach; żadnego drugiego FSM ani nazw
+  bossów w wykonawcy. Walidacja blokuje cykle i błędne odwołania.
+- Filary ze środka kaplic przeniesione do obrzeży pod nowe łuki. Mapa
+  biblioteczna bez zmian. Brak edycji PNG, modeli, palety i HUD-u.
+- Nowe regresje pokrywają realne wykonanie, snapshot, zapis, replay,
+  anulowanie, zmianę celu, skończone okna i odpowiedzi na pierścień.
+  Historyczne referencje 0.33 pozostają bez zmian. Golden aktywnej walki
+  aktualizowany po odtworzeniu 6/6 starych wyników przez sam stary content.
+- Punkt 7 (grafiki/animacje/modele) wraca do planu; przed podmianą podgląd
+  do oceny użytkownika. Audio, odbiór całości i regresja wydajności otwarte.
+
 Wyraźniejsze drugie fazy — po commicie punktu 5 (27 października 2026)
 - Margrave: drugi zapas 650 HP (65% startowego po TIER), zamiast 400.
   ash-lance zmienia się z wąskiej salwy w trzy następujące po sobie pola

@@ -157,6 +157,8 @@ return {
     },
   },
   poses = {
+    ['windup.root-brace'] = { clock = 'action', frames = { 8, 5, 6 }, bounds = { 0.35, 0.72 } },
+    ['strike.root-brace'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.6 } },
     collapse = { clock = 'seconds', frames = { 10, 11, 12 }, step = 0.14 },
     knockdown = { clock = 'seconds', frames = { 10 }, ends = 0.08 },
     pain = { frames = { 9 } },

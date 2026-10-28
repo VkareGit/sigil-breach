@@ -2,6 +2,21 @@
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
+local charge = Action.charge({
+  id = 'charge',
+  rest = 4.0,
+  range = 11,
+  every = 2,
+  windup = 0.95,
+  speed = 12,
+  minTime = 0.30,
+  maxTime = 0.85,
+  contactY = 1.18,
+  contactRadius = 0.42,
+  reach = 0.75,
+  recover = 0.75,
+  packet = packet(28, 160, 'physical', 230),
+})
 return Creature.boss({
   id = 'furfur',
   name = 'creature_furfur',
@@ -50,12 +65,21 @@ return Creature.boss({
       transitionPose = 'phase.tempest',
       pace = 1.25,
       speed = 1.12,
+      ideal = 3.2,
       tactics = {
         repeatPenalty = 0.15,
         moves = {
           { attack = 'melee', ideal = 1.5, max = 3.2, weight = 1.6 },
-          { attack = 'charge', ideal = 5, min = 2.5, weight = 1.2 },
+          { attack = 'tempest-charge', ideal = 5, min = 2.5, weight = 1.2 },
           { attack = 'tempest-cross', ideal = 7, weight = 1.6 },
+          {
+            attack = 'antler-return',
+            ideal = 2,
+            min = 0,
+            max = 3.3,
+            weight = 9,
+            after = { attack = 'tempest-charge', within = 1.0 },
+          },
         },
       },
     },
@@ -73,21 +97,7 @@ return Creature.boss({
       packet = packet(24, 120),
     }),
     -- push 230: the charge can drive the knight into a wall (3.4 m/s > 3.2).
-    Action.charge({
-      id = 'charge',
-      rest = 4.0,
-      range = 11,
-      every = 2,
-      windup = 0.95,
-      speed = 12,
-      minTime = 0.30,
-      maxTime = 0.85,
-      contactY = 1.18,
-      contactRadius = 0.42,
-      reach = 0.75,
-      recover = 0.75,
-      packet = packet(28, 160, 'physical', 230),
-    }),
+    charge,
     Action.strike({
       id = 'lightning',
       rest = 3.4,
@@ -125,6 +135,25 @@ return Creature.boss({
         { forward = 2.8, lateral = 0, delay = 1.55 },
       },
       packet = packet(26, 80, 'lightning'),
+    }),
+    require('src.core.schema').inherit(charge, {
+      id = 'tempest-charge',
+      recover = 0.24,
+      cooldown = 0.24,
+      rest = 4.8,
+    }),
+    -- A second physical beat when the knight stays beside the charge's end.
+    -- New windup, new locked aim, normal contact geometry, then a full rest.
+    Action.lunge({
+      id = 'antler-return',
+      range = 3.3,
+      windup = 0.55,
+      lungeSpeed = 5.4,
+      lungeTime = 0.20,
+      duration = 0.32,
+      recover = 1.25,
+      cooldown = 1.8,
+      packet = packet(24, 120),
     }),
   },
 })

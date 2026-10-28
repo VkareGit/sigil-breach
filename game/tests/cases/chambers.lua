@@ -116,6 +116,13 @@ function Tests.run(Game)
       and Ground.height(g.world, 16, 2.5) == 0.32
   )
   check(
+    'chapel duel lanes no longer contain the old central pillars',
+    not W.solid(g.world, 5, 14, 0.55)
+      and not W.solid(g.world, 5, 19, 0.55)
+      and not W.solid(g.world, 27, 14, 0.55)
+      and not W.solid(g.world, 27, 19, 0.55)
+  )
+  check(
     'combat layout omits exhibition boards and statues, keeps painted pads',
     #Gallery.layout(g.world, {}) == 0
       and #Gallery.statuesFor(g.world) == 0

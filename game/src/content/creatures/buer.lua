@@ -31,6 +31,12 @@ return Creature.define({
   },
   move = { speed = 3.0, accel = 12, ideal = 4.5 },
   sounds = { alert = 'growl', windup = 'growl', strike = 'cast' },
+  tactics = {
+    moves = {
+      { attack = 'spore', ideal = 5, weight = 1 },
+      { attack = 'root-brace', ideal = 2, max = 3.2, weight = 3 },
+    },
+  },
   attacks = {
     Action.pool({
       id = 'spore',
@@ -47,6 +53,30 @@ return Creature.define({
         condition = 'poisoned',
       },
       bolt = { speed = 5.0, color = { 0.46, 0.39, 0.14 }, packet = packet(14, 40, 'poison') },
+    }),
+    -- Close the forward approach, leave the flanks clear. It can be
+    -- interrupted like the ordinary cast; the three marks never chase.
+    Action.pattern({
+      id = 'root-brace',
+      origin = 'caster',
+      range = 3.2,
+      rest = 4.5,
+      windup = 0.85,
+      duration = 0.3,
+      recover = 0.9,
+      cooldown = 1.6,
+      hazard = 'pool',
+      radius = 0.8,
+      life = 1.6,
+      pulse = 0.45,
+      marks = {
+        -- Place the barrier at the creature, not underneath the camera:
+        -- its silhouette/gesture and the forward floor remain readable.
+        { forward = 0.9, lateral = -1.25, delay = 0.6 },
+        { forward = 1.3, lateral = 0, delay = 0.6 },
+        { forward = 0.9, lateral = 1.25, delay = 0.6 },
+      },
+      packet = packet(8, 0, 'poison'),
     }),
   },
 })

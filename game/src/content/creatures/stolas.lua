@@ -40,6 +40,12 @@ return Creature.define({
     evade = { speed = 6.5, time = 0.24, cooldown = 3.5, fromTier = 2 },
   },
   sounds = { alert = 'owl', windup = 'owl', strike = 'cast' },
+  tactics = {
+    moves = {
+      { attack = 'star', ideal = 7, weight = 1 },
+      { attack = 'talon-fan', ideal = 2.8, max = 4.2, weight = 2.5 },
+    },
+  },
   attacks = {
     -- 0.21: faster than a running player; a change of direction dodges it.
     Action.bolt({
@@ -48,6 +54,23 @@ return Creature.define({
       windup = 0.74,
       speed = 7.0,
       aimLead = 0.85,
+      color = { 0.72, 0.58, 0.34 },
+      packet = packet(14, 40, 'astral'),
+    }),
+    -- Readably wider at close range; no health/armour inflation. Bait it,
+    -- change direction after the cast, then punish its longer recovery.
+    Action.fan({
+      id = 'talon-fan',
+      range = 4.2,
+      rest = 3.8,
+      windup = 0.9,
+      recover = 0.85,
+      cooldown = 1.4,
+      speed = 7,
+      rageSpeed = 7,
+      count = 3,
+      rageCount = 3,
+      spread = 0.28,
       color = { 0.72, 0.58, 0.34 },
       packet = packet(14, 40, 'astral'),
     }),

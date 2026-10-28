@@ -1,6 +1,10 @@
 -- Optional encounter data. Phases select immutable attacks by id.
 local Schema = require('src.core.schema')
 local E = {}
+local Follow = Schema:new('attack follow-up', {
+  attack = { type = 'string', required = true },
+  within = { type = 'number', required = true, min = 0 },
+})
 local Move = Schema:new('attack choice', {
   attack = { type = 'string', required = true },
   ideal = { type = 'number', required = true, min = 0 },
@@ -8,6 +12,11 @@ local Move = Schema:new('attack choice', {
   min = { type = 'number', default = 0, min = 0 },
   max = { type = 'number', min = 0 },
   fromTier = { type = 'number', default = 1, min = 1 },
+  after = {
+    type = 'table',
+    schema = Follow,
+    desc = 'only after this completed attack, same target',
+  },
 })
 E.tactics = Schema:new('attack tactics', {
   policy = { type = 'string', default = 'context', values = { 'context' } },
@@ -22,6 +31,7 @@ E.phase = Schema:new('encounter phase', {
   transitionPose = { type = 'string', desc = 'named atlas pose on the recovery clock' },
   pace = { type = 'number', default = 1, min = 1, desc = 'cooldowns only, never windup/recovery' },
   speed = { type = 'number', default = 1, min = 0 },
+  ideal = { type = 'number', min = 0, desc = 'preferred walking distance in this phase (m)' },
   tactics = { type = 'table', schema = E.tactics },
 })
 local function tactics(spec, ids, path)
@@ -38,10 +48,31 @@ local function tactics(spec, ids, path)
     assert(move.weight > 0, where .. '.weight: must be positive')
     assert(move.fromTier % 1 == 0, where .. '.fromTier: expected integer')
     local attack = ids[move.attack]
+    if move.after then
+      assert(ids[move.after.attack], where .. '.after: unknown attack ' .. move.after.attack)
+      assert(move.after.attack ~= move.attack, where .. '.after: cannot follow itself')
+      assert(move.after.within > 0, where .. '.after.within: must be positive')
+    end
     assert(
       math.max(move.min, attack.minRange) <= math.min(move.max or attack.range, attack.range),
       where .. ': no usable distance'
     )
+  end
+  -- Author finite strings, never a cycle that can hide the final opening.
+  local edges = {}
+  for _, move in ipairs(spec.moves) do
+    assert(
+      not move.after or seen[move.after.attack],
+      path .. ': follow-up predecessor not in moves'
+    )
+    edges[move.attack] = move.after and move.after.attack or nil
+  end
+  for id in pairs(edges) do
+    local visited, nextId = {}, id
+    while nextId do
+      assert(not visited[nextId], path .. ': cyclic follow-up chain')
+      visited[nextId], nextId = true, edges[nextId]
+    end
   end
 end
 function E.validate(def, path)

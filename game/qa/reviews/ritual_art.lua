@@ -132,6 +132,57 @@ function Review.run(Game, renderer, output)
   end
   Field.reset(g)
   capture('17-reset-nave', 16, 27.5, 16, 2.8, 14)
+  -- Focused read of each new response, with real warning/contact clocks.
+  -- Directly choosing an action here is deliberate art QA; the combat suite
+  -- separately requires the unassisted AI to choose/finish a live string.
+  for _, sample in ipairs({
+    { trial = 'ash', action = 'furnace', distance = 2.6 },
+    { trial = 'ash', action = 'cinder-spear', distance = 5.5 },
+    { trial = 'storm', action = 'antler-return', distance = 2.8 },
+    { trial = 'stars', action = 'talon-fan', distance = 3 },
+    { trial = 'resin', action = 'root-brace', distance = 2.8 },
+  }) do
+    g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
+    g.testing, g.view.motion = true, false
+    g:act('catalog', 'field_chamber_' .. sample.trial)
+    for _ = 1, 160 do
+      g:update(1 / 120, {})
+    end
+    local e = assert(g.enemies[1])
+    local def = require('src.content.enemies').of(e)
+    if def.phases then
+      e.phaseIndex = 2
+    end
+    g.bullets, g.hazards = {}, {}
+    local x, z = e.x, e.z + sample.distance
+    g.player.x, g.player.z, g.player.yaw = x, z, math.pi
+    e.target, e.recover, e.attack = g.player.id, 0, 0
+    local action
+    for _, a in ipairs(def.attacks) do
+      if a.id == sample.action then
+        action = a
+      end
+    end
+    assert(action)
+    local Actions = require('src.enemies.actions')
+    Actions.begin(g, e, sample.distance, action)
+    for _ = 1, math.floor(action.windup * 60) do
+      g:update(1 / 120, {})
+    end
+    capture('18-' .. sample.action .. '-windup', x, z, e.x, 1.2, e.z)
+    for _ = 1, 300 do
+      if e.ai == 'strike' then
+        break
+      end
+      g:update(1 / 120, {})
+    end
+    assert(e.ai == 'strike', 'new action failed to release ' .. sample.action)
+    capture('18-' .. sample.action .. '-release', x, z, e.x, 0.7, e.z)
+    for _ = 1, 90 do
+      g:update(1 / 120, {})
+    end
+    capture('18-' .. sample.action .. '-contact', x, z, e.x, 0.7, e.z, 960, 540)
+  end
   local file = assert(io.open(output .. '/ritual-review.txt', 'w'))
   file:write(table.concat(notes, '\n') .. '\n')
   file:close()

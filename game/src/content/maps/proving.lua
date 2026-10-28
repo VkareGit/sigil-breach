@@ -31,6 +31,40 @@ map.elevations = {
 }
 map.pillars[#map.pillars + 1] = { 10, 19 }
 map.pillars[#map.pillars + 1] = { 22, 19 }
+-- Keep the duel centre open. Arcade piers belong to the perimeter, not
+-- the player's dodge lane or the boss's straight committed charge.
+for i = #map.pillars, 1, -1 do
+  local p = map.pillars[i]
+  if (p[1] == 5 or p[1] == 27) and (p[2] == 14 or p[2] == 19) then
+    table.remove(map.pillars, i)
+  end
+end
+for _, x in ipairs({ 3, 9, 23, 29 }) do
+  for _, z in ipairs({ 13, 19 }) do
+    map.pillars[#map.pillars + 1] = { x, z }
+  end
+  map.decor.arches[#map.decor.arches + 1] = {
+    x = x,
+    z = 16,
+    yaw = math.pi / 2,
+    halfSpan = 3,
+    spring = 3.8,
+    rise = 1.65,
+  }
+end
+-- Two high transverse ribs make each court read as a chapel. Existing
+-- stone/fresco materials, actual piers under every end, no collision trick.
+for _, x in ipairs({ 6, 26 }) do
+  for _, z in ipairs({ 13, 19 }) do
+    map.decor.arches[#map.decor.arches + 1] = {
+      x = x,
+      z = z,
+      halfSpan = 3,
+      spring = 3.8,
+      rise = 1.9,
+    }
+  end
+end
 map.seals[1].x, map.seals[1].z = 4.1, 17
 map.seals[2].x, map.seals[2].z = 27.9, 17
 map.seals[2].id = 'furfur'

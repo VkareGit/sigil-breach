@@ -7,11 +7,18 @@ local Schema = require('src.core.schema')
 local A = require('src.content.enemies')
 local M = {}
 function M.game(Game)
-  local old = { boss = Schema.copy(A.boss), furfur = Schema.copy(A.furfur) }
+  local old = {
+    boss = Schema.copy(A.boss),
+    furfur = Schema.copy(A.furfur),
+    stolas = Schema.copy(A.stolas),
+    buer = Schema.copy(A.buer),
+  }
   for _, def in pairs(old) do
     def.phases, def.tactics = nil, nil
   end
   old.boss.attacks = { old.boss.attacks[1] }
+  old.stolas.attacks = { old.stolas.attacks[1] }
+  old.buer.attacks = { old.buer.attacks[1] }
   old.furfur.attacks = { old.furfur.attacks[1], old.furfur.attacks[2], old.furfur.attacks[3] }
   old.furfur.attacks[2].rest, old.furfur.attacks[3].rest = nil, nil
   return setmetatable({

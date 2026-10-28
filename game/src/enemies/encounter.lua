@@ -24,6 +24,7 @@ function Encounter.advance(g, e)
     end
     e.phaseIndex = index + 1
     e.phaseEnteredAt = g.elapsed
+    require('src.enemies.attack_selection').clear(e)
     if e.pendingHazard then
       e.pendingHazard.cancelled = true
       e.pendingHazard = nil

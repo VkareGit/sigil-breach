@@ -69,6 +69,9 @@ function Golden.describe(g)
     if e.phaseIndex or e.lastAttack then
       append(out, 'encounter', e.phaseIndex or 1, e.phaseBaseHp, e.lastAttack, e.attackRepeats)
     end
+    if e.finishedAttack then
+      append(out, 'follow-up', e.finishedAttack, e.finishedAt, e.finishedTarget)
+    end
   end
   for _, b in ipairs(g.bullets) do
     append(out, b.x, b.y, b.z, b.life)
