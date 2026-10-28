@@ -65,18 +65,9 @@ local map = {
   portal = { x = 24, z = 2.9 },
   spawn = { x = 24, z = 36, yaw = math.pi },
   lamps = {
-    { 20, 38 },
-    { 28, 38 },
     { 20, 32 },
-    { 28, 32 },
-    { 20, 22 },
-    { 28, 22 },
-    { 20, 12 },
     { 28, 12 },
-    { 22, 4 },
     { 26, 4 },
-    { 20.8, 6 },
-    { 27.2, 6 },
     { 16, 4.7 },
     { 32, 4.7 },
   },
@@ -92,7 +83,7 @@ local map = {
   },
   decor = {
     atmosphere = {
-      ambient = { 0.145, 0.14, 0.15 },
+      ambient = { 0.175, 0.18, 0.19 },
       figures = { 0.46, 0.45, 0.44 },
       sky = { 0.4, 0.3, 0.25 },
     },
@@ -100,7 +91,7 @@ local map = {
     pillarStyle = 'shaft',
     stonePaint = 'chapel_masonry',
     arches = {},
-    rituals = { { x = 24, z = 14, rings = { 2.2, 2.3 }, orbit = 2.1, seals = 9 } },
+    rituals = {},
     aisles = { { x = 22.4, z = 24, length = 28 }, { x = 25.6, z = 24, length = 28 } },
     murals = {},
     banners = { { x = 19.3, z = 34, side = 1 }, { x = 28.7, z = 34, side = -1 } },
@@ -132,33 +123,36 @@ for index, cx in ipairs({ 10, 38 }) do
   -- A high triumphal arch frames the smaller, raised altar chamber.
   map.decor.arches[#map.decor.arches + 1] =
     { x = cx, z = 9, halfSpan = 5, spring = 4.2, rise = 3.0 }
-  map.decor.rituals[#map.decor.rituals + 1] =
-    { x = cx, z = 21, rings = { 2.6, 2.7 }, orbit = 2.4, seals = 9 }
   for _, side in ipairs({ -1, 1 }) do
     map.decor.aisles[#map.decor.aisles + 1] = { x = cx + side * 1.8, z = 19, length = 19 }
     map.decor.candles[#map.decor.candles + 1] = { x = cx + side * 1.2, z = 7.5 }
     map.decor.props[#map.decor.props + 1] =
-      { frame = 5, x = cx + side * 3.6, z = 10, size = 3.2, brightness = 0.75 }
+      { frame = 5, x = cx + side * 3.6, z = 10, size = 3.2, brightness = 0.48 }
     map.decor.banners[#map.decor.banners + 1] = { x = cx + side * 6.8, z = 21, side = -side }
-    for _, z in ipairs({ 14.8, 25 }) do
-      map.lamps[#map.lamps + 1] = { cx + side * 6, z }
-    end
-    map.lamps[#map.lamps + 1] = { cx + side * 3.2, 9.6 }
+    map.lamps[#map.lamps + 1] = { cx + side * 2.5, 10.5 }
   end
+  local inward = index == 1 and 1 or -1
+  map.lamps[#map.lamps + 1] = { cx + inward * 6, 25 }
 end
 -- Nave bays frame the sanctuary; lower passages make the tall halls a reveal.
 for _, x in ipairs({ 20, 28 }) do
   for _, z in ipairs({ 10, 17, 24, 31, 38 }) do
     map.pillars[#map.pillars + 1] = { x, z }
   end
-  for _, z in ipairs({ 13.5, 20.5, 27.5, 34.5 }) do
+  for _, z in ipairs({ 13.5, 20.5, 27.5 }) do
     map.decor.arches[#map.decor.arches + 1] =
       { x = x, z = z, yaw = math.pi / 2, halfSpan = 3.5, spring = 4.6, rise = 7.0 }
   end
 end
-for _, z in ipairs({ 10, 17, 24, 31, 38 }) do
+for _, z in ipairs({ 10, 17, 24, 31 }) do
   map.decor.arches[#map.decor.arches + 1] =
     { x = 24, z = z, halfSpan = 4, spring = 4.6, rise = 7.0 }
+end
+-- A low entrance opens onto the tall nave. These ribs agree with the real
+-- narthex roof; they do not hang a second ceiling over the walking surface.
+for _, z in ipairs({ 35, 38 }) do
+  map.decor.arches[#map.decor.arches + 1] =
+    { x = 24, z = z, halfSpan = 6.4, spring = 3.1, rise = 0.6, radius = 0.12 }
 end
 for _, bay in ipairs({
   { 13.58, 3.5, math.pi / 2 },

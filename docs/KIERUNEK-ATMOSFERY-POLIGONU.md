@@ -1,9 +1,9 @@
 # Poligon — przestrzeń, pigment i dźwięk
 
 28 października 2026. Korekta po uwadze o bordiurze przecinającej wejście.
-Stan: błędy osadzenia dekoracji poprawione; nowa kolorystyka i przebieg
-muzyki są **niezaakceptowaną propozycją**, dostępną w podglądach QA. Zwykła
-gra zachowuje dotychczasową paletę, miks, HUD, broń i demony.
+Stan: użytkownik **zaakceptował drugi szkic przerwanego obrzędu do wdrożenia**.
+Pierwsza korekta samej kolorystyki nie uzyskała akceptacji. Poniżej zachowano
+rozumowanie i historię podglądów; stan wdrożenia opisuje końcowa sekcja.
 Po podglądzie użytkownik wskazał główny problem: „Brak grozy i znaczenia —
 miejsce nadal nie wywołuje emocji”. Sama korekta temperatury koloru nie
 jest wystarczającym następnym wdrożeniem.
@@ -150,3 +150,39 @@ regresji osadzenia dekoracji; 577 plików Lua i zero błędów architektury.
 Rodzime ujęcia kontrolują brak mutacji symulacji podczas renderowania.
 Ten przegląd nie zamyka pozostałych gestów demonów 7C–7F ani otwartego
 kryterium wydajności punktów 1/8.
+
+## Wdrożenie zaakceptowanego kierunku — obraz
+
+Wejście ma rzeczywiste obniżone sklepienie 3,2–3,8 m, a boczne progi
+profil łuku zamiast płaskiego nadproża. Dalej odsłania się istniejąca wysoka
+nawa. Kolizja i render czytają ten sam profil dachu. Zachowano miejsca
+prób, otwarte tory walki i sterowanie; HUD, broń oraz atlasy demonów bez zmian.
+
+Wygaszono większość palenisk, ograniczono powtarzane malowidła i usunięto
+ozdobne kręgi mylące się z aktywnymi pieczęciami. Przy obu progach są
+zerwane mocowania, przewrócone kadzielnice i płaskie ślady osmalenia;
+druga pozostałość znajduje się pod absydą. Nowa grafika korzysta z tych
+samych nazwanych zasobów, filtrów i oświetlenia co istniejące rekwizyty.
+
+`chapel-ritual-remains-v34.png`: nowa generacja wbudowanym imagegen,
+28.10.2026, 1254 × 1254 RGBA. Skopiowano oryginalne PNG bez retuszu.
+Referencje: `props-fresco-v12.png`, `boss-idle-fresco-v13.png` i drugi
+zaakceptowany szkic. Zlecenie: przezroczysty atlas 2 × 2, zimny trójnożny
+kosz paleniska, wyrwane żelazne mocowanie z łańcuchem, przewrócona
+kadzielnica z woskiem oraz widziany z góry stary ślad spalenizny.
+Matowe pigmenty fresku, ograniczony detal, bez nowych znaków Goetii.
+Kadry i proporcje opisuje `content/art/environment.lua`.
+
+Nowe `decor.floorArt` to dekoracja powierzchni, nie hazard. Walidator
+odrzuca ślad przecinający ścianę, podporę lub stopień; jeden quad jest
+używany ponownie przez renderer. Nie dopisuje się stanu do symulacji.
+Przegląd pierwszych ujęć ujawnił zbyt słabo widoczne mocowanie oraz półkę
+schowaną pod freskiem; poprawiono ich położenie. Ujęcia kontrolne:
+`work/atmosphere-implementation/visual-final/23-*.png`; bieżący przegląd
+obejmuje także aktywne próby obu bossów i obraz 4:3.
+
+Kontrola wdrożenia: mechanika/zasoby 5012 PASS (liczba obejmuje także
+sprawdzenia zależne od liczby świateł), architektura 580 plików Lua / zero
+błędów. Dziesięć nowych regresji sprawdza podparcie płaskich śladów i
+rzeczywistą wysokość wejścia. Po ostatniej korekcie półki ponowiono rodzime
+rendery; każdy kontroluje brak mutacji symulacji. Nie są oceną gracza.

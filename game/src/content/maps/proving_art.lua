@@ -18,23 +18,14 @@ return function(map)
   end
   for _, cx in ipairs({ 10, 38 }) do
     -- Pale surviving plaster on the axis gives the brown demon a quiet foil.
-    paint('chapel_witnesses', cx, 5.62, 0, 7.0, 3.68, 0.10, 1.22)
+    paint('chapel_witnesses', cx, 5.62, 0, 7.0, 3.68, 0.10, 1.26)
     -- The upper register lies on the vertical face of the perimeter slab,
     -- not a floating card across the open apse (slab begins at y = 4.2).
-    paint('chapel_judgment_crown', cx, 6.62, 0, 8.76, 4.12, 3.90, 1.28)
+    paint('chapel_judgment_crown', cx, 6.62, 0, 8.76, 4.12, 3.90, 1.12)
     for _, side in ipairs({ -1, 1 }) do
       local yaw = -side * math.pi / 2
-      for index, z in ipairs({ 15.3, 22.3 }) do
-        paint(
-          index == 1 and 'chapel_mourners' or 'chapel_procession',
-          cx + side * 7.38,
-          z,
-          yaw,
-          6.4,
-          3.68,
-          0.18,
-          0.76
-        )
+      for _, z in ipairs({ 15.3 }) do
+        paint('chapel_mourners', cx + side * 7.38, z, yaw, 6.4, 3.68, 0.18, 0.64)
       end
       -- A red-ivory dado continues underneath the two bays, joining the cycle.
       for _, z in ipairs({ 15.3, 22.3, 27.65 }) do
@@ -48,17 +39,8 @@ return function(map)
       -- The lateral shoulders of the stepped apse continue its materials.
       paint('chapel_mourners', cx + side * 4.38, 9.75, yaw, 3.0, 3.6, 0.18, 0.80)
     end
-    for _, offset in ipairs({ -4.65, 0, 4.65 }) do
-      paint(
-        offset == 0 and 'chapel_procession' or 'chapel_mourners',
-        cx + offset,
-        29.38,
-        math.pi,
-        4.4,
-        3.68,
-        0.18,
-        0.70
-      )
+    for _, offset in ipairs({ -4.65, 4.65 }) do
+      paint('chapel_mourners', cx + offset, 29.38, math.pi, 4.4, 3.68, 0.18, 0.62)
     end
   end
   map.decor.inscriptions = {
@@ -85,19 +67,46 @@ return function(map)
     for _, side in ipairs({ -1, 1 }) do
       relic('ossuary_niche', cx + side * 4.65, 29.32, 1.65, 0.30, math.pi)
       relic('funerary_shelf', cx + side * 7.30, 23.4, 0.66, 1.0, -side * math.pi / 2)
-      relic('fallen_masonry', cx + side * 6.8, 18.2, 0.18)
-      relic('broken_capital', cx + side * 7.20, 28.5, 0.23)
       relic('fallen_masonry', cx + side * 4.1, 11.0, 0.15)
+      relic('cold_brazier', cx + side * 6, 14.8, 0.78)
     end
+    local inward = cx == 10 and 1 or -1
+    relic('cold_brazier', cx - inward * 6, 25, 0.78)
+    relic('broken_binding', cx + inward * 8.5, 25.62, 1.0, 0, 0)
+    relic('spent_censer', cx + inward * 9.0, 25.85, 0.22)
+    relic('broken_capital', cx + inward * 7.8, 25.8, 0.18)
   end
   relic('ossuary_niche', 13.64, 3.5, 1.75, 0.15, math.pi / 2)
   relic('ossuary_niche', 34.36, 3.5, 1.75, 0.15, -math.pi / 2)
-  relic('funerary_shelf', 17.60, 35.5, 0.65, 1.0, math.pi / 2)
-  relic('funerary_shelf', 30.40, 35.5, 0.65, 1.0, -math.pi / 2)
-  for _, spot in ipairs({ { 21.0, 35.1 }, { 27.0, 32.8 }, { 20.9, 18.1 }, { 27.1, 25.1 } }) do
-    relic('fallen_masonry', spot[1], spot[2], 0.13)
+  -- Stand in front of the painted plaster as well as in front of masonry.
+  relic('funerary_shelf', 17.72, 35.5, 0.65, 1.0, math.pi / 2)
+  relic('funerary_shelf', 30.28, 35.5, 0.65, 1.0, -math.pi / 2)
+  for _, spot in ipairs({ { 28, 32 }, { 20, 22 }, { 28, 22 }, { 20, 12 }, { 22, 4 } }) do
+    relic('cold_brazier', spot[1], spot[2], 0.78)
   end
-  for _, hall in ipairs({ { 10, 5, 13, 27, 7.2 }, { 38, 5, 13, 27, 7.2 }, { 24, 4, 10, 38, 7 } }) do
+  map.decor.floorArt = {
+    {
+      art = 'binding_scorch',
+      x = 18.5,
+      z = 27.5,
+      width = 2.4,
+      depth = 2.8,
+      yaw = math.pi / 2,
+      brightness = 0.9,
+    },
+    {
+      art = 'binding_scorch',
+      x = 29.5,
+      z = 27.5,
+      width = 2.4,
+      depth = 2.8,
+      yaw = -math.pi / 2,
+      brightness = 0.9,
+    },
+    { art = 'binding_scorch', x = 10, z = 11, width = 2.4, depth = 2.4, yaw = 0, brightness = 0.7 },
+    { art = 'binding_scorch', x = 38, z = 11, width = 2.4, depth = 2.4, yaw = 0, brightness = 0.7 },
+  }
+  for _, hall in ipairs({ { 10, 5, 13, 27, 7.2 }, { 38, 5, 13, 27, 7.2 }, { 24, 4, 10, 31, 7 } }) do
     for z = hall[3] + 3.5, hall[4] - 3.5, 7 do
       for _, side in ipairs({ -1, 1 }) do
         map.decor.arches[#map.decor.arches + 1] = {
@@ -117,7 +126,7 @@ return function(map)
   for _, side in ipairs({ -1, 1 }) do
     local yaw = -side * math.pi / 2
     for _, z in ipairs({ 13.5, 20.5 }) do
-      paint('chapel_procession', 24 + side * 4.38, z, yaw, 6.4, 3.68, 0.18, 0.78)
+      paint('chapel_procession', 24 + side * 4.38, z, yaw, 6.4, 3.68, 0.18, 0.66)
     end
     paint('chapel_mourners', 24 + side * 6.38, 35.5, yaw, 6.4, 3.68, 0.18, 0.72)
   end
@@ -136,9 +145,9 @@ return function(map)
   end
   for _, lamp in ipairs(map.lamps) do
     local altar = lamp[2] < 11
-    lamp.scale = altar and 1.35 or 1.20
+    lamp.scale = altar and 1.12 or 0.88
     lamp.lightHeight = map.lampHeight * lamp.scale / 1.7
-    lamp.brightness = altar and 0.92 or 0.72
-    lamp.color = altar and { 1.30, 0.88, 0.54 } or { 0.96, 0.61, 0.36 }
+    lamp.brightness = altar and 0.80 or 0.62
+    lamp.color = altar and { 1.45, 1.04, 0.70 } or { 0.84, 0.61, 0.39 }
   end
 end

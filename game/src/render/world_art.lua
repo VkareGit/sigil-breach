@@ -205,6 +205,10 @@ WorldObjects.register('arena_fire', {
   { pass = 'sprites', order = 35, draw = require('src.render.arena_fire').draw },
   init = props,
 })
+WorldObjects.register('floor_art', {
+  { pass = 'ground', order = 5, draw = require('src.render.floor_art').draw },
+  init = require('src.render.floor_art').init,
+})
 WorldObjects.register('inscription', {
   { pass = 'architecture', order = 25, draw = require('src.render.inscriptions').draw },
   init = require('src.render.inscriptions').init,

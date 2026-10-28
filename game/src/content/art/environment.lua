@@ -14,7 +14,21 @@ local function relic(x, y, width, height)
     mipmapFilter = 'linear',
   }
 end
+local function remains(x, y, width, height)
+  return {
+    path = 'assets/art/chapel-ritual-remains-v34.png',
+    rect = { x / 1254, y / 1254, width / 1254, height / 1254 },
+    aspect = width / height,
+    filter = 'linear',
+    mipmaps = true,
+    mipmapFilter = 'linear',
+  }
+end
 return {
+  cold_brazier = remains(62, 153, 514, 417),
+  broken_binding = remains(650, 125, 585, 450),
+  spent_censer = remains(34, 786, 583, 344),
+  binding_scorch = remains(627, 627, 627, 627),
   chapel_masonry = {
     path = 'assets/art/chapel-masonry-v34.png',
     rect = { 0, 0, 1, 1 },

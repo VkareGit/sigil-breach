@@ -19,8 +19,11 @@ return function(map)
     return 4.8 + rise * math.max(curve(x - cx, half), curve(dz, 3.5))
   end
   local function raw(x, z)
+    if z >= 34.5 and x >= 17.5 and x <= 30.5 then
+      return 3.2 + 0.6 * curve(x - 24, 6.5)
+    end
     if z >= 25.5 and z <= 29.5 and ((x >= 17.5 and x <= 19.5) or (x >= 28.5 and x <= 30.5)) then
-      return 3.1
+      return 3.1 + 1.4 * curve(z - 27.5, 2)
     end
     if z <= 5.5 and ((x >= 13.5 and x <= 18.5) or (x >= 29.5 and x <= 34.5)) then
       return 3

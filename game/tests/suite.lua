@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'floor-art',
+    title = 'Painted surface traces require real flat support',
+    module = 'tests.cases.floor_art',
+  },
+  {
     id = 'wall-mounts',
     title = 'Wall ornaments stop at actual doorways',
     module = 'tests.cases.wall_mounts',

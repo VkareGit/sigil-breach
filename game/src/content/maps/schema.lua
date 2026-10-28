@@ -271,6 +271,7 @@ function Schema.check(map, id)
     'murals',
     'inscriptions',
     'props',
+    'floorArt',
   }) do
     if decor[key] then
       list(decor[key], label .. '.decor.' .. key)
@@ -285,6 +286,7 @@ function Schema.check(map, id)
     positive(decor.portal.radius, label .. '.decor.portal.radius')
     assert(decor.portal.radius > 0.2, label .. '.decor.portal radius cannot invert its inner ring')
   end
+  require('src.content.maps.floor_art').check(decor.floorArt, map, opened)
   for _, arch in ipairs(decor.arches or {}) do
     if arch.radius ~= nil then
       positive(arch.radius, label .. '.arch.radius')
