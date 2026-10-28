@@ -72,6 +72,23 @@ function C.solid(w, x, z, r, feet, step, head)
   end
   return false
 end
+-- Scalar accumulator: a sweep used to allocate a closure and seven boxed
+-- upvalues even through empty space. Keep each cast independent/reentrant,
+-- with the same candidate order and tie tolerances, without shared scratch.
+local function hit(dx, dz, best, nx, nz, ax, az, t, hx, hz)
+  if t >= -EPS and t <= best + EPS and dx * hx + dz * hz < -EPS then
+    t = max(0, t)
+    if not nx or t < best - EPS then
+      best, nx, nz, ax, az = t, hx, hz, nil, nil
+    elseif abs(t - best) <= EPS and (abs(hx - nx) > EPS or abs(hz - nz) > EPS) then
+      -- Independent planes stop an interior corner; averaging would bounce.
+      if abs(nx * hz - nz * hx) > 1e-7 then
+        ax, az = hx, hz
+      end
+    end
+  end
+  return best, nx, nz, ax, az
+end
 function C.cast(w, x, z, dx, dz, r, feet, step, head)
   local best, nx, nz, ax, az = 1, nil, nil, nil, nil
   if
@@ -88,20 +105,6 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
   if length2 < EPS * EPS then
     return
   end
-  local function hit(t, hx, hz)
-    if t >= -EPS and t <= best + EPS and dx * hx + dz * hz < -EPS then
-      t = max(0, t)
-      if not nx or t < best - EPS then
-        best, nx, nz, ax, az = t, hx, hz, nil, nil
-      elseif abs(t - best) <= EPS and (abs(hx - nx) > EPS or abs(hz - nz) > EPS) then
-        -- Keep independent planes: an average normal would bounce a diagonal
-        -- sideways out of an interior corner instead of stopping it.
-        if abs(nx * hz - nz * hx) > 1e-7 then
-          ax, az = hx, hz
-        end
-      end
-    end
-  end
   local x1 = max(0, math.floor(min(x, x + dx) - r + 0.5))
   local x2 = min(Grid.width(w) + 1, math.floor(max(x, x + dx) + r + 0.5))
   local z1 = max(0, math.floor(min(z, z + dz) - r + 0.5))
@@ -116,7 +119,8 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
         local disc = b * b - length2 * c
         if disc >= 0 then
           local t = (-b - sqrt(disc)) / length2
-          hit(t, (x + dx * t - tx) / R, (z + dz * t - tz) / R)
+          best, nx, nz, ax, az =
+            hit(dx, dz, best, nx, nz, ax, az, t, (x + dx * t - tx) / R, (z + dz * t - tz) / R)
         end
       elseif occupied(w, tx, tz, feet, step, head) then
         local left, right, bottom, top = tx - 0.5, tx + 0.5, tz - 0.5, tz + 0.5
@@ -130,7 +134,8 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
           local rx, rz = x - qx, z - qz
           local distance = sqrt(rx * rx + rz * rz)
           if distance > EPS and distance < r then
-            hit(0, rx / distance, rz / distance)
+            best, nx, nz, ax, az =
+              hit(dx, dz, best, nx, nz, ax, az, 0, rx / distance, rz / distance)
           end
         end
         if abs(dx) > EPS then
@@ -138,7 +143,7 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
           local t = ((side < 0 and left - r or right + r) - x) / dx
           local zz = z + dz * t
           if zz >= bottom - EPS and zz <= top + EPS then
-            hit(t, side, 0)
+            best, nx, nz, ax, az = hit(dx, dz, best, nx, nz, ax, az, t, side, 0)
           end
         end
         if abs(dz) > EPS then
@@ -146,7 +151,7 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
           local t = ((side < 0 and bottom - r or top + r) - z) / dz
           local xx = x + dx * t
           if xx >= left - EPS and xx <= right + EPS then
-            hit(t, 0, side)
+            best, nx, nz, ax, az = hit(dx, dz, best, nx, nz, ax, az, t, 0, side)
           end
         end
         if r > 0 then
@@ -161,7 +166,7 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
                 local t = (-b - sqrt(disc)) / length2
                 local hx, hz = x + dx * t - cx, z + dz * t - cz
                 if hx * sx >= -EPS and hz * sz >= -EPS then
-                  hit(t, hx / r, hz / r)
+                  best, nx, nz, ax, az = hit(dx, dz, best, nx, nz, ax, az, t, hx / r, hz / r)
                 end
               end
             end

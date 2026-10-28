@@ -1,5 +1,32 @@
 # Punkt 1 — diagnoza czasu klatki z 20 demonami
 
+## Aktualizacja 28.10 — usunięcie alokacji z testu przesunięcia
+
+Profiler LuaJIT na 2400 pełnych klatkach wskazał zbieranie pamięci przy
+tworzeniu zamknięcia `collision.cast` jako jeden z powtarzalnych kosztów.
+Każdy sweep tworzył funkcję i przechwycone zmienne, także na pustej podłodze.
+Akumulator kontaktu jest teraz funkcją operującą na skalarach. Nie ma wspólnego
+mutowalnego bufora; kolejność kandydatów, tolerancje i wzory pozostały takie same.
+
+Kontrola na identycznej treści: wszystkie sześć digestów golden (stany i kontakty)
+jest identycznych. Dowód: `work/closure-28/physics-golden/`.
+Pięć naprzemiennych par na tej samej treści, 300 kroków rozgrzewki:
+
+| Miara | Przed, mediana | Po, mediana | Ocena |
+|---|---:|---:|---|
+| Krok symulacji, 20 ciał | 0,2038 ms | 0,1123 ms | Obserwowana redukcja 44,9%; IQR 5,4%/11,1% |
+| Pełna klatka, 20 żywych | 8,8125 ms | 9,6226 ms | Nierozstrzygnięte, IQR 18,9%/18,0% |
+| Nieruchoma ciężka scena | 5,5783 ms | 5,9282 ms | Nierozstrzygnięte |
+| Nieruchoma lekka scena | 4,1284 ms | 4,0417 ms | Nierozstrzygnięte |
+
+Surowe wyniki: `work/closure-28/measure/summary.txt`; diagnostyczny profil:
+`work/closure-28/profile-before/profile.txt`. Profil z próbkowaniem nie jest
+pomiarem akceptacyjnym. Pary mierzyły odrębne, zamrożone kopie; późniejsze
+strojenie demonów nie dostało się do tego porównania. Zysk kroku CPU nie
+upoważnia do deklarowania poprawy całej klatki ani zamknięcia starej bramki E0.
+
+Opis pierwotnego pomiaru i poprzednich prac poniżej zachowuje historię.
+
 Stan: 27 października 2026. Wdrożono instrumentację QA, wykonano porównanie trzech wersji i kontrolowaną próbę wpływu GC. Nie zmieniono renderowania, HUD, zasobów ani ustawień odśmiecania w grze. **Wcześniejszy formalny wynik +13,2% względem E0 pozostaje otwarty. Ten raport nie uznaje go za naprawiony.**
 
 ## Co było wiadomo przed tą pracą
