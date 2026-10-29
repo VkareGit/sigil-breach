@@ -75,6 +75,8 @@ end
 function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   local s = r.spriteShader
   local entry = art and Environment[art]
+  local repeatX = entry and entry.tileAspect and (width or size) / size / entry.tileAspect or 1
+  s:send('wallRepeat', math.max(1, repeatX))
   r.sprite:setTexture(entry and r.resources:image(entry.path, entry) or r.frescoes)
   s:send('silhouette', 0)
   s:send('spriteStretch', width and r:vec2(width / size, 1) or UNIT)
@@ -90,6 +92,7 @@ function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   s:send('pain', 0)
   s:send('brightness', (lr * 0.30 + lg * 0.59 + lb * 0.11) * (brightness or 1))
   love.graphics.draw(r.sprite)
+  s:send('wallRepeat', 1)
 end
 function Art.pickup(r, g, a)
   local name = a.kind == 'health' and 'health' or (a.kind == 'ammo' and 'ammo' or 'soul')
@@ -210,7 +213,7 @@ WorldObjects.register('floor_art', {
   init = require('src.render.floor_art').init,
 })
 WorldObjects.register('inscription', {
-  { pass = 'architecture', order = 25, draw = require('src.render.inscriptions').draw },
+  { pass = 'sprites', order = 15, draw = require('src.render.inscriptions').draw },
   init = require('src.render.inscriptions').init,
 })
 -- Supplies: painted icons in the expedition and the proving ground, the

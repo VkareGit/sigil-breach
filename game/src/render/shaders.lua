@@ -129,6 +129,7 @@ extern number pain,brightness,lean,mirror,effectAlpha,soft,silhouette,paint;
 extern vec2 keyLight;
 extern vec2 spriteStretch;
 extern vec3 effectTint;
+extern number wallRepeat;
 ]]
   .. require('src.render.creature_pigment').shader
   .. [[
@@ -137,7 +138,11 @@ vec4 position(mat4 tp,vec4 vp){vp.xy*=spriteStretch;vp.x+=vp.y*lean;return proje
 #endif
 #ifdef PIXEL
 vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
- vec2 spriteUV=vec2(mirror>.5?1.0-uv.x:uv.x,uv.y);vec2 localUV=(floor(spriteUV*320.0)+.5)/320.0;vec2 atlasUV=frameRect.xy+localUV*frameRect.zw;vec4 p=Texel(tex,atlasUV);
+ vec2 spriteUV=vec2(mirror>.5?1.0-uv.x:uv.x,uv.y);vec2 localUV=(floor(spriteUV*320.0)+.5)/320.0;
+ // A horizontal architectural band repeats its painted motif instead of
+ // stretching it across the whole wall. Other sprites keep their exact UVs.
+ if(wallRepeat>1.001)localUV.x=fract(localUV.x*wallRepeat);
+ vec2 atlasUV=frameRect.xy+localUV*frameRect.zw;vec4 p=Texel(tex,atlasUV);
  vec2 stepUV=frameRect.zw/320.0;
  vec2 lo=frameRect.xy+stepUV*.5,hi=frameRect.xy+frameRect.zw-stepUV*.5;
  if(p.a<(soft>.5?.025:.30)) {

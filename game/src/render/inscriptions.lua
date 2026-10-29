@@ -3,6 +3,7 @@
 local Definitions = require('src.content.art.inscriptions')
 local Ritual = require('src.render.ritual_art')
 local Ground = require('src.physics.ground')
+local Layout = require('src.content.maps.inscription_layout')
 local I = {}
 local function bake(r, id)
   r.wallInscriptions = r.wallInscriptions or {}
@@ -55,7 +56,7 @@ local function bake(r, id)
       { 0.5, aspect, 0, 0, 0 },
     }, 'triangles', 'static')
   )
-  saved = { image = image, mesh = mesh }
+  saved = { image = image, mesh = mesh, aspect = aspect }
   r.wallInscriptions[id] = saved
   return saved
 end
@@ -66,20 +67,27 @@ function I.init(r)
     bake(r, id)
   end
 end
-function I.draw(r, g)
+function I.draw(r, g, view)
+  -- Static mural visibility is owned by the same mode view. Never leave the
+  -- lettering suspended in a mode that does not submit its painted surface.
+  if view and not view.shrine then
+    return
+  end
+  r.inscriptionPlacement = r.inscriptionPlacement or {}
   for _, item in ipairs((g.world.decor or {}).inscriptions or {}) do
     local art = bake(r, item.id)
+    local place = Layout.resolve(item, g.world.decor, art.aspect, r.inscriptionPlacement)
     love.graphics.push('all')
     love.graphics.setColor(1, 1, 1)
     love.graphics.setDepthMode('less', true)
     Ritual.layer(
       r,
       art.image,
-      item.x,
-      Ground.of(g.world, item) + item.y,
-      item.z,
-      item.width,
-      item.yaw,
+      place.x,
+      Ground.of(g.world, place.surface) + place.y,
+      place.z,
+      place.width,
+      place.yaw,
       nil,
       false,
       1,

@@ -15,10 +15,12 @@ return function(map)
       brightness = brightness or 1,
       wallMounted = art ~= 'chapel_judgment_crown',
     }
+    return murals[#murals]
   end
   for _, cx in ipairs({ 10, 38 }) do
     -- Pale surviving plaster on the axis gives the brown demon a quiet foil.
-    paint('chapel_witnesses', cx, 5.62, 0, 7.0, 3.68, 0.10, 1.26)
+    paint('chapel_witnesses', cx, 5.62, 0, 7.0, 3.68, 0.10, 1.26).id = cx == 10 and 'ash-witnesses'
+      or 'storm-witnesses'
     -- The upper register lies on the vertical face of the perimeter slab,
     -- not a floating card across the open apse (slab begins at y = 4.2).
     paint('chapel_judgment_crown', cx, 6.62, 0, 8.76, 4.12, 3.90, 1.12)
@@ -44,9 +46,33 @@ return function(map)
     end
   end
   map.decor.inscriptions = {
-    { id = 'binding', x = 7.1, z = 5.66, y = 2.6, yaw = 0, width = 2.4 },
-    { id = 'binding', x = 35.1, z = 5.66, y = 2.6, yaw = 0, width = 2.4 },
-    { id = 'threshold', x = 24, z = 39.34, y = 2.15, yaw = math.pi, width = 3.6 },
+    {
+      id = 'binding',
+      surface = 'ash-witnesses',
+      u = 0.825,
+      v = 0.84,
+      width = 1.75,
+      height = 0.55,
+      margin = 0.28,
+    },
+    {
+      id = 'binding',
+      surface = 'storm-witnesses',
+      u = 0.175,
+      v = 0.84,
+      width = 1.75,
+      height = 0.55,
+      margin = 0.28,
+    },
+    {
+      id = 'threshold',
+      surface = 'entry-plaster',
+      u = 0.5,
+      v = 0.74,
+      width = 3.15,
+      height = 0.60,
+      margin = 0.25,
+    },
   }
   local function relic(art, x, z, height, y, yaw)
     map.decor.props[#map.decor.props + 1] = {
@@ -128,20 +154,26 @@ return function(map)
     for _, z in ipairs({ 13.5, 20.5 }) do
       paint('chapel_procession', 24 + side * 4.38, z, yaw, 6.4, 3.68, 0.18, 0.66)
     end
-    paint('chapel_mourners', 24 + side * 6.38, 35.5, yaw, 6.4, 3.68, 0.18, 0.72)
+    -- A low narthex needs smaller complete paintings, not severed heads
+    -- disappearing into its roof. Preserve the former width/height ratio.
+    paint('chapel_mourners', 24 + side * 6.38, 35.5, yaw, 5.04, 2.90, 0.18, 0.72)
+    paint('chapel_frieze', 24 + side * 6.36, 35.5, yaw, 5.04, 0.12, 3.08, 0.64)
   end
   paint('chapel_judgment', 24, 1.62, 0, 4.8, 3.68, 0.1, 1.10)
   for _, offset in ipairs({ -4.1, 0, 4.1 }) do
-    paint(
+    local panel = paint(
       offset == 0 and 'chapel_plaster' or 'chapel_mourners',
       24 + offset,
       39.38,
       math.pi,
-      3.95,
-      3.68,
+      offset == 0 and 3.95 or 3.2,
+      2.90,
       0.18,
       0.75
     )
+    if offset == 0 then
+      panel.id = 'entry-plaster'
+    end
   end
   for _, lamp in ipairs(map.lamps) do
     local altar = lamp[2] < 11

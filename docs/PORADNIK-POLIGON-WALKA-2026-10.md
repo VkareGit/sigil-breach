@@ -212,9 +212,34 @@ rozmiar płomienia, `brightness` jego obraz, `color` kolor światła,
 `lightHeight` wysokość źródła; nie jest to zmiana obrażeń ognia.
 
 Inskrypcja: źródło i id w `content/art/inscriptions.lua`, słowa w
-`content/text.lua`, położenie/width/yaw w `decor.inscriptions`. Cytat musi
-mieć sprawdzone źródło i wszystkie glify. Zostaw margines od pieczęci
-i obramowania fresku. Ruch pieczęci jest w `render/seal_motion.lua`;
+`content/text.lua`. Napis przypinasz do nazwanego malowidła; przesunięcie
+lub obrót rodzica przenosi także napis. Schemat istniejącego wpisu
+w `proving_art.lua` (edytuj go, nie dopisuj drugiego o tym samym id):
+
+```lua
+local panel = paint('chapel_witnesses', 10, 5.62, 0, 7, 3.68, 0.10)
+panel.id = 'ash-witnesses' -- unikatowe id powierzchni, nie nazwa PNG
+map.decor.inscriptions[#map.decor.inscriptions + 1] = {
+  id = 'binding', surface = 'ash-witnesses',
+  u = 0.825, v = 0.84, width = 1.75, height = 0.55, margin = 0.28,
+}
+```
+
+`u` to środek od lewej do prawej, `v` od dołu do góry, w zakresie 0–1.
+`width/height` rezerwują prostokąt w metrach; tekst mieści się w nim bez
+rozciągania. `margin` to minimalny odstęp od brzegów tynku, też w metrach.
+Nie dodawaj niezależnych `x/y/z/yaw` do napisu. Walidator odrzuci brakujące
+lub powtórzone id rodzica i pole wychodzące poza jego powierzchnię.
+Położenie pieczęci przed ścianą nadal wymaga obejrzenia z miejsca podejścia:
+samo zmieszczenie na tynku nie gwarantuje odstępu od znaku w perspektywie.
+Cytat musi mieć sprawdzone źródło i wszystkie glify.
+
+Poziome bordiury mogą mieć `tileAspect` we wpisie `art/environment.lua`.
+To proporcja szerokości do wysokości pojedynczego motywu; dłuższy pas
+powtarza go zamiast rozciągać. Nie ustawiaj tego na scenach figuralnych.
+Niskie sklepienie sprawdź także nad końcami obrazu, nie tylko nad środkiem.
+
+Ruch pieczęci jest w `render/seal_motion.lua`;
 `chambers.lua` przekazuje tożsamość próby i czas do widoku. Krzywa
 światła nie steruje czasem pojawienia się bossa ani jego obrażeniami.
 

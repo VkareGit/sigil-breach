@@ -16,6 +16,19 @@ ZMIANY-0.34.txt
 ########################################################################
 SIGIL: BREACH / 0.34 / FUNDAMENT v11
 
+Osadzenie napisów i fresków — 29 października 2026
+- Cytaty są przypięte do nazwanej powierzchni malowidła. Lokalne u/v,
+  pole tekstu i margines zastępują niezależne współrzędne świata; walidacja
+  odrzuca wyjście poza tynk i niejednoznacznego rodzica. Obrót/przesunięcie
+  fresku przenosi tekst, ukrycie powierzchni ukrywa też inskrypcję.
+- Oba cytaty przy ołtarzach odsunięte od pieczęci; glify zachowują proporcje.
+  Freski przedsionka mieszczą się pod niskim sklepieniem. Bordiury powtarzają
+  motyw w jednym quadzie zamiast rozciągać wzór na całą długość ściany.
+- Bez edycji PNG, HUD-u, broni, demonów, audio i mechaniki. 28 nowych regresji;
+  pełne TEST.ps1 -Suite All PASS: 5148 sprawdzeń mechaniki/zasobów, 36 wejścia,
+  588 plików Lua / zero naruszeń architektury. Obejrzane bliskie/ukośne ujęcia
+  obu ołtarzy i wejścia, także 960x540 i 4:3. Poradnik mapy uzupełniony.
+
 Kaplica po nieudanym obrzędzie i oprawa dźwiękowa — 28 października 2026
 - Najpierw obraz: zimne paleniska, wyrwane mocowania, osmalenia, spokojniejsze
   boczne freski, obniżony profil wejścia i łukowe przejścia do sal. Pozostałości

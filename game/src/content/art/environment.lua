@@ -1,8 +1,15 @@
 -- Named wall paintings. Map placement is separate from the image source;
 -- a new panel does not add a renderer branch or replace a creature atlas.
 local chapel = 'assets/art/chapel-fresco-v34.png'
-local function panel(rect)
-  return { path = chapel, rect = rect, filter = 'linear', mipmaps = true, mipmapFilter = 'linear' }
+local function panel(rect, tileAspect)
+  return {
+    path = chapel,
+    rect = rect,
+    filter = 'linear',
+    mipmaps = true,
+    mipmapFilter = 'linear',
+    tileAspect = tileAspect,
+  }
 end
 local function relic(x, y, width, height)
   return {
@@ -46,7 +53,7 @@ return {
   chapel_procession = panel({ 0.502, 0.002, 0.496, 0.496 }),
   chapel_mourners = panel({ 0.002, 0.502, 0.496, 0.496 }),
   chapel_plaster = panel({ 0.51, 0.508, 0.48, 0.35 }),
-  chapel_frieze = panel({ 0.506, 0.894, 0.488, 0.098 }),
+  chapel_frieze = panel({ 0.506, 0.894, 0.488, 0.098 }, 0.488 / 0.098),
   catacomb_loculi = {
     path = 'assets/art/catacomb-loculi-fresco.png',
     rect = { 0, 0, 1, 1 },

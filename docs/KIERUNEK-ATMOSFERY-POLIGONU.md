@@ -234,3 +234,40 @@ nagraniem sesji gry. Szczyt 0,432, RMS 0,051, ponowne odkodowanie WAV PASS.
 Pomiary próbek nie potwierdzają subiektywnego odbioru grozy ani ostatecznego
 balansu głośności podczas długiej gry. Zakres 7C–7F i kryterium kosztu
 punktów 1/8 pozostają osobnymi, otwartymi pracami.
+
+## Korekta osadzenia dekoracji — 29 października 2026
+
+Zgłoszony napis Goetii rzeczywiście wychodził poza jasny tynk. Jego
+niezależne współrzędne były poprawne względem muru, lecz nie względem
+malowidła. Odtworzono to w rodzimym rendererze przed zmianą. Teraz
+inskrypcja wskazuje id powierzchni, lokalny środek u/v oraz prostokąt
+z marginesem. Skala glifów pozostaje jednolita. Walidacja odrzuca obszar
+poza tynkiem, niejednoznacznego rodzica i stare niezależne współrzędne.
+Przesunięcie lub obrót obrazu przenosi również jego napis.
+
+Pierwszy podgląd nowego układu ujawnił, że centralny napis zlewa się
+z pieczęcią stojącą przed nim. Ostatecznie cytaty są po bocznej stronie
+tynku, poza znakiem w widoku podejścia do ołtarza. Nie zwiększano ich
+kontrastu ani szczegółowości i nie zmieniono istniejących PNG ani treści
+cytatów. Ukrycie malowidła w danym trybie ukrywa także jego inskrypcję.
+
+Freski przedsionka dopasowano do rzeczywistej wysokości niskiego sklepienia;
+wcześniej dach przecinał górną część scen. Pełne figury mieszczą się teraz
+pod gzymsem. Bordiury powtarzają motyw z istniejącego atlasu w odpowiedniej
+proporcji zamiast zgniatać go na długiej ścianie. Powtórzenie nadal korzysta
+z jednego quada; zwykłe malowidła i sprite'y zachowują poprzednie UV.
+
+Obejrzane ujęcia: oba ołtarze, bok i krawędź zachodniego fresku, niski
+przedsionek, tylna inskrypcja, odczyt w 960 × 540 i podejście w 1024 × 768
+(4:3). Dowody przed/po: `work/map-polish-29/before/`, `review-02/`.
+To korekta osadzenia i proporcji, nie akceptacja całej oprawy przez gracza
+ani zamknięcie otwartych 7C–7F. Drogi ruchu, kolizje, czasy walki, audio,
+HUD, broń i bazowe grafiki demonów pozostały bez zmian.
+
+Kontrola: `TEST.ps1 -Suite All` zakończony poprawnie, 5148 sprawdzeń
+mechaniki/zasobów (28 nowych w `inscriptions`), 36 wejścia, 588 plików Lua
+i zero naruszeń architektury. Wszystkie osiem etapów natywnych oraz checker
+miały kod 0 i stabilne źródła. Fingerprint przed dopisaniem tej informacji
+do dziennika zmian: `205449FA016D7BF6DFC8B8E65A27C6B91A4B0B823D8EBDEBA144C89F943D3010`.
+Przebiegi narzędzi benchmark/core/step/audio w tym zestawie są testami smoke,
+nie nowym pomiarem wydajności ani oceną odsłuchową.

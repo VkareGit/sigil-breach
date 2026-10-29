@@ -278,7 +278,9 @@ function Schema.check(map, id)
       list(decor[key], label .. '.decor.' .. key)
     end
     for _, item in ipairs(decor[key] or {}) do
-      spot(item, label .. '.decor.' .. key)
+      if key ~= 'inscriptions' then
+        spot(item, label .. '.decor.' .. key)
+      end
     end
   end
   if decor.portal then
@@ -340,9 +342,7 @@ function Schema.check(map, id)
   end
   for _, item in ipairs(decor.inscriptions or {}) do
     assert(require('src.content.art.inscriptions')[item.id], label .. '.inscription.id is unknown')
-    positive(item.width, label .. '.inscription.width')
-    number(item.y, label .. '.inscription.y')
-    number(item.yaw, label .. '.inscription.yaw')
+    require('src.content.maps.inscription_layout').check(item, decor)
   end
   for _, prop in ipairs(decor.props or {}) do
     if prop.art ~= nil then
