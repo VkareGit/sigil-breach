@@ -160,7 +160,7 @@ WorldObjects.register('lamp', {
           l.y + 0.3 + (time * 0.6 + l.phase) % 0.4,
           l.z,
           0,
-          1,
+          0.3,
           SPARK
         )
       end
@@ -299,18 +299,20 @@ WorldObjects.register('mural', {
         return
       end
       for _, mural in ipairs((g.world.decor or {}).murals or {}) do
-        Art.mural(
-          r,
-          mural.frame,
-          mural.x,
-          Ground.of(g.world, mural) + mural.y,
-          mural.z,
-          mural.yaw,
-          mural.size,
-          mural.art,
-          mural.width,
-          mural.brightness
-        )
+        if not mural.surfaceOnly then
+          Art.mural(
+            r,
+            mural.frame,
+            mural.x,
+            Ground.of(g.world, mural) + mural.y,
+            mural.z,
+            mural.yaw,
+            mural.size,
+            mural.art,
+            mural.width,
+            mural.brightness
+          )
+        end
       end
     end,
   },

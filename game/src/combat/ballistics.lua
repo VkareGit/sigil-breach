@@ -67,17 +67,16 @@ end
 -- shaft at shooting height (mesh cone .48 at the base to .36 at the top).
 local Collision = require('src.physics.collision')
 B.pillarRadius = Collision.pillarRadius
-local heights = Collision.heights
 local ray = {}
-local function pillar(oy, dy, x, z, entry, exit)
+local function pillar(oy, dy, x, z, entry, exit, top, radius)
   local ox, oz, dx, dz = ray.ox - x, ray.oz - z, ray.dx, ray.dz
-  local r2 = B.pillarRadius ^ 2
+  local r2 = radius ^ 2
   -- A descending ray may land on the capital (flat top at 4.8 m).
   local function cap()
     if dy >= 0 then
       return
     end
-    local t = (heights.pillar - oy) / dy
+    local t = (top - oy) / dy
     if t < entry - 1e-9 or t > exit + 1e-9 then
       return
     end
@@ -103,18 +102,50 @@ local function pillar(oy, dy, x, z, entry, exit)
   if t < entry - 1e-9 or t > exit + 1e-9 then
     return cap()
   end
-  if oy + dy * t > heights.pillar then
+  if oy + dy * t > top then
     return cap()
   end
   local hx, hz = ox + dx * t, oz + dz * t
   local l = math.max(1e-6, sqrt(hx * hx + hz * hz))
   return math.max(t, entry), hx / l, 0, hz / l
 end
+-- A shaft wider than its cell reaches into the cells around it.
+local NEIGHBOURS = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }
 local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
   local tile = w.map[z] and w.map[z][x]
   local elevation = Ground.cell(w, x, z)
+  local radius = Collision.pillarOf(w)
+  if radius > 0.5 and tile == 0 then
+    for _, n in ipairs(NEIGHBOURS) do
+      local px, pz = x + n[1], z + n[2]
+      if w.map[pz] and w.map[pz][px] == 2 then
+        local d, ax, ay, az = pillar(
+          oy - Ground.cell(w, px, pz),
+          dy,
+          px,
+          pz,
+          entry,
+          exit,
+          Collision.top(2, w, px, pz),
+          radius
+        )
+        if d then
+          return d, ax, ay, az
+        end
+      end
+    end
+  end
   if tile == 2 then
-    local d, px, py, pz = pillar(oy - elevation, dy, x, z, entry, exit)
+    local d, px, py, pz = pillar(
+      oy - elevation,
+      dy,
+      x,
+      z,
+      entry,
+      exit,
+      Collision.top(tile, w, x, z),
+      Collision.pillarOf(w)
+    )
     -- A raised cell is a square foundation below the round shaft. Empty
     -- corners around the shaft are open only above that supporting floor.
     if elevation > 0 then
@@ -130,7 +161,7 @@ local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
     return d, px, py, pz
   end
   if not tile or tile > 0 or elevation > 0 then
-    local height = elevation + (tile == 0 and T.floorSurface or Collision.top(tile))
+    local height = elevation + (tile == 0 and T.floorSurface or Collision.top(tile, w, x, z))
     if oy + dy * entry <= height then
       return entry, nx, 0, nz
     end

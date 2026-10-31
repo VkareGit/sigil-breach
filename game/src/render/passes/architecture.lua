@@ -2,6 +2,7 @@
 -- this pass (render/world_objects.lua: the lamps' sparks, the seals).
 local WorldObjects = require('src.render.world_objects')
 local Environment = require('src.content.art.environment')
+local Halls = require('src.render.kit.halls')
 local Pass = {}
 function Pass.draw(r, g, time, view)
   local lg = love.graphics
@@ -24,6 +25,7 @@ function Pass.draw(r, g, time, view)
     r.shader:send('stoneRect', paint.rect)
   end
   r:object(r.worldMesh)
+  Halls.draw(r, g, r.hallMeshes)
   WorldObjects.draw(r, g, 'architecture', view, time)
 end
 return Pass

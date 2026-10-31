@@ -36,6 +36,19 @@ return {
   broken_binding = remains(650, 125, 585, 450),
   spent_censer = remains(34, 786, 583, 344),
   binding_scorch = remains(627, 627, 627, 627),
+  chapel_inferno = {
+    path = 'assets/art/chapel-hall/inferno-sky.jpg',
+    rect = { 0, 0, 1, 1 },
+    filter = 'linear',
+    wrapX = 'repeat',
+  },
+  chapel_zenith = {
+    path = 'assets/art/chapel-hall/zenith.jpg',
+    rect = { 0, 0, 1, 1 },
+    filter = 'linear',
+    wrapX = 'repeat',
+    wrapY = 'repeat',
+  },
   chapel_masonry = {
     path = 'assets/art/chapel-masonry-v34.png',
     rect = { 0, 0, 1, 1 },

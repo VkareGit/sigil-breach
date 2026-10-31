@@ -1,0 +1,7 @@
+Square image. Paint one flat, perfectly straight-on wall elevation of the chapel wall that contains a doorway. No perspective at all.
+
+The second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.
+
+Everything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.
+
+The magenta shape is a real doorway cut through the wall. Around it paint a plain heavy pointed stone door surround of limestone voussoirs. Contents: inside the left niche, a screaming shrouded figure with a raised hand. Inside the left tympanum, three screaming damned figures reaching towards the door. Inside the smaller right tympanum above the door, one huge staring face with an open mouth and two hands. Elsewhere worn limestone blocks with thin red and ivory bands and chipped plaster.

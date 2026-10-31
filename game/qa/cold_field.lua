@@ -32,6 +32,7 @@ function ColdField.run(app, output, lines, check)
     app:action('field_start')
     assert(app.game.mode == 'field', 'first field action was not accepted')
     local actionTime, plan = clock() - start, app.loading
+    pending = pending + #require('src.render.kit.halls').loadingJobs(app.renderer, app.game.world)
     check(
       'first field uses a cold, pending gallery plan',
       pending > 0 and plan and plan.kind == 'transition' and plan.total == pending + 1

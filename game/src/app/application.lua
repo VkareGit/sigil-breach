@@ -80,6 +80,9 @@ function Application:adopt(game)
   if tools and tools.gallery and self.renderer then
     local jobs = require('src.render.gallery').loadingJobs(self.renderer)
     if self.renderer.prepareWorld then
+      for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
+        jobs[#jobs + 1] = job
+      end
       jobs[#jobs + 1] = {
         label = 'loading_world',
         run = function(checkpoint)

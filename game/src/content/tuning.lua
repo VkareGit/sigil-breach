@@ -124,7 +124,11 @@ return {
   revolverCloseTime = 1.55,
   -- View: field of view (degrees) and internal render height (px).
   baseFov = 100,
-  renderHeight = 540,
+  renderHeight = 1080,
+  -- combat/destruction.lua: a blow reaches a thing this near a ray; a body this
+  -- near a fragile thing breaks it unless it passes this high; the listeners'
+  -- place after a shot's own consequences.
+  scenery = { rayGrace = 0.03, bodyGrace = 0.3, clearance = 0.5, listenerOrder = 40 },
   -- Session clocks (systems/clocks.lua): zone banner time (s), its bell
   -- volume, and how fast the hurt and surge overlays fade (x per second).
   clocks = { zoneBanner = 3.5, zoneBell = 0.12, hurtFade = 1.6, surgeFade = 1.4 },

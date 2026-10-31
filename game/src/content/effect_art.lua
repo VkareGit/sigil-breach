@@ -47,6 +47,15 @@ Effects:register('smoke', {
   rise = 0.24,
   limit = 8,
 })
+-- The slow cloud of something heavy coming down.
+Effects:register('dust', {
+  duration = 3.4,
+  frames = { 9, 10, 11, 12 },
+  alpha = 0.34,
+  brightness = 0.75,
+  rise = 0.3,
+  limit = 22,
+})
 Effects:register(
   'arc',
   { duration = 0.24, frames = { 13, 14, 15, 16 }, alpha = 0.78, brightness = 1.12 }

@@ -1,0 +1,5 @@
+Square image. Paint a flat top-down orthographic texture of the chapel floor, straight down, no perspective.
+
+The second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.
+
+Six by six big stone slabs with thin dark joints, in the same colours as the floor in the target painting: ochre limestone, charcoal stone and iron red stone, keeping each slab the colour shown in the template. Thick dark mortar joints between every slab, clearly visible from a distance. Each slab has its own tone, some paler and some much darker, with heavy wear, chipped corners, soot, scorch marks and cracks, so that no two neighbouring slabs look alike. The texture must tile seamlessly on all four edges.

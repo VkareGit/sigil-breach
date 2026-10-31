@@ -1,0 +1,260 @@
+{
+  "date": "2026-10-31",
+  "references": [
+    "work/art-spike-2026-10-31/malowidla/plate.png",
+    "templates written by tools/art/chapel_hall/main.lua"
+  ],
+  "style": "STYLE (non-negotiable): the first attached image is the approved target painting. Match its exact pigments, value range and hand: dry matte medieval fresco, broad deliberate brush masses, iron red, burnt umber, dirty limestone ochre, charcoal, restrained ash ivory, visible chipped plaster. Coarse shapes that read at game resolution, not micro detail. This is one surface of one building, so its colours must sit next to that painting without any seam. No photoreal rendering, no gloss, no airbrush, no lens blur, no text, no letters, no invented occult symbols.\n\nPaint the surface evenly and neutrally lit, with no cast shadows or vignette and no perspective: light in the game is added later. Dark values may appear only where the paint itself is dark.\n",
+  "surfaces": {
+    "bay-a": {
+      "file": "assets/art/chapel-hall/bay-a.jpg",
+      "sha256": "c89fc44ba557e2f4f28f0e09eb7aca6c1c9f8c64b8e7254389196a504b4e877e",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation of a side bay of the chapel. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel: the two pointed niches, the narrow colonnette between them, the large pointed tympanum above, and the red dado at the bottom. Fill the whole frame edge to edge.\n\nContents: inside each pointed niche, a tall screaming damned figure in a tattered shroud with raised bony hands and a long black open mouth, painted on dark red plaster. Inside the tympanum, a crowded group of three or four huge screaming figures with reaching hands on iron red, exactly the kind of figures on the side walls of the target painting. Around them, worn limestone blocks with thin red and ivory painted bands following the arch edges, large patches of chipped plaster.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "bay-b": {
+      "file": "assets/art/chapel-hall/bay-b.jpg",
+      "sha256": "2438dc27ca2e3209834a90aa4ff54582432e11dcfe4c9c21f3d6dfdfb6366e0f",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation of a side bay of the chapel. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: this is a different bay of the same wall cycle. Inside the left niche, a gaunt shrouded woman bent double clutching her own head, long black open mouth. Inside the right niche, a tall backward-leaning skeletal man with both arms flung up. Inside the great tympanum, a dense procession of five damned figures pushed together in profile and frontal, all fleeing towards the right, long reaching hands, on iron red. Around them, worn limestone blocks, thin red and ivory painted bands following the arch edges, large patches of chipped plaster.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "bay-c": {
+      "file": "assets/art/chapel-hall/bay-c.jpg",
+      "sha256": "286ded217e35d734ce01fb60b077840a300169f4db54cd5d44a3768efd8afafc",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation of a side bay of the chapel. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: another bay of the same wall cycle, more ruined. Inside the left niche, a crouching shrouded figure with its face turned away and one long hand raised. Inside the right niche, two thin figures clinging together, mouths open. Inside the tympanum, three colossal screaming faces and raised bony hands rising out of red darkness, with a large area of the painting fallen away to bare grey plaster on one side. Around them, worn limestone blocks, thin red and ivory bands, soot rising from below.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "door-wall": {
+      "file": "assets/art/chapel-hall/door-wall.png",
+      "sha256": "f08f709b6a0ce8f54bf3af85c16ca5139c4f3384686311c3bc7efffdbafaaf52",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint one flat, perfectly straight-on wall elevation of the chapel wall that contains a doorway. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThe magenta shape is a real doorway cut through the wall. Around it paint a plain heavy pointed stone door surround of limestone voussoirs. Contents: inside the left niche, a screaming shrouded figure with a raised hand. Inside the left tympanum, three screaming damned figures reaching towards the door. Inside the smaller right tympanum above the door, one huge staring face with an open mouth and two hands. Elsewhere worn limestone blocks with thin red and ivory bands and chipped plaster.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "strip": {
+      "file": "assets/art/chapel-hall/strip.jpg",
+      "sha256": "5c71b424d1b41c29a706818643a85dd21f7b85ce6d8f6657383afa487b723604",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on elevation of plain chapel wall. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: only large worn limestone blocks and patches of old lime wash, a thin red and ivory painted band at about half the height, soot, cracks. No figures. The left and right edges must tile seamlessly.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "south": {
+      "file": "assets/art/chapel-hall/south.jpg",
+      "sha256": "864b39772335f53039c86971937bf37cf8d59ef6aec60383c7e170e21df3bfa1",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Landscape 3:2 image. Paint one flat, perfectly straight-on wall elevation: the end wall of the chapel, one continuous fresco. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: a vast continuous scene of the damned driven in a crowd from left to right, dozens of gaunt shrouded bodies with long black open mouths and reaching hands, on iron red and umber, framed by thin red and ivory bands. Large areas of plaster have fallen away showing bare limestone blocks, especially at the upper corners. The bottom band stays dark red.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "chancel": {
+      "file": "assets/art/chapel-hall/chancel.png",
+      "sha256": "bc38499f91d8fa3a455219925b6cadbaf4425feeaac11baa6442c8461171e283",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint one flat, perfectly straight-on elevation of the great chancel arch wall of the chapel. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThe magenta shape is a real open pointed arch through the wall; do not paint inside it. Paint a heavy ring of limestone voussoirs following that arch exactly, with a thin red and ivory band outside the ring. On the wall around it, large worn limestone ashlar, soot climbing from the arch, long cracks spreading outward from the arch as if force burst through it, patches of plaster. No figures except two small damned figures high in the upper corners.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "apse-side": {
+      "file": "assets/art/chapel-hall/apse-side.png",
+      "sha256": "3ada2af6cfd3650b2a350ffd6f733506ca1c6f175737ee5a849b068335f86f41",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThis is the torn side wall of the apse. Its upper edge is broken and descends from left to right: finish it in rough stepped courses of broken limestone blocks exactly along the magenta edge. Below that edge the wall is ONLY plain pale limestone ashlar in neat courses, with a red dado at the bottom and one thin red and ivory painted band at mid height. There are NO figures, NO fresco, NO flames and NO faces anywhere on this wall. Only a little soot near the broken edge.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "rear": {
+      "file": "assets/art/chapel-hall/rear.png",
+      "sha256": "94f343195dd44e120f160b6db9d347e32afb99b2815a2c8657f3c33eb446da4e",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on elevation of the rear wall of the chapel apse, which has been torn open. No perspective at all.\n\nThe second attached image is an exact layout template. Keep every boundary exactly where it is drawn: the pointed lunette, the red dado at the bottom, and above all the jagged upper edge of the broken wall. Everything that is magenta in the template must stay a perfectly flat solid #FF00FF background: no sky, no gradient, no shadow on it. Only the wall is painted.\n\nContents: the lunette holds the Last Judgment fresco from the centre of the target painting, a solemn standing red-robed figure with damned figures reaching up on either side. Lower wall: pale worn plaster. Along the whole broken upper edge the masonry ends in rough stepped courses of broken blocks and rubble, as in the target painting, with soot and burnt plaster near the tear.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "far-ruins": {
+      "file": "assets/art/chapel-hall/far-ruins.png",
+      "sha256": "8cc36c8ca6d70cd7f448f6db1f7d231b8ce08b7c327aec5ff7df693ae61ff147",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Landscape 3:2 image. Paint a flat theatrical backdrop, a distant view of a burning ruined gothic city, as seen through the breach in the target painting: tall broken cathedral towers, one tower with a pointed window, a collapsing spire, broken walls and aqueduct arches, all as dark umber and black-brown silhouettes with ember-orange rim light and small fires at their feet.\n\nThe city rises from the bottom edge and fills the lower two thirds. Everything above the skyline and all gaps between towers must be perfectly flat solid #FF00FF with no gradient, no smoke and no glow on it. Keep the silhouettes crisp and hand painted, with no semi-transparent edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "banner-a": {
+      "file": "assets/art/chapel-hall/banner-a.png",
+      "sha256": "422b364e25e3a972592c9b9883ef917c45fd1a61260312fe0641d7339079238c",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one single hanging war banner, seen perfectly straight-on and flat, exactly like the long red and ivory banners on the piers in the target painting: iron red cloth, a tall ivory cross motif, ivory borders, and a badly torn jagged lower edge with holes. The cloth fills the frame from top edge to about the bottom edge.\n\nEverything around the cloth, including inside the holes and tears, must be a perfectly flat solid #FF00FF background with no shadow.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "banner-b": {
+      "file": "assets/art/chapel-hall/banner-b.png",
+      "sha256": "a844c8858559ddd161f4bf03d2455e5e1473281b5fa5e2b0daa71843c3188c37",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one single hanging war banner, seen perfectly straight-on and flat, in the same hand as the banners in the target painting: dark iron red cloth with a plain ivory band down each side and a faded ivory fleuron at the centre, burnt along one side, badly torn jagged lower edge with holes. The cloth fills the whole height of the frame and most of its width.\n\nEverything around the cloth, including inside the holes and tears, must be perfectly flat solid #FF00FF with no shadow.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "floor": {
+      "file": "assets/art/chapel-hall/floor.jpg",
+      "sha256": "ec01ab22438f7d219c7d4239b2b2f523f29b7466e519af9334029563e42ab74b",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat top-down orthographic texture of the chapel floor, straight down, no perspective.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nSix by six big stone slabs with thin dark joints, in the same colours as the floor in the target painting: ochre limestone, charcoal stone and iron red stone, keeping each slab the colour shown in the template. Thick dark mortar joints between every slab, clearly visible from a distance. Each slab has its own tone, some paler and some much darker, with heavy wear, chipped corners, soot, scorch marks and cracks, so that no two neighbouring slabs look alike. The texture must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "drum": {
+      "file": "assets/art/chapel-hall/drum.jpg",
+      "sha256": "8ec37e7823691cb4105046d5fc31788347d93360287ea558af416714e8cd6db0",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat unrolled texture of a massive round church column built from stacked limestone drums: about five wide horizontal courses, with thick dark mortar joints and blocks staggered between courses. Colour: dirty ash-grey and pale ochre limestone with charcoal soot streaks. There is absolutely no red paint, no blood and no stains of red on this stone. Only broad worn tonal patches, a few cracks and chipped edges.\n\nNo perspective, no curvature and no cylinder shading: this is the flat unwrapped surface. The texture must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "ashlar": {
+      "file": "assets/art/chapel-hall/ashlar.jpg",
+      "sha256": "dcb8fd6089bcc6f6125f14fd108988cd1b8b147ac9732c9829dbdd32f9e129bf",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat straight-on texture of an old cathedral wall of squared limestone ashlar: about nine courses of long blocks with thin dark joints. Colour: smoky umber, dirty ochre and ash grey, heavily sooted, with large soft areas of old lime wash worn away. Absolutely no red paint and no blood stains. Quiet and low contrast, because this stone is a background behind frescoes and monsters.\n\nNo perspective. The texture must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "iron": {
+      "file": "assets/art/chapel-hall/iron.jpg",
+      "sha256": "c225f36c9feda7e40fb22716eec9c80926d6763f188cc9c79e814ae1518ce6c5",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat texture of old forged black iron: dark rust, hammered marks, flaking brown and charcoal patches. Matte. No objects, only the surface. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "rubble": {
+      "file": "assets/art/chapel-hall/rubble.jpg",
+      "sha256": "dae1eb9225252051ef653ed052b5795f174675a7b875159d8eff3d13ec259a52",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat top-down texture of a heap of broken limestone: many angular blocks and shards of different sizes tightly packed, dark gaps between them, dust, some fragments of red painted plaster. Straight down view. Painted with broad matte brush masses. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "sanctuary": {
+      "file": "assets/art/chapel-hall/sanctuary.jpg",
+      "sha256": "f3edeeff70816ad4e921cabf376c14577ab638733e101aa080f71a53e14009af",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Landscape 3:2 image. Paint a flat straight-on texture for the low walls of the sanctuary: a continuous row of tall narrow painted arcades, each holding one sorrowful standing saint with a halo on dark blue-grey and red, above a red dado band at the bottom. The left and right edges must tile seamlessly. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "crypt": {
+      "file": "assets/art/chapel-hall/crypt.jpg",
+      "sha256": "a082df0961ecbc11c7981f6f8971ef64d0fc4f6634270d7ac965ffd5befb5cbc",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Landscape 3:2 image. Paint a flat straight-on texture for the low walls of a burial crypt: rough limestone courses, a red dado band at the bottom, three rows of small dark burial niches with skulls and bones in the middle of the wall. The left and right edges must tile seamlessly. Dark, cold, sparse.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "narthex": {
+      "file": "assets/art/chapel-hall/narthex.jpg",
+      "sha256": "c96db0580e57020aef437581a134936b9751c6d13d05b3770711b1f16bb5dae9",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Landscape 3:2 image. Paint a flat straight-on texture for the low walls of a church porch: limestone courses, a red dado band at the bottom, and a long painted frieze of small mourners in grey and red between two thin ivory bands at mid height. The left and right edges must tile seamlessly. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "ceiling": {
+      "file": "assets/art/chapel-hall/ceiling.jpg",
+      "sha256": "c78fe3fabfaa980e9881c2cd5a4e0bf35409e89d5e96f48d5cb1b0c4ac4a3572",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat straight-on texture of the underside of a stone vault: soot-darkened limestone with faint painted red stars and thin ribs of ivory. Matte and dark. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "storm-a": {
+      "file": "assets/art/chapel-hall/storm-a.jpg",
+      "sha256": "3230de66ae6c7a6249ddffd346c1575aaa1dc21cb063f28e35356c73c5e10553",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: a bay of the storm chapel wall cycle in the same medieval manner. Left niche: a gaunt robed figure shielding its face with one arm, cloak blowing sideways. Right niche: a thin robed figure kneeling with hands crossed on its chest. Tympanum: four robed medieval figures leaning against a great wind, cloaks streaming, on iron red. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "storm-b": {
+      "file": "assets/art/chapel-hall/storm-b.jpg",
+      "sha256": "5a320cfae115dbe970e9e618865e9116fbeab54d96164821570194c43e67fa86",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: left niche: a tall hooded figure holding its own broken chain. Right niche: an old man falling backwards with raised hands. Tympanum: a great stag-headed judge seated in the centre, small and flat in the medieval manner, with damned souls bowing on either side, on iron red. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "storm-c": {
+      "file": "assets/art/chapel-hall/storm-c.jpg",
+      "sha256": "98c6c1813b852c122eeda75a08570d3e660ff74a5f9a22616afc59b1bacc074e",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: left niche: two figures back to back, screaming. Right niche: a woman reaching upward with both arms. Tympanum: a wheel of tangled damned bodies, on iron red with charcoal. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-a": {
+      "file": "assets/art/chapel-hall/nave-a.jpg",
+      "sha256": "b3a5ff550d73e168c6f8268b04631d7da94a7c488045f6f144baf4be88615a6d",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: left niche: a pilgrim in a tattered cloak with a staff, mouth open. Right niche: a bishop with a broken crozier, eyes hollow. Tympanum: a long procession of damned in profile walking towards the right, towards the altar, hands bound, on iron red. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-b": {
+      "file": "assets/art/chapel-hall/nave-b.jpg",
+      "sha256": "85223acc764f1712c806f4876d8d52b09271b947bbe73649281d9e9faa4b0342",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: left niche: a king with a cracked crown, covering his eyes. Right niche: a monk with hands over his ears, mouth open. Tympanum: a crowd of gaunt faces and raised hands looking up in terror at something above them, on iron red. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-c": {
+      "file": "assets/art/chapel-hall/nave-c.jpg",
+      "sha256": "ee1cbd8d43a09f3a38bc6cb4577781f4627f45d94daac52d2e72b10684d61979",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nContents: left niche: a mother clutching a shrouded bundle. Right niche: a soldier dropping his sword. Tympanum: three skeletal angels with broken wings pouring ash on a kneeling crowd, on iron red. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-door": {
+      "file": "assets/art/chapel-hall/nave-door.png",
+      "sha256": "c2912d93329c6b35a2d349650cbb8f8e621de6a2879937a31932ee1c55b8b2ac",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThe magenta shape is a real doorway through the wall. Around it paint a heavy pointed limestone door surround with deep voussoirs. Contents: above the door, inside the large tympanum, a huge staring face with an open mouth and two raised hands on iron red. Elsewhere clean limestone blocks with thin red and ivory painted bands. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-end": {
+      "file": "assets/art/chapel-hall/nave-end.png",
+      "sha256": "0c68f6865f7f9d3214973b6a3101d7f80a22b571e19c883464e64ff052d8cb3a",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThe magenta shape is a real low arched opening through the wall. Paint a limestone arch ring around it. Above it plain limestone courses with thin red and ivory bands. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-chancel": {
+      "file": "assets/art/chapel-hall/nave-chancel.png",
+      "sha256": "4e212d4b194822f16c188f604b2e556b20836b8d643bed2e6f1dcb5a995730cd",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThis is the east wall of the nave above the small arch into the sanctuary; do not paint inside the magenta opening. Paint a ring of limestone voussoirs around the opening. Above it the whole wall holds one vast solemn medieval fresco: a great enthroned robed figure in a pointed mandorla at the top centre, ordered rows of small haloed saints on either side, and below them rows of small robed mourners turned towards the arch. Thin red and ivory borders. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "nave-south": {
+      "file": "assets/art/chapel-hall/nave-south.png",
+      "sha256": "4fbb647315c8889cd90bf88cab327cea958798692c3edf13980c976acf9f8ca3",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.\n\nThe second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.\n\nEverything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.\n\nThis is the entrance wall of the nave high above a very wide low arch; do not paint inside the magenta opening. Above it paint a great fresco of the Weighing of Souls: a stern winged figure with scales at the centre, a line of the damned on the right being driven down by small dark demons, a line of the saved on the left. Thin red and ivory borders. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "clay": {
+      "file": "assets/art/chapel-hall/clay.jpg",
+      "sha256": "c7fa03e6129aa3fbbdb0bfb9d4c3157f953dcf0576a594ebfc908c4709f6d832",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat texture of old glazed medieval funerary pottery: dark umber and burnt sienna clay with worn ochre painted bands and a simple repeating band of small black crosses and red ticks around the middle, chipped glaze, soot. No objects, only the flat surface. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "wood": {
+      "file": "assets/art/chapel-hall/wood.jpg",
+      "sha256": "51da86d0443da579bc20b57d28c211bb495d98feed11b22fc5fc0c4db7ece50e",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint a flat texture of old dark church bench oak: long straight planks running left to right, deep cracks, worn pale edges, soot and a few old iron nails. Matte. No objects, only the flat surface. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "zenith": {
+      "file": "assets/art/chapel-hall/zenith.jpg",
+      "sha256": "c18696fff4f34d60be1dd02bc5d45a6adfc0e8ca5a678799f7d4404297719e61",
+      "tool": "Codex image_gen through codex exec, reasoning effort high",
+      "prompt": "Square image. Paint the sky of hell as seen looking straight up through a hole in a church roof: towering dark smoke clouds lit from below in ember orange and blood red, drifting sparks, a dim burning glow in the centre. Broad matte brush masses in the same hand as the sky in the target painting, no horizon, no buildings, no birds. It must tile seamlessly on all four edges.\n",
+      "prepared": "tools/art/chapel_hall/prepare.py"
+    },
+    "tomb": {
+      "file": "assets/art/chapel-hall/tomb.jpg",
+      "sha256": "38554106f63f102ccabbd309fedb00a2632dc6af948429f72621c3446aa82ec1",
+      "tool": "Codex image_gen, 2026-10-31",
+      "prompt": "work/rollback-chapel-20261031-181338, manifest of the withdrawn v34 assets"
+    },
+    "inferno-sky": {
+      "file": "assets/art/chapel-hall/inferno-sky.jpg",
+      "sha256": "1394154a511f9a4ec5ca051e9818dcdf6afc924181122ce7a23409ae8c159b8e",
+      "tool": "Codex image_gen, 2026-10-31",
+      "prompt": "work/rollback-chapel-20261031-181338, manifest of the withdrawn v34 assets"
+    }
+  }
+}

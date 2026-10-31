@@ -1,0 +1,3 @@
+Square image. Paint a flat straight-on texture of an old cathedral wall of squared limestone ashlar: about nine courses of long blocks with thin dark joints. Colour: smoky umber, dirty ochre and ash grey, heavily sooted, with large soft areas of old lime wash worn away. Absolutely no red paint and no blood stains. Quiet and low contrast, because this stone is a background behind frescoes and monsters.
+
+No perspective. The texture must tile seamlessly on all four edges.

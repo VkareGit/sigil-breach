@@ -3,9 +3,9 @@
 -- twenty colours or projects stationary cracks over the player's eyes.
 return {
   sky = [[
-extern Image horizon;
+extern Image horizon,zenith;
 extern vec3 rightDir,upDir,forwardDir;
-extern number aspect,projectionScale,time;
+extern number aspect,projectionScale,time,gain,smoke;
 const float TAU=6.2831853;
 vec4 effect(vec4 c,Image tex,vec2 uv,vec2 px){
  vec2 ndc=vec2(uv.x*2.0-1.0,1.0-uv.y*2.0);
@@ -15,8 +15,11 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 px){
  vec3 col=Texel(horizon,vec2(u,v)).rgb;
  // Quiet pigment fire; no bloom, camera-relative drift, or pulsing whole sky.
  float fire=smoothstep(.10,.22,col.r-col.b)*smoothstep(.23,.42,col.r);
- col*=.54+fire*.19+fire*sin(time*.7+u*23.0)*.012;
+ col*=gain+fire*.19+fire*sin(time*.7+u*23.0)*.012;
  col=mix(col,vec3(.10,.12,.15),smoothstep(.78,1.0,d.y));
+ // A panorama stretched towards the zenith streaks: burning cloud takes over.
+ vec2 q=d.xz/(max(d.y,0.0)+.55)*.8+vec2(time*.006,time*.002);
+ col=mix(col,Texel(zenith,q).rgb*gain,smoke*smoothstep(.30,.62,d.y));
  return vec4(col,1.0)*c;
 }
 ]],

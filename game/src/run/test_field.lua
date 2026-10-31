@@ -129,6 +129,7 @@ function F.reset(g)
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
   g.world.secretFound = false
+  require('src.combat.destruction').reset(g.world)
   World.breakSeals(g.world, 0)
   Roles.controlled(g).weapon = 1
   Roles.controlled(g).cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =

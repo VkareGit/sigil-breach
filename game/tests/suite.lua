@@ -46,6 +46,16 @@ Suite.registry = {
     module = 'tests.cases.attack_followups',
   },
   {
+    id = 'destruction',
+    title = 'Shots and blasts break the world, ruin changes it and a load keeps it',
+    module = 'tests.cases.destruction',
+  },
+  {
+    id = 'chapel-hall',
+    title = 'A painted hall agrees with its layout, floors and routes',
+    module = 'tests.cases.chapel_hall',
+  },
+  {
     id = 'chambers',
     title = 'Authored proving chambers and isolated trials',
     module = 'tests.cases.chambers',

@@ -168,6 +168,7 @@ end
 -- collision, encounter slots and roof slabs.
 require('src.content.maps.proving_art')(map)
 require('src.content.maps.proving_roof')(map)
+require('src.content.maps.proving_halls')(map)
 local function courtFire(cx, doorSide)
   local points = {}
   for z = 12.2, 29.2, 0.9 do

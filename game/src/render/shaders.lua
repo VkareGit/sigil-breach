@@ -34,6 +34,8 @@ extern Image stoneAtlas;
 extern vec4 stoneRect;
 extern number useStonePaint;
 extern number flash,objectAlpha;
+// A painted hall: the image is the surface, its vertices carry the baked light.
+extern number painted;
 extern vec3 flashColor,tint,lights[16],lightColors[16];
 extern vec3 ambientLight;
 // Each lit slot's tile covers tileSpan cells from its light's origin; the
@@ -52,10 +54,13 @@ varying vec3 normal;
 varying vec4 material;
 varying vec3 materialPos;
 #ifdef VERTEX
+extern vec4 sway;
 attribute vec3 VertexNormal;
 vec4 position(mat4 tp,vec4 vp) {
   float c=cos(objectYaw),s=sin(objectYaw);
   normal=vec3(VertexNormal.x*c+VertexNormal.z*s,VertexNormal.y,-VertexNormal.x*s+VertexNormal.z*c);
+  // A hanging chain swings from its anchor: the push grows below it.
+  if(sway.x!=0.0||sway.y!=0.0)vp.xz+=sway.xy*max(0.0,(sway.z-vp.y)/sway.w);
   material=VertexColor;materialPos=vp.xyz;return projectVertex(vp);
 }
 #endif
@@ -71,7 +76,11 @@ float shortRayVisibility(vec2 from,vec2 to){
 }
 vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   vec3 n=normalize(normal);vec3 base=material.rgb*tint;
-  if(material.a<0.0) {
+  if(painted>.5){
+    vec4 image=Texel(tex,uv);
+    if(image.a<.5)discard;
+    base=image.rgb;
+  } else if(material.a<0.0) {
     // Pixel-forged iron stays anchored to the moving plate, not the arena.
     vec2 q=floor(materialPos.xy*80.0);
     float grain=fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);
@@ -101,6 +110,7 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   vec2 groundUV=clamp((surface-.5)/groundSpan*groundScale,groundLow,groundHigh);
   float ao=Texel(groundAtlas,groundUV).g;
   vec3 light=(ambientLight+vec3(.09)*max(0.0,dot(n,normalize(vec3(.35,1.0,-.25)))))*mix(1.0,ao,.8);
+  if(painted>.5)light=material.rgb;
   vec4 deck=Texel(deckAtlas,(floor(worldPos.xz-n.xz*.09+.5)-.5)/deckSpan);
   float deckBottom=deckDatum+deck.r*deckHeight,deckTop=deckDatum+deck.g*deckHeight;
   for(int i=0;i<16;i++){
@@ -117,6 +127,7 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   }
   float dc=length(worldPos-camera);light+=flashColor*flash*1.2/(1.0+dc*dc*.20);
   vec3 rgb=base*light+base*max(0.0,material.a)*1.5;
+  if(painted>.5)return vec4(mix(rgb,vec3(.05,.03,.026),(1.0-exp(-max(dc-8.0,0.0)*.02))*.45),objectAlpha);
   return vec4(atmosphere(rgb,worldPos,camera,.040),objectAlpha);
 }
 #endif

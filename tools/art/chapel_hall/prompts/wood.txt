@@ -1,0 +1,1 @@
+Square image. Paint a flat texture of old dark church bench oak: long straight planks running left to right, deep cracks, worn pale edges, soot and a few old iron nails. Matte. No objects, only the flat surface. It must tile seamlessly on all four edges.

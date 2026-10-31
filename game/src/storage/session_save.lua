@@ -6,6 +6,7 @@
 local Save = require('src.storage.save')
 require('src.world.arena')
 require('src.session.world')
+require('src.combat.destruction')
 local S = { name = 'session.save' }
 function S.encode(g, sequence)
   return Save.encode('session', Save.capture('session', g), sequence or 1)

@@ -103,7 +103,7 @@ local function decks(w, owner)
   }
 end
 function L:prepare(w, checkpoint)
-  if self.world == w and self.revision == w.geometryRevision then
+  if self.world == w and self.revision == (w.viewRevision or w.geometryRevision) then
     return
   end
   local sources = {}
@@ -139,7 +139,7 @@ function L:prepare(w, checkpoint)
   local preparedGround, preparedDecks = ground(w, visibility), decks(w, resources)
   -- Commit only a complete replacement. Failed native allocation leaves the
   -- previous world's atlas usable and this revision eligible for a retry.
-  self.world, self.revision, self.sources = w, w.geometryRevision, sources
+  self.world, self.revision, self.sources = w, w.viewRevision or w.geometryRevision, sources
   self.visibility = visibility
   self.resources = resources
   self.ground, self.decks = preparedGround, preparedDecks

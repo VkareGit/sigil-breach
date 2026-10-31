@@ -1,0 +1,3 @@
+Landscape 3:2 image. Paint a flat theatrical backdrop, a distant view of a burning ruined gothic city, as seen through the breach in the target painting: tall broken cathedral towers, one tower with a pointed window, a collapsing spire, broken walls and aqueduct arches, all as dark umber and black-brown silhouettes with ember-orange rim light and small fires at their feet.
+
+The city rises from the bottom edge and fills the lower two thirds. Everything above the skyline and all gaps between towers must be perfectly flat solid #FF00FF with no gradient, no smoke and no glow on it. Keep the silhouettes crisp and hand painted, with no semi-transparent edges.

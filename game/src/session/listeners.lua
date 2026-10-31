@@ -13,6 +13,7 @@ local Archetypes = require('src.content.enemies')
 local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
+local Destruction = require('src.combat.destruction')
 local K = Tuning.rewards
 local Listeners = {}
 -- Break kill (0.24, the push-forward loop): a demon killed while off balance
@@ -87,6 +88,12 @@ local function hitStop(g, event)
 end
 function Listeners.attach(g)
   local bus = g.bus
+  bus:on('sim', 'VolleyResolved', function(e)
+    Destruction.volley(g, e)
+  end, Tuning.scenery.listenerOrder)
+  bus:on('sim', 'ChargeExploded', function(e)
+    Destruction.blast(g, e.charge)
+  end, Tuning.scenery.listenerOrder)
   bus:on('sim', 'BodyHit', function(e)
     Telemetry.hit(g, e.enemy)
   end, 5)

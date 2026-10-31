@@ -251,7 +251,41 @@ function Schema.check(map, id)
     decor.niches == nil or type(decor.niches) == 'boolean',
     label .. '.decor.niches must be boolean'
   )
+  if map.solids then
+    positive(map.solids.wall, label .. '.solids.wall')
+    positive(map.solids.pillar, label .. '.solids.pillar')
+    positive(map.solids.radius, label .. '.solids.radius')
+    assert(map.solids.radius < 0.71, label .. '.solids.radius must stay inside its cell')
+  end
+  require('src.content.maps.breakables').check(decor.breakables, label)
+  if decor.zenith ~= nil then
+    assert(
+      require('src.content.art.environment')[decor.zenith],
+      label .. '.decor.zenith is unknown'
+    )
+  end
+  if decor.horizon ~= nil then
+    assert(
+      require('src.content.art.environment')[decor.horizon],
+      label .. '.decor.horizon is unknown'
+    )
+  end
+  for _, hall in ipairs(decor.halls or {}) do
+    assert(require('src.content.art.halls')[hall.kit], label .. '.hall.kit is unknown')
+    list(hall.footprint, label .. '.hall.footprint')
+    for _, rect in ipairs(hall.footprint) do
+      assert(#rect == 4, label .. '.hall.footprint rectangle needs four cell coordinates')
+      cellX(rect[1], label .. '.hall.footprint x')
+      cellZ(rect[2], label .. '.hall.footprint z')
+      cellX(rect[3], label .. '.hall.footprint x')
+      cellZ(rect[4], label .. '.hall.footprint z')
+      assert(rect[1] <= rect[3] and rect[2] <= rect[4], label .. '.hall.footprint bounds reversed')
+    end
+  end
   if decor.atmosphere then
+    if decor.atmosphere.skyGain ~= nil then
+      positive(decor.atmosphere.skyGain, label .. '.atmosphere.skyGain')
+    end
     for _, key in ipairs({ 'ambient', 'figures', 'sky' }) do
       local rgb = decor.atmosphere[key]
       list(rgb, label .. '.atmosphere.' .. key)

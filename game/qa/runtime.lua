@@ -35,6 +35,9 @@ local captures = {
   ['--mask-formats'] = true,
   ['--pigment-review'] = true,
   ['--ritual-review'] = true,
+  ['--hall-review'] = true,
+  ['--hall-walk'] = true,
+  ['--hall-ruin'] = true,
   ['--audio-export'] = true,
   ['--movement-review'] = true,
   ['--qa-smoke'] = true,
@@ -160,6 +163,10 @@ function Q:run(G, renderer, getGame, settings, getLoading)
     require('qa.reviews.creature_pigment').run(G, renderer, self.output)
   elseif self:has('--ritual-review') then
     require('qa.reviews.ritual_art').run(G, renderer, self.output)
+  elseif self:has('--hall-review') or self:has('--hall-walk') then
+    require('qa.reviews.chapel_hall').run(G, renderer, self.output, self:has('--hall-walk'))
+  elseif self:has('--hall-ruin') then
+    require('qa.reviews.hall_ruin').run(G, renderer, self.output)
   elseif self:has('--movement-review') then
     -- The knight's moves as the painted world shows them.
     require('qa.reviews.movement_marks_review').run(G, renderer, self.output)

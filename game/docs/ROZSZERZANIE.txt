@@ -1,8 +1,26 @@
-SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.34
+SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.35
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają
 istniejące zachowania; nowy rodzaj zachowania otrzymuje mały moduł i test.
 Nie obiecujemy, że dowolna nowa mechanika będzie samą zmianą liczb.
+
+MALOWANA MAPA I ŻYWE RZECZY (1 listopada 2026)
+
+Nowa sala kaplicy: wpis w content/maps/proving_halls.lua, powierzchnie
+w content/art/chapel_hall.lua i malowidła namalowane na szablon z
+tools/art/chapel_hall (main.lua pisze szablony, prepare.py gotowe obrazy).
+Układ powierzchni jest zarazem reliefem bryły, więc wnęka namalowana jest
+wnęką w geometrii. Mniejsze pomieszczenie: prostokąt i nazwa ściany na liście
+rooms w tym samym pliku. Nowy rodzaj sali: jeden moduł w render/kit
+i wpis w content/art/halls.lua.
+
+Nowa rzecz do zniszczenia: rodzaj w content/breakables.lua, wygląd
+w render/kit/props.lua, miejsce w decor.breakables mapy. Stan trzyma
+combat/destruction.lua, ciosy biorą się z rozstrzygniętych strzałów
+i wybuchów, a walka i rysowanie tylko czytają świat. Podpora (collapses)
+wymaga cell, hole i rubble; kształt wyrwy jest wspólny dla fizyki i obrazu
+(content/maps/breakables.lua). Ruina powstaje przy wczytaniu; World.opened
+odświeża trasy bez przebudowy siatek.
 
 KONTYNUACJE ATAKÓW I DYSTANS FAZY (28 października 2026)
 

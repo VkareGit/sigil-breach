@@ -115,7 +115,8 @@ function Tests.run(Game)
     local distance, _, hit = Ballistics.world(g.world, x, 1.7, z, 0, 1, 0, 20)
     check(
       'enclosed roof is actual projectile geometry ' .. x .. ':' .. z,
-      roof <= 12 and hit ~= 'range' and math.abs(distance - (roof - 1.7)) < 0.001
+      -- The painted hall's roof is its drawn vault, higher than the grid's.
+      roof <= 16.2 and hit ~= 'range' and math.abs(distance - (roof - 1.7)) < 0.001
     )
   end
   local unsupported = {}

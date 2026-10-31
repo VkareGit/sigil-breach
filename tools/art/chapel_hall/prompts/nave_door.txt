@@ -1,0 +1,7 @@
+Portrait 2:3 image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.
+
+The second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.
+
+Everything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.
+
+The magenta shape is a real doorway through the wall. Around it paint a heavy pointed limestone door surround with deep voussoirs. Contents: above the door, inside the large tympanum, a huge staring face with an open mouth and two raised hands on iron red. Elsewhere clean limestone blocks with thin red and ivory painted bands. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.

@@ -1,0 +1,5 @@
+Portrait 2:3 image. Paint one flat, perfectly straight-on elevation of plain chapel wall. No perspective at all.
+
+The second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.
+
+Contents: only large worn limestone blocks and patches of old lime wash, a thin red and ivory painted band at about half the height, soot, cracks. No figures. The left and right edges must tile seamlessly.

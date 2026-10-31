@@ -65,6 +65,9 @@ function W.new(mode, mapId)
     -- mode's; the classic arena finds it, the expedition saves it).
     secretFound = false,
   }
+  if data.solids then
+    w.solidTop = copy(data.solids)
+  end
   for z = 1, Grid.depth(w) do
     w.map[z] = {}
     for x = 1, Grid.width(w) do
@@ -135,6 +138,7 @@ end
 function W.rebuild(w)
   local data = Maps:get(w.mapId or Maps.default)
   w.geometryRevision = (w.geometryRevision or 0) + 1
+  w.viewRevision = (w.viewRevision or 0) + 1
   w.lamps = {}
   for _, p in ipairs(data.lamps or {}) do
     -- The animated pixel brazier is rendered at this existing light anchor;
@@ -163,6 +167,11 @@ function W.rebuild(w)
     end
   end
   return w
+end
+-- Cells opened or filled by what fell: routes are found anew. The renderer's
+-- prepared geometry stands; what is drawn of a ruin is prepared in advance.
+function W.opened(w)
+  w.geometryRevision = w.geometryRevision + 1
 end
 -- The zone of a point, by the map's zone rules (the first that holds).
 function W.zone(w, x, z)

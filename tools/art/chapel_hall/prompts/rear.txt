@@ -1,0 +1,5 @@
+Portrait 2:3 image. Paint one flat, perfectly straight-on elevation of the rear wall of the chapel apse, which has been torn open. No perspective at all.
+
+The second attached image is an exact layout template. Keep every boundary exactly where it is drawn: the pointed lunette, the red dado at the bottom, and above all the jagged upper edge of the broken wall. Everything that is magenta in the template must stay a perfectly flat solid #FF00FF background: no sky, no gradient, no shadow on it. Only the wall is painted.
+
+Contents: the lunette holds the Last Judgment fresco from the centre of the target painting, a solemn standing red-robed figure with damned figures reaching up on either side. Lower wall: pale worn plaster. Along the whole broken upper edge the masonry ends in rough stepped courses of broken blocks and rubble, as in the target painting, with soot and burnt plaster near the tear.

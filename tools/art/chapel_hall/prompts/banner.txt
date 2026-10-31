@@ -1,0 +1,3 @@
+Portrait 2:3 image. Paint one single hanging war banner, seen perfectly straight-on and flat, exactly like the long red and ivory banners on the piers in the target painting: iron red cloth, a tall ivory cross motif, ivory borders, and a badly torn jagged lower edge with holes. The cloth fills the frame from top edge to about the bottom edge.
+
+Everything around the cloth, including inside the holes and tears, must be a perfectly flat solid #FF00FF background with no shadow.

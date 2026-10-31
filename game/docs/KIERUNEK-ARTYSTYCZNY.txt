@@ -131,3 +131,25 @@ assets/art/weapon-provenance-v16.json). Arkusze fresco-v32/v33 czekają
 poza grą i poza gitem (work/weapon-art-v32-v33-backup) na następcę.
 Katalog zachował warianty widocznej amunicji, więc nowy atlas wejdzie
 jako dane. Nowy arkusz broni wymaga osobnej akceptacji użytkownika w ruchu.
+
+POLIGON — MALOWANA ARCHITEKTURA (31 października 2026)
+Wzorzec: work/inferno-direction-2026-10-31/02-painted-direction.png, przyciemniony.
+Mapa nie jest siatką z teksturami. Obie sale, nawa i mniejsze pomieszczenia
+są zbudowane tym samym sposobem, scena rysuje się w 1080 liniach. Każda ściana ma jedno malowidło i układ
+w metrach (content/art/chapel_hall.lua). Ten sam układ daje szablon dla malarza
+(tools/art/chapel_hall) i relief bryły, więc farba i geometria się nie rozjeżdżają.
+Światło jest wypieczone w wierzchołkach (render/kit/light.lua). Podłoga, stopnie,
+sarkofagi i rumowisko wynikają z wysokości mapy, więc kolizja zgadza się z obrazem.
+Nowa sala: wpis w content/maps/proving_halls.lua i własne malowidła. Mniejsze
+pomieszczenie: prostokąt i nazwa malowanej ściany (render/kit/rooms.lua).
+Prompty i sumy: assets/art/chapel-hall-provenance-v35.json.
+
+ŻYWA MAPA (31 października 2026)
+Co się niszczy, opisuje content/breakables.lua, a gdzie stoi: decor.breakables
+mapy. Nowy rodzaj to wpis tam i jego wygląd w render/kit/props.lua.
+Ciosy pochodzą z rozstrzygniętych strzałów i wybuchów (combat/destruction.lua),
+więc mur albo ciało przed celem nadal go chronią. Stan żyje w świecie i trafia
+do zapisu; rysowanie tylko go czyta. Filar po upadku zabiera sklepienie nad sobą,
+a filar przy zewnętrznej ścianie także górę muru, i odsłania piekło. Kształt ruiny
+(content/maps/breakables.lua) jest jeden dla fizyki i obrazu. Cała ruina jest
+przygotowana przy wczytaniu, więc upadek nie zatrzymuje klatki.

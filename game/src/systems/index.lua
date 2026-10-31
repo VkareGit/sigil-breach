@@ -21,6 +21,7 @@ return {
   Combat.demons,
   Combat.separation,
   Combat.bodies,
+  World.scenery,
   Combat.hazards,
   Combat.projectiles,
   Combat.charges,

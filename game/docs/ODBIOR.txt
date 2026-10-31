@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.34 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.35 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -8,6 +8,21 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.35.txt
+########################################################################
+SIGIL: BREACH / ODBIÓR 0.35 (MALOWANA MAPA I NISZCZENIE)
+
+Dowód automatyczny: TEST.ps1 -Suite All, prawdziwe klatki --hall-review
+i --hall-ruin, zawalenie strzałami przez zwykłą ścieżkę broni. Czas klatki
+około 7 ms przy 1920×1080 na zintegrowanej karcie to pomiar orientacyjny.
+
+Niezamknięte: ocena B2 w normalnej grze, MEASURE.ps1 i bramka wydajności,
+walka z bossem na zawalonej mapie, ruch ciała pod świeżym gruzem, powtórka
+dziennika z zawaleniem. Wyłom w absydzie jest skromniejszy niż wzorzec.
+Filar opada pionowo; nie ma fizyki brył. Paczka BUILD.ps1 nie była budowana.
 
 
 ########################################################################

@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.34 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.35 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,29 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.35.txt
+########################################################################
+SIGIL: BREACH / 0.35 / MALOWANA MAPA I ŻYWY POLIGON
+
+Malowana architektura — 31 października 2026
+- Cały poligon (obie sale, nawa, narteks, prezbiterium, krypty) jest bryłą:
+  okrągłe filary, wnęki z głębią, sklepienia, otwarta absyda. Każda ściana ma
+  własne malowidło, a światło jest wypieczone w wierzchołkach (render/kit).
+- Scena liczy się w 1080 liniach zamiast 540, także poza poligonem.
+- Na tej mapie filar ma 0,62 m promienia i 8,4 m wysokości, a ściany 17,5 m.
+  Kule, ruch i pociski trafiają w to, co widać. Pozostałe mapy są bez zmian.
+- Stopnie ołtarza, stół, postumenty i sarkofagi są solidne. Dwa usypiska przy
+  ścianach zostały dekoracją, bo ułatwiały krążenie wokół bossa.
+
+Żywa mapa — 1 listopada 2026
+- 88 rzeczy do zniszczenia: filary, urny, chorągwie, ławy, świece, łańcuchy.
+- Filar pęka, wali się i zabiera sklepienie; przy zewnętrznej ścianie także
+  górę muru. Upadek rani demony w pobliżu, gruz zmienia trasy.
+- Zniszczenia wracają po wczytaniu, reset poligonu przywraca świat.
+- Sekcja zapisu 'destruction' ma wartość domyślną, starsze zapisy działają.
 
 
 ########################################################################

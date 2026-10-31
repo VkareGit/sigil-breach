@@ -1,0 +1,3 @@
+Portrait 2:3 image. Paint one single hanging war banner, seen perfectly straight-on and flat, in the same hand as the banners in the target painting: dark iron red cloth with a plain ivory band down each side and a faded ivory fleuron at the centre, burnt along one side, badly torn jagged lower edge with holes. The cloth fills the whole height of the frame and most of its width.
+
+Everything around the cloth, including inside the holes and tears, must be perfectly flat solid #FF00FF with no shadow.

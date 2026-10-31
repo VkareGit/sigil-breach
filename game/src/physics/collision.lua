@@ -36,10 +36,30 @@ C.pillarRadius = 0.46
 -- Heights (m) of the solid tiles: walls, the pillars' flat capitals, the
 -- roof of a covered cell, and 'outside the map' (never cleared).
 C.heights = { wall = 4.2, pillar = 4.8, roof = 4.175, outside = 1000 }
+-- A map with taller architecture says so (w.solidTop, from the map's solids):
+-- { wall, pillar, radius, cells = { [z] = { [x] = top } } }; cells are masonry
+-- that has fallen. Round pillars of that map have its radius.
+function C.pillarOf(w)
+  local own = w and w.solidTop
+  return own and own.radius or C.pillarRadius
+end
+-- How far beyond a body's own radius to look for tiles: a shaft wider than its
+-- cell stands partly in the cells around it.
+local function search(w, r)
+  return r + max(0, C.pillarOf(w) - 0.5)
+end
 -- The top of a cell's solid (tile nil: outside the map).
-function C.top(tile)
+function C.top(tile, w, x, z)
   local H = C.heights
-  return not tile and H.outside or (tile == 2 and H.pillar or H.wall)
+  if not tile then
+    return H.outside
+  end
+  local own = w and w.solidTop
+  if own then
+    local row = own.cells and own.cells[z]
+    return row and row[x] or (tile == 2 and own.pillar or own.wall)
+  end
+  return tile == 2 and H.pillar or H.wall
 end
 local function pillar(w, x, z)
   return w.map[z] and w.map[z][x] == 2
@@ -52,11 +72,12 @@ function C.solid(w, x, z, r, feet, step, head)
   if x - r < 0.5 or z - r < 0.5 or x + r > Grid.width(w) + 0.5 or z + r > Grid.depth(w) + 0.5 then
     return true
   end
-  for tz = math.floor(z - r + 0.5), math.floor(z + r + 0.5) do
-    for tx = math.floor(x - r + 0.5), math.floor(x + r + 0.5) do
+  local reach = search(w, r)
+  for tz = math.floor(z - reach + 0.5), math.floor(z + reach + 0.5) do
+    for tx = math.floor(x - reach + 0.5), math.floor(x + reach + 0.5) do
       if occupied(w, tx, tz, feet, step, head) then
         if pillar(w, tx, tz) then
-          local R = C.pillarRadius + r
+          local R = C.pillarOf(w) + r
           if (x - tx) ^ 2 + (z - tz) ^ 2 < R * R - EPS then
             return true
           end
@@ -105,14 +126,15 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
   if length2 < EPS * EPS then
     return
   end
-  local x1 = max(0, math.floor(min(x, x + dx) - r + 0.5))
-  local x2 = min(Grid.width(w) + 1, math.floor(max(x, x + dx) + r + 0.5))
-  local z1 = max(0, math.floor(min(z, z + dz) - r + 0.5))
-  local z2 = min(Grid.depth(w) + 1, math.floor(max(z, z + dz) + r + 0.5))
+  local reach = search(w, r)
+  local x1 = max(0, math.floor(min(x, x + dx) - reach + 0.5))
+  local x2 = min(Grid.width(w) + 1, math.floor(max(x, x + dx) + reach + 0.5))
+  local z1 = max(0, math.floor(min(z, z + dz) - reach + 0.5))
+  local z2 = min(Grid.depth(w) + 1, math.floor(max(z, z + dz) + reach + 0.5))
   for tz = z1, z2 do
     for tx = x1, x2 do
       if pillar(w, tx, tz) then
-        local R = C.pillarRadius + r
+        local R = C.pillarOf(w) + r
         local rx, rz = x - tx, z - tz
         local b = rx * dx + rz * dz
         local c = rx * rx + rz * rz - R * R
@@ -200,8 +222,9 @@ local function separate(w, o, r, feet, step)
       return true
     end
     local best, bx, bz
-    for tz = max(0, math.floor(o.z - r + 0.5)), min(Grid.depth(w) + 1, math.floor(o.z + r + 0.5)) do
-      for tx = max(0, math.floor(o.x - r + 0.5)), min(Grid.width(w) + 1, math.floor(o.x + r + 0.5)) do
+    local reach = search(w, r)
+    for tz = max(0, math.floor(o.z - reach + 0.5)), min(Grid.depth(w) + 1, math.floor(o.z + reach + 0.5)) do
+      for tx = max(0, math.floor(o.x - reach + 0.5)), min(Grid.width(w) + 1, math.floor(o.x + reach + 0.5)) do
         if occupied(w, tx, tz, feet, step) then
           local qx = max(tx - 0.5, min(tx + 0.5, o.x))
           local qz = max(tz - 0.5, min(tz + 0.5, o.z))
@@ -211,7 +234,7 @@ local function separate(w, o, r, feet, step)
           if pillar(w, tx, tz) then
             nx, nz = o.x - tx, o.z - tz
             d = sqrt(nx * nx + nz * nz)
-            depth = C.pillarRadius + r - d
+            depth = C.pillarOf(w) + r - d
             if d > EPS then
               nx, nz = nx / d, nz / d
             else

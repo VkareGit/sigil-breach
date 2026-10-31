@@ -1,0 +1,3 @@
+STYLE (non-negotiable): the first attached image is the approved target painting. Match its exact pigments, value range and hand: dry matte medieval fresco, broad deliberate brush masses, iron red, burnt umber, dirty limestone ochre, charcoal, restrained ash ivory, visible chipped plaster. Coarse shapes that read at game resolution, not micro detail. This is one surface of one building, so its colours must sit next to that painting without any seam. No photoreal rendering, no gloss, no airbrush, no lens blur, no text, no letters, no invented occult symbols.
+
+Paint the surface evenly and neutrally lit, with no cast shadows or vignette and no perspective: light in the game is added later. Dark values may appear only where the paint itself is dark.

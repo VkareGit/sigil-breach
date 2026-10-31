@@ -35,7 +35,7 @@ local function separation(x, y, z, cx, cz, top, pillar, bottom)
   if pillar then
     local vx, vz = x - cx, z - cz
     local d = sqrt(vx * vx + vz * vz)
-    local s = d > 0 and min(1, Collision.pillarRadius / d) or 1
+    local s = d > 0 and min(1, pillar / d) or 1
     qx, qz = cx + vx * s, cz + vz * s
   else
     qx, qz = max(cx - 0.5, min(cx + 0.5, x)), max(cz - 0.5, min(cz + 0.5, z))
@@ -87,7 +87,7 @@ local function first(distance, lo, hi, radius, dx, dy, dz)
   return entry, { -dx, -dy, -dz }
 end
 local function contact(ox, oy, oz, dx, dy, dz, cx, cz, top, pillar, radius, limit, bottom)
-  local extent = (pillar and Collision.pillarRadius or 0.5) + radius
+  local extent = (pillar or 0.5) + radius
   local lo, hi = slab(0, limit, ox, dx, cx - extent, cx + extent)
   if not lo then
     return nil
@@ -155,8 +155,9 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
       local tile = w.map[z] and w.map[z][x]
       local elevation = Ground.cell(w, x, z)
       if not tile or tile > 0 or elevation > 0 then
-        local top = elevation + (tile == 0 and floorSurface or Collision.top(tile))
-        local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, tile == 2, radius, best)
+        local top = elevation + (tile == 0 and floorSurface or Collision.top(tile, w, x, z))
+        local pillar = tile == 2 and Collision.pillarOf(w)
+        local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, pillar, radius, best)
         if t and (t < best or kind == 'range') then
           best, normal, kind = t, n, 'wall'
         end

@@ -33,6 +33,8 @@ local Death = require('src.feedback.death_response')
 -- and the hands. A
 -- new kind of thing on screen belongs to one pass; the passes share only
 -- the renderer and the session. pass.draw(r, g, time, view).
+local Halls = require('src.render.kit.halls')
+local Environment = require('src.content.art.environment')
 local Ash = require('src.render.passes.ash')
 R.passes = {
   require('src.render.passes.architecture'),
@@ -407,7 +409,16 @@ function R:sky(g)
   s:send('projectionScale', self.projection)
   s:send('time', g.time or 0)
   love.graphics.setShader(s)
-  local look = g.world.decor and g.world.decor.atmosphere
+  local decor = g.world.decor
+  local look = decor and decor.atmosphere
+  local horizon = decor and decor.horizon and Environment[decor.horizon]
+  s:send('horizon', horizon and self.resources:image(horizon.path, horizon) or self.horizon)
+  s:send('gain', look and look.skyGain or 0.54)
+  s:send('smoke', look and look.skySmoke or 0)
+  local zenith = decor and decor.zenith and Environment[decor.zenith]
+  if zenith then
+    s:send('zenith', self.resources:image(zenith.path, zenith))
+  end
   if look then
     love.graphics.setColor(look.sky)
   else
@@ -510,12 +521,14 @@ function R:drawBodies()
 end
 function R:prepareWorld(g, checkpoint)
   assert(not self.released, 'renderer has been released')
-  if self.meshWorld ~= g.world or self.meshRevision ~= g.world.geometryRevision then
+  local revision = g.world.viewRevision or g.world.geometryRevision
+  if self.meshWorld ~= g.world or self.meshRevision ~= revision then
     local resources = Resources.new('renderer world geometry')
     local mesh = WorldMesh.prepare(g.world, resources)
+    local halls = Halls.prepare(g.world, resources, self.resources)
     local previous = self.worldResources
-    self.worldResources, self.worldMesh = resources, mesh
-    self.meshWorld, self.meshRevision = g.world, g.world.geometryRevision
+    self.worldResources, self.worldMesh, self.hallMeshes = resources, mesh, halls
+    self.meshWorld, self.meshRevision = g.world, revision
     if previous then
       previous:release()
     end

@@ -5,6 +5,9 @@
 local Catalog = {
   { 'ShotFired', 'the knight pulled a trigger {weapon, pellets}' },
   { 'VolleyResolved', 'a shot was applied to every body it reached {report, results}' },
+  { 'SceneryStruck', 'a breakable took a blow and stands {id,thing,x,y,z,share}' },
+  { 'SceneryBroken', 'a breakable was destroyed {id,thing,x,y,z}' },
+  { 'StructureCollapsed', 'a support fell with what it carried {id,thing,x,y,z}' },
   { 'BodyHit', 'a demon lost health {enemy, health, source}' },
   { 'ObservationUsed', 'a shot resolved against a displayed observation {observation}' },
   { 'EffectApplied', 'a damaging contact applied an effect {target, definition}' },

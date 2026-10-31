@@ -1,0 +1,3 @@
+Square image. Paint a flat unrolled texture of a massive round church column built from stacked limestone drums: about five wide horizontal courses, with thick dark mortar joints and blocks staggered between courses. Colour: dirty ash-grey and pale ochre limestone with charcoal soot streaks. There is absolutely no red paint, no blood and no stains of red on this stone. Only broad worn tonal patches, a few cracks and chipped edges.
+
+No perspective, no curvature and no cylinder shading: this is the flat unwrapped surface. The texture must tile seamlessly on all four edges.

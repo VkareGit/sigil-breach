@@ -1,0 +1,7 @@
+Square image. Paint one flat, perfectly straight-on wall elevation. No perspective at all.
+
+The second attached image is an exact layout template, and its shapes are real 3D geometry in the game. Keep every boundary exactly where it is drawn, to the pixel. Fill the whole frame edge to edge. The template colours are only a plan: paint over them completely.
+
+Everything that is pure magenta in the template must stay perfectly flat solid #FF00FF with no gradient and no shadow: nothing is painted there.
+
+This is the east wall of the nave above the small arch into the sanctuary; do not paint inside the magenta opening. Paint a ring of limestone voussoirs around the opening. Above it the whole wall holds one vast solemn medieval fresco: a great enthroned robed figure in a pointed mandorla at the top centre, ordered rows of small haloed saints on either side, and below them rows of small robed mourners turned towards the arch. Thin red and ivory borders. Ordered and deliberate: crisp thin red and ivory painted bands, clean limestone courses, and only a few controlled areas of damage. No random red splashes or blotches.

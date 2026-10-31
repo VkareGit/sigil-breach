@@ -1,0 +1,1 @@
+Landscape 3:2 image. Paint a flat straight-on texture for the low walls of a burial crypt: rough limestone courses, a red dado band at the bottom, three rows of small dark burial niches with skulls and bones in the middle of the wall. The left and right edges must tile seamlessly. Dark, cold, sparse.

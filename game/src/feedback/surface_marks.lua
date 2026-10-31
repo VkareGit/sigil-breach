@@ -28,7 +28,8 @@ function S.mount(world, c)
       surface = 'ceiling'
     else
       -- A cap is a wall's or a pillar's (an unknown cell reads as wall).
-      y = Collision.top(cell(world, x, z) or 1) + 0.004
+      local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
+      y = Collision.top(cell(world, x, z) or 1, world, cx, cz) + 0.004
       surface = 'cap'
     end
   else
@@ -36,6 +37,10 @@ function S.mount(world, c)
     -- Mount onto the visible panel, not inside the ideal ballistic cylinder.
     local cx, cz = math.floor(x - nx * 0.12 + 0.5), math.floor(z - nz * 0.12 + 0.5)
     if not cell(world, cx, cz) or cell(world, cx, cz) == 0 then
+      return
+    end
+    -- Fallen masonry leaves nothing to mark at this height.
+    if y > Collision.top(cell(world, cx, cz), world, cx, cz) then
       return
     end
     if abs(nx) >= abs(nz) then

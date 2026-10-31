@@ -6,10 +6,18 @@ local Telemetry = require('src.combat.telemetry')
 local Modes = require('src.run.modes')
 local Pools = require('src.session.world')
 local Corpse = require('src.enemies.corpse')
+local Destruction = require('src.combat.destruction')
 local World = {}
 -- Presentation updates keep their place inside the step (their timing is
 -- part of how effects look); without a presentation they do nothing.
 World.effects = Presentation.stage('effects')
+-- A body walking through something fragile breaks it (combat/destruction.lua).
+World.scenery = {
+  name = 'scenery',
+  run = function(g)
+    Destruction.step(g)
+  end,
+}
 World.transientsBefore = Presentation.stage('transientsBefore')
 World.telemetry = {
   name = 'telemetry',

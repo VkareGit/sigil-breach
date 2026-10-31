@@ -5,6 +5,7 @@ local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
 local Roof = require('src.physics.roof_cell')
+local Halls = require('src.render.kit.halls')
 local Geometry = {}
 -- The weak map names worlds but owns no native resources. A live simulation
 -- world must not keep a mesh alive after its last renderer has closed.
@@ -22,19 +23,25 @@ local function roofCell(v, w, x, z, deck)
     M.tri(v, p[1], p[2], p[3], stone)
     M.tri(v, p[1], p[3], p[4], stone)
   end
-  M.quad(
-    v,
-    { x - 0.5, top, z - 0.5 },
-    { x - 0.5, top, z + 0.5 },
-    { x + 0.5, top, z + 0.5 },
-    { x + 0.5, top, z - 0.5 },
-    stone
-  )
+  -- A hall open to the sky sees over the walls: the outer shell of the other
+  -- roofs must not rise behind it. Steps between vaults stay.
+  local shell = not (w.decor and w.decor.halls)
+  if shell then
+    M.quad(
+      v,
+      { x - 0.5, top, z - 0.5 },
+      { x - 0.5, top, z + 0.5 },
+      { x + 0.5, top, z + 0.5 },
+      { x + 0.5, top, z - 0.5 },
+      stone
+    )
+  end
   for i, d in ipairs({ { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } }) do
     local j = i % 4 + 1
     local shared = false
     local highA, highB = top, top
-    for _, other in ipairs(Ground.decks(w, x + d[1], z + d[2]) or {}) do
+    local beside = Ground.decks(w, x + d[1], z + d[2])
+    for _, other in ipairs(beside or {}) do
       local h = other[3]
       if h and other[2] == top then
         -- Opposite edge, reversed orientation, at the exact shared vertices.
@@ -43,7 +50,7 @@ local function roofCell(v, w, x, z, deck)
         shared = shared or (highA <= p[i][2] + 1e-8 and highB <= p[j][2] + 1e-8)
       end
     end
-    if not shared then
+    if not shared and (shell or beside) then
       local a, b = p[i], p[j]
       local da, db = highA - a[2], highB - b[2]
       -- If the exposed step crosses this edge, clip at the crossing instead
@@ -83,6 +90,9 @@ local function build(w)
   end
   for z = 1, Grid.depth(w) do
     for x = 1, Grid.width(w) do
+      if Halls.covers(w, x, z) then
+        goto continue
+      end
       if w.map[z][x] == 0 then
         local elevation = Ground.cell(w, x, z)
         M.quad(
@@ -151,13 +161,14 @@ local function build(w)
         M.cone(v, x, 4.3, z, 0.68, 0.45, 0.5, stone, 8)
         raise(first, x, z)
       end
+      ::continue::
     end
   end
   -- Decks (plan v10 V3): each slab's top, underside and the edges no
   -- neighbouring cell of the same deck hides.
   for z = 1, Grid.depth(w) do
     for x = 1, Grid.width(w) do
-      for _, deck in ipairs(Ground.decks(w, x, z) or {}) do
+      for _, deck in ipairs(not Halls.covers(w, x, z) and Ground.decks(w, x, z) or {}) do
         if deck[3] then
           roofCell(v, w, x, z, deck)
         else
@@ -249,12 +260,14 @@ local function build(w)
     raise(first, aisle.x, aisle.z, aisle.y)
   end
   for _, s in ipairs(w.seals) do
-    local first = #v + 1
-    M.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
-    M.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
-    M.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
-    M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
-    raise(first, s.x, s.z)
+    if not Halls.covers(w, math.floor(s.x + 0.5), math.floor(s.z + 0.5)) then
+      local first = #v + 1
+      M.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
+      M.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
+      M.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
+      M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
+      raise(first, s.x, s.z)
+    end
   end
   local portal = decor.portal
   if portal then
@@ -323,11 +336,12 @@ function Geometry.prepare(w, owner)
     serial = serial + 1
     identities[w] = serial
   end
-  local key = 'world geometry|' .. identities[w] .. '|' .. tostring(w.geometryRevision)
+  local revision = w.viewRevision or w.geometryRevision
+  local key = 'world geometry|' .. identities[w] .. '|' .. tostring(revision)
   return owner:retain(key, function()
     return build(w)
   end, function(mesh)
     mesh:release()
-  end, { kind = 'generated world geometry', revision = w.geometryRevision })
+  end, { kind = 'generated world geometry', revision = revision })
 end
 return Geometry
