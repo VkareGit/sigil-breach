@@ -27,6 +27,7 @@ src/run/mode_views.lua 1
 src/run/modes.lua 1
 src/run/spawner.lua 2
 src/run/test_field.lua 3
+src/session/interactions.lua 1
 src/session/journal.lua 1
 src/ui/descent.lua 1
 src/ui/hud.lua 1

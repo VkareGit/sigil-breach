@@ -91,6 +91,11 @@ return {
   navigation = { window = 32, sector = 16, classes = { 0.6, 1.6 }, heights = { 2.4, 3.6 } },
   -- Health of a supply that names no amount.
   healthPickup = 25,
+  -- Rounds found by a knight with none left before a guardian, and where.
+  mercy = {
+    rounds = 6,
+    offsets = { { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 }, { 1, 1 }, { -1, -1 } },
+  },
   -- Reach (m): the Ember's rest and trade, a supply taken from the floor.
   reach = { ember = 2.8, supply = 0.7 },
   killAmmo = 4,

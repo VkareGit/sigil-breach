@@ -161,7 +161,7 @@ function Tests.run(G, check)
   g = fresh()
   e = g:spawn('stolas', 16, 20)
   local packet = Archetypes.stolas.attacks[1].packet
-  Attacks.begin(g, e, 5)
+  Attacks.begin(g, e, 5, Archetypes.stolas.attacks[1])
   g.player.x = 18
   Attacks.execute(g, e)
   check(

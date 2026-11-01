@@ -1,4 +1,5 @@
 -- Input-level whole-run diagnostic. Perfect knowledge/aim is intentional; no resource cheats.
+local Learned = require('qa.souls_bot')
 local W = require('src.world.arena')
 local B = require('src.combat.ballistics')
 local Run = require('src.run.descent')
@@ -95,6 +96,7 @@ function S.run(G, human, observer, defence)
   local population = type(human) == 'table'
   human = population and human or (human and humanModel or nil)
   local noticed, noticedFor = nil, 0
+  local learned = {}
   local g = G.new('descent')
   g.testing = true
   g:start()
@@ -308,13 +310,23 @@ function S.run(G, human, observer, defence)
       dx, dz = dx / len, dz / len
     end
     local shotCount = g.player.shots
-    g:update(1 / 120, {
+    local input = {
       forward = dx * math.sin(p.yaw) + dz * math.cos(p.yaw),
       strafe = dx * math.cos(p.yaw) - dz * math.sin(p.yaw),
       shoot = visible,
       jump = visible,
       dash = dash,
-    })
+    }
+    -- A knight who has learnt the guardian: the way a fight of three acts is won.
+    if defence and defence.learned and g.run.phase == 'wave' then
+      for _, e in ipairs(g.enemies) do
+        if e.hp > 0 and require('src.content.enemies').of(e).guardian then
+          input = Learned.learning(g, learned)
+          break
+        end
+      end
+    end
+    g:update(1 / 120, input)
     if observer then
       observer(g, tick)
     end

@@ -33,6 +33,7 @@ E.phase = Schema:new('encounter phase', {
   speed = { type = 'number', default = 1, min = 0 },
   ideal = { type = 'number', min = 0, desc = 'preferred walking distance in this phase (m)' },
   tactics = { type = 'table', schema = E.tactics },
+  drops = { type = 'table', desc = 'supplies left at the threshold: { kind, amount }' },
 })
 local function tactics(spec, ids, path)
   if not spec then
@@ -59,10 +60,16 @@ local function tactics(spec, ids, path)
     )
   end
   -- Author finite strings, never a cycle that can hide the final opening.
-  local edges = {}
+  local edges, flows = {}, {}
+  -- A blow reached through a string is chosen by that string, not by a move.
+  for _, attack in pairs(ids) do
+    if attack.string then
+      flows[attack.string.into] = true
+    end
+  end
   for _, move in ipairs(spec.moves) do
     assert(
-      not move.after or seen[move.after.attack],
+      not move.after or seen[move.after.attack] or flows[move.after.attack],
       path .. ': follow-up predecessor not in moves'
     )
     edges[move.attack] = move.after and move.after.attack or nil

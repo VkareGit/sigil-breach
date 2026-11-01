@@ -164,6 +164,10 @@ function Creature.define(def)
   local parent = def.extends
   local merged = parent and Schema.inherit(parent, def) or Schema.copy(def)
   merged.extends = nil
+  -- A child with attacks of its own decides among them itself.
+  if def.attacks and not def.tactics then
+    merged.tactics = nil
+  end
   merged.catalog = def.catalog or {}
   merged.attacks = actionsOf(parent, def.attacks)
   merged.kind = merged.kind or merged.id

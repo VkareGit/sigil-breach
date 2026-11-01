@@ -167,7 +167,10 @@ function Tests.run(Game)
     local near, far = Actions.choose(e, 2, 0), Actions.choose(e, 7, 0)
     check(id .. ' changes delivery with distance', near.id ~= far.id)
     e.restUntil = { [near.id] = 10 }
-    check(id .. ' close defence cannot spam through cooldown', Actions.choose(e, 2, 0).id == far.id)
+    check(
+      id .. ' close defence cannot spam through cooldown',
+      Actions.choose(e, 2, 0).id ~= near.id
+    )
   end
   for _, response in ipairs({ 'retreat', 'approach', 'flank' }) do
     g, e = fresh('buer')

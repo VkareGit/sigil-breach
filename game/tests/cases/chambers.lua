@@ -196,7 +196,7 @@ function Tests.run(Game)
         and g.testField.roomTrial.status == 'active'
     )
     local def = require('src.content.enemies').of(body)
-    if def.phases then
+    if def.phases and def.phases[2].refill then
       g:damageEnemy(body, body.hp, 'weapon')
       Field.update(g, 0.01)
       check(

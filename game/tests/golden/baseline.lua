@@ -49,11 +49,15 @@
 -- Only the four old creature definitions on the current engine reproduce all
 -- six previous hashes: work/closure-28/golden-attribution/evidence/.
 -- Geometry and HP were not inflated; v033 fixture files remain unchanged.
+-- Souls S2-S4: the six creatures fight by the plan of game/docs/PLAN-WALKA-SOULS.md
+-- (harder blows, strings, three acts of a guardian) and a guardian spills supplies
+-- at its thresholds. The engine of S1 reproduced 6/6 former digests before this
+-- content was laid on it; v033 fixture files remain unchanged.
 return {
-  playtest = '36bcd2cb/1b7f9d35',
-  human = 'f2ce0fcf/5eb6fa97',
-  drill = '58d7c0f4/7adcb216',
-  playtestContacts = '697b04fd/350',
-  humanContacts = '6568fd4a/740',
-  drillContacts = 'd1f949e0/182',
+  playtest = '8b24e506/3edc4c25',
+  human = '54331094/29989d47',
+  drill = '12e620d8/f5e3b2fd',
+  playtestContacts = 'd85cea04/606',
+  humanContacts = '541faa1d/874',
+  drillContacts = '14671959/272',
 }

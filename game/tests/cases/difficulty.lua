@@ -37,7 +37,7 @@ function Tests.run(G, check)
     Rules.packet(base, claw) == claw
       and near(Rules.packet(t3, claw).base, claw.base * (1 + 2 * D.tiers.damage))
       and Rules.packet(t3, claw) == Rules.packet(t3, claw)
-      and claw.base == 20
+      and claw.base == 28
   )
   local ok = true
   for _, id in ipairs({ 'imp', 'armored', 'stolas', 'buer', 'boss', 'furfur' }) do

@@ -158,7 +158,9 @@ local function passing(g, h, previousPlayer, delivery, dt, test)
   local effectSource = h.packet and h.packet.effects and { side = h.side or 'demons', id = h.owner }
     or nil
   Bodies.each(g, function(b)
-    if (h.hits and h.hits[b.id]) or not Bodies.harms(g, h.side or 'demons', b, 'hazard') then
+    -- A hand-made knight has no id; it is the only one then.
+    local key = b.id or 'knight'
+    if (h.hits and h.hits[key]) or not Bodies.harms(g, h.side or 'demons', b, 'hazard') then
       return false
     end
     local previous = b == Bodies.controlled(g) and previousPlayer or Bodies.previous(g, b)
@@ -167,7 +169,7 @@ local function passing(g, h, previousPlayer, delivery, dt, test)
     local ghost = not hit and Dodge.afterimage(g, b)
     if hit or (ghost and test(b, ghost)) then
       h.hits = h.hits or {}
-      h.hits[b.id] = true
+      h.hits[key] = true
     end
     if hit then
       contact.kind, contact.id, contact.owner, contact.target = 'hazard', h.id, h.owner, b.id

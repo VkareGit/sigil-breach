@@ -212,6 +212,7 @@ Action.kinds:register(
     radius = { type = 'number', required = true, min = 0 },
     life = { type = 'number', required = true, min = 0 },
     pulse = { type = 'number', required = true, min = 0 },
+    condition = { type = 'string', desc = 'condition on a body standing in it' },
   }, { 'packet' })
 )
 -- What a burning cut leaves on the floor where it passed.
@@ -452,6 +453,10 @@ hook('pattern', function(built, path)
   for _, mark in ipairs(built.marks) do
     assert(mark.delay > 0, path .. ': every released mark needs a warning')
   end
+  assert(
+    not built.condition or require('src.content.conditions').find(built.condition),
+    path .. '.condition: unknown condition ' .. tostring(built.condition)
+  )
 end)
 hook('pool', function(built, path)
   Area.validate(built.pool.volume, path .. '.pool.volume')

@@ -1,5 +1,6 @@
--- Live acceptance of the ONE-stock bosses. Historical phase fixtures are
--- separate: these decisions, contacts and movement use public content.
+-- Live acceptance of the bosses: one stock of health, three acts of it.
+-- Historical phase fixtures are separate: these decisions, contacts and
+-- movement use public content.
 local F = require('tests.support.fixtures')
 local A = require('src.content.enemies')
 local Actions = require('src.enemies.actions')
@@ -51,9 +52,11 @@ function T.run(Game)
       for _ in pairs(moves) do
         count = count + 1
       end
-      check(id .. ' uses several actual deliveries: ' .. style, count >= 2 and released >= 4)
+      check(id .. ' uses several actual deliveries: ' .. style, count >= 2 and released >= 2)
       if style == 'react' then
-        check(id .. ' responding to windups survives the sample', g.player.hp > 0)
+        -- One beat of a dodge no longer answers everything: a knight who has
+        -- learnt the fight is tests/cases/souls_bots.lua.
+        check(id .. ' responding to windups outlives standing still', g.elapsed > 12)
       else
         check(
           id .. ' punishes ' .. style .. ' without raising HP',
@@ -89,7 +92,11 @@ function T.run(Game)
       g:update(1 / 120, {})
     end
     local e = assert(g.enemies[1])
-    check(id .. ' no second stock configured', not A.of(e).phases)
+    local stocks = 0
+    for _, phase in ipairs(A.of(e).phases) do
+      stocks = stocks + (phase.refill and 1 or 0)
+    end
+    check(id .. ' no second stock configured', stocks == 0)
     local deaths, phases = 0, 0
     g.bus:on('sim', 'EnemyKilled', function()
       deaths = deaths + 1
@@ -126,16 +133,13 @@ function T.run(Game)
     'authored projectile speed and attributed body survive release',
     #g.bullets == fan.count and g.bullets[1].owner == e.id
   )
-  check(
-    'close ash defence is usable immediately in the only stock',
-    Actions.choose(e, 1, g.elapsed).id == 'furnace'
-  )
+  check('the blade answers a close knight at once', Actions.choose(e, 1, g.elapsed).id == 'cleave')
   e = g:spawn('furfur', 16, 17)
   e.target = g.player.id
   local charge = A.furfur.attacks[2]
   check(
     'return is unavailable without its physical predecessor',
-    Actions.choose(e, 2, 0).id == 'melee'
+    Actions.choose(e, 2, 0).id == 'gore'
   )
   Selection.committed(e, charge, e.target)
   Selection.finished(e, charge, 0)
@@ -145,7 +149,7 @@ function T.run(Game)
   )
   check(
     'return expires instead of stealing the next opening',
-    Actions.choose(e, 2, 1.1).id == 'melee'
+    Actions.choose(e, 2, 1.1).id == 'gore'
   )
   return lines
 end

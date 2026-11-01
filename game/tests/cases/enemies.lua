@@ -177,7 +177,7 @@ function Tests.run(check)
   advance(g, 0.7, 1 / 120)
   check(
     'v10 a stationary player still receives the readable close imp attack',
-    g.hitCount == 1 and g.damage == 20
+    g.hitCount == 1 and g.damage == 28
   )
   g, e = fixture('furfur')
   e.awake = true

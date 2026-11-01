@@ -54,7 +54,7 @@ chowa się gracz, a promień zatrzymuje się na stojącym kamieniu.
 Liczby są punktem wyjścia; ostateczne ustalają boty i test uczciwości.
 
 ### Żar (imp), stwór podstawowy
-HP 112 → 150. Pazur 20 → 28. Nowe: ciąg dwóch pazurów z opóźnieniem drugiego,
+HP zostaje 112: podwójne zabójstwo jedną salwą to tożsamość strzelby. Pazur 20 → 28. Nowe: ciąg dwóch pazurów z opóźnieniem drugiego,
 skok przechodzący w pazur, odskok po trafieniu. W stadzie atakuje na zmianę z flanki.
 
 ### Żelazny (armored), ciężki stwór
@@ -62,7 +62,7 @@ HP 170 → 260. Szarża 28 → 38. Nowe: szeroki zamach (`sweep`) z hyper-pancer
 zwód szarżą (`hold`), wbicie w ziemię z małą falą. Tył i nogi są słabym punktem.
 
 ### Akolita (stolas), mag
-HP 76 → 96. Gwiazda 20 → 26. Nowe: krótki teleport po dostaniu w celownik,
+HP zostaje 76: szklane działo, trudnością jest dogonienie. Gwiazda 20 → 26. Nowe: krótki teleport po dostaniu w celownik,
 trzy zawieszone gwiazdy wypuszczane kolejno, wiązka z ostrzeżeniem. Trzyma dystans
 i ucieka od zwarcia, więc trzeba go dogonić albo zmusić do błędu.
 
@@ -71,13 +71,13 @@ HP 150 → 220. Nowe: narastająca trucizna (`buildup`), korzenie zatrzymujące 
 spóźniony wybuch kałuży. Odcina drogi i zmusza do ruchu.
 
 ### Margrabia Popiołu (boss)
-HP 1000 → 1600, trzy etapy (100/66/33 %). Ciosy wręcz tasakiem: dwu- i trzyciosowe
+HP 1000 → 2400, trzy etapy (100/66/33 %), na progach zapasy. Ciosy wręcz tasakiem: dwu- i trzyciosowe
 ciągi z opóźnieniem, pochwycenie, doskok z falą. Etap 2: płonące cięcia zostawiające
 ogień na linii, wezwanie dwóch Żarów. Etap 3: nowa szybkość ciągów i wielka
 fala z absydy, po której boss jest długo odsłonięty.
 
 ### Furfur (boss)
-HP 1400 → 2000, trzy etapy. Szarża z dwiema zmianami kierunku, ciosy porożem w
+HP 1400 → 2800, trzy etapy, na progach zapasy. Szarża z dwiema zmianami kierunku, ciosy porożem w
 ciągach, burza w miejscach, gdzie gracz był przed chwilą. Etap 2: krzyż piorunów
 idący ku graczowi, odskok z kontrpiorunem. Etap 3: burza na całej sali z bezpiecznym
 kręgiem, który wędruje.

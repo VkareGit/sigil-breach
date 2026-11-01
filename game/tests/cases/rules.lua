@@ -101,10 +101,14 @@ function Tests.run(G, check)
   )
   check('armour per hit location protects only that location', near(head, 35) and near(body, 70))
   local all = true
-  for _, id in ipairs({ 'imp', 'armored', 'stolas', 'buer' }) do
+  for _, id in ipairs({ 'imp', 'stolas', 'buer' }) do
     all = all and (A[id].body.soak or 0) == 0 and A[id].body.locationArmor == nil
   end
   check('current archetypes keep the calibrated 0.13 damage (no soak, one rating)', all)
+  check(
+    'the iron thrall is open at the legs',
+    A.armored.body.locationArmor.lower < A.armored.body.armor
+  )
   -- 0.24 boss weak points: the torso keeps the old rating (body shots are
   -- unchanged), the bare skull carries none, the legs carry more.
   local points = true

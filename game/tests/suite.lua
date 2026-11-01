@@ -46,6 +46,11 @@ Suite.registry = {
     module = 'tests.cases.attack_followups',
   },
   {
+    id = 'souls-bots',
+    title = 'Careless and learning knights against every encounter and every blow',
+    module = 'tests.cases.souls_bots',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

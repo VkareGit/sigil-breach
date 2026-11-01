@@ -13,6 +13,7 @@ local Archetypes = require('src.content.enemies')
 local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
+local Spawn = require('src.session.spawn')
 local Destruction = require('src.combat.destruction')
 local Reactions = require('src.combat.reactions')
 local K = Tuning.rewards
@@ -92,8 +93,25 @@ local function hitStop(g, event)
     g.worldStop = math.max(g.worldStop or 0, stop)
   end
 end
+-- A wounded guardian spills what it took: the fight must not end on empty guns.
+local function spill(g, event)
+  local stage = Archetypes.phase(event.enemy)
+  for i, drop in ipairs(stage and stage.drops or {}) do
+    local e = event.enemy
+    Spawn.make(g, 'pickup', {
+      x = e.x + i * K.dropSpacing,
+      z = e.z,
+      level = e.level,
+      kind = drop.kind,
+      amount = drop.amount,
+    })
+  end
+end
 function Listeners.attach(g)
   local bus = g.bus
+  bus:on('sim', 'EnemyPhaseChanged', function(e)
+    spill(g, e)
+  end)
   bus:on('sim', 'VolleyResolved', function(e)
     Destruction.volley(g, e)
   end, Tuning.scenery.listenerOrder)

@@ -318,7 +318,7 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   e = g:spawn('stolas', 16, 22)
   e.attack = 0
   e.awake = true
-  tick(0.95)
+  tick(1.1)
   check('caster launches visible projectile', #g.bullets > 0)
   tick(1.5)
   check('projectile connects', g.player.hp < 100)

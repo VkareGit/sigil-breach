@@ -25,7 +25,7 @@ return Creature.define({
     evadeArt = 'evade',
   },
   -- One volley at 8 m (~81) or one Judge head shot (94.5) kills; a Judge
-  -- body shot (70) does not.
+  -- body shot (70) does not. Catching it is the difficulty, not its health.
   body = {
     hp = 76,
     resist = { astral = 0.25 },
@@ -45,6 +45,9 @@ return Creature.define({
     moves = {
       { attack = 'star', ideal = 7, weight = 1 },
       { attack = 'talon-fan', ideal = 2.8, max = 4.2, weight = 2.5 },
+      { attack = 'star-trio', ideal = 6, min = 3.5, weight = 1.4 },
+      { attack = 'star-ray', ideal = 6, min = 3, weight = 1.1 },
+      { attack = 'slip', ideal = 1.5, max = 3.2, weight = 5 },
     },
   },
   attacks = {
@@ -59,7 +62,7 @@ return Creature.define({
       aimLead = 1,
       leadFloor = 0.9,
       color = { 0.72, 0.58, 0.34 },
-      packet = packet(20, 40, 'astral'),
+      packet = packet(26, 40, 'astral'),
     }),
     -- Readably wider at close range; no health/armour inflation. Bait it,
     -- change direction after the cast, then punish its longer recovery.
@@ -78,7 +81,49 @@ return Creature.define({
       rageCount = 3,
       spread = 0.28,
       color = { 0.72, 0.58, 0.34 },
-      packet = packet(20, 40, 'astral'),
+      packet = packet(26, 40, 'astral'),
+    }),
+    -- Three stars let go in turn: keep moving through all of them. It stays
+    -- bound to the cast until the last has left.
+    Action.salvo({
+      id = 'star-trio',
+      range = 10,
+      rest = 5,
+      windup = 0.95,
+      speed = 10,
+      count = 3,
+      interval = 0.42,
+      duration = 0.3,
+      recover = 1.05,
+      cooldown = 1.1,
+      color = { 0.72, 0.58, 0.34 },
+      packet = packet(26, 40, 'astral'),
+    }),
+    -- A ray across the floor, warned along its whole length.
+    Action.beam({
+      id = 'star-ray',
+      range = 9,
+      rest = 8,
+      windup = 0.9,
+      delay = 0.55,
+      length = 9,
+      arc = 1.5,
+      spin = 1.7,
+      duration = 0.5,
+      recover = 1.3,
+      cooldown = 1.4,
+      packet = packet(32, 50, 'astral'),
+    }),
+    -- It will not be caught: gone, and behind a shoulder.
+    Action.blink({
+      id = 'slip',
+      range = 3.2,
+      rest = 5,
+      windup = 0.34,
+      distance = 6,
+      duration = 0.2,
+      recover = 0.5,
+      cooldown = 0.5,
     }),
   },
 })

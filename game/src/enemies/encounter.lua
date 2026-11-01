@@ -16,6 +16,10 @@ function Encounter.advance(g, e)
     if not nextPhase or e.hp > e.maxHp * nextPhase.at then
       break
     end
+    -- The killing blow crosses no threshold: nothing is left to change.
+    if e.hp <= 0 and not nextPhase.refill then
+      break
+    end
     -- A hit may cross several thresholds. At a new health stock excess
     -- damage is discarded, never carried to the next life.
     e.phaseBaseHp = e.phaseBaseHp or e.maxHp

@@ -1,6 +1,8 @@
 -- The supplies every mode lays out (health, ammunition) and how the knight
 -- takes them. What [E] does and says is each mode's own (the classic arena:
 -- run/classic.lua, plan v11 E2; the proving ground, the expedition).
+local Archetypes = require('src.content.enemies')
+local Spawn = require('src.session.spawn')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local World = require('src.world.arena')
@@ -56,8 +58,41 @@ Interactions.supplies = {
     end,
   },
 }
+-- A guardian is never fought with empty hands: a knight out of rounds finds
+-- some where it can reach them, one bundle at a time.
+local function mercy(g, player)
+  for _, state in pairs(player.arsenal) do
+    if state.mag + state.reserve > 0 then
+      return
+    end
+  end
+  local guardian = false
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    guardian = guardian or (e.hp > 0 and Archetypes.of(e).guardian)
+  end
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    guardian = guardian and pickup.kind ~= 'ammo'
+  end
+  if not guardian then
+    return
+  end
+  for _, offset in ipairs(Tuning.mercy.offsets) do
+    local x, z = player.x + offset[1], player.z + offset[2]
+    if not World.solid(g.world, x, z, Tuning.reach.supply) then
+      Spawn.make(g, 'pickup', {
+        x = x,
+        z = z,
+        level = player.level,
+        kind = 'ammo',
+        amount = Tuning.mercy.rounds,
+      })
+      return
+    end
+  end
+end
 function Interactions.collectSupplies(g)
   local player = Roles.controlled(g)
+  mercy(g, player)
   local pickups = Pools.of(g, 'pickups')
   for i = #pickups, 1, -1 do
     local pickup = pickups[i]

@@ -20,6 +20,7 @@ function Pattern.release(g, e, attack, angle)
         kind = attack.hazard,
         packet = packet,
         pulse = attack.pulse,
+        condition = attack.condition,
         volume = attack.volume,
         owner = e.id,
         side = Bodies.side(g, e),

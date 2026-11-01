@@ -405,7 +405,8 @@ function Tests.run(G, renderer)
       b.x >= 0 and b.y >= 0 and b.x + b.w <= 1280 and b.y + b.h <= 720
     )
   end
-  local result = require('qa.scenarios.playtest').run(G, false, nil, { projectiles = true })
+  local result =
+    require('qa.scenarios.playtest').run(G, false, nil, { projectiles = true, learned = true })
   local living = {}
   for _, body in ipairs(result.session.enemies) do
     if body.hp > 0 then
