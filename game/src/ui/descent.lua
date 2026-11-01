@@ -163,6 +163,14 @@ function D.controls(g)
       { id = 'settings', label = Text.get('menu_settings'), x = 270, y = 514, w = 194, h = 44 }
     list[#list + 1] =
       { id = 'quit', label = Text.get('menu_quit'), x = 72, y = 573, w = 194, h = 40 }
+    list[#list + 1] = {
+      id = 'field_skirmish',
+      label = Text.get('menu_skirmish'),
+      x = 270,
+      y = 573,
+      w = 194,
+      h = 40,
+    }
     return list
   elseif g.state == 'confirm_new' then
     return {

@@ -155,7 +155,7 @@ local definitions = {
   { 'shop_ready', 'READY / BEGIN' },
   { 'shop_back', 'BACK TO ARENA [ ESC ]' },
   { 'shop_weapon', '{slot} {tab} {mag} + {reserve}' },
-  { 'menu_skirmish', 'SKIRMISH [ SPACE ]' },
+  { 'menu_skirmish', 'SKIRMISH' },
   { 'menu_field', 'PROVING GROUND [ F2 ]' },
   { 'menu_help', 'HELP [ F1 ]' },
   { 'menu_settings', 'SETTINGS' },

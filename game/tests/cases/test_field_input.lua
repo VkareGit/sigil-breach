@@ -3,7 +3,7 @@ local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(get, settings, settle)
   local U = require('src.ui.interface')
-  local Run = require('src.run.descent')
+  local Sections = require('src.storage.save')
   local Save = require('src.storage.run_save')
   local lines = {}
   local check = Fixtures.checker(lines, 'sandbox controller ', '')
@@ -82,7 +82,10 @@ function Tests.run(get, settings, settle)
     draw()
   end
   local original = get()
-  local snapshot = Save.encode(Run.snapshot(original), 1)
+  local function held()
+    return Sections.encode('pilgrimage', Sections.capture('pilgrimage', original), 1)
+  end
+  local snapshot = held()
   local originalBoss = require('src.session.encounter').guardianDead(original)
   local before = files()
   key('f2')
@@ -131,7 +134,7 @@ function Tests.run(get, settings, settle)
       and field.player.hp == 100
       and field.player.arsenal.exorcist.reserve == 72
       and original.player.arsenal.exorcist.reserve ~= nil
-      and Save.encode(Run.snapshot(original), 1) == snapshot
+      and held() == snapshot
   )
   click('field_close')
   field.player.arsenal.judge.mag, field.player.arsenal.judge.reserve = 0, 7
@@ -228,7 +231,7 @@ function Tests.run(get, settings, settle)
       and not field.help
       and field.state == 'playing'
       and get() == field
-      and Save.encode(Run.snapshot(original), 1) == snapshot
+      and held() == snapshot
   )
   key('f2')
   click('field_archive')
@@ -249,7 +252,7 @@ function Tests.run(get, settings, settle)
     get() == original
       and (original.state == 'paused' or original.state == 'menu')
       and require('src.session.encounter').guardianDead(original) == originalBoss
-      and Save.encode(Run.snapshot(original), 1) == snapshot
+      and held() == snapshot
   )
   check(
     'sandbox entry, purchases and exit preserve both save generations and profile bytes',

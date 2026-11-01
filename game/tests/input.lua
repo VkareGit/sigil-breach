@@ -36,9 +36,8 @@ function Tests.run(get, settings, output, getLoading)
     end
     error('button missing: ' .. id)
   end
-  -- 0.22: the expedition is closed; the menu opens only the proving ground.
-  -- (Its controller flow — shop, map, continue, retry — returns with the mode.)
-  get().availableSave = nil
+  -- The menu walks into the chapel; the proving ground stands beside it.
+  require('src.run.pilgrimage').forget()
   U.useMouse = false
   draw()
   local ids = {}
@@ -46,27 +45,36 @@ function Tests.run(get, settings, output, getLoading)
     ids[b.id] = true
   end
   check(
-    'the menu offers the proving ground and no expedition',
-    ids.field_skirmish and ids.field_start and not ids.start and not ids.continue
+    'the menu offers the chapel and the proving ground',
+    ids.start and ids.field_skirmish and ids.field_start and not ids.restart
   )
   key('return')
   -- Every real transition completes its visible preparation with zero delta;
   -- control tests must not bypass the loader or advance combat while waiting.
   check(
-    'Enter opens a skirmish through the real controller',
-    get().state == 'playing' and get().testField and get().testField.skirmish
+    'Enter walks into the chapel through the real controller',
+    get().state == 'playing' and get().mode == 'pilgrimage'
   )
+  key('e')
+  check('E rests at the first fire', get().state == 'shop')
+  click('shop_back')
+  check('the fire is left', get().state == 'playing')
   key('escape')
-  check('Escape pauses the skirmish', get().state == 'paused')
-  click('field_leave')
-  check('the pause menu leads back to the main menu', get().state == 'menu' and not get().testField)
+  check('Escape pauses the way', get().state == 'paused')
+  click('menu')
+  check('the pause menu leads back to the main menu', get().state == 'menu')
+  check('a rest is kept for the next visit', get().run.saved)
+  check('the menu now continues', U.controls(get(), settings)[1].id == 'start')
   key('space')
-  check(
-    'Space also opens a skirmish from the menu',
-    get().state == 'playing' and get().testField and get().testField.skirmish
-  )
+  check('Space also walks in', get().state == 'playing' and get().mode == 'pilgrimage')
   key('escape')
-  click('field_leave')
+  click('menu')
+  click('restart')
+  check('a new game asks first', get().state == 'confirm_new')
+  click('new_confirm')
+  check('and begins from nothing', get().state == 'playing' and not get().run.saved)
+  key('escape')
+  click('menu')
   for _, line in ipairs(require('tests.cases.test_field_input').run(get, settings, settle)) do
     lines[#lines + 1] = line
   end
