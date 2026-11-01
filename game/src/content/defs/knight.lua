@@ -40,7 +40,6 @@ Knight.schema = Body.schema:extend('knight body', {
     min = 0,
     desc = 'invulnerability of a dodge paid with stamina (s)',
   },
-  rollLock = { type = 'number', required = true, min = 0, desc = 'no shot after a dodge (s)' },
   rollStamina = { type = 'number', required = true, min = 0, desc = 'what a dodge costs' },
   sideStep = {
     type = 'number',

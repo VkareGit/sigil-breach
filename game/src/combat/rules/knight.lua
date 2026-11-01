@@ -42,9 +42,9 @@ return function(R)
       p.guardQuiet = 0
       p.poise = (p.poise or 0) + impact
       if p.poise >= b.poise then
-        local stagger = R.staggerTime(p.poise, b.poise, b)
+        local stagger, heavy = R.staggerTime(p.poise, b.poise, b)
         p.poise = 0
-        R.addCondition(p, 'staggered', stagger)
+        R.addCondition(p, heavy and 'staggered' or 'shaken', stagger)
         Signal(g, 'PlayerStaggered', { time = stagger, actor = p.id })
         events.staggered = true
         events.staggerTime = stagger

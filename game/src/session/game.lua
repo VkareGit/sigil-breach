@@ -212,7 +212,7 @@ function Game:dash(dx, dz, who)
   if Capabilities.attrition(self) then
     Resources.exert(player, 'stamina', body.rollStamina)
     player.invuln = math.max(player.invuln, body.rollIframes)
-    player.cooldown = math.max(player.cooldown, body.rollLock)
+    player.dodgeEnds = self.elapsed + body.rollIframes
   else
     player.invuln = math.max(player.invuln, body.dashIframes)
   end

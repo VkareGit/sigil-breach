@@ -176,7 +176,7 @@ function Tests.run(G, check)
   )
   q.invuln = 0
   g2:damagePlayer(claw.base, 16, 23, claw)
-  check('a second quick claw breaks the player guard', Rules.has(q, 'staggered'))
+  check('a second quick claw breaks the player guard', Rules.has(q, 'shaken'))
   check(
     'the player stagger slows movement and then wears off',
     slow < 1 and not Rules.has(p, 'staggered')

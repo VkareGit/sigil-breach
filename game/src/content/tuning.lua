@@ -93,11 +93,12 @@ return {
     -- Route fields kept before the cache starts again: each is a table of every region.
     fieldsKept = 64,
   },
-  -- How long a press waits for the moment it can happen (s), and how a refusal is told. The fire
-  -- window outlasts the hands a dodge keeps busy (rollLock).
+  -- How long a press waits for the moment it can happen (s), and how a refusal is told.
   input = {
     jumpWindow = 0.12,
     fireWindow = 0.35,
+    -- A press older than this has waited, and takes the aim of the moment it fires.
+    freshAim = 0.12,
     dashWindow = 0.25,
     refusalTime = 0.7,
     refusalVolume = 0.25,

@@ -175,7 +175,8 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     K.spring(g.view.weaponImpactRoll or 0, g.view.weaponImpactVRoll or 0, 0, 210, 24, dt)
   -- A broken guard (condition 'staggered') drops the gun out of the aim for
   -- the stagger itself: the helpless moment is unmistakable in the hands.
-  local staggered = p.conditions and (p.conditions.staggered or 0) > 0 and 9 or 0
+  local conditions = p.conditions or {}
+  local staggered = ((conditions.staggered or 0) > 0 or (conditions.shaken or 0) > 0) and 9 or 0
   local lowered = (p.dashTimer > 0 and 4 or 0) + (p.slideTimer > 0 and 5 or 0) + staggered
   g.view.weaponLower = ease(g.view.weaponLower or 0, lowered, 15, dt)
   return footsteps

@@ -317,6 +317,7 @@ C.schemas.knight = {
   dashZ = f(nil),
   perfectUsed = f(nil),
   dodgeFromX = f(nil, 'where the dodge began: its afterimage (perfect dodge)'),
+  dodgeEnds = f(nil, 'when the safety of this dodge ends: a shot gives up what is left'),
   dodgeFromZ = f(nil),
   slideTimer = f(0),
   slideCooldown = f(0),

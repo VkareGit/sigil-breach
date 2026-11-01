@@ -100,3 +100,8 @@ Znana wada wersji 0.40 (znalazł Codex): strzał z bufora leci tam, gdzie gracz 
 6. Zapas amunicji i cała trasa między ogniskami. Cel: sprawne przejście zużywa 60–70% przydziału.
 
 Materiały źródłowe są w `work/brainstorm/`: `claude.md`, `codex-report.md`, `codex-stamina.md`.
+
+## PostÄ™p
+
+WdraÅ¼ane po kolei, kaÅ¼dy krok z commitem.
+- Krok 1: strzał, który czekał dłużej niż 0,12 s, bierze cel z chwili wystrzału. Unik nie blokuje rąk (brak `rollLock`), a strzał z uniku oddaje resztę jego ochrony. Lekkie zachwianie rycerza to `shaken`: spowalnia, nie blokuje strzału; ciężkie dalej blokuje. Strzał przerywa picie bez leczenia i bez zużycia flaski. Pociągnięcie spustu przy przeładowaniu mówi `RELOADING`.

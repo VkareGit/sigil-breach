@@ -35,9 +35,8 @@ return {
     iframes = 0.32,
     dashIframes = 0.20,
     -- Where effort is paid (session/capabilities.lua: attrition) a dodge is a real
-    -- commitment: longer, dearer, and the hands are busy through it.
+    -- commitment: longer and dearer. A shot out of one gives up what is left of its safety.
     rollIframes = 0.32,
-    rollLock = 0.3,
     rollStamina = 26,
     -- Share of his walking speed going sideways and backwards there.
     sideStep = 0.85,

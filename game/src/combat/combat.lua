@@ -3,6 +3,7 @@ local Resources = require('src.combat.resources')
 local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
 local B = require('src.combat.ballistics')
+local Cast = require('src.combat.abilities')
 local Reload = require('src.combat.reload')
 local Weapons = require('src.content.weapons')
 local Rules = require('src.combat.rules')
@@ -35,6 +36,10 @@ C.react = Hit.answer
 local function ready(g, a)
   if g.state ~= 'playing' or g.map or g.help or a.cooldown > 0 or a.hp <= 0 then
     return nil
+  end
+  -- A shot stops a drink: nothing healed, nothing paid.
+  if Rules.has(a, 'drinking') then
+    Cast.interrupt(g, a)
   end
   if Attributes.forbids(a, 'fire') then
     return nil
@@ -80,6 +85,10 @@ local function discharge(g, profile, command, p)
   p.shotSequence = p.shotSequence + 1
   p.cooldown = profile.cycle
   state.readyAt = g.elapsed + profile.cycle
+  -- Shooting out of a dodge trades what is left of its safety for the shot.
+  if (p.dodgeEnds or 0) > g.elapsed then
+    p.invuln, p.dodgeEnds = 0, 0
+  end
   -- Recoil, flash, sound and powder: feedback/shot_feedback.lua.
   if g.bus then
     local event = {

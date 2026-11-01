@@ -72,6 +72,43 @@ local function shots(check, Game)
   g:update(TICK, { dash = true, forward = 1 })
   check('but the dodge is what it cost', p.dashTimer == 0 and g.view.refusal == 'hud_no_breath')
 end
+local function hands(check, Game)
+  local g, p = fresh(Game)
+  local before = p.shots
+  g:dash(0, 1, p)
+  run(g, 0.02)
+  check('a dodge leaves the hands free', g:shoot(nil) and p.shots == before + 1)
+  check('and a shot out of it gives up its safety', p.invuln == 0)
+  g, p = fresh(Game)
+  before = p.shots
+  Rules.addCondition(p, 'shaken', 0.3)
+  check('a light stagger takes the feet, not the hands', g:shoot(nil) and p.shots == before + 1)
+  g, p = fresh(Game)
+  before = p.shots
+  p.abilityState.flask.uses = 2
+  g:cast(2)
+  check('the flask is at the lips', p.casting ~= nil)
+  check('a shot stops the drink', g:shoot(nil) and p.shots == before + 1 and not p.casting)
+  check('and the flask keeps its draught', p.abilityState.flask.uses == 2)
+  g, p = fresh(Game)
+  p.cooldown = 0.2
+  local aimed = { yaw = p.yaw + 1, pitch = 0 }
+  Intent.queue(g, 'fire', aimed)
+  local fired
+  local shoot = g.shoot
+  g.shoot = function(session, command, actor)
+    fired = command or 'now'
+    return shoot(session, command, actor)
+  end
+  run(g, 0.25)
+  check('a press that waited goes where he looks now', fired == 'now')
+  g, p = fresh(Game)
+  p.arsenal.exorcist.mag = 0
+  require('src.combat.reload').start(g, false, p)
+  Intent.queue(g, 'fire', nil)
+  run(g, 0.02)
+  check('a pull during a reload says so', g.view.refusal == 'hud_reloading')
+end
 local function sight(check, Game)
   local g, p = fresh(Game)
   local e
@@ -118,6 +155,7 @@ function T.run(Game)
   local check = F.checker(lines, 'responsiveness: ', 'responsiveness: ')
   dodges(check, Game)
   shots(check, Game)
+  hands(check, Game)
   sight(check, Game)
   P.forget()
   return lines

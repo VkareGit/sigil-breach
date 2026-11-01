@@ -12,6 +12,7 @@ local Capabilities = require('src.session.capabilities')
 local Observation = require('src.combat.observation')
 local Presentation = require('src.session.presentation')
 local Registry = require('src.core.registry')
+local Reload = require('src.combat.reload')
 local Resources = require('src.combat.resources')
 local Weapons = require('src.content.weapons')
 local function active(g)
@@ -38,6 +39,8 @@ local function refusal(g, p, act)
     return 'hud_no_breath'
   elseif act == 'dash' and p.dash < 1 then
     return 'hud_no_dodge'
+  elseif act == 'fire' and Reload.left(g, p) > 0 then
+    return 'hud_reloading'
   end
 end
 -- Say it where the eyes are, and once a moment however long the key is held.
@@ -45,7 +48,8 @@ local function tell(g, p, act)
   local reason = refusal(g, p, act)
   local view = g.view
   if reason and view and p == g.player then
-    if (view.refusalTimer or 0) <= 0 then
+    -- The hands reloading already sound like what they are doing.
+    if (view.refusalTimer or 0) <= 0 and reason ~= 'hud_reloading' then
       Presentation.cue(g, 'thud', Tuning.refusalVolume)
     end
     view.refusal, view.refusalTimer = reason, Tuning.refusalTime
@@ -136,6 +140,9 @@ function I.fire(g, dt, held, command, actor)
   local submitted = p.fireCommand
   if held then
     submitted = command
+  elseif submitted and Tuning.fireWindow - (p.fireBuffer or 0) > Tuning.freshAim then
+    -- It had to wait: it goes where he is looking now, not where he looked then.
+    submitted = nil
   end
 
   local trying = wanted(g, p, held, dt) or (p.fireBuffer or 0) > 0

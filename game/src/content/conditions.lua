@@ -40,6 +40,8 @@ function api.find(id)
   return registry:find(id)
 end
 api.register('staggered', { speed = 0.45, forbids = { 'fire' } })
+-- The light form of it on a knight: the feet go, the hands still answer.
+api.register('shaken', { speed = 0.45 })
 api.register('wounded', { speed = 0.72 })
 api.register('poisoned', { recovery = 0.5 })
 api.register('crippled', { speed = 0.65 })

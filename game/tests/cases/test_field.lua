@@ -43,7 +43,7 @@ function Tests.resetTrial(G)
   check(
     'a real blow leaves wounds, stagger, guard damage, momentum and world hit-stop',
     Rules.has(p, 'wounded')
-      and Rules.has(p, 'staggered')
+      and Rules.has(p, 'shaken')
       and p.poise == 9
       and p.guardQuiet == 0
       and (p.pushX or 0) ~= 0
@@ -95,7 +95,7 @@ function Tests.resetTrial(G)
   check(
     "clearing a wave still preserves the knight's conditions, guard and ongoing exposure",
     Rules.has(stage.player, 'wounded')
-      and Rules.has(stage.player, 'staggered')
+      and Rules.has(stage.player, 'shaken')
       and stage.player.poise == 9
       and stage.player.effectState
       and Capabilities.held(stage)
@@ -209,7 +209,7 @@ function Tests.resetTrial(G)
       and p.armor == clean.player.armor
       and near(p.pushX, clean.player.pushX)
       and near(p.pushZ, clean.player.pushZ)
-      and not Rules.has(p, 'staggered')
+      and not Rules.has(p, 'shaken')
   )
   return lines
 end
