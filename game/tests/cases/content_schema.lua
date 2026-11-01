@@ -150,7 +150,7 @@ function Tests.run(_, check)
     if not (atk.falloffEnd > atk.falloffStart and atk.minPower > 0 and atk.minPower <= 1) then
       bad('weapon ' .. slot .. ' falloff')
     end
-    if not require('src.combat.reload').mechanisms[profile.mechanism or ''] then
+    if not require('src.combat.reload').mechanisms[(profile.reload or {}).mechanism or ''] then
       bad('weapon ' .. slot .. ' has no reload mechanism')
     end
     if not Deliveries:has(profile.delivery.kind) then

@@ -127,10 +127,10 @@ function Tests.run(Game)
   -- Sealed definitions: a changed field is reported, a registry may grow.
   Definitions.seal()
   local weapon = require('src.content.weapons').get('exorcist')
-  local capacity = weapon.capacity
-  weapon.capacity = capacity + 1
+  local capacity = weapon.ammo.capacity
+  weapon.ammo.capacity = capacity + 1
   local changes = Definitions.changes()
-  weapon.capacity = capacity
+  weapon.ammo.capacity = capacity
   check(
     'a changed definition field is reported with its path',
     #changes == 1 and changes[1]:find('capacity', 1, true) ~= nil

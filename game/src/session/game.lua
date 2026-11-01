@@ -121,7 +121,7 @@ function Game:reloadGun(who)
   if Reload.start(self, false, actor) then
     return true
   end
-  local mag, reserve = Weapons.ammo(self, nil, actor)
+  local mag, reserve = Weapons.meter(self, nil, actor)
   if mag == 0 and reserve == 0 then
     actor.cooldown = 0.20
     if presented then

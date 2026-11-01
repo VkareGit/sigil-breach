@@ -48,23 +48,19 @@ Interactions.supplies = {
   ammo = {
     wanted = function(player, pickup)
       local def, state = ammoFor(player, pickup)
-      return state ~= nil and state.reserve < def.maxReserve
+      return state ~= nil and Weapons.room(def, state) > 0
     end,
     take = function(player, pickup)
       local def, state = ammoFor(player, pickup)
-      local before = state.reserve
-      state.reserve = math.min(def.maxReserve, before + pickup.amount)
-      return Text.get('pickup_rounds', { amount = state.reserve - before })
+      return Text.get('pickup_rounds', { amount = Weapons.refill(def, state, pickup.amount) })
     end,
   },
 }
 -- A guardian is never fought with empty hands: a knight out of rounds finds
 -- some where it can reach them, one bundle at a time.
 local function mercy(g, player)
-  for _, state in pairs(player.arsenal) do
-    if state.mag + state.reserve > 0 then
-      return
-    end
+  if Weapons.left(g, player) > 0 then
+    return
   end
   local guardian = false
   for _, e in ipairs(Pools.of(g, 'enemies')) do

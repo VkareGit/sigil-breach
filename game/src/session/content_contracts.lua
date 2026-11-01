@@ -6,6 +6,7 @@ local Abilities = require('src.content.abilities')
 local Archetypes = require('src.content.enemies')
 local Deliveries = require('src.combat.weapon_delivery')
 local Reload = require('src.combat.reload')
+local Intent = require('src.player.intent')
 require('src.combat.abilities')
 local Kinds = require('src.combat.action_kinds')
 local Attacks = require('src.enemies.actions')
@@ -54,22 +55,28 @@ local function reactions(list, where)
 end
 function Contracts.weapon(definition)
   Deliveries:get(definition.delivery.kind)
-  local mechanism = Reload.mechanisms[definition.mechanism]
-  assert(
-    type(mechanism) == 'table',
-    'weapon ' .. definition.id .. ': unknown reload mechanism ' .. definition.mechanism
-  )
-  assert(
-    type(mechanism.duration) == 'number'
-      and mechanism.duration > 0
-      and mechanism.duration < math.huge,
-    'weapon ' .. definition.id .. ': invalid reload duration'
-  )
-  for _, method in ipairs({ 'offset', 'step', 'finish', 'primed', 'label' }) do
+  if definition.reload then
+    local mechanism = Reload.mechanisms[definition.reload.mechanism]
     assert(
-      type(mechanism[method]) == 'function',
-      'weapon ' .. definition.id .. ': reload needs ' .. method
+      type(mechanism) == 'table',
+      'weapon ' .. definition.id .. ': unknown reload ' .. definition.reload.mechanism
     )
+    assert(
+      type(mechanism.duration) == 'number'
+        and mechanism.duration > 0
+        and mechanism.duration < math.huge,
+      'weapon ' .. definition.id .. ': invalid reload duration'
+    )
+    for _, method in ipairs({ 'offset', 'step', 'finish', 'primed', 'label' }) do
+      assert(
+        type(mechanism[method]) == 'function',
+        'weapon ' .. definition.id .. ': reload needs ' .. method
+      )
+    end
+  end
+  assert(Intent.modes:has(definition.trigger.mode), definition.id .. ': no trigger behaviour')
+  if definition.secondary then
+    Deliveries:get(definition.secondary.delivery.kind)
   end
   effects(definition)
   reactions(definition.reactions, 'weapon ' .. definition.id)

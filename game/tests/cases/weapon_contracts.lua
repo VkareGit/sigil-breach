@@ -80,26 +80,15 @@ function Tests.run(G)
   local id = 'trial_contract'
   local ok, reason = pcall(function()
     local g = Fixtures.arena(G)
-    Weapons.define({ extends = parent, id = id, mechanism = 'missing' })
-    local created, startupError = pcall(Fixtures.arena, G)
+    local defined, definitionError = pcall(Weapons.define, {
+      extends = parent,
+      id = id,
+      reload = { mechanism = 'missing' },
+    })
     check(
-      'missing mechanism rejects a new session at content composition',
-      not created and tostring(startupError):find('unknown reload mechanism missing', 1, true)
+      'a missing mechanism is refused at definition',
+      not defined and tostring(definitionError):find('unknown reload mechanism missing', 1, true)
     )
-    Weapons.give(g, id)
-    g.player.weapon, g.player.cooldown, g.player.reload = 3, 0, 1
-    local state = Weapons.state(g)
-    local spent = state.mag
-    local fired, errorText = pcall(g.shoot, g)
-    check(
-      'missing mechanism fails before ammo or reload changes',
-      not fired
-        and tostring(errorText):find('unknown reload mechanism', 1, true)
-        and state.mag == spent
-        and g.player.reload == 1
-        and g.player.shots == 0
-    )
-    Weapons.registry:unregister(id)
     local def = Weapons.define({
       extends = parent,
       id = id,
@@ -128,7 +117,7 @@ function Tests.run(G)
         'missing executor fails before cancelling a reload',
         not fired
           and g.player.reload == 1
-          and Weapons.state(g).mag == def.capacity
+          and Weapons.state(g).mag == def.ammo.capacity
           and #g.bullets == 0
       )
     end)

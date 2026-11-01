@@ -31,7 +31,7 @@ function Tests.run(Game)
     return Weapons.define({
       extends = Weapons.get('judge'),
       id = id,
-      capacity = 8,
+      ammo = { capacity = 8 },
       delivery = delivery,
       fire = { pellets = 3, spread = 0 },
       attack = { base = 2, impact = 0, push = 0, effects = { binding }, pierce = nil },

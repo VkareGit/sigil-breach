@@ -20,7 +20,7 @@ function Tests.run(G)
   -- Merely proving a synthetic catalogue does not prove an imported sheet.
   for _, production in ipairs({ 'exorcist', 'judge' }) do
     local art = Art.get(production)
-    local capacity = Weapons.get(production).capacity
+    local capacity = Weapons.get(production).ammo.capacity
     check(
       production .. ' production art composes with its weapon',
       pcall(Art.validateWeapon, Weapons.get(production))
@@ -215,15 +215,14 @@ function Tests.run(G)
       id = id,
       name = 'round_count_fixture',
       art = id,
-      capacity = 2,
-      startReserve = 1,
+      ammo = { capacity = 2, startReserve = 1 },
     })
     check(
       'presentation composition accepts complete zero-to-capacity coverage',
       pcall(Art.validateWeapon, Weapons.get(id))
     )
     local incomplete = Schema.copy(Weapons.get(id))
-    incomplete.capacity = 3
+    incomplete.ammo.capacity = 3
     check(
       'capacity expansion requires its additional painted chamber state',
       not pcall(Art.validateWeapon, incomplete)

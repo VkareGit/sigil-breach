@@ -1,11 +1,13 @@
 -- Firearms by id (0.24 F3). A weapon is a definition here (content/defs/
 -- weapon.lua) and a live record in the knight's arsenal: player.arsenal[id]
--- = { mag, reserve, open, loaded, spent, readyAt }. The knight carries the
+-- = what its ammunition model holds (content/ammo/index.lua) and the state of its
+-- action { open, loaded, spent, readyAt }. The knight carries the
 -- weapons of his loadout (player.loadout, an ordered list of ids); its
 -- weapon field is the slot in hand (the actor's, plan v11 E3). A new weapon is a new definition; nothing assumes two.
 local T = require('src.content.tuning')
 local Registry = require('src.core.registry')
 local Weapon = require('src.content.defs.weapon')
+local Ammo = require('src.content.ammo.index')
 local Roles = require('src.core.roles')
 local W = {}
 -- weight: the physical body of the weapon (src/feedback/weight.lua). Recoil impulse =
@@ -30,14 +32,17 @@ local definitions = {
       partial = 'weapon_exorcist_partial',
       partialShort = 'weapon_exorcist_partial_short',
     },
-    capacity = 2,
-    startReserve = T.startReserve,
-    maxReserve = 72,
-    packSize = 4,
+    ammo = {
+      kind = 'magazine',
+      capacity = 2,
+      startReserve = T.startReserve,
+      maxReserve = 72,
+      packSize = 4,
+    },
     cycle = T.shotgunCycle,
     range = T.shotgunRange,
-    -- Reload mechanism (combat/reload.lua: Mechanisms).
-    mechanism = 'breech',
+    -- Reload mechanism (content/reloads.lua).
+    reload = { mechanism = 'breech' },
     -- How a trigger pull fires (combat/combat.lua reads only this): rounds per
     -- pull (both barrels), pellets of a full pull, whether spent cases stay in
     -- the action, presentation, and whether the action reloads itself.
@@ -105,13 +110,16 @@ local definitions = {
       tab = 'weapon_judge_tab',
       draw = 'weapon_judge_draw',
     },
-    capacity = T.revolverCapacity,
-    startReserve = T.revolverStartReserve,
-    maxReserve = T.revolverMaxReserve,
-    packSize = 6,
+    ammo = {
+      kind = 'magazine',
+      capacity = T.revolverCapacity,
+      startReserve = T.revolverStartReserve,
+      maxReserve = T.revolverMaxReserve,
+      packSize = 6,
+    },
     cycle = T.revolverInterval,
     range = T.revolverRange,
-    mechanism = 'cylinder',
+    reload = { mechanism = 'cylinder' },
     fire = {
       muzzle = 0.045,
       shake = 0.018,
@@ -177,14 +185,9 @@ function W.define(def)
 end
 -- A fresh live record of a weapon: full, its starting reserve, action closed.
 function W.newState(def)
-  return {
-    mag = def.capacity,
-    reserve = def.startReserve,
-    open = false,
-    loaded = false,
-    spent = 0,
-    readyAt = 0,
-  }
+  local state = Ammo.of(def).newState(def.ammo)
+  state.open, state.loaded, state.spent, state.readyAt = false, false, 0, 0
+  return state
 end
 -- An arsenal for a loadout (a list of ids).
 function W.arsenal(loadout)
@@ -245,29 +248,84 @@ end
 function W.nextSlot(g, actor)
   return W.slot(g, actor) % W.count(g, actor) + 1
 end
-function W.ammo(g, slot, actor)
+-- What the interface shows of a weapon: value, reserve, capacity.
+function W.meter(g, slot, actor)
   local def, state = W.inHand(g, slot, actor)
   assert(def and state, 'invalid weapon slot')
-  return state.mag, state.reserve, def.capacity
+  return Ammo.of(def).meter(def.ammo, state)
 end
 function W.validAmmo(g, slot, actor)
   local def, state = W.inHand(g, slot, actor)
   if not def or not state then
     return false
   end
-  local mag, reserve = state.mag, state.reserve
-  return type(mag) == 'number'
-    and mag >= 0
-    and mag <= def.capacity
-    and mag == math.floor(mag)
-    and type(reserve) == 'number'
-    and reserve >= 0
-    and reserve <= def.maxReserve
-    and reserve == math.floor(reserve)
+  return Ammo.of(def).valid(def.ammo, state)
+end
+-- What the next load of the weapon in hand moves.
+function W.pending(g, actor)
+  local def, state = W.inHand(g, nil, actor)
+  return Ammo.of(def).pending(def.ammo, state)
+end
+-- What a supply could still add to this weapon, and adds to it.
+function W.room(def, state)
+  return Ammo.of(def).room(def.ammo, state)
+end
+function W.refill(def, state, amount, cap)
+  return Ammo.of(def).refill(def.ammo, state, amount, cap)
+end
+function W.spend(def, state, count)
+  return Ammo.of(def).spend(def.ammo, state, count)
+end
+function W.stocked(def, state)
+  return Ammo.of(def).stocked(def.ammo, state)
+end
+-- Shots the actor could still fire, whatever its weapons hold.
+function W.left(g, actor)
+  local p, shots = holder(g, actor), 0
+  for _, id in ipairs(p.loadout) do
+    local def = W.get(id)
+    shots = shots + Ammo.of(def).left(def.ammo, p.arsenal[id])
+  end
+  return shots
+end
+-- Every weapon of the actor: full, or empty, or as it starts.
+function W.fill(g, actor)
+  local p = holder(g, actor)
+  for _, id in ipairs(p.loadout) do
+    local def = W.get(id)
+    Ammo.of(def).fill(def.ammo, p.arsenal[id])
+  end
+end
+function W.clear(g, actor)
+  local p = holder(g, actor)
+  for _, id in ipairs(p.loadout) do
+    local def = W.get(id)
+    Ammo.of(def).clear(def.ammo, p.arsenal[id])
+  end
+end
+function W.restock(g, actor)
+  local p = holder(g, actor)
+  for _, id in ipairs(p.loadout) do
+    local def = W.get(id)
+    Ammo.of(def).restock(def.ammo, p.arsenal[id])
+  end
+end
+-- What changes with time (a heat gauge cooling).
+function W.tick(g, dt, actor)
+  local p = holder(g, actor)
+  for _, id in ipairs(p.loadout or {}) do
+    local def = W.get(id)
+    local model = Ammo.of(def)
+    if model.tick then
+      model.tick(def.ammo, p.arsenal[id], dt)
+    end
+  end
 end
 -- The attack of a weapon as fired now: its data with the run's glyph applied.
-function W.attack(g, slot, glyph, actor)
+-- alt: of its second mode (Weapon: secondary).
+function W.attack(g, slot, glyph, actor, alt)
   local def = assert(W.inHand(g, slot, actor), 'invalid weapon slot')
+  def = alt and def.secondary or def
   local attack = {}
   for k, v in pairs(def.attack) do
     attack[k] = v
@@ -284,8 +342,9 @@ function W.attack(g, slot, glyph, actor)
   return attack
 end
 -- The pellet cone of the weapon in hand under the run's glyph (1: as made).
-function W.spread(g, glyph, actor)
+function W.spread(g, glyph, actor, alt)
   local def = W.inHand(g, nil, actor)
+  def = alt and def and def.secondary or def
   local mod = def and glyph and def.glyphs and def.glyphs[glyph]
   return (def and def.fire.spread or 1) * (mod and mod.spread or 1)
 end
@@ -297,8 +356,7 @@ function W.canFire(g, actor)
   if state.open then
     return false
   end
-  local mag = state.mag
-  return type(mag) == 'number' and mag == math.floor(mag) and mag > 0 and mag <= def.capacity
+  return Ammo.of(def).canFire(def.ammo, state)
 end
 -- Move rounds from the reserve into the weapon; returns how many.
 function W.load(g, slot, actor)
@@ -306,10 +364,7 @@ function W.load(g, slot, actor)
     return 0
   end
   local def, state = W.inHand(g, slot, actor)
-  local amount = math.max(0, math.min(def.capacity - state.mag, state.reserve))
-  state.mag = state.mag + amount
-  state.reserve = state.reserve - amount
-  return amount
+  return Ammo.of(def).load(def.ammo, state)
 end
 -- Close every weapon's action and drop its spent cases (the shrine).
 function W.close(g, actor)
@@ -331,8 +386,7 @@ function W.inventory(g, actor)
   local loadout, weapons = {}, {}
   for i, id in ipairs(p.loadout) do
     loadout[i] = id
-    local state = p.arsenal[id]
-    weapons[id] = { mag = state.mag, reserve = state.reserve }
+    weapons[id] = Ammo.of(W.get(id)).pack(p.arsenal[id])
   end
   return loadout, weapons
 end
@@ -349,8 +403,9 @@ function W.restore(g, loadout, weapons, actor)
   end
   for _, id in ipairs(p.loadout) do
     local def, state, saved = W.get(id), p.arsenal[id], weapons and weapons[id]
-    state.mag = saved and saved.mag or def.capacity
-    state.reserve = saved and saved.reserve or def.startReserve
+    for key, value in pairs(saved or Ammo.of(def).newState(def.ammo)) do
+      state[key] = value
+    end
   end
 end
 -- Add a weapon to the knight's loadout (next slot), fresh from its definition.

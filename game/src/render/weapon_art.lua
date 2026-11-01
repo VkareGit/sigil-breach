@@ -19,7 +19,8 @@ local function rounds(g, entry, index)
   end
   local state =
     assert(Weapons.state(g, nil, Context.actor(g)), 'rounds illustration needs weapon state')
-  local count = state.mag
+  local held = Weapons.meter(g, nil, Context.actor(g))
+  local count = held
   local source = entry.frames[index].roundsSource
   if source == 'pending' or source == 'loading' then
     -- The rounds this transaction can transfer. Cylinder or barrel contents
@@ -28,14 +29,13 @@ local function rounds(g, entry, index)
       Weapons.validAmmo(g, nil, Context.actor(g)),
       'reload illustration needs valid ammunition'
     )
-    local pending =
-      math.min(Weapons.inHand(g, nil, Context.actor(g)).capacity - state.mag, state.reserve)
+    local pending = Weapons.pending(g, Context.actor(g))
     if source == 'pending' then
       -- The held loader carries them all.
       count = pending
     else
       -- Rounds pushed home one by one: all but those the hand still holds.
-      count = state.mag + math.max(0, pending - entry.frames[index].inHand)
+      count = held + math.max(0, pending - entry.frames[index].inHand)
     end
   end
   return Metadata.variant(entry, index, count)

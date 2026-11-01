@@ -11,6 +11,9 @@ local Delivery = require('src.content.defs.delivery')
 local Effect = require('src.content.defs.effect')
 local Reaction = require('src.content.defs.reaction')
 local Text = require('src.content.text')
+local Ammo = require('src.content.ammo.index')
+local Reloads = require('src.content.reloads')
+local Triggers = require('src.content.triggers')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
   bodies = { type = 'number', required = true, min = 0 },
@@ -106,6 +109,10 @@ Weapon.weight = Schema:new('weapon weight', {
   viewKickRate = { type = 'number', default = 30, min = 1 },
   thump = { type = 'number', default = 0, min = 0 },
 })
+Weapon.reload = Schema:new('weapon reload', {
+  mechanism = { type = 'string', required = true, check = Reloads.problem },
+  speed = { type = 'number', default = 1, min = 0.01, desc = 'how fast its timeline runs' },
+})
 Weapon.schema = Schema:new('weapon', {
   id = { type = 'string', required = true, desc = 'registry id (saves, loadouts)' },
   name = { type = 'string', required = true },
@@ -116,14 +123,12 @@ Weapon.schema = Schema:new('weapon', {
     schema = Weapon.hud,
     desc = 'labels: title, kind, tab, draw; partial / partialShort when a pull is short',
   },
-  capacity = { type = 'number', required = true, min = 1 },
-  startReserve = { type = 'number', required = true, min = 0 },
-  maxReserve = { type = 'number', required = true, min = 0 },
-  packSize = { type = 'number', required = true, min = 1 },
-  unitPrice = { type = 'number', default = 3, min = 0 },
+  ammo = { type = 'table', required = true, desc = 'content/ammo/index.lua: kind and its fields' },
   cycle = { type = 'number', required = true, min = 0, desc = 'time between pulls (s)' },
   range = { type = 'number', required = true, min = 0 },
-  mechanism = { type = 'string', required = true, desc = 'reload mechanism (combat/reload.lua)' },
+  reload = { type = 'table', schema = Weapon.reload },
+  trigger = { type = 'table', default = { mode = 'auto' }, desc = 'content/triggers.lua' },
+  secondary = { type = 'table', desc = 'a second mode: fire, attack, delivery, cycle' },
   delivery = {
     type = 'table',
     default = { kind = 'hitscan' },
@@ -183,9 +188,15 @@ function Weapon.define(def)
       'weapon ' .. built.id .. ': unknown text key ' .. tostring(key)
     )
   end
-  for _, key in ipairs({ 'capacity', 'startReserve', 'maxReserve', 'packSize' }) do
-    assert(built[key] % 1 == 0, 'weapon ' .. built.id .. '.' .. key .. ': expected integer')
+  local where = 'weapon ' .. built.id
+  local model = Ammo:find(built.ammo.kind)
+  assert(model, where .. '.ammo: unknown model ' .. tostring(built.ammo.kind))
+  built.ammo = model.schema:build(built.ammo, where .. '.ammo')
+  if model.check then
+    model.check(built.ammo, where .. '.ammo')
   end
+  assert(not model.reloads or built.reload, where .. ': this ammunition needs a reload')
+  built.trigger = Triggers:get(built.trigger.mode):build(built.trigger, where .. '.trigger')
   for _, key in ipairs({ 'rounds', 'pellets', 'surfaceEvery', 'trailEvery' }) do
     assert(
       built.fire[key] % 1 == 0,
@@ -195,10 +206,6 @@ function Weapon.define(def)
   assert(
     built.fire.pellets % built.fire.rounds == 0,
     'weapon ' .. built.id .. ': pellets must divide into whole rounds'
-  )
-  assert(
-    built.startReserve <= built.maxReserve,
-    'weapon ' .. built.id .. ': reserve exceeds maximum'
   )
   assert(
     built.attack.falloffEnd > built.attack.falloffStart,
@@ -242,6 +249,16 @@ function Weapon.define(def)
     end
     validateAttack(attack, path)
     built.glyphs[id] = mod
+  end
+  if built.secondary then
+    local own = built.secondary
+    local base = Schema.copy(built)
+    base.secondary = nil
+    local second = Schema.inherit(base, own)
+    second.delivery = own.delivery and Delivery.build(own.delivery, where .. '.secondary.delivery')
+      or base.delivery
+    validateAttack(second.attack, where .. '.secondary.attack')
+    built.secondary = second
   end
   return built
 end

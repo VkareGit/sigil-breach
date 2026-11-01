@@ -47,13 +47,13 @@ function Tests.run(G)
     'the reported partial-magazine swap finishes with both shells, no lost reserve',
     state.mag == 2 and state.reserve == 0 and not state.open and not state.loaded
   )
-  for mag = 0, definition.capacity do
-    for _, reserve in ipairs({ 0, 1, definition.capacity, definition.maxReserve }) do
+  for mag = 0, definition.ammo.capacity do
+    for _, reserve in ipairs({ 0, 1, definition.ammo.capacity, definition.ammo.maxReserve }) do
       for _, route in ipairs({ 'cancel', 'swap' }) do
         local label = string.format('mag=%d reserve=%d via %s', mag, reserve, route)
         -- An already-open action can always close, including a dry or full
         -- action. Normal partial magazines start with the actual open event.
-        local alreadyOpen = mag == definition.capacity or reserve == 0
+        local alreadyOpen = mag == definition.ammo.capacity or reserve == 0
         g, state = fresh(mag, reserve, alreadyOpen)
         assert(g:reloadGun())
         advanceTo(g, Tuning.reloadLoadTime - epsilon)
@@ -65,7 +65,7 @@ function Tests.run(G)
           and state.reserve == reserve
           and near(g.player.reloadOffset, timing.resume.open)
         advanceTo(g, Tuning.reloadLoadTime + epsilon)
-        local amount = math.min(definition.capacity - mag, reserve)
+        local amount = math.min(definition.ammo.capacity - mag, reserve)
         local inserted = state.open
           and state.loaded
           and Reload.mechanism(g, 1).primed(state)

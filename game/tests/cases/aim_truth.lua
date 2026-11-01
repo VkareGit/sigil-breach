@@ -109,7 +109,7 @@ function Tests.run(Game, renderer)
           inherited = inherited
             and shown.player.hp == 63
             and shown.player.armor == 29
-            and Weapons.ammo(shown) == 1
+            and Weapons.meter(shown) == 1
             and shown.state == g.state
           for _, size in ipairs({
             { 960, 540 },
@@ -201,7 +201,7 @@ function Tests.run(Game, renderer)
   )
   check(
     'drawing keeps authoritative aim, health, armor and ammo unchanged',
-    g.view.aimKick == 0.035 and g.player.hp == 57 and g.player.armor == 12 and Weapons.ammo(g) == 1
+    g.view.aimKick == 0.035 and g.player.hp == 57 and g.player.armor == 12 and Weapons.meter(g) == 1
   )
   UI.screen, UI.useMouse = 'playing', false
   UI.focus, UI.mouseX, UI.mouseY = 3, 9, 11

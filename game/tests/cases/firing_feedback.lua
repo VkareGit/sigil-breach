@@ -31,7 +31,7 @@ function Tests.run(G)
   for slot = 1, 2 do
     local prefix = 'weapon ' .. slot .. ': '
     local g = fresh(slot, 0)
-    local mag = Weapons.ammo(g)
+    local mag = Weapons.meter(g)
     local yaw, pitch = g.player.yaw, g.player.pitch
     local ox, oy, oz = B.origin(g)
     check(prefix .. 'ready pose is distinct from a successful discharge', V.sourceFrame(g) == 1)
@@ -39,7 +39,7 @@ function Tests.run(G)
     check(prefix .. 'real shot immediately selects painted recoil', V.sourceFrame(g) == 2)
     check(
       prefix .. 'the same real shot consumes its ordinary ammunition',
-      Weapons.ammo(g) == mag - (slot == 1 and 2 or 1)
+      Weapons.meter(g) == mag - (slot == 1 and 2 or 1)
     )
     local fire = Art[Art.ids[slot]].fire
     advance(g, fire[1][1] + 0.003)
@@ -82,7 +82,7 @@ function Tests.run(G)
     assert(g:shoot())
     check(prefix .. 'reduced motion retains the actual discharge picture', V.sourceFrame(g) == 2)
     local frame, age, shots, ammo =
-      V.sourceFrame(g), g.view.shotAge, g.player.shots, Weapons.ammo(g)
+      V.sourceFrame(g), g.view.shotAge, g.player.shots, Weapons.meter(g)
     for _ = 1, 60 do
       V.sourceFrame(g)
       V.transform(g, 800, 450)
@@ -92,7 +92,7 @@ function Tests.run(G)
       V.sourceFrame(g) == frame
         and g.view.shotAge == age
         and g.player.shots == shots
-        and Weapons.ammo(g) == ammo
+        and Weapons.meter(g) == ammo
     )
     assert(g:switchWeapon(slot == 1 and 2 or 1))
     check(

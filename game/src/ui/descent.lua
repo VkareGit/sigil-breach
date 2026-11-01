@@ -110,7 +110,7 @@ function D.controls(g)
     local count = Weapons.count(g, Context.actor(g))
     local step = count <= 2 and 262 or math.floor(524 / count)
     for slot = 1, count do
-      local mag, reserve = Weapons.ammo(g, slot, Context.actor(g))
+      local mag, reserve = Weapons.meter(g, slot, Context.actor(g))
       list[#list + 1] = {
         id = 'shop_weapon_' .. slot,
         label = Text.get('shop_weapon', {

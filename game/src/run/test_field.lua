@@ -83,10 +83,7 @@ function F.refill(g)
   p.dash = require('src.content.characters').of(p).body.dashCharges
   Abilities.fill(g, nil, Roles.controlled(g))
   -- Every weapon full, its reserve at its cap, its action at rest.
-  for _, id in ipairs(p.loadout) do
-    local def, state = Weapons.get(id), p.arsenal[id]
-    state.mag, state.reserve = def.capacity, def.maxReserve
-  end
+  Weapons.fill(g, p)
   Weapons.rest(g)
   Pools.clear(g, 'charges')
   p.heat, p.overheat, p.heatDelay, p.invuln = nil, nil, nil, 0
@@ -171,9 +168,7 @@ function F.skirmish(g)
   g.testField.invincible = false
   g.testField.frozen = false
   Roles.controlled(g).armor = K.armor
-  for _, id in ipairs(Roles.controlled(g).loadout) do
-    Roles.controlled(g).arsenal[id].reserve = Weapons.get(id).startReserve
-  end
+  Weapons.restock(g, Roles.controlled(g))
   for _, kind in ipairs(K.skirmish) do
     F.spawn(g, kind, 1)
   end

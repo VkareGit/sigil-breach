@@ -81,9 +81,7 @@ Actions.fixed:register('field_low', {
     Roles.controlled(g).hp, Roles.controlled(g).armor, Roles.controlled(g).souls =
       Settings.lowHealth, 0, 0
     Abilities.fill(g, true, Roles.controlled(g))
-    for _, state in pairs(Roles.controlled(g).arsenal) do
-      state.mag, state.reserve = 0, 0
-    end
+    Weapons.clear(g, Roles.controlled(g))
     field.tell(g, 'field_low')
     field.close(g)
     return true

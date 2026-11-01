@@ -40,7 +40,7 @@ function T.schedule(hp, damageA, damageB, slot)
     shots = shots + 1
   end
   local profile = W.profile(slot)
-  local capacity = slot == 1 and 1 or profile.capacity
+  local capacity = slot == 1 and 1 or profile.ammo.capacity
   local reloads = math.floor((shots - 1) / capacity)
   local cycle = profile.cycle
   local reload = slot == 1 and Tune.shotgunCycle or Tune.revolverReload
@@ -55,7 +55,7 @@ function T.schedule(hp, damageA, damageB, slot)
     manual = manual,
     held = held,
     ammo = ammo,
-    starting = ammo <= profile.capacity + profile.startReserve,
+    starting = ammo <= profile.ammo.capacity + profile.ammo.startReserve,
   }
 end
 function T.analytic(kind, slot, distance)
@@ -373,11 +373,11 @@ function T.run(G, check, renderer, output)
     check('durability clock starts the real reload for weapon ' .. slot, R.start(g, true))
     local duration = g.player.reload
     R.update(g, duration)
-    local rounds = W.ammo(g)
+    local rounds = W.meter(g)
     check(
       'durability clock agrees with the real refill transaction for weapon ' .. slot,
       g.player.reload == 0
-        and rounds == W.profile(slot).capacity
+        and rounds == W.profile(slot).ammo.capacity
         and near(duration, slot == 1 and Tune.shotgunCycle or Tune.revolverReload)
     )
   end

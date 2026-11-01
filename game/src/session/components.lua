@@ -321,6 +321,7 @@ C.schemas.knight = {
   abilityState = f(nil, 'ability id -> { uses, readyAt }'),
   resources = f(nil, 'resource id -> amount (content/resources.lua)'),
   casting = f(nil, 'the cast in progress (combat/abilities.lua)'),
+  trigger = f(nil, 'what the trigger mode of the weapon keeps (player/intent.lua)'),
   -- The actor's hands and trigger (plan v11 E3: the session kept them for
   -- its one knight until 0.33): the slot in hand, its cadence, the reload
   -- timeline (combat/reload.lua), the trigger buffer (player/intent.lua),

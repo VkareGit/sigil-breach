@@ -131,6 +131,7 @@ function Input:sample(game)
     strafe = held(self, 'right') - held(self, 'left'),
     turn = held(self, 'turnRight') - held(self, 'turnLeft'),
     shoot = mouseDown and not self.suppressFire,
+    altFire = false,
     fireCommand = mouseDown and not self.suppressFire and self:command(game) or nil,
     dash = self.pendingDash,
     slide = self.pendingSlide,

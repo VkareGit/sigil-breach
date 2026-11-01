@@ -43,10 +43,6 @@ local function ready(g, a)
   end
   -- A broken extension fails before cancelling a reload or spending a round.
   Deliveries:get(profile.delivery.kind)
-  assert(
-    Reload.mechanisms[profile.mechanism],
-    'weapon ' .. profile.id .. ': unknown reload mechanism ' .. profile.mechanism
-  )
   if Reload.left(g, a) > 0 and not Reload.interrupt(g, a) then
     return nil
   end
@@ -59,7 +55,7 @@ local function ready(g, a)
   if (state.readyAt or 0) > g.elapsed + 1e-8 then
     return nil
   end
-  if state.open or (state.mag or 0) <= 0 or not Weapons.canFire(g, a) then
+  if not Weapons.canFire(g, a) then
     g:reloadGun(a.id)
     return nil
   end
@@ -69,9 +65,8 @@ end
 -- 2. The discharge: rounds spent, cadence, recoil, sound, flash and powder.
 local function discharge(g, profile, command, p)
   local fire = profile.fire
-  local state = Weapons.state(g, nil, p)
-  local rounds = math.min(fire.rounds, state.mag)
-  state.mag = state.mag - rounds
+  local def, state = Weapons.inHand(g, nil, p)
+  local rounds = Weapons.spend(def, state, fire.rounds)
   if fire.ejects then
     state.spent = (state.spent or 0) + rounds
   end
@@ -172,8 +167,9 @@ function C.projectile(g, b, e, part, surface, observer)
   )
 end
 
--- who: the shooting actor (its id, or nil for the controlled knight).
-function C.shoot(g, command, who)
+-- who: the shooting actor (its id, or nil for the controlled knight); alt: the
+-- weapon's second mode (Weapon: secondary).
+function C.shoot(g, command, who, alt)
   local a = Bodies.actor(g, who)
   if not a then
     return false
@@ -183,6 +179,7 @@ function C.shoot(g, command, who)
     return false
   end
   local profile = ready(g, a)
+  profile = alt and profile and profile.secondary or (not alt and profile) or nil
   if not profile then
     return false
   end
@@ -197,7 +194,7 @@ function C.shoot(g, command, who)
     Signal(g, 'ObservationUsed', { observation = observation })
   end
   local slot = Weapons.slot(g, a)
-  local attack, spread = Loadout.attack(g, slot, a), Loadout.spread(g, a)
+  local attack, spread = Loadout.attack(g, slot, a, alt), Loadout.spread(g, a, alt)
   local pellets = discharge(g, profile, command, a)
   local shot = {
     profile = profile,
@@ -215,7 +212,8 @@ function C.shoot(g, command, who)
     hit = false,
   }
   delivery.fire(g, shot, prepared)
-  if profile.fire.autoReload and (Weapons.state(g, nil, a).reserve or 0) > 0 then
+  local def, state = Weapons.inHand(g, nil, a)
+  if profile.fire.autoReload and Weapons.stocked(def, state) then
     Reload.start(g, true, a)
   end
   return true

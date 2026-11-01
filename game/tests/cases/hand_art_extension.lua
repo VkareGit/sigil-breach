@@ -113,8 +113,7 @@ function Tests.run(G, renderer)
       id = id,
       name = 'trial_atlas',
       art = id,
-      capacity = 3,
-      startReserve = 3,
+      ammo = { capacity = 3, startReserve = 3 },
       fire = { autoReload = false },
     })
     local item = Schema.copy(Abilities:get('powder'))

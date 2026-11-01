@@ -5,6 +5,8 @@
 -- takes the knight whose intention it is (default the controlled one).
 local I = { window = 0.12 }
 local Observation = require('src.combat.observation')
+local Registry = require('src.core.registry')
+local Weapons = require('src.content.weapons')
 local function active(g)
   return g.state == 'playing' and not g.map and not g.help
 end
@@ -56,6 +58,17 @@ function I.jump(g, dt, held, onGround, actor)
   p.jumpBuffer = math.max(0, (p.jumpBuffer or 0) - dt)
   return false
 end
+-- What a press means, by trigger mode (content/triggers.lua):
+--   modes[mode](p, held, dt, trigger) -> whether a shot is wanted now
+--   p.trigger: what the mode keeps between steps
+I.modes = Registry:new('trigger behaviours')
+I.modes:register('auto', function(_, held)
+  return held
+end)
+local function wanted(g, p, held, dt)
+  local def = Weapons.inHand(g, nil, p)
+  return def and I.modes:get(def.trigger.mode)(p, held, dt, def.trigger) or false
+end
 function I.fire(g, dt, held, command, actor)
   if not validStep(dt) then
     return false
@@ -71,7 +84,7 @@ function I.fire(g, dt, held, command, actor)
   if held then
     submitted = command
   end
-  if (held or (p.fireBuffer or 0) > 0) and g:shoot(submitted, actor) then
+  if (wanted(g, p, held, dt) or (p.fireBuffer or 0) > 0) and g:shoot(submitted, actor) then
     p.fireBuffer = 0
     p.fireCommand = nil
     return true

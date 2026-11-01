@@ -100,7 +100,7 @@ function H.status(g, run)
   require('src.ui.reliquary').status()
   Skin.lightField(0, 584, 1280, 136)
   Skin.zone('HUD ammunition', 133, 628, 105, 68)
-  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
+  local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
   fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
   number(tostring(mag), 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
   local ammoCaption = Reload.left(g, Context.actor(g)) > 0 and Reload.label(g, Context.actor(g))
@@ -325,14 +325,14 @@ function H.draw(g, settings, ui, descentUI)
     end
   end
   H.status(g, run)
-  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
+  local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.
   local def = Weapons.inHand(g, nil, Context.actor(g))
   if Reload.left(g, Context.actor(g)) <= 0 and (mag == 0 or mag < def.fire.rounds) then
     local empty = mag + reserve == 0
     local other = Weapons.nextSlot(g, Context.actor(g))
-    local otherMag, otherReserve = Weapons.ammo(g, other, Context.actor(g))
+    local otherMag, otherReserve = Weapons.meter(g, other, Context.actor(g))
     local notice = empty
         and ((otherMag + otherReserve > 0) and Text.get('hud_no_ammo_switch', { slot = other }) or Text.get(
           'hud_no_ammo'

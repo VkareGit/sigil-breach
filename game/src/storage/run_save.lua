@@ -10,6 +10,7 @@
 -- order: those formats did not retain the player's equipment slot choices.
 -- Strict data parsers; save files are never executed as Lua.
 local P = { prefix = 'descent-v06' }
+local Ammo = require('src.content.ammo.index')
 local Save = require('src.storage.save')
 local Schema = require('src.core.schema')
 local Weapons = require('src.content.weapons')
@@ -57,12 +58,9 @@ local function fields(s)
   return out
 end
 -- One weapon's rounds and reserve, within its definition.
-local function rounds(id, mag, reserve)
+local function rounds(id, a, b)
   local def = Weapons.get(id)
-  return {
-    mag = number(mag, 0, def.capacity, true),
-    reserve = number(reserve, 0, def.maxReserve, true),
-  }
+  return Ammo.of(def).unpack(def.ammo, a, b, number)
 end
 -- Uses by ability id, each a known ability within its capacity.
 local function uses(entries)
@@ -94,10 +92,10 @@ end
 local function arsenal(entries)
   local loadout, weapons = {}, {}
   for _, entry in ipairs(entries) do
-    local id, mag, reserve = entry[1], entry[2], entry[3]
+    local id, first, second = entry[1], entry[2], entry[3]
     assert(Id.valid(id) and Weapons.registry:has(id) and not weapons[id], 'invalid arsenal')
     loadout[#loadout + 1] = id
-    weapons[id] = rounds(id, mag, reserve)
+    weapons[id] = rounds(id, first, second)
   end
   assert(#loadout >= 1 and #loadout <= maxLoadout, 'invalid loadout')
   return loadout, weapons
@@ -195,7 +193,7 @@ end
 local function packInventory(v)
   local weapons, abilities = {}, {}
   for _, id in ipairs(v.loadout) do
-    weapons[id] = { mag = v.weapons[id].mag, reserve = v.weapons[id].reserve }
+    weapons[id] = Ammo.of(Weapons.get(id)).pack(v.weapons[id])
   end
   for id, n in pairs(v.abilities or {}) do
     abilities[id] = n
@@ -255,7 +253,8 @@ local function unpackInventory(v)
   for i, id in ipairs(list(v.loadout, 'loadout')) do
     local w = v.weapons[id]
     assert(type(w) == 'table', 'invalid arsenal')
-    entries[i] = { id, w.mag, w.reserve }
+    local kept = Ammo.of(Weapons.get(id)).list(w)
+    entries[i] = { id, kept[1], kept[2] }
   end
   for id in pairs(v.weapons) do
     assert(type(id) == 'string', 'invalid arsenal')
@@ -400,7 +399,7 @@ local function inventory06(s, revolver, chargeText)
     assert(#r == 2, 'invalid revolver inventory')
     weapons[legacyLoadout[2]] = rounds(legacyLoadout[2], r[1], r[2])
   else
-    weapons[legacyLoadout[2]] = { mag = judge.capacity, reserve = judge.startReserve }
+    weapons[legacyLoadout[2]] = Ammo.of(judge).newState(judge.ammo)
   end
   assert(exorcist, 'legacy weapon missing')
   return {

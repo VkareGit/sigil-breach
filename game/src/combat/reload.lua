@@ -3,6 +3,8 @@ local T = require('src.content.tuning')
 local W = require('src.content.weapons')
 local Text = require('src.content.text')
 local Roles = require('src.core.roles')
+local Ammo = require('src.content.ammo.index')
+local Reloads = require('src.content.reloads')
 local R = {}
 -- The reload belongs to the actor (plan v11 E3): its timeline, stage and the
 -- slot it reloads are fields of the knight's record (session/components.lua).
@@ -10,189 +12,112 @@ local R = {}
 local function actor(g, a)
   return a or Roles.controlled(g)
 end
--- Reload mechanisms (0.24, Strategy). A weapon names its mechanism in its
--- profile (content/weapons.lua: mechanism); one timeline per mechanism drives
--- the drawing, the mechanical sounds and the ammunition transaction. The
--- times of each timeline are data (content/tuning.lua: reload). A new action
--- (lever, magazine) is a new entry with the same fields:
---   duration                    full reload time
+-- A mechanism is data (content/reloads.lua); this one interpreter runs them all.
+-- Each gives the drawing, the mechanical sounds and the ammunition transaction:
 --   offset(g, w, def, afterShot) where the timeline starts, or nil if no reload
---   step(g, w, before, after, a) events crossed between two timeline ages (a:
---                               the actor reloading)
---   finish(g, w)                the action closed
---   primed(w)                   an open action already holds its new rounds
---   label(t)                    the stage shown on the HUD
---   sounds                      volume of each stage's sound (presentation)
---   voices                      the sound each stage plays (presentation)
---   interruptBefore             a trigger pull stops the reload before this
---                               time when rounds remain (nil: never)
---   closing(w, t)               s the action needs to close when stopped at t
--- w: the weapon's live record in the arsenal (content/weapons.lua), def: its
--- definition. What a stage looks like (the spent cases flying out) is the
--- presentation's answer to the ReloadStage event.
-local Mechanisms = {}
-R.mechanisms = Mechanisms
--- True when the timeline crossed time t between two ages.
+--   step(g, w, before, after, a) events crossed between two timeline ages
+--   finish(g, w)                 the action closed
+--   primed(w)                    an open action already holds its new rounds
+--   label(t)                     the stage shown on the HUD
+--   closing(w)                   s the action needs to close when stopped
+-- w: the weapon's live record in the arsenal, def: its definition. What a stage
+-- looks like (the spent cases flying out) is the presentation's answer to the
+-- ReloadStage event.
 local function crossed(before, after, t)
   return before < t and after >= t
 end
--- The break-action shotgun: open, eject the spent shells, load two, close.
-local B = T.reload.breech
-Mechanisms.breech = {
-  duration = T.shotgunCycle,
-  sounds = B.sounds,
-  voices = B.voices,
-  -- A loaded barrel fires until the breech breaks open.
-  interruptBefore = B.open,
-  closing = function()
-    return 0
-  end,
-  offset = function(_, w, def, afterShot)
-    if not w.open and (w.mag >= def.capacity or w.reserve <= 0) then
+local function finish(_, w)
+  w.open = false
+  w.loaded = false
+end
+local function primed(w)
+  return w.loaded
+end
+local function build(id, data)
+  local m = {
+    id = id,
+    duration = data.duration,
+    sounds = data.sounds,
+    voices = data.voices,
+    interruptBefore = data.interruptBefore,
+    finish = finish,
+    primed = primed,
+  }
+  function m.closing(w)
+    return w.open and data.closeOnFire or 0
+  end
+  function m.offset(_, w, def, afterShot)
+    if not w.open and Ammo.of(def).full(def.ammo, w) then
       return nil
     end
-    -- Remaining live shells predate this reload. Only the completed loading
+    -- Remaining live rounds predate this reload. Only the completed loading
     -- transaction permits resuming after insertion, even when it moved zero.
+    local resume = data.resume
     if w.open and w.loaded then
-      return B.resume.loaded
+      return resume.loaded
     elseif w.open then
-      return B.resume.open
+      return resume.open
     end
-    return afterShot and B.resume.afterShot or B.resume.closed
-  end,
-  step = function(g, w, before, after, a)
-    if crossed(before, after, B.open) then
-      w.open = true
-      w.loaded = false
-      a.reloadStage = 1
-      -- The spent cases fly out now (feedback/world_feedback.lua).
-      Signal(g, 'ReloadStage', {
-        stage = 'open',
-        mechanism = 'breech',
-        spent = w.spent or 0,
-        weapon = W.idAt(g, a.reloadWeapon, a),
-        actor = a.id,
-        byControlled = a == Roles.controlled(g),
-      })
-      w.spent = 0
-    end
-    if crossed(before, after, T.reloadLoadTime) then
-      local n = W.load(g, a.reloadWeapon, a)
-      w.loaded = true
-      a.reloadStage = 2
-      if n > 0 then
-        Signal(g, 'ReloadStage', {
-          stage = 'load',
-          mechanism = 'breech',
+    return afterShot and resume.afterShot or resume.closed or 0
+  end
+  function m.step(g, w, before, after, a)
+    for index, stage in ipairs(data.stages) do
+      if crossed(before, after, stage.at) then
+        local event = {
+          stage = stage.name,
+          mechanism = id,
           actor = a.id,
           byControlled = a == Roles.controlled(g),
-        })
+        }
+        local signalled = true
+        if stage.name == 'open' then
+          w.open = true
+          w.loaded = false
+          if data.ejects then
+            -- The spent cases fly out now (feedback/world_feedback.lua).
+            event.spent = w.spent or 0
+            event.weapon = W.idAt(g, a.reloadWeapon, a)
+          end
+        elseif stage.name == 'load' then
+          signalled = W.load(g, a.reloadWeapon, a) > 0
+          w.loaded = true
+        else
+          w.open = false
+          w.loaded = false
+        end
+        a.reloadStage = index
+        if signalled then
+          Signal(g, 'ReloadStage', event)
+        end
+        if stage.name == 'open' and data.ejects then
+          w.spent = 0
+        end
       end
     end
-    if crossed(before, after, B.close) then
-      w.open = false
-      w.loaded = false
-      a.reloadStage = 3
-      Signal(g, 'ReloadStage', {
-        stage = 'close',
-        mechanism = 'breech',
-        actor = a.id,
-        byControlled = a == Roles.controlled(g),
-      })
-    end
-  end,
-  finish = function(_, w)
-    w.open = false
-    w.loaded = false
-  end,
-  primed = function(w)
-    return w.loaded
-  end,
-  label = function(t)
-    return Text.get(
-      t < B.labels[1] and 'reload_open' or (t < B.labels[2] and 'reload_load' or 'reload_close')
-    )
-  end,
-}
-
--- The revolver: swing the cylinder out, eject, load all six, close.
-local C = T.reload.cylinder
-Mechanisms.cylinder = {
-  duration = T.revolverReload,
-  sounds = C.sounds,
-  voices = C.voices,
-  -- The rounds still in the cylinder fire until the new ones go in; a
-  -- cylinder already swung out snaps shut first.
-  interruptBefore = T.revolverLoadTime,
-  closing = function(w)
-    return w.open and C.closeOnFire or 0
-  end,
-  offset = function(_, w, def)
-    if not w.open and (w.mag >= def.capacity or w.reserve <= 0) then
-      return nil
-    end
-    -- Live rounds left from before opening do not mean the loading transaction ran.
-    return w.open and (w.loaded and T.revolverLoadTime or C.resume.open) or 0
-  end,
-  step = function(g, w, before, after, a)
-    if crossed(before, after, C.open) then
-      w.open = true
-      w.loaded = false
-      a.reloadStage = 1
-      Signal(g, 'ReloadStage', {
-        stage = 'open',
-        mechanism = 'cylinder',
-        actor = a.id,
-        byControlled = a == Roles.controlled(g),
-      })
-    end
-    if crossed(before, after, T.revolverLoadTime) then
-      local n = W.load(g, a.reloadWeapon, a)
-      w.loaded = true
-      a.reloadStage = 2
-      if n > 0 then
-        Signal(g, 'ReloadStage', {
-          stage = 'load',
-          mechanism = 'cylinder',
-          actor = a.id,
-          byControlled = a == Roles.controlled(g),
-        })
+  end
+  function m.label(t)
+    for _, label in ipairs(data.labels) do
+      if t < label[1] then
+        return Text.get(label[2])
       end
     end
-    if crossed(before, after, T.revolverCloseTime) then
-      w.open = false
-      w.loaded = false
-      a.reloadStage = 3
-      Signal(g, 'ReloadStage', {
-        stage = 'close',
-        mechanism = 'cylinder',
-        actor = a.id,
-        byControlled = a == Roles.controlled(g),
-      })
-    end
+  end
+  return m
+end
+local Mechanisms = setmetatable({}, {
+  __index = function(built, id)
+    local data = Reloads:find(id)
+    local m = data and build(id, data)
+    rawset(built, id, m)
+    return m
   end,
-  finish = function(_, w)
-    w.open = false
-    w.loaded = false
-  end,
-  primed = function(w)
-    return w.loaded
-  end,
-  label = function(t)
-    return Text.get(
-      t < C.labels[1] and 'reload_open'
-        or (
-          t < C.labels[2] and 'reload_eject'
-          or (t < T.revolverLoadTime and 'reload_load' or 'reload_close')
-        )
-    )
-  end,
-}
+})
+R.mechanisms = Mechanisms
 
 -- The mechanism of the weapon in a slot of the actor's loadout.
 local function mechanism(g, slot, a)
   local profile = W.inHand(g, slot, a) or W.inHand(g, 1, a)
-  return Mechanisms[profile.mechanism]
+  return profile.reload and Mechanisms[profile.reload.mechanism]
 end
 R.mechanism = mechanism
 
@@ -242,6 +167,9 @@ function R.start(g, afterShot, a)
     return false
   end
   local m = mechanism(g, a.weapon, a)
+  if not m then
+    return false
+  end
   local def, state = W.inHand(g, nil, a)
   local offset = m.offset(g, state, def, afterShot)
   if not offset then
@@ -271,7 +199,8 @@ function R.interrupt(g, a)
   end
   local m, w = mechanism(g, a.weapon, a), W.state(g, nil, a)
   local age = R.age(g, a)
-  if not m.interruptBefore or (w.mag or 0) <= 0 or age >= m.interruptBefore then
+  local def = W.inHand(g, nil, a)
+  if not m.interruptBefore or not Ammo.of(def).canFire(def.ammo, w) or age >= m.interruptBefore then
     return false
   end
   local closing = m.closing(w, age)
@@ -281,7 +210,7 @@ function R.interrupt(g, a)
     w.readyAt = math.max(w.readyAt or 0, g.elapsed + closing)
     Signal(g, 'ReloadStage', {
       stage = 'close',
-      mechanism = W.inHand(g, nil, a).mechanism,
+      mechanism = def.reload.mechanism,
       weapon = W.idAt(g, nil, a),
       interrupted = true,
       started = g.elapsed,
@@ -300,7 +229,7 @@ function R.update(g, dt, a)
     return
   end
   local before = R.age(g, a)
-  a.reload = math.max(0, a.reload - dt)
+  a.reload = math.max(0, a.reload - dt * W.inHand(g, a.reloadWeapon, a).reload.speed)
   local after = R.age(g, a)
   local m = mechanism(g, a.reloadWeapon, a)
   local w = W.state(g, a.reloadWeapon, a)

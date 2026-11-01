@@ -141,13 +141,10 @@ function Tests.run(G)
       tab = 'trial_carbine_kind',
       draw = 'trial_carbine_draw',
     },
-    capacity = 5,
-    startReserve = 10,
-    maxReserve = 20,
-    packSize = 5,
+    ammo = { kind = 'magazine', capacity = 5, startReserve = 10, maxReserve = 20, packSize = 5 },
     cycle = 0.3,
     range = 30,
-    mechanism = 'cylinder',
+    reload = { mechanism = 'cylinder' },
     fire = judge.fire,
     attack = { base = 40, impact = 30, falloffStart = 10, falloffEnd = 30, minPower = 0.5 },
     weight = judge.weight,
@@ -195,7 +192,7 @@ function Tests.run(G)
       and restored.mag == 2
       and restored.reserve == 7
   )
-  check('the definition was completed by the weapon schema', carbine.unitPrice == 3)
+  check('the definition was completed by the weapon schema', carbine.ammo.unitPrice == 3)
   Weapons.registry:unregister('trial_carbine')
 
   -- A spell from data alone: a bolt on the second ability slot, cast by the

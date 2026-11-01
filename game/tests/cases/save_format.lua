@@ -50,7 +50,8 @@ local function randomInventory(rand)
       used[id] = true
       loadout[#loadout + 1] = id
       local def = Weapons.get(id)
-      weapons[id] = { mag = rand(def.capacity + 1) - 1, reserve = rand(def.maxReserve + 1) - 1 }
+      weapons[id] =
+        { mag = rand(def.ammo.capacity + 1) - 1, reserve = rand(def.ammo.maxReserve + 1) - 1 }
     end
   end
   local abilities, slots = {}, {}

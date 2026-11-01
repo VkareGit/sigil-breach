@@ -217,7 +217,7 @@ function UI.draw(g, ui)
   )
   local arms = {}
   for slot = 1, Weapons.count(g, Context.actor(g)) do
-    local mag, reserve = Weapons.ammo(g, slot, Context.actor(g))
+    local mag, reserve = Weapons.meter(g, slot, Context.actor(g))
     arms[slot] = Text.get('fui_arm', {
       tab = Text.get(Weapons.profile(slot, g, Context.actor(g)).hud.tab),
       mag = mag,

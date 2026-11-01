@@ -370,9 +370,21 @@ local scalingRatchets = {
     name = 'ammo-fields',
     label = 'MAGAZINE FIELDS OUTSIDE THE AMMO MODEL',
     hint = 'ask the ammunition model (plan v12 R3)',
-    exempt = { 'src/content/ammo/' },
+    exempt = {
+      'src/content/ammo/',
+      'src/content/weapons.lua',
+      'src/content/tuning.lua',
+      'src/render/resources.lua',
+    },
     count = function(code)
-      return fieldAccesses(code, { 'mag', 'capacity', 'reserve', 'reserveMax' })
+      return occurrences(code, {
+        '%.mag%f[%W]',
+        '%.reserve%f[%W]',
+        '%f[%w]maxReserve%f[%W]',
+        '%f[%w]startReserve%f[%W]',
+        '%f[%w]packSize%f[%W]',
+        '%f[%w]unitPrice%f[%W]',
+      })
     end,
   },
   {

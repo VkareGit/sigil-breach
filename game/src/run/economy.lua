@@ -9,6 +9,7 @@
 --   done                                     the message after a purchase (a
 --                                            text key)
 local W = require('src.content.weapons')
+local Ammo = require('src.content.ammo.index')
 local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
 local Roles = require('src.core.roles')
@@ -16,36 +17,39 @@ local Text = require('src.content.text')
 local E = {}
 E.offers = Shop.offers
 local function missing(g, def)
-  return def.maxReserve - W.state(g).reserve
+  return W.room(def, W.state(g))
+end
+local function terms(def)
+  return Ammo.of(def).offer(def.ammo)
 end
 local function describeRounds(g, offer, def)
-  local n = math.max(0, math.min(def.packSize, missing(g, def)))
+  local pack, unit, cap = terms(def)
+  local n = math.max(0, math.min(pack, missing(g, def)))
   local quantity = n == 0 and Text.get('shop_pack')
     or Text.get(n == 1 and 'shop_round' or 'shop_rounds', { count = n })
   local weapon = Text.get(def.name)
   return offer.id == 'ammo' and Text.get('shop_ammo_name', { quantity = quantity, weapon = weapon })
     or Text.get('shop_refill_name', { weapon = weapon }),
-    Text.get('shop_rounds_text', { price = def.unitPrice, cap = def.maxReserve })
+    Text.get('shop_rounds_text', { price = unit, cap = cap })
 end
 local function roundsFull(g)
-  local _, reserve = W.ammo(g)
-  return reserve >= W.inHand(g).maxReserve and Text.get('shop_reserve_full') or nil
+  return missing(g, W.inHand(g)) <= 0 and Text.get('shop_reserve_full') or nil
 end
 -- Rounds for the weapon in hand, by count: a pack, or everything missing.
 local function rounds(count, fill)
   return {
     quote = function(g, _, def)
       local n = count(g, def)
-      local price = n * def.unitPrice
+      local _, unit = terms(def)
+      local price = n * unit
       if n <= 0 then
         return price, Text.get('shop_reserve_full_reason')
       end
       return price
     end,
     apply = function(g, _, def)
-      local state = W.state(g)
-      state.reserve = fill and def.maxReserve
-        or math.min(def.maxReserve, state.reserve + def.packSize)
+      local pack = terms(def)
+      W.refill(def, W.state(g), fill and missing(g, def) or pack)
     end,
     label = roundsFull,
     describe = describeRounds,
@@ -53,7 +57,7 @@ local function rounds(count, fill)
 end
 E.kinds = {
   rounds = rounds(function(g, def)
-    return math.min(def.packSize, missing(g, def))
+    return math.min((terms(def)), missing(g, def))
   end, false),
   refill = rounds(missing, true),
   ward = {

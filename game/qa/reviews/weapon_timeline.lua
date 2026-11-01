@@ -103,16 +103,16 @@ function Review.run(Game, renderer, output)
       end
       advance(Reload.mechanism(g, slot).duration + 0.1)
       assert(
-        not state.open and state.mag == definition.capacity,
+        not state.open and state.mag == definition.ammo.capacity,
         'full reload failed to latch with full magazine'
       )
     elseif scenario == 'empty' then
-      state.mag, state.reserve = 0, definition.capacity
+      state.mag, state.reserve = 0, definition.ammo.capacity
       capture('EMPTY / FULL LOADER')
       assert(g:reloadGun())
       advance(Reload.mechanism(g, slot).duration + 0.1)
       assert(
-        state.mag == definition.capacity and state.reserve == 0 and not state.open,
+        state.mag == definition.ammo.capacity and state.reserve == 0 and not state.open,
         'full loader must transfer all available rounds at the existing transaction'
       )
     elseif scenario == 'partial' then
@@ -136,7 +136,7 @@ function Review.run(Game, renderer, output)
     elseif scenario == 'resume' then
       state.mag, state.reserve = 1, 1
       assert(g:reloadGun())
-      local beforeLoad = definition.mechanism == 'breech' and 0.4 or 0.85
+      local beforeLoad = definition.reload.mechanism == 'breech' and 0.4 or 0.85
       advance(beforeLoad)
       assert(
         state.open and state.mag == 1,

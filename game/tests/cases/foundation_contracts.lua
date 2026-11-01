@@ -148,7 +148,7 @@ function Tests.run(Game)
       pcall(Contracts.weapon, weapon)
     )
     local bad = Schema.copy(weapon)
-    bad.mechanism = 'missing_reload'
+    bad.reload = { mechanism = 'missing_reload' }
     check(
       'unknown reload mechanism is detected at the composition boundary',
       not pcall(Contracts.weapon, bad)

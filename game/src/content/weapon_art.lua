@@ -186,7 +186,7 @@ function WeaponArt.validateWeapon(definition)
   local entry = WeaponArt.get(definition.art or definition.id)
   for _, frame in ipairs(entry.frames) do
     assert(
-      not frame.rounds or #frame.rounds == definition.capacity + 1,
+      not frame.rounds or #frame.rounds == definition.ammo.capacity + 1,
       'weapon artwork ' .. definition.id .. ': rounds variants must cover zero through capacity'
     )
   end

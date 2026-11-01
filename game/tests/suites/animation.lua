@@ -59,7 +59,7 @@ function Tests.run(G, renderer)
     for _, name in ipairs(firing) do
       local index = Art.frame(m, name)
       local definition = Weapons.get(Art.ids[slot])
-      for rounds = 0, definition.capacity do
+      for rounds = 0, definition.ammo.capacity do
         check(
           'weapon ' .. slot .. ' firing pose ' .. name .. ' rounds ' .. rounds .. ' has a muzzle',
           m.frames[Art.variant(m, index, rounds)].muzzle ~= nil
@@ -136,7 +136,7 @@ function Tests.run(G, renderer)
     local function shown(name, state)
       local index = Art.frame(m, name)
       local frame, count = m.frames[index], state.mag
-      local pending = math.min(Weapons.inHand(g).capacity - state.mag, state.reserve)
+      local pending = math.min(Weapons.inHand(g).ammo.capacity - state.mag, state.reserve)
       if frame.roundsSource == 'pending' then
         count = pending
       elseif frame.roundsSource == 'loading' then
@@ -160,7 +160,7 @@ function Tests.run(G, renderer)
         visited[expectedName] = true
         honest = honest
           and frame == shown(expectedName, state)
-          and (age < physical.load or state.mag == Weapons.inHand(g).capacity)
+          and (age < physical.load or state.mag == Weapons.inHand(g).ammo.capacity)
           and (age < physical.close or not state.open)
         if m.frames[frame].action == 'loaded' then
           honest = honest and age >= physical.load and Reload.mechanism(g, slot).primed(state)

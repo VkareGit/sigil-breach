@@ -9,6 +9,7 @@ local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Cast = require('src.combat.abilities')
 local Resources = require('src.combat.resources')
+local Weapons = require('src.content.weapons')
 local Knight = {}
 -- The actors of a step (plan v11 E3b): every knight in pool order; one
 -- that has fallen does nothing more (the controlled one is the session's).
@@ -59,6 +60,7 @@ Knight.reload = {
     for _, knight in ipairs(actors(g)) do
       if acting(g, knight) then
         Feel.reloadUpdate(g, dt, knight)
+        Weapons.tick(g, dt, knight)
       end
     end
   end,
@@ -123,6 +125,9 @@ Knight.trigger = {
         local own = inputOf(g, knight, input)
         local actor = knight ~= Bodies.controlled(g) and knight or nil
         Intent.fire(g, dt, own.shoot, own.fireCommand, actor)
+        if own.altFire then
+          g:shoot(own.fireCommand, actor and actor.id, true)
+        end
       end
     end
   end,

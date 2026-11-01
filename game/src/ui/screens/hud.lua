@@ -137,12 +137,12 @@ function S.draw(g, s, U)
   bar(42, 687, 148, Characters.share(p), Characters.low(p) and red or ivory)
   panel(1000, 602, 256, 94)
   text(Text.get(inHand.hud.title), 1016, 610, 18, gold)
-  local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
+  local mag, reserve, capacity = Weapons.meter(g, nil, Context.actor(g))
   text(tostring(mag), 1016, 634, 42, mag == 0 and red or ivory)
   text(Text.get('chud_rounds', { count = reserve }), 1077, 650, 16, muted)
   -- A multi-round pull shows its rounds one by one (the two barrels).
   if inHand.fire.rounds > 1 then
-    for i = 1, inHand.capacity do
+    for i = 1, capacity do
       rect(1210 + (i - 1) * 15, 640, 9, 20, mag >= i and gold or Palette.emptyRound)
     end
   end
@@ -241,8 +241,8 @@ function S.draw(g, s, U)
     elseif
       Weapons.slot(g, Context.actor(g)) == 1
       and Weapons.count(g, Context.actor(g)) > 1
-      and Weapons.ammo(g, nil, Context.actor(g)) == 0
-      and select(2, Weapons.ammo(g, nil, Context.actor(g))) == 0
+      and Weapons.meter(g, nil, Context.actor(g)) == 0
+      and select(2, Weapons.meter(g, nil, Context.actor(g))) == 0
     then
       hint = Text.get(
         'chud_hint_draw',

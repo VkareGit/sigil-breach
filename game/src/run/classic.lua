@@ -62,8 +62,8 @@ local function breakSeal(g, seal, index)
     enemy.awake, enemy.memory = true, K.memory
     enemy.lastX, enemy.lastZ, enemy.spawnAge = player.x, player.z, 0
   end
-  local _, main = mainWeapon(player)
-  main.reserve = math.min(Classic.maxRounds, main.reserve + Tuning.sealAmmo)
+  local mainDef, main = mainWeapon(player)
+  Weapons.refill(mainDef, main, Tuning.sealAmmo, Classic.maxRounds)
   player.armor = math.min(Classic.maxWard, player.armor + K.ward)
 end
 
@@ -86,8 +86,8 @@ function Mode.interact(g)
     g.world.secretFound = true
     local secret = Classic.secret
     player.armor = math.min(Classic.maxWard, player.armor + secret.ward)
-    local _, main = mainWeapon(player)
-    main.reserve = math.min(Classic.maxRounds, main.reserve + secret.rounds)
+    local mainDef, main = mainWeapon(player)
+    Weapons.refill(mainDef, main, secret.rounds, Classic.maxRounds)
     local stats = Stats.controlled(g)
     stats.score = stats.score + secret.score
     g:notify(Text.get('classic_secret', { ward = secret.ward, rounds = secret.rounds }), 4)
@@ -171,7 +171,7 @@ function Mode.advance(g)
   local player = Roles.controlled(g)
   player.hp = math.min(require('src.content.characters').maxHp(player), player.hp + guardian.health)
   local mainDef, main = mainWeapon(player)
-  main.reserve = math.min(mainDef.maxReserve, main.reserve + guardian.rounds)
+  Weapons.refill(mainDef, main, guardian.rounds)
   player.armor = math.min(Classic.maxWard, player.armor + guardian.ward)
 end
 -- What its ending screen shows (ui/screens/ending.lua asks Queries.result).

@@ -69,14 +69,14 @@ function T.run(Game)
         check(
           label .. ' spends finite ammunition against active enemies',
           g.player.shots > 0
-            and state.mag + state.reserve < def.capacity + reserve
+            and state.mag + state.reserve < def.ammo.capacity + reserve
             and Weapons.validAmmo(g)
             and started > 0
         )
         if trial == 'iron' then
           check(
             label .. ' crosses a real reload window',
-            g.player.shots > def.capacity and state.reserve < reserve
+            g.player.shots > def.ammo.capacity and state.reserve < reserve
           )
         end
         if style == 'react' then
