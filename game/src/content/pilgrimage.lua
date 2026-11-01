@@ -24,8 +24,31 @@ local Way = {
   -- How near a door a knight must stand, and how tall it is painted (m).
   doorReach = 1.5,
   doorSize = 2.7,
-  areas = Registry:new('way areas'),
+  -- A knight fits where this much is free around him (m).
+  clearance = 0.3,
 }
+-- Ids are unique across the way: a save names them without their area.
+local fires, doors, posts = {}, {}, {}
+local function claim(seen, id, kind)
+  assert(type(id) == 'string' and not seen[id], 'way: ' .. kind .. ' id twice: ' .. tostring(id))
+  seen[id] = true
+end
+Way.areas = Registry:new('way areas', function(area, id)
+  assert(area.id == id, 'way area ' .. id .. ' must carry its id')
+  assert(type(area.map) == 'string', 'way area ' .. id .. ' needs a map')
+  local first = false
+  for _, fire in ipairs(area.fires) do
+    claim(fires, fire.id, 'fire')
+    first = first or fire.id == area.first
+  end
+  assert(first, 'way area ' .. id .. ' starts at no fire of its own')
+  for _, door in ipairs(area.doors or {}) do
+    claim(doors, door.id, 'door')
+  end
+  for _, post in ipairs(area.garrison) do
+    claim(posts, post.id, 'post')
+  end
+end)
 Way.areas:register('chapel', {
   id = 'chapel',
   map = 'proving',

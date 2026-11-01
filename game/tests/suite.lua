@@ -76,6 +76,11 @@ Suite.registry = {
     module = 'tests.cases.pilgrimage_save',
   },
   {
+    id = 'proving',
+    title = 'The real map: its data, the whole way walked, trade and the field on it',
+    module = 'tests.cases.proving',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

@@ -5,6 +5,7 @@ local B = require('src.combat.ballistics')
 local Pools = require('src.session.world')
 local Resources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
+local Ground = require('src.physics.ground')
 local World = require('src.world.arena')
 local Bot = {}
 local function nearest(g)
@@ -302,6 +303,7 @@ function Bot.human(miss, roll)
 end
 -- The whole way (qa/README: pilgrim): walks a route of cells to where it is sent and
 -- fights like Bot.human whatever turns on it. goal(g) names the next (x, z).
+-- Walked back from the goal: a cell leads on to one no more than a step above it.
 local function field(w, x, z)
   local steps, queue, head = { [z * 1000 + x] = 0 }, { { x, z } }, 1
   while queue[head] do
@@ -310,7 +312,8 @@ local function field(w, x, z)
     for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
       local nx, nz = cell[1] + step[1], cell[2] + step[2]
       local key = nz * 1000 + nx
-      if not steps[key] and not World.solid(w, nx, nz, 0.4) then
+      local rise = Ground.height(w, cell[1], cell[2], 0) - Ground.height(w, nx, nz, 0)
+      if not steps[key] and not World.solid(w, nx, nz, 0.4) and rise <= w.stepHeight then
         steps[key] = steps[cell[2] * 1000 + cell[1]] + 1
         queue[#queue + 1] = { nx, nz }
       end
@@ -332,7 +335,9 @@ function Bot.walker(fight)
     local best, bx, bz = steps[cz * 1000 + cx] or 1e9, x, z
     for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
       local d = steps[(cz + step[2]) * 1000 + cx + step[1]]
-      if d and d < best then
+      local rise = Ground.height(g.world, cx + step[1], cz + step[2], 0)
+        - Ground.height(g.world, cx, cz, 0)
+      if d and d < best and rise <= g.world.stepHeight then
         best, bx, bz = d, cx + step[1], cz + step[2]
       end
     end

@@ -8,6 +8,7 @@ local Destruction = require('src.combat.destruction')
 local Encounter = require('src.session.encounter')
 local Execution = require('src.storage.execution')
 local Feel = require('src.player.feel')
+local Ground = require('src.physics.ground')
 local K = require('src.content.pilgrimage')
 local MathX = require('src.core.mathx')
 local Presentation = require('src.session.presentation')
@@ -346,6 +347,86 @@ function P.world(g, out)
     end
   end
   return out
+end
+-- Everywhere a knight can walk from the area's first fire, doors counted as open: a cell
+-- leads to the next if it is free and no more than a step below it. Tiles centre on whole
+-- numbers.
+local function reachable(world, area)
+  local reached, queue, doors = {}, {}, {}
+  local function round(v)
+    return math.floor(v + 0.5)
+  end
+  local function key(x, z)
+    return round(z) .. ':' .. round(x)
+  end
+  local function visit(x, z)
+    x, z = round(x), round(z)
+    if not reached[key(x, z)] then
+      reached[key(x, z)] = true
+      queue[#queue + 1] = { x, z }
+    end
+  end
+  for _, door in ipairs(area.doors or {}) do
+    doors[key(door.side.x, door.side.z)], doors[key(door.back.x, door.back.z)] =
+      door.back, door.side
+  end
+  local first = K.fireOf(area.first)
+  visit(first.x, first.z)
+  local at = 1
+  while queue[at] do
+    local x, z = queue[at][1], queue[at][2]
+    at = at + 1
+    local through = doors[key(x, z)]
+    if through then
+      visit(through.x, through.z)
+    end
+    local height = Ground.height(world, x, z, 0)
+    for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+      local nx, nz = x + step[1], z + step[2]
+      local rise = Ground.height(world, nx, nz, 0) - height
+      if not World.solid(world, nx, nz, K.clearance) and rise <= world.stepHeight then
+        visit(nx, nz)
+      end
+    end
+  end
+  return function(x, z)
+    return reached[key(x, z)]
+  end
+end
+-- What is wrong with an area against its map: a fire, a door, a post or a patrol in a wall or
+-- out of reach, a creature that does not exist. A new area answers this before it is played.
+function P.problems(area)
+  local found = {}
+  if not Maps:has(area.map) then
+    return { area.id .. ': no map ' .. tostring(area.map) }
+  end
+  local world = World.new(area.map)
+  local reached = reachable(world, area)
+  local function stand(name, spot)
+    if World.solid(world, spot.x, spot.z, K.clearance) then
+      found[#found + 1] = area.id .. ': ' .. name .. ' stands in a wall'
+    elseif not reached(spot.x, spot.z) then
+      found[#found + 1] = area.id .. ': ' .. name .. ' cannot be reached'
+    end
+  end
+  for _, fire in ipairs(area.fires) do
+    stand('fire ' .. fire.id, fire)
+    stand('the wake of fire ' .. fire.id, { x = fire.x, z = fire.z - K.wake })
+  end
+  for _, door in ipairs(area.doors or {}) do
+    stand('door ' .. door.id, door.side)
+    stand('the back of door ' .. door.id, door.back)
+  end
+  for _, post in ipairs(area.garrison) do
+    stand('post ' .. post.id, post)
+    for index, point in ipairs(post.patrol or {}) do
+      stand('patrol ' .. index .. ' of post ' .. post.id, point)
+    end
+    if not Archetypes.get(post.creature) then
+      found[#found + 1] = area.id .. ': post ' .. post.id .. ' names no creature'
+    end
+  end
+  return found
 end
 local report = {}
 function P.hud(g)

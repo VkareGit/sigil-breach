@@ -284,7 +284,8 @@ function D.map(g)
   panel(100, 40, 1080, 640)
   Skin.zone('map writing field', 132, 76, 1016, 570)
   text(Text.get('map_fires'), 136, 131, 20, gold)
-  local area = Way.areas:get(r.area)
+  -- The proving ground has no way of its own: it stands in the chapel.
+  local area = r.area and Way.areas:get(r.area) or Way.start()
   for i, fire in ipairs(area.fires) do
     local lit = r.lit[fire.id]
     local y = 163 + (i - 1) * 39
