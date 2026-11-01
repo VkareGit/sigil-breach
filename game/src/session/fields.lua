@@ -164,6 +164,8 @@ declareView('app/input.lua', { 'swayX', 'swayY' })
 declareView('feedback/listeners.lua', {
   'feedback',
   'feedbackTimer',
+  'refusal',
+  'refusalTimer',
   'hurt',
   'surge',
   'hitmarker',

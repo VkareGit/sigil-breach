@@ -13,7 +13,7 @@ local Clocks = { name = 'clocks' }
 local plain = { 'zoneTimer', 'impactSlow', 'worldStop' }
 -- Each actor's own weapon cadence (plan v11 E3).
 local actor = { 'cooldown' }
-local plainView = { 'feedbackTimer', 'muzzle' }
+local plainView = { 'feedbackTimer', 'refusalTimer', 'muzzle' }
 local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer', 'perfectDodge' }
 local function tickView(view, dt)
   Timers.tick(view, plainView, dt)

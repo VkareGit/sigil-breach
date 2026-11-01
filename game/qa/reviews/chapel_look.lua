@@ -39,6 +39,13 @@ function Review.run(Game, renderer, output)
     g:update(1 / 120, {})
   end
   shot(g, 'first-fire')
+  require('src.combat.rules').addCondition(g.player, 'staggered', 1)
+  shot(g, 'off-balance')
+  g.player.conditions.staggered = nil
+  g.view.refusal, g.view.refusalTimer = 'hud_no_breath', 1
+  g.player.resources.stamina = -5
+  shot(g, 'no-breath')
+  g.view.refusalTimer, g.player.resources.stamina = 0, 100
   local p = g.player
   local area = K.start()
   for _, fire in ipairs(area.fires) do

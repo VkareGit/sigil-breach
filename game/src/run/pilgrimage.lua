@@ -13,6 +13,7 @@ local K = require('src.content.pilgrimage')
 local MathX = require('src.core.mathx')
 local Presentation = require('src.session.presentation')
 local Roles = require('src.core.roles')
+local Rules = require('src.combat.rules')
 local Sanctuary = require('src.session.sanctuary')
 local Save = require('src.storage.save')
 local Text = require('src.content.text')
@@ -53,8 +54,14 @@ function P.populate(g)
   Encounter.clearStage(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
+  local classes = {}
   for _, entry in ipairs(area(g).garrison) do
-    place(g, entry)
+    local e = place(g, entry)
+    classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
+  end
+  -- The first route of a body's size walks the whole map: here, not in the first chase.
+  for class, e in pairs(classes) do
+    World.flow(g.world, e.x, e.z, class)
   end
 end
 -- What his vows make of him, from his character up: a rest and a purchase both ask.

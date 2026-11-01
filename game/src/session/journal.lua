@@ -118,6 +118,7 @@ Journal.external = {
   'player.fireBuffer',
   'player.fireCommand',
   'player.jumpBuffer',
+  'player.dashBuffer',
   'player.observationGeneration',
   '_observationSession',
   '_observationGeneration',
@@ -125,7 +126,8 @@ Journal.external = {
 -- The same fields of every other knight (a second input device buffers its
 -- presses and forgets its observations outside any command): an 'actorSet'
 -- entry { 'actorSet', id, field, value } before the next command (v5).
-Journal.actorExternal = { 'fireBuffer', 'fireCommand', 'jumpBuffer', 'observationGeneration' }
+Journal.actorExternal =
+  { 'fireBuffer', 'fireCommand', 'jumpBuffer', 'dashBuffer', 'observationGeneration' }
 local actorExternal = {}
 for _, field in ipairs(Journal.actorExternal) do
   actorExternal[field] = true

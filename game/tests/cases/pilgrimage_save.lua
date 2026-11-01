@@ -279,6 +279,8 @@ local function timing(check, Game)
   for _, body in ipairs(Pools.of(g, 'enemies')) do
     body.awake, body.alertRange = false, 0
   end
+  -- What he looks at wakes: quiet means nothing in front of him.
+  g.player.yaw = 0
   run(g, 0.1)
   check('the first quiet moment saves', love.filesystem.getInfo(FILE) ~= nil and not g.run.dirty)
   local wallet = g.run.wallet

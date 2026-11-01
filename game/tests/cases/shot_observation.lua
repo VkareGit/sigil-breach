@@ -149,7 +149,7 @@ function T.run(G, renderer)
   local timeout = setup()
   timeout.player.cooldown = 1
   Intent.queue(timeout, 'fire', O.command(O.capture(timeout), timeout))
-  for _ = 1, 20 do
+  for _ = 1, 44 do
     timeout:update(1 / 120, {})
   end
   check(

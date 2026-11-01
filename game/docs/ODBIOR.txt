@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.39 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.40 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -8,6 +8,21 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.40.txt
+SIGIL: BREACH 0.40: odbiór
+
+Sprawdzone automatycznie:
+- --frame-watch: minuta walki w kaplicy z prawdziwym renderem, bez vsync, 1280x720, na tej maszynie.
+- Test tests/cases/responsiveness.lua: bufor uniku i strzału, odmowy z powodem, budzenie widzianych stworów, limit dwóch naraz.
+- Bot przez kaplicę: około 12 śmierci na 6 minut, jak przed zmianą (około 11); bez limitu dwóch około 25.
+
+Niesprawdzone:
+- Odczucie gracza. Bot nie powie, czy gra jest responsywna; to ocena do zrobienia w grze.
+- Inne komputery. Liczby są z tej maszyny.
+- Pakowanie: bez -Package, zgodnie z ustaleniem.
 
 
 ########################################################################

@@ -1,4 +1,15 @@
 -- LÖVE is the platform adapter. Application state and routing live in src.app.
+-- LuaJIT's default limits suit a script. This game outgrows them: compiled code is thrown away
+-- and compiled again without end, and every key waits for it. With room for all of it a frame
+-- costs half as much and one in ten no longer misses the display (qa/reviews/frame_watch.lua).
+require('jit.opt').start(
+  'maxtrace=20000',
+  'maxrecord=8000',
+  'maxmcode=131072',
+  'sizemcode=1024',
+  'maxsnap=1000',
+  'maxside=200'
+)
 local Application = require('src.app.application')
 local app = Application.new()
 

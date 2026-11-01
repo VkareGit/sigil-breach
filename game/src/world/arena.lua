@@ -399,43 +399,60 @@ function W.step(w, x, z, h, k)
   return W.layer(w, x, z, landing)
 end
 local none = {}
-local function flowField(w, sx, sz, class, layer)
-  local qx, qz, ql, head, tail = { sx }, { sz }, { layer }, 1, 1
-  local dist = {}
+local abs = math.abs
+-- Who can walk into a node, worked out the first time a route reaches it and kept until the
+-- geometry changes: a list of id, x, z, layer for each. The rules ask the terrain a dozen
+-- questions per neighbour; a route over the whole map asked them in the middle of a tick.
+local function edgesInto(w, class, px, pz, pl)
+  local edges, count = {}, 0
+  local here = W.level(w, px, pz, pl)
+  for i = 1, #neighbours do
+    local a = neighbours[i]
+    local nx, nz = px + a[1], pz + a[2]
+    -- Search runs backwards from the goal: a neighbour must be able to
+    -- climb from its own floor to this cell, not the other way round.
+    -- Every surface of the neighbour is a node (its floor, its decks).
+    local decks = w.decks and Ground.decks(w, nx, nz) or none
+    for nl = 0, #decks do
+      local there = W.level(w, nx, nz, nl)
+      if
+        W.open(w, nx, nz, class)
+        and here - there <= (w.stepHeight or Terrain.stepHeight)
+        and (
+          not w.decks
+          or (roomy(w, nx, nz, there, class) and W.step(w, px, pz, there, class) == pl)
+        )
+      then
+        edges[count + 1], edges[count + 2], edges[count + 3], edges[count + 4] =
+          W.node(w, nx, nz, nl), nx, nz, nl
+        count = count + 4
+      end
+    end
+  end
+  return edges
+end
+local function flowField(w, graph, sx, sz, class, layer)
+  local start = W.node(w, sx, sz, layer)
+  local qi, qx, qz, ql, head, tail = { start }, { sx }, { sz }, { layer }, 1, 1
+  local dist = { [start] = 0 }
   local window = Navigation.window
-  dist[W.node(w, sx, sz, layer)] = 0
   while head <= tail do
-    local px, pz, pl = qx[head], qz[head], ql[head]
+    local id, px, pz, pl = qi[head], qx[head], qz[head], ql[head]
     head = head + 1
     W.stats.visited = W.stats.visited + 1
-    local d = dist[W.node(w, px, pz, pl)]
-    local here = W.level(w, px, pz, pl)
-    for i = 1, #neighbours do
-      local a = neighbours[i]
-      local nx, nz = px + a[1], pz + a[2]
-      -- Search runs backwards from the goal: a neighbour must be able to
-      -- climb from its own floor to this cell, not the other way round.
-      -- Every surface of the neighbour is a node (its floor, its decks).
-      local decks = w.decks and Ground.decks(w, nx, nz) or none
-      for nl = 0, #decks do
-        local id = W.node(w, nx, nz, nl)
-        local there = W.level(w, nx, nz, nl)
-        local climb = here - there
-        if
-          math.abs(nx - sx) <= window
-          and math.abs(nz - sz) <= window
-          and W.open(w, nx, nz, class)
-          and dist[id] == nil
-          and climb <= (w.stepHeight or Terrain.stepHeight)
-          and (
-            not w.decks
-            or (roomy(w, nx, nz, there, class) and W.step(w, px, pz, there, class) == pl)
-          )
-        then
-          dist[id] = d + 1
-          tail = tail + 1
-          qx[tail], qz[tail], ql[tail] = nx, nz, nl
-        end
+    local edges = graph[id]
+    if not edges then
+      edges = edgesInto(w, class, px, pz, pl)
+      graph[id] = edges
+    end
+    local d = dist[id] + 1
+    for i = 1, #edges, 4 do
+      local next = edges[i]
+      local nx, nz = edges[i + 1], edges[i + 2]
+      if dist[next] == nil and abs(nx - sx) <= window and abs(nz - sz) <= window then
+        dist[next] = d
+        tail = tail + 1
+        qi[tail], qx[tail], qz[tail], ql[tail] = next, nx, nz, edges[i + 3]
       end
     end
   end
@@ -452,7 +469,7 @@ function W.flow(w, x, z, class, level)
   end
   local cache = w.flows
   if not cache or cache.revision ~= w.geometryRevision then
-    cache = { revision = w.geometryRevision, count = 0, clock = 0, fields = {} }
+    cache = { revision = w.geometryRevision, count = 0, clock = 0, fields = {}, graphs = {} }
     w.flows = cache
   end
   cache.clock = cache.clock + 1
@@ -481,7 +498,8 @@ function W.flow(w, x, z, class, level)
       cache.fields[oldClass][oldGoal] = nil
       cache.count = cache.count - 1
     end
-    entry = { field = flowField(w, sx, sz, class, layer) }
+    cache.graphs[class] = cache.graphs[class] or {}
+    entry = { field = flowField(w, cache.graphs[class], sx, sz, class, layer) }
     byClass[goal], cache.count = entry, cache.count + 1
   end
   entry.used = cache.clock

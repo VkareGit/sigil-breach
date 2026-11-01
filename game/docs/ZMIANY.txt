@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.39 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.40 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,26 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.40.txt
+SIGIL: BREACH 0.40 / The Chapel
+
+Responsywność.
+
+Klatka:
+- LuaJIT na domyślnych limitach nie mieścił skompilowanego kodu gry i w kółko go kompilował od nowa. main.lua daje mu większe limity. W walce w kaplicy klatki ponad 16,7 ms: 566 na 3600 przed, kilka po; mediana klatki 11 ms przed, 5 ms po.
+- Trasy stworów trzymają krawędzie grafu między wyszukiwaniami, a pierwszy przebieg idzie przy odpoczynku, nie w pierwszym pościgu.
+
+Wejście:
+- Unik ma bufor 0,25 s, strzał 0,35 s, więc naciśnięcie w trakcie blokady dzieje się, gdy blokada minie. Dotąd strzał miał 0,12 s, a unik wcale.
+- Odmowa jest widoczna. Celownik czerwienieje i rozchodzi się, gdy ręce nie mogą strzelać. Pod nim stoi OFF BALANCE, DRINKING, OUT OF BREATH albo NO DODGES LEFT, z krótkim dźwiękiem. Blokady działają jak dotąd, widać je.
+
+Stwory:
+- To, na co rycerz patrzy z 18 m lub bliżej, rusza na niego, także gdy jest poza swoim zasięgiem czujności. Najwyżej dwa naraz; kolejny dołącza, gdy któryś padnie. Bez limitu boty ginęły dwa razy częściej.
+
+qa/reviews/frame_watch.lua (--frame-watch) mierzy klatki prawdziwej walki w kaplicy i podaje najgorsze z powodem.
 
 
 ########################################################################

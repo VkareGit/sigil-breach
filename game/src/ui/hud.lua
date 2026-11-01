@@ -10,6 +10,7 @@ local Skin = require('src.ui.skin')
 local T = require('src.content.tuning')
 local Reload = require('src.combat.reload')
 local B = require('src.combat.ballistics')
+local Attributes = require('src.combat.attributes')
 local L = require('src.ui.layout')
 local Portrait = require('src.ui.portrait')
 local Numbers = require('src.ui.fonts.painted_numbers')
@@ -277,12 +278,22 @@ local function hitMarks(g, cx, cy, reticle)
     end
   end
 end
+-- The hands cannot fire: the reticle opens and goes red for as long as that lasts, so a pull that
+-- does nothing is never a game that did not listen. What was refused is said under it.
 local function aimMarks(g, cx, cy)
-  local gap = 5 + math.min(6, g.view.recoil * 5)
+  local p = Context.actor(g)
+  local locked = Attributes.forbids(p, 'fire')
+  local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and L.lockedGap or 0)
   local hit = g.view.hitmarker > 0
-  local reticle = hit
-      and (g.view.lastKill and C.gold or (g.view.armorHit and C.blue or ((g.view.hitWeight or 0) < 0.25 and C.muted or C.red)))
+  local reticle = locked and C.red
+    or hit and (g.view.lastKill and C.gold or (g.view.armorHit and C.blue or ((g.view.hitWeight or 0) < 0.25 and C.muted or C.red)))
     or C.ivory
+  local drinking = p.conditions and (p.conditions.drinking or 0) > 0
+  local says = locked and (drinking and 'hud_drinking' or 'hud_off_balance')
+    or (g.view.refusalTimer or 0) > 0 and g.view.refusal
+  if says then
+    centered(Text.get(says), cx, cy + L.refusalBelow, 16, C.red)
+  end
   for _, v in ipairs({ { -gap - 6, 0, -gap, 0 }, { gap, 0, gap + 6, 0 }, { 0, -gap - 6, 0, -gap } }) do
     line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
     line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], reticle, 2)

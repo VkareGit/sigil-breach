@@ -76,6 +76,11 @@ Suite.registry = {
     module = 'tests.cases.report',
   },
   {
+    id = 'responsiveness',
+    title = 'No press is lost and every refusal is told',
+    module = 'tests.cases.responsiveness',
+  },
+  {
     id = 'pilgrimage-save',
     title = 'A bad save never stops the game, kills wait for quiet, replays read no disk',
     module = 'tests.cases.pilgrimage_save',

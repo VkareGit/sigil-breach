@@ -418,9 +418,7 @@ function F.update(g, dt, input, actor)
   accelerate(wantedSpeed(g, velocity, dt), dt)
   local planted = m.onGround and p.slideTimer == 0
   keepSliding(dt)
-  if input.dash and not Attributes.forbids(p, 'dash') then
-    g:dash(m.dx, m.dz, p)
-  end
+  Intent.dash(g, dt, input.dash, m.dx, m.dz, actor)
   planted = planted and p.dashTimer == 0
   keepDashing(dt)
   carryShove(dt)

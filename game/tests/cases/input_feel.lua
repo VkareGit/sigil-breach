@@ -75,7 +75,7 @@ function Tests.run(G, check)
     return false
   end
   Intent.queue(g, 'fire')
-  for _ = 1, 16 do
+  for _ = 1, 44 do
     Intent.fire(g, 1 / 120, false)
   end
   check(
@@ -118,7 +118,7 @@ function Tests.run(G, check)
   check(
     'invalid time cannot consume input or fire a weapon',
     g.player.shots == 0
-      and g.player.fireBuffer == Intent.window
+      and g.player.fireBuffer == require('src.content.tuning').input.fireWindow
       and g.player.jumpBuffer == Intent.window
   )
   for _, rate in ipairs({ 30, 60, 144 }) do

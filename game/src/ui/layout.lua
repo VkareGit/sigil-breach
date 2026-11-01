@@ -1,6 +1,15 @@
 -- World and GUI share one viewport, including letterboxing and the status bar.
 local Queries = require('src.session.queries')
-local L = { width = 1280, height = 720, barTop = 600, aimX = 640, aimY = 300 }
+local L = {
+  width = 1280,
+  height = 720,
+  barTop = 600,
+  aimX = 640,
+  aimY = 300,
+  -- How far the reticle opens while the hands cannot fire, and what is said below it (px).
+  lockedGap = 7,
+  refusalBelow = 34,
+}
 function L.viewport(w, h)
   local scale = math.min(w / L.width, h / L.height)
   return scale, (w - L.width * scale) / 2, (h - L.height * scale) / 2

@@ -186,6 +186,22 @@ local function tickBody(g, e, dt, paused)
   return true
 end
 
+-- The knight is looking at it: a body in plain sight does not stand and wait for him.
+local function watched(g, e, p, d)
+  if
+    p.yaw == nil
+    or d >= Senses.seenRange
+    or math.abs(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) >= Senses.seenCone
+  then
+    return false
+  end
+  -- A hall comes at him in turns, not as one herd: the next steps up as one falls.
+  local coming = 0
+  Bodies.eachCreature(g, function(other)
+    coming = coming + (other.awake and 1 or 0)
+  end)
+  return coming < Senses.seenPack
+end
 -- Senses: sight on a short clock, memory of the last sighting, facing. The
 -- sight clock also renews whom it fights (never during a committed attack).
 -- Returns the distance to that body (renewed when the choice changed).
@@ -202,7 +218,7 @@ local function perceive(g, e, d, dt)
     end
     e.visible = Rules.sees(g, e, p)
     e.sense = Senses.interval + e.id % 3 * Senses.stagger
-    if e.visible and d < (e.alertRange or Senses.alertRange) then
+    if e.visible and (d < (e.alertRange or Senses.alertRange) or watched(g, e, p, d)) then
       if not e.awake then
         Signal(g, 'Alerted', { enemy = e })
       end

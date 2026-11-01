@@ -15,7 +15,7 @@ return {
   -- Sight is queried between observers' eye planes, independently of walking.
   terrain = { stepHeight = 0.32, segment = 0.25, eye = 1.15 },
   -- A displayed input may survive one capped 200 ms catch-up plus a 120 ms tap.
-  observation = { maxAge = 0.20 + 0.12 },
+  observation = { maxAge = 0.20 + 0.35 },
   -- Optional command recording: estimated serialized text, not Lua heap bytes.
   -- Stop after the complete command that reaches either bound: 10 min of
   -- 120 updates/s and one aim per displayed frame up to 240 frames/s.
@@ -92,6 +92,15 @@ return {
     heights = { 2.4, 3.6 },
     -- Route fields kept before the cache starts again: each is a table of every region.
     fieldsKept = 64,
+  },
+  -- How long a press waits for the moment it can happen (s), and how a refusal is told. The fire
+  -- window outlasts the hands a dodge keeps busy (rollLock).
+  input = {
+    jumpWindow = 0.12,
+    fireWindow = 0.35,
+    dashWindow = 0.25,
+    refusalTime = 0.7,
+    refusalVolume = 0.25,
   },
   -- Corpses at rest a session keeps.
   remainsKept = 128,

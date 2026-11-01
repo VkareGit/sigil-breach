@@ -308,6 +308,7 @@ C.schemas.knight = {
   jump = f(0),
   jumpV = f(0),
   jumpBuffer = f(nil),
+  dashBuffer = f(nil),
   crouch = f(0),
   airCap = f(nil),
   dash = f(nil, 'dodge charges'),

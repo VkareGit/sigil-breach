@@ -177,6 +177,11 @@ return {
     interval = 0.10,
     stagger = 0.015,
     alertRange = 12,
+    -- What a knight has in front of his eyes this near (m), inside this many radians of his aim,
+    -- does not wait for him: a post's own alert range is for what he has not seen.
+    seenRange = 18,
+    seenCone = 0.8,
+    seenPack = 2,
     memory = 5,
     turnRate = 10,
     -- A knight this near (m) counts as close (enemies/answers.lua: hugging).
