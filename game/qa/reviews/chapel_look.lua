@@ -40,16 +40,17 @@ function Review.run(Game, renderer, output)
   end
   shot(g, 'first-fire')
   local p = g.player
-  for _, fire in ipairs(K.fires) do
+  local area = K.start()
+  for _, fire in ipairs(area.fires) do
     p.x, p.z, p.yaw, p.pitch = fire.x, fire.z + 3, math.pi, 0
     g:update(1 / 120, {})
     shot(g, 'fire-' .. fire.id)
   end
-  p.x, p.z = K.fires[2].x, K.fires[2].z + 1
+  p.x, p.z = area.fires[2].x, area.fires[2].z + 1
   g:interact()
   shot(g, 'fire-menu')
   g:act('closeShop')
-  for _, door in ipairs(K.doors) do
+  for _, door in ipairs(area.doors) do
     for _, name in ipairs({ 'side', 'back' }) do
       local at = door[name]
       p.x, p.z = at.x, at.z

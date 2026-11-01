@@ -77,9 +77,6 @@ local function obtain(g, name, read, legacyEffect)
   end
   return value
 end
-function Execution.read(g, name, read)
-  return obtain(g, name, read)
-end
 -- A durable effect may return a scalar receipt (e.g. an error displayed by the
 -- session). The receipt replays, the effect never does. Tests record the same
 -- successful no-op receipt without requiring a writable save directory.

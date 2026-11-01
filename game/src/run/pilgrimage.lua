@@ -1,4 +1,4 @@
--- The way through the chapel: fires. The world stands where the map
+-- The way: fires, area by area. The world stands where the map
 -- puts it; a rest heals the knight, fills his flask and rounds, sets where he wakes,
 -- and raises every creature. Dying leaves the souls where the knight fell; dying again
 -- before reaching them loses them.
@@ -17,20 +17,24 @@ local Save = require('src.storage.save')
 local Text = require('src.content.text')
 local Weapons = require('src.content.weapons')
 local Archetypes = require('src.content.enemies')
+local Bodies = require('src.combat.bodies')
+local Maps = require('src.content.maps.index')
+local Shop = require('src.content.shop')
+local Copy = require('src.core.schema').copy
+local World = require('src.world.arena')
 local P = {}
-local FILE = 'pilgrimage.save'
 local distance = MathX.distance
-local function fireOf(id)
-  for _, fire in ipairs(K.fires) do
-    if fire.id == id then
-      return fire
-    end
-  end
+-- The file of a save slot; the first keeps the name every earlier version wrote.
+function P.file(slot)
+  return (slot or 1) == 1 and 'pilgrimage.save' or ('pilgrimage-' .. slot .. '.save')
+end
+local function area(g)
+  return K.areas:get(g.run.area)
 end
 -- The fire the knight stands at, if any.
 function P.fireHere(g)
   local p = Roles.controlled(g)
-  for _, fire in ipairs(K.fires) do
+  for _, fire in ipairs(area(g).fires) do
     if distance(p, fire) < K.reach then
       return fire
     end
@@ -48,7 +52,7 @@ function P.populate(g)
   Encounter.clearStage(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
-  for _, entry in ipairs(K.garrison) do
+  for _, entry in ipairs(area(g).garrison) do
     place(g, entry)
   end
 end
@@ -72,26 +76,33 @@ local function wake(g, fire)
 end
 function P.save(g)
   local r = g.run
-  r.saves = r.saves + 1
+  r.saves, r.dirty, r.waited = r.saves + 1, false, 0
   local text = Save.encode('pilgrimage', Save.capture('pilgrimage', g), r.saves)
   local reason = Execution.effect(g, 'pilgrimage.save', function()
-    local ok, problem = Save.write(FILE, text)
+    local ok, problem = Save.write(P.file(r.slot), text)
     return not ok and problem or nil
   end)
   g.saveWarning = reason
   return reason == nil
 end
+-- What a kill left unsaved goes to disk now: the game stopped, or is about to.
+function P.flush(g)
+  return g.run.dirty and P.save(g)
+end
 -- A new way: the old one is gone, every copy of it.
-function P.forget()
-  for _, name in ipairs({ FILE, FILE .. '.tmp', FILE .. '.previous' }) do
-    love.filesystem.remove(name)
+function P.forget(g, slot)
+  if g then
+    g.run.dirty = false
   end
+  Save.erase(P.file(slot or (g and g.run.slot)))
 end
+-- All a replay needs to start where this session started, and nothing from the disk.
 function P.construction(g)
-  return { origin = g.run.origin }
+  local r = g.run
+  return { slot = r.slot, origin = r.origin, saves = r.begun }
 end
-function P.init(g, options)
-  Encounter.clearWorld(g)
+local function renew(g, slot)
+  local first = K.start().first
   g.run = {
     phase = 'journey',
     wallet = 0,
@@ -101,23 +112,62 @@ function P.init(g, options)
     pending = {},
     deaths = 0,
     fragment = false,
-    fire = K.first,
-    lit = { [K.first] = true },
+    slot = slot or 1,
+    area = K.first,
+    fire = first,
+    lit = { [first] = true },
     opened = {},
+    ruins = {},
+    dirty = false,
+    waited = 0,
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
-  -- A journal replays the way as it was when the session began.
-  local data, sequence, damaged = options and options.origin, 0, false
-  if not data then
-    data, sequence, damaged = Save.read('pilgrimage', FILE)
+end
+-- The newest copy that both reads and restores. One that fails leaves a new run behind it
+-- for the next; the start of the game never depends on a file being good.
+local function resume(g, slot)
+  local found, damaged = Save.candidates('pilgrimage', P.file(slot))
+  for _, copy in ipairs(found) do
+    if pcall(Save.restore, 'pilgrimage', g, copy.values) then
+      return copy.values, copy.sequence, damaged
+    end
+    Destruction.reset(g.world)
+    renew(g, slot)
+    damaged = true
   end
-  g.run.origin, g.run.saves, g.run.saved = data, sequence, data ~= nil
-  g.availableSave, g.saveRecovered = data, damaged
-  if data then
+  return nil, 0, damaged
+end
+-- Souls left where the map no longer has floor wait where he wakes.
+local function reachEcho(g)
+  local r, echo = g.run, g.run.echo
+  if echo and echo.area == r.area and World.solid(g.world, echo.x, echo.z, 0) then
+    local fire = K.fireOf(r.fire)
+    echo.x, echo.z = fire.x, fire.z - K.wake
+  end
+end
+-- options: slot; origin and saves when a journal replays a session, which reads no disk
+-- (origin false: it began with no save).
+function P.init(g, options)
+  options = options or {}
+  Encounter.clearWorld(g)
+  renew(g, options.slot)
+  local data, sequence, damaged = options.origin, options.saves or 0, false
+  if data == nil then
+    data, sequence, damaged = resume(g, options.slot)
+    -- Nothing here can be played: it is set aside, never deleted, and the slot is free.
+    if damaged and not data and Execution.canWrite(g) then
+      Save.quarantine(P.file(options.slot))
+    end
+  elseif data then
     Save.restore('pilgrimage', g, data)
   end
+  local r = g.run
+  r.origin, r.saved = data or false, data and true or false
+  r.saves, r.begun = sequence, sequence
+  g.availableSave, g.saveRecovered = data or nil, damaged
   refresh(g)
-  wake(g, fireOf(g.run.fire))
+  reachEcho(g)
+  wake(g, (K.fireOf(r.fire)))
   P.populate(g)
 end
 function P.start(g)
@@ -127,7 +177,7 @@ function P.start(g)
 end
 local function doorHere(g)
   local p = Roles.controlled(g)
-  for _, door in ipairs(K.doors) do
+  for _, door in ipairs(area(g).doors or {}) do
     if distance(p, door.side) < K.doorReach then
       return door, true
     elseif distance(p, door.back) < K.doorReach then
@@ -183,18 +233,19 @@ function P.travel(g)
     return false
   end
   Sanctuary.closeTrade(g)
-  local at
-  for index, fire in ipairs(K.fires) do
+  local fires, at = area(g).fires, nil
+  for index, fire in ipairs(fires) do
     at = fire.id == here.id and index or at
   end
-  for step = 1, #K.fires - 1 do
-    local fire = K.fires[(at + step - 1) % #K.fires + 1]
+  for step = 1, #fires - 1 do
+    local fire = fires[(at + step - 1) % #fires + 1]
     if g.run.lit[fire.id] then
       g.run.fire = fire.id
       refresh(g)
       wake(g, fire)
       P.populate(g)
       Feel.init(g)
+      P.save(g)
       g:notify(Text.get('pilgrim_rested', { name = Text.get(fire.name) }), 3)
       return true
     end
@@ -214,7 +265,7 @@ function P.context(g)
     )
   end
   local echo = g.run.echo
-  if echo and distance(Roles.controlled(g), echo) < K.reach then
+  if echo and echo.area == g.run.area and distance(Roles.controlled(g), echo) < K.reach then
     return Text.get('pilgrim_echo', { amount = echo.amount })
   end
 end
@@ -222,7 +273,7 @@ end
 function P.lose(g)
   local r, p = g.run, Roles.controlled(g)
   r.deaths = r.deaths + 1
-  r.echo = r.wallet > 0 and { amount = r.wallet, x = p.x, z = p.z } or nil
+  r.echo = r.wallet > 0 and { amount = r.wallet, x = p.x, z = p.z, area = r.area } or nil
   r.wallet, r.phase = 0, 'defeated'
   g.state = 'dead'
   P.save(g)
@@ -235,25 +286,39 @@ function P.retry(g)
   r.phase = 'journey'
   g.state, g.map, g.help = 'playing', false, false
   refresh(g)
-  wake(g, fireOf(r.fire))
+  wake(g, (K.fireOf(r.fire)))
   P.populate(g)
   Presentation.capture(g, true)
   return true
 end
+-- A kill changes the wallet but is no reason to stop the game for the disk: it is saved at
+-- the next quiet moment, a durable event or the moment the game stops (P.flush).
 function P.reward(g, event)
-  g.run.wallet = g.run.wallet + (Archetypes.of(event.enemy).souls or 0) * K.souls
-  P.save(g)
+  local r = g.run
+  r.wallet, r.dirty = r.wallet + (Archetypes.of(event.enemy).souls or 0) * K.souls, true
 end
-function P.update(g)
+local function fighting(g)
+  return Bodies.each(g, function(b)
+    return b.awake
+  end) ~= nil
+end
+function P.update(g, dt)
   local r = g.run
   if r.phase ~= 'journey' or g.state ~= 'playing' then
     return
   end
   local echo = r.echo
-  if echo and distance(Roles.controlled(g), echo) < K.echoReach then
+  if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < K.echoReach then
     r.wallet, r.echo = r.wallet + echo.amount, nil
     g:notify(Text.get('pilgrim_recovered', { amount = echo.amount }), 3)
     Presentation.cue(g, 'seal', 0.5)
+    P.save(g)
+  end
+  if r.dirty then
+    r.waited = r.waited + dt
+    if r.waited >= K.saveEvery and not fighting(g) then
+      P.save(g)
+    end
   end
 end
 -- What the world shows of the way: the fires beyond the first, which is the Ember.
@@ -262,15 +327,16 @@ function P.world(g, out)
   for i = #out.fires, 1, -1 do
     out.fires[i] = nil
   end
-  for _, fire in ipairs(K.fires) do
-    if fire.id ~= K.first then
+  local here = area(g)
+  for _, fire in ipairs(here.fires) do
+    if fire.id ~= here.first then
       out.fires[#out.fires + 1] = fire
     end
   end
   out.shrineActive = true
   out.doors = out.doors or {}
   local count = 0
-  for _, door in ipairs(K.doors) do
+  for _, door in ipairs(here.doors or {}) do
     local art = g.run.opened[door.id] and 'chapel_door_open' or 'chapel_door_barred'
     for _, side in ipairs({ door.side, door.back }) do
       count = count + 1
@@ -288,12 +354,68 @@ function P.hud(g)
   report.progress = Text.get('pilgrim_progress', { deaths = r.deaths })
   return report
 end
+local function whole(value, low, high)
+  return type(value) == 'number'
+    and MathX.finite(value)
+    and value == math.floor(value)
+    and value >= low
+    and value <= high
+end
+-- The ids of a set that the game still has; an id content dropped goes with it.
+local function known(set, exists)
+  assert(type(set) == 'table', 'invalid set of ids')
+  local kept = {}
+  for id, value in pairs(set) do
+    assert(type(id) == 'string' and value == true, 'invalid entry of a set of ids')
+    if exists(id) then
+      kept[id] = true
+    end
+  end
+  return kept
+end
+local function validEcho(echo, home)
+  if echo == nil then
+    return nil
+  end
+  assert(type(echo) == 'table', 'invalid echo')
+  assert(whole(echo.amount, 1, Shop.maxWallet), 'invalid echo amount')
+  assert(MathX.finite(echo.x) and MathX.finite(echo.z), 'invalid echo position')
+  return {
+    amount = echo.amount,
+    x = echo.x,
+    z = echo.z,
+    area = K.areas:has(echo.area) and echo.area or home,
+  }
+end
+local function validRuins(ruins)
+  assert(type(ruins) == 'table', 'invalid ruins')
+  local kept = {}
+  for mapId, states in pairs(ruins) do
+    assert(type(mapId) == 'string' and type(states) == 'table', 'invalid ruin')
+    if Maps:has(mapId) then
+      kept[mapId] = Destruction.clean(mapId, states)
+    end
+  end
+  return kept
+end
 Save.declare({
   name = 'pilgrimage',
   file = 'pilgrimage',
-  version = 1,
+  version = 2,
+  migrations = {
+    -- One area, one map, one ruin.
+    [1] = function(data)
+      data.ruins, data.ruin = { proving = data.ruin }, nil
+      if data.echo then
+        data.echo.area = K.first
+      end
+      return data
+    end,
+  },
   pack = function(g)
     local r = g.run
+    local ruins = Copy(r.ruins)
+    ruins[g.world.mapId] = g.world.destruction or {}
     return {
       wallet = r.wallet,
       deaths = r.deaths,
@@ -303,19 +425,43 @@ Save.declare({
       owned = r.owned,
       glyph = r.glyph,
       opened = r.opened,
-      ruin = g.world.destruction or {},
+      ruins = ruins,
     }
   end,
+  -- A file is judged here, before it touches a session: a wrong type refuses the whole of
+  -- it, and what names content that is gone is dropped, so a save outlives a content change.
   unpack = function(data)
-    assert(type(data.fire) == 'string' and fireOf(data.fire), 'unknown fire')
-    return data
+    assert(type(data) == 'table', 'invalid way')
+    assert(whole(data.wallet, 0, Shop.maxWallet), 'invalid wallet')
+    assert(whole(data.deaths, 0, math.huge), 'invalid deaths')
+    assert(type(data.fire) == 'string', 'invalid fire')
+    assert(type(data.glyph) == 'string', 'invalid engraving')
+    local fire, home = K.fireOf(data.fire)
+    if not fire then
+      home = K.start()
+      fire = K.fireOf(home.first)
+    end
+    local out = {
+      wallet = data.wallet,
+      deaths = data.deaths,
+      area = home.id,
+      fire = fire.id,
+      lit = known(data.lit, K.fireOf),
+      owned = known(data.owned, Shop.find),
+      opened = known(data.opened, K.doorOf),
+      ruins = validRuins(data.ruins),
+      echo = validEcho(data.echo, home.id),
+    }
+    out.lit[fire.id] = true
+    out.glyph = out.owned[data.glyph] and data.glyph or 'none'
+    return out
   end,
   restore = function(g, data)
     local r = g.run
-    r.wallet, r.deaths, r.fire = data.wallet, data.deaths, data.fire
-    r.lit, r.echo = data.lit, data.echo
-    r.owned, r.glyph, r.opened = data.owned, data.glyph, data.opened
-    Destruction.restore(g.world, data.ruin)
+    r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
+    r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
+    r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
+    Destruction.restore(g.world, r.ruins[g.world.mapId])
   end,
 })
 return P

@@ -83,7 +83,7 @@ end)
 -- in a cycle.
 Modes:register('field', {
   prepared = true,
-  session = { map = require('src.content.pilgrimage').map },
+  session = { map = require('src.content.pilgrimage').start().map },
   record = 'testField',
   init = function(g, options)
     field().init(g, options)
@@ -192,7 +192,7 @@ local function pilgrimage()
 end
 Modes:register('pilgrimage', {
   prepared = true,
-  session = { map = require('src.content.pilgrimage').map },
+  session = { map = require('src.content.pilgrimage').start().map },
   record = 'run',
   policy = { attrition = true },
   attrition = function()
@@ -233,14 +233,20 @@ Modes:register('pilgrimage', {
   newRequiresConfirmation = function(g)
     return g.run.saved
   end,
-  forget = function()
-    pilgrimage().forget()
+  forget = function(g)
+    pilgrimage().forget(g)
+  end,
+  flush = function(g)
+    return pilgrimage().flush(g)
+  end,
+  unsaved = function(g)
+    return g.run.dirty
   end,
   start = function(g)
     return pilgrimage().start(g)
   end,
-  progress = function(g)
-    pilgrimage().update(g)
+  progress = function(g, dt)
+    pilgrimage().update(g, dt)
   end,
   ready = function(g)
     return pilgrimage().travel(g)

@@ -343,6 +343,34 @@ function D.reset(world)
     D.restore(world, nil)
   end
 end
+local function breakables(mapId)
+  local valid = {}
+  local map = require('src.content.maps.index'):get(mapId)
+  for _, def in ipairs((map.decor or NONE).breakables or NONE) do
+    valid[def.id] = def
+  end
+  return valid
+end
+local function validState(def, s)
+  if type(s) ~= 'table' then
+    return false
+  end
+  local health = Kinds[def.kind].health
+  return type(s.damage) == 'number'
+    and s.damage >= 0
+    and s.damage <= health
+    and (s.at == nil or (type(s.at) == 'number' and s.at >= 0))
+end
+-- What a save may keep of a map's ruin: what the map still has, in a sound state.
+function D.clean(mapId, states)
+  local valid, kept = breakables(mapId), {}
+  for id, s in pairs(states) do
+    if valid[id] and validState(valid[id], s) then
+      kept[id] = Copy(s)
+    end
+  end
+  return kept
+end
 Save.declare({
   name = 'destruction',
   file = 'session',
@@ -356,21 +384,10 @@ Save.declare({
   unpack = function(t)
     assert(type(t) == 'table', 'invalid destruction state')
     for mapId, states in pairs(t) do
-      local map = require('src.content.maps.index'):get(mapId)
       assert(type(states) == 'table', 'invalid destruction states')
-      local valid = {}
-      for _, def in ipairs((map.decor or NONE).breakables or NONE) do
-        valid[def.id] = def
-      end
+      local valid = breakables(mapId)
       for id, s in pairs(states) do
-        local def = valid[id]
-        assert(def and type(s) == 'table', 'unknown breakable')
-        local health = Kinds[def.kind].health
-        assert(
-          type(s.damage) == 'number' and s.damage >= 0 and s.damage <= health,
-          'invalid breakable damage'
-        )
-        assert(s.at == nil or (type(s.at) == 'number' and s.at >= 0), 'invalid breaking time')
+        assert(valid[id] and validState(valid[id], s), 'unknown breakable')
       end
     end
     return Copy(t)

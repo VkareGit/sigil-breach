@@ -76,12 +76,14 @@ function Shop.undefine(id)
     end
   end
 end
-function Shop.get(id)
+function Shop.find(id)
   for _, offer in ipairs(Shop.offers) do
     if offer.id == id then
       return offer
     end
   end
-  error('unknown shop offer: ' .. tostring(id), 2)
+end
+function Shop.get(id)
+  return Shop.find(id) or error('unknown shop offer: ' .. tostring(id), 2)
 end
 return Shop

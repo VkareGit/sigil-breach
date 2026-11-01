@@ -29,8 +29,11 @@ function T.run(Game)
   P.forget()
   local g = session(Game)
   local p = g.player
-  check('the knight wakes at the first fire', P.fireHere(g) ~= nil and P.fireHere(g).id == K.first)
-  check('every post stands', #Pools.of(g, 'enemies') == #K.garrison)
+  check(
+    'the knight wakes at the first fire',
+    P.fireHere(g) ~= nil and P.fireHere(g).id == K.start().first
+  )
+  check('every post stands', #Pools.of(g, 'enemies') == #K.start().garrison)
   check('nobody knows he is here', byPost(g, 'nave_1').awake == false)
   check('no waves, effort is paid', require('src.session.capabilities').attrition(g))
   check('the flask is carried', p.abilityState.flask.uses == 3)
@@ -97,7 +100,7 @@ function T.run(Game)
   check('it pays and ends nothing', g.run.wallet > before and g.state == 'playing')
   -- A door stays barred until it is opened from its side, then it leads through.
   local World = require('src.world.arena')
-  local door = K.doors[1]
+  local door = K.start().doors[1]
   check('the wall behind a door is stone', World.solid(g.world, 14, 6, 0.3))
   p.x, p.z = door.back.x, door.back.z
   g:interact()
@@ -113,7 +116,7 @@ function T.run(Game)
   local saved = session(Game)
   check('a new session knows the lit fires', saved.run.lit.west)
   check('an open door stays open', saved.run.opened[door.id])
-  check('the other is still shut', not saved.run.opened[K.doors[2].id])
+  check('the other is still shut', not saved.run.opened[K.start().doors[2].id])
   -- What collapsed stays down through a rest and a save; small things stand again.
   local Destruction = require('src.combat.destruction')
   local Kinds = require('src.content.breakables')

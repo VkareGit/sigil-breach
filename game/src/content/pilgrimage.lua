@@ -1,11 +1,17 @@
--- The way through the chapel as data: its fires, its doors and who stands where. The
--- rules are run/pilgrimage.lua.
+-- The way as data: its areas, each a map with its fires, doors and who stands where.
+-- The rules are run/pilgrimage.lua. Ids go into saves: an id that leaves is dropped from a
+-- save when it loads, an id that is renamed needs a migration there.
 --   fires     { id, name, x, z }
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
 --             leash: how far it follows, in place of the common leash; patrol: its points
-return {
-  map = 'proving',
-  first = 'narthex',
+local Registry = require('src.core.registry')
+local Way = {
+  first = 'chapel',
+  -- Save slots a player can choose between.
+  slots = 3,
+  -- After a kill the save waits for this long (s) and for nobody awake, so no fight stops for
+  -- the disk.
+  saveEvery = 5,
   -- How near a fire must be to rest at it (m); how far a body follows from its post.
   reach = 2.6,
   leash = 16,
@@ -15,6 +21,15 @@ return {
   echoReach = 1.2,
   -- A knight wakes this far before his fire (m), with it at his back.
   wake = 1.5,
+  -- How near a door a knight must stand, and how tall it is painted (m).
+  doorReach = 1.5,
+  doorSize = 2.7,
+  areas = Registry:new('way areas'),
+}
+Way.areas:register('chapel', {
+  id = 'chapel',
+  map = 'proving',
+  first = 'narthex',
   fires = {
     { id = 'narthex', name = 'fire_narthex', x = 27, z = 35 },
     { id = 'sanctuary', name = 'fire_sanctuary', x = 24, z = 9 },
@@ -46,9 +61,6 @@ return {
       back = { x = 32.8, z = 4.3, yaw = math.pi, art = { x = 32.8, z = 5.46, yaw = math.pi } },
     },
   },
-  -- How near a door a knight must stand, and how tall it is painted (m).
-  doorReach = 1.5,
-  doorSize = 2.7,
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then
     -- iron before the fire. Each notices only so far, so a careful knight takes them apart.
@@ -79,4 +91,29 @@ return {
     { id = 'west_hall', creature = 'boss', x = 10, z = 14, yaw = 0, alert = 6, leash = 12 },
     { id = 'east_hall', creature = 'furfur', x = 38, z = 14, yaw = 0, alert = 6, leash = 12 },
   },
-}
+})
+-- Where a new way begins.
+function Way.start()
+  return Way.areas:get(Way.first)
+end
+-- A fire by id, and its area.
+function Way.fireOf(id)
+  for _, area in Way.areas:each() do
+    for _, fire in ipairs(area.fires) do
+      if fire.id == id then
+        return fire, area
+      end
+    end
+  end
+end
+-- A door by id, and its area.
+function Way.doorOf(id)
+  for _, area in Way.areas:each() do
+    for _, door in ipairs(area.doors or {}) do
+      if door.id == id then
+        return door, area
+      end
+    end
+  end
+end
+return Way

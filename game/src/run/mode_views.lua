@@ -38,6 +38,7 @@ function Views.run(_, state, run)
   run.wallet, run.echo, run.deaths = state.wallet, state.echo, state.deaths
   run.glyph, run.owned = state.glyph, state.owned
   run.rest, run.lit, run.saved = state.fire, state.lit, state.saved
+  run.area = state.area
   return run
 end
 -- The proving ground's settings and selection, for its screens.

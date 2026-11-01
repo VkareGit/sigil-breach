@@ -284,7 +284,8 @@ function D.map(g)
   panel(100, 40, 1080, 640)
   Skin.zone('map writing field', 132, 76, 1016, 570)
   text(Text.get('map_fires'), 136, 131, 20, gold)
-  for i, fire in ipairs(Way.fires) do
+  local area = Way.areas:get(r.area)
+  for i, fire in ipairs(area.fires) do
     local lit = r.lit[fire.id]
     local y = 163 + (i - 1) * 39
     text(Text.get(fire.name), 136, y, 22, lit and gold or muted)
@@ -315,8 +316,8 @@ function D.map(g)
   local cold = Palette.cold
   color(cold)
   lg.setLineWidth(2)
-  for _, fire in ipairs(Way.fires) do
-    if r.lit[fire.id] and fire.id ~= Way.first then
+  for _, fire in ipairs(area.fires) do
+    if r.lit[fire.id] and fire.id ~= area.first then
       lg.circle('line', ox + fire.x * sz, oy + fire.z * sz, 7)
     end
   end

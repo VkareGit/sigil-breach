@@ -168,28 +168,49 @@ local function move(from, to)
   end
   return os.rename(real(from), real(to))
 end
--- The newest complete save of name: the file itself, a new save left beside
--- it by an interrupted swap, or the previous one kept. Returns its values,
--- sequence and whether a damaged candidate was seen.
-function Save.read(file, name)
-  local best, sequence, damaged = nil, 0, false
+-- Every copy of name that reads, newest first: the file itself, a new save left
+-- beside it by an interrupted swap, the previous one kept. Each is { values, sequence };
+-- the second result says a damaged copy was seen.
+function Save.candidates(file, name)
+  local found, damaged = {}, false
   for _, path in ipairs({ name, name .. '.tmp', name .. '.previous' }) do
     local raw = love.filesystem.read(path)
     if raw then
       local values, seq = Save.decode(file, raw)
-      if values and seq > sequence then
-        best, sequence = values, seq
-      elseif not values then
+      if values then
+        found[#found + 1] = { values = values, sequence = seq }
+      else
         damaged = true
       end
     end
   end
-  return best, sequence, damaged
+  table.sort(found, function(a, b)
+    return a.sequence > b.sequence
+  end)
+  return found, damaged
+end
+-- The newest complete save of name: its values, sequence and whether a damaged
+-- candidate was seen.
+function Save.read(file, name)
+  local found, damaged = Save.candidates(file, name)
+  local best = found[1]
+  return best and best.values, best and best.sequence or 0, damaged
 end
 -- Write text as the save name: beside it first, verified, then swapped in.
 function Save.write(name, text)
   if not Execution.canWrite() then
     return false, 'save writes are disabled during replay'
+  end
+  -- What the reader would refuse never replaces a save that works.
+  local kind = text:match('^SIGIL%d%d\n([%w_]+)\n')
+  if #text > Save.limits.maxBytes or not kind then
+    return false, 'save too large or malformed'
+  end
+  if ofFile(kind)[1] then
+    local readable, reason = Save.decode(kind, text)
+    if not readable then
+      return false, reason
+    end
   end
   local temp, previous = name .. '.tmp', name .. '.previous'
   if not love.filesystem.write(temp, text) or love.filesystem.read(temp) ~= text then
@@ -208,5 +229,20 @@ function Save.write(name, text)
     return false, 'could not place the save'
   end
   return true
+end
+-- A new game: every copy of name is gone.
+function Save.erase(name)
+  for _, path in ipairs({ name, name .. '.tmp', name .. '.previous' }) do
+    love.filesystem.remove(path)
+  end
+end
+-- Copies nothing can play stay on the disk under their own name, out of the way of a new
+-- save, for whoever wants to look at them.
+function Save.quarantine(name)
+  for _, path in ipairs({ name, name .. '.tmp', name .. '.previous' }) do
+    if exists(path) then
+      move(path, path .. '.damaged')
+    end
+  end
 end
 return Save

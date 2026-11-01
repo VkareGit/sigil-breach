@@ -71,6 +71,11 @@ Suite.registry = {
     module = 'tests.cases.pilgrimage',
   },
   {
+    id = 'pilgrimage-save',
+    title = 'A bad save never stops the game, kills wait for quiet, replays read no disk',
+    module = 'tests.cases.pilgrimage_save',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

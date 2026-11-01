@@ -37,7 +37,9 @@ function Tests.run(get, settings, output, getLoading)
     error('button missing: ' .. id)
   end
   -- The menu walks into the chapel; the proving ground stands beside it.
-  require('src.run.pilgrimage').forget()
+  -- The menu session read the disk before this test began: a run stopped half way leaves a save.
+  require('src.run.pilgrimage').forget(get())
+  get().run.saved, get().availableSave = false, nil
   U.useMouse = false
   draw()
   local ids = {}
@@ -59,8 +61,15 @@ function Tests.run(get, settings, output, getLoading)
   check('E rests at the first fire', get().state == 'shop')
   click('shop_back')
   check('the fire is left', get().state == 'playing')
+  local body = require('src.session.world').of(get(), 'enemies')[1]
+  get():damageEnemy(body, body.hp + 1, 'weapon', nil, get().player.id)
+  check('a kill waits for a quiet moment to be saved', get().run.dirty)
   key('escape')
   check('Escape pauses the way', get().state == 'paused')
+  -- The first frame after a load is discarded.
+  love.update(1 / 120)
+  love.update(1 / 120)
+  check('and a paused game has saved it', not get().run.dirty)
   click('menu')
   check('the pause menu leads back to the main menu', get().state == 'menu')
   check('a rest is kept for the next visit', get().run.saved)

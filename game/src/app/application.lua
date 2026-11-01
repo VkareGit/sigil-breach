@@ -106,7 +106,17 @@ function Application:adopt(game, entering)
   Application.settle()
 end
 
+-- A kill waits for a quiet moment to be saved (run/pilgrimage.lua). A game that stopped, or
+-- is about to be left, has one now. A command, so a journal replays the same writes.
+function Application:flushSave(leaving)
+  local game = self.game
+  if game and (leaving or game.state ~= 'playing') and Modes.act(game, 'unsaved') then
+    game:act('flush')
+  end
+end
+
 function Application:reset(start, entering)
+  self:flushSave(true)
   Navigation.clear(self)
   self:adopt(Game.new(self.qa:session()), entering)
   self.input:reset(love.mouse.isDown(1))
@@ -352,6 +362,7 @@ function Application:update(dt)
     self.input:consumeEdges(input)
     self.accumulator = self.accumulator - fixedStep
   end
+  self:flushSave()
   if self:has('--screenshot') and self.game.time > 0.1 then
     self.game.state = 'paused'
   end
@@ -411,6 +422,7 @@ end
 
 function Application:quit()
   love.mouse.setRelativeMode(false)
+  self:flushSave(true)
   self:saveSettings()
   if self.ownsPresentation then
     if self.loading then
