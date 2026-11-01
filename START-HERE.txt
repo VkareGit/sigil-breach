@@ -36,7 +36,7 @@ Warsztat atlasów: tools/art.
 .\CHECK-CREATURE.ps1 <id>        czego brakuje demonowi
 .\TEST.ps1                      architektura, mechanika, wejście, rendery
 .\TEST.ps1 -Suite Architecture   szybka kontrola kodu bez okna
-.\BUILD.ps1                     testy, snapshot, testy EXE i weryfikowany ZIP
+.\BUILD.ps1                     testy źródeł; -Package: snapshot, testy EXE, ZIP
 
 Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
 skrypty odczytują wersję z jednego źródła. Nowa wersja dopisuje sekcje

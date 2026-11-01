@@ -34,7 +34,7 @@ Na wolniejszym komputerze można jawnie zwiększyć limit procesu, bez pomijania
 próbek: .\TEST.ps1 -Suite Render -TestTimeoutSeconds 1200.
 Analogiczny parametr ma tools/verify.ps1. Limit domyślny wynosi 300 sekund;
 timeout nie jest zaliczonym testem. Przebieg trafień wypisuje kolejne archetypy.
-  .\BUILD.ps1                    testy, snapshot, testy EXE, weryfikowany ZIP
+  .\BUILD.ps1                    testy źródeł; -Package: snapshot, testy EXE, ZIP
 
 0.32: BUILD tworzy osobne paczki Developer-Windows i Player-Windows.
 Gracz dostaje EXE/runtime i niezbędną zawartość; nie dostaje qa/tests ani
