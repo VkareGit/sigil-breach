@@ -1,3 +1,4 @@
+local Glyphs = require('src.content.glyphs')
 local Spawn = require('src.session.spawn')
 local Presentation = require('src.session.presentation')
 local Signal = require('src.session.signal')
@@ -8,15 +9,14 @@ local Save = require('src.storage.run_save')
 local SaveCore = require('src.storage.save')
 local Execution = require('src.storage.execution')
 local E = require('src.run.economy')
-local Waves = require('src.content.waves')
+local Runs = require('src.content.runs')
 local Weapons = require('src.content.weapons')
 local Abilities = require('src.content.abilities')
 local T = require('src.content.tuning')
 local Encounter = require('src.session.encounter')
 local Sanctuary = require('src.session.sanctuary')
 local K = require('src.content.expedition')
-local R = { totalWaves = K.totalWaves }
-local guardianWave = K.totalWaves + 1
+local R = {}
 local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
 local Navigation = require('src.world.navigation')
@@ -97,10 +97,12 @@ function R.init(g)
     end
   end
   g.run = {
+    plan = Runs.default,
+    stage = 1,
     phase = 'preparing',
     wave = 1,
     wallet = K.wallet,
-    glyph = 'none',
+    glyph = Glyphs.none,
     owned = {},
     claimed = {},
     deaths = 0,
@@ -116,6 +118,9 @@ function R.snapshot(g)
   local r = g.run
   return {
     mode = g.mode,
+    plan = r.plan,
+    stage = r.stage,
+    glyphs = r.glyphs,
     phase = r.phase,
     wave = r.wave,
     wallet = r.wallet,
@@ -158,6 +163,9 @@ function R.load(g, data)
   R.clearWorld(g)
   local echo, relocated = restoreEcho(g, data.echo)
   g.run = {
+    plan = data.plan or Runs.default,
+    stage = data.stage or 1,
+    glyphs = data.glyphs,
     phase = data.phase,
     wave = data.wave,
     wallet = data.wallet,
@@ -229,7 +237,7 @@ function R.ready(g)
   Encounter.setGuardian(g, false, false)
   Encounter.clearStage(g)
   -- Supplies have a fixed wave budget; an old wave cannot leave free crates behind.
-  if r.wave <= K.totalWaves then
+  if not Runs.guardian(r) then
     Pools.clear(g, 'pickups')
     for _, s in ipairs(K.supplies) do
       Spawn.make(g, 'pickup', { kind = s.kind, amount = s.amount, x = s.x, z = s.z })
@@ -238,7 +246,7 @@ function R.ready(g)
   g.state = 'playing'
   Roles.controlled(g).fireBuffer = 0
   Presentation.capture(g, true)
-  g:notify(Text.get(Waves[r.wave].tip), 5)
+  g:notify(Text.get(Runs.wave(r).tip), 5)
   return true
 end
 R.openShop = Sanctuary.openShop
@@ -301,7 +309,7 @@ function R.retry(g)
   g.view.feedbackTimer = 0
   Presentation.capture(g, true)
   g:notify(
-    r.wave == guardianWave and Text.get('run_retry_guardian')
+    Runs.guardian(r) and Text.get('run_retry_guardian')
       or Text.get('run_retry_wave', { wave = r.wave }),
     5
   )
@@ -355,7 +363,7 @@ function R.remaining(g)
       alive = alive + 1
     end
   end
-  return alive + #(r.pending or {}) + math.max(0, #Waves[r.wave].queue - (r.queueIndex or 1) + 1)
+  return alive + #(r.pending or {}) + math.max(0, #Runs.wave(r).queue - (r.queueIndex or 1) + 1)
 end
 -- What the expedition answers for its session (run/modes.lua handlers; the
 -- proving ground shares the record g.run and answers some of these alike).
@@ -387,10 +395,24 @@ local report = {}
 function R.hud(g)
   local r = g.run
   report.glyph, report.wallet, report.echo = r.glyph, r.wallet, r.echo
-  report.progress = r.wave == guardianWave and Text.get('hud_boss')
-    or Text.get('hud_wave', { wave = r.wave, total = K.totalWaves })
+  report.progress = Runs.guardian(r) and Text.get('hud_boss')
+    or Text.get('hud_wave', { wave = r.wave, total = Runs.total(r) })
   report.fighting = r.phase == 'wave'
   return report
+end
+-- The stage is won: a new world, the same knights, nothing else carried over.
+function R.nextStage(g)
+  local r = g.run
+  assert(Runs.following(r), 'the run has no further stage')
+  r.echo = nil
+  r.stage, r.wave, r.phase = r.stage + 1, 1, 'preparing'
+  g.world = W.new('descent', Runs.stage(r).map)
+  R.clearWorld(g)
+  local p = Roles.controlled(g)
+  local spawn = g.world.spawn
+  p.x, p.z, p.yaw, p.pitch = spawn.x, spawn.z, spawn.yaw, 0
+  g:notify(Text.get('run_cleansed', { souls = K.guardianReward }), 5)
+  Presentation.cue(g, 'seal')
 end
 function R.finishWave(g)
   if not expedition(g) then
@@ -410,7 +432,7 @@ function R.finishWave(g)
   r.pending = {}
   g.threat = 0
   -- An echo not reached during combat remains reachable in the quiet aftermath.
-  r.wallet = r.wallet + (r.wave == guardianWave and K.guardianReward or K.waveReward)
+  r.wallet = r.wallet + (Runs.guardian(r) and K.guardianReward or K.waveReward)
   local actor = Roles.controlled(g)
   actor.hp = require('src.content.characters').maxHp(actor)
   actor.dash = require('src.content.characters').of(actor).body.dashCharges
@@ -421,7 +443,9 @@ function R.finishWave(g)
   Weapons.loadAll(g)
   Stats.controlled(g).comboTimer = 0
   g.view.feedbackTimer = 0
-  if r.wave == guardianWave then
+  if Runs.guardian(r) and Runs.following(r) then
+    R.nextStage(g)
+  elseif Runs.guardian(r) then
     -- The victory screen closes exploration; return any remaining echo first.
     if r.echo then
       r.wallet = r.wallet + r.echo.amount

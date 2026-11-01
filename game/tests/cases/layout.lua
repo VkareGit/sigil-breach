@@ -23,7 +23,7 @@ function Tests.run(G, renderer)
   end
   local g = fresh()
   local w = g.world
-  local classic = W.new('classic')
+  local classic = W.new('classic', 'limbo')
   local same = true
   local floors = 0
   for z = 1, 31 do

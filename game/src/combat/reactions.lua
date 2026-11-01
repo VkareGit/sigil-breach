@@ -68,7 +68,7 @@ function Reactions.fire(g, on, owner, weapon, target, at)
   g.reacting = true
   if weapon then
     run(g, weapon.reactions, on, body, target, at)
-    run(g, Loadout.reactions(g, weapon), on, body, target, at)
+    Loadout.reactions(g, weapon, run, on, body, target, at)
   end
   if Bodies.isKnight(g, body) then
     run(g, Characters.of(body).reactions, on, body, target, at)

@@ -41,9 +41,9 @@ function W.breakSeals(w, count)
   end
 end
 -- mode: the session kind (an expedition hides the braziers by the Ember);
--- mapId: the map (default content/maps Maps.default).
+-- mapId: the map.
 function W.new(mode, mapId)
-  local data = Maps:get(mapId or Maps.default)
+  local data = Maps:get(assert(mapId, 'a world needs a map'))
   local width, depth = data.width or data.size, data.depth or data.size
   local w = {
     -- width x depth cells (physics/grid.lua); size only for a square world.
@@ -137,7 +137,7 @@ function W.new(mode, mapId)
 end
 -- Call after editing map cells. Geometry is rebuilt lazily by the renderer.
 function W.rebuild(w)
-  local data = Maps:get(w.mapId or Maps.default)
+  local data = Maps:get(w.mapId)
   w.geometryRevision = (w.geometryRevision or 0) + 1
   w.viewRevision = (w.viewRevision or 0) + 1
   w.lamps = {}

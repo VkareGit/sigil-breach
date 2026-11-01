@@ -4,6 +4,7 @@
 -- Owns no rewards and no wave completion; callers decide what follows.
 -- The mode hands it its wave record r (wave, queueIndex, pending,
 -- spawnTimer, lastGate, phaseTime); the spawner reads no mode's record.
+local Runs = require('src.content.runs')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
@@ -143,7 +144,7 @@ function S.step(g, r, dt, arrive)
   r.phaseTime = (r.phaseTime or 0) + dt
   r.spawnTimer = (r.spawnTimer or 0) - dt
   S.arrivals(g, r, dt, arrive or S.welcome)
-  local wave = Waves[r.wave]
+  local wave = Runs.wave(r)
   local alive = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then

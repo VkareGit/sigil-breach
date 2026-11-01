@@ -62,6 +62,18 @@ local Shop = {
     },
   },
 }
+-- A new offer, and one leaving with the mod that brought it.
+function Shop.define(offer)
+  Shop.offers[#Shop.offers + 1] = offer
+  return offer
+end
+function Shop.undefine(id)
+  for index, offer in ipairs(Shop.offers) do
+    if offer.id == id then
+      return table.remove(Shop.offers, index)
+    end
+  end
+end
 function Shop.get(id)
   for _, offer in ipairs(Shop.offers) do
     if offer.id == id then

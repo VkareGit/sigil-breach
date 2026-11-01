@@ -49,6 +49,7 @@
 -- so the command journal records them.
 -- Every session names its mode (g.mode: Game.new, the proving ground); the
 -- tests only recognise a hand-made record that names none.
+local Runs = require('src.content.runs')
 local Registry = require('src.core.registry')
 local Presentation = require('src.session.presentation')
 local Capabilities = require('src.session.capabilities')
@@ -62,6 +63,8 @@ local Views = require('src.run.mode_views')
 local Pools = require('src.session.world')
 local Spawn = require('src.session.spawn')
 local Text = require('src.content.text')
+-- Every mode opens on the first map of the expedition unless it is told another.
+local firstMap = Runs.stage({}).map
 local function field()
   return require('src.run.test_field')
 end
@@ -107,7 +110,7 @@ end
 -- The proving ground (skirmish and stations). Required lazily: the proving
 -- ground uses the expedition's definitions and must not load in a cycle.
 Modes:register('field', {
-  session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
+  session = { world = 'descent', map = firstMap, prepare = prepareClassic },
   record = 'testField',
   init = function(g, options)
     field().init(g, options)
@@ -137,7 +140,7 @@ Modes:register('field', {
     return Views.field(g, g.testField, out)
   end,
   weaponModifier = function(g)
-    return g.run.glyph
+    return g.run.glyphs or g.run.glyph
   end,
   canTrade = function(g)
     return field().allows(g, 'trade') and g.run.phase == 'preparing'
@@ -218,7 +221,7 @@ Modes:register('field', {
 Modes:register('expedition', {
   session = {
     world = 'descent',
-    map = Maps.default,
+    map = firstMap,
     prepare = prepareClassic,
     requires = { 'ember', 'gates' },
   },
@@ -233,7 +236,7 @@ Modes:register('expedition', {
     return Views.run(g, g.run, out)
   end,
   weaponModifier = function(g)
-    return g.run.glyph
+    return g.run.glyphs or g.run.glyph
   end,
   canTrade = function(g)
     return g.run.phase == 'preparing'
@@ -277,7 +280,7 @@ Modes:register('expedition', {
 Modes:register('classic', {
   session = {
     world = 'classic',
-    map = Maps.default,
+    map = firstMap,
     prepare = prepareClassic,
     requires = { 'portal' },
   },

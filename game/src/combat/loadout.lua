@@ -12,8 +12,16 @@ function Loadout.spread(g, actor, alt)
   return Weapons.spread(g, Modes.act(g, 'weaponModifier'), actor, alt)
 end
 -- The reactions the run's modifier gives this weapon, if any.
-function Loadout.reactions(g, weapon)
-  local mod = weapon.glyphs and weapon.glyphs[Modes.act(g, 'weaponModifier')]
-  return mod and mod.reactions
+function Loadout.reactions(g, weapon, run, ...)
+  local active = Modes.act(g, 'weaponModifier')
+  if type(active) ~= 'table' then
+    active = { active }
+  end
+  for _, id in ipairs(active) do
+    local mod = weapon.glyphs and weapon.glyphs[id]
+    if mod and mod.reactions then
+      run(g, mod.reactions, ...)
+    end
+  end
 end
 return Loadout

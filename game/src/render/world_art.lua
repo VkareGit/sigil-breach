@@ -1,3 +1,4 @@
+local Supplies = require('src.content.supplies')
 local Context = require('src.session.context')
 -- The built-in world objects and how each is drawn (render/world_objects.lua):
 -- the lamps, the seals, the supplies, the Ember and its murals, the echo,
@@ -95,8 +96,8 @@ function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   s:send('wallRepeat', 1)
 end
 function Art.pickup(r, g, a)
-  local name = a.kind == 'health' and 'health' or (a.kind == 'ammo' and 'ammo' or 'soul')
-  local icon = Skin.icons[name]
+  local supply = Supplies:get(a.kind)
+  local icon = Skin.icons[supply.icon]
   local x, y, w, h = icon.q:getViewport()
   local iw, ih = Skin.image:getDimensions()
   local s = r.spriteShader
@@ -111,7 +112,7 @@ function Art.pickup(r, g, a)
     r:vec3(a.x, Ground.of(g.world, a) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
   )
   s:send('objectYaw', math.atan2(Context.viewer(g).x - a.x, Context.viewer(g).z - a.z))
-  s:send('objectScale', a.kind == 'soul' and 0.42 or 0.48)
+  s:send('objectScale', supply.size)
   s:send('lean', 0)
   s:send('pain', 0)
   s:send('mirror', 0)

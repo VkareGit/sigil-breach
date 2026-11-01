@@ -259,7 +259,7 @@ function Tests.run(G)
   -- second map builds, seats the knight and names its zones.
   local Arena = require('src.world.arena')
   local Maps = require('src.content.maps.index')
-  local limbo = Arena.new('classic')
+  local limbo = Arena.new('classic', 'limbo')
   local sum, open, pillars = 0, 0, 0
   for z = 1, limbo.size do
     for x = 1, limbo.size do

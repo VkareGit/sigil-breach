@@ -1,3 +1,4 @@
+local Runs = require('src.content.runs')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local D = {}
@@ -61,8 +62,8 @@ local function panel(x, y, w, h)
   Skin.panel(x, y, w, h, 1, 14)
 end
 local function waveName(r)
-  return r.wave == Run.totalWaves + 1 and Text.get('guardian')
-    or Text.get('wave', { wave = r.wave, total = Run.totalWaves })
+  return Runs.guardian(r) and Text.get('guardian')
+    or Text.get('wave', { wave = r.wave, total = Runs.total(r) })
 end
 function D.controls(g)
   local r = Queries.run(g)
@@ -158,7 +159,7 @@ function D.controls(g)
     return {
       {
         id = 'retry',
-        label = r.wave == Run.totalWaves + 1 and Text.get('dead_retry_guardian')
+        label = Runs.guardian(r) and Text.get('dead_retry_guardian')
           or Text.get('dead_retry_wave', { wave = r.wave }),
         x = 410,
         y = 524,
@@ -413,7 +414,7 @@ function D.ending(g)
       blue
     )
     center(
-      r.wave == Run.totalWaves + 1 and Text.get('ending_retry_guardian')
+      Runs.guardian(r) and Text.get('ending_retry_guardian')
         or Text.get('ending_retry_wave', { wave = r.wave }),
       326,
       22,

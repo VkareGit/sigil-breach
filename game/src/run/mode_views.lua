@@ -3,6 +3,7 @@
 -- record layout: each mode hands its record (state) to these builders
 -- (run/modes.lua), and presentation asks run/queries.lua for the view. Each
 -- builder fills the session's own view table (out; plan v11 E2).
+local Runs = require('src.content.runs')
 local Sanctuary = require('src.session.sanctuary')
 local Descent = require('src.run.descent')
 local Pools = require('src.session.world')
@@ -64,8 +65,8 @@ function Views.fieldObjective()
   return Text.get('objective_field')
 end
 function Views.expeditionObjective(g, state)
-  local name = state.wave == Descent.totalWaves + 1 and Text.get('guardian')
-    or Text.get('wave', { wave = state.wave, total = Descent.totalWaves })
+  local name = Runs.guardian(state) and Text.get('guardian')
+    or Text.get('wave', { wave = state.wave, total = Runs.total(state) })
   if state.phase == 'complete' then
     return Text.get('fragment_recovered')
   elseif state.phase == 'preparing' then

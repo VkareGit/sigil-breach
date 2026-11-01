@@ -15,7 +15,8 @@ local Save = require('src.storage.save')
 local Schema = require('src.core.schema')
 local Weapons = require('src.content.weapons')
 local Shop = require('src.content.shop')
-local Expedition = require('src.content.expedition')
+local Runs = require('src.content.runs')
+local Glyphs = require('src.content.glyphs')
 local Abilities = require('src.content.abilities')
 local Id = require('src.core.id')
 P.version = Save.format
@@ -27,7 +28,7 @@ local coordinateLimit = 4096
 -- The weapons a SIGIL06 save knew, in its slot order, and its one ability.
 local legacyLoadout = { 'exorcist', 'judge' }
 local legacyAbility = 'powder'
-local lastWave = Expedition.totalWaves + 1
+local lastWave = Runs.longest()
 -- Weapons in one loadout (number keys 1-9).
 local maxLoadout = 9
 -- Bounds of the run's counters.
@@ -142,14 +143,14 @@ local RunSchema = Schema:new('run', {
   phase = { type = 'string', required = true, values = { 'preparing', 'defeated', 'complete' } },
   wave = { type = 'number', required = true, min = 1, max = lastWave },
   wallet = counter(Shop.maxWallet),
-  glyph = { type = 'string', required = true, values = { 'none', 'choke', 'pierce' } },
+  plan = { type = 'string', check = Runs.problem },
+  stage = { type = 'number', min = 1 },
+  glyph = { type = 'string', required = true, check = Glyphs.problem },
+  glyphs = { type = 'table' },
   owned = {
     type = 'table',
     required = true,
-    schema = Schema:new('owned', {
-      choke = { type = 'boolean', required = true },
-      pierce = { type = 'boolean', required = true },
-    }),
+    check = Glyphs.ownedProblem,
   },
   claimed = { type = 'table', required = true },
   inventory = { type = 'table', required = true, schema = Inventory },
@@ -208,6 +209,14 @@ local function packInventory(v)
     abilityLoadout = orderedSlots(v),
   }
 end
+-- Every glyph of the catalogue, owned or not.
+local function ownedGlyphs(owned)
+  local out = {}
+  for id in Glyphs:each() do
+    out[id] = owned[id] == true
+  end
+  return out
+end
 local function packRun(data)
   local claimed = {}
   for k, v in pairs(data.claimed or {}) do
@@ -219,11 +228,15 @@ local function packRun(data)
   local e = data.echo
   return {
     mode = data.mode or 'expedition',
+    -- A run of one stage saves as it always did.
+    plan = (data.stage or 1) > 1 and data.plan or nil,
+    stage = (data.stage or 1) > 1 and data.stage or nil,
+    glyphs = data.glyphs,
     phase = data.phase,
     wave = data.wave,
     wallet = data.wallet,
     glyph = data.glyph,
-    owned = { choke = data.owned.choke == true, pierce = data.owned.pierce == true },
+    owned = ownedGlyphs(data.owned),
     claimed = claimed,
     inventory = packInventory(data.inventory),
     checkpoint = packInventory(data.checkpoint),
@@ -287,11 +300,14 @@ end
 local function unpackRun(t)
   local d = {
     mode = t.mode,
+    plan = t.plan,
+    stage = t.stage,
+    glyphs = t.glyphs,
     phase = t.phase,
     wave = number(t.wave, 1, lastWave, true),
     wallet = number(t.wallet, 0, Shop.maxWallet, true),
     glyph = t.glyph,
-    owned = { choke = t.owned.choke, pierce = t.owned.pierce },
+    owned = ownedGlyphs(t.owned),
     inventory = unpackInventory(t.inventory),
     checkpoint = unpackInventory(t.checkpoint),
     elapsed = t.elapsed,
@@ -432,7 +448,7 @@ local function decodeLegacy(raw)
       f.phase == 'preparing' or f.phase == 'defeated' or f.phase == 'complete',
       'invalid phase'
     )
-    assert(f.glyph == 'none' or f.glyph == 'choke' or f.glyph == 'pierce', 'invalid glyph')
+    assert(not Glyphs.problem(f.glyph), 'invalid glyph')
     assert(f.owned and f.owned:match('^[01],[01]$'), 'invalid ownership')
     assert(f.secret == '0' or f.secret == '1')
     assert(f.fragment == '0' or f.fragment == '1')

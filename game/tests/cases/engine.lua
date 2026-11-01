@@ -74,7 +74,7 @@ function Tests.run(G)
   assert(ok, err)
 
   -- Distance fields: one shared field per goal while the map is unchanged.
-  local w = World.new('descent')
+  local w = World.new('descent', 'limbo')
   local a = World.flow(w, 16, 25)
   local b = World.flow(w, 16.2, 24.9)
   local same = a == b

@@ -14,7 +14,7 @@ function Tests.run(G, renderer)
   love.graphics.newMesh = function()
     error('world data must not allocate GPU resources')
   end
-  local ok, world = pcall(World.new, 'descent')
+  local ok, world = pcall(World.new, 'descent', 'limbo')
   love.graphics.newMesh = original
   check('world creation works without graphics allocation', ok and world.mesh == nil)
   check(

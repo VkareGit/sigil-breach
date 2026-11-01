@@ -74,7 +74,7 @@ local function randomInventory(rand)
   }
 end
 local function randomRun(rand)
-  local last = Expedition.totalWaves + 1
+  local last = require('src.content.runs').total({}) + 1
   local complete = rand(4) == 1
   local wave = complete and last or rand(last)
   local owned = { choke = rand(2) == 1, pierce = rand(2) == 1 }

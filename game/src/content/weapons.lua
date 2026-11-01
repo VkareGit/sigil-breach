@@ -330,14 +330,24 @@ function W.attack(g, slot, glyph, actor, alt)
   for k, v in pairs(def.attack) do
     attack[k] = v
   end
-  local mod = glyph and def.glyphs and def.glyphs[glyph]
-  if mod then
-    for k, v in pairs(mod.set or {}) do
-      attack[k] = v
+  local function engrave(id)
+    local mod = id and def.glyphs and def.glyphs[id]
+    if mod then
+      for k, v in pairs(mod.set or {}) do
+        attack[k] = v
+      end
+      for k, v in pairs(mod.scale or {}) do
+        attack[k] = (attack[k] or 0) * v
+      end
     end
-    for k, v in pairs(mod.scale or {}) do
-      attack[k] = (attack[k] or 0) * v
+  end
+  -- glyph: the run's one engraving, or a list of them.
+  if type(glyph) == 'table' then
+    for _, id in ipairs(glyph) do
+      engrave(id)
     end
+  else
+    engrave(glyph)
   end
   return attack
 end
@@ -345,8 +355,19 @@ end
 function W.spread(g, glyph, actor, alt)
   local def = W.inHand(g, nil, actor)
   def = alt and def and def.secondary or def
-  local mod = def and glyph and def.glyphs and def.glyphs[glyph]
-  return (def and def.fire.spread or 1) * (mod and mod.spread or 1)
+  local spread = def and def.fire.spread or 1
+  local function narrow(id)
+    local mod = def and id and def.glyphs and def.glyphs[id]
+    spread = spread * (mod and mod.spread or 1)
+  end
+  if type(glyph) == 'table' then
+    for _, id in ipairs(glyph) do
+      narrow(id)
+    end
+  else
+    narrow(glyph)
+  end
+  return spread
 end
 function W.canFire(g, actor)
   if not W.validAmmo(g, nil, actor) then

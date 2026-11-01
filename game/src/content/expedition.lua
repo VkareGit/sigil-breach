@@ -6,8 +6,6 @@ return {
   wallet = 100,
   waveReward = 60,
   guardianReward = 100,
-  -- Ordinary waves, then the guardian's wave (totalWaves + 1).
-  totalWaves = 4,
   -- Crates laid out at the start of each ordinary wave (never the guardian's).
   supplies = {
     { kind = 'ammo', amount = 2, x = 7, z = 17 },
