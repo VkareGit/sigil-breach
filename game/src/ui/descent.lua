@@ -187,7 +187,7 @@ function D.controls(g)
     return {
       {
         id = 'new_confirm',
-        label = Text.get(r.rest and 'pilgrim_again' or 'won_new'),
+        label = Text.get('won_new'),
         x = 410,
         y = 524,
         w = 460,
@@ -204,7 +204,7 @@ function D.heading(g)
   local r = Queries.run(g)
   Skin.panel(20, 16, 378, 64, 2, 9)
   Skin.zone('objective field', 32, 26, 354, 44)
-  local title = Text.get('heading_title')
+  local title = Text.get(r.rest and 'heading_chapel' or 'heading_title')
   Skin.boxText(title, 35, 27, 348, 20, U.fonts[14], gold)
   local objective = Queries.objective(g)
   local size = 16
@@ -352,7 +352,9 @@ function D.map(g)
   rect(0, 0, 1280, 720, Palette.veilCool, 0.96)
   panel(100, 40, 1080, 640)
   Skin.zone('map writing field', 132, 76, 1016, 570)
-  Skin.inscription('circles', 132, 84, 400, 40)
+  if not r.rest then
+    Skin.inscription('circles', 132, 84, 400, 40)
+  end
   if r.rest then
     text(Text.get('map_fires'), 136, 131, 20, gold)
     for i, fire in ipairs(Way.fires) do
@@ -411,7 +413,7 @@ function D.map(g)
   lg.circle('line', sx, sy, 13)
   Skin.icon('ring', sx - 8, sy - 8, 16)
   text(
-    Text.get(r.phase == 'preparing' and 'map_ember_open' or 'map_ember_closed'),
+    Text.get((r.rest or r.phase == 'preparing') and 'map_ember_open' or 'map_ember_closed'),
     sx - 54,
     sy + 17,
     14,
@@ -423,7 +425,7 @@ function D.map(g)
     lg.circle('line', ox + e.x * sz, oy + e.z * sz, 7)
     text(Text.get('map_echo'), ox + e.x * sz - 18, oy + e.z * sz - 25, 14, blue)
   end
-  text(Text.get('map_legend'), 132, 622, 16, muted)
+  text(Text.get(r.rest and 'map_chapel_legend' or 'map_legend'), 132, 622, 16, muted)
   text(Text.get('map_legend_marks'), 652, 558, 14, muted)
   text(Text.get('map_pause'), 652, 585, 14, gold)
   Skin.endZone()
@@ -435,18 +437,15 @@ function D.ending(g)
   Skin.icon(g.state == 'won' and 'ring' or 'skull', 612, 52, 56)
   Skin.zone('ending writing field', 128, 110, 1024, 402)
   if r.rest then
-    local won = g.state == 'won'
-    center(Text.get(won and 'pilgrim_won_title' or 'pilgrim_died'), 116, 48, won and gold or red)
-    center(Text.get(won and 'pilgrim_won_line' or 'pilgrim_died_kept'), 188, 22, muted)
-    if not won then
-      center(
-        r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
-        260,
-        36,
-        blue
-      )
-      center(Text.get('ending_echo_warning'), 326, 18, muted)
-    end
+    center(Text.get('pilgrim_died'), 116, 48, red)
+    center(Text.get('pilgrim_died_kept'), 188, 22, muted)
+    center(
+      r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
+      260,
+      36,
+      blue
+    )
+    center(Text.get('ending_echo_warning'), 326, 18, muted)
   elseif g.state == 'won' then
     center(Text.get('ending_won_title'), 116, 48, ivory)
     center(Text.get('ending_won_line'), 188, 22, muted)

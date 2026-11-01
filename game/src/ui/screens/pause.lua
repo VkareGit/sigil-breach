@@ -21,8 +21,11 @@ function S.draw(g, s, U)
   if run and g.state == 'paused' then
     center(
       Text.get(
-        (run.phase == 'wave' or run.phase == 'countdown') and 'pause_save_wave'
-          or 'pause_save_preparation'
+        run.rest and 'pilgrim_saved'
+          or (
+            (run.phase == 'wave' or run.phase == 'countdown') and 'pause_save_wave'
+            or 'pause_save_preparation'
+          )
       ),
       221,
       14,

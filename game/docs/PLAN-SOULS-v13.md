@@ -4,6 +4,8 @@ Status: DO ZATWIERDZENIA, 1 listopada 2026. Stan odniesienia: `414cf35`, 0.36.
 Zakres: sześć istniejących istot, modele bez zmian. Fale i Limbo znikają, poligon
 zostaje jako warsztat do testowania ataków.
 
+**Stan z 1 listopada 2026:** W0-W7 i O1-O3 zrobione (raport: PLAN-v13-O1-O3-RAPORT.md). Bossy odłożone decyzją gracza, na razie to najtrudniejsze moby. Fale i Limbo zniknęły z tego, co widzi gracz; przeniesienie ich kodu z `src` do testów to osobne zadanie.
+
 ## Diagnoza
 
 Pomiary z 0.36 na prawdziwej symulacji, bot o idealnym celu, próba w kaplicy:

@@ -1,7 +1,7 @@
 -- The way through the chapel: fires instead of waves. The world stands where the map
 -- puts it; a rest heals the knight, fills his flask and rounds, sets where he wakes,
--- and raises every common creature. Guardians stay down. Dying leaves the souls where
--- the knight fell; dying again before reaching them loses them.
+-- and raises every creature. Dying leaves the souls where the knight fell; dying again
+-- before reaching them loses them.
 local Abilities = require('src.content.abilities')
 local Characters = require('src.content.characters')
 local Descent = require('src.run.descent')
@@ -9,9 +9,7 @@ local Destruction = require('src.combat.destruction')
 local Encounter = require('src.session.encounter')
 local Feel = require('src.player.feel')
 local K = require('src.content.pilgrimage')
-local Maps = require('src.content.maps.index')
 local MathX = require('src.core.mathx')
-local Pools = require('src.session.world')
 local Presentation = require('src.session.presentation')
 local Roles = require('src.core.roles')
 local Sanctuary = require('src.session.sanctuary')
@@ -33,21 +31,18 @@ local function fireOf(id)
     end
   end
 end
-local function open(r, fire)
-  return not fire.after or r.felled[fire.after]
-end
 -- The fire the knight stands at, if any.
 function P.fireHere(g)
   local p = Roles.controlled(g)
   for _, fire in ipairs(K.fires) do
-    if open(g.run, fire) and distance(p, fire) < K.reach then
+    if distance(p, fire) < K.reach then
       return fire
     end
   end
 end
 local function place(g, entry)
   local e = g:spawn(entry.creature, entry.x, entry.z)
-  e.home, e.leash, e.alertRange = { x = entry.x, z = entry.z }, K.leash, entry.alert
+  e.home, e.leash, e.alertRange = { x = entry.x, z = entry.z }, entry.leash or K.leash, entry.alert
   e.facing, e.spawnAge, e.awake = entry.yaw, 2, false
   e.patrol, e.post = entry.patrol, entry.id
   return e
@@ -58,22 +53,13 @@ local function hang(g)
     World.setCell(g.world, door.x, door.z, g.run.opened[door.id] and FLOOR or WALL)
   end
 end
--- The world as a rest leaves it: every common creature at its post, the guardians
--- that still stand in their halls.
+-- The world as a rest leaves it: every creature at its post.
 function P.populate(g)
-  local r = g.run
   Encounter.clearStage(g)
-  Encounter.setGuardian(g, false, false)
-  r.arena = nil
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
   for _, entry in ipairs(K.garrison) do
     place(g, entry)
-  end
-  for _, entry in ipairs(K.guardians) do
-    if not r.felled[entry.id] then
-      place(g, entry)
-    end
   end
 end
 local function refresh(g)
@@ -90,7 +76,7 @@ local function refresh(g)
 end
 local function wake(g, fire)
   local p = Roles.controlled(g)
-  p.x, p.z, p.pitch = fire.x, fire.z + 1.5, 0
+  p.x, p.z, p.pitch = fire.x, fire.z + K.wake, 0
   p.yaw = math.pi
   p.jump, p.jumpV, p.dashTimer = 0, 0, 0
 end
@@ -124,7 +110,6 @@ function P.init(g, options)
     fragment = false,
     fire = K.first,
     lit = { [K.first] = true },
-    felled = {},
     opened = {},
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
@@ -203,7 +188,7 @@ function P.travel(g)
   end
   for step = 1, #K.fires - 1 do
     local fire = K.fires[(at + step - 1) % #K.fires + 1]
-    if g.run.lit[fire.id] and open(g.run, fire) then
+    if g.run.lit[fire.id] then
       g.run.fire = fire.id
       refresh(g)
       wake(g, fire)
@@ -252,104 +237,33 @@ function P.retry(g)
   return true
 end
 function P.reward(g, event)
-  local e, r = event.enemy, g.run
-  r.wallet = r.wallet + (Archetypes.of(e).souls or 0) * K.souls
-  for _, entry in ipairs(K.guardians) do
-    if entry.id == e.post then
-      r.felled[entry.id], r.arena = true, nil
-      Encounter.setGuardian(g, false, false)
-      g:notify(Text.get('pilgrim_felled'), 5)
-      Presentation.cue(g, 'seal', 1)
-    end
-  end
-  local left = 0
-  for _, entry in ipairs(K.guardians) do
-    left = left + (r.felled[entry.id] and 0 or 1)
-  end
-  if left == 0 then
-    r.phase, r.fragment = 'complete', true
-    g.state = 'won'
-    Presentation.capture(g, false)
-  end
+  g.run.wallet = g.run.wallet + (Archetypes.of(event.enemy).souls or 0) * K.souls
   P.save(g)
-end
-local function within(hall, p, margin)
-  return p.x >= hall[1] + margin
-    and p.x <= hall[3] - margin
-    and p.z >= hall[2] + margin
-    and p.z <= hall[4] - margin
-end
-local function guardianOf(g, id)
-  for _, entry in ipairs(K.guardians) do
-    if entry.id == id or (not id and not g.run.felled[entry.id]) then
-      if id or within(entry.hall, Roles.controlled(g), K.door) then
-        return entry
-      end
-    end
-  end
-end
--- The knight has walked into a guardian's hall: it turns, and the way out burns.
-local function challenge(g, entry)
-  local r = g.run
-  r.arena, r.arenaAt = entry.id, g.elapsed
-  Encounter.setGuardian(g, true, false)
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.post == entry.id then
-      e.awake, e.memory, e.alertRange, e.leash = true, K.memory, nil, nil
-    end
-  end
-  g:notify(Text.get(entry.title), 4)
-end
--- In a guardian's fight its hall is shut: the fire at its door lets nobody out.
-local function shut(g, entry)
-  local p, hall = Roles.controlled(g), entry.hall
-  p.x = math.max(hall[1], math.min(hall[3], p.x))
-  p.z = math.max(hall[2], math.min(hall[4], p.z))
 end
 function P.update(g)
   local r = g.run
   if r.phase ~= 'journey' or g.state ~= 'playing' then
     return
   end
-  local p = Roles.controlled(g)
-  local entry = guardianOf(g, r.arena)
-  if entry then
-    if not r.arena then
-      challenge(g, entry)
-    end
-    shut(g, entry)
-  end
   local echo = r.echo
-  if echo and distance(p, echo) < K.echoReach then
+  if echo and distance(Roles.controlled(g), echo) < K.echoReach then
     r.wallet, r.echo = r.wallet + echo.amount, nil
     g:notify(Text.get('pilgrim_recovered', { amount = echo.amount }), 3)
     Presentation.cue(g, 'seal', 0.5)
   end
 end
--- What the world shows of the way: the fires, and the fire at a shut door.
-function P.world(g, out)
-  local r = g.run
+-- What the world shows of the way: the fires beyond the first, which is the Ember.
+function P.world(_, out)
   out.fires = out.fires or {}
   for i = #out.fires, 1, -1 do
     out.fires[i] = nil
   end
   for _, fire in ipairs(K.fires) do
-    if open(r, fire) and fire.id ~= K.first then
+    if fire.id ~= K.first then
       out.fires[#out.fires + 1] = fire
     end
   end
   out.shrineActive = true
-  out.arenaFire = nil
-  for _, entry in ipairs(K.guardians) do
-    if entry.id == r.arena then
-      for _, room in ipairs(Maps:get(K.map).proving.chambers) do
-        if room.id == entry.chamber then
-          out.arenaFire = room.fire
-        end
-      end
-    end
-  end
-  out.arenaStarted = r.arena and r.arenaAt or nil
   return out
 end
 local report = {}
@@ -357,15 +271,7 @@ function P.hud(g)
   local r = g.run
   report.glyph, report.wallet, report.echo = r.glyph, r.wallet, r.echo
   report.progress = Text.get('pilgrim_progress', { deaths = r.deaths })
-  report.fighting = r.arena ~= nil
   return report
-end
-function P.remaining(g)
-  local left = 0
-  for _, e in ipairs(Pools.of(g, 'enemies')) do
-    left = left + (e.hp > 0 and 1 or 0)
-  end
-  return left
 end
 Save.declare({
   name = 'pilgrimage',
@@ -378,7 +284,6 @@ Save.declare({
       deaths = r.deaths,
       fire = r.fire,
       lit = r.lit,
-      felled = r.felled,
       echo = r.echo,
       owned = r.owned,
       glyph = r.glyph,
@@ -393,7 +298,7 @@ Save.declare({
   restore = function(g, data)
     local r = g.run
     r.wallet, r.deaths, r.fire = data.wallet, data.deaths, data.fire
-    r.lit, r.felled, r.echo = data.lit, data.felled, data.echo
+    r.lit, r.echo = data.lit, data.echo
     r.owned, r.glyph, r.opened = data.owned, data.glyph, data.opened
     Destruction.restore(g.world, data.ruin)
   end,

@@ -62,11 +62,13 @@ function Tests.run(_, check)
       if not positive(a.move.speed) then
         bad(key .. '.move.speed')
       end
-      -- Design rule (0.21): every demon, even at the top tier, walks slower
-      -- than the running knight.
-      local top = a.move.speed * (1 + D.tiers.speed * (#D.tiers.attackers - 1))
-      if not b.boss and top >= require('src.content.characters').standard().movement.moveSpeed then
-        bad(key .. ' outruns the knight at the top tier')
+      -- Design rule (0.21): every demon walks slower than the running knight. Tiers
+      -- left with the waves (v13): a knight backing away is what it may catch.
+      if
+        not b.boss
+        and a.move.speed >= require('src.content.characters').standard().movement.moveSpeed
+      then
+        bad(key .. ' outruns the knight')
       end
       if type(a.attacks) ~= 'table' or #a.attacks == 0 then
         bad(key .. '.attacks empty')

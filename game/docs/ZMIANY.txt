@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.36 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.37 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,36 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.37.txt
+SIGIL: BREACH 0.37 / The Chapel
+
+Koniec fal w grze: droga przez kaplicę z ogniskami. Pełne raporty:
+game/docs/PLAN-v13-W*-RAPORT.md, game/docs/PLAN-v13-O1-O3-RAPORT.md.
+
+Walka:
+- Cios ma tor, a ciało ma obrót: hitbox idzie za klingą, cios można ominąć
+  przez jego stronę, a wolny obrót można obejść.
+- Wytrzymałość na strzał i unik, flaska zamiast leczenia z zabójstw, krótkie
+  odzyskanie zdrowia za oddany cios, kontra strzałem i egzekucja.
+- Margrabia i Furfur mają nową kartę ciosów. Na razie są zwykłymi, tylko
+  najtrudniejszymi stworami: osobny przegląd bossów jest przed nami.
+- Tam, gdzie płaci się wysiłkiem, rycerz idzie tyłem z 60% prędkości, a w bok z 85%.
+- Żar: 360 HP, doskok po lądowaniu. Akolita: 320 HP. Szarża Żelaznego skręca
+  za rycerzem i ponawia się po chybieniu.
+
+Świat:
+- Stwory stoją na posterunkach kaplicy, mają zasięg zauważenia i smycz, patrolują
+  i czekają w zasadzkach. Stwór z posterunku słyszy strzał tylko w swoim zasięgu.
+- Cztery ogniska: odpoczynek, sklep, podróż, zapis. Odpoczynek podnosi stwory.
+- Dusze zostają w miejscu śmierci, druga śmierć je kasuje.
+- Drzwi otwierane z jednej strony. Zawalone zostaje, drobiazgi wracają.
+- Menu: nowa gra i kontynuacja, poligon jako warsztat. Napisy o falach i Limbo
+  zniknęły z tego, co widzi gracz.
+
+Zapis: nowy plik pilgrimage.save. Stare pliki wyprawy zostają nietknięte.
 
 
 ########################################################################

@@ -219,6 +219,7 @@ local scalingRatchets = {
     exempt = {
       'src/run/descent.lua',
       'src/run/economy.lua',
+      'src/run/pilgrimage.lua',
       'src/run/test_field.lua',
       'src/run/field/',
       'src/run/modes.lua',

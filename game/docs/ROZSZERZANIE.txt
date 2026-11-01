@@ -1,3 +1,15 @@
+JAK DOPISAĆ OGNISKO, POSTERUNEK LUB DRZWI
+
+Wszystko jest w game/src/content/pilgrimage.lua, bez zmian w kodzie:
+
+- Ognisko: wpis w fires { id, name, x, z } i nazwa w content/text.lua.
+- Stwór: wpis w garrison { id, creature, x, z, yaw }. Opcjonalnie alert (jak blisko
+  zauważa i słyszy), leash (jak daleko idzie za rycerzem), patrol { { x, z }, ... }.
+- Drzwi: wpis w doors { id, x, z, side, back }. Komórka x, z jest murem, dopóki rycerz
+  nie otworzy jej ze strony side. Od strony back drzwi tylko odpowiadają, że są zaryglowane.
+
+Identyfikatory trafiają do zapisu, więc po wydaniu nie zmieniaj ich bez migracji.
+
 JAK EDYTOWAĆ CIOS (plan v13)
 
 Cios stoi w game/src/content/creatures/<stwór>.lua. Poligon pokazuje go bez restartu:

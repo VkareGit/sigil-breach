@@ -346,9 +346,6 @@ Modes:register('pilgrimage', {
   reward = function(g, event)
     pilgrimage().reward(g, event)
   end,
-  remaining = function(g)
-    return pilgrimage().remaining(g)
-  end,
   interact = function(g)
     return pilgrimage().interact(g)
   end,

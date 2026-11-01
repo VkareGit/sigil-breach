@@ -1,9 +1,22 @@
-SIGIL: BREACH — prototyp Foundation 0.34
-27 października 2026
+SIGIL: BREACH — prototyp 0.37
+1 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
+
+KAPLICA (0.37: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
+BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
+zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
+[E] przy ognisku: odpoczynek. Leczy, napełnia flaski i amunicję, zapisuje grę, ustawia
+miejsce powrotu i podnosi wszystkie stwory. Otwiera menu ognia: sklep i podróż do
+kolejnego zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim.
+[F] flaska. Strzał i unik kosztują wytrzymałość. Rycerz idzie tyłem wolniej niż naprzód.
+Śmierć: dusze zostają w miejscu zgonu, druga śmierć je kasuje.
+Stwory stoją na posterunkach, wracają na nie i wstają po odpoczynku. Drzwi otwiera się
+tylko z jednej strony, [E] przy murze, i zostają otwarte. Zawalone zostaje, drobiazgi
+wracają. Na razie nie ma bossów ani zakończenia: Margrabia i Furfur to najtrudniejsze moby.
+Zapis: pilgrimage.save w folderze gry.
 
 GDZIE JEST TELEMETRY.TXT
 Paczka EXE: %APPDATA%\sigil-breach-prototype\telemetry.txt

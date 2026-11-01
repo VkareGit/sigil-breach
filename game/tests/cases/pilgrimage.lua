@@ -31,11 +31,11 @@ function T.run(Game)
   local g = session(Game)
   local p = g.player
   check('the knight wakes at the first fire', P.fireHere(g) ~= nil and P.fireHere(g).id == K.first)
-  check('every post and guardian stands', #Pools.of(g, 'enemies') == #K.garrison + #K.guardians)
+  check('every post stands', #Pools.of(g, 'enemies') == #K.garrison)
   check('nobody knows he is here', byPost(g, 'nave_1').awake == false)
   check('no waves, effort is paid', require('src.session.capabilities').attrition(g))
   check('the flask is carried', p.abilityState.flask.uses == 3)
-  -- A rest raises the common creatures, heals, refills.
+  -- A rest raises the creatures, heals, refills.
   local victim = byPost(g, 'nave_1')
   g:damageEnemy(victim, victim.hp + 1, 'weapon', nil, p.id)
   check('a kill pays souls', g.run.wallet > 0)
@@ -80,28 +80,20 @@ function T.run(Game)
   p.x, p.z = g.run.echo.x, g.run.echo.z
   run(g, 0.02)
   check('what lies there is taken back', g.run.echo == nil and g.run.wallet > 0)
-  -- A guardian shuts its hall and stays down.
-  local boss = byPost(g, 'margrave')
-  p.x, p.z = 24, 28
-  run(g, 0.05)
-  check('a guardian does not notice from outside', not boss.awake and g.run.arena == nil)
-  p.x, p.z = 10, 25
-  run(g, 0.02)
-  check('a guardian opens its fight', g.run.arena == 'margrave')
-  p.x = 19
-  run(g, 0.02)
-  check('it turns', boss.awake)
-  check('and shuts its hall', p.x <= 17)
-  check('the fire there is not lit', P.fireHere(g) == nil)
-  g:damageEnemy(boss, boss.hp + 1, 'weapon', nil, p.id)
-  check('it falls for good', g.run.felled.margrave and g.run.arena == nil)
+  -- Fires are lit by resting at them, and travel goes between the lit ones.
   p.x, p.z = 10, 21
-  check('a new fire stands', P.fireHere(g) ~= nil and P.fireHere(g).id == 'west')
+  check('a far fire waits', P.fireHere(g) ~= nil and P.fireHere(g).id == 'west')
   g:interact()
-  check('and it does not come back', byPost(g, 'margrave') == nil)
+  check('the hardest bodies rise like the rest', byPost(g, 'west_hall').hp > 0)
   check('travel leaves its menu', g:act('ready') and g.state == 'playing')
   check('and leads to a lit fire', P.fireHere(g).id ~= 'west')
-  -- The door behind the guardian is a wall until it is opened from its side.
+  -- A hard body is a body: it stays in its leash and pays like any other.
+  local hard = byPost(g, 'west_hall')
+  check('it has a leash', hard.leash ~= nil)
+  local before = g.run.wallet
+  g:damageEnemy(hard, hard.hp + 1, 'weapon', nil, p.id)
+  check('it pays and ends nothing', g.run.wallet > before and g.state == 'playing')
+  -- The door is a wall until it is opened from its side.
   local World = require('src.world.arena')
   check('a door is a wall', World.solid(g.world, 14, 6, 0.3))
   p.x, p.z = 14.5, 4.5
@@ -112,17 +104,29 @@ function T.run(Game)
   check('it opens from its own', not World.solid(g.world, 14, 6, 0.3))
   -- The save holds the way.
   local saved = session(Game)
-  check('a new session wakes at the last fire', saved.run.fire ~= K.first or saved.run.lit.west)
-  check('it remembers the fallen', saved.run.felled.margrave)
-  check('and does not raise them', byPost(saved, 'margrave') == nil)
+  check('a new session knows the lit fires', saved.run.lit.west)
   check('an open door stays open', not World.solid(saved.world, 14, 6, 0.3))
   check('the other is still shut', World.solid(saved.world, 34, 6, 0.3))
+  -- What collapsed stays down through a rest and a save; small things stand again.
   local Destruction = require('src.combat.destruction')
-  check('a rest settles the ruin', Destruction.settle ~= nil)
-  -- The last guardian ends the way.
-  local storm = byPost(saved, 'furfur')
-  saved:damageEnemy(storm, storm.hp + 1, 'weapon', nil, saved.player.id)
-  check('the last guardian ends it', saved.state == 'won')
+  local Kinds = require('src.content.breakables')
+  local big, small
+  for _, def in ipairs(Destruction.list(saved.world)) do
+    if Kinds[def.kind].collapses then
+      big = big or def
+    else
+      small = small or def
+    end
+  end
+  Destruction.restore(saved.world, {
+    [big.id] = { damage = Kinds[big.kind].health, at = 1 },
+    [small.id] = { damage = Kinds[small.kind].health, at = 1 },
+  })
+  saved.player.x, saved.player.z = 24, 10.5
+  saved:interact()
+  check('a rest keeps what collapsed', Destruction.broken(saved.world, big.id))
+  check('and stands the small things again', not Destruction.broken(saved.world, small.id))
+  check('the save keeps the ruin', Destruction.broken(session(Game).world, big.id))
   P.forget()
   return lines
 end

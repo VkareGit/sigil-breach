@@ -57,11 +57,12 @@
 -- ground pays effort. The former creature file with attrition off reproduces 6/6.
 -- Then his card of blows: counters, a shell in his strikes, rolled sides and branches.
 -- Plan v13 W7: every creature on that model, by the curve of a knight who misreads.
+-- v13 mobs: imp and acolyte take more volleys, the imp pounces off its leap, the iron body's rush bends, and where effort is paid a knight walks back and aside slower. Restoring ONLY the three creature files and full side and back speed reproduces 6/6 previous digests.
 return {
-  playtest = '5109e6ca/12009a26',
-  human = 'bd9d6994/d2783e98',
-  drill = '1878ff1a/6cde7d96',
-  playtestContacts = '9ad9a40c/257',
-  humanContacts = 'f10cbec2/431',
-  drillContacts = 'f21dd92d/280',
+  playtest = 'f392c837/a251c083',
+  human = 'f044abc6/c80f27ba',
+  drill = '4edef3cc/61cb8480',
+  playtestContacts = '6d00cae1/282',
+  humanContacts = '57f9a6e5/399',
+  drillContacts = 'cddfc1f7/224',
 }
