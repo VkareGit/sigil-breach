@@ -196,7 +196,7 @@ function Tests.run(G, renderer)
       'projectile hit receipts and complete state replay after a weapon swap',
       replayed.enemies[1].hp == recorded.enemies[1].hp and #journal.receipts > 0
     )
-    local run = Fixtures.expedition(G)
+    local run = Fixtures.started(G)
     Weapons.give(run, id)
     run:switchWeapon(3)
     run.player.cooldown = 0

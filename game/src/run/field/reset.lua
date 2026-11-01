@@ -1,4 +1,4 @@
--- The proving ground's full trial boundary, not resupply or a new wave.
+-- The proving ground's full trial boundary, not resupply.
 -- Clear known transient state by its owner. Never rebuild the knight from
 -- a prefab or delete unknown fields: identity, equipment and future persistent
 -- extensions belong to their owners and must survive this boundary.

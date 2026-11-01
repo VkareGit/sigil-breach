@@ -169,14 +169,14 @@ function Tests.run(Game)
     )
     Commands.dispatch(app, 'new_confirm')
     check(
-      'stale confirmation stays in the allowed mode instead of constructing an expedition',
+      'stale confirmation stays in the allowed mode instead of constructing an chapel',
       app.game.mode == 'field' and not Field.allows(app.game, 'trade')
     )
     app.game = menu
     Commands.dispatch(app, 'new_confirm')
     Commands.dispatch(app, 'restart')
     check(
-      'stale run commands cannot activate the menu backdrop expedition',
+      'stale run commands cannot activate the menu backdrop chapel',
       app.game == menu and menu.state == 'menu'
     )
   end, debug.traceback)

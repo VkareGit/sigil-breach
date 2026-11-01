@@ -189,7 +189,7 @@ function D.heading(g)
   end
   Skin.panel(20, 16, 378, 64, 2, 9)
   Skin.zone('objective field', 32, 26, 354, 44)
-  Skin.boxText(Text.get('menu_circle'), 35, 27, 348, 20, U.fonts[14], gold)
+  Skin.boxText(Text.get('menu_chapel'), 35, 27, 348, 20, U.fonts[14], gold)
   local objective = Queries.objective(g)
   local size = 16
   if Skin.inkBounds(U.fonts[size], objective).w > 348 then

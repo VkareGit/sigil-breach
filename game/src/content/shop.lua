@@ -1,4 +1,4 @@
--- The Ember's offers between waves. Each offer names a kind (run/economy.lua
+-- The offers at a fire. Each offer names a kind (run/economy.lua
 -- E.kinds: how it is priced, what it gives); a new offer of a known kind is
 -- a new entry here, a new kind of offer is a new entry there. name,
 -- description, short: text keys (content/text.lua).

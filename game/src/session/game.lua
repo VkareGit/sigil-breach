@@ -104,7 +104,7 @@ function Game:spawn(kind, x, z)
     x = x,
     z = z,
     id = self.nextId,
-    -- The circle's guardian arrives knowing where the knight is.
+    -- A guardian arrives knowing where the knight is.
     awake = archetype.guardian,
     -- Arrival time, for the time-to-kill measurement (combat/telemetry.lua).
     bornAt = self.elapsed or 0,

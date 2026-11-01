@@ -69,7 +69,7 @@ function Capabilities.groundActs(g)
   return Capabilities.demonsAct(g) and not Capabilities.held(g)
 end
 -- The sanctuary is a place; the active mode decides whether trading there
--- is available now. This does not impose a shared wallet or phase layout.
+-- is available now.
 function Capabilities.canTrade(g)
   return policyOf(g) ~= nil and ask(g, 'canTrade') == true
 end

@@ -77,8 +77,7 @@ local function score(g, event)
     + math.min(K.comboSteps, r.combo - 1) * K.comboStep
   r.score = r.score + event.reward
 end
--- The mode's consequences (run/modes.lua: reward): the expedition counts
--- souls; the classic arena drops supplies and ends with the Margrave.
+-- The mode's consequences (run/modes.lua: reward): the chapel counts souls.
 local function rewards(g, event)
   Modes.act(g, 'reward', event)
 end

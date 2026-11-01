@@ -1,6 +1,5 @@
 -- The supplies every mode lays out (health, ammunition) and how the knight
--- takes them. What [E] does and says is each mode's own (the classic arena:
--- run/classic.lua, plan v11 E2; the proving ground, the expedition).
+-- takes them. What [E] does and says is each mode's own.
 local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
 local Signal = require('src.session.signal')
@@ -27,8 +26,7 @@ local function ammoFor(player, pickup)
 end
 
 -- Supplies (0.24, Strategy): each pickup kind says whether the knight needs
--- it and what taking it gives. A new kind of supply is a new entry; kinds
--- owned by a mode (the expedition's souls) are collected by that mode.
+-- it and what taking it gives. A new kind of supply is a new entry.
 --   wanted(player, pickup)  true when the pickup would give something
 --   take(player, pickup)    applies it and returns the notice text
 -- Every supply names its amount where it is laid (map, mode or drop data).

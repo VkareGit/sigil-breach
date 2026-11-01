@@ -1,4 +1,4 @@
--- Margrave of Ash: the guardian of the first circle (boss template).
+-- Margrave of Ash: the hardest body of the west hall.
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new

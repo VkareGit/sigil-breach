@@ -124,7 +124,7 @@ Creature.schema = Schema:new('creature', {
   guardian = {
     type = 'boolean',
     default = false,
-    desc = 'the circle guardian: its arrival and death end the trial',
+    desc = 'a guardian: it arrives knowing where the knight is',
   },
   appearance = { type = 'table', required = true, desc = 'how it looks (Creature.appearance)' },
   faction = { type = 'string', default = 'demons', desc = 'its side (content/factions.lua)' },

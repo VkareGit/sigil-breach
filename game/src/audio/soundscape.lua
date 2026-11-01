@@ -274,7 +274,7 @@ function S.mood(g)
     if world.guardianSpawned and not world.guardianDead then
       return 'guardian'
     end
-    -- Public chamber trials do not set expedition guardian flags.
+    -- Chamber trials do not set the guardian flags.
     for _, e in ipairs(require('src.session.world').of(g, 'enemies')) do
       if e.hp > 0 and e.boss and e.awake then
         return 'guardian'

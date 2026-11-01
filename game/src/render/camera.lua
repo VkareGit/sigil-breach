@@ -49,7 +49,7 @@ function Camera.dimensions(g, w, h)
   return math.floor(height * vw / vh + 0.5), height
 end
 -- Logical GUI coordinates, accounting for the scene and GUI's distinct
--- viewports (the classic scene fills the window; the field has a status bar).
+-- viewports (the scene fills the window; the field has a status bar).
 function Camera.reticle(g, w, h)
   local fov = Camera.basis(g, right, up, forward)
   local p = Context.actor(g)

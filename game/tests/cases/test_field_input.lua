@@ -88,7 +88,7 @@ function Tests.run(get, settings, settle)
   local field = get()
   field.testing = false
   check(
-    'F2 enters an independent sandbox without replacing the suspended expedition',
+    'F2 enters an independent sandbox without replacing the suspended chapel',
     field ~= original
       and field.testField
       and field.state == 'field_catalog'
@@ -220,7 +220,7 @@ function Tests.run(get, settings, settle)
   key('f1')
   key('escape')
   check(
-    'sandbox help returns to free combat without restoring or mutating the expedition',
+    'sandbox help returns to free combat without restoring or mutating the chapel',
     helpOpen
       and not field.help
       and field.state == 'playing'
@@ -241,7 +241,7 @@ function Tests.run(get, settings, settle)
   )
   click('field_leave')
   check(
-    -- 0.22: entered from the menu (the expedition is closed), so it returns there.
+    -- 0.22: entered from the menu (the chapel is closed), so it returns there.
     'leaving the sandbox restores the exact session it was entered from',
     get() == original
       and (original.state == 'paused' or original.state == 'menu')
@@ -259,7 +259,7 @@ function Tests.run(get, settings, settle)
   field = get()
   field.testing = false
   check(
-    'main-menu catalog entry is available without starting or continuing an expedition',
+    'main-menu catalog entry is available without starting or continuing an chapel',
     field.testField and field ~= menu and field.state == 'field_catalog'
   )
   click('field_spawn_boss_1')
@@ -269,7 +269,7 @@ function Tests.run(get, settings, settle)
   field:damageEnemy(boss, 100000, 'weapon') -- final stock, not its phase transition
   key('e')
   check(
-    'a killed sandbox boss and exit interaction cannot complete or save a real expedition',
+    'a killed sandbox boss and exit interaction cannot complete or save a real chapel',
     field.state ~= 'won' and sameFiles(menuFiles, files())
   )
   key('f2')
@@ -300,7 +300,7 @@ function Tests.run(get, settings, settle)
   key('f2')
   click('field_leave')
   check(
-    'quick-combat entry retry and exit preserve expedition and profile bytes',
+    'quick-combat entry retry and exit preserve chapel and profile bytes',
     get() == menu and sameFiles(menuFiles, files())
   )
   love.mouse.setRelativeMode(false)

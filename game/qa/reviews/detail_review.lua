@@ -13,7 +13,7 @@ function Review.run(output, Game, renderer)
   local previousRelative, previousGetRelative =
     love.mouse.setRelativeMode, love.mouse.getRelativeMode
   -- Also safe when invoked outside the application's QA adapter: no native
-  -- cursor capture, no desktop input, no persisted expedition, and no sound.
+  -- cursor capture, no desktop input, no persisted chapel, and no sound.
   local relative = false
   love.mouse.setRelativeMode = function(value)
     relative = not not value

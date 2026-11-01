@@ -1,4 +1,4 @@
--- The way through the chapel: fires instead of waves. The world stands where the map
+-- The way through the chapel: fires. The world stands where the map
 -- puts it; a rest heals the knight, fills his flask and rounds, sets where he wakes,
 -- and raises every creature. Dying leaves the souls where the knight fell; dying again
 -- before reaching them loses them.

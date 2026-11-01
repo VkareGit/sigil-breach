@@ -111,7 +111,7 @@ function Tests.run(G)
       guns[#guns + 1] = id
     end
     Snapshot.invalidateDefinitions()
-    local g = Fixtures.expedition(G)
+    local g = Fixtures.started(G)
     local app = Application.new()
     app:adopt(g)
     app:action('help')

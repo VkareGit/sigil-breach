@@ -12,7 +12,7 @@ function Tests.run(G, check, spark)
   local Journal = require('src.session.journal')
   local Integrity = require('src.session.integrity')
   local function ready()
-    local g = Fixtures.expedition(G)
+    local g = Fixtures.started(G)
     g.enemies = {}
     Abilities.give(g, spark.id)
     g.player.abilities = { spark.id, 'powder' }

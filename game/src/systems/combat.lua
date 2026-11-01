@@ -1,9 +1,8 @@
 -- The fight: demons (body, senses, state), their separation, the bodies
 -- meeting the knight, marked hazards, projectiles and the knight's powder
 -- charges. What may act is the session's capabilities (session/
--- capabilities.lua): a frozen proving ground stops all of it, between
--- expedition waves the demons rest but shots already fired keep flying, and
--- a broken guard holds missiles, ground and charges for a beat.
+-- capabilities.lua): a frozen proving ground stops all of it, and a broken
+-- guard holds missiles, ground and charges for a beat.
 local AI = require('src.enemies.ai')
 local Hazards = require('src.enemies.hazards')
 local Projectiles = require('src.combat.projectiles')

@@ -59,7 +59,7 @@ function Fixtures.arsenal(rounds)
   return loadout, arsenal
 end
 -- A started session of the plain room.
-function Fixtures.expedition(G)
+function Fixtures.started(G)
   local g = G.new('floor')
   g.testing = true
   g:start()

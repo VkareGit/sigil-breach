@@ -1,8 +1,7 @@
 local Context = require('src.session.context')
 -- Real-play measurements for the playtest (plan v5). An entry is appended to
 -- telemetry.txt in the game's save folder (Report.path) when the knight
--- dies, when the demons on the proving ground are all down, when a wave or
--- a wave trial ends (WaveCleared) and on F9. An entry measures the encounter
+-- dies, when the demons on the proving ground are all down and on F9. An entry measures the encounter
 -- since the previous entry and the whole run of measurements (since the
 -- proving ground was reset). It listens to the session's events ('present':
 -- after the step) and never changes the session. A test session writes
@@ -104,15 +103,11 @@ function Report.attach(g)
       Report.write(g, 'death')
     end
   end)
-  -- The wave trial reports itself when it ends (WaveCleared).
   bus:on('present', 'EnemyKilled', function()
     local field = Queries.field(g)
-    if field and field.station ~= 'waves' and alive(g) == 0 then
+    if field and alive(g) == 0 then
       Report.write(g, 'proving ground cleared')
     end
-  end)
-  bus:on('present', 'WaveCleared', function(e)
-    Report.write(g, (e.trial and 'wave trial ' or 'wave ') .. tostring(e.wave))
   end)
 end
 Presentation.attacher(Report.attach)

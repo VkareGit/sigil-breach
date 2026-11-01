@@ -542,7 +542,7 @@ function S.run(G, renderer)
   save('portrait-1-small', 960, 540)
   g.player.hp = 18
   save('portrait-5-small', 960, 540)
-  -- Free testing catalog uses the very same combat, assets and GUI as the expedition.
+  -- Free testing catalog uses the very same combat, assets and GUI as the chapel.
   local Field = require('src.run.test_field')
   g = Field.new(G)
   g.testing = true

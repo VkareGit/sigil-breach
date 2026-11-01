@@ -175,7 +175,7 @@ function Placement.summon(field, g, kind, count)
   return gates
 end
 -- What a demon stepping out of a gate here is given: a catalogue summons
--- is set on the knight, a wave trial's demon gets the wave's welcome.
+-- is set on the knight.
 function Placement.arrive(g, e, gate)
   if gate.fieldKind then
     engage(g, e, gate.fieldKind)

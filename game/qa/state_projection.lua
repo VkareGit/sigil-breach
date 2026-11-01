@@ -205,7 +205,7 @@ local function reload(g, event, out)
   put(out, name .. '.ammo.' .. id .. '.reserve', w and w.reserve)
   return out
 end
--- The souls a death left on the floor (the expedition's reward pickup).
+-- The souls a death left on the floor (the chapel's reward pickup).
 local function souls(g, enemy)
   local total = 0
   for _, a in ipairs(g.pickups or {}) do

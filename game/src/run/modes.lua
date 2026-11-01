@@ -33,14 +33,13 @@
 --   runView(g), fieldView(g)  read-only views of its run and its proving
 --                       ground for the screens (run/mode_views.lua)
 --   posed(g)            its targets hold their catalogue pose
---   result(g, out)      what its ending shows (the classic arena's rank)
 -- Its private state (plan v11 E2): one record, the session field named by
--- record ('run' for the expedition, 'testField' for the proving ground,
+-- record ('run' for the chapel, 'testField' for the proving ground,
 -- 'modeData', the default, for every other mode). The same hooks keep any
 -- of them (each optional): reset(g) back to the start, snapshot(g) the
 -- data of its checkpoint, load(g, data) and save(g); a file of its own is a
 -- section it declares (storage/save.lua: Save.declare). World and encounter
--- state is not a mode's: the seals and the secret are the world's
+-- state is not a mode's: the seals are the world's
 -- (world/arena.lua), the guardian the encounter's (session/encounter.lua).
 -- The application issues the player's ones through the session (Game:act),
 -- so the command journal records them.
@@ -79,8 +78,8 @@ local Modes = Registry:new('modes', function(mode, id)
   )
   Capabilities.define(id, mode.policy or {}, mode)
 end)
--- The proving ground (skirmish and stations). Required lazily: the proving
--- ground uses the expedition's definitions and must not load in a cycle.
+-- The proving ground (skirmish and stations). Required lazily: it must not load
+-- in a cycle.
 Modes:register('field', {
   session = { map = require('src.content.pilgrimage').map },
   record = 'testField',
@@ -128,8 +127,7 @@ Modes:register('field', {
   test = function(g)
     return g.testField ~= nil
   end,
-  -- The proving ground keeps an expedition record for its shop and waves,
-  -- but never its progression: ready, retry and the shop lead back to the field.
+  -- Ready, retry and the shop lead back to the field.
   start = function(g)
     return field().close(g)
   end,
@@ -145,7 +143,7 @@ Modes:register('field', {
   closeShop = function(g)
     return g.state == 'shop' and field().close(g)
   end,
-  -- Trial souls: the purchase without the expedition's save.
+  -- Trial souls: a purchase that saves nothing.
   buy = function(g, offer)
     return field().allows(g, 'trade') and Economy.trade(g, offer) or false
   end,
@@ -286,8 +284,7 @@ function Modes:unregister(id)
   return removed
 end
 -- The mode of a session: the one it names (g.mode, how new modes are
--- entered), else the first whose test holds, in registration order (the
--- original three recognise their own flags; classic is the catch-all).
+-- entered), else the first whose test holds, in registration order.
 function Modes.of(g)
   if g.mode then
     return Modes:get(g.mode)

@@ -165,31 +165,29 @@ function Tests.run(Game)
       and g.player.fireBuffer == 0
   )
 
-  local expedition = fresh('floor')
-  expedition.run.wallet = 317
+  local chapel = fresh('floor')
+  chapel.run.wallet = 317
   local field = Field.new(Game)
   field.testing = true
   check(
     'the proving ground owns an independent encounter and run',
-    field.player ~= expedition.player
-      and field.run ~= expedition.run
-      and field.world ~= expedition.world
+    field.player ~= chapel.player and field.run ~= chapel.run and field.world ~= chapel.world
   )
   Field.shop(field)
   require('src.run.modes').act(field, 'ready')
   check(
     'leaving a sandbox shop returns to combat, never wave progression',
-    field.state == 'playing' and #(field.run.pending or {}) == 0 and expedition.run.wallet == 317
+    field.state == 'playing' and #(field.run.pending or {}) == 0 and chapel.run.wallet == 317
   )
   field.testField.invincible = false
   field.player.hp, field.player.armor, field.player.invuln = 1, 0, 0
   field:damagePlayer(1000)
   check(
-    'sandbox death leaves expedition persistence and currency untouched',
+    'sandbox death leaves chapel persistence and currency untouched',
     field.state == 'dead'
       and field.run.echo == nil
       and field.run.deaths == 0
-      and expedition.run.wallet == 317
+      and chapel.run.wallet == 317
   )
 
   love.mouse.setRelativeMode(false)

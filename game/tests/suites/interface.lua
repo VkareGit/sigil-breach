@@ -9,7 +9,7 @@ function Tests.run(G, renderer)
   local lines = {}
   local check = Fixtures.checker(lines, '', '')
   local function fresh()
-    return Fixtures.expedition(G)
+    return Fixtures.started(G)
   end
   local atlas = love.image.newImageData(Skin.path)
   local _, _, _, alpha = atlas:getPixel(0, 0)

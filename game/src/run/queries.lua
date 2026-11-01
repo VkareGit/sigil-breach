@@ -9,8 +9,7 @@
 --             Queries.copy(view) is a copy of its own to keep;
 --             Queries.valid(g, view) tells a view retained too long.
 -- What every world view carries besides the mode's own fields: the
--- encounter's guardian (guardianSpawned, guardianDead) and the world's
--- hidden sigil (secretFound).
+-- encounter's guardian (guardianSpawned, guardianDead).
 local Modes = require('src.run.modes')
 local Encounter = require('src.session.encounter')
 local Queries = {}
@@ -120,7 +119,7 @@ end
 function Queries.remaining(g)
   return Modes.act(g, 'remaining') or 0
 end
--- The run of the session's mode (phase, wave, wallet, echo...; nil when it
+-- The run of the session's mode (wallet, echo, fires...; nil when it
 -- keeps none) and its proving ground (nil outside one): read-only views.
 function Queries.run(g)
   return (ask(g, 'runView', 'run'))

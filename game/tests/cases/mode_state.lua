@@ -71,7 +71,7 @@ function Tests.run(G, renderer)
   c.run.wallet, d.run.wallet = 11, 22
   local viewC, viewD = Queries.run(c), Queries.run(d)
   check(
-    'two expeditions never share a view table',
+    'two chapels never share a view table',
     viewC ~= viewD and viewC.wallet == 11 and viewD.wallet == 22
   )
   local kept = Queries.copy(viewC)

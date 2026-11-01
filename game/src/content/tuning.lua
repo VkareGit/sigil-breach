@@ -3,8 +3,7 @@
 --                               historical names) and grouped session tables
 --   content/combat_defaults.lua the shared rules of bodies and demon behaviour
 --                               (impulse, guard, walking, senses, attacks...)
---   content/waves.lua           waves, the pacing director, portals
---   content/classic.lua, content/expedition.lua, content/shop.lua  mode data
+--   content/field.lua, content/pilgrimage.lua, content/shop.lua  mode data
 --   content/ballistic_surfaces.lua  materials of a body's surface
 --   content/art/anatomy/*       painted regions of every demon frame
 --   physics/collision.lua       tile heights and pillar radius
@@ -63,8 +62,6 @@ return {
       voices = { open = 'gateOpen', load = 'roundsIn', close = 'cylinderClose' },
     },
   },
-  -- Expedition countdown before a wave (s).
-  waveCountdown = 1.25,
   falloffStart = 4,
   falloffEnd = 18,
   pelletMinPower = 0.40,
@@ -98,8 +95,6 @@ return {
   },
   -- Reach (m): the Ember's rest and trade, a supply taken from the floor.
   reach = { ember = 2.8, supply = 0.7 },
-  killAmmo = 4,
-  sealAmmo = 8,
   revolverCapacity = 6,
   revolverStartReserve = 24,
   revolverMaxReserve = 72,
@@ -187,17 +182,13 @@ return {
   lowHealth = 0.30,
   lowHealthFade = 0.40,
   -- Score of a kill (session/listeners.lua): demon / boss points, the combo
-  -- window (s), +comboStep per chained kill up to comboSteps; the classic
-  -- arena (session/interactions.lua) drops ammunition every ammoEvery kills
-  -- and health every healthEvery.
+  -- window (s), +comboStep per chained kill up to comboSteps.
   rewards = {
     demon = 100,
     boss = 1000,
     comboWindow = 4,
     comboStep = 25,
     comboSteps = 5,
-    ammoEvery = 2,
-    healthEvery = 3,
     -- A health drop lies this far (m) beside an ammunition drop.
     dropSpacing = 0.15,
   },

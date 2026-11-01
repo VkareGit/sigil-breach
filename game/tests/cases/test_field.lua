@@ -237,12 +237,12 @@ function Tests.run(G, renderer)
     for _, line in ipairs(Tests.resetTrial(G)) do
       lines[#lines + 1] = line
     end
-    local expedition = G.new('floor')
-    expedition.testing = true
-    expedition:start()
-    expedition.run.wallet = 317
-    expedition.run.owned = { pierce = true }
-    expedition.run.glyph = 'pierce'
+    local chapel = G.new('floor')
+    chapel.testing = true
+    chapel:start()
+    chapel.run.wallet = 317
+    chapel.run.owned = { pierce = true }
+    chapel.run.glyph = 'pierce'
     local function fresh()
       local g = Field.new(G)
       g.testing = false
@@ -250,11 +250,11 @@ function Tests.run(G, renderer)
     end
     local g = fresh()
     check(
-      'sandbox opens a separate empty arena without owning an expedition save',
-      g ~= expedition
-        and g.world ~= expedition.world
-        and g.run ~= expedition.run
-        and g.run.owned ~= expedition.run.owned
+      'sandbox opens a separate empty arena without owning an chapel save',
+      g ~= chapel
+        and g.world ~= chapel.world
+        and g.run ~= chapel.run
+        and g.run.owned ~= chapel.run.owned
         and g.testField
         and g.state == 'field_catalog'
         and g.world.size == 31
@@ -624,7 +624,7 @@ function Tests.run(G, renderer)
       purchased
         and g.player.arsenal.exorcist.reserve == 72
         and g.run.wallet == 997
-        and expedition.run.wallet == 317
+        and chapel.run.wallet == 317
     )
     Modes.act(g, 'ready')
     check(
@@ -638,7 +638,7 @@ function Tests.run(G, renderer)
     wallet = g.run.wallet
     g:damagePlayer(1000)
     check(
-      'sandbox death keeps expedition souls and retry progression untouched',
+      'sandbox death keeps chapel souls and retry progression untouched',
       g.state == 'dead' and g.run.wallet == wallet and g.run.echo == nil and g.run.deaths == 0
     )
     Field.reset(g)

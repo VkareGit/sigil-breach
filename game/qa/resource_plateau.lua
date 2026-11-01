@@ -114,19 +114,19 @@ function Plateau.run(Game, renderer, initial, settings, output)
     app:adopt(replay)
     prepare()
     draw(replay)
-    -- The expedition remains closed in the player menu. Exercise its real
+    -- The chapel remains closed in the player menu. Exercise its real
     -- navigation/session lifecycle through the registered mode API, not a
     -- new public menu command or a hand-built fake scene.
-    local expedition = Navigation.enter(app, 'pilgrimage')
-    expedition.testing = true
-    expedition:start()
-    expedition:update(1 / 120, {})
-    assert(expedition.mode == 'pilgrimage' and expedition.state == 'playing')
-    draw(expedition)
+    local chapel = Navigation.enter(app, 'pilgrimage')
+    chapel.testing = true
+    chapel:start()
+    chapel:update(1 / 120, {})
+    assert(chapel.mode == 'pilgrimage' and chapel.state == 'playing')
+    draw(chapel)
     assert(Navigation.back(app) and app.game == replay)
     assert(Navigation.back(app) and app.game == menu and not app.navigation)
     draw(menu)
-    snapshot('cycle_' .. cycle .. '_menu_after_field_expedition_replay')
+    snapshot('cycle_' .. cycle .. '_menu_after_field_chapel_replay')
     local mesh = fresh.worldMesh
     fresh:release()
     assert(
@@ -139,7 +139,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
         'released renderer retained a resource scope entry'
       )
     end
-    retained[menu], retained[game], retained[replay], retained[expedition] =
+    retained[menu], retained[game], retained[replay], retained[chapel] =
       'menu session', 'recorded field session', 'replayed field session', 'chapel session'
     retained[journal], retained[app] = 'stopped journal', 'temporary application'
     -- The caller collects only after this stack (including the journal and
@@ -213,7 +213,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     high - low
   )
   lines[#lines + 1] =
-    'Each cycle drew menu, field, a second actor view, replay and expedition through actual navigation, then returned to menu. Native/heap measurements above use normal JIT behavior throughout all cycles. A single final JIT eviction distinguishes compiled-closure retention from application ownership; no cycle sessions, journals, applications or private views remain afterwards. The query regression keeps a borrowed view alive while its owner is collected. The original application renderer, UI and global weapon presentation remain live intentionally. Lua heap is reported without an arbitrary pass threshold.'
+    'Each cycle drew menu, field, a second actor view, replay and chapel through actual navigation, then returned to menu. Native/heap measurements above use normal JIT behavior throughout all cycles. A single final JIT eviction distinguishes compiled-closure retention from application ownership; no cycle sessions, journals, applications or private views remain afterwards. The query regression keeps a borrowed view alive while its owner is collected. The original application renderer, UI and global weapon presentation remain live intentionally. Lua heap is reported without an arbitrary pass threshold.'
   Tooling.write(output, 'resource-plateau.txt', lines, false)
   for _, line in ipairs(lines) do
     print(line)

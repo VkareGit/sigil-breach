@@ -47,10 +47,6 @@ local Catalog = {
   { 'Seized', 'a grip closed on a body {enemy, target}' },
   { 'PortalOpened', 'a summoning portal began to glow {gate}' },
   { 'EnemyArrived', 'a demon climbed out of a portal {enemy}' },
-  {
-    'WaveCleared',
-    'a wave of the expedition or a proving-ground trial ended {wave, final, trial}',
-  },
   { 'PickupTaken', 'the knight took a supply {pickup, text}' },
   { 'ModeStarted', 'the session left the menu into its mode {mode}' },
 }

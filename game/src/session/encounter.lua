@@ -1,4 +1,4 @@
--- Encounter lifetimes are explicit. A new wave clears its actors and attacks,
+-- Encounter lifetimes are explicit. A rest clears the actors and attacks,
 -- but lets the last ejected shells finish. A full reset also clears those
 -- visual remnants and cached combat reports. Neither operation touches the
 -- player, run wallet/checkpoint, world geometry or persistent score.
@@ -6,7 +6,7 @@ local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Encounter = {}
 
--- The circle's guardian (plan v11 E2): one record of the session's
+-- The guardian (plan v11 E2): one record of the session's
 -- encounter (g.encounter), shared by every mode and changed only here.
 -- Modes say when it arrives and falls; screens, music and the world's exit
 -- read the world view (run/queries.lua), never the record.

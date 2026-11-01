@@ -1,5 +1,5 @@
 -- A new mode is constructed, visited, snapshotted and replayed by the same
--- production paths. The fixture has no expedition or proving-ground record.
+-- production paths. The fixture has no chapel or proving-ground record.
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(Game)
@@ -90,7 +90,7 @@ function Tests.run(Game)
     local saved = Modes.act(fresh, 'snapshot')
     fresh.modeData.steps = 0
     check(
-      'own checkpoint handlers preserve a mode without expedition state',
+      'own checkpoint handlers preserve a mode without chapel state',
       Modes.act(fresh, 'load', saved) and fresh.modeData.steps == saved.steps
     )
     local snapshot = Snapshot.capture(fresh)

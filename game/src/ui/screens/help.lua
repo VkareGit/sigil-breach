@@ -64,7 +64,7 @@ function S.draw(g, s, U)
   Skin.zone('parchment writing field', 158, 106, 964, 492)
   local field = g and Queries.field(g)
   Skin.boxText(
-    Text.get(field and 'menu_proving' or 'menu_circle'),
+    Text.get(field and 'menu_proving' or 'menu_chapel'),
     440,
     112,
     400,

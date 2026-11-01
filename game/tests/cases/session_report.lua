@@ -47,11 +47,6 @@ function Tests.run(G)
     g.player.hp, g.player.armor, g.player.invuln = 1, 0, 0
     g:damagePlayer(500)
     check('a death writes one entry', #written == 3 and written[3].text:find('death', 1, true))
-    Signal(g, 'WaveCleared', { wave = 2, final = false, trial = true })
-    check(
-      'a cleared wave trial writes one entry',
-      #written == 4 and written[4].text:find('wave trial 2', 1, true)
-    )
     Field.reset(g)
     check('a fresh proving ground starts its measurements anew', Telemetry.get(g).kills == 0)
     check(

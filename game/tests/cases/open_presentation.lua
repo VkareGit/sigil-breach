@@ -167,7 +167,7 @@ local function hudSlots(G, check)
       Abilities.define(item)
     end
     Snapshot.invalidateDefinitions()
-    local g = Fixtures.expedition(G)
+    local g = Fixtures.started(G)
     g.state, g.view.messageTimer, g.zoneTimer = 'playing', 0, 0
     for _, id in ipairs(weapons) do
       g.player.weapon = Weapons.give(g, id)
@@ -244,7 +244,7 @@ local function language(G, renderer, check)
     canvas:release()
     assert(ok, problem)
   end
-  local function expedition()
+  local function chapel()
     local g = G.new('floor')
     g.testing = true
     g:start()
@@ -252,39 +252,39 @@ local function language(G, renderer, check)
   end
   local scenes = {
     menu = function()
-      local g = expedition()
+      local g = chapel()
       g.state = 'menu'
       return g
     end,
     settings = function()
-      local g = expedition()
+      local g = chapel()
       g.state = 'settings'
       return g
     end,
     confirm = function()
-      local g = expedition()
+      local g = chapel()
       g.state = 'confirm_new'
       return g
     end,
     preparing = function()
-      return expedition()
+      return chapel()
     end,
     wave = function()
-      local g = expedition()
+      local g = chapel()
       g.elapsed = 1
       local e = g:spawn('armored', g.player.x, g.player.z - 4)
       e.hp = e.maxHp * 0.5
       return g
     end,
     guardian = function()
-      local g = expedition()
+      local g = chapel()
       require('src.session.encounter').guardianArrived(g)
       local boss = g:spawn('boss', 16, 22)
       boss.hp = boss.maxHp * 0.4
       return g
     end,
     reload = function()
-      local g = expedition()
+      local g = chapel()
       g.player.weapon = 2
       g.player.arsenal.judge.mag = 0
       g:reloadGun()
@@ -292,7 +292,7 @@ local function language(G, renderer, check)
       return g
     end,
     empty = function()
-      local g = expedition()
+      local g = chapel()
       for _, state in pairs(g.player.arsenal) do
         state.mag, state.reserve = 0, 0
       end
@@ -300,28 +300,28 @@ local function language(G, renderer, check)
       return g
     end,
     paused = function()
-      local g = expedition()
+      local g = chapel()
       g.state = 'paused'
       return g
     end,
     help = function()
-      local g = expedition()
+      local g = chapel()
       g.state, g.help = 'paused', true
       return g
     end,
     map = function()
-      local g = expedition()
+      local g = chapel()
       g.run.echo = { amount = 10, x = 7, z = 17 }
       g.map = true
       return g
     end,
     shop = function()
-      local g = expedition()
+      local g = chapel()
       Sanctuary.trade(g)
       return g
     end,
     dead = function()
-      local g = expedition()
+      local g = chapel()
       g.state, g.player.hp = 'dead', 0
       g.run.echo = { amount = 10, x = 16, z = 23 }
       return g
