@@ -13,7 +13,7 @@ local Selection = require('src.enemies.attack_selection')
 local ActionKinds = require('src.combat.action_kinds')
 local Action = require('src.content.defs.action')
 local Attacks = {}
-local cos, atan2 = math.cos, math.atan2
+local sin, cos, atan2 = math.sin, math.cos, math.atan2
 local len = MathX.len
 local angle = MathX.wrapAngle
 local arch = Rules.archetype
@@ -196,8 +196,21 @@ function Attacks.flow(g, e, d)
   end
   return false
 end
--- The aim follows the target for the first share of a tracking windup.
-function Attacks.track(g, e, atk)
+-- A turning blow goes where the body faces: the body turns at its rate until
+-- lockAt of the windup, and a dodge before that is followed. Otherwise the aim
+-- follows the target for the first share of a tracking windup.
+function Attacks.track(g, e, atk, dt)
+  if atk.turn then
+    local p = victimOf(g, e)
+    if e.windup >= e.windupDuration * (1 - atk.lockAt) then
+      local most = atk.turn * dt
+      local off = angle(atan2(p.x - e.x, p.z - e.z) - e.facing)
+      e.facing = e.facing + math.max(-most, math.min(most, off))
+    end
+    local d = math.max(1, len(p.x - e.x, p.z - e.z))
+    e.aimX, e.aimZ, e.aimLevel = e.x + sin(e.facing) * d, e.z + cos(e.facing) * d, p.level
+    return
+  end
   if atk.track and e.windup > e.windupDuration * (1 - atk.track) then
     local p = victimOf(g, e)
     e.aimX, e.aimZ, e.aimLevel = p.x, p.z, p.level

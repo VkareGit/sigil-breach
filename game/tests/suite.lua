@@ -51,6 +51,16 @@ Suite.registry = {
     module = 'tests.cases.souls_bots',
   },
   {
+    id = 'souls-gate',
+    title = 'A knight who stands and shoots loses, and fire takes no blows away',
+    module = 'tests.cases.souls_gate',
+  },
+  {
+    id = 'souls-trace',
+    title = 'A blow is a path in time and goes where the body came to face',
+    module = 'tests.cases.souls_trace',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

@@ -235,6 +235,10 @@ return {
     reach = { 0.25, 0.55, 0.86 },
     height = 0.94,
     radius = 0.18,
+    -- A traced blow (content/defs/action.lua: trace) meets at these shares of
+    -- its reach, tip first, as spheres of bladeRadius m: a blade, not its point.
+    blade = { 1, 0.7, 0.4 },
+    bladeRadius = 0.32,
   },
   -- Missiles (combat/projectiles.lua): a near miss is heard within nearMiss m
   -- of the knight's chest (chest m above the feet); a bolt without a packet

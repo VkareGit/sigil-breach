@@ -32,6 +32,7 @@ Creature.move = Schema:new('move', {
   accel = { type = 'number', default = Defaults.accel, min = 0, desc = 'divided by sqrt(mass)' },
   style = { type = 'string', default = 'keep', desc = 'movement style (enemies/ai.lua: AI.styles)' },
   ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
+  turn = { type = 'number', min = 0, desc = 'how fast the body turns (rad/s); absent: at once' },
   heavy = { type = 'boolean', default = false },
   evade = { type = 'table', schema = Creature.evade },
   targeting = {

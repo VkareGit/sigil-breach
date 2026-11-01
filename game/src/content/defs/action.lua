@@ -62,6 +62,18 @@ Action.common = {
     max = 1,
     desc = 'share of the windup the aim follows the target; frozen after it',
   },
+  turn = {
+    type = 'number',
+    min = 0,
+    desc = 'the body turns to its target through the windup (rad/s) and the blow goes that way',
+  },
+  lockAt = {
+    type = 'number',
+    default = 0.6,
+    min = 0,
+    max = 1,
+    desc = 'share of the windup after which a turning body stops turning',
+  },
   sound = { type = 'string' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   packet = { type = 'table', schema = Packet.schema },
@@ -226,10 +238,35 @@ local Trail = Schema:new('trail', {
   pulse = { type = 'number', required = true, min = 0 },
   packet = { type = 'table', required = true, schema = Packet.schema },
 })
+-- One moment of a blow's path, measured from the body along the way it faces:
+-- at seconds of the strike the tip stands angle radians to its side, reach m
+-- away and height m above the floor.
+local TraceKey = Schema:new('trace key', {
+  at = { type = 'number', required = true, min = 0 },
+  angle = { type = 'number', required = true },
+  reach = { type = 'number', required = true, min = 0 },
+  height = { type = 'number', required = true, min = 0 },
+})
 local swing = {
   reach = { type = 'number', min = 0, desc = 'how far the blow goes from the body (m)' },
   arc = { type = 'number', min = 0, desc = 'its width (radians)' },
   active = { type = 'table', default = { 0.06, 0.2 }, desc = 'when it can land (s)' },
+  trace = {
+    type = 'table',
+    list = TraceKey,
+    desc = 'the path of the blow; with one, reach, arc and active follow from it',
+  },
+  blade = {
+    type = 'table',
+    default = Claw.blade,
+    desc = 'shares of the reach met by the blow, tip first',
+  },
+  contactRadius = {
+    type = 'number',
+    default = Claw.bladeRadius,
+    min = 0,
+    desc = 'thickness of a traced blow (m)',
+  },
   lungeSpeed = { type = 'number', default = 0, min = 0 },
   lungeTime = { type = 'number', default = 0, min = 0 },
   volume = Area.field('sweep'),
@@ -247,11 +284,7 @@ end
 -- A wide blow with real reach, passed by leaving its arc or jumping a low one.
 Action.kinds:register(
   'sweep',
-  kind('sweep', with(swing, { trail = { type = 'table', schema = Trail } }), {
-    'reach',
-    'arc',
-    'packet',
-  })
+  kind('sweep', with(swing, { trail = { type = 'table', schema = Trail } }), { 'packet' })
 )
 -- A grip: it pins what it catches and hurts when the grip closes.
 Action.kinds:register(
@@ -261,7 +294,7 @@ Action.kinds:register(
     with(swing, {
       grip = { type = 'number', min = 0, desc = 'how long it holds (s)' },
     }),
-    { 'reach', 'arc', 'grip', 'packet' }
+    { 'grip', 'packet' }
   )
 )
 -- A ring spreading from the body over the floor.
@@ -479,7 +512,24 @@ hook('fan', function(built, path)
   projectile(built, path)
 end)
 hook('bolt', projectile)
+-- What a blow's path says of its reach, width and window.
+local function traced(built, path)
+  local trace = built.trace
+  assert(#trace >= 2, path .. '.trace: needs two moments at least')
+  local far, low, high = 0, trace[1].angle, trace[1].angle
+  for index, key in ipairs(trace) do
+    assert(index == 1 or key.at > trace[index - 1].at, path .. '.trace: moments must follow')
+    far, low, high = math.max(far, key.reach), math.min(low, key.angle), math.max(high, key.angle)
+  end
+  built.reach, built.arc = far, high - low
+  built.active = { trace[1].at, trace[#trace].at }
+end
 local function swung(built, path)
+  if built.trace then
+    traced(built, path)
+  end
+  assert(built.reach and built.arc, path .. ': needs reach and arc, or a trace')
+  samples(built.blade, path .. '.blade')
   samples(built.active, path .. '.active', 2)
   assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
   assert(built.active[2] <= built.duration, path .. '.active: exceeds strike duration')

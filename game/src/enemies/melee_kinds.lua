@@ -185,12 +185,56 @@ end
 -- A blow's reach and arc in its active window. Returns the body caught and its
 -- receipt; a dodge that left its afterimage in the arc spends the blow.
 local source = {}
+-- A blow with a path: it meets what its path crosses, when it crosses it.
+local function traced(g, e, atk, ctx, t, p)
+  local previous = previousOf(g, t, ctx.previous)
+  local hit, _, contact = Melee.claw(
+    g,
+    e,
+    ctx.oldX,
+    ctx.oldZ,
+    previous or p,
+    ctx.before,
+    e.phase,
+    atk.lungeTime,
+    atk.active,
+    p,
+    atk,
+    t
+  )
+  if hit then
+    return t, contact
+  end
+  local ghost = Dodge.afterimage(g, t)
+  if
+    ghost
+    and Melee.claw(
+      g,
+      e,
+      ctx.oldX,
+      ctx.oldZ,
+      ghost,
+      ctx.before,
+      e.phase,
+      atk.lungeTime,
+      atk.active,
+      ghost,
+      atk,
+      t
+    )
+  then
+    dodged(g, e, atk, t)
+  end
+end
 local function swing(g, e, atk, ctx)
   if e.didHit or e.phase < atk.active[1] or ctx.before > atk.active[2] then
     return
   end
   local t = victimOf(g, e)
   local p = pointOf(g, t)
+  if atk.trace then
+    return traced(g, e, atk, ctx, t, p)
+  end
   source.x, source.z, source.level, source.radius = e.x, e.z, e.level, atk.reach
   local hit, contact = Area.test(g, source, atk.volume, t, p)
   if hit and inArc(e, p, atk.arc) then

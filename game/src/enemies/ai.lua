@@ -423,7 +423,17 @@ local function perceive(g, e, d, dt)
   if e.ai == 'windup' or e.ai == 'strike' then
     target = atan2(e.aimX - e.x, e.aimZ - e.z)
   end
-  e.facing = e.facing + angle(target - e.facing) * (1 - math.exp(-dt * Senses.turnRate))
+  local rate = arch(e).move.turn
+  local committed = e.ai == 'windup' or e.ai == 'strike'
+  if committed and (rate or (e.attackSpec and e.attackSpec.turn)) then
+    -- The blow turns the body itself (enemies/actions.lua: track).
+    rate = 0
+  elseif not rate then
+    e.facing = e.facing + angle(target - e.facing) * (1 - math.exp(-dt * Senses.turnRate))
+  else
+    local off = angle(target - e.facing)
+    e.facing = e.facing + math.max(-rate * dt, math.min(rate * dt, off))
+  end
   if e.awake and d < Senses.threatRange then
     g.threat = g.threat + (arch(e).threat or 1)
   end
@@ -439,7 +449,7 @@ AI.states = States
 -- The telegraph runs out: release the attack, or cancel it for real.
 function States.windup(g, e, d, dt)
   local p = target(g, e)
-  Attacks.track(g, e, Attacks.current(e))
+  Attacks.track(g, e, Attacks.current(e), dt)
   e.windup = math.max(0, e.windup - dt)
   if e.windup > 0 then
     return
@@ -455,6 +465,12 @@ function States.windup(g, e, d, dt)
   -- never moves its telegraph. No shooting through a wall.
   local defaults = Archetypes.defaults
   local spec = Attacks.current(e)
+  -- A turning blow goes where the body came to face, whatever stands there.
+  if spec.turn then
+    change(e, 'strike')
+    Attacks.execute(g, e)
+    return
+  end
   if
     not Attacks.kindOf(spec).unseen
     and not Rules.sees(g, e, p, e.aimX, e.aimZ)

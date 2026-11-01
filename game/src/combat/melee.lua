@@ -106,11 +106,34 @@ function M.window(action)
   local active = action and action.active
   return active and active[1] or Claw.active[1], active and active[2] or Claw.active[2]
 end
+-- The moment of a blow's path at phase: its angle, reach and height.
+function M.tip(trace, phase)
+  local from, to = trace[1], trace[#trace]
+  for index = 2, #trace do
+    if phase <= trace[index].at then
+      from, to = trace[index - 1], trace[index]
+      break
+    end
+  end
+  local share = math.max(0, math.min(1, (phase - from.at) / (to.at - from.at)))
+  return lerp(from.angle, to.angle, share),
+    lerp(from.reach, to.reach, share),
+    lerp(from.height, to.height, share)
+end
 -- Where the attacking hand (muzzle) is at phase of the strike, for the body
 -- standing at x, z: the contact point (height above the ground) and the
 -- forward direction its reach samples extend along. Used by the contact test
 -- below and by the hit diagnostics (render/effects.lua), never redrawn apart.
 function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
+  if action and action.trace then
+    local angle, reach, height = M.tip(action.trace, phase)
+    local yaw = math.atan2(e.lungeX, e.lungeZ) + angle
+    return x,
+      height + Ground.height(g.world, x, z, e.level) - Ground.height(g.world),
+      z,
+      math.sin(yaw) * reach,
+      math.cos(yaw) * reach
+  end
   local ax, ay, az = Anchor.point(g, e, phase, x, z, action and action.contactAnchor or 'claw')
   if ax then
     return ax,
@@ -134,6 +157,9 @@ function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
 end
 -- The depths along the forward direction where the contact is sampled.
 function M.depths(action)
+  if action and action.trace then
+    return action.blade
+  end
   return action and action.contactReach or reachSamples
 end
 -- current (optional): the swept point of the body met now (default the
