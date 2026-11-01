@@ -662,3 +662,12 @@ KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
     Testuj reset po rzeczywistym trafieniu, pierwszy ruch i kolejne
     trafienie po resecie, zachowanie wyposażenia oraz zapis/odtworzenie
     polecenia resetu z snapshotu w trakcie walki (tests/cases/test_field).
+
+Nowy obszar drogi
+-----------------
+Dopisz Way.areas:register('id', { id, map, first, fires, doors, garrison }) w
+src/content/pilgrimage.lua. Id ognisk i drzwi są unikalne w całej drodze, bo zapis podaje je bez
+obszaru. Drzwi na inną mapę mają leads = 'id obszaru', a back stoi już w tamtym obszarze. Test
+tests/cases/proving.lua sprawdza każdy obszar przez P.problems: ściany, wysokość kroku, zasięg z
+pierwszego ogniska, istnienie stworów. Zmiana nazwy id w istniejącej treści wymaga migracji w sekcji
+zapisu 'pilgrimage'; usunięte id samo wypada z zapisu.

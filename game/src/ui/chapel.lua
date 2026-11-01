@@ -170,10 +170,10 @@ function D.controls(g)
       list[#list + 1] = {
         id = 'save_slot',
         label = Text.get('menu_slot', { slot = r.slot, count = Way.slots }),
-        x = 72,
-        y = 622,
-        w = 392,
-        h = 36,
+        x = 300,
+        y = 648,
+        w = 236,
+        h = 38,
       }
     end
     return list

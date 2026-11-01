@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.38 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.39 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -8,6 +8,28 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.39.txt
+SIGIL: BREACH 0.39: odbiór
+
+Sprawdzone automatycznie:
+- Selftest źródeł: 5729 sprawdzeń, 0 uwag architektury, złoty wzorzec bez zmian po podziale funkcji.
+- Psute zapisy: 13 rodzajów złych plików, migracja z wersji 1, kopia poprzednia, restore przerwany w połowie, usunięta treść. Gra zawsze startuje, a pliki zostają pod .damaged.
+- Moment zapisu: zabójstwo nie pisze, walka nie pisze, cisza pisze, a sześć zdarzeń zapisuje od razu i każde jest sprawdzone wczytaniem.
+- Powtórka sesji od zera i z zapisu, przy innym pliku na dysku.
+- Prawdziwa mapa: bot dochodzi do każdego ogniska i drzwi, wszystkie komory i stacje poligonu działają na proving.
+- Drugi obszar na innej mapie: drzwi, podróż, zapis, ruina, na tymczasowych danych testu.
+- Test przez prawdziwe klawisze: slot zapisu, pauza zapisuje, podmiana świata przechodzi przez stronę ładowania.
+
+Niesprawdzone:
+- Workflow CI nie był uruchomiony, repozytorium nie było wypychane. Obejmuje format i architekturę; testy z grafiką zostają lokalne, bo potrzebują GPU.
+- MEASURE.ps1 z kodem błędu: logika zmieniona, pełnego porównania przed i po nie uruchamiano.
+- Limit pól tras nie ma własnego testu, bo mapa kaplicy ma za mało regionów, żeby go dobić.
+- Drugi obszar istnieje tylko w teście. Prawdziwego drugiego obszaru w grze nie ma.
+- Ceny ślubów nie były oceniane w grze przez gracza. Ikony ślubów to istniejące ikony.
+- Odbiór B2 (ocena gracza w normalnej grze) pozostaje osobny.
 
 
 ########################################################################

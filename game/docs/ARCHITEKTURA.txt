@@ -276,7 +276,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   (g.run, g.testField) czyta tylko on sam: [E] i podpowiedź (interact,
   context), pozwolenia (frozen, invincible, attrition: session/capabilities),
   dane paska HUD (hud: glyph, wallet, echo, progress). Nowy tryb odpowiada tymi
-  funkcjami. Ekrany i HUD pytają tryb (plan v10 V6): run/queries.lua — run
+  funkcjami. Ekrany i HUD pytają tryb (plan v10 V6): session/queries.lua — run
   (sakiewka, echo, ogniska), field (ustawienia i wybór poligonu), world, tools,
   objective; widoki buduje tryb z własnego rekordu (run/mode_views.lua).
   Zapadka mode-records = 0. Handel: run/economy.lua (E.trade, bez zapisu) i
@@ -288,7 +288,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
   ui/interface.lua tylko rozdziela.
   Game.new i Journal.session korzystają ze wspólnego Modes.session.
-  Renderery i ekrany pytają run/queries. app/navigation posiada stos powrotów.
+  Renderery i ekrany pytają session/queries. app/navigation posiada stos powrotów.
   Poligon (run/test_field.lua) to cykl życia, komunikaty i akcje katalogu;
   stawianie celów i wezwania (run/field/placement.lua, run/gates.lua), odwiedziny
   pieczęci i sklepu (visits.lua), stanowiska (trials.lua); liczby
@@ -423,7 +423,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   (g.encounter, API session/encounter.lua), pieczęcie i sekret do świata
   (World.activeSeals, world.secretFound), stan prywatny trybu do jego
   rekordu (Modes: record = 'run' | 'testField' | 'modeData'; haki reset,
-  snapshot, load, save). Prezentacja czyta tylko widoki (run/queries.lua):
+  snapshot, load, save). Prezentacja czyta tylko widoki (session/queries.lua):
   widok należy do sesji, jest ważny do następnego kroku albo polecenia,
   Queries.copy daje kopię na własność. Nowy tryb trzyma stan w g.modeData,
   cel w objective, znaczniki mapy w markers widoku świata (test mode-state:

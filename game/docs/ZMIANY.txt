@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.38 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.39 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,44 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.39.txt
+SIGIL: BREACH 0.39 / The Chapel
+
+Naprawy po audycie kodu (Claude i Codex), punkt po punkcie. Postęp i szczegóły: docs/POSTEP-NAPRAW-AUDYTU.md.
+
+Zapis:
+- Sekcja drogi ma wersję 2 z migracją z 1. Zły typ odrzuca plik, id usuniętej treści wypada.
+- Zły zapis nie blokuje startu: gra próbuje kopii od najnowszej, a gdy żadna nie działa, startuje czysto i przenosi pliki pod .damaged. Niczego nie kasuje.
+- Zabójstwo nie pisze już na dysk w takcie. Zapis idzie, gdy nikt nie czuwa, przy pauzie i przy wyjściu. Odpoczynek, śmierć, zakup, drzwi, odzyskanie dusz i podróż zapisują od razu.
+- Powtórka sesji zaczętej z zapisu działa i nie czyta dysku.
+- Trzy sloty zapisu, przycisk w menu.
+
+Droga:
+- Dane drogi to rejestr obszarów. Drzwi i podróż mogą prowadzić na inną mapę, każda mapa trzyma własną ruinę.
+- Nowy obszar sprawdza P.problems: ogniska, drzwi, posterunki i patrole względem ścian, wysokości kroku i istnienia stwora.
+
+Ekonomia:
+- Ogniska sprzedają trwałe śluby: flakon, ward, zdrowie, po trzy rangi, cena rośnie dwukrotnie. Amunicja i naprawa zostały na poligonie.
+- Bronie, zdolności i śluby są w zapisie.
+
+Wydajność:
+- Wybór celu nie przechodzi całego tłumu, a to, co jest za kamerą, nie jest przygotowywane.
+- Gatunki ładują się na stronie ładowania, kiedy są potrzebne, a nie wszystkie na starcie.
+- Limity: zwłoki 128, pola tras 64, mapa cieni 2048.
+- MEASURE.ps1 kończy się błędem przy regresji. Pomiary rdzenia obejmują kaplicę.
+
+Kod:
+- Rejestr trybów w session/modes.lua, session nie importuje już run (pilnuje reguła w tools/check).
+- 221 z 222 require schowanych w funkcjach przeszło na górę plików.
+- Z produkcji znikły Capabilities.recognise i pola test trybów; g.testing to teraz g.ephemeral.
+- Podzielone najdłuższe funkcje: feel, pociski, powtórka, HUD, siatka świata; ai.lua ma połowę dawnej długości.
+- Selftest zgłasza wszystkie błędy naraz. Doszło CI dla formatu i architektury.
+- Wersja jest w jednym miejscu, katalog QA to work/qa, jedna blokada na całe wydanie.
+
+Bossowie i mechanika mobów bez zmian.
 
 
 ########################################################################

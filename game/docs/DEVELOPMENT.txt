@@ -387,7 +387,7 @@ Nie kopiuj tego jit.flush do kodu produkcyjnego. Liczby tekstur wracają
 do poziomu pierwszego rozgrzanego cyklu; sterta Lua jest raportowana
 oddzielnie, bez arbitralnego progu obietnicy stałego RAM.
 
-Końcowe dowody source-*.evidence.json pozostają w work/qa-v33 oraz jego
+Końcowe dowody source-*.evidence.json pozostają w work/qa oraz jego
 tool-smoke. To historyczna nazwa katalogu, nie wersja źródeł. Wydanie
 jest odczytywane z src/core/build.lua. Nie regeneruj tests/fixtures/v033;
 osobne legacy-v033 powstały kodem E0, z uwzględnieniem niższej precyzji
