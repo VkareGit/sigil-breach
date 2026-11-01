@@ -175,6 +175,18 @@ local function limits(check, Game)
     Pools.retire(g, g:spawn('imp', 24, 30))
   end
   check('the dead are kept to a limit', #Pools.of(g, 'remains') == Pools.remainsKept)
+  -- A tenth weapon has a tab that answers like the others.
+  local picked
+  g.switchWeapon = function(_, slot)
+    picked = slot
+  end
+  g.player.loadout = {}
+  for slot = 1, 12 do
+    g.player.loadout[slot] = g.player.loadout[slot] or 'exorcist'
+  end
+  local app = { game = g, input = {}, saveSettings = function() end }
+  require('src.app.commands').dispatch(app, 'shop_weapon_12')
+  check('the twelfth weapon tab answers', picked == 12)
 end
 function T.run(Game)
   local lines = {}

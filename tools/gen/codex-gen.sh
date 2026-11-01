@@ -3,8 +3,7 @@
 # Usage: codex-gen.sh <brief-file> [reference images...]
 # The brief tells Codex exactly which files to write under work/gen/codex/.
 set -euo pipefail
-export PATH=$HOME/.nvm/versions/node/v24.21.0/bin:$PATH
-ROOT=/mnt/c/Users/nahiko/Documents/dev/sigil-breach
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BRIEF="$1"; shift
 IMGS=()
 for f in "$@"; do IMGS+=(-i "$f"); done

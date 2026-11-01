@@ -34,7 +34,6 @@ Views:register('paused', {
 Views:register('menu', { draw = screen('src.ui.screens.menu') })
 Views:register('settings', { draw = screen('src.ui.screens.pause') })
 Views:register('dead', { draw = screen('src.ui.screens.ending') })
-Views:register('won', { draw = screen('src.ui.screens.ending') })
 Views:register('shop', {
   draw = function(g)
     Chapel.shop(g)

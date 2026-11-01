@@ -27,7 +27,6 @@ Screens:register('playing', { keys = {}, gameplay = true })
 Screens:register('paused', { keys = pausedKeys })
 Screens:register('settings', { keys = settingsKeys })
 Screens:register('dead', { keys = { escape = 'menu' } })
-Screens:register('won', { keys = { escape = 'menu' } })
 local shopKeys = { escape = 'shop_back' }
 for slot = 1, 9 do
   shopKeys[tostring(slot)] = 'shop_weapon_' .. slot

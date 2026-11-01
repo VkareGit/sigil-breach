@@ -41,7 +41,7 @@ Warsztat atlasów: tools/art.
 Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
 skrypty odczytują wersję z jednego źródła. Nowa wersja dopisuje sekcje
 ZMIANY-<wersja>.txt i ODBIOR-<wersja>.txt na górze ZMIANY.txt i ODBIOR.txt.
-Wyniki: work/qa-v33 (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-0.33-Player/SIGIL-BREACH.exe.
+Wyniki: work/qa (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-<wersja>-Player/SIGIL-BREACH.exe.
 Paczki: outputs/SIGIL-BREACH-0.33-Player-Windows.zip oraz -Developer-Windows.zip.
 Raport całości: work/foundation-v9/final-report.txt (tylko świeży dowód końcowy).
 telemetry.txt z gry: EXE %APPDATA%\sigil-breach-prototype\, źródła

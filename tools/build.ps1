@@ -9,6 +9,9 @@ $project = Get-Project
 $taskRoot = $project.Root
 $sourceRoot = Join-Path $taskRoot 'game'
 $qaRoot = $project.Qa
+# This replaces shared outputs: only under the lock BUILD.ps1 holds for the whole release.
+$lockKey = [IO.Path]::GetFullPath($qaRoot).TrimEnd('\').ToLowerInvariant()
+if (-not ($global:SigilQaSessions -and $global:SigilQaSessions[$lockKey])) { throw 'Run the release through BUILD.ps1.' }
 $outputsRoot = Join-Path $taskRoot 'outputs'
 $releaseRoot = $project.Release
 $stageRoot = Join-Path $outputsRoot ('.' + $project.Name + '-build-' + [Guid]::NewGuid().ToString('N'))

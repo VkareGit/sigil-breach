@@ -276,7 +276,7 @@ function V.shellPosition(g, shell, w, h)
   return shell.originX * w + shell.x * unit, shell.originY * h + shell.y * unit
 end
 function V.draw(g, w, h, tint)
-  if g.state == 'menu' or g.state == 'dead' or g.state == 'won' then
+  if g.state == 'menu' or g.state == 'dead' then
     return
   end
   -- Shotgun has wider transparent gutters; compensate to retain its screen scale.

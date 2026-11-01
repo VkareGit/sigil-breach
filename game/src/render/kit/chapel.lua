@@ -11,6 +11,10 @@ local Ground = require('src.physics.ground')
 local Ruin = require('src.content.maps.breakables')
 local Kinds = require('src.content.breakables')
 local Chapel = {}
+-- A cell as one number, whatever the width of the map.
+local function cellKey(x, z)
+  return z * 65536 + x
+end
 local abs, cos, sin, sqrt, max, pi = math.abs, math.cos, math.sin, math.sqrt, math.max, math.pi
 local PIER = {
   { 0.8, 0.0 },
@@ -507,7 +511,7 @@ function Chapel.build(w, hall)
   for _, def in ipairs(hall.breakables) do
     if Kinds[def.kind].collapses then
       falls[#falls + 1] = def
-      byCell[def.cell[2] * 100 + def.cell[1]] = def
+      byCell[cellKey(def.cell[1], def.cell[2])] = def
       if def.tear then
         tears[#tears + 1] = def
       end
@@ -555,7 +559,7 @@ function Chapel.build(w, hall)
     end
   end
   for i, p in ipairs(hall.piers) do
-    local def = byCell[p.z * 100 + p.x]
+    local def = byCell[cellKey(p.x, p.z)]
     pier(sink, hall, p, def, i * 1.7 + hall.x)
     if def then
       ruinOf(sink, hall, def, i * 97 + hall.x * 13)

@@ -5,6 +5,7 @@ local packet = require('src.content.defs.packet').new
 return Creature.define({
   extends = require('src.content.creatures.imp'),
   id = 'armored',
+  -- It moves and fights as its kind; variant is what it is to the art and the catalogue.
   kind = 'imp',
   variant = 'armored',
   name = 'creature_armored',

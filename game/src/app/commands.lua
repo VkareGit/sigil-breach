@@ -137,9 +137,6 @@ local function shopWeapon(app, id)
   app.game:switchWeapon(slot)
   app.input.suppressFire = true
 end
-for slot = 1, 9 do
-  handlers['shop_weapon_' .. slot] = shopWeapon
-end
 
 handlers.resume = function(app)
   if app.game.state == 'settings' then
@@ -233,7 +230,8 @@ function Commands.dispatch(app, id)
   if fieldCommand(app, id) then
     return
   end
-  local handler = handlers[id]
+  -- A weapon tab per weapon, however many: the id names its slot.
+  local handler = handlers[id] or (id:match('^shop_weapon_%d+$') and shopWeapon)
   if handler then
     handler(app, id)
   elseif id:sub(1, 4) == 'buy_' then

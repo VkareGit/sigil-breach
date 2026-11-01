@@ -200,7 +200,7 @@ $lines = @(
     ('Native UI report included: ' + $nativeIncluded + '. Its observations are separate from automated verification.'),
     'Packaged EXE --showcase regenerated render evidence and layout reports; exit0 and zero measured layout issues.',
     'Automated tests invoke real game callbacks and rendering, with desktop mouse capture disabled; this is not a native mouse playtest.',
-    'Only the test arena is offered in the production menu. Test completion does not establish human difficulty or subjective weapon feel.',
+    'The production menu offers the way through the chapel and the proving ground. Test completion does not establish human difficulty or subjective weapon feel.',
     'Hit outcome timing reports measure remaining presented-pose/resolved-pose differences; passing mechanics tests do not mean these differences are zero. See the acceptance document.',
     ('EXE SHA256: ' + $exeHash),
     ('LOVE SHA256: ' + (Get-FileHash -LiteralPath $lovePath -Algorithm SHA256).Hash),
