@@ -32,6 +32,12 @@ function Resources.exert(actor, id, amount)
     actor.resourcePause[id] = Characters.of(actor).resources[id].pause
   end
 end
+-- Effort that stops at empty: what can be paid for with nothing left must not dig a debt.
+function Resources.tire(actor, id, amount)
+  local own = actor.resources
+  local left = own and own[id]
+  Resources.exert(actor, id, left and math.min(amount, math.max(0, left)) or amount)
+end
 -- The share of it an actor has, or nil.
 function Resources.share(actor, id)
   local own = actor.resources

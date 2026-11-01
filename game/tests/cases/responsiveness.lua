@@ -67,10 +67,10 @@ local function shots(check, Game)
   before = p.shots
   p.resources.stamina = -5
   run(g, 0.01, { shoot = true })
-  check(
-    'out of breath the trigger says so',
-    p.shots == before and g.view.refusal == 'hud_no_breath'
-  )
+  check('out of breath the gun still answers', p.shots == before + 1)
+  check('and owes nothing below empty', p.resources.stamina >= -5)
+  g:update(TICK, { dash = true, forward = 1 })
+  check('but the dodge is what it cost', p.dashTimer == 0 and g.view.refusal == 'hud_no_breath')
 end
 local function sight(check, Game)
   local g, p = fresh(Game)

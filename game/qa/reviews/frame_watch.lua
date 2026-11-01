@@ -15,8 +15,6 @@ local function reason(g, p)
     return 'dead'
   elseif Attributes.forbids(p, 'fire') then
     return 'staggered or drinking'
-  elseif (p.resources.stamina or 1) <= 0 then
-    return 'no stamina'
   elseif Reload.left(g, p) > 0 then
     return 'reloading'
   elseif p.cooldown > 0 then

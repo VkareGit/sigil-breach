@@ -28,7 +28,8 @@ C.react = Hit.answer
 -- weapon it is.
 
 -- 1. May the trigger be pulled now? A closed or empty action reloads instead.
--- A knight off balance (staggered) cannot aim (0.25, D2); a pull may stop a
+-- A knight off balance (staggered) cannot aim (0.25, D2). Breath never holds the trigger: a gun
+-- answers its pull, and what a shot costs is the dodge after it. A pull may stop a
 -- reload while rounds remain in the gun (combat/reload.lua: interrupt).
 -- a: the shooting actor (a knight; plan v11 E3b).
 local function ready(g, a)
@@ -36,9 +37,6 @@ local function ready(g, a)
     return nil
   end
   if Attributes.forbids(a, 'fire') then
-    return nil
-  end
-  if Capabilities.attrition(g) and not Resources.ready(a, 'stamina') then
     return nil
   end
   local profile, state = Weapons.inHand(g, nil, a)
@@ -73,7 +71,7 @@ local function discharge(g, profile, command, p)
   end
   AI.noise(g, p.x, p.z, fire.noise)
   if Capabilities.attrition(g) then
-    Resources.exert(p, 'stamina', fire.stamina)
+    Resources.tire(p, 'stamina', fire.stamina)
   end
   -- The world's shot id (journal, observations) and the actor's own shot
   -- sequence (its pellet pattern and contact seeds; plan v11 E3).

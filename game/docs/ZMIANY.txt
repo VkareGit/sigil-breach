@@ -23,6 +23,7 @@ Klatka:
 
 Wejście:
 - Unik ma bufor 0,25 s, strzał 0,35 s, więc naciśnięcie w trakcie blokady dzieje się, gdy blokada minie. Dotąd strzał miał 0,12 s, a unik wcale.
+- Pusta wytrzymałość nie blokuje strzału. Strzał nadal ją zabiera, ale nie schodzi poniżej zera, więc koszt to brak uniku po serii.
 - Odmowa jest widoczna. Celownik czerwienieje i rozchodzi się, gdy ręce nie mogą strzelać. Pod nim stoi OFF BALANCE, DRINKING, OUT OF BREATH albo NO DODGES LEFT, z krótkim dźwiękiem. Blokady działają jak dotąd, widać je.
 
 Stwory:
