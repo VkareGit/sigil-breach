@@ -1,5 +1,7 @@
 -- The pads of the proving ground: [E] spawns a demon, takes a weapon or refills, with
 -- the normal test-field spawning (src/run/test_field.lua). They are drawn in render/gallery.lua.
+local Weapons = require('src.content.weapons')
+local Field = require('src.run.test_field')
 local W = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
 local Roles = require('src.core.roles')
@@ -27,10 +29,7 @@ local function padLabel(p)
     )
   end
   if p.weapon then
-    return Text.get(
-      'gallery_pad_take',
-      { name = Text.get(require('src.content.weapons').get(p.weapon).name) }
-    )
+    return Text.get('gallery_pad_take', { name = Text.get(Weapons.get(p.weapon).name) })
   end
   return Text.get('gallery_pad_refill')
 end
@@ -58,7 +57,6 @@ function G.interact(g)
   if not p then
     return false
   end
-  local Field = require('src.run.test_field')
   if p.trial then
     return Field.chamber(g, p.trial, 1)
   end
@@ -66,7 +64,6 @@ function G.interact(g)
     return Field.spawn(g, p.spawn, 1) ~= nil
   end
   if p.weapon then
-    local Weapons = require('src.content.weapons')
     local slot = Weapons.slotOf(g, p.weapon)
     if slot then
       g:switchWeapon(slot)

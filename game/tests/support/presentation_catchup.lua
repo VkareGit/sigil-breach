@@ -19,7 +19,7 @@ function T.run(check)
   local function fixture()
     local app = Application.new()
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.x, g.player.z, g.player.yaw = 16, 24, math.pi
     for i, kind in ipairs({ 'imp', 'stolas', 'boss' }) do

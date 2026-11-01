@@ -45,7 +45,7 @@ function Test.run(Game)
   local ok, reason = pcall(function()
     local function fresh()
       local g = Game.new('floor', definition.id)
-      g.testing = true
+      g.ephemeral = true
       g:start()
       return g
     end

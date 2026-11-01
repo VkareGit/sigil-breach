@@ -1,3 +1,4 @@
+local Shaders = require('src.render.shaders')
 local Context = require('src.session.context')
 -- Draw the selected firearm and equipment hands over the world. CPU atlas
 -- metadata owns registration/timing; this module owns only GPU realization.
@@ -117,7 +118,7 @@ function V.init(checkpoint)
   -- The surface and contours are authored pigment: no palette or outline
   -- filter. The hands shader groups fine scratches into painted masses and
   -- sets that pigment in the scene's light and air (weapon_art.lua: look).
-  V.shader = love.graphics.newShader(require('src.render.shaders').hands)
+  V.shader = love.graphics.newShader(Shaders.hands)
   if checkpoint then
     checkpoint('weapon muzzle and hands shader')
   end

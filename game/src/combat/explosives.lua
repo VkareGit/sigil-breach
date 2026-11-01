@@ -1,4 +1,6 @@
 -- Limited physical ordnance: fuse, wall sweep and blast share simulation time.
+local Rules = require('src.combat.rules')
+local Ai = require('src.enemies.ai')
 local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local Spawn = require('src.session.spawn')
@@ -53,7 +55,7 @@ function X.launch(g, action, caster)
   })
   Signal(g, 'ChargeThrown', { actor = caster.owner })
   local at = caster.body or caster
-  require('src.enemies.ai').noise(g, at.x, at.z, action.noise)
+  Ai.noise(g, at.x, at.z, action.noise)
   return true
 end
 -- A blast from point b (x, y, z, owner) on every creature it reaches. Returns
@@ -66,7 +68,7 @@ function X.strike(g, b, radius, blast, source)
       -- The blast samples the physical body anchor. A leap moves it; visual bob
       -- and hover do not change exposure or damage.
       local y = Ground.of(g.world, e)
-        + (require('src.combat.rules').body(e).aimY or Tuning.explosives.aimHeight)
+        + (Rules.body(e).aimY or Tuning.explosives.aimHeight)
         + (e.leapY or 0)
       local visible, d = clear(g, b, e.x, y, e.z)
       if visible and d < radius then
@@ -146,7 +148,7 @@ function X.explode(g, b)
   end
   g.explosionReport = report
   Signal(g, 'ChargeExploded', { charge = b })
-  require('src.enemies.ai').noise(g, b.x, b.z, Tuning.explosives.blastNoise)
+  Ai.noise(g, b.x, b.z, Tuning.explosives.blastNoise)
 end
 local finite, floorHeight = MathX.finite, Tuning.floorSurface
 function X.update(g, dt)

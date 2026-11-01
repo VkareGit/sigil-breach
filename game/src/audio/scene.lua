@@ -1,7 +1,7 @@
 -- Stateless sampling of the common world view. Never holds a borrowed query,
 -- changes encounter clocks, or knows a map/creature id. Caller owns `out`.
 local Context = require('src.session.context')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Pools = require('src.session.world')
 local Scene = {}
 function Scene.weight(r, x, z)

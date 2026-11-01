@@ -7,7 +7,7 @@ local TICK = 1 / 120
 function S.run(G, clumsy, observe, seconds)
   Way.forget()
   local g = G.new('pilgrimage')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   local seed = 1
   local function roll()

@@ -51,7 +51,7 @@ function Review.run(output, Game, renderer)
   end
   local function fresh(slot, x, z, yaw, pitch, motion)
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.player.weapon = slot

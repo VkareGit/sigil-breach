@@ -94,7 +94,7 @@ function T.run(check, renderer)
       local data = loaded[path]
       local iw, ih = data:getDimensions()
       local r = renderer.frames[kind][frame].rect
-      local g = { player = { x = 0, z = 8 }, time = 0, testField = {} }
+      local g = { mode = 'field', player = { x = 0, z = 8 }, time = 0, testField = {} }
       local e = { kind = kind, id = 7, hp = 100, x = 0, z = 0, previewFrame = frame }
       local _, _, _, _, _, _, width, height, base = Geometry.pose(g, e)
       local function worldPoint(y, px)
@@ -177,7 +177,7 @@ function T.run(check, renderer)
       data:release()
     end
   end
-  local g = { player = { x = 0, z = 8 }, time = 0, testField = {} }
+  local g = { mode = 'field', player = { x = 0, z = 8 }, time = 0, testField = {} }
   local e = { kind = 'buer', id = 7, hp = 100, x = 0, z = 0, previewFrame = 1 }
   local Surface = require('src.enemies.surface')
   local reused = Surface.prepare(g, e)

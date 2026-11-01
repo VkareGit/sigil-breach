@@ -2,6 +2,8 @@
 -- but lets the last ejected shells finish. A full reset also clears those
 -- visual remnants and cached combat reports. Neither operation touches the
 -- player, run wallet/checkpoint, world geometry or persistent score.
+local Observation = require('src.combat.observation')
+local Intent = require('src.player.intent')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Encounter = {}
@@ -9,7 +11,7 @@ local Encounter = {}
 -- The guardian (plan v11 E2): one record of the session's
 -- encounter (g.encounter), shared by every mode and changed only here.
 -- Modes say when it arrives and falls; screens, music and the world's exit
--- read the world view (run/queries.lua), never the record.
+-- read the world view (session/queries.lua), never the record.
 function Encounter.new()
   return { guardianSpawned = false, guardianDead = false }
 end
@@ -51,8 +53,8 @@ function Encounter.clearThreats(g)
 end
 
 function Encounter.clearStage(g)
-  require('src.combat.observation').invalidate(g)
-  require('src.player.intent').clear(g)
+  Observation.invalidate(g)
+  Intent.clear(g)
   Encounter.clearThreats(g)
   Pools.clear(g, 'enemies')
   Pools.clear(g, 'remains')

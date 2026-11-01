@@ -193,7 +193,7 @@ function T.run(Game)
       local Release = require('src.app.release')
       local Tools = require('src.app.field_tools')
       local g = Game.new('field', 'proving', Release.sessionOptions.field)
-      g.testing, g.state = true, 'playing'
+      g.ephemeral, g.state = true, 'playing'
       local Field = require('src.run.test_field')
       g.testField.selected = 'boss'
       assert(g:act('catalog', 'field_blow_go'))

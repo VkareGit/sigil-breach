@@ -1,7 +1,7 @@
 -- Resolve mode-owned equipment modifiers at the simulation boundary.
 -- Weapon definitions remain independent of any mode's mutable record shape.
 local Weapons = require('src.content.weapons')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local Loadout = {}
 -- actor (optional): whose weapon (default the controlled knight's).
 -- alt: its second mode.

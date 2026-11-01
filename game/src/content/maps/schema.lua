@@ -1,5 +1,14 @@
 -- Spatial authoring is validated before a world allocates cells or a renderer
 -- sees it. Elevations are a heightfield, not overlapping platform solids.
+local Environment = require('src.content.art.environment')
+local Halls = require('src.content.art.halls')
+local Inscriptions = require('src.content.art.inscriptions')
+local Proving = require('src.content.defs.proving')
+local Soundscape = require('src.content.defs.soundscape')
+local Breakables = require('src.content.maps.breakables')
+local FloorArt = require('src.content.maps.floor_art')
+local InscriptionLayout = require('src.content.maps.inscription_layout')
+local WallMounts = require('src.content.maps.wall_mounts')
 local MathX = require('src.core.mathx')
 local Schema = {}
 local function number(value, name)
@@ -40,11 +49,11 @@ local function list(value, name)
   end
 end
 function Schema.check(map, id)
-  require('src.content.defs.proving').check(map)
+  Proving.check(map)
   local label = 'map ' .. id
   -- width (x) and depth (z) in cells, or size for a square map.
   local width, depth = map.width or map.size, map.depth or map.size
-  require('src.content.defs.soundscape').check(map.decor and map.decor.soundscape, width, depth)
+  Soundscape.check(map.decor and map.decor.soundscape, width, depth)
   number(width, label .. '.width')
   number(depth, label .. '.depth')
   assert(
@@ -242,10 +251,7 @@ function Schema.check(map, id)
   end
   local decor = map.decor or {}
   if decor.stonePaint ~= nil then
-    assert(
-      require('src.content.art.environment')[decor.stonePaint],
-      label .. '.decor.stonePaint is unknown'
-    )
+    assert(Environment[decor.stonePaint], label .. '.decor.stonePaint is unknown')
   end
   assert(
     decor.pillarStyle == nil or decor.pillarStyle == 'shaft',
@@ -261,21 +267,15 @@ function Schema.check(map, id)
     positive(map.solids.radius, label .. '.solids.radius')
     assert(map.solids.radius < 0.71, label .. '.solids.radius must stay inside its cell')
   end
-  require('src.content.maps.breakables').check(decor.breakables, label)
+  Breakables.check(decor.breakables, label)
   if decor.zenith ~= nil then
-    assert(
-      require('src.content.art.environment')[decor.zenith],
-      label .. '.decor.zenith is unknown'
-    )
+    assert(Environment[decor.zenith], label .. '.decor.zenith is unknown')
   end
   if decor.horizon ~= nil then
-    assert(
-      require('src.content.art.environment')[decor.horizon],
-      label .. '.decor.horizon is unknown'
-    )
+    assert(Environment[decor.horizon], label .. '.decor.horizon is unknown')
   end
   for _, hall in ipairs(decor.halls or {}) do
-    assert(require('src.content.art.halls')[hall.kit], label .. '.hall.kit is unknown')
+    assert(Halls[hall.kit], label .. '.hall.kit is unknown')
     list(hall.footprint, label .. '.hall.footprint')
     for _, rect in ipairs(hall.footprint) do
       assert(#rect == 4, label .. '.hall.footprint rectangle needs four cell coordinates')
@@ -327,7 +327,7 @@ function Schema.check(map, id)
     positive(decor.portal.radius, label .. '.decor.portal.radius')
     assert(decor.portal.radius > 0.2, label .. '.decor.portal radius cannot invert its inner ring')
   end
-  require('src.content.maps.floor_art').check(decor.floorArt, map, opened)
+  FloorArt.check(decor.floorArt, map, opened)
   for _, arch in ipairs(decor.arches or {}) do
     if arch.radius ~= nil then
       positive(arch.radius, label .. '.arch.radius')
@@ -355,7 +355,7 @@ function Schema.check(map, id)
   end
   for _, mural in ipairs(decor.murals or {}) do
     if mural.art then
-      assert(require('src.content.art.environment')[mural.art], label .. '.mural.art is unknown')
+      assert(Environment[mural.art], label .. '.mural.art is unknown')
       assert(mural.frame == nil, label .. '.mural cannot combine art and frame')
     else
       integer(mural.frame, label .. '.mural.frame', 1, 4)
@@ -369,7 +369,7 @@ function Schema.check(map, id)
     end
     number(mural.y, label .. '.mural.y')
     number(mural.yaw, label .. '.mural.yaw')
-    require('src.content.maps.wall_mounts').check(
+    WallMounts.check(
       mural,
       mural.width or mural.size,
       opened,
@@ -379,12 +379,12 @@ function Schema.check(map, id)
     )
   end
   for _, item in ipairs(decor.inscriptions or {}) do
-    assert(require('src.content.art.inscriptions')[item.id], label .. '.inscription.id is unknown')
-    require('src.content.maps.inscription_layout').check(item, decor)
+    assert(Inscriptions[item.id], label .. '.inscription.id is unknown')
+    InscriptionLayout.check(item, decor)
   end
   for _, prop in ipairs(decor.props or {}) do
     if prop.art ~= nil then
-      assert(require('src.content.art.environment')[prop.art], label .. '.prop.art is unknown')
+      assert(Environment[prop.art], label .. '.prop.art is unknown')
       assert(prop.frame == nil, label .. '.prop cannot combine art and frame')
     else
       integer(prop.frame, label .. '.prop.frame', 1, 8)
@@ -394,8 +394,8 @@ function Schema.check(map, id)
     end
     positive(prop.size, label .. '.prop.size')
     positive(prop.brightness, label .. '.prop.brightness')
-    local art = prop.art and require('src.content.art.environment')[prop.art]
-    require('src.content.maps.wall_mounts').check(
+    local art = prop.art and Environment[prop.art]
+    WallMounts.check(
       prop,
       prop.size * (art and art.aspect or 1),
       opened,

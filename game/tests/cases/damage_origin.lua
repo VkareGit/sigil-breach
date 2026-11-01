@@ -18,7 +18,7 @@ function Tests.run(G)
   local check = Fixtures.checker(lines, 'damage origin: ', 'damage origin: ')
   local function fresh()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     Pools.clear(g, 'enemies')
     Pools.clear(g, 'pickups')

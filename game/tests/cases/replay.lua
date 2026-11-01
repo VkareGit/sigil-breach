@@ -116,7 +116,7 @@ function Tests.run(G)
   )
   -- A journal names its session: a recorded game rebuilds and replays alone.
   local live = G.new('floor')
-  live.testing = true
+  live.ephemeral = true
   local log = Journal.record(live)
   live:start()
   for tick = 1, 240 do
@@ -125,7 +125,7 @@ function Tests.run(G)
   end
   Journal.stop(live)
   local again = Journal.session(G, Journal.decode(Journal.encode(log)))
-  again.testing = true
+  again.ephemeral = true
   Journal.replay(again, Journal.decode(Journal.encode(log)))
   check(
     'a journal rebuilds its own session (mode, map) and replays it exactly',
@@ -136,7 +136,7 @@ function Tests.run(G)
   -- commands (a pause) is in the journal too.
   local Field = require('src.run.test_field')
   local field = Field.new(G)
-  field.testing = true
+  field.ephemeral = true
   local fieldLog = Journal.record(field)
   field:act('catalog', 'field_god')
   field:act('catalog', 'field_spawn_imp_3')
@@ -166,7 +166,7 @@ function Tests.run(G)
   )
   local fieldText = Journal.encode(fieldLog)
   local fieldAgain = Journal.session(G, Journal.decode(fieldText))
-  fieldAgain.testing = true
+  fieldAgain.ephemeral = true
   Journal.replay(fieldAgain, Journal.decode(fieldText))
   check(
     'a proving-ground journal (targets, tier, god mode, pause, reset) replays exactly',
@@ -177,13 +177,13 @@ function Tests.run(G)
   -- A journal that began mid-session refuses a fresh session instead of
   -- diverging silently.
   local late = Field.new(G)
-  late.testing = true
+  late.ephemeral = true
   late:act('catalog', 'field_spawn_imp_1')
   local lateLog = Journal.record(late)
   late:update(1 / 120, {})
   Journal.stop(late)
   local fresh = Field.new(G)
-  fresh.testing = true
+  fresh.ephemeral = true
   check(
     'a journal begun mid-session refuses a session in another state',
     not pcall(Journal.replay, fresh, lateLog)
@@ -198,13 +198,13 @@ function Tests.run(G)
   )
   for _, action in ipairs({ 'field_god', 'field_low' }) do
     local changed = Field.new(G)
-    changed.testing = true
+    changed.ephemeral = true
     changed:act('catalog', action)
     local changedLog = Journal.record(changed)
     changed:act('catalog', 'field_spawn_imp_1')
     Journal.stop(changed)
     local pristine = Field.new(G)
-    pristine.testing = true
+    pristine.ephemeral = true
     local accepted, reason = pcall(Journal.replay, pristine, changedLog)
     check(
       'origin rejects pre-recording ' .. action .. ' with a field diagnostic',
@@ -214,7 +214,7 @@ function Tests.run(G)
   -- Actual station/catalogue commands, including buffered input, with exact
   -- gameplay data comparisons rather than the legacy partial golden digest.
   local complete = Field.new(G)
-  complete.testing = true
+  complete.ephemeral = true
   local completeLog = Journal.record(complete)
   for _, action in ipairs({
     'field_station_range',
@@ -235,7 +235,7 @@ function Tests.run(G)
     Journal.encode(completeLog) == exported
   )
   local rebuilt = Journal.session(G, Journal.decode(exported))
-  rebuilt.testing = true
+  rebuilt.ephemeral = true
   Journal.replay(rebuilt, Journal.decode(exported))
   local difference = Integrity.difference(Integrity.capture(complete), Integrity.capture(rebuilt))
   check(
@@ -246,7 +246,7 @@ function Tests.run(G)
   complete.player.fireBuffer, complete.player.jumpBuffer = 0, 0
   Journal.stop(complete)
   local stopped = Journal.session(G, completeLog)
-  stopped.testing = true
+  stopped.ephemeral = true
   Journal.replay(stopped, Journal.decode(Journal.encode(completeLog)))
   difference = Integrity.difference(Integrity.capture(complete), Integrity.capture(stopped))
   check(
@@ -265,14 +265,14 @@ function Tests.run(G)
   local wrongFinal = Journal.decode(exported)
   wrongFinal.final['player["hp"]'] = '-1'
   local finalSession = Journal.session(G, wrongFinal)
-  finalSession.testing = true
+  finalSession.ephemeral = true
   local finalOK, finalReason = pcall(Journal.replay, finalSession, wrongFinal)
   check(
     'final simulation mismatch identifies the exact field',
     not finalOK and tostring(finalReason):find('player["hp"]', 1, true) ~= nil
   )
   local rngChanged = Field.new(G)
-  rngChanged.testing = true
+  rngChanged.ephemeral = true
   rngChanged.rng.sim:random()
   check('origin includes simulation RNG state', not pcall(Journal.replay, rngChanged, completeLog))
   -- The build a journal carries is the game's own even where the application

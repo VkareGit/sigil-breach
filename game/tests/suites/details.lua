@@ -12,7 +12,7 @@ function T.run(G)
   local near = Fixtures.within(1e-7, true)
   local function fresh(slot)
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.enemies = {}

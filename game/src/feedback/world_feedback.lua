@@ -2,6 +2,7 @@
 -- landings, rushes into stone, sidesteps, alerts, slams, collisions, portals,
 -- arrivals, the knight's stagger, powder charges, near misses, projectile
 -- bursts, reloads and supplies. Pure presentation; no simulation state.
+local Enemies = require('src.content.enemies')
 local DamageTypes = require('src.content.damage_types')
 local A = require('src.audio.audio')
 local FX = require('src.feedback.effects')
@@ -108,14 +109,14 @@ World.handlers = {
     A.playAt('hit', ev.other.x, ev.other.z, Context.viewer(g), 0.35)
   end,
   PortalOpened = function(g, ev)
-    local def = require('src.content.enemies').get(ev.gate.kind)
+    local def = Enemies.get(ev.gate.kind)
     local voice = def and def.sounds and def.sounds.summon or 'cast'
     A.playAt(voice, ev.gate.x, ev.gate.z, Context.viewer(g), 0.45, 2, g.world)
   end,
   -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
   EnemyArrived = function(g, ev)
     local e, s = ev.enemy, ev.gate
-    local color = require('src.content.enemies').look(e).portal
+    local color = Enemies.look(e).portal
     FX.emit(g, 'smoke', s.x, 0.7, s.z, 0.9)
     g:burst(s.x, 1.0, s.z, color, 14, 2.6)
     A.playAt(sounds(e).arrival or 'pulse', s.x, s.z, Context.viewer(g), 0.55, 2, g.world)
@@ -123,7 +124,7 @@ World.handlers = {
   -- Gone in a breath of its own colour, there and where it stands now.
   Blinked = function(g, ev)
     local e = ev.enemy
-    local color = require('src.content.enemies').look(e).portal
+    local color = Enemies.look(e).portal
     g:burst(ev.fromX, 1.2, ev.fromZ, color, 12, 2.2)
     g:burst(e.x, 1.2, e.z, color, 12, 2.2)
     FX.emit(g, 'smoke', ev.fromX, 0.7, ev.fromZ, 0.7)

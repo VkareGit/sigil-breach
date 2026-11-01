@@ -28,7 +28,7 @@ function Review.run(Game, renderer, output)
   end
   local function sequence(slot, name, scenario)
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.weapon, g.view.motion = slot, false
     g.view.swapAge, g.view.shotAge = 1, 10

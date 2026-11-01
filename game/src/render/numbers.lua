@@ -1,6 +1,7 @@
 -- Presentation of confirmed contacts. The combat system owns the value,
 -- position and lifetime; this pass only places the existing painted glyphs.
 -- Labels stay with visible contacts, clear the aim, and share a bounded layout.
+local Numbers = require('src.ui.fonts.painted_numbers')
 local MathX = require('src.core.mathx')
 local Ballistics = require('src.combat.ballistics')
 local N = { limit = 24, lifetime = 0.7 }
@@ -64,7 +65,7 @@ function N.layout(r, g, x, y, vw, vh, measure)
   then
     return items
   end
-  measure = measure or require('src.ui.fonts.painted_numbers').measure
+  measure = measure or Numbers.measure
   local unit = vh / 600
   local margin = 8 * unit
   local gap = 5 * unit
@@ -172,7 +173,6 @@ function N.draw(r, g, x, y, vw, vh)
   if #items == 0 then
     return
   end
-  local Numbers = require('src.ui.fonts.painted_numbers')
   local lg = love.graphics
   lg.push('all')
   lg.setScissor(x, y, vw, vh)

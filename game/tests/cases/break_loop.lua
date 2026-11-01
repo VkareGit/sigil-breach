@@ -13,7 +13,7 @@ function Tests.run(G)
   local Damage = require('src.combat.damage')
   local function field()
     local g = Field.new(G, nil, { attrition = false })
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.hp = 50
     return g

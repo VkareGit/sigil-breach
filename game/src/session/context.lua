@@ -1,6 +1,7 @@
 -- Presentation context: the actor owns hands/HUD; the viewer owns the camera.
 -- A normal one-player view is the session itself. Additional views keep only
 -- private presentation data; world effects and settings remain shared.
+local ViewState = require('src.session.view_state')
 local Roles = require('src.core.roles')
 local Pools = require('src.session.world')
 local Fields = require('src.session.fields')
@@ -151,7 +152,7 @@ function Context.reset(g, actor)
       observer.state.presentationPrevious = nil
     end
   end
-  require('src.session.view_state').init(Context.of(g, actor))
+  ViewState.init(Context.of(g, actor))
 end
 function Context.watch(g, id)
   g = root(g)

@@ -267,7 +267,7 @@ function Tests.run(G)
     zones = { { name = 'CELL WEST', xBelow = 6 }, { name = 'CELL EAST' } },
   })
   local cell = G.new('floor', 'trial_cell')
-  cell.testing = true
+  cell.ephemeral = true
   local w = cell.world
   check(
     'a second map builds from data (walls, floor, pillar, gates, braziers)',

@@ -1,5 +1,8 @@
 -- Fresh session data. Every mutable table belongs to one session; defaults are
 -- not shared with the renderer, saves, test field or another game instance.
+local Abilities = require('src.content.abilities')
+local Weapons = require('src.content.weapons')
+local Listeners = require('src.session.listeners')
 local World = require('src.world.arena')
 local SessionWorld = require('src.session.world')
 local EventCatalog = require('src.session.event_catalog')
@@ -59,12 +62,10 @@ function State.new(mapId)
   session.ecs = SessionWorld.new(session)
   -- The knight from its prefab (session/components.lua: knight); health from
   -- its character, its loadout and arsenal from the weapon definitions.
-  local Weapons = require('src.content.weapons')
   local loadout = {}
   for i, id in ipairs(Weapons.defaultLoadout) do
     loadout[i] = id
   end
-  local Abilities = require('src.content.abilities')
   local abilities = {}
   for i, id in ipairs(Abilities.defaultLoadout) do
     abilities[i] = id
@@ -83,7 +84,7 @@ function State.new(mapId)
     abilityState = Abilities.kit(abilities),
   })
   session.bus = EventCatalog.newBus()
-  require('src.session.listeners').attach(session)
+  Listeners.attach(session)
   session.rng = { sim = Rng:new(State.seed), present = Rng:new(State.seed + 1) }
   return session
 end

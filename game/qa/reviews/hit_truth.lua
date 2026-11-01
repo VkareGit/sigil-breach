@@ -195,7 +195,7 @@ end
 -- catalogue's own placement), in play.
 local function field(G, kind)
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local e = Field.spawn(g, kind, 1)[1]
   Field.close(g)
   return g, e
@@ -468,7 +468,7 @@ end
 S.orderCheck = orderCheck
 local function frozenField(G)
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   g.testField.frozen = true
   Field.close(g)
   return g
@@ -576,7 +576,7 @@ local function headlessCheck(renderer)
   for _, kind in ipairs(Catalog.kinds) do
     local layout = Geometry.layouts[kind]
     for frame = 1, Catalog.frameCount(kind) do
-      local g = { player = { x = 0, z = 8 }, time = 0, testField = {} }
+      local g = { mode = 'field', player = { x = 0, z = 8 }, time = 0, testField = {} }
       local e = { kind = kind, id = 7, hp = 100, x = 0, z = 0, previewFrame = frame }
       -- The pose and the painted head a shot meets, before and after the
       -- renderer's metadata check (it validates; it never installs data).

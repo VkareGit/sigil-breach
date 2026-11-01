@@ -593,6 +593,9 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath)
         if id:match('^src%.physics%.') and not dependency:match('^src%.physics%.') and not core then
           failure('PHYSICS DEPENDENCY ' .. id .. ' -> ' .. dependency)
         end
+        if id:match('^src%.session%.') and dependency:match('^src%.run%.') then
+          failure('SESSION DEPENDENCY ' .. id .. ' -> ' .. dependency)
+        end
       end
     end
     if

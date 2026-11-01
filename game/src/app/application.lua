@@ -1,3 +1,12 @@
+local Release = require('src.app.release')
+local Soundscape = require('src.audio.soundscape')
+local Pilgrimage = require('src.content.pilgrimage')
+local Text = require('src.content.text')
+local Tuning = require('src.content.tuning')
+local ArtContract = require('src.enemies.art_contract')
+local Halls = require('src.render.kit.halls')
+local Weapon = require('src.render.weapon')
+local Journal = require('src.session.journal')
 local Context = require('src.session.context')
 local FieldTools = require('src.app.field_tools')
 local Game = require('src.session.game')
@@ -13,6 +22,7 @@ local Loading = require('src.ui.loading')
 local Input = require('src.app.input')
 local Commands = require('src.app.commands')
 local Navigation = require('src.app.navigation')
+-- The composition root: the modes register here, the session knows only their registry.
 local Modes = require('src.run.modes')
 local SessionReport = require('src.app.session_report')
 local Pools = require('src.session.world')
@@ -33,8 +43,8 @@ function Application.new()
     input = Input.new(),
     accumulator = 0,
     screenshotCaptured = false,
-    sessionOptions = require('src.app.release').sessionOptions,
-    sessionMaps = require('src.app.release').sessionMaps,
+    sessionOptions = Release.sessionOptions,
+    sessionMaps = Release.sessionMaps,
   }, Application)
 end
 
@@ -46,7 +56,7 @@ end
 -- instead of in one long pause during play; then keep the collector's steps
 -- small (content/tuning.lua: collector).
 function Application.settle()
-  local pacing = require('src.content.tuning').collector
+  local pacing = Tuning.collector
   collectgarbage('collect')
   collectgarbage('setpause', pacing.pause)
   collectgarbage('setstepmul', pacing.stepmul)
@@ -83,8 +93,8 @@ function Application:adopt(game, entering)
   if self:has('--record') then
     self.journals = self.journals or setmetatable({}, { __mode = 'k' })
     self.journals[game] = self.journals[game]
-      or require('src.session.journal').record(game, nil, function()
-        game:notify(require('src.content.text').get('recording_full'), 8)
+      or Journal.record(game, nil, function()
+        game:notify(Text.get('recording_full'), 8)
       end)
     self.journal = self.journals[game]
   end
@@ -96,7 +106,7 @@ end
 function Application:prepareWorld(game)
   if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
     local jobs = {}
-    for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
+    for _, job in ipairs(Halls.loadingJobs(self.renderer, game.world)) do
       jobs[#jobs + 1] = job
     end
     jobs[#jobs + 1] = {
@@ -123,7 +133,7 @@ end
 
 -- The save slot of the way: where a new session of it reads and writes.
 function Application:useSlot(slot)
-  local count = require('src.content.pilgrimage').slots
+  local count = Pilgrimage.slots
   self.settings.slot = (slot - 1) % count + 1
   self.sessionOptions.pilgrimage = { slot = self.settings.slot }
 end
@@ -160,7 +170,6 @@ function Application:writeJournal(game)
     return false
   end
   local name = 'journal-' .. os.time() .. '.txt'
-  local Journal = require('src.session.journal')
   Journal.whenComplete(journal, function(completed)
     love.filesystem.write(name, Journal.encode(completed))
   end)
@@ -170,10 +179,7 @@ end
 -- with --record the journal follows each entry), and where the file is.
 function Application:report()
   if SessionReport.write(self.game, 'F9') then
-    self.game:notify(
-      require('src.content.text').get('telemetry_saved', { path = SessionReport.path() }),
-      4
-    )
+    self.game:notify(Text.get('telemetry_saved', { path = SessionReport.path() }), 4)
     return true
   end
   return false
@@ -225,7 +231,7 @@ function Application:load(arguments)
     return
   end
   if self:has('--ui-test') then
-    love.window.setTitle(require('src.app.release').title .. ' [QA]')
+    love.window.setTitle(Release.title .. ' [QA]')
   end
   love.graphics.setDefaultFilter('nearest', 'nearest')
   love.math.setRandomSeed(os.time())
@@ -245,7 +251,7 @@ function Application:beginStartup()
       run = function(checkpoint)
         Audio.init(checkpoint)
         Audio.muted = self.settings.muted or self.qa.capture
-        require('src.audio.soundscape').music = self.settings.music
+        Soundscape.music = self.settings.music
         love.audio.setVolume(Audio.muted and 0 or 0.7)
       end,
     },
@@ -258,7 +264,7 @@ function Application:beginStartup()
     {
       label = 'loading_world',
       run = function(checkpoint)
-        require('src.enemies.art_contract').validateAll()
+        ArtContract.validateAll()
         checkpoint('art contracts')
         self.renderer = Renderer.new(checkpoint)
         self.renderer:resize(love.graphics.getDimensions())
@@ -283,7 +289,7 @@ function Application:discardStartup()
     self.renderer:release()
     self.renderer = nil
   end
-  require('src.render.weapon').release()
+  Weapon.release()
   UI.release()
   Audio.release()
   Application.settle()
@@ -463,7 +469,7 @@ function Application:quit()
       self.renderer:release()
       self.renderer = nil
     end
-    require('src.render.weapon').release()
+    Weapon.release()
     UI.shutdown()
     Audio.release()
     self.ownsPresentation = false

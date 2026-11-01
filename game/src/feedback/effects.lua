@@ -1,3 +1,4 @@
+local SurfaceMarks = require('src.feedback.surface_marks')
 local E = { limits = { effects = 48, decals = 40, smoke = 8 } }
 local Art = require('src.content.effect_art')
 function E.emit(g, kind, x, y, z, size, options)
@@ -50,7 +51,7 @@ function E.stain(g, x, z, size, kind)
   return d
 end
 function E.update(g, dt)
-  require('src.feedback.surface_marks').update(g, dt)
+  SurfaceMarks.update(g, dt)
   g.view.effectPool = g.view.effectPool or {}
   g.view.decalPool = g.view.decalPool or {}
   local write = 1

@@ -1,5 +1,9 @@
 -- Generated bitmap atlas, measured once and assembled as nine-slice frames.
 -- Live prices and Polish strings are assembled from a permanently painted PNG alphabet.
+local Release = require('src.app.release')
+local PaintedTitles = require('src.ui.fonts.painted_titles')
+local Ink = require('src.ui.ink')
+local Reliquary = require('src.ui.reliquary')
 local S = {
   -- The interface palette (ui/palette.lua).
   colors = require('src.ui.palette'),
@@ -100,7 +104,7 @@ end
 function S.panel(x, y, w, h, style, border)
   S.lightField(x, y, w, h)
   record('panel', 'painted panel', x, y, w, h)
-  return require('src.ui.reliquary').panel(x, y, w, h, border, style)
+  return Reliquary.panel(x, y, w, h, border, style)
 end
 function S.lightField(x, y, w, h)
   S.fields = S.fields or {}
@@ -220,11 +224,8 @@ function S.endAudit()
   end
   S.audit = nil
   local failures, checked = S.auditProblems(a)
-  local path = (
-    S.auditOutput
-    or os.getenv('SIGIL_UI_QA_DIR')
-    or require('src.app.release').qaOutput
-  ) .. '/ui-layout-audit.txt'
+  local path = (S.auditOutput or os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput)
+    .. '/ui-layout-audit.txt'
   local f = assert(io.open(path, 'a'))
   f:write(
     a.name
@@ -253,7 +254,7 @@ function S.text(t, x, y, font, color)
   end
   local b = measuredInk(font, t)
   local previous = lg.getShader()
-  lg.setShader(require('src.ui.ink').ink(S.onLightField(x + b.x + b.w / 2, y + b.y + b.h / 2)))
+  lg.setShader(Ink.ink(S.onLightField(x + b.x + b.w / 2, y + b.y + b.h / 2)))
   font:draw(t, x, y, color)
   lg.setShader(previous)
 end
@@ -272,7 +273,7 @@ end
 function S.inscription(name, x, y, w, h)
   local paintings = Text.paintings()
   local painted = paintings == true or (paintings and paintings[name])
-  if not (painted and require('src.ui.fonts.painted_titles').has(name)) then
+  if not (painted and PaintedTitles.has(name)) then
     local font
     for _, size in ipairs({ 48, 36, 28, 24, 20, 18, 16, 14 }) do
       font = S.fallbackFonts and S.fallbackFonts[size]
@@ -286,15 +287,8 @@ function S.inscription(name, x, y, w, h)
     S.boxText(Text.get('inscription_' .. name), x, y, w, h, font, S.colors.gold, true)
     return x, y, w, h
   end
-  local px, py, pw, ph = require('src.ui.fonts.painted_titles').draw(
-    name,
-    x,
-    y,
-    w,
-    h,
-    nil,
-    S.onLightField(x + w / 2, y + h / 2)
-  )
+  local px, py, pw, ph =
+    PaintedTitles.draw(name, x, y, w, h, nil, S.onLightField(x + w / 2, y + h / 2))
   S.imageBounds('painted inscription ' .. name, px, py, pw, ph)
   return px, py, pw, ph
 end

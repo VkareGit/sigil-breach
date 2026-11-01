@@ -27,7 +27,7 @@ function Tests.run(G, renderer)
 
   local function arena()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     Pools.clear(g, 'enemies')
     Pools.clear(g, 'pickups')
@@ -419,7 +419,7 @@ function Tests.run(G, renderer)
   )
   local Field = require('src.run.test_field')
   local resetGame = Field.new(G)
-  resetGame.testing = true
+  resetGame.ephemeral = true
   local resetActor = join(resetGame)
   Context.watch(resetGame, resetActor.id)
   resetGame.view.hurt = 0.5
@@ -581,7 +581,7 @@ function Tests.run(G, renderer)
 
   -- Borrowed answers are distinct for actors and interpolated samples, but
   -- a command at unchanged simulation time invalidates the entire session.
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local Modes = require('src.run.modes')
   local queryGame = arena()
   local queryActor = join(queryGame)

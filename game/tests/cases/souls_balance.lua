@@ -15,7 +15,7 @@ local Selection = require('src.enemies.attack_selection')
 local T = {}
 local function field(Game)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing, g.state, g.testField.invincible = true, 'playing', false
+  g.ephemeral, g.state, g.testField.invincible = true, 'playing', false
   g.player.x, g.player.z, g.player.yaw = 10, 24, math.pi
   return g
 end

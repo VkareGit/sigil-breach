@@ -68,7 +68,7 @@ function Tests.run(G, renderer)
     end
     data:release()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g.state = 'playing'
     g.player.weapon = slot
     g.view.shotAge = 10

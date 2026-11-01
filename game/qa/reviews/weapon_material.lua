@@ -124,7 +124,7 @@ function Review.run(Game, renderer, output)
     pigmentBlend = 0.65,
   }
   local g = Field.new(Game)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   g.testField.frozen = true
   g.enemies, g.pickups = {}, {}

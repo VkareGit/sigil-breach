@@ -1,3 +1,4 @@
+local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 -- Presentation only: this module never changes the camera, aim, collision,
 -- weapon clocks or ammunition. Units are pixels at the 450 px scene height.
@@ -96,7 +97,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     return
   end
   local p = Context.actor(g)
-  local running = require('src.content.characters').of(p).movement.moveSpeed
+  local running = Characters.of(p).movement.moveSpeed
   local planted = Gait.planted(p) and plantedTravel ~= false
   local before = g.view.gaitPhase or 0
   local footsteps = Gait.advance(g, travelled, planted)

@@ -27,7 +27,7 @@ function T.run(Game)
           'proving',
           { features = Release.sessionOptions.field.features, attrition = false }
         )
-        g.testing = true
+        g.ephemeral = true
         assert(Chambers.start(Field, g, trial, 3))
         g:switchWeapon(weapon)
         local def, state = Weapons.inHand(g)
@@ -118,7 +118,7 @@ function T.run(Game)
             'proving',
             { features = Release.sessionOptions.field.features, attrition = false }
           )
-          replay.testing = true
+          replay.ephemeral = true
           assert(Chambers.start(Field, replay, trial, 3))
           replay:switchWeapon(weapon)
           Journal.replay(replay, Journal.decode(Journal.encode(record)))

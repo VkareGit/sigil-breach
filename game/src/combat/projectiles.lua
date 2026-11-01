@@ -1,4 +1,5 @@
 -- Sweep each projectile through the entire tick. Resolve the first event only.
+local Combat = require('src.combat.combat')
 local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
@@ -140,7 +141,7 @@ end
 -- A falling body only stops it: the dead take no wound and give no reward.
 local function strikeDemon(g, b, e, part, surface)
   if b.shot then
-    require('src.combat.combat').projectile(g, b, e, part, surface, P.observer(g, b))
+    Combat.projectile(g, b, e, part, surface, P.observer(g, b))
     return
   end
   if e.hp <= 0 then

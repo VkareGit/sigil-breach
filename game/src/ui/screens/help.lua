@@ -1,5 +1,6 @@
 -- The help panel (F1): controls and the bestiary.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
+local Enemies = require('src.content.enemies')
 local Occult = require('src.content.occult_catalog')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
@@ -12,11 +13,11 @@ local Goetia = require('src.ui.goetic_sigils')
 local Text = require('src.content.text')
 local Fit = require('src.ui.text_fit')
 local Pages = require('src.ui.pages')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local S = {}
 require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
 function S.page(g)
-  local cards = require('src.content.enemies').listed('bestiary')
+  local cards = Enemies.listed('bestiary')
   local detailed = false
   for _, def in ipairs(cards) do
     local card = def.catalog.bestiary

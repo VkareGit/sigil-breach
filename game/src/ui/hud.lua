@@ -1,3 +1,6 @@
+local Enemies = require('src.content.enemies')
+local Shop = require('src.content.shop')
+local Reliquary = require('src.ui.reliquary')
 local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 local H = {}
@@ -17,8 +20,8 @@ local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
-local Modes = require('src.run.modes')
-local Queries = require('src.run.queries')
+local Modes = require('src.session.modes')
+local Queries = require('src.session.queries')
 local Text = require('src.content.text')
 local Fit = require('src.ui.text_fit')
 local Pools = require('src.session.world')
@@ -98,7 +101,7 @@ end
 function H.status(g, run)
   run = run or Modes.act(g, 'hud')
   local p = Context.actor(g)
-  require('src.ui.reliquary').status()
+  Reliquary.status()
   Skin.lightField(0, 584, 1280, 136)
   Skin.zone('HUD ammunition', 133, 628, 105, 68)
   local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
@@ -133,9 +136,7 @@ function H.status(g, run)
     fitted(label, 478, 648 + (row - 1) * 16, 12, 114, tint)
   end
   if run.glyph ~= 'none' then
-    local label = Text.get(
-      assert(require('src.content.shop').get(run.glyph).short, 'missing engraving HUD label')
-    )
+    local label = Text.get(assert(Shop.get(run.glyph).short, 'missing engraving HUD label'))
     fitted(label, 478, 681, 12, 114, C.gold)
   end
   Skin.endZone()
@@ -305,12 +306,11 @@ function H.draw(g, settings, ui, descentUI)
   local world = Queries.world(g)
   if world.guardianSpawned and not world.guardianDead then
     for _, e in ipairs(Pools.of(g, 'enemies')) do
-      local banner = require('src.content.enemies').look(e).banner
+      local banner = Enemies.look(e).banner
       if banner and e.hp > 0 then
         local exposed = Rules.has(e, 'exposed')
         local name = Text.get(
-          exposed and banner.exposed
-            or (require('src.content.enemies').furious(e) and banner.fury or banner.calm)
+          exposed and banner.exposed or (Enemies.furious(e) and banner.fury or banner.calm)
         )
         Skin.panel(426, 16, 428, 64, 2, 10)
         Skin.zone('boss field', 438, 27, 402, 43)

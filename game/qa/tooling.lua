@@ -94,7 +94,7 @@ function Tooling.crowd(Game, count)
   local Enemies = require('src.content.enemies')
   local World = require('src.world.arena')
   local game = Field.new(Game, Tooling.crowdMap())
-  game.testing = true
+  game.ephemeral = true
   local index = 1
   for z = 3, Grid.depth(game.world) - 3, 1.5 do
     for x = 3, Grid.width(game.world) - 3, 1.5 do

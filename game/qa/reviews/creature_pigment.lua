@@ -145,7 +145,7 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
 
     -- Deliberately staged pose, compared under identical actual world lighting.
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.enemies, g.pickups = {}, {}

@@ -78,7 +78,8 @@ local function obtain(g, name, read, legacyEffect)
   return value
 end
 -- A durable effect may return a scalar receipt (e.g. an error displayed by the
--- session). The receipt replays, the effect never does. Tests record the same
+-- session). The receipt replays, the effect never does. An ephemeral session (a measurement,
+-- a test, a demonstration) writes nothing and records the same
 -- successful no-op receipt without requiring a writable save directory.
 function Execution.effect(g, name, write)
   return obtain(g, name, function()
@@ -105,6 +106,6 @@ function Execution.beginReplay(g, inputs)
   end
 end
 function Execution.canWrite(g)
-  return replayDepth == 0 and not (g and g.testing)
+  return replayDepth == 0 and not (g and g.ephemeral)
 end
 return Execution

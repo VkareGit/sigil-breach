@@ -6,10 +6,15 @@
 -- Buttons come from a chain of providers, first answer wins (Chain of
 -- Responsibility): the proving ground's archive and catalogue, the
 -- chapel's own screens, the help and map overlays, then the screen.
+local Chapel = require('src.ui.chapel')
+local Hud = require('src.ui.hud')
+local OccultArchive = require('src.ui.occult_archive')
+local Help = require('src.ui.screens.help')
+local TestField = require('src.ui.test_field')
 local Registry = require('src.core.registry')
 local Views = Registry:new('views')
 local Text = require('src.content.text')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 -- A screen file's draw (full module names: tools/check follows them).
 local function screen(module)
   return function(g, s, U)
@@ -17,7 +22,7 @@ local function screen(module)
   end
 end
 local function hud(g, s, U)
-  return require('src.ui.hud').draw(g, s, U, require('src.ui.chapel'))
+  return Hud.draw(g, s, U, Chapel)
 end
 Views:register('playing', { draw = hud })
 Views:register('paused', {
@@ -32,28 +37,28 @@ Views:register('dead', { draw = screen('src.ui.screens.ending') })
 Views:register('won', { draw = screen('src.ui.screens.ending') })
 Views:register('shop', {
   draw = function(g)
-    require('src.ui.chapel').shop(g)
+    Chapel.shop(g)
   end,
 })
 Views:register('confirm_new', {
   draw = function(g)
-    require('src.ui.chapel').confirm(g)
+    Chapel.confirm(g)
   end,
 })
 Views:register('field_archive', {
   draw = function(g, _, U)
-    require('src.ui.occult_archive').draw(g, U)
+    OccultArchive.draw(g, U)
   end,
 })
 Views:register('field_catalog', {
   draw = function(g, _, U)
-    require('src.ui.test_field').draw(g, U)
+    TestField.draw(g, U)
   end,
 })
 -- Overlays over any screen.
 Views.overlays = {
   map = function(g)
-    return require('src.ui.chapel').map(g)
+    return Chapel.map(g)
   end,
   help = screen('src.ui.screens.help'),
 }
@@ -128,18 +133,18 @@ Views:get('settings').controls = pageControls
 Views.providers = {
   function(g)
     if Queries.field(g) and g.state == 'field_archive' and not g.help and not g.map then
-      return require('src.ui.occult_archive').controls(g)
+      return OccultArchive.controls(g)
     end
   end,
   function(g)
-    return require('src.ui.test_field').controls(g)
+    return TestField.controls(g)
   end,
   function(g)
-    return require('src.ui.chapel').controls(g)
+    return Chapel.controls(g)
   end,
   function(g)
     if g.help then
-      return require('src.ui.screens.help').controls(g)
+      return Help.controls(g)
     end
   end,
   function(g)

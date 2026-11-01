@@ -17,7 +17,7 @@ local R8 = require('tests.support.extension.r8')
 local T = {}
 local function session(Game)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing, g.state, g.elapsed = true, 'playing', 70
+  g.ephemeral, g.state, g.elapsed = true, 'playing', 70
   g.enemies = {}
   return g
 end

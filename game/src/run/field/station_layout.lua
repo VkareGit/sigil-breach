@@ -1,5 +1,8 @@
 -- Map-owned inspection positions, with the historical tools as a fallback.
 -- Neither the catalogue nor reset needs to know the geometry of a given map.
+local Characters = require('src.content.characters')
+local A = require('src.content.enemies')
+local W = require('src.world.arena')
 local Maps = require('src.content.maps.index')
 local K = require('src.content.field')
 local S = {}
@@ -9,13 +12,11 @@ function S.get(g)
 end
 function S.validate(g)
   local data = S.get(g)
-  local W = require('src.world.arena')
-  local A = require('src.content.enemies')
   local function clear(spot, radius)
     assert(not W.solid(g.world, spot.x, spot.z, radius), 'blocked field station')
   end
-  clear(data.start, require('src.content.characters').standard().body.radius)
-  clear(data.physics.stand, require('src.content.characters').standard().body.radius)
+  clear(data.start, Characters.standard().body.radius)
+  clear(data.physics.stand, Characters.standard().body.radius)
   clear(data.physics.slam, A.get(K.dummy).body.radius)
   for i = 1, data.physics.domino.count do
     local row = data.physics.domino

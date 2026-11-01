@@ -9,7 +9,7 @@ function Tests.run(G)
   local Field = require('src.run.test_field')
   local function fixture(playerX)
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.x, g.player.z = playerX, 26
     g.enemies = {}

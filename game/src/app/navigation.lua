@@ -1,7 +1,7 @@
 -- Temporary visits own a stack of complete sessions; returning never copies
 -- inventory or enemies between them. Application:adopt remains the sole switch.
 local Game = require('src.session.game')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local UI = require('src.ui.interface')
 local Navigation = {}
 local function create(app, modeId, mapId)

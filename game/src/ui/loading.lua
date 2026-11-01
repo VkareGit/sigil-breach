@@ -1,5 +1,6 @@
 -- An application transition, drawn from the existing bitmap skin and glyphs.
 -- No world is displayed or sampled until the gallery cache is complete.
+local BitmapFont = require('src.ui.fonts.bitmap_font')
 local Skin = require('src.ui.skin')
 local Text = require('src.content.text')
 local Loading = {}
@@ -7,7 +8,7 @@ function Loading.bootstrap(ui)
   local view = { viewport = ui.viewport, fonts = {} }
   Skin.init()
   for _, size in ipairs({ 12, 16, 22 }) do
-    local font = require('src.ui.fonts.bitmap_font').load(size)
+    local font = BitmapFont.load(size)
     view.fonts[size] = font
     Skin.registerFont(font)
   end

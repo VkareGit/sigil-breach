@@ -1,4 +1,5 @@
 -- The dust and sound of broken things. Nothing here changes the simulation.
+local Breakables = require('src.content.breakables')
 local Audio = require('src.audio.audio')
 local Context = require('src.session.context')
 local Effects = require('src.feedback.effects')
@@ -12,7 +13,7 @@ local LOOK = {
   iron = { color = { 0.3, 0.27, 0.24 }, sound = 'shell', volume = 0.4 },
 }
 local function look(kind)
-  return LOOK[require('src.content.breakables')[kind].material]
+  return LOOK[Breakables[kind].material]
 end
 local function sound(g, e, name, volume)
   Audio.playAt(name, e.x, e.z, Context.viewer(g), volume, 1, g.world)
@@ -22,7 +23,7 @@ function Scenery.attach(g, bus)
     local l = look(e.thing)
     g:burst(e.x, e.y, e.z, l.color, 8, 1.3)
     sound(g, e, l.sound, l.volume)
-    if require('src.content.breakables')[e.thing].sways then
+    if Breakables[e.thing].sways then
       g.view.sway = g.view.sway or {}
       g.view.sway[e.id] = g.elapsed
     end

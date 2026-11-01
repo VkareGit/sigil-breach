@@ -17,7 +17,7 @@ local TICK = 1 / 120
 local function emptied(Game)
   P.forget()
   local g = Game.new('pilgrimage')
-  g.testing = true
+  g.ephemeral = true
   g:act('start')
   Encounter.clearStage(g)
   return g
@@ -115,7 +115,7 @@ end
 local function posts(check, Game)
   P.forget()
   local g = Game.new('pilgrimage')
-  g.testing = true
+  g.ephemeral = true
   g:act('start')
   local way = K.start()
   check('every post is filled', #Pools.of(g, 'enemies') == #way.garrison)

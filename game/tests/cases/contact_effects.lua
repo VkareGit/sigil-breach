@@ -80,7 +80,7 @@ function Tests.run(Game)
     Snapshot.invalidateDefinitions()
     local function fresh()
       local g = Game.new(modeId)
-      g.testing = true
+      g.ephemeral = true
       g:start()
       return g, g.enemies[1]
     end

@@ -17,7 +17,7 @@ function Tests.run(Game)
   local near = Fixtures.within(1e-8)
   local function fresh(kind)
     local g = Game.new('floor')
-    g.testing, g.state, g.enemies, g.pickups = true, 'playing', {}, {}
+    g.ephemeral, g.state, g.enemies, g.pickups = true, 'playing', {}, {}
     g.player.x, g.player.z = 16, 25
     local e = g:spawn(kind or 'imp', 16, 15)
     return g, e

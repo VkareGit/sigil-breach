@@ -73,7 +73,7 @@ function Tests.run(G, renderer)
   local spots = { A = { 14, 25 }, B = { 19, 24 } }
   local function arena(extra)
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     Pools.clear(g, 'enemies')
     Pools.clear(g, 'pickups')
@@ -333,7 +333,7 @@ function Tests.run(G, renderer)
   )
   local Field = require('src.run.test_field')
   local field = Field.new(G)
-  field.testing = true
+  field.ephemeral = true
   Field.close(field)
   local fieldView = O.capture(field, field)
   Field.reset(field)

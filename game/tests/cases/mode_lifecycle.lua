@@ -4,7 +4,7 @@ local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(Game)
   local Modes = require('src.run.modes')
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local Navigation = require('src.app.navigation')
   local Snapshot = require('src.session.snapshot')
   local Integrity = require('src.session.integrity')
@@ -70,7 +70,7 @@ function Tests.run(Game)
       'a mode provides presentation without exposing a run record',
       Queries.objective(fresh) == 'Fixture objective' and Queries.tools(fresh) == nil
     )
-    fresh.testing = true
+    fresh.ephemeral = true
     local journal = Journal.record(fresh)
     fresh:start()
     for _ = 1, 12 do
@@ -80,7 +80,7 @@ function Tests.run(Game)
     local encoded = Journal.encode(journal)
     local decoded = Journal.decode(encoded)
     local replay = Journal.session(Game, decoded)
-    replay.testing = true
+    replay.ephemeral = true
     Journal.replay(replay, decoded)
     check(
       'new-mode journal reconstructs and replays through its registry descriptor',
@@ -151,12 +151,12 @@ function Tests.run(Game)
 
     local field = Game.new('field')
     Modes.act(field, 'visit', { state = 'settings' })
-    field.testing = true
+    field.ephemeral = true
     local fieldJournal = Journal.record(field)
     field:act('catalog', 'field_tier')
     Journal.stop(field)
     local reconstructed = Journal.session(Game, fieldJournal)
-    reconstructed.testing = true
+    reconstructed.ephemeral = true
     Journal.replay(reconstructed, fieldJournal)
     check(
       'a field visited from settings replays without its cosmetic return label',

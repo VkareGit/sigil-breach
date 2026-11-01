@@ -2,6 +2,7 @@
 -- system in the order of src/systems/index.lua (core/scheduler), then the
 -- presentation listeners of the step's events (core/events, phase
 -- 'present'). Ordering is gameplay; it is declared, never emergent.
+local Rate = require('src.core.rate')
 local Presentation = require('src.session.presentation')
 local Intent = require('src.player.intent')
 local Scheduler = require('src.core.scheduler')
@@ -83,7 +84,7 @@ function Simulation.update(g, dt, input)
   local remaining = math.min(dt, 0.20)
   input = input or {}
   while remaining > 1e-10 do
-    local step = math.min(remaining, require('src.core.rate').step)
+    local step = math.min(remaining, Rate.step)
     g:simulate(step, input)
     remaining = remaining - step
     if remaining > 1e-10 then

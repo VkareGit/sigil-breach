@@ -16,7 +16,7 @@ function Tests.run(Game)
   local check = Fixtures.checker(lines, 'chambers: ', 'chambers: ')
   local function fresh()
     local g = Game.new('field', Release.sessionMaps.field, Release.sessionOptions.field)
-    g.testing = true
+    g.ephemeral = true
     return g
   end
   local function arrive(g)
@@ -43,7 +43,7 @@ function Tests.run(Game)
   Navigation.replace(app, 'field', 'floor')
   check('explicit map remains authoritative for tools', app.game.world.mapId == 'floor')
   local layout = Chambers.layout(g)
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local pads = Gallery.padsFor(g.world)
   check(
     'boss summoning resolves to elevated altars, not separate floor pads',
@@ -165,7 +165,7 @@ function Tests.run(Game)
     )
     check(
       trial.id .. ' has no new central overlay or entry tutorial',
-      g.view.messageTimer == 0 and require('src.run.queries').tools(g).combatTrial
+      g.view.messageTimer == 0 and require('src.session.queries').tools(g).combatTrial
     )
     arrive(g)
     local fire = Queries.world(g).arenaFire
@@ -291,7 +291,7 @@ function Tests.run(Game)
   Journal.stop(g)
   local decoded = Journal.decode(Journal.encode(journal))
   local replay = Journal.session(Game, decoded)
-  replay.testing = true
+  replay.ephemeral = true
   Journal.replay(replay, decoded)
   check(
     'journal replays entry, portal arrival, shot and replacement exactly',

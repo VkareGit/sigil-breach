@@ -108,6 +108,7 @@ function T.sample(kind, slot, distance, aim, frame, serial)
     player = { x = 41, z = 41 + distance, yaw = math.pi, pitch = 0, jump = 0, crouch = 0 },
     enemies = { e },
     testField = {},
+    mode = 'field',
     time = 0,
     weapon = slot,
     run = { glyph = 'none' },

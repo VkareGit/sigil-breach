@@ -1,5 +1,6 @@
 -- The supplies every mode lays out (health, ammunition) and how the knight
 -- takes them. What [E] does and says is each mode's own.
+local Characters = require('src.content.characters')
 local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
 local Signal = require('src.session.signal')
@@ -33,12 +34,11 @@ end
 Interactions.supplies = {
   health = {
     wanted = function(player)
-      return player.hp < require('src.content.characters').maxHp(player)
+      return player.hp < Characters.maxHp(player)
     end,
     take = function(player, pickup)
       local before = player.hp
-      player.hp =
-        math.min(require('src.content.characters').maxHp(player), player.hp + pickup.amount)
+      player.hp = math.min(Characters.maxHp(player), player.hp + pickup.amount)
       return Text.get('pickup_health', { amount = math.floor(player.hp - before + 0.5) })
     end,
   },

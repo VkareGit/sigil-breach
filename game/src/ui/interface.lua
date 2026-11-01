@@ -1,3 +1,18 @@
+local catalog = require('src.render.fresco_enemies')
+local Bitmap = require('src.ui.fonts.bitmap_font')
+local PaintedNumbers = require('src.ui.fonts.painted_numbers')
+local PaintedTitles = require('src.ui.fonts.painted_titles')
+local GoeticSigils = require('src.ui.goetic_sigils')
+local Hud = require('src.ui.hud')
+local Ink = require('src.ui.ink')
+local Layout = require('src.ui.layout')
+local OccultPlates = require('src.ui.occult_plates')
+local Portrait = require('src.ui.portrait')
+local Reliquary = require('src.ui.reliquary')
+local Ending = require('src.ui.screens.ending')
+local Help = require('src.ui.screens.help')
+local Menu = require('src.ui.screens.menu')
+local Pause = require('src.ui.screens.pause')
 local U = { focus = 1, mouseX = -1, mouseY = -1 }
 local lg = love.graphics
 local Skin = require('src.ui.skin')
@@ -15,7 +30,7 @@ local blue = Skin.colors.blue
 local green = Palette.green
 local Views = require('src.ui.views')
 local Kit = require('src.ui.kit')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 Kit.ui = U
 local c = Kit.c
 function U.release()
@@ -33,9 +48,8 @@ end
 function U.init(checkpoint)
   U.release()
   Skin.init()
-  require('src.ui.portrait').init(checkpoint)
+  Portrait.init(checkpoint)
   U.fonts = {}
-  local Bitmap = require('src.ui.fonts.bitmap_font')
   for _, size in ipairs({ 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 36, 42, 48, 64, 94 }) do
     local font = Bitmap.load(size, checkpoint)
     assert(
@@ -48,11 +62,10 @@ function U.init(checkpoint)
   Skin.useFonts(U.fonts)
   -- HUD numerals are part of the UI load, not a surprise upload when the
   -- first catalogue closes and gameplay becomes visible.
-  require('src.ui.fonts.painted_numbers').init(checkpoint)
+  PaintedNumbers.init(checkpoint)
   U.faces = {}
   U.faceQuads = {}
   U.faceResources = Resources.new('UI creature portraits', checkpoint)
-  local catalog = require('src.render.fresco_enemies')
   for _, kind in ipairs(catalog.kinds) do
     local entry = catalog.entries[kind]
     local img = U.faceResources:image(entry.path, { filter = 'linear' })
@@ -71,13 +84,13 @@ end
 -- Ordinary UI reinitialization only releases its fonts and bestiary faces.
 function U.shutdown()
   U.release()
-  require('src.ui.occult_plates').release()
-  require('src.ui.portrait').release()
-  require('src.ui.reliquary').release()
-  require('src.ui.fonts.painted_titles').release()
-  require('src.ui.fonts.painted_numbers').release()
-  require('src.ui.ink').release()
-  require('src.ui.goetic_sigils').release()
+  OccultPlates.release()
+  Portrait.release()
+  Reliquary.release()
+  PaintedTitles.release()
+  PaintedNumbers.release()
+  Ink.release()
+  GoeticSigils.release()
   Skin.release()
 end
 function U.face(kind, x, y, w, h, label)
@@ -90,35 +103,35 @@ function U.face(kind, x, y, w, h, label)
   lg.draw(U.faces[kind], q, x, y, 0, scale, scale)
   Skin.imageBounds(label or ('bestiary ' .. kind), x, y, dw, dh)
 end
--- What the session's mode asks of the player now (run/queries.lua).
+-- What the session's mode asks of the player now (session/queries.lua).
 function U.objective(g)
   return Queries.objective(g)
 end
 -- The screens live in ui/screens/ (0.24 F7); these names stay for callers.
 function U.hud(g, s)
-  return require('src.ui.hud').draw(g, s, U, require('src.ui.chapel'))
+  return Hud.draw(g, s, U, D)
 end
 function U.map(g)
-  return require('src.ui.chapel').map(g)
+  return D.map(g)
 end
 function U.menu(g)
-  return require('src.ui.screens.menu').draw(g, nil, U)
+  return Menu.draw(g, nil, U)
 end
 function U.pause(g, s)
-  return require('src.ui.screens.pause').draw(g, s, U)
+  return Pause.draw(g, s, U)
 end
 function U.helpPanel(g)
-  return require('src.ui.screens.help').draw(g, nil, U)
+  return Help.draw(g, nil, U)
 end
 function U.ending(g)
-  return require('src.ui.screens.ending').draw(g, nil, U)
+  return Ending.draw(g, nil, U)
 end
 -- The buttons of the current screen (ui/views.lua: its providers).
 function U.controls(g, s)
   return Views.controls(g, s)
 end
 function U.viewport(w, h)
-  return require('src.ui.layout').viewport(w, h)
+  return Layout.viewport(w, h)
 end
 function U.toLogical(x, y, w, h)
   local scale, ox, oy = U.viewport(w, h)

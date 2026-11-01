@@ -35,7 +35,7 @@ end
 local function scene(G, count)
   love.math.setRandomSeed(909)
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   local a = Context.actor(g)
   a.x, a.z, a.yaw, a.pitch, a.hp = 16, 25, math.pi, 0.035, 100000

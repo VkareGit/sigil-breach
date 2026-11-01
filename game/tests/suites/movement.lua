@@ -18,7 +18,7 @@ function Tests.run(G, initial, renderer, getGame)
     end
   end
   local g = G.new()
-  g.testing = true
+  g.ephemeral = true
   local function reset()
     g.state = 'playing'
     g.enemies = {}

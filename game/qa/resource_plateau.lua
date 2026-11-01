@@ -11,7 +11,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
   local Journal = require('src.session.journal')
   local Pools = require('src.session.world')
   local Tree = require('src.core.data_tree')
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local lg = love.graphics
   local cycles = tonumber(os.getenv('SIGIL_RESOURCE_CYCLES') or '8')
   assert(
@@ -46,7 +46,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
   -- Keeping that borrowed table afterwards must not keep the owner alive.
   local function queryOwnership()
     local owner = Game.new('floor')
-    owner.testing = true
+    owner.ephemeral = true
     local borrowed = setmetatable({ Queries.run(owner) }, { __mode = 'v' })
     collectgarbage('collect')
     collectgarbage('collect')
@@ -70,7 +70,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     app.settings = settings
     app.qa.isolated, app.qa.capture = true, true
     local menu = Game.new('floor')
-    menu.testing = true
+    menu.ephemeral = true
     fresh = Renderer.new()
     app.renderer = fresh
     app:adopt(menu)
@@ -86,7 +86,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     end
     prepare()
     local game = app.game
-    game.testing = true
+    game.ephemeral = true
     assert(game.mode == 'field' and Navigation.previous(app) == menu, 'field navigation lost menu')
     local journal = Journal.record(game)
     game:act('catalog', 'field_close')
@@ -105,7 +105,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     assert(game:actorLeave(actor.id))
     Journal.stop(game)
     local replay = Journal.session(Game, journal)
-    replay.testing = true
+    replay.ephemeral = true
     Journal.replay(replay, journal)
     app:adopt(replay)
     prepare()
@@ -114,7 +114,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     -- navigation/session lifecycle through the registered mode API, not a
     -- new public menu command or a hand-built fake scene.
     local chapel = Navigation.enter(app, 'pilgrimage')
-    chapel.testing = true
+    chapel.ephemeral = true
     chapel:start()
     chapel:update(1 / 120, {})
     assert(chapel.mode == 'pilgrimage' and chapel.state == 'playing')

@@ -1,8 +1,8 @@
 -- A small installed-runtime health check: real art, fonts, map, both weapons,
 -- simulation and rendering. No tests/qa module or developer file is needed.
+local UI = require('src.ui.interface')
 local S = {}
 function S.run(Game, renderer, getGame, settings, output)
-  local UI = require('src.ui.interface')
   local lg = love.graphics
   local tickRate = 120
   local fingerprint = assert(love.filesystem.read('build-fingerprint.txt')):match('^%x+')

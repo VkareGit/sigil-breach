@@ -32,7 +32,7 @@ function S.run(G, r, output)
   end
   local function setup(kind, attackCount)
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 24.5, math.pi, -0.12
     local e = g:spawn(kind, 16, 18.8)

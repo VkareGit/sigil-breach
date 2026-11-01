@@ -1,5 +1,6 @@
 -- Resolve BEFORE health/death events. Same entity, target and effects: no
 -- spawn, death reward or invulnerability at a refill.
+local AttackSelection = require('src.enemies.attack_selection')
 local A = require('src.content.enemies')
 local Signal = require('src.session.signal')
 local ActionKinds = require('src.combat.action_kinds')
@@ -29,7 +30,7 @@ function Encounter.advance(g, e)
     end
     e.phaseIndex = index + 1
     e.phaseEnteredAt = g.elapsed
-    require('src.enemies.attack_selection').clear(e)
+    AttackSelection.clear(e)
     ActionKinds.abandon(e)
     -- Cancel unreleased work / body attacks. Released projectiles and floor
     -- hazards stay with the same owner; existing flight settles physically.

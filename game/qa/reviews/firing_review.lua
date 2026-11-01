@@ -69,7 +69,7 @@ function Review.run(output, Game, renderer)
   end
   local function fresh(slot, kind, motion)
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = false
     g.player.weapon, g.view.motion, g.view.fov = slot, motion ~= false, 100

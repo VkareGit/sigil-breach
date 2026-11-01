@@ -1,6 +1,11 @@
 -- Application commands route session operations through mode contracts.
 -- Navigation owns temporary visits; this module owns input/UI aftermath.
-local Modes = require('src.run.modes')
+local Soundscape = require('src.audio.soundscape')
+local Weapons = require('src.content.weapons')
+local Feel = require('src.player.feel')
+local Chapel = require('src.ui.chapel')
+local Help = require('src.ui.screens.help')
+local Modes = require('src.session.modes')
 local Navigation = require('src.app.navigation')
 local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
@@ -115,18 +120,18 @@ handlers.ready = function(app)
 end
 handlers.shop_back = function(app)
   app.game:act('closeShop')
-  require('src.ui.chapel').resetShop(app.game)
+  Chapel.resetShop(app.game)
   app.input.suppressFire = true
 end
 handlers.shop_prev = function(app)
-  require('src.ui.chapel').turnShop(app.game, -1)
+  Chapel.turnShop(app.game, -1)
 end
 handlers.shop_next = function(app)
-  require('src.ui.chapel').turnShop(app.game, 1)
+  Chapel.turnShop(app.game, 1)
 end
 local function shopWeapon(app, id)
   local slot = tonumber(id:match('%d+$'))
-  if slot > require('src.content.weapons').count(app.game) then
+  if slot > Weapons.count(app.game) then
     return
   end
   app.game:switchWeapon(slot)
@@ -154,7 +159,7 @@ handlers.settings = function(app)
 end
 handlers.help = function(app)
   local game = app.game
-  require('src.ui.screens.help').reset(game)
+  Help.reset(game)
   UI.focus = 1
   game.help, game.map = true, false
   if game.state == 'playing' then
@@ -165,13 +170,13 @@ handlers.help = function(app)
 end
 handlers.help_back = function(app)
   app.game.help = false
-  require('src.ui.screens.help').reset(app.game)
+  Help.reset(app.game)
 end
 handlers.help_prev = function(app)
-  require('src.ui.screens.help').turn(app.game, -1)
+  Help.turn(app.game, -1)
 end
 handlers.help_next = function(app)
-  require('src.ui.screens.help').turn(app.game, 1)
+  Help.turn(app.game, 1)
 end
 handlers.map = function(app)
   app.game.map = false
@@ -192,7 +197,7 @@ handlers.motion = function(app)
   app.settings.motion = not app.settings.motion
   app.game.view.motion = app.settings.motion
   if not app.settings.motion then
-    require('src.player.feel').clearMotion(app.game)
+    Feel.clearMotion(app.game)
   end
 end
 handlers.hints = function(app)
@@ -212,7 +217,7 @@ handlers.fov_down, handlers.fov_up = fov, fov
 local function music(app, id)
   app.settings.music =
     math.max(0, math.min(1, app.settings.music + (id == 'music_up' and 0.1 or -0.1)))
-  require('src.audio.soundscape').music = app.settings.music
+  Soundscape.music = app.settings.music
 end
 handlers.music_down, handlers.music_up = music, music
 

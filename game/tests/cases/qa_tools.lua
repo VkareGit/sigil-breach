@@ -94,7 +94,7 @@ function Tests.run(Game)
     end
   end
   local game = Field.new(Game)
-  game.testing = true
+  game.ephemeral = true
   assert(Field.summon(game, 'imp', 1))
   Field.close(game)
   check(

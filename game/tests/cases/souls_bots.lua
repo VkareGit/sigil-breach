@@ -9,7 +9,7 @@ local T = {}
 local trials = { 'claws', 'iron', 'stars', 'resin', 'ash', 'storm' }
 local function fight(Game, trial, knight, seconds, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing = true
+  g.ephemeral = true
   if seed then
     g.rng.sim:seed(seed)
   end
@@ -58,7 +58,7 @@ end
 -- who only dodges: the proof that this blow can be avoided from there.
 local function blow(Game, id, attack, knight)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing, g.state, g.testField.invincible = true, 'playing', false
+  g.ephemeral, g.state, g.testField.invincible = true, 'playing', false
   local distance = math.max(attack.minRange, math.min(attack.range, 3))
   g.player.x, g.player.z, g.player.yaw = 10, 19 + distance, math.pi
   local whole = g.player.hp + g.player.armor

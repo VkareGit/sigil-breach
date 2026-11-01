@@ -24,7 +24,7 @@ end
 -- supplies; the knight at the nave's entrance facing the altar.
 function Fixtures.arena(G)
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}
   g.player.x, g.player.z, g.player.yaw = 16, 25, math.pi
@@ -61,7 +61,7 @@ end
 -- A started session of the plain room.
 function Fixtures.started(G)
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   return g
 end

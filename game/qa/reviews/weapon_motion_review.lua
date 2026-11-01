@@ -50,7 +50,7 @@ function Review.run(Game, renderer, output)
   end
   for slot = 1, 2 do
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.player.weapon = slot

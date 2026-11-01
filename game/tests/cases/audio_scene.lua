@@ -60,7 +60,7 @@ function T.run(check)
   local Game = require('src.session.game')
   local Release = require('src.app.release')
   local g = Game.new('field', Release.sessionMaps.field, Release.sessionOptions.field)
-  g.testing = true
+  g.ephemeral = true
   g:start()
   local sample = {}
   Scene.sample(g, sample)

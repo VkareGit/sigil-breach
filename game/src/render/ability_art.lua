@@ -1,3 +1,4 @@
+local ArtContract = require('src.enemies.art_contract')
 local Context = require('src.session.context')
 -- GPU handles for authored ability animations. Placement is owned by enemies.pose;
 -- changing a hit shape cannot move, scale or otherwise repaint an ability.
@@ -9,7 +10,7 @@ AbilityArt.select = AbilityPose.select
 function AbilityArt.load(resources)
   local loaded = {}
   for key, entry in Metadata.each() do
-    local problems = require('src.enemies.art_contract').sequenceProblems(key)
+    local problems = ArtContract.sequenceProblems(key)
     assert(#problems == 0, table.concat(problems, '\n'))
     local image = resources and resources:image(entry.path) or love.graphics.newImage(entry.path)
     image:setFilter('nearest', 'nearest')

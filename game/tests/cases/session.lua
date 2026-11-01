@@ -11,7 +11,7 @@ function Tests.run(Game)
   local check = Fixtures.checker(lines, 'session contract: ', 'session contract: ')
   local function fresh(mode)
     local g = Game.new(mode or 'floor')
-    g.testing = true
+    g.ephemeral = true
     return g
   end
 
@@ -168,7 +168,7 @@ function Tests.run(Game)
   local chapel = fresh('floor')
   chapel.run.wallet = 317
   local field = Field.new(Game)
-  field.testing = true
+  field.ephemeral = true
   check(
     'the proving ground owns an independent encounter and run',
     field.player ~= chapel.player and field.run ~= chapel.run and field.world ~= chapel.world

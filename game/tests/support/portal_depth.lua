@@ -4,7 +4,7 @@ local T = {}
 function T.run(Game, r, check)
   local F = require('tests.support.fixtures')
   local Objects = require('src.render.world_objects')
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local M = require('src.render.mesh')
   local lg = love.graphics
   local g = F.arena(Game)

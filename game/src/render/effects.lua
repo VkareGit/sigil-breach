@@ -1,3 +1,6 @@
+local Ballistics = require('src.combat.ballistics')
+local AbilityFeedback = require('src.feedback.ability_feedback')
+local Weapon = require('src.render.weapon')
 local HazardKinds = require('src.render.hazard_kinds')
 local Context = require('src.session.context')
 local Action = require('src.content.defs.action')
@@ -12,7 +15,7 @@ local Corpse = require('src.enemies.corpse')
 local AttackDebug = require('src.render.attack_debug')
 local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Pools = require('src.session.world')
 local ProjectileShape = require('src.combat.projectile_shape')
 local E = {}
@@ -144,10 +147,10 @@ end
 function E.chargeAlpha(g, c)
   local age = math.max(0, (c.maxFuse or c.fuse or 0) - (c.fuse or 0))
   local duration = math.min(0.12, (c.maxFuse or 1) * 0.25)
-  if duration <= 0 or age >= duration or not require('src.feedback.ability_feedback').frame(g) then
+  if duration <= 0 or age >= duration or not AbilityFeedback.frame(g) then
     return 1
   end
-  local x, y, z = require('src.combat.ballistics').origin(g)
+  local x, y, z = Ballistics.origin(g)
   local dx, dy, dz = c.x - x, c.y - y, c.z - z
   if dx * (c.vx or 0) + dy * (c.vy or 0) + dz * (c.vz or 0) <= 0 then
     return 1
@@ -161,7 +164,7 @@ function E.charges(r, g, image, frames)
   if not image or #Pools.of(g, 'charges') == 0 then
     return
   end
-  frames = frames or require('src.render.weapon').chargeWorldFrames
+  frames = frames or Weapon.chargeWorldFrames
   local s = r.spriteShader
   love.graphics.setShader(s)
   love.graphics.setDepthMode('less', true)

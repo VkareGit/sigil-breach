@@ -11,6 +11,9 @@
 -- Pool names: enemies (living creatures and fresh corpses), remains (corpses
 -- at rest, out of every step), projectiles, hazards, pickups, charges, and
 -- knights (1..n; g.player is the knight this session controls).
+local Abilities = require('src.content.abilities')
+local Characters = require('src.content.characters')
+local Weapons = require('src.content.weapons')
 local World = require('src.core.ecs')
 local Components = require('src.session.components')
 local Roles = require('src.core.roles')
@@ -203,7 +206,7 @@ local function actorDefaults(knight)
       knight[name] = type(spec.default) == 'table' and Schema.copy(spec.default) or spec.default
     end
   end
-  require('src.content.characters').born(knight)
+  Characters.born(knight)
 end
 Save.declare({
   name = 'pools',
@@ -324,13 +327,11 @@ function M.knightFromRecord(g, record)
       return nil, 'invalid ' .. key
     end
   end
-  local Weapons = require('src.content.weapons')
   for _, id in ipairs(knight.loadout or {}) do
     if not Weapons.registry:has(id) or not (knight.arsenal and knight.arsenal[id]) then
       return nil, 'unknown weapon ' .. tostring(id)
     end
   end
-  local Abilities = require('src.content.abilities')
   for _, id in ipairs(knight.abilities or {}) do
     if not Abilities:has(id) then
       return nil, 'unknown ability ' .. tostring(id)

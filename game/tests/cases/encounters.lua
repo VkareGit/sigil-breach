@@ -303,7 +303,7 @@ function Tests.run(Game)
   )
   -- Public reset abandons the encounter, and a new spawn starts phase one.
   local field = Game.new('field', nil, require('src.app.release').sessionOptions.field)
-  field.testing = true
+  field.ephemeral = true
   local old = field:spawn('boss', 16, 22)
   field:damageEnemy(old, old.hp, 'weapon')
   require('src.run.test_field').reset(field)

@@ -9,6 +9,8 @@
 --   local journal = Journal.record(g)   -- from now on g is recorded
 --   Journal.stop(g)                     -- g is plain again
 --   Journal.replay(fresh, journal)      -- the same session again
+local Tuning = require('src.content.tuning')
+local Mathx = require('src.core.mathx')
 local Serialize = require('src.core.serialize')
 local Integrity = require('src.session.integrity')
 local Observation = require('src.combat.observation')
@@ -19,7 +21,7 @@ local finite = require('src.core.mathx').finite
 local Roles = require('src.core.roles')
 local Stats = require('src.session.stats')
 local Execution = require('src.storage.execution')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 -- version: the journal's format; build: the game that recorded it (a replay
 -- in another build is refused; core/build.lua, the same in every entry point).
 -- Version 4 (plan v10 V5): a shot keeps only the bodies of its corridor
@@ -213,7 +215,7 @@ local function close(g, journal, reason)
 end
 function Journal.record(g, limits, onLimit)
   assert(not sessions[g], 'session is already being recorded')
-  limits = limits or require('src.content.tuning').recording
+  limits = limits or Tuning.recording
   assert(
     finite(limits.maxBytes)
       and limits.maxBytes > 0
@@ -599,10 +601,7 @@ function Journal.replay(g, journal)
     end
     for _, entry in ipairs(journal.entries) do
       if entry[1] == 'aim' then
-        assert(
-          require('src.core.mathx').finite(entry[2]) and require('src.core.mathx').finite(entry[3]),
-          'invalid journal aim'
-        )
+        assert(Mathx.finite(entry[2]) and Mathx.finite(entry[3]), 'invalid journal aim')
         Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
       elseif entry[1] == 'set' then
         assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))

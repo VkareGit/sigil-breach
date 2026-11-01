@@ -1,3 +1,4 @@
+local Numbers = require('src.render.numbers')
 local Context = require('src.session.context')
 local M = require('src.render.mesh')
 local WorldMesh = require('src.render.world_mesh')
@@ -9,7 +10,7 @@ local AbilityArt = require('src.render.ability_art')
 local AbilityMetadata = require('src.content.ability_art')
 local Pigment = require('src.render.creature_pigment')
 local FX = require('src.feedback.effects')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Ground = require('src.physics.ground')
 local Layout = require('src.ui.layout')
 local Camera = require('src.render.camera')
@@ -614,6 +615,6 @@ end
 -- Damage numbers painted where the blow landed (Risk of Rain-style feedback):
 -- they rise and fade in 0.7 s; heads and kills are larger and in red ochre.
 function R:damageNumbers(g, x, y, vw, vh)
-  return require('src.render.numbers').draw(self, g, x, y, vw, vh)
+  return Numbers.draw(self, g, x, y, vw, vh)
 end
 return R

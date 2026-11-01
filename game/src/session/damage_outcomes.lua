@@ -5,9 +5,13 @@
 -- simulation (score, healing, rewards, pacing) are 'sim' listeners in
 -- session/listeners.lua; what is seen and heard are 'present' listeners in
 -- feedback/listeners.lua.
+local Hit = require('src.combat.hit')
+local Observation = require('src.combat.observation')
+local Ground = require('src.physics.ground')
+local Context = require('src.session.context')
 local Capabilities = require('src.session.capabilities')
 local Presentation = require('src.session.presentation')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
@@ -83,8 +87,6 @@ end
 -- the creatures' law, as a blast resolves it (armour, resistances, guard and
 -- shove from the source's place), never the knight's shield.
 local function creatureBlow(g, target, amount, x, z, packet, source, context)
-  local Hit = require('src.combat.hit')
-  local Ground = require('src.physics.ground')
   local blow = {
     base = amount,
     impact = packet and packet.impact or 0,
@@ -219,9 +221,9 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     player.hp = 0
     if not controlled then
       -- His observations end with him (plan v11 E4).
-      require('src.combat.observation').invalidateActor(g, player)
+      Observation.invalidateActor(g, player)
       emit(g, 'KnightFell', { knight = player })
-      require('src.session.context').reset(g, player)
+      Context.reset(g, player)
       return
     end
     g.state = 'dead'

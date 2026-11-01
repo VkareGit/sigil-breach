@@ -54,7 +54,7 @@ function Tests.run(G)
   -- posts, an awake thrall by the second knight's place.
   local function arena(thrall)
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     Pools.clear(g, 'enemies')
     Pools.clear(g, 'pickups')
@@ -204,7 +204,7 @@ function Tests.run(G)
   -- The actor journal: a second knight with its own place and equipment
   -- joins before the first update; a fresh session from the journal alone.
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   local actorJournal = Journal.record(g)
   g:actorJoin(knight(g, 'knight2', 18, 26, {
     armor = 10,
@@ -233,7 +233,7 @@ function Tests.run(G)
   local text = Journal.encode(actorJournal)
   local read = Journal.decode(text)
   local fresh = Journal.session(G, read)
-  fresh.testing = true
+  fresh.ephemeral = true
   local replayOk, replayProblem = pcall(Journal.replay, fresh, read)
   check(
     'an actor journal replays in a fresh session from the journal alone ('
@@ -252,7 +252,7 @@ function Tests.run(G)
     local bad = Journal.decode(text)
     edit(bad.entries)
     local target = Journal.session(G, bad)
-    target.testing = true
+    target.ephemeral = true
     local untouched = Integrity.capture(target)
     local accepted = pcall(Journal.replay, target, bad)
     check(
@@ -334,7 +334,7 @@ function Tests.run(G)
   )
   local SessionSave = require('src.storage.session_save')
   local restored = G.new('floor')
-  restored.testing = true
+  restored.ephemeral = true
   SessionSave.restore(restored, assert(SessionSave.decode(SessionSave.encode(q, 3))))
   local againB = Pools.get(restored, 'knight2')
   require('src.player.feel').init(restored)

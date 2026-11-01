@@ -46,7 +46,7 @@ function Tests.run(Game, renderer)
   }) do
     for _, motion in ipairs({ true, false }) do
       local g = Field.new(Game)
-      g.testing, g.view.motion = true, motion
+      g.ephemeral, g.view.motion = true, motion
       Field.close(g)
       g.player.yaw, g.player.pitch = math.pi, 0.2
       assert(g:shoot(), 'initial shotgun shot')
@@ -84,7 +84,7 @@ function Tests.run(Game, renderer)
   local maximum, samples, inherited, markers = 0, 0, true, true
   for _, mode in ipairs({ 'field', 'floor' }) do
     local g = mode == 'field' and Field.new(Game) or Game.new('floor')
-    g.testing = true
+    g.ephemeral = true
     if mode == 'field' then
       Field.close(g)
     else

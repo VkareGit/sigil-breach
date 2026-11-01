@@ -52,7 +52,7 @@ function T.run(G, check, r)
     changed ~= a and V.sample(changed, 1, 7, 5) > 0.95
   )
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.time = 2
   g.bullets = {}

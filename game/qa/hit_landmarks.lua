@@ -16,7 +16,7 @@ L.zones = { head = true, torso = true, lower = true }
 -- A proving ground showing kind in frame through the transition via, or nil.
 function L.reach(G, kind, frame, via)
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local e = Field.spawn(g, kind, 1)[1]
   Field.close(g)
   if via == 'knockdown' then

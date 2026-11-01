@@ -8,7 +8,7 @@ S.rate = 120
 function S.setup(G)
   local Field = require('src.run.test_field')
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.reset(g)
   Field.close(g)
   g.testField.invincible = true

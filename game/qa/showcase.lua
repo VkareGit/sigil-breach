@@ -15,7 +15,7 @@ function S.run(G, renderer)
   A.muted = true
   U.useMouse = false
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -152,7 +152,7 @@ function S.run(G, renderer)
   save('26c-boss-falter')
   g.view.feedbackTimer = 0
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.state = 'paused'
   save('29-pause')
@@ -208,7 +208,7 @@ function S.run(G, renderer)
   end
   save('37-windup')
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -271,7 +271,7 @@ function S.run(G, renderer)
   save('46-armored-fall')
   -- The single test field, physical weapon and every portrait state.
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -293,7 +293,7 @@ function S.run(G, renderer)
   save('50-single-test-field')
   g.map = false
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -503,7 +503,7 @@ function S.run(G, renderer)
   g.view.shotAge = 0.08
   save('portrait-6')
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -517,7 +517,7 @@ function S.run(G, renderer)
   save('64-map-small', 960, 540)
   g.map = false
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
@@ -545,7 +545,7 @@ function S.run(G, renderer)
   -- Free testing catalog uses the very same combat, assets and GUI as the chapel.
   local Field = require('src.run.test_field')
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   U.focus = 1
   save('68-field-catalog')
   save('69-field-catalog-small', 960, 540)
@@ -606,7 +606,7 @@ function S.run(G, renderer)
   save('archive-large', 1920, 1080)
   -- Physical ammunition, exact reload stages and read-only range reports.
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   g.player.weapon = 2
   g.elapsed = 70
@@ -688,7 +688,7 @@ function S.run(G, renderer)
   local weaponPoses = require('qa.reviews.weapon_timeline').run(G, renderer, output)
   require('qa.reviews.weapon_material').run(G, renderer, output)
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.skirmish(g)
   g.elapsed = 70
   g.view.messageTimer = 0
@@ -784,7 +784,7 @@ function S.run(G, renderer)
   -- captures above as regression coverage for their retained implementations.
   local archived = g
   g = G.new('field', nil, require('src.app.release').sessionOptions.field)
-  g.testing = true
+  g.ephemeral = true
   g.time, g.elapsed, g.view.messageTimer = 70, 70, 0
   for _, size in ipairs({
     { 'small', 960, 540 },
@@ -809,7 +809,7 @@ function S.run(G, renderer)
   local PhaseGame = require('tests.support.phase_encounters').game(G)
   for _, kind in ipairs({ 'boss', 'furfur' }) do
     g = PhaseGame.new('field', nil, require('src.app.release').sessionOptions.field)
-    g.testing, g.state = true, 'playing'
+    g.ephemeral, g.state = true, 'playing'
     g.player.x, g.player.z, g.player.yaw = 16, 25, math.pi
     g.elapsed = 70 -- Inspect combat after the entry tutorial, not behind its overlay.
     local enemy = assert(Field.spawn(g, kind, 1))[1]
@@ -858,7 +858,7 @@ function S.run(G, renderer)
   local release = require('src.app.release')
   local function chamberSession()
     g = G.new('field', release.sessionMaps.field, release.sessionOptions.field)
-    g.testing, g.state = true, 'playing'
+    g.ephemeral, g.state = true, 'playing'
     g.elapsed, g.view.messageTimer = 70, 0
   end
   for _, view in ipairs({

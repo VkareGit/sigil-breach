@@ -37,7 +37,7 @@ function R.run(Game, renderer, output)
   local records = {}
   for _, case in ipairs(cases) do
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.player.weapon = case.slot

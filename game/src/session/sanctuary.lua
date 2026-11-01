@@ -1,4 +1,5 @@
 -- The physical place of the trade, shared by the chapel and the proving ground.
+local Intent = require('src.player.intent')
 local World = require('src.world.arena')
 local Presentation = require('src.session.presentation')
 local Maps = require('src.content.maps.index')
@@ -28,7 +29,7 @@ function Sanctuary.trade(g)
     return false
   end
   g.state = 'shop'
-  require('src.player.intent').clear(g)
+  Intent.clear(g)
   g.view.presentationPrevious = nil
   Presentation.capture(g, false)
   return true

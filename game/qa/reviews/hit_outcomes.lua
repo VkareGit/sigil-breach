@@ -76,7 +76,7 @@ function Review.run(Game, truth, output, mode)
   for _, kind in ipairs({ 'imp', 'buer', 'stolas', 'armored', 'boss', 'furfur' }) do
     for _, schedule in ipairs(schedules) do
       local g = Field.new(Game)
-      g.testing, g.view.motion = true, false
+      g.ephemeral, g.view.motion = true, false
       local enemy = Field.spawn(g, kind, 1)[1]
       Field.close(g)
       enemy.hp = 1000000

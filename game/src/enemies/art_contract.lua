@@ -1,5 +1,7 @@
 -- Composition-time references: content stays independent of its samplers and
 -- renderer. Used by startup/QA, never for a per-frame scan of every creature.
+local Poses = require('src.content.art.poses')
+local Enemies = require('src.content.enemies')
 local Art = require('src.content.enemy_art')
 local Sequences = require('src.content.ability_art')
 local Anatomy = require('src.content.art.anatomy_regions')
@@ -60,7 +62,7 @@ function Contract.problems(def)
   for _, phase in ipairs(def.phases or {}) do
     if phase.transitionPose then
       local poses = Atlases.poses[atlas]
-      local pose = poses and require('src.content.art.poses').resolve(poses, phase.transitionPose)
+      local pose = poses and Poses.resolve(poses, phase.transitionPose)
       if not pose or pose.clock ~= 'action' then
         bad('phase transition needs a named action-clock pose: ' .. phase.transitionPose)
       end
@@ -123,7 +125,7 @@ function Contract.validate(def)
   return def
 end
 function Contract.validateAll()
-  for _, def in require('src.content.enemies').each() do
+  for _, def in Enemies.each() do
     Contract.validate(def)
   end
   for id in Sequences.each() do

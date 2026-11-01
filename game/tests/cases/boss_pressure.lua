@@ -14,7 +14,7 @@ function T.run(Game)
   local check = F.checker(lines, 'boss pressure: ', 'boss pressure: ')
   local function fresh(trial)
     local g = Game.new('field', 'proving', Release.sessionOptions.field)
-    g.testing = true
+    g.ephemeral = true
     assert(g:act('catalog', 'field_chamber_' .. trial))
     return g
   end

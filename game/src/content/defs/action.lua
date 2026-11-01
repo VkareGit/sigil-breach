@@ -4,6 +4,7 @@
 -- a payload (packet) and a telegraph (windup). Every kind has its own
 -- fields and defaults here; its behaviour lives in combat/action_kinds.lua
 -- and is checked against this list.
+local Conditions = require('src.content.conditions')
 local Schema = require('src.core.schema')
 local Types = require('src.content.damage_types')
 local HazardKinds = require('src.content.hazards')
@@ -517,7 +518,7 @@ hook('pattern', function(built, path)
     assert(mark.delay > 0, path .. ': every released mark needs a warning')
   end
   assert(
-    not built.condition or require('src.content.conditions').find(built.condition),
+    not built.condition or Conditions.find(built.condition),
     path .. '.condition: unknown condition ' .. tostring(built.condition)
   )
 end)
@@ -525,7 +526,7 @@ hook('pool', function(built, path)
   Area.validate(built.pool.volume, path .. '.pool.volume')
   assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
   assert(
-    not built.pool.condition or require('src.content.conditions').find(built.pool.condition),
+    not built.pool.condition or Conditions.find(built.pool.condition),
     path .. '.pool.condition: unknown condition ' .. tostring(built.pool.condition)
   )
   projectile(built.bolt, path .. '.bolt')

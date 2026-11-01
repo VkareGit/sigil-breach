@@ -1,6 +1,8 @@
 -- What can be broken in a world. Blows come from resolved shots and blasts, so
 -- a wall or a body before a thing still protects it; the state lives in the
 -- world and rendering only reads it. No simulation random stream is used.
+local Observation = require('src.combat.observation')
+local Maps = require('src.content.maps.index')
 local Ballistics = require('src.combat.ballistics')
 local Damage = require('src.combat.damage')
 local Hit = require('src.combat.hit')
@@ -149,7 +151,7 @@ local function smash(g, def, owner)
   if kind.collapses then
     collapse(world, def)
     World.opened(world)
-    require('src.combat.observation').invalidate(g)
+    Observation.invalidate(g)
     local crush = kind.crush
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       local dx, dz = e.x - def.cell[1], e.z - def.cell[2]
@@ -345,7 +347,7 @@ function D.reset(world)
 end
 local function breakables(mapId)
   local valid = {}
-  local map = require('src.content.maps.index'):get(mapId)
+  local map = Maps:get(mapId)
   for _, def in ipairs((map.decor or NONE).breakables or NONE) do
     valid[def.id] = def
   end

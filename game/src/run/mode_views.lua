@@ -1,8 +1,9 @@
 -- Built-in modes translate their private records into common read-only views.
 -- No renderer or screen imports a mode's mutable
 -- record layout: each mode hands its record (state) to these builders
--- (run/modes.lua), and presentation asks run/queries.lua for the view. Each
+-- (run/modes.lua), and presentation asks session/queries.lua for the view. Each
 -- builder fills the session's own view table (out; plan v11 E2).
+local Chambers = require('src.run.field.chambers')
 local Sanctuary = require('src.session.sanctuary')
 local Text = require('src.content.text')
 local Views = {}
@@ -17,7 +18,6 @@ function Views.pilgrimWorld(g, state, out)
   return world(g, state, out)
 end
 function Views.fieldWorld(g, state, out, field)
-  local Chambers = require('src.run.field.chambers')
   out.arenaFire = Chambers.arena(g, field)
   out.arenaStarted = field.roomTrial and field.roomTrial.started
   out.encounterStatus = field.roomTrial and field.roomTrial.status

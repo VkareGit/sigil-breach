@@ -1,5 +1,8 @@
 -- Visual consequences of an already resolved contact, never another attack.
 -- Damage units are a retained-power proxy, not invented real-world joules.
+local Rules = require('src.combat.rules')
+local BallisticSurfaces = require('src.content.ballistic_surfaces')
+local SurfaceMarks = require('src.feedback.surface_marks')
 local MathX = require('src.core.mathx')
 local Damage = require('src.combat.damage')
 local FX = require('src.feedback.effects')
@@ -159,7 +162,7 @@ I.solid = solid
 function I.surface(g, attack, contact, paintSprite)
   local material = contact.kind == 'floor' and 'stone' or 'plaster'
   local response = solid(g, I.retained(attack, contact.distance), contact, material, paintSprite)
-  require('src.feedback.surface_marks').emit(g, contact, response)
+  SurfaceMarks.emit(g, contact, response)
   return response
 end
 function I.body(g, e, point, healthDamage, armorAbsorbed, contact)
@@ -176,14 +179,14 @@ function I.body(g, e, point, healthDamage, armorAbsorbed, contact)
   if armorAbsorbed > 0 then
     -- What absorbed it throws its debris (iron sparks, horn and bone chips);
     -- a soft surface that still absorbed armour shows chips of bone.
-    local struck = contact.material or require('src.combat.rules').body(e).struck
-    local surface = require('src.content.ballistic_surfaces')[struck]
+    local struck = contact.material or Rules.body(e).struck
+    local surface = BallisticSurfaces[struck]
     solid(g, armorAbsorbed, c, surface and surface.debris or 'bone', true)
   end
   if healthDamage <= 0 then
     return
   end
-  local color = require('src.combat.rules').body(e).blood or { 0.26, 0.025, 0.016 }
+  local color = Rules.body(e).blood or { 0.26, 0.025, 0.016 }
   local r = I.measure(healthDamage, c, 'plaster')
   r.count = clamp(math.ceil(sqrt(healthDamage) * 0.46), 1, 8)
   r.normalSpeed = clamp(0.18 + sqrt(healthDamage) * 0.13, 0.18, 1.5)

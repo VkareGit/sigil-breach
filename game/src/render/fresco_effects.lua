@@ -1,5 +1,6 @@
 -- Asset registration only: all attack times, radii and damage live in simulation.
 -- The generic thorn rings are original attack ornaments, not historical seals.
+local Atlas = require('src.render.atlas')
 local F = {}
 F.effects = {
   path = 'assets/art/effects-fresco-v12.png',
@@ -39,7 +40,6 @@ F.spells = {
   meanings = { 'charge', 'projectile', 'warning', 'lightning' },
 }
 function F.load(renderer)
-  local Atlas = require('src.render.atlas')
   local e, s = F.effects, F.spells
   renderer.effects, renderer.effectFeet, renderer.effectFrames =
     Atlas.load(e.path, e.columns, e.rows, e.bands, e.columnBands, renderer.resources)

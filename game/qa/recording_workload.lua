@@ -24,7 +24,7 @@ function Workload.run(Game, count, seconds)
     return prepared and Tooling.crowd(Game, count) or Field.new(Game)
   end
   local game = fresh()
-  game.testing = true
+  game.ephemeral = true
   local input = Input.new()
   local keyboard, mouse = love.keyboard.isDown, love.mouse.isDown
   local held = false
@@ -97,7 +97,7 @@ function Workload.run(Game, count, seconds)
     local decoded = Journal.decode(text)
     local decode = (clock() - start) * 1000
     local replayed = prepared and fresh() or Journal.session(Game, decoded)
-    replayed.testing = true
+    replayed.ephemeral = true
     start = clock()
     Journal.replay(replayed, decoded)
     result = {

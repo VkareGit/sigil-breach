@@ -29,7 +29,7 @@ function Review.run(Game, renderer, output)
     data:release()
   end
   local g = Game.new('pilgrimage')
-  g.testing = true
+  g.ephemeral = true
   shot(g, 'menu')
   g:act('start')
   g:start()

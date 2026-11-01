@@ -5,6 +5,7 @@
 --   extends = <creature definition>    data inheritance (variant of a parent)
 --   attacks = { { from = 'claw', ... } } an action of the parent, changed
 --   Creature.boss({...})               the boss template (falters, 1 slot)
+local Factions = require('src.content.factions')
 local Schema = require('src.core.schema')
 local Body = require('src.content.defs.body')
 local Action = require('src.content.defs.action')
@@ -206,7 +207,7 @@ function Creature.define(def)
   merged.appearance.atlas = merged.appearance.atlas or merged.id
   merged.catalog = Creature.catalog:build(merged.catalog, where .. '.catalog')
   assert(
-    require('src.content.factions'):has(merged.faction),
+    Factions:has(merged.faction),
     where .. '.faction: unknown side ' .. tostring(merged.faction)
   )
   assert(#merged.attacks > 0, where .. '.attacks: at least one action required')

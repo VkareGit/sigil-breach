@@ -1,3 +1,4 @@
+local TestField = require('src.ui.test_field')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local D = {}
@@ -7,7 +8,7 @@ local Pages = require('src.ui.pages')
 local Fit = require('src.ui.text_fit')
 local lg = love.graphics
 local E = require('src.run.economy')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Way = require('src.content.pilgrimage')
 local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')
@@ -197,7 +198,7 @@ function D.controls(g)
 end
 function D.heading(g)
   if Queries.field(g) then
-    return require('src.ui.test_field').heading(g, U)
+    return TestField.heading(g, U)
   end
   Skin.panel(20, 16, 378, 64, 2, 9)
   Skin.zone('objective field', 32, 26, 354, 44)
@@ -290,7 +291,7 @@ function D.shop(g)
 end
 function D.map(g)
   if Queries.field(g) then
-    return require('src.ui.test_field').map(g, U)
+    return TestField.map(g, U)
   end
   local r = Queries.run(g)
   rect(0, 0, 1280, 720, Palette.veilCool, 0.96)

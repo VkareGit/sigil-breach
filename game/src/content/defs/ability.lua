@@ -4,6 +4,7 @@
 -- with what the knight carries of it: uses at most and at the start, and
 -- the notice when none is left. The live record (uses left, ready time) is
 -- player.abilityState[id] (content/abilities.lua: newState).
+local EquipmentArt = require('src.content.equipment_art')
 local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Action = require('src.content.defs.action')
@@ -38,7 +39,7 @@ function Ability.define(def)
   local built = Ability.schema:build(def, path)
   Id.check(built.id, path .. '.id')
   assert(
-    not built.hands or require('src.content.equipment_art').entries[built.hands],
+    not built.hands or EquipmentArt.entries[built.hands],
     path .. '.hands: unknown equipment hands sequence ' .. tostring(built.hands)
   )
   assert(built.capacity % 1 == 0, path .. '.capacity: expected an integer')

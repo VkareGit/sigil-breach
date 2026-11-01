@@ -2,7 +2,7 @@
 -- machinery and scratch buffers are excluded; gameplay data and RNG are not.
 local Serialize = require('src.core.serialize')
 local Integrity = {}
-local excluded = { bus = true, ecs = true, view = true, testing = true, events = true }
+local excluded = { bus = true, ecs = true, view = true, ephemeral = true, events = true }
 -- The existing world mesh cache is renderer-owned despite living on the map.
 local excludedPaths = { ['world["mesh"]'] = true, ['world["meshRevision"]'] = true }
 local function keys(t)

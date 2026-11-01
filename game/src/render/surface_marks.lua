@@ -1,3 +1,4 @@
+local Shaders = require('src.render.shaders')
 local Marks = require('src.feedback.surface_marks')
 local R = {}
 local format = {
@@ -14,7 +15,7 @@ function R.init(r)
   for i = 1, Marks.limit * 6 do
     r.markVertices[i] = { 0, 0, 0, 0, 0, 1, 1, 1, 1 }
   end
-  r.markShader = love.graphics.newShader(require('src.render.shaders').surface)
+  r.markShader = love.graphics.newShader(Shaders.surface)
 end
 local corners = { { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }
 function R.draw(r, g)

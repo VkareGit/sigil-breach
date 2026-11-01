@@ -1,5 +1,6 @@
 -- The small breakable things of a hall: each kind drawn whole and as what it
 -- leaves behind. A new kind is one entry in content/breakables.lua and one here.
+local Ground = require('src.physics.ground')
 local B = require('src.render.kit.builder')
 local Props = {}
 local cos, sin, pi = math.cos, math.sin, math.pi
@@ -114,7 +115,6 @@ end
 function Props.add(sink, w, def)
   local draw = Draw[def.kind]
   if draw then
-    local Ground = require('src.physics.ground')
     local x, z = math.floor(def.from[1] + 0.5), math.floor(def.from[3] + 0.5)
     local seed = 0
     for i = 1, #def.id do

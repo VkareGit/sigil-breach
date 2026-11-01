@@ -5,9 +5,9 @@ function Tests.run(Game)
   lines = {}
   check = F.checker(lines, 'seal motion: ', 'seal motion: ')
   local Motion = require('src.render.seal_motion')
-  local Q = require('src.run.queries')
+  local Q = require('src.session.queries')
   local g = Game.new('field', 'proving', require('src.app.release').sessionOptions.field)
-  g.testing = true
+  g.ephemeral = true
   check('idle has no phantom activation', Motion.sample(Q.world(g), 'asmoday', 0) == 0)
   g:act('catalog', 'field_chamber_ash')
   local view = Q.world(g)

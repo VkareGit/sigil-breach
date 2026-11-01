@@ -12,7 +12,7 @@ function Tests.run(Game, renderer)
   local check = Fixtures.checker(lines, 'ability art: ', 'ability art: ')
   local near = Fixtures.within(1e-8, true)
   local g = Game.new('floor')
-  g.testing, g.state = true, 'playing'
+  g.ephemeral, g.state = true, 'playing'
   local e = g:spawn('imp', 16, 16)
   e.spawnAge, e.stun, e.attackKind = 1, 0, 'leap'
   e.attackSpec = Archetypes.imp.attacks[2]

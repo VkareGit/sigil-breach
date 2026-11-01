@@ -36,7 +36,7 @@ function Review.run(Game, renderer, output)
   end
   for row, spec in ipairs(specs) do
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.player.weapon = 1

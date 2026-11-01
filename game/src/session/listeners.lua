@@ -5,10 +5,11 @@
 --                30 the mode's rewards and drops   40 reactions
 --   PlayerHit    10 damage record, measurements, pacing, combo reset
 --                20 the world's hit-stop when the knight's guard breaks
+local Characters = require('src.content.characters')
 local Rules = require('src.combat.rules')
 local Telemetry = require('src.combat.telemetry')
 local Corpse = require('src.enemies.corpse')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local Archetypes = require('src.content.enemies')
 local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
@@ -39,7 +40,7 @@ local function rallyBack(g, event)
   if player and (player.rally or 0) > 0 and (event.health or 0) > 0 then
     local back = math.min(player.rally, event.health * Rally.rate)
     player.rally = player.rally - back
-    player.hp = math.min(require('src.content.characters').maxHp(player), player.hp + back)
+    player.hp = math.min(Characters.maxHp(player), player.hp + back)
   end
 end
 local function breakKill(g, event)
@@ -50,10 +51,7 @@ local function breakKill(g, event)
   local heal = Capabilities.attrition(g) and 0
     or Archetypes.defaults.breakKill.heal * Rules.body(event.enemy).poise
   local gained = player
-      and math.max(
-        0,
-        math.min(require('src.content.characters').maxHp(player), player.hp + heal) - player.hp
-      )
+      and math.max(0, math.min(Characters.maxHp(player), player.hp + heal) - player.hp)
     or 0
   if player then
     player.hp = player.hp + gained
@@ -72,7 +70,7 @@ local function score(g, event)
   r.kills = r.kills + 1
   r.combo = r.comboTimer > 0 and r.combo + 1 or 1
   r.comboTimer = K.comboWindow
-  local guardian = (require('src.content.enemies').of(enemy) or {}).guardian
+  local guardian = (Archetypes.of(enemy) or {}).guardian
   event.reward = (guardian and K.boss or K.demon)
     + math.min(K.comboSteps, r.combo - 1) * K.comboStep
   r.score = r.score + event.reward

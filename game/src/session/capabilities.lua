@@ -4,10 +4,8 @@
 --   freezable     time may stop: frozen(g)
 --   invincible    the knight may be unhurt: invincible(g)
 --   attrition     effort is paid: stamina, the flask, no healing from kills: attrition(g)
--- A session names its mode (g.mode). A hand-made record without a mode (a
--- test fixture) is recognised by the modes themselves (run/modes.lua sets
--- Capabilities.recognise). Systems, rules and outcomes ask here, never a
--- mode's record.
+-- A session names its mode (g.mode). Systems, rules and outcomes ask here, never a mode's
+-- record.
 local Capabilities = { policies = {}, modes = {} }
 local policyHandlers = {
   freezable = 'frozen',
@@ -32,16 +30,12 @@ end
 function Capabilities.undefine(id)
   Capabilities.policies[id], Capabilities.modes[id] = nil, nil
 end
-local function modeOf(g)
-  return g.mode or (Capabilities.recognise and Capabilities.recognise(g))
-end
 local function policyOf(g)
-  local id = modeOf(g)
-  return id and Capabilities.policies[id]
+  return g.mode and Capabilities.policies[g.mode]
 end
 -- The mode's answer to name(g); false when it has no such handler.
 local function ask(g, name)
-  local mode = Capabilities.modes[modeOf(g)]
+  local mode = g.mode and Capabilities.modes[g.mode]
   local handler = mode and mode[name]
   return handler ~= nil and handler(g)
 end

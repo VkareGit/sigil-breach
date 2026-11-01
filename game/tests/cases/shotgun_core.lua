@@ -52,6 +52,7 @@ local function scene(distance, enemies)
     },
     enemies = enemies,
     testField = {},
+    mode = 'field',
     time = 0,
   }
 end

@@ -240,7 +240,7 @@ function T.run(G, renderer)
   assert(ok, reason)
   local Field = require('src.run.test_field')
   local order = Field.new(G)
-  order.testing, order.testField.frozen = true, true
+  order.ephemeral, order.testField.frozen = true, true
   Field.close(order)
   local p = order.player
   local fx, fz, rx, rz = math.sin(p.yaw), math.cos(p.yaw), math.cos(p.yaw), -math.sin(p.yaw)

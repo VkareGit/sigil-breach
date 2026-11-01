@@ -1,5 +1,7 @@
 -- World-space pigment from the existing illustrated glyphs, baked once per
 -- inscription per renderer. No HUD styling changes, generated letters or I/O.
+local Text = require('src.content.text')
+local BitmapFont = require('src.ui.fonts.bitmap_font')
 local Definitions = require('src.content.art.inscriptions')
 local Ritual = require('src.render.ritual_art')
 local Ground = require('src.physics.ground')
@@ -15,9 +17,9 @@ local function bake(r, id)
   local lines = {}
   for _, key in ipairs(def.lines) do
     -- The text catalogue preserves the original wording of these excerpts.
-    lines[#lines + 1] = require('src.content.text').get(key)
+    lines[#lines + 1] = Text.get(key)
   end
-  local font = require('src.ui.fonts.bitmap_font').load(48)
+  local font = BitmapFont.load(48)
   local width, margin = 0, 16
   for _, line in ipairs(lines) do
     assert(font:hasGlyphs(line), 'missing inscription glyph: ' .. id)

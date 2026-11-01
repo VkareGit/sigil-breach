@@ -246,7 +246,7 @@ local function language(G, renderer, check)
   end
   local function chapel()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     return g
   end

@@ -187,7 +187,7 @@ local function unload()
 end
 local function start(Game)
   local g = Game.new('floor')
-  g.testing, g.state = true, 'playing'
+  g.ephemeral, g.state = true, 'playing'
   local p = g.player
   p.character = 'pack_warden'
   p.resources = { mana = 100 }

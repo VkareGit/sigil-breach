@@ -129,7 +129,7 @@ function Tests.run(G, renderer)
   end
   local function fresh()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     g.player.yaw = math.pi
     g.enemies = {}

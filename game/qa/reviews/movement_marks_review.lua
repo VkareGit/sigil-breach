@@ -127,7 +127,7 @@ function Review.run(Game, renderer, output)
   local notes = { 'scene,moment_s,particles,surge,still' }
   for row, scene in ipairs(scenes) do
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = not scene.live
     g.enemies, g.pickups = {}, {}

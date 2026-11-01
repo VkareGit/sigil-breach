@@ -1,3 +1,5 @@
+local Weapons = require('src.content.weapons')
+local WorldModule = require('src.session.world')
 local World = require('src.world.arena')
 local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
@@ -24,7 +26,7 @@ function F.clearMotion(g)
   Presentation.call(g, 'motion.clear')
   g.view.presentationPrevious = nil
   for id in pairs(Context.watched(g)) do
-    local actor = require('src.session.world').get(g, id)
+    local actor = WorldModule.get(g, id)
     if actor then
       local shown = Context.of(g, actor)
       clearCamera(shown)
@@ -63,7 +65,7 @@ F.initView = ViewState.init
 function F.init(g)
   local p = g.player
   p.vx, p.vz = 0, 0
-  require('src.content.weapons').rest(g)
+  Weapons.rest(g)
   p.slideTimer, p.slideCooldown, p.slideAge, p.crouch = 0, 0, 0, 0
   g.impactSlow = 0
   g.playerDamageReport = nil

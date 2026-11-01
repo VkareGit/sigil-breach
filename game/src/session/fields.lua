@@ -76,7 +76,7 @@ declare('session/state.lua', {
   'elapsed', -- seconds of play (session/simulation.lua)
   'step', -- presentation step counter
   'nextId', -- the last demon id given (Game:spawn)
-  'testing', -- set by tests and QA: no files written
+  'ephemeral', -- set by tests and QA: no files written
   'map', -- the map overlay is open (app/commands.lua)
   'help', -- the help overlay is open (app/commands.lua)
   'flowTimer', -- reserved pathing clock

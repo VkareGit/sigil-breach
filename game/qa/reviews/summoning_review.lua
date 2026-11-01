@@ -61,7 +61,7 @@ function Review.run(output, Game, renderer)
   end
   local function fresh()
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = false
     g.enemies, g.pickups = {}, {}

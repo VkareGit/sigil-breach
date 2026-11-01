@@ -1,6 +1,7 @@
 -- Stable text form of plain data (numbers, strings, booleans, tables with
 -- sorted keys). Used by component snapshots (saves, replays) and the golden
 -- master; the same value always gives the same text.
+local DataReader = require('src.core.data_reader')
 local Serialize = {}
 local format = string.format
 local function key(k)
@@ -41,6 +42,6 @@ end
 -- Literal-only parsing with bounded input, depth, string length and value count.
 -- Invalid input returns nil plus a diagnostic; a valid false stays false.
 function Serialize.decode(text, limits)
-  return require('src.core.data_reader').decode(text, limits)
+  return DataReader.decode(text, limits)
 end
 return Serialize

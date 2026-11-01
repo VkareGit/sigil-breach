@@ -100,7 +100,7 @@ function Review.run(G, renderer, truth, output)
   for _, kind in ipairs(Catalog.kinds) do
     for _, episode in ipairs(episodes(kind)) do
       local g = Field.new(G)
-      g.testing = true
+      g.ephemeral = true
       local e = Field.spawn(g, kind, 1)[1]
       Field.close(g)
       if episode.begin then

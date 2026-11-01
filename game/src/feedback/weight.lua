@@ -1,3 +1,4 @@
+local Tuning = require('src.content.tuning')
 local Characters = require('src.content.characters')
 local DamageTypes = require('src.content.damage_types')
 local Context = require('src.session.context')
@@ -309,7 +310,7 @@ function W.heart(g, dt)
   end
   g.view.heartTimer = (g.view.heartTimer or 0) - dt
   if g.view.heartTimer <= 0 then
-    local fear = 1 - Characters.share(p) / require('src.content.tuning').lowHealth
+    local fear = 1 - Characters.share(p) / Tuning.lowHealth
     local period = 0.95 - 0.45 * fear
     local beats = 1 + math.floor(-g.view.heartTimer / period)
     -- Preserve the remainder like the planted footfall clock. Low frame rates

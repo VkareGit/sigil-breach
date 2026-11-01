@@ -24,7 +24,7 @@ function Tests.run(G, initial, renderer, getGame)
     -- Isolate action serials, idle-pose phase/IDs, RNG and presentation too.
     -- Resetting only HP/ammo carried earlier fixture poses into later shots.
     g = G.new()
-    g.testing = true
+    g.ephemeral = true
     g.state = 'playing'
     g.enemies = {}
     g.bullets = {}

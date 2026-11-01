@@ -5,7 +5,7 @@ function T.run(Game, check)
   local Pose = require('src.enemies.pose')
   local B = require('src.combat.ballistics')
   local g = require('src.run.test_field').new(Game)
-  g.testing = true
+  g.ephemeral = true
   for _, p in ipairs({
     { 'buer', 5, 176, 410 },
     { 'buer', 6, 475, 400 },

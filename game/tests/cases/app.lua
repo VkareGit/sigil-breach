@@ -52,7 +52,7 @@ function Tests.run(G, renderer, check)
   local Rules = require('src.combat.rules')
   local function fresh()
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.invincible = false
     return g

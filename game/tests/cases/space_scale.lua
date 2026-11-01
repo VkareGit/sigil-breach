@@ -24,7 +24,7 @@ function Tests.run(Game)
   Maps:register(long.id, long)
   local ok, problem = pcall(function()
     local g = Game.new('floor', long.id)
-    g.testing = true
+    g.ephemeral = true
     local w = g.world
     check(
       'a rectangular map keeps its width and depth (no square size)',
@@ -90,7 +90,7 @@ function Tests.run(Game)
   ok, problem = pcall(function()
     local Navigation = require('src.world.navigation')
     local g = Game.new('floor', maze.id)
-    g.testing = true
+    g.ephemeral = true
     local w = g.world
     -- The regions are built once per geometry; a query then stays local.
     Navigation.distance(w, 9, 9, 249, 249)

@@ -3,7 +3,7 @@ local Skin = require('src.ui.skin')
 local Goetia = require('src.ui.goetic_sigils')
 local Plates = require('src.ui.occult_plates')
 local Palette = require('src.ui.palette')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Text = require('src.content.text')
 A.entries = require('src.content.occult_catalog').entries
 function A.controls(g)

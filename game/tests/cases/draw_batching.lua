@@ -4,7 +4,7 @@ local T = {}
 function T.run(G, check, renderer)
   local Pools = require('src.session.world')
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.state = 'playing'
   local kinds = { 'imp', 'armored', 'imp', 'stolas' }

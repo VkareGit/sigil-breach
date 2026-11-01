@@ -1,4 +1,7 @@
 -- An isolated live sandbox on the normal combat definitions. It saves nothing.
+local Destruction = require('src.combat.destruction')
+local Reload = require('src.combat.reload')
+local Characters = require('src.content.characters')
 local Presentation = require('src.session.presentation')
 local K = require('src.content.field')
 local Text = require('src.content.text')
@@ -85,12 +88,12 @@ function F.refill(g)
   if not g.testField then
     return false
   end
-  require('src.combat.reload').cancel(g)
+  Reload.cancel(g)
   local p = Roles.controlled(g)
   -- Health of the knight's body, the ward's cap, every dodge charge.
-  p.hp, p.armor, p.souls = require('src.content.characters').maxHp(p), Shop.maxWard, 0
-  p.dash = require('src.content.characters').of(p).body.dashCharges
-  require('src.content.characters').rest(p)
+  p.hp, p.armor, p.souls = Characters.maxHp(p), Shop.maxWard, 0
+  p.dash = Characters.of(p).body.dashCharges
+  Characters.rest(p)
   Abilities.fill(g, nil, Roles.controlled(g))
   -- Every weapon full, its reserve at its cap, its action at rest.
   Weapons.fill(g, p)
@@ -133,7 +136,7 @@ function F.reset(g)
   Roles.controlled(g).shots, Roles.controlled(g).hits = 0, 0
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
-  require('src.combat.destruction').reset(g.world)
+  Destruction.reset(g.world)
   World.breakSeals(g.world, 0)
   Roles.controlled(g).weapon = 1
   Roles.controlled(g).cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =

@@ -137,7 +137,7 @@ function Tests.run(Game, renderer)
   -- A living simulation world is not a resource owner. Closing one renderer
   -- must release its last mesh reference even if the session is kept for replay.
   local game = Game.new('floor')
-  game.testing = true
+  game.ephemeral = true
   local sceneRenderer = Renderer.new()
   sceneRenderer:draw(game, 960, 540)
   local oldMesh = sceneRenderer.worldMesh

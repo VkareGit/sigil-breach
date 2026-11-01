@@ -53,7 +53,7 @@ function T.run(G, renderer)
   local B = require('src.combat.ballistics')
   local Geometry = require('src.enemies.geometry')
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local p = g.player
   local e = g:spawn('imp', p.x + math.sin(p.yaw) * 0.5, p.z + math.cos(p.yaw) * 0.5)
   e.spawnAge = 1
@@ -64,7 +64,7 @@ function T.run(G, renderer)
     d == nil and part == nil
   )
   local Surface = require('src.enemies.surface')
-  local probe = { player = { x = 0, z = 8 }, time = 0, testField = {} }
+  local probe = { mode = 'field', player = { x = 0, z = 8 }, time = 0, testField = {} }
   local body = { kind = 'boss', id = 7, hp = 100, x = 0, z = 0, previewFrame = 9 }
   local _, before = Surface.locate(Surface.prepare(probe, body), 'head')
   Geometry.register('boss', renderer.frames.boss, renderer.feet.boss)

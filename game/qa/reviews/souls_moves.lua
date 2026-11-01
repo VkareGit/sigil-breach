@@ -56,7 +56,7 @@ function Review.run(Game, renderer, output)
   for _, move in ipairs(MOVES) do
     local id, attackId, distance = move[1], move[2], move[3]
     local g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
-    g.testing, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
+    g.ephemeral, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
     g.view.motion = false
     g.time = 12
     local p = g.player

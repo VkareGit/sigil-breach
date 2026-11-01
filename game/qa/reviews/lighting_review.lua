@@ -28,7 +28,7 @@ function R.run(G, renderer, output)
     return data
   end
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   g.enemies = {}
   g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27.5, math.pi, 0.035
@@ -112,7 +112,7 @@ function R.run(G, renderer, output)
   g:shoot()
   capture(g, 'lighting-08-muzzle'):release()
   g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.time = 2
   g.player.yaw = math.atan2(g.world.ember.x - g.player.x, g.world.ember.z - g.player.z)

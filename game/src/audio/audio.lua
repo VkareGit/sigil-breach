@@ -1,5 +1,9 @@
 -- The sound effects: each recipe (audio/recipes.lua) rendered once at start,
 -- then played from a pool of voices; the score is audio/soundscape.lua.
+local Contracts = require('src.audio.contracts')
+local Soundscape = require('src.audio.soundscape')
+local WorldCues = require('src.audio.world_cues')
+local Arena = require('src.world.arena')
 local Synth = require('src.audio.synth')
 local Recipes = require('src.audio.recipes')
 local A = {
@@ -34,11 +38,11 @@ function A.release()
   A.priorities = {}
   A.warningHold = 0
   tickets = setmetatable({}, { __mode = 'k' })
-  require('src.audio.world_cues').reset()
-  require('src.audio.soundscape').release()
+  WorldCues.reset()
+  Soundscape.release()
 end
 function A.init(checkpoint)
-  require('src.audio.contracts').validate()
+  Contracts.validate()
   A.release()
   local names = {}
   for name in pairs(Recipes) do
@@ -55,7 +59,7 @@ function A.init(checkpoint)
       checkpoint('sound ' .. name)
     end
   end
-  require('src.audio.soundscape').init(checkpoint)
+  Soundscape.init(checkpoint)
 end
 -- Reuse finished voices instead of allocating a new Source on every pellet,
 -- step and impact. Both active voices and the idle cache have strict caps.
@@ -134,7 +138,7 @@ function A.playAt(name, x, z, p, volume, priority, world)
     return
   end
   local gain = (volume or 0.6) / (1 + d * 0.13)
-  if world and not require('src.world.arena').visible(world, x, z, p.x, p.z) then
+  if world and not Arena.visible(world, x, z, p.x, p.z) then
     gain = gain * 0.38
   end
   local s, ticket = A.play(name, gain, priority)
@@ -150,7 +154,7 @@ end
 function A.update(dt, g)
   A.warningHold = math.max(0, (A.warningHold or 0) - dt)
   if g then
-    require('src.audio.soundscape').update(A, dt, g)
+    Soundscape.update(A, dt, g)
   end
   for i = #A.live, 1, -1 do
     if not A.live[i]:isPlaying() then
@@ -158,7 +162,7 @@ function A.update(dt, g)
     end
   end
   if g and dt > 0 then
-    require('src.audio.world_cues').update(A, g, dt)
+    WorldCues.update(A, g, dt)
   end
 end
 function A.toggle()

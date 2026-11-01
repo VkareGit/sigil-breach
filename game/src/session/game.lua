@@ -1,6 +1,9 @@
 -- Session facade used by the application, combat systems and QA. Construction
 -- and player commands live here; simulation, consequences and world triggers
 -- have separate owners. Public methods keep one stable entry point.
+local Observation = require('src.combat.observation')
+local Intent = require('src.player.intent')
+local Queries = require('src.session.queries')
 local Entities = require('src.session.entities')
 local Capabilities = require('src.session.capabilities')
 local Execution = require('src.combat.execution')
@@ -13,7 +16,7 @@ local Combat = require('src.combat.combat')
 local Tuning = require('src.content.tuning')
 local AI = require('src.enemies.ai')
 local Reload = require('src.combat.reload')
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local Signal = require('src.session.signal')
 local Archetypes = require('src.content.enemies')
 local Rules = require('src.combat.rules')
@@ -250,7 +253,7 @@ function Game:actorLeave(id)
   end
   Context.unwatch(self, knight.id)
   Pools.remove(self, 'knights', knight)
-  require('src.combat.observation').invalidateActor(self, knight)
+  Observation.invalidateActor(self, knight)
   return true
 end
 -- Control passes to the knight id: the one losing it lets go of the trigger.
@@ -260,11 +263,10 @@ function Game:actorControl(id)
   if not knight or knight == previous or (knight.hp or 1) <= 0 then
     return false
   end
-  require('src.player.intent').clear(self, previous)
+  Intent.clear(self, previous)
   Roles.control(self, knight)
   Context.controlChanged(self, previous, knight)
   -- Both knights' observations end; the others' stay (plan v11 E4).
-  local Observation = require('src.combat.observation')
   Observation.invalidateActor(self, previous)
   Observation.invalidateActor(self, knight)
   self.view.presentationPrevious = nil
@@ -275,8 +277,8 @@ end
 -- closeShop, buy, catalog...): the application issues it through the session,
 -- so a journal records and replays it like any other command.
 function Game:act(name, ...)
-  -- A command renews the session's views (run/queries.lua, plan v11 E2).
-  require('src.run.queries').command(self)
+  -- A command renews the session's views (session/queries.lua, plan v11 E2).
+  Queries.command(self)
   return Modes.act(self, name, ...)
 end
 

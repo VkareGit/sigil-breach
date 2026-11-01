@@ -13,7 +13,7 @@ function Tests.run(G)
   local knightRadius = require('src.content.characters').standard().body.radius
   local function field()
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 26, math.pi, 0
     return g

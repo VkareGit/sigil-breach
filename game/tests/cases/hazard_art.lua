@@ -23,7 +23,7 @@ function Test.run(Game, renderer)
   local function field()
     local game = Field.new(Game)
     Field.close(game)
-    game.testing = true
+    game.ephemeral = true
     game.enemies, game.bullets, game.hazards, game.pickups = {}, {}, {}, {}
     game.player.x, game.player.z, game.player.yaw = 16, 25, math.pi
     return game

@@ -12,7 +12,7 @@ function Tests.run(G, renderer)
   local lines = {}
   local check = Fixtures.checker(lines, 'mode state: ', 'mode state: ')
   local Modes = require('src.run.modes')
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local Encounter = require('src.session.encounter')
   local World = require('src.world.arena')
   local Fields = require('src.session.fields')
@@ -23,7 +23,7 @@ function Tests.run(G, renderer)
 
   -- Owners: the guardian through the encounter, the seals counted on the world.
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   check(
     'the session keeps no guardian, seal, secret or rank field of its own',
     rawget(g, 'bossSpawned') == nil
@@ -50,7 +50,7 @@ function Tests.run(G, renderer)
 
   -- Views: each session its own; the same object within a step; stale after.
   local a, b = G.new('floor'), G.new('floor')
-  a.testing, b.testing = true, true
+  a.ephemeral, b.ephemeral = true, true
   a:start()
   b:start()
   local runA, worldB = Queries.run(a), Queries.world(b)
@@ -67,7 +67,7 @@ function Tests.run(G, renderer)
       and not Queries.world(a).guardianDead
   )
   local c, d = G.new('floor'), G.new('floor')
-  c.testing, d.testing = true, true
+  c.ephemeral, d.ephemeral = true, true
   c.run.wallet, d.run.wallet = 11, 22
   local viewC, viewD = Queries.run(c), Queries.run(d)
   check(
@@ -196,13 +196,13 @@ function Tests.run(G, renderer)
       return { session.player.x, session.player.z }
     end
     local probe = G.new(id)
-    probe.testing = true
+    probe.ephemeral = true
     probe:start()
     spots[1] = walk(probe, {}, 1)
     spots[2] = walk(probe, ahead, 50)
     spots[3] = walk(probe, aside, 50)
     local s = G.new(id)
-    s.testing = true
+    s.ephemeral = true
     local journal = Journal.record(s)
     s:start()
     walk(s, {}, 1)
@@ -221,7 +221,7 @@ function Tests.run(G, renderer)
     local file = Modes.act(s, 'save')
     local values = assert(Save.decode('altars', file))
     local loaded = G.new(id)
-    loaded.testing = true
+    loaded.ephemeral = true
     Save.restore('altars', loaded, values)
     check(
       'its own save section is written and restored from the file',
@@ -240,7 +240,7 @@ function Tests.run(G, renderer)
     )
     local decoded = Journal.decode(Journal.encode(journal))
     local replay = Journal.session(G, decoded)
-    replay.testing = true
+    replay.ephemeral = true
     Journal.replay(replay, decoded)
     check(
       'its journal replays to the same end',

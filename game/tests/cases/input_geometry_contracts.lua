@@ -25,7 +25,7 @@ end
 local function arena(G, mode)
   local Pools = require('src.session.world')
   local g = G.new(mode or 'floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   Pools.clear(g, 'enemies')
   Pools.clear(g, 'pickups')

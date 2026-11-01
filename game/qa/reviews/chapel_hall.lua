@@ -37,7 +37,7 @@ function Review.run(Game, renderer, output, walk)
   end
   local release = require('src.app.release')
   local g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
-  g.testing, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
+  g.ephemeral, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
   g.view.motion = false
   g.time = 12
   local function capture(name, x, z, targetX, targetY, targetZ, w, h)

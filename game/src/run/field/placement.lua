@@ -2,6 +2,8 @@
 -- responsibility): where catalogue demons may stand, standing them at once
 -- or summoning them through portals, and the manual pose preview. Every
 -- function takes the field module (run/test_field.lua) and the session.
+local Animation = require('src.enemies.animation')
+local Chambers = require('src.run.field.chambers')
 local MathX = require('src.core.mathx')
 local Signal = require('src.session.signal')
 local W = require('src.world.arena')
@@ -182,7 +184,7 @@ function Placement.arrive(g, e, gate)
   else
     Gates.welcome(g, e, gate)
   end
-  require('src.run.field.chambers').arrived(g, e, gate)
+  Chambers.arrived(g, e, gate)
 end
 function Placement.pose(field, g, delta)
   if not g.testField then
@@ -202,7 +204,7 @@ function Placement.pose(field, g, delta)
       return false
     end
   end
-  local frames = require('src.enemies.animation').frameCount(kind)
+  local frames = Animation.frameCount(kind)
   t.poseIndex = ((t.poseIndex - 1 + (delta or 1)) % frames) + 1
   t.frozen = true
   for _, e in ipairs(chosen) do

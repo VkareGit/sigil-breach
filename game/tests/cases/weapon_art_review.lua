@@ -9,7 +9,7 @@ function Tests.run(Game, renderer)
   for slot, name in ipairs({ 'shotgun', 'revolver' }) do
     local g = Field.new(Game)
     Field.close(g)
-    g.testing, g.player.weapon = true, slot
+    g.ephemeral, g.player.weapon = true, slot
     g.view.swapAge, g.view.shotAge = 1, 10
     g.view.messageTimer, g.zoneTimer, g.view.feedbackTimer = 0, 0, 0
     local w, h = 1280, 720

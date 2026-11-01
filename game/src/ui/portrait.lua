@@ -1,3 +1,4 @@
+local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 -- A mortal soldier behind a closed visor. Six authored changes of bearing
 -- retain the portrait's reactions without inventing supernatural eyes.
@@ -45,7 +46,7 @@ function P.release()
   P.resources, P.image, P.quads, P.shader = nil, nil, nil, nil
 end
 function P.frame(g)
-  if require('src.content.characters').low(Context.actor(g)) then
+  if Characters.low(Context.actor(g)) then
     return 5
   end
   if g.view.hurt > 0.25 then

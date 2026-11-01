@@ -86,7 +86,7 @@ function Tests.run(get, settings, settle)
   local before = files()
   key('f2')
   local field = get()
-  field.testing = false
+  field.ephemeral = false
   check(
     'F2 enters an independent sandbox without replacing the suspended chapel',
     field ~= original
@@ -257,7 +257,7 @@ function Tests.run(get, settings, settle)
   local menuFiles = files()
   click('field_start')
   field = get()
-  field.testing = false
+  field.ephemeral = false
   check(
     'main-menu catalog entry is available without starting or continuing an chapel',
     field.testField and field ~= menu and field.state == 'field_catalog'

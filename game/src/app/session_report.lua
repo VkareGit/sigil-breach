@@ -11,7 +11,7 @@ local Stats = require('src.session.stats')
 local Telemetry = require('src.combat.telemetry')
 local Presentation = require('src.session.presentation')
 local Pools = require('src.session.world')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Execution = require('src.storage.execution')
 local Report = { file = 'telemetry.txt' }
 -- Per session: the counters and totals at its last entry.

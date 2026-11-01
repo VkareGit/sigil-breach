@@ -13,7 +13,7 @@ local near = Fixtures.within(1e-10)
 
 local function arena(G)
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   Pools.clear(g, 'enemies')
   Pools.clear(g, 'pickups')

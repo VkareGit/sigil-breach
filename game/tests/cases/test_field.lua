@@ -238,14 +238,14 @@ function Tests.run(G, renderer)
       lines[#lines + 1] = line
     end
     local chapel = G.new('floor')
-    chapel.testing = true
+    chapel.ephemeral = true
     chapel:start()
     chapel.run.wallet = 317
     chapel.run.owned = { pierce = true }
     chapel.run.glyph = 'pierce'
     local function fresh()
       local g = Field.new(G)
-      g.testing = false
+      g.ephemeral = false
       return g
     end
     local g = fresh()
@@ -370,7 +370,7 @@ function Tests.run(G, renderer)
       g.player.yaw = math.pi
       g.player.pitch = 0
       local normal = G.new('floor')
-      normal.testing = true
+      normal.ephemeral = true
       normal:start()
       normal.enemies = {}
       normal.player.weapon = slot

@@ -25,7 +25,7 @@ function Tests.run(G)
   local ok, err = pcall(function()
     local function arena(mapId)
       local g = G.new('floor', mapId)
-      g.testing = true
+      g.ephemeral = true
       g:start()
       g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}
       g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 25, math.pi, 0
@@ -91,7 +91,7 @@ function Tests.run(G)
 
   -- The modes answer the commands; a mode without an answer refuses.
   local field = Field.new(G)
-  field.testing = true
+  field.ephemeral = true
   Field.close(field)
   field:spawn('imp', 16, 20)
   local classic = Fixtures.arena(G)

@@ -20,7 +20,7 @@ function Review.run(G, truth, output)
   for _, kind in ipairs({ 'imp', 'stolas', 'boss', 'furfur' }) do
     for _, schedule in ipairs(schedules) do
       local g = Field.new(G)
-      g.testing = true
+      g.ephemeral = true
       local enemy = Field.spawn(g, kind, 1)[1]
       Field.close(g)
       -- A durable test target keeps this observation about timing rather

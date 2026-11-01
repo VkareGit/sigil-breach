@@ -49,7 +49,7 @@ function Test.run(Game)
   )
   local function fresh()
     local g = Game.new('floor')
-    g.testing, g.state, g.enemies = true, 'playing', {}
+    g.ephemeral, g.state, g.enemies = true, 'playing', {}
     return g
   end
   local g = fresh()

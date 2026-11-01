@@ -10,7 +10,7 @@ local GATED = { ash = true, storm = true }
 local UNSHOT = 30
 local function fight(Game, trial, knight, seconds, unhurt, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing = true
+  g.ephemeral = true
   if seed then
     g.rng.sim:seed(seed)
   end

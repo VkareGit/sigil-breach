@@ -1,3 +1,5 @@
+local Text = require('src.content.text')
+local Weapons = require('src.content.weapons')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local UI = require('src.ui.interface')
@@ -7,7 +9,7 @@ local Bindings = require('src.app.bindings')
 local FieldTools = require('src.app.field_tools')
 local Tuning = require('src.content.tuning')
 local Observation = require('src.combat.observation')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 
 local Input = {}
 Input.__index = Input
@@ -217,7 +219,7 @@ function Input:keypressed(app, key, scancode, isrepeat)
   end
   if key == 'f12' then
     love.graphics.captureScreenshot('screenshot-' .. os.time() .. '.png')
-    game:notify(require('src.content.text').get('screenshot_saved'), 2)
+    game:notify(Text.get('screenshot_saved'), 2)
     return
   end
   if key == 'f1' then
@@ -348,7 +350,7 @@ function Input:wheelmoved(app, x, y)
   local game = app.game
   if game and game.state == 'playing' and not game.map and y ~= 0 and self:actorOf(game) then
     local actor = self:actorOf(game)
-    self:invoke(game, 'switchWeapon', require('src.content.weapons').nextSlot(game, actor))
+    self:invoke(game, 'switchWeapon', Weapons.nextSlot(game, actor))
   end
 end
 

@@ -16,7 +16,7 @@ local S = {}
 local STEP = 1 / 120
 local function arena(G)
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}
   g.player.x, g.player.z, g.player.yaw = 16, 25, math.pi

@@ -10,7 +10,7 @@
 --             Queries.valid(g, view) tells a view retained too long.
 -- What every world view carries besides the mode's own fields: the
 -- encounter's guardian (guardianSpawned, guardianDead).
-local Modes = require('src.run.modes')
+local Modes = require('src.session.modes')
 local Encounter = require('src.session.encounter')
 local Queries = {}
 local sessions = setmetatable({}, { __mode = 'k' })

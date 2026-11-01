@@ -1,5 +1,13 @@
 -- Matte, world-anchored fresco. No gameplay radii, actors or clocks live here.
 -- The new medallion and historical seals remain their original PNG bytes.
+local Field = require('src.content.field')
+local Weapons = require('src.content.weapons')
+local Ground = require('src.physics.ground')
+local SealMotion = require('src.render.seal_motion')
+local Shaders = require('src.render.shaders')
+local weapon = require('src.render.weapon')
+local Context = require('src.session.context')
+local Queries = require('src.session.queries')
 local Goetic = require('src.ui.goetic_sigils')
 local Skin = require('src.ui.skin')
 local Archetypes = require('src.content.enemies')
@@ -27,7 +35,7 @@ function Ritual.init(r)
       'triangles',
       'static'
     ),
-    shader = love.graphics.newShader(require('src.render.shaders').texture),
+    shader = love.graphics.newShader(Shaders.texture),
     light = { 1, 1, 1 },
   }
   r.ritualArt.upright = r.native:own(
@@ -89,8 +97,7 @@ function Ritual.symbol(pad)
     local name = creature and creature.appearance.seal
     return name and Goetic.image(name), nil, name ~= nil
   elseif pad.weapon then
-    local weapon = require('src.render.weapon')
-    local def = require('src.content.weapons').get(pad.weapon)
+    local def = Weapons.get(pad.weapon)
     local id = def.art or def.id
     local image, quad = weapon.images[id], weapon.quads[id][1]
     local x, y, w, h = quad:getViewport()
@@ -155,15 +162,12 @@ function Ritual.seal(r, g, seal, view)
     return
   end
   local yaw = seal.x < 16 and math.pi / 2 or (seal.x > 16 and -math.pi / 2 or 0)
-  local y = require('src.physics.ground').of(g.world, seal) + require('src.content.field').altar.top
+  local y = Ground.of(g.world, seal) + Field.altar.top
   Ritual.draw(r, seal.x, y, seal.z, 1.18, yaw, image, nil, true, 1, seal.active)
   if seal.summoning then
-    local glow, reveal, lift, complete = require('src.render.seal_motion').sample(
-      view or require('src.run.queries').world(g),
-      seal.id,
-      g.elapsed
-    )
-    local viewer = require('src.session.context').viewer(g)
+    local glow, reveal, lift, complete =
+      SealMotion.sample(view or Queries.world(g), seal.id, g.elapsed)
+    local viewer = Context.viewer(g)
     local facing = math.atan2(viewer.x - seal.x, viewer.z - seal.z)
     love.graphics.push('all')
     -- Ink is a cutout, not a translucent screen overlay: it must occlude a

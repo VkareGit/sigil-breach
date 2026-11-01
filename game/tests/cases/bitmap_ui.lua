@@ -31,7 +31,7 @@ function Tests.run(G, renderer)
   local check = Fixtures.checker(lines, 'bitmap UI ', '')
   local function fresh()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     g.view.messageTimer = 0
     g.zoneTimer = 0

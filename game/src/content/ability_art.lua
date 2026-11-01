@@ -1,4 +1,5 @@
 -- Source-art ability anchors and authored timing; immutable content, no GPU or hitboxes.
+local Poses = require('src.content.art.poses')
 local Frames = require('src.content.art.ability_frames')
 local Registry = require('src.core.registry')
 local AbilityArt = {
@@ -106,7 +107,6 @@ AbilityArt.timing = {
 -- the bounds of a sheet's named poses (content/art/poses.lua, plan v11 E1).
 -- AbilityPose (enemies/ability_pose.lua) stays the one mechanism that reads them.
 function AbilityArt.timingProblems(timing)
-  local Poses = require('src.content.art.poses')
   local out = {}
   for _, list in ipairs({ { timing.coil }, { timing.launch }, { timing.land, timing.rise } }) do
     for _, problem in ipairs(Poses.boundsProblems(list, 0, 1)) do

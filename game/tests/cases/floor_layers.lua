@@ -41,7 +41,7 @@ function Tests.run(Game, renderer)
   Maps:register(Bridge.id, Bridge)
   local ok, problem = pcall(function()
     local g = Game.new('floor', Bridge.id)
-    g.testing = true
+    g.ephemeral = true
     local w = g.world
     check(
       'a cell may carry a deck over its floor: the ground depends on the height asked from',

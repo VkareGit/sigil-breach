@@ -329,7 +329,7 @@ function Tests.run(G, renderer)
     -- (the proving ground holds a posed frame: previewFrame).
     local Field = require('src.run.test_field')
     local field = Field.new(G)
-    field.testing = true
+    field.ephemeral = true
     Field.reset(field)
     Field.close(field)
     local target = field:spawn(id, 16, 18)

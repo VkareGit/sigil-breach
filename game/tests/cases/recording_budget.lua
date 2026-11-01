@@ -144,7 +144,7 @@ function T.run(G)
       field:shoot()
       local exported = Journal.decode(saved[#saved][2])
       local rebuilt = targetField()
-      rebuilt.testing = true
+      rebuilt.ephemeral = true
       Journal.replay(rebuilt, exported)
       check(
         (limited and 'auto-limit' or 'active recording')

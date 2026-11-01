@@ -94,7 +94,7 @@ function Tests.run(G)
   local function run(name, fields, actions)
     variant = name
     local g = G.new(modeId)
-    g.testing = true
+    g.ephemeral = true
     local journal = Journal.record(g)
     g:actorJoin(knight(g, fields))
     g:start()
@@ -130,7 +130,7 @@ function Tests.run(G)
     local decoded = Journal.decode(Journal.encode(journal))
     variant = decoded.header.mode == modeId and variant or variant
     local fresh = Journal.session(G, decoded)
-    fresh.testing = true
+    fresh.ephemeral = true
     local ok = pcall(Journal.replay, fresh, decoded)
     return ok and not Integrity.difference(Integrity.capture(g), Integrity.capture(fresh))
   end
@@ -216,7 +216,7 @@ function Tests.run(G)
   -- A shove's owner owns the slam it ends in (unit level: a body thrown at a
   -- wall carries the owner of the blow that threw it).
   local s = G.new('floor')
-  s.testing = true
+  s.ephemeral = true
   s:start()
   Pools.clear(s, 'enemies')
   assert(s:actorJoin(knight(s)))

@@ -49,7 +49,7 @@ function R.run(Game, renderer, output, afterOnly)
   local saveMethod = renderer.damageNumbers
   local function game()
     local g = Field.new(Game)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.frozen = true
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 27.5, math.pi, 0

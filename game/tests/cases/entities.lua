@@ -10,7 +10,7 @@ function Tests.run(G)
   local wasStrict = Strict.enabled
   Strict.enabled = true
   local g = G.new('floor')
-  g.testing = true
+  g.ephemeral = true
   g:start()
   check(
     'a session owns an ECS world, an event bus and two random streams',

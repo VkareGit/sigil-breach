@@ -568,7 +568,7 @@ function Suite.run(G, renderer, getGame, output, selected, getLoading)
   local Definitions = require('src.session.definitions')
   Definitions.seal()
   local initial = getGame()
-  initial.testing = true
+  initial.ephemeral = true
   -- A focused run must not replace evidence from the last complete run. Only
   -- registered suite ids reach this path, never arbitrary command-line paths.
   local filename = selected and ('suite-' .. selected .. '-results.txt') or 'test-results.txt'

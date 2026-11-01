@@ -137,7 +137,7 @@ function Tests.run(G, check)
   )
   local function fresh()
     local g = G.new()
-    g.testing = true
+    g.ephemeral = true
     g.state = 'playing'
     g.enemies = {}
     g.pickups = {}

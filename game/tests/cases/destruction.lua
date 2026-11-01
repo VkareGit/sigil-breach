@@ -14,7 +14,7 @@ local Navigation = require('src.world.navigation')
 local T = {}
 local function session(Game)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
-  g.testing, g.state, g.elapsed = true, 'playing', 70
+  g.ephemeral, g.state, g.elapsed = true, 'playing', 70
   g.enemies = {}
   return g
 end
@@ -201,7 +201,7 @@ function T.run(Game)
   check('a tear is lowest at its middle', Ruin.tearHeight(tear, 20) < Ruin.tearHeight(tear, 23))
   -- A map without breakables pays nothing and rejects nothing.
   local classic = Game.new('floor')
-  classic.testing = true
+  classic.ephemeral = true
   check('a map without breakables has none', #Destruction.list(classic.world) == 0)
   Destruction.step(classic)
   check('world rebuild still bumps the drawn world', World.rebuild(classic.world) ~= nil)

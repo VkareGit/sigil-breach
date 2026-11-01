@@ -1,3 +1,4 @@
+local Telemetry = require('src.combat.telemetry')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local UI = {}
@@ -14,7 +15,7 @@ local ShotReport = require('src.ui.shot_report')
 local Palette = require('src.ui.palette')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local FieldData = require('src.content.field')
 local Text = require('src.content.text')
 local Access = require('src.run.field.access')
@@ -254,7 +255,7 @@ function UI.ending(g, ui)
     Text.get('fui_fell_stats', {
       kills = Stats.total(g, 'kills'),
       damage = math.floor(Stats.total(g, 'damageTaken')),
-      control = math.floor(100 * require('src.combat.telemetry').uptime(g) + 0.5),
+      control = math.floor(100 * Telemetry.uptime(g) + 0.5),
     }),
     328,
     380,

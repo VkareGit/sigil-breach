@@ -1,5 +1,7 @@
 -- The main menu screen.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
+local Release = require('src.app.release')
+local Catalog = require('src.run.field.catalog')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
 local Palette = require('src.ui.palette')
@@ -26,14 +28,14 @@ function S.draw(g, s, U)
   text(Text.get('menu_chapel'), 76, 78, 20, gold)
   text(Text.get('menu_way'), 72, 360, 18, ivory)
   Skin.endZone()
-  text(Text.get(require('src.app.release').menuLabel), 65, 659, 16, muted)
+  text(Text.get(Release.menuLabel), 65, 659, 16, muted)
   right(Text.get('menu_fullscreen'), 1248, 673, 16, muted)
   Skin.panel(580, 324, 590, 284, 5, 12)
   Skin.zone('test field menu', 612, 358, 526, 226)
   Skin.boxText(Text.get('menu_proving'), 612, 360, 526, 35, U.fonts[28], gold)
   local stations = {}
-  local field = require('src.app.release').sessionOptions.field
-  for _, station in ipairs(require('src.run.field.catalog').stationsFor(field)) do
+  local field = Release.sessionOptions.field
+  for _, station in ipairs(Catalog.stationsFor(field)) do
     if station.menuText then
       stations[#stations + 1] = station.menuText
     end

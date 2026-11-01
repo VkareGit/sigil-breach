@@ -6,7 +6,7 @@ local Context = require('src.session.context')
 -- camera moves; one leaving the choice fades out over fade m before the one
 -- taking its place. A choice that leaves lights out is reported (report),
 -- never silent. Two more slots carry the nearest projectiles.
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Ground = require('src.physics.ground')
 local Visibility = require('src.render.light_visibility')
 local Resources = require('src.render.resources')

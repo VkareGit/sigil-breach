@@ -9,7 +9,7 @@
 --     init = function(r, shader)       its GPU resources, with the renderer's
 --     overlay = function(r, g, x, y, w, h)  screen space, after the frame
 --     release = function(r) }           its resources, with the renderer's
--- view: the mode's world view (run/queries.lua: world). Within a pass the
+-- view: the mode's world view (session/queries.lua: world). Within a pass the
 -- drawings run by order (then kind), so what overlaps what never depends on
 -- when a kind was registered.
 local Registry = require('src.core.registry')

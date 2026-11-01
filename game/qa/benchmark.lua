@@ -104,7 +104,7 @@ function B.run(output, smoke)
   local function scene(heavy, live)
     love.math.setRandomSeed(909)
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     local kinds = {}
     for _, entry in ipairs(Field.catalog.enemies) do
@@ -723,7 +723,7 @@ function B.run(output, smoke)
     local started = clock()
     app:action('field_start')
     local created = (clock() - started) * 1000
-    app.game.testing = true
+    app.game.ephemeral = true
     local loadingSteps = finishLoading()
     if authored then
       app:action('field_spawn_' .. (heavy and 'furfur' or 'boss') .. '_' .. count)

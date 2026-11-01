@@ -19,11 +19,11 @@ function Tests.run(G)
   Report.afterWrite = nil
   local ok, err = pcall(function()
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.testField.invincible = false
     check('a test session writes nothing', not Report.write(g, 'F9') and #written == 0)
-    g.testing = false
+    g.ephemeral = false
     local first = g:spawn('imp', 16, 20)
     local second = g:spawn('imp', 14, 20)
     g:damageEnemy(first, first.hp + 1, 'weapon')

@@ -8,7 +8,7 @@ local c, text, right, center = Kit.c, Kit.text, Kit.right, Kit.center
 local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.bar
 local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gold
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Text = require('src.content.text')
 local S = {}
 function S.draw(g, s, U)

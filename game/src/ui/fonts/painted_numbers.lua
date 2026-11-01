@@ -1,4 +1,5 @@
 -- Individually illustrated fresco numerals, assembled without a system font.
+local Ink = require('src.ui.ink')
 local N = { order = '0123456789%/' }
 local Resources = require('src.render.resources')
 function N.init(checkpoint)
@@ -51,7 +52,7 @@ function N.draw(value, cx, y, maxW, maxH, color, inkOnLime)
   color = color or { 1, 1, 1 }
   love.graphics.setColor(color[1], color[2], color[3], color[4] or 1)
   local previous = love.graphics.getShader()
-  love.graphics.setShader(require('src.ui.ink').ink(inkOnLime ~= false))
+  love.graphics.setShader(Ink.ink(inkOnLime ~= false))
   for i = 1, #s do
     local glyph = N.glyphs[s:sub(i, i)]
     local scale = height / glyph.h

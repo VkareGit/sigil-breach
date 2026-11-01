@@ -1,3 +1,7 @@
+local Weapons = require('src.content.weapons')
+local Numbers = require('src.render.numbers')
+local Ink = require('src.ui.ink')
+local ui = require('src.ui.interface')
 local Context = require('src.session.context')
 -- The proving-ground pads drawn, and their name plates. Where they stand and what
 -- they do is world/gallery.lua.
@@ -6,7 +10,7 @@ local WG = require('src.world.gallery')
 local Archetypes = require('src.content.enemies')
 local Ritual = require('src.render.ritual_art')
 local Skin = require('src.ui.skin')
-local Queries = require('src.run.queries')
+local Queries = require('src.session.queries')
 local Text = require('src.content.text')
 local G = {}
 local function dist(a, x, z)
@@ -58,7 +62,6 @@ function G.labels(r, g, ox, oy, vw, vh)
   if not (tools and tools.gallery) or g.state ~= 'playing' or g.map or g.help then
     return
   end
-  local ui = require('src.ui.interface')
   if not ui.fonts then
     return
   end
@@ -72,7 +75,7 @@ function G.labels(r, g, ox, oy, vw, vh)
     for _, p in ipairs(WG.padsFor(g.world)) do
       local name = Text.get(
         p.spawn and Archetypes.get(p.spawn).name
-          or (p.weapon and require('src.content.weapons').get(p.weapon).name or 'gallery_refill')
+          or (p.weapon and Weapons.get(p.weapon).name or 'gallery_refill')
       )
       state.items[#state.items + 1] = {
         x = p.x,
@@ -94,7 +97,7 @@ function G.labels(r, g, ox, oy, vw, vh)
     taken[i] = nil
   end
   local p = Context.viewer(g)
-  local overlap = require('src.render.numbers').overlap
+  local overlap = Numbers.overlap
   -- Only one nearby pad gets a caption. Station
   -- rulers retain their separate distance labels for actual measurement drills.
   local focused, scores = {}, {}
@@ -123,7 +126,7 @@ function G.labels(r, g, ox, oy, vw, vh)
   end)
   lg.push('all')
   lg.setScissor(ox, oy, vw, vh)
-  lg.setShader(require('src.ui.ink').ink(false))
+  lg.setShader(Ink.ink(false))
   for _, it in ipairs(items) do
     local d = it.d
     if
@@ -157,7 +160,7 @@ function G.labels(r, g, ox, oy, vw, vh)
           taken[#taken + 1] = box
           lg.setShader()
           Skin.panel(box[1], box[2], box[3], box[4], 7, 6)
-          lg.setShader(require('src.ui.ink').ink(true))
+          lg.setShader(Ink.ink(true))
           font:draw(it.text, box.textX, box.textY, { 0.93, 0.87, 0.72, 1 })
         end
       end

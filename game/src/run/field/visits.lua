@@ -1,6 +1,7 @@
 -- Where the proving ground sets the knight (plan v10 V6: run/test_field.lua
 -- split by responsibility): beside a seal of the map, at the Ember's trial
 -- shop. Every function takes the field module (run/test_field.lua).
+local StationLayout = require('src.run.field.station_layout')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Sanctuary = require('src.session.sanctuary')
@@ -78,7 +79,7 @@ function Visits.shop(_, g)
     return false
   end
   local p = Roles.controlled(g)
-  local start = require('src.run.field.station_layout').get(g).start
+  local start = StationLayout.get(g).start
   relocate(g, p, start.x, start.z)
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)

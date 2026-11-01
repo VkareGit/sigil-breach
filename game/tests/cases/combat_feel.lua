@@ -11,7 +11,7 @@ function Tests.run(G, check)
   end
   local function shot(part, kind, wall)
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.close(g)
     g.player.weapon = 2
     local e = g:spawn(kind or 'imp', 16, 19.5)
@@ -111,7 +111,7 @@ function Tests.run(G, check)
   local body = Damage.resolve(attack, {}, 8, 'torso')
   check('horns wings and unknown labels never become random critical hits', fake == body)
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.skirmish(g)
   check(
     'quick combat starts immediately in the existing arena with three live enemies',
@@ -175,7 +175,7 @@ function Tests.run(G, check)
   check('invalid player damage cannot create healing or invalid health values', valid)
   local function hitsToDeath(armor)
     local f = Field.new(G)
-    f.testing = true
+    f.ephemeral = true
     Field.skirmish(f)
     f.player.armor = armor
     local n = 0
@@ -193,7 +193,7 @@ function Tests.run(G, check)
     unarmored == 4 and protected == 6 and dead.player.hp == 0 and dead.player.armor == 0
   )
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.skirmish(g)
   g:damagePlayer(20)
   local receipt = g.playerDamageReport

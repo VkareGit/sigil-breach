@@ -55,7 +55,7 @@ local function field(G, count, kind)
   end
   local Field = require('src.run.test_field')
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local kinds = { 'imp', 'armored', 'stolas', 'buer', 'boss', 'furfur' }
   for i = 1, count do
     local k = kind or kinds[(i - 1) % #kinds + 1]
@@ -367,7 +367,7 @@ function M.run(G, output, smoke)
   local Way = require('src.run.pilgrimage')
   Way.forget()
   g = G.new('pilgrimage')
-  g.testing = true
+  g.ephemeral = true
   g:act('start')
   g.player.hp = math.huge
   for _, body in ipairs(g.enemies) do
@@ -393,7 +393,7 @@ function M.run(G, output, smoke)
   Way.forget()
   -- A long session: 300 rounds of three demons, killed and cleared.
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   local first = heap()
   start = clock()

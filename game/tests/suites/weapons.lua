@@ -18,7 +18,7 @@ function Tests.run(G, renderer)
   local function fresh()
     local g = Field.new(G)
     Field.close(g)
-    g.testing = true
+    g.ephemeral = true
     g.testField.invincible = false
     g.player.armor = 0
     g.player.yaw = math.pi
@@ -31,7 +31,7 @@ function Tests.run(G, renderer)
   end
   local function regular()
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g:start()
     return g
   end

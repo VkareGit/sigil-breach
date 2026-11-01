@@ -8,7 +8,7 @@ function Review.run(Game, renderer, output)
   local oldMouse = UI.useMouse
   UI.useMouse = false
   local g = Field.new(Game)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   g.enemies, g.pickups, g.hazards, g.bullets = {}, {}, {}, {}
   g.run.pending = {}
@@ -71,7 +71,7 @@ function Review.run(Game, renderer, output)
   g.run.pending = {}
   local release = require('src.app.release')
   g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
-  g.testing, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
+  g.ephemeral, g.state, g.elapsed, g.view.messageTimer = true, 'playing', 70, 0
   capture('11-basilica-nave', 24, 36, 24, 3.8, 15)
   capture('12-ash-altar', 10, 11, 10, 1.7, 7)
   capture('13-storm-altar', 38, 11, 38, 1.7, 7)
@@ -165,7 +165,7 @@ function Review.run(Game, renderer, output)
     { trial = 'resin', action = 'root-brace', distance = 2.8 },
   }) do
     g = Game.new('field', release.sessionMaps.field, release.sessionOptions.field)
-    g.testing, g.view.motion = true, false
+    g.ephemeral, g.view.motion = true, false
     g:act('catalog', 'field_chamber_' .. sample.trial)
     g.testField.invincible = true
     for _ = 1, 160 do

@@ -12,7 +12,7 @@ function Tests.run(G, check)
   local near = Fixtures.within(1e-7)
   local function fresh(slot)
     local g = G.new('floor')
-    g.testing = true
+    g.ephemeral = true
     g.state = 'playing'
     g.run = nil
     g.enemies = {}

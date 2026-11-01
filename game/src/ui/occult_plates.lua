@@ -1,4 +1,5 @@
 -- Historical plate kept unchanged; only the original figure regions are displayed.
+local GoeticSigils = require('src.ui.goetic_sigils')
 local Palette = require('src.ui.palette')
 local Resources = require('src.render.resources')
 local P = { order = { 'saturn_1', 'saturn_2', 'saturn_3' } }
@@ -23,7 +24,7 @@ function P.init()
     local r = entry.rect
     entry.q = P.resources:own(love.graphics.newQuad(r[1], r[2], r[3], r[4], w, h))
   end
-  P.shader = require('src.ui.goetic_sigils').init().shader
+  P.shader = GoeticSigils.init().shader
   return P
 end
 function P.release()

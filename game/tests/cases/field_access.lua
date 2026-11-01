@@ -10,13 +10,13 @@ function Tests.run(Game)
   local Integrity = require('src.session.integrity')
   local Journal = require('src.session.journal')
   local Snapshot = require('src.session.snapshot')
-  local Queries = require('src.run.queries')
+  local Queries = require('src.session.queries')
   local UI = require('src.ui.interface')
   local lines = {}
   local check = Fixtures.checker(lines, 'field access: ', 'field access: ')
   local function fresh()
     local g = Game.new('field', nil, Release.sessionOptions.field)
-    g.testing = true
+    g.ephemeral = true
     return g
   end
   local g = fresh()
@@ -115,7 +115,7 @@ function Tests.run(Game)
   Journal.stop(g)
   local decoded = Journal.decode(Journal.encode(journal))
   local replay = Journal.session(Game, decoded)
-  replay.testing = true
+  replay.ephemeral = true
   Journal.replay(replay, decoded)
   check(
     'serialized journal reconstructs restrictions and replays the range exactly',
@@ -124,18 +124,18 @@ function Tests.run(Game)
       and not Integrity.difference(Integrity.capture(g), Integrity.capture(replay))
   )
   local legacy = Game.new('field')
-  legacy.testing = true
+  legacy.ephemeral = true
   check(
     'library-only field still exercises its real trade',
     Field.shop(legacy) and legacy.state == 'shop'
   )
   local old = Game.new('field')
-  old.testing = true
+  old.ephemeral = true
   local oldJournal = Journal.record(old)
   old:act('catalog', 'field_shop')
   Journal.stop(old)
   local oldReplay = Journal.session(Game, oldJournal)
-  oldReplay.testing = true
+  oldReplay.ephemeral = true
   Journal.replay(oldReplay, oldJournal)
   check(
     'old journals without options retain their unrestricted semantics',

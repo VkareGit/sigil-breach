@@ -6,7 +6,7 @@ function Tests.run(G, check)
   local W = require('src.world.arena')
   local function field()
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     return g
   end
   local function tick(g, seconds)

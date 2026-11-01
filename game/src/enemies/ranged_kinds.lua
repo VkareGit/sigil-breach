@@ -2,6 +2,7 @@
 -- enemies/actions.lua split by responsibility): the marked thunderbolt, the
 -- pool, the fan and the bolt. Each kind's fields and defaults:
 -- content/defs/action.lua.
+local Enemies = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
 local Ground = require('src.physics.ground')
@@ -113,7 +114,7 @@ Kinds.pool = {
 }
 Kinds.fan = {
   execute = function(g, e, atk, a)
-    local rage = require('src.content.enemies').furious(e)
+    local rage = Enemies.furious(e)
     local n = rage and atk.rageCount or atk.count
     for j = 1, n do
       local angle = a + (j - (n + 1) / 2) * atk.spread

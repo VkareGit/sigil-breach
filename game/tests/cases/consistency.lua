@@ -19,7 +19,7 @@ function Tests.run(G)
   body.dashCharges = 3
   local ok, err = pcall(function()
     local g = Field.new(G)
-    g.testing = true
+    g.ephemeral = true
     Field.refill(g)
     check('the proving ground refills every dodge charge of the data', g.player.dash == 3)
     Field.close(g)
@@ -33,7 +33,7 @@ function Tests.run(G)
 
   -- A2: the proving ground's weapon buttons follow the knight's loadout.
   local g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local same = #Field.weapons(g) == #g.player.loadout
   for slot, entry in ipairs(Field.weapons(g)) do
     same = same and entry.id == slot and entry.name == Weapons.get(g.player.loadout[slot]).name
@@ -71,7 +71,7 @@ function Tests.run(G)
 
   -- A4: the reload timeline is data; the opened breech announces its cases.
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   local state = g.player.arsenal.exorcist
   state.mag, state.spent = 0, 2
@@ -91,7 +91,7 @@ function Tests.run(G)
 
   -- B1: the armour a report shows is the armour the wound met.
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   local boss = g:spawn('boss', 16, 20)
   local attack = Weapons.get('judge').attack
   check(
@@ -102,7 +102,7 @@ function Tests.run(G)
 
   -- A8: the mouse is a command; a journal replays the aim exactly.
   g = Field.new(G)
-  g.testing = true
+  g.ephemeral = true
   Field.close(g)
   local journal = Journal.record(g)
   g:look(0.25, 5)
@@ -114,7 +114,7 @@ function Tests.run(G)
   g:update(1 / 120, {})
   Journal.stop(g)
   local copy = Field.new(G)
-  copy.testing = true
+  copy.ephemeral = true
   Field.close(copy)
   Journal.replay(copy, journal)
   local looks = 0

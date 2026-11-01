@@ -16,7 +16,7 @@ end
 function Tests.run(Game, renderer)
   local lines = {}
   local check = Fixtures.checker(lines, 'pose metadata ', '')
-  local g = { player = { x = 0, z = 8 }, time = 0, testField = {} }
+  local g = { mode = 'field', player = { x = 0, z = 8 }, time = 0, testField = {} }
   local data = {}
   for _, kind in ipairs(EnemyArt.kinds) do
     local layout = EnemyArt.layouts[kind]
@@ -117,7 +117,7 @@ function Tests.run(Game, renderer)
     previewFrame = 1,
     archetype = Schema.copy(Archetypes.imp),
   }
-  g.testField = {}
+  g.testField, g.mode = {}, 'field'
   actor.archetype.appearance.hit = 'volumes'
   actor.archetype.appearance.anatomy = 'metadata-test'
   local shapes = {}

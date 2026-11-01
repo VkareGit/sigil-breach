@@ -269,7 +269,7 @@ Hazards.kinds:register('tempest', {
   end,
 })
 function Hazards.update(g, dt, previousPlayer)
-  if not require('src.core.mathx').finite(dt) or dt <= 0 then
+  if not MathX.finite(dt) or dt <= 0 then
     return
   end
   local hazards = Pools.of(g, 'hazards')

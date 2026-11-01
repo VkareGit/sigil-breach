@@ -1,6 +1,7 @@
 -- What the player sees and hears of the simulation's events ('present'
 -- phase): run after the step (or at once outside a step). Nothing here may
 -- change the simulation; the golden master would catch it.
+local Enemies = require('src.content.enemies')
 local Audio = require('src.audio.audio')
 local Effects = require('src.feedback.effects')
 local Weight = require('src.feedback.weight')
@@ -62,13 +63,7 @@ local function enemyKilled(g, e)
       Audio.play('seal', 0.22)
     end
   end
-  Effects.stain(
-    g,
-    enemy.x,
-    enemy.z,
-    require('src.content.enemies').look(enemy).deathStain,
-    enemy.kind
-  )
+  Effects.stain(g, enemy.x, enemy.z, Enemies.look(enemy).deathStain, enemy.kind)
   if not personal then
     -- A world death leaves its stain regardless of who owns the blow.
     Audio.play('kill', 0.65)

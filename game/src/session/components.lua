@@ -4,6 +4,7 @@
 -- rejects a field that no component of the entity declares.
 -- A field with no default starts absent (nil means "not now": no target,
 -- not leaping, no pending strike).
+local Characters = require('src.content.characters')
 local C = {}
 local function f(default, desc)
   return { default = default, desc = desc }
@@ -417,6 +418,6 @@ function C.prefabs(world)
   world:prefab('pickup', { pool = 'pickups' })
   world:prefab('charge', { pool = 'charges' })
   world:prefab('entity', { pool = 'entities' })
-  world:prefab('knight', { pool = 'knights', born = require('src.content.characters').born })
+  world:prefab('knight', { pool = 'knights', born = Characters.born })
 end
 return C

@@ -385,7 +385,10 @@ local function areas(check, Game)
       'where its own garrison stands',
       byPost(g, 'annex_1') ~= nil and #Pools.of(g, 'enemies') == 1
     )
-    check('its door is painted on the far side', #require('src.run.queries').world(g).doors == 1)
+    check(
+      'its door is painted on the far side',
+      #require('src.session.queries').world(g).doors == 1
+    )
     check('and what fell behind is remembered', g.run.ruins.proving[big.id] ~= nil)
     g.player.x, g.player.z = 16, 15
     g:interact()

@@ -1,5 +1,8 @@
 -- One map-authored trial at a time. Definitions are immutable; the mode
 -- record holds only its id, arrivals and outcome for snapshots and replay.
+local Characters = require('src.content.characters')
+local Weapons = require('src.content.weapons')
+local ProvingPads = require('src.world.proving_pads')
 local Maps = require('src.content.maps.index')
 local A = require('src.content.enemies')
 local W = require('src.world.arena')
@@ -25,19 +28,13 @@ function C.validate(g)
   if not layout then
     return
   end
-  local Weapons = require('src.content.weapons')
   for _, trial in ipairs(layout.trials) do
     local def = A.get(trial.creature)
     assert(def, 'unknown chamber creature: ' .. trial.creature)
     local room = find(layout.chambers, trial.chamber)
     local entry = room.entry
     assert(
-      not W.solid(
-        g.world,
-        entry.x,
-        entry.z,
-        require('src.content.characters').standard().body.radius
-      ),
+      not W.solid(g.world, entry.x, entry.z, Characters.standard().body.radius),
       'blocked chamber entry'
     )
     for i, spot in ipairs(room.slots) do
@@ -55,9 +52,9 @@ function C.validate(g)
       end
     end
   end
-  for _, pad in ipairs(require('src.world.proving_pads').forWorld(g.world)) do
+  for _, pad in ipairs(ProvingPads.forWorld(g.world)) do
     assert(
-      not W.solid(g.world, pad.x, pad.z, require('src.content.characters').standard().body.radius),
+      not W.solid(g.world, pad.x, pad.z, Characters.standard().body.radius),
       'blocked trial pad'
     )
     if pad.weapon then
