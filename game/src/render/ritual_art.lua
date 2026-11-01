@@ -2,9 +2,9 @@
 -- The new medallion and historical seals remain their original PNG bytes.
 local Goetic = require('src.ui.goetic_sigils')
 local Skin = require('src.ui.skin')
+local Archetypes = require('src.content.enemies')
 local Ritual = { path = 'assets/art/ritual-medallion-v31.png' }
 local UV, WHITE, INK = { 0, 0, 1, 1 }, { 1, 1, 1 }, { 0.88, 0.77, 0.58 }
-Ritual.seals = { stolas = 'stolas', buer = 'buer', boss = 'asmoday', furfur = 'furfur' }
 -- In the game's camera basis, looking north puts +X at screen left. These
 -- UVs preserve source orientation from the south; yaw rotates the whole slab.
 Ritual.vertices = {
@@ -85,7 +85,8 @@ end
 -- the ornament empty: a decorative medallion is never an invented Goetic seal.
 function Ritual.symbol(pad)
   if pad.spawn then
-    local name = Ritual.seals[pad.spawn]
+    local creature = Archetypes.get(pad.spawn)
+    local name = creature and creature.appearance.seal
     return name and Goetic.image(name), nil, name ~= nil
   elseif pad.weapon then
     local weapon = require('src.render.weapon')

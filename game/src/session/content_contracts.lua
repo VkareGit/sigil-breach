@@ -13,6 +13,9 @@ local Effects = require('src.combat.effects')
 local Reactions = require('src.combat.reactions')
 local AI = require('src.enemies.ai')
 local Target = require('src.enemies.target')
+local Animation = require('src.enemies.animation')
+local HazardKinds = require('src.content.hazards')
+local Hazards = require('src.enemies.hazards')
 local Contracts = {}
 local function effects(value, seen)
   if type(value) ~= 'table' then
@@ -89,6 +92,11 @@ function Contracts.creature(definition)
     type(Target.strategies[movement.targeting]) == 'function',
     'creature ' .. definition.id .. ': unknown targeting strategy ' .. tostring(movement.targeting)
   )
+  local motion = definition.appearance and definition.appearance.motion
+  assert(
+    not motion or Animation.motions:has(motion),
+    'creature ' .. definition.id .. ': unknown painted motion ' .. tostring(motion)
+  )
   for _, action in ipairs(definition.attacks) do
     local executor = Attacks.kinds[action.kind]
     assert(
@@ -99,6 +107,9 @@ function Contracts.creature(definition)
   effects(definition)
 end
 function Contracts.validate()
+  for id in HazardKinds:each() do
+    Hazards.kinds:get(id)
+  end
   for _, definition in Weapons.registry:each() do
     Contracts.weapon(definition)
   end

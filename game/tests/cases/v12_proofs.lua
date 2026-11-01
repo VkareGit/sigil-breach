@@ -10,6 +10,7 @@ local Release = require('src.app.release')
 local Save = require('src.storage.session_save')
 local R2 = require('tests.support.extension.r2')
 local R4 = require('tests.support.extension.r4')
+local R5 = require('tests.support.extension.r5')
 local T = {}
 local function session(Game)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
@@ -117,6 +118,7 @@ function T.run(Game)
   check('an old knight is born as the default', old.character == 'knight' and old.maxHp == 100)
   R2.run(Game, check, session)
   R4.run(Game, check, session)
+  R5.run(Game, check, session)
   return lines
 end
 return T

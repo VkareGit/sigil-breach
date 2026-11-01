@@ -16,6 +16,7 @@ return Creature.define({
     },
   },
   appearance = {
+    seal = 'stolas',
     portal = { 0.48, 0.66, 1 },
     stain = { 0.10, 0.075, 0.055 },
     warning = { 0.82, 0.73, 0.52 },

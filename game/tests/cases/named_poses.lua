@@ -191,14 +191,14 @@ function Tests.run(G)
   long.poses.collapse.frames = { 14, 15, 16, 17, 18, 17, 18 }
   Atlases.register(long)
   Anatomy.layouts.trial_fall, Masks.layouts.trial_fall = Anatomy.layouts.imp, Masks.layouts.imp
-  A.trial_fall = Creature.define({
+  A.register(Creature.define({
     extends = A.imp,
     id = 'trial_fall',
     kind = 'imp',
     variant = 'trial_fall',
     name = 'trial_fall',
     appearance = { atlas = 'trial_fall' },
-  })
+  }))
   local same, drawn = true, false
   local settle = A.imp.body.corpse.settle
   for _, t in ipairs({ 0, 0.1, 0.22, 0.3, settle - 1e-9, settle, settle + 1e-9, 0.6, 0.8, 2 }) do
@@ -243,7 +243,7 @@ function Tests.run(G)
     ),
     aloftA and aloftB and stepA ~= nil and stepA == stepB and lyingA and lyingB and stepA > 1
   )
-  A.trial_fall = nil
+  A.unregister('trial_fall')
   Anatomy.layouts.trial_fall, Masks.layouts.trial_fall = nil, nil
   Atlases.unregister('trial_fall')
   return lines

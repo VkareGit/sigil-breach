@@ -26,6 +26,7 @@ return Creature.boss({
   name = 'creature_furfur',
   catalog = { field = 6 },
   appearance = {
+    seal = 'furfur',
     portal = { 0.86, 0.86, 1 },
     stature = 'large',
     casts = { lightning = true, ['tempest-cross'] = true },

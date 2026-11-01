@@ -24,6 +24,8 @@ local Lights = require('src.render.lights')
 local Shadows = require('src.render.shadows')
 local RenderFX = require('src.render.effects')
 local HazardArt = require('src.render.hazard_art')
+local HazardKinds = require('src.render.hazard_kinds')
+local Hazards = require('src.content.hazards')
 local SurfaceMarks = require('src.render.surface_marks')
 local Trails = require('src.feedback.shot_trails')
 local Death = require('src.feedback.death_response')
@@ -115,6 +117,9 @@ function R.new(checkpoint)
   end
   r.stampShader = shader(Shaders.stamp, 'stamp shader')
   HazardArt.init(r)
+  for id in Hazards:each() do
+    HazardKinds:get(id)
+  end
   local v = {}
   M.sphere(v, 0, 0, 0, 0.09, 0.09, 0.09, { 1, 1, 1, 1 }, 6)
   r.orb = M.finish(v)

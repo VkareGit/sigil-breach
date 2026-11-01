@@ -23,14 +23,14 @@ function Tests.run(G)
     shapes = { { id = 'body', zone = 'torso', x = 0.5, bottom = 0, top = 0.9, radius = 0.35 } },
   }
   Fixtures.words({ trial_post = 'Trial Post' })
-  A.trial_post = Creature.define({
+  A.register(Creature.define({
     extends = A.imp,
     id = 'trial_post',
     kind = 'imp',
     variant = 'trial_post',
     name = 'trial_post',
     appearance = { hit = 'volumes', anatomy = 'trial-post' },
-  })
+  }))
   -- A knight as a member record (the pools section's format).
   local function knight(g, id, x, z, fields)
     local loadout = { 'exorcist', 'judge' }
@@ -343,7 +343,7 @@ function Tests.run(G)
     'shot sequences survive a save and a load; a reset starts the actor again',
     againB and againB.shotSequence == 6 and restored.player.shotSequence == 0
   )
-  A.trial_post = nil
+  A.unregister('trial_post')
   profiles['trial-post'] = nil
   return lines
 end

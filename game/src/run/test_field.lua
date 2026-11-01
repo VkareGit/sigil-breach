@@ -56,7 +56,7 @@ function F.init(g, options)
   g.testField = {
     invincible = true,
     frozen = false,
-    selected = 'imp',
+    selected = K.dummy,
     poseIndex = 1,
     features = Access.copy(options),
   }
@@ -174,9 +174,9 @@ function F.skirmish(g)
   for _, id in ipairs(Roles.controlled(g).loadout) do
     Roles.controlled(g).arsenal[id].reserve = Weapons.get(id).startReserve
   end
-  F.spawn(g, 'imp', 1)
-  F.spawn(g, 'imp', 1)
-  F.spawn(g, 'stolas', 1)
+  for _, kind in ipairs(K.skirmish) do
+    F.spawn(g, kind, 1)
+  end
   F.close(g)
   tell(g, 'field_skirmish')
   return true

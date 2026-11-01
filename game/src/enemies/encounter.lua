@@ -2,6 +2,7 @@
 -- spawn, death reward or invulnerability at a refill.
 local A = require('src.content.enemies')
 local Signal = require('src.session.signal')
+local ActionKinds = require('src.combat.action_kinds')
 local Encounter = {}
 function Encounter.advance(g, e)
   local def = A.of(e)
@@ -25,10 +26,7 @@ function Encounter.advance(g, e)
     e.phaseIndex = index + 1
     e.phaseEnteredAt = g.elapsed
     require('src.enemies.attack_selection').clear(e)
-    if e.pendingHazard then
-      e.pendingHazard.cancelled = true
-      e.pendingHazard = nil
-    end
+    ActionKinds.abandon(e)
     -- Cancel unreleased work / body attacks. Released projectiles and floor
     -- hazards stay with the same owner; existing flight settles physically.
     e.ai, e.phase, e.windup = 'recover', 0, 0

@@ -7,6 +7,9 @@ return {
   -- Names used by optional tool requirements. Availability is per session;
   -- new tool families declare their feature here, not in application branches.
   toolFeatures = { trade = true, waves = true },
+  -- The creature its posts and rows are made of, and who a skirmish meets.
+  dummy = 'imp',
+  skirmish = { 'imp', 'imp', 'stolas' },
   -- The low-resources preview's health; the TIER dial's highest tier.
   lowHealth = 25,
   maxTier = 5,

@@ -4,8 +4,8 @@
 local rotation = { 'imp', 'stolas', 'imp', 'buer', 'armored' }
 -- pack: how many demons arrive together (from different portals, the later
 -- ones preferring the player's flanks and back), Doom Eternal encounter style.
--- tip: a text key (content/text.lua).
-local function wave(cap, tip, composition, pack)
+-- tip: a text key (content/text.lua). roles (optional): this wave's own order.
+local function wave(cap, tip, composition, pack, roles)
   local queue = {}
   -- Interleave roles; specialists arrive throughout a wave rather than in one clump.
   local remaining = {}
@@ -13,7 +13,7 @@ local function wave(cap, tip, composition, pack)
     remaining[k] = v
   end
   local order, named = {}, {}
-  for i, k in ipairs(rotation) do
+  for i, k in ipairs(roles or rotation) do
     order[i], named[k] = k, true
   end
   local extra = {}

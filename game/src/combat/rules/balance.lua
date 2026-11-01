@@ -2,6 +2,7 @@
 -- interrupting an action and knocking a body down.
 -- Part of the rules facade (src/combat/rules.lua); functions are installed
 -- on the shared rules table R and call each other through it.
+local ActionKinds = require('src.combat.action_kinds')
 local Archetypes = require('src.content.enemies')
 local defaults = Archetypes.defaults
 local sqrt, min, max = math.sqrt, math.min, math.max
@@ -16,10 +17,7 @@ return function(R)
       e.rushVX, e.rushVZ = nil, nil
       e.evadeTime = 0
       e.recover = defaults.interruptRecover
-      if e.pendingHazard then
-        e.pendingHazard.cancelled = true
-        e.pendingHazard = nil
-      end
+      ActionKinds.abandon(e)
     end
   end
   -- The moment a body lost its balance (a broken guard, a fall, a major

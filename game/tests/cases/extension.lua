@@ -31,7 +31,7 @@ function Tests.run(G)
   }
   -- A new demon: a thrall variant that slams instead of clawing.
   Fixtures.words({ trial_thrall = 'Trial Thrall' })
-  A.trial = Creature.define({
+  A.register(Creature.define({
     extends = A.imp,
     id = 'trial',
     kind = 'imp',
@@ -50,7 +50,7 @@ function Tests.run(G)
         packet = packet(10, 30),
       }),
     },
-  })
+  }))
   check(
     'a creature defined from its parent keeps the parent body',
     A.trial.body.hp == A.imp.body.hp and A.trial.attacks[1].kind == 'trial_slam'
@@ -327,7 +327,7 @@ function Tests.run(G)
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')
-  A.trial = nil
+  A.unregister('trial')
   Attacks.kinds.trial_slam = nil
   Action.kinds:unregister('trial_slam')
   Action.trial_slam = nil

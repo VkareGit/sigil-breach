@@ -9,6 +9,7 @@ return Creature.boss({
   catalog = { field = 5 },
   guardian = true,
   appearance = {
+    seal = 'asmoday',
     portal = { 1, 0.30, 0.08 },
     shadow = 2,
     stature = 'large',

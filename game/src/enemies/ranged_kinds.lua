@@ -83,7 +83,15 @@ Kinds.strike = {
       waitForCast = true,
     })
   end,
-  execute = Contact.face,
+  -- It waits for the cast; the mark is released with it.
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    local mark = e.pendingHazard
+    if mark then
+      mark.waitForCast, mark.delay, mark.justReleased = false, 0, true
+      e.pendingHazard = nil
+    end
+  end,
 }
 Kinds.pool = {
   execute = function(g, e, atk, a)

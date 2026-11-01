@@ -6,9 +6,9 @@
 -- Registry (0.24): one file per creature in src/content/creatures/, the
 -- knight's body in content/knight.lua, the shared rule constants in
 -- content/combat_defaults.lua and the conditions in content/conditions.lua.
--- This module gathers them under one stable API (A.imp,
--- A.defaults, A.conditions, A.get, A.each). A new demon is a creature file,
--- its id in A.creatures and its atlas.
+-- This module gathers them under one stable API (A.register, A.defaults,
+-- A.conditions, A.get, A.each). A new demon is a creature file, its A.register
+-- and its atlas.
 --
 -- body:   hp, armor (rating, Warhammer-style armour points), soak (flat
 --         reduction per hit, Warhammer Toughness), resist (D&D: >0 resist,
@@ -19,18 +19,33 @@
 --         optional stability, locationArmor, stagger tiers and brace.
 -- move:   speed, acceleration and style (enemies/ai.lua: AI.styles).
 -- attacks: ordered list; the first whose range and cadence fit is used.
---          kind: a registered attack kind (enemies/actions.lua: Attacks.kinds).
+--          kind: a registered attack kind (combat/action_kinds.lua).
 --          packet: the damage the attack delivers (same rules as the player).
 local A = {}
--- Every creature a session can spawn, in catalogue order. The content schema
--- test fails if a creature file is missing from this list.
-A.creatures = { 'imp', 'stolas', 'buer', 'armored', 'boss', 'furfur' }
-A.imp = require('src.content.creatures.imp')
-A.stolas = require('src.content.creatures.stolas')
-A.buer = require('src.content.creatures.buer')
-A.armored = require('src.content.creatures.armored')
-A.boss = require('src.content.creatures.boss')
-A.furfur = require('src.content.creatures.furfur')
+-- Every creature a session can spawn, in catalogue order: the ids registered.
+A.creatures = {}
+-- A new creature enters here, from a file of its own or from a mod.
+function A.register(def)
+  assert(A[def.id] == nil, 'creature already registered or reserved: ' .. tostring(def.id))
+  A[def.id] = def
+  A.creatures[#A.creatures + 1] = def.id
+  return def
+end
+function A.unregister(id)
+  A[id] = nil
+  for i, known in ipairs(A.creatures) do
+    if known == id then
+      table.remove(A.creatures, i)
+      break
+    end
+  end
+end
+A.register(require('src.content.creatures.imp'))
+A.register(require('src.content.creatures.stolas'))
+A.register(require('src.content.creatures.buer'))
+A.register(require('src.content.creatures.armored'))
+A.register(require('src.content.creatures.boss'))
+A.register(require('src.content.creatures.furfur'))
 A.defaults = require('src.content.combat_defaults')
 A.conditions = require('src.content.conditions')
 function A.each()

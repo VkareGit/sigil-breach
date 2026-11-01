@@ -1,3 +1,4 @@
+local HazardKinds = require('src.render.hazard_kinds')
 local Context = require('src.session.context')
 -- Visual interpretation of authoritative attack clocks. No gameplay timers,
 -- extra hit regions, or hidden randomness are introduced by the renderer.
@@ -105,15 +106,9 @@ function E.spells(r, g)
     E.spell(r, g, 1, (g.time * 9) % 1, b.x, b.y, b.z, (b.big and 0.82 or 0.52) * scale, 0.9, false)
   end
   for _, h in ipairs(Pools.of(g, 'hazards')) do
-    local preparing = h.delay > 0
-    local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
-      or (1 - (h.life or 0) / 0.22)
-    if preparing and h.kind == 'lightning' then
-      E.spell(r, g, 2, progress, h.x, Ground.of(g.world, h) + 0.045, h.z, h.radius * 2, 0.68, true)
-    elseif h.kind == 'lightning' then
-      -- A short narrow strike leaves the enemy silhouette visible. The ground ring
-      -- is still the exact authoritative damage radius, not this ornamental width.
-      E.spell(r, g, 3, progress, h.x, Ground.of(g.world, h) + 1.5, h.z, 2.8, 0.9, false)
+    local art = HazardKinds.of(h)
+    if art.air then
+      art.air(r, g, h, E)
     end
   end
 end

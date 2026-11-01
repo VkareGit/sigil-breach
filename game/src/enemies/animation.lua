@@ -8,6 +8,8 @@ local Flinch = require('src.enemies.flinch')
 local Capabilities = require('src.session.capabilities')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
+local Action = require('src.content.defs.action')
+local Registry = require('src.core.registry')
 -- The bearing from body e to its observer (plan v11 E4): the point a
 -- billboard turns to and its back frames are judged against. The caller names
 -- it (a shooter's eye, a missile's owner, a creature's target, the camera of
@@ -30,6 +32,29 @@ function Anim.posed(e, name)
   return assert(Poses.resolve(Anim.poses(e), name), 'atlas has no pose ' .. name)
 end
 local posed = Anim.posed
+-- Painted motions (appearance.motion): fn(g, e, frame, bounce, lean, quiet, rear)
+-- returns frame, bounce and lean of a living body.
+Anim.motions = Registry:new('painted motions', function(entry, id)
+  assert(type(entry) == 'function', 'painted motion ' .. id .. ' needs a function')
+end)
+Anim.motions:register('hover', function(g, e, frame, _, lean, quiet, rear)
+  if not quiet and (e.ai == 'idle' or e.ai == 'move') then
+    local flight = posed(e, rear and 'hoverRear' or 'hover')
+    frame = Poses.frame(flight, g.time + e.id * (flight.offset or 0))
+  end
+  return frame,
+    0.17 + math.sin(g.time * 2.6 + e.id) * 0.065,
+    lean + math.sin(g.time * 1.7 + e.id) * 0.018
+end)
+Anim.motions:register('heavy', function(_, e, frame, bounce, lean)
+  if (e.walkSpeed or 0) > 0.1 then
+    return frame, bounce * 0.3, lean * 0.55
+  end
+  return frame, bounce, lean
+end)
+Anim.motions:register('sway', function(_, e, frame, bounce, lean)
+  return frame, bounce, lean + math.sin(e.walk * 5.5) * 0.018
+end)
 function Anim.frameCount(kind)
   return Idle.total(kind)
 end
@@ -115,18 +140,8 @@ function Anim.pose(g, e, observer)
     end
     quiet = true
   end
-  if look.motion == 'hover' and e.hp > 0 then
-    bounce = 0.17 + math.sin(g.time * 2.6 + e.id) * 0.065
-    lean = lean + math.sin(g.time * 1.7 + e.id) * 0.018
-    if not quiet and (e.ai == 'idle' or e.ai == 'move') then
-      local flight = posed(e, rear and 'hoverRear' or 'hover')
-      frame = Poses.frame(flight, g.time + e.id * (flight.offset or 0))
-    end
-  elseif look.motion == 'heavy' and e.hp > 0 and (e.walkSpeed or 0) > 0.1 then
-    bounce = bounce * 0.3
-    lean = lean * 0.55
-  elseif look.motion == 'sway' and e.hp > 0 then
-    lean = lean + math.sin(e.walk * 5.5) * 0.018
+  if look.motion and e.hp > 0 then
+    frame, bounce, lean = Anim.motions:get(look.motion)(g, e, frame, bounce, lean, quiet, rear)
   end
   -- Hit flinch from the shared rules: the body gives way on the side that was
   -- struck and compresses for a fraction of a second (weight of the blow).
@@ -141,7 +156,7 @@ function Anim.pose(g, e, observer)
   end
   -- The leap's crouch: the body sinks and widens as it gathers (telegraph).
   local spec = e.attackSpec
-  if e.hp > 0 and e.ai == 'windup' and spec and spec.kind == 'leap' then
+  if e.hp > 0 and e.ai == 'windup' and spec and Action.trait(spec, 'gathers') then
     local t = Anim.actionPhase(e)
     sy = sy * (1 - 0.10 * t)
     sx = sx * (1 + 0.06 * t)

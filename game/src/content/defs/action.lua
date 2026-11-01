@@ -6,6 +6,7 @@
 -- and is checked against this list.
 local Schema = require('src.core.schema')
 local Types = require('src.content.damage_types')
+local HazardKinds = require('src.content.hazards')
 local Registry = require('src.core.registry')
 local Packet = require('src.content.defs.packet')
 local Claw = require('src.content.combat_defaults').claw
@@ -186,7 +187,7 @@ Action.kinds:register(
   kind('pattern', {
     origin = { type = 'string', default = 'target', values = { 'target', 'caster' } },
     marks = { type = 'table', required = true, list = Mark },
-    hazard = { type = 'string', required = true, values = { 'pool', 'lightning' } },
+    hazard = { type = 'string', required = true, check = HazardKinds.problem },
     volume = Area.field('pool'),
     radius = { type = 'number', required = true, min = 0 },
     life = { type = 'number', required = true, min = 0 },
@@ -323,6 +324,15 @@ hook('fan', function(built, path)
   projectile(built, path)
 end)
 hook('bolt', projectile)
+-- What the rest of the game may ask of a kind without naming it:
+--   airborne  its strike carries the body through the air
+--   gathers   the body sinks and widens through the windup
+--   lands     the place it lands on is marked from the windup
+Action.hooks.leap.traits = { airborne = true, gathers = true, lands = true }
+function Action.trait(action, name)
+  local hooks = Action.hooks[action.kind]
+  return hooks and hooks.traits and hooks.traits[name]
+end
 -- Complete and validate one action (where: for the message).
 function Action.build(def, where)
   local schema = Action.kinds:get(def.kind)

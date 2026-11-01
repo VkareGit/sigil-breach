@@ -11,6 +11,7 @@ local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
 local Selection = require('src.enemies.attack_selection')
 local ActionKinds = require('src.combat.action_kinds')
+local Action = require('src.content.defs.action')
 local Attacks = {}
 local cos, atan2 = math.cos, math.atan2
 local len = MathX.len
@@ -70,13 +71,6 @@ local function execute(g, e)
   e.didHit = false
   e.rushScale = 1
   kindOf(atk).execute(g, e, atk, a)
-  -- Furfur's thunderbolt was marked during the windup; release it now.
-  if e.pendingHazard then
-    e.pendingHazard.waitForCast = false
-    e.pendingHazard.delay = 0
-    e.pendingHazard.justReleased = true
-    e.pendingHazard = nil
-  end
   Signal(g, 'AttackReleased', { enemy = e, attack = atk })
 end
 local function beginAttack(g, e, d, chosen)
@@ -86,7 +80,7 @@ local function beginAttack(g, e, d, chosen)
   end
   -- Session tallies for balance reports (qa/scenarios/playtest.lua).
   g.attackStarts = (g.attackStarts or 0) + 1
-  if atk.kind == 'leap' then
+  if Action.trait(atk, 'airborne') then
     g.leapStarts = (g.leapStarts or 0) + 1
   end
   if atk.rest then

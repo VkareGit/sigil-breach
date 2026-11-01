@@ -10,6 +10,8 @@ local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
+local Definitions = require('src.content.hazards')
+local Registry = require('src.core.registry')
 local Hazards = {}
 -- Scratch swept points of a creature sampled by a pool pulse.
 local sampled = {}
@@ -90,6 +92,65 @@ local function pulse(g, h, t, interval, previousPlayer, dt)
     return false
   end)
 end
+-- What each kind does (content/hazards.lua): step(g, h, dt, previousPlayer).
+Hazards.kinds = Registry:new('hazard executors', function(entry, id)
+  Definitions:get(id)
+  assert(type(entry.step) == 'function', 'hazard executor ' .. id .. ' needs step')
+end)
+Hazards.kinds:register('lightning', {
+  step = function(g, h, dt, previousPlayer)
+    local owner = Pools.get(g, h.owner)
+    if owner and owner.hp <= 0 then
+      owner = nil
+    end
+    if not owner or h.cancelled then
+      h.life = 0
+    elseif h.waitForCast then
+      -- A staggered caster cannot deal damage before its windup has finished.
+      -- The displayed circle shares the exact same clock as the casting pose.
+      if owner.ai ~= 'windup' then
+        h.life = 0
+        owner.pendingHazard = nil
+      else
+        h.delay = owner.windup
+      end
+    else
+      local released = h.justReleased
+      local waiting = math.max(0, h.delay)
+      local active = released and 0 or math.max(0, dt - waiting)
+      h.justReleased = nil
+      h.delay = h.delay - dt
+      if h.delay <= 0 then
+        h.life = h.life - active
+        if not h.struck then
+          h.struck = true
+          -- A just-released cast executes after movement in this step.
+          -- A previously placed mark expires at its own point within the step.
+          strike(g, h, released and 1 or math.min(1, waiting / dt), previousPlayer, dt)
+        end
+      end
+    end
+  end,
+})
+Hazards.kinds:register('pool', {
+  step = function(g, h, dt, previousPlayer)
+    local waiting = math.max(0, h.delay)
+    local active = math.min(h.life, math.max(0, dt - waiting))
+    h.delay = h.delay - dt
+    if h.delay <= 0 then
+      -- Keep cadence and lifetime independent of delay crossing and frame rate.
+      -- Sample the moving player at each pulse; poison does not leak through walls.
+      local interval = h.interval or K.pulse
+      while h.pulse <= active + 1e-9 and h.pulse < h.life - 1e-9 do
+        local t = math.max(0, math.min(1, (waiting + h.pulse) / dt))
+        pulse(g, h, t, interval, previousPlayer, dt)
+        h.pulse = h.pulse + interval
+      end
+      h.pulse = h.pulse - active
+      h.life = h.life - active
+    end
+  end,
+})
 function Hazards.update(g, dt, previousPlayer)
   if not require('src.core.mathx').finite(dt) or dt <= 0 then
     return
@@ -97,55 +158,7 @@ function Hazards.update(g, dt, previousPlayer)
   local hazards = Pools.of(g, 'hazards')
   for i = #hazards, 1, -1 do
     local h = hazards[i]
-    if h.kind == 'lightning' then
-      local owner = Pools.get(g, h.owner)
-      if owner and owner.hp <= 0 then
-        owner = nil
-      end
-      if not owner or h.cancelled then
-        h.life = 0
-      elseif h.waitForCast then
-        -- A staggered caster cannot deal damage before its windup has finished.
-        -- The displayed circle shares the exact same clock as the casting pose.
-        if owner.ai ~= 'windup' then
-          h.life = 0
-          owner.pendingHazard = nil
-        else
-          h.delay = owner.windup
-        end
-      else
-        local released = h.justReleased
-        local waiting = math.max(0, h.delay)
-        local active = released and 0 or math.max(0, dt - waiting)
-        h.justReleased = nil
-        h.delay = h.delay - dt
-        if h.delay <= 0 then
-          h.life = h.life - active
-          if not h.struck then
-            h.struck = true
-            -- A just-released cast executes after movement in this step.
-            -- A previously placed mark expires at its own point within the step.
-            strike(g, h, released and 1 or math.min(1, waiting / dt), previousPlayer, dt)
-          end
-        end
-      end
-    else
-      local waiting = math.max(0, h.delay)
-      local active = math.min(h.life, math.max(0, dt - waiting))
-      h.delay = h.delay - dt
-      if h.delay <= 0 then
-        -- Keep cadence and lifetime independent of delay crossing and frame rate.
-        -- Sample the moving player at each pulse; poison does not leak through walls.
-        local interval = h.interval or K.pulse
-        while h.pulse <= active + 1e-9 and h.pulse < h.life - 1e-9 do
-          local t = math.max(0, math.min(1, (waiting + h.pulse) / dt))
-          pulse(g, h, t, interval, previousPlayer, dt)
-          h.pulse = h.pulse + interval
-        end
-        h.pulse = h.pulse - active
-        h.life = h.life - active
-      end
-    end
+    Hazards.kinds:get(h.kind or Definitions.default).step(g, h, dt, previousPlayer)
     if h.life <= 0 then
       Pools.removeAt(g, 'hazards', i)
     end

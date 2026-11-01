@@ -16,15 +16,15 @@ function S.validate(g)
   end
   clear(data.start, require('src.content.characters').standard().body.radius)
   clear(data.physics.stand, require('src.content.characters').standard().body.radius)
-  clear(data.physics.slam, A.get('imp').body.radius)
+  clear(data.physics.slam, A.get(K.dummy).body.radius)
   for i = 1, data.physics.domino.count do
     local row = data.physics.domino
-    clear({ x = row.x, z = row.z - (i - 1) * row.step }, A.get('imp').body.radius)
+    clear({ x = row.x, z = row.z - (i - 1) * row.step }, A.get(K.dummy).body.radius)
   end
   for _, lane in ipairs(K.range.lanes) do
     clear(
       { x = data.start.x + lane[2], z = data.start.z - math.sqrt(lane[1] ^ 2 - lane[2] ^ 2) },
-      A.get('imp').body.radius
+      A.get(K.dummy).body.radius
     )
   end
 end

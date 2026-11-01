@@ -4,13 +4,7 @@
 local Archetypes = require('src.content.enemies')
 local Stations = require('src.run.field.stations')
 local Access = require('src.run.field.access')
-local Catalog = {
-  seals = {
-    { id = 'asmoday', name = 'seal_asmoday' },
-    { id = 'stolas', name = 'seal_stolas' },
-    { id = 'buer', name = 'seal_buer' },
-  },
-}
+local Catalog = { seals = require('src.content.occult_catalog').visits }
 function Catalog.contains(id)
   for _, definition in ipairs(Archetypes.listed('field')) do
     if definition.id == id then

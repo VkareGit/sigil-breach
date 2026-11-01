@@ -83,7 +83,7 @@ function Tests.run(G)
   local annotation, counts = plated(Anatomy.layouts.imp, 'trial_plate')
   Anatomy.layouts.trial_plated = annotation
   Fixtures.words({ trial_plated_thrall = 'Trial Plated Thrall' })
-  A.trial_plated = Creature.define({
+  A.register(Creature.define({
     extends = A.imp,
     id = 'trial_plated',
     kind = 'imp',
@@ -91,7 +91,7 @@ function Tests.run(G)
     name = 'trial_plated_thrall',
     appearance = { regions = 'trial_plated', evadeArt = 'evade' },
     move = { evade = { speed = 6.5, time = 0.24, cooldown = 3.5 } },
-  })
+  }))
   local problems, distinct = {}, 0
   for index, frame in ipairs(annotation.frames) do
     for _, message in ipairs(Anatomy.problems(frame, 'trial frame ' .. index)) do
@@ -240,7 +240,8 @@ function Tests.run(G)
   check('a shot meets the annotation of the sheet drawn now', surfaces)
 
   -- Everything removed again.
-  A.trial_plated, Anatomy.layouts.trial_plated, Materials.trial_plate = nil, nil, nil
+  A.unregister('trial_plated')
+  Anatomy.layouts.trial_plated, Materials.trial_plate = nil, nil
   check(
     'the content is back to the shipped entries',
     A.trial_plated == nil and Anatomy.layouts.trial_plated == nil and Materials.trial_plate == nil

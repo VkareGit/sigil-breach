@@ -53,7 +53,7 @@ function Trials.range(field, g)
   for _, lane in ipairs(K.range.lanes) do
     local d, dx = lane[1], lane[2]
     local x, z = p.x + dx, p.z - math.sqrt(d * d - dx * dx)
-    raise(g, post(g, 'imp', x, z, Text.get('field_range_post', { distance = d })))
+    raise(g, post(g, K.dummy, x, z, Text.get('field_range_post', { distance = d })))
     label(g, x, z, Text.get('field_range_label', { distance = d }))
   end
   field.close(g)
@@ -75,7 +75,7 @@ function Trials.physics(field, g)
       g,
       post(
         g,
-        'imp',
+        K.dummy,
         P.domino.x,
         P.domino.z - (i - 1) * P.domino.step,
         Text.get('field_domino_post', { index = i })
@@ -83,9 +83,9 @@ function Trials.physics(field, g)
     )
   end
   label(g, P.domino.x, P.domino.z, Text.get('field_domino_label'))
-  raise(g, post(g, 'imp', P.slam.x, P.slam.z, Text.get('field_slam_post')))
+  raise(g, post(g, K.dummy, P.slam.x, P.slam.z, Text.get('field_slam_post')))
   label(g, P.slam.x, P.slam.z, Text.get('field_slam_label'))
-  local live = Placement.spawn(field, g, 'imp', 1)
+  local live = Placement.spawn(field, g, K.dummy, 1)
   if live and live[1] then
     label(g, live[1].x, live[1].z, Text.get('field_trip_label'), P.tripLabel)
   end

@@ -1,5 +1,6 @@
 -- The help panel (F1): controls and the bestiary.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
+local Occult = require('src.content.occult_catalog')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
 local Palette = require('src.ui.palette')
@@ -54,7 +55,7 @@ function S.draw(g, s, U)
   Skin.auditLayer('bestiary')
   rect(0, 0, 1280, 720, Palette.veil, 0.96)
   Skin.panel(70, 42, 1140, 640, 6, 14)
-  for _, seal in ipairs({ { 'asmoday', 110, 326 }, { 'buer', 110, 426 }, { 'stolas', 1134, 370 } }) do
+  for _, seal in ipairs(Occult.margins) do
     Skin.zone('Goetia parchment margin', seal[2] - 4, seal[3] - 4, 44, 44)
     Goetia.draw(seal[1], seal[2], seal[3], 36, Palette.sepia, 0.55)
     Skin.imageBounds('Goetia ' .. seal[1], seal[2], seal[3], 36, 36)

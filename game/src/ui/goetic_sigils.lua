@@ -1,6 +1,6 @@
 -- Historical seals, not generated pseudo-writing. See assets/art/sigils/SOURCES.txt.
 -- PNG files are kept byte-for-byte as downloaded; the shader only displays their ink.
-local S = { images = {}, order = { 'asmoday', 'stolas', 'buer', 'furfur' } }
+local S = { images = {}, order = require('src.content.occult_catalog').seals }
 local Resources = require('src.render.resources')
 local commons = 'https://commons.wikimedia.org/wiki/File:'
 S.entries = {

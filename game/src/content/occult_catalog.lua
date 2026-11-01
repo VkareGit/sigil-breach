@@ -1,6 +1,16 @@
 -- Catalogue and selection shared by the test field and its visual archive.
 -- name, source and detail are text keys (content/text.lua).
 local A = {}
+-- The historical seals the interface carries.
+A.seals = { 'asmoday', 'stolas', 'buer', 'furfur' }
+-- Those in the margins of the help parchment, and where.
+A.margins = { { 'asmoday', 110, 326 }, { 'buer', 110, 426 }, { 'stolas', 1134, 370 } }
+-- Those a proving ground can visit (names: text keys).
+A.visits = {
+  { id = 'asmoday', name = 'seal_asmoday' },
+  { id = 'stolas', name = 'seal_stolas' },
+  { id = 'buer', name = 'seal_buer' },
+}
 A.entries = {
   {
     id = 'asmoday',

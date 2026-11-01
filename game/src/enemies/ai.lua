@@ -16,6 +16,8 @@ local Spatial = require('src.physics.spatial')
 local Navigation = require('src.world.navigation')
 local Bodies = require('src.combat.bodies')
 local Target = require('src.enemies.target')
+local ActionKinds = require('src.combat.action_kinds')
+local Action = require('src.content.defs.action')
 local AI = {}
 -- Whom e fights now (enemies/target.lua): the knight by default; any body of
 -- a hostile side when relations say so (plan v10 V2).
@@ -348,7 +350,10 @@ local function tickBody(g, e, dt, paused)
   if
     e.hp > 0
     and e.leapY ~= nil
-    and (e.ai ~= 'strike' or (g.world.elevations and e.attackSpec and e.attackSpec.kind ~= 'leap'))
+    and (
+      e.ai ~= 'strike'
+      or (g.world.elevations and e.attackSpec and not Action.trait(e.attackSpec, 'airborne'))
+    )
   then
     if Attacks.flight(g, e, dt) then
       Attacks.land(g, e, true)
@@ -459,10 +464,7 @@ function States.windup(g, e, d, dt)
   end
   -- A real cancel: a longer pause and a new flank, so a blocked body
   -- repositions instead of looping crouch-cancel-crouch.
-  if e.pendingHazard then
-    e.pendingHazard.cancelled = true
-    e.pendingHazard = nil
-  end
+  ActionKinds.abandon(e)
   change(e, 'recover')
   Selection.clear(e)
   e.recover = defaults.interruptRecover

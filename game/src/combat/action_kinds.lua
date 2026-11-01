@@ -11,6 +11,15 @@
 --   unseen                       needs no sight of its target
 local Action = require('src.content.defs.action')
 local Registry = require('src.core.registry')
-return Registry:new('action executors', function(_, id)
+local Kinds = Registry:new('action executors', function(_, id)
   Action.kinds:get(id)
 end)
+-- A commitment broken before release: what it marked on the ground goes with it.
+function Kinds.abandon(e)
+  local mark = e.pendingHazard
+  if mark then
+    mark.cancelled = true
+    e.pendingHazard = nil
+  end
+end
+return Kinds

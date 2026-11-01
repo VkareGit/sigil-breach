@@ -1,5 +1,6 @@
 -- Under every living demon: shadows, the windup ring, the portal it climbs
 -- out of and the landing point of a leap.
+local Action = require('src.content.defs.action')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
@@ -50,7 +51,7 @@ function Pass.draw(r, g)
       -- player always sees where the arc ends (dodgeable, never a surprise).
       -- The ring is the real reach: landing radius plus the knight's body.
       local spec = e.attackSpec
-      if spec and spec.kind == 'leap' and (e.ai == 'windup' or e.leaping) and e.aimX then
+      if spec and Action.trait(spec, 'lands') and (e.ai == 'windup' or e.leaping) and e.aimX then
         local reachLand = spec.landRadius + Characters.of(Context.actor(g)).body.radius
         r:object(
           r.warning,
