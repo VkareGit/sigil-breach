@@ -203,7 +203,7 @@ end
 function H.stamina(p)
   local share = Resources.share(p, 'stamina')
   if share and share < 1 then
-    Skin.zone('HUD stamina', 500, 572, 280, 10)
+    Skin.zone('HUD stamina', 496, 570, 288, 14)
     Skin.meter(500, 574, 280, share, share > 0 and C.gold or C.red, 20)
     Skin.endZone()
   end
