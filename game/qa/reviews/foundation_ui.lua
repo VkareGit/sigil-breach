@@ -9,6 +9,28 @@ function Review.run(G, renderer, output)
     end
   end
   append(require('tests.cases.charge_presentation').run(G, renderer))
+  -- The loading page at every shape of window.
+  local UI = require('src.ui.interface')
+  for _, size in ipairs({
+    { 960, 540 },
+    { 1024, 768 },
+    { 1280, 720 },
+    { 1720, 720 },
+    { 1920, 1080 },
+  }) do
+    local capture = love.graphics.newCanvas(size[1], size[2])
+    love.graphics.setCanvas(capture)
+    require('src.ui.loading').draw(UI, 1, 1, size[1], size[2])
+    love.graphics.setCanvas()
+    local data = capture:newImageData()
+    local png = data:encode('png')
+    local out = assert(io.open(output .. '/loading-' .. size[1] .. 'x' .. size[2] .. '.png', 'wb'))
+    out:write(png:getString())
+    out:close()
+    png:release()
+    data:release()
+    capture:release()
+  end
   local file = assert(io.open(output .. '/foundation-ui-review.txt', 'w'))
   file:write(table.concat(lines, '\n') .. '\n')
   file:close()
