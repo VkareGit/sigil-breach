@@ -163,6 +163,14 @@ function D.controls(g)
       w = 194,
       h = 40,
     }
+    list[#list + 1] = {
+      id = 'save_slot',
+      label = Text.get('menu_slot', { slot = r.slot, count = Way.slots }),
+      x = 72,
+      y = 622,
+      w = 392,
+      h = 36,
+    }
     return list
   elseif g.state == 'confirm_new' then
     return {

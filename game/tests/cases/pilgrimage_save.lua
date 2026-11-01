@@ -329,9 +329,95 @@ local function replays(check, Game)
   play(g)
   replay('a session begun from a save replays', g, journal)
 end
+-- A second area on another map: a fire, a post and a door between the two.
+local function areas(check, Game)
+  clean()
+  K.areas:register('annex', {
+    id = 'annex',
+    map = 'floor',
+    first = 'annex_fire',
+    fires = { { id = 'annex_fire', name = 'fire_west', x = 16, z = 14 } },
+    doors = {},
+    garrison = { { id = 'annex_1', creature = 'imp', x = 16, z = 20, yaw = 0 } },
+  })
+  local link = {
+    id = 'annex_door',
+    leads = 'annex',
+    side = { x = 27, z = 31, yaw = 0, art = { x = 27, z = 30, yaw = 0 } },
+    back = { x = 16, z = 17.5, yaw = 0, art = { x = 16, z = 18, yaw = 0 } },
+  }
+  local chapel = K.start()
+  chapel.doors[#chapel.doors + 1] = link
+  local ok, problem = pcall(function()
+    check('a second area fits its map', #P.problems(K.areas:get('annex')) == 0)
+    local g = begin(Game)
+    local world = g.world
+    local big = ruinIds(g)
+    g.world.destruction = { [big.id] = { damage = 1, at = 1 } }
+    g.player.x, g.player.z = link.side.x, link.side.z
+    g:interact()
+    check('its door opens', g.run.opened.annex_door)
+    g:interact()
+    check('and leads onto its map', g.world.mapId == 'floor' and g.run.area == 'annex')
+    check('at the far side', g.player.x == link.back.x and g.player.z == link.back.z)
+    check(
+      'where its own garrison stands',
+      byPost(g, 'annex_1') ~= nil and #Pools.of(g, 'enemies') == 1
+    )
+    check('its door is painted on the far side', #require('src.run.queries').world(g).doors == 1)
+    check('and what fell behind is remembered', g.run.ruins.proving[big.id] ~= nil)
+    g.player.x, g.player.z = 16, 15
+    g:interact()
+    check('a fire of the far area lights', g.run.lit.annex_fire and g.state == 'shop')
+    g:act('closeShop')
+    local saved = Game.new('pilgrimage')
+    check(
+      'a save stands on the far map',
+      saved.world.mapId == 'floor' and saved.run.area == 'annex'
+    )
+    check('and wakes at its fire', P.fireHere(saved).id == 'annex_fire')
+    g:act('ready')
+    check('travel crosses areas', g.world.mapId == 'proving' and g.run.area == 'chapel')
+    check('onto a new world, not the old one', g.world ~= world)
+    check('the ruin is back', Destruction.broken(g.world, big.id))
+    g:act('ready')
+    check('and back', g.world.mapId == 'floor')
+    g.player.x, g.player.z = link.back.x, link.back.z
+    g:interact()
+    check('the door leads home', g.world.mapId == 'proving' and g.player.x == link.side.x)
+    local read = Save.read('pilgrimage', FILE)
+    check('the file keeps both ruins', read.pilgrimage.ruins.proving ~= nil)
+  end)
+  chapel.doors[#chapel.doors] = nil
+  K.areas:unregister('annex')
+  check('the second area holds' .. (ok and '' or ': ' .. tostring(problem)), ok)
+end
+-- Slots are separate ways.
+local function slots(check, Game)
+  clean()
+  P.forget(nil, 2)
+  local one = Game.new('pilgrimage', nil, { slot = 1 })
+  one.run.wallet = 11
+  P.save(one)
+  local two = Game.new('pilgrimage', nil, { slot = 2 })
+  check('a slot starts empty', two.run.wallet == 0 and not two.run.saved)
+  two.run.wallet = 22
+  P.save(two)
+  check('each keeps its own', Game.new('pilgrimage', nil, { slot = 1 }).run.wallet == 11)
+  check('and the other', Game.new('pilgrimage', nil, { slot = 2 }).run.wallet == 22)
+  check('a slot has its own file', love.filesystem.getInfo(P.file(2)) ~= nil)
+  check('the first keeps the old name', P.file(1) == 'pilgrimage.save')
+  P.forget(nil, 2)
+  check(
+    'forgetting one leaves the other',
+    Game.new('pilgrimage', nil, { slot = 1 }).run.wallet == 11
+  )
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage save: ', 'pilgrimage save: ')
+  areas(check, Game)
+  slots(check, Game)
   goodFiles(check, Game)
   badFiles(check, Game)
   writes(check, Game)

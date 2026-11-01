@@ -1,7 +1,14 @@
 -- Persistence adapter: parsing is pure; filesystem access is confined here.
 local P = {}
-local defaults =
-  { sensitivity = 1, muted = false, motion = true, fov = 100, music = 0.65, hints = true }
+local defaults = {
+  sensitivity = 1,
+  muted = false,
+  motion = true,
+  fov = 100,
+  music = 0.65,
+  hints = true,
+  slot = 1,
+}
 local bounds = { sensitivity = { 0.2, 3 }, fov = { 85, 115 }, music = { 0, 1 } }
 local order = { 'sensitivity', 'motion', 'fov', 'music', 'hints', 'muted' }
 function P.decode(text)

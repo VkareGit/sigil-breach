@@ -255,6 +255,7 @@ local definitions = {
   { 'pilgrim_confirm', 'This ends the way you walked: fires, souls and gear.' },
   { 'menu_begin', 'BEGIN  [ ENTER ]' },
   { 'menu_continue', 'CONTINUE  [ ENTER ]' },
+  { 'menu_slot', 'SAVE SLOT {slot} OF {count}' },
   { 'menu_new', 'NEW GAME' },
   { 'shop_fire_title', 'At the fire' },
   { 'shop_fire_tip', 'Rested. Health, flask and rounds are full; the chapel has stirred.' },

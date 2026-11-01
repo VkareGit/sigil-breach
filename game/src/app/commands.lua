@@ -83,6 +83,12 @@ handlers.start = function(app)
   Navigation.replace(app, 'pilgrimage'):start()
   love.mouse.setRelativeMode(true)
 end
+-- The next save slot: the menu stands on what that slot holds.
+handlers.save_slot = function(app)
+  app:useSlot(app.settings.slot + 1)
+  app:saveSettings()
+  app:reset(false)
+end
 handlers.restart = start
 handlers.new_confirm = function(app)
   if playable(app.game.mode) then

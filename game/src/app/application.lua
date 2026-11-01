@@ -76,7 +76,25 @@ function Application:adopt(game, entering)
   self:applySettings()
   -- A painted world is prepared before it is shown, never on the first frame of play.
   local shown = entering or game.state ~= 'menu'
-  if shown and self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
+  if shown then
+    self:prepareWorld(game)
+  end
+  if self:has('--record') then
+    self.journals = self.journals or setmetatable({}, { __mode = 'k' })
+    self.journals[game] = self.journals[game]
+      or require('src.session.journal').record(game, nil, function()
+        game:notify(require('src.content.text').get('recording_full'), 8)
+      end)
+    self.journal = self.journals[game]
+  end
+  Application.settle()
+end
+
+-- The world of a session is painted behind a loading page, also when the way moves on to
+-- another map.
+function Application:prepareWorld(game)
+  self.preparedWorld = game.world
+  if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
     local jobs = {}
     for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
       jobs[#jobs + 1] = job
@@ -95,15 +113,13 @@ function Application:adopt(game, entering)
       love.mouse.setRelativeMode(false)
     end
   end
-  if self:has('--record') then
-    self.journals = self.journals or setmetatable({}, { __mode = 'k' })
-    self.journals[game] = self.journals[game]
-      or require('src.session.journal').record(game, nil, function()
-        game:notify(require('src.content.text').get('recording_full'), 8)
-      end)
-    self.journal = self.journals[game]
-  end
-  Application.settle()
+end
+
+-- The save slot of the way: where a new session of it reads and writes.
+function Application:useSlot(slot)
+  local count = require('src.content.pilgrimage').slots
+  self.settings.slot = (slot - 1) % count + 1
+  self.sessionOptions.pilgrimage = { slot = self.settings.slot }
 end
 
 -- A kill waits for a quiet moment to be saved (run/pilgrimage.lua). A game that stopped, or
@@ -118,7 +134,8 @@ end
 function Application:reset(start, entering)
   self:flushSave(true)
   Navigation.clear(self)
-  self:adopt(Game.new(self.qa:session()), entering)
+  local mode = self.qa:session()
+  self:adopt(Game.new(mode, nil, self.sessionOptions[mode]), entering)
   self.input:reset(love.mouse.isDown(1))
   self.accumulator = 0
   UI.focus = 1
@@ -207,6 +224,7 @@ function Application:load(arguments)
   love.graphics.setDefaultFilter('nearest', 'nearest')
   love.math.setRandomSeed(os.time())
   self.settings = Preferences.read()
+  self:useSlot(self.settings.slot)
   self.bootstrap = Loading.bootstrap(UI)
   self.ownsPresentation = true
   self:beginStartup()
@@ -363,6 +381,9 @@ function Application:update(dt)
     self.accumulator = self.accumulator - fixedStep
   end
   self:flushSave()
+  if self.preparedWorld and self.game.world ~= self.preparedWorld then
+    self:prepareWorld(self.game)
+  end
   if self:has('--screenshot') and self.game.time > 0.1 then
     self.game.state = 'paused'
   end

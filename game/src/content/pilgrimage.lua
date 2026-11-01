@@ -2,6 +2,7 @@
 -- The rules are run/pilgrimage.lua. Ids go into saves: an id that leaves is dropped from a
 -- save when it loads, an id that is renamed needs a migration there.
 --   fires     { id, name, x, z }
+--   doors     { id, side, back, leads }; leads: the area back stands in, when not this one
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
 --             leash: how far it follows, in place of the common leash; patrol: its points
 local Registry = require('src.core.registry')
@@ -28,25 +29,27 @@ local Way = {
   clearance = 0.3,
 }
 -- Ids are unique across the way: a save names them without their area.
-local fires, doors, posts = {}, {}, {}
-local function claim(seen, id, kind)
-  assert(type(id) == 'string' and not seen[id], 'way: ' .. kind .. ' id twice: ' .. tostring(id))
+local function claim(seen, id, kind, taken)
+  assert(type(id) == 'string', 'way: a ' .. kind .. ' needs an id')
+  assert(not seen[id] and not (taken and taken(id)), 'way: ' .. kind .. ' id twice: ' .. id)
   seen[id] = true
 end
+local posts = {}
 Way.areas = Registry:new('way areas', function(area, id)
   assert(area.id == id, 'way area ' .. id .. ' must carry its id')
   assert(type(area.map) == 'string', 'way area ' .. id .. ' needs a map')
-  local first = false
+  local first, seen = false, {}
   for _, fire in ipairs(area.fires) do
-    claim(fires, fire.id, 'fire')
+    claim(seen, fire.id, 'fire', Way.fireOf)
     first = first or fire.id == area.first
   end
   assert(first, 'way area ' .. id .. ' starts at no fire of its own')
   for _, door in ipairs(area.doors or {}) do
-    claim(doors, door.id, 'door')
+    claim(seen, door.id, 'door', Way.doorOf)
   end
+  posts[id] = {}
   for _, post in ipairs(area.garrison) do
-    claim(posts, post.id, 'post')
+    claim(posts[id], post.id, 'post')
   end
 end)
 Way.areas:register('chapel', {
@@ -128,6 +131,16 @@ function Way.fireOf(id)
       end
     end
   end
+end
+-- Every fire of the way, area by area: travel walks this list.
+function Way.fires()
+  local list = {}
+  for _, area in Way.areas:each() do
+    for _, fire in ipairs(area.fires) do
+      list[#list + 1] = fire
+    end
+  end
+  return list
 end
 -- A door by id, and its area.
 function Way.doorOf(id)

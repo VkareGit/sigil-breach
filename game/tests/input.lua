@@ -50,6 +50,15 @@ function Tests.run(get, settings, output, getLoading)
     'the menu offers the chapel and the proving ground',
     ids.start and ids.field_skirmish and ids.field_start and not ids.restart
   )
+  local carried = get().run.slot
+  for step = 1, 3 do
+    click('save_slot')
+    check(
+      'the menu moves to slot ' .. step,
+      get().state == 'menu' and get().run.slot ~= carried or step == 3
+    )
+  end
+  check('and comes round to the first', get().run.slot == carried)
   key('return')
   -- Every real transition completes its visible preparation with zero delta;
   -- control tests must not bypass the loader or advance combat while waiting.

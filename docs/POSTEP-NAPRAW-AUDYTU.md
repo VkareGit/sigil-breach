@@ -26,7 +26,7 @@ Audyt, z którego biorą się punkty: `work/audit/claude.md`, `work/audit/codex-
 | 2 | Moment zapisu: żadnego zapisu na dysk przy zabójstwie | zrobione |
 | 3 | Powtórka sesji zaczętej z zapisu | zrobione |
 | 4 | Testy na prawdziwej mapie, walidacja danych drogi | zrobione |
-| 5 | Obszary, ruina na mapę, przejście między obszarami, sloty zapisu | do zrobienia |
+| 5 | Obszary, ruina na mapę, przejście między obszarami, sloty zapisu | zrobione |
 | 6 | Kit w zapisie, ekonomia ognisk (śluby zamiast amunicji) | do zrobienia |
 | 7 | Wydajność i bramka pomiarów | do zrobienia |
 | 8 | Zależności: rejestr trybów, 241 leniwych require, haki testowe w produkcji | do zrobienia |
@@ -55,3 +55,4 @@ Audyt, z którego biorą się punkty: `work/audit/claude.md`, `work/audit/codex-
 ## Dziennik
 - Punkty 1–3: sekcja `pilgrimage` ma wersję 2 z migracją z 1. `unpack` odrzuca złe typy i wyrzuca id, których gra już nie ma. `P.init` próbuje kopii od najnowszej (`Save.candidates`), każda nieudana zostawia nowy bieg, a gdy żadna nie działa, pliki idą pod `.damaged` (`Save.quarantine`), nie są kasowane. `Save.write` nie podmieni zapisu czymś, czego czytnik by nie przyjął. Zabójstwo tylko ustawia `r.dirty`; zapis po `K.saveEvery` s, gdy nikt nie czuwa, albo przez `game:act('flush')` z `Application:flushSave`. Odpoczynek, śmierć, zakup, drzwi, odzyskanie dusz i podróż zapisują od razu. `P.construction` zwraca `{slot, origin, saves}`, a powtórka nie czyta dysku. `Execution.read` usunięte. Testy: `tests/cases/pilgrimage_save.lua` (94 sprawdzenia), `tests/input.lua`.
 - Punkt 4: dane drogi mają kontrakt przy rejestracji (id unikalne, pierwsze ognisko własne) i `P.problems(area)` sprawdza każde ognisko, drzwi, posterunek i patrol wobec mapy, z wysokością kroku; kaplica przechodzi. `tests/cases/proving.lua`: bot dochodzi do każdego ogniska i drzwi na prawdziwej mapie, handel po odpoczynku, wszystkie komory i stacje poligonu na `proving`. Bot (`qa/souls_bot.lua`) omija cokoły, bo liczy wysokość kroku. Ekran mapy w trybie poligonu miał się wywalić na braku obszaru, poprawione.
+- Punkt 5: `r.area` wybiera obszar, `r.ruins[mapa]` trzyma ruinę każdej mapy. `enter` przechodzi między obszarami i podmienia świat, `stand` stawia świat obszaru. Drzwi mogą prowadzić do innego obszaru (`leads`), podróż między ogniskami przechodzi przez wszystkie obszary, start z zapisu staje na mapie obszaru. Application maluje nowy świat na stronie ładowania (`prepareWorld`). Sloty: `P.file(slot)`, `settings.slot`, przycisk `save_slot` w menu, `app:useSlot`. Test na tymczasowym obszarze `annex` na mapie `floor`.

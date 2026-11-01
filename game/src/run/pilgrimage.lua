@@ -102,6 +102,24 @@ function P.construction(g)
   local r = g.run
   return { slot = r.slot, origin = r.origin, saves = r.begun }
 end
+-- The world under the knight is his area's map, with that map's ruin.
+local function stand(g)
+  local r, map = g.run, area(g).map
+  if g.world.mapId ~= map then
+    g.world = World.new(map)
+  end
+  Destruction.restore(g.world, r.ruins[map])
+end
+-- On to another area. What fell where he leaves stays fallen.
+local function enter(g, id)
+  local r = g.run
+  if id ~= r.area then
+    r.ruins[g.world.mapId] = Copy(g.world.destruction or {})
+    r.area = id
+    Encounter.clearWorld(g)
+    stand(g)
+  end
+end
 local function renew(g, slot)
   local first = K.start().first
   g.run = {
@@ -123,6 +141,7 @@ local function renew(g, slot)
     waited = 0,
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
+  stand(g)
 end
 -- The newest copy that both reads and restores. One that fails leaves a new run behind it
 -- for the next; the start of the game never depends on a file being good.
@@ -132,7 +151,6 @@ local function resume(g, slot)
     if pcall(Save.restore, 'pilgrimage', g, copy.values) then
       return copy.values, copy.sequence, damaged
     end
-    Destruction.reset(g.world)
     renew(g, slot)
     damaged = true
   end
@@ -177,29 +195,36 @@ function P.start(g)
   g:notify(Text.get('pilgrim_start'), 5)
 end
 local function doorHere(g)
-  local p = Roles.controlled(g)
-  for _, door in ipairs(area(g).doors or {}) do
-    if distance(p, door.side) < K.doorReach then
-      return door, true
-    elseif distance(p, door.back) < K.doorReach then
-      return door, false
+  local p, here = Roles.controlled(g), g.run.area
+  for _, around in K.areas:each() do
+    for _, door in ipairs(around.doors or {}) do
+      if around.id == here and distance(p, door.side) < K.doorReach then
+        return door, true, around
+      elseif (door.leads or around.id) == here and distance(p, door.back) < K.doorReach then
+        return door, false, around
+      end
     end
   end
 end
 -- [E] at a door: barred, it opens from its own side, for good; open, the knight goes
 -- through to the other side.
 local function door(g)
-  local found, own = doorHere(g)
+  local found, own, home = doorHere(g)
   if not found then
     return false
   end
   local r = g.run
   if r.opened[found.id] then
     local to = own and found.back or found.side
+    enter(g, own and (found.leads or home.id) or home.id)
     local p = Roles.controlled(g)
     p.x, p.z, p.yaw, p.pitch = to.x, to.z, to.yaw, 0
     p.vx, p.vz = 0, 0
     Feel.init(g)
+    if found.leads then
+      P.populate(g)
+      P.save(g)
+    end
     Presentation.cue(g, 'seal', 0.5)
   elseif own then
     r.opened[found.id] = true
@@ -234,13 +259,15 @@ function P.travel(g)
     return false
   end
   Sanctuary.closeTrade(g)
-  local fires, at = area(g).fires, nil
+  local fires, at = K.fires(), nil
   for index, fire in ipairs(fires) do
     at = fire.id == here.id and index or at
   end
   for step = 1, #fires - 1 do
     local fire = fires[(at + step - 1) % #fires + 1]
     if g.run.lit[fire.id] then
+      local _, home = K.fireOf(fire.id)
+      enter(g, home.id)
       g.run.fire = fire.id
       refresh(g)
       wake(g, fire)
@@ -337,14 +364,25 @@ function P.world(g, out)
   out.shrineActive = true
   out.doors = out.doors or {}
   local count = 0
-  for _, door in ipairs(here.doors or {}) do
-    local art = g.run.opened[door.id] and 'chapel_door_open' or 'chapel_door_barred'
-    for _, side in ipairs({ door.side, door.back }) do
-      count = count + 1
-      local mark = out.doors[count] or {}
-      out.doors[count] = mark
-      mark.x, mark.z, mark.yaw, mark.art = side.art.x, side.art.z, side.art.yaw, art
+  local function show(door, side)
+    count = count + 1
+    local mark = out.doors[count] or {}
+    out.doors[count] = mark
+    mark.x, mark.z, mark.yaw = side.art.x, side.art.z, side.art.yaw
+    mark.art = g.run.opened[door.id] and 'chapel_door_open' or 'chapel_door_barred'
+  end
+  for _, around in K.areas:each() do
+    for _, door in ipairs(around.doors or {}) do
+      if around == here then
+        show(door, door.side)
+      end
+      if (door.leads or around.id) == here.id then
+        show(door, door.back)
+      end
     end
+  end
+  for i = #out.doors, count + 1, -1 do
+    out.doors[i] = nil
   end
   return out
 end
@@ -367,8 +405,10 @@ local function reachable(world, area)
     end
   end
   for _, door in ipairs(area.doors or {}) do
-    doors[key(door.side.x, door.side.z)], doors[key(door.back.x, door.back.z)] =
-      door.back, door.side
+    if not door.leads then
+      doors[key(door.side.x, door.side.z)] = door.back
+      doors[key(door.back.x, door.back.z)] = door.side
+    end
   end
   local first = K.fireOf(area.first)
   visit(first.x, first.z)
@@ -415,7 +455,16 @@ function P.problems(area)
   end
   for _, door in ipairs(area.doors or {}) do
     stand('door ' .. door.id, door.side)
-    stand('the back of door ' .. door.id, door.back)
+    if not door.leads then
+      stand('the back of door ' .. door.id, door.back)
+    end
+  end
+  for _, around in K.areas:each() do
+    for _, door in ipairs(around.doors or {}) do
+      if door.leads == area.id then
+        stand('the far side of door ' .. door.id, door.back)
+      end
+    end
   end
   for _, post in ipairs(area.garrison) do
     stand('post ' .. post.id, post)
@@ -542,7 +591,7 @@ Save.declare({
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
-    Destruction.restore(g.world, r.ruins[g.world.mapId])
+    stand(g)
   end,
 })
 return P
