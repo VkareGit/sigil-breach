@@ -1,3 +1,33 @@
+PRZEPISY PLANU v12 (0.36)
+
+Każdy przepis ma działającą próbę w game/tests/support/extension/ i pakiet
+w game/tests/cases/v12_pack.lua. Nic z tego nie wymaga zmian w game/src.
+
+Postać            Characters.define: ciało, ruch, zestaw, resources, reactions.
+Broń              Weapons.define: ammo = { kind }, reload = { mechanism, speed },
+                  trigger = { mode }, delivery, secondary, reactions.
+Amunicja          Ammo:register: pełny interfejs z content/ammo/index.lua.
+Przeładowanie     Reloads:register: stages, resume, labels. Interpreter jest jeden.
+Spust             Triggers.define i Intent.modes:register.
+Dostarczanie      Delivery.defineKind i Deliveries:register; Volley jest publiczna.
+Typ obrażeń       Types.define: armored, color, impact, flight.
+Stan              Conditions.register: modifiers, forbids. Statystyka: content/attributes.lua.
+Reakcja           pole reactions: on, effect, target. Rodzaj: Reaction.defineKind
+                  i Reactions.kinds:register. Stan: Reaction.bind.
+Zdolność          Abilities.define: cost, channel, toggle; action.windup to czas rzucania.
+Rodzaj akcji      Action.defineKind z hookami i ActionKinds:register (cast, execute...).
+Stwór             A.register(Creature.define(...)).
+Cios stwora       pola string, hold, track na akcji.
+Zagrożenie        HazardKinds:register, Hazards.kinds:register, render/hazard_kinds.
+Ruch malowany     Anim.motions:register.
+Pole              Tiles.define: walkable, solid, speed. Komórka: g:setCell.
+Mapa              Maps:register; tryb mówi, czego żąda: session.requires.
+Bieg              Runs:register: stages = { { map, waves } }.
+Glif              Glyphs:register i pole glyphs na broni.
+Zapas             Supplies:register i Interactions.supplies.
+Oferta            Shop.define.
+Rzecz świata      Entities.define: health, hittable, collides, system, interact, draw.
+
 SIGIL: BREACH / KONTRAKT ROZBUDOWY / 0.35
 
 Cel: nowa zawartość nie wymaga przepisywania postaci. Dane dobierają

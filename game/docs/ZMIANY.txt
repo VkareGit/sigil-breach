@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.35 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.36 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -10,6 +10,32 @@ BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
+
+########################################################################
+ZMIANY-0.36.txt
+SIGIL: BREACH 0.36 / Trial by Ash
+
+Walka do nauczenia się i fundament planu v12. Pełne raporty:
+game/docs/PLAN-v12-R*-RAPORT.md, game/docs/PLAN-WALKA-S*-RAPORT.md.
+
+Walka:
+- Cios zwykłego stwora to około czwartej części zdrowia, bossa około połowy.
+- Ciągi ciosów, opóźnienia, śledzenie w czasie windupu.
+- Nowe rodzaje: szeroki zamach, pochwycenie, fala, promień, burza, salwa,
+  wezwanie, odskok, teleport, cała sala z kręgiem ciszy, szarża ze zwrotami.
+- Margrabia (2400 HP) i Furfur (2800 HP) walczą w trzech aktach jednego życia.
+  Na progach zostawiają rundy i zdrowie. Rycerz bez ani jednej rundy przy żyjącym
+  strażniku znajduje mały zapas obok siebie.
+- Żelazny ma 260 HP i otwarte nogi, Ogrodnik 220 HP i narastającą zgniliznę.
+  Żar i Akolita zachowali HP: to reguły broni.
+- Malowane efekty: płonąca fala, krąg ciszy, cięcie, promień.
+
+Fundament (plan v12):
+- Postać, zdolności z zasobem i czasem rzucania, reakcje, typy obrażeń, stany ze
+  statystykami, model amunicji, przeładowanie jako dane, tryby spustu, drugi tryb
+  broni, stwory i zagrożenia w rejestrach, pola mapy z właściwościami, drzwi,
+  opcjonalne elementy mapy, bieg z etapami, glify, zapasy, oferty, rzeczy świata.
+- Modele, atlasy stworów, HUD i broń bez zmian.
 
 ########################################################################
 ZMIANY-0.35.txt

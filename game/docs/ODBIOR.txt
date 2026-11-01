@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.35 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.36 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -9,6 +9,26 @@ Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 
+
+########################################################################
+ODBIOR-0.36.txt
+SIGIL: BREACH 0.36: odbiór
+
+Sprawdzone automatycznie:
+- TEST.ps1 -Suite All: 5944 sprawdzenia, 0 uwag architektury.
+- Bot nieuważny ginie z Margrabią po 11,5 s, z Furfurem po 6,7 s, ze stadem po 6,3 s.
+- Bot uczący się wygrywa każde z sześciu starć i stado, a każdy cios każdej istoty
+  da się uniknąć z odległości, do której jest zrobiony.
+- Pełna wyprawa kończy się wygraną bota znającego strażnika.
+- Pakiet treści przechodzi start, walkę, dziennik, zapis, klatkę, drugi etap i
+  wyrejestrowanie bez zmian w game/src.
+- 93 klatki 21 nowych ciosów z gry: work/souls-frames.
+
+Niesprawdzone:
+- Odbiór B2: nikt jeszcze nie grał w tę walkę. Boty mają idealny cel i znają każdy
+  telegraf, więc czas walki, uczciwość i przyjemność ocenia człowiek.
+- Bot wygrywa z bossem w 18-26 s. Człowiek potrzebuje więcej, ale ile, nie wiadomo.
+- Rzecz świata zatrzymuje tylko rycerza, nie stwory (PLAN-v12-R8-RAPORT.md).
 
 ########################################################################
 ODBIOR-0.35.txt

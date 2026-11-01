@@ -56,6 +56,11 @@ Suite.registry = {
     module = 'tests.cases.souls_engine',
   },
   {
+    id = 'v12-pack',
+    title = 'One whole content pack through public registries',
+    module = 'tests.cases.v12_pack',
+  },
+  {
     id = 'v12-proofs',
     title = 'Extension proofs of plan v12 through public registries',
     module = 'tests.cases.v12_proofs',

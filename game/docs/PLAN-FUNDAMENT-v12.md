@@ -1,6 +1,6 @@
 # SIGIL: BREACH — fundament v12: baza pod rozwój bez przepisywania
 
-Status: W WYKONANIU od 1 listopada 2026, kolejność w `PLAN-WALKA-SOULS.md`.
+Status: WYKONANY 1 listopada 2026 w wersji 0.36, raporty `PLAN-v12-R*-RAPORT.md`.
 Stan odniesienia: `3109330`, wersja 0.35 (plan spisany na `1c297f5`, 0.34).
 Podstawa: przegląd skalowalności z 31 października (kod i próby na żywej
 sesji). Kontrakty v7, v10 i v11 nadal obowiązują.

@@ -1,6 +1,6 @@
 # SIGIL: BREACH — walka souls-like: stwory i bossowie
 
-Status: PROJEKT W WYKONANIU, 1 listopada 2026. Stan odniesienia: `3109330`, 0.35.
+Status: WYKONANY w 0.36, 1 listopada 2026. Odbiór gracza otwarty. Stan odniesienia: `3109330`, 0.35.
 Zakres: sześć istniejących istot. Styl i modele zostają bez zmian.
 
 ## Diagnoza dzisiejszej walki

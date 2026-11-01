@@ -1,3 +1,12 @@
+FUNDAMENT v12 (0.36)
+
+Cios w stworzenie ma jedną drogę: combat/hit.lua (measure, wound, answer, land), a
+rana jedno wejście: Rules.wound. Akcja ma jeden wpis w combat/action_kinds.lua i
+jedno wykonanie dla stwora, aktora i punktu (combat/caster.lua). Rejestry zamiast
+wyjątków: content/damage_types, attributes, conditions, reloads, triggers, runs,
+glyphs, supplies, hazards, core/tiles. Rzeczy świata: session/entities.lua, pula
+entities, wpięcie w krok przez Scheduler.after. Zapadki planu w tools/check.
+
 SIGIL: BREACH / ARCHITEKTURA KODU / Foundation 0.34
 
 Korekta drugich faz (po punkcie 5): Action.pattern opisuje do 12 lokalnych
