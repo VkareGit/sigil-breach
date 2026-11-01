@@ -27,7 +27,7 @@ własnej pozy wraca do podstawowej. ArtContract sprawdza te referencje.
 HUD i pliki graficzne tej korekty pozostają bez zmian.
 
 Punkt 5 poligonu: app/release.sessionMaps wybiera mapę proving przy wejściu
-z menu; jawny mapId wygrywa. Domyślna mapa biblioteki limbo nie zmienia się.
+z menu; jawny mapId wygrywa. Domyślna mapa to proving.
 Mapa proving opisuje komnaty, wejścia, miejsca przywołań, próby i medale
 interakcji. content/defs/proving sprawdza strukturę/identyfikatory/powiązania,
 run/field/chambers weryfikuje bryły postaci względem zbudowanej geometrii.
@@ -35,7 +35,7 @@ Komendy katalogu i E korzystają z tego samego właściciela próby: reset,
 ustawienie gracza, prawdziwe portale, rejestr przybyłych id, końcowa śmierć.
 Nie ma drugiego AI ani nagród komnaty, ścian niewidzialnych czy smyczy.
 roomTrial należy do testField, więc obejmują go snapshot oraz journal.
-Poligon nie zapisuje wyprawy na dysk. SIGIL09 (mapa/ciała) nadal nie jest
+  Poligon nie zapisuje niczego na dysk. SIGIL09 (mapa/ciała) nadal nie jest
 pełnym checkpointem trybu; nie dodano częściowego zapisu samych komnat.
 exhibits=false pomija plansze atlasów i posągi w publicznej walce; stara
 galeria, mapa i scenariusze pozostają dostępne dla narzędzi bibliotecznych.
@@ -94,8 +94,8 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
                 ecs, scheduler, rng, timers, strict, serialize, mathx.
   src/content   dane (Type Object): content/defs (packet, body, action,
                 creature + appearance, knight, weapon, ability, condition),
-                stworzenia, rycerz, bronie, umiejętności, stany, fale, mapy,
-                strojenie, dane trybów (classic, expedition, shop).
+  stworzenia, rycerz, bronie, umiejętności, stany, mapy,
+  strojenie, dane trybów (pilgrimage, field, shop).
   src/physics   kolizje, wysokości kafli, wysokość podłogi (ground.lua).
                 ordnance_flight: lot/odbicia ładunku z przekazanymi danymi;
                 okrągłe kolumny mają radialną normalną i okrągły blat.
@@ -220,7 +220,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
 8. MAPY, TRYBY, EKRANY
 
   content/maps/<id>.lua + content/maps/index.lua: pokoje, kolumny, pieczęcie,
-  portal, spawn, kaganki, Ember, bramy fal, strefy, floor (wysokość podłogi);
+  portal, spawn, kaganki, Ember, bramy przywołań, strefy, floor (wysokość podłogi);
   elevations (podpora na komórkach), decks (płyty nad podłogą: most),
   decor (scenografia) i anchors (miejsca). Mapa jest prostokątem width ×
   depth (size dla kwadratu); physics/grid.lua jest jedyną odpowiedzią na
@@ -270,35 +270,28 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
     (app/bindings: Q, F, C) — jeden pełny jak w 0.30, więcej po wierszu.
   - qa/data/bridge_map.lua (qa_bridge, 256 × 128, most, 200 kaganków) i
     qa/data/crowd_map.lua (qa_crowd) to mapy diagnostyczne QA.
-  run/modes.lua: rejestr trybów (field, expedition, classic: init, start,
-  progress, policy + ready, retry, closeShop, buy, lose, reward, remaining);
+  run/modes.lua: rejestr trybów (field, pilgrimage: init, start,
+  progress, policy + ready, retry, closeShop, buy, lose, reward);
   Modes.act(g, nazwa, ...) — polecenia i skutki pytają tryb. Stan trybu
   (g.run, g.testField) czyta tylko on sam: [E] i podpowiedź (interact,
-  context), poziom nowego demona (tier), pozwolenia (waveActive, frozen,
-  invincible dla polityk phased/freezable/invincible: session/capabilities),
-  dane paska HUD (hud: glyph, wallet, echo, progress, fighting; tryb bez hud
-  rysuje HUD areny classic). Nowy tryb odpowiada tymi funkcjami. Ekrany i HUD
-  pytają tryb (plan v10 V6): run/queries.lua — run (fale, sakiewka, echo),
-  field (ustawienia i wybór poligonu), world, tools, objective; widoki buduje
-  tryb z własnego rekordu (run/mode_views.lua). Zapadka mode-records = 0.
-  Wyprawa
-  (run/descent.lua) nie zna poligonu: jeden strażnik „tylko sesja wyprawy
-  zapisuje, wczytuje i postępuje”; zakup Descent.trade (bez zapisu, poligon)
-  i Descent.buy (trade + zapis). Żar: session/sanctuary.lua (Sanctuary.near).
-  field: niezależny sandbox. WAVE TRIAL uruchamia pojedynczą wybraną falę
-  na zasobach poligonu; nie jest normalnym cyklem ekonomii i progresji.
-  Menu i HUD zachowują układ 0.30, bez dodatkowego trybu próby.
-  app/application etapuje pierwszy preload galerii po jednym obrazie na
-  krok; ui/loading pokazuje postęp. Podczas ładowania symulacja stoi.
-  Poligon i ekrany współdzielą pętlę aplikacji.
+  context), pozwolenia (frozen, invincible, attrition: session/capabilities),
+  dane paska HUD (hud: glyph, wallet, echo, progress). Nowy tryb odpowiada tymi
+  funkcjami. Ekrany i HUD pytają tryb (plan v10 V6): run/queries.lua — run
+  (sakiewka, echo, ogniska), field (ustawienia i wybór poligonu), world, tools,
+  objective; widoki buduje tryb z własnego rekordu (run/mode_views.lua).
+  Zapadka mode-records = 0. Handel: run/economy.lua (E.trade, bez zapisu) i
+  Sanctuary.trade / closeTrade (session/sanctuary.lua); kaplica sama zapisuje zakup.
+  run/pilgrimage.lua: droga przez kaplicę, dane w content/pilgrimage.lua.
+  field: niezależny sandbox. Tryb z prepared przygotowuje malowany świat na
+  ekranie ładowania (app/application: kit/halls loadingJobs, prepareWorld); podczas
+  ładowania symulacja stoi. Poligon i ekrany współdzielą pętlę aplikacji.
   app/screens.lua: klawisze ekranów; ui/views.lua: rysowanie i przyciski;
   ui/interface.lua tylko rozdziela.
   Game.new i Journal.session korzystają ze wspólnego Modes.session.
-  Nowy tryb nie tworzy najpierw wyprawy ani jej aktorów. Renderery i ekrany
-  pytają run/queries. app/navigation posiada stos powrotów.
+  Renderery i ekrany pytają run/queries. app/navigation posiada stos powrotów.
   Poligon (run/test_field.lua) to cykl życia, komunikaty i akcje katalogu;
-  stawianie celów i wezwania (run/field/placement.lua), odwiedziny pieczęci
-  i sklepu (visits.lua), stanowiska i próba fal (trials.lua); liczby
+  stawianie celów i wezwania (run/field/placement.lua, run/gates.lua), odwiedziny
+  pieczęci i sklepu (visits.lua), stanowiska (trials.lua); liczby
   poligonu w content/field.lua.
   Pełny reset próby korzysta też z run/field/reset.lua: dla sterowanego
   rycerza usuwa warunki (w tym oszołomienie), poise i impulsy; kończy
@@ -348,13 +341,13 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   { sekcja = { version, data } } przez core/serialize; odczyt literalnym
   core/data_reader (nic się nie wykonuje). Sekcję deklaruje jej właściciel
   (Save.declare: name, file, version, schema, pack, unpack, restore,
-  migrations, default): 'run' w storage/run_save.lua (checkpoint wyprawy),
+  migrations, default): 'pilgrimage' w run/pilgrimage.lua (droga przez kaplicę),
   'map' w world/arena.lua, 'pools' w session/world.lua (członkowie pul ze
   stronami, definicje jako ścieżki core/data_tree.lua, wspólne tabele raz).
   Każdy błąd odrzuca cały plik przed przywróceniem czegokolwiek. Zapis jest
   atomowy: plik obok (.tmp), sprawdzony, zamiana, poprzedni zostaje
   (.previous); odczyt bierze najnowszy pełny z trzech. SIGIL06/07/08 czyta
-  adapter w run_save; zapis tylko SIGIL09. storage/session_save.lua: zapis
+  zapis tylko SIGIL09. storage/session_save.lua: zapis
   stanu sesji (mapa, pule, strony).  Złoty wzorzec to odcisk regresji wybranych pól trzech scenariuszy (nie
   wyrocznia poprawności): części ciała, stany i telemetria są poza nim.
   Telemetria (combat/telemetry.lua: T.copy, T.since, T.lines) w grze i w
@@ -381,7 +374,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   Odwrócenie zależności (session/presentation: haki), Łańcuch
   odpowiedzialności (ui/views), Harmonogram, Metoda szablonowa (C.shoot,
   R:draw), Rejestr (core/registry), Memento, Polecenie (commands, journal,
-  Game:look), Adapter (run_save SIGIL06/07/08 -> sekcja run), Pamięć podręczna (W.flow).
+  Game:look), Pamięć podręczna (W.flow).
 
 11. GDZIE MIESZKAJĄ LICZBY
 
@@ -390,7 +383,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   shot, explosives, world, feel), content/combat_defaults.lua (ciała i demony:
   impulse, stagger, breakKill, walk, flank, keep, senses, separation, attacks,
   claw, missiles, hazards, corpse, flashes, locks...), content/knight.lua,
-  content/waves (portal), content/maps/*, content/classic|expedition|shop,
+  content/maps/*, content/pilgrimage|field|shop,
   definicje stworzeń/broni/umiejętności, content/ballistic_surfaces.lua
   (wound, guard, penetrable, debris), content/art/anatomy/* (regiony obrazu),
   physics/collision (heights), ui/palette.lua, app/bindings.lua (klawisze).
@@ -404,11 +397,9 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   content/creatures/<id>.lua: Creature.define({ extends = rodzic, ... }), id w
   A.creatures. Atlas, maski, klatki i animacje umiejętności dziedziczy.
   Gdzie jest wymieniony, mówi jego definicja (catalog, nie dziedziczy się):
-  field = miejsce w katalogu poligonu, posągach i padach galerii; bestiary =
+  field = miejsce w katalogu poligonu i na polach; bestiary =
   { order, text, tip, color } karta pomocy F1. Listy buduje A.listed(klucz);
-  ekranów i galerii się nie edytuje (miejsca padów to układ world/gallery,
-  test gallery sprawdza, że każdy wymieniony demon ma swój pad). Nowy demon
-  w falach: content/waves.lua (skład; spoza rotacji dochodzi sam, po id).
+  ekranów się nie edytuje. Nowy stwór na mapie: posterunek w content/pilgrimage.lua.
   Odmiana ciała w grze: e.variant (id odmiany z definicji), A.of(e).
   Inny opis ciała na tym samym obrazie (płyty, inne materiały, inna liczba
   części jednej strefy): adnotacja w content/art/anatomy/<id>.lua, wpis w
@@ -496,12 +487,8 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
 13. ŚWIADOME GRANICE
 
   Tryby oryginalne trzymają rekordy w g.run / g.testField (dane trybu).
-  Rola trybów (0.31): classic = deterministyczna arena testów,
-  botów i złotego wzorca (--selftest, --showcase, Fixtures.arena); sesja
-  descent = sesja aplikacji (menu i wejście do poligonu). Menu uruchamia
-  szybką potyczkę lub katalog poligonu; pełny normalny cykl fal, sklepu,
-  śmierci i echo nie jest oferowany. Wyprawa expedition, zapis SIGIL08,
-  sklep i postęp pozostają biblioteką sprawdzaną testami.
+  Role trybów: pilgrimage = gra (menu i kaplica); field = poligon jako warsztat;
+  floor (qa/floor.lua) = pusta sala testów, botów i złotego wzorca, istnieje tylko w QA.
   Krzywe animacji to dane w kodzie objęte zapadką tools/check/literals.txt
   (może maleć). Trafienia wszystkich dzisiejszych demonów: enemies/pose ->
   enemies/surface -> maska atlasu + adnotacja anatomii (appearance.regions).
@@ -578,7 +565,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   FORMAT.ps1 (StyLua) przed testami; TEST.ps1 -Suite All|Architecture|
   Mechanics|Input|Render|Tools; tools/check.ps1; raporty w work/qa-v<wersja>/
   (qaOutput w game/src/app/release.lua). Flagi: --selftest, --input-test,
-  --showcase, --benchmark, --population (same populacje botów), --hit-review
+  --showcase, --benchmark, --hit-review
   (raporty trafień, GPU, opóźnienia i koszt salwy, nakładki hit-overlay-*),
   --record (+ F9), --suite=<id> (jeden zestaw), --core-measure
   (core-measure.txt: maski, salwa, pociski, pazur, Snapshot, Journal, długa
@@ -597,8 +584,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   przez storage/execution (nazwane skalary, kolejność konsumowania).
   Replay odtwarza je bez czytania bieżącego profilu i bez trwałych zapisów;
   zakres blokady jest zdejmowany także po błędzie. Stary dziennik bez
-  zapisanego rekordu classic przy wygranej zgłasza brak wejścia, zamiast
-  pobierać dzisiejszy plik. Nie wpływa to na odczyt zapisów SIGIL06–09.
+  zapisanego wejścia zgłasza brak, zamiast pobierać dzisiejszy plik.
   Obserwacja trafienia jest częścią komendy. Nagrywanie ma limit szacowanych
   64 MiB serializowanego tekstu albo 216000 komend (10 min aktualizacji 120/s
   i celowania 240/s; nie jest to limit RAM).

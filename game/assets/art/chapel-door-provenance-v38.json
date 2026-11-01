@@ -1,0 +1,8 @@
+{
+  "method": "Built-in image_gen through Codex gpt-6-astra at high effort",
+  "scope": "New door art for the chapel; existing creature, weapon and interface images unchanged.",
+  "output": ["assets/art/chapel-door-barred-v38.png", "assets/art/chapel-door-open-v38.png"],
+  "sha256": ["302A6FBBBA48ADFE46C5244BCE4B11C199431117995973F553C5937D9AEC9AAA", "D90AE1B5D64425E0D2EB3EB3810528611BA0631DDA3B1B330BBA878EEF846598"],
+  "prompt": "A dark oak chapel door with iron straps in a pointed stone arch on #FF00FF, barred and standing ajar, matched to catacomb-loculi-fresco.png.",
+  "processing": "Magenta keyed to alpha, edge eroded, cropped to the arch and resized to 768 by 768, standing on the bottom edge."
+}

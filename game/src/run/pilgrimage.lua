@@ -6,6 +6,7 @@ local Abilities = require('src.content.abilities')
 local Characters = require('src.content.characters')
 local Destruction = require('src.combat.destruction')
 local Encounter = require('src.session.encounter')
+local Execution = require('src.storage.execution')
 local Feel = require('src.player.feel')
 local K = require('src.content.pilgrimage')
 local MathX = require('src.core.mathx')
@@ -14,14 +15,10 @@ local Roles = require('src.core.roles')
 local Sanctuary = require('src.session.sanctuary')
 local Save = require('src.storage.save')
 local Text = require('src.content.text')
-local Tiles = require('src.core.tiles')
 local Weapons = require('src.content.weapons')
 local Archetypes = require('src.content.enemies')
-local World = require('src.world.arena')
 local P = {}
 local FILE = 'pilgrimage.save'
--- What the knight sees of a door before and after it is opened.
-local FLOOR, WALL = Tiles.codes.floor, Tiles.codes.wall
 local distance = MathX.distance
 local function fireOf(id)
   for _, fire in ipairs(K.fires) do
@@ -46,12 +43,6 @@ local function place(g, entry)
   e.patrol, e.post = entry.patrol, entry.id
   return e
 end
--- A door stands as a wall until it is opened from its own side.
-local function hang(g)
-  for _, door in ipairs(K.doors) do
-    World.setCell(g.world, door.x, door.z, g.run.opened[door.id] and FLOOR or WALL)
-  end
-end
 -- The world as a rest leaves it: every creature at its post.
 function P.populate(g)
   Encounter.clearStage(g)
@@ -75,14 +66,20 @@ local function refresh(g)
 end
 local function wake(g, fire)
   local p = Roles.controlled(g)
-  p.x, p.z, p.pitch = fire.x, fire.z + K.wake, 0
+  p.x, p.z, p.pitch = fire.x, fire.z - K.wake, 0
   p.yaw = math.pi
   p.jump, p.jumpV, p.dashTimer = 0, 0, 0
 end
 function P.save(g)
   local r = g.run
   r.saves = r.saves + 1
-  return Save.write(FILE, Save.encode('pilgrimage', Save.capture('pilgrimage', g), r.saves))
+  local text = Save.encode('pilgrimage', Save.capture('pilgrimage', g), r.saves)
+  local reason = Execution.effect(g, 'pilgrimage.save', function()
+    local ok, problem = Save.write(FILE, text)
+    return not ok and problem or nil
+  end)
+  g.saveWarning = reason
+  return reason == nil
 end
 -- A new way: the old one is gone, every copy of it.
 function P.forget()
@@ -110,15 +107,15 @@ function P.init(g, options)
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
   -- A journal replays the way as it was when the session began.
-  local data, sequence = options and options.origin, 0
+  local data, sequence, damaged = options and options.origin, 0, false
   if not data then
-    data, sequence = Save.read('pilgrimage', FILE)
+    data, sequence, damaged = Save.read('pilgrimage', FILE)
   end
   g.run.origin, g.run.saves, g.run.saved = data, sequence, data ~= nil
+  g.availableSave, g.saveRecovered = data, damaged
   if data then
     Save.restore('pilgrimage', g, data)
   end
-  hang(g)
   refresh(g)
   wake(g, fireOf(g.run.fire))
   P.populate(g)
@@ -131,22 +128,30 @@ end
 local function doorHere(g)
   local p = Roles.controlled(g)
   for _, door in ipairs(K.doors) do
-    if distance(p, door.side) < K.reach then
+    if distance(p, door.side) < K.doorReach then
       return door, true
-    elseif distance(p, door.back) < K.reach then
+    elseif distance(p, door.back) < K.doorReach then
       return door, false
     end
   end
 end
--- [E] at a door: from its own side it opens, for good; from the other it is barred.
-local function unbar(g)
-  local door, own = doorHere(g)
-  if not door or g.run.opened[door.id] then
+-- [E] at a door: barred, it opens from its own side, for good; open, the knight goes
+-- through to the other side.
+local function door(g)
+  local found, own = doorHere(g)
+  if not found then
     return false
   end
-  if own then
-    g.run.opened[door.id] = true
-    hang(g)
+  local r = g.run
+  if r.opened[found.id] then
+    local to = own and found.back or found.side
+    local p = Roles.controlled(g)
+    p.x, p.z, p.yaw, p.pitch = to.x, to.z, to.yaw, 0
+    p.vx, p.vz = 0, 0
+    Feel.init(g)
+    Presentation.cue(g, 'seal', 0.5)
+  elseif own then
+    r.opened[found.id] = true
     P.save(g)
     g:notify(Text.get('pilgrim_door_opened'), 3)
     Presentation.cue(g, 'seal', 0.5)
@@ -160,7 +165,7 @@ end
 function P.interact(g)
   local fire = P.fireHere(g)
   if not fire then
-    return unbar(g)
+    return door(g)
   end
   local r = g.run
   r.fire, r.lit[fire.id] = fire.id, true
@@ -201,9 +206,12 @@ function P.context(g)
   if fire then
     return Text.get('pilgrim_prompt', { name = Text.get(fire.name) })
   end
-  local door, own = doorHere(g)
-  if door and not g.run.opened[door.id] then
-    return Text.get(own and 'pilgrim_door_prompt' or 'pilgrim_door_stuck')
+  local found, own = doorHere(g)
+  if found then
+    return Text.get(
+      g.run.opened[found.id] and 'pilgrim_door_pass'
+        or (own and 'pilgrim_door_prompt' or 'pilgrim_door_stuck')
+    )
   end
   local echo = g.run.echo
   if echo and distance(Roles.controlled(g), echo) < K.reach then
@@ -249,7 +257,7 @@ function P.update(g)
   end
 end
 -- What the world shows of the way: the fires beyond the first, which is the Ember.
-function P.world(_, out)
+function P.world(g, out)
   out.fires = out.fires or {}
   for i = #out.fires, 1, -1 do
     out.fires[i] = nil
@@ -260,6 +268,17 @@ function P.world(_, out)
     end
   end
   out.shrineActive = true
+  out.doors = out.doors or {}
+  local count = 0
+  for _, door in ipairs(K.doors) do
+    local art = g.run.opened[door.id] and 'chapel_door_open' or 'chapel_door_barred'
+    for _, side in ipairs({ door.side, door.back }) do
+      count = count + 1
+      local mark = out.doors[count] or {}
+      out.doors[count] = mark
+      mark.x, mark.z, mark.yaw, mark.art = side.art.x, side.art.z, side.art.yaw, art
+    end
+  end
   return out
 end
 local report = {}

@@ -140,7 +140,6 @@ function F.reset(g)
     0, 0, 0, 0, 0, 0
   g.view.feedbackTimer, g.zoneTimer, g.nextAttack = 0, 0, 0
   g.view.presentationPrevious = nil
-  g.availableSave = nil
   g.saveWarning = nil
   g.shopMessage = nil
   g.testField.poseIndex = 1

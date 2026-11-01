@@ -26,6 +26,8 @@ local map = {
     { 30, 2, 34, 5 }, -- approved burial galleries
   },
   pillars = {},
+  -- The corners where the rectangles of two rooms touch behind the painted wall.
+  blocked = { { 14, 6 }, { 34, 6 } },
   elevations = {
     { x1 = 22, z1 = 4, x2 = 26, z2 = 5, height = 0.16 },
     { x1 = 22, z1 = 2, x2 = 26, z2 = 3, height = 0.32 },

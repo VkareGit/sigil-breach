@@ -93,7 +93,6 @@ Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
   --movement-review ruchy rycerza w zwykłej symulacji (uniki, idealny unik,
                    ślizg, lądowanie, ładunek), trzy chwile każdego
                    -> movement-marks-*.png, movement-marks.csv
-Balans: --population liczy same populacje botów (raport playtest-population).
 Trafienia: --hit-review liczy same raporty trafień względem obrazu (hit-*,
 plan v7 H0–H9). Nowy punkt anatomiczny: wycinek tools/art/landmarks/crops.ps1,
 wpis w game/qa/data/hit_landmarks.lua, test hit-landmarks sprawdzi, czy leży
@@ -183,7 +182,7 @@ Mapa / obiekt świata:
   Ozdoba nie staje się automatycznie przeszkodą fizyczną. Trzeba to zdecydować.
 
 Zapis:
-  storage/run_save.lua i run/descent.lua. Nie zapisuj siatek GPU, transientów
+  run/pilgrimage.lua. Nie zapisuj siatek GPU, transientów
   lub stanu klawiszy. Zapis SIGIL08 przechowuje sloty wyposażenia (slots,
   checkslots) osobno od liczby użyć po ID. Odczyt także SIGIL06 i SIGIL07:
   dawne formaty nie miały kolejności wyposażenia, więc migracja zachowuje
@@ -231,12 +230,12 @@ Nowy demon z nowym atlasem (plan v10 V7):
   5. Definicja: content/creatures/<id>.lua (appearance.atlas, klucze
      tekstów nazwy i karty bestiariusza; body.corpse = { settle, landing }
      to czas osiadania zwłok i moment uderzenia o podłogę, niezależne od
-     długości malowanego upadku), id w A.creatures; fale w
-     content/waves.lua; punkty anatomiczne w qa/data/hit_landmarks.lua.
+     długości malowanego upadku), id w A.creatures;
+     punkty anatomiczne w qa/data/hit_landmarks.lua.
   6. .\CHECK-CREATURE.ps1 <id> wypisuje każdy brakujący element (definicja,
      arkusz, obrazy, klatki, pozy (każda klatka pozy z kotwicą, anatomią
      i maską), stopy, anatomia, maski, punkty, galeria,
-     bestiariusz, fale, grafika ataków); kod wyjścia 0 = komplet.
+     bestiariusz, grafika ataków); kod wyjścia 0 = komplet.
   Zmierzony czas narzędzi (test creature-pipeline, 20 klatek nowego atlasu):
   arkusz 0,1 s, anatomia z warstw 0,16 s, maski 20 klatek 5,5 s.
   Skrypty z izolowanym uruchomieniem gry: BAKE-HIT-MASKS.ps1 (188 klatek)
@@ -380,7 +379,7 @@ jest zamrożony, bez present/VSync. Pełne próbki: work/v11-views-final.
 To koszt dwóch pełnych obrazów, nie dwa mniejsze okna ani pomiar FPS.
 
 --resource-plateau wykonuje osiem rzeczywistych cykli aplikacji przez
-menu, poligon, dodatkowy widok, replay i wyprawę. Mierzy zasoby natywne
+menu, poligon, dodatkowy widok, replay i kaplicę. Mierzy zasoby natywne
 i stertę Lua, sprawdza właścicieli po zamknięciu. Normalne cykle nie
 wyłączają JIT; pojedyncze końcowe usunięcie trace'ów jest tylko audytem
 rozróżniającym referencje aplikacji od referencji skompilowanych domknięć.

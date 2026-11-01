@@ -4,10 +4,10 @@
 -- nave of the chapel by a reading and a clumsy knight, and the drill on the test room. The
 -- earlier history of this file is in git.
 return {
-  playtest = 'ad76b3aa/b5b7955c',
-  human = 'baefa423/25c00a25',
+  playtest = '3362e531/ff068b8a',
+  human = '76ef4017/745b7146',
   drill = '2a9091fc/15ef9a46',
-  playtestContacts = '1b5110f8/361',
-  humanContacts = '1e6bde7a/541',
+  playtestContacts = 'c2b65093/397',
+  humanContacts = 'deff2f8b/623',
   drillContacts = '4050abb9/254',
 }

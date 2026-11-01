@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.37 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.38 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -8,6 +8,33 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.38.txt
+SIGIL: BREACH 0.38: odbiór
+
+Sprawdzone automatycznie:
+- Selftest źródeł: 5518 sprawdzeń, 0 uwag architektury. Mniej niż w 0.37, bo testy fal,
+  Limbo i starego zapisu usunięto razem z tym kodem.
+- Test przez prawdziwe klawisze: menu, wejście do kaplicy, odpoczynek, pauza, kontynuacja,
+  nowa gra.
+- Test drogi: posterunki, smycz, odpoczynek, zakup przy ogniu, podróż, śmierć, dusze, drzwi
+  z obu stron, zapis i zniszczenia.
+- Złoty wzorzec jest nowy, bo stare scenariusze stały na usuniętej mapie. Dwa przebiegi z rzędu
+  dają te same skróty.
+- Grafika drzwi, ogniska, mapa, śmierć i menu obejrzane w klatkach z gry (--chapel-look).
+
+Złagodzone na czas odłożonych bossów:
+- souls_bots tylko mierzy wygrane z Margrabią i Furfurem, a przy stadzie wymaga, by bot
+  uczący się żył dłużej niż stojący i zabił więcej, nie żeby wygrał.
+- souls_gate wymaga 4 śmierci na 6, nie 6 na 6, u rycerza, który tylko się rusza.
+
+Nie zamknięte:
+- Gra nie ma zakończenia: bossy są odłożone, a Margrabia i Furfur to najtrudniejsze moby.
+- Liczby botów nie mówią, jak trudno będzie człowiekowi.
+
+Odbiór B2 (ocena gracza w normalnej grze): otwarty.
 
 
 ########################################################################

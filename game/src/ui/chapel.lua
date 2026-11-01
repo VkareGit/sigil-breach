@@ -288,7 +288,7 @@ function D.map(g)
     local lit = r.lit[fire.id]
     local y = 163 + (i - 1) * 39
     text(Text.get(fire.name), 136, y, 22, lit and gold or muted)
-    text(Text.get(lit and 'map_fire_lit' or 'map_fire_dark'), 386, y + 5, 14, muted)
+    text(Text.get(lit and 'map_fire_lit' or 'map_fire_dark'), 420, y + 5, 14, muted)
   end
   local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
   for z = 1, Grid.depth(g.world) do
@@ -313,13 +313,19 @@ function D.map(g)
     end
   end
   local cold = Palette.cold
+  color(cold)
+  lg.setLineWidth(2)
+  for _, fire in ipairs(Way.fires) do
+    if r.lit[fire.id] and fire.id ~= Way.first then
+      lg.circle('line', ox + fire.x * sz, oy + fire.z * sz, 7)
+    end
+  end
   local shrine = g.world.ember
   local sx, sy = ox + shrine.x * sz, oy + shrine.z * sz
   color(cold)
   lg.setLineWidth(2)
   lg.circle('line', sx, sy, 13)
   Skin.icon('ring', sx - 8, sy - 8, 16)
-  text(Text.get('map_ember_open'), sx - 54, sy + 17, 14, cold)
   if r.echo then
     local e = r.echo
     color(blue)

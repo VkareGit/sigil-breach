@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.37 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.38 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,30 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.38.txt
+SIGIL: BREACH 0.38 / The Chapel
+
+Sprzątanie: gra to kaplica i poligon. Usunięte z kodu: Limbo, klasyczna arena, wyprawa,
+fale, tiery, zapis wyprawy, HUD i mapa klasycznej areny, tablice i posągi starej galerii.
+Kto będzie chciał do nich wrócić, ma je w historii gita.
+
+Grafika:
+- Drzwi w kaplicy: dwa malowane stany (zaryglowane i uchylone) namalowane przez Codexa.
+- Pierwsze ognisko budzi rycerza z ogniem za plecami, a nie przed twarzą.
+- Mapa pokazuje zapalone ogniska. Etykieta ładunku w HUD już się nie ucina.
+- Kaplica ładuje się na ekranie ładowania, nie w pierwszej klatce gry.
+
+Naprawione:
+- Handel przy ognisku w 0.37 nie działał: zakup pytał o fazę, której kaplica nie ma.
+- Szczelina między galerią a absydą pozwalała przejść przez malowaną ścianę.
+- Zapis kaplicy zgłasza błąd zapisu, a menu mówi o odzyskaniu poprzedniej kopii.
+- Pasek celu działa w kaplicy.
+
+Testy: stoją na pustej sali qa/floor.lua. Testy samych fal i starego zapisu usunięte.
+Złoty wzorzec jest nowy: bot idzie nawą, bo starych scenariuszy nie ma na czym odtworzyć.
 
 
 ########################################################################

@@ -29,7 +29,7 @@ zmieniasz, zostawiasz zgodny z konwencją).
 
 4. DANE I LICZBY
    - Liczba, którą się stroi, ma nazwę i dom (ARCHITEKTURA, punkt 9):
-     content/tuning, content/combat_defaults, content/waves, dane trybów,
+     content/tuning, content/combat_defaults, dane trybów,
      definicje, ui/palette. Kod symulacji: liczby całkowite jednocyfrowe,
      0.5 i epsilony (1e-9) wolno; reszta tylko nazwana. tools/check liczy
      nienazwane liczby w każdym pliku symulacji (i src/app) i nie przepuści wzrostu
@@ -76,8 +76,8 @@ zmieniasz, zostawiasz zgodny z konwencją).
      pociski, ładunki i promienie żyją w wysokości świata i dodają
      Ground.height (physics/ground.lua). Nigdy „y = 0” w nowym kodzie.
    - Polecenie trybu (gotowość, ponów, sklep, zakup, śmierć, nagroda) idzie
-     przez Modes.act, nie przez wyprawę. Moduł jednego trybu nie wymienia
-     innego trybu z nazwy (wyprawa nie zna poligonu); różnice = handlery trybu.
+     przez Modes.act. Moduł jednego trybu nie wymienia
+     innego trybu z nazwy (kaplica nie zna poligonu); różnice = handlery trybu.
    - Pytanie „czy to teraz działa” (wstrzymanie, zamrożenie, podatność) idzie
      przez session/capabilities.lua, nie przez czytanie pól sesji w systemie.
    - Brak obejść pod atrapy testowe („g.f and g:f()”, udawane pakiety,
@@ -116,8 +116,8 @@ zmieniasz, zostawiasz zgodny z konwencją).
    - Każdy naprawiony błąd ma test regresji; każda zmiana symulacji
      musi przejść złoty wzorzec (tests/suites/golden.lua) albo świadomie
      zaktualizować tests/golden/baseline.lua z wpisem w ZMIANY.
-   - Zmiana balansu: populacje botów przed i po (--population; podstawowa
-     i wprawna) i opis techniczny (kontrola, czas zabicia, obrażenia,
+   - Zmiana balansu: pomiar botem przed i po (qa/souls_bot.lua)
+     i opis techniczny (kontrola, czas zabicia, obrażenia,
      zabójstwa przełamane, idealne uniki).
    - Nazwa pliku testu mówi, co sprawdza, nie z której wersji jest.
 

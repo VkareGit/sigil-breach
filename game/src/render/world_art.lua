@@ -245,7 +245,8 @@ WorldObjects.register('supplies', {
     end,
   },
 })
--- The fires of the way beyond the first one.
+-- The fires of the way beyond the first one, and its doors.
+local doorSize = require('src.content.pilgrimage').doorSize
 WorldObjects.register('fires', {
   {
     pass = 'sprites',
@@ -254,6 +255,10 @@ WorldObjects.register('fires', {
       local view = Queries.world(g)
       for _, fire in ipairs(view.fires or {}) do
         Art.shrine(r, g, { shrine = fire, shrineActive = true })
+      end
+      for _, door in ipairs(view.doors or {}) do
+        local floor = Ground.of(g.world, door)
+        Art.mural(r, nil, door.x, floor, door.z, door.yaw, doorSize, door.art)
       end
     end,
   },

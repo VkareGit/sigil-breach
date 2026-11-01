@@ -34,4 +34,6 @@ end
 Tiles.define('floor', { walkable = true })
 Tiles.define('wall', { solid = true, masonry = true })
 Tiles.define('pillar', { solid = true, round = true })
+-- Stone the painted map already draws: it stops bodies and has no mesh of its own.
+Tiles.define('blocked', { solid = true })
 return Tiles

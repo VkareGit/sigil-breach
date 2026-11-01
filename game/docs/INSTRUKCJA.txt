@@ -1,11 +1,11 @@
-SIGIL: BREACH — prototyp 0.37
+SIGIL: BREACH — prototyp 0.38
 1 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
-KAPLICA (0.37: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
+KAPLICA (0.38: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
 BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
 zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
 [E] przy ognisku: odpoczynek. Leczy, napełnia flaski i amunicję, zapisuje grę, ustawia
@@ -23,21 +23,13 @@ Paczka EXE: %APPDATA%\sigil-breach-prototype\telemetry.txt
 Gra ze źródeł (RUN.ps1): %APPDATA%\LOVE\sigil-breach-prototype\telemetry.txt
 (wklej ścieżkę w pasek adresu Eksploratora). F9 pokazuje pełną ścieżkę.
 F9 dopisuje statystyki walki (śmierć, oczyszczona potyczka i ukończona próba
-fal dopisują je same); każdy wpis ma „to starcie” i sumę od początku pomiarów.
+lub ukończonej próbie dopisują je same); każdy wpis ma „to starcie” i sumę od początku pomiarów.
 Z flagą --record F9 zapisuje też dziennik poleceń aktywnej sesji.
 
 URUCHOMIENIE I ZAKRES
-Rozpakuj cały ZIP. Uruchom SIGIL-BREACH.exe, zachowując DLL obok niego.
-Nie trzeba instalować LÖVE. QUICK SKIRMISH rozpoczyna szybką potyczkę.
-PROVING GROUND / F2 otwiera katalog testowy. Menu i HUD mają układ 0.30;
-nie dodano nowego trybu. Poligon działa w pamięci i nie zmienia zapisu wyprawy.
-Gra zachowuje angielski interfejs ze źródeł 0.14.
-Jedna arena testowa 31 x 31, z otwartą galerią i 588 polami posadzki.
-Dopracowujemy ruch, dwie bronie, animacje, fizykę, grafikę i trafienia.
-Kolejne mapy, fabuła i łupy pozostają na później. Manifest Nikogo to
-materiał do wyglądu bohatera, nie scenariusz. Sklep i WAVE TRIAL są wyłączone
-w publicznym poligonie. Nie ma dostępnego scenariusza Limbo, cyklu fal,
-handlu ani kontynuowania wyprawy. Ich kod i testy pozostają w bibliotece.
+Nie trzeba instalować LÖVE. BEGIN albo CONTINUE wchodzi do kaplicy. SKIRMISH
+rozpoczyna szybką potyczkę, PROVING GROUND / F2 otwiera poligon jako warsztat.
+Gra ma angielski interfejs. Poligon działa w pamięci i nie zmienia zapisu.
 
 STEROWANIE
 WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
@@ -45,8 +37,8 @@ WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
 Shift — unik w kierunku ruchu; dwa odnawialne ładunki.
 Ctrl — ślizg; Spacja — skok (przytrzymanie powtarza skok po lądowaniu).
 Q — fizyczny ładunek prochowy (slot 1); F / C — sloty 2 i 3 na przyszłe
-wyposażenie (puste; rycerz nie używa magii). E — interakcja z polami galerii.
-Enter nie rozpoczyna fali. Tab — mapa; F1 — pomoc; Esc — pauza.
+wyposażenie (puste; rycerz nie używa magii). E — interakcja: ognisko, drzwi, pola poligonu.
+Tab — mapa; F1 — pomoc; Esc — pauza.
 F2 — katalog poligonu; F11 — pełny ekran; M — wyciszenie.
 F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
 (telemetry.txt w katalogu danych gry; ścieżka wyżej i na ekranie po F9).
@@ -148,11 +140,10 @@ Ember Thrall, Iron Thrall, Star Acolyte, Plague Gardener,
 Margrave of Ash oraz Furfur, Storm Count. Limit 20 żywych przeciwników
 (otwierające się portale też się liczą). Cel lub grupa z katalogu (F2)
 przychodzi przez portal: brama świeci 1,2 s, potem demon z niej wychodzi
-(jak w falach). Manekiny stanowisk, szybka potyczka, pola galerii i podgląd
+Manekiny stanowisk, szybka potyczka i pola poligonu
 pozy stawiają demona od razu.
 Katalog: cele/grupy, zasoby, GOD MODE, AI / PROJECTILES, HITBOXES,
-pozy, podgląd HUD, RESET FIELD. Galeria ma posągi, tablice
-materiałów, pola przywołań i znaki. Furfur jest dostępny na poligonie;
+pozy, podgląd HUD, RESET FIELD. Pola przywołań i znaki stoją w sali.
 ma poroże, szarżę po ustalonym kierunku i piorun z ostrzeżeniem 1,1 s.
 HITBOXES pokazuje dokładnie to, czym gra rozstrzyga, w bieżącej pozie:
 powierzchnię strzału (namalowany pigment klatki w kolorze strefy: głowa
@@ -164,23 +155,15 @@ kontaktu ataku w jego aktywnym oknie (dłoń, czoło szarży, krąg lądowania
 skoku; przygaszone poza oknem) i promienie ostatniego strzału.
 Archiwum: 3 reprodukcje pieczęci Goetii i 3 pentakle Saturna.
 Poligon ma osobny stan w pamięci. F2 i powrót zachowują poprzednią sesję
-aplikacji; próby nie zmieniają zapisu wyprawy.
+aplikacji; próby nie zmieniają zapisu kaplicy.
 
-FALE, HANDEL I ZAPIS — ZAKRES PUBLICZNEGO POLIGONU
-Sklep i próba fal nie są oferowane ani przez katalog, ani przez interakcję
-przy Żarze. Reset nie włącza ich ponownie. Strzelnica, fizyka, wybór demona,
-grupy, poziom TIER i szybka potyczka pozostają dostępne.
-Szybka potyczka ma początkowe zapasy amunicji i osłonę 40; jest pojedynczym
-starciem bez automatycznej następnej fali, handlu i cyklu ekonomii.
+HANDEL I ZAPIS NA POLIGONIE
+Sklep nie jest oferowany ani przez katalog, ani przez interakcję przy Żarze.
+Strzelnica, fizyka, wybór demona, grupy i szybka potyczka pozostają dostępne.
+Szybka potyczka ma początkowe zapasy amunicji i osłonę 40.
 Pełny RESET FIELD uzupełnia zasoby, usuwa rany, oszołomienie, odrzut,
 stary feedback i przeciwników. Samo uzupełnienie zasobów ma węższy zakres.
-Dotychczasowy HUD oraz dekoracja Żaru są zachowane. Wartość SOULS jest
-pozostałością testowego portfela, nie obietnicą czynnego sklepu.
-Biblioteka nadal zawiera klasyczną arenę, wyprawę, fale, ekonomię, śmierć,
-echo, checkpointy, grawery i zapis. Bezpośrednie narzędzia QA ćwiczą te
-ścieżki poza publiczną rozgrywką. Zapis SIGIL09 i odczyt dawnych formatów
-pozostają w kodzie; ten etap nie zmienia plików zapisanych wypraw.
-Dawne zapisy pozostają nietknięte podczas korzystania z poligonu.
+Poligon niczego nie zapisuje.
 
 OPRAWA
 Inferno Giovanniego da Modeny, piekielne skrzydło Ogrodu Boscha,
@@ -201,7 +184,7 @@ Flagi: --selftest, --input-test, --showcase, --benchmark.
 Detale: --detail-test oraz --detail-review.
 Strzał i śmierć: --firing-review (wyciszone sekwencje, pomiary i obrazy).
 Wyniki wszystkich zestawów: work/qa-v<wersja> (release.lua). Raporty powstają od zera.
-Powtórki: --record zapisuje dziennik poleceń; odtwarza się wyprawę, szybką
+Powtórki: --record zapisuje dziennik poleceń; odtwarza się kaplicę, szybką
 potyczkę i poligon (także akcje katalogu poligonu).
 QA jest wyciszone, nie przejmuje kursora i ma osobny katalog zapisu.
 Testy nie zastępują subiektywnej oceny feelingu przez gracza.

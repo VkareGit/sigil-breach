@@ -7,7 +7,6 @@ local Pools = require('src.session.world')
 local T = {}
 local function session(Game)
   local g = Game.new('pilgrimage')
-  g.testing = true
   g:act('start')
   g.state = 'playing'
   return g
@@ -96,20 +95,25 @@ function T.run(Game)
   local before = g.run.wallet
   g:damageEnemy(hard, hard.hp + 1, 'weapon', nil, p.id)
   check('it pays and ends nothing', g.run.wallet > before and g.state == 'playing')
-  -- The door is a wall until it is opened from its side.
+  -- A door stays barred until it is opened from its side, then it leads through.
   local World = require('src.world.arena')
-  check('a door is a wall', World.solid(g.world, 14, 6, 0.3))
-  p.x, p.z = 14.5, 4.5
+  local door = K.doors[1]
+  check('the wall behind a door is stone', World.solid(g.world, 14, 6, 0.3))
+  p.x, p.z = door.back.x, door.back.z
   g:interact()
-  check('barred from the far side', World.solid(g.world, 14, 6, 0.3))
-  p.x, p.z = 13.5, 7
+  check('barred from the far side', not g.run.opened[door.id] and p.x == door.back.x)
+  p.x, p.z = door.side.x, door.side.z
   g:interact()
-  check('it opens from its own', not World.solid(g.world, 14, 6, 0.3))
+  check('it opens from its own', g.run.opened[door.id] and p.x == door.side.x)
+  g:interact()
+  check('then it leads through', p.x == door.back.x and p.z == door.back.z)
+  g:interact()
+  check('and back', p.x == door.side.x and p.z == door.side.z)
   -- The save holds the way.
   local saved = session(Game)
   check('a new session knows the lit fires', saved.run.lit.west)
-  check('an open door stays open', not World.solid(saved.world, 14, 6, 0.3))
-  check('the other is still shut', World.solid(saved.world, 34, 6, 0.3))
+  check('an open door stays open', saved.run.opened[door.id])
+  check('the other is still shut', not saved.run.opened[K.doors[2].id])
   -- What collapsed stays down through a rest and a save; small things stand again.
   local Destruction = require('src.combat.destruction')
   local Kinds = require('src.content.breakables')

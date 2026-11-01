@@ -67,6 +67,20 @@ return {
   chapel_mourners = panel({ 0.002, 0.502, 0.496, 0.496 }),
   chapel_plaster = panel({ 0.51, 0.508, 0.48, 0.35 }),
   chapel_frieze = panel({ 0.506, 0.894, 0.488, 0.098 }, 0.488 / 0.098),
+  chapel_door_barred = {
+    path = 'assets/art/chapel-door-barred-v38.png',
+    rect = { 0, 0, 1, 1 },
+    filter = 'linear',
+    mipmaps = true,
+    mipmapFilter = 'linear',
+  },
+  chapel_door_open = {
+    path = 'assets/art/chapel-door-open-v38.png',
+    rect = { 0, 0, 1, 1 },
+    filter = 'linear',
+    mipmaps = true,
+    mipmapFilter = 'linear',
+  },
   catacomb_loculi = {
     path = 'assets/art/catacomb-loculi-fresco.png',
     rect = { 0, 0, 1, 1 },

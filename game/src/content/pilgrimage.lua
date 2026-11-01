@@ -13,7 +13,7 @@ return {
   souls = 10,
   -- The echo of a death is taken within echoReach m.
   echoReach = 1.2,
-  -- A knight wakes this far from his fire (m).
+  -- A knight wakes this far before his fire (m), with it at his back.
   wake = 1.5,
   fires = {
     { id = 'narthex', name = 'fire_narthex', x = 27, z = 35 },
@@ -21,23 +21,34 @@ return {
     { id = 'west', name = 'fire_west', x = 10, z = 21 },
     { id = 'east', name = 'fire_east', x = 38, z = 21 },
   },
-  -- A door is a wall until it is opened from its own side: the way back to a fire.
+  -- A door stands on the wall between two places. It is barred until it is opened from
+  -- its own side; from then on [E] goes through it either way. side and back are where
+  -- a knight stands on each side, each with the door painted on the wall beside him.
   doors = {
     {
       id = 'west_gallery',
-      x = 14,
-      z = 6,
-      side = { x = 13.5, z = 7 },
-      back = { x = 14.5, z = 4.5 },
+      side = {
+        x = 13.6,
+        z = 7.2,
+        yaw = -math.pi / 2,
+        art = { x = 14.46, z = 7.2, yaw = -math.pi / 2 },
+      },
+      back = { x = 15.2, z = 4.3, yaw = math.pi, art = { x = 15.2, z = 5.46, yaw = math.pi } },
     },
     {
       id = 'east_gallery',
-      x = 34,
-      z = 6,
-      side = { x = 34.5, z = 7 },
-      back = { x = 33.5, z = 4.5 },
+      side = {
+        x = 34.4,
+        z = 7.2,
+        yaw = math.pi / 2,
+        art = { x = 33.54, z = 7.2, yaw = math.pi / 2 },
+      },
+      back = { x = 32.8, z = 4.3, yaw = math.pi, art = { x = 32.8, z = 5.46, yaw = math.pi } },
     },
   },
+  -- How near a door a knight must stand, and how tall it is painted (m).
+  doorReach = 1.5,
+  doorSize = 2.7,
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then
     -- iron before the fire. Each notices only so far, so a careful knight takes them apart.
@@ -45,15 +56,15 @@ return {
       id = 'nave_1',
       creature = 'imp',
       x = 22,
-      z = 29,
+      z = 26,
       yaw = 0,
-      alert = 9,
-      patrol = { { x = 22, z = 29 }, { x = 26, z = 29 }, { x = 26, z = 24 }, { x = 22, z = 24 } },
+      alert = 6,
+      patrol = { { x = 22, z = 26 }, { x = 26, z = 26 }, { x = 26, z = 22 }, { x = 22, z = 22 } },
     },
     { id = 'nave_2', creature = 'imp', x = 21.5, z = 19, yaw = 0, alert = 6 },
     { id = 'nave_3', creature = 'imp', x = 26.5, z = 18, yaw = 0, alert = 6 },
     { id = 'nave_4', creature = 'stolas', x = 24, z = 16, yaw = 0, alert = 9 },
-    { id = 'nave_5', creature = 'armored', x = 24, z = 11.5, yaw = 0, alert = 5 },
+    { id = 'nave_5', creature = 'armored', x = 24, z = 14, yaw = 0, alert = 5 },
     -- The crypts: they wait in the dark for whoever comes close.
     { id = 'crypt_1', creature = 'imp', x = 19.5, z = 4, yaw = 1.5, alert = 4 },
     { id = 'crypt_2', creature = 'imp', x = 28.5, z = 4, yaw = -1.5, alert = 4 },

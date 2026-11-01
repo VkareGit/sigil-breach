@@ -145,9 +145,12 @@ declare('session/listeners.lua', {
 })
 declare('session/damage_outcomes.lua', { 'playerDamageReport' })
 -- Modes.
-declare('run/descent.lua', { 'run', 'shopMessage', 'saveWarning' })
+declare(
+  'run/pilgrimage.lua',
+  { 'run', 'shopMessage', 'saveWarning', 'availableSave', 'saveRecovered' }
+)
 declare('run/modes.lua', { 'mode', 'modeData' }) -- ID and optional private state of a registered mode
-declare('run/test_field.lua', { 'testField', 'availableSave', 'tier' })
+declare('run/test_field.lua', { 'testField' })
 -- The encounter's guardian, shared by every mode (plan v11 E2).
 declare('session/encounter.lua', { 'encounter' })
 declare('systems/clocks.lua', { 'zone', 'zoneTimer' })

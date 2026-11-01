@@ -76,6 +76,9 @@ function W.new(mapId)
   for _, p in ipairs(data.pillars or {}) do
     w.map[p[2]][p[1]] = Tiles.pillar
   end
+  for _, p in ipairs(data.blocked or {}) do
+    w.map[p[2]][p[1]] = Tiles.blocked
+  end
   if data.elevations and #data.elevations > 0 then
     w.elevations = {}
     for _, area in ipairs(data.elevations) do

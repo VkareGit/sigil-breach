@@ -57,8 +57,6 @@ To górne oszacowanie tylko przy pojedynczych stworach, bo bot nie ma czasu reak
 jest inaczej: bot słabo wybiera miejsce walki i ciągnie za sobą kolejne stwory, więc tamte
 liczby nie mówią, jak trudno będzie człowiekowi.
 
-## Czego nie ma
+## Co było dalej
 
-- Stary kod fal, Limbo i klasycznej areny dalej jest w `src`, choć gracz do niego nie
-  dojdzie. Służy za fiksturę ponad 60 plików testów i wymaga osobnego przenosin.
-- Drzwi nie mają własnej grafiki: gracz znajduje je po napisie przy murze.
+Wersja 0.38 usunęła fale, Limbo, klasyczną arenę i tiery z kodu, a drzwi stały się malowanymi drzwiami na ścianie z przejściem na drugą stronę. Patrz ODBIOR.txt.

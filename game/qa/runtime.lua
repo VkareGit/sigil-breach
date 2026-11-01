@@ -45,6 +45,7 @@ local captures = {
   ['--startup-fixture'] = true,
   ['--resource-plateau'] = true,
   ['--view-measure'] = true,
+  ['--chapel-look'] = true,
 }
 -- The creature pipeline tools (plan v10 V7), each --name=value: an atlas id,
 -- an annotation id, a spec or legend file, a creature id.
@@ -195,6 +196,8 @@ function Q:run(G, renderer, getGame, settings, getLoading)
   elseif self:has('--core-measure') then
     -- Core costs before/after a change (qa/core_measure.lua).
     require('qa.core_measure').run(G, self.output, self:has('--qa-smoke'))
+  elseif self:has('--chapel-look') then
+    require('qa.reviews.chapel_look').run(G, renderer, self.output)
   elseif self:has('--selftest') then
     require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading)
   elseif self:has('--input-test') then
