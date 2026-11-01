@@ -24,7 +24,7 @@ end
 function Navigation.replace(app, modeId, mapId)
   local session = create(app, modeId, mapId)
   Navigation.clear(app)
-  app:adopt(session)
+  app:adopt(session, true)
   settleInput(app)
   return session
 end

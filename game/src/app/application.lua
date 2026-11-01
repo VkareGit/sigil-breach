@@ -60,8 +60,8 @@ end
 -- Make a session the active one (a new game, the proving ground, the way
 -- back): settings, its journal with --record (every command of the session,
 -- a bug report that replays exactly: session/journal.lua), and the garbage
--- of the one before collected now.
-function Application:adopt(game)
+-- of the one before collected now. entering: it is about to start, not a menu backdrop.
+function Application:adopt(game, entering)
   self.loading = nil
   self.discardLoadingDelta = nil
   self.input:forget(self.game)
@@ -75,7 +75,8 @@ function Application:adopt(game)
   end
   self:applySettings()
   -- A painted world is prepared before it is shown, never on the first frame of play.
-  if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
+  local shown = entering or game.state ~= 'menu'
+  if shown and self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
     local jobs = {}
     for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
       jobs[#jobs + 1] = job
