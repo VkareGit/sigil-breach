@@ -4,6 +4,8 @@ local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 
 function Tests.run(Game)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  Game = require('tests.support.v033_encounters').game(Game)
   local Death = require('src.feedback.death_response')
   local Anim = require('src.enemies.animation')
   local Body = require('src.enemies.body')

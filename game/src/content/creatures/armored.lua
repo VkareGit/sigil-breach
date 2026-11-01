@@ -28,7 +28,12 @@ return Creature.define({
   -- Armour protects from a major wound: a Judge body shot (53.8) does not
   -- wound, a head shot (72.7) does: threshold 68.
   body = {
-    hp = 260,
+    hp = 560,
+    poise = 150,
+    -- Its plate covers what it faces, and it turns slowly: walk around it.
+    front = 0.4,
+    breakTime = 2,
+    execution = 0.5,
     armor = 60,
     -- Its plate covers the front: the legs are the way in.
     locationArmor = { head = 60, torso = 60, lower = 25 },
@@ -36,12 +41,17 @@ return Creature.define({
     woundAt = 0.26,
     struck = 'metal',
   },
-  move = { speed = 3.8, accel = 16, heavy = true },
+  move = { speed = 3.8, accel = 16, heavy = true, turn = 1.8 },
+  answers = {
+    { when = 'behind', attack = 'back-swing', rest = 4, within = 3.6 },
+    { when = 'hugging', attack = 'ground-slam', rest = 6, within = 2.4, after = 1.2 },
+  },
   sounds = { step = 'iron_step' },
   tactics = {
+    roll = true,
     moves = {
       { attack = 'claw', ideal = 1.6, max = 2.05, weight = 2 },
-      { attack = 'cleave', ideal = 2.2, max = 2.8, weight = 3 },
+      { attack = 'cleave', ideal = 3, max = 4.6, weight = 3 },
       { attack = 'shoulder', ideal = 5, min = 2.6, weight = 1.5 },
       { attack = 'ground-slam', ideal = 2.4, max = 3.6, weight = 2.2 },
     },
@@ -87,20 +97,46 @@ return Creature.define({
     -- rest is the way in.
     Action.sweep({
       id = 'cleave',
-      range = 2.8,
-      rest = 3.4,
+      range = 4.6,
+      rest = 3,
       windup = 0.72,
-      hold = { 0, 0.3 },
+      hold = { 0, 0.3, 0.55 },
+      shuffle = true,
+      turn = 2.2,
+      lockAt = 0.7,
+      steady = true,
+      mirror = true,
+      chase = 1.8,
       hyper = 2.5,
-      reach = 2.7,
-      arc = 2.4,
-      active = { 0.08, 0.22 },
-      lungeSpeed = 4,
-      lungeTime = 0.16,
-      duration = 0.34,
+      trace = {
+        { at = 0.08, angle = -1.3, reach = 2.7, height = 1.4 },
+        { at = 0.24, angle = 1.3, reach = 2.8, height = 1 },
+      },
+      lungeSpeed = 12,
+      lungeTime = 0.18,
+      closing = 0.6,
+      duration = 0.36,
       recover = 1.05,
       cooldown = 1.2,
-      packet = packet(42, 120),
+      packet = packet(46, 120),
+    }),
+    -- Who gets behind the plate meets the elbow: slow to turn, not helpless.
+    Action.sweep({
+      id = 'back-swing',
+      range = 3.6,
+      windup = 0.5,
+      turn = 4,
+      lockAt = 0.8,
+      steady = true,
+      mirror = true,
+      trace = {
+        { at = 0.06, angle = -1.6, reach = 2.6, height = 1.3 },
+        { at = 0.2, angle = 1.6, reach = 2.6, height = 1.1 },
+      },
+      duration = 0.32,
+      recover = 1.3,
+      cooldown = 1.4,
+      packet = packet(38, 100),
     }),
     -- The fist driven into the floor: a low ring to jump, and a long rest.
     Action.wave({

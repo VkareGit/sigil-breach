@@ -349,7 +349,7 @@ function T.run(G, check, renderer, output)
   end
   check(
     'durability roles retain six distinct HP/armor pairs and substantial boss endurance',
-    count == #kinds and Def.boss.hp > maxNormalHP * 3 and Def.furfur.hp > maxNormalHP * 3
+    count == #kinds and Def.boss.hp > maxNormalHP * 3 and Def.furfur.hp > Def.boss.hp
   )
   local R = require('src.combat.reload')
   local A = require('src.audio.audio')

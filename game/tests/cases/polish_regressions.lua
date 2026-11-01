@@ -2,7 +2,9 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, check)
-  local A = require('src.content.enemies')
+  local A = setmetatable(require('tests.support.v033_encounters').content(), {
+    __index = require('src.content.enemies'),
+  })
   local Rules = require('src.combat.rules')
   local Damage = require('src.combat.damage')
   local Telemetry = require('src.combat.telemetry')

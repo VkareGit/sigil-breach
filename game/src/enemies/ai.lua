@@ -476,6 +476,7 @@ local function perceive(g, e, d, dt)
     e.facing = e.facing + math.max(-rate * dt, math.min(rate * dt, off))
   end
   e.closeFor = d < Senses.closeRange and (e.closeFor or 0) + dt or 0
+  e.frontOn = math.abs(angle(atan2(p.x - e.x, p.z - e.z) - e.facing)) < Senses.frontCone
   if e.awake and d < Senses.threatRange then
     g.threat = g.threat + (arch(e).threat or 1)
   end

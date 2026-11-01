@@ -74,6 +74,12 @@ Body.fields = {
   microStun = { type = 'number', min = 0, desc = 'boss: brief stun of a heavy unbroken blow' },
   steadfast = { type = 'boolean', desc = 'blows do not hold it: no hit-stop, no brief stun' },
   personal = { type = 'number', min = 0, desc = 'how near a knight comes to it (m)' },
+  front = {
+    type = 'number',
+    min = 0,
+    max = 1,
+    desc = 'share of damage it takes from the way it faces (a plate): go around it',
+  },
   shell = {
     type = 'number',
     min = 0,

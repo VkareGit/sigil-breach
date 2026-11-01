@@ -3,7 +3,9 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, check)
-  local A = require('src.content.enemies')
+  local A = setmetatable(require('tests.support.v033_encounters').content(), {
+    __index = require('src.content.enemies'),
+  })
   local Rules = require('src.combat.rules')
   local Damage = require('src.combat.damage')
   local Weapons = require('src.content.weapons')
@@ -93,7 +95,7 @@ function Tests.run(G, check)
   Rules.recover(guard, 0.7, A.buer.body)
   check(
     'guard does not recover during the delay, then at regenRate of the guard',
-    near(held, 30) and near(guard.poise, 30 - D.regenRate * 50 * 0.5, 1e-6)
+    near(held, 30) and near(guard.poise, 30 - D.regenRate * A.buer.body.poise * 0.5, 1e-6)
   )
   -- Bosses falter: the attack is delayed, not cancelled; armour is exposed.
   g = fresh()

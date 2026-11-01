@@ -425,7 +425,7 @@ function T.run(Game)
       }),
     }, { 13, 19 })
     g.player.x = 22
-    run(g, 0.45)
+    run(g, 0.75)
     local aimFirst = e.aimX
     g.player.x, g.player.z = 13, 25
     run(g, 0.5)

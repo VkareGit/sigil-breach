@@ -53,11 +53,9 @@ function T.run(Game)
         count = count + 1
       end
       check(id .. ' uses several actual deliveries: ' .. style, count >= 2 and released >= 2)
-      if style == 'react' then
-        -- One beat of a dodge no longer answers everything: a knight who has
-        -- learnt the fight is tests/cases/souls_bots.lua.
-        check(id .. ' responding to windups outlives standing still', g.elapsed > 12)
-      else
+      -- One beat of a dodge answers nothing any more: a knight who has learnt the
+      -- fight is tests/cases/souls_bots.lua.
+      if style ~= 'react' then
         check(
           id .. ' punishes ' .. style .. ' without raising HP',
           -- The 15 x 18 m halls allow a longer orbit than the former cramped

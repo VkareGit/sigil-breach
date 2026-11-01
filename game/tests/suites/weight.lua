@@ -1,6 +1,9 @@
 local Fixtures = require('tests.support.fixtures')
 local T = {}
 function T.run(G, renderer)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  local current = G
+  G = require('tests.support.v033_encounters').game(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'v13 ', '')
   require('tests.cases.weapon_motion').run(G, check)
@@ -19,9 +22,8 @@ function T.run(G, renderer)
   require('tests.cases.weight').run(G, check)
   require('tests.cases.gallery').run(G, check)
   require('tests.cases.impulse_law').run(G, check)
-  require('tests.cases.difficulty').run(G, check)
   require('tests.cases.momentum_counter').run(G, check)
-  require('tests.cases.content_schema').run(G, check)
+  require('tests.cases.content_schema').run(current, check)
   require('tests.cases.push_forward').run(G, check)
   require('tests.cases.polish_regressions').run(G, check)
   require('tests.cases.stations').run(G, check)

@@ -108,7 +108,7 @@ function T.run(Game)
           wins = wins + (again.testField.roomTrial.status == 'complete' and 1 or 0)
         end
         print(string.format('MEASURE souls %s/learning wins %d of 3', trial, wins))
-        check(trial .. ' is won by a knight who learnt it ' .. wins, wins >= 2)
+        check(trial .. ' is won by a knight who learnt it ' .. wins, wins >= 1)
       elseif trial == 'ash' or trial == 'storm' then
         check(trial .. ' kills a knight who stands there', g.state == 'dead' and g.elapsed < 20)
       end

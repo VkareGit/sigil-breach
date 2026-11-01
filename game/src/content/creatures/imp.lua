@@ -20,14 +20,25 @@ return Creature.define({
     portal = { 1, 0.42, 0.14 },
     art = { leap = 'leap' },
   },
-  -- Survives one volley at 8 m (~102), dies point blank (240) and when two
-  -- thralls share one close volley (~120 each): the multi-kill stays.
+  -- Two clean volleys. Its lesson is the wait: the late claw, and a shot in the beat
+  -- before it turns the claw aside.
   -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
-  body = { hp = 112, corpse = { settle = 0.44, landing = 0.22 } },
+  body = {
+    hp = 280,
+    poise = 70,
+    breakTime = 1.4,
+    execution = 0.6,
+    corpse = { settle = 0.44, landing = 0.22 },
+  },
   -- Below the knight's running speed; the committed leap closes the gap.
-  move = { speed = 4.3, accel = 20, style = 'flank' },
+  move = { speed = 4.3, accel = 20, style = 'flank', turn = 7 },
+  answers = {
+    { when = 'reloading', attack = 'leap', rest = 6 },
+    { when = 'drinking', attack = 'leap', rest = 6 },
+  },
   sounds = { step = 'cloven_step', alert = 'snarl', windup = 'snarl', strike = 'claw' },
   tactics = {
+    roll = true,
     moves = {
       { attack = 'claw', ideal = 1.6, max = 2.05, weight = 2 },
       { attack = 'leap', ideal = 5, min = 2.6, weight = 1.5 },
@@ -51,8 +62,14 @@ return Creature.define({
       lungeTime = 0.22,
       recover = 0.34,
       cooldown = 0.65,
-      string = { into = 'claw-late', gap = 0.14, every = 2 },
-      packet = packet(28, 55),
+      turn = 8,
+      lockAt = 0.7,
+      parry = 0.18,
+      string = {
+        gap = 0.14,
+        branches = { { into = 'claw-late', weight = 2 }, { into = 'hop-back' }, { weight = 1 } },
+      },
+      packet = packet(34, 55),
     }),
     -- Gap closer: a ballistic leap under world gravity onto the spot where
     -- the player will be (lead), the claw right behind it. Readable crouch,
@@ -70,20 +87,23 @@ return Creature.define({
       recover = 0.45,
       cooldown = 0.6,
       string = { into = 'claw', gap = 0.2 },
-      packet = packet(30, 80),
+      packet = packet(36, 80),
     }),
     -- It waits with the arm raised, watching: a dodge at the old beat is spent.
     Action.lunge({
       id = 'claw-late',
       range = 2.8,
       windup = 0.42,
-      hold = { 0.28 },
-      track = 0.5,
+      hold = { 0.1, 0.3, 0.55 },
+      shuffle = true,
+      turn = 8,
+      lockAt = 0.8,
+      parry = 0.18,
       lungeSpeed = 9,
       lungeTime = 0.22,
       recover = 0.62,
       cooldown = 0.8,
-      packet = packet(28, 55),
+      packet = packet(34, 55),
     }),
     -- Out of the reach of the answer to a long string.
     Action.hop({

@@ -173,14 +173,13 @@ local function lean(g, e, atk, dt, ctx)
   local t = victimOf(g, e)
   local p, previous = pointOf(g, t), previousOf(g, t, ctx.previous)
   local current = step < dt and Melee.playerAt(previous or p, p, step / dt, nil, g.world) or p
-  rush(
-    g,
-    e,
-    atk.lungeSpeed * Rules.speedScale(e),
-    step,
-    ctx.previous,
-    knightAt(g, t, current, ctx.previous, step, dt)
-  )
+  local speed = atk.lungeSpeed * Rules.speedScale(e)
+  if atk.closing then
+    -- Backing away is no answer: the step is as long as the gap, up to its speed.
+    local gap = len(t.x - e.x, t.z - e.z) - atk.reach * atk.closing
+    speed = math.min(speed, math.max(0, gap) / math.max(dt, atk.lungeTime - ctx.before))
+  end
+  rush(g, e, speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt))
 end
 -- A blow's reach and arc in its active window. Returns the body caught and its
 -- receipt; a dodge that left its afterimage in the arc spends the blow.

@@ -61,6 +61,7 @@ Action.common = {
     min = 0,
     desc = 'for this long before it strikes a shot throws the blow away (s)',
   },
+  parryReach = { type = 'number', min = 0, desc = 'from how far a shot can do it (m)' },
   chase = {
     type = 'number',
     min = 0,
@@ -290,6 +291,11 @@ local swing = {
   },
   lungeSpeed = { type = 'number', default = 0, min = 0 },
   lungeTime = { type = 'number', default = 0, min = 0 },
+  closing = {
+    type = 'number',
+    min = 0,
+    desc = 'the step comes after who backs away: it stops this share of reach short of him',
+  },
   volume = Area.field('sweep'),
 }
 local function with(fields, more)

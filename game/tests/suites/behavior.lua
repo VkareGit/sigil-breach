@@ -1,5 +1,7 @@
 local Tests = {}
 function Tests.run(G, initial, renderer, getGame)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  G = require('tests.support.v033_encounters').game(G)
   local AI = require('src.enemies.ai')
   local Anim = require('src.enemies.animation')
   local W = require('src.world.arena')

@@ -4,6 +4,8 @@ local Telemetry = require('src.combat.telemetry')
 local Rules = require('src.combat.rules')
 local Tests = {}
 function Tests.run(Game)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  Game = require('tests.support.v033_encounters').game(Game)
   local lines = {}
   local check = Fixtures.checker(lines, 'telemetry: ', 'telemetry: ')
   local g = Fixtures.arena(Game)

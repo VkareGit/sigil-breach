@@ -14,6 +14,8 @@ local Journal = require('src.session.journal')
 local Integrity = require('src.session.integrity')
 local T = {}
 function T.run(Game)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  Game = require('tests.support.v033_encounters').game(Game)
   local lines = {}
   local check = F.checker(lines, 'creature pressure: ', 'creature pressure: ')
   for _, trial in ipairs({ 'claws', 'iron', 'stars', 'resin' }) do

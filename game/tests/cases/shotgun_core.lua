@@ -4,6 +4,8 @@ local S = {}
 local B = require('src.combat.ballistics')
 local Geometry = require('src.enemies.geometry')
 local Definitions = require('src.content.enemy_catalog')
+-- The health these volleys were tuned against, not today's creatures.
+local tuned = { imp = 112, stolas = 76, buer = 220, armored = 260 }
 local Damage = require('src.combat.damage')
 local Weapons = require('src.content.weapons')
 local Tuning = require('src.content.tuning')
@@ -15,8 +17,8 @@ local function target(kind, x, z, frame, id)
     id = id or 1,
     x = x,
     z = z,
-    hp = d.hp,
-    maxHp = d.hp,
+    hp = tuned[kind] or d.hp,
+    maxHp = tuned[kind] or d.hp,
     armorRating = d.armor,
     resistances = d.resistances,
     walk = 0,
@@ -99,7 +101,13 @@ function S.volley(kind, distance, frame, count, serial, offsets)
       parts[part] = (parts[part] or 0) + 1
     end
   end
-  return { damage = damage, hits = hits, targets = unique, parts = parts, hp = Definitions[kind].hp }
+  return {
+    damage = damage,
+    hits = hits,
+    targets = unique,
+    parts = parts,
+    hp = tuned[kind] or Definitions[kind].hp,
+  }
 end
 function S.run(check, renderer)
   local C = require('src.render.fresco_enemies')
@@ -234,8 +242,8 @@ function S.run(check, renderer)
   local revolver = Weapons.attack({}, 2)
   local pistolDamage =
     Damage.resolve(revolver, { armorRating = Definitions.armored.armor }, 8, 'torso')
-  local shells = math.ceil(Definitions.armored.hp / armor.damage)
-  local rounds = math.ceil(Definitions.armored.hp / pistolDamage)
+  local shells = math.ceil(tuned.armored / armor.damage)
+  local rounds = math.ceil(tuned.armored / pistolDamage)
   verify(
     'precision revolver keeps an armored-target cadence advantage at 8 m',
     (rounds - 1) * Tuning.revolverInterval < (shells - 1) * Tuning.shotgunCycle
@@ -260,8 +268,7 @@ function S.run(check, renderer)
       -- 0.20: a spread pair (1.2 m) is crippled by one volley, a tight pair
       -- (0.9 m, tests/suites/shotgun.lua) still dies: thralls survive 8 m.
       'shotgun leaves two aligned adjacent grunts near death at ' .. distance .. ' m',
-      (r.targets[1] or 0) >= Definitions.imp.hp * 0.8
-        and (r.targets[2] or 0) >= Definitions.imp.hp * 0.8
+      (r.targets[1] or 0) >= tuned.imp * 0.8 and (r.targets[2] or 0) >= tuned.imp * 0.8
     )
   end
   return count

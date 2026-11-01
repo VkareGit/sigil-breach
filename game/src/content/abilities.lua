@@ -53,8 +53,8 @@ Abilities:register(
     id = 'flask',
     name = 'ability_flask',
     tag = 'ability_flask_tag',
-    capacity = 4,
-    start = 4,
+    capacity = 3,
+    start = 3,
     empty = 'ability_flask_empty',
     posture = 'drinking',
     fragile = true,
@@ -63,7 +63,7 @@ Abilities:register(
       range = 0,
       windup = 0.95,
       cooldown = 0.3,
-      heal = 55,
+      heal = 45,
     })),
   })
 )

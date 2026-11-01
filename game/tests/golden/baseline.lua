@@ -56,11 +56,12 @@
 -- Plan v13 W4-W6: the Margrave fights with paths, turns and answers, and the proving
 -- ground pays effort. The former creature file with attrition off reproduces 6/6.
 -- Then his card of blows: counters, a shell in his strikes, rolled sides and branches.
+-- Plan v13 W7: every creature on that model, by the curve of a knight who misreads.
 return {
-  playtest = 'ff2f83f1/2bb2cc49',
-  human = '5037caaf/f8c22251',
-  drill = 'ddb19648/5bd6c6f4',
-  playtestContacts = '2b2e6f57/370',
-  humanContacts = 'e52d1f6f/841',
-  drillContacts = '5524e142/277',
+  playtest = '5109e6ca/12009a26',
+  human = 'bd9d6994/d2783e98',
+  drill = '1878ff1a/6cde7d96',
+  playtestContacts = '9ad9a40c/257',
+  humanContacts = 'f10cbec2/431',
+  drillContacts = 'f21dd92d/280',
 }

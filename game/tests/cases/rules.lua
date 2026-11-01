@@ -17,13 +17,13 @@ function Tests.run(G, check)
   local ok = true
   for _, id in ipairs({ 'imp', 'armored', 'stolas', 'buer', 'boss', 'furfur' }) do
     local e = g:spawn(id, 16, 20)
-    local b = A[id].body
+    local def = Rules.archetype(e)
+    local b = def.body
     ok = ok
       and e.hp == b.hp
       and e.maxHp == b.hp
       and (e.armorRating or 0) == b.armor
-      and e.speed == A[id].move.speed
-      and Rules.archetype(e) == A[id]
+      and e.speed == def.move.speed
   end
   check('every creature body, speed and armour come from its archetype data', ok)
   -- A demon that did not exist in code: data alone gives it a body and an attack.

@@ -6,7 +6,7 @@ local Bot = require('qa.souls_bot')
 local Release = require('src.app.release')
 local T = {}
 local TRIALS = { 'ash', 'storm', 'claws', 'iron', 'stars', 'resin' }
-local GATED = { ash = true }
+local GATED = { ash = true, storm = true }
 local UNSHOT = 30
 local function fight(Game, trial, knight, seconds, unhurt, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
@@ -71,6 +71,23 @@ function T.run(Game)
         end
       end
       check(trial .. ' beats a knight who only moves ' .. fell, fell == 6)
+      -- The curve: who misreads half the blows does not win.
+      local wins = 0
+      for seed = 1, 3 do
+        local stream = require('src.core.rng'):new(seed)
+        local h = fight(
+          Game,
+          trial,
+          Bot.human(0.5, function()
+            return stream:random()
+          end),
+          240,
+          false,
+          seed
+        )
+        wins = wins + (h.testField.roomTrial.status == 'complete' and 1 or 0)
+      end
+      check(trial .. ' is not won by half a reading ' .. wins, wins <= 1)
     end
   end
   return lines

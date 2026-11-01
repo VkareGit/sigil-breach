@@ -1,6 +1,8 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, initial, renderer, getGame, getLoading)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  G = require('tests.support.v033_encounters').game(G)
   local W = require('src.world.arena')
   local F = require('src.player.feel')
   local C = require('src.combat.combat')
@@ -19,7 +21,7 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
     end
   end
   local near = Fixtures.within(0.001)
-  local g = initial
+  local g = require('tests.support.v033_encounters').adopt(initial)
   local function fresh()
     g.nextAttack = 0
     g.hazards = {}
@@ -360,9 +362,6 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   g.player.yaw = math.pi
   g.player.pitch = 0.04
   g.player.weapon = 2
-  -- This walk proves the ending of the old arena from its last act on. That the
-  -- whole fight can be won is the learning bot's (tests/cases/souls_bots.lua).
-  boss.hp = boss.maxHp * 0.3
   for i = 1, 10000 do
     if boss.hp <= 0 or g.state == 'dead' then
       break

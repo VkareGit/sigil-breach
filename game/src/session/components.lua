@@ -71,6 +71,7 @@ C.schemas = {
     guardFalling = f(nil, 'its guard broke in a steady blow: it falls when the blow ends'),
     swingSide = f(nil, 'the side a mirrored blow comes from this time'),
     closeFor = f(nil, 'how long a knight has stood close (s)'),
+    frontOn = f(nil, 'it faces the body it fights'),
     answered = f(nil, 'event -> when it may be answered again'),
     duelMove = f(nil, 'what it does between blows'),
     duelLeft = f(nil, 'for how much longer (s)'),

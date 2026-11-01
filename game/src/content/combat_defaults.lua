@@ -188,6 +188,8 @@ return {
     turnRate = 10,
     -- A knight this near (m) counts as close (enemies/answers.lua: hugging).
     closeRange = 2.4,
+    -- Within this many radians of its facing a body has its front to a knight.
+    frontCone = 1.1,
     threatRange = 13,
     evadeRange = 16,
   },

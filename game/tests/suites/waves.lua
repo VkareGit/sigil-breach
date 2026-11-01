@@ -1,6 +1,8 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, renderer)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  G = require('tests.support.v033_encounters').game(G)
   local D = require('src.combat.damage')
   local Run = require('src.run.descent')
   local E = require('src.run.economy')
@@ -406,12 +408,8 @@ function Tests.run(G, renderer)
     )
   end
   -- The waves under the encounters they were tuned for; they leave with plan v13 O4.
-  local result = require('qa.scenarios.playtest').run(
-    require('tests.support.v033_encounters').game(G),
-    false,
-    nil,
-    { projectiles = true, learned = true }
-  )
+  local result =
+    require('qa.scenarios.playtest').run(G, false, nil, { projectiles = true, learned = true })
   local living = {}
   for _, body in ipairs(result.session.enemies) do
     if body.hp > 0 then

@@ -5,6 +5,7 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G)
+  G = require('tests.support.v033_encounters').game(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'fight rules: ', 'fight rules: ')
   local Field = require('src.run.test_field')

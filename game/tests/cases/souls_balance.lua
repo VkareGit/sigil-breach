@@ -163,7 +163,7 @@ function T.run(Game)
     check('nor dodge', require('src.combat.attributes').forbids(p, 'dash'))
     check('nothing yet', p.hp == 30)
     run(g, 1)
-    check('then it heals ' .. p.hp, p.hp == 85)
+    check('then it heals ' .. p.hp, p.hp == 75)
     check('and one swallow is gone', p.abilityState.flask.uses == flasks - 1)
     p.hp = 30
     g:update(1 / 120, {})

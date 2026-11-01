@@ -24,12 +24,14 @@ return Creature.define({
     motion = 'hover',
     evadeArt = 'evade',
   },
-  -- One volley at 8 m (~81) or one Judge head shot (94.5) kills; a Judge
-  -- body shot (70) does not. Catching it is the difficulty, not its health.
+  -- Catching it is the difficulty. Its long casts are the safest place to learn the
+  -- counter: a shot at the right moment stops the spell from any distance.
   body = {
-    hp = 76,
+    hp = 240,
+    breakTime = 1.6,
+    execution = 0.6,
     resist = { astral = 0.25 },
-    poise = 30,
+    poise = 60,
     blood = { 0.18, 0.30, 0.44 },
     -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
     corpse = { settle = 0.44, landing = 0.22 },
@@ -40,8 +42,13 @@ return Creature.define({
     accel = 14,
     evade = { speed = 6.5, time = 0.24, cooldown = 2.2, fromTier = 1 },
   },
+  answers = {
+    { when = 'hugging', attack = 'slip', rest = 4, within = 2.4, after = 0.4 },
+    { when = 'drinking', attack = 'star', rest = 4, within = 11 },
+  },
   sounds = { step = 'wing_fold', alert = 'owl', windup = 'owl', strike = 'cast' },
   tactics = {
+    roll = true,
     moves = {
       { attack = 'star', ideal = 7, weight = 1 },
       { attack = 'talon-fan', ideal = 2.8, max = 4.2, weight = 2.5 },
@@ -62,7 +69,7 @@ return Creature.define({
       aimLead = 1,
       leadFloor = 0.9,
       color = { 0.72, 0.58, 0.34 },
-      packet = packet(26, 40, 'astral'),
+      packet = packet(34, 40, 'astral'),
     }),
     -- Readably wider at close range; no health/armour inflation. Bait it,
     -- change direction after the cast, then punish its longer recovery.
@@ -81,7 +88,7 @@ return Creature.define({
       rageCount = 3,
       spread = 0.28,
       color = { 0.72, 0.58, 0.34 },
-      packet = packet(26, 40, 'astral'),
+      packet = packet(34, 40, 'astral'),
     }),
     -- Three stars let go in turn: keep moving through all of them. It stays
     -- bound to the cast until the last has left.
@@ -90,6 +97,8 @@ return Creature.define({
       range = 10,
       rest = 5,
       windup = 0.95,
+      parry = 0.45,
+      parryReach = 14,
       speed = 10,
       count = 3,
       interval = 0.42,
@@ -97,7 +106,7 @@ return Creature.define({
       recover = 1.05,
       cooldown = 1.1,
       color = { 0.72, 0.58, 0.34 },
-      packet = packet(26, 40, 'astral'),
+      packet = packet(34, 40, 'astral'),
     }),
     -- A ray across the floor, warned along its whole length.
     Action.beam({
@@ -105,6 +114,8 @@ return Creature.define({
       range = 9,
       rest = 8,
       windup = 0.9,
+      parry = 0.45,
+      parryReach = 14,
       delay = 0.55,
       length = 9,
       arc = 1.5,
@@ -112,7 +123,7 @@ return Creature.define({
       duration = 0.5,
       recover = 1.3,
       cooldown = 1.4,
-      packet = packet(32, 50, 'astral'),
+      packet = packet(40, 50, 'astral'),
     }),
     -- It will not be caught: gone, and behind a shoulder.
     Action.blink({

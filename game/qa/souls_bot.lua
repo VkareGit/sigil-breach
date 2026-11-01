@@ -272,5 +272,27 @@ function Bot.learning(g, memory)
   end
   return input
 end
+-- A knight who knows the fight and still makes mistakes: with chance miss a blow goes
+-- unanswered, the aim wanders about two degrees and a shot in three is lost. The
+-- curve of wins over miss is the measure of difficulty (qa/README: souls curve).
+function Bot.human(miss, roll)
+  local misread, last, clock = false, -1, 0
+  return function(g, memory)
+    local input = Bot.learning(g, memory)
+    local e = g.enemies[1]
+    clock = clock + 1
+    if e and e.ai == 'windup' and e.attackCount ~= last then
+      last, misread = e.attackCount, roll() < miss
+    end
+    if misread then
+      input.dash, input.jump = false, false
+    end
+    g.player.yaw = g.player.yaw + math.sin(clock * 0.09) * 0.035
+    if input.shoot and roll() < 0.33 then
+      input.shoot = false
+    end
+    return input
+  end
+end
 Bot.origin = B.origin
 return Bot

@@ -1,6 +1,8 @@
 local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, initial, renderer, getGame)
+  -- Rules proven on the encounters they were tuned for (tests/support/v033_encounters.lua).
+  G = require('tests.support.v033_encounters').game(G)
   local B = require('src.combat.ballistics')
   local C = require('src.combat.combat')
   local F = require('src.player.feel')
@@ -421,8 +423,7 @@ function Tests.run(G, initial, renderer, getGame)
   file:close()
   print(table.concat(balance, '\n'))
   -- The old arena under the encounters it was tuned for; it leaves with the waves.
-  local run =
-    require('qa.scenarios.classic_playtest').run(require('tests.support.v033_encounters').game(G))
+  local run = require('qa.scenarios.classic_playtest').run(G)
   check(
     'full Limbo can be completed with real combat and movement inputs',
     run.state == 'won' and run.seals == 3 and run.kills == 13

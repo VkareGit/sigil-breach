@@ -81,7 +81,7 @@ return function(R)
       and e.ai == 'windup'
       and e.windup + (e.holdLeft or 0) <= spec.parry
       and impact >= defaults.parry.impact
-      and distance <= defaults.parry.reach
+      and distance <= (spec.parryReach or defaults.parry.reach)
   end
   function R.parried(e)
     local stun = R.body(e).breakTime or defaults.parry.stun
@@ -96,11 +96,14 @@ return function(R)
   end
   -- What a blow keeps of its damage on a body hardened for its own strike.
   function R.shell(e)
-    local shell = R.body(e).shell
-    if shell and (e.ai == 'windup' or e.ai == 'strike') and not R.has(e, 'exposed') then
-      return shell
+    local b = R.body(e)
+    if R.has(e, 'exposed') then
+      return 1
     end
-    return 1
+    if b.shell and (e.ai == 'windup' or e.ai == 'strike') then
+      return b.shell
+    end
+    return b.front and e.frontOn and b.front or 1
   end
   -- Length of the lock after a broken guard (bosses lock much longer).
   function R.lockTime(e)
