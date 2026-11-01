@@ -152,6 +152,15 @@ end
 -- game's lettering), not an identifier (no '_', no digits without a space),
 -- or any literal given straight to notify(). Musical notation (pitch names:
 -- 'D2 A2 D3', 'Bb1', 'D3:2', '-') is not lettering.
+local function occurrences(code, patterns)
+  local count = 0
+  for _, pattern in ipairs(patterns) do
+    for _ in code:gmatch(pattern) do
+      count = count + 1
+    end
+  end
+  return count
+end
 local function notation(value)
   for token in value:gmatch('%S+') do
     if token ~= '-' and not token:match('^%u[b#]?%d:?%d*$') then
@@ -311,6 +320,120 @@ local scalingRatchets = {
         count = count + 1
       end
       return count
+    end,
+  },
+  -- Plan v12 (R0): the assumptions its stages remove. Counted from 0.35; a
+  -- stage ends with its own rule at zero (enemy-pool-reads ends as a justified
+  -- list, game/docs/PLAN-FUNDAMENT-v12.md).
+  {
+    name = 'player-body',
+    label = 'BODY OF THE ONE PLAYER',
+    hint = 'read the body of the actor (plan v12 R1)',
+    exempt = { 'src/content/knight.lua' },
+    count = function(code)
+      return occurrences(code, { '%.playerBody%(%)', 'Archetypes%.player', 'Knight%.body' })
+    end,
+  },
+  {
+    name = 'damage-entry',
+    label = 'SECOND DAMAGE ENTRY',
+    hint = 'land a blow through combat/hit.lua (plan v12 R2)',
+    exempt = { 'src/combat/hit.lua', 'src/session/damage_outcomes.lua' },
+    count = function(code)
+      return occurrences(code, { '[:%.]damageEnemy%(', 'Outcomes%.enemy%(' })
+    end,
+  },
+  {
+    name = 'damage-type-literals',
+    label = 'DAMAGE TYPE IN CODE',
+    hint = 'describe the damage type in content/damage_types.lua (plan v12 R2)',
+    exempt = { 'src/content/' },
+    count = function(_, strings)
+      local count = 0
+      local types = { physical = true, fire = true, astral = true, poison = true, lightning = true }
+      for _, s in ipairs(strings) do
+        if types[s.value] and s.before:match('[=~]=%s*$') then
+          count = count + 1
+        end
+      end
+      return count
+    end,
+  },
+  {
+    name = 'ammo-fields',
+    label = 'MAGAZINE FIELDS OUTSIDE THE AMMO MODEL',
+    hint = 'ask the ammunition model (plan v12 R3)',
+    exempt = { 'src/content/ammo/' },
+    count = function(code)
+      return fieldAccesses(code, { 'mag', 'capacity', 'reserve', 'reserveMax' })
+    end,
+  },
+  {
+    name = 'controlled-abilities',
+    label = 'ABILITIES OF THE CONTROLLED ONLY',
+    hint = 'name the actor (plan v12 R4)',
+    exempt = {},
+    count = function(code)
+      return occurrences(code, { 'Abilities%.give%([^,%)]*,[^,%)]*%)', 'defaultAction%(' })
+    end,
+  },
+  {
+    name = 'creature-names',
+    label = 'CREATURE NAME IN CODE',
+    hint = 'describe it in the creature, not the code (plan v12 R5)',
+    exempt = { 'src/content/' },
+    count = function(_, strings)
+      local count = 0
+      local names =
+        { imp = true, armored = true, stolas = true, buer = true, boss = true, furfur = true }
+      for _, s in ipairs(strings) do
+        if names[s.value] then
+          count = count + 1
+        end
+      end
+      return count
+    end,
+  },
+  {
+    name = 'tile-literals',
+    label = 'TILE NUMBER IN CODE',
+    hint = 'ask content/tiles.lua (plan v12 R6)',
+    exempt = {},
+    count = function(code)
+      return occurrences(code, { 'map%[[^%]]+%]%[[^%]]+%]%s*[=~]=%s*%d', 'tile%s*[=~><]=?%s*%d' })
+    end,
+  },
+  {
+    name = 'default-map',
+    label = 'DEFAULT MAP ASSUMED',
+    hint = 'read the map of the run (plan v12 R7)',
+    exempt = { 'src/content/maps/index.lua' },
+    count = function(code)
+      return occurrences(code, { 'Maps%.default', 'totalWaves' })
+    end,
+  },
+  {
+    name = 'enemy-pool-reads',
+    label = 'ENEMY POOL READ',
+    hint = 'a target goes through Bodies.targets (plan v12 R8)',
+    exempt = {},
+    count = function(_, strings)
+      local count = 0
+      for _, s in ipairs(strings) do
+        if s.value == 'enemies' and s.before:match('Pools%.of%(g,%s*$') then
+          count = count + 1
+        end
+      end
+      return count
+    end,
+  },
+  {
+    name = 'step-rate',
+    label = 'STEP RATE IN CODE',
+    hint = 'one constant in core (plan v12 R6)',
+    exempt = {},
+    count = function(code)
+      return occurrences(code, { '1%s*/%s*120%f[^%d]', '%f[%d]120%f[^%d%.]%s*[%*/]' })
     end,
   },
 }

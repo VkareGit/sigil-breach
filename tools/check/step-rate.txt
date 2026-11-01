@@ -1,0 +1,5 @@
+src/app/application.lua 1
+src/content/combat_defaults.lua 1
+src/content/defs/effect.lua 1
+src/render/kit/chapel.lua 2
+src/session/simulation.lua 1

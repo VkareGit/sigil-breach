@@ -1,0 +1,7 @@
+src/render/ritual_art.lua 3
+src/run/field/catalog.lua 2
+src/run/field/station_layout.lua 3
+src/run/field/trials.lua 4
+src/run/test_field.lua 4
+src/ui/goetic_sigils.lua 3
+src/ui/screens/help.lua 2

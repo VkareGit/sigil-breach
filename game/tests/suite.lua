@@ -46,6 +46,11 @@ Suite.registry = {
     module = 'tests.cases.attack_followups',
   },
   {
+    id = 'v12-proofs',
+    title = 'Extension proofs of plan v12 through public registries',
+    module = 'tests.cases.v12_proofs',
+  },
+  {
     id = 'destruction',
     title = 'Shots and blasts break the world, ruin changes it and a load keeps it',
     module = 'tests.cases.destruction',
