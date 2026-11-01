@@ -91,15 +91,16 @@ local function start(app, id)
     Navigation.replace(app, game.mode, game.world.mapId):start()
   end
 end
--- 0.22: the expedition is closed; 'start' (menu SPACE / ENTER) opens a
--- skirmish on the proving ground. restart keeps its expedition meaning for
--- the library code and old saves, unreachable from the menu.
+-- 'start' (menu SPACE / ENTER) walks into the chapel, from the last fire if there is
+-- one. restart keeps its expedition meaning for old saves, unreachable from the menu.
 handlers.start = function(app)
-  fieldCommand(app, 'field_skirmish')
+  Navigation.replace(app, 'pilgrimage'):start()
+  love.mouse.setRelativeMode(true)
 end
 handlers.restart = start
 handlers.new_confirm = function(app)
   if playable(app.game.mode) then
+    Modes.act(app.game, 'forget')
     Navigation.replace(app, app.game.mode, app.game.world.mapId):start()
   end
 end

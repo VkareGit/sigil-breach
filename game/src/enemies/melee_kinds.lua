@@ -123,6 +123,14 @@ Kinds.charge = {
     local p, previous = pointOf(g, t), previousOf(g, t, ctx.previous)
     local step = math.min(dt, e.chargeTime - ctx.before)
     local current = step < dt and Melee.playerAt(previous or p, p, step / dt, nil, g.world) or p
+    if atk.bend then
+      -- The rush leans after the knight: stepping aside early is followed, late is not.
+      local way = math.atan2(e.lungeX, e.lungeZ)
+      local off = math.atan2(t.x - e.x, t.z - e.z) - way
+      off = math.atan2(math.sin(off), math.cos(off))
+      local most = atk.bend * step
+      face(g, e, atk, way + math.max(-most, math.min(most, off)))
+    end
     rush(g, e, atk.speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt))
     local r = atk.reach
     local x1, z1 = ctx.oldX + e.lungeX * r, ctx.oldZ + e.lungeZ * r

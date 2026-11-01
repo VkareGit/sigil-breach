@@ -277,6 +277,19 @@ WorldObjects.register('supplies', {
     r.health = r.native:own(M.finish(v))
   end,
 })
+-- The fires of the way beyond the first one.
+WorldObjects.register('fires', {
+  {
+    pass = 'sprites',
+    order = 61,
+    draw = function(r, g)
+      local view = Queries.world(g)
+      for _, fire in ipairs(view.fires or {}) do
+        Art.shrine(r, g, { shrine = fire, shrineActive = true })
+      end
+    end,
+  },
+})
 -- The Ember: its ring on the floor (lit while the knight prepares) and the
 -- shrine; the murals hang only where there is an Ember.
 WorldObjects.register('ember', {

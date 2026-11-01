@@ -184,6 +184,7 @@ Action.kinds:register(
     contactY = { type = 'number' },
     contactRadius = { type = 'number', min = 0 },
     turns = { type = 'number', default = 0, min = 0, desc = 'new rushes at the target' },
+    bend = { type = 'number', min = 0, desc = 'how fast the rush turns after him (rad/s)' },
     turnPause = { type = 'number', default = 0.3, min = 0, desc = 'visible stop before each (s)' },
   }, { 'speed', 'minTime', 'maxTime', 'reach', 'contactY', 'contactRadius', 'packet' })
 )

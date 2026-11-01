@@ -23,8 +23,9 @@ function Sanctuary.near(g)
     and World.visible(g.world, p.x, p.z, shrine.x, shrine.z)
 end
 
-function Sanctuary.openShop(g)
-  if not Capabilities.canTrade(g) or g.state ~= 'playing' or not Sanctuary.near(g) then
+-- The trade opens wherever the mode allows it.
+function Sanctuary.trade(g)
+  if not Capabilities.canTrade(g) or g.state ~= 'playing' then
     return false
   end
   g.state = 'shop'
@@ -32,6 +33,10 @@ function Sanctuary.openShop(g)
   g.view.presentationPrevious = nil
   Presentation.capture(g, false)
   return true
+end
+
+function Sanctuary.openShop(g)
+  return Sanctuary.near(g) and Sanctuary.trade(g)
 end
 
 return Sanctuary

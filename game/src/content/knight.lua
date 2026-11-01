@@ -39,6 +39,9 @@ return {
     rollIframes = 0.32,
     rollLock = 0.3,
     rollStamina = 26,
+    -- Share of his walking speed going sideways and backwards there.
+    sideStep = 0.85,
+    backStep = 0.6,
     -- Friction against a shove: feet on stone, and in the air.
     drag = 9,
     airDrag = 3.5,

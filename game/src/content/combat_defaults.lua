@@ -141,6 +141,8 @@ return {
   -- a route is re-flowed every replan s; a shove under minPush m/s is spent.
   walk = {
     arrive = 0.06,
+    -- A body this near its post is home.
+    home = 0.5,
     resume = 1.5,
     stuckShare = 0.15,
     stuckTime = 0.22,

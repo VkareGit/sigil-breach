@@ -279,6 +279,86 @@ Modes:register('expedition', {
   waveActive = Descent.waveActive,
   hud = Descent.hud,
 })
+-- The way through the chapel: fires, posts and guardians (run/pilgrimage.lua).
+local function pilgrimage()
+  return require('src.run.pilgrimage')
+end
+Modes:register('pilgrimage', {
+  session = { world = 'descent', map = require('src.content.pilgrimage').map },
+  record = 'run',
+  policy = { attrition = true },
+  attrition = function()
+    return true
+  end,
+  worldView = function(g, out)
+    return pilgrimage().world(g, Views.pilgrimWorld(g, g.run, out))
+  end,
+  objective = function()
+    return Text.get('objective_pilgrim')
+  end,
+  runView = function(g, out)
+    return Views.run(g, g.run, out)
+  end,
+  weaponModifier = function(g)
+    return g.run.glyph
+  end,
+  test = function()
+    return false
+  end,
+  init = function(g, options)
+    pilgrimage().init(g, options)
+  end,
+  construction = function(g)
+    return pilgrimage().construction(g)
+  end,
+  canTrade = function(g)
+    return pilgrimage().fireHere(g) ~= nil
+  end,
+  closeShop = Descent.closeShop,
+  buy = function(g, offer)
+    local ok = Descent.trade(g, offer)
+    if ok then
+      pilgrimage().save(g)
+    end
+    return ok
+  end,
+  newRequiresConfirmation = function(g)
+    return g.run.saved
+  end,
+  forget = function()
+    pilgrimage().forget()
+  end,
+  start = function(g)
+    return pilgrimage().start(g)
+  end,
+  progress = function(g)
+    pilgrimage().update(g)
+  end,
+  ready = function(g)
+    return pilgrimage().travel(g)
+  end,
+  retry = function(g)
+    return pilgrimage().retry(g)
+  end,
+  lose = function(g)
+    pilgrimage().lose(g)
+  end,
+  reward = function(g, event)
+    pilgrimage().reward(g, event)
+  end,
+  remaining = function(g)
+    return pilgrimage().remaining(g)
+  end,
+  interact = function(g)
+    return pilgrimage().interact(g)
+  end,
+  context = function(g)
+    return pilgrimage().context(g)
+  end,
+  hud = function(g)
+    return pilgrimage().hud(g)
+  end,
+})
 -- The classic arena (regression coverage): seals, then the Margrave.
 Modes:register('classic', {
   session = {

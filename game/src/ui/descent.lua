@@ -11,6 +11,7 @@ local E = require('src.run.economy')
 local Run = require('src.run.descent')
 local Queries = require('src.run.queries')
 local Circles = require('src.content.circles')
+local Way = require('src.content.pilgrimage')
 local Skin = require('src.ui.skin')
 local Weapons = require('src.content.weapons')
 local Palette = require('src.ui.palette')
@@ -88,14 +89,21 @@ function D.controls(g)
     end
     list[#list + 1] = {
       id = 'ready',
-      label = Queries.field(g) and Text.get('shop_ready_field') or Text.get('shop_ready'),
+      label = r.rest and Text.get('shop_travel')
+        or (Queries.field(g) and Text.get('shop_ready_field') or Text.get('shop_ready')),
       x = 824,
       y = 593,
       w = 328,
       h = 48,
     }
-    list[#list + 1] =
-      { id = 'shop_back', label = Text.get('shop_back'), x = 128, y = 593, w = 310, h = 48 }
+    list[#list + 1] = {
+      id = 'shop_back',
+      label = Text.get(r.rest and 'shop_leave' or 'shop_back'),
+      x = 128,
+      y = 593,
+      w = 310,
+      h = 48,
+    }
     if pages > 1 then
       list[#list + 1] = {
         id = 'shop_prev',
@@ -130,19 +138,25 @@ function D.controls(g)
     end
     return list
   elseif g.state == 'menu' then
-    -- 0.22: the expedition is closed while combat is forged; only the
-    -- proving ground is open (skirmish and the full catalogue of stations).
+    -- The way through the chapel, and the proving ground as a workshop beside it.
     local list = {
       {
-        id = 'field_skirmish',
-        label = Text.get('menu_skirmish'),
+        id = 'start',
+        label = Text.get(r.saved and 'menu_continue' or 'menu_begin'),
         x = 72,
         y = 390,
         w = 400,
         h = 54,
       },
-      { id = 'field_start', label = Text.get('menu_field'), x = 72, y = 455, w = 400, h = 44 },
     }
+    if r.saved then
+      list[2] = { id = 'restart', label = Text.get('menu_new'), x = 72, y = 455, w = 194, h = 44 }
+      list[3] =
+        { id = 'field_start', label = Text.get('menu_field'), x = 270, y = 455, w = 194, h = 44 }
+    else
+      list[2] =
+        { id = 'field_start', label = Text.get('menu_field'), x = 72, y = 455, w = 400, h = 44 }
+    end
     list[#list + 1] =
       { id = 'help', label = Text.get('menu_help'), x = 72, y = 514, w = 194, h = 44 }
     list[#list + 1] =
@@ -159,8 +173,9 @@ function D.controls(g)
     return {
       {
         id = 'retry',
-        label = Runs.guardian(r) and Text.get('dead_retry_guardian')
-          or Text.get('dead_retry_wave', { wave = r.wave }),
+        label = r.rest and Text.get('pilgrim_wake') or (Runs.guardian(r) and Text.get(
+          'dead_retry_guardian'
+        ) or Text.get('dead_retry_wave', { wave = r.wave })),
         x = 410,
         y = 524,
         w = 460,
@@ -170,7 +185,14 @@ function D.controls(g)
     }
   elseif g.state == 'won' then
     return {
-      { id = 'new_confirm', label = Text.get('won_new'), x = 410, y = 524, w = 460, h = 50 },
+      {
+        id = 'new_confirm',
+        label = Text.get(r.rest and 'pilgrim_again' or 'won_new'),
+        x = 410,
+        y = 524,
+        w = 460,
+        h = 50,
+      },
       { id = 'menu', label = Text.get('won_menu'), x = 410, y = 591, w = 460, h = 42 },
     }
   end
@@ -248,8 +270,11 @@ function D.shop(g)
   Skin.icon('soul', 844, 84, 31)
   text(Text.get('souls_amount', { amount = r.wallet }), 892, 84, 28, gold)
   text(
-    Queries.field(g) and Text.get('shop_field_title')
-      or Text.get('shop_wave_title', { wave = waveName(r) }),
+    r.rest and Text.get('shop_fire_title')
+      or (
+        Queries.field(g) and Text.get('shop_field_title')
+        or Text.get('shop_wave_title', { wave = waveName(r) })
+      ),
     130,
     150,
     20,
@@ -313,7 +338,7 @@ function D.shop(g)
   if price and not reason then
     text(Text.get('shop_after', { amount = r.wallet - price }), 825, 559, 16, gold)
   end
-  text(Text.get('shop_rest_tip'), 129, 567, 16, muted)
+  text(Text.get(r.rest and 'shop_fire_tip' or 'shop_rest_tip'), 129, 567, 16, muted)
   Skin.endZone()
   if g.saveWarning then
     center(g.saveWarning, 679, 16, red)
@@ -328,20 +353,30 @@ function D.map(g)
   panel(100, 40, 1080, 640)
   Skin.zone('map writing field', 132, 76, 1016, 570)
   Skin.inscription('circles', 132, 84, 400, 40)
-  text(Text.get('map_ring', { count = r.fragment and 1 or 0 }), 132, 131, 20, gold)
-  for i, c in ipairs(Circles) do
-    local y = 163 + (i - 1) * 39
-    text(
-      Text.get('map_circle', { roman = Text.get(c.roman), name = Text.get(c.name) }),
-      136,
-      y,
-      22,
-      i == 1 and gold or muted
-    )
-    text(Text.get(i == 1 and 'map_circle_open' or 'map_circle_closed'), 386, y + 5, 14, muted)
+  if r.rest then
+    text(Text.get('map_fires'), 136, 131, 20, gold)
+    for i, fire in ipairs(Way.fires) do
+      local lit = r.lit[fire.id]
+      local y = 163 + (i - 1) * 39
+      text(Text.get(fire.name), 136, y, 22, lit and gold or muted)
+      text(Text.get(lit and 'map_fire_lit' or 'map_fire_dark'), 386, y + 5, 14, muted)
+    end
+  else
+    text(Text.get('map_ring', { count = r.fragment and 1 or 0 }), 132, 131, 20, gold)
+    for i, c in ipairs(Circles) do
+      local y = 163 + (i - 1) * 39
+      text(
+        Text.get('map_circle', { roman = Text.get(c.roman), name = Text.get(c.name) }),
+        136,
+        y,
+        22,
+        i == 1 and gold or muted
+      )
+      text(Text.get(i == 1 and 'map_circle_open' or 'map_circle_closed'), 386, y + 5, 14, muted)
+    end
+    text(Text.get('map_field'), 136, 535, 20, ivory)
+    text(Text.get('map_field_tip'), 136, 565, 16, muted)
   end
-  text(Text.get('map_field'), 136, 535, 20, ivory)
-  text(Text.get('map_field_tip'), 136, 565, 16, muted)
   local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
@@ -399,13 +434,27 @@ function D.ending(g)
   panel(96, 42, 1088, 628)
   Skin.icon(g.state == 'won' and 'ring' or 'skull', 612, 52, 56)
   Skin.zone('ending writing field', 128, 110, 1024, 402)
-  center(Text.get(g.state == 'won' and 'ending_won_title' or 'ending_lost_title'), 116, 48, ivory)
-  if g.state == 'won' then
+  if r.rest then
+    local won = g.state == 'won'
+    center(Text.get(won and 'pilgrim_won_title' or 'pilgrim_died'), 116, 48, won and gold or red)
+    center(Text.get(won and 'pilgrim_won_line' or 'pilgrim_died_kept'), 188, 22, muted)
+    if not won then
+      center(
+        r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
+        260,
+        36,
+        blue
+      )
+      center(Text.get('ending_echo_warning'), 326, 18, muted)
+    end
+  elseif g.state == 'won' then
+    center(Text.get('ending_won_title'), 116, 48, ivory)
     center(Text.get('ending_won_line'), 188, 22, muted)
     center(Text.get('ending_won_ring'), 250, 64, gold)
     center(Text.get('ending_won_count'), 340, 24, ivory)
     center(Text.get('ending_won_next'), 465, 20, muted)
   else
+    center(Text.get('ending_lost_title'), 116, 48, ivory)
     center(Text.get('ending_lost_kept'), 188, 22, muted)
     center(
       r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
@@ -440,12 +489,12 @@ function D.ending(g)
   end
   Skin.endZone()
 end
-function D.confirm()
+function D.confirm(g)
   rect(0, 0, 1280, 720, Palette.veil, 0.95)
   panel(250, 144, 780, 432)
   Skin.zone('confirmation writing field', 282, 176, 716, 180)
   Skin.inscription('new_run', 410, 185, 460, 54)
-  center(Text.get('confirm_line'), 273, 22, muted)
+  center(Text.get(Queries.run(g).rest and 'pilgrim_confirm' or 'confirm_line'), 273, 22, muted)
   center(Text.get('confirm_kept'), 315, 20, gold)
   Skin.endZone()
 end

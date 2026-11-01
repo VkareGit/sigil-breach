@@ -66,6 +66,11 @@ Suite.registry = {
     module = 'tests.cases.souls_balance',
   },
   {
+    id = 'pilgrimage',
+    title = 'Fires, posts, death and the save of the way through the chapel',
+    module = 'tests.cases.pilgrimage',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

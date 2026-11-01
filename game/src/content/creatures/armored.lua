@@ -83,6 +83,10 @@ return Creature.define({
       hold = { 0, 0.45 },
       lead = 0.45,
       speed = 10.5,
+      -- It leans after a knight who stepped aside early and rushes again if it missed.
+      bend = 1.6,
+      turns = 1,
+      turnPause = 0.4,
       minTime = 0.25,
       maxTime = 0.7,
       contactY = 1.0,

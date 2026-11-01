@@ -5,11 +5,13 @@ local B = require('src.combat.ballistics')
 local Pools = require('src.session.world')
 local Resources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
+local World = require('src.world.arena')
 local Bot = {}
 local function nearest(g)
   local p, best, bestD = g.player, nil, nil
   for _, e in ipairs(g.enemies) do
-    if e.hp > 0 then
+    -- A body still at its post is no fight yet.
+    if e.hp > 0 and (e.awake or not e.post) then
       local d = (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2
       if not bestD or d < bestD then
         best, bestD = e, d
@@ -279,19 +281,63 @@ function Bot.human(miss, roll)
   local misread, last, clock = false, -1, 0
   return function(g, memory)
     local input = Bot.learning(g, memory)
-    local e = g.enemies[1]
+    local e = nearest(g)
     clock = clock + 1
     if e and e.ai == 'windup' and e.attackCount ~= last then
       last, misread = e.attackCount, roll() < miss
     end
+    -- Nothing answers a blow it misread: no dodge, no jump, no shot in the parry's beat.
     if misread then
       input.dash, input.jump = false, false
+      if e and e.ai == 'windup' and e.attackSpec and e.attackSpec.parry then
+        input.shoot = false
+      end
     end
     g.player.yaw = g.player.yaw + math.sin(clock * 0.09) * 0.035
     if input.shoot and roll() < 0.33 then
       input.shoot = false
     end
     return input
+  end
+end
+-- The whole way (qa/README: pilgrim): walks a route of cells to where it is sent and
+-- fights like Bot.human whatever turns on it. goal(g) names the next (x, z).
+local function field(w, x, z)
+  local steps, queue, head = { [z * 1000 + x] = 0 }, { { x, z } }, 1
+  while queue[head] do
+    local cell = queue[head]
+    head = head + 1
+    for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+      local nx, nz = cell[1] + step[1], cell[2] + step[2]
+      local key = nz * 1000 + nx
+      if not steps[key] and not World.solid(w, nx, nz, 0.4) then
+        steps[key] = steps[cell[2] * 1000 + cell[1]] + 1
+        queue[#queue + 1] = { nx, nz }
+      end
+    end
+  end
+  return steps
+end
+function Bot.walker(fight)
+  local routes = {}
+  return function(g, memory, x, z)
+    if nearest(g) then
+      return fight(g, memory)
+    end
+    local p = g.player
+    local key = x .. ':' .. z .. ':' .. g.world.geometryRevision
+    routes[key] = routes[key] or field(g.world, math.floor(x + 0.5), math.floor(z + 0.5))
+    local steps = routes[key]
+    local cx, cz = math.floor(p.x + 0.5), math.floor(p.z + 0.5)
+    local best, bx, bz = steps[cz * 1000 + cx] or 1e9, x, z
+    for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+      local d = steps[(cz + step[2]) * 1000 + cx + step[1]]
+      if d and d < best then
+        best, bx, bz = d, cx + step[1], cz + step[2]
+      end
+    end
+    p.yaw, p.pitch = math.atan2(bx - p.x, bz - p.z), 0
+    return { forward = 1 }
   end
 end
 Bot.origin = B.origin

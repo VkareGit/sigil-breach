@@ -26,6 +26,9 @@ end
 function Views.expeditionWorld(g, state, out)
   return world(g, state, out)
 end
+function Views.pilgrimWorld(g, state, out)
+  return world(g, state, out)
+end
 function Views.fieldWorld(g, state, out, field)
   local Chambers = require('src.run.field.chambers')
   out.arenaFire = Chambers.arena(g, field)
@@ -49,6 +52,7 @@ function Views.run(_, state, run)
   run.wallet, run.echo, run.fragment, run.deaths =
     state.wallet, state.echo, state.fragment, state.deaths
   run.glyph, run.owned = state.glyph, state.owned
+  run.rest, run.lit, run.saved = state.fire, state.lit, state.saved
   return run
 end
 -- The proving ground's settings and selection, for its screens.

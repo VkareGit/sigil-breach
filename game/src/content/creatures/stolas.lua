@@ -27,7 +27,7 @@ return Creature.define({
   -- Catching it is the difficulty. Its long casts are the safest place to learn the
   -- counter: a shot at the right moment stops the spell from any distance.
   body = {
-    hp = 240,
+    hp = 320,
     breakTime = 1.6,
     execution = 0.6,
     resist = { astral = 0.25 },

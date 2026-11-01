@@ -20,18 +20,18 @@ return Creature.define({
     portal = { 1, 0.42, 0.14 },
     art = { leap = 'leap' },
   },
-  -- Two clean volleys. Its lesson is the wait: the late claw, and a shot in the beat
+  -- Three clean volleys. Its lesson is the wait: the late claw, and a shot in the beat
   -- before it turns the claw aside.
   -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
   body = {
-    hp = 280,
-    poise = 70,
+    hp = 360,
+    poise = 140,
     breakTime = 1.4,
     execution = 0.6,
     corpse = { settle = 0.44, landing = 0.22 },
   },
-  -- Below the knight's running speed; the committed leap closes the gap.
-  move = { speed = 4.3, accel = 20, style = 'flank', turn = 7 },
+  -- Below a knight walking on, above one backing away; the committed leap closes the gap.
+  move = { speed = 4.6, accel = 20, style = 'flank', turn = 7 },
   answers = {
     { when = 'reloading', attack = 'leap', rest = 6 },
     { when = 'drinking', attack = 'leap', rest = 6 },
@@ -86,8 +86,30 @@ return Creature.define({
       leadShare = 0.9,
       recover = 0.45,
       cooldown = 0.6,
-      string = { into = 'claw', gap = 0.2 },
+      string = { into = 'pounce', gap = 0.12 },
       packet = packet(36, 80),
+    }),
+    -- Off the landing, at whoever stepped back from the leap: the step is as long as
+    -- the gap, so the answer is across it, not away.
+    Action.sweep({
+      id = 'pounce',
+      range = 6,
+      windup = 0.3,
+      turn = 8,
+      lockAt = 0.6,
+      trace = {
+        { at = 0.06, angle = -0.7, reach = 2.4, height = 1.3 },
+        { at = 0.14, angle = 0, reach = 2.6, height = 1.1 },
+        { at = 0.22, angle = 0.7, reach = 2.4, height = 0.9 },
+      },
+      lungeSpeed = 13,
+      lungeTime = 0.24,
+      closing = 0.6,
+      duration = 0.3,
+      parry = 0.16,
+      recover = 0.55,
+      cooldown = 0.7,
+      packet = packet(34, 55),
     }),
     -- It waits with the arm raised, watching: a dodge at the old beat is spent.
     Action.lunge({

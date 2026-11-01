@@ -2,6 +2,7 @@ local World = require('src.world.arena')
 local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
+local Capabilities = require('src.session.capabilities')
 local Presentation = require('src.session.presentation')
 local T = require('src.content.tuning')
 local Reload = require('src.combat.reload')
@@ -143,6 +144,17 @@ function F.update(g, dt, input, actor)
   local targetSpeed = (
     onGround and Move.moveSpeed or math.max(Move.airSpeed, math.min(airCap, velocity))
   ) * condition
+  -- Where effort is paid a fight is not won by backing out of it: a knight steps
+  -- aside a little slower and walks backwards slowly.
+  if onGround and len > M.input and Capabilities.attrition(g) then
+    local body = Rules.playerBody(p)
+    local along = (dx * math.sin(p.yaw) + dz * math.cos(p.yaw)) / math.max(len, 1)
+    targetSpeed = targetSpeed
+      * (
+        along < 0 and body.sideStep + (body.sideStep - body.backStep) * along
+        or 1 - (1 - body.sideStep) * (1 - along)
+      )
+  end
   local accel = onGround and (len > M.input and Move.groundAccel or Move.groundBrake)
     or Move.airAccel
   local moveX, moveZ = p.vx * dt, p.vz * dt

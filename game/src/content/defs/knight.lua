@@ -42,6 +42,18 @@ Knight.schema = Body.schema:extend('knight body', {
   },
   rollLock = { type = 'number', required = true, min = 0, desc = 'no shot after a dodge (s)' },
   rollStamina = { type = 'number', required = true, min = 0, desc = 'what a dodge costs' },
+  sideStep = {
+    type = 'number',
+    required = true,
+    min = 0,
+    desc = 'share of walking speed sideways, where effort is paid',
+  },
+  backStep = {
+    type = 'number',
+    required = true,
+    min = 0,
+    desc = 'share of walking speed backwards, where effort is paid',
+  },
   airDrag = {
     type = 'number',
     required = true,

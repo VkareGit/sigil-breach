@@ -34,8 +34,8 @@ Views:register('shop', {
   end,
 })
 Views:register('confirm_new', {
-  draw = function()
-    require('src.ui.descent').confirm()
+  draw = function(g)
+    require('src.ui.descent').confirm(g)
   end,
 })
 Views:register('field_archive', {

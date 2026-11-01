@@ -53,10 +53,15 @@ function AI.init(e)
   e.spawnAge = 1
   e.flinch = 0
 end
+local Archetypes = require('src.content.enemies')
+local Walk = Archetypes.defaults.walk
+local Senses = Archetypes.defaults.senses
 -- level (optional): the surface the noise rose from, on a world with decks.
 function AI.noise(g, x, z, r, level)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 and len(e.x - x, e.z - z) < r then
+    -- A body at its post hears only what is near it: one shot is not the whole chapel.
+    local heard = e.alertRange and math.min(r, e.alertRange) or r
+    if e.hp > 0 and len(e.x - x, e.z - z) < heard then
       e.awake = true
       e.memory = 4
       e.lastX = x
@@ -75,9 +80,6 @@ end
 -- Walking is physical (0.21): the body accelerates toward its walking
 -- velocity at accel / sqrt(mass), so heavy demons start and turn later and
 -- a knocked body regains its stride. Arrival slows within braking distance.
-local Archetypes = require('src.content.enemies')
-local Walk = Archetypes.defaults.walk
-local Senses = Archetypes.defaults.senses
 local function move(g, e, tx, tz, speed, dt)
   local dx, dz = tx - e.x, tz - e.z
   local d = len(dx, dz)
@@ -446,7 +448,7 @@ local function perceive(g, e, d, dt)
     end
     e.visible = Rules.sees(g, e, p)
     e.sense = Senses.interval + e.id % 3 * Senses.stagger
-    if e.visible and d < Senses.alertRange then
+    if e.visible and d < (e.alertRange or Senses.alertRange) then
       if not e.awake then
         Signal(g, 'Alerted', { enemy = e })
       end
@@ -556,9 +558,21 @@ local function free(g, e, d, dt)
   if e.recover > 0 then
     return
   end
+  -- Too far from its post it gives up the chase.
+  if e.leash and len(e.x - e.home.x, e.z - e.home.z) > e.leash then
+    e.memory, e.visible = 0, false
+  end
   if not (e.awake and (e.memory > 0 or e.visible)) then
     e.ai = 'idle'
     e.awake = false
+    -- A body with a post goes back to it; a patrol walks on.
+    local post = e.patrol and e.patrol[e.patrolAt or 1] or e.home
+    if post and len(e.x - post.x, e.z - post.z) > Walk.home then
+      e.ai = 'move'
+      route(g, e, post.x, post.z, dt)
+    elseif e.patrol then
+      e.patrolAt = (e.patrolAt or 1) % #e.patrol + 1
+    end
     return
   end
   e.ai = 'move'

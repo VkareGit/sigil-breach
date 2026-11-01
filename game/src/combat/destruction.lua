@@ -328,6 +328,16 @@ function D.restore(world, state)
   end
   World.opened(world)
 end
+-- A rest: what collapsed stays down, every small thing stands again.
+function D.settle(world)
+  local kept = {}
+  for id, entry in pairs(world.destruction or NONE) do
+    if entry.at and Kinds[index(world).byId[id].kind].collapses then
+      kept[id] = entry
+    end
+  end
+  D.restore(world, kept)
+end
 function D.reset(world)
   if world.destruction then
     D.restore(world, nil)

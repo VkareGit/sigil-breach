@@ -117,9 +117,7 @@ function Application:reset(start)
     or self:has('--selftest')
     or self:has('--showcase')
     or self:has('--screenshot')
-  -- 0.22: no expedition is offered, so its save is neither read nor shown.
-  -- The files stay untouched for when the mode returns.
-  self:adopt(Game.new(classic and 'classic' or 'descent'))
+  self:adopt(Game.new(classic and 'classic' or 'pilgrimage'))
   self.input:reset(love.mouse.isDown(1))
   self.accumulator = 0
   UI.focus = 1
