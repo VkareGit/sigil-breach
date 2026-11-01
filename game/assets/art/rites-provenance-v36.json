@@ -1,0 +1,8 @@
+{
+  "method": "Built-in image_gen through Codex gpt-6-astra at high effort",
+  "scope": "New spell effects only; existing creature, weapon and interface images unchanged.",
+  "output": "assets/art/rites-fresco-v36.png",
+  "sha256": "8DBB0E4246991D8499DA10BDA5EB075CDACD74D58DC3526B202BE66A94ABEF9C",
+  "prompt": "Four images on #FF00FF matched to spells-fresco-v12.png and hazards-fresco-v33.png: a burning ring seen from above, a pale ritual circle, a crescent cut of ash and ember, a tiling ray of starlight.",
+  "processing": "Magenta keyed to alpha, each image resized to one 1024 cell of a 2 by 2 atlas; the ray seam crossfaded over 24 pixels."
+}

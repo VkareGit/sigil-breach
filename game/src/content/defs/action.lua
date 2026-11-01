@@ -501,7 +501,10 @@ hook('salvo', projectile)
 --   airborne  its strike carries the body through the air
 --   gathers   the body sinks and widens through the windup
 --   lands     the place it lands on is marked from the windup
+--   cuts      it leaves a painted cut in the air
 Action.hooks.leap.traits = { airborne = true, gathers = true, lands = true }
+Action.hooks.sweep.traits = { cuts = true }
+Action.hooks.seize.traits = { cuts = true }
 function Action.trait(action, name)
   local hooks = Action.hooks[action.kind]
   return hooks and hooks.traits and hooks.traits[name]

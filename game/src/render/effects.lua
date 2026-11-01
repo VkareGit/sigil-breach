@@ -1,5 +1,8 @@
 local HazardKinds = require('src.render.hazard_kinds')
 local Context = require('src.session.context')
+local Action = require('src.content.defs.action')
+local Rites = require('src.content.art.rites')
+local HazardArt = require('src.render.hazard_art')
 -- Visual interpretation of authoritative attack clocks. No gameplay timers,
 -- extra hit regions, or hidden randomness are introduced by the renderer.
 local Archetypes = require('src.content.enemies')
@@ -76,11 +79,31 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   shader:send('brightness', 1.12)
   love.graphics.draw(mesh)
 end
+-- The cut a wide blow leaves in the air, while it can land and a moment after.
+local function cut(r, g, e, spec)
+  local active = spec.active
+  local age = e.phase - active[1]
+  local span = active[2] - active[1] + Rites.cut
+  if age < 0 or age > span then
+    return
+  end
+  local size = spec.reach * Rites.cutSize
+  local x, z =
+    e.x + e.lungeX * spec.reach * Rites.cutForward, e.z + e.lungeZ * spec.reach * Rites.cutForward
+  local viewer = Context.viewer(g)
+  local yaw = math.atan2(viewer.x - x, viewer.z - z) + e.attackCount % 2 * math.pi
+  local y = Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight - size * 0.5
+  HazardArt.upright(r, x, y, z, 'cut', size, yaw, 1 - age / span)
+end
 function E.spells(r, g)
   love.graphics.setDepthMode('less', false)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     local look = Archetypes.look(e)
     local casts = look.casts
+    local spec = e.attackSpec
+    if e.hp > 0 and e.ai == 'strike' and spec and Action.trait(spec, 'cuts') then
+      cut(r, g, e, spec)
+    end
     if e.hp > 0 and e.ai == 'windup' and casts and (casts.all or casts[e.attackKind]) then
       local progress = 1 - e.windup / math.max(0.01, e.windupDuration or 1)
       local yaw = math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)

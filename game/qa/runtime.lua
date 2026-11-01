@@ -38,6 +38,7 @@ local captures = {
   ['--hall-review'] = true,
   ['--hall-walk'] = true,
   ['--hall-ruin'] = true,
+  ['--souls-review'] = true,
   ['--audio-export'] = true,
   ['--movement-review'] = true,
   ['--qa-smoke'] = true,
@@ -165,6 +166,8 @@ function Q:run(G, renderer, getGame, settings, getLoading)
     require('qa.reviews.ritual_art').run(G, renderer, self.output)
   elseif self:has('--hall-review') or self:has('--hall-walk') then
     require('qa.reviews.chapel_hall').run(G, renderer, self.output, self:has('--hall-walk'))
+  elseif self:has('--souls-review') then
+    require('qa.reviews.souls_moves').run(G, renderer, self.output)
   elseif self:has('--hall-ruin') then
     require('qa.reviews.hall_ruin').run(G, renderer, self.output)
   elseif self:has('--movement-review') then

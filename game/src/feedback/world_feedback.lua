@@ -120,6 +120,22 @@ World.handlers = {
     g:burst(s.x, 1.0, s.z, color, 14, 2.6)
     A.playAt(sounds(e).arrival or 'pulse', s.x, s.z, Context.viewer(g), 0.55, 2, g.world)
   end,
+  -- Gone in a breath of its own colour, there and where it stands now.
+  Blinked = function(g, ev)
+    local e = ev.enemy
+    local color = require('src.content.enemies').look(e).portal
+    g:burst(ev.fromX, 1.2, ev.fromZ, color, 12, 2.2)
+    g:burst(e.x, 1.2, e.z, color, 12, 2.2)
+    FX.emit(g, 'smoke', ev.fromX, 0.7, ev.fromZ, 0.7)
+    A.playAt('cast', e.x, e.z, Context.viewer(g), 0.5, 2, g.world)
+  end,
+  -- The grip closes: felt in the view, heard in the bones.
+  Seized = function(g, ev)
+    A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.6)
+    Recipient.each(g, function(personal)
+      personal.view.shake = math.max(personal.view.shake or 0, K.staggerShake)
+    end)
+  end,
   PlayerStaggered = function(g, ev)
     g = Recipient.context(g, ev.actor)
     if not g then

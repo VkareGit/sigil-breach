@@ -5,6 +5,7 @@ local Definitions = require('src.content.hazards')
 local Ballistics = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
+local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
@@ -47,36 +48,52 @@ Kinds:register('lightning', {
     end
   end,
 })
--- A ring on the floor, with the warning mark's own art.
-local function ring(r, g, h, effects)
-  r:object(
-    r.warning,
-    h.x,
-    Ground.of(g.world, h) + 0.03,
-    h.z,
-    0,
-    h.radius,
-    h.delay > 0 and effects.colors.bone or effects.colors.brimstone
-  )
+Kinds:register('wave', {
+  ground = function(r, g, h)
+    if h.delay <= 0 then
+      HazardArt.circle(r, g, h, 'wave', h.radius, 1)
+    end
+  end,
+})
+-- The circle is the only quiet place: while the sky gathers, the floor around it
+-- is marked; when it strikes, bolts fall all around.
+local spot = {}
+local function around(h, i)
+  local a = i * 2.399 + h.angle * 0.3
+  local d = h.radius + Rites.storm.near + (i % 3) * Rites.storm.spread
+  spot.x, spot.z = h.x + math.sin(a) * d, h.z + math.cos(a) * d
+  return spot
 end
-Kinds:register('wave', { ground = ring })
-Kinds:register('tempest', { ground = ring })
+Kinds:register('tempest', {
+  ground = function(r, g, h)
+    HazardArt.circle(r, g, h, 'circle', h.radius, 1)
+  end,
+  air = function(r, g, h, effects)
+    local S = Rites.storm
+    for i = 1, S.bolts do
+      local at = around(h, i)
+      local y = Ground.of(g.world, at)
+      if h.delay > 0 then
+        local progress = 1 - h.delay / math.max(0.01, h.maxDelay)
+        effects.spell(r, g, 2, progress, at.x, y + 0.045, at.z, S.mark, 0.68, true)
+      elseif h.pulse > h.interval * 0.72 then
+        local progress = 1 - (h.pulse - h.interval * 0.72) / (h.interval * 0.28)
+        effects.spell(r, g, 3, progress, at.x, y + S.height, at.z, S.size, 0.9, false)
+      end
+    end
+  end,
+})
 Kinds:register('sweepline', {
-  ground = function(r, g, h, effects)
+  ground = function(r, g, h)
+    local R = Rites.ray
     local ground = Ground.of(g.world, h)
     local dx, dz = math.sin(h.angle), math.cos(h.angle)
     local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
-    for step = 1, math.floor(reach / 0.8) do
-      local d = step * 0.8
-      r:object(
-        r.warning,
-        h.x + dx * d,
-        ground + 0.03,
-        h.z + dz * d,
-        0,
-        0.3,
-        h.delay > 0 and effects.colors.bone or effects.colors.brimstone
-      )
+    local alpha = h.delay > 0 and R.warned or 1
+    for step = 1, math.floor(reach / R.step) do
+      local d = step * R.step
+      spot.x, spot.z = h.x + dx * d, h.z + dz * d
+      HazardArt.band(r, g, spot, 'ray', R.size, h.angle, alpha)
     end
   end,
 })
