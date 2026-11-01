@@ -13,7 +13,11 @@ local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
 local Area = require('src.combat.area_contact')
 local Volumes = require('src.content.defs.area')
-local K = require('src.content.combat_defaults').attacks
+local Pattern = require('src.enemies.ground_pattern')
+local ActionKinds = require('src.combat.action_kinds')
+local Pools = require('src.session.world')
+local Defaults = require('src.content.combat_defaults')
+local K = Defaults.attacks
 local sin, cos = math.sin, math.cos
 local len = MathX.len
 local victimOf, pointOf, previousOf = Contact.victim, Contact.point, Contact.previous
@@ -82,16 +86,37 @@ Kinds.lunge = {
     end
   end,
 }
+-- How long a rush at (x, z) takes.
+local function rushTime(e, atk)
+  return math.min(
+    atk.maxTime,
+    math.max(atk.minTime, len(e.aimX - e.x, e.aimZ - e.z) / atk.speed + K.chargeMargin)
+  )
+end
 Kinds.charge = {
   execute = function(g, e, atk, a)
     face(g, e, atk, a)
-    e.chargeTime = math.min(
-      atk.maxTime,
-      math.max(atk.minTime, len(e.aimX - e.x, e.aimZ - e.z) / atk.speed + K.chargeMargin)
-    )
+    e.chargeTime = rushTime(e, atk)
+    e.turnsLeft, e.turnAt = atk.turns, nil
   end,
   strike = function(g, e, atk, dt, ctx)
+    -- A rush with turns stops, looks at the target again and goes.
+    if e.turnAt then
+      if e.phase < e.turnAt then
+        return
+      end
+      local t = victimOf(g, e)
+      e.aimX, e.aimZ, e.aimLevel, e.turnAt = t.x, t.z, t.level, nil
+      face(g, e, atk, math.atan2(e.aimX - e.x, e.aimZ - e.z))
+      e.chargeTime = e.phase + rushTime(e, atk)
+      return
+    end
     if ctx.before >= e.chargeTime then
+      if (e.turnsLeft or 0) > 0 and not e.didHit then
+        e.turnsLeft = e.turnsLeft - 1
+        e.turnAt = e.phase + atk.turnPause
+        e.chargeTime = e.turnAt + atk.maxTime
+      end
       return
     end
     local t = victimOf(g, e)
@@ -130,7 +155,112 @@ Kinds.charge = {
     end
   end,
   duration = function(e)
-    return e.chargeTime
+    return (e.turnsLeft or 0) > 0 and not e.didHit and math.huge or e.chargeTime
+  end,
+}
+-- Whether a point lies in the blow's arc, along the way the body faces.
+local function inArc(e, p, arc)
+  local dx, dz = p.x - e.x, p.z - e.z
+  local d = len(dx, dz)
+  return d < 1e-6 or (dx * e.lungeX + dz * e.lungeZ) / d >= cos(arc * 0.5)
+end
+-- The body's step into a blow.
+local function lean(g, e, atk, dt, ctx)
+  if ctx.before >= atk.lungeTime or atk.lungeSpeed <= 0 then
+    return
+  end
+  local step = math.min(dt, atk.lungeTime - ctx.before)
+  local t = victimOf(g, e)
+  local p, previous = pointOf(g, t), previousOf(g, t, ctx.previous)
+  local current = step < dt and Melee.playerAt(previous or p, p, step / dt, nil, g.world) or p
+  rush(
+    g,
+    e,
+    atk.lungeSpeed * Rules.speedScale(e),
+    step,
+    ctx.previous,
+    knightAt(g, t, current, ctx.previous, step, dt)
+  )
+end
+-- A blow's reach and arc in its active window. Returns the body caught and its
+-- receipt; a dodge that left its afterimage in the arc spends the blow.
+local source = {}
+local function swing(g, e, atk, ctx)
+  if e.didHit or e.phase < atk.active[1] or ctx.before > atk.active[2] then
+    return
+  end
+  local t = victimOf(g, e)
+  local p = pointOf(g, t)
+  source.x, source.z, source.level, source.radius = e.x, e.z, e.level, atk.reach
+  local hit, contact = Area.test(g, source, atk.volume, t, p)
+  if hit and inArc(e, p, atk.arc) then
+    return t, contact
+  end
+  local ghost = Dodge.afterimage(g, t)
+  if ghost and Area.test(g, source, atk.volume, t, ghost) and inArc(e, ghost, atk.arc) then
+    dodged(g, e, atk, t)
+  end
+end
+Kinds.sweep = {
+  execute = function(g, e, atk, a)
+    face(g, e, atk, a)
+    e.trailed = nil
+  end,
+  strike = function(g, e, atk, dt, ctx)
+    lean(g, e, atk, dt, ctx)
+    if atk.trail and not e.trailed and e.phase >= atk.active[1] then
+      e.trailed = true
+      Pattern.release(g, e, atk.trail, math.atan2(e.lungeX, e.lungeZ))
+    end
+    local t, contact = swing(g, e, atk, ctx)
+    if t then
+      hurt(g, e, atk, t, contact)
+    end
+  end,
+}
+Kinds.seize = {
+  execute = face,
+  strike = function(g, e, atk, dt, ctx)
+    if e.holding then
+      local t = Pools.get(g, e.holding)
+      if not t or t.hp <= 0 then
+        ActionKinds.release(e)
+      elseif e.phase >= e.holdUntil then
+        ActionKinds.release(e)
+        hurt(g, e, atk, t)
+      else
+        Rules.addCondition(t, 'seized', Defaults.gripHold)
+      end
+      return
+    end
+    lean(g, e, atk, dt, ctx)
+    local t = swing(g, e, atk, ctx)
+    if t then
+      e.didHit = true
+      -- A dodge on its way through: the grip closes on nothing.
+      if (t.invuln or 0) > 0 then
+        Dodge.perfect(g, Rules.packet(e, atk.packet), e, t)
+      else
+        e.holding, e.holdUntil = t.id, e.phase + atk.grip
+        Rules.addCondition(t, 'seized', Defaults.gripHold)
+        Signal(g, 'Seized', { enemy = e, target = t.id })
+      end
+    end
+  end,
+  duration = function(e, atk)
+    return e.holding and math.huge or atk.duration
+  end,
+}
+-- The body springs back from its target; nothing lands.
+Kinds.hop = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    face(g, e, atk, a + math.pi)
+  end,
+  strike = function(g, e, atk, dt, ctx)
+    if ctx.before < atk.lungeTime then
+      rush(g, e, atk.speed, math.min(dt, atk.lungeTime - ctx.before), ctx.previous)
+    end
   end,
 }
 Kinds.leap = {

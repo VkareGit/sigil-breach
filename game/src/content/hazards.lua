@@ -6,6 +6,9 @@ local Kinds = Registry:new('hazard kinds')
 Kinds.default = 'pool'
 Kinds:register('pool', { volume = 'pool' })
 Kinds:register('lightning', { volume = 'lightning' })
+Kinds:register('wave', { volume = 'wave' })
+Kinds:register('sweepline', { volume = 'beam' })
+Kinds:register('tempest', { volume = 'lightning' })
 -- A schema check: nil when the id names a kind.
 function Kinds.problem(id)
   if not Kinds:has(id) then

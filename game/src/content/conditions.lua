@@ -6,6 +6,8 @@
 --  poisoned:  standing in plague; the body recovers its guard and breath slower
 --  crippled:  a leg blow (hit zones); the body limps for a while
 --  exposed:   a boss whose guard broke; half armour
+--  seized:    held by a grip (enemies/melee_kinds.lua: seize)
+--  rooted:    bound by roots
 local Condition = require('src.content.defs.condition')
 local Registry = require('src.core.registry')
 local registry = Registry:new('conditions', function(entry, id)
@@ -42,5 +44,9 @@ api.register('wounded', { speed = 0.72 })
 api.register('poisoned', { recovery = 0.5 })
 api.register('crippled', { speed = 0.65 })
 api.register('exposed', { modifiers = { armor = { mul = 0.5 } } })
+-- In a grip: nothing but waiting for it to open, or for the holder to falter.
+api.register('seized', { speed = 0, forbids = { 'fire', 'cast', 'dash', 'jump' } })
+-- Roots around the legs: it can still shoot and dodge, not walk.
+api.register('rooted', { speed = 0.25, forbids = { 'jump' } })
 -- Existing data readers retain Conditions[id]; methods are not definition keys.
 return setmetatable(registry:view(), { __index = api })

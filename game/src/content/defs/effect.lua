@@ -29,6 +29,15 @@ Effect.defineKind('periodic', {
 })
 -- Polymorphic nested-list schema consumed by Packet and Weapon.attack.
 Effect.schema = {}
+-- Exposure that gathers: each contact adds amount, it fades by decay per second
+-- (read every interval), and only at the threshold do its results fall.
+Effect.defineKind('buildup', {
+  amount = { type = 'number', required = true, min = 0 },
+  threshold = { type = 'number', required = true, min = 0 },
+  decay = { type = 'number', default = 0, min = 0 },
+  interval = { type = 'number', default = 0.25, min = 0.01 },
+  results = { type = 'table', required = true, list = Effect.schema },
+})
 function Effect.schema:fill(definition)
   return Effect.kinds:get(definition.kind):fill(definition)
 end
@@ -49,6 +58,13 @@ function Effect.schema:problems(definition, path, out)
   end
   if definition.kind == 'condition' and not Conditions.find(definition.condition) then
     out[#out + 1] = path .. '.condition: unknown condition ' .. tostring(definition.condition)
+  end
+  if definition.kind == 'buildup' and type(definition.results) == 'table' then
+    for index, result in ipairs(definition.results) do
+      if result.kind == 'buildup' then
+        out[#out + 1] = path .. '.results[' .. index .. ']: a buildup cannot gather a buildup'
+      end
+    end
   end
   if definition.kind == 'periodic' and type(definition.packet) == 'table' then
     if definition.packet.impact ~= 0 or (definition.packet.push or 0) ~= 0 then

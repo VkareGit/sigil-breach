@@ -13,6 +13,13 @@ local Claw = require('src.content.combat_defaults').claw
 local Area = require('src.content.defs.area')
 local AttackDefaults = require('src.content.combat_defaults').attacks
 local Action = { hooks = {} }
+-- A blow that flows into the next one instead of a full rest. every: only each
+-- n-th time, so the short and the long string alternate in a fixed order.
+local Flow = Schema:new('attack string', {
+  into = { type = 'string', required = true, desc = 'the attack it flows into' },
+  gap = { type = 'number', default = 0.12, min = 0, desc = 'the beat between them (s)' },
+  every = { type = 'number', min = 1, desc = 'flows only every n-th time' },
+})
 -- Fields of every action, whatever its delivery.
 Action.common = {
   id = { type = 'string', required = true },
@@ -44,6 +51,17 @@ Action.common = {
     desc = 'minimum observed-velocity prediction at any tier',
   },
   hyper = { type = 'number', min = 1, desc = 'guard multiplier while winding up and striking' },
+  string = { type = 'table', schema = Flow },
+  hold = {
+    type = 'table',
+    desc = 'stillness after the windup (s), one entry per use in a fixed order',
+  },
+  track = {
+    type = 'number',
+    min = 0,
+    max = 1,
+    desc = 'share of the windup the aim follows the target; frozen after it',
+  },
   sound = { type = 'string' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   packet = { type = 'table', schema = Packet.schema },
@@ -131,6 +149,8 @@ Action.kinds:register(
     reach = { type = 'number', min = 0 },
     contactY = { type = 'number' },
     contactRadius = { type = 'number', min = 0 },
+    turns = { type = 'number', default = 0, min = 0, desc = 'new rushes at the target' },
+    turnPause = { type = 'number', default = 0.3, min = 0, desc = 'visible stop before each (s)' },
   }, { 'speed', 'minTime', 'maxTime', 'reach', 'contactY', 'contactRadius', 'packet' })
 )
 Action.kinds:register(
@@ -193,6 +213,136 @@ Action.kinds:register(
     life = { type = 'number', required = true, min = 0 },
     pulse = { type = 'number', required = true, min = 0 },
   }, { 'packet' })
+)
+-- What a burning cut leaves on the floor where it passed.
+local Trail = Schema:new('trail', {
+  origin = { type = 'string', default = 'caster', values = { 'caster' } },
+  marks = { type = 'table', required = true, list = Mark },
+  hazard = { type = 'string', default = 'pool', check = HazardKinds.problem },
+  volume = Area.field('pool'),
+  radius = { type = 'number', required = true, min = 0 },
+  life = { type = 'number', required = true, min = 0 },
+  pulse = { type = 'number', required = true, min = 0 },
+  packet = { type = 'table', required = true, schema = Packet.schema },
+})
+local swing = {
+  reach = { type = 'number', min = 0, desc = 'how far the blow goes from the body (m)' },
+  arc = { type = 'number', min = 0, desc = 'its width (radians)' },
+  active = { type = 'table', default = { 0.06, 0.2 }, desc = 'when it can land (s)' },
+  lungeSpeed = { type = 'number', default = 0, min = 0 },
+  lungeTime = { type = 'number', default = 0, min = 0 },
+  volume = Area.field('sweep'),
+}
+local function with(fields, more)
+  local out = {}
+  for key, spec in pairs(fields) do
+    out[key] = spec
+  end
+  for key, spec in pairs(more) do
+    out[key] = spec
+  end
+  return out
+end
+-- A wide blow with real reach, passed by leaving its arc or jumping a low one.
+Action.kinds:register(
+  'sweep',
+  kind('sweep', with(swing, { trail = { type = 'table', schema = Trail } }), {
+    'reach',
+    'arc',
+    'packet',
+  })
+)
+-- A grip: it pins what it catches and hurts when the grip closes.
+Action.kinds:register(
+  'seize',
+  kind(
+    'seize',
+    with(swing, {
+      grip = { type = 'number', min = 0, desc = 'how long it holds (s)' },
+    }),
+    { 'reach', 'arc', 'grip', 'packet' }
+  )
+)
+-- A ring spreading from the body over the floor.
+Action.kinds:register(
+  'wave',
+  kind('wave', {
+    speed = { type = 'number', min = 0 },
+    width = { type = 'number', default = 0.8, min = 0, desc = 'depth of the ring (m)' },
+    reach = { type = 'number', min = 0, desc = 'where it dies out (m)' },
+    start = { type = 'number', default = 0.6, min = 0, desc = 'its first radius (m)' },
+    delay = { type = 'number', default = 0, min = 0 },
+    volume = Area.field('wave'),
+  }, { 'speed', 'reach', 'packet' })
+)
+-- A ray sweeping the room around the body; standing stone stops it.
+Action.kinds:register(
+  'beam',
+  kind('beam', {
+    length = { type = 'number', min = 0 },
+    arc = { type = 'number', min = 0, desc = 'the angle it crosses (radians)' },
+    spin = { type = 'number', min = 0, desc = 'radians per second' },
+    delay = { type = 'number', default = 0.5, min = 0, desc = 'warned before it moves (s)' },
+    volume = Area.field('beam'),
+  }, { 'length', 'arc', 'spin', 'packet' })
+)
+-- Existing creatures called to the body, bounded by a limit of the living.
+Action.kinds:register(
+  'summon',
+  kind('summon', {
+    creature = { type = 'string', required = true },
+    count = { type = 'number', default = 1, min = 1 },
+    limit = { type = 'number', default = 2, min = 1, desc = 'of its own alive at once' },
+    distance = { type = 'number', default = 2.5, min = 0, desc = 'how far from the body (m)' },
+    spread = { type = 'number', default = 1.2, min = 0, desc = 'between two of them (radians)' },
+  }, {})
+)
+-- The body springs back from its target.
+Action.kinds:register(
+  'hop',
+  kind('hop', {
+    speed = { type = 'number', min = 0 },
+    lungeTime = { type = 'number', min = 0 },
+  }, { 'speed', 'lungeTime' })
+)
+-- The body is gone and stands elsewhere.
+Action.kinds:register(
+  'blink',
+  kind('blink', {
+    distance = { type = 'number', min = 0, desc = 'from its target (m)' },
+  }, { 'distance' })
+)
+-- Missiles let go one after another, each aimed anew.
+local salvo = {}
+for k, v in pairs(Action.projectile) do
+  salvo[k] = v
+end
+salvo.count = { type = 'number', min = 1 }
+salvo.interval = { type = 'number', min = 0 }
+Action.kinds:register('salvo', kind('salvo', salvo, { 'speed', 'count', 'interval', 'packet' }))
+-- Bolts that fall where the target stood a moment before.
+Action.kinds:register(
+  'storm',
+  kind('storm', {
+    count = { type = 'number', min = 1 },
+    interval = { type = 'number', min = 0 },
+    delay = { type = 'number', min = 0, desc = 'warned before each falls (s)' },
+    radius = { type = 'number', min = 0 },
+    life = { type = 'number', default = 0.22, min = 0 },
+    volume = Area.field('lightning'),
+  }, { 'count', 'interval', 'delay', 'radius', 'packet' })
+)
+-- The whole room strikes except a circle that wanders.
+Action.kinds:register(
+  'tempest',
+  kind('tempest', {
+    radius = { type = 'number', min = 0, desc = 'of the safe circle (m)' },
+    orbit = { type = 'number', default = 0, min = 0, desc = 'its path around the mark (m)' },
+    spin = { type = 'number', default = 0, min = 0, desc = 'radians per second along it' },
+    delay = { type = 'number', default = 1.2, min = 0 },
+    life = { type = 'number', min = 0 },
+    pulse = { type = 'number', min = 0 },
+  }, { 'radius', 'life', 'pulse', 'packet' })
 )
 -- The blast of an area action: a full damage profile (combat/damage.lua).
 Action.blast = Schema:new('blast', {
@@ -324,6 +474,24 @@ hook('fan', function(built, path)
   projectile(built, path)
 end)
 hook('bolt', projectile)
+local function swung(built, path)
+  samples(built.active, path .. '.active', 2)
+  assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
+  assert(built.active[2] <= built.duration, path .. '.active: exceeds strike duration')
+  assert(built.lungeTime <= built.duration, path .. '.lungeTime: exceeds strike duration')
+  Area.validate(built.volume, path .. '.volume')
+end
+hook('sweep', swung)
+hook('seize', swung)
+hook('wave', function(built, path)
+  Area.validate(built.volume, path .. '.volume')
+  assert(built.speed > 0, path .. '.speed: must be positive')
+end)
+hook('beam', function(built, path)
+  Area.validate(built.volume, path .. '.volume')
+  assert(built.spin > 0, path .. '.spin: must be positive')
+end)
+hook('salvo', projectile)
 -- What the rest of the game may ask of a kind without naming it:
 --   airborne  its strike carries the body through the air
 --   gathers   the body sinks and widens through the windup
@@ -354,6 +522,12 @@ function Action.build(def, where)
   local hooks = Action.hooks[built.kind]
   if hooks and hooks.validate then
     hooks.validate(built, path)
+  end
+  if built.hold then
+    samples(built.hold, path .. '.hold')
+  end
+  if built.string then
+    assert(built.string.into ~= built.id, path .. '.string: flows into itself')
   end
   return built
 end

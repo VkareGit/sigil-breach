@@ -42,6 +42,8 @@ local Catalog = {
   { 'AttackCancelled', 'a committed attack was cancelled {enemy}' },
   { 'Landed', 'a leaping or falling body reached the floor {enemy, heavy}' },
   { 'Evaded', 'a demon sidestepped the aim {enemy}' },
+  { 'Blinked', 'a demon left its place and stood elsewhere {enemy, fromX, fromZ}' },
+  { 'Seized', 'a grip closed on a body {enemy, target}' },
   { 'PortalOpened', 'a summoning portal began to glow {gate}' },
   { 'EnemyArrived', 'a demon climbed out of a portal {enemy}' },
   {

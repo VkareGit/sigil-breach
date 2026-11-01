@@ -133,6 +133,7 @@ return function(R)
     end
     local t, heavy = R.staggerTime(e.poise, guard, b)
     if boss then
+      ActionKinds.release(e)
       e.stun = max(e.stun or 0, t)
       e.staggerLock = defaults.bossLock
       R.addCondition(e, 'exposed', defaults.bossExposed)

@@ -208,6 +208,8 @@ return {
   -- walls, pulled back by halves up to aimTries times; leadPasses refine an
   -- intercept.
   attacks = {
+    -- Where a blink lands around its target, in the order they are tried.
+    blinkBearings = { 2.4, -2.4, 1.2, -1.2, 3.14, 0.6, -0.6 },
     muzzle = 0.30,
     aimHeight = 1.15,
     boltLife = 5,
@@ -278,4 +280,6 @@ return {
   -- A volley: rays of one shot and bodies of one shot apart in their seeds;
   -- the shortest length a contact's normal is taken from.
   volley = { seedStride = 31, nearest = 0.001 },
+  -- A grip is renewed each step for this long, so a holder that falters lets go.
+  gripHold = 0.08,
 }

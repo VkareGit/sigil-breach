@@ -2,6 +2,7 @@
 --   ground(r, g, h, effects)  drawn on the floor
 --   air(r, g, h, effects)     its spell above it, if any (render/effects.lua)
 local Definitions = require('src.content.hazards')
+local Ballistics = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
 local Registry = require('src.core.registry')
@@ -43,6 +44,39 @@ Kinds:register('lightning', {
       -- A short narrow strike leaves the enemy silhouette visible. The ground ring
       -- is still the exact authoritative damage radius, not this ornamental width.
       effects.spell(r, g, 3, progress, h.x, Ground.of(g.world, h) + 1.5, h.z, 2.8, 0.9, false)
+    end
+  end,
+})
+-- A ring on the floor, with the warning mark's own art.
+local function ring(r, g, h, effects)
+  r:object(
+    r.warning,
+    h.x,
+    Ground.of(g.world, h) + 0.03,
+    h.z,
+    0,
+    h.radius,
+    h.delay > 0 and effects.colors.bone or effects.colors.brimstone
+  )
+end
+Kinds:register('wave', { ground = ring })
+Kinds:register('tempest', { ground = ring })
+Kinds:register('sweepline', {
+  ground = function(r, g, h, effects)
+    local ground = Ground.of(g.world, h)
+    local dx, dz = math.sin(h.angle), math.cos(h.angle)
+    local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
+    for step = 1, math.floor(reach / 0.8) do
+      local d = step * 0.8
+      r:object(
+        r.warning,
+        h.x + dx * d,
+        ground + 0.03,
+        h.z + dz * d,
+        0,
+        0.3,
+        h.delay > 0 and effects.colors.bone or effects.colors.brimstone
+      )
     end
   end,
 })

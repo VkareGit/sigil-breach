@@ -192,6 +192,9 @@ function Creature.define(def)
     assert(not ids[a.id], where .. '.attacks: repeated action id ' .. a.id)
     ids[a.id] = true
   end
+  for _, a in ipairs(merged.attacks) do
+    assert(not a.string or ids[a.string.into], where .. ': string into unknown ' .. a.id)
+  end
   Creature.schema:validate(merged, where)
   Encounter.validate(merged, where)
   return merged

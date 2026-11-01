@@ -98,6 +98,10 @@ function Contracts.creature(definition)
     'creature ' .. definition.id .. ': unknown painted motion ' .. tostring(motion)
   )
   for _, action in ipairs(definition.attacks) do
+    assert(
+      not action.creature or Archetypes.get(action.creature),
+      'creature ' .. definition.id .. ': it calls unknown ' .. tostring(action.creature)
+    )
     local executor = Attacks.kinds[action.kind]
     assert(
       type(executor) == 'table' and type(executor.execute) == 'function',

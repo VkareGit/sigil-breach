@@ -12,7 +12,11 @@ local Contact = require('src.enemies.attack_contact')
 local Shape = require('src.combat.projectile_shape')
 local Schema = require('src.core.schema')
 local Caster = require('src.combat.caster')
-local K = require('src.content.combat_defaults').attacks
+local Defaults = require('src.content.combat_defaults')
+local K = Defaults.attacks
+local Pools = require('src.session.world')
+local Signal = require('src.session.signal')
+local World = require('src.world.arena')
 local sin, cos = math.sin, math.cos
 local len = MathX.len
 local Kinds = {}
@@ -136,6 +140,172 @@ Kinds.fan = {
             level = e.aimLevel,
           }
         )
+      end
+    end
+  end,
+}
+-- A ring from the body, a ray around it, the room around a circle: their
+-- whole life is the hazard's (enemies/hazards.lua).
+Kinds.wave = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    Spawn.make(g, 'hazard', {
+      kind = 'wave',
+      owner = e.id,
+      side = Bodies.side(g, e),
+      x = e.x,
+      z = e.z,
+      level = e.level,
+      delay = atk.delay,
+      maxDelay = atk.delay,
+      radius = atk.start,
+      reach = atk.reach,
+      spread = atk.speed,
+      width = atk.width,
+      volume = Schema.copy(atk.volume),
+      life = 1,
+      packet = Rules.packet(e, atk.packet),
+    })
+  end,
+}
+Kinds.beam = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    -- It crosses the target from one side, then from the other.
+    local turn = e.attackCount % 2 == 0 and 1 or -1
+    Spawn.make(g, 'hazard', {
+      kind = 'sweepline',
+      owner = e.id,
+      side = Bodies.side(g, e),
+      x = e.x,
+      z = e.z,
+      level = e.level,
+      delay = atk.delay,
+      maxDelay = atk.delay,
+      radius = atk.length,
+      angle = a - turn * atk.arc * 0.5,
+      spin = turn * atk.spin,
+      volume = Schema.copy(atk.volume),
+      life = atk.arc / atk.spin,
+      packet = Rules.packet(e, atk.packet),
+    })
+  end,
+}
+Kinds.tempest = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    Spawn.make(g, 'hazard', {
+      kind = 'tempest',
+      owner = e.id,
+      side = Bodies.side(g, e),
+      x = e.aimX + sin(a) * atk.orbit,
+      z = e.aimZ + cos(a) * atk.orbit,
+      centerX = e.aimX,
+      centerZ = e.aimZ,
+      orbit = atk.orbit,
+      angle = a,
+      spin = atk.spin,
+      level = e.aimLevel,
+      delay = atk.delay,
+      maxDelay = atk.delay,
+      radius = atk.radius,
+      life = atk.life,
+      interval = atk.pulse,
+      packet = Rules.packet(e, atk.packet),
+    })
+  end,
+}
+-- Missiles let go in turn, each at where the target is by then.
+Kinds.salvo = {
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    e.released = 0
+  end,
+  strike = function(g, e, atk)
+    while e.released < atk.count and e.phase >= e.released * atk.interval do
+      local t = Contact.victim(g, e)
+      e.released = e.released + 1
+      e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
+      local a = math.atan2(e.aimX - e.x, e.aimZ - e.z)
+      launch(g, atk, atk.speed, aimed(g, e, a, atk))
+    end
+  end,
+  duration = function(e, atk)
+    return (atk.count - 1) * atk.interval + atk.duration
+  end,
+}
+-- Bolts marked where the target stands, falling when it may have left.
+Kinds.storm = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    e.released = 0
+  end,
+  strike = function(g, e, atk)
+    while e.released < atk.count and e.phase >= e.released * atk.interval do
+      local t = Contact.victim(g, e)
+      e.released = e.released + 1
+      Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
+        kind = 'lightning',
+        packet = Rules.packet(e, atk.packet),
+        volume = atk.volume,
+        owner = e.id,
+        side = Bodies.side(g, e),
+        level = t.level,
+      })
+    end
+  end,
+  duration = function(e, atk)
+    return (atk.count - 1) * atk.interval + atk.duration
+  end,
+}
+-- The body is gone and stands where the target must turn to find it: the first
+-- free place on a fixed list of bearings, so its path can be learnt.
+local bearings = K.blinkBearings
+Kinds.blink = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    local t = Contact.victim(g, e)
+    local from = math.atan2(e.x - t.x, e.z - t.z)
+    for i = 1, #bearings do
+      local b = from + bearings[(e.attackCount + i) % #bearings + 1]
+      local x, z = t.x + sin(b) * atk.distance, t.z + cos(b) * atk.distance
+      if
+        not World.solid(g.world, x, z, K.aimClearance) and World.visible(g.world, t.x, t.z, x, z)
+      then
+        Signal(g, 'Blinked', { enemy = e, fromX = e.x, fromZ = e.z })
+        e.x, e.z = x, z
+        e.lastX, e.lastZ = t.x, t.z
+        break
+      end
+    end
+  end,
+}
+-- Its own, gathered beside it; a limit counts the living ones it called.
+Kinds.summon = {
+  unseen = true,
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
+    local alive = 0
+    for _, other in ipairs(Pools.of(g, 'enemies')) do
+      if other.summoner == e.id and other.hp > 0 then
+        alive = alive + 1
+      end
+    end
+    local count = math.min(atk.count, atk.limit - alive)
+    for i = 1, count do
+      local b = a + (i - (count + 1) * 0.5) * atk.spread
+      local x, z = e.x + sin(b) * atk.distance, e.z + cos(b) * atk.distance
+      if not World.solid(g.world, x, z, K.aimClearance) then
+        local called = g:spawn(atk.creature, x, z)
+        called.summoner, called.awake, called.spawnAge = e.id, true, 0
+        called.memory = Defaults.senses.memory
+        called.lastX, called.lastZ = e.aimX, e.aimZ
+        Signal(g, 'EnemyArrived', { enemy = called, gate = { x = x, z = z } })
       end
     end
   end,

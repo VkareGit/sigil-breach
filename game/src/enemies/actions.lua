@@ -100,6 +100,7 @@ local function beginAttack(g, e, d, chosen)
     e.windupDuration = e.windupDuration + K.unseenWindup
   end
   e.windup = e.windupDuration
+  e.holdLeft = atk.hold and atk.hold[e.attackCount % #atk.hold + 1] or nil
   e.aimX = p.x
   e.aimZ = p.z
   e.aimLevel = p.level
@@ -159,9 +160,47 @@ local function strike(g, e, dt, previousPlayer)
   if e.phase > duration then
     Selection.finished(e, atk, g.elapsed)
     change(e, 'recover')
-    e.recover = atk.recover
-    -- Tier aggression shortens the pause between attacks, never a windup.
-    e.attack = atk.cooldown / Selection.pace(e)
+    local flow = atk.string
+    if flow and (not flow.every or e.attackCount % flow.every == 0) then
+      e.chain, e.chainFrom = flow.into, atk.id
+      e.recover = flow.gap
+    else
+      Attacks.rest(e, atk)
+    end
+  end
+end
+-- The full rest after an attack. Tier aggression shortens the pause between
+-- attacks, never a windup.
+function Attacks.rest(e, atk)
+  e.recover = atk.recover
+  e.attack = atk.cooldown / Selection.pace(e)
+end
+-- The next blow of a string, when its beat ran out. A string the target left
+-- behind ends as the last blow would have.
+function Attacks.flow(g, e, d)
+  local list = arch(e).attacks
+  local nextBlow, last
+  for _, atk in ipairs(list) do
+    if atk.id == e.chain then
+      nextBlow = atk
+    elseif atk.id == e.chainFrom then
+      last = atk
+    end
+  end
+  e.chain, e.chainFrom = nil, nil
+  if nextBlow and e.visible and d <= nextBlow.range and d >= nextBlow.minRange then
+    return Attacks.begin(g, e, d, nextBlow)
+  end
+  if last then
+    Attacks.rest(e, last)
+  end
+  return false
+end
+-- The aim follows the target for the first share of a tracking windup.
+function Attacks.track(g, e, atk)
+  if atk.track and e.windup > e.windupDuration * (1 - atk.track) then
+    local p = victimOf(g, e)
+    e.aimX, e.aimZ, e.aimLevel = p.x, p.z, p.level
   end
 end
 -- A body in the air and its landing (enemies/flight.lua).

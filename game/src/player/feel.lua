@@ -1,3 +1,4 @@
+local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Presentation = require('src.session.presentation')
@@ -174,7 +175,7 @@ function F.update(g, dt, input, actor)
       end
     end
   end
-  if input.dash then
+  if input.dash and not Attributes.forbids(p, 'dash') then
     g:dash(dx, dz, p)
   end
   plantedTravel = plantedTravel and p.dashTimer == 0
@@ -279,7 +280,8 @@ function F.update(g, dt, input, actor)
   -- strafe key against stone must not tilt an otherwise stationary view.
   local lateral = (p.vx * math.cos(p.yaw) - p.vz * math.sin(p.yaw)) / Move.moveSpeed
   view.bank = approach(view.bank, -math.max(-1, math.min(1, lateral)) * C.bank, dt * C.bankRate)
-  local jumped = Intent.jump(g, dt, input.jump, onGround, actor)
+  local jumped =
+    Intent.jump(g, dt, input.jump and not Attributes.forbids(p, 'jump'), onGround, actor)
   if jumped then
     p.jumpV = Move.jumpSpeed
     if presented then

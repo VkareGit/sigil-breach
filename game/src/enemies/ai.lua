@@ -439,8 +439,14 @@ AI.states = States
 -- The telegraph runs out: release the attack, or cancel it for real.
 function States.windup(g, e, d, dt)
   local p = target(g, e)
+  Attacks.track(g, e, Attacks.current(e))
   e.windup = math.max(0, e.windup - dt)
   if e.windup > 0 then
+    return
+  end
+  -- A held blow: the windup is over and the body stays, frozen in it.
+  if (e.holdLeft or 0) > 0 then
+    e.holdLeft = e.holdLeft - dt
     return
   end
   -- Geometry can invalidate a committed target (the predicted point hides
@@ -483,6 +489,12 @@ local function free(g, e, d, dt)
     if e.ai ~= 'hurt' then
       e.ai = 'recover'
     end
+    return
+  end
+  if e.chain and Attacks.flow(g, e, d) then
+    return
+  end
+  if e.recover > 0 then
     return
   end
   if not (e.awake and (e.memory > 0 or e.visible)) then

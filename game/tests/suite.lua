@@ -46,6 +46,11 @@ Suite.registry = {
     module = 'tests.cases.attack_followups',
   },
   {
+    id = 'souls-engine',
+    title = 'Combat engine of the souls plan, each mechanic alone',
+    module = 'tests.cases.souls_engine',
+  },
+  {
     id = 'v12-proofs',
     title = 'Extension proofs of plan v12 through public registries',
     module = 'tests.cases.v12_proofs',

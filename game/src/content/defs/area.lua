@@ -6,6 +6,11 @@ Area.defaults = {
   pool = { bottom = 0, top = 0.42, sample = 'feet', includeRadius = false },
   landing = { bottom = 0, top = 1, sample = 'feet', includeRadius = true },
   lightning = { bottom = 0, top = 2.9, sample = 'body', includeRadius = true },
+  -- A blow at body height; a low one can be jumped.
+  sweep = { bottom = 0, top = 2.2, sample = 'body', includeRadius = true },
+  -- A ring along the floor: above it nothing touches.
+  wave = { bottom = 0, top = 0.5, sample = 'feet', includeRadius = true },
+  beam = { bottom = 0, top = 2.2, sample = 'body', includeRadius = true },
 }
 Area.schema = Schema:new('ground volume', {
   bottom = { type = 'number', required = true, desc = 'lower height above source ground (m)' },

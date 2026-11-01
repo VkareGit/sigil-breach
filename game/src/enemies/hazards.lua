@@ -12,6 +12,7 @@ local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Definitions = require('src.content.hazards')
 local Registry = require('src.core.registry')
+local MathX = require('src.core.mathx')
 local Hazards = {}
 -- Scratch swept points of a creature sampled by a pool pulse.
 local sampled = {}
@@ -149,6 +150,120 @@ Hazards.kinds:register('pool', {
       h.pulse = h.pulse - active
       h.life = h.life - active
     end
+  end,
+})
+-- One blow of a moving hazard, once per body: the same receipt and the same dodge
+-- as any contact. test(b, point): whether it reaches that point now.
+local function passing(g, h, previousPlayer, delivery, dt, test)
+  local effectSource = h.packet and h.packet.effects and { side = h.side or 'demons', id = h.owner }
+    or nil
+  Bodies.each(g, function(b)
+    if (h.hits and h.hits[b.id]) or not Bodies.harms(g, h.side or 'demons', b, 'hazard') then
+      return false
+    end
+    local previous = b == Bodies.controlled(g) and previousPlayer or Bodies.previous(g, b)
+    local point = Area.sample(g, b, previous, 1, sampled)
+    local hit, contact = test(b, point)
+    local ghost = not hit and Dodge.afterimage(g, b)
+    if hit or (ghost and test(b, ghost)) then
+      h.hits = h.hits or {}
+      h.hits[b.id] = true
+    end
+    if hit then
+      contact.kind, contact.id, contact.owner, contact.target = 'hazard', h.id, h.owner, b.id
+      contact.delivery, contact.time, contact.fraction = delivery, dt, 1
+      g:damageBody(b, h.packet.base, h.x, h.z, h.packet, nil, {
+        effectSource = effectSource,
+        contact = contact,
+      })
+    elseif ghost and test(b, ghost) then
+      Dodge.perfect(g, h.packet, nil, b)
+    end
+    return false
+  end)
+end
+-- A ring: it strikes what it reaches, never what it already left behind.
+Hazards.kinds:register('wave', {
+  step = function(g, h, dt, previousPlayer)
+    local waiting = math.max(0, h.delay)
+    h.delay = h.delay - dt
+    if h.delay > 0 then
+      return
+    end
+    local inner = h.radius
+    h.radius = math.min(h.reach, h.radius + h.spread * math.max(0, dt - waiting))
+    passing(g, h, previousPlayer, 'wave', dt, function(b, point)
+      local radius = Bodies.extent(g, b)
+      if MathX.len(point.x - h.x, point.z - h.z) + radius < inner - h.width then
+        return false
+      end
+      return Area.test(g, h, h.volume, b, point)
+    end)
+    h.life = h.radius >= h.reach and 0 or h.life
+  end,
+})
+-- A ray turning about its origin: it strikes what it crossed in this step, and
+-- stone stands in its way (combat/area_contact.lua).
+Hazards.kinds:register('sweepline', {
+  step = function(g, h, dt, previousPlayer)
+    local waiting = math.max(0, h.delay)
+    h.delay = h.delay - dt
+    if h.delay > 0 then
+      return
+    end
+    local active = math.min(h.life, math.max(0, dt - waiting))
+    local from, turn = h.angle, h.spin * active
+    h.angle, h.life = from + turn, h.life - active
+    local sign = h.spin < 0 and -1 or 1
+    passing(g, h, previousPlayer, 'sweepline', dt, function(b, point)
+      local dx, dz = point.x - h.x, point.z - h.z
+      local d = math.max(1e-6, MathX.len(dx, dz))
+      local radius = Bodies.extent(g, b)
+      local off = MathX.wrapAngle(math.atan2(dx, dz) - from) * sign
+      local margin = math.atan2(radius, d)
+      if off < -margin or off > math.abs(turn) + margin then
+        return false
+      end
+      return Area.test(g, h, h.volume, b, point)
+    end)
+  end,
+})
+-- The room strikes in pulses; only the circle that wanders is safe.
+Hazards.kinds:register('tempest', {
+  step = function(g, h, dt)
+    local waiting = math.max(0, h.delay)
+    h.delay = h.delay - dt
+    local active = math.min(h.life, math.max(0, dt - waiting))
+    h.angle = h.angle + h.spin * dt
+    h.x = h.centerX + math.sin(h.angle) * h.orbit
+    h.z = h.centerZ + math.cos(h.angle) * h.orbit
+    if h.delay > 0 then
+      return
+    end
+    h.life = h.life - active
+    h.pulse = h.pulse - active
+    if h.pulse > 1e-9 then
+      return
+    end
+    h.pulse = h.pulse + h.interval
+    Bodies.each(g, function(b)
+      if
+        Bodies.harms(g, h.side or 'demons', b, 'hazard')
+        and MathX.len(b.x - h.x, b.z - h.z) > h.radius
+      then
+        g:damageBody(b, h.packet.base, h.centerX, h.centerZ, h.packet, nil, {
+          contact = {
+            kind = 'hazard',
+            id = h.id,
+            owner = h.owner,
+            target = b.id,
+            delivery = 'tempest',
+            geometry = 'outside-safe-circle',
+          },
+        })
+      end
+      return false
+    end)
   end,
 })
 function Hazards.update(g, dt, previousPlayer)

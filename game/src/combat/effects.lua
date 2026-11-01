@@ -131,6 +131,39 @@ Effects.kinds:register('periodic', {
     Signal(g, 'EffectPulse', receipt)
   end,
 })
+-- Exposure that gathers: what it adds stays on the body as one record, and only
+-- at the threshold do its results fall.
+Effects.kinds:register('buildup', {
+  apply = function(g, target, definition, source)
+    local instances = target.effectState or {}
+    target.effectState = instances
+    local record
+    for _, old in ipairs(instances) do
+      record = old.definition.id == definition.id and old or record
+    end
+    if not record then
+      record = {
+        definition = definition,
+        remaining = definition.duration,
+        untilPulse = definition.interval,
+        bornAt = g.elapsed,
+        sourceSide = 'world',
+        amount = 0,
+      }
+      instances[#instances + 1] = record
+    end
+    record.remaining = definition.duration
+    record.amount = record.amount + definition.amount
+    if record.amount >= definition.threshold then
+      record.amount, record.remaining = 0, 0
+      Effects.apply(g, target, definition.results, source)
+    end
+  end,
+  tick = function(_, _, instance)
+    local definition = instance.definition
+    instance.amount = math.max(0, instance.amount - definition.decay * definition.interval)
+  end,
+})
 function Effects.apply(g, target, definitions, source)
   if not definitions or target.hp <= 0 then
     return
