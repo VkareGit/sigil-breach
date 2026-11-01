@@ -33,8 +33,8 @@ function ColdField.run(app, output, lines, check)
     local actionTime, plan = clock() - start, app.loading
     pending = pending + #require('src.render.kit.halls').loadingJobs(app.renderer, app.game.world)
     check(
-      'first field uses a cold, pending gallery plan',
-      pending > 0 and plan and plan.kind == 'transition' and plan.total == pending + 1
+      'first field shows a loading plan for what the menu has not already drawn',
+      plan and plan.kind == 'transition' and plan.total == pending + 1
     )
     app:update(1 / 60)
     check(
@@ -62,10 +62,7 @@ function ColdField.run(app, output, lines, check)
         and displayed > pending
         and app.game.elapsed == elapsed
     )
-    check(
-      'cold gallery images are uploaded by the displayed plan',
-      fileImages - firstFiles == pending
-    )
+    check('cold images are uploaded by the displayed plan', fileImages - firstFiles == pending)
     lines[#lines + 1] = string.format(
       'Cold field through Application: action %.3f ms; displayed loading frames %d; PNGs %d; ready %.3f ms; max provider %.3f ms; max update %.3f ms; max loading draw+present %.3f ms',
       actionTime * 1000,

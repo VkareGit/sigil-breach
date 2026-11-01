@@ -106,9 +106,9 @@ function Application:adopt(game, entering)
   Application.settle()
 end
 
-function Application:reset(start)
+function Application:reset(start, entering)
   Navigation.clear(self)
-  self:adopt(Game.new(self.qa:session()))
+  self:adopt(Game.new(self.qa:session()), entering)
   self.input:reset(love.mouse.isDown(1))
   self.accumulator = 0
   UI.focus = 1
@@ -264,7 +264,9 @@ function Application:finishStartup()
       self:writeJournal(g)
     end
   end
-  self:reset(false)
+  -- The chapel stands behind the menu: it is prepared on the loading page, not in the
+  -- menu's first frame. A capture measures its own stages.
+  self:reset(false, not self.qa.capture)
   if self.qa.capture then
     Audio.muted = true
     love.audio.stop()
