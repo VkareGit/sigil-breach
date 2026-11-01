@@ -80,7 +80,7 @@ function Tests.run(Game, renderer)
     local air, velocity = Rules.ceiling(g, knight, 1.5, 4)
     check(
       "the deck's underside stops a jump beneath it",
-      near(air, BOTTOM - Rules.playerBody().height) and velocity == 0
+      near(air, BOTTOM - require('src.content.characters').standard().body.height) and velocity == 0
     )
     -- Shots and missiles: rays over the deck, under it, into it.
     local floor = Tuning.floorSurface

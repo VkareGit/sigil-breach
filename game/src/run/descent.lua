@@ -62,7 +62,7 @@ local function restoreEcho(g, echo)
 end
 local function restore(g, v)
   local p = Roles.controlled(g)
-  p.hp = require('src.content.enemies').player.body.hp
+  p.hp = require('src.content.characters').maxHp(p)
   p.armor = v.armor
   Weapons.restore(g, v.loadout, v.weapons)
   p.souls = 0
@@ -70,7 +70,8 @@ local function restore(g, v)
   Abilities.restore(g, v.abilities, v.abilityLoadout)
   local spawn = g.world.spawn
   p.x, p.z, p.yaw, p.pitch = spawn.x, spawn.z, spawn.yaw, 0
-  p.jump, p.jumpV, p.dash, p.dashTimer, p.invuln = 0, 0, T.knight.dashCharges, 0, 0
+  p.jump, p.jumpV, p.dash, p.dashTimer, p.invuln =
+    0, 0, require('src.content.characters').of(p).body.dashCharges, 0, 0
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.heat, p.overheat, p.heatDelay = nil, nil, nil
@@ -412,8 +413,9 @@ function R.finishWave(g)
   g.threat = 0
   -- An echo not reached during combat remains reachable in the quiet aftermath.
   r.wallet = r.wallet + (r.wave == guardianWave and K.guardianReward or K.waveReward)
-  Roles.controlled(g).hp = require('src.content.enemies').player.body.hp
-  Roles.controlled(g).dash = T.knight.dashCharges
+  local actor = Roles.controlled(g)
+  actor.hp = require('src.content.characters').maxHp(actor)
+  actor.dash = require('src.content.characters').of(actor).body.dashCharges
   require('src.combat.reload').cancel(g)
   Roles.controlled(g).reload = 0
   Roles.controlled(g).cooldown = 0

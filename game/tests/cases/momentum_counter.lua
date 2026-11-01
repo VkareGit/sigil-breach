@@ -104,7 +104,10 @@ function Tests.run(G, check)
       and heavy.stun > light.stun
   )
   -- The knight is always moved by a blow (its brace is 1): feedback first.
-  check('the knight does not brace against blows', A.player.body.brace == 1)
+  check(
+    'the knight does not brace against blows',
+    require('src.content.characters').standard().body.brace == 1
+  )
   -- Knockdown is divided by stability: bosses regain their feet sooner.
   g = fresh()
   local boss = g:spawn('furfur', 16, 14)

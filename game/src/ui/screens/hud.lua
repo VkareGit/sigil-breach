@@ -1,3 +1,4 @@
+local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 -- The classic arena HUD: health, ward, weapon, ability, boss banner, objective.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
@@ -129,11 +130,11 @@ function S.draw(g, s, U)
   end
   require('src.feedback.weight').drawMarks(g, cx, cy, 100)
   panel(24, 602, 260, 94)
-  text(tostring(math.ceil(p.hp)), 42, 608, 48, p.hp < 30 and red or ivory)
+  text(tostring(math.ceil(p.hp)), 42, 608, 48, Characters.low(p) and red or ivory)
   text(Text.get('chud_health'), 44, 665, 16, muted)
   text(tostring(math.ceil(p.armor)), 192, 617, 28, blue)
   text(Text.get('chud_ward'), 191, 654, 14, muted)
-  bar(42, 687, 148, p.hp / 100, p.hp < 30 and red or ivory)
+  bar(42, 687, 148, Characters.share(p), Characters.low(p) and red or ivory)
   panel(1000, 602, 256, 94)
   text(Text.get(inHand.hud.title), 1016, 610, 18, gold)
   local mag, reserve = Weapons.ammo(g, nil, Context.actor(g))
@@ -235,7 +236,7 @@ function S.draw(g, s, U)
     local tools = Queries.tools(g)
     local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('chud_hint_moves')
       or nil
-    if p.hp < 30 then
+    if Characters.low(p) then
       hint = Text.get('hud_hint_hurt')
     elseif
       Weapons.slot(g, Context.actor(g)) == 1

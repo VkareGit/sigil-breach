@@ -110,17 +110,24 @@ function Tests.run(G, check)
     end
     check('weapon spring is step-independent at damping ' .. damping, near(x, a) and near(v, b))
   end
-  local apex = T.jumpSpeed / T.gravity
-  local h, v = K.vertical(0, T.jumpSpeed, T.gravity, apex)
+  local apex = require('src.content.characters').standard().movement.jumpSpeed / T.gravity
+  local h, v =
+    K.vertical(0, require('src.content.characters').standard().movement.jumpSpeed, T.gravity, apex)
   check(
     'jump apex matches v squared over twice gravity',
-    near(h, T.jumpSpeed * T.jumpSpeed / (2 * T.gravity)) and near(v, 0)
+    near(
+      h,
+      require('src.content.characters').standard().movement.jumpSpeed
+        * require('src.content.characters').standard().movement.jumpSpeed
+        / (2 * T.gravity)
+    ) and near(v, 0)
   )
-  local a, b = 0, T.jumpSpeed
+  local a, b = 0, require('src.content.characters').standard().movement.jumpSpeed
   for _ = 1, 30 do
     a, b = K.vertical(a, b, T.gravity, 1 / 120)
   end
-  h, v = K.vertical(0, T.jumpSpeed, T.gravity, 0.25)
+  h, v =
+    K.vertical(0, require('src.content.characters').standard().movement.jumpSpeed, T.gravity, 0.25)
   check('free jump parabola is identical under subdivided time', near(h, a) and near(v, b))
   local impact
   h, v, impact = K.vertical(0.1, -8, T.gravity, 0.2)
@@ -159,7 +166,12 @@ function Tests.run(G, check)
   g:update(0.005, {})
   check(
     'dash travels full configured duration including its fractional final step',
-    near(start - g.player.z, T.dashSpeed * T.dashTime, 1e-6)
+    near(
+      start - g.player.z,
+      require('src.content.characters').standard().movement.dashSpeed
+        * require('src.content.characters').standard().movement.dashTime,
+      1e-6
+    )
   )
   g = fresh()
   g.player.invuln = 0.3

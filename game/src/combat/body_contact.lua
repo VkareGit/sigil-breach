@@ -29,7 +29,7 @@ local function standing(g, e, p)
   end
   local ey = Ground.of(g.world, e) + (e.leapY or 0)
   local py = Ground.of(g.world, p) + (p.jump or 0)
-  return e.hp > 0 and ey < py + Rules.playerBody().height - (p.crouch or 0)
+  return e.hp > 0 and ey < py + Rules.playerBody(p).height - (p.crouch or 0)
 end
 -- Earliest moving-circle contact, including a complete crossing in one step.
 -- The normal points out of the stationary obstacle; tangent motion survives.
@@ -86,7 +86,7 @@ local function knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous)
     dz - (p.z - previous.z),
     previous.x,
     previous.z,
-    r + Rules.playerBody().radius
+    r + Rules.playerBody(p).radius
   )
 end
 -- Own attack movement obeys the same footprint as ordinary locomotion. It
@@ -135,7 +135,7 @@ local function overlap(p, e, radius)
 end
 -- A shove carried into the contact passes by the masses (and only then).
 local function exchange(g, p, e, nx, nz)
-  local knight = Rules.playerBody()
+  local knight = Rules.playerBody(p)
   local vx, vz, ox, oz, received, closing = Physics.contact(
     p.pushX or 0,
     p.pushZ or 0,
@@ -159,7 +159,7 @@ end
 function Contact.knight(g, actor)
   local controlled = Roles.controlled(g)
   local p = actor or controlled
-  local radius = Rules.playerBody().radius
+  local radius = Rules.playerBody(p).radius
   local frame = g.frame
   local previous = frame
     and (p == controlled and frame.previousPlayer or (frame.previousKnights or {})[p.id])
@@ -227,8 +227,8 @@ end
 -- steps back out of him; a shoved one hands him its momentum. Knights in
 -- pool order (the controlled one is the first).
 function Contact.demons(g)
-  local radius = Rules.playerBody().radius
   for _, p in ipairs(Bodies.knights(g)) do
+    local radius = Rules.playerBody(p).radius
     if p.hp > 0 or p == Bodies.controlled(g) then
       for _, e in ipairs(Pools.of(g, 'enemies')) do
         if standing(g, e, p) then

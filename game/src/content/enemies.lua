@@ -6,7 +6,7 @@
 -- Registry (0.24): one file per creature in src/content/creatures/, the
 -- knight's body in content/knight.lua, the shared rule constants in
 -- content/combat_defaults.lua and the conditions in content/conditions.lua.
--- This module gathers them under one stable API (A.imp, A.player,
+-- This module gathers them under one stable API (A.imp,
 -- A.defaults, A.conditions, A.get, A.each). A new demon is a creature file,
 -- its id in A.creatures and its atlas.
 --
@@ -31,8 +31,6 @@ A.buer = require('src.content.creatures.buer')
 A.armored = require('src.content.creatures.armored')
 A.boss = require('src.content.creatures.boss')
 A.furfur = require('src.content.creatures.furfur')
--- The player is a body under the same rules.
-A.player = require('src.content.knight')
 A.defaults = require('src.content.combat_defaults')
 A.conditions = require('src.content.conditions')
 function A.each()

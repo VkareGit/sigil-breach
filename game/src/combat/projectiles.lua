@@ -10,7 +10,7 @@ local Receipt = require('src.combat.contact_receipt')
 local floorSurface = require('src.content.tuning').floorSurface
 local Dodge = require('src.combat.dodge')
 -- The knight's hit volume, the same as for melee (content/enemies.lua).
-local knight = require('src.content.enemies').player.body
+local Characters = require('src.content.characters')
 local Defaults = require('src.content.combat_defaults')
 local D = require('src.combat.damage')
 local Pools = require('src.session.world')
@@ -54,6 +54,7 @@ local function playerContact(player, previous, b, dx, dy, dz, fraction, world)
   local jumpDelta = (Ground.of(world, player) + (player.jump or 0) - jump) * fraction
   local crouch = previous.crouch or 0
   local crouchDelta = ((player.crouch or 0) - crouch) * fraction
+  local knight = Characters.of(player).body
   return CylinderCast.sweep(
     ox,
     oz,
@@ -296,6 +297,7 @@ function P.update(g, dt, previous)
           local feetTo = Ground.of(g.world, struck) + (struck.jump or 0)
           local feet = feetFrom + (feetTo - feetFrom) * share
           local crouch = (from.crouch or 0) + ((struck.crouch or 0) - (from.crouch or 0)) * share
+          local knight = Characters.of(struck).body
           local contact = Receipt.sphere(
             b.x,
             b.y,

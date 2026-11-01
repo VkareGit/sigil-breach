@@ -20,7 +20,7 @@ function Tests.run(Game)
     return g, e
   end
   local g, e = setup()
-  local r = Rules.playerBody().radius + Rules.radius(e)
+  local r = require('src.content.characters').standard().body.radius + Rules.radius(e)
   Contact.moveEnemy(g, e, 0, 6)
   check('a full body crossing stops at the first contact', math.abs(e.z - (25 - r)) < 1e-8)
   local previous = { x = 16, z = 28, jump = 0, crouch = 0 }
@@ -106,8 +106,12 @@ function Tests.run(Game)
       kind .. ' both active painted frames provide a contact anchor without advancing AI',
       x ~= nil and lateX ~= nil and e.phase == 0.08
     )
-    local ghost =
-      { x = x, z = z + atk.contactReach[2], jump = y - Rules.playerBody().height * 0.5, crouch = 0 }
+    local ghost = {
+      x = x,
+      z = z + atk.contactReach[2],
+      jump = y - require('src.content.characters').standard().body.height * 0.5,
+      crouch = 0,
+    }
     check(
       kind .. ' contact actually follows the authored painted point',
       Melee.claw(g, e, e.x, e.z, ghost, 0.07, 0.08, atk.lungeTime, atk.active, ghost, atk)

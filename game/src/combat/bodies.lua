@@ -9,7 +9,6 @@ local Factions = require('src.content.factions')
 local Rules = require('src.combat.rules')
 local Roles = require('src.core.roles')
 local Bodies = {}
-local knightBody = Archetypes.player.body
 -- The knight this session's player controls (core/roles.lua).
 Bodies.controlled = Roles.controlled
 -- The actor a command names (plan v11 E3b): nil, the controlled knight; a
@@ -103,7 +102,8 @@ end
 -- Radius, feet clearance and standing height of body b's contact volume.
 function Bodies.extent(g, b)
   if Bodies.isKnight(g, b) then
-    return knightBody.radius, knightBody.feet, knightBody.height
+    local body = Rules.playerBody(b)
+    return body.radius, body.feet, body.height
   end
   local low, high = Rules.interval(g, b)
   return Rules.radius(b), 0, high - low

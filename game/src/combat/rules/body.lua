@@ -3,6 +3,7 @@
 -- Part of the rules facade (src/combat/rules.lua); functions are installed
 -- on the shared rules table R and call each other through it.
 local Archetypes = require('src.content.enemies')
+local Characters = require('src.content.characters')
 local Body = require('src.content.defs.body')
 local Ground = require('src.physics.ground')
 local World = require('src.world.arena')
@@ -24,9 +25,12 @@ return function(R)
     -- complete body: rules never need fallbacks for body fields.
     return a and a.body or Body.neutral
   end
-  -- The knight's body (the player under the same rules).
-  function R.playerBody()
-    return Archetypes.player.body
+  -- The body of an actor (the player under the same rules) and how it moves.
+  function R.playerBody(actor)
+    return Characters.of(actor).body
+  end
+  function R.movement(actor)
+    return Characters.of(actor).movement
   end
   -- The movement footprint is coarse and independent of anatomical shot
   -- surfaces. On a heightfield its vertical intervals must overlap before
@@ -38,7 +42,7 @@ return function(R)
     local ground = Ground.of(g.world, o)
     if o.jump ~= nil then
       local base = ground + o.jump
-      return base, base + R.playerBody().height - (o.crouch or 0)
+      return base, base + R.playerBody(o).height - (o.crouch or 0)
     end
     local base = ground + ((o.hp <= 0 and o.fallY or o.leapY) or 0)
     local height = R.body(o).height
@@ -57,7 +61,7 @@ return function(R)
       return nil
     end
     if o.jump ~= nil then
-      return R.playerBody().height - (o.crouch or 0)
+      return R.playerBody(o).height - (o.crouch or 0)
     end
     local stated = R.body(o).height
     if stated then
@@ -96,7 +100,7 @@ return function(R)
   function R.eye(g, o)
     local base = Ground.of(g.world, o)
     if o.jump ~= nil then
-      return base + o.jump + R.playerBody().eye - (o.crouch or 0)
+      return base + o.jump + R.playerBody(o).eye - (o.crouch or 0)
     end
     local eye = R.body(o).eye
     if eye then
@@ -119,7 +123,7 @@ return function(R)
     if not x then
       target = R.eye(g, t)
     elseif t.jump ~= nil then
-      target = Ground.height(world, x, z, t.level) + R.playerBody().eye
+      target = Ground.height(world, x, z, t.level) + R.playerBody(t).eye
     else
       target = Ground.height(world, x, z, t.level) + R.eye(g, t) - Ground.of(world, t)
     end

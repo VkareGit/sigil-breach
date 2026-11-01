@@ -10,7 +10,6 @@
 local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
 local Rules = require('src.combat.rules')
-local Tuning = require('src.content.tuning')
 local Roles = require('src.core.roles')
 local Dodge = {}
 -- While the knight dodges and its perfect dodge is unspent: the body he left
@@ -33,7 +32,9 @@ end
 -- delivered it (nil for a missile or a marked strike); knight (optional):
 -- who dodged (default the controlled knight). True when granted.
 function Dodge.perfect(g, packet, source, knight)
-  local player, rule = knight or Roles.controlled(g), Rules.playerBody().perfectDodge
+  local player = knight or Roles.controlled(g)
+  local body = Rules.playerBody(player)
+  local rule = body.perfectDodge
   if
     not rule
     or player.perfectUsed
@@ -45,7 +46,7 @@ function Dodge.perfect(g, packet, source, knight)
     return false
   end
   player.perfectUsed = true
-  player.dash = math.min(Tuning.knight.dashCharges, player.dash + rule.refund)
+  player.dash = math.min(body.dashCharges, player.dash + rule.refund)
   g.impactSlow = math.max(g.impactSlow or 0, rule.freeze)
   local returned
   if

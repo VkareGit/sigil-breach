@@ -33,11 +33,12 @@ end
 Interactions.supplies = {
   health = {
     wanted = function(player)
-      return player.hp < Rules.playerBody().hp
+      return player.hp < require('src.content.characters').maxHp(player)
     end,
     take = function(player, pickup)
       local before = player.hp
-      player.hp = math.min(Rules.playerBody().hp, player.hp + pickup.amount)
+      player.hp =
+        math.min(require('src.content.characters').maxHp(player), player.hp + pickup.amount)
       return Text.get('pickup_health', { amount = math.floor(player.hp - before + 0.5) })
     end,
   },

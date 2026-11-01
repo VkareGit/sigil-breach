@@ -5,8 +5,8 @@ local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Shadows = require('src.render.shadows')
 local COLORS = require('src.render.effects').colors
--- The knight's body (reach rings are drawn with its real radius).
-local KNIGHT = Archetypes.player.body
+local Context = require('src.session.context')
+local Characters = require('src.content.characters')
 local Pass = {}
 function Pass.draw(r, g)
   local lg = love.graphics
@@ -51,7 +51,7 @@ function Pass.draw(r, g)
       -- The ring is the real reach: landing radius plus the knight's body.
       local spec = e.attackSpec
       if spec and spec.kind == 'leap' and (e.ai == 'windup' or e.leaping) and e.aimX then
-        local reachLand = spec.landRadius + KNIGHT.radius
+        local reachLand = spec.landRadius + Characters.of(Context.actor(g)).body.radius
         r:object(
           r.warning,
           e.aimX,

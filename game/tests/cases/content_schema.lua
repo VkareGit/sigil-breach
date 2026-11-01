@@ -65,7 +65,7 @@ function Tests.run(_, check)
       -- Design rule (0.21): every demon, even at the top tier, walks slower
       -- than the running knight.
       local top = a.move.speed * (1 + D.tiers.speed * (#D.tiers.attackers - 1))
-      if not b.boss and top >= T.moveSpeed then
+      if not b.boss and top >= require('src.content.characters').standard().movement.moveSpeed then
         bad(key .. ' outruns the knight at the top tier')
       end
       if type(a.attacks) ~= 'table' or #a.attacks == 0 then
@@ -108,7 +108,7 @@ function Tests.run(_, check)
     end
   end
   -- Player body: the same rules read the same fields.
-  local knight = A.player.body
+  local knight = require('src.content.characters').standard().body
   for _, field in ipairs({
     'hp',
     'mass',

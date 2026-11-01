@@ -181,20 +181,26 @@ end
 -- Version 2 (plan v11 E3): a knight carries its actor state (the slot in
 -- hand, reload, trigger, shots, shot sequence). A version 1 save had none
 -- (the session kept it and saved it nowhere): its knights take the defaults
--- of their component when restored.
+-- of their component when restored. Version 3 (plan v12 R1): a knight names
+-- its character and carries its limits; an older one is the default character.
 local function actorDefaults(knight)
   for name, spec in pairs(Components.schemas.knight) do
     if knight[name] == nil and spec.default ~= nil then
       knight[name] = type(spec.default) == 'table' and Schema.copy(spec.default) or spec.default
     end
   end
+  require('src.content.characters').born(knight)
 end
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 2,
+  version = 3,
   migrations = {
     [1] = function(data)
+      data.actorDefaults = true
+      return data
+    end,
+    [2] = function(data)
       data.actorDefaults = true
       return data
     end,

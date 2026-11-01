@@ -15,7 +15,7 @@ return function(R)
   -- knight (default the controlled one; plan v10 V2).
   function R.hitPlayer(g, packet, x, z, knight)
     local p = knight or g.player
-    local b = Archetypes.player.body
+    local b = R.playerBody(p)
     if type(packet) == 'number' then
       packet = { base = packet, impact = 0 }
     end
@@ -71,7 +71,7 @@ return function(R)
     if Capabilities.vulnerable(g) then
       local previousHP = p.hp
       local packet = {
-        base = over * defaults.slamDamage * R.playerBody().slamShare,
+        base = over * defaults.slamDamage * R.playerBody(p).slamShare,
         impact = over * defaults.slamPoise,
         damageType = 'physical',
       }

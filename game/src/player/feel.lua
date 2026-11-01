@@ -80,6 +80,7 @@ function F.update(g, dt, input, actor)
     return
   end
   local p = actor or g.player
+  local Move = Rules.movement(p)
   local controlled = p == g.player
   local personal = Context.view(g, p)
   local presented = personal ~= nil
@@ -117,9 +118,9 @@ function F.update(g, dt, input, actor)
     and p.dashTimer == 0
   then
     p.slideX, p.slideZ = p.vx / velocity, p.vz / velocity
-    p.slideTimer = T.slideTime
+    p.slideTimer = Move.slideTime
     p.slideAge = 0
-    p.slideCooldown = T.slideCooldown
+    p.slideCooldown = Move.slideCooldown
     if controlled then
       Presentation.cue(g, 'slide', C.sounds.slide)
     end
@@ -134,12 +135,14 @@ function F.update(g, dt, input, actor)
   if onGround then
     p.airCap = nil
   elseif p.airCap then
-    p.airCap = T.airMomentumCap + (p.airCap - T.airMomentumCap) * math.exp(-M.airDecay * dt)
+    p.airCap = Move.airMomentumCap + (p.airCap - Move.airMomentumCap) * math.exp(-M.airDecay * dt)
   end
-  local airCap = math.max(T.airMomentumCap, p.airCap or 0)
-  local targetSpeed = (onGround and T.moveSpeed or math.max(T.airSpeed, math.min(airCap, velocity)))
-    * condition
-  local accel = onGround and (len > M.input and T.groundAccel or T.groundBrake) or T.airAccel
+  local airCap = math.max(Move.airMomentumCap, p.airCap or 0)
+  local targetSpeed = (
+    onGround and Move.moveSpeed or math.max(Move.airSpeed, math.min(airCap, velocity))
+  ) * condition
+  local accel = onGround and (len > M.input and Move.groundAccel or Move.groundBrake)
+    or Move.airAccel
   local moveX, moveZ = p.vx * dt, p.vz * dt
   -- Vector acceleration preserves equal cardinal / diagonal speed and avoids icy stops.
   if len > M.input or onGround then
@@ -159,7 +162,7 @@ function F.update(g, dt, input, actor)
   if p.slideTimer > 0 then
     p.slideAge = p.slideAge + dt
     p.slideTimer = math.max(0, p.slideTimer - dt)
-    local speed = math.max(T.moveSpeed, T.slideSpeed - p.slideAge * M.slideDecel)
+    local speed = math.max(Move.moveSpeed, Move.slideSpeed - p.slideAge * M.slideDecel)
     p.vx, p.vz = p.slideX * speed, p.slideZ * speed
     moveX, moveZ = p.vx * dt, p.vz * dt
     if len > M.input then
@@ -178,10 +181,10 @@ function F.update(g, dt, input, actor)
   local dashEnded = false
   if p.dashTimer > 0 then
     local active = math.min(dt, p.dashTimer)
-    local exitSpeed = onGround and T.moveSpeed * M.exitShare or T.airMomentumCap
-    p.vx, p.vz = p.dashX * T.dashSpeed, p.dashZ * T.dashSpeed
-    moveX = p.dashX * (T.dashSpeed * active + exitSpeed * (dt - active))
-    moveZ = p.dashZ * (T.dashSpeed * active + exitSpeed * (dt - active))
+    local exitSpeed = onGround and Move.moveSpeed * M.exitShare or Move.airMomentumCap
+    p.vx, p.vz = p.dashX * Move.dashSpeed, p.dashZ * Move.dashSpeed
+    moveX = p.dashX * (Move.dashSpeed * active + exitSpeed * (dt - active))
+    moveZ = p.dashZ * (Move.dashSpeed * active + exitSpeed * (dt - active))
     p.dashTimer = math.max(0, p.dashTimer - dt)
     dashEnded = p.dashTimer == 0
   end
@@ -190,7 +193,7 @@ function F.update(g, dt, input, actor)
   -- Feet on the ground brake a shove (drag 9/s); in the air it carries (3.5/s).
   local pushSpeed = 0
   if p.pushX and math.abs(p.pushX) + math.abs(p.pushZ or 0) > M.minPush then
-    local body = Rules.playerBody()
+    local body = Rules.playerBody(p)
     local drag = onGround and body.drag or body.airDrag
     -- Directional influence: steering against the shove brakes it (up to x1.8).
     local pushLength = math.sqrt(p.pushX * p.pushX + (p.pushZ or 0) ^ 2)
@@ -210,7 +213,7 @@ function F.update(g, dt, input, actor)
   local oldx, oldz = p.x, p.z
   local contactVX, contactVZ = p.vx, p.vz
   local slidX, slidZ, collided, supportLift, supportDrop =
-    W.move(g.world, p, moveX, moveZ, Rules.playerBody().radius, p, Rules.tall(g, p))
+    W.move(g.world, p, moveX, moveZ, Rules.playerBody(p).radius, p, Rules.tall(g, p))
   if g.world.elevations and g.frame then
     if controlled then
       g.frame.supportLift = supportLift or 0
@@ -253,7 +256,7 @@ function F.update(g, dt, input, actor)
     )
   end
   if dashEnded then
-    local speed = onGround and T.moveSpeed * M.exitShare or T.airMomentumCap
+    local speed = onGround and Move.moveSpeed * M.exitShare or Move.airMomentumCap
     local v = math.sqrt(p.vx * p.vx + p.vz * p.vz)
     if v > speed then
       p.vx, p.vz = p.vx / v * speed, p.vz / v * speed
@@ -274,11 +277,11 @@ function F.update(g, dt, input, actor)
   )
   -- Lean follows resolved travel, including collision response. A pressed
   -- strafe key against stone must not tilt an otherwise stationary view.
-  local lateral = (p.vx * math.cos(p.yaw) - p.vz * math.sin(p.yaw)) / T.moveSpeed
+  local lateral = (p.vx * math.cos(p.yaw) - p.vz * math.sin(p.yaw)) / Move.moveSpeed
   view.bank = approach(view.bank, -math.max(-1, math.min(1, lateral)) * C.bank, dt * C.bankRate)
   local jumped = Intent.jump(g, dt, input.jump, onGround, actor)
   if jumped then
-    p.jumpV = T.jumpSpeed
+    p.jumpV = Move.jumpSpeed
     if presented then
       Presentation.call(shown, 'motion.takeoff', p.jumpV)
     end

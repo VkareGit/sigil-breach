@@ -79,8 +79,8 @@ function F.refill(g)
   require('src.combat.reload').cancel(g)
   local p = Roles.controlled(g)
   -- Health of the knight's body, the ward's cap, every dodge charge.
-  p.hp, p.armor, p.souls = require('src.content.enemies').player.body.hp, Shop.maxWard, 0
-  p.dash = require('src.content.tuning').knight.dashCharges
+  p.hp, p.armor, p.souls = require('src.content.characters').maxHp(p), Shop.maxWard, 0
+  p.dash = require('src.content.characters').of(p).body.dashCharges
   Abilities.fill(g)
   -- Every weapon full, its reserve at its cap, its action at rest.
   for _, id in ipairs(p.loadout) do

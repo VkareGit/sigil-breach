@@ -206,7 +206,7 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     emit(g, 'KnightHit', { knight = player, info = info })
   end
   if not ongoing then
-    player.invuln = Rules.playerBody().iframes
+    player.invuln = Rules.playerBody(player).iframes
   end
   if healthDamage > 0 then
     Effects.apply(g, player, packet.effects, context and context.effectSource or source)

@@ -206,7 +206,11 @@ function Tests.run(G, check)
   -- The pool's first pulse lands after this tick's recovery; every later tick is halved.
   check(
     'poison halves the dash recovery',
-    near(poisonedDash, (1 + 23 * 0.5) / 120 * T.dashRecharge, 1e-3)
+    near(
+      poisonedDash,
+      (1 + 23 * 0.5) / 120 * require('src.content.characters').standard().movement.dashRecharge,
+      1e-3
+    )
   )
   -- Shotgun calibration is unchanged by the refactor (0.13 measurement at 8 m).
   check(

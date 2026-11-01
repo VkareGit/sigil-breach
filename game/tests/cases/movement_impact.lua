@@ -170,8 +170,16 @@ function Tests.run(G, check)
   local jump = landing(120)
   check(
     'normal jump dissipates exactly the launch energy on landing',
-    near(jump.view.lastLandingImpact.energyLost, 0.5 * T.jumpSpeed * T.jumpSpeed)
-      and near(jump.view.lastLandingImpact.impulse, T.jumpSpeed)
+    near(
+      jump.view.lastLandingImpact.energyLost,
+      0.5
+        * require('src.content.characters').standard().movement.jumpSpeed
+        * require('src.content.characters').standard().movement.jumpSpeed
+    )
+      and near(
+        jump.view.lastLandingImpact.impulse,
+        require('src.content.characters').standard().movement.jumpSpeed
+      )
   )
   check(
     'takeoff and landing are separate one-off contacts',
@@ -243,7 +251,14 @@ function Tests.run(G, check)
     M.init(v)
     v.view.motion = true
   end
-  M.update(jump, 1 / 120, 0, 0, 0, I.landingMetrics(T.jumpSpeed))
+  M.update(
+    jump,
+    1 / 120,
+    0,
+    0,
+    0,
+    I.landingMetrics(require('src.content.characters').standard().movement.jumpSpeed)
+  )
   M.update(off, 1 / 120, 0, 0, 0, I.landingMetrics(math.sqrt(T.gravity * 4)))
   for _ = 1, 90 do
     M.update(jump, 1 / 120, 0, 0, 0)

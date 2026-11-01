@@ -114,9 +114,15 @@ function Tests.run(G, check)
   -- Walk at a fixed speed, independently of rendering, across contact boundaries.
   local function walk(rate, slot)
     local q = fresh(slot)
-    q.player.vz = T.moveSpeed
+    q.player.vz = require('src.content.characters').standard().movement.moveSpeed
     for _ = 1, rate * 2 do
-      M.update(q, 1 / rate, T.moveSpeed / rate, 0, T.moveSpeed)
+      M.update(
+        q,
+        1 / rate,
+        require('src.content.characters').standard().movement.moveSpeed / rate,
+        0,
+        require('src.content.characters').standard().movement.moveSpeed
+      )
     end
     return q
   end
@@ -134,14 +140,26 @@ function Tests.run(G, check)
     end
   end
   g = fresh()
-  g.player.vz = T.moveSpeed
+  g.player.vz = require('src.content.characters').standard().movement.moveSpeed
   local distance = Gait.stepDistance
-  M.update(g, (distance - 0.01) / T.moveSpeed, distance - 0.01, 0, T.moveSpeed)
+  M.update(
+    g,
+    (distance - 0.01) / require('src.content.characters').standard().movement.moveSpeed,
+    distance - 0.01,
+    0,
+    require('src.content.characters').standard().movement.moveSpeed
+  )
   check(
     'carry does not invent a foot impact before the actual distance crossing',
     g.view.weaponStepY == 0 and g.view.weaponStepVY == 0 and g.view.gaitSteps == 0
   )
-  M.update(g, 0.02 / T.moveSpeed, 0.02, 0, T.moveSpeed)
+  M.update(
+    g,
+    0.02 / require('src.content.characters').standard().movement.moveSpeed,
+    0.02,
+    0,
+    require('src.content.characters').standard().movement.moveSpeed
+  )
   check(
     'a foot contact gives a small, already-advancing hand impulse in its own frame',
     g.view.weaponStepY > 0
@@ -154,14 +172,20 @@ function Tests.run(G, check)
   local first = g.view.weaponStepRoll
   M.init(g)
   g.view.gaitPhase = math.pi
-  M.update(g, (distance + 0.01) / T.moveSpeed, distance + 0.01, 0, T.moveSpeed)
+  M.update(
+    g,
+    (distance + 0.01) / require('src.content.characters').standard().movement.moveSpeed,
+    distance + 0.01,
+    0,
+    require('src.content.characters').standard().movement.moveSpeed
+  )
   check(
     'left and right foot plants alternate the slight grip roll',
     g.view.weaponStepRoll < 0 and near(math.abs(g.view.weaponStepRoll), first)
   )
   for _, state in ipairs({ 'wall', 'air', 'dash', 'slide' }) do
     g = fresh()
-    g.player.vz = T.moveSpeed
+    g.player.vz = require('src.content.characters').standard().movement.moveSpeed
     if state == 'air' then
       g.player.jump = 1
     elseif state == 'dash' then
@@ -170,7 +194,14 @@ function Tests.run(G, check)
       g.player.slideTimer = 0.5
     end
     for _ = 1, 120 do
-      M.update(g, 1 / 120, state == 'wall' and 0 or T.moveSpeed / 120, 0, T.moveSpeed)
+      M.update(
+        g,
+        1 / 120,
+        state == 'wall' and 0
+          or require('src.content.characters').standard().movement.moveSpeed / 120,
+        0,
+        require('src.content.characters').standard().movement.moveSpeed
+      )
     end
     check(
       state .. ' cannot create decorative planted foot impulses',

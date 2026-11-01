@@ -1,9 +1,13 @@
 -- The player is a body under the same rules. The consumable shield pool is
 -- the player's only special component (it absorbs a share of each hit).
--- The Body schema completes it like every demon (content/defs/knight.lua).
-return require('src.content.defs.knight').define({
+-- A character (content/defs/character.lua); the Body schema completes it.
+return {
+  id = 'knight',
   body = {
     hp = 100,
+    -- The ward: a consumable pool the hero starts with.
+    armor = 40,
+    dashCharges = 2,
     -- An armoured knight weighs more than a thrall: same law, less shove.
     mass = 1.5,
     poise = 70,
@@ -43,4 +47,20 @@ return require('src.content.defs.knight').define({
     -- (his armour and stance; the guard damage is the full one).
     slamShare = 0.5,
   },
-})
+  -- Speeds m/s, accelerations m/s^2, times s (player/feel.lua).
+  movement = {
+    moveSpeed = 5.25,
+    groundAccel = 68,
+    groundBrake = 82,
+    airAccel = 22,
+    airSpeed = 6.1,
+    airMomentumCap = 7.2,
+    jumpSpeed = 5.5,
+    slideSpeed = 8.7,
+    slideTime = 0.52,
+    slideCooldown = 0.85,
+    dashSpeed = 16.0,
+    dashTime = 0.155,
+    dashRecharge = 0.78,
+  },
+}

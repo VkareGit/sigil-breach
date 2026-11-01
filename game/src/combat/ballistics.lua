@@ -9,11 +9,12 @@ local CylinderCast = require('src.physics.cylinder_cast')
 local Roof = require('src.physics.roof_cell')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
-local eye = require('src.content.knight').body.eye
+local Characters = require('src.content.characters')
 -- The eye in world height: the ground under the knight, his eye, his jump.
 -- The eye a shot leaves from: the actor's (default the controlled knight's).
 function B.origin(g, actor)
   local p = actor or Roles.controlled(g)
+  local eye = Characters.of(p).body.eye
   return p.x, Ground.of(g.world, p) + eye + p.jump - (p.crouch or 0), p.z
 end
 function B.direction(yaw, pitch)

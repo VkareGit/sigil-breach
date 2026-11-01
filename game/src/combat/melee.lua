@@ -7,8 +7,7 @@ local CylinderCast = require('src.physics.cylinder_cast')
 local Receipt = require('src.combat.contact_receipt')
 local Anchor = require('src.enemies.contact_anchor')
 local Bodies = require('src.combat.bodies')
--- The knight's hit volume: radius, height and floor clearance (body data).
-local knight = require('src.content.enemies').player.body
+local Characters = require('src.content.characters')
 local Claw = require('src.content.combat_defaults').claw
 local M = {}
 local reachSamples = Claw.reach
@@ -37,6 +36,8 @@ M.playerAt = playerAt
 function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
   local p = current or Bodies.controlled(g)
   previous = previous or p
+  -- The hit volume of the knight met: radius, floor clearance and height.
+  local knight = Characters.of(p).body
   local bodyRadius, feet, height = knight.radius, knight.feet, knight.height
   if body then
     bodyRadius, feet, height = Bodies.extent(g, body)

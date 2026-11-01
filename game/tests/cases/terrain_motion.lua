@@ -51,7 +51,8 @@ function Test.run(Game)
     end
     local g = fresh()
     local w, p = g.world, g.player
-    local radius = Rules.radius({ kind = 'imp' }) + Rules.playerBody().radius
+    local radius = Rules.radius({ kind = 'imp' })
+      + require('src.content.characters').standard().body.radius
     p.x, p.z = 4.48 + radius, 5
     local e = g:spawn('imp', 4.3, 5)
     Contact.moveEnemy(g, e, 0.5, 0)

@@ -22,7 +22,7 @@ function Tests.resetTrial(G)
   p.armor = 0
   local source = g:spawn('imp', p.x + 2, p.z)
   g:damagePlayer(
-    { base = 35, impact = Rules.playerBody().poise + 1 },
+    { base = 35, impact = require('src.content.characters').standard().body.poise + 1 },
     source.x,
     source.z,
     nil,
@@ -54,7 +54,7 @@ function Tests.resetTrial(G)
   Field.refill(g)
   check(
     'resupply preserves an ongoing fight and is not a full trial reset',
-    p.hp == Rules.playerBody().hp
+    p.hp == require('src.content.characters').standard().body.hp
       and p.conditions == conditions
       and p.effectState == effects
       and p.poise == 9

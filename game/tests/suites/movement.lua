@@ -96,19 +96,21 @@ function Tests.run(G, initial, renderer, getGame)
     'jump cancels slide and keeps bounded momentum',
     g.player.slideTimer == 0
       and g.player.jump > 0
-      and jumpSpeed <= T.slideSpeed + 0.01
-      and jumpSpeed > T.airMomentumCap
-      and (g.player.airCap or 0) > T.airMomentumCap
+      and jumpSpeed <= require('src.content.characters').standard().movement.slideSpeed + 0.01
+      and jumpSpeed > require('src.content.characters').standard().movement.airMomentumCap
+      and (g.player.airCap or 0)
+        > require('src.content.characters').standard().movement.airMomentumCap
   )
   step(0.2, { forward = 1 })
   check(
     'slide jump retains more speed than ordinary air run',
-    math.abs(g.player.vz) > T.airSpeed + 0.3
+    math.abs(g.player.vz) > require('src.content.characters').standard().movement.airSpeed + 0.3
   )
   step(1, { forward = 1, jump = true })
   check(
     'repeated jumps do not accumulate unlimited speed',
-    math.sqrt(g.player.vx ^ 2 + g.player.vz ^ 2) <= T.airMomentumCap + 0.01
+    math.sqrt(g.player.vx ^ 2 + g.player.vz ^ 2)
+      <= require('src.content.characters').standard().movement.airMomentumCap + 0.01
   )
   reset()
   step(0.2, { forward = 1 })

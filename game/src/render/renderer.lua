@@ -34,6 +34,7 @@ local Death = require('src.feedback.death_response')
 -- new kind of thing on screen belongs to one pass; the passes share only
 -- the renderer and the session. pass.draw(r, g, time, view).
 local Halls = require('src.render.kit.halls')
+local Characters = require('src.content.characters')
 local Environment = require('src.content.art.environment')
 local Ash = require('src.render.passes.ash')
 R.passes = {
@@ -560,7 +561,8 @@ function R.lowHealth(g)
   if not p or g.state ~= 'playing' or (p.hp or 100) <= 0 then
     return 0
   end
-  local low = math.max(0, math.min(1, (40 - p.hp) / 30))
+  local share = Characters.share(p)
+  local low = math.max(0, math.min(1, (T.lowHealthFade - share) / T.lowHealth))
   if low == 0 then
     return 0
   end

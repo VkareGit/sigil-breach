@@ -22,21 +22,8 @@ return {
   -- 120 updates/s and one aim per displayed frame up to 240 frames/s.
   -- recall: the views a journal keeps searchable for the shot that uses them.
   recording = { maxBytes = 64 * 1024 * 1024, maxCommands = 10 * 60 * (120 + 240), recall = 16 },
-  -- Movement (player/feel.lua): speeds m/s, accelerations m/s^2, times s.
-  moveSpeed = 5.25,
-  groundAccel = 68,
-  groundBrake = 82,
-  airAccel = 22,
-  airSpeed = 6.1,
-  airMomentumCap = 7.2,
-  jumpSpeed = 5.5,
+  -- A world's gravity; how a body moves is its character's (content/knight.lua).
   gravity = 18.5,
-  slideSpeed = 8.7,
-  slideTime = 0.52,
-  slideCooldown = 0.85,
-  dashSpeed = 16.0,
-  dashTime = 0.155,
-  dashRecharge = 0.78,
   -- Weapons (content/weapons.lua builds the profiles from these).
   shotgunCycle = 0.94,
   reloadLoadTime = 0.60,
@@ -185,8 +172,10 @@ return {
       step = 0.10,
     },
   },
-  -- The knight's dodge charges (systems/knight.lua).
-  knight = { dashCharges = 2 },
+  -- The share of health every wounded look starts from, and the share the
+  -- frame begins to drain at.
+  lowHealth = 0.30,
+  lowHealthFade = 0.40,
   -- Score of a kill (session/listeners.lua): demon / boss points, the combo
   -- window (s), +comboStep per chained kill up to comboSteps; the classic
   -- arena (session/interactions.lua) drops ammunition every ammoEvery kills

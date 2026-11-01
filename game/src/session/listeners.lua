@@ -25,9 +25,14 @@ local function breakKill(g, event)
   if not event.offBalance then
     return
   end
-  local player, knight = Stats.healed(g, event.owner), Rules.playerBody()
+  local player = Stats.healed(g, event.owner)
   local heal = Archetypes.defaults.breakKill.heal * Rules.body(event.enemy).poise
-  local gained = player and math.max(0, math.min(knight.hp, player.hp + heal) - player.hp) or 0
+  local gained = player
+      and math.max(
+        0,
+        math.min(require('src.content.characters').maxHp(player), player.hp + heal) - player.hp
+      )
+    or 0
   if player then
     player.hp = player.hp + gained
   end

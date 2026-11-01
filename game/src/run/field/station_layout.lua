@@ -14,8 +14,8 @@ function S.validate(g)
   local function clear(spot, radius)
     assert(not W.solid(g.world, spot.x, spot.z, radius), 'blocked field station')
   end
-  clear(data.start, A.player.body.radius)
-  clear(data.physics.stand, A.player.body.radius)
+  clear(data.start, require('src.content.characters').standard().body.radius)
+  clear(data.physics.stand, require('src.content.characters').standard().body.radius)
   clear(data.physics.slam, A.get('imp').body.radius)
   for i = 1, data.physics.domino.count do
     local row = data.physics.domino

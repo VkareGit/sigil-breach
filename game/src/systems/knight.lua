@@ -4,7 +4,6 @@
 local Feel = require('src.player.feel')
 local Intent = require('src.player.intent')
 local Rules = require('src.combat.rules')
-local Tuning = require('src.content.tuning')
 local BodyContact = require('src.combat.body_contact')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
@@ -31,12 +30,13 @@ end
 -- first, the others in pool order).
 local function recover(knight, dt)
   knight.invuln = math.max(0, knight.invuln - dt)
+  local body = Rules.playerBody(knight)
   knight.dash = math.min(
-    Tuning.knight.dashCharges,
-    knight.dash + dt * Tuning.dashRecharge * Rules.recoveryScale(knight)
+    body.dashCharges,
+    knight.dash + dt * Rules.movement(knight).dashRecharge * Rules.recoveryScale(knight)
   )
   Rules.tick(knight, dt)
-  Rules.recover(knight, dt, Rules.playerBody())
+  Rules.recover(knight, dt, body)
 end
 Knight.recovery = {
   name = 'knightRecovery',

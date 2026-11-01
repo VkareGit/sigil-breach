@@ -15,8 +15,9 @@ function Tests.run(G)
   local Reload = require('src.combat.reload')
 
   -- A1: the knight's dodge charges are data, wherever they are refilled.
-  local charges = Tuning.knight.dashCharges
-  Tuning.knight.dashCharges = 3
+  local body = require('src.content.characters').standard().body
+  local charges = body.dashCharges
+  body.dashCharges = 3
   local ok, err = pcall(function()
     local g = Field.new(G)
     g.testing = true
@@ -33,7 +34,7 @@ function Tests.run(G)
     Run.finishWave(g)
     check('a cleansed wave restores every dodge charge of the data', g.player.dash == 3)
   end)
-  Tuning.knight.dashCharges = charges
+  body.dashCharges = charges
   assert(ok, err)
 
   -- A2: the proving ground's weapon buttons follow the knight's loadout.

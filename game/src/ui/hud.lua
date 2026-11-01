@@ -1,3 +1,4 @@
+local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 local H = {}
 local lg = love.graphics
@@ -115,8 +116,8 @@ function H.status(g, run)
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
   centered(Text.get('health'), 330, 630, 14, C.muted)
-  number(math.ceil(p.hp) .. '%', 330, 648, 112, 29, p.hp < 30 and C.red or Palette.wound)
-  Skin.meter(275, 686, 110, p.hp / 100, C.red, 12)
+  number(math.ceil(p.hp) .. '%', 330, 648, 112, 29, Characters.low(p) and C.red or Palette.wound)
+  Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
   Skin.endZone()
   Skin.zone('HUD arsenal', 421, 628, 115, 68)
   centered(Text.get('arsenal'), 478, 630, 14, C.muted)
@@ -371,7 +372,7 @@ function H.draw(g, settings, ui, descentUI)
     local tools = Queries.tools(g)
     local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
       or nil
-    if p.hp < 30 then
+    if Characters.low(p) then
       hint = Text.get('hud_hint_hurt')
     end
     if hint then

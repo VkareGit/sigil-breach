@@ -291,7 +291,10 @@ function Tests.run(G, renderer)
     'vertical projectile hits the player cap before the floor',
     -- 0.24: one knight volume for melee and projectiles: height + own radius.
     g.player.hp == 86
-      and near(g.view.particles[1].y, require('src.content.enemies').player.body.height + 0.12)
+      and near(
+        g.view.particles[1].y,
+        require('src.content.characters').standard().body.height + 0.12
+      )
   )
   g = fresh()
   g.player.x = 17

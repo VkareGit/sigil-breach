@@ -192,7 +192,8 @@ function World:move(from, to, e)
   assert(self:remove(from, e), 'entity is not in pool ' .. tostring(from))
   return self:add(to, e)
 end
--- name: prefab; spec: { pool = 'enemies', components = { ... } }
+-- name: prefab; spec: { pool = 'enemies', components = { ... }, born = fn };
+-- born(e): what a new entity works out from its own values.
 function World:prefab(name, spec)
   local pool = assert(
     self.poolByName[spec.pool],
@@ -216,6 +217,7 @@ function World:prefab(name, spec)
   end
   local prefab = {
     name = name,
+    born = spec.born,
     pool = pool,
     components = components,
     extra = set(spec.components),
@@ -242,6 +244,9 @@ function World:create(prefabName, values, insert)
   end
   for k, v in pairs(values or {}) do
     e[k] = v
+  end
+  if prefab.born then
+    prefab.born(e)
   end
   e.components = prefab.extra
   e.prefab = prefabName

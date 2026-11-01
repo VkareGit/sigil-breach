@@ -43,7 +43,11 @@ function Tests.run(G, check)
   g:damagePlayer(28, 16, 23, { base = 28, impact = 160 })
   check(
     'the player is shoved by the same impulse law as every demon',
-    near(math.abs(p.pushZ), Rules.shove(160, A.player.body.mass), 1e-6)
+    near(
+      math.abs(p.pushZ),
+      Rules.shove(160, require('src.content.characters').standard().body.mass),
+      1e-6
+    )
   )
   -- The Judge breaks a guard more than it throws a body (push 25, impact 44).
   local judge = Weapons.attack(g, 2)
@@ -232,10 +236,10 @@ function Tests.run(G, check)
     Rules.addPush(body, 1, 0, 3, 1)
   end
   check('stacked blows never exceed vmax / mass', near(body.pushX, D.impulse.vmax / 1))
-  local knight = A.player.body
+  local knight = require('src.content.characters').standard().body
   check(
     'the knight reads its i-frames, dodge i-frames and drag from its body data',
-    Rules.playerBody() == knight
+    require('src.content.characters').standard().body == knight
       and knight.iframes > knight.dashIframes
       and knight.drag > knight.airDrag
       and D.drag > knight.drag

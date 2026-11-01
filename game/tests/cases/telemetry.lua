@@ -40,7 +40,7 @@ function Tests.run(Game)
   check('knockdown cause counted without changing healing condition', t.breakKnockdown == 1)
   local mark = Telemetry.copy(g)
   local second = g:spawn('imp', 16, 20)
-  g.player.hp = Rules.playerBody().hp - 2
+  g.player.hp = require('src.content.characters').standard().body.hp - 2
   second.stun = 0.1
   g:damageEnemy(second, second.hp + 1, 'weapon')
   local delta = Telemetry.since(g, mark)

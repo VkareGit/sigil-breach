@@ -1,3 +1,4 @@
+local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 -- WEIGHT: the rules of the world made felt. Presentation only: nothing here
 -- moves the firing ray, ammunition, clocks or damage. Every magnitude comes
@@ -7,7 +8,6 @@ local Context = require('src.session.context')
 local MathX = require('src.core.mathx')
 local K = require('src.physics.kinematics')
 local A = require('src.audio.audio')
-local Archetypes = require('src.content.enemies')
 local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
 local W = {}
@@ -117,14 +117,14 @@ function W.carryFactor(g)
   return profile and profile.weight and profile.weight.carry or 1
 end
 -- Severity of a blow against the player: 1 = it breaks a fresh guard.
-function W.severity(impact)
-  return clamp((impact or 0) / Archetypes.player.body.poise, 0, 1.6)
+function W.severity(impact, actor)
+  return clamp((impact or 0) / Characters.of(actor).body.poise, 0, 1.6)
 end
 -- The player is struck. info: amount, lost, absorbed, impact, damageType,
 -- x/z (source), staggered, wounded.
 function W.playerHit(g, info)
   local p = Context.actor(g)
-  local severity = W.severity(info.impact)
+  local severity = W.severity(info.impact, p)
   local harm = clamp((info.amount or 0) / 30, 0, 1)
   local rel = info.x and W.relative(p, info.x, info.z) or 0
   local side, ahead = sin(rel), cos(rel)
@@ -180,7 +180,7 @@ function W.nearMiss(g, b, distance)
     return
   end
   local packet = b.packet or {}
-  local severity = W.severity(packet.impact or (b.big and 60 or 40))
+  local severity = W.severity(packet.impact or (b.big and 60 or 40), p)
   if A.playAt then
     A.playAt('whoosh', b.x, b.z, p, 0.25 + 0.30 * min(1, severity) * (1 - distance / 1.25))
   end
@@ -308,13 +308,13 @@ end
 -- The hero's own body: below 30 HP the heart is heard, faster as it fails.
 function W.heart(g, dt)
   local p = Context.actor(g)
-  if not p or g.state ~= 'playing' or (p.hp or 100) >= 30 or (p.hp or 0) <= 0 then
+  if not p or g.state ~= 'playing' or not Characters.low(p) or (p.hp or 0) <= 0 then
     g.view.heartTimer = 0
     return
   end
   g.view.heartTimer = (g.view.heartTimer or 0) - dt
   if g.view.heartTimer <= 0 then
-    local fear = 1 - p.hp / 30
+    local fear = 1 - Characters.share(p) / require('src.content.tuning').lowHealth
     local period = 0.95 - 0.45 * fear
     local beats = 1 + math.floor(-g.view.heartTimer / period)
     -- Preserve the remainder like the planted footfall clock. Low frame rates

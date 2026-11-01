@@ -38,7 +38,7 @@ function Tests.run(G, check)
   local charges = p.dash
   local packet = Rules.packet(attacker, A.imp.attacks[1].packet)
   g:damagePlayer(packet.base, attacker.x, attacker.z, packet, attacker)
-  local rule = A.player.body.perfectDodge
+  local rule = require('src.content.characters').standard().body.perfectDodge
   check(
     'a blow during the dodge is a perfect dodge: no harm, charge back, attacker staggered',
     near(p.hp, 100)
@@ -101,7 +101,10 @@ function Tests.run(G, check)
   -- Furfur's charge can drive the knight into stone (wall slam speed).
   check(
     "Furfur's charge throws the knight past the wall-slam speed",
-    Rules.shove(A.furfur.attacks[2].packet.push, A.player.body.mass) > D.slamSpeed
+    Rules.shove(
+      A.furfur.attacks[2].packet.push,
+      require('src.content.characters').standard().body.mass
+    ) > D.slamSpeed
   )
   -- Measurements: control uptime is the stunned share of demon lifetime.
   g = fresh()

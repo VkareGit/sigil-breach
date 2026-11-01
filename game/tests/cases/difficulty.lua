@@ -42,7 +42,7 @@ function Tests.run(G, check)
   local ok = true
   for _, id in ipairs({ 'imp', 'armored', 'stolas', 'buer', 'boss', 'furfur' }) do
     local top = A[id].move.speed * (1 + 4 * D.tiers.speed)
-    ok = ok and top < T.moveSpeed
+    ok = ok and top < require('src.content.characters').standard().movement.moveSpeed
   end
   check('every demon at the highest tier is still slower than the player', ok)
   -- Skill choice: claw close, leap at mid range, nothing in the gap or at rest.
@@ -89,7 +89,11 @@ function Tests.run(G, check)
   check(
     'a low leap stops at the occupied aim point without overlapping the knight',
     near(le.x, ax, 0.05)
-      and near(az - le.z, Rules.playerBody().radius + Rules.radius(le), 0.05)
+      and near(
+        az - le.z,
+        require('src.content.characters').standard().body.radius + Rules.radius(le),
+        0.05
+      )
       and near(flight, expected, 2 / 120)
   )
   check('a player on the landing point is struck', lg.player.hp < 100)

@@ -10,7 +10,7 @@ function Tests.run(G)
   local Rules = require('src.combat.rules')
   local Contact = require('src.combat.body_contact')
   local AI = require('src.enemies.ai')
-  local knightRadius = Rules.playerBody().radius
+  local knightRadius = require('src.content.characters').standard().body.radius
   local function field()
     local g = Field.new(G)
     g.testing = true
@@ -69,7 +69,7 @@ function Tests.run(G)
   local e = g:spawn('imp', 16, 26 - knightRadius - impRadius + 0.05)
   e.pushX, e.pushZ = 0, 6
   g.player.pushX, g.player.pushZ = 0, 0
-  local mk, me = Rules.playerBody().mass, Rules.body(e).mass
+  local mk, me = require('src.content.characters').standard().body.mass, Rules.body(e).mass
   local before = me * e.pushZ + mk * g.player.pushZ
   Contact.demons(g)
   local after = me * e.pushZ + mk * g.player.pushZ

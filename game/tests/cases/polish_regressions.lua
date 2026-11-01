@@ -71,12 +71,13 @@ function Tests.run(G, check)
   check('a stagger ends a sidestep', owl.evadeTime == 0)
   -- A pickup reports what it really gave, capped by the knight's health.
   g = fresh()
-  g.player.hp = A.player.body.hp - 5
+  g.player.hp = require('src.content.characters').standard().body.hp - 5
   g.pickups = { { x = g.player.x, z = g.player.z, kind = 'health', amount = 25 } }
   require('src.session.interactions').collectSupplies(g)
   check(
     'a health pickup names the health it really restored',
-    near(g.player.hp, A.player.body.hp) and g.view.message == '+5 HEALTH'
+    near(g.player.hp, require('src.content.characters').standard().body.hp)
+      and g.view.message == '+5 HEALTH'
   )
   -- Resistance bounds are one rule for demons and the knight.
   check(
@@ -88,7 +89,9 @@ function Tests.run(G, check)
   -- The knight's hit volume is one body for claws, bolts and pools.
   check(
     'the knight has one hit volume (radius, height, feet) in its body data',
-    A.player.body.radius > 0 and A.player.body.height > 1.5 and A.player.body.feet >= 0
+    require('src.content.characters').standard().body.radius > 0
+      and require('src.content.characters').standard().body.height > 1.5
+      and require('src.content.characters').standard().body.feet >= 0
   )
   -- Defaults still describe one stagger lock; bosses lock longer.
   check('a boss guard locks longer than a demon guard', D.bossLock > D.staggerLock)

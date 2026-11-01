@@ -48,7 +48,12 @@ end
 local EYES = {
   { name = 'stand', jump = 0, crouch = 0 },
   { name = 'crouch', jump = 0, crouch = Tuning.motion.crouch },
-  { name = 'jump', jump = Tuning.jumpSpeed ^ 2 / (2 * Tuning.gravity), crouch = 0 },
+  {
+    name = 'jump',
+    jump = require('src.content.characters').standard().movement.jumpSpeed ^ 2
+      / (2 * Tuning.gravity),
+    crouch = 0,
+  },
 }
 local function aim(g, x, y, z)
   local ox, oy, oz = B.origin(g)

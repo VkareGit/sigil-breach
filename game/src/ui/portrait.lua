@@ -45,7 +45,7 @@ function P.release()
   P.resources, P.image, P.quads, P.shader = nil, nil, nil, nil
 end
 function P.frame(g)
-  if Context.actor(g).hp < 30 then
+  if require('src.content.characters').low(Context.actor(g)) then
     return 5
   end
   if g.view.hurt > 0.25 then

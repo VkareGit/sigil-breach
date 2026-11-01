@@ -248,8 +248,11 @@ C.schemas.knight = {
   level = f(nil, 'the surface he stands on, on a world with decks (physics/ground.lua)'),
   yaw = f(math.pi),
   pitch = f(0),
-  hp = f(100),
-  armor = f(40, 'ward: consumable shield pool'),
+  character = f('knight', 'id in content/characters.lua'),
+  hp = f(nil, 'from its character (Characters.born)'),
+  maxHp = f(nil),
+  armor = f(nil, 'ward: consumable shield pool'),
+  maxArmor = f(nil),
   souls = f(0),
   essence = f(nil),
   resist = f(nil),
@@ -270,7 +273,7 @@ C.schemas.knight = {
   jumpBuffer = f(nil),
   crouch = f(0),
   airCap = f(nil),
-  dash = f(2, 'dodge charges'),
+  dash = f(nil, 'dodge charges'),
   dashTimer = f(0),
   dashX = f(nil),
   dashZ = f(nil),
@@ -375,6 +378,6 @@ function C.prefabs(world)
   world:prefab('hazard', { pool = 'hazards' })
   world:prefab('pickup', { pool = 'pickups' })
   world:prefab('charge', { pool = 'charges' })
-  world:prefab('knight', { pool = 'knights' })
+  world:prefab('knight', { pool = 'knights', born = require('src.content.characters').born })
 end
 return C

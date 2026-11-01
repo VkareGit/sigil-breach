@@ -57,7 +57,7 @@ function State.new(mode, mapId)
   -- random streams (core/ecs, core/events, core/rng).
   session.ecs = SessionWorld.new(session)
   -- The knight from its prefab (session/components.lua: knight); health from
-  -- its body definition, its loadout and arsenal from the weapon definitions.
+  -- its character, its loadout and arsenal from the weapon definitions.
   local Weapons = require('src.content.weapons')
   local loadout = {}
   for i, id in ipairs(Weapons.defaultLoadout) do
@@ -72,7 +72,6 @@ function State.new(mode, mapId)
   session.knights = {}
   session.player = session.ecs:create('knight', {
     id = 'knight1',
-    hp = require('src.content.enemies').player.body.hp,
     -- The knight stands at the map's spawn.
     x = session.world.spawn.x,
     z = session.world.spawn.z,

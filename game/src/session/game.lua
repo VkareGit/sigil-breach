@@ -189,8 +189,8 @@ function Game:dash(dx, dz, who)
   -- is dodged perfectly (combat/dodge.lua: afterimage).
   player.dodgeFromX, player.dodgeFromZ = player.x, player.z
   player.dash = player.dash - 1
-  player.dashTimer = Tuning.dashTime
-  player.invuln = math.max(player.invuln, Rules.playerBody().dashIframes)
+  player.dashTimer = Rules.movement(player).dashTime
+  player.invuln = math.max(player.invuln, Rules.playerBody(player).dashIframes)
   local length = math.sqrt(dx * dx + dz * dz)
   if length < 0.1 then
     dx, dz = math.sin(player.yaw), math.cos(player.yaw)

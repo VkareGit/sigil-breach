@@ -82,7 +82,7 @@ end
 function S.extraCap(g)
   local d = Waves.director
   local p = Roles.controlled(g)
-  local healthy = p.hp >= d.healthy * require('src.content.enemies').player.body.hp
+  local healthy = p.hp >= d.healthy * require('src.content.characters').maxHp(p)
   return (S.stress(g) < d.calm and healthy) and d.calmCap or 0
 end
 -- What a wave gives a demon stepping out of its gate: its reward, and the

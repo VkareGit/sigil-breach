@@ -31,7 +31,15 @@ function C.validate(g)
     assert(def, 'unknown chamber creature: ' .. trial.creature)
     local room = find(layout.chambers, trial.chamber)
     local entry = room.entry
-    assert(not W.solid(g.world, entry.x, entry.z, A.player.body.radius), 'blocked chamber entry')
+    assert(
+      not W.solid(
+        g.world,
+        entry.x,
+        entry.z,
+        require('src.content.characters').standard().body.radius
+      ),
+      'blocked chamber entry'
+    )
     for i, spot in ipairs(room.slots) do
       assert(not W.solid(g.world, spot.x, spot.z, def.body.radius), 'blocked chamber spawn')
       assert(
@@ -48,7 +56,10 @@ function C.validate(g)
     end
   end
   for _, pad in ipairs(require('src.world.proving_pads').forWorld(g.world)) do
-    assert(not W.solid(g.world, pad.x, pad.z, A.player.body.radius), 'blocked trial pad')
+    assert(
+      not W.solid(g.world, pad.x, pad.z, require('src.content.characters').standard().body.radius),
+      'blocked trial pad'
+    )
     if pad.weapon then
       assert(Weapons.get(pad.weapon), 'unknown pad weapon')
     end

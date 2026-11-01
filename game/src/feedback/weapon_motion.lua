@@ -3,7 +3,6 @@ local Context = require('src.session.context')
 -- weapon clocks or ammunition. Units are pixels at the 450 px scene height.
 local MathX = require('src.core.mathx')
 local K = require('src.physics.kinematics')
-local T = require('src.content.tuning')
 local Impact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
 local Gait = require('src.player.movement_gait')
@@ -97,6 +96,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     return
   end
   local p = Context.actor(g)
+  local running = require('src.content.characters').of(p).movement.moveSpeed
   local planted = Gait.planted(p) and plantedTravel ~= false
   local before = g.view.gaitPhase or 0
   local footsteps = Gait.advance(g, travelled, planted)
@@ -123,7 +123,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   g.view.weaponAimX = clamp(g.view.weaponAimX, -7, 7)
   g.view.weaponAimY = clamp(g.view.weaponAimY, -5, 5)
   local speed = math.max(0, travelled or 0) / dt
-  local weight = planted and clamp(speed / T.moveSpeed, 0, 1.12) or 0
+  local weight = planted and clamp(speed / running, 0, 1.12) or 0
   contactSpring(g, dt, before, g.view.gaitPhase or before, footsteps, weight)
   g.view.weaponCarry = ease(g.view.weaponCarry or 0, weight, 12, dt)
   -- No walking-in-place against a wall, in the air, or through a dash.
@@ -148,7 +148,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     17,
     dt
   )
-  local sideVelocity = ((p.vx or 0) * cos(yaw) - (p.vz or 0) * sin(yaw)) / T.moveSpeed
+  local sideVelocity = ((p.vx or 0) * cos(yaw) - (p.vz or 0) * sin(yaw)) / running
   g.view.weaponLean =
     ease(g.view.weaponLean or 0, clamp(-sideVelocity * 0.018, -0.022, 0.022), 10, dt)
   if landingImpact then
