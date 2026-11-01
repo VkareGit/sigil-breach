@@ -1,4 +1,5 @@
 -- Limited physical ordnance: fuse, wall sweep and blast share simulation time.
+local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
@@ -87,6 +88,9 @@ function X.strike(g, b, radius, blast, source)
       end
     end
   end
+  Entities.within(g, b.x, b.z, radius, function(thing, d)
+    Entities.hurt(g, thing, (Hit.measure(blast, thing, d)), b.owner)
+  end)
   return report
 end
 function X.explode(g, b)

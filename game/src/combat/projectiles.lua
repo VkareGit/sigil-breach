@@ -1,4 +1,5 @@
 -- Sweep each projectile through the entire tick. Resolve the first event only.
+local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local B = require('src.combat.ballistics')
@@ -223,6 +224,16 @@ function P.update(g, dt, previous)
           wall = true
         end
       end
+      -- A thing in its way stops it like stone.
+      local thing
+      if length > 1e-8 and sideOf(b) == 'knight' then
+        local at
+        thing, at =
+          Entities.ray(g, b.x, b.y, b.z, dx / length, dy / length, dz / length, length * worldT)
+        if thing then
+          worldT, wall = at / length, true
+        end
+      end
       -- What the missile can meet (plan v10 V2): every knight and every
       -- creature its side harms (content/factions.lua). Default relations
       -- keep 0.32: a knight's missile meets the demons, a demon's the knight.
@@ -308,6 +319,7 @@ function P.update(g, dt, previous)
         event.contact = nil
         event.retain, event.passed = not over and retain or nil, passed
         event.wall = wall and not playerFirst
+        event.thing = not playerFirst and thing or nil
         if playerFirst and struck then
           local share = fraction * t
           local from = struckFrom
@@ -357,6 +369,10 @@ function P.update(g, dt, previous)
           contact = event.contact,
         }
       )
+    end
+    if event.thing then
+      local packet = b.shot and b.shot.attack or b.packet
+      Entities.hurt(g, event.thing, packet.base, b.owner)
     end
     if event.retain then
       -- It flies on from here, never meeting this body again.

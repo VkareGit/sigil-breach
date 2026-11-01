@@ -1,3 +1,4 @@
+local Entities = require('src.session.entities')
 local Supplies = require('src.content.supplies')
 local Context = require('src.session.context')
 -- The built-in world objects and how each is drawn (render/world_objects.lua):
@@ -149,6 +150,21 @@ function Art.shrine(r, g, view)
   love.graphics.draw(r.sprite)
 end
 
+-- Things of the world draw themselves (session/entities.lua).
+WorldObjects.register('entities', {
+  {
+    pass = 'sprites',
+    order = 60,
+    draw = function(r, g)
+      for _, e in ipairs(Pools.of(g, 'entities')) do
+        local def = Entities.kinds:find(e.entity)
+        if def and def.draw then
+          def.draw(r, g, e)
+        end
+      end
+    end,
+  },
+})
 WorldObjects.register('lamp', {
   {
     pass = 'architecture',

@@ -435,7 +435,7 @@ local scalingRatchets = {
     name = 'enemy-pool-reads',
     label = 'ENEMY POOL READ',
     hint = 'a target goes through Bodies.targets (plan v12 R8)',
-    exempt = {},
+    exempt = { 'src/combat/bodies.lua' },
     count = function(_, strings)
       local count = 0
       for _, s in ipairs(strings) do

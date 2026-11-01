@@ -36,6 +36,7 @@ function State.new(mode, mapId)
     bullets = {},
     pickups = {},
     charges = {},
+    things = {},
     events = {},
     hazards = {},
     state = 'menu',

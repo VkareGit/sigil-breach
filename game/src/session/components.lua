@@ -201,6 +201,16 @@ C.schemas.projectile = {
   passed = f(nil, 'bodies a piercing round went through'),
   through = f(nil, 'ids of those bodies'),
 }
+-- A thing of the world (session/entities.lua).
+C.schemas.entity = {
+  entity = f(nil, 'its kind'),
+  x = f(0),
+  z = f(0),
+  level = f(nil, 'the surface it stands on, on a world with decks'),
+  hp = f(nil, 'absent: it cannot be destroyed'),
+  maxHp = f(nil),
+  state = f(nil, 'what its kind keeps'),
+}
 -- A marked ground hazard: pool, line, lightning (enemies/hazards.lua).
 C.schemas.hazard = {
   x = f(0),
@@ -384,6 +394,7 @@ C.pools = {
   pickups = { 'pickup' },
   charges = { 'charge' },
   knights = { 'knight' },
+  entities = { 'entity' },
 }
 -- Pools whose members are still created by their systems (no strict schema
 -- yet): their component is a tag without declared fields.
@@ -403,6 +414,7 @@ function C.prefabs(world)
   world:prefab('hazard', { pool = 'hazards' })
   world:prefab('pickup', { pool = 'pickups' })
   world:prefab('charge', { pool = 'charges' })
+  world:prefab('entity', { pool = 'entities' })
   world:prefab('knight', { pool = 'knights', born = require('src.content.characters').born })
 end
 return C

@@ -20,7 +20,8 @@ local Schema = require('src.core.schema')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.
-M.order = { 'enemies', 'remains', 'projectiles', 'hazards', 'pickups', 'charges', 'knights' }
+M.order =
+  { 'enemies', 'remains', 'projectiles', 'hazards', 'pickups', 'charges', 'knights', 'entities' }
 M.arrays = {
   enemies = 'enemies',
   remains = 'remains',
@@ -29,6 +30,7 @@ M.arrays = {
   pickups = 'pickups',
   charges = 'charges',
   knights = 'knights',
+  entities = 'things',
 }
 -- Pools whose members are found by id (Pools.get).
 local indexed = { enemies = true, remains = true, knights = true }

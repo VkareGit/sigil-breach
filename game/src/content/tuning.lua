@@ -121,6 +121,9 @@ return {
   -- near a fragile thing breaks it unless it passes this high; the listeners'
   -- place after a shot's own consequences.
   scenery = { rayGrace = 0.03, bodyGrace = 0.3, clearance = 0.5, listenerOrder = 40 },
+  -- A thing of the world (session/entities.lua) without its own measures: a post,
+  -- and how near its use reaches.
+  entities = { radius = 0.4, height = 1.8, reach = 2 },
   -- Reactions (combat/reactions.lua) come after every other consequence.
   reactionOrder = 50,
   -- Session clocks (systems/clocks.lua): zone banner time (s), its bell

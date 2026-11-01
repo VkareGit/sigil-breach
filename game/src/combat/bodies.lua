@@ -3,6 +3,7 @@
 -- hostile to whom, which bodies a means of harm reaches, where a body stood
 -- when the step began (continuous contact) and its vertical extent.
 -- Order is deterministic: knights (pool order), then creatures (pool order).
+local Entities = require('src.session.entities')
 local Pools = require('src.session.world')
 local Archetypes = require('src.content.enemies')
 local Factions = require('src.content.factions')
@@ -79,6 +80,27 @@ function Bodies.each(g, visit)
       return e
     end
   end
+end
+-- What a shot can mean: every living creature, then every thing that can be hit.
+function Bodies.targets(g, out)
+  out = out or {}
+  local count = 0
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.hp > 0 then
+      count = count + 1
+      out[count] = e
+    end
+  end
+  for _, e in ipairs(Pools.of(g, 'entities')) do
+    if Entities.kinds:get(e.entity).hittable then
+      count = count + 1
+      out[count] = e
+    end
+  end
+  for i = #out, count + 1, -1 do
+    out[i] = nil
+  end
+  return out
 end
 -- Where body b stood when this step began (sweeps interpolate from it): the
 -- knights' step snapshot (systems/knight.lua), else the body as it is now.

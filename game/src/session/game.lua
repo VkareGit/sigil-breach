@@ -1,6 +1,7 @@
 -- Session facade used by the application, combat systems and QA. Construction
 -- and player commands live here; simulation, consequences and world triggers
 -- have separate owners. Public methods keep one stable entry point.
+local Entities = require('src.session.entities')
 local World = require('src.world.arena')
 local Maps = require('src.content.maps.index')
 local Presentation = require('src.session.presentation')
@@ -289,10 +290,10 @@ function Game:interact()
   if self.state ~= 'playing' then
     return
   end
-  return Modes.act(self, 'interact')
+  return Entities.interact(self) or Modes.act(self, 'interact')
 end
 function Game:context()
-  return Modes.act(self, 'context') or nil
+  return Entities.prompt(self) or Modes.act(self, 'context') or nil
 end
 Game.update = Simulation.update
 Game.simulate = Simulation.step

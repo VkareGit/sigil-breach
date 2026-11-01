@@ -8,6 +8,8 @@ function Scheduler:init(name)
   self.name = name
   self.systems = {}
   self.byName = {}
+  -- Extra work after a named system (name -> fn(...)), when there is any.
+  self.after = {}
 end
 -- fn(context, dt, ...) ; returns false to end the step early.
 function Scheduler:add(name, fn)
@@ -25,6 +27,10 @@ function Scheduler:run(...)
   for _, s in ipairs(self.systems) do
     if s.enabled and s.fn(...) == false then
       return false, s.name
+    end
+    local after = self.after[s.name]
+    if after then
+      after(...)
     end
   end
   return true

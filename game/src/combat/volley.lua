@@ -1,6 +1,7 @@
 -- A volley: rounds traced as rays, their contacts summed per body, then
 -- applied once. Public to every delivery of a weapon (combat/weapon_delivery.lua):
 -- a new way of hitting traces or contacts through this and reports like a shot.
+local Entities = require('src.session.entities')
 local B = require('src.combat.ballistics')
 local Bodies = require('src.combat.bodies')
 local Damage = require('src.combat.damage')
@@ -209,6 +210,15 @@ function Volley:ray(i, dx, dy, dz, ox, oy, bodies)
     dz = dz,
   }
   report.rays[#report.rays + 1] = ray
+  local origin = self.origin or report.origin
+  local thing, at = Entities.ray(g, origin[1], origin[2], origin[3], dx, dy, dz, d)
+  if thing then
+    local dealt = Hit.measure(self.attack, thing, at)
+    self.things = self.things or {}
+    self.things[thing] = (self.things[thing] or 0) + dealt
+    ray.trail, d, e = at, at, nil
+    return
+  end
   ray.normal, ray.seed = normal, self.sequence * K.seedStride + i
   if e then
     self:contact(e, d, x, y, z, normal, part, 1, dx, dy, dz, surface)
@@ -267,6 +277,13 @@ function Volley:apply()
     end
   end
   report.blocked = self.blocked
+  if self.things then
+    for _, thing in ipairs(Pools.of(g, 'entities')) do
+      if self.things[thing] then
+        Entities.hurt(g, thing, self.things[thing], self.shooter and self.shooter.id)
+      end
+    end
+  end
   return results
 end
 return Volley

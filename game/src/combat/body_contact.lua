@@ -10,6 +10,7 @@
 --     the hit of the knight's armoured body.
 -- Corpses do not block. A leap clears a knight only above his actual head;
 -- low airborne bodies remain solid and cannot reappear inside him at landing.
+local Entities = require('src.session.entities')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
 local Physics = require('src.physics.body_physics')
@@ -160,6 +161,7 @@ function Contact.knight(g, actor)
   local controlled = Roles.controlled(g)
   local p = actor or controlled
   local radius = Rules.playerBody(p).radius
+  Entities.block(g, p, radius)
   local frame = g.frame
   local previous = frame
     and (p == controlled and frame.previousPlayer or (frame.previousKnights or {})[p.id])

@@ -64,6 +64,7 @@ declare('session/state.lua', {
   'hazards', -- marked ground strikes and pools (pool 'hazards')
   'pickups', -- supplies and souls on the floor (pool 'pickups')
   'charges', -- thrown powder charges (pool 'charges')
+  'things', -- turrets, barrels, people, levers (pool 'entities')
   'player', -- the knight this session controls (a member of 'knights')
   'knights', -- every knight (pool 'knights', 1..n)
   'ecs', -- the ECS world over these arrays (machinery)

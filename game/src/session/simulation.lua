@@ -11,6 +11,7 @@ local Step = Scheduler:new('simulation')
 for _, system in ipairs(Systems) do
   Step:add(system.name, system.run)
 end
+Step.after = require('src.session.entities').hooks
 Simulation.systems = Step
 -- Reuse held input; copy only records with one-shot edges. Unknown fields
 -- remain part of the envelope, including actor inputs supplied by controllers.

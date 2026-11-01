@@ -47,6 +47,7 @@ function Encounter.clearThreats(g)
   Pools.clear(g, 'projectiles')
   Pools.clear(g, 'hazards')
   Pools.clear(g, 'charges')
+  Pools.clear(g, 'entities')
 end
 
 function Encounter.clearStage(g)
