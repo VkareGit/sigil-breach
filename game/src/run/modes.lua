@@ -122,6 +122,13 @@ Modes:register('field', {
   attrition = function(g)
     return field().attrition(g)
   end,
+  creatures = function()
+    local ids = {}
+    for index, entry in ipairs(require('src.run.field.catalog').enemies) do
+      ids[index] = entry.id
+    end
+    return ids
+  end,
   -- Its targets hold the catalogue pose they were given.
   posed = function()
     return true
@@ -238,6 +245,9 @@ Modes:register('pilgrimage', {
   end,
   flush = function(g)
     return pilgrimage().flush(g)
+  end,
+  creatures = function(g)
+    return pilgrimage().creatures(g)
   end,
   unsaved = function(g)
     return g.run.dirty

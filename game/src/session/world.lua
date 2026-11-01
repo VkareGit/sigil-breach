@@ -22,6 +22,8 @@ local M = {}
 -- deterministic order of queries across pools.
 M.order =
   { 'enemies', 'remains', 'projectiles', 'hazards', 'pickups', 'charges', 'knights', 'entities' }
+-- The dead a session keeps; a long one forgets the oldest.
+M.remainsKept = require('src.content.tuning').remainsKept
 M.arrays = {
   enemies = 'enemies',
   remains = 'remains',
@@ -133,6 +135,12 @@ function M.get(g, id)
   end
 end
 function M.retire(g, e)
+  -- A long session keeps only the latest dead: they are saved with it, and nothing asks for
+  -- an old one. M.get answers nil for what is gone.
+  local remains = M.of(g, 'remains')
+  if #remains >= M.remainsKept then
+    M.remove(g, 'remains', remains[1])
+  end
   if g.ecs then
     return g.ecs:move('enemies', 'remains', e)
   end
@@ -161,6 +169,10 @@ function M.retireWhere(g, retires)
     return true
   end)
   for _, e in ipairs(moved) do
+    local remains = M.of(g, 'remains')
+    if #remains >= M.remainsKept then
+      M.remove(g, 'remains', remains[1])
+    end
     M.add(g, 'remains', e)
   end
   return #moved

@@ -14,7 +14,7 @@ function A.load(r)
   r.frames = {}
   r.frameImages = {}
   r.frameMirrors = {}
-  require('src.render.fresco_enemies').loadAll(r)
+  require('src.render.fresco_enemies').onDemand(r)
   r.shrineImage, r.shrineFeet, r.shrineFrames =
     Atlas.load('assets/art/shrine-fresco-v12.png', 4, 1, nil, nil, r.resources)
   r.frescoes = r.resources:image('assets/art/murals-fresco-v12.png', { filter = 'linear' })

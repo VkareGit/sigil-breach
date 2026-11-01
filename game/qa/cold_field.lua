@@ -34,7 +34,8 @@ function ColdField.run(app, output, lines, check)
     pending = pending + #require('src.render.kit.halls').loadingJobs(app.renderer, app.game.world)
     check(
       'first field shows a loading plan for what the menu has not already drawn',
-      plan and plan.kind == 'transition' and plan.total == pending + 1
+      -- The creatures of the world, then the world itself.
+      plan and plan.kind == 'transition' and plan.total == pending + 2
     )
     app:update(1 / 60)
     check(

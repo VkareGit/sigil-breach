@@ -38,15 +38,18 @@ function FrescoEnemies.add(renderer, kind)
   renderer.frameImages[kind], renderer.frameMirrors[kind] = images, mirrors
   renderer.frescoEnemySupplements[kind] = supplements
 end
-function FrescoEnemies.loadAll(renderer)
-  renderer.animations = renderer.animations or {}
-  renderer.feet = renderer.feet or {}
-  renderer.frames = renderer.frames or {}
-  renderer.frameImages = renderer.frameImages or {}
-  renderer.frameMirrors = renderer.frameMirrors or {}
+-- An atlas enters the renderer the first time something asks for it: the loading page asks
+-- for the creatures of the world it prepares, so a species not on this map costs nothing.
+function FrescoEnemies.onDemand(renderer)
   renderer.frescoEnemySupplements = {}
-  for _, kind in ipairs(FrescoEnemies.kinds) do
-    FrescoEnemies.add(renderer, kind)
+  local function demand(t, kind)
+    if EnemyArt.entries[kind] then
+      FrescoEnemies.add(renderer, kind)
+      return rawget(t, kind)
+    end
+  end
+  for _, field in ipairs({ 'animations', 'feet', 'frames', 'frameImages', 'frameMirrors' }) do
+    renderer[field] = setmetatable(renderer[field] or {}, { __index = demand })
   end
 end
 return FrescoEnemies

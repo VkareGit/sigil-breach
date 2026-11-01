@@ -72,7 +72,7 @@ function T.run(check, renderer)
   local Surface = require('src.enemies.surface')
   renderer = renderer or {}
   if not renderer.animations then
-    C.loadAll(renderer)
+    C.onDemand(renderer)
   end
   local count = 0
   local function verify(name, ok)

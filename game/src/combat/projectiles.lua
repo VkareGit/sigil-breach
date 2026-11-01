@@ -121,9 +121,9 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local own = Shape.radius(b)
   for _, entry in ipairs(bodies) do
     if
-      Bodies.harms(g, side, entry.enemy, 'missile')
+      B.near(entry, b.x, b.z, ux, uz, best, own)
+      and Bodies.harms(g, side, entry.enemy, 'missile')
       and not (b.through and b.through[entry.enemy.id])
-      and B.near(entry, b.x, b.z, ux, uz, best, own)
     then
       local d, segment, contact =
         B.body(g, entry.enemy, b.x, b.y, b.z, ux, uy, uz, best, entry.volumes, entry.surface, own)

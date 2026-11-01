@@ -85,7 +85,16 @@ return {
   -- decks, a body up to heights[1] m tall walks where heights[1] m of room
   -- is left under a deck, up to heights[2] where that much is; a taller one
   -- never under a deck.
-  navigation = { window = 32, sector = 16, classes = { 0.6, 1.6 }, heights = { 2.4, 3.6 } },
+  navigation = {
+    window = 32,
+    sector = 16,
+    classes = { 0.6, 1.6 },
+    heights = { 2.4, 3.6 },
+    -- Route fields kept before the cache starts again: each is a table of every region.
+    fieldsKept = 64,
+  },
+  -- Corpses at rest a session keeps.
+  remainsKept = 128,
   -- Health of a supply that names no amount.
   healthPickup = 25,
   -- Rounds found by a knight with none left before a guardian, and where.

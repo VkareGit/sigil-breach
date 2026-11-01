@@ -5,6 +5,8 @@ local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local S = {}
+-- How far a body's shadow reaches past it (m).
+local REACH = 5
 local code = [[
 // One shadow per body, all bodies of an image in one instanced draw (plan
 // v10 V3): the body's placement, light and frame come per instance.
@@ -72,7 +74,7 @@ function S.draw(r, g)
   lg.setDepthMode('less', false)
   local batch = r.castShadows
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
+    if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
       local ground = Ground.of(g.world, e)
       local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)
       local length = math.sqrt(lx * lx + lz * lz)

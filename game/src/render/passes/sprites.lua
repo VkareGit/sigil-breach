@@ -4,13 +4,14 @@
 local WorldObjects = require('src.render.world_objects')
 local Corpse = require('src.enemies.corpse')
 local Pools = require('src.session.world')
-local Pass = {}
+-- The farthest any part of a body reaches from its centre (m).
+local Pass = { reach = 5 }
 function Pass.draw(r, g, time, view)
   love.graphics.setDepthMode('less', true)
   love.graphics.setShader(r.spriteShader)
   WorldObjects.draw(r, g, 'sprites', view, time)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 or Corpse.visible(e) then
+    if (e.hp > 0 or Corpse.visible(e)) and not r:behind(e.x, e.y or 1, e.z, Pass.reach) then
       r:enemy(g, e, r.bodies)
     end
   end

@@ -81,6 +81,33 @@ function Bodies.each(g, visit)
     end
   end
 end
+-- visit(e) for every living creature, in pool order.
+function Bodies.eachCreature(g, visit)
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.hp > 0 then
+      visit(e)
+    end
+  end
+end
+-- The sides among the living creatures, counted once a tick: in most fights there is one.
+local census = setmetatable({}, { __mode = 'k' })
+function Bodies.sides(g)
+  local pool, seen = Pools.of(g, 'enemies'), census[g]
+  if seen and seen.time == g.time and seen.count == #pool then
+    return seen
+  end
+  local known = {}
+  seen = { time = g.time, count = #pool }
+  for _, e in ipairs(pool) do
+    local side = Bodies.side(g, e)
+    if e.hp > 0 and not known[side] then
+      known[side] = true
+      seen[#seen + 1] = side
+    end
+  end
+  census[g] = seen
+  return seen
+end
 -- What a shot can mean: every living creature, then every thing that can be hit.
 function Bodies.targets(g, out)
   out = out or {}

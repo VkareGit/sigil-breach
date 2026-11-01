@@ -15,6 +15,8 @@ local Halls = {
 }
 local exp, sin, max = math.exp, math.sin, math.max
 local GRAVITY = 4.9
+-- How far a struck part can swing past its bounds (m).
+local SWAY = 3
 local ZERO = { 0, 0, 0, 1 }
 local covered = setmetatable({}, { __mode = 'k' })
 local function footprint(w)
@@ -65,6 +67,21 @@ function Halls.loadingJobs(r, w)
   end
   return jobs
 end
+-- The middle of a part and how far it reaches from there (m).
+local function bounds(vertices)
+  local low, high = { math.huge, math.huge, math.huge }, { -math.huge, -math.huge, -math.huge }
+  for _, vertex in ipairs(vertices) do
+    for axis = 1, 3 do
+      low[axis] = math.min(low[axis], vertex[axis])
+      high[axis] = math.max(high[axis], vertex[axis])
+    end
+  end
+  local dx, dy, dz = high[1] - low[1], high[2] - low[2], high[3] - low[3]
+  return (low[1] + high[1]) / 2,
+    (low[2] + high[2]) / 2,
+    (low[3] + high[3]) / 2,
+    math.sqrt(dx * dx + dy * dy + dz * dz) / 2
+end
 -- owner: the scope of this world's geometry; art: the renderer's image scope.
 function Halls.prepare(w, owner, art)
   local entries = {}
@@ -75,7 +92,12 @@ function Halls.prepare(w, owner, art)
   end
   for _, hall in ipairs((w.decor or {}).halls or {}) do
     for _, part in ipairs(Halls.kits[hall.kit].build(w, hall)) do
+      local x, y, z, reach = bounds(part.vertices)
       entries[#entries + 1] = {
+        x = x,
+        y = y,
+        z = z,
+        reach = reach,
         mesh = mesh(part.vertices, part.path, part.options),
         group = part.group,
         show = part.show,
@@ -119,6 +141,10 @@ function Halls.draw(r, g, entries)
   local s, world, elapsed = r.shader, g.world, g.elapsed or 0
   s:send('painted', 1)
   for _, entry in ipairs(entries) do
+    if r:behind(entry.x, entry.y, entry.z, entry.reach + SWAY) then
+      -- Nothing of it reaches the screen.
+      goto continue
+    end
     if entry.group then
       local stage, at = Destruction.stage(world, entry.group)
       local shown, drop = placed(entry, stage, at and elapsed - at or 0)
@@ -137,6 +163,7 @@ function Halls.draw(r, g, entries)
     else
       r:object(entry.mesh)
     end
+    ::continue::
   end
   if entries.debris then
     Debris.draw(r, g, entries.debris)

@@ -17,6 +17,7 @@ local Camera = require('src.render.camera')
 -- (render/world_objects.lua); the renderer never names a kind of it.
 local WorldObjects = require('src.render.world_objects')
 require('src.render.world_art')
+local Archetypes = require('src.content.enemies')
 local R = {}
 local Batch = require('src.render.batch')
 local Instances = require('src.render.instances')
@@ -524,6 +525,21 @@ function R:drawBodies()
   love.graphics.setShader(s)
   self.bodies:draw(self.bodyPigment)
   love.graphics.setShader(self.spriteShader)
+end
+-- Whether a point lies behind the camera by more than margin (m): nothing there can reach
+-- the screen, so it costs nothing to skip.
+function R:behind(x, y, z, margin)
+  local c, f = self.camera, self.forward
+  return (x - c[1]) * f[1] + (y - c[2]) * f[2] + (z - c[3]) * f[3] < -margin
+end
+-- The art of these creatures, on the loading page instead of on first sight.
+function R:prepareCreatures(ids, checkpoint)
+  for _, id in ipairs(ids) do
+    local _ = self.frames[Archetypes.get(id).appearance.atlas]
+    if checkpoint then
+      checkpoint(id)
+    end
+  end
 end
 function R:prepareWorld(g, checkpoint)
   assert(not self.released, 'renderer has been released')

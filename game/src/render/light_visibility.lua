@@ -7,7 +7,8 @@
 -- same density (plan v10 V3). Tiles are baked when a light takes a slot.
 local Tiles = require('src.core.tiles')
 local Grid = require('src.physics.grid')
-local V = { resolution = 128, columns = 4, capacity = 14, texels = 4 }
+-- groundLimit: the widest whole-map shade (texels): a larger map gets a coarser one.
+local V = { resolution = 128, columns = 4, capacity = 14, texels = 4, groundLimit = 2048 }
 -- CPU tiles only: 64 * 128 * 128 * RGBA8 = 4 MiB per moving atlas.
 -- A world revision owns this cache; leaving it releases every native tile.
 V.cacheCapacity = 64
@@ -125,7 +126,7 @@ end
 -- The contact shade and walls of the whole map at texels per cell (capped
 -- by the largest texture), for a map larger than the window.
 local function ground(w)
-  local limit = love.graphics.getSystemLimits().texturesize
+  local limit = math.min(love.graphics.getSystemLimits().texturesize, V.groundLimit)
   local width = math.min(Grid.width(w) * V.texels, limit)
   local depth = math.min(Grid.depth(w) * V.texels, limit)
   local data = love.image.newImageData(width, depth)

@@ -9,7 +9,8 @@
 --   step          whole simulation steps with the population awake
 --   corpses       steps with the population killed and kept in place
 --   journal       recording, exporting and replaying a field fight
---   long session  300 waves of three demons spawned, killed and cleared
+--   chapel        the real garrison on its own map, awake, and what a rest costs
+--   long session  300 rounds of three demons spawned, killed and cleared
 local Tooling = require('qa.tooling')
 local M = {}
 local clock = love.timer.getTime
@@ -85,7 +86,7 @@ function M.run(G, output, smoke)
     .. population
     .. '; populations above 20 use a prepared free-tile factory grid outside the player catalogue. The 20 rays and 10 missiles remain fixed.'
   lines[#lines + 1] = 'Map: '
-    .. (Tooling.crowdMap() or 'limbo (the arena)')
+    .. (Tooling.crowdMap() or 'the test room')
     .. (Tooling.crowdMap() and '; every population uses the crowd factory grid' or '')
   lines[#lines + 1] = 'LuaJIT ' .. tostring(jit and jit.version)
   lines[#lines + 1] =
@@ -362,14 +363,42 @@ function M.run(G, output, smoke)
   log(
     'Journal text budget is NOT a RAM cap or a guaranteed duration. A complete command and final integrity may exceed the text estimate; retained-copy heap excludes export text, decoded replay, session and transient allocations. Geometry capture is real, rasterization is excluded.'
   )
-  -- A long session: 300 waves of three demons, killed and cleared.
+  -- The chapel as it is played: its own map, its own garrison, all of it awake.
+  local Way = require('src.run.pilgrimage')
+  Way.forget()
+  g = G.new('pilgrimage')
+  g.testing = true
+  g:act('start')
+  g.player.hp = math.huge
+  for _, body in ipairs(g.enemies) do
+    body.awake, body.leash = true, math.huge
+  end
+  for _ = 1, n(60, 2) do
+    g:update(1 / 120, {})
+  end
+  local chapelMedian, chapelTail = spread(n(240, 4), function()
+    g:update(1 / 120, {})
+  end)
+  log(
+    string.format(
+      'chapel: %d bodies at their posts awake; whole simulation step median %.4f ms, p95 %.4f ms; a rest raising them %.4f ms',
+      #g.enemies,
+      chapelMedian,
+      chapelTail,
+      timed(n(20, 2), function()
+        Way.populate(g)
+      end)
+    )
+  )
+  Way.forget()
+  -- A long session: 300 rounds of three demons, killed and cleared.
   g = Field.new(G)
   g.testing = true
   Field.close(g)
   local first = heap()
   start = clock()
-  for wave = 1, n(300, 4) do
-    local created = Field.spawn(g, wave % 2 == 0 and 'imp' or 'stolas', 3) or {}
+  for round = 1, n(300, 4) do
+    local created = Field.spawn(g, round % 2 == 0 and 'imp' or 'stolas', 3) or {}
     Field.close(g)
     for _, body in ipairs(created) do
       g:damageEnemy(body, body.hp + 1, 'weapon')
@@ -385,7 +414,7 @@ function M.run(G, output, smoke)
   end
   log(
     string.format(
-      'long session: %d waves x 3 demons in %.0f ms; %d enemy records live, %d telemetry body records, heap +%.0f KiB',
+      'long session: %d rounds x 3 demons in %.0f ms; %d enemy records live, %d telemetry body records, heap +%.0f KiB',
       n(300, 4),
       spent,
       #g.enemies,

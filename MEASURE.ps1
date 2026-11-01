@@ -129,9 +129,12 @@ foreach ($metric in $metrics) {
         elseif ($ratio -gt 1.05 -and ($a.Median - $b.Median) -gt ($a.Iqr + $b.Iqr)) { 'REGRESSION' }
         else { 'INCONCLUSIVE' }
         $report.Add(('{0,-48} after/before {1:F3}  {2}' -f $metric, $ratio, $verdict))
+        if ($verdict -ne 'NO REGRESSION') { $regressed = $true }
     }
 }
 $path = Join-Path $Out 'summary.txt'
 [IO.File]::WriteAllLines($path, $report)
 $report | ForEach-Object { Write-Host $_ }
 Write-Host "Summary: $path"
+# A build can stop on this: anything but a clean comparison counts as a regression.
+if ($regressed) { exit 1 }

@@ -11,6 +11,8 @@ local COLORS = require('src.render.effects').colors
 local Context = require('src.session.context')
 local Characters = require('src.content.characters')
 local Pass = {}
+-- The widest a mark spreads from a body (m).
+local REACH = 5
 function Pass.draw(r, g)
   local lg = love.graphics
   lg.setDepthMode('less', true)
@@ -20,7 +22,7 @@ function Pass.draw(r, g)
   stamps:clear()
   lg.setDepthMode('less', false)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
+    if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
       local size = Archetypes.look(e).shadow
       local ground = Ground.of(g.world, e)
       if stamps.count + 2 > stamps.capacity then
@@ -34,7 +36,7 @@ function Pass.draw(r, g)
   stamps:draw(r, g)
   lg.setDepthMode('less', true)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 then
+    if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
       local look = Archetypes.look(e)
       local ground = Ground.of(g.world, e)
       -- The moment a shot can turn the blow aside: a clear gold ring.

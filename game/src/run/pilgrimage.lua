@@ -500,6 +500,17 @@ function P.problems(area)
   end
   return found
 end
+-- Who stands in this area, for the loading page.
+function P.creatures(g)
+  local ids, seen = {}, {}
+  for _, post in ipairs(area(g).garrison) do
+    if not seen[post.creature] then
+      seen[post.creature] = true
+      ids[#ids + 1] = post.creature
+    end
+  end
+  return ids
+end
 local report = {}
 function P.hud(g)
   local r = g.run

@@ -168,9 +168,18 @@ local function field(check, Game)
   Field.physics(g)
   settled('the physics station')
 end
+-- What a long session leaves behind stays bounded.
+local function limits(check, Game)
+  local g = Field.new(Game, 'proving')
+  for _ = 1, Pools.remainsKept + 5 do
+    Pools.retire(g, g:spawn('imp', 24, 30))
+  end
+  check('the dead are kept to a limit', #Pools.of(g, 'remains') == Pools.remainsKept)
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'proving: ', 'proving: ')
+  limits(check, Game)
   data(check)
   posts(check, Game)
   journey(check, Game)

@@ -159,6 +159,11 @@ local function toward(nav, goal)
       end
     end
   end
+  -- A field per goal, kept for the next to ask: a long session asks for many.
+  nav.fields = (nav.fields or 0) + 1
+  if nav.fields > Tuning.fieldsKept then
+    nav.toward, nav.fields = {}, 1
+  end
   nav.toward[goal] = dist
   return dist
 end

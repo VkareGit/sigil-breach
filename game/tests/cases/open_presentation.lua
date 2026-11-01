@@ -513,9 +513,30 @@ local function language(G, renderer, check)
   )
   check('the base language returns', Text.get('health') == 'HEALTH')
 end
+-- What lies behind the camera is not prepared, what lies before it is.
+local function culling(G, renderer, check)
+  local g = G.new('field', 'proving')
+  require('src.run.test_field').close(g)
+  local p = g.player
+  p.x, p.z, p.yaw, p.pitch = 24, 20, 0, 0
+  local before = g:spawn('imp', 24, 26)
+  local behind = g:spawn('imp', 24, 8)
+  before.spawnAge, behind.spawnAge = 1, 1
+  local drawn, enemy = {}, renderer.enemy
+  renderer.enemy = function(r, session, e, batch)
+    drawn[e] = true
+    return enemy(r, session, e, batch)
+  end
+  local ok, problem = pcall(renderer.draw, renderer, g, 1280, 720)
+  renderer.enemy = enemy
+  assert(ok, problem)
+  check('a body before the camera is drawn', drawn[before])
+  check('a body behind it is not', not drawn[behind])
+end
 function Tests.run(G, renderer)
   local lines = {}
   local check = Fixtures.checker(lines, 'open presentation: ', 'open presentation: ')
+  culling(G, renderer, check)
   worldObjects(G, renderer, check)
   hudSlots(G, check)
   language(G, renderer, check)

@@ -100,6 +100,12 @@ function Application:prepareWorld(game)
       jobs[#jobs + 1] = job
     end
     jobs[#jobs + 1] = {
+      label = 'loading_creatures',
+      run = function(checkpoint)
+        self.renderer:prepareCreatures(Modes.act(game, 'creatures') or {}, checkpoint)
+      end,
+    }
+    jobs[#jobs + 1] = {
       label = 'loading_world',
       run = function(checkpoint)
         self.renderer:prepareWorld(game, checkpoint)

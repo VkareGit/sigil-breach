@@ -63,7 +63,7 @@ function T.run(check, renderer)
   local Catalog = require('src.render.fresco_enemies')
   renderer = renderer or {}
   if not renderer.animations then
-    Catalog.loadAll(renderer)
+    Catalog.onDemand(renderer)
   end
   local count = 0
   local function verify(name, ok)

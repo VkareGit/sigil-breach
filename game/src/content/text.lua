@@ -478,6 +478,7 @@ local definitions = {
   { 'loading_sound', 'PREPARING SOUND' },
   { 'loading_interface', 'PREPARING THE INTERFACE' },
   { 'loading_world', 'PREPARING THE WORLD' },
+  { 'loading_creatures', 'PREPARING THE CREATURES' },
   { 'recording_full', 'Recording stopped: limit reached. F9 saves the completed recording.' },
   { 'telemetry_saved', 'Telemetry saved: {path}' },
   { 'screenshot_saved', 'Screenshot saved in the game data folder.' },

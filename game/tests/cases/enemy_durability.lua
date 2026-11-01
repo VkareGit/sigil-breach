@@ -283,8 +283,8 @@ function T.report(output)
 end
 function T.run(G, check, renderer, output)
   if renderer and renderer.frames then
-    for kind, frames in pairs(renderer.frames) do
-      Geometry.register(kind, frames, renderer.feet[kind])
+    for _, kind in ipairs(require('src.render.fresco_enemies').kinds) do
+      Geometry.register(kind, renderer.frames[kind], renderer.feet[kind])
     end
   end
   local signatures = {}

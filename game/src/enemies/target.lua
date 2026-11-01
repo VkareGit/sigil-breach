@@ -7,21 +7,41 @@
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Archetypes = require('src.content.enemies')
+local Factions = require('src.content.factions')
 local Target = {}
 -- name -> function(g, e): a living hostile body or nil.
 Target.strategies = {}
--- The nearest living body of a hostile side (ties: knights first, pool order).
+-- Whether any creature can be hostile to this side at all.
+local function creaturesHostile(g, side)
+  for _, other in ipairs(Bodies.sides(g)) do
+    if Factions.hostile(side, other) then
+      return true
+    end
+  end
+  return false
+end
+-- The nearest living body of a hostile side (ties: knights first, pool order). The creatures
+-- are asked only when one can be hostile, so a crowd does not walk itself for each of its own.
 function Target.strategies.nearest(g, e)
   local best, bestD
-  Bodies.each(g, function(b)
-    if b ~= e and Bodies.hostile(g, e, b) then
+  local side = Bodies.side(g, e)
+  local function consider(b)
+    if b ~= e and Factions.hostile(side, Bodies.side(g, b)) then
       local dx, dz = b.x - e.x, b.z - e.z
       local d = dx * dx + dz * dz
       if not best or d < bestD then
         best, bestD = b, d
       end
     end
-  end)
+  end
+  for _, k in ipairs(Bodies.knights(g)) do
+    if (k.hp or 1) > 0 then
+      consider(k)
+    end
+  end
+  if creaturesHostile(g, side) then
+    Bodies.eachCreature(g, consider)
+  end
   return best
 end
 local function strategy(e)

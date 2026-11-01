@@ -86,12 +86,12 @@ function Tests.run(Game)
     alive = alive + (e.hp > 0 and 1 or 0)
   end
   check(
-    '300 corpses at rest leave the living pool for the remains',
-    dead == 300 and #remains == 300 and #enemies == alive and alive == 1
+    '300 corpses at rest leave the living pool, the latest kept in the remains',
+    dead == 300 and #remains == Pools.remainsKept and #enemies == alive and alive == 1
   )
   check(
     'retired corpses stay found by id and in id order',
-    Pools.get(field, remains[1].id) == remains[1] and remains[1].id < remains[300].id
+    Pools.get(field, remains[1].id) == remains[1] and remains[1].id < remains[#remains].id
   )
   local before = remains[1].x
   for _ = 1, 120 do
@@ -105,7 +105,7 @@ function Tests.run(Game)
   local restored = Pools.of(field, 'remains')
   check(
     'a restored session finds its restored remains by id',
-    #restored == 300
+    #restored == Pools.remainsKept
       and restored[1] ~= remains[1]
       and Pools.get(field, restored[1].id) == restored[1]
   )
