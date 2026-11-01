@@ -23,6 +23,22 @@ Sprawdzone automatycznie:
 - Pakiet treści przechodzi start, walkę, dziennik, zapis, klatkę, drugi etap i
   wyrejestrowanie bez zmian w game/src.
 - 93 klatki 21 nowych ciosów z gry: work/souls-frames.
+- Pakiet gracza: filtr przepuszczał tylko .png i .lua, więc 25 tekstur .jpg sal
+  kaplicy z 0.35 nie trafiało do EXE i gra stawała na ekranie błędu ładowania.
+  Teraz wypadają z EXE tylko dokumenty o grafice (.json, .txt), a test
+  --package-smoke kończy się błędem zamiast czekać na przycisk.
+- Dowód pakietu pisze tools/verify.ps1: work/qa-v33/installed-packages.
+
+Pomiar 0.35 → 0.36 (MEASURE.ps1, 3 pary, nic obok; ms, mediana):
+- Klatka zamrożona: ciężka 9,49 → 9,61, zwykła 6,20 → 6,21. Bez regresji.
+- Klatka żywa, 20 ciał (limit gry): 12,00 → 12,25. Rozrzut ponad 5%, więc protokół
+  mówi „niejednoznaczne”, ale kosztu nie widać.
+- Klatka żywa, 256 ciał (diagnostyka): 32,00 → 37,23, czyli 1,16. Przed poprawkami
+  1,33 w jednej serii, a na spokojnej maszynie 1,11. Traktować jako regresję.
+- Krok symulacji: 20 ciał 0,10 → 0,14 (regresja), 256 ciał 2,12 → 2,91 (1,37,
+  niejednoznaczne). To koszt nowej logiki walki. Budżet kroku to 8,33. Przyjęte.
+- Pojedynczy przebieg przy 256 ciałach chodzi między 34 a 45 ms. Do diagnozy
+  służą fazy z benchmark.txt i profil, nie jedna liczba.
 
 Niesprawdzone:
 - Odbiór B2: nikt jeszcze nie grał w tę walkę. Boty mają idealny cel i znają każdy

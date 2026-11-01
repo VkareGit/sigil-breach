@@ -25,11 +25,19 @@ Anim.actionPhase = ActionPhase.sample
 -- says which pose a state shows and gives it the state's clock.
 function Anim.poses(e)
   local atlas = Archetypes.look(e).atlas or e.kind
-  return assert(Atlases.poses[atlas], 'no named poses for atlas ' .. tostring(atlas))
+  local poses = Atlases.poses[atlas]
+  if not poses then
+    error('no named poses for atlas ' .. tostring(atlas))
+  end
+  return poses
 end
 -- The pose name stands for on a body's atlas (fallbacks followed).
 function Anim.posed(e, name)
-  return assert(Poses.resolve(Anim.poses(e), name), 'atlas has no pose ' .. name)
+  local pose = Poses.resolve(Anim.poses(e), name)
+  if not pose then
+    error('atlas has no pose ' .. name)
+  end
+  return pose
 end
 local posed = Anim.posed
 -- Painted motions (appearance.motion): fn(g, e, frame, bounce, lean, quiet, rear)

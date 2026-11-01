@@ -24,6 +24,7 @@ try {
     foreach ($pair in @{
         'game/main.lua'='return true'; 'game/conf.lua'='return true'; 'game/src/example.lua'='return {}'
         'game/assets/art/example.png'='fixture image'; 'game/assets/art/masks.lua'='return {}'
+        'game/assets/art/photo.jpg'='fixture image'
         'game/assets/art/provenance.json'='{}'; 'game/qa/private.lua'='excluded'
         'game/tests/private.lua'='excluded'; 'game/docs/DEVELOPMENT.txt'='excluded'
         'game/docs/INSTRUKCJA.txt'='instructions'; 'runtime/love.exe'='fixture runtime'
@@ -37,13 +38,13 @@ try {
     $player = Join-Path $fixture 'player'
     Export-PlayerPackage $source $player $runtime $fingerprint
     Assert-FusedGame $player $runtime
-    Check-Package ((Assert-PlayerPayload $player $source $fingerprint $runtime) -eq 6) 'Player payload missing runtime files or includes development data.'
+    Check-Package ((Assert-PlayerPayload $player $source $fingerprint $runtime) -eq 7) 'Player payload missing runtime files or includes development data.'
     Check-Package (-not (Test-Path -LiteralPath (Join-Path $player 'SIGIL-BREACH.love'))) 'Player ships a second copy of its game archive.'
     Check-Package (-not (Test-Path -LiteralPath (Join-Path $player '.game.love'))) 'Player keeps its packaging intermediate.'
     Check-Package (Test-Path -LiteralPath (Join-Path $player 'legal/assets/art/provenance.json')) 'Art provenance missing.'
     Write-PackageManifest $player 'player' 'fixture' $fingerprint @(Get-PackageTree $source)
     $manifest = Assert-PackageManifest $player $fingerprint
-    Check-Package ($manifest.files.Count -gt 0 -and $manifest.sourceFiles.Count -eq 10) 'Manifest must describe complete game tree and installed files.'
+    Check-Package ($manifest.files.Count -gt 0 -and $manifest.sourceFiles.Count -eq 11) 'Manifest must describe complete game tree and installed files.'
     Reject-Package { Assert-PackageManifest $player ('0' * 64) } 'Different source fingerprint accepted.'
     [IO.File]::AppendAllText((Join-Path $player 'SIGIL-BREACH.exe'), 'tamper')
     Reject-Package { Assert-PackageManifest $player $fingerprint } 'Modified EXE accepted by manifest.'

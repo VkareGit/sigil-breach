@@ -48,6 +48,20 @@ function samples.evade(e)
   end
   return frame, (e.evadeSide or 1) > 0 and 1 or 0
 end
+local function sampled(key, e)
+  local entry = AbilityArt.get(key)
+  local sampler = samples[entry.sampler]
+  if not sampler then
+    error('ability artwork ' .. key .. ': missing sampler ' .. entry.sampler)
+  end
+  local frame, mirror = sampler(e)
+  if frame then
+    if type(frame) ~= 'number' or frame % 1 ~= 0 or not entry.frames[frame] then
+      error('ability artwork ' .. key .. ': sampler returned unknown frame ' .. tostring(frame))
+    end
+    return key, frame, mirror
+  end
+end
 function AbilityPose.select(g, e)
   if
     e.hp <= 0
@@ -63,22 +77,14 @@ function AbilityPose.select(g, e)
   -- attack that is not running says nothing, so it never hides a sidestep.
   local look = Archetypes.look(e)
   local sequence = look.art and look.art[e.attackKind]
-  for _, key in ipairs({ sequence or false, look.evadeArt or false }) do
+  if sequence then
+    local key, frame, mirror = sampled(sequence, e)
     if key then
-      local entry = AbilityArt.get(key)
-      local sampler = assert(
-        samples[entry.sampler],
-        'ability artwork ' .. key .. ': missing sampler ' .. entry.sampler
-      )
-      local frame, mirror = sampler(e)
-      if frame then
-        assert(
-          type(frame) == 'number' and frame % 1 == 0 and entry.frames[frame],
-          'ability artwork ' .. key .. ': sampler returned unknown frame ' .. tostring(frame)
-        )
-        return key, frame, mirror
-      end
+      return key, frame, mirror
     end
+  end
+  if look.evadeArt then
+    return sampled(look.evadeArt, e)
   end
 end
 return AbilityPose

@@ -59,17 +59,25 @@ function Write-FusedGame([string]$Runtime, [string]$Game, [string]$Destination) 
     finally { $target.Dispose() }
 }
 
+# Documents about the art travel beside the player; everything else under assets
+# is the game. Naming what stays out means a new art format cannot go missing.
+function Test-AssetProvenance([string]$Name) {
+    return $Name.StartsWith('assets/') -and [IO.Path]::GetExtension($Name) -in @('.json', '.txt')
+}
+
+function Test-PlayerRuntimeFile([string]$Name) {
+    if ($Name -in @('main.lua', 'conf.lua') -or $Name.StartsWith('src/')) { return $true }
+    return $Name.StartsWith('assets/') -and -not (Test-AssetProvenance $Name)
+}
+
 function Export-PlayerPackage([string]$Source, [string]$Destination, [string]$RuntimeRoot, [string]$Fingerprint) {
     New-Item -ItemType Directory -Path $Destination | Out-Null
     $payload = Join-Path $Destination '.payload'
     New-Item -ItemType Directory -Path $payload | Out-Null
     foreach ($file in Get-ChildItem -LiteralPath $Source -File -Recurse -Force) {
         $name = $file.FullName.Substring($Source.Length + 1).Replace('\', '/')
-        $runtime = $name -in @('main.lua', 'conf.lua') -or $name.StartsWith('src/') -or ($name.StartsWith('assets/') -and $file.Extension -in @('.png', '.lua'))
-        if ($runtime) { Copy-PackageFile $file.FullName $payload $name }
-        elseif ($name.StartsWith('assets/') -and $file.Extension -in @('.json', '.txt')) {
-            Copy-PackageFile $file.FullName $Destination ('legal/' + $name)
-        }
+        if (Test-PlayerRuntimeFile $name) { Copy-PackageFile $file.FullName $payload $name }
+        elseif (Test-AssetProvenance $name) { Copy-PackageFile $file.FullName $Destination ('legal/' + $name) }
     }
     Write-BuildFingerprint $payload $Fingerprint
     # A player runs the EXE: the game archive lives only inside it, not as a

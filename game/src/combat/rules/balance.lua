@@ -175,7 +175,8 @@ return function(R)
     target.guardQuiet = quiet
     local active = min(dt, max(0, quiet - delay))
     if active > 0 then
-      target.poise = max(0, (target.poise or 0) - active * rate * R.recoveryScale(target))
+      local poise = target.poise or 0
+      target.poise = poise > 0 and max(0, poise - active * rate * R.recoveryScale(target)) or 0
     end
   end
 end

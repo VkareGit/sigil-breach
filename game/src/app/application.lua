@@ -315,6 +315,8 @@ function Application:update(dt)
     local plan = self.loading
     local done = plan:step()
     if plan.error then
+      -- No one is there to press retry: the health check fails instead of waiting.
+      assert(not self:has('--package-smoke'), plan.error)
       self.lastLoadError = plan.error
       self.input:forget(self.game)
       love.mouse.setRelativeMode(false)

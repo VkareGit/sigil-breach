@@ -28,7 +28,10 @@ end
 function Pose.base(g, e, observer)
   local frame, hover, lean, sx, sy = Animation.pose(g, e, observer)
   local atlas = Archetypes.look(e).atlas or e.kind
-  local layout = assert(EnemyArt.layouts[atlas], 'unknown sprite placement: ' .. tostring(atlas))
+  local layout = EnemyArt.layouts[atlas]
+  if not layout then
+    error('unknown sprite placement: ' .. tostring(atlas))
+  end
   local region = assert(layout.frames[frame], 'unknown sprite frame')
   sx, sy = sx * region.width, sy * region.height
   local size = layout.size

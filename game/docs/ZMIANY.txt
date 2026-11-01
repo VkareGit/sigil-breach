@@ -18,6 +18,9 @@ SIGIL: BREACH 0.36 / Trial by Ash
 Walka do nauczenia się i fundament planu v12. Pełne raporty:
 game/docs/PLAN-v12-R*-RAPORT.md, game/docs/PLAN-WALKA-S*-RAPORT.md.
 
+Pakiet: EXE gracza znów zawiera tekstury .jpg sal kaplicy. Bez nich od 0.35 gra
+nie wychodziła z ekranu ładowania.
+
 Walka:
 - Cios zwykłego stwora to około czwartej części zdrowia, bossa około połowy.
 - Ciągi ciosów, opóźnienia, śledzenie w czasie windupu.

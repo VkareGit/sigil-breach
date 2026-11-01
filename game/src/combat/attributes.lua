@@ -6,7 +6,7 @@ local Conditions = require('src.content.conditions')
 local Attributes = {}
 function Attributes.scale(target, attribute)
   local c = target.conditions
-  if not c then
+  if not c or next(c) == nil then
     return 1
   end
   local s = 1

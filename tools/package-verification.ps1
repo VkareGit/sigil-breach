@@ -41,7 +41,7 @@ function Assert-PlayerPayload([string]$Root, [string]$Source, [string]$Fingerpri
     $expected = @{}
     foreach ($file in Get-ChildItem -LiteralPath $Source -File -Recurse -Force) {
         $name = $file.FullName.Substring($Source.Length + 1).Replace('\', '/')
-        if ($name -in @('main.lua', 'conf.lua') -or $name.StartsWith('src/') -or ($name.StartsWith('assets/') -and $file.Extension -in @('.png', '.lua'))) { $expected[$name] = $file.FullName }
+        if (Test-PlayerRuntimeFile $name) { $expected[$name] = $file.FullName }
     }
     try {
         foreach ($entry in $archive.Entries) {
