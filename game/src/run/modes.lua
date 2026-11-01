@@ -9,6 +9,7 @@
 --                   init(g, options) owns their validation and persistent state
 --   start(g)      leave the menu and begin
 --   progress(g, dt)
+--   prepared      its painted world loads before it is shown
 --   policy        what it allows the simulation (session/capabilities.lua:
 --                 freezable, invincible, attrition)
 -- What the player's commands and the fight's consequences mean in this mode
@@ -81,6 +82,7 @@ end)
 -- The proving ground (skirmish and stations). Required lazily: it must not load
 -- in a cycle.
 Modes:register('field', {
+  prepared = true,
   session = { map = require('src.content.pilgrimage').map },
   record = 'testField',
   init = function(g, options)
@@ -189,6 +191,7 @@ local function pilgrimage()
   return require('src.run.pilgrimage')
 end
 Modes:register('pilgrimage', {
+  prepared = true,
   session = { map = require('src.content.pilgrimage').map },
   record = 'run',
   policy = { attrition = true },

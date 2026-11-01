@@ -4,7 +4,6 @@ local Plateau = {}
 function Plateau.run(Game, renderer, initial, settings, output)
   local Tooling = require('qa.tooling')
   local Renderer = require('src.render.renderer')
-  local Gallery = require('src.render.gallery')
   local UI = require('src.ui.interface')
   local Application = require('src.app.application')
   local Navigation = require('src.app.navigation')
@@ -74,9 +73,6 @@ function Plateau.run(Game, renderer, initial, settings, output)
     menu.testing = true
     fresh = Renderer.new()
     app.renderer = fresh
-    while Gallery.pending(fresh) > 0 do
-      Gallery.preloadStep(fresh)
-    end
     app:adopt(menu)
     draw(menu)
     app:action('field_start')

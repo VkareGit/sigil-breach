@@ -8,7 +8,6 @@ function Review.run(G, renderer, output)
       lines[#lines + 1] = line
     end
   end
-  append(require('tests.cases.gallery_loading').run(G, renderer))
   append(require('tests.cases.charge_presentation').run(G, renderer))
   local file = assert(io.open(output .. '/foundation-ui-review.txt', 'w'))
   file:write(table.concat(lines, '\n') .. '\n')

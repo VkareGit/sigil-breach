@@ -436,10 +436,10 @@ local function language(G, renderer, check)
       local drawn, why = pcall(screen, g)
       assert(drawn, name .. ': ' .. tostring(why))
     end
-    -- The gallery's name plates over the world.
-    local g = Field.new(G)
+    -- The pads' name plates over the world.
+    local g = G.new('field', 'proving')
     Field.close(g)
-    local pad = require('src.world.gallery').pads[1]
+    local pad = require('src.world.gallery').padsFor(g.world)[1]
     g.player.x, g.player.z, g.player.yaw, g.player.pitch = pad.x, pad.z + 1.6, math.pi, -0.2
     renderer:draw(g, 1280, 720)
     -- The loading screen and its failure.

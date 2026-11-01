@@ -107,22 +107,6 @@ function Tests.run(Game, renderer)
   )
   two:release()
 
-  local Gallery = require('src.render.gallery')
-  local renderer = {}
-  for attempt = 1, 2 do
-    local ok = pcall(Gallery.image, renderer, { path = 'assets/art/qa-nonexistent-image.png' })
-    check(
-      'missing gallery source fails explicitly on attempt ' .. attempt,
-      not ok and #renderer.galleryResources:manifest() == 0
-    )
-  end
-  Gallery.release(renderer)
-  check(
-    'gallery teardown clears only its own ownership',
-    renderer.galleryResources == nil
-      and renderer.galleryWorld == nil
-      and renderer.galleryLabelLayout == nil
-  )
   -- Recreating a renderer must close its own native allocation while the
   -- application's original renderer and shared artwork remain alive.
   local Renderer = require('src.render.renderer')

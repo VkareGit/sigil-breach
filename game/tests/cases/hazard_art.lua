@@ -8,7 +8,6 @@ local Archetypes = require('src.content.enemies')
 local Integrity = require('src.session.integrity')
 local UI = require('src.ui.interface')
 local Field = require('src.run.test_field')
-local Gallery = require('src.render.gallery')
 local Test = {}
 local function save(data, path)
   local bytes = data:encode('png')
@@ -21,9 +20,6 @@ function Test.run(Game, renderer)
   local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
   local lines = {}
   local check = Fixtures.checker(lines, 'hazard art: ', 'hazard art: ')
-  while Gallery.pending(renderer) > 0 do
-    Gallery.preloadStep(renderer)
-  end
   local function field()
     local game = Field.new(Game)
     Field.close(game)

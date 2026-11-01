@@ -402,6 +402,5 @@ WorldObjects.register('gallery', {
     end,
   },
   overlay = Gallery.labels,
-  release = Gallery.release,
 })
 return Art

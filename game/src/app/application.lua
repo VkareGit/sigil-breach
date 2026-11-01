@@ -13,7 +13,7 @@ local Loading = require('src.ui.loading')
 local Input = require('src.app.input')
 local Commands = require('src.app.commands')
 local Navigation = require('src.app.navigation')
-local Queries = require('src.run.queries')
+local Modes = require('src.run.modes')
 local SessionReport = require('src.app.session_report')
 local Pools = require('src.session.world')
 -- The presentation plugs itself into the simulation's hooks (sound, effects,
@@ -62,9 +62,6 @@ end
 -- a bug report that replays exactly: session/journal.lua), and the garbage
 -- of the one before collected now.
 function Application:adopt(game)
-  if self.renderer then
-    require('src.render.gallery').forgetWorld(self.renderer)
-  end
   self.loading = nil
   self.discardLoadingDelta = nil
   self.input:forget(self.game)
@@ -77,20 +74,18 @@ function Application:adopt(game)
     game.rng.present:seed(os.time())
   end
   self:applySettings()
-  local tools = Queries.tools(game)
-  if tools and tools.gallery and self.renderer then
-    local jobs = require('src.render.gallery').loadingJobs(self.renderer)
-    if self.renderer.prepareWorld then
-      for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
-        jobs[#jobs + 1] = job
-      end
-      jobs[#jobs + 1] = {
-        label = 'loading_world',
-        run = function(checkpoint)
-          self.renderer:prepareWorld(game, checkpoint)
-        end,
-      }
+  -- A painted world is prepared before it is shown, never on the first frame of play.
+  if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
+    local jobs = {}
+    for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
+      jobs[#jobs + 1] = job
     end
+    jobs[#jobs + 1] = {
+      label = 'loading_world',
+      run = function(checkpoint)
+        self.renderer:prepareWorld(game, checkpoint)
+      end,
+    }
     if #jobs > 0 then
       self.loading = LoadPlan.new('loading_gallery', jobs)
       self.loading.kind = 'transition'

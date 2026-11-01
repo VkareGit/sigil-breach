@@ -3,7 +3,6 @@
 local S = {}
 function S.run(Game, renderer, getGame, settings, output)
   local UI = require('src.ui.interface')
-  local Gallery = require('src.render.gallery')
   local lg = love.graphics
   local tickRate = 120
   local fingerprint = assert(love.filesystem.read('build-fingerprint.txt')):match('^%x+')
@@ -24,9 +23,6 @@ function S.run(Game, renderer, getGame, settings, output)
   draw(getGame())
   local field = Game.new('field')
   field:act('catalog', 'field_skirmish')
-  while Gallery.pending(renderer) > 0 do
-    Gallery.preloadStep(renderer)
-  end
   for _ = 1, 8 do
     field:update(1 / tickRate, {})
   end

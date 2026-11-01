@@ -3,13 +3,9 @@ function Tests.run(Game, renderer)
   local Fixtures = require('tests.support.fixtures')
   local Field = require('src.run.test_field')
   local UI = require('src.ui.interface')
-  local Gallery = require('src.render.gallery')
   local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
   local lines = {}
   local check = Fixtures.checker(lines, 'weapon review: ', 'weapon review: ')
-  while Gallery.pending(renderer) > 0 do
-    Gallery.preloadStep(renderer)
-  end
   for slot, name in ipairs({ 'shotgun', 'revolver' }) do
     local g = Field.new(Game)
     Field.close(g)

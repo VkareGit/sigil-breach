@@ -172,11 +172,6 @@ Suite.registry = {
     module = 'tests.cases.ritual_art',
   },
   {
-    id = 'gallery-loading',
-    title = 'Bounded gallery loading transition',
-    module = 'tests.cases.gallery_loading',
-  },
-  {
     id = 'art-extension',
     title = 'Registered painted sequence and effect',
     module = 'tests.cases.art_extension',

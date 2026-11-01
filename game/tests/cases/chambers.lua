@@ -148,9 +148,7 @@ function Tests.run(Game)
   )
   check(
     'combat layout omits exhibition boards and statues, keeps painted pads',
-    #Gallery.layout(g.world, {}) == 0
-      and #Gallery.statuesFor(g.world) == 0
-      and #Gallery.padsFor(g.world) == 9
+    #Gallery.padsFor(g.world) == 9
   )
   for _, trial in ipairs(layout.trials) do
     g = fresh()

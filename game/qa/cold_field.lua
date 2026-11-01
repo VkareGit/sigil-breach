@@ -2,7 +2,6 @@
 -- PNG uploads are measured separately from final world/UI draw and readback.
 local ColdField = {}
 function ColdField.run(app, output, lines, check)
-  local Gallery = require('src.render.gallery')
   local lg, clock = love.graphics, love.timer.getTime
   local width, height = lg.getDimensions()
   local canvas = lg.newCanvas(width, height)
@@ -27,7 +26,7 @@ function ColdField.run(app, output, lines, check)
       (clock() - menuStarted) * 1000,
       fileImages - menuImages
     )
-    local menu, pending = app.game, Gallery.pending(app.renderer)
+    local menu, pending = app.game, 0
     local start, firstFiles = clock(), fileImages
     app:action('field_start')
     assert(app.game.mode == 'field', 'first field action was not accepted')
@@ -61,7 +60,6 @@ function ColdField.run(app, output, lines, check)
         and not app.loading
         and plan.steps == displayed
         and displayed > pending
-        and Gallery.pending(app.renderer) == 0
         and app.game.elapsed == elapsed
     )
     check(
