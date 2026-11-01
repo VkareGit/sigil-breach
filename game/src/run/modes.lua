@@ -226,7 +226,7 @@ Modes:register('pilgrimage', {
   buy = function(g, offer)
     local ok = Economy.trade(g, offer)
     if ok then
-      pilgrimage().save(g)
+      pilgrimage().bought(g)
     end
     return ok
   end,

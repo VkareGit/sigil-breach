@@ -57,7 +57,23 @@ function P.populate(g)
     place(g, entry)
   end
 end
+-- What his vows make of him, from his character up: a rest and a purchase both ask.
+local function swear(g)
+  local p, vows = Roles.controlled(g), g.run.vows
+  local body = Characters.of(p).body
+  local stats = { maxHp = body.hp, maxArmor = body.armor }
+  for _, offer in ipairs(Shop.offers) do
+    local given = (vows[offer.id] or 0) * (offer.amount or 0)
+    if offer.stat then
+      stats[offer.stat] = stats[offer.stat] + given
+    elseif offer.kind == 'vow' and p.abilityState[offer.ability] then
+      p.abilityState[offer.ability].extra = given
+    end
+  end
+  p.maxHp, p.maxArmor = stats.maxHp, stats.maxArmor
+end
 local function refresh(g)
+  swear(g)
   local p = Roles.controlled(g)
   p.hp, p.armor = Characters.maxHp(p), p.maxArmor
   p.dash = Characters.of(p).body.dashCharges
@@ -132,6 +148,8 @@ local function renew(g, slot)
     deaths = 0,
     fragment = false,
     slot = slot or 1,
+    market = 'fire',
+    vows = {},
     area = K.first,
     fire = first,
     lit = { [first] = true },
@@ -235,6 +253,11 @@ local function door(g)
     g:notify(Text.get('pilgrim_door_barred'), 2)
   end
   return true
+end
+-- A purchase at a fire: a vow holds from this moment, and the fire fills what it added.
+function P.bought(g)
+  refresh(g)
+  return P.save(g)
 end
 -- [E] at a fire: the knight rests and the fire's menu opens: souls to spend, the road
 -- to the other fires.
@@ -517,6 +540,31 @@ local function validEcho(echo, home)
     area = K.areas:has(echo.area) and echo.area or home,
   }
 end
+-- The ids of a list that the game still has, in order, once each.
+local function listed(list, exists)
+  assert(type(list) == 'table', 'invalid list of ids')
+  local kept, seen = {}, {}
+  for _, id in ipairs(list) do
+    assert(type(id) == 'string', 'invalid entry of a list of ids')
+    if exists(id) and not seen[id] then
+      seen[id] = true
+      kept[#kept + 1] = id
+    end
+  end
+  return kept
+end
+local function validVows(vows)
+  assert(type(vows) == 'table', 'invalid vows')
+  local kept = {}
+  for id, rank in pairs(vows) do
+    assert(type(id) == 'string' and whole(rank, 1, math.huge), 'invalid vow')
+    local offer = Shop.find(id)
+    if offer and offer.kind == 'vow' then
+      kept[id] = math.min(rank, offer.limit)
+    end
+  end
+  return kept
+end
 local function validRuins(ruins)
   assert(type(ruins) == 'table', 'invalid ruins')
   local kept = {}
@@ -556,6 +604,9 @@ Save.declare({
       glyph = r.glyph,
       opened = r.opened,
       ruins = ruins,
+      vows = r.vows,
+      loadout = (Weapons.inventory(g, Roles.controlled(g))),
+      abilities = select(2, Abilities.inventory(g, Roles.controlled(g))),
     }
   end,
   -- A file is judged here, before it touches a session: a wrong type refuses the whole of
@@ -581,6 +632,11 @@ Save.declare({
       opened = known(data.opened, K.doorOf),
       ruins = validRuins(data.ruins),
       echo = validEcho(data.echo, home.id),
+      vows = validVows(data.vows or {}),
+      loadout = listed(data.loadout or {}, Weapons.has),
+      abilities = listed(data.abilities or {}, function(id)
+        return Abilities:has(id)
+      end),
     }
     out.lit[fire.id] = true
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
@@ -591,7 +647,18 @@ Save.declare({
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
+    r.vows = Copy(data.vows)
     stand(g)
+    -- The kit last: nothing above can leave it half changed. A way with no kit of its own
+    -- keeps the knight's.
+    local p = Roles.controlled(g)
+    if data.loadout[1] then
+      Weapons.restore(g, data.loadout, nil, p)
+    end
+    if data.abilities[1] then
+      Abilities.restore(g, nil, data.abilities, p)
+      Abilities.give(g, 'flask', p)
+    end
   end,
 })
 return P

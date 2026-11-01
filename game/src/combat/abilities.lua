@@ -41,7 +41,7 @@ local function valid(state, ability)
   return type(uses) == 'number'
     and uses == uses
     and uses >= 0
-    and uses <= ability.capacity
+    and uses <= ability.capacity + (state.extra or 0)
     and uses == math.floor(uses)
 end
 local function deliverer(ability)

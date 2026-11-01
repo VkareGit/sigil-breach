@@ -23,13 +23,14 @@ local U
 require('src.session.fields').declareView('ui.chapel', { 'shopPage' })
 function D.shopPage(g)
   local detailed = false
-  for _, offer in ipairs(E.offers) do
+  local offers = E.offersFor(g)
+  for _, offer in ipairs(offers) do
     local name, description = E.describe(g, offer.id)
     detailed = detailed
       or U.fonts[20]:getInk(name).w > 648
       or U.fonts[16]:getInk(description).w > 648
   end
-  local first, last, page, total = Pages.range(#E.offers, g.view.shopPage, detailed and 4 or 6)
+  local first, last, page, total = Pages.range(#offers, g.view.shopPage, detailed and 4 or 6)
   return first, last, page, total, detailed and 80 or 56, detailed
 end
 function D.turnShop(g, delta)
@@ -67,8 +68,9 @@ function D.controls(g)
   if g.state == 'shop' then
     local list = {}
     local first, last, page, pages, rowHeight = D.shopPage(g)
+    local offers = E.offersFor(g)
     for i = first, last do
-      local o = E.offers[i]
+      local o = offers[i]
       local _, reason = E.quote(g, o.id)
       list[#list + 1] = {
         id = 'buy_' .. o.id,
@@ -163,14 +165,16 @@ function D.controls(g)
       w = 194,
       h = 40,
     }
-    list[#list + 1] = {
-      id = 'save_slot',
-      label = Text.get('menu_slot', { slot = r.slot, count = Way.slots }),
-      x = 72,
-      y = 622,
-      w = 392,
-      h = 36,
-    }
+    if r.slot then
+      list[#list + 1] = {
+        id = 'save_slot',
+        label = Text.get('menu_slot', { slot = r.slot, count = Way.slots }),
+        x = 72,
+        y = 622,
+        w = 392,
+        h = 36,
+      }
+    end
     return list
   elseif g.state == 'confirm_new' then
     return {
@@ -230,8 +234,9 @@ function D.shop(g)
     muted
   )
   local first, last, _, _, rowHeight, detailed = D.shopPage(g)
+  local offers = E.offersFor(g)
   for i = first, last do
-    local o = E.offers[i]
+    local o = offers[i]
     local row = i - first + 1
     local y = 183 + (row - 1) * rowHeight
     rect(128, y, 1024, 1, gold, 0.22)

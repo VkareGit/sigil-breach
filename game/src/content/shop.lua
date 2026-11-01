@@ -13,6 +13,7 @@ local Shop = {
     {
       id = 'ammo',
       icon = 'ammo',
+      sold = 'field',
       kind = 'rounds',
       name = 'offer_ammo',
       price = 12,
@@ -21,6 +22,7 @@ local Shop = {
     {
       id = 'fill',
       icon = 'ammo',
+      sold = 'field',
       kind = 'refill',
       name = 'offer_fill',
       description = 'offer_fill_text',
@@ -28,6 +30,7 @@ local Shop = {
     {
       id = 'armor',
       icon = 'armor',
+      sold = 'field',
       kind = 'ward',
       name = 'offer_armor',
       -- amount of ward for price; a partial mend costs its share (rounded up).
@@ -56,11 +59,53 @@ local Shop = {
     {
       id = 'charge',
       icon = 'ammo',
+      sold = 'field',
       kind = 'charge',
       ability = 'powder',
       name = 'offer_charge',
       price = 30,
       description = 'offer_charge_text',
+    },
+    -- A vow is kept for good, in ranks: each costs growth times the one before. A rest fills
+    -- what a fire can fill, so a fire sells nothing else that a rest would take back.
+    {
+      id = 'vow_flask',
+      icon = 'ammo',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_vow_flask',
+      description = 'offer_vow_flask_text',
+      price = 150,
+      growth = 2,
+      limit = 3,
+      ability = 'flask',
+      amount = 1,
+    },
+    {
+      id = 'vow_ward',
+      icon = 'armor',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_vow_ward',
+      description = 'offer_vow_ward_text',
+      price = 120,
+      growth = 2,
+      limit = 3,
+      stat = 'maxArmor',
+      amount = 10,
+    },
+    {
+      id = 'vow_vigor',
+      icon = 'armor',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_vow_vigor',
+      description = 'offer_vow_vigor_text',
+      price = 120,
+      growth = 2,
+      limit = 3,
+      stat = 'maxHp',
+      amount = 10,
     },
   },
 }

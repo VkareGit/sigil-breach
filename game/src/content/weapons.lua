@@ -179,6 +179,9 @@ W.defaultLoadout = { 'exorcist', 'judge' }
 function W.get(id)
   return registry:get(id)
 end
+function W.has(id)
+  return registry:has(id)
+end
 -- Register a weapon definition (a new gun, a mod, a test).
 function W.define(def)
   local built = Weapon.define(def)

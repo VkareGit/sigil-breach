@@ -76,6 +76,7 @@ function Application:adopt(game, entering)
   self:applySettings()
   -- A painted world is prepared before it is shown, never on the first frame of play.
   local shown = entering or game.state ~= 'menu'
+  self.preparedWorld = game.world
   if shown then
     self:prepareWorld(game)
   end
@@ -93,7 +94,6 @@ end
 -- The world of a session is painted behind a loading page, also when the way moves on to
 -- another map.
 function Application:prepareWorld(game)
-  self.preparedWorld = game.world
   if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
     local jobs = {}
     for _, job in ipairs(require('src.render.kit.halls').loadingJobs(self.renderer, game.world)) do
@@ -381,7 +381,8 @@ function Application:update(dt)
     self.accumulator = self.accumulator - fixedStep
   end
   self:flushSave()
-  if self.preparedWorld and self.game.world ~= self.preparedWorld then
+  if self.game.world ~= self.preparedWorld then
+    self.preparedWorld = self.game.world
     self:prepareWorld(self.game)
   end
   if self:has('--screenshot') and self.game.time > 0.1 then

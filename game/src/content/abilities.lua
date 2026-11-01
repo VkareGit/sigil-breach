@@ -77,6 +77,10 @@ function Abilities.define(def)
   Abilities:register(built.id, built)
   return built
 end
+-- How many uses a record holds: its definition's, and what a vow added to this one.
+function Abilities.capacity(id, state)
+  return Abilities:get(id).capacity + (state.extra or 0)
+end
 -- A fresh live record: the starting uses, ready at once.
 function Abilities.newState(def)
   return { uses = def.start, readyAt = 0 }
@@ -151,7 +155,7 @@ end
 function Abilities.fill(g, empty, actor)
   local p = holder(g, actor)
   for _, id in ipairs(p.abilities) do
-    p.abilityState[id].uses = empty and 0 or Abilities:get(id).capacity
+    p.abilityState[id].uses = empty and 0 or Abilities.capacity(id, p.abilityState[id])
   end
 end
 return Abilities

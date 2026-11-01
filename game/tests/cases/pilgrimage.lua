@@ -51,11 +51,38 @@ function T.run(Game)
   check('it fills the flask', p.abilityState.flask.uses == 3)
   check('it raises the fallen', byPost(g, 'nave_1').hp > 0)
   check('souls stay', g.run.wallet == wallet)
-  p.arsenal.exorcist.reserve = p.arsenal.exorcist.reserve - 3
-  local reserve = p.arsenal.exorcist.reserve
-  check('the fire trades', g:act('buy', 'ammo') and p.arsenal.exorcist.reserve > reserve)
-  check('and takes the souls', g.run.wallet < wallet)
-  wallet = g.run.wallet
+  -- A fire sells what a rest cannot give.
+  local Economy = require('src.run.economy')
+  local Shop = require('src.content.shop')
+  for _, offer in ipairs(Economy.offersFor(g)) do
+    check(offer.id .. ' is no field offer', offer.sold ~= 'field')
+  end
+  check('rounds are not sold at a fire', not g:act('buy', 'ammo'))
+  local vow = Shop.get('vow_flask')
+  check('a vow costs souls', g.run.wallet < vow.price and not g:act('buy', 'vow_flask'))
+  g.run.wallet = vow.price + 1
+  check('the fire trades', g:act('buy', 'vow_flask') and g.run.wallet == 1)
+  check('the flask holds one more', p.abilityState.flask.uses == 4)
+  check('the rank is kept', g.run.vows.vow_flask == 1)
+  g.run.wallet = vow.price
+  check('the next rank costs more', not g:act('buy', 'vow_flask'))
+  g.run.wallet = Shop.maxWallet
+  check('a vow of health holds', g:act('buy', 'vow_vigor') and p.maxHp == 110 and p.hp == 110)
+  check('a vow of ward holds', g:act('buy', 'vow_ward') and p.maxArmor == 50 and p.armor == 50)
+  g:act('buy', 'vow_flask')
+  g:act('buy', 'vow_flask')
+  check('a vow ends', not g:act('buy', 'vow_flask') and g.run.vows.vow_flask == 3)
+  local kept = session(Game)
+  check('vows outlive the session', kept.player.maxHp == 110 and kept.player.maxArmor == 50)
+  check('and the flask', kept.player.abilityState.flask.uses == 6)
+  check(
+    'the kit outlives it',
+    kept.player.loadout[1] == p.loadout[1] and kept.player.abilities[1] == p.abilities[1]
+  )
+  g.run.vows, p.maxHp, p.maxArmor = {}, 100, 40
+  p.abilityState.flask.extra = 0
+  P.save(g)
+  g.run.wallet = wallet
   g:act('closeShop')
   check('the menu closes', g.state == 'playing')
   -- A body follows, gives up, and goes home.

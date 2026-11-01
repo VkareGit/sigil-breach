@@ -119,16 +119,52 @@ E.kinds = {
     end,
     done = 'shop_engraving_done',
   },
+  -- A vow rises by ranks; what it gives is the mode's to keep (run/pilgrimage.lua).
+  vow = {
+    quote = function(g, offer)
+      local rank = g.run.vows[offer.id] or 0
+      if rank >= offer.limit then
+        return 0, Text.get('shop_vow_full_reason'), true
+      end
+      return offer.price * offer.growth ^ rank
+    end,
+    apply = function(g, offer)
+      g.run.vows[offer.id] = (g.run.vows[offer.id] or 0) + 1
+    end,
+    label = function(g, offer)
+      return (g.run.vows[offer.id] or 0) >= offer.limit and Text.get('shop_vow_full') or nil
+    end,
+    describe = function(g, offer)
+      return Text.get(offer.name),
+        Text.get('shop_vow_text', {
+          text = Text.get(offer.description),
+          rank = g.run.vows[offer.id] or 0,
+          limit = offer.limit,
+        })
+    end,
+    done = 'shop_vow_done',
+  },
 }
-local function find(id)
+-- What is on sale here. A fire and the field fill a knight differently, so they sell
+-- different things; an offer that names no market is sold in both.
+function E.offersFor(g)
+  local market, list = g.run and g.run.market or 'field', {}
   for _, offer in ipairs(E.offers) do
+    if not offer.sold or offer.sold == market then
+      list[#list + 1] = offer
+    end
+  end
+  return list
+end
+local function find(g, id)
+  for _, offer in ipairs(E.offersFor(g)) do
     if offer.id == id then
       return offer
     end
   end
 end
 function E.describe(g, id)
-  local offer = find(id)
+  local offer = find(g, id)
   if not offer then
     return '', ''
   end
@@ -145,7 +181,7 @@ local function validUses(p)
     if
       type(uses) ~= 'number'
       or uses < 0
-      or uses > Abilities:get(id).capacity
+      or uses > Abilities.capacity(id, state)
       or uses ~= math.floor(uses)
     then
       return false
@@ -174,7 +210,7 @@ function E.quote(g, id)
   if not validState(g) then
     return nil, Text.get('shop_invalid')
   end
-  local offer = find(id)
+  local offer = find(g, id)
   if not offer then
     return nil, Text.get('shop_unknown')
   end
@@ -190,7 +226,7 @@ function E.quote(g, id)
 end
 -- The shop button's text: the kind's state (full, equipped) or the price.
 function E.label(g, id)
-  local offer = find(id)
+  local offer = find(g, id)
   local price = E.quote(g, id)
   local kind = E.kinds[offer.kind]
   return kind.label and kind.label(g, offer, price)
@@ -205,7 +241,7 @@ function E.buy(g, id)
   if reason or not price then
     return false, reason
   end
-  local offer = find(id)
+  local offer = find(g, id)
   local kind = E.kinds[offer.kind]
   r.wallet = r.wallet - price
   kind.apply(g, offer, (W.inHand(g)))

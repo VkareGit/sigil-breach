@@ -99,6 +99,9 @@ local function goodFiles(check, Game)
       d.owned = { an_engraving_that_left = true }
       d.glyph = 'an_engraving_that_left'
       d.opened = { a_door_that_left = true, west_gallery = true }
+      d.vows = { a_vow_that_left = 2, vow_flask = 9 }
+      d.loadout = { 'a_gun_that_left', 'exorcist' }
+      d.abilities = { 'a_spell_that_left', 'powder' }
     end)
   )
   g = begin(Game)
@@ -107,6 +110,18 @@ local function goodFiles(check, Game)
   check('an unknown lit fire is dropped', g.run.lit.a_fire_that_left == nil)
   check('an unknown door is dropped, a known kept', next(g.run.opened) == 'west_gallery')
   check('an unknown engraving is dropped', next(g.run.owned) == nil and g.run.glyph == 'none')
+  check(
+    'an unknown vow is dropped, a known kept to its limit',
+    next(g.run.vows) == 'vow_flask' and g.run.vows.vow_flask == 3
+  )
+  check(
+    'an unknown weapon is dropped',
+    #g.player.loadout == 1 and g.player.loadout[1] == 'exorcist'
+  )
+  check(
+    'an unknown ability is dropped, the flask stays',
+    g.player.abilities[1] == 'powder' and g.player.abilities[2] == 'flask'
+  )
   -- Souls where the map has no floor any more wait at the fire.
   put(
     FILE,
@@ -156,6 +171,12 @@ local function badFiles(check, Game)
     end,
     function(d)
       d.lit = { 'narthex' }
+    end,
+    function(d)
+      d.vows = { vow_flask = 'many' }
+    end,
+    function(d)
+      d.loadout = { 7 }
     end,
   }
   for index, shape in ipairs(broken) do
@@ -274,9 +295,9 @@ local function timing(check, Game)
   g.player.x, g.player.z = 10, 21
   g:interact()
   check('a rest is stored', stored().fire == 'west' and stored().wallet == g.run.wallet)
-  local wallet2 = g.run.wallet
-  g.player.arsenal.exorcist.reserve = 0
-  check('a purchase is stored', g:act('buy', 'ammo') and stored().wallet < wallet2)
+  g.run.wallet = 500
+  check('a purchase is stored', g:act('buy', 'vow_ward') and stored().wallet == 380)
+  check('with its vow', stored().vows.vow_ward == 1)
   g:act('closeShop')
   g.player.x, g.player.z = 12, 21
   g.run.wallet = 40
