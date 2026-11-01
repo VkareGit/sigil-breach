@@ -12,8 +12,8 @@ local Selection = require('src.enemies.attack_selection')
 local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
 local Ground = require('src.physics.ground')
-local Spatial = require('src.physics.spatial')
-local Navigation = require('src.world.navigation')
+local Separation = require('src.enemies.separation')
+local Walking = require('src.enemies.walking')
 local Bodies = require('src.combat.bodies')
 local Target = require('src.enemies.target')
 local ActionKinds = require('src.combat.action_kinds')
@@ -77,129 +77,7 @@ local function change(e, state)
   e.ai = state
   e.phase = 0
 end
--- Walking is physical (0.21): the body accelerates toward its walking
--- velocity at accel / sqrt(mass), so heavy demons start and turn later and
--- a knocked body regains its stride. Arrival slows within braking distance.
-local function move(g, e, tx, tz, speed, dt)
-  local dx, dz = tx - e.x, tz - e.z
-  local d = len(dx, dz)
-  if d < Walk.arrive then
-    return
-  end
-  dx, dz = dx / d, dz / d
-  local defaults = Archetypes.defaults
-  local accel = ((arch(e).move or {}).accel or defaults.accel) / math.sqrt(Rules.body(e).mass or 1)
-  local stage = Archetypes.phase(e)
-  speed = speed * Rules.speedScale(e) * (stage and stage.speed or 1)
-  speed = math.min(speed, math.sqrt(2 * accel * defaults.brake * d))
-  -- A body that stopped walking (attack, stagger, idle) starts again at rest.
-  local now = g.elapsed or 0
-  local vx, vz = e.walkVX or 0, e.walkVZ or 0
-  if not e.walkAt or now - e.walkAt > dt * Walk.resume then
-    vx, vz = 0, 0
-  end
-  e.walkAt = now
-  local ax, az = dx * speed - vx, dz * speed - vz
-  local al = len(ax, az)
-  local rate = accel * ((vx * dx + vz * dz) < 0 and defaults.brake or 1)
-  if al > 0 then
-    local step = math.min(al, rate * dt)
-    vx, vz = vx + ax / al * step, vz + az / al * step
-  end
-  local ox, oz = e.x, e.z
-  local sx, sz = W.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
-  e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt
-  local moved = len(e.x - ox, e.z - oz)
-  e.walk = e.walk + moved
-  e.walkSpeed = moved / math.max(dt, 0.001)
-  if moved < speed * dt * Walk.stuckShare then
-    e.blocked = (e.blocked or 0) + dt
-  else
-    e.blocked = 0
-  end
-  if (e.blocked or 0) > Walk.stuckTime then
-    e.side = -e.side
-    e.decision = Walk.sideHold
-    e.blocked = 0
-  end
-end
--- The four neighbouring cells a route may step to, in the order they are tried.
-local steps = { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } }
--- level (optional): the surface of the goal on a world with decks; the route
--- runs over the walk graph's nodes (cells, and decks above them).
-local function route(g, e, tx, tz, dt, level)
-  local w = g.world
-  local tall = Rules.tall(g, e)
-  if
-    W.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
-    and (not w.elevations or W.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
-  then
-    move(g, e, tx, tz, e.speed, dt)
-    return
-  end
-  local class = W.class(radius(e), tall)
-  e.pathTimer = (e.pathTimer or 0) - dt
-  if e.pathTimer <= 0 or not e.path then
-    e.path = W.flow(w, tx, tz, class, level)
-    e.pathTimer = Walk.replan
-  end
-  -- The next node down the distance field from a node (nil at the goal).
-  local function downhill(x, z, layer)
-    local here = w.decks and W.level(w, x, z, layer)
-    local best, bx, bz, bl = e.path[W.node(w, x, z, layer)] or 1e9, nil, nil, nil
-    for _, o in ipairs(steps) do
-      local nx, nz = x + o[1], z + o[2]
-      local nl = 0
-      if here then
-        nl = W.step(w, nx, nz, here, class)
-      end
-      local d = nl and e.path[W.node(w, nx, nz, nl)]
-      if d and d < best and not W.solid(w, nx, nz, radius(e)) then
-        best = d
-        bx, bz, bl = nx, nz, nl
-      end
-    end
-    return bx, bz, bl
-  end
-  -- Walk toward the furthest cell of the route the body can reach in a
-  -- straight line (0.25): no zigzag from cell centre to cell centre.
-  local x, z = math.floor(e.x + 0.5), math.floor(e.z + 0.5)
-  local layer = w.decks and W.layer(w, x, z, Ground.of(w, e) - (w.floor or 0)) or 0
-  local bx, bz, bl = downhill(x, z, layer)
-  if not bx then
-    -- Beyond the exact field around the goal (plan v10 V3): cross region by
-    -- region toward it (world/navigation.lua).
-    if Navigation.beyond(e.x, e.z, tx, tz) then
-      local wx, wz = Navigation.waypoint(w, e.x, e.z, tx, tz, class, e.level, level)
-      if wx then
-        move(g, e, wx, wz, e.speed, dt)
-      end
-    end
-    return
-  end
-  local cx, cz, cl = bx, bz, bl
-  for _ = 2, Walk.lookahead do
-    cx, cz, cl = downhill(cx, cz, cl)
-    if
-      not cx
-      or not W.clear(
-        w,
-        e.x,
-        e.z,
-        cx,
-        cz,
-        radius(e),
-        e.level,
-        tall,
-        w.decks and W.level(w, cx, cz, cl) + (w.floor or 0)
-      )
-    then
-      break
-    end
-    bx, bz = cx, cz
-  end
-  move(g, e, bx, bz, e.speed, dt)
-end
+local move, route = Walking.move, Walking.route
 -- Attack slots and spacing belong to the body attacked: the controlled
 -- knight's pacing is g.nextAttack, any other body's g.attackPacing[id].
 local function reserveAttack(g, e)
@@ -230,133 +108,9 @@ local function reserveAttack(g, e)
   end
   return true
 end
--- Movement styles: 'flank' closes in and circles at claw range; 'keep' holds
--- an ideal distance and strafes, switching side from time to time.
--- Evasion (archetype data move.evade, unlocked by tier): when the player's
--- aim rests on the body, a short sidestep away from the aim line.
-local function evade(g, e, d, dt)
-  local spec = (arch(e).move or {}).evade
-  if not spec then
-    return false
-  end
-  e.evadeReady = math.max(0, (e.evadeReady or 0) - dt)
-  if (e.evadeTime or 0) > 0 then
-    e.evadeTime = e.evadeTime - dt
-    local step = spec.speed * dt
-    local ox, oz = e.x, e.z
-    W.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e), nil, Rules.tall(g, e))
-    e.walk = e.walk + len(e.x - ox, e.z - oz)
-    return true
-  end
-  -- It sidesteps the aim of the body it fights; a body that does not aim
-  -- (a creature) gives it nothing to read.
-  local p = target(g, e)
-  if e.evadeReady > 0 or not e.visible or d > Senses.evadeRange or not p.yaw then
-    return false
-  end
-  local toward = atan2(e.x - p.x, e.z - p.z)
-  local off = angle(toward - p.yaw)
-  if math.abs(off) > spec.cone then
-    return false
-  end
-  -- Step to the side the aim is already furthest from.
-  local side = off >= 0 and 1 or -1
-  e.evadeX, e.evadeZ = cos(toward) * side, -sin(toward) * side
-  e.evadeTime = spec.time
-  e.evadeSide = side
-  e.evadeReady = spec.cooldown
-  Signal(g, 'Evaded', { enemy = e })
-  e.evades = (e.evades or 0) + 1
-  g.evadeCount = (g.evadeCount or 0) + 1
-  return true
-end
--- Movement styles (0.24, Strategy): how a body closes on the player while it
--- waits for an attack. The archetype names its style (move.style); a new
--- style is a new entry here. Session composition validates the names before
--- a world is built; an explicit unknown name is never a request for 'keep'.
-local Styles = {}
+local Moves = require('src.enemies.styles')
+local Styles, evade = Moves.styles, Moves.evade
 AI.styles = Styles
--- 'flank' closes in and circles at claw range.
-function Styles.flank(g, e, d, dt)
-  local p = target(g, e)
-  local a = atan2(e.x - p.x, e.z - p.z)
-  local F = Archetypes.defaults.flank
-  if d > F.far then
-    move(g, e, p.x + cos(a) * e.side * F.lateral, p.z - sin(a) * e.side * F.lateral, e.speed, dt)
-  elseif d <= F.near then
-    -- Too close and waiting for an attack slot: step aside around the player
-    -- instead of standing frozen against them.
-    local side = a + e.side * F.swing
-    local tx, tz = p.x + sin(side) * F.step, p.z + cos(side) * F.step
-    if not W.solid(g.world, tx, tz, radius(e)) then
-      move(g, e, tx, tz, e.speed * F.slow, dt)
-    end
-  else
-    local offset = e.side * F.orbit
-    local tx, tz = p.x + sin(a + offset) * F.ring, p.z + cos(a + offset) * F.ring
-    if W.solid(g.world, tx, tz, radius(e)) then
-      tx, tz = p.x, p.z
-    end
-    move(g, e, tx, tz, e.speed, dt)
-  end
-end
--- 'keep' holds an ideal distance and strafes, switching side from time to time.
-function Styles.keep(g, e, d, dt)
-  local p = target(g, e)
-  local K = Archetypes.defaults.keep
-  e.decision = e.decision - dt
-  if e.decision <= 0 then
-    e.side = -e.side
-    e.decision = K.hold + (e.id % 3) * K.holdStep
-  end
-  local dx, dz = (p.x - e.x) / math.max(K.minDistance, d), (p.z - e.z) / math.max(K.minDistance, d)
-  local stage = Archetypes.phase(e)
-  local ideal = stage and stage.ideal or arch(e).move.ideal
-  local radial = d < ideal - K.slack and -1 or (d > ideal + K.slack and 1 or 0)
-  local tx, tz =
-    e.x + dx * radial + dz * e.side * K.strafe, e.z + dz * radial - dx * e.side * K.strafe
-  move(g, e, tx, tz, e.speed * (radial == 0 and K.holdSpeed or 1), dt)
-end
--- 'duel' fights one body at a time: between its blows it walks around, comes in,
--- gives ground or stands and watches, each for a moment, never the same dance.
-function Styles.duel(g, e, d, dt)
-  local p = target(g, e)
-  local spec = arch(e).move
-  local D = spec.duel
-  e.duelLeft = (e.duelLeft or 0) - dt
-  if e.duelLeft <= 0 then
-    local rng = g.rng.sim
-    local roll = rng:random() * (D.circle + D.close + D.back + D.wait)
-    e.duelMove = roll < D.circle and 'circle'
-      or (
-        roll < D.circle + D.close and 'close'
-        or (roll < D.circle + D.close + D.back and 'back' or 'wait')
-      )
-    e.duelLeft = D.hold + rng:random() * D.spread
-    e.side = rng:random() < 0.5 and 1 or -1
-  end
-  local K = Archetypes.defaults.duel
-  local dx, dz = (p.x - e.x) / math.max(K.nearest, d), (p.z - e.z) / math.max(K.nearest, d)
-  local stage = Archetypes.phase(e)
-  local ideal = stage and stage.ideal or spec.ideal
-  if d > ideal + D.far then
-    move(g, e, p.x, p.z, e.speed, dt)
-  elseif e.duelMove == 'close' then
-    move(g, e, p.x, p.z, e.speed * K.closing, dt)
-  elseif e.duelMove == 'back' then
-    move(g, e, e.x - dx * K.step, e.z - dz * K.step, e.speed * K.giving, dt)
-  elseif e.duelMove == 'circle' then
-    local radial = (d - ideal) * K.pull
-    move(
-      g,
-      e,
-      e.x + dz * e.side * K.step + dx * radial,
-      e.z - dx * e.side * K.step + dz * radial,
-      e.speed * K.circling,
-      dt
-    )
-  end
-end
 -- On a world with decks, whether body e and body p stand on floors a step
 -- cannot join (one on a deck, one under it): then e follows its routes, not
 -- a straight approach (plan v10 V3).
@@ -591,111 +345,6 @@ local function free(g, e, d, dt)
   end
 end
 
--- One pair, as the rules part it: true when they overlapped and moved.
-local function part(g, a, b, dt, S)
-  local dx, dz = a.x - b.x, a.z - b.z
-  local d = len(dx, dz)
-  local minimum = math.max(S.minimum, radius(a) + radius(b))
-  -- Footprints first: heights are compared only for bodies that touch.
-  if b.hp > 0 and d < minimum and Rules.bodiesOverlap(g, a, b) then
-    local overlap = minimum - d
-    if d < 0.001 then
-      dx, dz, d = 1, 0, 1
-    end
-    -- The parting is shared by the masses (0.25): the lighter body
-    -- gives way more; equal bodies part equally.
-    local amount = math.min(S.step, dt * S.rate, overlap * S.share)
-    local ma, mb = Rules.body(a).mass or 1, Rules.body(b).mass or 1
-    local ga, gb = 2 * amount * mb / (ma + mb), 2 * amount * ma / (ma + mb)
-    W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a), nil, Rules.tall(g, a))
-    W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b), nil, Rules.tall(g, b))
-    return true
-  end
-  return false
-end
--- Scratch of the indexed pass (rebuilt by every call, never kept between).
-local hash, order, near = Spatial.new(1), {}, {}
--- The neighbours of a that come after `after` in the pool, in pool order.
-local function gather(a, reach, after)
-  for i = #near, 1, -1 do
-    near[i] = nil
-  end
-  hash:query(a.x, a.z, reach, near)
-  local n = 0
-  for i = 1, #near do
-    local b = near[i]
-    if order[b] > after then
-      n = n + 1
-      near[n] = b
-    end
-  end
-  for i = #near, n + 1, -1 do
-    near[i] = nil
-  end
-  -- Insertion sort by pool order: neighbour lists are short.
-  for i = 2, n do
-    local b, k = near[i], order[near[i]]
-    local j = i - 1
-    while j >= 1 and order[near[j]] > k do
-      near[j + 1] = near[j]
-      j = j - 1
-    end
-    near[j + 1] = b
-  end
-  return near
-end
--- Living bodies never overlap: resolve full overlaps symmetrically,
--- including identical spawn coordinates. Every pair in pool order (each a,
--- then every later b), as it always was; a spatial index (plan v10 V3)
--- skips only pairs too far apart to touch. A body that moves farther than
--- the margin during its own pass gathers its neighbours again, so the
--- result equals the pass over every pair.
-local function separate(g, dt)
-  local S = Archetypes.defaults.separation
-  local bodies = Pools.of(g, 'enemies')
-  local reach = S.minimum
-  for _, e in ipairs(bodies) do
-    if e.hp > 0 then
-      reach = math.max(reach, 2 * radius(e))
-    end
-  end
-  local margin = S.margin
-  if hash.size ~= reach + margin then
-    hash = Spatial.new(reach + margin)
-  else
-    hash:clear()
-  end
-  for e in pairs(order) do
-    order[e] = nil
-  end
-  for i, e in ipairs(bodies) do
-    order[e] = i
-    if e.hp > 0 then
-      hash:insert(e, e.x, e.z)
-    end
-  end
-  for i, a in ipairs(bodies) do
-    if a.hp > 0 then
-      local list = gather(a, reach + margin, i)
-      local ax, az = a.x, a.z
-      local k = 1
-      while k <= #list do
-        local b = list[k]
-        if part(g, a, b, dt, S) then
-          hash:move(a, a.x, a.z)
-          hash:move(b, b.x, b.z)
-          if len(a.x - ax, a.z - az) > margin then
-            -- Its later neighbours, from where it stands now.
-            list = gather(a, reach + margin, order[b])
-            ax, az, k = a.x, a.z, 0
-          end
-        end
-        k = k + 1
-      end
-    end
-  end
-end
-
 -- Every demon, one after another, through its own pipeline: body, senses,
 -- state. (Per demon, not per stage: the interleaving is part of the rules.)
 function AI.demons(g, dt, previousPlayer)
@@ -722,7 +371,7 @@ function AI.demons(g, dt, previousPlayer)
     end
   end
 end
-AI.separate = separate
+AI.separate = Separation.run
 -- The whole demon step (tests and tools call this; the session runs the same
 -- three systems from src/systems in this order).
 function AI.update(g, dt, previousPlayer)
@@ -730,7 +379,7 @@ function AI.update(g, dt, previousPlayer)
     return
   end
   AI.demons(g, dt, previousPlayer)
-  separate(g, dt)
+  Separation.run(g, dt)
   Hazards.update(g, dt, previousPlayer)
 end
 return AI

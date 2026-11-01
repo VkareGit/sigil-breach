@@ -420,10 +420,8 @@ end
 -- An 'aim' entry sets the aim the session had (a bot or a tool turned the
 -- knight directly; journals before 0.25 recorded the mouse this way too);
 -- a 'set' entry a field the application set between commands.
-function Journal.replay(g, journal)
-  assert(type(journal) == 'table', 'invalid journal')
-  local header = journal.header or {}
-  assert(type(header) == 'table', 'invalid journal header')
+-- The journal is of this build and a format it can read.
+local function checkIdentity(header)
   if header.sourceFingerprint or Build.sourceFingerprint then
     assert(
       header.sourceFingerprint == Build.sourceFingerprint,
@@ -443,8 +441,9 @@ function Journal.replay(g, journal)
       'journal belongs to another build: ' .. tostring(header.build)
     )
   end
-  -- Preflight the entire structural contract before touching the destination.
-  -- A later missing reference must not leave earlier valid commands applied.
+end
+-- What a journal may name: its commands, and the fields it may set.
+local function allowedNames()
   local permitted, external = {}, {}
   for _, name in ipairs(Journal.commands) do
     permitted[name] = true
@@ -455,16 +454,10 @@ function Journal.replay(g, journal)
   for old in pairs(Journal.renamed) do
     external[old] = true
   end
-  local pooled = header.version == 3 or header.version == 4 or header.version == 5
-  local bodies = (header.version == 4 or header.version == 5) and journal.bodies or nil
-  if header.version == 4 or header.version == 5 then
-    assert(type(bodies) == 'table', 'invalid journal body pool')
-  end
-  local validate = Values.validator(pooled and journal.observations or nil, bodies)
-  Execution.validate(journal.externalInputs)
-  validate(header)
-  validate(journal.final)
-  validate(journal.receipts)
+  return permitted, external
+end
+-- Every entry is well formed, before any of them is applied.
+local function checkEntries(journal, header, permitted, external, validate)
   assert(type(journal.entries) == 'table', 'invalid journal entries')
   local entryCount = 0
   for index, entry in pairs(journal.entries) do
@@ -498,6 +491,9 @@ function Journal.replay(g, journal)
     end
   end
   assert(entryCount == #journal.entries, 'sparse journal entries')
+end
+-- This session stands where the journal's began.
+local function checkStart(g, journal, header)
   if header.initial then
     local difference = Integrity.difference(header.initial, Integrity.capture(g))
     assert(not difference, 'journal initial state differs: ' .. tostring(difference))
@@ -518,57 +514,55 @@ function Journal.replay(g, journal)
       )
     end
   end
-  -- Actors (version 5): every id a command names is known from the header
-  -- (the knights the session was built with, checked against it) or from its
-  -- actorJoin, and present until its actorLeave. A dead knight that is still
-  -- present takes commands without effect. Checked before any mutation.
-  if header.version == 5 then
-    assert(type(header.actors) == 'table', 'journal names no actors')
-    local here = Journal.actors(g)
-    assert(#here == #header.actors, 'journal actors differ from the session')
-    local known, present = {}, {}
-    for i, id in ipairs(header.actors) do
-      assert(here[i] == id, 'journal actors differ from the session')
-      known[id], present[id] = true, true
-    end
-    local function plain(value)
-      return pooled and Values.expand(value, journal.observations, bodies)
-        or Observation.copy(value)
-    end
-    local function named(id, what)
-      assert(
-        type(id) == 'string' and known[id] and present[id],
-        'journal ' .. what .. ' names an unknown or absent actor: ' .. tostring(id)
-      )
-    end
-    for _, entry in ipairs(journal.entries) do
-      local name = entry[1]
-      if name == 'actorSet' then
-        named(entry[2], name)
-      elseif name ~= 'aim' and name ~= 'set' then
-        local args = plain(entry[2])
-        local index = Journal.actorArgument[name]
-        if index and args[index] ~= nil then
-          named(args[index], name)
+end
+-- Actors (version 5): every id a command names is known from the header
+-- (the knights the session was built with, checked against it) or from its
+-- actorJoin, and present until its actorLeave. A dead knight that is still
+-- present takes commands without effect. Checked before any mutation.
+local function checkActors(g, journal, header, plain)
+  assert(type(header.actors) == 'table', 'journal names no actors')
+  local here = Journal.actors(g)
+  assert(#here == #header.actors, 'journal actors differ from the session')
+  local known, present = {}, {}
+  for i, id in ipairs(header.actors) do
+    assert(here[i] == id, 'journal actors differ from the session')
+    known[id], present[id] = true, true
+  end
+  local function named(id, what)
+    assert(
+      type(id) == 'string' and known[id] and present[id],
+      'journal ' .. what .. ' names an unknown or absent actor: ' .. tostring(id)
+    )
+  end
+  for _, entry in ipairs(journal.entries) do
+    local name = entry[1]
+    if name == 'actorSet' then
+      named(entry[2], name)
+    elseif name ~= 'aim' and name ~= 'set' then
+      local args = plain(entry[2])
+      local index = Journal.actorArgument[name]
+      if index and args[index] ~= nil then
+        named(args[index], name)
+      end
+      if name == 'update' and type(args[2]) == 'table' and args[2].actors ~= nil then
+        assert(type(args[2].actors) == 'table', 'journal update actors')
+        for id in pairs(args[2].actors) do
+          named(id, 'update')
         end
-        if name == 'update' and type(args[2]) == 'table' and args[2].actors ~= nil then
-          assert(type(args[2].actors) == 'table', 'journal update actors')
-          for id in pairs(args[2].actors) do
-            named(id, 'update')
-          end
-        elseif name == 'actorJoin' then
-          local knight, reason = Pools.knightFromRecord(g, args[1])
-          assert(knight, 'journal actorJoin refused: ' .. tostring(reason))
-          assert(not known[knight.id], 'journal actorJoin reuses id ' .. knight.id)
-          known[knight.id], present[knight.id] = true, true
-        elseif name == 'actorLeave' then
-          present[args[1]] = nil
-        end
+      elseif name == 'actorJoin' then
+        local knight, reason = Pools.knightFromRecord(g, args[1])
+        assert(knight, 'journal actorJoin refused: ' .. tostring(reason))
+        assert(not known[knight.id], 'journal actorJoin reuses id ' .. knight.id)
+        known[knight.id], present[knight.id] = true, true
+      elseif name == 'actorLeave' then
+        present[args[1]] = nil
       end
     end
   end
-  -- Only a structurally valid, matching archive can enter this namespace.
-  -- Runtime divergence is diagnostic: replay should use a disposable session.
+end
+-- Only a structurally valid, matching archive can enter this namespace.
+-- Runtime divergence is diagnostic: replay should use a disposable session.
+local function adoptIdentity(g, header)
   g._observationSession = header.observationSession
   g._observationGeneration = header.observationGeneration
   for id, generation in
@@ -579,6 +573,51 @@ function Journal.replay(g, journal)
       knight.observationGeneration = generation
     end
   end
+end
+local function applyEntries(g, journal, permitted, external, expand)
+  for _, entry in ipairs(journal.entries) do
+    if entry[1] == 'aim' then
+      assert(Mathx.finite(entry[2]) and Mathx.finite(entry[3]), 'invalid journal aim')
+      Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
+    elseif entry[1] == 'set' then
+      assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
+      write(g, Journal.renamed[entry[2]] or entry[2], expand(entry[3]))
+    elseif entry[1] == 'actorSet' then
+      Pools.get(g, entry[2])[entry[3]] = expand(entry[4])
+    else
+      assert(permitted[entry[1]], 'unknown journal command ' .. tostring(entry[1]))
+      local args = expand(entry[2])
+      g[entry[1]](g, unpack(args, 1, table.maxn(args)))
+    end
+  end
+end
+function Journal.replay(g, journal)
+  assert(type(journal) == 'table', 'invalid journal')
+  local header = journal.header or {}
+  assert(type(header) == 'table', 'invalid journal header')
+  checkIdentity(header)
+  -- Preflight the entire structural contract before touching the destination.
+  -- A later missing reference must not leave earlier valid commands applied.
+  local permitted, external = allowedNames()
+  local pooled = header.version == 3 or header.version == 4 or header.version == 5
+  local bodies = (header.version == 4 or header.version == 5) and journal.bodies or nil
+  if header.version == 4 or header.version == 5 then
+    assert(type(bodies) == 'table', 'invalid journal body pool')
+  end
+  local function expand(value)
+    return pooled and Values.expand(value, journal.observations, bodies) or Observation.copy(value)
+  end
+  local validate = Values.validator(pooled and journal.observations or nil, bodies)
+  Execution.validate(journal.externalInputs)
+  validate(header)
+  validate(journal.final)
+  validate(journal.receipts)
+  checkEntries(journal, header, permitted, external, validate)
+  checkStart(g, journal, header)
+  if header.version == 5 then
+    checkActors(g, journal, header, expand)
+  end
+  adoptIdentity(g, header)
   local count = 0
   local detach = journal.receipts
     and observe(g, function(receipt)
@@ -595,25 +634,7 @@ function Journal.replay(g, journal)
     end)
   local finishReplay, inputsConsumed = Execution.beginReplay(g, journal.externalInputs)
   local ok, reason = pcall(function()
-    local function expand(value)
-      return pooled and Values.expand(value, journal.observations, bodies)
-        or Observation.copy(value)
-    end
-    for _, entry in ipairs(journal.entries) do
-      if entry[1] == 'aim' then
-        assert(Mathx.finite(entry[2]) and Mathx.finite(entry[3]), 'invalid journal aim')
-        Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
-      elseif entry[1] == 'set' then
-        assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))
-        write(g, Journal.renamed[entry[2]] or entry[2], expand(entry[3]))
-      elseif entry[1] == 'actorSet' then
-        Pools.get(g, entry[2])[entry[3]] = expand(entry[4])
-      else
-        assert(permitted[entry[1]], 'unknown journal command ' .. tostring(entry[1]))
-        local args = expand(entry[2])
-        g[entry[1]](g, unpack(args, 1, table.maxn(args)))
-      end
-    end
+    applyEntries(g, journal, permitted, external, expand)
     assert(not journal.receipts or count == #journal.receipts, 'journal hit receipt count differs')
     inputsConsumed()
     if journal.final then

@@ -17,7 +17,7 @@
 --         at least this fraction of max HP breaks the creature), radius,
 --         blood colour, struck material, explosive aim height, boss flag,
 --         optional stability, locationArmor, stagger tiers and brace.
--- move:   speed, acceleration and style (enemies/ai.lua: AI.styles).
+-- move:   speed, acceleration and style (enemies/styles.lua).
 -- attacks: ordered list; the first whose range and cadence fit is used.
 --          kind: a registered attack kind (combat/action_kinds.lua).
 --          packet: the damage the attack delivers (same rules as the player).

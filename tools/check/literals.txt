@@ -29,7 +29,6 @@ src/combat/telemetry.lua 2
 src/combat/weapon_delivery.lua 0
 src/enemies/ability_pose.lua 0
 src/enemies/actions.lua 0
-src/enemies/ai.lua 2
 src/enemies/animation.lua 43
 src/enemies/art_contract.lua 0
 src/enemies/body.lua 0
@@ -40,7 +39,9 @@ src/enemies/hazards.lua 0
 src/enemies/hit_volumes.lua 0
 src/enemies/idle.lua 1
 src/enemies/pose.lua 0
+src/enemies/separation.lua 1
 src/enemies/surface.lua 0
+src/enemies/walking.lua 1
 src/physics/body_physics.lua 0
 src/physics/collision.lua 10
 src/physics/ground.lua 0

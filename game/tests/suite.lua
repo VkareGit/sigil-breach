@@ -71,6 +71,11 @@ Suite.registry = {
     module = 'tests.cases.pilgrimage',
   },
   {
+    id = 'report',
+    title = 'One run reports every failing suite',
+    module = 'tests.cases.report',
+  },
+  {
     id = 'pilgrimage-save',
     title = 'A bad save never stops the game, kills wait for quiet, replays read no disk',
     module = 'tests.cases.pilgrimage_save',

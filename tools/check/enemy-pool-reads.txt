@@ -9,9 +9,10 @@ src/combat/explosives.lua 1
 src/combat/observation.lua 1
 src/combat/telemetry.lua 2
 src/combat/volley.lua 1
-src/enemies/ai.lua 4
+src/enemies/ai.lua 3
 src/enemies/body.lua 1
 src/enemies/ranged_kinds.lua 1
+src/enemies/separation.lua 1
 src/render/effects.lua 3
 src/render/passes/enemy_marks.lua 2
 src/render/passes/sprites.lua 1

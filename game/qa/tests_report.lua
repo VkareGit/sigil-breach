@@ -37,7 +37,7 @@ function Tests.run()
   ok = pcall(report.run, report, 'failure', 'Failure', function()
     error('intentional reporter fixture')
   end)
-  check('suite failure propagates to the process', not ok)
+  check('a failing suite does not stop the run', ok)
   check(
     'suite failure persists a diagnostic and earlier results',
     report.status == 'FAILED'
@@ -46,6 +46,7 @@ function Tests.run()
       and writes[1]:find('PASS first', 1, true)
       and report.total == 2
   )
+  check('suite failure reaches the process when the run ends', not pcall(report.finish, report))
   local nextRun = Report.new('unused-test-output')
   check(
     'next invocation does not inherit counts or failure state',

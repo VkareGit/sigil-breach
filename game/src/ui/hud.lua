@@ -218,12 +218,7 @@ function H.rally(p)
     lg.setColor(1, 1, 1)
   end
 end
-function H.draw(g, settings, ui, descentUI)
-  U = ui
-  local p = Context.actor(g)
-  local run = Modes.act(g, 'hud')
-  local cx, cy = U.aimX or L.aimX, U.aimY or L.aimY
-  descentUI.heading(g)
+local function utilityPanel(g)
   Skin.panel(1028, 12, 236, 68, 7, 10)
   Skin.zone('utility caption field', 1038, 22, 216, 48)
   local utility = Text.get('hud_utility')
@@ -236,6 +231,53 @@ function H.draw(g, settings, ui, descentUI)
   local clockInk = Skin.inkBounds(U.fonts[18], clock)
   text(clock, 1250 - clockInk.w - clockInk.x, 48, 18, C.gold)
   Skin.endZone()
+end
+-- What a hit looks like at the reticle.
+local function hitMarks(g, cx, cy, reticle)
+  local reach = g.view.lastKill and 15 or (8 + math.floor((g.view.hitWeight or 0) * 4))
+  for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
+    line(
+      cx + v[1] * 6,
+      cy + v[2] * 6,
+      cx + v[1] * reach,
+      cy + v[2] * reach,
+      reticle,
+      g.view.lastKill and 3 or 2
+    )
+  end
+  if g.view.armorHit and not g.view.lastKill then
+    Skin.icon('armor', cx + 19, cy - 10, 18)
+  end
+  if (g.view.breakConfirm or 0) > 0 then
+    -- Guard broken: four gold brackets snap outward around the marker.
+    local r = 17 + (1 - g.view.breakConfirm / 0.22) * 7
+    for _, v in ipairs({ { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }) do
+      local x, y = cx + v[1] * r, cy + v[2] * r
+      line(x, y, x - v[1] * 6, y, Palette.ink, 4)
+      line(x, y, x, y - v[2] * 6, Palette.ink, 4)
+      line(x, y, x - v[1] * 6, y, C.gold, 2)
+      line(x, y, x, y - v[2] * 6, C.gold, 2)
+    end
+  end
+  if g.view.precisionHit then
+    -- A small closed diamond distinguishes precision without covering the target.
+    for _, v in ipairs({
+      { -4, -21, 0, -25 },
+      { 0, -25, 4, -21 },
+      { 4, -21, 0, -17 },
+      {
+        0,
+        -17,
+        -4,
+        -21,
+      },
+    }) do
+      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
+      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.gold, 2)
+    end
+  end
+end
+local function aimMarks(g, cx, cy)
   local gap = 5 + math.min(6, g.view.recoil * 5)
   local hit = g.view.hitmarker > 0
   local reticle = hit
@@ -250,48 +292,7 @@ function H.draw(g, settings, ui, descentUI)
   color(reticle)
   lg.rectangle('fill', cx - 1, cy - 1, 2, 2)
   if hit then
-    local reach = g.view.lastKill and 15 or (8 + math.floor((g.view.hitWeight or 0) * 4))
-    for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
-      line(
-        cx + v[1] * 6,
-        cy + v[2] * 6,
-        cx + v[1] * reach,
-        cy + v[2] * reach,
-        reticle,
-        g.view.lastKill and 3 or 2
-      )
-    end
-    if g.view.armorHit and not g.view.lastKill then
-      Skin.icon('armor', cx + 19, cy - 10, 18)
-    end
-    if (g.view.breakConfirm or 0) > 0 then
-      -- Guard broken: four gold brackets snap outward around the marker.
-      local r = 17 + (1 - g.view.breakConfirm / 0.22) * 7
-      for _, v in ipairs({ { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }) do
-        local x, y = cx + v[1] * r, cy + v[2] * r
-        line(x, y, x - v[1] * 6, y, Palette.ink, 4)
-        line(x, y, x, y - v[2] * 6, Palette.ink, 4)
-        line(x, y, x - v[1] * 6, y, C.gold, 2)
-        line(x, y, x, y - v[2] * 6, C.gold, 2)
-      end
-    end
-    if g.view.precisionHit then
-      -- A small closed diamond distinguishes precision without covering the target.
-      for _, v in ipairs({
-        { -4, -21, 0, -25 },
-        { 0, -25, 4, -21 },
-        { 4, -21, 0, -17 },
-        {
-          0,
-          -17,
-          -4,
-          -21,
-        },
-      }) do
-        line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
-        line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.gold, 2)
-      end
-    end
+    hitMarks(g, cx, cy, reticle)
   end
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)
@@ -300,9 +301,9 @@ function H.draw(g, settings, ui, descentUI)
       line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, C.muted, 1)
     end
   end
-  -- Incoming blows and near misses: arcs pointing at the source, sized by
-  -- the blow's impact and damage, coloured by damage type (src/feedback/weight.lua).
-  Weight.drawMarks(g, cx, cy, 92)
+end
+-- The name and health of what the knight fights or looks at.
+local function foePanel(g, p)
   local world = Queries.world(g)
   if world.guardianSpawned and not world.guardianDead then
     for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -343,9 +344,8 @@ function H.draw(g, settings, ui, descentUI)
       Skin.endZone()
     end
   end
-  H.status(g, run)
-  H.stamina(p)
-  H.rally(p)
+end
+local function ammoNotice(g)
   local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.
@@ -364,13 +364,8 @@ function H.draw(g, settings, ui, descentUI)
     Skin.boxText(notice, 516, 542, 248, 28, U.fonts[16], empty and C.red or C.ivory, true)
     Skin.endZone()
   end
-  if g.view.feedbackTimer > 0 then
-    notice(g.view.feedback, 486, 16, C.gold)
-  end
-  local stats = Stats.read(g, Context.actor(g).id)
-  if stats.comboTimer > 0 and stats.combo > 1 then
-    notice(Text.get('hud_chain', { count = stats.combo }), 438, 16, C.ivory)
-  end
+end
+local function prompt(g)
   local ctx = g:context()
   if ctx then
     local size = 16
@@ -382,6 +377,8 @@ function H.draw(g, settings, ui, descentUI)
     Skin.boxText(ctx, 33, 546, 430, 26, U.fonts[size], C.gold, true)
     Skin.endZone()
   end
+end
+local function message(g)
   if g.view.messageTimer > 0 then
     local width = math.min(1180, U.fonts[16]:getWidth(g.view.message) + 40)
     Skin.panel(640 - width / 2, 91, width, 46, 2, 10)
@@ -389,6 +386,8 @@ function H.draw(g, settings, ui, descentUI)
     Skin.boxText(g.view.message, 652 - width / 2, 102, width - 24, 24, U.fonts[16], C.ivory, true)
     Skin.endZone()
   end
+end
+local function hints(g, p, settings)
   if settings.hints ~= false then
     local tools = Queries.tools(g)
     local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
@@ -405,5 +404,32 @@ function H.draw(g, settings, ui, descentUI)
       Skin.endZone()
     end
   end
+end
+function H.draw(g, settings, ui, descentUI)
+  U = ui
+  local p = Context.actor(g)
+  local run = Modes.act(g, 'hud')
+  local cx, cy = U.aimX or L.aimX, U.aimY or L.aimY
+  descentUI.heading(g)
+  utilityPanel(g)
+  aimMarks(g, cx, cy)
+  -- Incoming blows and near misses: arcs pointing at the source, sized by
+  -- the blow's impact and damage, coloured by damage type (src/feedback/weight.lua).
+  Weight.drawMarks(g, cx, cy, 92)
+  foePanel(g, p)
+  H.status(g, run)
+  H.stamina(p)
+  H.rally(p)
+  ammoNotice(g)
+  if g.view.feedbackTimer > 0 then
+    notice(g.view.feedback, 486, 16, C.gold)
+  end
+  local stats = Stats.read(g, Context.actor(g).id)
+  if stats.comboTimer > 0 and stats.combo > 1 then
+    notice(Text.get('hud_chain', { count = stats.combo }), 438, 16, C.ivory)
+  end
+  prompt(g)
+  message(g)
+  hints(g, p, settings)
 end
 return H

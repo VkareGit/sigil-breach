@@ -166,6 +166,224 @@ local function strikeDemon(g, b, e, part, surface)
     head = part == 'head',
   })
 end
+-- The step of one missile, kept between them: they are swept one at a time, and what they
+-- strike is delivered after the sweep.
+local s = {}
+local function flying(b)
+  return finite(b.x)
+    and finite(b.y)
+    and finite(b.z)
+    and finite(b.vx)
+    and finite(b.vy)
+    and finite(b.vz)
+    and finite(b.life)
+end
+local function before(t)
+  return s.duration > 0 and t and t <= 1 and (not s.wall or t < s.worldT - 1e-6)
+end
+local function stopAtWorld(g, b)
+  local length = s.length
+  s.worldT, s.wall = 1, false
+  if length > 1e-8 then
+    local distance, _, kind = SphereCast.world(
+      g.world,
+      b.x,
+      b.y,
+      b.z,
+      s.dx / length,
+      s.dy / length,
+      s.dz / length,
+      length,
+      s.own,
+      floorSurface
+    )
+    if kind ~= 'range' then
+      s.worldT, s.wall = distance / length, true
+    end
+  else
+    local _, _, kind = SphereCast.world(g.world, b.x, b.y, b.z, 0, 0, 0, 0, s.own, floorSurface)
+    if kind ~= 'range' then
+      s.worldT, s.wall = 0, true
+    end
+  end
+end
+-- A thing in its way stops it like stone.
+local function stopAtThing(g, b)
+  local length = s.length
+  s.thing = nil
+  if length > 1e-8 and sideOf(b) == 'knight' then
+    local thing, at =
+      Entities.ray(g, b.x, b.y, b.z, s.dx / length, s.dy / length, s.dz / length, length * s.worldT)
+    if thing then
+      s.thing = thing
+      s.worldT, s.wall = at / length, true
+    end
+  end
+end
+-- What the missile can meet (plan v10 V2): every knight and every
+-- creature its side harms (content/factions.lua). Default relations
+-- keep 0.32: a knight's missile meets the demons, a demon's the knight.
+local function meetCreatures(g, b, player, bodies)
+  if harmsCreatures(g, sideOf(b)) then
+    -- Bodies prepared once per observer and step.
+    local observer = P.observer(g, b)
+    local key = observer or b
+    if observer == nil or observer == player then
+      key = player
+    end
+    if not bodies[key] then
+      bodies[key] = B.prepare(g, observer, next(bodies) and {} or nil)
+    end
+    local share, body, segment, contact =
+      demonContact(b, s.dx, s.dy, s.dz, s.worldT, bodies[key], g, sideOf(b))
+    if before(share) then
+      s.hit, s.target, s.part, s.surface = share, body, segment, contact
+    end
+  end
+end
+local function meetKnights(g, b, player, previous)
+  local dx, dy, dz, fraction = s.dx, s.dy, s.dz, s.fraction
+  for _, knight in ipairs(Bodies.knights(g)) do
+    if Bodies.harms(g, sideOf(b), knight, 'missile') then
+      local from = knight == player and previous or Bodies.previous(g, knight)
+      local share = playerContact(knight, from, b, dx, dy, dz, fraction, g.world)
+      if before(share) and (not s.hit or share < s.hit) then
+        s.hit, s.struck, s.target, s.part, s.surface = share, knight, nil, nil, nil
+        s.struckFrom = from
+      end
+      -- Through the afterimage of a dodge: a perfect dodge; it flies on.
+      local ghost = not share and b.packet and Dodge.afterimage(g, knight)
+      if ghost then
+        local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, g.world)
+        if through and through <= 1 and (not s.wall or through < s.worldT) then
+          Dodge.perfect(g, b.packet, nil, knight)
+        end
+      end
+    end
+  end
+end
+-- Closest approach of this tick's path to the player's chest: a near miss
+-- is heard and marked, so dodging a shot is felt, not only survived.
+local function hearNearMiss(g, b, player, ground, t)
+  local dx, dy, dz = s.dx, s.dy, s.dz
+  local cx, cy, cz =
+    player.x - b.x,
+    ground + (player.jump or 0) + K.chest - (player.crouch or 0) - b.y,
+    player.z - b.z
+  local l2 = (dx * dx + dy * dy + dz * dz) * t * t
+  local along = l2 > 1e-9 and math.max(0, math.min(1, (cx * dx + cy * dy + cz * dz) * t / l2)) or 0
+  local ex, ey, ez = cx - dx * t * along, cy - dy * t * along, cz - dz * t * along
+  local miss = math.sqrt(ex * ex + ey * ey + ez * ez)
+  if miss < K.nearMiss and along < 1 then
+    b.whooshed = true
+    Signal(g, 'NearMiss', { bullet = b, distance = miss })
+  end
+end
+-- Where the missile met the knight, on his interpolated body.
+local function contactWith(g, b, t)
+  local share, from, struck = s.fraction * t, s.struckFrom, s.struck
+  local feetFrom = Ground.of(g.world, from) + (from.jump or 0)
+  local feetTo = Ground.of(g.world, struck) + (struck.jump or 0)
+  local feet = feetFrom + (feetTo - feetFrom) * share
+  local crouch = (from.crouch or 0) + ((struck.crouch or 0) - (from.crouch or 0)) * share
+  local knight = Characters.of(struck).body
+  local contact = Receipt.sphere(
+    b.x,
+    b.y,
+    b.z,
+    s.own,
+    from.x + (struck.x - from.x) * share,
+    from.z + (struck.z - from.z) * share,
+    feet + knight.feet,
+    feet + knight.height - crouch,
+    knight.radius
+  )
+  contact.kind, contact.id, contact.owner, contact.target = 'projectile', b.id, b.owner, struck.id
+  contact.time, contact.fraction = s.duration * t, share
+  return contact
+end
+-- One missile through this step: returns the event it leaves, in the events kept by the session.
+local function sweep(g, b, i, dt, player, previous, ground, bodies, events, count)
+  local duration = math.max(0, math.min(dt, b.life))
+  s.duration, s.fraction = duration, duration / dt
+  s.dx, s.dy, s.dz = b.vx * duration, b.vy * duration, b.vz * duration
+  s.length = math.sqrt(s.dx * s.dx + s.dy * s.dy + s.dz * s.dz)
+  s.own = Shape.radius(b)
+  s.hit, s.target, s.part, s.surface, s.struck, s.struckFrom = nil, nil, nil, nil, nil, nil
+  stopAtWorld(g, b)
+  stopAtThing(g, b)
+  meetCreatures(g, b, player, bodies)
+  meetKnights(g, b, player, previous)
+  local playerFirst = s.hit ~= nil
+  local t = playerFirst and s.hit or s.worldT
+  local knightSide = not Bodies.harms(g, sideOf(b), player, 'missile')
+  if not knightSide and not playerFirst and not b.whooshed and duration > 0 then
+    hearNearMiss(g, b, player, ground, t)
+  end
+  b.x, b.y, b.z = b.x + s.dx * t, b.y + s.dy * t, b.z + s.dz * t
+  if b.travelled ~= nil then
+    b.travelled = b.travelled + s.length * t
+  end
+  b.life = b.life - dt
+  local retain, passed
+  if s.target then
+    retain, passed = goesOn(b, s.target, s.part, s.surface)
+  end
+  local over = b.life <= 0 or (not retain and (playerFirst or s.wall))
+  if over then
+    Pools.removeAt(g, 'projectiles', i)
+  end
+  if over or retain then
+    count = count + 1
+    local event = events[count] or {}
+    events[count] = event
+    event.bullet, event.player, event.time, event.order = b, playerFirst, duration * t, i
+    event.enemy, event.part = playerFirst and s.target or nil, s.part
+    event.knight = playerFirst and s.struck or nil
+    event.surface = s.surface
+    event.contact = playerFirst and s.struck and contactWith(g, b, t) or nil
+    event.retain, event.passed = not over and retain or nil, passed
+    event.wall = s.wall and not playerFirst
+    event.thing = not playerFirst and s.thing or nil
+  end
+  return count
+end
+-- What a swept missile did, in the order it happened.
+local function deliver(g, event)
+  local b = event.bullet
+  if event.player and event.enemy then
+    strikeDemon(g, b, event.enemy, event.part, event.surface)
+  elseif event.player then
+    g:damageBody(
+      event.knight,
+      b.packet and b.packet.base or (b.big and K.bigBoltDamage or K.boltDamage),
+      b.x - b.vx,
+      b.z - b.vz,
+      b.packet,
+      nil,
+      {
+        effectSource = b.packet and b.packet.effects and { side = sideOf(b), id = b.owner } or nil,
+        contact = event.contact,
+      }
+    )
+  end
+  if event.thing then
+    local packet = b.shot and b.shot.attack or b.packet
+    Entities.hurt(g, event.thing, packet.base, b.owner)
+  end
+  if event.retain then
+    -- It flies on from here, never meeting this body again.
+    b.retain, b.passed = event.retain, event.passed
+    b.through = b.through or {}
+    b.through[event.enemy.id] = true
+  else
+    Signal(g, 'ProjectileBurst', {
+      bullet = b,
+      struck = event.enemy or event.knight,
+      wall = event.wall,
+    })
+  end
+end
 function P.update(g, dt, previous)
   if not finite(dt) or dt <= 0 then
     return
@@ -182,170 +400,10 @@ function P.update(g, dt, previous)
   local bodies = {}
   for i = #bullets, 1, -1 do
     local b = bullets[i]
-    if
-      not (
-        finite(b.x)
-        and finite(b.y)
-        and finite(b.z)
-        and finite(b.vx)
-        and finite(b.vy)
-        and finite(b.vz)
-        and finite(b.life)
-      )
-    then
-      Pools.removeAt(g, 'projectiles', i)
+    if flying(b) then
+      eventCount = sweep(g, b, i, dt, player, previous, ground, bodies, events, eventCount)
     else
-      local duration = math.max(0, math.min(dt, b.life))
-      local fraction = duration / dt
-      local dx, dy, dz = b.vx * duration, b.vy * duration, b.vz * duration
-      local length = math.sqrt(dx * dx + dy * dy + dz * dz)
-      local worldT, wall = 1, false
-      local own = Shape.radius(b)
-      if length > 1e-8 then
-        local distance, _, kind = SphereCast.world(
-          g.world,
-          b.x,
-          b.y,
-          b.z,
-          dx / length,
-          dy / length,
-          dz / length,
-          length,
-          own,
-          floorSurface
-        )
-        if kind ~= 'range' then
-          worldT = distance / length
-          wall = true
-        end
-      else
-        local _, _, kind = SphereCast.world(g.world, b.x, b.y, b.z, 0, 0, 0, 0, own, floorSurface)
-        if kind ~= 'range' then
-          worldT = 0
-          wall = true
-        end
-      end
-      -- A thing in its way stops it like stone.
-      local thing
-      if length > 1e-8 and sideOf(b) == 'knight' then
-        local at
-        thing, at =
-          Entities.ray(g, b.x, b.y, b.z, dx / length, dy / length, dz / length, length * worldT)
-        if thing then
-          worldT, wall = at / length, true
-        end
-      end
-      -- What the missile can meet (plan v10 V2): every knight and every
-      -- creature its side harms (content/factions.lua). Default relations
-      -- keep 0.32: a knight's missile meets the demons, a demon's the knight.
-      local hit, target, part, surface, struck, struckFrom
-      local function before(t)
-        return duration > 0 and t and t <= 1 and (not wall or t < worldT - 1e-6)
-      end
-      if harmsCreatures(g, sideOf(b)) then
-        -- Bodies prepared once per observer and step.
-        local observer = P.observer(g, b)
-        local key = observer or b
-        if observer == nil or observer == player then
-          key = player
-        end
-        if not bodies[key] then
-          bodies[key] = B.prepare(g, observer, next(bodies) and {} or nil)
-        end
-        local share, body, segment, contact =
-          demonContact(b, dx, dy, dz, worldT, bodies[key], g, sideOf(b))
-        if before(share) then
-          hit, target, part, surface = share, body, segment, contact
-        end
-      end
-      for _, knight in ipairs(Bodies.knights(g)) do
-        if Bodies.harms(g, sideOf(b), knight, 'missile') then
-          local from = knight == player and previous or Bodies.previous(g, knight)
-          local share = playerContact(knight, from, b, dx, dy, dz, fraction, g.world)
-          if before(share) and (not hit or share < hit) then
-            hit, struck, target, part, surface = share, knight, nil, nil, nil
-            struckFrom = from
-          end
-          -- Through the afterimage of a dodge: a perfect dodge; it flies on.
-          local ghost = not share and b.packet and Dodge.afterimage(g, knight)
-          if ghost then
-            local through = playerContact(ghost, ghost, b, dx, dy, dz, fraction, g.world)
-            if through and through <= 1 and (not wall or through < worldT) then
-              Dodge.perfect(g, b.packet, nil, knight)
-            end
-          end
-        end
-      end
-      local playerFirst = hit ~= nil
-      local t = playerFirst and hit or worldT
-      local knightSide = not Bodies.harms(g, sideOf(b), player, 'missile')
-      if not knightSide and not playerFirst and not b.whooshed and duration > 0 then
-        -- Closest approach of this tick's path to the player's chest: a near miss
-        -- is heard and marked, so dodging a shot is felt, not only survived.
-        local cx, cy, cz =
-          player.x - b.x,
-          ground + (player.jump or 0) + K.chest - (player.crouch or 0) - b.y,
-          player.z - b.z
-        local l2 = (dx * dx + dy * dy + dz * dz) * t * t
-        local s = l2 > 1e-9 and math.max(0, math.min(1, (cx * dx + cy * dy + cz * dz) * t / l2))
-          or 0
-        local ex, ey, ez = cx - dx * t * s, cy - dy * t * s, cz - dz * t * s
-        local miss = math.sqrt(ex * ex + ey * ey + ez * ez)
-        if miss < K.nearMiss and s < 1 then
-          b.whooshed = true
-          Signal(g, 'NearMiss', { bullet = b, distance = miss })
-        end
-      end
-      b.x, b.y, b.z = b.x + dx * t, b.y + dy * t, b.z + dz * t
-      if b.travelled ~= nil then
-        b.travelled = b.travelled + length * t
-      end
-      b.life = b.life - dt
-      local retain, passed
-      if target then
-        retain, passed = goesOn(b, target, part, surface)
-      end
-      local over = b.life <= 0 or (not retain and (playerFirst or wall))
-      if over then
-        Pools.removeAt(g, 'projectiles', i)
-      end
-      if over or retain then
-        eventCount = eventCount + 1
-        local event = events[eventCount] or {}
-        events[eventCount] = event
-        event.bullet, event.player, event.time, event.order = b, playerFirst, duration * t, i
-        event.enemy, event.part = playerFirst and target or nil, part
-        event.knight = playerFirst and struck or nil
-        event.surface = surface
-        event.contact = nil
-        event.retain, event.passed = not over and retain or nil, passed
-        event.wall = wall and not playerFirst
-        event.thing = not playerFirst and thing or nil
-        if playerFirst and struck then
-          local share = fraction * t
-          local from = struckFrom
-          local feetFrom = Ground.of(g.world, from) + (from.jump or 0)
-          local feetTo = Ground.of(g.world, struck) + (struck.jump or 0)
-          local feet = feetFrom + (feetTo - feetFrom) * share
-          local crouch = (from.crouch or 0) + ((struck.crouch or 0) - (from.crouch or 0)) * share
-          local knight = Characters.of(struck).body
-          local contact = Receipt.sphere(
-            b.x,
-            b.y,
-            b.z,
-            own,
-            from.x + (struck.x - from.x) * share,
-            from.z + (struck.z - from.z) * share,
-            feet + knight.feet,
-            feet + knight.height - crouch,
-            knight.radius
-          )
-          contact.kind, contact.id, contact.owner, contact.target =
-            'projectile', b.id, b.owner, struck.id
-          contact.time, contact.fraction = duration * t, share
-          event.contact = contact
-        end
-      end
+      Pools.removeAt(g, 'projectiles', i)
     end
   end
   for i = #events, eventCount + 1, -1 do
@@ -353,40 +411,7 @@ function P.update(g, dt, previous)
   end
   table.sort(events, earlier)
   for _, event in ipairs(events) do
-    local b = event.bullet
-    if event.player and event.enemy then
-      strikeDemon(g, b, event.enemy, event.part, event.surface)
-    elseif event.player then
-      g:damageBody(
-        event.knight,
-        b.packet and b.packet.base or (b.big and K.bigBoltDamage or K.boltDamage),
-        b.x - b.vx,
-        b.z - b.vz,
-        b.packet,
-        nil,
-        {
-          effectSource = b.packet and b.packet.effects and { side = sideOf(b), id = b.owner }
-            or nil,
-          contact = event.contact,
-        }
-      )
-    end
-    if event.thing then
-      local packet = b.shot and b.shot.attack or b.packet
-      Entities.hurt(g, event.thing, packet.base, b.owner)
-    end
-    if event.retain then
-      -- It flies on from here, never meeting this body again.
-      b.retain, b.passed = event.retain, event.passed
-      b.through = b.through or {}
-      b.through[event.enemy.id] = true
-    else
-      Signal(g, 'ProjectileBurst', {
-        bullet = b,
-        struck = event.enemy or event.knight,
-        wall = event.wall,
-      })
-    end
+    deliver(g, event)
     if g.state ~= 'playing' then
       break
     end

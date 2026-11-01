@@ -27,7 +27,7 @@ Creature.evade = Schema:new('evade', {
   cooldown = { type = 'number', required = true, min = 0 },
   cone = { type = 'number', default = 0.06, min = 0, desc = 'aim cone that triggers it (rad)' },
 })
--- How a duelling body spends the time between blows (enemies/ai.lua: Styles.duel).
+-- How a duelling body spends the time between blows (enemies/styles.lua: duel).
 Creature.duel = Schema:new('duel', {
   circle = { type = 'number', default = 3, min = 0, desc = 'weight of walking around' },
   close = { type = 'number', default = 2, min = 0, desc = 'weight of walking in' },
@@ -40,7 +40,7 @@ Creature.duel = Schema:new('duel', {
 Creature.move = Schema:new('move', {
   speed = { type = 'number', required = true, min = 0, desc = 'walking speed (m/s)' },
   accel = { type = 'number', default = Defaults.accel, min = 0, desc = 'divided by sqrt(mass)' },
-  style = { type = 'string', default = 'keep', desc = 'movement style (enemies/ai.lua: AI.styles)' },
+  style = { type = 'string', default = 'keep', desc = 'movement style (enemies/styles.lua)' },
   ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
   turn = { type = 'number', min = 0, desc = 'how fast the body turns (rad/s); absent: at once' },
   duel = { type = 'table', schema = Creature.duel, desc = "'duel': between its blows" },

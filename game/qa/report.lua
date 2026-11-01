@@ -3,7 +3,10 @@ local Report = {}
 Report.__index = Report
 
 function Report.new(path)
-  return setmetatable({ path = path, suites = {}, ids = {}, total = 0, status = 'RUNNING' }, Report)
+  return setmetatable(
+    { path = path, suites = {}, ids = {}, total = 0, failures = {}, status = 'RUNNING' },
+    Report
+  )
 end
 
 function Report:add(id, title, lines)
@@ -37,8 +40,8 @@ function Report:render()
     lines[#lines + 1] = 'SUITE ' .. suite.id .. ': ' .. #suite.lines .. ' passing checks.'
     lines[#lines + 1] = ''
   end
-  if self.failure then
-    lines[#lines + 1] = 'FAIL ' .. self.failure
+  for _, failure in ipairs(self.failures) do
+    lines[#lines + 1] = 'FAIL ' .. failure
   end
   lines[#lines + 1] = 'MECHANICS / ASSETS TOTAL: ' .. self.total .. ' passing checks.'
   lines[#lines + 1] = 'Controller checks run separately via --input-test.'
@@ -51,7 +54,8 @@ function Report:write()
   file:close()
 end
 
--- A failing suite leaves a fresh, explicitly incomplete report for diagnosis.
+-- A failing suite is written down and the rest still run: one run shows every failure, not
+-- the first of them.
 function Report:run(id, title, execute)
   local ok, result = xpcall(execute, debug.traceback)
   if ok then
@@ -59,15 +63,21 @@ function Report:run(id, title, execute)
   end
   if not ok then
     self.status = 'FAILED'
-    self.failure = id .. ': ' .. tostring(result)
+    self.failures[#self.failures + 1] = id .. ': ' .. tostring(result)
     self:write()
-    error(result, 0)
+    print('FAIL ' .. id .. ': ' .. tostring(result))
+    return
   end
   self:write()
   print('SUITE ' .. id .. ': ' .. #self.suites[#self.suites].lines .. ' passing checks.')
 end
 
+-- The end of the run: the process fails here if any suite did.
 function Report:finish()
+  if #self.failures > 0 then
+    self:write()
+    error(#self.failures .. ' suites failed; first: ' .. self.failures[1], 0)
+  end
   self.status = 'PASSED'
   self:write()
   print('TOTAL ' .. self.total .. ' mechanics/asset checks.')
