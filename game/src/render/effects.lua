@@ -91,7 +91,11 @@ local function cut(r, g, e, spec)
   local x, z =
     e.x + e.lungeX * spec.reach * Rites.cutForward, e.z + e.lungeZ * spec.reach * Rites.cutForward
   local viewer = Context.viewer(g)
-  local yaw = math.atan2(viewer.x - x, viewer.z - z) + e.attackCount % 2 * math.pi
+  local yaw = math.atan2(viewer.x - x, viewer.z - z)
+    + (
+      spec.trace and (spec.trace[1].angle * (e.swingSide or 1) > 0 and math.pi or 0)
+      or e.attackCount % 2 * math.pi
+    )
   local y = Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight - size * 0.5
   HazardArt.upright(r, x, y, z, 'cut', size, yaw, 1 - age / span)
 end

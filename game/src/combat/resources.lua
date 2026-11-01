@@ -18,13 +18,38 @@ function Resources.spend(actor, cost)
     end
   end
 end
+-- Effort is not a price: any left at all pays for the act, however dear, and the
+-- debt is carried below nothing. An actor without this resource acts freely.
+function Resources.ready(actor, id)
+  local own = actor.resources
+  return not own or own[id] == nil or own[id] > 0
+end
+function Resources.exert(actor, id, amount)
+  local own = actor.resources
+  if own and own[id] ~= nil then
+    own[id] = own[id] - amount
+    actor.resourcePause = actor.resourcePause or {}
+    actor.resourcePause[id] = Characters.of(actor).resources[id].pause
+  end
+end
+-- The share of it an actor has, or nil.
+function Resources.share(actor, id)
+  local own = actor.resources
+  local def = own and own[id] and Characters.of(actor).resources[id]
+  return def and math.max(0, own[id] / def.max) or nil
+end
 function Resources.tick(actor, dt)
   local own = actor.resources
   if not own then
     return
   end
+  local pause = actor.resourcePause
   for id, def in pairs(Characters.of(actor).resources) do
-    own[id] = math.min(def.max, own[id] + def.regen * dt)
+    if pause and (pause[id] or 0) > 0 then
+      pause[id] = math.max(0, pause[id] - dt)
+    else
+      own[id] = math.min(def.max, own[id] + def.regen * dt)
+    end
   end
 end
 return Resources

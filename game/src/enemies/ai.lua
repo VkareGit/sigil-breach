@@ -18,6 +18,7 @@ local Bodies = require('src.combat.bodies')
 local Target = require('src.enemies.target')
 local ActionKinds = require('src.combat.action_kinds')
 local Action = require('src.content.defs.action')
+local Answers = require('src.enemies.answers')
 local AI = {}
 -- Whom e fights now (enemies/target.lua): the knight by default; any body of
 -- a hostile side when relations say so (plan v10 V2).
@@ -314,6 +315,46 @@ function Styles.keep(g, e, d, dt)
     e.x + dx * radial + dz * e.side * K.strafe, e.z + dz * radial - dx * e.side * K.strafe
   move(g, e, tx, tz, e.speed * (radial == 0 and K.holdSpeed or 1), dt)
 end
+-- 'duel' fights one body at a time: between its blows it walks around, comes in,
+-- gives ground or stands and watches, each for a moment, never the same dance.
+function Styles.duel(g, e, d, dt)
+  local p = target(g, e)
+  local spec = arch(e).move
+  local D = spec.duel
+  e.duelLeft = (e.duelLeft or 0) - dt
+  if e.duelLeft <= 0 then
+    local rng = g.rng.sim
+    local roll = rng:random() * (D.circle + D.close + D.back + D.wait)
+    e.duelMove = roll < D.circle and 'circle'
+      or (
+        roll < D.circle + D.close and 'close'
+        or (roll < D.circle + D.close + D.back and 'back' or 'wait')
+      )
+    e.duelLeft = D.hold + rng:random() * D.spread
+    e.side = rng:random() < 0.5 and 1 or -1
+  end
+  local K = Archetypes.defaults.duel
+  local dx, dz = (p.x - e.x) / math.max(K.nearest, d), (p.z - e.z) / math.max(K.nearest, d)
+  local stage = Archetypes.phase(e)
+  local ideal = stage and stage.ideal or spec.ideal
+  if d > ideal + D.far then
+    move(g, e, p.x, p.z, e.speed, dt)
+  elseif e.duelMove == 'close' then
+    move(g, e, p.x, p.z, e.speed * K.closing, dt)
+  elseif e.duelMove == 'back' then
+    move(g, e, e.x - dx * K.step, e.z - dz * K.step, e.speed * K.giving, dt)
+  elseif e.duelMove == 'circle' then
+    local radial = (d - ideal) * K.pull
+    move(
+      g,
+      e,
+      e.x + dz * e.side * K.step + dx * radial,
+      e.z - dx * e.side * K.step + dz * radial,
+      e.speed * K.circling,
+      dt
+    )
+  end
+end
 -- On a world with decks, whether body e and body p stand on floors a step
 -- cannot join (one on a deck, one under it): then e follows its routes, not
 -- a straight approach (plan v10 V3).
@@ -434,6 +475,7 @@ local function perceive(g, e, d, dt)
     local off = angle(target - e.facing)
     e.facing = e.facing + math.max(-rate * dt, math.min(rate * dt, off))
   end
+  e.closeFor = d < Senses.closeRange and (e.closeFor or 0) + dt or 0
   if e.awake and d < Senses.threatRange then
     g.threat = g.threat + (arch(e).threat or 1)
   end
@@ -519,8 +561,11 @@ local function free(g, e, d, dt)
     return
   end
   e.ai = 'move'
-  local chosen = e.visible and e.attack <= 0 and Attacks.choose(e, d, g.elapsed)
-  if chosen and reserveAttack(g, e) then
+  local victim = target(g, e)
+  local answer = e.visible and Answers.pick(g, e, victim, d)
+  local chosen = answer
+    or (e.visible and e.attack <= 0 and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim))
+  if chosen and (answer or reserveAttack(g, e)) then
     Attacks.begin(g, e, d, chosen)
   elseif evade(g, e, d, dt) then
     -- sidestepping out of the player's aim

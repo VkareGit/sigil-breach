@@ -13,6 +13,7 @@ local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
 local Effects = require('src.combat.effects')
 local Bodies = require('src.combat.bodies')
+local Cast = require('src.combat.abilities')
 local Encounter = require('src.enemies.encounter')
 local DamageTypes = require('src.content.damage_types')
 local Outcomes = {}
@@ -208,6 +209,7 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
   end
   if not ongoing then
     player.invuln = Rules.playerBody(player).iframes
+    Cast.interrupt(g, player)
   end
   if healthDamage > 0 then
     Effects.apply(g, player, packet.effects, context and context.effectSource or source)

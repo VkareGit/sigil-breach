@@ -21,6 +21,7 @@ local Move = Schema:new('attack choice', {
 E.tactics = Schema:new('attack tactics', {
   policy = { type = 'string', default = 'context', values = { 'context' } },
   repeatPenalty = { type = 'number', default = 0.25, min = 0, max = 1 },
+  roll = { type = 'boolean', desc = 'choose by weighted chance, not the best score' },
   moves = { type = 'table', required = true, list = Move },
 })
 E.phase = Schema:new('encounter phase', {
@@ -28,6 +29,7 @@ E.phase = Schema:new('encounter phase', {
   at = { type = 'number', min = 0, max = 1, desc = 'enter at this share of current maximum HP' },
   refill = { type = 'number', min = 0, desc = 'new HP stock, share of spawn HP including tier' },
   recovery = { type = 'number', default = 1.2, min = 0 },
+  opening = { type = 'string', desc = 'the blow it comes out of the threshold with' },
   transitionPose = { type = 'string', desc = 'named atlas pose on the recovery clock' },
   pace = { type = 'number', default = 1, min = 1, desc = 'cooldowns only, never windup/recovery' },
   speed = { type = 'number', default = 1, min = 0 },
@@ -64,7 +66,14 @@ local function tactics(spec, ids, path)
   -- A blow reached through a string is chosen by that string, not by a move.
   for _, attack in pairs(ids) do
     if attack.string then
-      flows[attack.string.into] = true
+      if attack.string.into then
+        flows[attack.string.into] = true
+      end
+      for _, branch in ipairs(attack.string.branches or {}) do
+        if branch.into then
+          flows[branch.into] = true
+        end
+      end
     end
   end
   for _, move in ipairs(spec.moves) do

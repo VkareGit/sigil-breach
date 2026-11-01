@@ -78,7 +78,7 @@ function R.run(Game, check, session)
     def.resources = { gold = { max = 1, start = 1 } }
     Characters.define(def)
   end))
-  check('the knight has no mana', session(Game).player.resources == nil)
+  check('the knight has no mana', session(Game).player.resources.mana == nil)
   local ids = { 'proof_lance', 'proof_beam', 'proof_aura', 'proof_shell', 'proof_strike' }
   Proof.with({
     function()

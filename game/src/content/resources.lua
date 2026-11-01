@@ -3,4 +3,5 @@
 local Registry = require('src.core.registry')
 local Resources = Registry:new('resources')
 Resources:register('mana', { desc = 'what spells are paid with' })
+Resources:register('stamina', { desc = 'what a shot and a dodge are paid with' })
 return Resources

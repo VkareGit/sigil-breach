@@ -45,8 +45,14 @@ return function(R)
     if counter and closing < defaults.counter.minSpeed then
       closing = defaults.counter.refSpeed
     end
-    local broke, heavy = R.guard(e, impact, { closing = counter and closing or 0 })
-    local result = { staggered = broke, heavy = heavy, counter = counter }
+    local parried = R.parries(e, impact, sqrt((e.x - p.x) ^ 2 + (e.z - p.z) ^ 2))
+    local broke, heavy = parried, false
+    if parried then
+      R.parried(e)
+    else
+      broke, heavy = R.guard(e, impact, { closing = counter and closing or 0 })
+    end
+    local result = { staggered = broke, heavy = heavy, counter = counter, parried = parried }
     if len > defaults.sameSpot then
       if e.hp <= 0 and not boss then
         -- A killing blow carries the body further: overkill becomes visible weight.
@@ -71,7 +77,7 @@ return function(R)
       R.knockDown(e)
     end
     result.falter = boss and result.staggered or nil
-    if boss and not result.staggered and n > 0.5 then
+    if boss and not b.steadfast and not result.staggered and n > 0.5 then
       R.stunBriefly(e, b.microStun or 0, 'micro') -- microStun: bosses only
     end
     -- Legs: a leg blow worth part of the guard cripples the body for a while.
@@ -106,7 +112,7 @@ return function(R)
       e.woundFlash = defaults.woundFlash
       result.wounded = true
     end
-    if push >= defaults.hitPausePush then
+    if push >= defaults.hitPausePush and not (b.steadfast and e.hp > 0) then
       e.hitPause = e.hp <= 0 and defaults.killPause or defaults.hitPause
     end
     -- A major wound holds the struck body a beat longer (victim-only hit-stop).

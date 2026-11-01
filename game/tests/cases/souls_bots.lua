@@ -7,9 +7,12 @@ local Actions = require('src.enemies.actions')
 local Release = require('src.app.release')
 local T = {}
 local trials = { 'claws', 'iron', 'stars', 'resin', 'ash', 'storm' }
-local function fight(Game, trial, knight, seconds)
+local function fight(Game, trial, knight, seconds, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
   g.testing = true
+  if seed then
+    g.rng.sim:seed(seed)
+  end
   assert(g:act('catalog', 'field_chamber_' .. trial))
   local memory, fired = {}, 0
   g.bus:on('sim', 'AttackReleased', function()
@@ -54,10 +57,12 @@ end
 -- One blow of a creature, alone, at the distance it is made for, against a knight
 -- who only dodges: the proof that this blow can be avoided from there.
 local function blow(Game, id, attack, knight)
-  local g = F.arena(Game)
+  local g = Game.new('field', 'proving', Release.sessionOptions.field)
+  g.testing, g.state, g.testField.invincible = true, 'playing', false
   local distance = math.max(attack.minRange, math.min(attack.range, 3))
-  g.player.x, g.player.z, g.player.yaw = 16, 18 + distance, math.pi
-  local e = g:spawn(id, 16, 18)
+  g.player.x, g.player.z, g.player.yaw = 10, 19 + distance, math.pi
+  local whole = g.player.hp + g.player.armor
+  local e = g:spawn(id, 10, 19)
   e.awake, e.visible, e.memory, e.spawnAge, e.target = true, true, 60, 2, g.player.id
   e.attack = 99
   local memory, released = {}, 0
@@ -74,7 +79,7 @@ local function blow(Game, id, attack, knight)
       break
     end
   end
-  return 140 - g.player.hp - g.player.armor, released
+  return whole - g.player.hp - g.player.armor, released
 end
 function T.run(Game)
   local lines = {}
@@ -96,7 +101,14 @@ function T.run(Game)
         )
       )
       if name == 'learning' then
-        check(trial .. ' is won by a knight who learnt it', won)
+        -- A body that rolls its blows is won most of the time, not every time.
+        local wins = won and 1 or 0
+        for seed = 1, 2 do
+          local again = fight(Game, trial, Bot[name], 240, seed)
+          wins = wins + (again.testField.roomTrial.status == 'complete' and 1 or 0)
+        end
+        print(string.format('MEASURE souls %s/learning wins %d of 3', trial, wins))
+        check(trial .. ' is won by a knight who learnt it ' .. wins, wins >= 2)
       elseif trial == 'ash' or trial == 'storm' then
         check(trial .. ' kills a knight who stands there', g.state == 'dead' and g.elapsed < 20)
       end

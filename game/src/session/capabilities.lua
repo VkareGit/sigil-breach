@@ -4,12 +4,18 @@
 --   phased        it fights only while waveActive(g)
 --   freezable     time may stop: frozen(g)
 --   invincible    the knight may be unhurt: invincible(g)
+--   attrition     effort is paid: stamina, the flask, no healing from kills: attrition(g)
 -- A session names its mode (g.mode). A hand-made record without a mode (a
 -- test fixture) is recognised by the modes themselves (run/modes.lua sets
 -- Capabilities.recognise). Systems, rules and outcomes ask here, never a
 -- mode's record.
 local Capabilities = { policies = {}, modes = {} }
-local policyHandlers = { phased = 'waveActive', freezable = 'frozen', invincible = 'invincible' }
+local policyHandlers = {
+  phased = 'waveActive',
+  freezable = 'frozen',
+  invincible = 'invincible',
+  attrition = 'attrition',
+}
 function Capabilities.define(id, policy, mode)
   for name, enabled in pairs(policy) do
     local handler = policyHandlers[name]
@@ -19,7 +25,7 @@ function Capabilities.define(id, policy, mode)
     )
     assert(
       not enabled or type(mode[handler]) == 'function',
-      'mode ' .. id .. ': policy ' .. name .. ' needs ' .. handler
+      'mode ' .. id .. ': policy ' .. name .. ' needs ' .. tostring(handler)
     )
   end
   Capabilities.policies[id] = policy
@@ -82,6 +88,11 @@ end
 -- A proving ground holds a catalogue pose on its targets (previewFrame).
 function Capabilities.posed(g)
   return ask(g, 'posed') == true
+end
+-- A shot and a dodge cost effort, and health comes only from the flask.
+function Capabilities.attrition(g)
+  local policy = policyOf(g)
+  return policy ~= nil and policy.attrition == true and ask(g, 'attrition') == true
 end
 -- Blows and walls can hurt the knight.
 function Capabilities.vulnerable(g)

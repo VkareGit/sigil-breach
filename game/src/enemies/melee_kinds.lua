@@ -245,6 +245,21 @@ local function swing(g, e, atk, ctx)
     dodged(g, e, atk, t)
   end
 end
+-- In the blow the body keeps after who goes the way the blade goes; who goes against
+-- it is left behind. That is the difference between a dodge and the right dodge.
+local function chase(g, e, atk, dt)
+  if not atk.chase or not atk.trace or e.phase > atk.active[2] then
+    return
+  end
+  local t = victimOf(g, e)
+  local yaw = math.atan2(e.lungeX, e.lungeZ)
+  local off = MathX.wrapAngle(math.atan2(t.x - e.x, t.z - e.z) - yaw)
+  local swing = (atk.trace[#atk.trace].angle - atk.trace[1].angle) * (e.swingSide or 1)
+  if off * swing > 0 then
+    local most = atk.chase * dt
+    face(g, e, atk, yaw + math.max(-most, math.min(most, off)))
+  end
+end
 Kinds.sweep = {
   execute = function(g, e, atk, a)
     face(g, e, atk, a)
@@ -252,6 +267,7 @@ Kinds.sweep = {
   end,
   strike = function(g, e, atk, dt, ctx)
     lean(g, e, atk, dt, ctx)
+    chase(g, e, atk, dt)
     if atk.trail and not e.trailed and e.phase >= atk.active[1] then
       e.trailed = true
       Pattern.release(g, e, atk.trail, math.atan2(e.lungeX, e.lungeZ))

@@ -20,7 +20,11 @@ function T.run(Game)
     for _, weapon in ipairs({ 1, 2 }) do
       local outcomes = {}
       for _, style in ipairs({ 'still', 'react' }) do
-        local g = Game.new('field', 'proving', Release.sessionOptions.field)
+        local g = Game.new(
+          'field',
+          'proving',
+          { features = Release.sessionOptions.field.features, attrition = false }
+        )
         g.testing = true
         assert(Chambers.start(Field, g, trial, 3))
         g:switchWeapon(weapon)
@@ -107,7 +111,11 @@ function T.run(Game)
         )
         if record then
           Journal.stop(g)
-          local replay = Game.new('field', 'proving', Release.sessionOptions.field)
+          local replay = Game.new(
+            'field',
+            'proving',
+            { features = Release.sessionOptions.field.features, attrition = false }
+          )
           replay.testing = true
           assert(Chambers.start(Field, replay, trial, 3))
           replay:switchWeapon(weapon)

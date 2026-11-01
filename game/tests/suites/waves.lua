@@ -405,8 +405,13 @@ function Tests.run(G, renderer)
       b.x >= 0 and b.y >= 0 and b.x + b.w <= 1280 and b.y + b.h <= 720
     )
   end
-  local result =
-    require('qa.scenarios.playtest').run(G, false, nil, { projectiles = true, learned = true })
+  -- The waves under the encounters they were tuned for; they leave with plan v13 O4.
+  local result = require('qa.scenarios.playtest').run(
+    require('tests.support.v033_encounters').game(G),
+    false,
+    nil,
+    { projectiles = true, learned = true }
+  )
   local living = {}
   for _, body in ipairs(result.session.enemies) do
     if body.hp > 0 then

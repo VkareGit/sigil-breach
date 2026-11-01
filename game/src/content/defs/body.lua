@@ -72,6 +72,25 @@ Body.fields = {
     desc = 'how its killed body settles (enemies/corpse.lua)',
   },
   microStun = { type = 'number', min = 0, desc = 'boss: brief stun of a heavy unbroken blow' },
+  steadfast = { type = 'boolean', desc = 'blows do not hold it: no hit-stop, no brief stun' },
+  personal = { type = 'number', min = 0, desc = 'how near a knight comes to it (m)' },
+  shell = {
+    type = 'number',
+    min = 0,
+    max = 1,
+    desc = 'share of damage it takes while winding up and striking',
+  },
+  breakTime = {
+    type = 'number',
+    min = 0,
+    desc = 'a broken guard throws it out of its blow, held this long (s)',
+  },
+  execution = {
+    type = 'number',
+    min = 0,
+    max = 1,
+    desc = 'share of its full health an execution takes while its guard is broken',
+  },
 }
 Body.schema = Schema:new('body', Body.fields)
 -- A neutral body for records without an archetype (fixtures, catalogue). It

@@ -1,4 +1,5 @@
 local Context = require('src.session.context')
+local FieldTools = require('src.app.field_tools')
 local Game = require('src.session.game')
 local Renderer = require('src.render.renderer')
 local UI = require('src.ui.interface')
@@ -346,7 +347,7 @@ function Application:update(dt)
     return
   end
   local input = self.input:sample(self.game)
-  self.accumulator = math.min(0.20, self.accumulator + dt)
+  self.accumulator = math.min(0.20, self.accumulator + FieldTools.time(self, dt))
   while self.accumulator >= fixedStep do
     -- Only the last tick's starting pose can be interpolated for this draw.
     -- Earlier captures were immediately replaced without being presented.

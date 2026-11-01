@@ -74,7 +74,7 @@ local function execute(g, e)
   Signal(g, 'AttackReleased', { enemy = e, attack = atk })
 end
 local function beginAttack(g, e, d, chosen)
-  local atk = chosen or choose(e, d, g.elapsed)
+  local atk = chosen or choose(e, d, g.elapsed, g.rng and g.rng.sim)
   if not atk then
     return false
   end
@@ -100,7 +100,13 @@ local function beginAttack(g, e, d, chosen)
     e.windupDuration = e.windupDuration + K.unseenWindup
   end
   e.windup = e.windupDuration
+  local rng = g.rng and g.rng.sim
   e.holdLeft = atk.hold and atk.hold[e.attackCount % #atk.hold + 1] or nil
+  if atk.hold and atk.shuffle and rng then
+    e.holdLeft = atk.hold[math.floor(rng:random() * #atk.hold) + 1]
+  end
+  -- The side a mirrored blow comes from is rolled here and shown by the body.
+  e.swingSide = atk.mirror and rng and (rng:random() < 0.5 and -1 or 1) or nil
   e.aimX = p.x
   e.aimZ = p.z
   e.aimLevel = p.level
@@ -147,6 +153,24 @@ local function beginAttack(g, e, d, chosen)
   Signal(g, 'AttackTelegraphed', { enemy = e, attack = atk })
   return true
 end
+-- What a blow goes on with: its one next blow, or a roll among its branches, one of
+-- which may be to stop. Nothing about the first blow says which.
+local function nextOf(g, flow)
+  if not flow.branches then
+    return flow.into
+  end
+  local total = 0
+  for _, branch in ipairs(flow.branches) do
+    total = total + branch.weight
+  end
+  local roll = (g.rng and g.rng.sim:random() or 0) * total
+  for _, branch in ipairs(flow.branches) do
+    roll = roll - branch.weight
+    if roll < 0 then
+      return branch.into
+    end
+  end
+end
 -- The strike state, by kind: the kind moves the body and resolves contact.
 local function strike(g, e, dt, previousPlayer)
   local atk = current(e)
@@ -161,11 +185,15 @@ local function strike(g, e, dt, previousPlayer)
     Selection.finished(e, atk, g.elapsed)
     change(e, 'recover')
     local flow = atk.string
-    if flow and (not flow.every or e.attackCount % flow.every == 0) then
-      e.chain, e.chainFrom = flow.into, atk.id
+    local into = flow and (not flow.every or e.attackCount % flow.every == 0) and nextOf(g, flow)
+    if into then
+      e.chain, e.chainFrom = into, atk.id
       e.recover = flow.gap
     else
       Attacks.rest(e, atk)
+    end
+    if e.guardFalling then
+      Rules.guard(e, 0)
     end
   end
 end

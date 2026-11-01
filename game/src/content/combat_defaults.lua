@@ -186,6 +186,8 @@ return {
     alertRange = 12,
     memory = 5,
     turnRate = 10,
+    -- A knight this near (m) counts as close (enemies/answers.lua: hugging).
+    closeRange = 2.4,
     threatRange = 13,
     evadeRange = 16,
   },
@@ -210,6 +212,8 @@ return {
   attacks = {
     -- Where a blink lands around its target, in the order they are tried.
     blinkBearings = { 2.4, -2.4, 1.2, -1.2, 3.14, 0.6, -0.6 },
+    -- A traced blow leans the body toward the side it starts from (rad).
+    swingLean = 0.14,
     muzzle = 0.30,
     aimHeight = 1.15,
     boltLife = 5,
@@ -256,6 +260,19 @@ return {
   -- above their authored volume (defs/area.lua), and their condition outlasts
   -- a pulse by linger s.
   hazards = { clearance = 0.18, pulse = 0.45, damage = 8, linger = 0.6 },
+  -- Between a duellist's blows (enemies/ai.lua: Styles.duel): shares of its speed, the
+  -- length of a step, how strongly a circle pulls back to the ideal distance.
+  duel = { closing = 0.8, giving = 0.7, circling = 0.6, step = 2, pull = 0.3, nearest = 0.1 },
+  -- A counter (Rules.parried): a shot of at least impact, from within reach m, in the
+  -- window a blow opens (content/defs/action.lua: parry), holds a body stun s.
+  parry = { impact = 40, reach = 6, stun = 1.6 },
+  -- What a blow took can be fought back: a share of it stays open for time s, and
+  -- damage dealt brings it back at rate per point (session/listeners.lua).
+  rally = { share = 0.6, time = 3.5, rate = 0.04 },
+  -- An execution (combat/execution.lua): within reach m of the body's edge,
+  -- looking at it (cosine above cone); the knight is untouchable iframes s, the
+  -- world stops stop s, the body rises after rise s.
+  execution = { reach = 2.1, cone = 0.5, iframes = 0.8, stop = 0.18, rise = 0.6, cue = 0.8 },
   -- A killed body (enemies/corpse.lua). Its death strength counts overkill
   -- up to overkill x its health and a killing contact's impact against
   -- impactRef; when it first touches the floor and when it has settled are

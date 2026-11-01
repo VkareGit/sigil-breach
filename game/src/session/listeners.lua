@@ -13,6 +13,7 @@ local Archetypes = require('src.content.enemies')
 local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
+local Roles = require('src.core.roles')
 local Spawn = require('src.session.spawn')
 local Destruction = require('src.combat.destruction')
 local Reactions = require('src.combat.reactions')
@@ -23,12 +24,31 @@ local Listeners = {}
 -- The knight healed is the owner of the killing chain (plan v11 E3d:
 -- session/stats.lua: healed), never merely the controlled one; a fallen or
 -- departed owner heals no one.
+local Capabilities = require('src.session.capabilities')
+-- What a blow took stays open for a moment: the knight fights it back or loses it.
+local Rally = Archetypes.defaults.rally
+local function rallyOpens(g, info)
+  if Capabilities.attrition(g) and (info.lost or 0) > 0 then
+    local player = Roles.controlled(g)
+    player.rally = (player.rally or 0) + info.lost * Rally.share
+    player.rallyLeft = Rally.time
+  end
+end
+local function rallyBack(g, event)
+  local player = event.owner and Stats.healed(g, event.owner)
+  if player and (player.rally or 0) > 0 and (event.health or 0) > 0 then
+    local back = math.min(player.rally, event.health * Rally.rate)
+    player.rally = player.rally - back
+    player.hp = math.min(require('src.content.characters').maxHp(player), player.hp + back)
+  end
+end
 local function breakKill(g, event)
   if not event.offBalance then
     return
   end
   local player = Stats.healed(g, event.owner)
-  local heal = Archetypes.defaults.breakKill.heal * Rules.body(event.enemy).poise
+  local heal = Capabilities.attrition(g) and 0
+    or Archetypes.defaults.breakKill.heal * Rules.body(event.enemy).poise
   local gained = player
       and math.max(
         0,
@@ -119,6 +139,7 @@ function Listeners.attach(g)
     Destruction.blast(g, e.charge)
   end, Tuning.scenery.listenerOrder)
   bus:on('sim', 'BodyHit', function(e)
+    rallyBack(g, e)
     Telemetry.hit(g, e.enemy)
   end, 5)
   bus:on('sim', 'Alerted', function(e)
@@ -150,6 +171,7 @@ function Listeners.attach(g)
     rewards(g, e)
   end, 30)
   bus:on('sim', 'PlayerHit', function(e)
+    rallyOpens(g, e.info)
     playerHit(g, e)
   end, 10)
   bus:on('sim', 'PlayerHit', function(e)

@@ -68,6 +68,12 @@ C.schemas = {
     brokenAge = f(nil, 'its spawnAge when its guard last broke, it fell or was wounded'),
     brokenBy = f(nil, 'what broke it at brokenAge: guard, wound, knockdown'),
     stunCause = f(nil, 'what set a stun that is no lost balance: micro, trip'),
+    guardFalling = f(nil, 'its guard broke in a steady blow: it falls when the blow ends'),
+    swingSide = f(nil, 'the side a mirrored blow comes from this time'),
+    closeFor = f(nil, 'how long a knight has stood close (s)'),
+    answered = f(nil, 'event -> when it may be answered again'),
+    duelMove = f(nil, 'what it does between blows'),
+    duelLeft = f(nil, 'for how much longer (s)'),
   },
   motion = {
     pushX = f(0, 'shove velocity (m/s)'),
@@ -330,6 +336,9 @@ C.schemas.knight = {
   abilities = f(nil, 'ability ids in slot order'),
   abilityState = f(nil, 'ability id -> { uses, readyAt }'),
   resources = f(nil, 'resource id -> amount (content/resources.lua)'),
+  resourcePause = f(nil, 'resource id -> seconds before it comes back'),
+  rally = f(nil, 'health a blow took that can still be fought back'),
+  rallyLeft = f(nil, 'for how much longer (s)'),
   casting = f(nil, 'the cast in progress (combat/abilities.lua)'),
   trigger = f(nil, 'what the trigger mode of the weapon keeps (player/intent.lua)'),
   -- The actor's hands and trigger (plan v11 E3: the session kept them for

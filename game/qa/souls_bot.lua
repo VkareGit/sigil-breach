@@ -3,6 +3,8 @@
 -- the air. Neither is a measure of human difficulty.
 local B = require('src.combat.ballistics')
 local Pools = require('src.session.world')
+local Resources = require('src.combat.resources')
+local Rules = require('src.combat.rules')
 local Bot = {}
 local function nearest(g)
   local p, best, bestD = g.player, nil, nil
@@ -29,6 +31,36 @@ function Bot.careless(g)
   end
   aim(g, e)
   return { shoot = true }
+end
+-- One habit for every blow: keep moving, shoot when it can, dodge sideways as each
+-- windup ends. This is the knight the fight must not reward.
+function Bot.reflex(g, memory)
+  local p = g.player
+  local e, distance = nearest(g)
+  if not e then
+    return {}
+  end
+  aim(g, e)
+  memory.clock = (memory.clock or 0) + 1
+  memory.side = memory.clock % 240 < 120 and 1 or -1
+  local input = { strafe = memory.side }
+  input.forward = distance > 5.6 and 1 or (distance < 3.6 and -1 or 0)
+  input.shoot = (Resources.share(p, 'stamina') or 1) > 0.36
+  if p.hp < 45 and not p.casting then
+    g:cast(2)
+  end
+  for _, body in ipairs(g.enemies) do
+    if body.hp > 0 and body.ai == 'windup' and body.windup < 0.1 then
+      input.dash, input.forward = true, 0
+    end
+  end
+  return input
+end
+-- The same habit with one fixed side: remembers a direction, reads nothing.
+function Bot.oneSide(g, memory)
+  local input = Bot.reflex(g, memory)
+  input.strafe = 1
+  return input
 end
 -- How far a committed blow of e can reach, and whether it asks for a jump.
 local function threat(e)
@@ -71,6 +103,15 @@ local function steer(p, x, z, away)
   local fx, fz = math.sin(p.yaw), math.cos(p.yaw)
   return dx * fx + dz * fz, dx * fz - dz * fx
 end
+-- Whether nothing is about to land: the moment for a swallow.
+local function quiet(g)
+  for _, body in ipairs(g.enemies) do
+    if body.hp > 0 and (body.ai == 'windup' or body.ai == 'strike') then
+      return false
+    end
+  end
+  return not missile(g) and not underfoot(g)
+end
 -- Learnt the tells: keeps its distance, shoots what is not about to strike, and
 -- answers each kind of blow the way the blow can be answered.
 function Bot.learning(g, memory)
@@ -104,10 +145,26 @@ function Bot.learning(g, memory)
     memory.side = -memory.side
   end
   local input = {}
+  -- A broken guard is the moment everything was for.
+  if Rules.has(e, 'exposed') and (e.stun or 0) > 0 and Rules.body(e).execution then
+    if g:interact() then
+      return input
+    end
+    input.forward, input.strafe = steer(p, e.x, e.z)
+    return input
+  end
+  local effort = Resources.share(p, 'stamina') or 1
   -- Keep room: close enough for the guns, out of the reach of the blade.
   local keep = (e.attackSpec and e.attackSpec.kind == 'bolt') and 5 or 6.5
+  if Rules.body(e).personal then
+    keep = 4.6
+  end
   input.forward = distance > keep + 1 and 1 or (distance < keep - 1 and -1 or 0)
   input.strafe = memory.side
+  -- Drink when nothing is coming and the wound is worth it.
+  if (p.hp < 40 or (p.hp < 70 and distance > 6)) and not p.casting and quiet(g) then
+    g:cast(2)
+  end
   -- Rounds and health lying near are worth the walk.
   for _, pickup in ipairs(Pools.of(g, 'pickups')) do
     local d = math.sqrt((pickup.x - p.x) ^ 2 + (pickup.z - p.z) ^ 2)
@@ -116,9 +173,15 @@ function Bot.learning(g, memory)
       break
     end
   end
-  -- Shoot unless the body is about to answer: the openings are the rest.
+  -- Shoot unless the body is about to answer: the openings are the rest. A dodge
+  -- must stay paid for.
   local busy = e.ai == 'windup' and e.windup + (e.holdLeft or 0) < 0.35
-  input.shoot = not busy and distance < 11 and memory.clock % 3 == 0
+  local hardened = Rules.shell(e) < 1 or (e.attackSpec and e.attackSpec.parry and e.ai == 'windup')
+  input.shoot = not busy
+    and not hardened
+    and distance < 11
+    and memory.clock % 3 == 0
+    and effort > 0.36
   -- Blows of the body: a dodge across the line, at the last moment.
   for _, body in ipairs(g.enemies) do
     if body.hp > 0 and body.ai == 'windup' then
@@ -128,8 +191,23 @@ function Bot.learning(g, memory)
       if lands then
         d = math.sqrt((body.aimX - p.x) ^ 2 + (body.aimZ - p.z) ^ 2)
       end
-      if left < 0.1 and d < threat(body) and not (body.attackSpec.kind == 'wave') then
-        input.dash, input.strafe, input.forward = true, memory.side, 0
+      local spec = body.attackSpec
+      local trace = spec and spec.trace
+      local low = trace and trace[1].height < 0.6 and trace[#trace].height < 0.6
+      if spec and spec.parry and left <= spec.parry - 0.04 and d < 5.5 and p.cooldown == 0 then
+        -- It can be turned aside: stand and shoot as it opens.
+        input.shoot = true
+      elseif low then
+        input.jump = input.jump or (left < 0.16 and d < threat(body))
+      elseif left < 0.1 and d < threat(body) and not (spec.kind == 'wave') then
+        input.dash = effort > 0
+        input.strafe, input.forward = memory.side, 0
+        -- A swing is dodged through its blade, toward the side it comes from.
+        if trace and spec.chase then
+          local yaw = body.facing + trace[1].angle * (body.swingSide or 1)
+          input.forward, input.strafe =
+            steer(p, body.x + math.sin(yaw) * d, body.z + math.cos(yaw) * d)
+        end
       end
     end
     -- A rush: across its line when it is about to arrive.
@@ -163,12 +241,20 @@ function Bot.learning(g, memory)
   local mark = underfoot(g)
   if mark then
     input.forward, input.strafe = steer(p, mark.x, mark.z, true)
-    input.dash = input.dash or (mark.delay or 0) < 0.25
+    input.dash = input.dash or (mark.delay or 0) < 0.12
   end
   local bolt = missile(g)
   if bolt then
     input.dash = true
     input.forward, input.strafe = 0, memory.side
+  end
+  -- A ring closing around the knight: whoever stands still is left alone.
+  local closing = 0
+  for _, h in ipairs(Pools.of(g, 'hazards')) do
+    closing = closing + ((h.delay or 0) > 0 and 1 or 0)
+  end
+  if closing >= 6 then
+    input.forward, input.strafe, input.dash = 0, 0, false
   end
   -- The sky above everything: only the circle is safe.
   for _, h in ipairs(Pools.of(g, 'hazards')) do

@@ -17,6 +17,9 @@ local Resources = require('src.combat.resources')
 local Roles = require('src.core.roles')
 local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
+local Characters = require('src.content.characters')
+local Presentation = require('src.session.presentation')
+local Rules = require('src.combat.rules')
 local Cast = {}
 Cast.kinds = ActionKinds:view()
 ActionKinds:register('throw', {
@@ -68,6 +71,14 @@ local function release(g, ability, state, actor, slot)
   })
   return true
 end
+ActionKinds:register('drink', {
+  cast = function(g, action, caster)
+    local actor = caster.body
+    actor.hp = math.min(Characters.maxHp(actor), actor.hp + action.heal)
+    Presentation.cue(g, 'pickup', 0.5)
+    return true
+  end,
+})
 local function finish(g, actor, interrupted)
   local casting = actor.casting
   actor.casting = nil
@@ -82,6 +93,9 @@ end
 local function begin(actor, ability, slot)
   local pulses = pulsing(ability)
   local windup = ability.action.windup
+  if ability.posture then
+    Rules.addCondition(actor, ability.posture, windup)
+  end
   actor.casting = {
     id = ability.id,
     slot = slot,
@@ -120,6 +134,17 @@ function Cast.update(g, dt, actor)
   end
   if casting.left <= 0 then
     finish(g, actor, false)
+  end
+end
+-- A blow stops what a blow can stop: nothing is paid for it.
+function Cast.interrupt(g, actor)
+  local casting = actor.casting
+  local ability = casting and Abilities:find(casting.id)
+  if ability and ability.fragile then
+    if ability.posture then
+      actor.conditions[ability.posture] = nil
+    end
+    finish(g, actor, true)
   end
 end
 -- Cast the ability in slot (default 1, the Q key) for who (an actor's id;

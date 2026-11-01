@@ -39,6 +39,8 @@ function Encounter.advance(g, e)
     e.rushVX, e.rushVZ = nil, nil
     e.walkVX, e.walkVZ, e.walkSpeed = nil, nil, 0
     e.evadeTime = nil
+    -- It comes out of the threshold with its blow ready.
+    e.chain = nextPhase.opening
     -- Guard damage, conditions, cooldowns and reactions are not cleansed.
     local event = { enemy = e, from = index, phase = index + 1, id = nextPhase.id }
     Signal(g, 'EnemyPhaseChanged', event)

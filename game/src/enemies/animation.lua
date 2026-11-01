@@ -164,6 +164,11 @@ function Anim.pose(g, e, observer)
   end
   -- The leap's crouch: the body sinks and widens as it gathers (telegraph).
   local spec = e.attackSpec
+  -- A traced blow is carried to the side it starts from: the tell of its direction.
+  if e.hp > 0 and e.ai == 'windup' and spec and spec.trace then
+    local from = spec.trace[1].angle * (e.swingSide or 1)
+    lean = lean + (from > 0 and 1 or -1) * Archetypes.defaults.attacks.swingLean
+  end
   if e.hp > 0 and e.ai == 'windup' and spec and Action.trait(spec, 'gathers') then
     local t = Anim.actionPhase(e)
     sy = sy * (1 - 0.10 * t)

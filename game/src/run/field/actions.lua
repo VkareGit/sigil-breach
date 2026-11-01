@@ -10,6 +10,10 @@ local Settings = require('src.content.field')
 local Stations = require('src.run.field.stations')
 local Roles = require('src.core.roles')
 local Access = require('src.run.field.access')
+local Archetypes = require('src.content.enemies')
+local Attacks = require('src.enemies.actions')
+local MathX = require('src.core.mathx')
+local Bodies = require('src.combat.bodies')
 local Actions = {}
 Actions.fixed = Registry:new('field actions', function(entry, id)
   assert(type(entry.run) == 'function', 'field action ' .. id .. ' needs run(g, field)')
@@ -62,6 +66,41 @@ Actions.fixed:register('field_hitboxes', {
   run = function(g, field)
     g.testField.hitboxes = not g.testField.hitboxes
     field.tell(g, g.testField.hitboxes and 'field_hitboxes_on' or 'field_hitboxes_off')
+    return true
+  end,
+})
+-- The attacks of the selected demon, one at a time, on demand: F3 names the next,
+-- F4 has the nearest of its kind do it (app/field_tools.lua).
+local function selectedBlows(g)
+  return Archetypes.get(g.testField.selected).attacks
+end
+Actions.fixed:register('field_blow_next', {
+  run = function(g, field)
+    local blows = selectedBlows(g)
+    g.testField.blow = (g.testField.blow or 0) % #blows + 1
+    local blow = blows[g.testField.blow]
+    field.tell(g, 'field_blow', { index = g.testField.blow, count = #blows, id = blow.id })
+    return true
+  end,
+})
+Actions.fixed:register('field_blow_go', {
+  run = function(g, field)
+    local p, best, far = Roles.controlled(g), nil, math.huge
+    Bodies.each(g, function(e)
+      local d = MathX.len(e.x - p.x, e.z - p.z)
+      if e.hp > 0 and e.fieldKind == g.testField.selected and d < far then
+        best, far = e, d
+      end
+    end)
+    local blow = selectedBlows(g)[g.testField.blow or 1]
+    if not best then
+      field.tell(g, 'field_no_body')
+      return true
+    end
+    best.awake, best.visible, best.memory, best.target = true, true, Settings.engage.memory, p.id
+    best.previewFrame, best.recover = nil, 0
+    Attacks.begin(g, best, far, blow)
+    field.tell(g, 'field_blow_gone', { id = blow.id, windup = blow.windup })
     return true
   end,
 })

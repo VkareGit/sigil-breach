@@ -12,7 +12,7 @@ function Tests.run(G)
   local Defaults = require('src.content.combat_defaults')
   local Damage = require('src.combat.damage')
   local function field()
-    local g = Field.new(G)
+    local g = Field.new(G, nil, { attrition = false })
     g.testing = true
     Field.close(g)
     g.player.hp = 50

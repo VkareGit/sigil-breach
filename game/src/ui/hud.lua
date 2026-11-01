@@ -15,6 +15,7 @@ local Loadout = require('src.combat.loadout')
 local Slots = require('src.ui.hud_slots')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
+local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
 local Modes = require('src.run.modes')
 local Queries = require('src.run.queries')
@@ -198,6 +199,24 @@ function H.status(g, run)
   end
   Skin.endZone()
 end
+-- Effort, over the fresco, only while it is being spent.
+function H.stamina(p)
+  local share = Resources.share(p, 'stamina')
+  if share and share < 1 then
+    Skin.zone('HUD stamina', 500, 572, 280, 10)
+    Skin.meter(500, 574, 280, share, share > 0 and C.gold or C.red, 20)
+    Skin.endZone()
+  end
+end
+-- What a blow took and can still be fought back, on the health meter.
+function H.rally(p)
+  if (p.rally or 0) > 0 then
+    local x = 275 + 110 * Characters.share(p)
+    lg.setColor(C.gold)
+    lg.rectangle('fill', x, 686, math.min(385 - x, 110 * p.rally / Characters.maxHp(p)), 4)
+    lg.setColor(1, 1, 1)
+  end
+end
 function H.draw(g, settings, ui, descentUI)
   U = ui
   local p = Context.actor(g)
@@ -325,6 +344,8 @@ function H.draw(g, settings, ui, descentUI)
     end
   end
   H.status(g, run)
+  H.stamina(p)
+  H.rally(p)
   local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
   -- The action is captioned in AMMO. A central reload placard covered the
   -- actual breech, cylinder and hands exactly when their animation mattered.

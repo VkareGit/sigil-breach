@@ -53,11 +53,14 @@
 -- (harder blows, strings, three acts of a guardian) and a guardian spills supplies
 -- at its thresholds. The engine of S1 reproduced 6/6 former digests before this
 -- content was laid on it; v033 fixture files remain unchanged.
+-- Plan v13 W4-W6: the Margrave fights with paths, turns and answers, and the proving
+-- ground pays effort. The former creature file with attrition off reproduces 6/6.
+-- Then his card of blows: counters, a shell in his strikes, rolled sides and branches.
 return {
-  playtest = '8b24e506/3edc4c25',
-  human = '54331094/29989d47',
-  drill = '12e620d8/f5e3b2fd',
-  playtestContacts = 'd85cea04/606',
-  humanContacts = '541faa1d/874',
-  drillContacts = '14671959/272',
+  playtest = 'ff2f83f1/2bb2cc49',
+  human = '5037caaf/f8c22251',
+  drill = 'ddb19648/5bd6c6f4',
+  playtestContacts = '2b2e6f57/370',
+  humanContacts = 'e52d1f6f/841',
+  drillContacts = '5524e142/277',
 }

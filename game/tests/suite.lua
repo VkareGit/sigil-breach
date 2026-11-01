@@ -61,6 +61,11 @@ Suite.registry = {
     module = 'tests.cases.souls_trace',
   },
   {
+    id = 'souls-balance',
+    title = 'Guard, execution, effort, the flask and what a body answers',
+    module = 'tests.cases.souls_balance',
+  },
+  {
     id = 'souls-engine',
     title = 'Combat engine of the souls plan, each mechanic alone',
     module = 'tests.cases.souls_engine',

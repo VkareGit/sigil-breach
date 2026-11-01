@@ -27,12 +27,23 @@ Creature.evade = Schema:new('evade', {
   cone = { type = 'number', default = 0.06, min = 0, desc = 'aim cone that triggers it (rad)' },
   fromTier = { type = 'number', default = 1, min = 1 },
 })
+-- How a duelling body spends the time between blows (enemies/ai.lua: Styles.duel).
+Creature.duel = Schema:new('duel', {
+  circle = { type = 'number', default = 3, min = 0, desc = 'weight of walking around' },
+  close = { type = 'number', default = 2, min = 0, desc = 'weight of walking in' },
+  back = { type = 'number', default = 1, min = 0, desc = 'weight of giving ground' },
+  wait = { type = 'number', default = 1, min = 0, desc = 'weight of standing and watching' },
+  hold = { type = 'number', default = 0.8, min = 0, desc = 'shortest of them (s)' },
+  spread = { type = 'number', default = 0.9, min = 0, desc = 'added at most (s)' },
+  far = { type = 'number', default = 3, min = 0, desc = 'this far past its ideal it comes (m)' },
+})
 Creature.move = Schema:new('move', {
   speed = { type = 'number', required = true, min = 0, desc = 'walking speed (m/s)' },
   accel = { type = 'number', default = Defaults.accel, min = 0, desc = 'divided by sqrt(mass)' },
   style = { type = 'string', default = 'keep', desc = 'movement style (enemies/ai.lua: AI.styles)' },
   ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
   turn = { type = 'number', min = 0, desc = 'how fast the body turns (rad/s); absent: at once' },
+  duel = { type = 'table', schema = Creature.duel, desc = "'duel': between its blows" },
   heavy = { type = 'boolean', default = false },
   evade = { type = 'table', schema = Creature.evade },
   targeting = {
@@ -93,6 +104,15 @@ Creature.catalog = Schema:new('catalog', {
   field = { type = 'number', min = 1, desc = 'place in the proving ground and the gallery' },
   bestiary = { type = 'table', schema = Creature.bestiary },
 })
+-- What a body does about what it sees (enemies/answers.lua).
+Creature.answer = Schema:new('answer', {
+  when = { type = 'string', required = true, desc = 'event (enemies/answers.lua: Answers.events)' },
+  attack = { type = 'string', required = true, desc = 'the blow it answers with' },
+  rest = { type = 'number', default = 4, min = 0, desc = 'before this event is answered again (s)' },
+  within = { type = 'number', default = 4, min = 0, desc = 'distance the event is judged at (m)' },
+  off = { type = 'number', default = 1.9, min = 0, desc = 'behind: radians off its facing' },
+  after = { type = 'number', default = 1, min = 0, desc = 'hugging: for this long (s)' },
+})
 Creature.schema = Schema:new('creature', {
   id = { type = 'string', required = true },
   catalog = { type = 'table', default = {}, desc = 'where it is listed (Creature.catalog)' },
@@ -115,6 +135,7 @@ Creature.schema = Schema:new('creature', {
   body = { type = 'table', required = true },
   move = { type = 'table', required = true },
   attacks = { type = 'table', required = true },
+  answers = { type = 'table', list = Creature.answer, desc = 'blows that meet what it sees' },
 })
 -- The boss template: a large guard that falters instead of breaking,
 -- longer stance, one attacker at a time, never a major wound from one hit.
@@ -169,6 +190,9 @@ function Creature.define(def)
   if def.attacks and not def.tactics then
     merged.tactics = nil
   end
+  if def.attacks and not def.answers then
+    merged.answers = nil
+  end
   merged.catalog = def.catalog or {}
   merged.attacks = actionsOf(parent, def.attacks)
   merged.kind = merged.kind or merged.id
@@ -198,7 +222,18 @@ function Creature.define(def)
     ids[a.id] = true
   end
   for _, a in ipairs(merged.attacks) do
-    assert(not a.string or ids[a.string.into], where .. ': string into unknown ' .. a.id)
+    assert(
+      not a.string or not a.string.into or ids[a.string.into],
+      where .. ': string into unknown ' .. a.id
+    )
+    for _, branch in ipairs(a.string and a.string.branches or {}) do
+      assert(not branch.into or ids[branch.into], where .. ': branch into unknown ' .. a.id)
+    end
+  end
+  for index, answer in ipairs(merged.answers or {}) do
+    local path = where .. '.answers[' .. index .. ']'
+    merged.answers[index] = Creature.answer:build(answer, path)
+    assert(ids[answer.attack], path .. ': unknown attack ' .. tostring(answer.attack))
   end
   Creature.schema:validate(merged, where)
   Encounter.validate(merged, where)

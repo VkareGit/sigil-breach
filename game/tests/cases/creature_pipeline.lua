@@ -355,6 +355,7 @@ function Tests.run(G, renderer)
       p.x, p.z = 16, 22
       field:switchWeapon(2)
       p.arsenal.judge.mag, p.arsenal.judge.readyAt, field.player.cooldown = 6, 0, 0
+      p.resources.stamina = 100
       local aim = Surface.prepare(field, target)
       local hx, hy, hz = Surface.locateZone(aim, 'head')
       local sx, sy, sz = B.origin(field)

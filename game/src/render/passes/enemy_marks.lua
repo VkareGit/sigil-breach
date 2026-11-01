@@ -4,7 +4,9 @@ local Action = require('src.content.defs.action')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
+local Rules = require('src.combat.rules')
 local Shadows = require('src.render.shadows')
+local COUNTER_RING, COUNTER_GOLD = 7, { 1, 0.86, 0.42 }
 local COLORS = require('src.render.effects').colors
 local Context = require('src.session.context')
 local Characters = require('src.content.characters')
@@ -35,6 +37,20 @@ function Pass.draw(r, g)
     if e.hp > 0 then
       local look = Archetypes.look(e)
       local ground = Ground.of(g.world, e)
+      -- The moment a shot can turn the blow aside: a clear gold ring.
+      local open = e.attackSpec and e.attackSpec.parry
+      if e.ai == 'windup' and open and e.windup + (e.holdLeft or 0) <= open then
+        r:object(
+          r.warning,
+          e.x,
+          ground + 0.03,
+          e.z,
+          0,
+          Rules.radius(e) * COUNTER_RING,
+          COUNTER_GOLD,
+          0.95
+        )
+      end
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         r:object(

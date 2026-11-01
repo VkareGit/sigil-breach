@@ -48,5 +48,6 @@ api.register('exposed', { modifiers = { armor = { mul = 0.5 } } })
 api.register('seized', { speed = 0, forbids = { 'fire', 'cast', 'dash', 'jump' } })
 -- Roots around the legs: it can still shoot and dodge, not walk.
 api.register('rooted', { speed = 0.25, forbids = { 'jump' } })
+api.register('drinking', { speed = 0.45, forbids = { 'fire', 'dash' } })
 -- Existing data readers retain Conditions[id]; methods are not definition keys.
 return setmetatable(registry:view(), { __index = api })

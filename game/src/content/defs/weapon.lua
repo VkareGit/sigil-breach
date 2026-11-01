@@ -55,6 +55,7 @@ Weapon.attack = Schema:new('weapon attack', {
 Weapon.fire = Schema:new('trigger pull', {
   heavy = { type = 'boolean', default = false, desc = 'two-handed (recoil, trails)' },
   rounds = { type = 'number', default = 1, min = 1, desc = 'rounds spent by one pull' },
+  stamina = { type = 'number', default = 0, min = 0, desc = 'effort of one pull' },
   pellets = { type = 'number', default = 1, min = 1, desc = 'pellets of a full pull' },
   spread = {
     type = 'number',

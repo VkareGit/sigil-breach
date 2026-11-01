@@ -48,8 +48,9 @@ local function ordered(e, distance, now, list)
   local last = list[#list]
   return last and usable(e, last, distance, now) and last or nil
 end
-local function context(e, distance, now, list, tactics)
-  local chosen, best
+local function context(e, distance, now, list, tactics, rng)
+  local chosen, best = nil, nil
+  local total = 0
   for _, choice in ipairs(tactics.moves) do
     if
       (e.tier or 1) >= choice.fromTier
@@ -65,7 +66,13 @@ local function context(e, distance, now, list, tactics)
           if e.lastAttack == attack.id then
             score = score * tactics.repeatPenalty ^ (e.attackRepeats or 1)
           end
-          if not best or score > best then
+          total = total + score
+          if tactics.roll and rng then
+            -- A roll by weight: each usable move in its share of the total.
+            if rng:random() * total < score then
+              chosen = attack
+            end
+          elseif not best or score > best then
             chosen, best = attack, score
           end
         end
@@ -74,11 +81,11 @@ local function context(e, distance, now, list, tactics)
   end
   return chosen
 end
-function Selection.choose(e, distance, now)
+function Selection.choose(e, distance, now, rng)
   local def = A.of(e)
   local tactics = policy(e)
   if tactics and tactics.policy == 'context' then
-    return context(e, distance, now, def.attacks, tactics)
+    return context(e, distance, now, def.attacks, tactics, rng)
   end
   return ordered(e, distance, now, def.attacks)
 end

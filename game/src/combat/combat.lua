@@ -1,4 +1,5 @@
 local Capabilities = require('src.session.capabilities')
+local Resources = require('src.combat.resources')
 local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
 local B = require('src.combat.ballistics')
@@ -37,6 +38,9 @@ local function ready(g, a)
   if Attributes.forbids(a, 'fire') then
     return nil
   end
+  if Capabilities.attrition(g) and not Resources.ready(a, 'stamina') then
+    return nil
+  end
   local profile, state = Weapons.inHand(g, nil, a)
   if not profile or not state then
     return nil
@@ -71,6 +75,9 @@ local function discharge(g, profile, command, p)
     state.spent = (state.spent or 0) + rounds
   end
   AI.noise(g, p.x, p.z, fire.noise)
+  if Capabilities.attrition(g) then
+    Resources.exert(p, 'stamina', fire.stamina)
+  end
   -- The world's shot id (journal, observations) and the actor's own shot
   -- sequence (its pellet pattern and contact seeds; plan v11 E3).
   p.shots = p.shots + 1

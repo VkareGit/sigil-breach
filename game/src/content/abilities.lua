@@ -45,6 +45,28 @@ Abilities:register(
     })),
   })
 )
+-- The flask (F): a long swallow, slowed and with the hands full. A blow on the knight
+-- spills it. Comes back full at a rest.
+Abilities:register(
+  'flask',
+  Ability.define({
+    id = 'flask',
+    name = 'ability_flask',
+    tag = 'ability_flask_tag',
+    capacity = 4,
+    start = 4,
+    empty = 'ability_flask_empty',
+    posture = 'drinking',
+    fragile = true,
+    action = Action.build(Action.drink({
+      id = 'flask',
+      range = 0,
+      windup = 0.95,
+      cooldown = 0.3,
+      heal = 55,
+    })),
+  })
+)
 -- How long the notice of an empty ability stays (s).
 Abilities.noticeTime = 1.7
 -- The abilities a new knight carries (slot order).

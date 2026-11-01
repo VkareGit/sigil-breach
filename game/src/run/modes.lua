@@ -145,7 +145,10 @@ Modes:register('field', {
   canTrade = function(g)
     return field().allows(g, 'trade') and g.run.phase == 'preparing'
   end,
-  policy = { phased = true, freezable = true, invincible = true },
+  policy = { phased = true, freezable = true, invincible = true, attrition = true },
+  attrition = function(g)
+    return field().attrition(g)
+  end,
   -- Its targets hold the catalogue pose they were given.
   posed = function()
     return true

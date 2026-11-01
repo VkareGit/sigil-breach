@@ -1,3 +1,24 @@
+JAK EDYTOWAĆ CIOS (plan v13)
+
+Cios stoi w game/src/content/creatures/<stwór>.lua. Poligon pokazuje go bez restartu:
+F2 wybierz stwora i przywołaj go, HITBOXES włącz, F3 następny cios, F4 cios teraz,
+F5 wczytaj pliki stworów od nowa, F6 czas 1, 1/2, 1/4, stop, F7 krok.
+
+windup, hold     zamach i zawieszenie po nim, shuffle = true losuje zawieszenie
+turn, lockAt     obrót ciała (rad/s) i udział zamachu, po którym ciało już się nie obraca
+trace            tor ostrza: { at, angle, reach, height } od kierunku ciała
+mirror           każde użycie losuje stronę; ciało zmienia rękę i pochyla się na tę stronę
+chase            w ciosie ciało goni tego, kto ucieka z ostrzem, nie tego, kto idzie pod prąd
+parry            tyle sekund przed uderzeniem strzał przerywa cios; złoty krąg to pokazuje
+steady, hyper    złamanie gardy dopiero po ciosie, wyższy próg w ciosie
+string           następny cios lub branches = { { into, weight }, { weight } }; bez into stop
+recover          okno na karę; ciało z shell przyjmuje pełne obrażenia dopiero tu
+
+Ciało: shell, breakTime, execution, steadfast, personal. Reakcje: answers (drinking,
+reloading, behind, hugging, sniped, dodged). Każdy nowy cios potrzebuje jednej właściwej
+odpowiedzi: wpisz ją do karty w PLAN-SOULS-v13.md i naucz jej bota w qa/souls_bot.lua.
+Bramka tests/cases/souls_gate.lua pilnuje, żeby ruch i unik z nawyku przegrywały.
+
 PRZEPISY PLANU v12 (0.36)
 
 Każdy przepis ma działającą próbę w game/tests/support/extension/ i pakiet

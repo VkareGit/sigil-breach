@@ -420,7 +420,9 @@ function Tests.run(G, initial, renderer, getGame)
   file:write(table.concat(balance, '\n') .. '\n')
   file:close()
   print(table.concat(balance, '\n'))
-  local run = require('qa.scenarios.classic_playtest').run(G)
+  -- The old arena under the encounters it was tuned for; it leaves with the waves.
+  local run =
+    require('qa.scenarios.classic_playtest').run(require('tests.support.v033_encounters').game(G))
   check(
     'full Limbo can be completed with real combat and movement inputs',
     run.state == 'won' and run.seals == 3 and run.kills == 13

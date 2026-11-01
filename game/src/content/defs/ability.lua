@@ -28,6 +28,8 @@ Ability.schema = Schema:new('ability', {
     default = { uses = 1 },
     desc = "what one release spends: 'uses' or a resource (content/resources.lua)",
   },
+  posture = { type = 'string', desc = 'condition the knight stands in through the windup' },
+  fragile = { type = 'boolean', desc = 'a blow on the knight stops it' },
   channel = { type = 'table', schema = Ability.pulses, desc = 'it goes on pulsing after release' },
   toggle = { type = 'table', schema = Ability.pulses, desc = 'it pulses until cast again' },
 })

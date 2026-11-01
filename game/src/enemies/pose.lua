@@ -71,7 +71,9 @@ function Pose.sample(g, e, out, observer)
     sourcePath = sheet.path
   end
   local p = out or {}
-  p.atlas, p.frame, p.region, p.mirror = atlas, frame, region, mirror or 0
+  -- A mirrored blow shows its side: the body changes hands.
+  local changed = e.swingSide == -1 and (e.ai == 'windup' or e.ai == 'strike')
+  p.atlas, p.frame, p.region, p.mirror = atlas, frame, region, mirror or (changed and 1 or 0)
   -- The anatomy annotation of the atlas frames (an ability sheet has its own).
   p.regions = Archetypes.look(e).regions or atlas
   p.sx, p.sy, p.lean, p.size, p.baseY = sx, sy, lean, size, baseY

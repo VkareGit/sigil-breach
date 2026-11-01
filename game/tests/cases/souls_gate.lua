@@ -6,11 +6,14 @@ local Bot = require('qa.souls_bot')
 local Release = require('src.app.release')
 local T = {}
 local TRIALS = { 'ash', 'storm', 'claws', 'iron', 'stars', 'resin' }
-local GATED = {}
+local GATED = { ash = true }
 local UNSHOT = 30
-local function fight(Game, trial, knight, seconds, unhurt)
+local function fight(Game, trial, knight, seconds, unhurt, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
   g.testing = true
+  if seed then
+    g.rng.sim:seed(seed)
+  end
   assert(g:act('catalog', 'field_chamber_' .. trial))
   if unhurt then
     g.testField.invincible = true
@@ -22,7 +25,8 @@ local function fight(Game, trial, knight, seconds, unhurt)
   for _ = 1, seconds * 120 do
     g:update(1 / 120, knight(g, memory))
     last = g.enemies[1] or last
-    alive = alive + ((last and last.hp > 0) and 1 / 120 or 0)
+    -- A broken guard is earned: only the time it stands free counts.
+    alive = alive + ((last and last.hp > 0 and (last.stun or 0) == 0) and 1 / 120 or 0)
     if g.state ~= 'playing' or g.testField.roomTrial.status ~= 'active' then
       break
     end
@@ -55,6 +59,18 @@ function T.run(Game)
       check(trial .. ' kills a knight who stands and shoots', g.state == 'dead')
       check(trial .. ' still has most of its life then ' .. left, left > 0.6)
       check(trial .. ' keeps its blows under fire ' .. shot / unshot, shot >= unshot * 0.8)
+      -- Moving and dodging by habit is no answer: only knowing the blows is.
+      local fell = 0
+      for seed = 1, 3 do
+        for _, name in ipairs({ 'reflex', 'oneSide' }) do
+          local h = fight(Game, trial, Bot[name], 240, false, seed)
+          print(
+            string.format('MEASURE gate %s %s: %s after %.1fs', trial, name, h.state, h.elapsed)
+          )
+          fell = fell + (h.state == 'dead' and 1 or 0)
+        end
+      end
+      check(trial .. ' beats a knight who only moves ' .. fell, fell == 6)
     end
   end
   return lines

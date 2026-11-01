@@ -72,6 +72,36 @@ return function(R)
     R.addCondition(e, 'staggered', t)
     return t
   end
+  -- A shot in the window a blow opens (Bloodborne's gun parry): the blow is gone and
+  -- the body stands open to an execution.
+  function R.parries(e, impact, distance)
+    local spec = e.attackSpec
+    return spec ~= nil
+      and spec.parry ~= nil
+      and e.ai == 'windup'
+      and e.windup + (e.holdLeft or 0) <= spec.parry
+      and impact >= defaults.parry.impact
+      and distance <= defaults.parry.reach
+  end
+  function R.parried(e)
+    local stun = R.body(e).breakTime or defaults.parry.stun
+    ActionKinds.abandon(e)
+    e.ai, e.phase, e.windup = 'hurt', 0, 0
+    e.rushVX, e.rushVZ = nil, nil
+    e.recover = defaults.interruptRecover
+    e.stun = max(e.stun or 0, stun)
+    R.addCondition(e, 'exposed', stun)
+    R.markBroken(e, 'guard')
+    e.breakFlash = defaults.breakFlash
+  end
+  -- What a blow keeps of its damage on a body hardened for its own strike.
+  function R.shell(e)
+    local shell = R.body(e).shell
+    if shell and (e.ai == 'windup' or e.ai == 'strike') and not R.has(e, 'exposed') then
+      return shell
+    end
+    return 1
+  end
   -- Length of the lock after a broken guard (bosses lock much longer).
   function R.lockTime(e)
     return e and R.body(e).boss and defaults.bossLock or defaults.staggerLock
@@ -131,12 +161,25 @@ return function(R)
     if e.poise < guard then
       return false, false
     end
+    -- A steady blow is not stopped: its body falls when it has struck.
+    local spec = e.attackSpec
+    if spec and spec.steady and (e.ai == 'windup' or e.ai == 'strike') then
+      e.guardFalling = true
+      return false, false
+    end
+    e.guardFalling = nil
     local t, heavy = R.staggerTime(e.poise, guard, b)
     if boss then
       ActionKinds.release(e)
-      e.stun = max(e.stun or 0, t)
+      e.stun = max(e.stun or 0, b.breakTime or t)
       e.staggerLock = defaults.bossLock
-      R.addCondition(e, 'exposed', defaults.bossExposed)
+      R.addCondition(e, 'exposed', b.breakTime or defaults.bossExposed)
+      if b.breakTime then
+        ActionKinds.abandon(e)
+        e.ai, e.phase, e.windup = 'hurt', 0, 0
+        e.rushVX, e.rushVZ = nil, nil
+        e.recover = defaults.interruptRecover
+      end
     else
       e.stun = max(e.stun or 0, t)
       e.staggerLock = defaults.staggerLock

@@ -23,8 +23,13 @@ function M.game(Game)
   old.furfur.attacks = { old.furfur.attacks[1], old.furfur.attacks[2], old.furfur.attacks[3] }
   old.furfur.attacks[2].rest, old.furfur.attacks[3].rest = nil, nil
   return setmetatable({
-    new = function(...)
-      local g = Game.new(...)
+    new = function(mode, map, options)
+      -- The old rules of effort too: the field's drill was recorded under them.
+      if mode == 'field' then
+        options = options and Schema.copy(options) or {}
+        options.attrition = false
+      end
+      local g = Game.new(mode, map, options)
       local spawn = g.spawn
       g.spawn = function(self, kind, x, z)
         local e = spawn(self, kind, x, z)

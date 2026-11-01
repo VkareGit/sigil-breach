@@ -44,8 +44,8 @@ local function tell(g, key, parameters)
   g:notify(message, 3)
 end
 F.tell = tell
-function F.new(Game, mapId)
-  return Game.new('field', mapId)
+function F.new(Game, mapId, options)
+  return Game.new('field', mapId, options)
 end
 function F.init(g, options)
   Chambers.validate(g)
@@ -59,7 +59,12 @@ function F.init(g, options)
     selected = K.dummy,
     poseIndex = 1,
     features = Access.copy(options),
+    -- Effort is paid here unless a frozen reference asks for the old rules.
+    attrition = not (options and options.attrition == false),
   }
+  if g.testField.attrition then
+    Abilities.give(g, 'flask', Roles.controlled(g))
+  end
   g.view.fieldReturnLabel = 'return_menu'
   F.reset(g)
 end
@@ -68,9 +73,14 @@ function F.allows(g, feature)
 end
 -- The journal reconstructs this session's policy, not today's release default.
 function F.options(g)
+  local attrition = not g.testField.attrition and false or nil
   if g.testField.features then
-    return { features = Access.copy(g.testField) }
+    return { features = Access.copy(g.testField), attrition = attrition }
   end
+  return attrition == false and { attrition = false } or nil
+end
+function F.attrition(g)
+  return g.testField ~= nil and g.testField.attrition == true
 end
 function F.refill(g)
   if not g.testField then
@@ -81,6 +91,7 @@ function F.refill(g)
   -- Health of the knight's body, the ward's cap, every dodge charge.
   p.hp, p.armor, p.souls = require('src.content.characters').maxHp(p), Shop.maxWard, 0
   p.dash = require('src.content.characters').of(p).body.dashCharges
+  require('src.content.characters').rest(p)
   Abilities.fill(g, nil, Roles.controlled(g))
   -- Every weapon full, its reserve at its cap, its action at rest.
   Weapons.fill(g, p)

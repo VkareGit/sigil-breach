@@ -34,6 +34,11 @@ return {
     -- Invulnerability after a blow and during a dodge (used by the session).
     iframes = 0.32,
     dashIframes = 0.20,
+    -- Where effort is paid (session/capabilities.lua: attrition) a dodge is a real
+    -- commitment: longer, dearer, and the hands are busy through it.
+    rollIframes = 0.32,
+    rollLock = 0.3,
+    rollStamina = 26,
     -- Friction against a shove: feet on stone, and in the air.
     drag = 9,
     airDrag = 3.5,
@@ -47,6 +52,7 @@ return {
     -- (his armour and stance; the guard damage is the full one).
     slamShare = 0.5,
   },
+  resources = { stamina = { max = 100, start = 100, regen = 48, pause = 0.55 } },
   -- Speeds m/s, accelerations m/s^2, times s (player/feel.lua).
   movement = {
     moveSpeed = 5.25,

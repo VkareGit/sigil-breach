@@ -83,11 +83,11 @@ local function enemyKilled(g, e)
     Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
   if e.offBalance then
     local healed = e.healed or 0
-    g.view.feedback = healed > 0
-        and Text.get(
-          'feedback_break_heal',
-          { amount = (string.format('%.1f', healed):gsub('%.0$', '')) }
-        )
+    g.view.feedback = e.heal == 0 and Text.get('feedback_break')
+      or healed > 0 and Text.get(
+        'feedback_break_heal',
+        { amount = (string.format('%.1f', healed):gsub('%.0$', '')) }
+      )
       or Text.get('feedback_break_full')
   end
   Audio.play('kill', 0.65)

@@ -10,10 +10,13 @@ local Hit = {}
 -- Pure: what a contact would do. Returns dealt, absorbed, impact, push.
 -- surface (optional): the painted surface met; part: the hit zone otherwise.
 function Hit.measure(attack, target, distance, part, surface)
+  local dealt, absorbed, impact, push
   if surface then
-    return Damage.surface(attack, target, distance, surface)
+    dealt, absorbed, impact, push = Damage.surface(attack, target, distance, surface)
+  else
+    dealt, absorbed, impact, push = Damage.resolve(attack, target, distance, part)
   end
-  return Damage.resolve(attack, target, distance, part)
+  return dealt * Rules.shell(target), absorbed, impact, push
 end
 -- The wound alone (combat/rules/hit_response.lua).
 Hit.wound = Rules.wound

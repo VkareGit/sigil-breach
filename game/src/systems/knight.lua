@@ -41,6 +41,12 @@ local function recover(knight, dt)
   Rules.tick(knight, dt)
   Rules.recover(knight, dt, body)
   Resources.tick(knight, dt)
+  if (knight.rallyLeft or 0) > 0 then
+    knight.rallyLeft = knight.rallyLeft - dt
+    if knight.rallyLeft <= 0 then
+      knight.rally = nil
+    end
+  end
 end
 Knight.recovery = {
   name = 'knightRecovery',

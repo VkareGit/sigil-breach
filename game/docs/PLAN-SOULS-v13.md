@@ -51,6 +51,56 @@ udokumentowane i dokładnych liczb śledzenia nigdzie nie znalazłem.
    miejsce powrotu i wskrzesza zwykłych wrogów, ale nie bossów. Po śmierci dusze
    zostają w miejscu zgonu, a druga śmierć po drodze je kasuje.
 
+## Korekta: wyzwanie to wiedza, nie ruch
+
+Uwaga gracza po przebudowie silnika: przejście walki nie może zależeć od tego, czy się
+ruszasz. Pomiar to potwierdził: bot wygrywał jednym odruchem, unikiem w bok tuż przed
+ciosem. To porażka projektu, a nie sukces, więc miarą zostaje wiedza o ciosach.
+
+**Co robi walkę FromSoftware**
+
+1. Boss to umowa: płacisz śmiercią, dostajesz informację. Każdy cios ma swoją
+   odpowiedź i po porażce wiadomo, co poszło źle.
+2. Różne ciosy karzą różne nawyki: ucieczkę, panikę, krążenie, chciwość, kurczowe
+   trzymanie dystansu. Jeden nawyk nie działa na wszystko.
+3. Okno na karę jest nagrodą za odczytanie wzoru, nie stałym stanem. Rozróżnienie
+   „okno” a „zaproszenie” to połowa nauki.
+4. Bloodborne daje broń palną jako kontrę: strzał w chwili ataku ogłusza i otwiera
+   krytyk. Odzysk zdrowia za oddanie ciosu ciągnie gracza do przodu, nie do ucieczki.
+5. Stwory uczą reguł, które boss później sprawdza.
+
+**Jak to przekładam na grę**
+
+- **Kontra strzelbą:** salwa w oknie tuż przed ciosem przerywa go i otwiera egzekucję.
+  Nie każdy cios da się skontrować, to część nauki. Wymaga stania i patrzenia.
+- **Pancerz z popiołu:** w zamachu i w ciosie Margrabia bierze 35% obrażeń, w odpoczynku
+  pełne. Strzelanie cały czas przestaje mieć sens, liczy się moment.
+- **Odzysk:** część straconego zdrowia wraca przez kilka sekund za trafienia.
+- **Karta ciosów:** każdy cios ma jedną właściwą odpowiedź:
+
+| Cios | Co karze | Odpowiedź |
+|---|---|---|
+| Cięcie w prawo, cięcie w lewo | unik w stronę cięcia | unik przez ostrze, pod prąd |
+| Cios z góry z opóźnieniem | panikę | czekać, unik w ostatniej chwili, potem kara |
+| Chwyt | unik za wcześnie | kontra strzelbą |
+| Skok i krąg | ucieczkę | skok nad kręgiem albo unik przez niego |
+| Grad z wyprzedzeniem | ciągły ruch | zatrzymać się |
+| Lanca po ziemi | stanie na linii | filar albo bok |
+| Tupnięcie | przyklejenie | skok |
+| Cięcie w obrocie | krążenie za plecami | wyjście z zasięgu |
+| Łapanie uniku | unik na ślepo | nie unikać po pierwszym ciosie |
+| Fala z absydy | wszystko oprócz skoku | skok w chwili przejścia |
+
+**Stwory, każdy to lekcja przed bossem**
+
+- **Żar:** opóźniony pazur i stado z flanki. Uczy czekania na cios.
+- **Żelazny:** pancerz z przodu, wolny obrót. Uczy wychodzenia na bok i strzałów w nogi.
+- **Akolita:** czar można przerwać strzałem. Uczy kontry w bezpiecznych warunkach.
+- **Ogrodnik:** odcina podłogę i narasta. Uczy czytania ziemi i wyjścia z ognia.
+
+**Nowa bramka:** bot odruchowy (ruch i unik w bok na każdy cios) ma przegrać z bossem.
+Wygrywa tylko bot z kartą ciosów.
+
 ## Zasady planu
 
 1. Stanie i strzelanie przegrywa z każdym stworem poza pojedynczym Żarem. To

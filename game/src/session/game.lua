@@ -2,6 +2,9 @@
 -- and player commands live here; simulation, consequences and world triggers
 -- have separate owners. Public methods keep one stable entry point.
 local Entities = require('src.session.entities')
+local Capabilities = require('src.session.capabilities')
+local Execution = require('src.combat.execution')
+local Resources = require('src.combat.resources')
 local World = require('src.world.arena')
 local Maps = require('src.content.maps.index')
 local Presentation = require('src.session.presentation')
@@ -194,6 +197,7 @@ function Game:dash(dx, dz, who)
     or self.help
     or player.dash < 1
     or player.dashTimer > 0
+    or (Capabilities.attrition(self) and not Resources.ready(player, 'stamina'))
   then
     return false
   end
@@ -204,7 +208,14 @@ function Game:dash(dx, dz, who)
   player.dodgeFromX, player.dodgeFromZ = player.x, player.z
   player.dash = player.dash - 1
   player.dashTimer = Rules.movement(player).dashTime
-  player.invuln = math.max(player.invuln, Rules.playerBody(player).dashIframes)
+  local body = Rules.playerBody(player)
+  if Capabilities.attrition(self) then
+    Resources.exert(player, 'stamina', body.rollStamina)
+    player.invuln = math.max(player.invuln, body.rollIframes)
+    player.cooldown = math.max(player.cooldown, body.rollLock)
+  else
+    player.invuln = math.max(player.invuln, body.dashIframes)
+  end
   local length = math.sqrt(dx * dx + dz * dz)
   if length < 0.1 then
     dx, dz = math.sin(player.yaw), math.cos(player.yaw)
@@ -290,10 +301,10 @@ function Game:interact()
   if self.state ~= 'playing' then
     return
   end
-  return Entities.interact(self) or Modes.act(self, 'interact')
+  return Execution.perform(self) or Entities.interact(self) or Modes.act(self, 'interact')
 end
 function Game:context()
-  return Entities.prompt(self) or Modes.act(self, 'context') or nil
+  return Execution.prompt(self) or Entities.prompt(self) or Modes.act(self, 'context') or nil
 end
 Game.update = Simulation.update
 Game.simulate = Simulation.step

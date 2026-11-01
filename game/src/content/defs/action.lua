@@ -15,8 +15,13 @@ local AttackDefaults = require('src.content.combat_defaults').attacks
 local Action = { hooks = {} }
 -- A blow that flows into the next one instead of a full rest. every: only each
 -- n-th time, so the short and the long string alternate in a fixed order.
+local Branch = Schema:new('attack branch', {
+  into = { type = 'string', desc = 'the blow it goes on with; none: it stops here' },
+  weight = { type = 'number', default = 1, min = 0 },
+})
 local Flow = Schema:new('attack string', {
-  into = { type = 'string', required = true, desc = 'the attack it flows into' },
+  into = { type = 'string', desc = 'the attack it flows into' },
+  branches = { type = 'table', list = Branch, desc = 'or a roll among these' },
   gap = { type = 'number', default = 0.12, min = 0, desc = 'the beat between them (s)' },
   every = { type = 'number', min = 1, desc = 'flows only every n-th time' },
 })
@@ -51,6 +56,22 @@ Action.common = {
     desc = 'minimum observed-velocity prediction at any tier',
   },
   hyper = { type = 'number', min = 1, desc = 'guard multiplier while winding up and striking' },
+  parry = {
+    type = 'number',
+    min = 0,
+    desc = 'for this long before it strikes a shot throws the blow away (s)',
+  },
+  chase = {
+    type = 'number',
+    min = 0,
+    desc = 'in the blow the body follows who goes with the swing (rad/s); against it, no',
+  },
+  mirror = { type = 'boolean', desc = 'each use rolls the side a traced blow starts from' },
+  shuffle = { type = 'boolean', desc = 'each use rolls its hold instead of taking turns' },
+  steady = {
+    type = 'boolean',
+    desc = 'a guard broken during this blow falls when the blow ends, not before',
+  },
   string = { type = 'table', schema = Flow },
   hold = {
     type = 'table',
@@ -331,6 +352,8 @@ Action.kinds:register(
     spread = { type = 'number', default = 1.2, min = 0, desc = 'between two of them (radians)' },
   }, {})
 )
+-- The knight drinks: nothing leaves him, health comes back at the end.
+Action.kinds:register('drink', kind('drink', { heal = { type = 'number', min = 0 } }, { 'heal' }))
 -- The body springs back from its target.
 Action.kinds:register(
   'hop',
@@ -585,6 +608,7 @@ function Action.build(def, where)
     samples(built.hold, path .. '.hold')
   end
   if built.string then
+    assert(built.string.into or built.string.branches, path .. '.string: flows nowhere')
     assert(built.string.into ~= built.id, path .. '.string: flows into itself')
   end
   return built

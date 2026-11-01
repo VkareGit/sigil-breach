@@ -36,6 +36,7 @@ Character.resource = Schema:new('resource of a character', {
   max = { type = 'number', required = true, min = 0 },
   start = { type = 'number', required = true, min = 0 },
   regen = { type = 'number', default = 0, min = 0, desc = 'per second' },
+  pause = { type = 'number', default = 0, min = 0, desc = 'no regen this long after a spend (s)' },
 })
 Character.schema = Schema:new('character', {
   id = { type = 'string', required = true },

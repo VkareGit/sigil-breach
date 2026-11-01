@@ -13,6 +13,8 @@ return {
   -- The low-resources preview's health; the TIER dial's highest tier.
   lowHealth = 25,
   maxTier = 5,
+  -- The bench of a blow (app/field_tools.lua): the speeds of time, and one step.
+  bench = { times = { 1, 0.5, 0.25, 0 }, stepTicks = 4 },
   -- Live demons and open gates at once.
   limit = 20,
   -- The souls of its unsaved trial shop.

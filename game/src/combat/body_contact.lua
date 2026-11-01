@@ -56,6 +56,10 @@ function Contact.sweep(x, z, dx, dz, ox, oz, radius)
   end
   return t, nx / length, nz / length
 end
+-- How near a knight comes to a body: its footprint, or the room a great one keeps.
+local function girth(e)
+  return Rules.body(e).personal or Rules.radius(e)
+end
 -- oldLevel: the surface the body stood on at (oldX, oldZ) (a world with decks).
 local function clippedMove(g, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offset, oldLevel)
   local world = g.world
@@ -76,7 +80,7 @@ local function clippedMove(g, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offse
 end
 -- The earliest contact of a demon's own move with knight p (previous: where
 -- p stood when the move began).
-local function knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous)
+local function knightContact(g, e, oldX, oldZ, dx, dz, _, p, previous)
   if not standing(g, e, p) then
     return nil
   end
@@ -87,7 +91,7 @@ local function knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous)
     dz - (p.z - previous.z),
     previous.x,
     previous.z,
-    r + Rules.playerBody(p).radius
+    girth(e) + Rules.playerBody(p).radius
   )
 end
 -- Own attack movement obeys the same footprint as ordinary locomotion. It
@@ -124,7 +128,7 @@ end
 local function overlap(p, e, radius)
   local dx, dz = p.x - e.x, p.z - e.z
   local d = len(dx, dz)
-  local depth = radius + Rules.radius(e) - d
+  local depth = radius + girth(e) - d
   if depth <= 0 then
     return nil
   end
@@ -172,8 +176,7 @@ function Contact.knight(g, actor)
     local first, normalX, normalZ, obstacle
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       if standing(g, e, p) then
-        local t, nx, nz =
-          Contact.sweep(previous.x, previous.z, dx, dz, e.x, e.z, radius + Rules.radius(e))
+        local t, nx, nz = Contact.sweep(previous.x, previous.z, dx, dz, e.x, e.z, radius + girth(e))
         if t and (not first or t < first) then
           first, normalX, normalZ, obstacle = t, nx, nz, e
         end

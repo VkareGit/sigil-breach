@@ -97,14 +97,14 @@ function Tests.run(G, check)
   )
   -- Bosses falter: the attack is delayed, not cancelled; armour is exposed.
   g = fresh()
-  local boss = g:spawn('boss', 16, 20)
+  local boss = g:spawn('furfur', 16, 20)
   boss.ai, boss.windup, boss.windupDuration = 'windup', 0.5, 0.9
   local before = Damage.resolve({ base = 100 }, boss, 1)
   Rules.react(g, boss, 450, true, nil, 0)
   local after = Damage.resolve({ base = 100 }, boss, 1)
   check(
     'a broken boss guard falters without cancelling the committed attack',
-    boss.stun >= S.light.base / A.boss.body.stability - 1e-9
+    boss.stun >= S.light.base / A.furfur.body.stability - 1e-9
       and boss.ai == 'windup'
       and boss.windup == 0.5
       and boss.staggerLock == D.bossLock
@@ -202,7 +202,7 @@ function Tests.run(G, check)
   check('a crippled thrall lunges shorter', lunge(5) < lunge(nil) * 0.8 and lunge(nil) > 0.5)
   g = fresh()
   boss = g:spawn('boss', 16, 20)
-  Rules.react(g, boss, 400, true, nil, 0)
+  Rules.react(g, boss, A.boss.body.poise + 100, true, nil, 0)
   local falterFrame = Anim.pose(g, boss)
   check('a faltering boss shows its pain pose', falterFrame == 9 and boss.stun > 0)
   g = fresh()

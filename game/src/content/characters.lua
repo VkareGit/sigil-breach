@@ -48,6 +48,14 @@ function C.born(actor)
   end
   return actor
 end
+-- Every resource back at its full measure.
+function C.rest(actor)
+  for id, resource in pairs(C.of(actor).resources or {}) do
+    if actor.resources then
+      actor.resources[id] = resource.max
+    end
+  end
+end
 -- The most health an actor can have (a hand-made record: its character's).
 function C.maxHp(actor)
   return actor.maxHp or C.of(actor).body.hp

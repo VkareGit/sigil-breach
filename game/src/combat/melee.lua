@@ -127,7 +127,7 @@ end
 function M.reach(g, e, phase, x, z, action, activeStart, activeEnd)
   if action and action.trace then
     local angle, reach, height = M.tip(action.trace, phase)
-    local yaw = math.atan2(e.lungeX, e.lungeZ) + angle
+    local yaw = math.atan2(e.lungeX, e.lungeZ) + angle * (e.swingSide or 1)
     return x,
       height + Ground.height(g.world, x, z, e.level) - Ground.height(g.world),
       z,

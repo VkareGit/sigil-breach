@@ -189,6 +189,35 @@ function T.run(Game)
       done()
     end
     do
+      -- W3: the bench. Any blow of the selected demon, on demand.
+      local Release = require('src.app.release')
+      local Tools = require('src.app.field_tools')
+      local g = Game.new('field', 'proving', Release.sessionOptions.field)
+      g.testing, g.state = true, 'playing'
+      local Field = require('src.run.test_field')
+      g.testField.selected = 'boss'
+      assert(g:act('catalog', 'field_blow_go'))
+      check('no body, no blow', g.testField.message:find('No body') ~= nil)
+      local e = g:spawn('boss', g.player.x, g.player.z - 5)
+      e.fieldKind, e.spawnAge = 'boss', 2
+      for _ = 1, 3 do
+        g:act('catalog', 'field_blow_next')
+      end
+      assert(g:act('catalog', 'field_blow_go'))
+      local wanted = A.boss.attacks[3].id
+      check('F3 and F4 strike the blow chosen', e.ai == 'windup' and e.attackKind == wanted)
+      local attacks = A.boss.attacks
+      check('F5 reads the creatures again', Tools.reloadCreatures(g))
+      check('and the table stays the same one', A.boss.attacks ~= attacks and A.of(e) == A.boss)
+      local app = { game = g, timeScale = 0.25 }
+      check('a slowed clock is the bench', Tools.time(app, 1) == 0.25)
+      check(
+        'the keys need the proving ground',
+        not Tools.key({ game = { state = 'playing' } }, 'f4')
+      )
+      check('the field answers', Field.action ~= nil)
+    end
+    do
       -- move.turn: outside a blow too, at a rate and not at once.
       local g, e = trial(Game, cut(), { 16, 16 }, { 19, 16 }, { speed = 0, turn = 1 })
       e.lastX, e.lastZ = 19, 16
