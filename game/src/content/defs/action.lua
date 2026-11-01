@@ -5,6 +5,7 @@
 -- fields and defaults here; its behaviour lives in enemies/actions.lua
 -- (Attacks.kinds) and is checked against this list.
 local Schema = require('src.core.schema')
+local Types = require('src.content.damage_types')
 local Registry = require('src.core.registry')
 local Packet = require('src.content.defs.packet')
 local Claw = require('src.content.combat_defaults').claw
@@ -198,7 +199,7 @@ Action.blast = Schema:new('blast', {
   base = { type = 'number', required = true, min = 0 },
   impact = { type = 'number', required = true, min = 0 },
   push = { type = 'number', min = 0 },
-  damageType = { type = 'string', default = 'physical' },
+  damageType = { type = 'string', default = 'physical', check = Types.problem },
   penetration = { type = 'number', default = 0, min = 0, max = 1 },
   falloffStart = { type = 'number', default = 0, min = 0 },
   falloffEnd = { type = 'number', required = true, min = 0 },

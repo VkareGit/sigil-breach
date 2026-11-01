@@ -3,6 +3,7 @@
 -- on the shared rules table R and call each other through it.
 -- The effects of each condition are data (content/enemies.lua: conditions).
 local Archetypes = require('src.content.enemies')
+local Attributes = require('src.combat.attributes')
 local max = math.max
 return function(R)
   R.conditionEffects = Archetypes.conditions
@@ -27,27 +28,10 @@ return function(R)
       c[id] = t > dt and t - dt or nil
     end
   end
-  -- Effects multiply in one fixed order (the catalogue's ids, sorted), never
-  -- in the hash order of a body's conditions: the product is the same on
-  -- every build, so replays stay exact.
-  local function conditionScale(target, key)
-    local s = 1
-    local c = target.conditions
-    if not c then
-      return 1
-    end
-    for _, id in ipairs(R.conditionEffects.ids()) do
-      local t = c[id]
-      if t and t > 0 then
-        s = s * (R.conditionEffects[id][key] or 1)
-      end
-    end
-    return s
-  end
   function R.speedScale(target)
-    return conditionScale(target, 'speed')
+    return Attributes.scale(target, 'speed')
   end
   function R.recoveryScale(target)
-    return conditionScale(target, 'recovery')
+    return Attributes.scale(target, 'recovery')
   end
 end

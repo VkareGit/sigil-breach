@@ -20,7 +20,7 @@ return function(R)
     if e.hp > 0 and not b.boss then
       local harm = over * defaults.slamDamage / b.mass ^ 0.5
       -- The shove's owner owns the slam (plan v11 E3d).
-      g:damageEnemy(e, harm, 'slam', nil, e.pushOwner)
+      R.wound(g, e, harm, 'slam', nil, e.pushOwner)
       R.guard(e, over * defaults.slamPoise)
       e.flinch = 1
       e.hit = max(e.hit or 0, defaults.hitFlash)
@@ -61,7 +61,8 @@ return function(R)
     R.guard(other, received * defaults.collidePoise)
     local over = received - defaults.slamSpeed
     if over > 0 and other.hp > 0 and not R.body(other).boss then
-      g:damageEnemy(other, over * defaults.slamDamage / mass ^ 0.5, 'collision', nil, e.pushOwner)
+      local harm = over * defaults.slamDamage / mass ^ 0.5
+      R.wound(g, other, harm, 'collision', nil, e.pushOwner)
     end
     g.collisions = (g.collisions or 0) + 1
     return true

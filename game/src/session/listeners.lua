@@ -2,7 +2,7 @@
 -- emitting system, in the priority order below, exactly where the direct
 -- calls used to be. Presentation is attached by feedback/listeners.lua.
 --   EnemyKilled  10 break-kill healing   15 corpse fall   20 score, combo
---                30 the mode's rewards and drops
+--                30 the mode's rewards and drops   40 reactions
 --   PlayerHit    10 damage record, measurements, pacing, combo reset
 --                20 the world's hit-stop when the knight's guard breaks
 local Rules = require('src.combat.rules')
@@ -14,6 +14,7 @@ local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
 local Destruction = require('src.combat.destruction')
+local Reactions = require('src.combat.reactions')
 local K = Tuning.rewards
 local Listeners = {}
 -- Break kill (0.24, the push-forward loop): a demon killed while off balance
@@ -139,6 +140,7 @@ function Listeners.attach(g)
   bus:on('sim', 'KnightHit', function(e)
     knightHit(g, e)
   end)
+  Reactions.attach(g, bus, Tuning.reactionOrder)
   -- The presentation's own listeners, when one is loaded (feedback/install.lua).
   Presentation.attach(g)
 end

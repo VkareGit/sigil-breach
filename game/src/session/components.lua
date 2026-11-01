@@ -187,6 +187,9 @@ C.schemas.projectile = {
   whooshed = f(nil, 'a near miss was already heard'),
   shot = f(nil, 'shared weapon discharge: definition, payload, origin and hit accounting'),
   travelled = f(nil, 'weapon projectile path length for damage falloff (m)'),
+  retain = f(nil, 'share of its power a piercing round still has'),
+  passed = f(nil, 'bodies a piercing round went through'),
+  through = f(nil, 'ids of those bodies'),
 }
 -- A marked ground hazard: pool, line, lightning (enemies/hazards.lua).
 C.schemas.hazard = {

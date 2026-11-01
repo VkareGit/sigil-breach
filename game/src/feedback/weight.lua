@@ -1,4 +1,5 @@
 local Characters = require('src.content.characters')
+local DamageTypes = require('src.content.damage_types')
 local Context = require('src.session.context')
 -- WEIGHT: the rules of the world made felt. Presentation only: nothing here
 -- moves the firing ray, ammunition, clocks or damage. Every magnitude comes
@@ -52,17 +53,11 @@ function W.init(g)
   g.view.heartTimer = 0
   g.view.heartbeats = 0
 end
--- One colour per damage type (D&D types), shared by projectiles, pools,
--- the player's hit markers and incoming-hit arcs.
-W.typeColors = {
-  physical = { 0.88, 0.30, 0.20 },
-  fire = { 1, 0.56, 0.18 },
-  astral = { 0.48, 0.66, 1 },
-  poison = { 0.58, 0.84, 0.30 },
-  lightning = { 0.98, 0.94, 0.72 },
-}
+-- One colour per damage type (content/damage_types.lua), shared by projectiles,
+-- pools, the player's hit markers and incoming-hit arcs.
 function W.typeColor(kind)
-  return W.typeColors[kind or 'physical'] or W.typeColors.physical
+  local def = DamageTypes.entries[kind or DamageTypes.fallback]
+  return (def or DamageTypes.entries[DamageTypes.fallback]).color
 end
 -- Direction of a world point seen from the player: 0 ahead, +pi/2 right.
 function W.relative(p, x, z)

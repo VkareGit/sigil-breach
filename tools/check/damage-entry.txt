@@ -1,6 +1,0 @@
-src/combat/combat.lua 1
-src/combat/destruction.lua 1
-src/combat/effects.lua 1
-src/combat/explosives.lua 1
-src/combat/projectiles.lua 1
-src/combat/rules/contact.lua 2

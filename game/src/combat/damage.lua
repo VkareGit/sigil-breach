@@ -1,6 +1,8 @@
 -- Pure combat math. Ratings are not a second health pool.
 local MathX = require('src.core.mathx')
 local Materials = require('src.content.ballistic_surfaces')
+local Attributes = require('src.combat.attributes')
+local Types = require('src.content.damage_types')
 local D = {}
 local clamp = MathX.clamp
 -- The armour rating that halves physical damage (Warhammer-style points).
@@ -18,12 +20,10 @@ D.neutral = {
   minPower = 1,
   penetration = 0,
   headMultiplier = 1,
-  damageType = 'physical',
+  damageType = Types.fallback,
 }
 -- Bounds of every resistance (D&D): vulnerable to -25 %, resistant to 60 %.
 D.resistMin, D.resistMax = -0.25, 0.60
--- A boss whose guard broke (condition 'exposed') keeps this share of armour.
-D.exposedArmor = 0.5
 local neutral = D.neutral
 local function field(attack, key)
   local v = attack[key]
@@ -35,7 +35,7 @@ end
 -- Resistance to a damage type, the same bounds for every body (D&D: below 0
 -- a vulnerability, at most -25 %; resistance at most 60 %).
 function D.resistance(table_, kind)
-  local r = type(table_) == 'table' and table_[kind or 'physical'] or 0
+  local r = type(table_) == 'table' and table_[kind or Types.fallback] or 0
   if not finite(r) then
     return 0
   end
@@ -99,13 +99,13 @@ local function zoneOf(target, part)
 end
 D.zoneOf = zoneOf
 -- The armour rating a blow on this part meets: the part's own (Warhammer
--- location armour) when the body defines it, else its one rating; an exposed
--- body (a boss whose guard just broke) keeps half of it.
+-- location armour) when the body defines it, else its one rating, as its
+-- conditions change it (a boss whose guard just broke keeps half of it).
 function D.rating(target, part)
   local located = type(target.locationArmor) == 'table' and part and target.locationArmor[part]
   local rating = located or target.armorRating or 0
-  if type(target.conditions) == 'table' and (target.conditions.exposed or 0) > 0 then
-    rating = rating * D.exposedArmor
+  if target.conditions then
+    rating = rating * Attributes.scale(target, 'armor')
   end
   return rating
 end
@@ -148,7 +148,9 @@ function D.core(attack, target, distance, part)
   -- A deliberate hit on the anatomical head changes the wound, not the
   -- projectile's momentum. No random critical roll or invisible aim assist.
   local raw = math.max(0, base) * scale * clamp(wound, 0, 2) * math.max(0, zoneDamage)
-  local armor = kind == 'physical' and math.max(0, rating) * (1 - clamp(penetration, 0, 1)) or 0
+  local armored = Types.entries[kind]
+  armored = armored and armored.armored
+  local armor = armored and math.max(0, rating) * (1 - clamp(penetration, 0, 1)) or 0
   local dealt = raw * D.armorScale / (D.armorScale + armor) * (1 - resistance)
   -- impact: guard (poise) damage; push: physical impulse. A weapon may set
   -- them apart (the Judge breaks a guard more than it throws a body).
@@ -180,7 +182,8 @@ end
 -- The part of it a target's armour takes (the shot report's armour line):
 -- the same rating the wound met (D.rating), so a bare skull shows none.
 function D.armorLoss(attack, target, distance, part)
-  if (attack.damageType or 'physical') ~= 'physical' then
+  local kind = Types.entries[attack.damageType or Types.fallback]
+  if not (kind and kind.armored) then
     return 0
   end
   local rating = math.max(0, D.rating(target, part)) * (1 - clamp(attack.penetration or 0, 0, 1))

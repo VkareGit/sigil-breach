@@ -112,6 +112,7 @@ declare('combat/combat.lua', {
 })
 declare('combat/explosives.lua', { 'explosionReport' })
 declare('combat/projectiles.lua', { '_projectileEvents' })
+declare('combat/reactions.lua', { 'reacting' })
 declare('combat/rules/contact.lua', { 'collisions', 'slams', 'lastSlam' })
 declare('combat/telemetry.lua', { 'telemetry', 'telemetryBodies' })
 declare('player/feel.lua', {

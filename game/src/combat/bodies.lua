@@ -29,6 +29,11 @@ end
 function Bodies.isKnight(g, b)
   return b == Roles.controlled(g) or b.prefab == 'knight'
 end
+-- Which law a blow on body b goes through: 'knight' (shield, guard, dodge) or
+-- 'creature' (armour, resistances, stagger).
+function Bodies.law(g, b)
+  return Bodies.isKnight(g, b) and 'knight' or 'creature'
+end
 function Bodies.side(g, b)
   if b.faction then
     return b.faction

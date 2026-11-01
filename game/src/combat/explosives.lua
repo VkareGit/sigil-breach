@@ -15,6 +15,7 @@ local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Effects = require('src.combat.effects')
 local Roles = require('src.core.roles')
+local Hit = require('src.combat.hit')
 local function defaultAction()
   return Abilities:get('powder').action
 end
@@ -61,8 +62,9 @@ function X.launch(g, action, actor)
   require('src.enemies.ai').noise(g, p.x, p.z, action.noise)
   return true
 end
-function X.explode(g, b)
-  local action = b.action or defaultAction()
+-- A blast from point b (x, y, z, owner) on every creature it reaches. Returns
+-- its tally.
+function X.strike(g, b, radius, blast, source)
   local report =
     { targets = 0, kills = 0, healthDamage = 0, blocked = 0, impact = 0, selfDamage = 0 }
   for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -73,21 +75,17 @@ function X.explode(g, b)
         + (require('src.combat.rules').body(e).aimY or Tuning.explosives.aimHeight)
         + (e.leapY or 0)
       local visible, d = clear(g, b, e.x, y, e.z)
-      if visible and d < action.radius then
-        local dealt, blocked, impact, push = D.resolve(action.blast, e, d)
-        local health = math.min(e.hp, dealt)
-        g:damageEnemy(e, dealt, 'charge', action.blast, b.owner)
-        require('src.combat.combat').react(
-          g,
-          e,
-          impact,
-          true,
-          { e.x, y, e.z },
-          nil,
-          health,
-          { push = push, direction = { e.x - b.x, e.z - b.z }, origin = b },
-          { value = health, kill = e.hp <= 0 }
-        )
+      if visible and d < radius then
+        local dealt, blocked, impact, push = Hit.measure(blast, e, d)
+        local health = Hit.land(g, e, { damage = dealt, impact = impact }, {
+          source = source,
+          payload = blast,
+          owner = b.owner,
+          strong = true,
+          point = { e.x, y, e.z },
+          extra = { push = push, direction = { e.x - b.x, e.z - b.z }, origin = b },
+          numbered = true,
+        })
         report.targets = report.targets + 1
         report.kills = report.kills + (e.hp <= 0 and 1 or 0)
         report.healthDamage = report.healthDamage + health
@@ -96,6 +94,11 @@ function X.explode(g, b)
       end
     end
   end
+  return report
+end
+function X.explode(g, b)
+  local action = b.action or defaultAction()
+  local report = X.strike(g, b, action.radius, action.blast, 'charge')
   -- A blast hurts every knight in reach (content/factions.lua: indiscriminate),
   -- its thrower included, at his chest as a missile meets him (0.25), by the
   -- knights' own rule of the charge (selfBlast). Report the actual thrower's

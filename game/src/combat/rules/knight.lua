@@ -5,6 +5,7 @@ local Capabilities = require('src.session.capabilities')
 local Signal = require('src.session.signal')
 local Archetypes = require('src.content.enemies')
 local Damage = require('src.combat.damage')
+local DamageTypes = require('src.content.damage_types')
 local defaults = Archetypes.defaults
 local sqrt, max = math.sqrt, math.max
 return function(R)
@@ -23,7 +24,7 @@ return function(R)
     if type(amount) ~= 'number' or amount ~= amount or amount <= 0 or amount == math.huge then
       return 0, 0, 0
     end
-    local kind = packet.damageType or 'physical'
+    local kind = packet.damageType or DamageTypes.fallback
     amount = amount * (1 - Damage.resistance(p.resist or b.resist, kind))
     local lost, absorbed, overkill = Damage.player(amount, p.hp, p.armor, b.shieldShare)
     p.armor = p.armor - absorbed
@@ -73,7 +74,7 @@ return function(R)
       local packet = {
         base = over * defaults.slamDamage * R.playerBody(p).slamShare,
         impact = over * defaults.slamPoise,
-        damageType = 'physical',
+        damageType = DamageTypes.fallback,
       }
       local lost, absorbed, overkill, incoming, events = R.hitPlayer(g, packet, nil, nil, p)
       -- Preserve the nonlethal wall rule without healing a player below .5 HP.
@@ -90,7 +91,7 @@ return function(R)
           absorbed = absorbed,
           overkill = overkill,
           impact = packet.impact,
-          damageType = 'physical',
+          damageType = DamageTypes.fallback,
           source = 'wall',
           x = sourceX,
           z = sourceZ,

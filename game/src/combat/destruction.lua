@@ -3,6 +3,7 @@
 -- world and rendering only reads it. No simulation random stream is used.
 local Ballistics = require('src.combat.ballistics')
 local Damage = require('src.combat.damage')
+local Hit = require('src.combat.hit')
 local Kinds = require('src.content.breakables')
 local Ruin = require('src.content.maps.breakables')
 local Copy = require('src.core.schema').copy
@@ -153,7 +154,7 @@ local function smash(g, def, owner)
     for _, e in ipairs(Pools.of(g, 'enemies')) do
       local dx, dz = e.x - def.cell[1], e.z - def.cell[2]
       if e.hp > 0 and dx * dx + dz * dz < crush.radius * crush.radius then
-        g:damageEnemy(e, crush.damage, 'collapse', nil, owner)
+        Hit.wound(g, e, crush.damage, 'collapse', nil, owner)
       end
     end
     Signal(g, 'StructureCollapsed', { id = def.id, thing = def.kind, x = x, y = y, z = z })

@@ -3,6 +3,7 @@
 -- constants comes from here, so a second character is one definition.
 local Schema = require('src.core.schema')
 local Knight = require('src.content.defs.knight')
+local Reaction = require('src.content.defs.reaction')
 local Character = {}
 local function speed(desc)
   return { type = 'number', required = true, min = 0, desc = desc }
@@ -38,6 +39,7 @@ Character.schema = Schema:new('character', {
   movement = { type = 'table', required = true, schema = Character.movement },
   kit = { type = 'table', schema = Character.kit },
   presentation = { type = 'table', schema = Character.presentation },
+  reactions = Reaction.field,
 })
 function Character.define(def)
   local where = 'character ' .. tostring(def.id)

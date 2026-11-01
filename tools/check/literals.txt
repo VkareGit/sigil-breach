@@ -9,7 +9,6 @@ src/app/session_report.lua 0
 src/combat/abilities.lua 0
 src/combat/ballistics.lua 5
 src/combat/body_contact.lua 0
-src/combat/combat.lua 3
 src/combat/damage.lua 4
 src/combat/dodge.lua 0
 src/combat/explosives.lua 1

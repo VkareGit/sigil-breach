@@ -116,6 +116,8 @@ return {
   -- near a fragile thing breaks it unless it passes this high; the listeners'
   -- place after a shot's own consequences.
   scenery = { rayGrace = 0.03, bodyGrace = 0.3, clearance = 0.5, listenerOrder = 40 },
+  -- Reactions (combat/reactions.lua) come after every other consequence.
+  reactionOrder = 50,
   -- Session clocks (systems/clocks.lua): zone banner time (s), its bell
   -- volume, and how fast the hurt and surge overlays fade (x per second).
   clocks = { zoneBanner = 3.5, zoneBell = 0.12, hurtFade = 1.6, surgeFade = 1.4 },

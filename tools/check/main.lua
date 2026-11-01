@@ -338,7 +338,7 @@ local scalingRatchets = {
     name = 'damage-entry',
     label = 'SECOND DAMAGE ENTRY',
     hint = 'land a blow through combat/hit.lua (plan v12 R2)',
-    exempt = { 'src/combat/hit.lua', 'src/session/damage_outcomes.lua' },
+    exempt = { 'src/combat/rules/hit_response.lua', 'src/session/damage_outcomes.lua' },
     count = function(code)
       return occurrences(code, { '[:%.]damageEnemy%(', 'Outcomes%.enemy%(' })
     end,
@@ -347,7 +347,14 @@ local scalingRatchets = {
     name = 'damage-type-literals',
     label = 'DAMAGE TYPE IN CODE',
     hint = 'describe the damage type in content/damage_types.lua (plan v12 R2)',
-    exempt = { 'src/content/' },
+    -- Hazards and commands have kinds of their own under the same words.
+    exempt = {
+      'src/content/',
+      'src/enemies/hazards.lua',
+      'src/render/effects.lua',
+      'src/render/passes/hazards.lua',
+      'src/player/intent.lua',
+    },
     count = function(_, strings)
       local count = 0
       local types = { physical = true, fire = true, astral = true, poison = true, lightning = true }

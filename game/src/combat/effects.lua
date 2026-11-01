@@ -9,6 +9,7 @@ local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
+local Hit = require('src.combat.hit')
 local Effects = {}
 Effects.kinds = Registry:new('effect handlers', function(entry, id)
   Definitions.kinds:get(id)
@@ -119,7 +120,7 @@ Effects.kinds:register('periodic', {
     else
       local damage = Damage.resolve(definition.packet, target, 0)
       -- The effect's applier owns its damage (a knight: his chain).
-      health = g:damageEnemy(target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
+      health = Hit.wound(g, target, damage, 'effect:' .. definition.id, nil, instance.sourceId)
     end
     local receipt = {
       target = target,

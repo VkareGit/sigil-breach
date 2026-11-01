@@ -15,6 +15,12 @@ return function(R)
   -- direction {dx, dz} (incoming horizontal impulse, independent of the viewer),
   -- counter (the blow met the body's own lunge or charge). strong is kept for
   -- older callers and no longer chooses a formula.
+  -- The wound alone, the one way health leaves a creature. source: who or what
+  -- did it; payload: effects it carries; owner: the id at the head of its chain;
+  -- weapon: the weapon id behind it.
+  function R.wound(g, target, damage, source, payload, owner, weapon)
+    return g:damageEnemy(target, damage, source, payload, owner, weapon)
+  end
   function R.react(g, e, impact, strong, point, health, extra)
     local p = Roles.controlled(g)
     local b = R.body(e)

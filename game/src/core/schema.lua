@@ -6,6 +6,7 @@
 --
 -- Field spec: { type = 'number'|'string'|'boolean'|'table'|'function'|'any',
 --   default = v, required = true, min = n, max = n, values = {...},
+--   check = fn (value -> message when it is wrong),
 --   schema = Schema (nested record), list = Schema (array of records),
 --   desc = 'what it means' }
 local Class = require('src.core.class')
@@ -102,6 +103,10 @@ function Schema:problems(def, path, out)
         if not ok then
           out[#out + 1] = where .. ': ' .. tostring(v) .. ' is not one of the allowed values'
         end
+      end
+      local complaint = spec.check and spec.check(v)
+      if complaint then
+        out[#out + 1] = where .. ': ' .. complaint
       end
       if spec.schema and type(v) == 'table' then
         spec.schema:problems(v, where, out)

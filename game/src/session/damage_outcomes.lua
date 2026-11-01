@@ -14,6 +14,7 @@ local Defaults = require('src.content.combat_defaults')
 local Effects = require('src.combat.effects')
 local Bodies = require('src.combat.bodies')
 local Encounter = require('src.enemies.encounter')
+local DamageTypes = require('src.content.damage_types')
 local Outcomes = {}
 
 local function validDamage(amount)
@@ -31,7 +32,8 @@ Outcomes.emit = emit
 -- chain (a knight's id, a demon's id, nil: unknown), carried by every
 -- consequence: the hit and the death name it, the body's shove remembers it
 -- (slams, collisions) and an effect it applies keeps it.
-function Outcomes.enemy(g, enemy, damage, source, payload, owner)
+-- weapon (optional): the id of the weapon behind it.
+function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
   if enemy.hp <= 0 or not validDamage(damage) then
     return 0
   end
@@ -47,6 +49,7 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner)
     health = healthDamage,
     source = source,
     owner = owner,
+    weapon = weapon,
     target = enemy.id,
   })
   if enemy.hp > 0 then
@@ -69,6 +72,7 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner)
     offBalance = offBalance,
     causes = causes,
     owner = owner,
+    weapon = weapon,
     target = enemy.id,
   })
   return healthDamage
@@ -78,7 +82,7 @@ end
 -- the creatures' law, as a blast resolves it (armour, resistances, guard and
 -- shove from the source's place), never the knight's shield.
 local function creatureBlow(g, target, amount, x, z, packet, source, context)
-  local Damage = require('src.combat.damage')
+  local Hit = require('src.combat.hit')
   local Ground = require('src.physics.ground')
   local blow = {
     base = amount,
@@ -87,34 +91,31 @@ local function creatureBlow(g, target, amount, x, z, packet, source, context)
     damageType = packet and packet.damageType,
     effects = packet and packet.effects,
   }
-  local dealt, _, impact, push = Damage.resolve(blow, target, 0)
-  local health = math.min(target.hp, dealt)
+  local dealt, _, impact, push = Hit.measure(blow, target, 0)
   -- The chain belongs to the body that struck (a demon: no knight behind it).
   local origin = context and context.effectSource or source
   local owner = type(origin) == 'table' and origin.id or nil
-  Outcomes.enemy(g, target, dealt, 'creature', blow, owner)
   local y = Ground.of(g.world, target) + (Rules.body(target).aimY or 1)
-  require('src.combat.combat').react(
-    g,
-    target,
-    impact,
-    true,
-    { target.x, y, target.z },
-    nil,
-    health,
-    {
+  Hit.land(g, target, { damage = dealt, impact = impact }, {
+    source = 'creature',
+    payload = blow,
+    owner = owner,
+    strong = true,
+    point = { target.x, y, target.z },
+    extra = {
       push = push,
       direction = { target.x - (x or target.x), target.z - (z or target.z) },
       origin = type(source) == 'table' and source or { x = x or target.x, z = z or target.z },
     },
-    { value = health, kill = target.hp <= 0, source = source }
-  )
+    numbered = true,
+    label = source,
+  })
 end
 -- One entry for harm to any body (plan v10 V2): a knight goes through the
 -- knight's law (shield, guard, dodge), a creature through the creatures'.
 -- Arguments as Outcomes.player, with the target first.
 function Outcomes.body(g, target, amount, x, z, packet, source, context)
-  if Bodies.isKnight(g, target) then
+  if Bodies.law(g, target) == 'knight' then
     return Outcomes.player(g, amount, x, z, packet, source, context, target)
   end
   if type(amount) == 'table' then
@@ -136,7 +137,7 @@ function Outcomes.recordPlayerDamage(g, info)
     overkill = info.overkill,
     hp = player.hp,
     armor = player.armor,
-    damageType = info.damageType or 'physical',
+    damageType = info.damageType or DamageTypes.fallback,
     staggered = info.staggered,
     wounded = info.wounded,
     source = info.source or 'attack',

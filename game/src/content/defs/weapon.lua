@@ -5,9 +5,11 @@
 -- reserve, open action, ready time) is a record in the knight's arsenal
 -- (content/weapons.lua: W.newState), never a field of the knight.
 local Schema = require('src.core.schema')
+local Types = require('src.content.damage_types')
 local Id = require('src.core.id')
 local Delivery = require('src.content.defs.delivery')
 local Effect = require('src.content.defs.effect')
+local Reaction = require('src.content.defs.reaction')
 local Text = require('src.content.text')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
@@ -20,6 +22,7 @@ Weapon.glyph = Schema:new('weapon modifier', {
   spread = { type = 'number', min = 0, max = 4 },
   set = { type = 'table', default = {} },
   scale = { type = 'table', default = {} },
+  reactions = Reaction.field,
 })
 Weapon.hud = Schema:new('weapon labels', {
   title = { type = 'string', required = true },
@@ -35,7 +38,7 @@ Weapon.attack = Schema:new('weapon attack', {
   impact = { type = 'number', required = true, min = 0, desc = 'guard damage' },
   push = { type = 'number', min = 0, desc = 'physical impulse when it differs from impact' },
   headMultiplier = { type = 'number', default = 1, min = 0 },
-  damageType = { type = 'string', default = 'physical' },
+  damageType = { type = 'string', default = 'physical', check = Types.problem },
   penetration = { type = 'number', default = 0, min = 0, max = 1 },
   falloffStart = { type = 'number', required = true, min = 0 },
   falloffEnd = { type = 'number', required = true, min = 0 },
@@ -130,6 +133,7 @@ Weapon.schema = Schema:new('weapon', {
   attack = { type = 'table', required = true, schema = Weapon.attack },
   glyphs = { type = 'table', default = {} },
   weight = { type = 'table', required = true, schema = Weapon.weight },
+  reactions = Reaction.field,
 })
 function Weapon.define(def)
   local parent = def.extends
@@ -179,10 +183,6 @@ function Weapon.define(def)
       'weapon ' .. built.id .. ': unknown text key ' .. tostring(key)
     )
   end
-  assert(
-    built.delivery.kind ~= 'projectile' or not built.attack.pierce,
-    'weapon ' .. built.id .. ': finite projectiles stop at first contact; pierce belongs to hitscan'
-  )
   for _, key in ipairs({ 'capacity', 'startReserve', 'maxReserve', 'packSize' }) do
     assert(built[key] % 1 == 0, 'weapon ' .. built.id .. '.' .. key .. ': expected integer')
   end
@@ -214,10 +214,6 @@ function Weapon.define(def)
     assert(
       not attack.pierce or attack.pierce.bodies % 1 == 0,
       path .. ': pierce.bodies must be integer'
-    )
-    assert(
-      built.delivery.kind ~= 'projectile' or not attack.pierce,
-      path .. ': finite projectiles do not support pierce'
     )
   end
   validateAttack(built.attack, 'weapon ' .. built.id .. '.attack')

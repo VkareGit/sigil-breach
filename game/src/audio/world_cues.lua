@@ -1,5 +1,6 @@
 -- Read-only presentation clocks. Weak keys do not keep dead bodies, missiles
 -- or abandoned sessions alive. No audio state enters a journal or save.
+local DamageTypes = require('src.content.damage_types')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local Creatures = require('src.content.enemies')
@@ -64,7 +65,7 @@ function C.update(audio, g, dt)
     if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < 25 then
       state.flights[b] = true
       local kind = b.packet and b.packet.damageType
-      audio.playAt(kind == 'fire' and 'ember_flight' or 'whoosh', b.x, b.z, p, 0.12, 0, g.world)
+      audio.playAt(DamageTypes.cue(kind, 'flight'), b.x, b.z, p, 0.12, 0, g.world)
     end
   end
   for kind, time in pairs(state.impactCooldown) do

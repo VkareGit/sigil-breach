@@ -76,9 +76,10 @@ function Tests.run(G, renderer)
       not pcall(Weapons.define, bad)
     )
     bad = Schema.copy(def)
-    bad.id, bad.attack.pierce = 'trial_invalid', Weapons.get('judge').attack.pierce
+    bad.id = 'trial_invalid'
+    bad.attack.pierce = { bodies = 1.5, retain = 0.5, armorCost = 0, minRetain = 0.1 }
     check(
-      'unsupported finite penetration fails explicitly instead of being ignored',
+      'a fractional count of pierced bodies fails on a finite round too',
       not pcall(Weapons.define, bad)
     )
     local unarmed = Fixtures.arena(G)

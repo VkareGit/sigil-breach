@@ -5,7 +5,7 @@
 --  wounded:   a major wound; slower for a while, the stagger lasts longer
 --  poisoned:  standing in plague; the body recovers its guard and breath slower
 --  crippled:  a leg blow (hit zones); the body limps for a while
---  exposed:   a boss whose guard broke; half armour (combat/damage.lua)
+--  exposed:   a boss whose guard broke; half armour
 local Condition = require('src.content.defs.condition')
 local Registry = require('src.core.registry')
 local registry = Registry:new('conditions', function(entry, id)
@@ -37,10 +37,10 @@ end
 function api.find(id)
   return registry:find(id)
 end
-api.register('staggered', { speed = 0.45 })
+api.register('staggered', { speed = 0.45, forbids = { 'fire' } })
 api.register('wounded', { speed = 0.72 })
 api.register('poisoned', { recovery = 0.5 })
 api.register('crippled', { speed = 0.65 })
-api.register('exposed', {})
+api.register('exposed', { modifiers = { armor = { mul = 0.5 } } })
 -- Existing data readers retain Conditions[id]; methods are not definition keys.
 return setmetatable(registry:view(), { __index = api })

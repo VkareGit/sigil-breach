@@ -11,8 +11,10 @@ local floorSurface = require('src.content.tuning').floorSurface
 local Dodge = require('src.combat.dodge')
 -- The knight's hit volume, the same as for melee (content/enemies.lua).
 local Characters = require('src.content.characters')
+local Hit = require('src.combat.hit')
 local Defaults = require('src.content.combat_defaults')
 local D = require('src.combat.damage')
+local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Factions = require('src.content.factions')
@@ -93,6 +95,21 @@ function P.observer(g, b)
     return { x = from[1], z = from[3] }
   end
 end
+-- A weapon's round that pierces goes on through a body it met, by the rule of a
+-- traced round (combat/volley.lua: pierce). Returns the power it keeps and the
+-- bodies it has passed, or nothing when it stops here.
+local function goesOn(b, target, part, surface)
+  local pierce = b.shot and b.shot.attack.pierce
+  if not pierce or (surface and not Materials[surface.material].penetrable) then
+    return
+  end
+  local retain = (b.retain or 1)
+    * math.max(0, pierce.retain - D.rating(target, part) * pierce.armorCost)
+  local passed = (b.passed or 0) + 1
+  if retain >= pierce.minRetain and passed <= pierce.bodies then
+    return retain, passed
+  end
+end
 local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local length = math.sqrt(dx * dx + dy * dy + dz * dz)
   if length <= 1e-8 then
@@ -104,6 +121,7 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   for _, entry in ipairs(bodies) do
     if
       Bodies.harms(g, side, entry.enemy, 'missile')
+      and not (b.through and b.through[entry.enemy.id])
       and B.near(entry, b.x, b.z, ux, uz, best, own)
     then
       local d, segment, contact =
@@ -134,26 +152,17 @@ local function strikeDemon(g, b, e, part, surface)
   end
   attack.base, attack.impact, attack.damageType, attack.push =
     packet.base, packet.impact, packet.damageType, packet.push
-  local dealt, _, impact
-  if surface then
-    dealt, _, impact = D.surface(attack, e, 0, surface)
-  else
-    dealt, _, impact = D.resolve(attack, e, 0, part)
-  end
-  local health = math.min(e.hp, dealt)
-  g:damageEnemy(e, dealt, sideOf(b) == 'knight' and 'ability' or 'creature', packet, b.owner)
-  local Combat = require('src.combat.combat')
-  Combat.react(
-    g,
-    e,
-    impact,
-    false,
-    { b.x, b.y, b.z },
-    nil,
-    health,
-    { origin = P.observer(g, b) },
-    { value = health, kill = e.hp <= 0, head = part == 'head' }
-  )
+  local dealt, _, impact = Hit.measure(attack, e, 0, part, surface)
+  Hit.land(g, e, { damage = dealt, impact = impact }, {
+    source = sideOf(b) == 'knight' and 'ability' or 'creature',
+    payload = packet,
+    owner = b.owner,
+    strong = false,
+    point = { b.x, b.y, b.z },
+    extra = { origin = P.observer(g, b) },
+    numbered = true,
+    head = part == 'head',
+  })
 end
 function P.update(g, dt, previous)
   if not finite(dt) or dt <= 0 then
@@ -280,8 +289,15 @@ function P.update(g, dt, previous)
         b.travelled = b.travelled + length * t
       end
       b.life = b.life - dt
-      if playerFirst or wall or b.life <= 0 then
+      local retain, passed
+      if target then
+        retain, passed = goesOn(b, target, part, surface)
+      end
+      local over = b.life <= 0 or (not retain and (playerFirst or wall))
+      if over then
         Pools.removeAt(g, 'projectiles', i)
+      end
+      if over or retain then
         eventCount = eventCount + 1
         local event = events[eventCount] or {}
         events[eventCount] = event
@@ -290,6 +306,8 @@ function P.update(g, dt, previous)
         event.knight = playerFirst and struck or nil
         event.surface = surface
         event.contact = nil
+        event.retain, event.passed = not over and retain or nil, passed
+        event.wall = wall and not playerFirst
         if playerFirst and struck then
           local share = fraction * t
           local from = struckFrom
@@ -340,7 +358,18 @@ function P.update(g, dt, previous)
         }
       )
     end
-    Signal(g, 'ProjectileBurst', { bullet = b })
+    if event.retain then
+      -- It flies on from here, never meeting this body again.
+      b.retain, b.passed = event.retain, event.passed
+      b.through = b.through or {}
+      b.through[event.enemy.id] = true
+    else
+      Signal(g, 'ProjectileBurst', {
+        bullet = b,
+        struck = event.enemy or event.knight,
+        wall = event.wall,
+      })
+    end
     if g.state ~= 'playing' then
       break
     end

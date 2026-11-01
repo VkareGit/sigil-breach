@@ -2,6 +2,7 @@
 -- landings, rushes into stone, sidesteps, alerts, slams, collisions, portals,
 -- arrivals, the knight's stagger, powder charges, near misses, projectile
 -- bursts, reloads and supplies. Pure presentation; no simulation state.
+local DamageTypes = require('src.content.damage_types')
 local A = require('src.audio.audio')
 local FX = require('src.feedback.effects')
 local Weight = require('src.feedback.weight')
@@ -153,7 +154,7 @@ World.handlers = {
     local b = ev.bullet
     g:burst(b.x, b.y, b.z, b.color or K.boltColor, 6, 1.2)
     A.playAt(
-      b.packet and b.packet.damageType == 'fire' and 'ember_impact' or 'hit',
+      DamageTypes.cue(b.packet and b.packet.damageType, 'impact'),
       b.x,
       b.z,
       Context.viewer(g),

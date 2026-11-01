@@ -275,4 +275,7 @@ return {
   spawnPause = 0.6,
   -- hit flinch spring: lean impulse per unit of flinch, stiffness, damping
   flinch = { impulse = 1.5, stiffness = 420, damping = 18, scale = 80, decay = 7 },
+  -- A volley: rays of one shot and bodies of one shot apart in their seeds;
+  -- the shortest length a contact's normal is taken from.
+  volley = { seedStride = 31, nearest = 0.001 },
 }

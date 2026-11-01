@@ -5,9 +5,11 @@ local Registry = require('src.core.registry')
 local Spawn = require('src.session.spawn')
 local B = require('src.combat.ballistics')
 local Roles = require('src.core.roles')
+local Bodies = require('src.combat.bodies')
 local Delivery = Registry:new('weapon deliveries', function(entry, id)
   assert(type(entry.fire) == 'function', id .. ': delivery requires fire(g, shot, prepared)')
   assert(entry.prepare == nil or type(entry.prepare) == 'function', id .. ': invalid prepare')
+  -- observes: its bodies are the ones the shooter saw on screen.
 end)
 Delivery:register('projectile', {
   fire = function(g, shot)
@@ -34,7 +36,7 @@ Delivery:register('projectile', {
         radius = def.radius,
         color = def.color,
         big = def.big,
-        side = 'knight',
+        side = Bodies.side(g, p),
         owner = p.id,
         packet = shot.attack,
         shot = shot,
