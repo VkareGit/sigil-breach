@@ -11,11 +11,12 @@ local MathX = require('src.core.mathx')
 local SupportPath = require('src.physics.support_path')
 local Grid = require('src.physics.grid')
 local Save = require('src.storage.save')
+local Tiles = require('src.core.tiles')
 local W = {}
 local function room(map, x1, z1, x2, z2)
   for z = z1, z2 do
     for x = x1, x2 do
-      map[z][x] = 0
+      map[z][x] = Tiles.floor
     end
   end
 end
@@ -71,14 +72,14 @@ function W.new(mode, mapId)
   for z = 1, Grid.depth(w) do
     w.map[z] = {}
     for x = 1, Grid.width(w) do
-      w.map[z][x] = 1
+      w.map[z][x] = Tiles.wall
     end
   end
   for _, r in ipairs(data.rooms) do
     room(w.map, r[1], r[2], r[3], r[4])
   end
   for _, p in ipairs(data.pillars or {}) do
-    w.map[p[2]][p[1]] = 2
+    w.map[p[2]][p[1]] = Tiles.pillar
   end
   if data.elevations and #data.elevations > 0 then
     w.elevations = {}
@@ -159,7 +160,7 @@ function W.rebuild(w)
   end
   if w.mode == 'descent' then
     local ember, clear = data.ember, data.emberClear or 0
-    for i = #w.lamps, 1, -1 do
+    for i = ember and #w.lamps or 0, 1, -1 do
       local l = w.lamps[i]
       if (l.x - ember.x) ^ 2 + (l.z - ember.z) ^ 2 < clear * clear then
         table.remove(w.lamps, i)
@@ -168,6 +169,19 @@ function W.rebuild(w)
   end
   return w
 end
+-- One cell becomes another tile: a door, a fallen wall. Routes, lights and the
+-- drawing follow the revision; a save keeps the grid.
+function W.setCell(w, x, z, tile)
+  assert(w.map[z] and w.map[z][x], 'cell outside the map')
+  assert(Tiles.speed[tile], 'unknown tile ' .. tostring(tile))
+  w.map[z][x] = tile
+  return W.rebuild(w)
+end
+-- Share of walking speed on the ground under a body.
+function W.footing(w, x, z)
+  local row = w.map[math.floor(z + 0.5)]
+  return row and Tiles.speed[row[math.floor(x + 0.5)]] or 1
+end
 -- Cells opened or filled by what fell: routes are found anew. The renderer's
 -- prepared geometry stands; what is drawn of a ruin is prepared in advance.
 function W.opened(w)
@@ -175,8 +189,7 @@ function W.opened(w)
 end
 -- The zone of a point, by the map's zone rules (the first that holds).
 function W.zone(w, x, z)
-  local zones = (w and w.zones) or Maps:get(Maps.default).zones
-  for _, zone in ipairs(zones) do
+  for _, zone in ipairs(w and w.zones or {}) do
     if
       (not zone.xBelow or x < zone.xBelow)
       and (not zone.xAbove or x > zone.xAbove)
@@ -303,7 +316,7 @@ W.stats = { visited = 0 }
 function W.open(w, x, z, k)
   k = k and k % 4 or 0
   if k == 0 then
-    return w.map[z] and w.map[z][x] == 0 or false
+    return w.map[z] and Tiles.walkable[w.map[z][x]] or false
   end
   for oz = -k, k do
     local row = w.map[z + oz]
@@ -481,7 +494,7 @@ end
 -- The session save's section of the world (plan v10 V4): which map, in
 -- which mode, every cell as it is now (edits included) and the seals lit.
 -- The rest (elevations, decks, lamps, places) is the map's own data.
-local Tiles, zero = '^[012]*$', ('0'):byte()
+local RowPattern, zero = '^%d*$', ('0'):byte()
 Save.declare({
   name = 'map',
   file = 'session',
@@ -509,7 +522,7 @@ Save.declare({
     assert(#t.rows == depth, 'map rows')
     for z = 1, depth do
       local row = t.rows[z]
-      assert(type(row) == 'string' and #row == width and row:match(Tiles), 'map row ' .. z)
+      assert(type(row) == 'string' and #row == width and row:match(RowPattern), 'map row ' .. z)
     end
     assert(#t.seals == #(data.seals or {}), 'map seals')
     for _, active in ipairs(t.seals) do

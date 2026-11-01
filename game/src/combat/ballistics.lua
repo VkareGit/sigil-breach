@@ -1,3 +1,4 @@
+local Tiles = require('src.core.tiles')
 local T = require('src.content.tuning')
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
@@ -116,10 +117,10 @@ local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
   local tile = w.map[z] and w.map[z][x]
   local elevation = Ground.cell(w, x, z)
   local radius = Collision.pillarOf(w)
-  if radius > 0.5 and tile == 0 then
+  if radius > 0.5 and Tiles.walkable[tile] then
     for _, n in ipairs(NEIGHBOURS) do
       local px, pz = x + n[1], z + n[2]
-      if w.map[pz] and w.map[pz][px] == 2 then
+      if w.map[pz] and Tiles.round[w.map[pz][px]] then
         local d, ax, ay, az = pillar(
           oy - Ground.cell(w, px, pz),
           dy,
@@ -136,7 +137,7 @@ local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
       end
     end
   end
-  if tile == 2 then
+  if Tiles.round[tile] then
     local d, px, py, pz = pillar(
       oy - elevation,
       dy,
@@ -161,8 +162,9 @@ local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
     end
     return d, px, py, pz
   end
-  if not tile or tile > 0 or elevation > 0 then
-    local height = elevation + (tile == 0 and T.floorSurface or Collision.top(tile, w, x, z))
+  if not tile or Tiles.solid[tile] or elevation > 0 then
+    local height = elevation
+      + (Tiles.walkable[tile] and T.floorSurface or Collision.top(tile, w, x, z))
     if oy + dy * entry <= height then
       return entry, nx, 0, nz
     end

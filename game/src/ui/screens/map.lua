@@ -1,3 +1,4 @@
+local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 -- The map overlay (TAB): the arena, the knight, seals and objective.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
@@ -26,7 +27,7 @@ function S.draw(g, s, U)
   local sz, ox, oy = 14, 590, 156
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
-      if g.world.map[z][x] == 0 then
+      if Tiles.walkable[g.world.map[z][x]] then
         rect(ox + x * sz, oy + z * sz, sz - 1, sz - 1, Palette.stone)
       end
     end
@@ -67,9 +68,12 @@ function S.draw(g, s, U)
   for _, m in ipairs(Queries.world(g).markers or {}) do
     rect(ox + m.x * sz - 3, oy + m.z * sz - 3, 6, 6, m.done and muted or gold)
   end
-  c(Queries.world(g).guardianDead and blue or muted)
-  lg.rectangle('line', ox + 16 * sz - 10, oy + 3 * sz - 6, 20, 12)
-  text(Text.get('classic_map_gate'), ox + 16 * sz - 28, oy + 3 * sz - 29, 16, muted)
+  local gate = g.world.portal
+  if gate then
+    c(Queries.world(g).guardianDead and blue or muted)
+    lg.rectangle('line', ox + gate.x * sz - 10, oy + gate.z * sz - 6, 20, 12)
+    text(Text.get('classic_map_gate'), ox + gate.x * sz - 28, oy + gate.z * sz - 29, 16, muted)
+  end
   text(Text.get('classic_map_legend'), 184, 492, 16, ivory)
   text(Text.get('map_pause'), 184, 619, 18, muted)
 end

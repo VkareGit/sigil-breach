@@ -93,7 +93,7 @@ function Tests.run(G, renderer)
   check(
     'shop test is within reach on the blocked side',
     not W.solid(g.world, g.player.x, g.player.z, 0.22)
-      and (g.player.x - Run.shrine.x) ^ 2 + (g.player.z - Run.shrine.z) ^ 2 < 2.8 ^ 2
+      and (g.player.x - g.world.ember.x) ^ 2 + (g.player.z - g.world.ember.z) ^ 2 < 2.8 ^ 2
   )
   check('merchant cannot be opened through the pillar', not Run.openShop(g) and g:context() == nil)
   g.player.x = 18

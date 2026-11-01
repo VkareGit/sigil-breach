@@ -380,7 +380,7 @@ local definitions = {
   { 'fui_fell_tip', 'Reset renews the field. F2 opens the trial catalogue.' },
   { 'fui_fell_stats', 'KILLS {kills} / DAMAGE {damage} / CONTROL {control} %' },
   { 'fui_map_title', 'PROVING GROUND / TRIAL MAP' },
-  { 'fui_map_arena', 'The original 31 x 31 arena.' },
+  { 'fui_map_arena', 'The original arena.' },
   { 'fui_map_tip', 'F2: demons, guns, poses and seals.' },
   { 'fui_map_legend', 'WHITE: YOU / RED: TARGET' },
   { 'fui_map_pause', 'The map pauses combat. No wave progression.' },

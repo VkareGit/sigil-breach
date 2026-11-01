@@ -22,7 +22,6 @@ local Maps = require('src.content.maps.index')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Encounter = require('src.session.encounter')
-S.portals = Maps:get(Maps.default).gates
 local distance = MathX.distance
 S.distance = distance
 -- flank: a later member of a pack prefers portals outside the player's view.
@@ -31,7 +30,7 @@ function S.choosePortal(g, r, flank)
   local best, bestScore
   local opening = r.queueIndex == 1 and r.wave <= K.openingWaves
   local P = K.score
-  for i, s in ipairs(g.world.gates or S.portals) do
+  for i, s in ipairs(g.world.gates) do
     -- Walking distance from the portal to the knight (world/navigation.lua).
     local path = Navigation.distance(g.world, s.x, s.z, p.x, p.z, nil, nil, p.level)
     local d = distance(p, s)

@@ -1,3 +1,4 @@
+local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local UI = {}
 local Stats = require('src.session.stats')
@@ -289,7 +290,7 @@ function UI.map(g, ui)
   local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
-      if g.world.map[z][x] == 0 then
+      if Tiles.walkable[g.world.map[z][x]] then
         lg.setColor(0.20, 0.18, 0.16)
         lg.rectangle('fill', ox + x * sz, oy + z * sz, sz - 1, sz - 1)
       end

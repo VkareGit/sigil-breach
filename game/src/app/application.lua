@@ -21,7 +21,7 @@ require('src.feedback.install')
 
 local Application = {}
 Application.__index = Application
-local fixedStep = 1 / 120
+local fixedStep = require('src.core.rate').step
 
 -- One owner for session replacement, preferences, renderer, and frame timing.
 -- Gameplay modules never need a reference to the application or its callbacks.

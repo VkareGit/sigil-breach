@@ -1,5 +1,6 @@
 -- Analytic flight, rolling resistance and circular-pillar contacts.
 -- No damage, effects or session ownership in the geometry solver.
+local Tiles = require('src.core.tiles')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local heights = Collision.heights
@@ -65,11 +66,11 @@ local function solidAt(w, x, z, y)
   -- A grid corner never lies in the circular footprint of a pillar. Its exact
   -- side and cap are handled inside the cell, not at this DDA boundary.
   return (not tile and y <= heights.outside)
-    or (tile == 2 and Ground.cell(w, x, z) > 0 and y <= Ground.cell(w, x, z))
+    or (Tiles.round[tile] and Ground.cell(w, x, z) > 0 and y <= Ground.cell(w, x, z))
     or (
       tile
-      and tile ~= 2
-      and y <= Ground.cell(w, x, z) + (tile == 0 and 0 or Collision.top(tile, w, x, z))
+      and not Tiles.round[tile]
+      and y <= Ground.cell(w, x, z) + (Tiles.walkable[tile] and 0 or Collision.top(tile, w, x, z))
     )
 end
 -- Interval inside a pillar's circular footprint. Horizontal flight is linear
@@ -110,16 +111,16 @@ local function sweep(w, b, duration, acceleration, floorHeight)
     local leave = math.min(nextX, nextZ, hit)
     local tile = w.map[cz] and w.map[cz][cx]
     local enterPillar, exitPillar
-    if tile == 2 then
+    if Tiles.round[tile] then
       enterPillar, exitPillar = pillarInterval(w, b, cx, cz)
     end
     if b.grounded and b.y > floorHeight + skin * 2 then
       local base = Ground.surface(w, cx, cz, b.y - floorHeight + skin * 2)
-      local onCap = tile == 2 and b.y > base + floorHeight + skin * 2
+      local onCap = Tiles.round[tile] and b.y > base + floorHeight + skin * 2
       local support = base
         + (
-          tile == 2 and (onCap and Collision.top(tile, w, cx, cz) or floorHeight)
-          or ((not tile or tile > 0) and Collision.top(tile, w, cx, cz) or floorHeight)
+          Tiles.round[tile] and (onCap and Collision.top(tile, w, cx, cz) or floorHeight)
+          or ((not tile or Tiles.solid[tile]) and Collision.top(tile, w, cx, cz) or floorHeight)
         )
       if support < b.y - skin * 2 or (onCap and (entry < enterPillar or entry >= exitPillar)) then
         return entry, 0, 0, 0, 'edge'
@@ -128,7 +129,7 @@ local function sweep(w, b, duration, acceleration, floorHeight)
         return exitPillar, 0, 0, 0, 'edge'
       end
     end
-    if tile == 2 then
+    if Tiles.round[tile] then
       local base = Ground.cell(w, cx, cz)
       if base > 0 then
         if flightY(b, entry, acceleration) < base - skin then
@@ -154,9 +155,9 @@ local function sweep(w, b, duration, acceleration, floorHeight)
           return top, 0, 1, 0
         end
       end
-    elseif not tile or tile > 0 or Ground.cell(w, cx, cz) > 0 then
+    elseif not tile or Tiles.solid[tile] or Ground.cell(w, cx, cz) > 0 then
       local height = Ground.cell(w, cx, cz)
-        + (tile == 0 and floorHeight or Collision.top(tile, w, cx, cz))
+        + (Tiles.walkable[tile] and floorHeight or Collision.top(tile, w, cx, cz))
       if not b.grounded and flightY(b, entry, acceleration) <= height then
         return entry, ex, 0, ez
       end

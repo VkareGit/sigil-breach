@@ -1,6 +1,8 @@
 -- Placement belongs to the map. Renderers own reusable painting/mesh recipes,
 -- never Limbo coordinates. Heights are relative to the supporting floor.
 return {
+  -- Walls carrying a mural: no joint stands out of them (feedback/surface_marks.lua).
+  jointless = { { 3, 14, 3, 18 }, { 29, 14, 29, 18 }, { 14, 29, 18, 29 } },
   muralWalls = { { 3, 14, 3, 18 }, { 29, 14, 29, 18 }, { 14, 29, 18, 29 } },
   arches = {
     { x = 16, z = 10, halfSpan = 4, spring = 3.8, rise = 2 },

@@ -1,6 +1,7 @@
 -- A chapel hall from its map record (content/maps/proving_halls.lua) and its
 -- painted surfaces (content/art/chapel_hall.lua). Floors, steps and solid
 -- furniture follow the map's heights, so what is drawn is what is walked on.
+local Tiles = require('src.core.tiles')
 local Art = require('src.content.art.chapel_hall')
 local B = require('src.render.kit.builder')
 local Relief = require('src.render.kit.relief')
@@ -254,8 +255,9 @@ local function ruinOf(sink, hall, def, seed)
     local x, z = hole.x + cos(a) * r, hole.z + sin(a) * r
     return x, z, abs(x - hall.x) < hall.half and z > hall.chancel and z < hall.south
   end
+  local facets = 120
   for i = 0, 119 do
-    local a, b = i / 120 * 2 * pi, (i + 1) / 120 * 2 * pi
+    local a, b = i / facets * 2 * pi, (i + 1) / facets * 2 * pi
     local x1, z1, in1 = lip(a)
     local x2, z2, in2 = lip(b)
     if in1 and in2 then
@@ -546,7 +548,7 @@ function Chapel.build(w, hall)
   for _, rect in ipairs(hall.footprint) do
     for z = rect[2], rect[4] do
       for x = rect[1], rect[3] do
-        if w.map[z][x] ~= 1 then
+        if not Tiles.masonry[w.map[z][x]] then
           floorCell(w, hall, lists.floor, lists.ashlar, x, z)
         end
       end

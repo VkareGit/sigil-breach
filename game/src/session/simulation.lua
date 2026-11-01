@@ -82,7 +82,7 @@ function Simulation.update(g, dt, input)
   local remaining = math.min(dt, 0.20)
   input = input or {}
   while remaining > 1e-10 do
-    local step = math.min(remaining, 1 / 120)
+    local step = math.min(remaining, require('src.core.rate').step)
     g:simulate(step, input)
     remaining = remaining - step
     if remaining > 1e-10 then

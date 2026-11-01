@@ -12,6 +12,7 @@ local R2 = require('tests.support.extension.r2')
 local R3 = require('tests.support.extension.r3')
 local R4 = require('tests.support.extension.r4')
 local R5 = require('tests.support.extension.r5')
+local R6 = require('tests.support.extension.r6')
 local T = {}
 local function session(Game)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
@@ -121,6 +122,7 @@ function T.run(Game)
   R3.run(Game, check, session)
   R4.run(Game, check, session)
   R5.run(Game, check, session)
+  R6.run(Game, check, session)
   return lines
 end
 return T

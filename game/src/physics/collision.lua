@@ -1,5 +1,6 @@
 -- Continuous ground-plane circle / tile collision. Rounded corners avoid
 -- invisible square snagging; the remaining motion slides on the contact plane.
+local Tiles = require('src.core.tiles')
 local MathX = require('src.core.mathx')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
@@ -26,7 +27,7 @@ end
 local function occupied(w, x, z, feet, step, head)
   return not w.map[z]
     or not w.map[z][x]
-    or w.map[z][x] > 0
+    or Tiles.solid[w.map[z][x]]
     or (feet ~= nil and Ground.height(w, x, z) > feet + (step or 0) + EPS)
     or (head ~= nil and struck(w, x, z, feet + (step or 0), head))
 end
@@ -57,12 +58,12 @@ function C.top(tile, w, x, z)
   local own = w and w.solidTop
   if own then
     local row = own.cells and own.cells[z]
-    return row and row[x] or (tile == 2 and own.pillar or own.wall)
+    return row and row[x] or (Tiles.round[tile] and own.pillar or own.wall)
   end
-  return tile == 2 and H.pillar or H.wall
+  return Tiles.round[tile] and H.pillar or H.wall
 end
 local function pillar(w, x, z)
-  return w.map[z] and w.map[z][x] == 2
+  return w.map[z] and Tiles.round[w.map[z][x]]
 end
 function C.solid(w, x, z, r, feet, step, head)
   r = r or 0.20
@@ -151,7 +152,7 @@ function C.cast(w, x, z, dx, dz, r, feet, step, head)
         -- can still overlap its riser. It may leave or slide, but never move
         -- farther into that riser. This is a velocity constraint, not a
         -- displacement to add to a body's flight momentum.
-        if feet ~= nil and w.map[tz] and w.map[tz][tx] == 0 then
+        if feet ~= nil and w.map[tz] and Tiles.walkable[w.map[tz][tx]] then
           local qx, qz = max(left, min(right, x)), max(bottom, min(top, z))
           local rx, rz = x - qx, z - qz
           local distance = sqrt(rx * rx + rz * rz)

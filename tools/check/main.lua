@@ -416,8 +416,8 @@ local scalingRatchets = {
   {
     name = 'tile-literals',
     label = 'TILE NUMBER IN CODE',
-    hint = 'ask content/tiles.lua (plan v12 R6)',
-    exempt = {},
+    hint = 'ask core/tiles.lua (plan v12 R6)',
+    exempt = { 'src/core/tiles.lua' },
     count = function(code)
       return occurrences(code, { 'map%[[^%]]+%]%[[^%]]+%]%s*[=~]=%s*%d', 'tile%s*[=~><]=?%s*%d' })
     end,
@@ -450,7 +450,7 @@ local scalingRatchets = {
     name = 'step-rate',
     label = 'STEP RATE IN CODE',
     hint = 'one constant in core (plan v12 R6)',
-    exempt = {},
+    exempt = { 'src/core/rate.lua' },
     count = function(code)
       return occurrences(code, { '1%s*/%s*120%f[^%d]', '%f[%d]120%f[^%d%.]%s*[%*/]' })
     end,

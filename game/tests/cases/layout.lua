@@ -76,17 +76,17 @@ function Tests.run(G, renderer)
     not interacted and g.run.wallet == money and g:context() == nil
   )
   local legal = true
-  for _, p in ipairs(Run.portals) do
+  for _, p in ipairs(w.gates) do
     legal = legal and not W.solid(w, p.x, p.z, 0.25) and flow[index(w, p.x, p.z)] ~= nil
   end
-  check('all six active wave portals occupy reachable original floor', #Run.portals == 6 and legal)
+  check('all six active wave portals occupy reachable original floor', #w.gates == 6 and legal)
   local spawnable = true
   for z = 1, w.size do
     for x = 1, w.size do
       if w.map[z][x] == 0 then
         local from = W.flow(w, x, z)
         local found = false
-        for _, p in ipairs(Run.portals) do
+        for _, p in ipairs(w.gates) do
           local d = from[index(w, p.x, p.z)]
           if d and d >= 8 and (p.x - x) ^ 2 + (p.z - z) ^ 2 >= 36 then
             found = true
@@ -158,16 +158,16 @@ function Tests.run(G, renderer)
     )
   end
   g = fresh()
-  local yaw = math.atan2(Run.shrine.x - g.player.x, Run.shrine.z - g.player.z)
+  local yaw = math.atan2(g.world.ember.x - g.player.x, g.world.ember.z - g.player.z)
   check(
     'new runs still face the visible improved shrine',
     math.abs(g.player.yaw - yaw) < 0.00001
-      and W.visible(g.world, g.player.x, g.player.z, Run.shrine.x, Run.shrine.z)
+      and W.visible(g.world, g.player.x, g.player.z, g.world.ember.x, g.world.ember.z)
   )
   W.rebuild(g.world)
   local separated = true
   for _, lamp in ipairs(g.world.lamps) do
-    separated = separated and (lamp.x - Run.shrine.x) ^ 2 + (lamp.z - Run.shrine.z) ^ 2 >= 4
+    separated = separated and (lamp.x - g.world.ember.x) ^ 2 + (lamp.z - g.world.ember.z) ^ 2 >= 4
   end
   check('rebuilding original geometry does not restore the overlapping shrine torch', separated)
   check('merchant still opens at the original shrine', Run.openShop(g))

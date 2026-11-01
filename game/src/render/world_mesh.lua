@@ -1,5 +1,6 @@
 -- Presentation resource: built on first draw, reused until the world revision changes.
 -- World creation and collision tests never allocate a GPU mesh.
+local Tiles = require('src.core.tiles')
 local M = require('src.render.mesh')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
@@ -93,7 +94,7 @@ local function build(w)
       if Halls.covers(w, x, z) then
         goto continue
       end
-      if w.map[z][x] == 0 then
+      if Tiles.walkable[w.map[z][x]] then
         local elevation = Ground.cell(w, x, z)
         M.quad(
           v,
@@ -107,7 +108,7 @@ local function build(w)
         for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
           local nx, nz = x + d[1], z + d[2]
           local adjacent = Ground.cell(w, nx, nz)
-          if w.map[nz] and w.map[nz][nx] == 0 and elevation > adjacent then
+          if w.map[nz] and Tiles.walkable[w.map[nz][nx]] and elevation > adjacent then
             -- The riser is the same cell boundary queried by collision/rays.
             local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
             local tx, tz = d[2] * 0.5, -d[1] * 0.5
@@ -123,7 +124,11 @@ local function build(w)
           local tile = w.map[nz] and w.map[nz][nx]
           -- A round shaft must not be hidden behind the adjacent wall faces.
           -- Older maps retain their authored boxed-pier appearance.
-          if tile and tile > 0 and not (tile == 2 and decor.pillarStyle == 'shaft') then
+          if
+            tile
+            and Tiles.solid[tile]
+            and not (Tiles.round[tile] and decor.pillarStyle == 'shaft')
+          then
             local first = #v + 1
             local h = Collision.top(w.map[nz][nx])
             local px, pz = x + d[1] * 0.55, z + d[2] * 0.55
@@ -149,7 +154,7 @@ local function build(w)
             raise(first, nx, nz)
           end
         end
-      elseif w.map[z][x] == 2 then
+      elseif Tiles.round[w.map[z][x]] then
         local elevation = Ground.cell(w, x, z)
         if elevation > 0 then
           M.box(v, x, 0, z, 1, elevation, 1, stone)

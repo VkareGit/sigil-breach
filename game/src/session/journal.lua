@@ -84,6 +84,7 @@ Journal.commands = {
   'actorJoin',
   'actorLeave',
   'actorControl',
+  'setCell',
 }
 -- Where a command names its actor (argument index; nil: the controlled one).
 Journal.actorArgument = {

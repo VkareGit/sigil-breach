@@ -15,7 +15,7 @@ local T = require('src.content.tuning')
 local Encounter = require('src.session.encounter')
 local Sanctuary = require('src.session.sanctuary')
 local K = require('src.content.expedition')
-local R = { shrine = Sanctuary.shrine, totalWaves = K.totalWaves }
+local R = { totalWaves = K.totalWaves }
 local guardianWave = K.totalWaves + 1
 local Spawner = require('src.run.spawner')
 local Pools = require('src.session.world')
@@ -23,8 +23,6 @@ local Navigation = require('src.world.navigation')
 local Roles = require('src.core.roles')
 local Stats = require('src.session.stats')
 local Text = require('src.content.text')
-local portals = Spawner.portals
-R.portals = portals
 local distance = MathX.distance
 -- Only an expedition session saves, loads and progresses as one (a session
 -- of another mode — the proving ground, a hub — may share its record g.run

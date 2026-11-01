@@ -20,7 +20,7 @@ Effect.defineKind('periodic', {
   interval = {
     type = 'number',
     required = true,
-    min = 1 / 120,
+    min = require('src.core.rate').step,
     desc = 'seconds between pulses, at least one simulation step',
   },
   packet = { type = 'table', required = true, schema = Payload },

@@ -103,12 +103,16 @@ function Schema.check(map, id)
     cellZ(p[2], label .. '.pillar.z')
     assert(opened[p[2]] and opened[p[2]][p[1]], label .. ' pillar outside open room')
   end
-  for _, key in ipairs({ 'spawn', 'portal', 'ember' }) do
-    spot(map[key], label .. '.' .. key)
+  spot(map.spawn, label .. '.spawn')
+  -- A map has what its modes need: portal, Ember, zones and gates are optional,
+  -- a mode names what it requires (run/modes.lua: session.requires).
+  for _, key in ipairs({ 'portal', 'ember' }) do
+    if map[key] then
+      spot(map[key], label .. '.' .. key)
+    end
   end
   number(map.spawn.yaw, label .. '.spawn.yaw')
-  assert(type(map.zones) == 'table' and #map.zones > 0, label .. ' needs zones')
-  for _, zone in ipairs(map.zones) do
+  for _, zone in ipairs(map.zones or {}) do
     assert(type(zone.name) == 'string' and #zone.name > 0, label .. ' zone needs a name')
     for _, axis in ipairs({ 'xBelow', 'xAbove', 'zBelow', 'zAbove' }) do
       if zone[axis] ~= nil then

@@ -1,4 +1,5 @@
 -- Small painted consequences on the existing arena. No collision/damage rules.
+local Tiles = require('src.core.tiles')
 local MathX = require('src.core.mathx')
 local Collision = require('src.physics.collision')
 local S = { limit = 96, duration = 36, fade = 6, path = 'assets/art/impact-scars-v17.png' }
@@ -29,14 +30,14 @@ function S.mount(world, c)
     else
       -- A cap is a wall's or a pillar's (an unknown cell reads as wall).
       local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
-      y = Collision.top(cell(world, x, z) or 1, world, cx, cz) + 0.004
+      y = Collision.top(cell(world, x, z) or Tiles.wall, world, cx, cz) + 0.004
       surface = 'cap'
     end
   else
     -- Pillars have octagonal shafts AND exposed square decorative panels.
     -- Mount onto the visible panel, not inside the ideal ballistic cylinder.
     local cx, cz = math.floor(x - nx * 0.12 + 0.5), math.floor(z - nz * 0.12 + 0.5)
-    if not cell(world, cx, cz) or cell(world, cx, cz) == 0 then
+    if not cell(world, cx, cz) or Tiles.walkable[cell(world, cx, cz)] then
       return
     end
     -- Fallen masonry leaves nothing to mark at this height.
@@ -54,8 +55,10 @@ function S.mount(world, c)
     end
     ny = 0
     local ox, oz = cx + nx, cz + nz
-    local mural = ((ox == 3 or ox == 29) and oz >= 14 and oz <= 18)
-      or (oz == 29 and ox >= 14 and ox <= 18)
+    local mural = false
+    for _, wall in ipairs(world.decor.jointless or {}) do
+      mural = mural or (ox >= wall[1] and ox <= wall[3] and oz >= wall[2] and oz <= wall[4])
+    end
     local tangent = nx ~= 0 and z - oz or x - ox
     local offset = 0.014
     if (ox + oz) % 3 == 0 and not mural then

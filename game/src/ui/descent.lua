@@ -1,3 +1,4 @@
+local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local D = {}
 local Stats = require('src.session.stats')
@@ -343,7 +344,7 @@ function D.map(g)
   local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
-      if g.world.map[z][x] == 0 then
+      if Tiles.walkable[g.world.map[z][x]] then
         rect(ox + x * sz, oy + z * sz, sz - 1, sz - 1, Palette.stone)
       end
     end
@@ -367,7 +368,8 @@ function D.map(g)
     end
   end
   local cold = Palette.cold
-  local sx, sy = ox + Run.shrine.x * sz, oy + Run.shrine.z * sz
+  local shrine = g.world.ember
+  local sx, sy = ox + shrine.x * sz, oy + shrine.z * sz
   color(cold)
   lg.setLineWidth(2)
   lg.circle('line', sx, sy, 13)

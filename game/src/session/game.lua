@@ -1,6 +1,8 @@
 -- Session facade used by the application, combat systems and QA. Construction
 -- and player commands live here; simulation, consequences and world triggers
 -- have separate owners. Public methods keep one stable entry point.
+local World = require('src.world.arena')
+local Maps = require('src.content.maps.index')
 local Presentation = require('src.session.presentation')
 local Feel = require('src.player.feel')
 local Combat = require('src.combat.combat')
@@ -53,6 +55,10 @@ function Game.new(mode, mapId, options)
   local id, kind = Modes.resolve(mode)
   ContentContracts.validate()
   local descriptor = kind.session
+  local data = Maps:get(mapId or descriptor.map)
+  for _, part in ipairs(descriptor.requires or {}) do
+    assert(data[part], 'mode ' .. id .. ' needs a map with ' .. part .. ': ' .. data.id)
+  end
   local g = setmetatable(State.new(descriptor.world, mapId or descriptor.map), Game)
   Feel.init(g)
   if descriptor.prepare then
@@ -74,6 +80,13 @@ function Game:start()
   local result = mode.start(self)
   Signal(self, 'ModeStarted', { mode = mode })
   return result
+end
+
+-- One cell of the world becomes another tile (a door): a command, so a journal
+-- replays it and a save keeps it.
+function Game:setCell(x, z, tile)
+  World.setCell(self.world, x, z, tile)
+  return true
 end
 
 function Game:spawn(kind, x, z)

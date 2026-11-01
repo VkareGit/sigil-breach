@@ -2,6 +2,7 @@
 -- Closest distance to a convex box/capped pillar is convex along a segment;
 -- locate its minimum, then the first radius crossing. No ray fan or square
 -- expansion of round corners. Numerical spatial tolerance is 1e-8 m.
+local Tiles = require('src.core.tiles')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
@@ -154,14 +155,15 @@ function Cast.world(w, ox, oy, oz, dx, dy, dz, range, radius, floorSurface)
     for x = x1, x2 do
       local tile = w.map[z] and w.map[z][x]
       local elevation = Ground.cell(w, x, z)
-      if not tile or tile > 0 or elevation > 0 then
-        local top = elevation + (tile == 0 and floorSurface or Collision.top(tile, w, x, z))
-        local pillar = tile == 2 and Collision.pillarOf(w)
+      if not tile or Tiles.solid[tile] or elevation > 0 then
+        local top = elevation
+          + (Tiles.walkable[tile] and floorSurface or Collision.top(tile, w, x, z))
+        local pillar = Tiles.round[tile] and Collision.pillarOf(w)
         local t, n = contact(ox, oy, oz, dx, dy, dz, x, z, top, pillar, radius, best)
         if t and (t < best or kind == 'range') then
           best, normal, kind = t, n, 'wall'
         end
-        if tile == 2 and elevation > 0 then
+        if Tiles.round[tile] and elevation > 0 then
           t, n = contact(ox, oy, oz, dx, dy, dz, x, z, elevation, false, radius, best)
           if t and (t < best or kind == 'range') then
             best, normal, kind = t, n, 'wall'

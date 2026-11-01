@@ -1,3 +1,4 @@
+local World = require('src.world.arena')
 local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
 local W = require('src.world.arena')
@@ -130,7 +131,7 @@ function F.update(g, dt, input, actor)
     end
   end
   -- Conditions from the shared rules (stagger, wound) slow the body, not the aim.
-  local condition = Rules.speedScale(p)
+  local condition = Rules.speedScale(p) * World.footing(g.world, p.x, p.z)
   -- Momentum above the air cap (a slide-jump) is not cut in one tick: the
   -- excess decays with air drag (half-life ~.43 s) toward the cap.
   if onGround then

@@ -231,7 +231,7 @@ return {
   claw = {
     active = { 0.055, 0.18 },
     arc = 0.72,
-    step = 1 / 120,
+    step = require('src.core.rate').step,
     reach = { 0.25, 0.55, 0.86 },
     height = 0.94,
     radius = 0.18,

@@ -5,6 +5,7 @@
 -- on a larger map a tile covers the window around its light, and a separate
 -- ground image carries the contact shade and walls of the whole map at the
 -- same density (plan v10 V3). Tiles are baked when a light takes a slot.
+local Tiles = require('src.core.tiles')
 local Grid = require('src.physics.grid')
 local V = { resolution = 128, columns = 4, capacity = 14, texels = 4 }
 -- CPU tiles only: 64 * 128 * 128 * RGBA8 = 4 MiB per moving atlas.
@@ -13,7 +14,7 @@ V.cacheCapacity = 64
 -- Cells covered by one tile around its light on a large map.
 V.window = V.resolution / V.texels
 local function solid(w, x, z)
-  return not (w.map[z] and w.map[z][x] == 0)
+  return not (w.map[z] and Tiles.walkable[w.map[z][x]])
 end
 function V.visible(w, lx, lz, x, z)
   local cx, cz = math.floor(lx + 0.5), math.floor(lz + 0.5)

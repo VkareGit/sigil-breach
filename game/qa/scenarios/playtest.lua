@@ -163,7 +163,7 @@ function S.run(G, human, observer, defence)
       closeSegment()
     end
     if g.run.phase == 'preparing' then
-      dx, dz = pathTo(Run.shrine.x, Run.shrine.z)
+      dx, dz = pathTo(g.world.ember.x, g.world.ember.z)
       if g:interact() then
         if g.run.wave >= 3 and not g.run.owned.pierce and g.run.wallet >= 148 then
           if Run.buy(g, 'pierce') then

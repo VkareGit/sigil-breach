@@ -1,6 +1,7 @@
 -- The lesser rooms of a map: every floor, wall and ceiling comes from the map's
 -- own cells and roofs, so a new room is dressed by naming its rectangle and
 -- its painted wall. The wall image repeats along each run of wall.
+local Tiles = require('src.core.tiles')
 local Art = require('src.content.art.chapel_hall')
 local B = require('src.render.kit.builder')
 local Light = require('src.render.kit.light')
@@ -123,10 +124,10 @@ function Rooms.build(w, hall)
     for z = rect[2], rect[4] do
       for x = rect[1], rect[3] do
         local tile = w.map[z][x]
-        if tile ~= 1 then
+        if not Tiles.masonry[tile] then
           floorCell(lists.floor, lists.ashlar, w, x, z)
           ceiling(lists.ceiling, w, x, z)
-          if tile == 2 then
+          if Tiles.round[tile] then
             pillar(lists.drum, w, x, z)
           end
           for _, d in ipairs(DIRECTIONS) do

@@ -216,7 +216,12 @@ Modes:register('field', {
 })
 -- The expedition: waves, shrine, shop and saves.
 Modes:register('expedition', {
-  session = { world = 'descent', map = Maps.default, prepare = prepareClassic },
+  session = {
+    world = 'descent',
+    map = Maps.default,
+    prepare = prepareClassic,
+    requires = { 'ember', 'gates' },
+  },
   record = 'run',
   worldView = function(g, out)
     return Views.expeditionWorld(g, g.run, out)
@@ -270,7 +275,12 @@ Modes:register('expedition', {
 })
 -- The classic arena (regression coverage): seals, then the Margrave.
 Modes:register('classic', {
-  session = { world = 'classic', map = Maps.default, prepare = prepareClassic },
+  session = {
+    world = 'classic',
+    map = Maps.default,
+    prepare = prepareClassic,
+    requires = { 'portal' },
+  },
   record = 'modeData',
   init = ClassicMode.init,
   reset = ClassicMode.init,

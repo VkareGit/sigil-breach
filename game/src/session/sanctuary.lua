@@ -7,14 +7,17 @@ local Tuning = require('src.content.tuning')
 local Capabilities = require('src.session.capabilities')
 local Roles = require('src.core.roles')
 -- The Ember of the default map (static readers); a session's own is at(g).
-local Sanctuary = { shrine = Maps:get(Maps.default).ember }
+local Sanctuary = {}
 function Sanctuary.at(g)
-  return g.world and g.world.ember or Sanctuary.shrine
+  return g.world.ember
 end
 
 -- The knight stands within reach of the Ember and sees it.
 function Sanctuary.near(g)
   local p, shrine = Roles.controlled(g), Sanctuary.at(g)
+  if not shrine then
+    return false
+  end
   local dx, dz = p.x - shrine.x, p.z - shrine.z
   return math.sqrt(dx * dx + dz * dz) < Tuning.reach.ember
     and World.visible(g.world, p.x, p.z, shrine.x, shrine.z)
