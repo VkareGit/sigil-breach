@@ -306,7 +306,7 @@ Kinds.seize = {
       e.didHit = true
       -- A dodge on its way through: the grip closes on nothing.
       if (t.invuln or 0) > 0 then
-        Dodge.perfect(g, Rules.packet(e, atk.packet), e, t)
+        Dodge.perfect(g, atk.packet, e, t)
       else
         e.holding, e.holdUntil = t.id, e.phase + atk.grip
         Rules.addCondition(t, 'seized', Defaults.gripHold)
@@ -339,8 +339,7 @@ Kinds.leap = {
     local p = victimOf(g, e)
     local gravity = Tuning.gravity
     local flight = 2 * math.sqrt(2 * gravity * atk.height) / gravity
-    local share = atk.leadShare + (1 - atk.leadShare) * (e.tierLead or 0)
-    local t = (e.windup + flight) * share
+    local t = (e.windup + flight) * atk.leadShare
     for _ = 1, K.aimTries do
       local x, z = p.x + (p.vx or 0) * t, p.z + (p.vz or 0) * t
       if not W.solid(g.world, x, z, K.aimClearance) then
@@ -377,7 +376,7 @@ Kinds.leap = {
       local hit, contact = Area.test(g, source, volume, t, p)
       local ghost = Dodge.afterimage(g, t)
       if hit then
-        local packet = Rules.packet(e, atk.packet)
+        local packet = atk.packet
         contact.kind, contact.id, contact.owner, contact.target = 'melee', atk.id, e.id, t.id
         contact.geometry, contact.time, contact.fraction =
           'landing-radius', used, used and used / dt

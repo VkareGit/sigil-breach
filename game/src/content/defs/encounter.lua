@@ -11,7 +11,6 @@ local Move = Schema:new('attack choice', {
   weight = { type = 'number', default = 1, min = 0 },
   min = { type = 'number', default = 0, min = 0 },
   max = { type = 'number', min = 0 },
-  fromTier = { type = 'number', default = 1, min = 1 },
   after = {
     type = 'table',
     schema = Follow,
@@ -49,7 +48,6 @@ local function tactics(spec, ids, path)
     assert(not seen[move.attack], where .. ': repeated attack ' .. move.attack)
     seen[move.attack] = true
     assert(move.weight > 0, where .. '.weight: must be positive')
-    assert(move.fromTier % 1 == 0, where .. '.fromTier: expected integer')
     local attack = ids[move.attack]
     if move.after then
       assert(ids[move.after.attack], where .. '.after: unknown attack ' .. move.after.attack)

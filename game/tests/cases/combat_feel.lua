@@ -6,7 +6,6 @@ function Tests.run(G, check)
   local Damage = require('src.combat.damage')
   local Weapons = require('src.content.weapons')
   local World = require('src.world.arena')
-  local Run = require('src.run.descent')
   local function close(a, b)
     return math.abs(a - b) < 1e-6
   end
@@ -139,10 +138,6 @@ function Tests.run(G, check)
     'quick combat targets begin visible with clearance and reaction time',
     legal and g.enemies[1].attack >= 1
   )
-  check(
-    'quick combat never owns an expedition snapshot',
-    Run.snapshot(g) == nil and not Run.save(g)
-  )
   g.player.armor = 0
   g.player.invuln = 0
   g:damagePlayer(1000)
@@ -214,27 +209,6 @@ function Tests.run(G, check)
   check(
     'enemy HP stops at zero and lethal overkill cannot award a second kill',
     foe.hp == 0 and require('src.session.stats').total(g, 'kills') == kills + 1
-  )
-  g = G.new('descent')
-  g.testing = true
-  g:start()
-  assert(Run.ready(g))
-  local first, visible, warning
-  for i = 1, 480 do
-    g:update(1 / 120, {})
-    if #g.run.pending > 0 then
-      warning = warning or i / 120
-    end
-    if #g.enemies > 0 then
-      first = i / 120
-      local e = g.enemies[1]
-      visible = World.visible(g.world, g.player.x, g.player.z, e.x, e.z)
-      break
-    end
-  end
-  check(
-    'first wave contact arrives promptly while retaining a visible spawn warning',
-    first and first < 2.6 and warning and first - warning >= 1.19 and visible
   )
 end
 return Tests

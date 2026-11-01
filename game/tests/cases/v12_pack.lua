@@ -19,7 +19,6 @@ local Journal = require('src.session.journal')
 local Maps = require('src.content.maps.index')
 local Packet = require('src.content.defs.packet')
 local Pools = require('src.session.world')
-local Runs = require('src.content.runs')
 local Save = require('src.storage.session_save')
 local Schema = require('src.core.schema')
 local Tiles = require('src.core.tiles')
@@ -164,18 +163,11 @@ local function load()
       end,
     },
   })
-  local cell = Schema.copy(Maps:get('limbo'))
+  local cell = Schema.copy(Maps:get('floor'))
   cell.id = 'pack_cell'
   Maps:register('pack_cell', cell)
-  Runs:register('pack_circles', {
-    stages = {
-      { map = 'limbo', waves = { { cap = 1, tip = 'wave_tip_1', queue = { 'pack_wight' } } } },
-      { map = 'pack_cell', waves = { { cap = 1, tip = 'wave_tip_1', queue = { 'pack_wight' } } } },
-    },
-  })
 end
 local function unload()
-  Runs:unregister('pack_circles')
   Maps:unregister('pack_cell')
   Entities.undefine('pack_turret')
   A.unregister('pack_wight')
@@ -194,13 +186,8 @@ local function unload()
   Types:unregister('pack_frost')
 end
 local function start(Game)
-  local g = Game.new('expedition')
+  local g = Game.new('floor')
   g.testing, g.state = true, 'playing'
-  g.run.plan = 'pack_circles'
-  -- The first wave is under way: its one demon already stands in the hall.
-  g.run.phase, g.run.pending, g.run.queueIndex = 'wave', {}, 2
-  g.run.spawnTimer, g.run.lastGate, g.run.phaseTime, g.run.waveKills = 0, 0, 0, 0
-  g.run.soulGather = 0
   local p = g.player
   p.character = 'pack_warden'
   p.resources = { mana = 100 }
@@ -254,8 +241,6 @@ function T.run(Game, renderer)
       renderer:draw(g, 640, 360)
       check('a frame draws it', true)
     end
-    require('src.run.descent').nextStage(g)
-    check('its second stage opens its own map', g.world.mapId == 'pack_cell')
   end)
   check('nothing of it stays', not A.pack_wight and not Maps:has('pack_cell'))
   return lines

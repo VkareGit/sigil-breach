@@ -22,7 +22,7 @@ function Tests.run(G, renderer)
   local Snapshot = require('src.session.snapshot')
 
   -- Owners: the guardian through the encounter, the seals counted on the world.
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   check(
     'the session keeps no guardian, seal, secret or rank field of its own',
@@ -45,11 +45,11 @@ function Tests.run(G, renderer)
     World.activeSeals(g.world) == 2
       and Queries.world(g).guardianSpawned
       and not Queries.world(g).guardianDead
-      and Modes.record(g) == g.modeData
+      and Modes.record(g) == g.run
   )
 
   -- Views: each session its own; the same object within a step; stale after.
-  local a, b = G.new('descent'), G.new('classic')
+  local a, b = G.new('floor'), G.new('floor')
   a.testing, b.testing = true, true
   a:start()
   b:start()
@@ -66,7 +66,7 @@ function Tests.run(G, renderer)
       and Queries.world(a) ~= worldB
       and not Queries.world(a).guardianDead
   )
-  local c, d = G.new('descent'), G.new('descent')
+  local c, d = G.new('floor'), G.new('floor')
   c.testing, d.testing = true, true
   c.run.wallet, d.run.wallet = 11, 22
   local viewC, viewD = Queries.run(c), Queries.run(d)

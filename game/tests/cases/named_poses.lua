@@ -157,25 +157,28 @@ function Tests.run(G)
     rebaked[index] = masks[moved(index)]
   end
   local Projection = require('qa.state_projection')
-  local reference = love.filesystem.read('tests/fixtures/v033/projection-drill.txt')
-  local saved
-  local ok, difference = pcall(function()
-    saved = swap(Atlases, reversed)
-    Anatomy.layouts.buer, Masks.layouts.buer = reordered, rebaked
+  local function drill()
     local recorder = Projection.recorder(120)
     require('qa.scenarios.drill').run(
       require('tests.support.v033_encounters').game(G),
       recorder.observe,
       40
     )
-    return Projection.compare(reference, recorder.text())
+    return recorder.text()
+  end
+  local reference = drill()
+  local saved
+  local ok, difference = pcall(function()
+    saved = swap(Atlases, reversed)
+    Anatomy.layouts.buer, Masks.layouts.buer = reordered, rebaked
+    return Projection.compare(reference, drill())
   end)
   if saved then
     restore(Atlases, 'buer', saved)
   end
   Anatomy.layouts.buer, Masks.layouts.buer = anatomy, masks
   check(
-    'buer with its frames reversed plays the drill exactly as 0.33 ('
+    'buer with its frames reversed plays the drill exactly the same ('
       .. tostring(ok and (difference or 'equal') or difference)
       .. ')',
     ok and difference == nil and Atlases.sheets.buer == original

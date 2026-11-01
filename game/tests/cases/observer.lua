@@ -72,7 +72,7 @@ function Tests.run(G, renderer)
   -- demon standing still; B joins by command (so a journal records him).
   local spots = { A = { 14, 25 }, B = { 19, 24 } }
   local function arena(extra)
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing = true
     g:start()
     Pools.clear(g, 'enemies')

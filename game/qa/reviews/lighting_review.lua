@@ -111,13 +111,12 @@ function R.run(G, renderer, output)
   g.player.hp = 100
   g:shoot()
   capture(g, 'lighting-08-muzzle'):release()
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.time = 2
   g.player.yaw = math.atan2(g.world.ember.x - g.player.x, g.world.ember.z - g.player.z)
   capture(g, 'lighting-09-shrine'):release()
-  g.run.phase = 'wave'
   capture(g, 'lighting-10-shrine-during-wave'):release()
   local f = assert(io.open(output .. '/lighting-review.txt', 'w'))
   f:write(

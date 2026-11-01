@@ -5,7 +5,7 @@
 --   controls(g, s)      its buttons, or nil
 -- Buttons come from a chain of providers, first answer wins (Chain of
 -- Responsibility): the proving ground's archive and catalogue, the
--- expedition's own screens, the help and map overlays, then the screen.
+-- chapel's own screens, the help and map overlays, then the screen.
 local Registry = require('src.core.registry')
 local Views = Registry:new('views')
 local Text = require('src.content.text')
@@ -16,7 +16,9 @@ local function screen(module)
     return require(module).draw(g, s, U)
   end
 end
-local hud = screen('src.ui.screens.hud')
+local function hud(g, s, U)
+  return require('src.ui.hud').draw(g, s, U, require('src.ui.chapel'))
+end
 Views:register('playing', { draw = hud })
 Views:register('paused', {
   draw = function(g, s, U)
@@ -30,12 +32,12 @@ Views:register('dead', { draw = screen('src.ui.screens.ending') })
 Views:register('won', { draw = screen('src.ui.screens.ending') })
 Views:register('shop', {
   draw = function(g)
-    require('src.ui.descent').shop(g)
+    require('src.ui.chapel').shop(g)
   end,
 })
 Views:register('confirm_new', {
   draw = function(g)
-    require('src.ui.descent').confirm(g)
+    require('src.ui.chapel').confirm(g)
   end,
 })
 Views:register('field_archive', {
@@ -50,7 +52,9 @@ Views:register('field_catalog', {
 })
 -- Overlays over any screen.
 Views.overlays = {
-  map = screen('src.ui.screens.map'),
+  map = function(g)
+    return require('src.ui.chapel').map(g)
+  end,
   help = screen('src.ui.screens.help'),
 }
 -- The view of a session (an unknown state shows the play screen).
@@ -118,28 +122,8 @@ local function pageControls(g, s)
     },
   }
 end
-local ending = function()
-  return {
-    { id = 'restart', label = Text.get('ending_again'), x = 440, y = 530, w = 400, h = 50 },
-    { id = 'menu', label = Text.get('ending_menu'), x = 440, y = 596, w = 400, h = 40 },
-  }
-end
-Views:get('menu').controls = function()
-  return {
-    { id = 'start', label = Text.get('menu_start'), x = 72, y = 410, w = 400, h = 56 },
-    { id = 'help', label = Text.get('menu_help_wide'), x = 72, y = 482, w = 194, h = 46 },
-    { id = 'settings', label = Text.get('menu_settings'), x = 270, y = 482, w = 194, h = 46 },
-    { id = 'quit', label = Text.get('menu_quit'), x = 72, y = 546, w = 194, h = 42 },
-    -- Under the proving-ground panel, not over its station list (this menu is
-    -- the classic test session's; the expedition's own menu: ui/descent.lua).
-    { id = 'field_skirmish', label = Text.get('menu_quick'), x = 580, y = 620, w = 290, h = 44 },
-    { id = 'field_start', label = Text.get('menu_field'), x = 880, y = 620, w = 290, h = 44 },
-  }
-end
 Views:get('paused').controls = pageControls
 Views:get('settings').controls = pageControls
-Views:get('dead').controls = ending
-Views:get('won').controls = ending
 -- The providers of buttons, in order; each returns a list or nil.
 Views.providers = {
   function(g)
@@ -151,7 +135,7 @@ Views.providers = {
     return require('src.ui.test_field').controls(g)
   end,
   function(g)
-    return require('src.ui.descent').controls(g)
+    return require('src.ui.chapel').controls(g)
   end,
   function(g)
     if g.help then

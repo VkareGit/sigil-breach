@@ -1,7 +1,7 @@
 local U = { focus = 1, mouseX = -1, mouseY = -1 }
 local lg = love.graphics
 local Skin = require('src.ui.skin')
-local D = require('src.ui.descent')
+local D = require('src.ui.chapel')
 local Palette = require('src.ui.palette')
 local Resources = require('src.render.resources')
 local Camera = require('src.render.camera')
@@ -96,10 +96,10 @@ function U.objective(g)
 end
 -- The screens live in ui/screens/ (0.24 F7); these names stay for callers.
 function U.hud(g, s)
-  return require('src.ui.screens.hud').draw(g, s, U)
+  return require('src.ui.hud').draw(g, s, U, require('src.ui.chapel'))
 end
 function U.map(g)
-  return require('src.ui.screens.map').draw(g, nil, U)
+  return require('src.ui.chapel').map(g)
 end
 function U.menu(g)
   return require('src.ui.screens.menu').draw(g, nil, U)

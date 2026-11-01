@@ -58,7 +58,7 @@ function Tests.run(Game)
     bad.id, bad.attack.effects[1].kind = 'effect_invalid', 'missing_effect'
     check('unknown effect behaviour fails before registration', not pcall(Weapons.define, bad))
     Modes:register(modeId, {
-      session = { world = 'classic', map = require('src.content.maps.index').default },
+      session = { map = require('src.content.maps.index').default },
       init = function(g)
         g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 25, math.pi, 0
         g.player.armor = 0

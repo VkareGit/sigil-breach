@@ -2,110 +2,21 @@
 -- registered. Equipment stays data: slots, saves, casting and physical throws.
 local Fixtures = require('tests.support.fixtures')
 local Abilities = require('src.content.abilities')
-local Save = require('src.storage.run_save')
-local Run = require('src.run.descent')
 local Action = require('src.content.defs.action')
 local Schema = require('src.core.schema')
 local Tests = {}
 
 function Tests.run(G, check, spark)
-  local run = Fixtures.expedition(G)
-  Abilities.give(run, spark.id)
-  local uses, slots = Abilities.inventory(run)
-  run.run.checkpoint.abilities, run.run.checkpoint.abilityLoadout = uses, slots
-  -- The current loadout differs from its checkpoint, and its first slot is
-  -- not powder. Neither a sorted dictionary nor defaults can recover it.
-  run.player.abilities = { spark.id, 'powder' }
-  run.player.abilityState[spark.id].uses = 1
-  run.player.abilityState.powder.uses = 0
-  local snapshot = Run.snapshot(run)
-  -- As 0.32 wrote it: the adapter reads SIGIL08 into the same checkpoint.
-  local encoded = require('tests.support.legacy_save').encode08(snapshot, 7)
-  local saved = assert(Save.decode(encoded))
-  local restored = Fixtures.expedition(G)
-  Run.load(restored, saved)
-  check(
-    'equipment save restores chosen slots and remaining uses, including zero',
-    saved.version == 'SIGIL08'
-      and table.concat(restored.player.abilities, ',') == 'trial_spark,powder'
-      and restored.player.abilityState[spark.id].uses == 1
-      and restored.player.abilityState.powder.uses == 0
-  )
-  local defeated = assert(Save.decode(encoded))
-  defeated.phase = 'defeated'
-  local retried = Fixtures.expedition(G)
-  Run.load(retried, defeated)
-  check(
-    'a defeated save restores the checkpoint equipment, independently of current slots',
-    table.concat(retried.player.abilities, ',') == 'powder,trial_spark'
-      and retried.player.abilityState[spark.id].uses == 2
-      and retried.player.abilityState.powder.uses == 2
-  )
-
-  local payload = assert(encoded:match('^SIGIL08\n%d+\n%d+\n(.*)$'))
-  local function withPayload(text, version)
-    return (version or 'SIGIL08') .. '\n7\n' .. Save.checksum(text) .. '\n' .. text
-  end
-  local old = payload:gsub('\nslots=[^\n]*', ''):gsub('\ncheckslots=[^\n]*', '')
-  local previous = assert(Save.decode(withPayload(old, 'SIGIL07')))
-  local migrated = Fixtures.expedition(G)
-  Run.load(migrated, previous)
-  check(
-    'SIGIL07 keeps uses and migrates unordered equipment with powder on Q',
-    table.concat(migrated.player.abilities, ',') == 'powder,trial_spark'
-      and migrated.player.abilityState.powder.uses == 0
-      and migrated.player.abilityState[spark.id].uses == 1
-  )
-  local withoutKit = old:gsub('\nkit=[^\n]*', ''):gsub('\ncheckkit=[^\n]*', '')
-  local missingOldKit = assert(Save.decode(withPayload(withoutKit, 'SIGIL07')))
-  check(
-    'old saves without a kit retain their historical powder default',
-    table.concat(missingOldKit.inventory.abilityLoadout, ',') == 'powder'
-      and missingOldKit.inventory.abilities.powder == Abilities:get('powder').start
-  )
-  for _, invalid in ipairs({
-    'trial_spark,trial_spark',
-    'trial_spark,unknown_equipment',
-    'trial_spark',
-    '',
-    'trial_spark,,powder',
-  }) do
-    local changed = payload:gsub('\nslots=[^\n]*', '\nslots=' .. invalid)
-    check(
-      'equipment save rejects malformed slots: ' .. invalid,
-      not Save.decode(withPayload(changed))
-    )
-  end
-  local missingSlots = payload:gsub('\nslots=[^\n]*', '')
-  check('SIGIL08 requires its slot record', not Save.decode(withPayload(missingSlots)))
-  local staleKit = payload:gsub('\nkit=[^\n]*', '\nkit=powder:0,removed_equipment:1')
-  check(
-    'equipment save refuses an unknown saved definition',
-    not Save.decode(withPayload(staleKit))
-  )
-  local duplicateKit = payload:gsub('\nkit=[^\n]*', '\nkit=powder:0,powder:0,trial_spark:1')
-  check('equipment save refuses repeated use records', not Save.decode(withPayload(duplicateKit)))
-  local staleUses = payload:gsub('\nkit=[^\n]*', '\nkit=powder:0,trial_spark:3')
-  check(
-    'equipment save refuses uses above the current definition capacity',
-    not Save.decode(withPayload(staleUses))
-  )
-  local empty = Fixtures.expedition(G)
-  Abilities.restore(empty, {}, {})
-  local emptySave = assert(Save.decode(Save.encode(Run.snapshot(empty), 1)))
-  Run.load(empty, emptySave)
-  check('an explicitly empty equipment loadout stays empty', #empty.player.abilities == 0)
-
-  -- The journal may begin from a checkpoint. Rebuild that same initial
-  -- checkpoint, then replay its commands and compare full simulation state.
+  -- The journal begins from a session; rebuild it the same way, then replay its
+  -- commands and compare full simulation state.
   local Journal = require('src.session.journal')
   local Integrity = require('src.session.integrity')
   local function ready()
     local g = Fixtures.expedition(G)
-    Run.load(g, assert(Save.decode(encoded)))
-    Run.ready(g)
-    g.run.phase = 'wave'
-    g.run.spawnTimer = 100
+    g.enemies = {}
+    Abilities.give(g, spark.id)
+    g.player.abilities = { spark.id, 'powder' }
+    g.player.abilityState[spark.id].uses = 1
     local enemy = g:spawn('imp', g.player.x, g.player.z - 4)
     enemy.awake = false
     g.player.yaw, g.player.pitch = math.pi, 0

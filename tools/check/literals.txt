@@ -50,11 +50,9 @@ src/physics/sphere_cast.lua 0
 src/player/feel.lua 3
 src/player/intent.lua 1
 src/player/movement_gait.lua 1
-src/run/descent.lua 3
 src/run/economy.lua 0
 src/run/modes.lua 0
 src/run/navigation.lua 3
-src/run/spawner.lua 1
 src/session/capabilities.lua 0
 src/session/components.lua 5
 src/session/damage_outcomes.lua 0

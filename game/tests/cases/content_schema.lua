@@ -6,7 +6,6 @@ function Tests.run(_, check)
   local Attacks = require('src.enemies.actions')
   local Action = require('src.content.defs.action')
   local Weapons = require('src.content.weapons')
-  local Waves = require('src.content.waves')
   local Rules = require('src.combat.rules')
   local ArtContract = require('src.enemies.art_contract')
   local T = require('src.content.tuning')
@@ -194,14 +193,6 @@ function Tests.run(_, check)
       bad('weapon delivery ' .. kind .. ' has no schema')
     end
   end
-  -- Waves only summon creatures that exist, and every creature in a wave arrives.
-  for i, w in ipairs(Waves) do
-    for _, kind in ipairs(w.queue or {}) do
-      if not A.get(kind) then
-        bad('wave ' .. i .. ' summons unknown ' .. kind)
-      end
-    end
-  end
   -- Balance tiers must be continuous and every stability positive.
   local s = D.stagger
   if s.heavy.base < s.light.base + s.light.gain * s.heavy.from or s.heavy.max < s.heavy.base then
@@ -219,7 +210,6 @@ function Tests.run(_, check)
       .. (#problems > 0 and (' / ' .. table.concat(problems, '; ')) or ''),
     #problems == 0 and creatures >= 6 and weapons >= 2
   )
-  -- A kind missing from the classic role rotation still arrives in a wave.
   -- 0.24: one action format for demons and the knight. Every delivery kind
   -- has a schema (content) and a behaviour: a demon kind (enemies/actions.lua)
   -- or a knight ability kind (combat/explosives.lua: throw).
@@ -254,11 +244,5 @@ function Tests.run(_, check)
       and Cast.kinds[ability.action.kind] ~= nil
   end
   check('the knight abilities are actions of a known kind the caster can deliver', castable)
-  local built = Waves.build(5, '', { imp = 1, wraith = 2 }, 1)
-  local wraiths = 0
-  for _, kind in ipairs(built.queue) do
-    wraiths = wraiths + (kind == 'wraith' and 1 or 0)
-  end
-  check('a new kind of demon outside the classic rotation still arrives in its wave', wraiths == 2)
 end
 return Tests

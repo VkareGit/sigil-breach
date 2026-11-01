@@ -321,7 +321,7 @@ function H.draw(g, settings, ui, descentUI)
         Skin.endZone()
       end
     end
-  elseif run.fighting then
+  else
     local dx, dy, dz = B.direction(p.yaw, p.pitch)
     local target = B.traceVector(g, dx, dy, dz, 25, B.prepare(g, p, {}), { B.origin(g, p) })
     if target and target.hp > 0 then

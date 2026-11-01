@@ -1,5 +1,4 @@
--- Shared physical sanctuary, independent of expedition progression. The test
--- field can exercise its shop without importing (or owning) an expedition.
+-- The physical place of the trade, shared by the chapel and the proving ground.
 local World = require('src.world.arena')
 local Presentation = require('src.session.presentation')
 local Maps = require('src.content.maps.index')
@@ -32,6 +31,15 @@ function Sanctuary.trade(g)
   require('src.player.intent').clear(g)
   g.view.presentationPrevious = nil
   Presentation.capture(g, false)
+  return true
+end
+
+function Sanctuary.closeTrade(g)
+  if g.state ~= 'shop' then
+    return false
+  end
+  g.state = 'playing'
+  Presentation.capture(g, true)
   return true
 end
 

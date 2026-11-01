@@ -7,6 +7,8 @@ local Shop = {
   maxWallet = 1000000,
   -- The ward (consumable shield) is mended up to maxWard.
   maxWard = 100,
+  -- How loud a purchase is.
+  boughtCue = 0.35,
   offers = {
     {
       id = 'ammo',

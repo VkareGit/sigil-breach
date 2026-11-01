@@ -5,7 +5,7 @@ local map = {
   width = 49,
   depth = 43,
   floor = 0,
-  anchors = { secret = { x = 16, z = 3 }, boss = { x = 24, z = 7 } },
+  anchors = { boss = { x = 24, z = 7 } },
   rooms = {
     { 20, 10, 28, 39 },
     { 18, 32, 30, 39 }, -- nave / narthex

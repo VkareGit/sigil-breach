@@ -35,7 +35,7 @@ function Contact.knightAt(g, t, current, given, step, dt)
   return step < dt and Melee.playerAt(given or k, k, step / dt, nil, g.world) or k
 end
 function Contact.hurt(g, e, atk, t, contact)
-  local packet = Rules.packet(e, atk.packet)
+  local packet = atk.packet
   if contact then
     contact.kind, contact.id, contact.owner, contact.target = 'melee', atk.id, e.id, t.id
   end
@@ -46,7 +46,7 @@ end
 -- dodge began) is spent on it: a perfect dodge (session/damage_outcomes.lua).
 function Contact.dodged(g, e, atk, t)
   e.didHit = true
-  Dodge.perfect(g, Rules.packet(e, atk.packet), e, t)
+  Dodge.perfect(g, atk.packet, e, t)
 end
 -- Move the body along its rush; a blow that met the rush scales it.
 function Contact.rush(g, e, speed, step, previous, current)

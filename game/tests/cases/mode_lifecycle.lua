@@ -56,12 +56,6 @@ function Tests.run(Game)
       'invalid constructor map is rejected atomically',
       not pcall(Modes.register, Modes, fixtureId, invalid) and not Modes:has(fixtureId)
     )
-    invalid = definition()
-    invalid.policy = { phased = true }
-    check(
-      'a phased mode needs its phase query',
-      not pcall(Modes.register, Modes, fixtureId, invalid) and not Modes:has(fixtureId)
-    )
     Modes:register(fixtureId, definition())
     local fresh = Game.new(fixtureId)
     check(
@@ -73,14 +67,8 @@ function Tests.run(Game)
         and #fresh.enemies == 0
     )
     check(
-      'legacy descent alias keeps its canonical expedition identity',
-      Game.new('descent').mode == 'expedition'
-    )
-    check(
       'a mode provides presentation without exposing a run record',
-      Queries.objective(fresh) == 'Fixture objective'
-        and Queries.world(fresh).paintedPickups
-        and Queries.tools(fresh) == nil
+      Queries.objective(fresh) == 'Fixture objective' and Queries.tools(fresh) == nil
     )
     fresh.testing = true
     local journal = Journal.record(fresh)
@@ -111,7 +99,7 @@ function Tests.run(Game)
     check('whole-session memento includes the new mode record', fresh.modeData.steps == saved.steps)
 
     local resets = 0
-    local base = Game.new('classic')
+    local base = Game.new('floor')
     local app = {
       game = base,
       input = {
@@ -136,7 +124,7 @@ function Tests.run(Game)
     )
     check(
       'return label is presentation rather than recorded mode data',
-      nested.view.fieldReturnLabel == 'return_expedition' and nested.testField.returnLabel == nil
+      nested.view.fieldReturnLabel == 'return_chapel' and nested.testField.returnLabel == nil
     )
     check(
       'first return restores the same paused instance and its own state',
@@ -224,9 +212,9 @@ function Tests.run(Game)
         and #source.run.pending == 1
         and #source.enemies == 0
     )
-    Field.update(source, require('src.content.waves').portal.glow / 2)
+    Field.update(source, require('src.content.field').gates.glow / 2)
     check('portal is still empty halfway through its authored glow', #source.enemies == 0)
-    Field.update(source, require('src.content.waves').portal.glow)
+    Field.update(source, require('src.content.field').gates.glow)
     check(
       'the target arrives after the portal glow',
       #source.run.pending == 0 and #source.enemies == 1

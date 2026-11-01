@@ -7,9 +7,7 @@ local T = {
   names = {
     'sigil',
     'breach',
-    'limbo',
     'merchant',
-    'circles',
     'settings',
     'new_run',
     'interrupted',

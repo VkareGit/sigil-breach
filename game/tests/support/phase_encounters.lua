@@ -15,7 +15,6 @@ function F.game(Game)
         local e = spawn(self, kind, x, z)
         if kind == 'boss' or kind == 'furfur' then
           require('src.combat.rules').equip(e, F[kind])
-          require('src.combat.rules').applyTier(e, e.tier)
         end
         return e
       end

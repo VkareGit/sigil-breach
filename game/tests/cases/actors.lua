@@ -53,7 +53,7 @@ function Tests.run(G)
   -- The session of the trials: the classic arena without its garrison, two
   -- posts, an awake thrall by the second knight's place.
   local function arena(thrall)
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing = true
     g:start()
     Pools.clear(g, 'enemies')
@@ -69,7 +69,6 @@ function Tests.run(G)
       -- historical attacker; live balance has separate creature-pressure fights.
       local Rules = require('src.combat.rules')
       Rules.equip(e, require('tests.support.content.imp_pre_pressure'))
-      Rules.applyTier(e, e.tier)
       e.awake, e.memory, e.spawnAge = true, 60, 1
     end
     return g
@@ -204,7 +203,7 @@ function Tests.run(G)
 
   -- The actor journal: a second knight with its own place and equipment
   -- joins before the first update; a fresh session from the journal alone.
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   local actorJournal = Journal.record(g)
   g:actorJoin(knight(g, 'knight2', 18, 26, {
@@ -286,7 +285,7 @@ function Tests.run(G)
   refused('a command for an id never known', function(entries)
     entries[#entries + 1] = { 'shoot', { nil, 'knight8' } }
   end)
-  local r = G.new('classic')
+  local r = G.new('floor')
   local rj = Journal.record(r)
   local result = r:shoot(nil, 'nobody')
   Journal.stop(r)
@@ -334,7 +333,7 @@ function Tests.run(G)
     alone == shared and #alone > 0 and q.player.shotSequence == 3
   )
   local SessionSave = require('src.storage.session_save')
-  local restored = G.new('classic')
+  local restored = G.new('floor')
   restored.testing = true
   SessionSave.restore(restored, assert(SessionSave.decode(SessionSave.encode(q, 3))))
   local againB = Pools.get(restored, 'knight2')

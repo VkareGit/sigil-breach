@@ -82,8 +82,8 @@ function Tests.run(Game, renderer)
     worst <= 0.25
   )
   local maximum, samples, inherited, markers = 0, 0, true, true
-  for _, mode in ipairs({ 'field', 'classic' }) do
-    local g = mode == 'field' and Field.new(Game) or Game.new('classic')
+  for _, mode in ipairs({ 'field', 'floor' }) do
+    local g = mode == 'field' and Field.new(Game) or Game.new('floor')
     g.testing = true
     if mode == 'field' then
       Field.close(g)

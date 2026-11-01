@@ -116,10 +116,7 @@ function T.run(Game)
   g.player.x, g.player.z, g.player.vx, g.player.vz = 16, 23, 3, 0
   local fan = A.boss.attacks[1]
   Actions.begin(g, e, 6, fan)
-  check(
-    'tier one predicts observed motion, not input buttons',
-    e.tierLead == 0 and e.aimX > g.player.x + 2
-  )
+  check('it predicts observed motion, not input buttons', e.aimX > g.player.x + 2)
   local x, z = e.aimX, e.aimZ
   g.player.vx, g.player.x = -3, 13
   Actions.execute(g, e)

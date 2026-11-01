@@ -36,7 +36,7 @@ local function launch(g, spec, speed, caster)
     color = spec.color,
     owner = caster.owner,
     side = caster.side,
-    packet = Caster.packet(caster, spec.packet),
+    packet = spec.packet,
     radius = Shape.radius(spec),
   })
   return true
@@ -49,7 +49,6 @@ local function aimed(g, e, a, spec)
   local d = len(e.aimX - e.x, e.aimZ - e.z)
   return {
     body = e,
-    scaled = true,
     owner = e.id,
     side = Bodies.side(g, e),
     mx = e.x + sin(a) * K.muzzle,
@@ -68,7 +67,7 @@ Kinds.strike = {
   unseen = true,
   -- The thunderbolt is marked during the windup and released at execution.
   commit = function(g, e, atk)
-    local packet = Rules.packet(e, atk.packet)
+    local packet = atk.packet
     e.pendingHazard = Spawn.make(g, 'hazard', {
       kind = 'lightning',
       owner = e.id,
@@ -101,7 +100,7 @@ Kinds.pool = {
   execute = function(g, e, atk, a)
     local pool = atk.pool
     Hazards.add(g, e.aimX, e.aimZ, pool.delay, pool.radius, pool.life, {
-      packet = Rules.packet(e, pool.packet),
+      packet = pool.packet,
       pulse = pool.pulse,
       condition = pool.condition,
       volume = pool.volume,
@@ -132,7 +131,7 @@ Kinds.fan = {
           line.radius,
           line.life,
           {
-            packet = Rules.packet(e, line.packet),
+            packet = line.packet,
             pulse = line.pulse,
             volume = line.volume,
             owner = e.id,
@@ -165,7 +164,7 @@ Kinds.wave = {
       width = atk.width,
       volume = Schema.copy(atk.volume),
       life = 1,
-      packet = Rules.packet(e, atk.packet),
+      packet = atk.packet,
     })
   end,
 }
@@ -189,7 +188,7 @@ Kinds.beam = {
       spin = turn * atk.spin,
       volume = Schema.copy(atk.volume),
       life = atk.arc / atk.spin,
-      packet = Rules.packet(e, atk.packet),
+      packet = atk.packet,
     })
   end,
 }
@@ -214,7 +213,7 @@ Kinds.tempest = {
       radius = atk.radius,
       life = atk.life,
       interval = atk.pulse,
-      packet = Rules.packet(e, atk.packet),
+      packet = atk.packet,
     })
   end,
 }
@@ -250,7 +249,7 @@ Kinds.storm = {
       e.released = e.released + 1
       Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
         kind = 'lightning',
-        packet = Rules.packet(e, atk.packet),
+        packet = atk.packet,
         volume = atk.volume,
         owner = e.id,
         side = Bodies.side(g, e),

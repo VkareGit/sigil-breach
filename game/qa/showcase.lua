@@ -9,12 +9,12 @@ function S.run(G, renderer)
   local auditFile = assert(io.open(output .. '/ui-layout-audit.txt', 'w'))
   auditFile:close()
   local U = require('src.ui.interface')
-  local Run = require('src.run.descent')
-  local Waves = require('src.content.waves')
+  local Sanctuary = require('src.session.sanctuary')
+  local Economy = require('src.run.economy')
   local A = require('src.audio.audio')
   A.muted = true
   U.useMouse = false
-  local g = G.new('descent')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
@@ -60,14 +60,13 @@ function S.run(G, renderer)
   save('01-menu')
   save('01-menu-4by3', 1024, 768)
   save('01-menu-large', 1920, 1080)
-  g.availableSave = { phase = 'preparing', wave = 3 }
+  g.run.saved = true
   save('02-continue')
   g.state = 'confirm_new'
   save('03-new-confirm')
-  g.availableSave = nil
   g.state = 'playing'
   save('04-shrine')
-  Run.openShop(g)
+  Sanctuary.trade(g)
   save('05-shop')
   save('06-shop-small', 960, 540)
   save('07-shop-4by3', 1024, 768)
@@ -78,11 +77,11 @@ function S.run(G, renderer)
   U.focus = 1
   save('09-partial-stock')
   g.run.wallet = 350
-  Run.buy(g, 'choke')
-  Run.buy(g, 'pierce')
+  Economy.trade(g, 'choke')
+  Economy.trade(g, 'pierce')
   save('10-glyphs')
   U.focus = 1
-  Run.closeShop(g)
+  Sanctuary.closeTrade(g)
   g.map = true
   save('11-circles')
   g.map = false
@@ -91,16 +90,10 @@ function S.run(G, renderer)
   g.help = false
   g.player.arsenal.exorcist.reserve = 28
   g.run.wallet = 150
-  Run.ready(g)
   g.player.yaw = math.pi
   g.view.messageTimer = 0
-  save('13-countdown')
-  g.run.phase = 'wave'
-  g.run.countdown = 0
-  g.run.pending = { { x = 16, z = 22, delay = 0.7, kind = 'imp', rewardId = '1_1' } }
+  g.run.pending = { { x = 16, z = 22, delay = 0.7, kind = 'imp' } }
   save('14-portal')
-  g.run.wave = 3
-  g.run.queueIndex = #Waves[3].queue + 1
   g.run.pending = {}
   g.player.z = 25.5
   g.player.pitch = 0.03
@@ -111,13 +104,13 @@ function S.run(G, renderer)
   g:spawn('stolas', 17.6, 19.5)
   g:spawn('buer', 14, 17)
   g.pickups = {
-    { kind = 'soul', amount = 12, rewardId = '3_9', x = 17.5, z = 23.6 },
-    { kind = 'soul', amount = 4, rewardId = '3_1', x = 15.5, z = 23.3 },
+    { kind = 'soul', amount = 12, x = 17.5, z = 23.6 },
+    { kind = 'soul', amount = 4, x = 15.5, z = 23.3 },
   }
   save('15-armored-combat')
   save('16-combat-small', 960, 540)
   save('17-combat-wide', 1720, 720)
-  g.run.echo = { x = 16, z = 22.5, wave = 3, amount = 148 }
+  g.run.echo = { x = 16, z = 22.5, amount = 148 }
   save('18-echo')
   g.map = true
   save('19-echo-map')
@@ -132,15 +125,12 @@ function S.run(G, renderer)
   g:damagePlayer(1000, 16, 20)
   save('21-death')
   save('22-death-small', 960, 540)
-  Run.retry(g)
+  g.state, g.player.hp = 'playing', 100
   save('23-retry')
-  g:interact()
+  Sanctuary.trade(g)
   save('24-poor-shop')
   g.state = 'playing'
   g.player.yaw = math.pi
-  g.run.phase = 'wave'
-  g.run.wave = 5
-  g.run.queueIndex = 2
   g.run.pending = {}
   g.enemies = {}
   g.pickups = {}
@@ -161,14 +151,7 @@ function S.run(G, renderer)
   g.view.feedback, g.view.feedbackTimer = require('src.content.text').get('feedback_falter'), 1.6
   save('26c-boss-falter')
   g.view.feedbackTimer = 0
-  g.state = 'won'
-  g.run.phase = 'complete'
-  g.run.fragment = true
-  require('src.session.encounter').guardianFell(g)
-  g.run.wallet = 350
-  save('27-victory')
-  save('28-victory-4by3', 1024, 768)
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.state = 'paused'
@@ -177,9 +160,6 @@ function S.run(G, renderer)
   save('30-settings')
   g.state = 'playing'
   g.player.yaw = math.pi
-  g.run.phase = 'wave'
-  g.run.wave = 3
-  g.run.queueIndex = 11
   g.run.pending = {}
   g.player.z = 25.5
   g.elapsed = 70
@@ -215,8 +195,6 @@ function S.run(G, renderer)
   g.view.hitmarker = 0.12
   save('35-fire')
   g.player.arsenal.exorcist.readyAt = 0
-  g.run.phaseTime = 0
-  g.run.spawnTimer = 99
   for _ = 1, 43 do
     g:update(1 / 120, {})
   end
@@ -229,12 +207,12 @@ function S.run(G, renderer)
     end
   end
   save('37-windup')
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
   g.zoneTimer = 0
-  g:interact()
+  Sanctuary.trade(g)
   g.run.wallet = 0
   U.focus = 4
   save('38-no-money')
@@ -245,21 +223,17 @@ function S.run(G, renderer)
   save('39-owned-glyph')
   save('40-shop-large', 1920, 1080)
   g.state = 'menu'
-  g.availableSave = { phase = 'preparing', wave = 3 }
   g.saveRecovered = true
   save('41-recovered-save')
   g.state = 'playing'
-  g.run.echo = { amount = 148, x = 16, z = 21, wave = 1 }
-  g.run.phase = 'wave'
-  g.run.wave = 1
-  g.run.queueIndex = 8
+  g.run.echo = { amount = 148, x = 16, z = 21 }
   g.run.pending = {}
   g.player.x = 16
   g.player.z = 25
   g.player.yaw = math.pi
   g.hazards = { { x = 15, z = 20, radius = 1.8, delay = 0, life = 5 } }
   g.pickups = {
-    { kind = 'soul', x = 17, z = 22, amount = 4, rewardId = '1_1' },
+    { kind = 'soul', x = 17, z = 22, amount = 4 },
     { kind = 'health', x = 14, z = 22, amount = 20 },
     { kind = 'ammo', x = 18, z = 22, amount = 2 },
   }
@@ -296,7 +270,7 @@ function S.run(G, renderer)
   armor.deathTime = 0.45
   save('46-armored-fall')
   -- The single test field, physical weapon and every portrait state.
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
@@ -318,7 +292,7 @@ function S.run(G, renderer)
   g.map = true
   save('50-single-test-field')
   g.map = false
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
@@ -332,9 +306,7 @@ function S.run(G, renderer)
   g.player.x = 16
   g.player.z = 25.5
   g.player.yaw = math.pi
-  g.run.phase = 'wave'
   g.run.pending = {}
-  g.run.queueIndex = 8
   g.player.weapon = 2
   g.view.shotAge = 99
   save('57-pistol')
@@ -431,8 +403,6 @@ function S.run(G, renderer)
   g.player.cooldown = 0
   g.player.arsenal.exorcist.readyAt = 0
   g.player.reload = 0
-  g.run.phaseTime = 0
-  g.run.spawnTimer = 99
   g:spawn('imp', 16, 10).hp = 5000
   g:shoot()
   local elapsed = 0
@@ -532,7 +502,7 @@ function S.run(G, renderer)
   g.player.hp = 100
   g.view.shotAge = 0.08
   save('portrait-6')
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
@@ -546,7 +516,7 @@ function S.run(G, renderer)
   g.map = true
   save('64-map-small', 960, 540)
   g.map = false
-  g = G.new('descent')
+  g = G.new('floor')
   g.testing = true
   g:start()
   g.view.messageTimer = 0
@@ -565,7 +535,6 @@ function S.run(G, renderer)
   save('67-seal-buer')
   g.player.x = 16
   g.player.z = 25.5
-  g.run.phase = 'wave'
   g.time = 0
   g.view.shotAge = 99
   g.view.hurt = 0

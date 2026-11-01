@@ -200,7 +200,7 @@ function T.run(Game)
   check('a tear ends at its edge', Ruin.tearHeight(tear, 24) == math.huge)
   check('a tear is lowest at its middle', Ruin.tearHeight(tear, 20) < Ruin.tearHeight(tear, 23))
   -- A map without breakables pays nothing and rejects nothing.
-  local classic = Game.new('classic')
+  local classic = Game.new('floor')
   classic.testing = true
   check('a map without breakables has none', #Destruction.list(classic.world) == 0)
   Destruction.step(classic)

@@ -11,7 +11,7 @@ function Tests.run(G, check)
   local Audio = require('src.audio.audio')
   local near = Fixtures.within(1e-6)
   local function fresh()
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing = true
     g.state = 'playing'
     g.enemies = {}

@@ -63,24 +63,16 @@ function S.draw(g, s, U)
   end
   Skin.zone('parchment writing field', 158, 106, 964, 492)
   local field = g and Queries.field(g)
-  local public = g and (g.state == 'menu' or g.state == 'settings')
-    or (field and not require('src.run.field.access').allows(field, 'waves'))
-  local way = g and Queries.run(g) and Queries.run(g).rest
-  if way then
-    Skin.boxText(Text.get('menu_circle'), 440, 112, 400, 50, U.fonts[28], gold)
-  elseif public then
-    Skin.boxText(Text.get('menu_proving'), 440, 112, 400, 50, U.fonts[28], gold)
-  else
-    Skin.inscription('limbo', 440, 112, 400, 50)
-  end
-  center(
-    way and Text.get('help_pilgrim')
-      or (field or public) and Text.get('help_field')
-      or (g and Queries.run(g) and Text.get('help_descent') or Text.get('help_classic')),
-    170,
-    18,
+  Skin.boxText(
+    Text.get(field and 'menu_proving' or 'menu_circle'),
+    440,
+    112,
+    400,
+    50,
+    U.fonts[28],
     gold
   )
+  center(Text.get(field and 'help_field' or 'help_pilgrim'), 170, 18, gold)
   local keys = {
     { 'key_move', 'help_move' },
     { 'key_aim', 'help_aim' },

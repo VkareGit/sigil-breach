@@ -4,7 +4,6 @@ local Tests = {}
 function Tests.run(G, check)
   local Field = require('src.run.test_field')
   local W = require('src.world.arena')
-  local Waves = require('src.content.waves')
   local function field()
     local g = Field.new(G)
     g.testing = true
@@ -75,30 +74,6 @@ function Tests.run(G, check)
   g:shoot()
   tick(g, 0.4)
   check('a volley into the domino row drives bodies into each other', (g.collisions or 0) > 0)
-  -- Wave trial: the real spawner on the tier's wave, in packs, to an outcome.
-  g = field()
-  g.testField.tier = 2
-  Field.waves(g)
-  tick(g, 0.05)
-  check(
-    'the wave trial runs the tier wave in packs through real portals',
-    g.run.wave == 2 and #g.run.pending == (Waves[2].pack or 1) and not g.testField.invincible
-  )
-  for _ = 1, 120 * 90 do
-    for _, e in ipairs(g.enemies) do
-      if e.hp > 0 then
-        g:damageEnemy(e, e.maxHp * 2, 'weapon')
-      end
-    end
-    g:update(1 / 120, {})
-    if not g.testField.trial then
-      break
-    end
-  end
-  check(
-    'a cleared wave trial reports its time and damage',
-    not g.testField.trial and (g.testField.message or ''):find('cleared', 1, true) ~= nil
-  )
   -- Portals (0.22): the telegraph clock, the colour of what comes, the arrival.
   local Portals = require('src.render.portals')
   local Anim = require('src.enemies.animation')

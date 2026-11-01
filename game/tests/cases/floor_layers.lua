@@ -40,7 +40,7 @@ function Tests.run(Game, renderer)
   local check = Fixtures.checker(lines, 'floor layers: ', 'floor layers: ')
   Maps:register(Bridge.id, Bridge)
   local ok, problem = pcall(function()
-    local g = Game.new('classic', Bridge.id)
+    local g = Game.new('floor', Bridge.id)
     g.testing = true
     local w = g.world
     check(

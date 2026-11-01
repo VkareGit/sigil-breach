@@ -50,9 +50,6 @@ local function ready(g, a)
   if Reload.left(g, a) > 0 and not Reload.interrupt(g, a) then
     return nil
   end
-  if not Capabilities.armed(g) then
-    return nil
-  end
   if not profile or not Weapons.validAmmo(g, nil, a) then
     return nil
   end

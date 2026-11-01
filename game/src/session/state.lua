@@ -10,10 +10,10 @@ local State = {}
 -- golden master depend on it). Presentation draws from its own stream.
 State.seed = 1
 
--- mode: the session kind; mapId: the map it is built on (content/maps).
-function State.new(mode, mapId)
+-- mapId: the map it is built on (content/maps).
+function State.new(mapId)
   local session = {
-    world = World.new(mode, mapId),
+    world = World.new(mapId),
     -- What the session looks and sounds like (camera, weapon motion, effects,
     -- messages): presentation state, never read by the simulation's rules.
     -- Its fields are declared in session/fields.lua (Fields.view).

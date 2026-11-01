@@ -11,7 +11,7 @@ function Pattern.release(g, e, attack, angle)
     x, z, level = e.x, e.z, e.level
   end
   local forwardX, forwardZ = math.sin(angle), math.cos(angle)
-  local packet = Rules.packet(e, attack.packet)
+  local packet = attack.packet
   for _, mark in ipairs(attack.marks) do
     local mx = x + forwardX * mark.forward + forwardZ * mark.lateral
     local mz = z + forwardZ * mark.forward - forwardX * mark.lateral

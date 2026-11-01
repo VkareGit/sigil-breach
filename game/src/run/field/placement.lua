@@ -6,7 +6,7 @@ local MathX = require('src.core.mathx')
 local Signal = require('src.session.signal')
 local W = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
-local Spawner = require('src.run.spawner')
+local Gates = require('src.run.gates')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
 local Roles = require('src.core.roles')
@@ -152,7 +152,7 @@ function Placement.spawn(field, g, kind, count)
   return created
 end
 -- The catalogue's summons (F2) come through portals: each opens a gate at
--- its place and the demon steps out when it has glowed (Spawner.gate; the
+-- its place and the demon steps out when it has glowed (Gates.gate; the
 -- arrivals run with the stations). Returns the gates, or nil and why.
 function Placement.summon(field, g, kind, count)
   local spots, why = place(field, g, kind, count)
@@ -161,7 +161,7 @@ function Placement.summon(field, g, kind, count)
   end
   local gates = {}
   for _, s in ipairs(spots) do
-    local gate = Spawner.gate(kind, s.x, s.z)
+    local gate = Gates.gate(kind, s.x, s.z)
     gate.fieldKind = kind
     g.run.pending[#g.run.pending + 1] = gate
     gates[#gates + 1] = gate
@@ -180,7 +180,7 @@ function Placement.arrive(g, e, gate)
   if gate.fieldKind then
     engage(g, e, gate.fieldKind)
   else
-    Spawner.welcome(g, e, gate)
+    Gates.welcome(g, e, gate)
   end
   require('src.run.field.chambers').arrived(g, e, gate)
 end

@@ -43,12 +43,7 @@ function Tests.run(G, renderer)
     })
     Snapshot.invalidateDefinitions()
     local function ready(mode)
-      local g = mode == 'descent' and Fixtures.expedition(G) or Fixtures.arena(G)
-      if g.run then
-        require('src.run.descent').ready(g)
-        g.run.phase, g.run.spawnTimer = 'wave', 100
-        g.enemies = {}
-      end
+      local g = Fixtures.arena(G)
       Abilities.give(g, id)
       g.view.messageTimer, g.zoneTimer = 0, 0
       return g
@@ -114,7 +109,7 @@ function Tests.run(G, renderer)
       labels[text] = true
       return originalText(text, ...)
     end
-    for _, mode in ipairs({ 'classic', 'descent' }) do
+    for _, mode in ipairs({ 'floor' }) do
       local g = ready(mode)
       check(
         mode .. ' cast reaches the second-slot animation',

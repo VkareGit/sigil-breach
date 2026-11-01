@@ -27,7 +27,6 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
     g.hazards = {}
     require('src.session.stats').reset(g)
     g.view.feedbackTimer = 0
-    g.world.secretFound = false
     g.help = false
     g.enemies = {}
     g.bullets = {}
@@ -76,14 +75,6 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
       g:update(1 / hz, input or {})
     end
   end
-  local field = W.flow(g.world, 16, 27)
-  for _, s in ipairs(g.world.seals) do
-    check(
-      'path to ' .. s.name,
-      field[math.floor(s.z + 0.5) * g.world.size + math.floor(s.x + 0.5)] ~= nil
-    )
-  end
-  check('path to exit', field[3 * g.world.size + 16] ~= nil)
   local travel = {}
   for _, hz in ipairs({ 30, 60, 120 }) do
     fresh()
@@ -336,72 +327,6 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
     math.sqrt((e.x - 16) ^ 2 + (e.z - 27) ^ 2) < 3 and not W.solid(g.world, e.x, e.z, 0.19)
   )
   fresh()
-  check('far interaction cannot break seal', not g:interact())
-  for i, s in ipairs(g.world.seals) do
-    g.player.x = s.x
-    g.player.z = s.z + 1.5
-    check('seal ' .. i .. ' activates', g:interact())
-    local n = #g.enemies
-    g:interact()
-    check('seal ' .. i .. ' cannot duplicate wave', #g.enemies == n)
-  end
-  tick(1 / 120)
-  check('boss waits for all defenders', not require('src.session.encounter').guardianSpawned(g))
-  for _, en in ipairs(g.enemies) do
-    g:damageEnemy(en, 10000)
-  end
-  tick(1 / 120)
-  check(
-    'boss appears after three clear courts',
-    require('src.session.encounter').guardianSpawned(g) and #g.enemies == 10
-  )
-  local boss = g.enemies[#g.enemies]
-  g.player.x, g.player.z = 16, 15
-  g.player.hp = 100
-  g.player.armor = 100
-  g.player.yaw = math.pi
-  g.player.pitch = 0.04
-  g.player.weapon = 2
-  for i = 1, 10000 do
-    if boss.hp <= 0 or g.state == 'dead' then
-      break
-    end
-    -- The two-stock fight can exhaust the Judge. Use the carried shotgun
-    -- through the real command; do not refill ammunition.
-    if
-      g.player.weapon == 2
-      and g.player.arsenal.judge.mag == 0
-      and g.player.arsenal.judge.reserve == 0
-    then
-      g:switchWeapon(1)
-    end
-    g.player.yaw = math.atan2(boss.x - g.player.x, boss.z - g.player.z)
-    g:update(
-      1 / 120,
-      { shoot = true, strafe = math.sin(i / 75) > 0 and 1 or -1, dash = i % 180 == 0 }
-    )
-  end
-  check(
-    'boss is beatable through real combat (state='
-      .. g.state
-      .. ', boss='
-      .. boss.hp
-      .. ', phase='
-      .. tostring(boss.phaseIndex)
-      .. ', knight='
-      .. g.player.hp
-      .. ', rounds='
-      .. g.player.arsenal.judge.mag
-      .. '/'
-      .. g.player.arsenal.judge.reserve
-      .. ')',
-    boss.hp <= 0 and g.state == 'playing'
-  )
-  check('boss death unlocks exit', require('src.session.encounter').guardianDead(g))
-  g.player.x, g.player.z = 16, 4
-  g:interact()
-  check('exit reaches completion', g.state == 'won')
-  fresh()
   g.player.hp = 1
   g:damagePlayer(30)
   check('death stops play', g.state == 'dead')
@@ -427,7 +352,7 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
     data:release()
   end
   love.keypressed('return', 'return')
-  check('old classic death confirmation cannot launch a disabled mode', getGame().state == 'dead')
+  check('a mode with no retry stays on its ending', getGame().state == 'dead')
   love.keypressed('f2', 'f2')
   require('qa.tooling').advanceUntil('controller field preparation', function()
     return not getLoading or not getLoading()

@@ -6,12 +6,11 @@ local Tests = {}
 function Tests.run(Game)
   local Encounter = require('src.session.encounter')
   local Simulation = require('src.session.simulation')
-  local Run = require('src.run.descent')
   local Field = require('src.run.test_field')
   local lines = {}
   local check = Fixtures.checker(lines, 'session contract: ', 'session contract: ')
   local function fresh(mode)
-    local g = Game.new(mode or 'classic')
+    local g = Game.new(mode or 'floor')
     g.testing = true
     return g
   end
@@ -29,16 +28,9 @@ function Tests.run(Game)
       and #second.events == 0
   )
 
-  local g = fresh('descent')
-  check(
-    'expedition begins without classic actors or free classic supplies',
-    g.state == 'menu'
-      and g.run.phase == 'preparing'
-      and g.run.wallet == 100
-      and #g.enemies == 0
-      and #g.pickups == 0
-  )
+  local g = fresh('floor')
   g:start()
+  g.run.wallet = 100
   local player, world, run = g.player, g.world, g.run
   local counted = require('src.session.stats').controlled(g)
   counted.score, counted.kills, g.elapsed = 1800, 7, 16
@@ -156,30 +148,6 @@ function Tests.run(Game)
       and #g.view.particles == particles
   )
 
-  g = fresh('descent')
-  g:start()
-  local health, armor = g.player.hp, g.player.armor
-  g:damagePlayer(1000)
-  check(
-    'preparation remains safe when damage is requested directly',
-    g.player.hp == health and g.player.armor == armor and g.state == 'playing'
-  )
-  local shellAtReady = { life = 1 }
-  g.view.shells = { shellAtReady }
-  g.view.surfaceMarks = { {} }
-  check(
-    'readiness starts one countdown and retains an ejected shell',
-    Run.ready(g)
-      and g.run.phase == 'countdown'
-      and g.view.shells[1] == shellAtReady
-      and #g.view.surfaceMarks == 0
-  )
-  local supplies = #g.pickups
-  check(
-    'repeated readiness cannot duplicate wave supplies',
-    not Run.ready(g) and #g.pickups == supplies
-  )
-
   g = fresh()
   g:start()
   g.state = 'paused'
@@ -197,7 +165,7 @@ function Tests.run(Game)
       and g.player.fireBuffer == 0
   )
 
-  local expedition = fresh('descent')
+  local expedition = fresh('floor')
   expedition.run.wallet = 317
   local field = Field.new(Game)
   field.testing = true
@@ -211,11 +179,7 @@ function Tests.run(Game)
   require('src.run.modes').act(field, 'ready')
   check(
     'leaving a sandbox shop returns to combat, never wave progression',
-    field.state == 'playing'
-      and field.run.phase == 'wave'
-      and #(field.run.pending or {}) == 0
-      and expedition.run.wallet == 317
-      and expedition.run.phase == 'preparing'
+    field.state == 'playing' and #(field.run.pending or {}) == 0 and expedition.run.wallet == 317
   )
   field.testField.invincible = false
   field.player.hp, field.player.armor, field.player.invuln = 1, 0, 0

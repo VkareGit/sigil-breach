@@ -85,7 +85,6 @@ function Visits.shop(_, g)
   p.pitch = 0
   p.vx, p.vz = 0, 0
   g.run.wallet = K.wallet
-  g.run.phase = 'preparing'
   g.state = 'playing'
   g.map = false
   g.help = false

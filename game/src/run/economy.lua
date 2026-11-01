@@ -14,6 +14,7 @@ local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
+local Presentation = require('src.session.presentation')
 local E = {}
 E.offers = Shop.offers
 local function missing(g, def)
@@ -197,7 +198,7 @@ function E.label(g, id)
 end
 function E.buy(g, id)
   local r = g.run
-  if not r or g.state ~= 'shop' or r.phase ~= 'preparing' then
+  if not r or g.state ~= 'shop' then
     return false, Text.get('shop_closed')
   end
   local price, reason = E.quote(g, id)
@@ -209,5 +210,16 @@ function E.buy(g, id)
   r.wallet = r.wallet - price
   kind.apply(g, offer, (W.inHand(g)))
   return true, Text.get(kind.done or 'shop_bought')
+end
+-- A purchase and its notice (any mode with a wallet).
+function E.trade(g, id)
+  local ok, reason = E.buy(g, id)
+  if ok then
+    Presentation.cue(g, 'pickup', Shop.boughtCue)
+    g.shopMessage = Text.get('run_bought', { souls = g.run.wallet })
+  else
+    g.shopMessage = reason
+  end
+  return ok
 end
 return E

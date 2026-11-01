@@ -1,5 +1,4 @@
--- An isolated live sandbox. It uses the normal Descent combat definitions,
--- but never owns a saved expedition or advances its waves.
+-- An isolated live sandbox on the normal combat definitions. It saves nothing.
 local Presentation = require('src.session.presentation')
 local K = require('src.content.field')
 local Text = require('src.content.text')
@@ -97,7 +96,7 @@ function F.refill(g)
   Weapons.fill(g, p)
   Weapons.rest(g)
   Pools.clear(g, 'charges')
-  p.heat, p.overheat, p.heatDelay, p.invuln = nil, nil, nil, 0
+  p.invuln = 0
   p.reload, p.cooldown, p.fireBuffer = 0, 0, 0
   Abilities.rest(g, Roles.controlled(g))
   tell(g, 'field_refilled')
@@ -121,8 +120,6 @@ function F.reset(g)
   Roles.controlled(g).x, Roles.controlled(g).z, Roles.controlled(g).yaw, Roles.controlled(g).pitch =
     start.x, start.z, math.pi, 0
   g.run = {
-    phase = 'wave',
-    wave = 1,
     wallet = K.wallet,
     glyph = 'none',
     owned = {},
@@ -136,7 +133,6 @@ function F.reset(g)
   Roles.controlled(g).shots, Roles.controlled(g).hits = 0, 0
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
-  g.world.secretFound = false
   require('src.combat.destruction').reset(g.world)
   World.breakSeals(g.world, 0)
   Roles.controlled(g).weapon = 1
@@ -192,7 +188,6 @@ function F.close(g)
     return false
   end
   g.state = Roles.controlled(g).hp <= 0 and 'dead' or 'playing'
-  g.run.phase = 'wave'
   g.help = false
   g.map = false
   Roles.controlled(g).fireBuffer = 0
@@ -265,13 +260,6 @@ end
 function F.physics(g)
   return Trials.physics(F, g)
 end
-function F.waves(g)
-  if not F.allows(g, 'waves') then
-    return false
-  end
-  return Trials.waves(F, g)
-end -- What the proving ground answers for its session (run/modes.lua handlers;
--- the gallery's pads answer first there: world/gallery.lua).
 -- [E] away from a pad: the Ember's trial shop.
 function F.interact(g)
   if F.allows(g, 'trade') and Sanctuary.near(g) then
@@ -297,20 +285,12 @@ function F.context(g)
       or Text.get('field_context_auto'),
   })
 end
--- A new demon's tier: the TIER dial, else the wave of the shared record.
-function F.tier(g)
-  return (g.testField and g.testField.tier) or (g.run and g.run.wave)
-end
--- Time can stop and the knight can be unhurt here (policy freezable,
--- invincible); the fight is on in the record's wave phase, as in a run.
+-- Time can stop and the knight can be unhurt here (policy freezable, invincible).
 function F.frozen(g)
   return g.testField ~= nil and g.testField.frozen == true
 end
 function F.invincible(g)
   return g.testField and g.testField.invincible
-end
-function F.waveActive(g)
-  return g.run ~= nil and g.run.phase == 'wave'
 end
 -- The status bar: the trial purse and glyph, never an echo, 'PROVING'.
 -- One report reused every frame (read at once by the HUD, never kept).
@@ -318,7 +298,7 @@ local report = {}
 function F.hud(g)
   local r = g.run
   report.glyph, report.wallet, report.echo = r.glyph, r.wallet, nil
-  report.progress, report.fighting = Text.get('field_progress'), r.phase == 'wave'
+  report.progress = Text.get('field_progress')
   return report
 end
 function F.update(g, dt)

@@ -16,7 +16,7 @@ function Tests.run(Game)
   local check = Fixtures.checker(lines, 'death response: ', 'death response: ')
   local near = Fixtures.within(1e-8)
   local function fresh(kind)
-    local g = Game.new('classic')
+    local g = Game.new('floor')
     g.testing, g.state, g.enemies, g.pickups = true, 'playing', {}, {}
     g.player.x, g.player.z = 16, 25
     local e = g:spawn(kind or 'imp', 16, 15)

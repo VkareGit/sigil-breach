@@ -210,7 +210,6 @@ Suite.registry = {
     module = 'tests.suites.shotgun',
     application = true,
   },
-  { id = 'waves', title = 'Waves, damage, economy and saves', module = 'tests.suites.waves' },
   {
     id = 'interface',
     title = 'Interface, assets and visibility',
@@ -471,11 +470,6 @@ Suite.registry = {
     module = 'tests.cases.floor_layers',
   },
   {
-    id = 'save-format',
-    title = 'Saves as data with a schema: adapter, round trips, refusals (plan v10 V4)',
-    module = 'tests.cases.save_format',
-  },
-  {
     id = 'fight-recording',
     title = 'Recording big fights: shot corridors, geometry deltas, replay (plan v10 V5)',
     module = 'tests.cases.fight_recording',
@@ -484,11 +478,6 @@ Suite.registry = {
     id = 'runtime-contracts',
     title = 'Failed commands, named ammunition, single deaths, fallback attacks',
     module = 'tests.cases.runtime_contracts',
-  },
-  {
-    id = 'replay-io',
-    title = 'External journal inputs, checkpoint receipts and read-only replay',
-    module = 'tests.cases.replay_io',
   },
   {
     id = 'creature-pipeline',
@@ -544,11 +533,6 @@ Suite.registry = {
     id = 'mode-state',
     title = 'Mode state owners, per-session views and an altars mode (plan v11 E2)',
     module = 'tests.cases.mode_state',
-  },
-  {
-    id = 'v033-reference',
-    title = 'The 0.33 references: state projection, poses, kills and saves (plan v11 E0)',
-    module = 'tests.cases.v033_reference',
   },
   { id = 'golden', title = 'Golden master of the simulation', module = 'tests.suites.golden' },
 }

@@ -76,7 +76,7 @@ function Tests.run(G)
   -- A new mode, entered by name: its own progression runs in the world system.
   local progressed = 0
   Modes:register('trial', {
-    session = { world = 'classic', map = require('src.content.maps.index').default },
+    session = { map = require('src.content.maps.index').default },
     start = function(session)
       session.state = 'playing'
     end,
@@ -174,27 +174,6 @@ function Tests.run(G)
     armed:update(1 / 120, {})
   end
   check('the reload moves rounds from its own reserve', state.mag == 5 and state.reserve == 5)
-  local run = Fixtures.expedition(G)
-  Weapons.give(run, 'trial_carbine')
-  Weapons.state(run, 3).mag, Weapons.state(run, 3).reserve = 2, 7
-  run.player.weapon = 3
-  local Save = require('src.storage.run_save')
-  local text = Save.encode(require('src.run.descent').snapshot(run), 1)
-  local back = assert(Save.decode(text))
-  local loaded = Fixtures.expedition(G)
-  require('src.run.descent').load(loaded, back)
-  local restored = loaded.player.arsenal.trial_carbine
-  check(
-    'a save keeps every weapon of the loadout by id (no format change)',
-    text:find('["trial_carbine"]={["mag"]=2,["reserve"]=7}', 1, true) ~= nil
-      and #loaded.player.loadout == 3
-      and restored
-      and restored.mag == 2
-      and restored.reserve == 7
-  )
-  check('the definition was completed by the weapon schema', carbine.ammo.unitPrice == 3)
-  Weapons.registry:unregister('trial_carbine')
-
   -- A spell from data alone: a bolt on the second ability slot, cast by the
   -- shared caster, flying through the shared projectile system into a demon.
   local Abilities = require('src.content.abilities')
@@ -259,7 +238,7 @@ function Tests.run(G)
   -- second map builds, seats the knight and names its zones.
   local Arena = require('src.world.arena')
   local Maps = require('src.content.maps.index')
-  local limbo = Arena.new('classic', 'limbo')
+  local limbo = Arena.new('floor')
   local sum, open, pillars = 0, 0, 0
   for z = 1, limbo.size do
     for x = 1, limbo.size do
@@ -287,7 +266,7 @@ function Tests.run(G)
     emberClear = 2,
     zones = { { name = 'CELL WEST', xBelow = 6 }, { name = 'CELL EAST' } },
   })
-  local cell = G.new('classic', 'trial_cell')
+  local cell = G.new('floor', 'trial_cell')
   cell.testing = true
   local w = cell.world
   check(

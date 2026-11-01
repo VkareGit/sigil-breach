@@ -15,7 +15,6 @@ function Tests.run()
   local Ability = require('src.content.defs.ability')
   local Weapons = require('src.content.weapons')
   local Weapon = require('src.content.defs.weapon')
-  local Save = require('src.storage.run_save')
   local function rejects(name, base, mutate, path)
     local def = Schema.copy(base)
     mutate(def)
@@ -155,66 +154,6 @@ function Tests.run()
     table.concat(Weapons.registry:ids(), ',') == weaponIds
   )
 
-  -- Numeric first characters were accepted by all earlier save versions.
-  -- Keep that contract, along with ordered equipment and zero remaining uses.
-  local weaponId, abilityId = '3_iron_rifle', '3_charge'
-  local ok, err = pcall(function()
-    Weapons.define({ extends = Weapons.get('exorcist'), id = weaponId })
-    local def = Schema.copy(powder)
-    def.id = abilityId
-    Abilities.define(def)
-    local inventory = {
-      armor = 0,
-      essence = 0,
-      weapon = 2,
-      loadout = { 'exorcist', weaponId },
-      weapons = { exorcist = { mag = 1, reserve = 2 }, [weaponId] = { mag = 2, reserve = 3 } },
-      abilities = { powder = 1, [abilityId] = 0 },
-      abilityLoadout = { abilityId, 'powder' },
-    }
-    local data = {
-      phase = 'preparing',
-      wave = 1,
-      wallet = 0,
-      glyph = 'none',
-      owned = {},
-      claimed = {},
-      inventory = inventory,
-      checkpoint = Schema.copy(inventory),
-      elapsed = 0,
-      kills = 0,
-      damage = 0,
-      deaths = 0,
-      score = 0,
-    }
-    local restored = assert(Save.decode(Save.encode(data, 7)))
-    local encoded = require('tests.support.legacy_save').encode08(data, 7)
-    check(
-      'accepted registry ids roundtrip through the save without losing slots',
-      Id.valid(weaponId)
-        and Id.valid(abilityId)
-        and restored.inventory.loadout[2] == weaponId
-        and restored.inventory.abilityLoadout[1] == abilityId
-        and restored.inventory.abilities[abilityId] == 0
-    )
-    local payload = encoded:match('^SIGIL08\n%d+\n%d+\n(.*)$')
-    local legacy = payload:gsub('\nslots=[^\n]*', ''):gsub('\ncheckslots=[^\n]*', '')
-    local migrated = assert(Save.decode('SIGIL07\n7\n' .. Save.checksum(legacy) .. '\n' .. legacy))
-    check(
-      'SIGIL07 still restores its accepted ids with legacy equipment ordering',
-      migrated.inventory.loadout[2] == weaponId
-        and table.concat(migrated.inventory.abilityLoadout, ',') == 'powder,' .. abilityId
-        and migrated.inventory.abilities[abilityId] == 0
-    )
-    local bad = payload:gsub(weaponId, 'iron-rifle')
-    check(
-      'save parser enforces the same id grammar',
-      not Save.decode('SIGIL08\n7\n' .. Save.checksum(bad) .. '\n' .. bad)
-    )
-  end)
-  Weapons.registry:unregister(weaponId)
-  Abilities:unregister(abilityId)
-  assert(ok, err)
   check(
     'temporary content leaves the shipped loadouts and registries unchanged',
     table.concat(Weapons.registry:ids(), ',') == weaponIds

@@ -105,11 +105,10 @@ local noGates = {}
 function Queries.world(g)
   local built, view = ask(g, 'worldView', 'world')
   if not built then
-    view.gates, view.paintedPickups, view.classicSecret = noGates, false, false
+    view.gates = noGates
   end
   view.guardianSpawned = Encounter.guardianSpawned(g)
   view.guardianDead = Encounter.guardianDead(g)
-  view.secretFound = g.world ~= nil and g.world.secretFound == true
   return view
 end
 function Queries.tools(g)
@@ -128,10 +127,5 @@ function Queries.run(g)
 end
 function Queries.field(g)
   return (ask(g, 'fieldView', 'field'))
-end
--- What a finished session shows of its mode (the classic arena: rank, best
--- score, seals broken); nil for a mode with no result of its own.
-function Queries.result(g)
-  return (ask(g, 'result', 'result'))
 end
 return Queries

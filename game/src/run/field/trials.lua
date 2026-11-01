@@ -1,13 +1,9 @@
 -- The proving ground's stations (0.22; plan v10 V6: run/test_field.lua split
--- by responsibility). Training dummies are real demons of the chosen tier
+-- by responsibility). Training dummies are real demons
 -- that neither move nor attack (AI 'dummy'), heal fully between shots and
 -- stand up again after a lethal blow, so every number on screen is real.
 -- Every function takes the field module (run/test_field.lua).
-local Stats = require('src.session.stats')
-local Signal = require('src.session.signal')
-local MathX = require('src.core.mathx')
-local Spawner = require('src.run.spawner')
-local Telemetry = require('src.combat.telemetry')
+local Gates = require('src.run.gates')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
 local K = require('src.content.field')
@@ -93,30 +89,7 @@ function Trials.physics(field, g)
   field.tell(g, 'field_physics')
   return true
 end
--- Wave trial: the real spawner (portals, packs, flanks) on a wave chosen by
--- the TIER dial (the last = the Margrave), with real damage; reports time
--- and harm.
-function Trials.waves(field, g)
-  if not g.testField then
-    return false
-  end
-  station(field, g, 'waves')
-  g.testField.invincible = false
-  local tier = g.testField.tier or 1
-  local r = g.run
-  r.wave = math.min(K.lastWave, tier)
-  r.queueIndex, r.pending, r.spawnTimer, r.phaseTime, r.lastGate = 1, {}, 0, 0, nil
-  g.testField.trial = { started = g.elapsed, damage = Stats.total(g, 'damageTaken'), wave = r.wave }
-  -- Each trial is measured on its own (combat/telemetry.lua) and starts with
-  -- a calm pacing director.
-  Telemetry.reset(g)
-  g.intensity = 0
-  Roles.controlled(g).armor = K.armor
-  field.close(g)
-  field.tell(g, 'field_waves', { wave = r.wave })
-  return true
-end
--- Keep stations alive: heal dummies, raise fallen ones, run the wave trial.
+-- Keep stations alive: heal dummies, raise fallen ones, bring out what was summoned.
 function Trials.tick(field, g, dt)
   local t = g.testField
   for _, entry in ipairs(t.posts or {}) do
@@ -130,26 +103,6 @@ function Trials.tick(field, g, dt)
       end
     end
   end
-  local trial = t.trial
-  if not (trial and g.run.phase == 'wave') then
-    -- The catalogue's portals open outside a wave trial too.
-    Spawner.arrivals(g, g.run, dt, Placement.arrive)
-  end
-  if trial and g.run.phase == 'wave' then
-    local _, done = Spawner.step(g, g.run, dt, Placement.arrive)
-    if done then
-      t.trial = nil
-      local m = Telemetry.get(g)
-      field.tell(g, 'field_trial_cleared', {
-        wave = string.format('%d', trial.wave),
-        seconds = string.format('%.1f', g.elapsed - trial.started),
-        damage = string.format('%.0f', Stats.total(g, 'damageTaken') - trial.damage),
-        control = string.format('%.0f', MathX.percent(Telemetry.uptime(g))),
-        kill = string.format('%.1f', m.ttkCount > 0 and m.ttkSum / m.ttkCount or 0),
-      })
-      -- The measurements go to the playtest report (app/session_report.lua).
-      Signal(g, 'WaveCleared', { wave = trial.wave, final = false, trial = true })
-    end
-  end
+  Gates.arrivals(g, g.run, dt, Placement.arrive)
 end
 return Trials

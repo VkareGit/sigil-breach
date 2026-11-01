@@ -128,10 +128,9 @@ function Tests.run(G, renderer)
     return s
   end
   local function fresh()
-    local g = G.new('descent')
+    local g = G.new('floor')
     g.testing = true
     g:start()
-    g.run.phase = 'wave'
     g.player.yaw = math.pi
     g.enemies = {}
     return g
@@ -558,29 +557,21 @@ function Tests.run(G, renderer)
   renderer.spriteShader = proxy
   love.graphics.draw = function() end
   g = fresh()
-  g.run.phase = 'preparing'
   used = {}
   for i = 0, 3 do
     g.time = i * 0.2 + 0.01
     WorldArt.shrine(renderer, g)
     used[sent.frameRect] = true
   end
-  local preparing = sent.brightness
-  g.run.phase = 'wave'
-  WorldArt.shrine(renderer, g)
-  local dormant = sent.brightness
+  local lit = sent.brightness
   renderer.spriteShader = originalShader
   love.graphics.draw = originalDraw
   count = 0
   for _ in pairs(used) do
     count = count + 1
   end
-  -- v11 paints the cold flame already light; the active altar must stay near full
-  -- brightness (not overexposed to white) and clearly dim during a wave.
-  check(
-    'shrine cycles every flame pose and clearly dims while combat is active',
-    count == 4 and preparing >= 0.9 and dormant < preparing * 0.5
-  )
+  -- v11 paints the cold flame already light; the altar must stay near full brightness.
+  check('shrine cycles every flame pose', count == 4 and lit >= 0.9)
   local reliquary = require('src.ui.reliquary')
   reliquary.init()
   source = love.image.newImageData(reliquary.path)
@@ -680,9 +671,7 @@ function Tests.run(G, renderer)
   for _, name in ipairs({
     'sigil',
     'breach',
-    'limbo',
     'merchant',
-    'circles',
     'settings',
     'new_run',
     'interrupted',

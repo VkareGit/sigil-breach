@@ -15,7 +15,7 @@ local Tooling = require('qa.tooling')
 local S = {}
 local STEP = 1 / 120
 local function arena(G)
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}

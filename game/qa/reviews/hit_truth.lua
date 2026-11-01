@@ -193,12 +193,9 @@ local function line(name, t)
 end
 -- A proving ground with one demon of kind in front of the knight (the
 -- catalogue's own placement), in play.
-local function field(G, kind, tier)
+local function field(G, kind)
   local g = Field.new(G)
   g.testing = true
-  if tier then
-    g.testField.tier = tier
-  end
   local e = Field.spawn(g, kind, 1)[1]
   Field.close(g)
   return g, e
@@ -209,7 +206,6 @@ local function episodes(kind)
     {
       name = 'arrive-and-fight',
       seconds = 6,
-      tier = 5,
       begin = function(_, e)
         e.spawnAge = 0
       end,
@@ -268,7 +264,7 @@ local function fitKind(G, truth, kind, out)
   local dying = { samples = 0, painted = 0, through = 0 }
   local matrix = {}
   for _, episode in ipairs(episodes(kind)) do
-    local g, e = field(G, kind, episode.tier)
+    local g, e = field(G, kind)
     episode.begin(g, e)
     local lastKey
     local ticks = math.floor(episode.seconds / STEP + 0.5)

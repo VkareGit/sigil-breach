@@ -20,10 +20,10 @@ function Fixtures.within(default, fixed)
     return math.abs(a - b) < ((not fixed and tolerance) or default)
   end
 end
--- The classic arena, started and emptied: no demons, shots, hazards or
+-- The plain room, started and emptied: no demons, shots, hazards or
 -- supplies; the knight at the nave's entrance facing the altar.
 function Fixtures.arena(G)
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}
@@ -58,9 +58,9 @@ function Fixtures.arsenal(rounds)
   end
   return loadout, arsenal
 end
--- A started expedition.
+-- A started session of the plain room.
 function Fixtures.expedition(G)
-  local g = G.new('descent')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   return g

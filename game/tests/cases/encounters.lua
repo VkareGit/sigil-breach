@@ -37,13 +37,7 @@ function Tests.run(Game)
   check('cooldowns are hard limits, not preferences or a fallback', Actions.choose(e, 6, 8) == nil)
   check('exact cooldown boundary permits choice', Actions.choose(e, 6, 9) ~= nil)
   local gated = Schema.copy(A.furfur)
-  gated.tactics.moves[2].fromTier = 2
-  e.archetype = Creature.define(gated)
   e.restUntil, e.lastAttack = nil, nil
-  check('tier-gated move cannot be chosen early', Actions.choose(e, 6, 10).id ~= 'charge')
-  e.tier = 2
-  check('tier unlock uses the same chooser and executor', Actions.choose(e, 6, 10).id == 'charge')
-  e.archetype, e.tier = A.furfur, 1
   check('no long-range melee fallback outside its authored band', Actions.choose(e, 30, 10) == nil)
   local frozen = Integrity.capture(g)
   for _ = 1, 20 do
@@ -130,13 +124,9 @@ function Tests.run(Game)
     )
   end
   g, e = fresh()
-  Rules.applyTier(e, 3)
   local hp = e.maxHp
   g:damageEnemy(e, hp, 'effect')
-  check(
-    'new stock uses tiered spawn HP, not base definition HP',
-    e.hp == math.floor(hp * A.furfur.phases[2].refill + 0.5)
-  )
+  check('new stock uses spawn HP', e.hp == math.floor(hp * A.furfur.phases[2].refill + 0.5))
   local attack = A.furfur.attacks[3]
   e.recover, e.attack, e.hitPause, e.stun = 0, 0, 0, 0
   Actions.begin(g, e, 6, attack)

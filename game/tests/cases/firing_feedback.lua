@@ -10,7 +10,7 @@ function Tests.run(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'firing feedback: ', '')
   local function fresh(slot, stock)
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing, g.state, g.run = true, 'playing', nil
     g.enemies, g.pickups, g.bullets, g.hazards = {}, {}, {}, {}
     g.player.weapon, g.view.swapAge, g.view.shotAge = slot, 1, 10

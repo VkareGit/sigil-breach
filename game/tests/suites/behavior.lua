@@ -27,7 +27,6 @@ function Tests.run(G, initial, renderer, getGame)
     g.pickups = {}
     require('src.world.arena').breakSeals(g.world, 0)
     require('src.session.encounter').setGuardian(g, false, false)
-    g.world.secretFound = false
     require('src.session.stats').reset(g)
     local p = g.player
     p.x, p.z = 16, 26
@@ -187,14 +186,6 @@ function Tests.run(G, initial, renderer, getGame)
     death1 == 14 and death2 == 15 and Anim.pose(g, e) == 18
   )
   reset()
-  g.player.x, g.player.z = 4, 20.4
-  check(
-    'secret can be discovered in existing west court',
-    g:interact() and g.world.secretFound and require('src.session.stats').total(g, 'score') == 500
-  )
-  g:interact()
-  check('secret reward cannot be farmed', require('src.session.stats').total(g, 'score') == 500)
-  reset()
   e = g:spawn('imp', 16, 24)
   g:damageEnemy(e, 1000)
   e = g:spawn('imp', 17, 24)
@@ -250,7 +241,7 @@ function Tests.run(G, initial, renderer, getGame)
   lx, ly = U.toLogical(512, 384, 1024, 768)
   check('4:3 input stays aligned to unstretched UI', lx == 640 and ly == 360)
   -- Exercise actual UI input dispatch, including a non-default focused action.
-  love.keypressed('escape')
+  getGame().state = 'playing'
   love.keypressed('f1')
   check('F1 opens bestiary and pauses play', getGame().help and getGame().state == 'paused')
   love.keypressed('escape')

@@ -143,15 +143,6 @@ function UI.controls(g)
     264,
     40
   )
-  -- 0.21: the wave tier of demons spawned here (1 = calibrated base).
-  list[#list + 1] = button(
-    'field_tier',
-    Text.get('fui_tier', { tier = t.tier or 1, max = FieldData.maxTier }),
-    712,
-    72,
-    180,
-    40
-  )
   return list
 end
 function UI.heading(g, ui)

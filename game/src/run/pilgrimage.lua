@@ -4,7 +4,6 @@
 -- before reaching them loses them.
 local Abilities = require('src.content.abilities')
 local Characters = require('src.content.characters')
-local Descent = require('src.run.descent')
 local Destruction = require('src.combat.destruction')
 local Encounter = require('src.session.encounter')
 local Feel = require('src.player.feel')
@@ -97,9 +96,6 @@ end
 function P.init(g, options)
   Encounter.clearWorld(g)
   g.run = {
-    plan = 'expedition',
-    stage = 1,
-    wave = 1,
     phase = 'journey',
     wallet = 0,
     glyph = 'none',
@@ -181,7 +177,7 @@ function P.travel(g)
   if not here then
     return false
   end
-  Descent.closeShop(g)
+  Sanctuary.closeTrade(g)
   local at
   for index, fire in ipairs(K.fires) do
     at = fire.id == here.id and index or at

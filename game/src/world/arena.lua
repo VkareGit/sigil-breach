@@ -40,9 +40,8 @@ function W.breakSeals(w, count)
     seal.active = i <= count
   end
 end
--- mode: the session kind (an expedition hides the braziers by the Ember);
 -- mapId: the map.
-function W.new(mode, mapId)
+function W.new(mapId)
   local data = Maps:get(assert(mapId, 'a world needs a map'))
   local width, depth = data.width or data.size, data.depth or data.size
   local w = {
@@ -50,7 +49,6 @@ function W.new(mode, mapId)
     width = width,
     depth = depth,
     size = width == depth and width or nil,
-    mode = mode,
     mapId = data.id,
     map = {},
     seals = {},
@@ -62,9 +60,6 @@ function W.new(mode, mapId)
     -- Height of the walkable floor (physics/ground.lua).
     floor = data.floor or 0,
     stepHeight = data.stepHeight or Terrain.stepHeight,
-    -- The map's hidden sigil was found (plan v11 E2: the world's, not a
-    -- mode's; the classic arena finds it, the expedition saves it).
-    secretFound = false,
   }
   if data.solids then
     w.solidTop = copy(data.solids)
@@ -158,13 +153,11 @@ function W.rebuild(w)
       brightness = p.brightness,
     }
   end
-  if w.mode == 'descent' then
-    local ember, clear = data.ember, data.emberClear or 0
-    for i = ember and #w.lamps or 0, 1, -1 do
-      local l = w.lamps[i]
-      if (l.x - ember.x) ^ 2 + (l.z - ember.z) ^ 2 < clear * clear then
-        table.remove(w.lamps, i)
-      end
+  local ember, clear = data.ember, data.emberClear or 0
+  for i = ember and #w.lamps or 0, 1, -1 do
+    local l = w.lamps[i]
+    if (l.x - ember.x) ^ 2 + (l.z - ember.z) ^ 2 < clear * clear then
+      table.remove(w.lamps, i)
     end
   end
   return w
@@ -501,7 +494,6 @@ Save.declare({
   version = 1,
   schema = Schema:new('map', {
     id = { type = 'string', required = true },
-    mode = { type = 'string', required = true },
     rows = { type = 'table', required = true },
     seals = { type = 'table', required = true },
   }),
@@ -513,7 +505,7 @@ Save.declare({
     for i, seal in ipairs(w.seals) do
       seals[i] = seal.active == true
     end
-    return { id = w.mapId, mode = w.mode, rows = rows, seals = seals }
+    return { id = w.mapId, rows = rows, seals = seals }
   end,
   unpack = function(t)
     assert(Maps:has(t.id), 'unknown map ' .. tostring(t.id))
@@ -531,8 +523,8 @@ Save.declare({
     return t
   end,
   restore = function(g, t)
-    if not g.world or g.world.mapId ~= t.id or g.world.mode ~= t.mode then
-      g.world = W.new(t.mode, t.id)
+    if not g.world or g.world.mapId ~= t.id then
+      g.world = W.new(t.id)
     end
     local w = g.world
     for z, row in ipairs(t.rows) do

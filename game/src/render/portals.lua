@@ -5,7 +5,7 @@ local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local P = {}
 local Archetypes = require('src.content.enemies')
-P.colors = require('src.run.spawner').colors
+P.colors = require('src.run.gates').colors
 P.fallback = Archetypes.neutralLook.portal
 P.path = 'assets/art/portal-fresco-v23.png'
 -- The portal colour of a creature id (its appearance), or the fallback.

@@ -6,7 +6,7 @@ function Tests.run(G)
   local Text = require('src.content.text')
   local Fit = require('src.ui.text_fit')
   local Help = require('src.ui.screens.help')
-  local Descent = require('src.ui.descent')
+  local Descent = require('src.ui.chapel')
   local UI = require('src.ui.interface')
   local Skin = require('src.ui.skin')
   local Enemies = require('src.content.enemies')
@@ -63,7 +63,7 @@ function Tests.run(G)
       font:getInk(Text.get('trial_polish', { name = 'rycerz', count = counter }))
     end
     check('changing counters retain a bounded bitmap measurement cache', #font.inkCacheKeys <= 256)
-    local original = G.new('classic')
+    local original = G.new('floor')
     check(
       'production bestiary retains exactly its existing single back button',
       #Help.controls(original) == 1

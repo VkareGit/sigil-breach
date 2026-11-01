@@ -9,5 +9,5 @@ return {
   -- Public entry points, separate from registered modes and regression tools.
   playableModes = { field = true, pilgrimage = true },
   sessionMaps = { field = 'proving' },
-  sessionOptions = { field = { features = { trade = false, waves = false } } },
+  sessionOptions = { field = { features = { trade = false } } },
 }

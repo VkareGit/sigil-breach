@@ -11,7 +11,7 @@ function Tests.run(Game, renderer)
   local lines = {}
   local check = Fixtures.checker(lines, 'ability art: ', 'ability art: ')
   local near = Fixtures.within(1e-8, true)
-  local g = Game.new('classic')
+  local g = Game.new('floor')
   g.testing, g.state = true, 'playing'
   local e = g:spawn('imp', 16, 16)
   e.spawnAge, e.stun, e.attackKind = 1, 0, 'leap'
@@ -63,7 +63,7 @@ function Tests.run(Game, renderer)
   -- The proving ground poses its gallery (its mode answers posed).
   e.spawnAge, e.previewFrame, g.mode, g.testField = 1, 9, 'field', {}
   check('explicit test-field gallery frames remain inspectable', Art.select(g, e) == nil)
-  g.mode, g.testField, e.previewFrame = 'classic', nil, nil
+  g.mode, g.testField, e.previewFrame = 'floor', nil, nil
 
   local owl = g:spawn('stolas', 18, 16)
   owl.ai, owl.spawnAge, owl.stun, owl.evadeSide = 'move', 1, 0, -1

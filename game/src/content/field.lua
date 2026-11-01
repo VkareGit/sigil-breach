@@ -6,13 +6,12 @@ return {
   altar = { top = 1.046, reach = 1.85 }, -- painted pedestal surface and walk-up interaction
   -- Names used by optional tool requirements. Availability is per session;
   -- new tool families declare their feature here, not in application branches.
-  toolFeatures = { trade = true, waves = true },
+  toolFeatures = { trade = true },
   -- The creature its posts and rows are made of, and who a skirmish meets.
   dummy = 'imp',
   skirmish = { 'imp', 'imp', 'stolas' },
-  -- The low-resources preview's health; the TIER dial's highest tier.
+  -- The low-resources preview's health.
   lowHealth = 25,
-  maxTier = 5,
   -- The bench of a blow (app/field_tools.lua): the speeds of time, and one step.
   bench = { times = { 1, 0.5, 0.25, 0 }, stepTicks = 4 },
   -- Live demons and open gates at once.
@@ -21,7 +20,7 @@ return {
   wallet = 1000,
   -- Where a reset, the shop and the range set the knight (the nave's foot).
   start = { x = 16, z = 27.5 },
-  -- The ward a skirmish and a wave trial begin with.
+  -- The ward a skirmish begins with.
   armor = 40,
   -- A catalogue demon set on the knight remembers him memory s and strikes
   -- after firstBlow s.
@@ -55,6 +54,8 @@ return {
     slam = { x = 22.6, z = 27 },
     tripLabel = 2.1,
   },
-  -- The wave trial runs the waves up to this one (the guardian's).
-  lastWave = 5,
+  -- Summoning gates (run/gates.lua). A gate glows glow s before its demon steps out,
+  -- re-checked every retry s while the knight stands within clear m. What comes out
+  -- hunts the knight for hunt s.
+  gates = { glow = 1.2, retry = 0.35, clear = 2.5, hunt = 60 },
 }

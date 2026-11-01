@@ -40,8 +40,8 @@ function Tests.run(Game)
   local Navigation = require('src.app.navigation')
   Navigation.replace(app, 'field')
   check('public navigation uses the authored map', app.game.world.mapId == 'proving')
-  Navigation.replace(app, 'field', 'limbo')
-  check('explicit map remains authoritative for tools', app.game.world.mapId == 'limbo')
+  Navigation.replace(app, 'field', 'floor')
+  check('explicit map remains authoritative for tools', app.game.world.mapId == 'floor')
   local layout = Chambers.layout(g)
   local Queries = require('src.run.queries')
   local pads = Gallery.padsFor(g.world)
@@ -151,13 +151,6 @@ function Tests.run(Game)
     #Gallery.layout(g.world, {}) == 0
       and #Gallery.statuesFor(g.world) == 0
       and #Gallery.padsFor(g.world) == 9
-  )
-  local original = Game.new('field')
-  check(
-    'library gallery and its original map remain available',
-    original.world.mapId == 'limbo'
-      and #Gallery.statuesFor(original.world) == 6
-      and Gallery.padsFor(original.world) == Gallery.pads
   )
   for _, trial in ipairs(layout.trials) do
     g = fresh()

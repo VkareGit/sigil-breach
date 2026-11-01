@@ -28,7 +28,6 @@ local captures = {
   ['--summoning-review'] = true,
   ['--hit-review'] = true,
   ['--hit-timing'] = true,
-  ['--population'] = true,
   ['--bake-hit-masks'] = true,
   ['--core-measure'] = true,
   ['--step-study'] = true,
@@ -45,7 +44,6 @@ local captures = {
   ['--startup-check'] = true,
   ['--startup-fixture'] = true,
   ['--resource-plateau'] = true,
-  ['--v11-reference'] = true,
   ['--view-measure'] = true,
 }
 -- The creature pipeline tools (plan v10 V7), each --name=value: an atlas id,
@@ -89,7 +87,18 @@ function Q.new(arguments)
     assert(selected == 1, '--qa-smoke requires exactly one registered diagnostic tool')
   end
   q.output = os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput
+  if q.capture then
+    require('qa.floor').install()
+  end
   return q
+end
+-- The mode the application opens on: the plain test room for a fixture run.
+function Q:session()
+  local plain = self.suite ~= nil
+    or self:has('--selftest')
+    or self:has('--showcase')
+    or self:has('--screenshot')
+  return plain and 'floor' or 'pilgrimage'
 end
 function Q:has(flag)
   return not not self.flags[normalize(flag)]
@@ -183,15 +192,9 @@ function Q:run(G, renderer, getGame, settings, getLoading)
     require('qa.step_study').run(G, self.output, self:has('--qa-smoke'))
   elseif self:has('--view-measure') then
     require('qa.view_measure').run(G, renderer, settings, self.output)
-  elseif self:has('--v11-reference') then
-    -- The 0.33 references of plan v11 E0 (qa/v11_reference.lua).
-    require('qa.v11_reference').run(G, self.output)
   elseif self:has('--core-measure') then
     -- Core costs before/after a change (qa/core_measure.lua).
     require('qa.core_measure').run(G, self.output, self:has('--qa-smoke'))
-  elseif self:has('--population') then
-    -- Balance tuning (plan v5): the human-model populations alone.
-    require('qa.scenarios.playtest').population(G)
   elseif self:has('--selftest') then
     require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading)
   elseif self:has('--input-test') then

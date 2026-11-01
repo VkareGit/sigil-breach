@@ -106,7 +106,7 @@ function Tests.run(G, check)
   )
   -- Outside the proving ground: a session of another mode (the expedition's,
   -- whose record the field shares). [E] and its prompt are the mode's.
-  g.testField, g.mode = nil, 'expedition'
+  g.testField, g.mode = nil, 'pilgrimage'
   g.player.x, g.player.z = pad.x, pad.z
   check(
     'outside the proving ground the pads do nothing',

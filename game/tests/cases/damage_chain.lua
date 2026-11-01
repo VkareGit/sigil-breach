@@ -11,7 +11,6 @@ function Tests.run(G)
   local lines = {}
   local check = Fixtures.checker(lines, 'damage chain: ', 'damage chain: ')
   local Modes = require('src.run.modes')
-  local Descent = require('src.run.descent')
   local Pools = require('src.session.world')
   local Journal = require('src.session.journal')
   local Integrity = require('src.session.integrity')
@@ -39,12 +38,12 @@ function Tests.run(G)
   -- The scene: the controlled knight (B) far behind; one demon, off balance,
   -- with a reward, in front of the place where A will stand.
   Modes:register(modeId, {
-    session = { world = 'descent', map = require('src.content.maps.index').default },
+    session = { map = require('src.content.maps.index').default },
     init = function(g)
-      Descent.init(g)
+      Modes:get('floor').init(g)
       g.player.x, g.player.z, g.player.yaw = 16, 29, math.pi
       local e = g:spawn('imp', 12, 20.6)
-      e.spawnAge, e.rewardId, e.rewardSouls = 1, '1_1', 7
+      e.spawnAge, e.rewardSouls = 1, 7
       e.hp = variant == 'burn' and 14 or 4
       e.dummy = variant == 'burn'
       Rules.markBroken(e, 'guard')
@@ -62,7 +61,14 @@ function Tests.run(G)
     end,
     progress = function() end,
     reward = function(g, event)
-      Descent.onKill(g, event.enemy, event.source, event.owner)
+      local e = event.enemy
+      require('src.session.spawn').make(g, 'pickup', {
+        kind = 'soul',
+        x = e.x,
+        z = e.z,
+        amount = e.rewardSouls,
+        owner = event.owner,
+      })
     end,
   })
   local function knight(g, fields)
@@ -209,7 +215,7 @@ function Tests.run(G)
   assert(ok, problem)
   -- A shove's owner owns the slam it ends in (unit level: a body thrown at a
   -- wall carries the owner of the blow that threw it).
-  local s = G.new('classic')
+  local s = G.new('floor')
   s.testing = true
   s:start()
   Pools.clear(s, 'enemies')

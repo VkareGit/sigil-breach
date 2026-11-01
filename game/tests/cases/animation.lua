@@ -11,7 +11,7 @@ function Tests.run(G, check)
   local M = require('src.feedback.weapon_motion')
   local near = Fixtures.within(1e-7)
   local function fresh(slot)
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing = true
     g.state = 'playing'
     g.run = nil

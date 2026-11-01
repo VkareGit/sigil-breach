@@ -194,7 +194,7 @@ end
 -- A fresh session as the journal's began (Game: session/game.lua).
 function Journal.session(Game, journal)
   local header = journal.header or {}
-  return Game.new(header.mode or 'classic', header.map, header.options)
+  return Game.new(header.mode, header.map, header.options)
 end
 -- pcall's status and results with their count: trailing nils survive.
 local function outcome(...)

@@ -5,7 +5,7 @@ local Tests = {}
 function Tests.run(G, renderer)
   local U = require('src.ui.interface')
   local Skin = require('src.ui.skin')
-  local Run = require('src.run.descent')
+  local Sanctuary = require('src.session.sanctuary')
   local Portrait = require('src.ui.portrait')
   local Titles = require('src.ui.fonts.painted_titles').init()
   local Numbers = require('src.ui.fonts.painted_numbers').init()
@@ -30,7 +30,7 @@ function Tests.run(G, renderer)
   }
   local check = Fixtures.checker(lines, 'bitmap UI ', '')
   local function fresh()
-    local g = G.new('descent')
+    local g = G.new('floor')
     g.testing = true
     g:start()
     g.view.messageTimer = 0
@@ -38,7 +38,6 @@ function Tests.run(G, renderer)
     return g
   end
   local function active(g)
-    g.run.phase = 'wave'
     g.player.yaw = math.pi
     g.enemies = {}
     g.view.messageTimer = 0
@@ -188,7 +187,7 @@ function Tests.run(G, renderer)
       function(g)
         active(g)
         maxima(g)
-        g.run.echo = { amount = 1000000, x = 16, z = 23, wave = 1 }
+        g.run.echo = { amount = 1000000, x = 16, z = 23 }
         g.run.glyph = 'pierce'
       end,
     },
@@ -203,7 +202,7 @@ function Tests.run(G, renderer)
         g.player.armor = 0
         g.player.abilityState.powder.uses = 0
         g.run.wallet = 1000000
-        g.run.echo = { amount = 1000000, x = 16, z = 23, wave = 1 }
+        g.run.echo = { amount = 1000000, x = 16, z = 23 }
       end,
     },
     {
@@ -249,12 +248,11 @@ function Tests.run(G, renderer)
       'boss-and-warning',
       function(g)
         active(g)
-        g.run.wave = 5
         require('src.session.encounter').guardianArrived(g)
         local boss = g:spawn('boss', 16, 22)
         boss.hp = boss.maxHp * 0.4
-        g.saveWarning = 'Could not save the expedition.'
-        g.view.message = 'MARGRAVE OF ASH / The last trial of Limbo.'
+        g.saveWarning = 'Could not save.'
+        g.view.message = 'MARGRAVE OF ASH'
         g.view.messageTimer = 3
       end,
     },
@@ -277,16 +275,6 @@ function Tests.run(G, renderer)
         g.view.hitmarker = 0.1
         g.view.armorHit = true
         g.view.hitWeight = 0.5
-      end,
-    },
-    {
-      'countdown-with-save-warning',
-      function(g)
-        g.run.phase = 'countdown'
-        g.run.countdown = 3
-        g.saveWarning = 'Could not verify the save. Try again at the Ember.'
-        g.view.message = 'Ready your weapon. The rite has begun.'
-        g.view.messageTimer = 3
       end,
     },
     {
@@ -325,14 +313,14 @@ function Tests.run(G, renderer)
       'map-with-echo',
       function(g)
         active(g)
-        g.run.echo = { amount = 1000000, x = 7, z = 17, wave = 1 }
+        g.run.echo = { amount = 1000000, x = 7, z = 17 }
         g.map = true
       end,
     },
     {
       'partial-ammunition-purchase',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.player.arsenal.exorcist.reserve = 71
         g.player.armor = 99.5
         g.run.wallet = 3
@@ -342,17 +330,17 @@ function Tests.run(G, renderer)
     {
       'full-ammunition-after-purchase',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.player.arsenal.exorcist.reserve = 71
         g.run.wallet = 3
-        assert(Run.buy(g, 'ammo'))
+        assert(require('src.run.economy').trade(g, 'ammo'))
         U.focus = 1
       end,
     },
     {
       'owned-engraving-with-large-wallet',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.run.wallet = 1000000
         g.run.owned = { choke = true, pierce = true }
         g.run.glyph = 'pierce'
@@ -362,7 +350,7 @@ function Tests.run(G, renderer)
     {
       'revolver-partial-ammunition-purchase',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.player.weapon = 2
         g.player.arsenal.judge.reserve = 71
         g.run.wallet = 3
@@ -372,7 +360,7 @@ function Tests.run(G, renderer)
     {
       'revolver-full-ammunition-and-charges',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.player.weapon = 2
         g.player.arsenal.judge.reserve = 72
         g.player.abilityState.powder.uses = 3
@@ -383,7 +371,7 @@ function Tests.run(G, renderer)
     {
       'charge-purchase-empty-stock',
       function(g)
-        Run.openShop(g)
+        Sanctuary.openShop(g)
         g.player.abilityState.powder.uses = 0
         g.run.wallet = 30
         U.focus = 6
@@ -395,27 +383,8 @@ function Tests.run(G, renderer)
         maxima(g)
         g.state = 'dead'
         g.player.hp = 0
-        g.run.phase = 'defeated'
-        g.run.echo = { amount = 1000000, x = 16, z = 23, wave = 1 }
+        g.run.echo = { amount = 1000000, x = 16, z = 23 }
         g.saveWarning = 'Could not verify the save.'
-      end,
-    },
-    {
-      'victory-at-save-limits',
-      function(g)
-        maxima(g)
-        g.state = 'won'
-        g.run.phase = 'complete'
-        g.run.fragment = true
-        g.run.wave = 5
-      end,
-    },
-    {
-      'recovered-menu',
-      function(g)
-        g.availableSave = Run.snapshot(g)
-        g.saveRecovered = true
-        g.state = 'menu'
       end,
     },
     {
@@ -472,7 +441,7 @@ function Tests.run(G, renderer)
     function()
       local g = Field.new(G)
       Field.close(g)
-      g.view.fieldReturnLabel = 'return_expedition'
+      g.view.fieldReturnLabel = 'return_chapel'
       g.state = 'paused'
       return g
     end,

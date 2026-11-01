@@ -18,19 +18,8 @@ function S.draw(g, s, U)
   Skin.inscription(g.state == 'settings' and 'settings' or 'interrupted', 430, 100, 420, 40)
   Skin.zone('settings writing field', 382, 100, 516, 514)
   local run = Queries.run(g)
-  if run and g.state == 'paused' then
-    center(
-      Text.get(
-        run.rest and 'pilgrim_saved'
-          or (
-            (run.phase == 'wave' or run.phase == 'countdown') and 'pause_save_wave'
-            or 'pause_save_preparation'
-          )
-      ),
-      221,
-      14,
-      muted
-    )
+  if run and run.rest and g.state == 'paused' then
+    center(Text.get('pilgrim_saved'), 221, 14, muted)
   end
   text(Text.get('setting_sensitivity'), 384, 250, 22, ivory)
   text(string.format('%.1f', s.sensitivity), 704, 250, 22, gold)

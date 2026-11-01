@@ -4,7 +4,6 @@ local Tests = {}
 function Tests.run(get, settings, settle)
   local U = require('src.ui.interface')
   local Sections = require('src.storage.save')
-  local Save = require('src.storage.run_save')
   local lines = {}
   local check = Fixtures.checker(lines, 'sandbox controller ', '')
   local function draw()
@@ -35,10 +34,7 @@ function Tests.run(get, settings, settle)
   end
   local function files()
     local names = {
-      [Save.prefix .. '.a'] = true,
-      [Save.prefix .. '.b'] = true,
-      ['best-score-v03.txt'] = true,
-      ['best-score.txt'] = true,
+      ['pilgrimage.save'] = true,
       ['settings-v03.txt'] = true,
       ['settings.txt'] = true,
     }
@@ -108,7 +104,6 @@ function Tests.run(get, settings, settle)
       and field.state == 'playing'
       and #field.enemies == 3
       and #field.run.pending == 0
-      and field.run.phase == 'wave'
   )
   key('f2')
   click('field_freeze')
@@ -198,7 +193,6 @@ function Tests.run(get, settings, settle)
       and #field.enemies == 0
       and #field.bullets == 0
       and not require('src.session.encounter').guardianDead(field)
-      and field.run.wave == 1
   )
   click('field_spawn_furfur_1')
   arrive(field)
@@ -273,14 +267,10 @@ function Tests.run(get, settings, settle)
   local boss = field.enemies[1]
   field:damageEnemy(boss, 100000, 'weapon')
   field:damageEnemy(boss, 100000, 'weapon') -- final stock, not its phase transition
-  require('src.world.arena').breakSeals(field.world, 3)
-  require('src.session.encounter').guardianFell(field)
-  field.run.wave = 5
-  field.player.x, field.player.z = field.world.portal.x, field.world.portal.z
   key('e')
   check(
     'a killed sandbox boss and exit interaction cannot complete or save a real expedition',
-    field.state ~= 'won' and not field.run.fragment and sameFiles(menuFiles, files())
+    field.state ~= 'won' and sameFiles(menuFiles, files())
   )
   key('f2')
   click('field_leave')

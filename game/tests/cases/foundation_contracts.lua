@@ -46,7 +46,7 @@ function Tests.run(Game)
   )
   local Maps = require('src.content.maps.index')
   local map = Maps:get(Maps.default)
-  local world = Game.new('classic').world
+  local world = Game.new('floor').world
   check(
     'instance construction copies populated map arrays rather than inheriting an empty override',
     #world.gates == #map.gates and #world.gates > 0 and #world.zones == #map.zones
@@ -70,7 +70,7 @@ function Tests.run(Game)
     end
     for _, field in ipairs({ 'style', 'targeting' }) do
       creature({ [field] = 'missing_ai_behavior' })
-      local created, message = pcall(Game.new, 'classic')
+      local created, message = pcall(Game.new, 'floor')
       check(
         'unknown ' .. field .. ' is rejected at composition before starting a world',
         not created and tostring(message):find('missing_ai_behavior', 1, true)
@@ -140,7 +140,7 @@ function Tests.run(Game)
     })
     check(
       'valid data without an executor is refused before a world is created',
-      not pcall(Game.new, 'classic')
+      not pcall(Game.new, 'floor')
     )
     Executors:register('fixture_transport', { fire = function() end })
     check(

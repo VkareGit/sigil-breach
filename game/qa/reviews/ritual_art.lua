@@ -11,7 +11,6 @@ function Review.run(Game, renderer, output)
   g.testing = true
   Field.close(g)
   g.enemies, g.pickups, g.hazards, g.bullets = {}, {}, {}, {}
-  g.run.queueIndex = #require('src.content.waves')[g.run.wave].queue + 1
   g.run.pending = {}
   g.view.motion = false
   g.time, g.elapsed = 12, 12

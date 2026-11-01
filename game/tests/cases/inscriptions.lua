@@ -108,7 +108,7 @@ function Tests.run(Game, renderer)
       inkEdge > 0.775 / distance
     )
   end
-  local world = require('src.world.arena').new('field', 'proving')
+  local world = require('src.world.arena').new('proving')
   local Ground = require('src.physics.ground')
   for _, m in ipairs(map.decor.murals) do
     if m.z >= 34 then

@@ -152,7 +152,7 @@ function Tests.run(Game, renderer)
   local UI = require('src.ui.interface')
   -- A living simulation world is not a resource owner. Closing one renderer
   -- must release its last mesh reference even if the session is kept for replay.
-  local game = Game.new('classic')
+  local game = Game.new('floor')
   game.testing = true
   local sceneRenderer = Renderer.new()
   sceneRenderer:draw(game, 960, 540)
@@ -178,7 +178,7 @@ function Tests.run(Game, renderer)
   local lights = Lights.new()
   lights:prepare(game.world)
   local previousWorld, previousAtlas = lights.world, lights.visibility
-  local nextWorld = Game.new('classic').world
+  local nextWorld = Game.new('floor').world
   nextWorld.lamps[1].x = nextWorld.lamps[1].x + 0.0001
   local newImage = love.graphics.newImage
   local attempts = 0

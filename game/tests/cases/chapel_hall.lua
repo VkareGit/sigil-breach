@@ -10,7 +10,7 @@ function T.run()
   local W = require('src.world.arena')
   local Ground = require('src.physics.ground')
   local Halls = require('src.render.kit.halls')
-  local world = W.new('field', 'proving')
+  local world = W.new('proving')
   local hall = world.decor.halls[1]
   check('the proving ground places its hall', hall ~= nil and hall.kit == 'chapel')
   for name, path in pairs(Art.images) do
@@ -85,7 +85,7 @@ function T.run()
     end
   end
   check('the map stays inside its vertex budget ' .. count, count > 0 and count < 1300000)
-  local old = Maps:get('limbo')
+  local old = Maps:get('floor')
   check('a map without halls declares none', not (old.decor and old.decor.halls))
   return lines
 end

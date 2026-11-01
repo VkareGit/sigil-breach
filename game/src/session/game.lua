@@ -63,7 +63,7 @@ function Game.new(mode, mapId, options)
   for _, part in ipairs(descriptor.requires or {}) do
     assert(data[part], 'mode ' .. id .. ' needs a map with ' .. part .. ': ' .. data.id)
   end
-  local g = setmetatable(State.new(descriptor.world, mapId or descriptor.map), Game)
+  local g = setmetatable(State.new(mapId or descriptor.map), Game)
   Feel.init(g)
   if descriptor.prepare then
     descriptor.prepare(g)
@@ -110,9 +110,6 @@ function Game:spawn(kind, x, z)
     bornAt = self.elapsed or 0,
   }, false)
   Rules.equip(enemy, archetype)
-  -- Tier: the mode's (the expedition's wave, the proving ground's dial).
-  local tier = Modes.act(self, 'tier') or self.tier or 1
-  Rules.applyTier(enemy, tier)
   enemy.variant = archetype.variant
   AI.init(enemy)
   return Pools.add(self, 'enemies', enemy)

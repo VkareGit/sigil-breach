@@ -115,7 +115,7 @@ function Tests.run(G)
     Golden.digest(plain) == Golden.digest(recorded)
   )
   -- A journal names its session: a recorded game rebuilds and replays alone.
-  local live = G.new('classic')
+  local live = G.new('floor')
   live.testing = true
   local log = Journal.record(live)
   live:start()
@@ -129,7 +129,7 @@ function Tests.run(G)
   Journal.replay(again, Journal.decode(Journal.encode(log)))
   check(
     'a journal rebuilds its own session (mode, map) and replays it exactly',
-    log.header.mode == 'classic' and Golden.digest(again) == Golden.digest(live)
+    log.header.mode == 'floor' and Golden.digest(again) == Golden.digest(live)
   )
   -- The proving ground (plan v7 H0): catalogue actions (targets, tier, god
   -- mode, reset) are session commands, and what the application sets between
@@ -138,7 +138,6 @@ function Tests.run(G)
   local field = Field.new(G)
   field.testing = true
   local fieldLog = Journal.record(field)
-  field:act('catalog', 'field_tier')
   field:act('catalog', 'field_god')
   field:act('catalog', 'field_spawn_imp_3')
   local function fight(ticks)
@@ -163,7 +162,7 @@ function Tests.run(G)
   end
   check(
     'catalogue actions and the pause are journal entries',
-    acts == 5 and sets >= 2 and fieldLog.header.mode == 'field'
+    acts == 4 and sets >= 2 and fieldLog.header.mode == 'field'
   )
   local fieldText = Journal.encode(fieldLog)
   local fieldAgain = Journal.session(G, Journal.decode(fieldText))
@@ -172,7 +171,6 @@ function Tests.run(G)
   check(
     'a proving-ground journal (targets, tier, god mode, pause, reset) replays exactly',
     Golden.digest(fieldAgain) == Golden.digest(field)
-      and fieldAgain.testField.tier == field.testField.tier
       and fieldAgain.testField.invincible == field.testField.invincible
       and #fieldAgain.enemies == #field.enemies
   )
@@ -198,7 +196,7 @@ function Tests.run(G)
     'renderer-owned world cache does not enter simulation integrity',
     not Integrity.difference(beforeMesh, Integrity.capture(cosmeticWorld))
   )
-  for _, action in ipairs({ 'field_tier', 'field_god', 'field_low' }) do
+  for _, action in ipairs({ 'field_god', 'field_low' }) do
     local changed = Field.new(G)
     changed.testing = true
     changed:act('catalog', action)
@@ -225,8 +223,6 @@ function Tests.run(G)
     'field_refill',
     'field_station_physics',
     'field_reset',
-    'field_tier',
-    'field_station_waves',
   }) do
     complete:act('catalog', action)
     complete:update(1 / 120, {})

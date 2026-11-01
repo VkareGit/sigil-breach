@@ -42,7 +42,10 @@ function T.run(check)
     titleCount = titleCount + 1
     titlesValid = titlesValid and e.w > 0 and e.h > 0 and e.w < 1024 and e.h < 256
   end
-  check('v16 eight literal titles use measured whole-ink crops', titlesValid and titleCount == 8)
+  check(
+    'v16 literal titles use measured whole-ink crops',
+    titlesValid and titleCount == #Titles.names
+  )
   local sample = 'SHIFT / DODGE'
   local b = fonts[16]:getInk(sample)
   check(

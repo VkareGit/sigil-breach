@@ -12,7 +12,6 @@ function S.setup(G)
   Field.reset(g)
   Field.close(g)
   g.testField.invincible = true
-  g.testField.tier = 3
   local p = g.player
   p.x, p.z, p.yaw = 16, 22, math.pi
   local roster = {

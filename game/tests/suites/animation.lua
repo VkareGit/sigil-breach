@@ -67,7 +67,7 @@ function Tests.run(G, renderer)
       end
     end
     data:release()
-    local g = G.new('classic')
+    local g = G.new('floor')
     g.testing = true
     g.state = 'playing'
     g.player.weapon = slot

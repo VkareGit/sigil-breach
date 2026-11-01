@@ -14,10 +14,9 @@ function Tests.run(G, renderer)
     return a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
   end
   local function fresh()
-    local g = G.new('descent')
+    local g = G.new('floor')
     g.testing = true
     g:start()
-    g.run.phase = 'wave'
     g.player.yaw = math.pi
     g.player.x = 16
     g.player.z = 27
@@ -399,12 +398,11 @@ function Tests.run(G, renderer)
   local safe = pcall(Projectiles.update, g, 1 / 30)
   check(
     'lethal projectile can clear the bullet array without invalid removal',
-    safe and g.state == 'dead' and g.player.hp == 0 and #g.bullets == 0 and g.run.wallet == 0
+    safe and g.state == 'dead' and g.player.hp == 0 and #g.bullets == 0
   )
   -- Other v0.8 suites return their actual PASS lines, so the published total is
   -- based on executed checks rather than a manually maintained release number.
   for _, module in ipairs({
-    'tests.cases.layout',
     'tests.cases.art',
     'tests.cases.bitmap_ui',
     'tests.cases.test_field',

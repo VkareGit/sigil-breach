@@ -168,8 +168,7 @@ local function hudSlots(G, check)
     end
     Snapshot.invalidateDefinitions()
     local g = Fixtures.expedition(G)
-    require('src.run.descent').ready(g)
-    g.run.phase, g.state, g.view.messageTimer, g.zoneTimer = 'wave', 'playing', 0, 0
+    g.state, g.view.messageTimer, g.zoneTimer = 'playing', 0, 0
     for _, id in ipairs(weapons) do
       g.player.weapon = Weapons.give(g, id)
     end
@@ -208,7 +207,7 @@ local function language(G, renderer, check)
   local Text = require('src.content.text')
   local U = require('src.ui.interface')
   local Skin = require('src.ui.skin')
-  local Run = require('src.run.descent')
+  local Sanctuary = require('src.session.sanctuary')
   local Field = require('src.run.test_field')
   local Loading = require('src.ui.loading')
   local Titles = require('src.ui.fonts.painted_titles').init()
@@ -246,7 +245,7 @@ local function language(G, renderer, check)
     assert(ok, problem)
   end
   local function expedition()
-    local g = G.new('descent')
+    local g = G.new('floor')
     g.testing = true
     g:start()
     return g
@@ -272,8 +271,6 @@ local function language(G, renderer, check)
     end,
     wave = function()
       local g = expedition()
-      Run.ready(g)
-      g.run.phase = 'wave'
       g.elapsed = 1
       local e = g:spawn('armored', g.player.x, g.player.z - 4)
       e.hp = e.maxHp * 0.5
@@ -281,7 +278,6 @@ local function language(G, renderer, check)
     end,
     guardian = function()
       local g = expedition()
-      g.run.phase, g.run.wave = 'wave', 5
       require('src.session.encounter').guardianArrived(g)
       local boss = g:spawn('boss', 16, 22)
       boss.hp = boss.maxHp * 0.4
@@ -289,7 +285,6 @@ local function language(G, renderer, check)
     end,
     reload = function()
       local g = expedition()
-      g.run.phase = 'wave'
       g.player.weapon = 2
       g.player.arsenal.judge.mag = 0
       g:reloadGun()
@@ -298,7 +293,6 @@ local function language(G, renderer, check)
     end,
     empty = function()
       local g = expedition()
-      g.run.phase = 'wave'
       for _, state in pairs(g.player.arsenal) do
         state.mag, state.reserve = 0, 0
       end
@@ -317,39 +311,24 @@ local function language(G, renderer, check)
     end,
     map = function()
       local g = expedition()
-      g.run.echo = { amount = 10, x = 7, z = 17, wave = 1 }
+      g.run.echo = { amount = 10, x = 7, z = 17 }
       g.map = true
       return g
     end,
     shop = function()
       local g = expedition()
-      Run.openShop(g)
+      Sanctuary.trade(g)
       return g
     end,
     dead = function()
       local g = expedition()
-      g.state, g.player.hp, g.run.phase = 'dead', 0, 'defeated'
-      g.run.echo = { amount = 10, x = 16, z = 23, wave = 1 }
-      return g
-    end,
-    won = function()
-      local g = expedition()
-      g.state, g.run.phase, g.run.fragment, g.run.wave = 'won', 'complete', true, 5
+      g.state, g.player.hp = 'dead', 0
+      g.run.echo = { amount = 10, x = 16, z = 23 }
       return g
     end,
     classic = function()
       local g = Fixtures.arena(G)
       g.state = 'playing'
-      return g
-    end,
-    classicDead = function()
-      local g = Fixtures.arena(G)
-      g.state, g.player.hp = 'dead', 0
-      return g
-    end,
-    classicWon = function()
-      local g = Fixtures.arena(G)
-      g.state = 'won'
       return g
     end,
     catalogue = function()
@@ -364,12 +343,6 @@ local function language(G, renderer, check)
     physics = function()
       local g = Field.new(G)
       Field.physics(g)
-      Field.close(g)
-      return g
-    end,
-    trial = function()
-      local g = Field.new(G)
-      Field.waves(g)
       Field.close(g)
       return g
     end,

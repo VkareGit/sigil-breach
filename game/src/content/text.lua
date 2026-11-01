@@ -285,7 +285,7 @@ local definitions = {
   { 'zone_nave', 'NAVE OF THE DAMNED' },
   { 'return_menu', 'MAIN MENU' },
   { 'return_settings', 'BACK TO SETTINGS' },
-  { 'return_expedition', 'BACK TO THE CHAPEL' },
+  { 'return_chapel', 'BACK TO THE CHAPEL' },
   { 'quit_game', 'QUIT GAME' },
   { 'field_refilled', 'Health, ward, ammo, charges and dodge restored.' },
   { 'field_clean', 'Clean field. Choose a demon or a trial tool.' },

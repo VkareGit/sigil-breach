@@ -44,7 +44,7 @@ function Test.run(Game)
   end)
   local ok, reason = pcall(function()
     local function fresh()
-      local g = Game.new('classic', definition.id)
+      local g = Game.new('floor', definition.id)
       g.testing = true
       g:start()
       return g

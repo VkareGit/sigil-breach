@@ -44,7 +44,7 @@ function T.run(Game, r, check)
     { pass = 'sprites', order = 999, draw = opaque('sprites') },
   })
   local originals = {}
-  for _, id in ipairs({ 'gate', 'exit', 'seal' }) do
+  for _, id in ipairs({ 'gate', 'seal' }) do
     originals[id] = Objects.unregister(id)
   end
   local function render()
@@ -67,9 +67,8 @@ function T.run(Game, r, check)
     return count
   end
   local ok, err = xpcall(function()
-    for _, kind in ipairs({ 'pending', 'arrival', 'exit', 'seal' }) do
+    for _, kind in ipairs({ 'pending', 'arrival', 'seal' }) do
       g.enemies, g.world.seals = {}, {}
-      view.guardianDead = kind == 'exit'
       view.gates = kind == 'pending'
           and { { x = 16, z = 21, kind = 'imp', delay = 0.2, maxDelay = 1.2 } }
         or {}

@@ -16,7 +16,6 @@ C.schemas = {
     variant = f(nil, 'the variant of its kind it is (creature id; content/creatures)'),
     displayName = f(nil),
     rewardSouls = f(nil),
-    rewardId = f(nil, 'expedition reward slot'),
     bornAt = f(0, 'session time of arrival (time to kill)'),
     killCounted = f(nil, 'its death is in the session counters (combat/telemetry.lua)'),
     faction = f(nil, "own side, else its definition's (content/factions.lua)"),
@@ -30,14 +29,6 @@ C.schemas = {
     z = f(0),
     level = f(nil, 'the surface it stands on, on a world with decks (physics/ground.lua)'),
     facing = f(math.pi, 'body yaw (rad)'),
-  },
-  tier = {
-    tier = f(1),
-    tierSpeed = f(1),
-    tierDamage = f(1),
-    tierPace = f(1),
-    tierLead = f(0),
-    packetCache = f(nil, 'tier-scaled copies of attack packets'),
   },
   health = {
     hp = f(1),
@@ -98,7 +89,7 @@ C.schemas = {
   brain = {
     phaseIndex = f(nil, 'encounter phase (nil means first); not the action clock'),
     phaseEnteredAt = f(nil, 'simulation time of the current encounter phase transition'),
-    phaseBaseHp = f(nil, 'spawn HP including tier, basis of later health stocks'),
+    phaseBaseHp = f(nil, 'spawn HP, basis of later health stocks'),
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
     phase = f(0, 'time in the state'),
     recover = f(0),
@@ -334,10 +325,6 @@ C.schemas.knight = {
   -- record per weapon (content/weapons.lua: W.newState)
   loadout = f(nil, 'weapon ids in slot order'),
   arsenal = f(nil, 'weapon id -> { mag, reserve, open, loaded, spent, readyAt }'),
-  -- legacy expedition state kept by saves (run/descent.lua restore)
-  heat = f(nil),
-  heatDelay = f(nil),
-  overheat = f(nil),
   -- abilities: the loadout (ordered ability ids; Q casts the first) and one
   -- live record per ability (content/abilities.lua: newState)
   abilities = f(nil, 'ability ids in slot order'),
@@ -392,7 +379,6 @@ C.pools = {
   enemies = {
     'identity',
     'transform',
-    'tier',
     'health',
     'guard',
     'motion',

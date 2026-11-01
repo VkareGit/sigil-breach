@@ -1,7 +1,6 @@
 -- What the session's mode allows the simulation (0.24 F8). Every mode
 -- declares its policy here when it registers (run/modes.lua), and answers
 -- for its own record through its handlers:
---   phased        it fights only while waveActive(g)
 --   freezable     time may stop: frozen(g)
 --   invincible    the knight may be unhurt: invincible(g)
 --   attrition     effort is paid: stamina, the flask, no healing from kills: attrition(g)
@@ -11,7 +10,6 @@
 -- mode's record.
 local Capabilities = { policies = {}, modes = {} }
 local policyHandlers = {
-  phased = 'waveActive',
   freezable = 'frozen',
   invincible = 'invincible',
   attrition = 'attrition',
@@ -53,15 +51,9 @@ function Capabilities.frozen(g)
   local policy = policyOf(g)
   return policy ~= nil and policy.freezable == true and ask(g, 'frozen') == true
 end
--- A phased mode (expedition, proving ground) fights only in its wave phase;
--- between waves the knight rests and shops.
-function Capabilities.combatPhase(g)
-  local policy = policyOf(g)
-  return not (policy and policy.phased) or ask(g, 'waveActive') == true
-end
 -- Demons decide, walk and attack.
 function Capabilities.demonsAct(g)
-  return not Capabilities.frozen(g) and Capabilities.combatPhase(g)
+  return not Capabilities.frozen(g)
 end
 -- The world holds its breath (0.25: the knight's guard broke): what flies
 -- or is marked on the ground waits with the demons (g.worldStop).
@@ -75,10 +67,6 @@ end
 -- Marked ground (pools, lines, strikes) burns and strikes.
 function Capabilities.groundActs(g)
   return Capabilities.demonsAct(g) and not Capabilities.held(g)
-end
--- The knight may shoot and throw.
-function Capabilities.armed(g)
-  return Capabilities.combatPhase(g)
 end
 -- The sanctuary is a place; the active mode decides whether trading there
 -- is available now. This does not impose a shared wallet or phase layout.
@@ -98,6 +86,6 @@ end
 function Capabilities.vulnerable(g)
   local policy = policyOf(g)
   local shielded = policy and policy.invincible and ask(g, 'invincible')
-  return not shielded and Capabilities.combatPhase(g)
+  return not shielded
 end
 return Capabilities

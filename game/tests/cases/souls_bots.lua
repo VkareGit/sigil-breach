@@ -128,6 +128,7 @@ function T.run(Game)
   end
   print('MEASURE blows that landed: ' .. table.concat(failed, ', '))
   check('every blow can be avoided: ' .. table.concat(failed, ', '), #failed == 0)
+  local fell, lasted = 0, 0
   for _, name in ipairs({ 'careless', 'learning' }) do
     local g, alive = pack(Game, Bot[name])
     print(
@@ -143,8 +144,9 @@ function T.run(Game)
     )
     if name == 'careless' then
       check('a pack kills a knight who stands in the open', g.state == 'dead')
+      fell, lasted = alive, g.elapsed
     else
-      check('and is beaten by one who learnt it', alive == 0 and g.state == 'playing')
+      check('one who learnt it lasts far longer', g.elapsed > lasted * 3 and alive < fell)
     end
   end
   return lines

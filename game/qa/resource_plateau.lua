@@ -46,7 +46,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
   -- A live owner keeps its cached borrowed table, even through collection.
   -- Keeping that borrowed table afterwards must not keep the owner alive.
   local function queryOwnership()
-    local owner = Game.new('expedition')
+    local owner = Game.new('floor')
     owner.testing = true
     local borrowed = setmetatable({ Queries.run(owner) }, { __mode = 'v' })
     collectgarbage('collect')
@@ -70,7 +70,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
     local app = Application.new()
     app.settings = settings
     app.qa.isolated, app.qa.capture = true, true
-    local menu = Game.new('expedition')
+    local menu = Game.new('floor')
     menu.testing = true
     fresh = Renderer.new()
     app.renderer = fresh
@@ -117,11 +117,11 @@ function Plateau.run(Game, renderer, initial, settings, output)
     -- The expedition remains closed in the player menu. Exercise its real
     -- navigation/session lifecycle through the registered mode API, not a
     -- new public menu command or a hand-built fake scene.
-    local expedition = Navigation.enter(app, 'expedition')
+    local expedition = Navigation.enter(app, 'pilgrimage')
     expedition.testing = true
     expedition:start()
     expedition:update(1 / 120, {})
-    assert(expedition.mode == 'expedition' and expedition.state == 'playing')
+    assert(expedition.mode == 'pilgrimage' and expedition.state == 'playing')
     draw(expedition)
     assert(Navigation.back(app) and app.game == replay)
     assert(Navigation.back(app) and app.game == menu and not app.navigation)
@@ -140,7 +140,7 @@ function Plateau.run(Game, renderer, initial, settings, output)
       )
     end
     retained[menu], retained[game], retained[replay], retained[expedition] =
-      'menu session', 'recorded field session', 'replayed field session', 'expedition session'
+      'menu session', 'recorded field session', 'replayed field session', 'chapel session'
     retained[journal], retained[app] = 'stopped journal', 'temporary application'
     -- The caller collects only after this stack (including the journal and
     -- navigation references) has gone, then checks structural reachability.

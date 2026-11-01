@@ -72,7 +72,7 @@ function Tests.resetTrial(G)
   g.lastSlam = { x = p.x, z = p.z, speed = 12, player = true }
   g.collisions, g.slams = 4, 2
   g.cancelledAttacks, g.evadeCount, g.retargets, g.attackStarts, g.leapStarts = 1, 2, 3, 4, 5
-  g.testField.tier, g.testField.hitboxes = 3, true
+  g.testField.hitboxes = true
   g.view.motion = false
   g.view.damageNumbers, g.view.numberSerial = { { value = 35, age = 0 } }, 7
   g.view.staggerFlash, g.view.killPunch, g.view.breakKill, g.view.perfectDodge = 0.2, 0.3, 0.4, 0.5
@@ -166,7 +166,6 @@ function Tests.resetTrial(G)
       and g.nextId == nextId
       and g.rng == rng
       and g._observationGeneration > generation
-      and g.testField.tier == 3
       and g.testField.hitboxes
       and not g.testField.invincible
       and not g.view.motion
@@ -216,9 +215,8 @@ function Tests.resetTrial(G)
 end
 function Tests.run(G, renderer)
   local Field = require('src.run.test_field')
-  local Run = require('src.run.descent')
   local Modes = require('src.run.modes')
-  local Save = require('src.storage.run_save')
+  local Save = require('src.storage.save')
   local World = require('src.world.arena')
   local Definitions = require('src.content.enemy_catalog')
   local Animation = require('src.enemies.animation')
@@ -239,14 +237,12 @@ function Tests.run(G, renderer)
     for _, line in ipairs(Tests.resetTrial(G)) do
       lines[#lines + 1] = line
     end
-    local expedition = G.new('descent')
+    local expedition = G.new('floor')
     expedition.testing = true
     expedition:start()
     expedition.run.wallet = 317
     expedition.run.owned = { pierce = true }
     expedition.run.glyph = 'pierce'
-    local originalSnapshot = Run.snapshot(expedition)
-    local originalBytes = Save.encode(originalSnapshot, 1)
     local function fresh()
       local g = Field.new(G)
       g.testing = false
@@ -333,7 +329,7 @@ function Tests.run(G, renderer)
     -- The catalogue (F2) summons through portals: gates glow, then the
     -- demons step out with the portal's arrival, set on the knight.
     g = fresh()
-    local glow = require('src.content.waves').portal.glow
+    local glow = require('src.content.field').gates.glow
     local gates = assert(Field.summon(g, 'imp', 3))
     Field.close(g)
     local waiting = #gates == 3 and #g.run.pending == 3 and #g.enemies == 0
@@ -373,10 +369,9 @@ function Tests.run(G, renderer)
       target.x, target.z = 16, 24
       g.player.yaw = math.pi
       g.player.pitch = 0
-      local normal = G.new('descent')
+      local normal = G.new('floor')
       normal.testing = true
       normal:start()
-      normal.run.phase = 'wave'
       normal.enemies = {}
       normal.player.weapon = slot
       normal.player.yaw = math.pi
@@ -618,22 +613,9 @@ function Tests.run(G, renderer)
     end
     check(
       'an empty live sandbox neither schedules waves nor advances progression',
-      #g.enemies == 0
-        and #g.run.pending == 0
-        and g.run.phase == 'wave'
-        and g.run.wave == 1
-        and g.state == 'playing'
+      #g.enemies == 0 and #g.run.pending == 0 and g.state == 'playing'
     )
-    local wallet = g.run.wallet
-    g.run.wave = 5
-    Run.finishWave(g)
-    check(
-      'explicit wave completion cannot award a fragment or currency in the sandbox',
-      g.run.phase == 'wave'
-        and not g.run.fragment
-        and g.run.wallet == wallet
-        and g.state == 'playing'
-    )
+    local wallet
     Field.shop(g)
     g.player.arsenal.exorcist.reserve = 71
     local purchased = Modes.act(g, 'buy', 'ammo')
@@ -647,7 +629,7 @@ function Tests.run(G, renderer)
     Modes.act(g, 'ready')
     check(
       'leaving the sandbox shop returns to free combat without starting a wave countdown',
-      g.state == 'playing' and g.run.phase == 'wave' and #(g.run.pending or {}) == 0
+      g.state == 'playing' and #(g.run.pending or {}) == 0
     )
     g.player.armor = 0
     g.player.hp = 1
@@ -657,34 +639,12 @@ function Tests.run(G, renderer)
     g:damagePlayer(1000)
     check(
       'sandbox death keeps expedition souls and retry progression untouched',
-      g.state == 'dead'
-        and g.run.wallet == wallet
-        and g.run.echo == nil
-        and g.run.deaths == 0
-        and not g.run.fragment
+      g.state == 'dead' and g.run.wallet == wallet and g.run.echo == nil and g.run.deaths == 0
     )
     Field.reset(g)
-    local originalRun = g.run
-    local originalState = g.state
-    local snapshot = Run.snapshot(g)
-    local saved = Run.save(g)
-    local loaded = Run.load(g, originalSnapshot)
-    check(
-      'sandbox refuses explicit snapshot, save and expedition-load entry points',
-      snapshot == nil
-        and not saved
-        and not loaded
-        and g.run == originalRun
-        and g.state == originalState
-        and g.testField ~= nil
-    )
     check(
       'sandbox actions never call a persistence writer even with testing disabled',
       #writes == 0
-    )
-    check(
-      'the original expedition remains byte-for-byte identical after sandbox use',
-      Save.encode(Run.snapshot(expedition), 1) == originalBytes
     )
   end, debug.traceback)
   Save.write, love.filesystem.write = oldWrite, oldFileWrite

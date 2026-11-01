@@ -90,7 +90,7 @@ local function move(g, e, tx, tz, speed, dt)
   local defaults = Archetypes.defaults
   local accel = ((arch(e).move or {}).accel or defaults.accel) / math.sqrt(Rules.body(e).mass or 1)
   local stage = Archetypes.phase(e)
-  speed = speed * Rules.speedScale(e) * (e.tierSpeed or 1) * (stage and stage.speed or 1)
+  speed = speed * Rules.speedScale(e) * (stage and stage.speed or 1)
   speed = math.min(speed, math.sqrt(2 * accel * defaults.brake * d))
   -- A body that stopped walking (attack, stagger, idle) starts again at rest.
   local now = g.elapsed or 0
@@ -221,7 +221,7 @@ local function reserveAttack(g, e)
   if count >= max or next > g.elapsed then
     return false
   end
-  local at = g.elapsed + Archetypes.defaults.tiers.spacing / Selection.pace(e)
+  local at = g.elapsed + Archetypes.defaults.attackSpacing / Selection.pace(e)
   if controlled then
     g.nextAttack = at
   else
@@ -236,7 +236,7 @@ end
 -- aim rests on the body, a short sidestep away from the aim line.
 local function evade(g, e, d, dt)
   local spec = (arch(e).move or {}).evade
-  if not spec or (e.tier or 1) < spec.fromTier then
+  if not spec then
     return false
   end
   e.evadeReady = math.max(0, (e.evadeReady or 0) - dt)
@@ -264,7 +264,7 @@ local function evade(g, e, d, dt)
   e.evadeX, e.evadeZ = cos(toward) * side, -sin(toward) * side
   e.evadeTime = spec.time
   e.evadeSide = side
-  e.evadeReady = spec.cooldown / (e.tierPace or 1)
+  e.evadeReady = spec.cooldown
   Signal(g, 'Evaded', { enemy = e })
   e.evades = (e.evades or 0) + 1
   g.evadeCount = (g.evadeCount or 0) + 1
@@ -535,7 +535,7 @@ function States.windup(g, e, d, dt)
   change(e, 'recover')
   Selection.clear(e)
   e.recover = defaults.interruptRecover
-  e.attack = defaults.cancelPause / (e.tierPace or 1)
+  e.attack = defaults.cancelPause
   e.side = -e.side
   e.decision = Walk.sideHold
   g.cancelledAttacks = (g.cancelledAttacks or 0) + 1

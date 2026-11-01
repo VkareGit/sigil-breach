@@ -3,7 +3,7 @@ local Supplies = require('src.content.supplies')
 local Context = require('src.session.context')
 -- The built-in world objects and how each is drawn (render/world_objects.lua):
 -- the lamps, the seals, the supplies, the Ember and its murals, the echo,
--- the gates, the classic exit and secret, the decor props and the proving
+-- the gates, the decor props and the proving
 -- ground's gallery. Ground supplies/marks precede opaque sprites. Portals
 -- blend after their depth is complete, so a later distant mural cannot
 -- overwrite a nearer portal with no depth writes.
@@ -233,49 +233,17 @@ WorldObjects.register('inscription', {
   { pass = 'sprites', order = 15, draw = require('src.render.inscriptions').draw },
   init = require('src.render.inscriptions').init,
 })
--- Supplies: painted icons in the expedition and the proving ground, the
--- classic arena's boxes otherwise (view.paintedPickups).
+-- Supplies: painted icons.
 WorldObjects.register('supplies', {
-  {
-    pass = 'ground',
-    order = 10,
-    draw = function(r, g, view, time)
-      if view.paintedPickups then
-        return
-      end
-      for _, a in ipairs(Pools.of(g, 'pickups')) do
-        r:object(
-          a.kind == 'ammo' and r.ammo or r.health,
-          a.x,
-          Ground.of(g.world, a) + 0.15 + math.sin(time * 3 + a.x) * 0.06,
-          a.z,
-          time * 0.4,
-          1.25
-        )
-      end
-    end,
-  },
   {
     pass = 'sprites',
     order = 50,
-    draw = function(r, g, view)
-      if view.paintedPickups then
-        for _, a in ipairs(Pools.of(g, 'pickups')) do
-          Art.pickup(r, g, a)
-        end
+    draw = function(r, g)
+      for _, a in ipairs(Pools.of(g, 'pickups')) do
+        Art.pickup(r, g, a)
       end
     end,
   },
-  init = function(r)
-    local v = {}
-    M.box(v, 0, 0, 0, 0.22, 0.28, 0.15, { 0.5, 0.2, 0.09 })
-    M.box(v, 0, 0.27, 0, 0.23, 0.05, 0.16, { 1, 0.65, 0.2, 0.1 })
-    r.ammo = r.native:own(M.finish(v))
-    v = {}
-    M.box(v, 0, 0.1, 0, 0.30, 0.10, 0.10, { 0.25, 1, 0.6, 0.6 })
-    M.box(v, 0, 0, 0, 0.10, 0.30, 0.10, { 0.25, 1, 0.6, 0.6 })
-    r.health = r.native:own(M.finish(v))
-  end,
 })
 -- The fires of the way beyond the first one.
 WorldObjects.register('fires', {
@@ -379,55 +347,13 @@ WorldObjects.register('gate', {
   },
   init = Portals.init,
 })
--- The classic arena: its exit once the guardian fell, its hidden sigil.
-WorldObjects.register('exit', {
-  {
-    pass = 'translucent',
-    order = 50,
-    draw = function(r, g, view, time)
-      if view.guardianDead then
-        love.graphics.setShader(r.shader)
-        local exit = g.world.portal
-        r:object(
-          r.sigil,
-          exit.x,
-          Ground.of(g.world, exit) + 2.1,
-          exit.z - 0.1,
-          time * 0.3,
-          2.9,
-          { 0.35, 0.85, 1 }
-        )
-      end
-    end,
-  },
-})
-WorldObjects.register('secret', {
-  {
-    pass = 'ground',
-    order = 60,
-    draw = function(r, g, view)
-      local secret = g.world.anchors and g.world.anchors.secret
-      if view.classicSecret and not view.secretFound and secret then
-        r:object(
-          r.sigil,
-          secret.x,
-          Ground.of(g.world, secret) + 1.15,
-          secret.z,
-          0.4,
-          0.34,
-          { 0.38, 0.26, 0.12 }
-        )
-      end
-    end,
-  },
-})
 WorldObjects.register('prop', {
   {
     pass = 'sprites',
     order = 40,
     draw = function(r, g, view)
       for _, prop in ipairs((g.world.decor or {}).props or {}) do
-        local brightness = prop.secret and view.secretFound and 0.4 or prop.brightness
+        local brightness = prop.brightness
         if prop.art then
           local viewer = Context.viewer(g)
           local yaw = prop.yaw or math.atan2(viewer.x - prop.x, viewer.z - prop.z)

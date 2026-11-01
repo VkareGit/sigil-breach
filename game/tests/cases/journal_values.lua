@@ -48,7 +48,7 @@ function Test.run(Game)
     not pcall(Values.expand, { _journalObservation = 1, body = {} }, archive.observations)
   )
   local function fresh()
-    local g = Game.new('classic')
+    local g = Game.new('floor')
     g.testing, g.state, g.enemies = true, 'playing', {}
     return g
   end

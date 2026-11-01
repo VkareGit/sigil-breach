@@ -14,7 +14,6 @@ function M.adopt(g, old)
     if old[kind] then
       local Rules = require('src.combat.rules')
       Rules.equip(e, old[kind])
-      Rules.applyTier(e, e.tier)
       e.phaseBaseHp = nil
     end
     return e

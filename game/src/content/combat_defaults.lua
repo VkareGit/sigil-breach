@@ -76,18 +76,9 @@ return {
   -- sqrt(mass) m/s^2 (heavier bodies turn and start later). Brakes faster.
   accel = 16,
   brake = 2.0,
-  -- Wave tiers (Risk of Rain 2 style coefficient), never longer telegraphs:
-  -- tier t = wave number. Speed, damage, health and aggression grow a little;
-  -- more demons may attack at once; aim lead and evasion unlock.
-  tiers = {
-    speed = 0.05,
-    damage = 0.08,
-    health = 0.06,
-    aggression = 0.12,
-    attackers = { 2, 2, 3, 3, 4 },
-    spacing = 0.24,
-    lead = { 0, 0.5, 0.75, 1, 1 },
-  },
+  -- How many demons may attack one body at once, and the pause (s) before the next.
+  attackers = 2,
+  attackSpacing = 0.24,
   woundTime = 0.55,
   -- A demon's major wound slows it for woundFor s (its stagger is woundTime);
   -- the flashes of a struck body, a broken guard and a major wound last

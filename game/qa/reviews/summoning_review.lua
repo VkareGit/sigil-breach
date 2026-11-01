@@ -271,7 +271,6 @@ function Review.run(output, Game, renderer)
     for _, skill in ipairs({ 'leap', 'evade' }) do
       g, sheet = fresh(), strip(3)
       local kind = skill == 'leap' and 'imp' or 'stolas'
-      g.testField.tier = skill == 'evade' and 2 or 1
       -- The central crossing keeps the whole physical path clear of the
       -- sanctuary ornament that would occlude a landing at the spawn point.
       g.player.z = 23.5

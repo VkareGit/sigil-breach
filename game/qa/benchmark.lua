@@ -816,7 +816,7 @@ function B.run(output, smoke)
   -- Keep the historical 4/20-body workload for comparable regressions.
   -- Public chambers replace encounters and have their own 1/3-body lifecycle.
   local publicMaps = app.sessionMaps
-  app.sessionMaps = { field = 'limbo' }
+  app.sessionMaps = { field = 'floor' }
   for cycle = 1, n(4, 2) do
     lifecycle(cycle)
     resources('lifecycle_after_cycle_' .. cycle)

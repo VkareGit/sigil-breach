@@ -2,14 +2,13 @@
 -- the game needs of it, each reported OK or MISSING with what is wrong:
 -- definition, atlas (sheet, images), frames (action and quiet frames, feet as
 -- measured), named poses (each posed, annotated and baked), anatomy, masks (baked and bound to the source),
--- anatomical points, gallery, bestiary, waves and its attack artwork.
+-- anatomical points, gallery, bestiary and its attack artwork.
 local Enemies = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
 local Sheet = require('src.content.art.sheet')
 local Anatomy = require('src.content.art.anatomy_regions')
 local Masks = require('src.content.art.hit_masks')
 local Text = require('src.content.text')
-local Waves = require('src.content.waves')
 local Contract = require('src.enemies.art_contract')
 local Provenance = require('qa.mask_provenance')
 local Tool = require('qa.art.sheet_tool')
@@ -177,20 +176,6 @@ function Check.run(id)
     type(card) == 'table' and Text.has(def.name) and Text.has(card.text) and Text.has(card.tip),
     'bestiary',
     type(card) == 'table' and ('card ' .. card.order) or 'catalog.bestiary with text keys'
-  )
-  local waves = {}
-  for index, wave in ipairs(Waves) do
-    for _, kind in ipairs(wave.queue) do
-      if kind == id then
-        waves[#waves + 1] = index
-        break
-      end
-    end
-  end
-  report(
-    #waves > 0,
-    'waves',
-    #waves > 0 and ('in waves ' .. table.concat(waves, ', ')) or 'content/waves.lua'
   )
   local art = Contract.problems(def)
   report(

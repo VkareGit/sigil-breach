@@ -72,7 +72,7 @@ function Tests.run(Game)
     local getenv = os.getenv
     os.getenv = function(name)
       if name == 'SIGIL_CROWD_MAP' then
-        return 'limbo'
+        return 'floor'
       end
       return getenv(name)
     end
@@ -129,7 +129,7 @@ function Tests.run(Game)
   app:reset(false)
   check(
     'documented focused flag uses the full selftest application fixture',
-    app.game.mode == 'classic'
+    app.game.mode == 'floor'
   )
   return lines
 end

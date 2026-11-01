@@ -53,8 +53,7 @@ local function context(e, distance, now, list, tactics, rng)
   local total = 0
   for _, choice in ipairs(tactics.moves) do
     if
-      (e.tier or 1) >= choice.fromTier
-      and distance >= choice.min
+      distance >= choice.min
       and (not choice.max or distance <= choice.max)
       and follows(e, choice, now)
     then
@@ -114,6 +113,6 @@ function Selection.finished(e, attack, now)
 end
 function Selection.pace(e)
   local stage = A.phase(e)
-  return (e.tierPace or 1) * (stage and stage.pace or 1)
+  return stage and stage.pace or 1
 end
 return Selection

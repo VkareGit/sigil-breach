@@ -55,13 +55,6 @@ Actions.fixed:register('field_archive', {
     return true
   end,
 })
-Actions.fixed:register('field_tier', {
-  run = function(g, field)
-    g.testField.tier = (g.testField.tier or 1) % Settings.maxTier + 1
-    field.tell(g, 'field_tier', { tier = g.testField.tier })
-    return true
-  end,
-})
 Actions.fixed:register('field_hitboxes', {
   run = function(g, field)
     g.testField.hitboxes = not g.testField.hitboxes

@@ -51,7 +51,7 @@ function T.run(G, check, r)
     'a map edit invalidates cached light visibility',
     changed ~= a and V.sample(changed, 1, 7, 5) > 0.95
   )
-  local g = G.new('descent')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   g.time = 2
@@ -110,11 +110,6 @@ function T.run(G, check, r)
     'static and dynamic lights stay inside a fixed sixteen-slot budget',
     #lighting.positions == 16 and #lighting.tiles == 16
   )
-  local last = lighting.colors[#lighting.sources]
-  local active = last[2]
-  g.run.phase = 'wave'
-  lighting:update(g)
-  check('shrine light announces preparation and recedes during combat', active > last[2] * 3)
   g.bullets = {
     { x = 7, y = 1, z = 18, color = { 1, 0.4, 0.1 } },
     { x = 7, y = 1, z = 19, color = { 0.3, 0.5, 1 } },

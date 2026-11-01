@@ -4,10 +4,8 @@
 --   owner, side who answers for it (content/factions.lua)
 --   x, y, z     its origin; mx, my, mz: the mouth a missile leaves
 --   dx, dy, dz  its aim; rise / run: the climb of that aim
---   scaled      its packets follow the body (Rules.packet)
 local B = require('src.combat.ballistics')
 local Bodies = require('src.combat.bodies')
-local Rules = require('src.combat.rules')
 local Reach = require('src.content.combat_defaults').attacks.muzzle
 local Caster = {}
 local function along(c, reach)
@@ -44,8 +42,5 @@ function Caster.point(g, body, x, y, z)
     dy = dy,
     dz = dz,
   }, 0)
-end
-function Caster.packet(c, packet)
-  return c.scaled and Rules.packet(c.body, packet) or packet
 end
 return Caster

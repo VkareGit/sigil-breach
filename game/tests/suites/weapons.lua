@@ -4,8 +4,7 @@ function Tests.run(G, renderer)
   local D = require('src.combat.damage')
   local W = require('src.content.weapons')
   local Reload = require('src.combat.reload')
-  local Run = require('src.run.descent')
-  local Save = require('src.storage.run_save')
+  local Sanctuary = require('src.session.sanctuary')
   local Field = require('src.run.test_field')
   local E = require('src.run.economy')
   local B = require('src.combat.ballistics')
@@ -31,7 +30,7 @@ function Tests.run(G, renderer)
     end
   end
   local function regular()
-    local g = G.new('descent')
+    local g = G.new('floor')
     g.testing = true
     g:start()
     return g
@@ -275,7 +274,7 @@ function Tests.run(G, renderer)
       and g.player.arsenal.judge.reserve == 0
   )
   g = regular()
-  Run.openShop(g)
+  Sanctuary.openShop(g)
   g:switchWeapon(2)
   p = g.player
   p.arsenal.judge.reserve = 71
@@ -286,7 +285,7 @@ function Tests.run(G, renderer)
     'revolver partial purchase names and charges exactly the one missing round',
     name == '1 ROUND / JUDGE'
       and E.quote(g, 'ammo') == 3
-      and Run.buy(g, 'ammo')
+      and E.trade(g, 'ammo')
       and p.arsenal.judge.reserve == 72
       and p.arsenal.exorcist.reserve == oldShells
       and g.run.wallet == money - 3
@@ -294,111 +293,23 @@ function Tests.run(G, renderer)
   money = g.run.wallet
   check(
     'full revolver reserve rejects repeat purchases without charging',
-    not Run.buy(g, 'fill') and g.run.wallet == money
+    not E.trade(g, 'fill') and g.run.wallet == money
   )
   p.abilityState.powder.uses = 2
   check(
     'charge purchase adds one finite item at its advertised price',
-    Run.buy(g, 'charge') and p.abilityState.powder.uses == 3 and g.run.wallet == money - 30
+    E.trade(g, 'charge') and p.abilityState.powder.uses == 3 and g.run.wallet == money - 30
   )
   money = g.run.wallet
   check(
     'full charge capacity cannot consume more currency',
-    not Run.buy(g, 'charge') and g.run.wallet == money
+    not E.trade(g, 'charge') and g.run.wallet == money
   )
   g.run.wallet = 0 / 0
   local before = p.arsenal.judge.reserve
   check(
     'a nonfinite wallet cannot contaminate an economy transaction',
-    not Run.buy(g, 'ammo') and p.arsenal.judge.reserve == before
-  )
-  -- Old saves still load: SIGIL06 is migrated into the arsenal by weapon id.
-  g = regular()
-  g.run.wallet = 313
-  g.run.wave = 3
-  g.run.owned.pierce = true
-  g.run.glyph = 'pierce'
-  p = g.player
-  p.arsenal.judge.mag = 2
-  p.arsenal.judge.reserve = 9
-  p.abilityState.powder.uses = 1
-  local function signed(payload)
-    local a, b = 1, 0
-    for i = 1, #payload do
-      a = (a + payload:byte(i)) % 65521
-      b = (b + a) % 65521
-    end
-    return 'SIGIL06\n7\n' .. tostring(b * 65536 + a) .. '\n' .. payload
-  end
-  -- The current format (SIGIL07) and the same state as 0.23 wrote it (SIGIL06).
-  local encoded = Save.encode(Run.snapshot(g), 7)
-  local legacy = require('tests.support.legacy_save').encode06(Run.snapshot(g), 7)
-  local payload = assert(legacy:match('^SIGIL06\n%d+\n%d+\n(.*)$'))
-  local old = {}
-  for line in payload:gmatch('[^\n]+') do
-    if
-      not (
-        line:match('^revolver=')
-        or line:match('^checkrevolver=')
-        or line:match('^charges=')
-        or line:match('^checkcharges=')
-      )
-    then
-      old[#old + 1] = line
-    end
-  end
-  local decoded = assert(Save.decode(signed(table.concat(old, '\n'))))
-  local restored = regular()
-  Run.load(restored, decoded)
-  check(
-    'an actual SIGIL06 payload without new records keeps progress and gains safe physical defaults',
-    restored.run.wallet == 313
-      and restored.run.wave == 3
-      and restored.run.owned.pierce
-      and restored.run.glyph == 'pierce'
-      and restored.player.arsenal.judge.mag == 6
-      and restored.player.arsenal.judge.reserve == 24
-      and restored.player.abilityState.powder.uses == 2
-      and Save.prefix == 'descent-v06'
-  )
-  decoded = assert(Save.decode(encoded))
-  check(
-    'new optional ammunition records round-trip without altering old inventory fields',
-    decoded.inventory.weapons.judge.mag == 2
-      and decoded.inventory.weapons.judge.reserve == 9
-      and decoded.inventory.abilities.powder == 1
-      and decoded.inventory.weapons.exorcist.reserve == 28
-      and decoded.wallet == 313
-  )
-  for _, value in ipairs({ '-1,9', '7,9', '2,73', 'nan,9', '2,1.5' }) do
-    check(
-      'checksummed invalid revolver inventory ' .. value .. ' is rejected',
-      Save.decode(signed(payload:gsub('revolver=2,9', 'revolver=' .. value, 1))) == nil
-    )
-  end
-  check(
-    'checksummed invalid charge capacity is rejected',
-    Save.decode(signed(payload:gsub('charges=1', 'charges=4', 1))) == nil
-  )
-  g = regular()
-  g.player.arsenal.judge.mag, g.player.arsenal.judge.reserve, g.player.abilityState.powder.uses =
-    2, 9, 1
-  Run.ready(g)
-  g.run.phase = 'wave'
-  g.player.arsenal.judge.mag, g.player.arsenal.judge.reserve, g.player.abilityState.powder.uses =
-    0, 0, 0
-  g.player.invuln = 0
-  g:damagePlayer(1000)
-  local saved = assert(Save.decode(Save.encode(Run.snapshot(g), 9)))
-  restored = regular()
-  Run.load(restored, saved)
-  Run.retry(restored)
-  check(
-    'death save and retry restore the exact entry cylinder, reserve and charge count',
-    restored.player.arsenal.judge.mag == 2
-      and restored.player.arsenal.judge.reserve == 9
-      and restored.player.abilityState.powder.uses == 1
-      and restored.run.phase == 'preparing'
+    not E.trade(g, 'ammo') and p.arsenal.judge.reserve == before
   )
   -- Blast geometry and timing are physical and use the same damage resolver.
   g = fresh()

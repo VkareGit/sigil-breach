@@ -83,7 +83,7 @@ function Golden.describe(g)
     append(out, a.kind, a.x, a.z)
   end
   if g.run then
-    append(out, g.run.wave, g.run.phase, g.run.wallet, g.run.queueIndex)
+    append(out, g.run.wallet)
   end
   return table.concat(out, ',')
 end

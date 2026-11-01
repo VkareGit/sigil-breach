@@ -10,7 +10,7 @@ local Release = require('src.app.release')
 local Commands = {}
 local handlers = {}
 local function playable(mode)
-  return Release.playableModes[Modes.aliases[mode] or mode] == true
+  return Release.playableModes[mode] == true
 end
 local immediateSettings = {
   fullscreen = true,
@@ -65,19 +65,6 @@ local function fieldCommand(app, id)
   return false
 end
 
-handlers.continue = function(app)
-  if not app.game.availableSave then
-    return
-  end
-  local saved = app.game.availableSave
-  if not playable(saved.mode or app.game.mode) then
-    return
-  end
-  Navigation.replace(app, saved.mode or app.game.mode, saved.map)
-  Modes.act(app.game, 'load', saved)
-  app.input.suppressFire = true
-end
-
 local function start(app, id)
   local game = app.game
   if not playable(game.mode) then
@@ -91,8 +78,7 @@ local function start(app, id)
     Navigation.replace(app, game.mode, game.world.mapId):start()
   end
 end
--- 'start' (menu SPACE / ENTER) walks into the chapel, from the last fire if there is
--- one. restart keeps its expedition meaning for old saves, unreachable from the menu.
+-- 'start' (menu SPACE / ENTER) walks into the chapel, from the last fire if there is one.
 handlers.start = function(app)
   Navigation.replace(app, 'pilgrimage'):start()
   love.mouse.setRelativeMode(true)
@@ -123,14 +109,14 @@ handlers.ready = function(app)
 end
 handlers.shop_back = function(app)
   app.game:act('closeShop')
-  require('src.ui.descent').resetShop(app.game)
+  require('src.ui.chapel').resetShop(app.game)
   app.input.suppressFire = true
 end
 handlers.shop_prev = function(app)
-  require('src.ui.descent').turnShop(app.game, -1)
+  require('src.ui.chapel').turnShop(app.game, -1)
 end
 handlers.shop_next = function(app)
-  require('src.ui.descent').turnShop(app.game, 1)
+  require('src.ui.chapel').turnShop(app.game, 1)
 end
 local function shopWeapon(app, id)
   local slot = tonumber(id:match('%d+$'))

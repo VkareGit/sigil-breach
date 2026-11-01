@@ -1,5 +1,0 @@
-defeated
-end-human
-end-playtest
-preparing
-start

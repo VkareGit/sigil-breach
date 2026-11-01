@@ -49,7 +49,10 @@ function T.run(Game)
   check('it fills the flask', p.abilityState.flask.uses == 3)
   check('it raises the fallen', byPost(g, 'nave_1').hp > 0)
   check('souls stay', g.run.wallet == wallet)
-  check('the fire trades', g:act('buy', 'ammo') ~= nil)
+  p.arsenal.exorcist.reserve = p.arsenal.exorcist.reserve - 3
+  local reserve = p.arsenal.exorcist.reserve
+  check('the fire trades', g:act('buy', 'ammo') and p.arsenal.exorcist.reserve > reserve)
+  check('and takes the souls', g.run.wallet < wallet)
   wallet = g.run.wallet
   g:act('closeShop')
   check('the menu closes', g.state == 'playing')

@@ -64,7 +64,7 @@ function Tests.run()
       d.x, d.z = 10, 9.5
     end, 'crosses a floor step')
   )
-  local w = require('src.world.arena').new('field', 'proving')
+  local w = require('src.world.arena').new('proving')
   -- Public architecture is real solid geometry, not just decorative ribs.
   local Ground = require('src.physics.ground')
   local entry, nave = Ground.ceiling(w, 24, 36, 1.5), Ground.ceiling(w, 24, 20.5, 1.5)

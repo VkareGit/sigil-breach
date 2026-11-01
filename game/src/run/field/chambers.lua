@@ -5,7 +5,7 @@ local A = require('src.content.enemies')
 local W = require('src.world.arena')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
-local Spawner = require('src.run.spawner')
+local Gates = require('src.run.gates')
 local Signal = require('src.session.signal')
 local Text = require('src.content.text')
 local K = require('src.content.field')
@@ -130,7 +130,7 @@ function C.start(field, g, id, count)
     { id = id, count = count, actors = {}, status = 'active', started = g.elapsed }
   for i = 1, count do
     local spot = room.slots[i]
-    local gate = Spawner.gate(trial.creature, spot.x, spot.z)
+    local gate = Gates.gate(trial.creature, spot.x, spot.z)
     gate.fieldKind, gate.roomTrial = trial.creature, id
     g.run.pending[#g.run.pending + 1] = gate
     Signal(g, 'PortalOpened', { gate = gate })

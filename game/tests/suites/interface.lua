@@ -3,7 +3,7 @@ local Tests = {}
 function Tests.run(G, renderer)
   local Skin = require('src.ui.skin')
   local U = require('src.ui.interface')
-  local Run = require('src.run.descent')
+  local Sanctuary = require('src.session.sanctuary')
   local W = require('src.world.arena')
   local B = require('src.combat.ballistics')
   local lines = {}
@@ -95,10 +95,13 @@ function Tests.run(G, renderer)
     not W.solid(g.world, g.player.x, g.player.z, 0.22)
       and (g.player.x - g.world.ember.x) ^ 2 + (g.player.z - g.world.ember.z) ^ 2 < 2.8 ^ 2
   )
-  check('merchant cannot be opened through the pillar', not Run.openShop(g) and g:context() == nil)
+  check(
+    'merchant cannot be opened through the pillar',
+    not Sanctuary.openShop(g) and g:context() == nil
+  )
   g.player.x = 18
   g.player.z = 27
-  check('merchant opens from the visible side', Run.openShop(g))
+  check('merchant opens from the visible side', Sanctuary.openShop(g))
   g.run.wallet = 0
   g.shopMessage = 'Done. Stale message.'
   local row = U.controls(g, {})[4]
@@ -131,7 +134,7 @@ function Tests.run(G, renderer)
   )
   -- Check hitboxes after letterboxing/scaling, including the smallest supported window.
   g = fresh()
-  Run.openShop(g)
+  Sanctuary.openShop(g)
   local roundTrip = true
   for _, size in ipairs({ { 960, 540 }, { 1024, 768 }, { 1720, 720 }, { 1920, 1080 } }) do
     local scale, ox, oy = U.viewport(size[1], size[2])

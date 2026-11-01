@@ -49,7 +49,7 @@ function Tests.run(Game)
   local rand = generator(5051)
   local same, fewer, outside, total, kept = true, true, true, 0, 0
   for _ = 1, 12 do
-    local g = Game.new('classic')
+    local g = Game.new('floor')
     g.testing, g.state = true, 'playing'
     local p = Roles.controlled(g)
     p.x, p.z = 10 + rand() * 12, 13 + rand() * 12
@@ -95,7 +95,7 @@ function Tests.run(Game)
 
   -- A replayed shot cannot hit a body outside its corridor even when the
   -- body stands in the line at replay time.
-  local g = Game.new('classic')
+  local g = Game.new('floor')
   g.testing, g.state = true, 'playing'
   local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = 16, 24, math.pi, 0
@@ -118,7 +118,7 @@ function Tests.run(Game)
 
   -- The journal: unchanged bodies are references, unused views headers only.
   local function fresh()
-    local s = Game.new('classic')
+    local s = Game.new('floor')
     s.testing, s.state = true, 'playing'
     local k = Roles.controlled(s)
     -- Beyond the shotgun's reach, within the revolver's: in every corridor,

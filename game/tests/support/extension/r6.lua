@@ -101,13 +101,13 @@ function R.run(Game, check, session)
     bare.anchors, bare.seals = {}, {}
     bare.proving = nil
     Maps:register('proof_bare', bare)
-    local ok, mapped = pcall(Game.new, 'descent', 'proof_bare')
+    local ok, mapped = pcall(Game.new, 'floor', 'proof_bare')
     check(
       'a mode refuses a map without what it needs',
       not ok and tostring(mapped):find('ember', 1, true)
     )
-    local plain = Game.new('classic', Maps.default)
-    check('a map keeps what it has', plain.world.portal ~= nil)
+    local plain = Game.new('floor', Maps.default)
+    check('a map keeps what it has', plain.world.ember ~= nil)
     Maps:unregister('proof_bare')
   end)
   check('the tile leaves with its proof', Tiles.codes.proof_water == nil)

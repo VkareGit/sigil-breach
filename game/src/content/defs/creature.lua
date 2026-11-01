@@ -25,7 +25,6 @@ Creature.evade = Schema:new('evade', {
   time = { type = 'number', required = true, min = 0 },
   cooldown = { type = 'number', required = true, min = 0 },
   cone = { type = 'number', default = 0.06, min = 0, desc = 'aim cone that triggers it (rad)' },
-  fromTier = { type = 'number', default = 1, min = 1 },
 })
 -- How a duelling body spends the time between blows (enemies/ai.lua: Styles.duel).
 Creature.duel = Schema:new('duel', {
@@ -202,10 +201,6 @@ function Creature.define(def)
   merged.move = Creature.move:build(merged.move, where .. '.move')
   if merged.move.evade then
     assert(merged.move.evade.time > 0, where .. '.move.evade.time: must be positive')
-    assert(
-      merged.move.evade.fromTier % 1 == 0,
-      where .. '.move.evade.fromTier: expected an integer'
-    )
   end
   merged.appearance = Creature.appearance:build(merged.appearance, where .. '.appearance')
   merged.appearance.atlas = merged.appearance.atlas or merged.id

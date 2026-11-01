@@ -41,7 +41,7 @@ function Tests.run(check)
       state = 'playing',
       player = {},
       time = 0,
-      mode = 'classic',
+      mode = 'floor',
       act = require('src.session.game').act,
     }
     app.game.update = function(game, dt, input)

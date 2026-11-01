@@ -17,21 +17,21 @@ function Tests.run(G)
 
   -- A copy of Limbo with its floor 0.6 m higher.
   local raised = {}
-  for k, v in pairs(Maps:get('limbo')) do
+  for k, v in pairs(Maps:get('floor')) do
     raised[k] = v
   end
   raised.id, raised.floor = 'raised_floor', 0.6
   Maps:register('raised_floor', raised)
   local ok, err = pcall(function()
     local function arena(mapId)
-      local g = G.new('classic', mapId)
+      local g = G.new('floor', mapId)
       g.testing = true
       g:start()
       g.enemies, g.bullets, g.hazards, g.pickups = {}, {}, {}, {}
       g.player.x, g.player.z, g.player.yaw, g.player.pitch = 16, 25, math.pi, 0
       return g
     end
-    local flat, high = arena('limbo'), arena('raised_floor')
+    local flat, high = arena('floor'), arena('raised_floor')
     local _, flatEye = B.origin(flat)
     local _, highEye = B.origin(high)
     check('the eye stands on the ground of its map', within(highEye - flatEye, 0.6))
@@ -74,7 +74,7 @@ function Tests.run(G)
   assert(ok, err)
 
   -- Distance fields: one shared field per goal while the map is unchanged.
-  local w = World.new('descent', 'limbo')
+  local w = World.new('floor')
   local a = World.flow(w, 16, 25)
   local b = World.flow(w, 16.2, 24.9)
   local same = a == b
@@ -96,16 +96,8 @@ function Tests.run(G)
   field:spawn('imp', 16, 20)
   local classic = Fixtures.arena(G)
   check(
-    'the proving ground counts its demons and the classic arena has no retry',
+    'the proving ground counts its demons and the plain room has no retry',
     Modes.act(field, 'remaining') == 1 and Modes.act(classic, 'retry') == false
-  )
-  local expedition = Fixtures.expedition(G)
-  local e = expedition:spawn('imp', 16, 20)
-  e.rewardId = '1_1'
-  Modes.act(expedition, 'reward', { enemy = e })
-  check(
-    'the expedition rewards a kill with its soul',
-    #expedition.pickups > 0 and expedition.pickups[#expedition.pickups].kind == 'soul'
   )
 
   -- Keys of play are data; ability slots have keys of their own.

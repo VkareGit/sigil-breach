@@ -48,6 +48,10 @@ function R:prepare()
     love.audio.setVolume(0)
   end
 end
+-- The mode the application opens on.
+function R:session()
+  return 'pilgrimage'
+end
 function R:runEarly()
   return false
 end

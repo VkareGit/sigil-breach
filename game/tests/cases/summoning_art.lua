@@ -5,7 +5,7 @@ local Tests = {}
 
 function Tests.run(Game, renderer)
   local Portal = require('src.render.portals')
-  local Spawner = require('src.run.spawner')
+  local Spawner = require('src.run.gates')
   local lines = {}
   local check = Fixtures.checker(lines, 'summoning art: ', 'summoning art: ')
   local function finite(x)

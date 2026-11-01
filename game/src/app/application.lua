@@ -5,7 +5,7 @@ local Renderer = require('src.render.renderer')
 local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
 local Presentation = require('src.render.presentation')
-local Run = require('src.run.descent')
+local Sanctuary = require('src.session.sanctuary')
 local Preferences = require('src.storage.preferences')
 local QA = require('src.app.runtime')
 local LoadPlan = require('src.app.load_plan')
@@ -112,12 +112,7 @@ end
 
 function Application:reset(start)
   Navigation.clear(self)
-  -- A focused suite receives the same initial application fixture as --selftest.
-  local classic = self.qa.suite ~= nil
-    or self:has('--selftest')
-    or self:has('--showcase')
-    or self:has('--screenshot')
-  self:adopt(Game.new(classic and 'classic' or 'pilgrimage'))
+  self:adopt(Game.new(self.qa:session()))
   self.input:reset(love.mouse.isDown(1))
   self.accumulator = 0
   UI.focus = 1
@@ -296,7 +291,7 @@ function Application:finishStartup()
   end
   if self:has('--ui-test') and self:has('--shop') then
     self.game:start()
-    Run.openShop(self.game)
+    Sanctuary.openShop(self.game)
   end
   if self:has('--screenshot') then
     local game = self.game

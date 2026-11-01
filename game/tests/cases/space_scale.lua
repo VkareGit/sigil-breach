@@ -23,7 +23,7 @@ function Tests.run(Game)
   local check = Fixtures.checker(lines, 'space at scale: ', 'space at scale: ')
   Maps:register(long.id, long)
   local ok, problem = pcall(function()
-    local g = Game.new('classic', long.id)
+    local g = Game.new('floor', long.id)
     g.testing = true
     local w = g.world
     check(
@@ -89,7 +89,7 @@ function Tests.run(Game)
   Maps:register(maze.id, maze)
   ok, problem = pcall(function()
     local Navigation = require('src.world.navigation')
-    local g = Game.new('classic', maze.id)
+    local g = Game.new('floor', maze.id)
     g.testing = true
     local w = g.world
     -- The regions are built once per geometry; a query then stays local.

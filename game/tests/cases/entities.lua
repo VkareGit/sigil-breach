@@ -9,7 +9,7 @@ function Tests.run(G)
   local Strict = require('src.core.strict')
   local wasStrict = Strict.enabled
   Strict.enabled = true
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   check(

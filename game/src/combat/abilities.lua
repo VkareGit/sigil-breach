@@ -163,7 +163,6 @@ function Cast.cast(g, slot, who)
     or g.state ~= 'playing'
     or g.map
     or g.help
-    or not Capabilities.armed(g)
     or (state.readyAt or 0) > g.elapsed
     or not valid(state, ability)
   then

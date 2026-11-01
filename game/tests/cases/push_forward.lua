@@ -8,8 +8,6 @@ function Tests.run(G, check)
   })
   local Rules = require('src.combat.rules')
   local Damage = require('src.combat.damage')
-  local Spawner = require('src.run.spawner')
-  local Waves = require('src.content.waves')
   local Telemetry = require('src.combat.telemetry')
   local D = A.defaults
   local near = Fixtures.within(1e-6)
@@ -38,7 +36,7 @@ function Tests.run(G, check)
   attacker.hp = 5000
   g:dash(1, 0)
   local charges = p.dash
-  local packet = Rules.packet(attacker, A.imp.attacks[1].packet)
+  local packet = A.imp.attacks[1].packet
   g:damagePlayer(packet.base, attacker.x, attacker.z, packet, attacker)
   local rule = require('src.content.characters').standard().body.perfectDodge
   check(
@@ -52,23 +50,6 @@ function Tests.run(G, check)
   local again = p.dash
   g:damagePlayer(packet.base, attacker.x, attacker.z, packet, attacker)
   check('one perfect dodge per dodge', near(p.dash, again) and Telemetry.get(g).perfectDodges == 1)
-  -- Pacing director: a calm knight meets packs sooner and one more demon.
-  g = fresh()
-  local d = Waves.director
-  g.intensity = 0
-  local calmPace, calmCap = Spawner.pace(g), Spawner.extraCap(g)
-  g.intensity = d.reference * 2
-  local pressedPace, pressedCap = Spawner.pace(g), Spawner.extraCap(g)
-  check(
-    'the director speeds packs for a calm knight and gives a pressed one a breath',
-    near(calmPace, d.fast)
-      and near(pressedPace, d.slow)
-      and calmCap == d.calmCap
-      and pressedCap == 0
-  )
-  g.player.hp = 40
-  g.intensity = 0
-  check('a calm but badly hurt knight gets no extra demon', Spawner.extraCap(g) == 0)
   -- Posture by health: a wounded body recovers its guard slower.
   g = fresh()
   local whole, hurt = g:spawn('buer', 12, 20), g:spawn('buer', 20, 20)

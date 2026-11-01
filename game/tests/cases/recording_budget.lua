@@ -73,6 +73,9 @@ function T.run(G)
       has = function(_, flag)
         return flag == '--record' or flag == '--selftest'
       end,
+      session = function()
+        return 'floor'
+      end,
     }
     Report.afterWrite = function(g)
       if app.journals and app.journals[g] then

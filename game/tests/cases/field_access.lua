@@ -29,15 +29,11 @@ function Tests.run(Game)
   local initial = Integrity.capture(g)
   check(
     'blocked catalogue commands are rejected without changing the session',
-    not g:act('catalog', 'field_shop')
-      and not g:act('catalog', 'field_station_waves')
-      and not Integrity.difference(initial, Integrity.capture(g))
+    not g:act('catalog', 'field_shop') and not Integrity.difference(initial, Integrity.capture(g))
   )
   check(
     'owner APIs refuse unavailable tools too',
-    not Field.shop(g)
-      and not Field.waves(g)
-      and not Integrity.difference(initial, Integrity.capture(g))
+    not Field.shop(g) and not Integrity.difference(initial, Integrity.capture(g))
   )
   local offered = {}
   for _, button in ipairs(UI.controls(g, {})) do
@@ -46,7 +42,6 @@ function Tests.run(Game)
   check(
     'actual public controls agree with execution and retain other tools',
     not offered.field_shop
-      and not offered.field_station_waves
       and offered.field_station_range
       and offered.field_station_physics
       and offered.field_refill
@@ -67,7 +62,7 @@ function Tests.run(Game)
     g.state == 'playing' and not g.testField.trial and #g.enemies == 0 and #g.run.pending == 0
   )
   -- An accidental shop state must not bypass the mode's trade policy.
-  g.state, g.run.phase = 'shop', 'preparing'
+  g.state = 'shop'
   p.arsenal.exorcist.reserve = 71
   before = Integrity.capture(g)
   check(
@@ -79,9 +74,9 @@ function Tests.run(Game)
   g:act('catalog', 'field_reset')
   check(
     'full reset retains public availability',
-    not Field.allows(g, 'trade') and not Field.allows(g, 'waves') and g.state == 'field_catalog'
+    not Field.allows(g, 'trade') and g.state == 'field_catalog'
   )
-  local options = { features = { trade = false, waves = false } }
+  local options = { features = { trade = false } }
   local owned = Game.new('field', nil, options)
   options.features.trade = true
   check(
@@ -100,7 +95,7 @@ function Tests.run(Game)
   check(
     'misspelled station requirement fails at registration',
     not pcall(stations.register, stations, 'invalid_requirement', {
-        name = 'station_waves',
+        name = 'station_range',
         feature = 'wave',
         run = function()
           return true
@@ -114,7 +109,6 @@ function Tests.run(Game)
   g = fresh()
   local journal = Journal.record(g)
   g:act('catalog', 'field_shop')
-  g:act('catalog', 'field_station_waves')
   g:act('catalog', 'field_reset')
   g:act('catalog', 'field_station_range')
   g:update(1 / 120, {})
@@ -125,18 +119,15 @@ function Tests.run(Game)
   Journal.replay(replay, decoded)
   check(
     'serialized journal reconstructs restrictions and replays the range exactly',
-    not Field.allows(replay, 'waves')
+    not Field.allows(replay, 'trade')
       and replay.testField.station == 'range'
       and not Integrity.difference(Integrity.capture(g), Integrity.capture(replay))
   )
   local legacy = Game.new('field')
   legacy.testing = true
   check(
-    'library-only field still exercises its real trade and wave executors',
-    Field.shop(legacy)
-      and legacy.state == 'shop'
-      and Field.waves(legacy)
-      and legacy.testField.trial ~= nil
+    'library-only field still exercises its real trade',
+    Field.shop(legacy) and legacy.state == 'shop'
   )
   local old = Game.new('field')
   old.testing = true
@@ -154,7 +145,7 @@ function Tests.run(Game)
   )
   -- The same generic navigation applies release options before adopt/record.
   local focus, relative = UI.focus, love.mouse.getRelativeMode()
-  local menu = Game.new('descent')
+  local menu = Game.new('floor')
   local app = {
     game = menu,
     sessionOptions = Release.sessionOptions,
@@ -172,7 +163,6 @@ function Tests.run(Game)
       not Field.allows(public, 'trade') and Queries.field(public).features.trade == false
     )
     Commands.dispatch(app, 'field_shop')
-    Commands.dispatch(app, 'field_station_waves')
     check(
       'application commands cannot reopen unavailable catalogue tools',
       app.game == public and public.state == 'field_catalog' and not public.testField.trial
@@ -180,11 +170,9 @@ function Tests.run(Game)
     Commands.dispatch(app, 'new_confirm')
     check(
       'stale confirmation stays in the allowed mode instead of constructing an expedition',
-      app.game.mode == 'field' and not Field.allows(app.game, 'waves')
+      app.game.mode == 'field' and not Field.allows(app.game, 'trade')
     )
     app.game = menu
-    menu.availableSave = { mode = 'expedition' }
-    Commands.dispatch(app, 'continue')
     Commands.dispatch(app, 'new_confirm')
     Commands.dispatch(app, 'restart')
     check(

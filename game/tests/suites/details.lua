@@ -185,7 +185,7 @@ function T.run(G)
     'reduced motion preserves physical traces on the environment',
     #g.view.surfaceMarks == before
   )
-  require('src.run.descent').clearWorld(g)
+  require('src.session.encounter').clearWorld(g)
   check(
     'arena reset removes old surface marks and tracers',
     #g.view.surfaceMarks == 0 and #g.view.traces == 0

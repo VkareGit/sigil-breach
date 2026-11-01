@@ -418,16 +418,10 @@ function Tests.run(G, initial, renderer, getGame)
     'Falloff starts at 4 m, reaches 40% per-pellet damage at 18 m. Cycle 0.94 s.'
   balance[#balance + 1] =
     'Each target blocks the pellets it intercepts; no damage radius or automatic penetration.'
-  local file = assert(io.open(require('qa.output').path('classic-balance.txt'), 'w'))
+  local file = assert(io.open(require('qa.output').path('shotgun-balance.txt'), 'w'))
   file:write(table.concat(balance, '\n') .. '\n')
   file:close()
   print(table.concat(balance, '\n'))
-  -- The old arena under the encounters it was tuned for; it leaves with the waves.
-  local run = require('qa.scenarios.classic_playtest').run(G)
-  check(
-    'full Limbo can be completed with real combat and movement inputs',
-    run.state == 'won' and run.seals == 3 and run.kills == 13
-  )
   love.mouse.setRelativeMode(false)
   return lines
 end

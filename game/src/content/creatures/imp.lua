@@ -81,8 +81,7 @@ return Creature.define({
       range = 7.5,
       rest = 1.8,
       windup = 0.45,
-      -- Predicted share of the player's motion until landing, rising to 1
-      -- with the tier's aim lead.
+      -- Predicted share of the player's motion until landing.
       leadShare = 0.9,
       recover = 0.45,
       cooldown = 0.6,

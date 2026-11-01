@@ -40,7 +40,7 @@ function Test.run(Game, renderer)
   }
   Maps:register(definition.id, definition)
   local ok, reason = pcall(function()
-    local g = Game.new('classic', definition.id)
+    local g = Game.new('floor', definition.id)
     g.testing = true
     g:start()
     local w, p = g.world, g.player

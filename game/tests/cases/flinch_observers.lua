@@ -12,7 +12,7 @@ local Tests = {}
 local near = Fixtures.within(1e-10)
 
 local function arena(G)
-  local g = G.new('classic')
+  local g = G.new('floor')
   g.testing = true
   g:start()
   Pools.clear(g, 'enemies')

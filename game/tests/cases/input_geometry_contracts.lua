@@ -24,7 +24,7 @@ local function join(g, id, x, z)
 end
 local function arena(G, mode)
   local Pools = require('src.session.world')
-  local g = G.new(mode or 'classic')
+  local g = G.new(mode or 'floor')
   g.testing = true
   g:start()
   Pools.clear(g, 'enemies')

@@ -7,7 +7,6 @@ function Tests.run(G)
   local check = Fixtures.checker(lines, 'consistency: ', 'consistency: ')
   local Tuning = require('src.content.tuning')
   local Field = require('src.run.test_field')
-  local Run = require('src.run.descent')
   local Dodge = require('src.combat.dodge')
   local Weapons = require('src.content.weapons')
   local Damage = require('src.combat.damage')
@@ -28,11 +27,6 @@ function Tests.run(G)
     g.player.dash = 2.5
     Dodge.perfect(g, { impact = 10 }, nil)
     check('a perfect dodge refunds up to the data, not up to two', g.player.dash == 3)
-    g = Fixtures.expedition(G)
-    g.run.phase = 'wave'
-    g.player.dash = 0
-    Run.finishWave(g)
-    check('a cleansed wave restores every dodge charge of the data', g.player.dash == 3)
   end)
   body.dashCharges = charges
   assert(ok, err)

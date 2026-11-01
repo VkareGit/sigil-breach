@@ -21,12 +21,4 @@ Stations:register('physics', {
     return field.physics(g)
   end,
 })
-Stations:register('waves', {
-  name = 'station_waves',
-  menuText = 'menu_station_waves',
-  feature = 'waves',
-  run = function(g, field)
-    return field.waves(g)
-  end,
-})
 return Stations

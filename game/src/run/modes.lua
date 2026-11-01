@@ -10,7 +10,7 @@
 --   start(g)      leave the menu and begin
 --   progress(g, dt)
 --   policy        what it allows the simulation (session/capabilities.lua:
---                 phased, freezable, invincible)
+--                 freezable, invincible, attrition)
 -- What the player's commands and the fight's consequences mean in this mode
 -- (plan v5 G2; each optional, a mode without one ignores it; Modes.act):
 --   ready(g)            the player is ready (ENTER)
@@ -26,13 +26,10 @@
 -- (g.run, g.testField) itself (each optional):
 --   interact(g)         [E] while playing (Game:interact); true when it acted
 --   context(g)          the prompt where the knight stands, or nil
---   tier(g)             the tier of a demon spawned now (else g.tier or 1)
---   waveActive(g)       a 'phased' mode: whether its fight is on now
 --   frozen(g)           a 'freezable' mode: whether time is stopped now
 --   invincible(g)       an 'invincible' mode: whether the knight is unhurt now
 --   hud(g)              the status bar's data { glyph, wallet, echo,
---                       progress, fighting }; a mode with none draws the
---                       classic arena's HUD (ui/screens/hud.lua)
+--                       progress }
 --   runView(g), fieldView(g)  read-only views of its run and its proving
 --                       ground for the screens (run/mode_views.lua)
 --   posed(g)            its targets hold their catalogue pose
@@ -49,22 +46,16 @@
 -- so the command journal records them.
 -- Every session names its mode (g.mode: Game.new, the proving ground); the
 -- tests only recognise a hand-made record that names none.
-local Runs = require('src.content.runs')
 local Registry = require('src.core.registry')
-local Presentation = require('src.session.presentation')
 local Capabilities = require('src.session.capabilities')
-local Descent = require('src.run.descent')
-local ClassicMode = require('src.run.classic')
+local Economy = require('src.run.economy')
 local Encounter = require('src.session.encounter')
 local Maps = require('src.content.maps.index')
-local Classic = require('src.content.classic')
+local Sanctuary = require('src.session.sanctuary')
 local Id = require('src.core.id')
 local Views = require('src.run.mode_views')
 local Pools = require('src.session.world')
-local Spawn = require('src.session.spawn')
 local Text = require('src.content.text')
--- Every mode opens on the first map of the expedition unless it is told another.
-local firstMap = Runs.stage({}).map
 local function field()
   return require('src.run.test_field')
 end
@@ -72,7 +63,6 @@ local Modes = Registry:new('modes', function(mode, id)
   assert(type(mode.progress) == 'function', 'mode ' .. id .. ' needs progress(g, dt)')
   assert(type(mode.start) == 'function', 'mode ' .. id .. ' needs start(g)')
   assert(type(mode.session) == 'table', 'mode ' .. id .. ' needs a session descriptor')
-  Id.check(mode.session.world, 'mode ' .. id .. '.session.world')
   Maps:get(mode.session.map)
   assert(
     mode.session.prepare == nil or type(mode.session.prepare) == 'function',
@@ -89,28 +79,10 @@ local Modes = Registry:new('modes', function(mode, id)
   )
   Capabilities.define(id, mode.policy or {}, mode)
 end)
--- The original sessions seeded the classic fixture before initialization.
--- Keep that RNG history explicitly for those sessions; a new mode does not
--- inherit another mode's actors merely by using the same map.
-local function prepareClassic(g)
-  if g.world.mapId ~= Classic.map then
-    return
-  end
-  for _, entry in ipairs(Classic.garrison) do
-    g:spawn(entry[1], entry[2], entry[3])
-  end
-  for _, supply in ipairs(Classic.supplies) do
-    Spawn.make(
-      g,
-      'pickup',
-      { x = supply.x, z = supply.z, kind = supply.kind, amount = supply.amount }
-    )
-  end
-end
 -- The proving ground (skirmish and stations). Required lazily: the proving
 -- ground uses the expedition's definitions and must not load in a cycle.
 Modes:register('field', {
-  session = { world = 'descent', map = firstMap, prepare = prepareClassic },
+  session = { map = require('src.content.pilgrimage').map },
   record = 'testField',
   init = function(g, options)
     field().init(g, options)
@@ -124,7 +96,7 @@ Modes:register('field', {
   visit = function(g, previous)
     -- Text keys (content/text.lua).
     g.view.fieldReturnLabel = previous.state == 'menu' and 'return_menu'
-      or (previous.state == 'settings' and 'return_settings' or 'return_expedition')
+      or (previous.state == 'settings' and 'return_settings' or 'return_chapel')
   end,
   worldView = function(g, out)
     return Views.fieldWorld(g, g.run, out, g.testField)
@@ -143,9 +115,9 @@ Modes:register('field', {
     return g.run.glyphs or g.run.glyph
   end,
   canTrade = function(g)
-    return field().allows(g, 'trade') and g.run.phase == 'preparing'
+    return field().allows(g, 'trade')
   end,
-  policy = { phased = true, freezable = true, invincible = true, attrition = true },
+  policy = { freezable = true, invincible = true, attrition = true },
   attrition = function(g)
     return field().attrition(g)
   end,
@@ -175,7 +147,7 @@ Modes:register('field', {
   end,
   -- Trial souls: the purchase without the expedition's save.
   buy = function(g, offer)
-    return field().allows(g, 'trade') and Descent.trade(g, offer) or false
+    return field().allows(g, 'trade') and Economy.trade(g, offer) or false
   end,
   catalog = function(g, id)
     return field().action(g, id)
@@ -204,12 +176,6 @@ Modes:register('field', {
   context = function(g)
     return require('src.world.gallery').context(g) or field().context(g)
   end,
-  tier = function(g)
-    return field().tier(g)
-  end,
-  waveActive = function(g)
-    return field().waveActive(g)
-  end,
   frozen = function(g)
     return field().frozen(g)
   end,
@@ -220,71 +186,12 @@ Modes:register('field', {
     return field().hud(g)
   end,
 })
--- The expedition: waves, shrine, shop and saves.
-Modes:register('expedition', {
-  session = {
-    world = 'descent',
-    map = firstMap,
-    prepare = prepareClassic,
-    requires = { 'ember', 'gates' },
-  },
-  record = 'run',
-  worldView = function(g, out)
-    return Views.expeditionWorld(g, g.run, out)
-  end,
-  objective = function(g)
-    return Views.expeditionObjective(g, g.run)
-  end,
-  runView = function(g, out)
-    return Views.run(g, g.run, out)
-  end,
-  weaponModifier = function(g)
-    return g.run.glyphs or g.run.glyph
-  end,
-  canTrade = function(g)
-    return g.run.phase == 'preparing'
-  end,
-  snapshot = Descent.snapshot,
-  load = Descent.load,
-  save = Descent.save,
-  newRequiresConfirmation = function(g, id)
-    return (g.availableSave and g.availableSave.phase ~= 'complete')
-      or (id == 'restart' and g.run.phase ~= 'complete')
-  end,
-  policy = { phased = true },
-  test = function(g)
-    return g.run ~= nil
-  end,
-  init = function(g)
-    Descent.init(g)
-  end,
-  start = function(g)
-    return Descent.start(g)
-  end,
-  progress = function(g, dt)
-    Descent.update(g, dt)
-  end,
-  ready = Descent.ready,
-  retry = Descent.retry,
-  closeShop = Descent.closeShop,
-  buy = Descent.buy,
-  lose = Descent.lose,
-  reward = function(g, event)
-    Descent.onKill(g, event.enemy, event.source, event.owner)
-  end,
-  remaining = Descent.remaining,
-  interact = Descent.openShop,
-  context = Descent.context,
-  tier = Descent.tier,
-  waveActive = Descent.waveActive,
-  hud = Descent.hud,
-})
--- The way through the chapel: fires, posts and guardians (run/pilgrimage.lua).
+-- The way through the chapel: fires and posts (run/pilgrimage.lua).
 local function pilgrimage()
   return require('src.run.pilgrimage')
 end
 Modes:register('pilgrimage', {
-  session = { world = 'descent', map = require('src.content.pilgrimage').map },
+  session = { map = require('src.content.pilgrimage').map },
   record = 'run',
   policy = { attrition = true },
   attrition = function()
@@ -314,9 +221,9 @@ Modes:register('pilgrimage', {
   canTrade = function(g)
     return pilgrimage().fireHere(g) ~= nil
   end,
-  closeShop = Descent.closeShop,
+  closeShop = Sanctuary.closeTrade,
   buy = function(g, offer)
-    local ok = Descent.trade(g, offer)
+    local ok = Economy.trade(g, offer)
     if ok then
       pilgrimage().save(g)
     end
@@ -356,33 +263,6 @@ Modes:register('pilgrimage', {
     return pilgrimage().hud(g)
   end,
 })
--- The classic arena (regression coverage): seals, then the Margrave.
-Modes:register('classic', {
-  session = {
-    world = 'classic',
-    map = firstMap,
-    prepare = prepareClassic,
-    requires = { 'portal' },
-  },
-  record = 'modeData',
-  init = ClassicMode.init,
-  reset = ClassicMode.init,
-  worldView = Views.classicWorld,
-  objective = Views.classicObjective,
-  result = ClassicMode.result,
-  test = function()
-    return true
-  end,
-  start = function(g)
-    g.state = 'playing'
-    g:notify(Text.get('classic_start'), 4)
-    Presentation.capture(g, true)
-  end,
-  progress = ClassicMode.advance,
-  reward = ClassicMode.reward,
-  interact = ClassicMode.interact,
-  context = ClassicMode.context,
-})
 -- A session that names no mode (a hand-made record) is the first whose
 -- test holds (session/capabilities.lua asks).
 Capabilities.recognise = function(g)
@@ -392,13 +272,10 @@ Capabilities.recognise = function(g)
     end
   end
 end
--- The mode a new session is built for (Game.new(kind)).
-Modes.aliases = { descent = 'expedition' }
--- Construction and replay accept the registered id. Only historic public
--- names are aliases; an unknown id never silently becomes the classic game.
+-- The mode a new session is built for (Game.new(kind)): an unknown id is an error.
+Modes.default = 'pilgrimage'
 function Modes.resolve(id)
-  id = id or 'classic'
-  id = Modes.aliases[id] or id
+  id = id or Modes.default
   return id, Modes:get(id)
 end
 function Modes:unregister(id)

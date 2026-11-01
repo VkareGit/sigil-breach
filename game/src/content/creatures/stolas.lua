@@ -40,7 +40,7 @@ return Creature.define({
   move = {
     speed = 3.4,
     accel = 14,
-    evade = { speed = 6.5, time = 0.24, cooldown = 2.2, fromTier = 1 },
+    evade = { speed = 6.5, time = 0.24, cooldown = 2.2 },
   },
   answers = {
     { when = 'hugging', attack = 'slip', rest = 4, within = 2.4, after = 0.4 },
