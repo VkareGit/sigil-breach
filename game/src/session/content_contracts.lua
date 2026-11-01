@@ -6,9 +6,11 @@ local Abilities = require('src.content.abilities')
 local Archetypes = require('src.content.enemies')
 local Deliveries = require('src.combat.weapon_delivery')
 local Reload = require('src.combat.reload')
-local Cast = require('src.combat.abilities')
+require('src.combat.abilities')
+local Kinds = require('src.combat.action_kinds')
 local Attacks = require('src.enemies.actions')
 local Effects = require('src.combat.effects')
+local Reactions = require('src.combat.reactions')
 local AI = require('src.enemies.ai')
 local Target = require('src.enemies.target')
 local Contracts = {}
@@ -33,6 +35,20 @@ local function effects(value, seen)
     effects(child, seen)
   end
 end
+-- What a reaction does must exist and be able to act from a place.
+local function reactions(list, where)
+  for _, reaction in ipairs(list or {}) do
+    local kind = reaction.effect.kind
+    assert(Reactions.kinds:find(kind) or Effects.kinds:find(kind), where .. ': reaction ' .. kind)
+    local action = reaction.effect.action
+    if action then
+      assert(
+        type(Kinds:get(action.kind).cast) == 'function',
+        where .. ': cannot cast ' .. action.kind
+      )
+    end
+  end
+end
 function Contracts.weapon(definition)
   Deliveries:get(definition.delivery.kind)
   local mechanism = Reload.mechanisms[definition.mechanism]
@@ -53,9 +69,14 @@ function Contracts.weapon(definition)
     )
   end
   effects(definition)
+  reactions(definition.reactions, 'weapon ' .. definition.id)
 end
 function Contracts.ability(definition)
-  Cast.registry:get(definition.action.kind)
+  local kind = Kinds:get(definition.action.kind)
+  assert(
+    type(kind.cast) == 'function',
+    'ability ' .. definition.id .. ': kind ' .. definition.action.kind .. ' cannot be cast'
+  )
   effects(definition)
 end
 function Contracts.creature(definition)

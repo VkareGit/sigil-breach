@@ -10,15 +10,10 @@ local Ground = require('src.physics.ground')
 local chest = require('src.content.combat_defaults').missiles.chest
 -- The behaviour of the 'throw' delivery; the powder charge itself is data
 -- (content/abilities.lua: powder), in the same format as demon attacks.
-local Abilities = require('src.content.abilities')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Effects = require('src.combat.effects')
-local Roles = require('src.core.roles')
 local Hit = require('src.combat.hit')
-local function defaultAction()
-  return Abilities:get('powder').action
-end
 local K = Tuning.explosives
 -- Flight and blast read the action of each charge (its fuse, radius, blast).
 local X = {}
@@ -33,21 +28,18 @@ local function clear(g, b, x, y, z)
 end
 -- The 'throw' delivery: a charge leaves the eye along the aim (gates and
 -- uses are the caster's: combat/abilities.lua).
--- actor: the thrower (default the controlled knight).
-function X.launch(g, action, actor)
-  action = action or defaultAction()
+-- caster: who throws (combat/caster.lua).
+function X.launch(g, action, caster)
   -- Every throw uses the same gravity, scaled from its authored reference.
   local throwScale = math.sqrt(Tuning.gravity / action.referenceGravity)
   local throwSpeed, throwLift = action.speed * throwScale, action.lift * throwScale
-  local p = actor or Roles.controlled(g)
-  local x, y, z = B.origin(g, p)
-  local dx, dy, dz = B.direction(p.yaw, p.pitch)
+  local x, y, z, dx, dy, dz = caster.x, caster.y, caster.z, caster.dx, caster.dy, caster.dz
   local spawn = B.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
   spawn = math.max(0, spawn - K.spawnClearance)
   Spawn.make(g, 'charge', {
     action = action,
     -- The thrower owns the blast and every consequence of it (plan v11 E3d).
-    owner = p.id,
+    owner = caster.owner,
     x = x + dx * spawn,
     y = y + dy * spawn,
     z = z + dz * spawn,
@@ -58,8 +50,9 @@ function X.launch(g, action, actor)
     maxFuse = action.fuse,
     spin = 0,
   })
-  Signal(g, 'ChargeThrown', { actor = p.id })
-  require('src.enemies.ai').noise(g, p.x, p.z, action.noise)
+  Signal(g, 'ChargeThrown', { actor = caster.owner })
+  local at = caster.body or caster
+  require('src.enemies.ai').noise(g, at.x, at.z, action.noise)
   return true
 end
 -- A blast from point b (x, y, z, owner) on every creature it reaches. Returns
@@ -97,7 +90,7 @@ function X.strike(g, b, radius, blast, source)
   return report
 end
 function X.explode(g, b)
-  local action = b.action or defaultAction()
+  local action = b.action
   local report = X.strike(g, b, action.radius, action.blast, 'charge')
   -- A blast hurts every knight in reach (content/factions.lua: indiscriminate),
   -- its thrower included, at his chest as a missile meets him (0.25), by the

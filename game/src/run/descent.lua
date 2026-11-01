@@ -35,7 +35,7 @@ end
 local function inventory(g)
   local p = Roles.controlled(g)
   local loadout, weapons = Weapons.inventory(g)
-  local abilities, abilityLoadout = Abilities.inventory(g)
+  local abilities, abilityLoadout = Abilities.inventory(g, Roles.controlled(g))
   return {
     armor = p.armor,
     essence = 0,
@@ -67,7 +67,7 @@ local function restore(g, v)
   Weapons.restore(g, v.loadout, v.weapons)
   p.souls = 0
   p.weapon = v.weapon
-  Abilities.restore(g, v.abilities, v.abilityLoadout)
+  Abilities.restore(g, v.abilities, v.abilityLoadout, Roles.controlled(g))
   local spawn = g.world.spawn
   p.x, p.z, p.yaw, p.pitch = spawn.x, spawn.z, spawn.yaw, 0
   p.jump, p.jumpV, p.dash, p.dashTimer, p.invuln =
@@ -75,7 +75,7 @@ local function restore(g, v)
   local shrine = Sanctuary.at(g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.heat, p.overheat, p.heatDelay = nil, nil, nil
-  Abilities.rest(g)
+  Abilities.rest(g, Roles.controlled(g))
   Pools.clear(g, 'charges')
   local motion = g.view.motion
   F.init(g)

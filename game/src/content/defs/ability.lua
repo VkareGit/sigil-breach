@@ -8,7 +8,12 @@ local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Action = require('src.content.defs.action')
 local Text = require('src.content.text')
+local Resources = require('src.content.resources')
 local Ability = {}
+Ability.pulses = Schema:new('pulses', {
+  every = { type = 'number', required = true, min = 1e-3, desc = 'between pulses (s)' },
+  time = { type = 'number', min = 0, desc = 'how long a channel lasts (s)' },
+})
 Ability.schema = Schema:new('ability', {
   id = { type = 'string', required = true },
   name = { type = 'string', required = true, desc = 'text key' },
@@ -18,6 +23,13 @@ Ability.schema = Schema:new('ability', {
   capacity = { type = 'number', required = true, min = 1, desc = 'uses carried at most' },
   start = { type = 'number', required = true, min = 0, desc = 'uses a fresh knight carries' },
   empty = { type = 'string', required = true, desc = 'text key: notice when no use is left' },
+  cost = {
+    type = 'table',
+    default = { uses = 1 },
+    desc = "what one release spends: 'uses' or a resource (content/resources.lua)",
+  },
+  channel = { type = 'table', schema = Ability.pulses, desc = 'it goes on pulsing after release' },
+  toggle = { type = 'table', schema = Ability.pulses, desc = 'it pulses until cast again' },
 })
 function Ability.define(def)
   local path = 'ability ' .. tostring(def.id)
@@ -35,6 +47,12 @@ function Ability.define(def)
     assert(Text.has(built[field]), path .. '.' .. field .. ': unknown text key ' .. built[field])
   end
   built.action = Action.build(built.action, path .. '.action')
+  for id, amount in pairs(built.cost) do
+    assert(id == 'uses' or Resources:has(id), path .. '.cost: unknown resource ' .. tostring(id))
+    assert(type(amount) == 'number' and amount >= 0, path .. '.cost.' .. id)
+  end
+  assert(not (built.channel and built.toggle), path .. ': a channel or a toggle, not both')
+  assert(not built.channel or built.channel.time, path .. '.channel.time: required')
   return built
 end
 return Ability

@@ -10,6 +10,7 @@ local Rules = require('src.combat.rules')
 local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
 local Selection = require('src.enemies.attack_selection')
+local ActionKinds = require('src.combat.action_kinds')
 local Attacks = {}
 local cos, atan2 = math.cos, math.atan2
 local len = MathX.len
@@ -45,23 +46,18 @@ local function reach(e)
   end
   return r
 end
--- Attack kinds (0.24 registry): everything a kind of attack does lives in one
--- entry, so a new kind is one entry here plus data in content/enemies.lua.
---   commit(g, e, atk)            at commitment, after the aim is taken
---   aim(g, e, atk)               target prediction at commitment
---   execute(g, e, atk, a)        at release; a = aim angle
---   strike(g, e, atk, dt, ctx)   each step of the strike state
---   duration(e, atk)             length of the strike state (default data)
---   (the fields of each kind and their defaults: content/defs/action.lua)
+-- Everything a kind of attack does lives in one entry of combat/action_kinds.lua,
+-- so a new kind is one entry plus data in content/enemies.lua (the fields of
+-- each kind and their defaults: content/defs/action.lua).
 -- A kind that moves the body writes the velocity it moves with to
 -- e.rushVX / e.rushVZ; the shared rules read it (counter-hits, trips)
 -- without knowing which kind it is.
-local Kinds = {}
 for _, family in ipairs({ require('src.enemies.melee_kinds'), require('src.enemies.ranged_kinds') }) do
   for id, kind in pairs(family) do
-    Kinds[id] = kind
+    ActionKinds:register(id, kind)
   end
 end
+local Kinds = ActionKinds:view()
 Attacks.kinds = Kinds
 local victimOf = Contact.victim
 local function kindOf(atk)

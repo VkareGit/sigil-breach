@@ -81,7 +81,7 @@ function F.refill(g)
   -- Health of the knight's body, the ward's cap, every dodge charge.
   p.hp, p.armor, p.souls = require('src.content.characters').maxHp(p), Shop.maxWard, 0
   p.dash = require('src.content.characters').of(p).body.dashCharges
-  Abilities.fill(g)
+  Abilities.fill(g, nil, Roles.controlled(g))
   -- Every weapon full, its reserve at its cap, its action at rest.
   for _, id in ipairs(p.loadout) do
     local def, state = Weapons.get(id), p.arsenal[id]
@@ -91,7 +91,7 @@ function F.refill(g)
   Pools.clear(g, 'charges')
   p.heat, p.overheat, p.heatDelay, p.invuln = nil, nil, nil, 0
   p.reload, p.cooldown, p.fireBuffer = 0, 0, 0
-  Abilities.rest(g)
+  Abilities.rest(g, Roles.controlled(g))
   tell(g, 'field_refilled')
   return true
 end

@@ -232,13 +232,25 @@ function Tests.run(Game)
   -- Existing charge uses a spherical 3D pressure sample, never a 2D disc.
   g, p = fresh()
   p.jump = 6
-  Explosives.explode(g, { x = 10, y = 0.2, z = 10, owner = p.id })
+  Explosives.explode(g, {
+    action = require('src.content.abilities'):get('powder').action,
+    x = 10,
+    y = 0.2,
+    z = 10,
+    owner = p.id,
+  })
   check('an explosion below a sufficiently high jump misses', p.hp == 100)
   g, p = fresh()
   g.world.elevations = {}
   g.world.decks = { [10] = { [10] = { { 2, 2.2 } } } }
   p.level = 2.2
-  Explosives.explode(g, { x = 10, y = 0.2, z = 10, owner = p.id })
+  Explosives.explode(g, {
+    action = require('src.content.abilities'):get('powder').action,
+    x = 10,
+    y = 0.2,
+    z = 10,
+    owner = p.id,
+  })
   check('an explosion cannot damage the knight through a solid deck', p.hp == 100)
   return lines
 end

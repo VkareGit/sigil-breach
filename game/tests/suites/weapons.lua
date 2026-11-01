@@ -433,7 +433,13 @@ function Tests.run(G, renderer)
   p = g.player
   p.hp = 80
   p.armor = 0
-  X.explode(g, { x = p.x, y = 1, z = p.z, owner = p.id })
+  X.explode(g, {
+    action = require('src.content.abilities'):get('powder').action,
+    x = p.x,
+    y = 1,
+    z = p.z,
+    owner = p.id,
+  })
   check(
     'a point-blank blast has bounded real self-damage and no life steal',
     near(p.hp, 35) and near(g.explosionReport.selfDamage, 45)
@@ -441,7 +447,10 @@ function Tests.run(G, renderer)
   g = fresh()
   g.player.z = 30
   foe = g:spawn('imp', 11, 25)
-  X.explode(g, { x = 13, y = 1, z = 25 })
+  X.explode(
+    g,
+    { action = require('src.content.abilities'):get('powder').action, x = 13, y = 1, z = 25 }
+  )
   check(
     'a solid pillar blocks blast damage even inside the nominal radius',
     foe.hp == foe.maxHp and g.explosionReport.targets == 0
@@ -452,7 +461,10 @@ function Tests.run(G, renderer)
   local farEnemy = g:spawn('imp', 16, 21)
   nearEnemy.hp = 1000
   farEnemy.hp = 1000
-  X.explode(g, { x = 16, y = 1.1, z = 24 })
+  X.explode(
+    g,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1.1, z = 24 }
+  )
   check(
     'blast falloff rewards proximity and cannot reach beyond four metres',
     1000 - nearEnemy.hp > 1000 - farEnemy.hp and farEnemy.hp < 1000 and nearEnemy.hp == 820

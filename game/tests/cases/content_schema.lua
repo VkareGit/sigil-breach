@@ -234,9 +234,9 @@ function Tests.run(_, check)
       unmatched[#unmatched + 1] = kind .. ' has no schema'
     end
   end
-  for kind, handler in pairs(knightKinds) do
-    if not Action.kinds:has(kind) or type(handler) ~= 'function' then
-      unmatched[#unmatched + 1] = kind .. ' has no schema or callable knight delivery'
+  for kind, entry in pairs(knightKinds) do
+    if not (entry.cast or entry.execute) then
+      unmatched[#unmatched + 1] = kind .. ' has no way to act'
     end
   end
   check(

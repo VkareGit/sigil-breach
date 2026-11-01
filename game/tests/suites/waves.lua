@@ -106,7 +106,10 @@ function Tests.run(G, renderer)
     e.rewardId = '1_' .. i
   end
   g:cast(1)
-  require('src.combat.explosives').explode(g, { x = 16, y = 1, z = 25.5 })
+  require('src.combat.explosives').explode(
+    g,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 25.5 }
+  )
   check(
     'charge kills cannot refund their own ammunition',
     g.player.abilityState.powder.uses == 1 and require('src.session.stats').total(g, 'kills') == 3

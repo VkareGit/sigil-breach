@@ -10,6 +10,8 @@ local Registry = require('src.core.registry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
+local Caster = require('src.combat.caster')
+local Kinds = require('src.combat.action_kinds')
 local Effects = require('src.combat.effects')
 local Explosives = require('src.combat.explosives')
 local Loadout = require('src.combat.loadout')
@@ -28,9 +30,16 @@ Reactions.kinds:register('heal', {
 })
 Reactions.kinds:register('blast', {
   run = function(g, effect, body, _, at)
-    local y = at.hp and Ground.of(g.world, at) + Tuning.explosives.aimHeight or at.y
+    local y = at.y or Ground.of(g.world, at) + Tuning.explosives.aimHeight
     local from = { x = at.x, y = y, z = at.z, owner = body.id }
     Explosives.strike(g, from, effect.radius, effect.blast, 'reaction')
+  end,
+})
+-- An action at the place, on behalf of the body (combat/action_kinds.lua: cast).
+Reactions.kinds:register('action', {
+  run = function(g, effect, body, _, at)
+    local y = at.y or Ground.of(g.world, at) + Tuning.explosives.aimHeight
+    Kinds:get(effect.action.kind).cast(g, effect.action, Caster.point(g, body, at.x, y, at.z))
   end,
 })
 local function run(g, list, on, body, target, at)

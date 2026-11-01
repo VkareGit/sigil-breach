@@ -13,7 +13,7 @@ function Tests.run(Game)
   local Archetypes = require('src.content.enemies')
   local AI = require('src.enemies.ai')
   local Target = require('src.enemies.target')
-  local Cast = require('src.combat.abilities')
+  local Kinds = require('src.combat.action_kinds')
   local lines = {}
   local check = Fixtures.checker(lines, 'foundation contracts: ', 'foundation contracts: ')
   local item = Schema:new('item', { value = { type = 'number', required = true } })
@@ -129,8 +129,8 @@ function Tests.run(Game)
     )
     check(
       'invalid executor registration changes no registry entry',
-      not pcall(Cast.register, 'missing_delivery', function() end)
-        and not Cast.registry:has('missing_delivery')
+      not pcall(Kinds.register, Kinds, 'missing_delivery', { cast = function() end })
+        and not Kinds:has('missing_delivery')
     )
     Delivery.defineKind('fixture_transport', {})
     local weapon = Weapons.define({

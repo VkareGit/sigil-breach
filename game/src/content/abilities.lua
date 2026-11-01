@@ -67,11 +67,15 @@ function Abilities.kit(loadout)
   end
   return kit
 end
+-- Every function below is about one actor, by default the controlled knight.
+local function holder(g, actor)
+  return actor or Roles.controlled(g)
+end
 -- Give equipment by definition id, without changing the knight's prefab or
 -- caster. Already equipped equipment keeps its slot and remaining uses.
-function Abilities.give(g, id)
+function Abilities.give(g, id, actor)
   local def = Abilities:get(id)
-  local p = Roles.controlled(g)
+  local p = holder(g, actor)
   for slot, equipped in ipairs(p.abilities) do
     if equipped == id then
       return slot
@@ -89,25 +93,26 @@ function Abilities.slot(g, slot, actor)
   return id and Abilities:find(id), id and p.abilityState[id]
 end
 -- Every ability back at rest (a new life, a reset): ready at once.
-function Abilities.rest(g)
-  for _, state in pairs(Roles.controlled(g).abilityState or {}) do
+function Abilities.rest(g, actor)
+  for _, state in pairs(holder(g, actor).abilityState or {}) do
     state.readyAt = 0
   end
 end
 -- What a checkpoint keeps: uses by id and the equipped ids in slot order.
-function Abilities.inventory(g)
+function Abilities.inventory(g, actor)
+  local p = holder(g, actor)
   local uses, loadout = {}, {}
-  for slot, id in ipairs(Roles.controlled(g).abilities) do
+  for slot, id in ipairs(p.abilities) do
     loadout[slot] = id
-    uses[id] = Roles.controlled(g).abilityState[id].uses
+    uses[id] = p.abilityState[id].uses
   end
   return uses, loadout
 end
 -- Back from a checkpoint: reconstruct its slots and records, so equipment
 -- absent from the default loadout still returns. Old in-memory checkpoints
 -- without a slot list keep the receiving knight's loadout.
-function Abilities.restore(g, uses, loadout)
-  local p = Roles.controlled(g)
+function Abilities.restore(g, uses, loadout, actor)
+  local p = holder(g, actor)
   local slots, states = {}, {}
   for slot, id in ipairs(loadout or p.abilities) do
     local def = Abilities:get(id)
@@ -121,9 +126,10 @@ function Abilities.restore(g, uses, loadout)
   p.abilities, p.abilityState = slots, states
 end
 -- Every ability's uses (refill: to capacity; empty: 0).
-function Abilities.fill(g, empty)
-  for _, id in ipairs(Roles.controlled(g).abilities) do
-    Roles.controlled(g).abilityState[id].uses = empty and 0 or Abilities:get(id).capacity
+function Abilities.fill(g, empty, actor)
+  local p = holder(g, actor)
+  for _, id in ipairs(p.abilities) do
+    p.abilityState[id].uses = empty and 0 or Abilities:get(id).capacity
   end
 end
 return Abilities

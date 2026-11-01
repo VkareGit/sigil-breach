@@ -40,6 +40,12 @@ function C.born(actor)
   actor.maxArmor = actor.maxArmor or body.armor
   actor.armor = actor.armor or actor.maxArmor
   actor.dash = actor.dash or body.dashCharges
+  if def.resources and not actor.resources then
+    actor.resources = {}
+    for id, resource in pairs(def.resources) do
+      actor.resources[id] = resource.start
+    end
+  end
   return actor
 end
 -- The most health an actor can have (a hand-made record: its character's).

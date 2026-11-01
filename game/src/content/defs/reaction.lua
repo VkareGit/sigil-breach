@@ -24,6 +24,9 @@ Reaction.defineKind('blast', {
   radius = { type = 'number', required = true, min = 0, desc = 'reach (m)' },
   blast = { type = 'table', required = true, schema = Action.blast },
 })
+Reaction.defineKind('action', {
+  action = { type = 'table', required = true, desc = 'Action.build(...): done at the place' },
+})
 local function schemaOf(def)
   return Reaction.kinds:find(def.kind) or Effect.schema
 end

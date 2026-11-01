@@ -11,35 +11,51 @@ local Bodies = require('src.combat.bodies')
 local Contact = require('src.enemies.attack_contact')
 local Shape = require('src.combat.projectile_shape')
 local Schema = require('src.core.schema')
+local Caster = require('src.combat.caster')
 local K = require('src.content.combat_defaults').attacks
 local sin, cos = math.sin, math.cos
 local len = MathX.len
 local Kinds = {}
 Kinds.pattern = { execute = require('src.enemies.ground_pattern').release }
--- A bolt carries its archetype's damage packet to the projectile system.
-local function projectile(g, e, a, speed, spec)
+-- A missile leaves a caster's mouth along its aim. radius: its own collision
+-- radius, also its painted size.
+local function launch(g, spec, speed, caster)
+  Spawn.make(g, 'projectile', {
+    x = caster.mx,
+    y = caster.my,
+    z = caster.mz,
+    vx = caster.dx * speed,
+    vz = caster.dz * speed,
+    vy = caster.rise * speed / caster.run,
+    life = K.boltLife,
+    big = spec.big or false,
+    color = spec.color,
+    owner = caster.owner,
+    side = caster.side,
+    packet = Caster.packet(caster, spec.packet),
+    radius = Shape.radius(spec),
+  })
+  return true
+end
+-- A creature casts from its body at the mark it took, angle a.
+local function aimed(g, e, a, spec)
   -- Launched and aimed at heights above the ground (physics/ground.lua).
   local ground = Ground.of(g.world, e)
   local y = ground + (e.leapY or 0) + spec.height
   local d = len(e.aimX - e.x, e.aimZ - e.z)
-  -- radius: the projectile's own collision radius, also its painted size.
-  Spawn.make(g, 'projectile', {
-    x = e.x + sin(a) * K.muzzle,
-    y = y,
-    z = e.z + cos(a) * K.muzzle,
-    vx = sin(a) * speed,
-    vz = cos(a) * speed,
-    vy = (Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + (spec.aimHeight or K.aimHeight) - y)
-      * speed
-      / math.max(1, d - K.muzzle),
-    life = K.boltLife,
-    big = spec.big or false,
-    color = spec.color,
+  return {
+    body = e,
+    scaled = true,
     owner = e.id,
     side = Bodies.side(g, e),
-    packet = Rules.packet(e, spec.packet),
-    radius = Shape.radius(spec),
-  })
+    mx = e.x + sin(a) * K.muzzle,
+    my = y,
+    mz = e.z + cos(a) * K.muzzle,
+    dx = sin(a),
+    dz = cos(a),
+    rise = Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + (spec.aimHeight or K.aimHeight) - y,
+    run = math.max(1, d - K.muzzle),
+  }
 end
 Kinds.strike = {
   -- A strike falls on a marked place: its mark never moves (no retargeting
@@ -81,7 +97,7 @@ Kinds.pool = {
       level = e.aimLevel,
       side = Bodies.side(g, e),
     })
-    projectile(g, e, a, atk.bolt.speed, atk.bolt)
+    launch(g, atk.bolt, atk.bolt.speed, aimed(g, e, a, atk.bolt))
   end,
 }
 Kinds.fan = {
@@ -89,7 +105,8 @@ Kinds.fan = {
     local rage = require('src.content.enemies').furious(e)
     local n = rage and atk.rageCount or atk.count
     for j = 1, n do
-      projectile(g, e, a + (j - (n + 1) / 2) * atk.spread, rage and atk.rageSpeed or atk.speed, atk)
+      local angle = a + (j - (n + 1) / 2) * atk.spread
+      launch(g, atk, rage and atk.rageSpeed or atk.speed, aimed(g, e, angle, atk))
     end
     local line = atk.line
     if line and e.attackCount % line.every == 0 then
@@ -116,8 +133,11 @@ Kinds.fan = {
   end,
 }
 Kinds.bolt = {
+  cast = function(g, action, caster)
+    return launch(g, action, action.speed, caster)
+  end,
   execute = function(g, e, atk, a)
-    projectile(g, e, a, atk.speed, atk)
+    launch(g, atk, atk.speed, aimed(g, e, a, atk))
   end,
 }
 return Kinds

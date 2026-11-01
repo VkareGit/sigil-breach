@@ -28,9 +28,15 @@ function Tests.run(G)
   -- Query the actual velocity field used by the body response, not a UI receipt.
   check('the impulse travels away from its source', (e.pushZ or 0) > 0 and near(e.pushX or 0, 0))
   g, e = fixture(10)
-  X.explode(g, { x = 16, y = 1, z = 21 })
+  X.explode(
+    g,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 21 }
+  )
   other, target = fixture(22)
-  X.explode(other, { x = 16, y = 1, z = 21 })
+  X.explode(
+    other,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 21 }
+  )
   check(
     'a grenade behind a demon pushes it forward even after the thrower moves',
     (e.pushZ or 0) > 0
@@ -45,17 +51,26 @@ function Tests.run(G)
     near(e.pushX or 0, 0) and near(e.pushZ or 0, 0)
   )
   g, e = fixture(10)
-  X.explode(g, { x = 16, y = 1, z = 21 })
+  X.explode(
+    g,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 21 }
+  )
   other, target = fixture(10)
   target.leapY = 5
-  X.explode(other, { x = 16, y = 1, z = 21 })
+  X.explode(
+    other,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 21 }
+  )
   check(
     'a physical leap lifts the blast anchor outside the same explosion',
     e.hp < 1000 and target.hp == 1000 and other.explosionReport.targets == 0
   )
   other, target = fixture(10)
   target.leapY = 1
-  X.explode(other, { x = 16, y = 1, z = 21 })
+  X.explode(
+    other,
+    { action = require('src.content.abilities'):get('powder').action, x = 16, y = 1, z = 21 }
+  )
   check(
     'partial leap height uses three-dimensional falloff rather than ground distance',
     target.hp > e.hp and target.hp < 1000

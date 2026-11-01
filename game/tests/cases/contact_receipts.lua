@@ -270,6 +270,7 @@ function Tests.run(Game)
     y = Ground.of(g.world, g.player) + 1,
     z = 24,
     owner = g.player.id,
+    action = require('src.content.abilities'):get('powder').action,
     vx = 0,
     vy = 0,
     vz = 0,

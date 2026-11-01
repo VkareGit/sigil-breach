@@ -20,6 +20,7 @@ local Catalog = {
   { 'ProjectileBurst', 'a projectile ended (wall, body, time) {bullet, struck, wall}' },
   { 'ChargeThrown', 'the knight threw a powder charge {}' },
   { 'AbilityCast', 'the knight cast an ability {ability, slot}' },
+  { 'CastEnded', 'a cast in progress ended {actor, ability, interrupted}' },
   { 'ChargeExploded', 'a powder charge went off {charge}' },
   {
     'ReloadStage',

@@ -4,6 +4,7 @@
 local Schema = require('src.core.schema')
 local Knight = require('src.content.defs.knight')
 local Reaction = require('src.content.defs.reaction')
+local Resources = require('src.content.resources')
 local Character = {}
 local function speed(desc)
   return { type = 'number', required = true, min = 0, desc = desc }
@@ -31,6 +32,11 @@ Character.presentation = Schema:new('presentation', {
   portrait = { type = 'string', desc = 'portrait of the HUD' },
   voice = { type = 'string', desc = 'voice of its sounds' },
 })
+Character.resource = Schema:new('resource of a character', {
+  max = { type = 'number', required = true, min = 0 },
+  start = { type = 'number', required = true, min = 0 },
+  regen = { type = 'number', default = 0, min = 0, desc = 'per second' },
+})
 Character.schema = Schema:new('character', {
   id = { type = 'string', required = true },
   name = { type = 'string', desc = 'text key of its name' },
@@ -40,12 +46,17 @@ Character.schema = Schema:new('character', {
   kit = { type = 'table', schema = Character.kit },
   presentation = { type = 'table', schema = Character.presentation },
   reactions = Reaction.field,
+  resources = { type = 'table', desc = 'resource -> { max, start, regen }' },
 })
 function Character.define(def)
   local where = 'character ' .. tostring(def.id)
   local built = Schema.copy(def)
   built.body = Knight.schema:build(def.body, where .. '.body')
   built = Character.schema:build(built, where)
+  for id, resource in pairs(built.resources or {}) do
+    assert(Resources:has(id), where .. '.resources: unknown resource ' .. tostring(id))
+    built.resources[id] = Character.resource:build(resource, where .. '.resources.' .. id)
+  end
   built.kit = built.kit or {}
   built.presentation = built.presentation or {}
   return built

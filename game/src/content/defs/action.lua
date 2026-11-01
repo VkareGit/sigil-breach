@@ -2,8 +2,8 @@
 -- knight's equipment (one format for both). An action is
 -- a DELIVERY (kind: lunge, charge, leap, bolt, fan, pool, strike...) plus
 -- a payload (packet) and a telegraph (windup). Every kind has its own
--- fields and defaults here; its behaviour lives in enemies/actions.lua
--- (Attacks.kinds) and is checked against this list.
+-- fields and defaults here; its behaviour lives in combat/action_kinds.lua
+-- and is checked against this list.
 local Schema = require('src.core.schema')
 local Types = require('src.content.damage_types')
 local Registry = require('src.core.registry')
@@ -11,7 +11,7 @@ local Packet = require('src.content.defs.packet')
 local Claw = require('src.content.combat_defaults').claw
 local Area = require('src.content.defs.area')
 local AttackDefaults = require('src.content.combat_defaults').attacks
-local Action = {}
+local Action = { hooks = {} }
 -- Fields of every action, whatever its delivery.
 Action.common = {
   id = { type = 'string', required = true },
@@ -221,10 +221,12 @@ Action.kinds:register(
   }, { 'speed', 'lift', 'fuse', 'radius', 'blast', 'selfBlast' })
 )
 -- A new delivery kind without editing this file: its own fields (the common
--- ones are added), the ones it requires, and a builder Action.<name>. Its
--- behaviour is an entry in Attacks.kinds (enemies/actions.lua).
-function Action.defineKind(name, fields, required)
+-- ones are added), the ones it requires, hooks (build(def) completes a
+-- definition, validate(built, path) checks it) and a builder Action.<name>. Its
+-- behaviour is an entry in combat/action_kinds.lua.
+function Action.defineKind(name, fields, required, hooks)
   Action.kinds:register(name, kind(name, fields, required))
+  Action.hooks[name] = hooks
   Action[name] = function(def)
     def.kind = name
     return def
@@ -257,10 +259,78 @@ local function projectile(spec, path)
     end
   end
 end
+local function hook(name, validate)
+  Action.hooks[name] = { validate = validate }
+end
+hook('throw', function(built, path)
+  assert(built.referenceGravity > 0, path .. '.referenceGravity: must be positive')
+  for _, field in ipairs({ 'blast', 'selfBlast' }) do
+    local blast = built[field]
+    assert(blast.falloffEnd > blast.falloffStart, path .. '.' .. field .. ': invalid damage curve')
+  end
+end)
+hook('lunge', function(built, path)
+  samples(built.contactReach, path .. '.contactReach')
+  samples(built.active, path .. '.active', 2)
+  assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
+  assert(built.lungeTime > 0, path .. '.lungeTime: must be positive')
+  assert(built.active[2] <= built.lungeTime, path .. '.active: exceeds lungeTime')
+  assert(built.lungeTime <= built.duration, path .. '.lungeTime: exceeds strike duration')
+end)
+hook('charge', function(built, path)
+  assert(built.speed > 0, path .. '.speed: must be positive')
+  assert(
+    built.maxTime > 0 and built.maxTime >= built.minTime,
+    path .. '.maxTime: invalid charge window'
+  )
+end)
+hook('leap', function(built, path)
+  assert(built.height > 0, path .. '.height: must be positive')
+  Area.validate(built.landVolume, path .. '.landVolume')
+end)
+hook('strike', function(built, path)
+  Area.validate(built.volume, path .. '.volume')
+end)
+hook('pattern', function(built, path)
+  Area.validate(built.volume, path .. '.volume')
+  assert(#built.marks > 0 and #built.marks <= 12, path .. ': needs 1..12 marks')
+  assert(
+    built.radius > 0 and built.life > 0 and built.pulse > 0,
+    path .. ': positive footprint and cadence required'
+  )
+  for _, mark in ipairs(built.marks) do
+    assert(mark.delay > 0, path .. ': every released mark needs a warning')
+  end
+end)
+hook('pool', function(built, path)
+  Area.validate(built.pool.volume, path .. '.pool.volume')
+  assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
+  assert(
+    not built.pool.condition or require('src.content.conditions').find(built.pool.condition),
+    path .. '.pool.condition: unknown condition ' .. tostring(built.pool.condition)
+  )
+  projectile(built.bolt, path .. '.bolt')
+end)
+hook('fan', function(built, path)
+  integer(built.count, path .. '.count')
+  integer(built.rageCount, path .. '.rageCount')
+  if built.line then
+    Area.validate(built.line.volume, path .. '.line.volume')
+    assert(built.line.pulse > 0, path .. '.line.pulse: must be positive')
+    integer(built.line.count, path .. '.line.count')
+    integer(built.line.every, path .. '.line.every')
+  end
+  projectile(built, path)
+end)
+hook('bolt', projectile)
 -- Complete and validate one action (where: for the message).
 function Action.build(def, where)
   local schema = Action.kinds:get(def.kind)
   local path = where or ('action ' .. tostring(def.id))
+  local shaped = Action.hooks[def.kind]
+  if shaped and shaped.build then
+    def = shaped.build(def)
+  end
   local built = schema:build(def, path)
   assert(built.id ~= '', path .. '.id: must not be empty')
   assert(built.minRange <= built.range, path .. '.minRange: exceeds range')
@@ -271,64 +341,9 @@ function Action.build(def, where)
     )
   end
   integer(built.every, path .. '.every')
-  if built.kind == 'throw' then
-    assert(built.referenceGravity > 0, path .. '.referenceGravity: must be positive')
-    for _, field in ipairs({ 'blast', 'selfBlast' }) do
-      local blast = built[field]
-      assert(
-        blast.falloffEnd > blast.falloffStart,
-        path .. '.' .. field .. ': invalid damage curve'
-      )
-    end
-  end
-  if built.kind == 'lunge' then
-    samples(built.contactReach, path .. '.contactReach')
-    samples(built.active, path .. '.active', 2)
-    assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
-    assert(built.lungeTime > 0, path .. '.lungeTime: must be positive')
-    assert(built.active[2] <= built.lungeTime, path .. '.active: exceeds lungeTime')
-    assert(built.lungeTime <= built.duration, path .. '.lungeTime: exceeds strike duration')
-  elseif built.kind == 'charge' then
-    assert(built.speed > 0, path .. '.speed: must be positive')
-    assert(
-      built.maxTime > 0 and built.maxTime >= built.minTime,
-      path .. '.maxTime: invalid charge window'
-    )
-  elseif built.kind == 'leap' then
-    assert(built.height > 0, path .. '.height: must be positive')
-    Area.validate(built.landVolume, path .. '.landVolume')
-  elseif built.kind == 'strike' then
-    Area.validate(built.volume, path .. '.volume')
-  elseif built.kind == 'pattern' then
-    Area.validate(built.volume, path .. '.volume')
-    assert(#built.marks > 0 and #built.marks <= 12, path .. ': needs 1..12 marks')
-    assert(
-      built.radius > 0 and built.life > 0 and built.pulse > 0,
-      path .. ': positive footprint and cadence required'
-    )
-    for _, mark in ipairs(built.marks) do
-      assert(mark.delay > 0, path .. ': every released mark needs a warning')
-    end
-  elseif built.kind == 'pool' then
-    Area.validate(built.pool.volume, path .. '.pool.volume')
-    assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
-    assert(
-      not built.pool.condition or require('src.content.conditions').find(built.pool.condition),
-      path .. '.pool.condition: unknown condition ' .. tostring(built.pool.condition)
-    )
-    projectile(built.bolt, path .. '.bolt')
-  elseif built.kind == 'fan' then
-    integer(built.count, path .. '.count')
-    integer(built.rageCount, path .. '.rageCount')
-    if built.line then
-      Area.validate(built.line.volume, path .. '.line.volume')
-      assert(built.line.pulse > 0, path .. '.line.pulse: must be positive')
-      integer(built.line.count, path .. '.line.count')
-      integer(built.line.every, path .. '.line.every')
-    end
-    projectile(built, path)
-  elseif built.kind == 'bolt' then
-    projectile(built, path)
+  local hooks = Action.hooks[built.kind]
+  if hooks and hooks.validate then
+    hooks.validate(built, path)
   end
   return built
 end

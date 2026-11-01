@@ -1,60 +1,30 @@
 -- Casting the knight's abilities (0.24 F4). One caster for every ability:
 -- the same gates (in play, armed, ready), the same live record (uses left,
 -- ready time) and a delivery kind that does the rest. The powder charge is
--- the 'throw' kind (combat/explosives.lua); 'bolt' looses a missile that
--- hurts demons (combat/projectiles.lua, side 'knight'; no equipment uses it
--- yet). The knight is a man without magic: supernatural attacks belong to the
--- demons. A new kind of equipment is a new entry in Cast.kinds; the caster,
--- the input and the HUD do not change.
---   kinds[kind](g, ability, actor)  launch it for the casting actor; true when it went off
+-- the 'throw' kind (combat/explosives.lua); 'bolt' looses the same missile a
+-- demon does (enemies/ranged_kinds.lua). A new kind of equipment is an entry in
+-- combat/action_kinds.lua with cast; the caster, the input and the HUD do not
+-- change. An ability pays its cost at release, so an interrupted one costs
+-- nothing.
 local Capabilities = require('src.session.capabilities')
 local Signal = require('src.session.signal')
-local Spawn = require('src.session.spawn')
 local Abilities = require('src.content.abilities')
-local Defaults = require('src.content.combat_defaults')
-local B = require('src.combat.ballistics')
 local Explosives = require('src.combat.explosives')
-local Registry = require('src.core.registry')
-local Action = require('src.content.defs.action')
+local ActionKinds = require('src.combat.action_kinds')
+local Attributes = require('src.combat.attributes')
+local Caster = require('src.combat.caster')
+local Resources = require('src.combat.resources')
 local Roles = require('src.core.roles')
 local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
 local Cast = {}
-Cast.registry = Registry:new('equipment deliveries', function(handler, id)
-  Action.kinds:get(id)
-  assert(type(handler) == 'function', 'equipment delivery ' .. id .. ' needs a function')
-end)
-Cast.kinds = Cast.registry:view()
-function Cast.register(id, handler)
-  return Cast.registry:register(id, handler)
-end
-Cast.register('throw', function(g, ability, actor)
-  Explosives.launch(g, ability.action, actor)
-  return true
-end)
--- A missile from the eye along the aim, carrying the action's packet.
-Cast.register('bolt', function(g, ability, actor)
-  local action, p = ability.action, actor or Roles.controlled(g)
-  local x, y, z = B.origin(g, p)
-  local dx, dy, dz = B.direction(p.yaw, p.pitch)
-  local reach = Defaults.attacks.muzzle
-  Spawn.make(g, 'projectile', {
-    x = x + dx * reach,
-    y = y + dy * reach,
-    z = z + dz * reach,
-    vx = dx * action.speed,
-    vy = dy * action.speed,
-    vz = dz * action.speed,
-    life = Defaults.attacks.boltLife,
-    big = action.big or false,
-    color = action.color,
-    side = 'knight',
-    owner = p.id,
-    packet = action.packet,
-    radius = action.radius,
-  })
-  return true
-end)
+Cast.kinds = ActionKinds:view()
+ActionKinds:register('throw', {
+  cast = function(g, action, caster)
+    Explosives.launch(g, action, caster)
+    return true
+  end,
+})
 -- The ability in a slot of an actor's loadout (default the controlled
 -- knight's) and its live record.
 function Cast.slot(g, slot, actor)
@@ -71,8 +41,90 @@ local function valid(state, ability)
     and uses <= ability.capacity
     and uses == math.floor(uses)
 end
+local function deliverer(ability)
+  local kind = Cast.kinds[ability.action.kind]
+  assert(
+    kind and type(kind.cast) == 'function',
+    'ability ' .. ability.id .. ': unsupported delivery kind ' .. tostring(ability.action.kind)
+  )
+  return kind.cast
+end
+-- One release: the action goes off and is paid for. Returns true when it went.
+local function release(g, ability, state, actor, slot)
+  if not Resources.can(actor, ability.cost) then
+    return false
+  end
+  if not deliverer(ability)(g, ability.action, Caster.actor(g, actor)) then
+    return false
+  end
+  Resources.spend(actor, ability.cost)
+  state.uses = state.uses - (ability.cost.uses or 0)
+  state.readyAt = g.elapsed + ability.action.cooldown
+  Signal(g, 'AbilityCast', {
+    ability = ability,
+    slot = slot,
+    actor = actor.id,
+    byControlled = actor == Roles.controlled(g),
+  })
+  return true
+end
+local function finish(g, actor, interrupted)
+  local casting = actor.casting
+  actor.casting = nil
+  Signal(g, 'CastEnded', { actor = actor.id, ability = casting.id, interrupted = interrupted })
+end
+-- A cast that takes time lives in actor.casting = { id, slot, phase, left, next }
+-- and is advanced after the trigger (systems/knight.lua): a windup, then the
+-- pulses of a channel or a toggle. Whatever a condition forbids stops it unpaid.
+local function pulsing(ability)
+  return ability.channel or ability.toggle
+end
+local function begin(actor, ability, slot)
+  local pulses = pulsing(ability)
+  local windup = ability.action.windup
+  actor.casting = {
+    id = ability.id,
+    slot = slot,
+    phase = windup > 0 and 'windup' or 'pulses',
+    left = windup > 0 and windup or (pulses.time or math.huge),
+    next = pulses and pulses.every or 0,
+  }
+end
+function Cast.update(g, dt, actor)
+  local casting = actor.casting
+  if not casting then
+    return
+  end
+  local ability, state = Cast.slot(g, casting.slot, actor)
+  if not ability or actor.hp <= 0 or Attributes.forbids(actor, 'cast') then
+    return finish(g, actor, true)
+  end
+  casting.left = casting.left - dt
+  if casting.phase == 'windup' then
+    if casting.left > 0 then
+      return
+    end
+    local pulses = pulsing(ability)
+    if not release(g, ability, state, actor, casting.slot) or not pulses then
+      return finish(g, actor, false)
+    end
+    casting.phase, casting.left = 'pulses', pulses.time or math.huge
+    return
+  end
+  casting.next = casting.next - dt
+  while casting.next <= 0 do
+    casting.next = casting.next + pulsing(ability).every
+    if not release(g, ability, state, actor, casting.slot) then
+      return finish(g, actor, false)
+    end
+  end
+  if casting.left <= 0 then
+    finish(g, actor, false)
+  end
+end
 -- Cast the ability in slot (default 1, the Q key) for who (an actor's id;
--- default the controlled knight). Returns true when it went off.
+-- default the controlled knight). Returns true when it went off. Casting a
+-- toggle that runs stops it.
 function Cast.cast(g, slot, who)
   slot = slot or 1
   local actor = Bodies.actor(g, who)
@@ -92,29 +144,31 @@ function Cast.cast(g, slot, who)
   then
     return false
   end
-  local deliver = Cast.kinds[ability.action.kind]
-  assert(
-    type(deliver) == 'function',
-    'ability ' .. ability.id .. ': unsupported delivery kind ' .. tostring(ability.action.kind)
-  )
-  if state.uses <= 0 then
+  deliverer(ability)
+  if actor.casting then
+    if actor.casting.id == ability.id and ability.toggle then
+      finish(g, actor, false)
+      return true
+    end
+    return false
+  end
+  if Attributes.forbids(actor, 'cast') then
+    return false
+  end
+  if state.uses < (ability.cost.uses or 0) or (state.uses <= 0 and ability.cost.uses) then
     if actor == Roles.controlled(g) then
       g:notify(Text.get(ability.empty), Abilities.noticeTime)
     end
     return false
   end
-  if not deliver(g, ability, actor) then
+  if not Resources.can(actor, ability.cost) then
     return false
   end
-  state.uses = state.uses - 1
-  state.readyAt = g.elapsed + ability.action.cooldown
-  Signal(g, 'AbilityCast', {
-    ability = ability,
-    slot = slot,
-    actor = actor.id,
-    byControlled = actor == Roles.controlled(g),
-  })
-  return true
+  if ability.action.windup > 0 or pulsing(ability) then
+    begin(actor, ability, slot)
+    return true
+  end
+  return release(g, ability, state, actor, slot)
 end
 -- Every ability of the loadout back at rest (a new life, a reset).
 function Cast.rest(g, actor)

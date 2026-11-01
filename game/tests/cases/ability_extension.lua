@@ -154,7 +154,7 @@ function Tests.run(G, check, spark)
   local started, startupError = pcall(Fixtures.arena, G)
   check(
     'a new session rejects equipment without an executable delivery',
-    not started and tostring(startupError):find('equipment deliveries: unknown leap', 1, true)
+    not started and tostring(startupError):find('kind leap cannot be cast', 1, true)
   )
   local slot = Abilities.give(unsupportedSession, unsupported.id)
   local state = unsupportedSession.player.abilityState[unsupported.id]

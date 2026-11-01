@@ -18,6 +18,7 @@ return {
   World.effects,
   World.transientsBefore,
   Knight.trigger,
+  Knight.casting,
   Combat.demons,
   Combat.separation,
   Combat.bodies,

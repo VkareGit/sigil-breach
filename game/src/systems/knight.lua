@@ -7,6 +7,8 @@ local Rules = require('src.combat.rules')
 local BodyContact = require('src.combat.body_contact')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
+local Cast = require('src.combat.abilities')
+local Resources = require('src.combat.resources')
 local Knight = {}
 -- The actors of a step (plan v11 E3b): every knight in pool order; one
 -- that has fallen does nothing more (the controlled one is the session's).
@@ -37,6 +39,7 @@ local function recover(knight, dt)
   )
   Rules.tick(knight, dt)
   Rules.recover(knight, dt, body)
+  Resources.tick(knight, dt)
 end
 Knight.recovery = {
   name = 'knightRecovery',
@@ -121,6 +124,15 @@ Knight.trigger = {
         local actor = knight ~= Bodies.controlled(g) and knight or nil
         Intent.fire(g, dt, own.shoot, own.fireCommand, actor)
       end
+    end
+  end,
+}
+-- Casts in progress go on after the trigger (combat/abilities.lua).
+Knight.casting = {
+  name = 'casting',
+  run = function(g, dt)
+    for _, knight in ipairs(actors(g)) do
+      Cast.update(g, dt, knight)
     end
   end,
 }
