@@ -14,15 +14,14 @@ local function rankOf(id)
   end
   return 0
 end
+-- Every medal has its own sound (audio/medal_voices.lua), heard when it takes the view.
 function Medals.show(g, id)
   local view = g.view
   if (view.medalTimer or 0) <= 0 or rankOf(id) >= rankOf(view.medal) then
+    if view.medal ~= id or (view.medalTimer or 0) <= 0 then
+      A.play('medal_' .. id, K.medalVolume)
+    end
     view.medal, view.medalTimer = id, K.medalTime
   end
-end
--- A rung of the ladder: it rises with the chain.
-function Medals.chain(g, step)
-  Medals.show(g, step.id)
-  A.play('multikill', 0.2 + step.count * 0.06)
 end
 return Medals

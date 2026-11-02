@@ -159,7 +159,7 @@ function Listeners.attach(g)
   bus:on('present', 'ChainGrew', function(e)
     local personal = Recipient.context(g, e.actor)
     if personal then
-      Medals.chain(personal, e.step)
+      Medals.show(personal, e.step.id)
     end
   end)
   bus:on('present', 'PerfectDodge', function(e)

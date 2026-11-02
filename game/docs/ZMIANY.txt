@@ -34,10 +34,11 @@ Serie i medale:
 - Medale czynów: ABSOLVED, PARRY, ONE SHOT, LAST RITES, SMITTEN, POINT BLANK.
 - Medal pojawia się na chwilę u góry widoku. Stała informacja o serii stoi w niszy ARSENAL, z paskiem czasu.
 - Pieczęcie namalował Codex (assets/art/medals, provenance.json obok).
+- Każdy medal ma własny dźwięk (audio/medal_voices.lua, Codex).
 
 Balans:
 - Śrut łamie gardę słabiej (impact 6 na śrucinę zamiast 12). Bez tego shotgun za darmo przerywał każdy cios.
-- Ognisko uzupełnia zapas do 16 nabojów shotguna i 36 rewolweru.
+- Ognisko uzupełnia zapas do 20 nabojów shotguna i 44 rewolweru.
 
 
 ########################################################################

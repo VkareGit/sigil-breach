@@ -157,7 +157,6 @@ function Shot.volley(g, e)
   end
   if report.kills >= 2 then
     Medals.show(g, 'one_shot')
-    A.play('multikill', 0.34)
   elseif report.kills > 0 and report.headHits > 0 then
     Medals.show(g, 'smitten')
   end

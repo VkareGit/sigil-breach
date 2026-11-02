@@ -576,8 +576,10 @@ R.crypt_drip = {
 for _, name in ipairs({ 'shot', 'revolver', 'blast', 'thunder', 'afterimage' }) do
   R[name].priority = 2
 end
-for name, recipe in pairs(require('src.audio.ritual_voices')) do
-  assert(not R[name], 'duplicate sound recipe ' .. name)
-  R[name] = recipe
+for _, voices in ipairs({ 'src.audio.ritual_voices', 'src.audio.medal_voices' }) do
+  for name, recipe in pairs(require(voices)) do
+    assert(not R[name], 'duplicate sound recipe ' .. name)
+    R[name] = recipe
+  end
 end
 return R

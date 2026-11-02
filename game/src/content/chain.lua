@@ -8,6 +8,7 @@ return {
   -- Seconds a chain lives after a kill. A blow taken ends it.
   window = 6,
   medalTime = 1.5,
+  medalVolume = 1,
   -- A kill at this share of health or less, and from this near (m), is a deed.
   lastRites = 0.25,
   pointBlank = 2.5,
