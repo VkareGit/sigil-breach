@@ -6,7 +6,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 - D3: unik ogranicza tylko wytrzymałość, bez ładunków, z regeneracją pod szybką walkę. Zwykły ruch bez kosztu. Szczegóły zostawione mnie.
 - D4: zaalarmowani w otwartej przestrzeni ruszają wszyscy, także ci z tyłu. Oddzielone części sali budzą się grupą przy wejściu albo gdy dotrze alarm. Przed wykryciem część patroluje, część stoi na warcie.
 - D7: Furfur daje 150 dusz (w jednostkach treści), tyle co Margrave.
-- D5 i D6 zostają otwarte (Etap 4).
+- D5 i D6 zostają otwarte. Etap 4 (koniec kaplicy, mapa, druga droga) odłożony decyzją właściciela z 2026-11-02: kaplica to poligon testowy, nie docelowa mapa. Nie zaczynać bez nowej zgody.
 
 ## Zasady
 
