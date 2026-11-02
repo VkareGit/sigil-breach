@@ -72,7 +72,8 @@ local definitions = {
       falloffStart = T.falloffStart,
       falloffEnd = T.falloffEnd,
       minPower = T.pelletMinPower,
-      impact = T.pelletDamage,
+      -- Less than its harm: one volley hurts, a second breaks a guard.
+      impact = T.pelletImpact,
     },
     -- Glyphs change fields of the attack: set replaces, scale multiplies;
     -- spread scales the pellet cone (FOCUS: 28 % tighter).
@@ -300,6 +301,11 @@ function W.fill(g, actor)
     local def = W.get(id)
     Ammo.of(def).fill(def.ammo, p.arsenal[id])
   end
+end
+-- The reserve of one weapon set outright: what a place gives, not what the weapon could hold.
+function W.stock(g, id, amount, actor)
+  local def = W.get(id)
+  Ammo.of(def).stock(def.ammo, holder(g, actor).arsenal[id], amount)
 end
 function W.clear(g, actor)
   local p = holder(g, actor)

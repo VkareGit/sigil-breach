@@ -28,6 +28,7 @@ return {
   reloadLoadTime = 0.60,
   shotgunPellets = 20,
   pelletDamage = 12,
+  pelletImpact = 6,
   pelletSpread = 0.15,
   pelletVerticalSpread = 0.09,
   shotgunRange = 24,
