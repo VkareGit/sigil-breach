@@ -91,6 +91,10 @@ Niesprawdzone:
 - Odczucie i balans w grze: bot nie zastąpi gracza.
 - Pakowanie: bez -Package, zgodnie z ustaleniem.
 
+astra-fix3, amunicja: geometry 316/316 (zawiera bitmap_ui); 441 wpisów
+audytu stref bez uwag, w tym poprzednie przekroczenie o 1 px na stronę.
+Niezależny bitmap UI: 276 scen, 7128 granic tekstu, zero problemów.
+StyLua i git diff --check poprawne. Dowody: work/astra-fix3/geometry.
 
 ########################################################################
 ODBIOR-0.41.txt

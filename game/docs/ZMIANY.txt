@@ -177,6 +177,9 @@ Etap 3:
 - astra-fix2, golden: wzorzec uaktualniony po dwóch identycznych przebiegach
   dla celowych zmian AI, odnowy naboi Judge'a, znajdziek i krótszego Furfura.
   Zachowano scenariusze i historię komentarzy; końcowy golden 10/10.
+- astra-fix3, amunicja: strefa komunikatu odpowiada teraz wnętrzu ramy,
+  a pole centrowania mieści 252 px malowanego napisu „1 BARREL / 10 PELLETS”.
+  Usunięto przekroczenie o 1 px na stronę; rama, czcionka i pozycja tekstu bez zmian.
 
 ########################################################################
 ZMIANY-0.41.txt

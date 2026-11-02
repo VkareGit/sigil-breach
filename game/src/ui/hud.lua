@@ -488,9 +488,10 @@ local function ammoNotice(g)
           'hud_no_ammo'
         ))
       or Text.get(mag == 0 and 'hud_reload' or def.hud.partial)
-    Skin.zone('ammunition notice', 515, 540, 250, 32)
+    -- Use the frame's full interior; the partial-load caption has 252 px of painted ink.
+    Skin.zone('ammunition notice', 512, 540, 256, 32)
     Skin.panel(502, 530, 276, 52, 2, 10)
-    Skin.boxText(notice, 516, 542, 248, 28, U.fonts[16], empty and C.red or C.ivory, true)
+    Skin.boxText(notice, 514, 542, 252, 28, U.fonts[16], empty and C.red or C.ivory, true)
     Skin.endZone()
   end
 end
