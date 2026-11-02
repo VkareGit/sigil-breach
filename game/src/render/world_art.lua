@@ -123,16 +123,22 @@ function Art.pickup(r, g, a)
   s:send('silhouette', 1)
   s:send('soft', 0)
   s:send('effectAlpha', 1)
-  s:send(
-    'objectPos',
-    r:vec3(a.x, Ground.of(g.world, a) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)
-  )
+  local floor = Ground.of(g.world, a)
+  -- A painted pack lies on the floor in the chapel's own light, like the rest of the fresco
+  -- (owner: no glare); an atlas supply keeps its old hover and glow.
+  local lift = own and supply.size * 0.5 or 0.27 + math.sin(g.time * 3 + a.x) * 0.04
+  s:send('objectPos', r:vec3(a.x, floor + lift, a.z))
   s:send('objectYaw', math.atan2(Context.viewer(g).x - a.x, Context.viewer(g).z - a.z))
   s:send('objectScale', supply.size)
   s:send('lean', 0)
   s:send('pain', 0)
   s:send('mirror', 0)
-  s:send('brightness', 1.15)
+  local brightness = 1.15
+  if own then
+    local lr, lg, lb = r.lighting:sample(a.x, floor + 0.5, a.z)
+    brightness = (lr * 0.30 + lg * 0.59 + lb * 0.11) * supply.light
+  end
+  s:send('brightness', brightness)
   s:send('paint', 1)
   love.graphics.draw(r.sprite)
   s:send('paint', 0)

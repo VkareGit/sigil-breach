@@ -44,7 +44,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 
 | E01 | Retry między obszarami | zrobione | `pilgrimage_save.lua` (areas) |
 
-Uwagi właściciela w trakcie (do zrobienia): paczki naboi na podłodze za jaskrawe, mają pasować kolorystyką do fresku; czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
+Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); do zrobienia: czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
 
 ## Notatki
 

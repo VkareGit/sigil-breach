@@ -5,9 +5,11 @@ local Supplies = Registry:new('supplies')
 Supplies:register('health', { icon = 'health', size = 0.48 })
 -- A pack for a weapon the creatures drop (run/drops.lua) is painted as its own rounds (Codex,
 -- assets/art/pickups): shells and revolver rounds differ by shape, not only by colour.
+-- light: how much of the chapel's light a painted pack takes (render/world_art.lua).
 Supplies:register('ammo', {
   icon = 'ammo',
   size = 0.48,
+  light = 0.85,
   images = {
     exorcist = 'assets/art/pickups/ammo_shells.png',
     judge = 'assets/art/pickups/ammo_rounds.png',
