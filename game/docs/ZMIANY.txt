@@ -26,6 +26,11 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
   ikony HUD ładują się razem ze skórą, nie przy pierwszym rysowaniu (wykryła to kontrola startu).
   Krzyż celownika zostaje w kości słoniowej, kolor niesie tylko znacznik
   (biały trafienie, niebieski pancerz, czerwony zabójstwo, złote narożniki garda bez zmian).
+- Amunicja po próbie właściciela („ciągły brak naboi”), po konsultacji z Codexem Astra (work/ammo-consult):
+  ognisko dobija każdy zapas do tego, co daje, ale nie zabiera naboi zebranych ze stworów ponad to
+  (wcześniej odpoczynek ustawiał zapas na sztywno); paczki, które Margrave i Furfur zrzucają przy
+  zmianie fazy (2 x 14 łusek), leżą za krawędzią ciała po stronie rycerza, a nie 0,15 m od środka
+  żywego stwora; zapas Judge'a z ogniska 44 -> 72 (jedyna zmiana balansu). Łuski zostają rzadkie.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

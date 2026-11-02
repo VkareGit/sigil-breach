@@ -80,8 +80,10 @@ local function swear(g)
   end
   p.maxHp, p.maxArmor = stats.maxHp, stats.maxArmor
 end
--- A rest, a retry, a journey and a purchase: a fresh start, then everything full.
-local function refresh(g)
+-- A rest, a retry, a journey and a purchase: a fresh start, then everything full. A fire fills
+-- each reserve up to what it gives (carried) and never takes away rounds gathered beyond it from
+-- the creatures; only the start of a way gives exactly what a fire gives (fresh).
+local function refresh(g, fresh)
   swear(g)
   local p = Roles.controlled(g)
   ActorReset.actor(g, p)
@@ -89,10 +91,15 @@ local function refresh(g)
   Characters.rest(p)
   Abilities.fill(g, nil, p)
   Abilities.rest(g, p)
+  local gathered = {}
+  for id in pairs(K.carried) do
+    local slot = Weapons.slotOf(g, id, p)
+    gathered[id] = slot and not fresh and select(2, Weapons.meter(g, slot, p)) or 0
+  end
   Weapons.fill(g, p)
   for id, amount in pairs(K.carried) do
     if Weapons.slotOf(g, id, p) then
-      Weapons.stock(g, id, amount, p)
+      Weapons.stock(g, id, math.max(amount, gathered[id]), p)
     end
   end
   Weapons.rest(g)
@@ -213,7 +220,7 @@ function P.init(g, options)
   r.origin, r.saved = data or false, data and true or false
   r.saves, r.begun = sequence, sequence
   g.availableSave, g.saveRecovered = data or nil, damaged
-  refresh(g)
+  refresh(g, true)
   reachEcho(g)
   wake(g, (K.fireOf(r.fire)))
   P.populate(g)

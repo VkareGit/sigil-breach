@@ -23,7 +23,9 @@ local Way = {
   -- A knight wakes this far before his fire (m), with it at his back.
   wake = 1.5,
   -- What a fire fills the reserve to: a way is walked on what was carried from the last fire.
-  carried = { exorcist = 20, judge = 44 },
+  -- 0.42: the Judge, the gun of the ordinary fight, carries a full reserve (was 44); the
+  -- Exorcist's shells stay scarce (owner: the strongest fire is not for every fight).
+  carried = { exorcist = 20, judge = 72 },
   -- How near a door a knight must stand, and how tall it is painted (m).
   doorReach = 1.5,
   doorSize = 2.7,

@@ -220,8 +220,10 @@ return {
     comboWindow = 4,
     comboStep = 25,
     comboSteps = 5,
-    -- A health drop lies this far (m) beside an ammunition drop.
-    dropSpacing = 0.15,
+    -- Drops of a phase lie dropSpacing m apart, side by side, dropOut m beyond the body's edge
+    -- toward the knight (session/listeners.lua: spill).
+    dropSpacing = 0.5,
+    dropOut = 0.8,
   },
   -- Feel of events (feedback/listeners.lua): flashes and punches (s), shake
   -- strength, heights (m). guardBreakStop: the world's hit-stop when the

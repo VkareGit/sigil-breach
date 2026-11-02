@@ -93,10 +93,30 @@ local function causes(check, Game)
   )
   P.forget()
 end
+-- A fire fills each reserve up to what it gives and never takes away what was gathered beyond
+-- it; a new way starts with exactly what a fire gives.
+local function reserves(check, Game)
+  P.forget()
+  local g = session(Game)
+  local p = g.player
+  local shells, rounds = p.arsenal.exorcist, p.arsenal.judge
+  check(
+    'a new way carries what a fire gives',
+    shells.reserve == K.carried.exorcist and rounds.reserve == K.carried.judge
+  )
+  Encounter.clearStage(g)
+  shells.reserve, rounds.reserve = K.carried.exorcist + 15, 3
+  p.x, p.z = 10, 21
+  g:interact()
+  check('a rest keeps the shells gathered beyond it', shells.reserve == K.carried.exorcist + 15)
+  check('and fills what is short', rounds.reserve == K.carried.judge)
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
   freshStarts(check, Game)
+  reserves(check, Game)
   causes(check, Game)
   P.forget()
   local g = session(Game)

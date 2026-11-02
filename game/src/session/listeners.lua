@@ -18,6 +18,7 @@ local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
 local Roles = require('src.core.roles')
 local Spawn = require('src.session.spawn')
+local World = require('src.world.arena')
 local Destruction = require('src.combat.destruction')
 local Reactions = require('src.combat.reactions')
 local K = Tuning.rewards
@@ -121,14 +122,29 @@ local function hitStop(g, event)
   end
 end
 -- A wounded guardian spills what it took: the fight must not end on empty guns.
+-- What a body drops as it enters a phase lies where the knight can take it: beyond the body's
+-- edge on his side, side by side, never under the body itself (0.42: it lay 0.15 m from the
+-- middle of a living Margrave, out of reach until he was drawn away). Stone there: at his feet.
 local function spill(g, event)
   local stage = Archetypes.phase(event.enemy)
+  local e, p = event.enemy, Roles.controlled(g)
+  local dx, dz = p.x - e.x, p.z - e.z
+  local d = math.sqrt(dx * dx + dz * dz)
+  local nx, nz = 0, 1
+  if d > 1e-6 then
+    nx, nz = dx / d, dz / d
+  end
+  local out = math.min(d, Rules.radius(e) + K.dropOut)
   for i, drop in ipairs(stage and stage.drops or {}) do
-    local e = event.enemy
+    local side = (i - 1) * K.dropSpacing
+    local x, z = e.x + nx * out - nz * side, e.z + nz * out + nx * side
+    if World.solid(g.world, x, z, 0) then
+      x, z = p.x, p.z
+    end
     Spawn.make(g, 'pickup', {
-      x = e.x + i * K.dropSpacing,
-      z = e.z,
-      level = e.level,
+      x = x,
+      z = z,
+      level = p.level,
       kind = drop.kind,
       amount = drop.amount,
     })

@@ -79,6 +79,21 @@ function T.run(Game)
   local before = p.arsenal.exorcist.reserve
   g:update(1 / 120, {})
   check('where he takes it at once', #packs(g) == 0 and p.arsenal.exorcist.reserve > before)
+  -- What a hardest body drops as it enters a phase lies beyond its edge, on the knight's side,
+  -- where he can walk and take it.
+  g, p = fresh(Game)
+  local margrave = g:spawn('boss', p.x, p.z - 4)
+  margrave.dummy = true
+  g:damageEnemy(margrave, margrave.hp * 0.4, 'weapon', nil, p.id, p.loadout[1])
+  local phased = packs(g)
+  local edge = Rules.radius(margrave)
+  local reachable = #phased > 0
+  for _, pack in ipairs(phased) do
+    local fromBody = math.sqrt((pack.x - margrave.x) ^ 2 + (pack.z - margrave.z) ^ 2)
+    local fromKnight = math.sqrt((pack.x - p.x) ^ 2 + (pack.z - p.z) ^ 2)
+    reachable = reachable and fromBody > edge and fromKnight < 4
+  end
+  check('a phase drops shells beyond the body, toward him', reachable)
   -- The same play drops the same.
   local function sample()
     local s = fresh(Game)
