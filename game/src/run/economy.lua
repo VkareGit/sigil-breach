@@ -153,7 +153,8 @@ E.kinds = {
       if rank >= offer.limit then
         return 0, Text.get('shop_vow_full_reason'), true
       end
-      return offer.price * offer.growth ^ rank
+      -- Souls are whole, including the price of a later rank.
+      return math.ceil(offer.price * offer.growth ^ rank)
     end,
     apply = function(g, offer)
       g.run.vows[offer.id] = (g.run.vows[offer.id] or 0) + 1

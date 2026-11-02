@@ -77,6 +77,10 @@ local function center(t, y, size, c)
   centered(t, 640, y, size, c)
 end
 local function number(t, cx, y, w, h, c)
+  -- Counters use whole painted digits even if a future rule supplies a fraction.
+  if type(t) == 'number' then
+    t = string.format('%.0f', math.max(0, math.floor(t + 0.5)))
+  end
   local x, top, width, height = Numbers.draw(t, cx, y, w, h, c)
   Skin.imageBounds('painted number ' .. t, x, top, width, height)
 end
@@ -120,7 +124,7 @@ function H.status(g, run)
   Skin.zone('HUD ammunition', 133, 628, 105, 68)
   local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
   fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
-  number(tostring(mag), 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
+  number(mag, 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
   local ammoCaption = Reload.left(g, Context.actor(g)) > 0 and Reload.label(g, Context.actor(g))
     or Text.get('reserve', { count = reserve })
   fitted(
@@ -265,13 +269,13 @@ function H.status(g, run)
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
   local showEcho = run.echo
-  number(tostring(run.wallet), 1105, 648, 98, showEcho and 22 or 25, C.gold)
+  number(run.wallet, 1105, 648, 98, showEcho and 22 or 25, C.gold)
   if showEcho then
     -- Seven-digit legal saves still keep their exact value. A separate short
     -- caption and proportional numeral line fit the fresco niche without
     -- shrinking an entire phrase below the smallest readable PNG font.
     centered(Text.get('echo'), 1105, 672, 11, C.blue)
-    number(tostring(run.echo.amount), 1105, 688, 98, 13, C.blue)
+    number(run.echo.amount, 1105, 688, 98, 13, C.blue)
   else
     -- What a kill just paid stands in the niche for a moment, in place of the count of deaths.
     local gained = (g.view.soulsGainTimer or 0) > 0

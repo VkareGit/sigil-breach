@@ -158,6 +158,56 @@ local function caches(check, Game)
   check('a draught fills the flask by one', p.abilityState.flask.uses == 2)
   P.forget()
 end
+-- A third sigil used to cost half a soul and leave a wallet the HUD and saves refused.
+local function sigilPrices(check, Game)
+  P.forget()
+  local g = session(Game)
+  local Economy = require('src.run.economy')
+  local Shop = require('src.content.shop')
+  local Save = require('src.storage.save')
+  for _, offer in ipairs(Shop.offers) do
+    if offer.kind == 'vow' then
+      for rank = 0, offer.limit - 1 do
+        local quote = Economy.kinds.vow.quote({ run = { vows = { [offer.id] = rank } } }, offer)
+        check(offer.id .. ' rank ' .. (rank + 1) .. ' costs whole souls', quote % 1 == 0)
+      end
+    end
+  end
+  g:interact()
+  g.run.wallet = 375
+  check('the first sigil costs 150', Economy.quote(g, 'sigil_buer') == 150)
+  check('the first copy is bought', g:act('buy', 'sigil_buer'))
+  check('the second sigil costs 225', Economy.quote(g, 'sigil_buer') == 225)
+  check('the second copy is bought', g:act('buy', 'sigil_buer') and g.run.wallet == 0)
+  check('the third sigil costs 338 whole souls', Economy.quote(g, 'sigil_buer') == 338)
+  g.run.wallet = 337
+  check(
+    'one soul short buys nothing',
+    not g:act('buy', 'sigil_buer') and g.run.wallet == 337 and g.run.vows.sigil_buer == 2
+  )
+  g.run.wallet = 355
+  check(
+    'the third copy leaves whole souls and its full trait',
+    g:act('buy', 'sigil_buer') and g.run.wallet == 17 and g.player.rallyRate == 0.12
+  )
+  local encoded = Save.encode('pilgrimage', Save.capture('pilgrimage', g), 1)
+  local decoded, reason = Save.decode('pilgrimage', encoded)
+  check(
+    'the wallet is valid save data' .. (decoded and '' or ': ' .. tostring(reason)),
+    decoded ~= nil
+  )
+  local restored = Game.new('pilgrimage', nil, { origin = false })
+  Save.restore('pilgrimage', restored, decoded)
+  check('the wallet survives a save', restored.run.wallet == 17)
+  g:act('closeShop')
+  P.lose(g)
+  check('death leaves a whole echo', g.run.wallet == 0 and g.run.echo.amount == 17)
+  P.retry(g)
+  g.player.x, g.player.z = g.run.echo.x, g.run.echo.z
+  P.update(g, 0)
+  check('the echo returns every soul', g.run.wallet == 17 and g.run.echo == nil)
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
@@ -165,6 +215,7 @@ function T.run(Game)
   reserves(check, Game)
   caches(check, Game)
   causes(check, Game)
+  sigilPrices(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player

@@ -603,6 +603,7 @@ function Tests.run(G, renderer)
   local imageDraws = 0
   local glyphDraws = 0
   local hudChecked = 0
+  local fractionalCounters = {}
   local originals = {
     text = Skin.text,
     panel = Skin.panel,
@@ -689,6 +690,9 @@ function Tests.run(G, renderer)
     end
     Numbers.draw = function(value, ...)
       seenStrings[tostring(value)] = true
+      if name == 'fractional-counters' then
+        fractionalCounters[tostring(value)] = true
+      end
       return originals.number(value, ...)
     end
     lg.draw = function(drawable, ...)
@@ -852,6 +856,21 @@ function Tests.run(G, renderer)
       runScene(case[1], g, size[1], size[2], case[3])
     end
   end
+  local fractional = fresh()
+  active(fractional)
+  fractional.run.wallet = 17.5
+  fractional.run.echo = { amount = 23.4, x = 16, z = 23 }
+  fractional.player.arsenal.exorcist.mag = 1.5
+  runScene('fractional-counters', fractional, 1280, 720)
+  check(
+    'fractional HUD counters draw rounded digits without changing the session',
+    fractionalCounters['18']
+      and fractionalCounters['23']
+      and fractionalCounters['2']
+      and fractional.run.wallet == 17.5
+      and fractional.run.echo.amount == 23.4
+      and fractional.player.arsenal.exorcist.mag == 1.5
+  )
   -- Read actual canvas pixels outside the logical page. This catches the
   -- bright-world strips that were invisible to logical-rectangle audits.
   for _, v in ipairs({
@@ -918,7 +937,7 @@ function Tests.run(G, renderer)
   corpusFile:close()
   check(
     'all ' .. #cases .. ' UI edge cases render at five sizes exclusively with bitmap draws',
-    sceneCount == #cases * 5 and imageDraws > 0
+    sceneCount == #cases * 5 + 1 and imageDraws > 0
   )
   check(
     'rendered text stays off frame borders, protected character images and other labels',
