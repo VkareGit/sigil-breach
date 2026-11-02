@@ -6,6 +6,8 @@ return Creature.boss({
   id = 'boss',
   name = 'creature_boss',
   souls = 150,
+  -- The hardest bodies always pay in shells, and an execution feeds the fight against them.
+  ammo = { weapon = 'exorcist', chance = 1, least = 6, most = 8, executed = 4 },
   catalog = { field = 5 },
   guardian = true,
   appearance = {

@@ -96,18 +96,33 @@ function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   love.graphics.draw(r.sprite)
   s:send('wallRepeat', 1)
 end
+-- A supply painted on its own (supplies: images by weapon), loaded once.
+local packs = {}
+local function pack(path)
+  packs[path] = packs[path] or love.graphics.newImage(path, { mipmaps = true })
+  return packs[path]
+end
 function Art.pickup(r, g, a)
   local supply = Supplies:get(a.kind)
-  local icon = Skin.icons[supply.icon]
-  local x, y, w, h = icon.q:getViewport()
-  local iw, ih = Skin.image:getDimensions()
   local s = r.spriteShader
-  r.sprite:setTexture(Skin.image)
-  s:send('spriteStretch', r:vec2(w / h, 1))
+  local own = supply.images and a.weapon and supply.images[a.weapon]
+  if own then
+    local image = pack(own)
+    local w, h = image:getDimensions()
+    r.sprite:setTexture(image)
+    s:send('spriteStretch', r:vec2(w / h, 1))
+    s:send('frameRect', { 0, 0, 1, 1 })
+  else
+    local icon = Skin.icons[supply.icon]
+    local x, y, w, h = icon.q:getViewport()
+    local iw, ih = Skin.image:getDimensions()
+    r.sprite:setTexture(Skin.image)
+    s:send('spriteStretch', r:vec2(w / h, 1))
+    s:send('frameRect', { x / iw, y / ih, w / iw, h / ih })
+  end
   s:send('silhouette', 1)
   s:send('soft', 0)
   s:send('effectAlpha', 1)
-  s:send('frameRect', { x / iw, y / ih, w / iw, h / ih })
   s:send(
     'objectPos',
     r:vec3(a.x, Ground.of(g.world, a) + 0.27 + math.sin(g.time * 3 + a.x) * 0.04, a.z)

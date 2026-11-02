@@ -86,6 +86,11 @@ Suite.registry = {
     module = 'tests.cases.chain',
   },
   {
+    id = 'drops',
+    title = 'Creatures leave the rounds of their family; an execution always pays',
+    module = 'tests.cases.drops',
+  },
+  {
     id = 'damage-trail',
     title = 'The damage trail is the view state of its own blows, aged by the clocks',
     module = 'tests.cases.damage_trail',

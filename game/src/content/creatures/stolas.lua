@@ -6,6 +6,7 @@ return Creature.define({
   id = 'stolas',
   name = 'creature_stolas',
   souls = 8,
+  ammo = { weapon = 'judge', chance = 0.5, least = 3, most = 5, executed = 4 },
   catalog = {
     field = 3,
     bestiary = {

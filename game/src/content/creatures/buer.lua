@@ -30,6 +30,8 @@ return Creature.define({
   id = 'buer',
   name = 'creature_buer',
   souls = 12,
+  -- Heavy bodies carry the Exorcist's shells, the rarer rounds.
+  ammo = { weapon = 'exorcist', chance = 0.35, least = 1, most = 2, executed = 2 },
   catalog = {
     field = 4,
     bestiary = {

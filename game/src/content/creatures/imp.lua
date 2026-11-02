@@ -7,6 +7,8 @@ return Creature.define({
   id = 'imp',
   name = 'creature_imp',
   souls = 4,
+  -- Light bodies carry revolver rounds: common, small packs.
+  ammo = { weapon = 'judge', chance = 0.4, least = 2, most = 4, executed = 3 },
   catalog = {
     field = 1,
     bestiary = {

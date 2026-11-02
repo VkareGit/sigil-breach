@@ -120,6 +120,11 @@ Creature.schema = Schema:new('creature', {
   variant = { type = 'string', desc = 'id of the variant of its kind' },
   name = { type = 'string', required = true },
   souls = { type = 'number', default = 0, min = 0 },
+  ammo = {
+    type = 'table',
+    desc = 'what it leaves for the guns (run/drops.lua): weapon id, chance of a pack on a kill, '
+      .. 'least and most rounds in it, rounds an execution always gives',
+  },
   tactics = { type = 'table', schema = Encounter.tactics },
   phases = { type = 'table', list = Encounter.phase },
   guardian = {

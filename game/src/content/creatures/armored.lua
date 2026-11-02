@@ -10,6 +10,7 @@ return Creature.define({
   variant = 'armored',
   name = 'creature_armored',
   souls = 12,
+  ammo = { weapon = 'exorcist', chance = 0.45, least = 2, most = 3, executed = 2 },
   catalog = {
     field = 2,
     bestiary = {

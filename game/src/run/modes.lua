@@ -2,6 +2,7 @@
 local Catalog = require('src.run.field.catalog')
 local Chambers = require('src.run.field.chambers')
 local Pilgrimage = require('src.run.pilgrimage')
+local Drops = require('src.run.drops')
 local TestField = require('src.run.test_field')
 local Gallery = require('src.world.gallery')
 local Economy = require('src.run.economy')
@@ -191,6 +192,10 @@ Modes:register('pilgrimage', {
   end,
   reward = function(g, event)
     Pilgrimage.reward(g, event)
+    Drops.kill(g, event)
+  end,
+  executed = function(g, event)
+    Drops.executed(g, event)
   end,
   interact = function(g)
     return Pilgrimage.interact(g)

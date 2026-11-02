@@ -31,6 +31,7 @@ return Creature.boss({
   name = 'creature_furfur',
   -- As much as the Margrave: the other hardest body of the chapel (owner, 0.42).
   souls = 150,
+  ammo = { weapon = 'exorcist', chance = 1, least = 6, most = 8, executed = 4 },
   catalog = { field = 6 },
   appearance = {
     seal = 'furfur',

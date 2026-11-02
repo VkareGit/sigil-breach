@@ -77,6 +77,23 @@ function Review.run(Game, renderer, output)
   shot(g, 'target-whole')
   g:damageEnemy(foe, foe.hp * 0.45, 'weapon', nil, g.player.id, g.player.loadout[1])
   shot(g, 'target-trail')
+  -- Packs the creatures left (run/drops.lua): shells and revolver rounds, a few steps ahead.
+  local Spawn = require('src.session.spawn')
+  local side = { math.cos(g.player.yaw), -math.sin(g.player.yaw) }
+  for i, weapon in ipairs({ 'exorcist', 'judge' }) do
+    local along, across = 3.2, (i - 1.5) * 1.2
+    Spawn.make(g, 'pickup', {
+      x = g.player.x + dx * along + side[1] * across,
+      z = g.player.z + dz * along + side[2] * across,
+      kind = 'ammo',
+      weapon = weapon,
+      amount = 3,
+    })
+  end
+  foe.x = foe.x + 30
+  shot(g, 'ammo-drops')
+  Pools.clear(g, 'pickups')
+  foe.x = foe.x - 30
   g.player.chainCount, g.player.chainLeft, g.view.medalTimer = nil, nil, 0
   g.view.hitmarker, g.view.lastKill, g.view.killPop, g.view.soulsGainTimer = 0, false, 0, 0
   g.view.refusalTimer, g.player.resources.stamina = 0, 100
