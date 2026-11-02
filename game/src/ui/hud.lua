@@ -233,7 +233,7 @@ function H.status(g, run)
       local left, label = 912, nil
       if marked then
         Skin.icon(item.def.id, 912, y - 1, 18)
-        left, label = 934, item.key
+        left, label = 934, Text.get('ability_key_alone', { key = item.key })
       else
         label = Text.get('ability_key', { key = item.key, tag = Text.get(item.def.tag) })
       end

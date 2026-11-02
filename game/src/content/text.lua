@@ -114,6 +114,7 @@ local definitions = {
   { 'ammo', 'AMMO' },
   { 'reserve', 'RES. {count}' },
   { 'ability_key', '{key} {tag}' },
+  { 'ability_key_alone', '{key}' },
   { 'key_name', '{key}' },
   { 'uses', '{uses} / {capacity}' },
   { 'souls_amount', 'SOULS  {amount}' },

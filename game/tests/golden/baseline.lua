@@ -10,11 +10,13 @@
 -- 0.42: a dodge is paid with stamina alone, no charges (owner, D3), and the digest folds the
 -- knight's stamina where it folded his charges; all three scenarios change.
 -- 0.42: no fire takes in a hunted knight (owner, D1): the reading walk is refused a rest.
+-- 0.42: creatures leave rounds (owner, D2): the drops take the session's rolls and refill the
+-- guns, so both walks change.
 return {
-  playtest = '563d497b/79bd3fe3',
-  human = '445d30d6/f098d12b',
+  playtest = '6e47de91/7e726656',
+  human = 'a525b88e/85a45355',
   drill = '1fb5f6c3/39c4df31',
-  playtestContacts = 'be2e487a/312',
-  humanContacts = '0ac75f10/678',
+  playtestContacts = 'c0427e73/529',
+  humanContacts = '4289529b/813',
   drillContacts = '3e997544/352',
 }
