@@ -241,6 +241,8 @@ local definitions = {
   { 'pilgrim_start', 'Rest at the fires. Whatever you cut down rises when you do.' },
   { 'pilgrim_rested', '{name}: rested. The chapel stirs.' },
   { 'pilgrim_prompt', '{name} / [E] REST / [ENTER] TRAVEL' },
+  { 'pilgrim_prompt_hunted', '{name} / NO REST WHILE YOU ARE HUNTED' },
+  { 'pilgrim_rest_refused', 'Something is awake and hunting you. No fire takes you in now.' },
   { 'pilgrim_echo', 'Your souls lie here: {amount}' },
   { 'pilgrim_recovered', 'Souls recovered: {amount}' },
   { 'pilgrim_progress', 'DEATHS {deaths}' },

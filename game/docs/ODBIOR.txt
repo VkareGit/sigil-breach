@@ -27,6 +27,7 @@ Sprawdzone automatycznie:
 - G02: tests/cases/damage_trail.lua: pierwszy cios ma sumę, ciosy się dodają, czas płynie przy odwróconym wzroku, inny cel zaczyna własny ślad, druga sesja ma własny.
 - G03, G04: look-medal-crowded, look-low-flask, look-low-flask-empty, look-recovering obejrzane: medal, opis i komunikat bez nakładania; podpowiedź o flasce znika przy pustej; „AFTER THE SHOT” w kości słoniowej. tests/cases/responsiveness.lua: unik po strzale mówi hud_recovering.
 - G05: geometry (bitmap UI, 255 scen w pięciu rozdzielczościach): 0 uwag; rendery look-first-fire, look-low-flask-empty, look-no-breath, look-fire-menu obejrzane w powiększeniu. Wymaga zgody właściciela na wygląd (zmiana treści w niszach).
+- L02, tests/cases/pilgrimage.lua: przy czuwającym stworze [E] przy ognisku nie leczy (20 HP zostaje), podpowiedź mówi HUNTED, podróż odmawia; po uśpieniu odpoczynek działa. Złoty wzorzec: przejście bota zmienia się (odmówiony odpoczynek).
 - L09: responsiveness (trzy uniki, czwarty nie; brak oddechu mówi dlaczego), consistency i push_forward (doskonały unik oddaje wytrzymałość, nie więcej niż maksimum), rules (trucizna połowi odnowę), złoty wzorzec zaktualizowany. Odczucie uniku do oceny w grze.
 
 Niesprawdzone:

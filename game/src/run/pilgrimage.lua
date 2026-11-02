@@ -265,6 +265,13 @@ local function door(g)
   end
   return true
 end
+-- Something awake hunts the knight: no fire takes him in until it gives up or falls (owner, D1).
+local function fighting(g)
+  return Bodies.each(g, function(b)
+    return b.awake and b.hp > 0
+  end) ~= nil
+end
+P.fighting = fighting
 -- A purchase at a fire: a vow holds from this moment, and the fire fills what it added.
 function P.bought(g)
   refresh(g)
@@ -276,6 +283,10 @@ function P.interact(g)
   local fire = P.fireHere(g)
   if not fire then
     return door(g)
+  end
+  if fighting(g) then
+    g:notify(Text.get('pilgrim_rest_refused'), 3)
+    return true
   end
   local r = g.run
   r.fire, r.lit[fire.id] = fire.id, true
@@ -289,7 +300,7 @@ end
 -- [ENTER] at a fire, or its menu's button: on to the next one lit.
 function P.travel(g)
   local here = P.fireHere(g)
-  if not here then
+  if not here or fighting(g) then
     return false
   end
   Sanctuary.closeTrade(g)
@@ -317,7 +328,10 @@ end
 function P.context(g)
   local fire = P.fireHere(g)
   if fire then
-    return Text.get('pilgrim_prompt', { name = Text.get(fire.name) })
+    return Text.get(
+      fighting(g) and 'pilgrim_prompt_hunted' or 'pilgrim_prompt',
+      { name = Text.get(fire.name) }
+    )
   end
   local found, own = doorHere(g)
   if found then
@@ -359,11 +373,6 @@ function P.reward(g, event)
   local r = g.run
   event.souls = (Archetypes.of(event.enemy).souls or 0) * K.souls
   r.wallet, r.dirty = r.wallet + event.souls, true
-end
-local function fighting(g)
-  return Bodies.each(g, function(b)
-    return b.awake
-  end) ~= nil
 end
 function P.update(g, dt)
   local r = g.run

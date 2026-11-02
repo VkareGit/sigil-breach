@@ -36,6 +36,7 @@ Etap 1, czytelność bez zmiany designu:
 - G05: w niszy zdolności malowane znaki ładunku Q i flaski F (Codex, assets/art/icons) z klawiszem i dużą liczbą użyć z dala od krawędzi; przy więcej niż dwóch przedmiotach zostają dawne małe wiersze. Rząd uniku: znak wytrzymałości, SHIFT i złoty pasek (czerwony, gdy brak oddechu na unik). Niskie zdrowie: czerwony także nagłówek HEALTH. Sklep: trzy śluby mają trzy różne ikony, nagłówek mówi EXORCIST i ward wobec własnego maksimum. Nisze, kształt i kompozycja paska bez zmian.
 
 Etap 2:
+- L02 (decyzja D1): ognisko nie przyjmuje ściganego rycerza. Gdy jakiś żywy stwór czuwa, [E] przy ognisku nie leczy ani nie cofa stworów, tylko mówi „Something is awake and hunting you. No fire takes you in now.”, podpowiedź przy ognisku mówi NO REST WHILE YOU ARE HUNTED, a podróż do innego ogniska też odmawia.
 - L09 (decyzja D3): unik ogranicza tylko wytrzymałość. Ładunki uniku usunięte (dashCharges, dashRecharge, pole dash, napis NO DODGES LEFT). Trzy uniki z pełnego paska, czwarty czeka; po wysiłku odnowa rusza po 0,4 s (było 0,55). Doskonały unik oddaje wytrzymałość jednego uniku. Trucizna spowalnia odnowę wytrzymałości tak, jak dawniej odnowę ładunków. W niszy uniku jeden pasek wytrzymałości zamiast dwóch kresek. Poza trybem z wysiłkiem (stary poligon bez attrition) unik niczym nie jest ograniczony.
 
 

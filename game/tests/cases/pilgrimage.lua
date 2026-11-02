@@ -98,6 +98,13 @@ function T.run(Game)
   g:damageEnemy(second, second.hp + 1, 'weapon', nil, p.id)
   p.hp, p.abilityState.flask.uses = 20, 0
   local wallet = g.run.wallet
+  -- No fire takes him in while something hunts him (owner, D1), and it says so.
+  local hunter = byPost(g, 'nave_3')
+  hunter.awake = true
+  check('no rest while something is awake', g:interact() and g.state == 'playing' and p.hp == 20)
+  check('and the fire says why', g:context():find('HUNTED', 1, true) ~= nil)
+  check('nor a journey', not P.travel(g))
+  hunter.awake = false
   check('[E] rests at a fire', g:interact() and g.state == 'shop')
   check('it heals', p.hp == 100)
   check('it fills the flask', p.abilityState.flask.uses == 3)
@@ -178,6 +185,10 @@ function T.run(Game)
   -- Fires are lit by resting at them, and travel goes between the lit ones.
   p.x, p.z = 10, 21
   check('a far fire waits', P.fireHere(g) ~= nil and P.fireHere(g).id == 'west')
+  -- What the deaths above woke has given up by now: a fire only takes in a knight nobody hunts.
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake = false
+  end
   g:interact()
   check('the hardest bodies rise like the rest', byPost(g, 'west_hall').hp > 0)
   check('travel leaves its menu', g:act('ready') and g.state == 'playing')

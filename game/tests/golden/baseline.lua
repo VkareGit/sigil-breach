@@ -9,11 +9,12 @@
 -- buffered pull carries over, so both walks change after their first death.
 -- 0.42: a dodge is paid with stamina alone, no charges (owner, D3), and the digest folds the
 -- knight's stamina where it folded his charges; all three scenarios change.
+-- 0.42: no fire takes in a hunted knight (owner, D1): the reading walk is refused a rest.
 return {
-  playtest = '304b0602/bebcce67',
+  playtest = '563d497b/79bd3fe3',
   human = '445d30d6/f098d12b',
   drill = '1fb5f6c3/39c4df31',
-  playtestContacts = '421cbf54/201',
+  playtestContacts = 'be2e487a/312',
   humanContacts = '0ac75f10/678',
   drillContacts = '3e997544/352',
 }
