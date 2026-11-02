@@ -36,6 +36,7 @@ local Catalog = {
   { 'KnightFell', 'a knight other than the controlled one fell {knight}' },
   { 'PerfectDodge', 'a blow landed during a dodge {packet, source}' },
   { 'Executed', 'a body held open was finished up close {enemy, amount, actor}' },
+  { 'ChainGrew', 'a chain of kills reached a new step {actor, step, count}' },
   { 'WallSlam', 'a body met stone faster than the slam speed {body, speed, lost, player}' },
   { 'BodiesCollided', 'a thrown body struck another {body, other}' },
   { 'AttackTelegraphed', 'a demon committed to an attack {enemy, attack}' },

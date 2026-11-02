@@ -97,10 +97,7 @@ function Tests.run(G, initial, renderer, getGame)
       and g.view.shotReport.damage
         <= 12 * (20 + g.view.shotReport.headHits * (T.shotgunHeadMultiplier - 1)) + 0.001
   )
-  check(
-    'two-target volley gives explicit feedback',
-    g.view.feedback:find('2 DEMONS', 1, true) and g.view.lastKill
-  )
+  check('two-target volley gives explicit feedback', g.view.medal == 'one_shot' and g.view.lastKill)
   fresh()
   -- At 7 m the spread spans three separated torsos (all 45 HP), not skull horns.
   g.player.pitch, g.player.yaw = -0.02, math.pi + 0.02

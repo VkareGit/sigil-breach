@@ -5,12 +5,13 @@ local Characters = require('src.content.characters')
 local Context = require('src.session.context')
 local H = {}
 local lg = love.graphics
-local Stats = require('src.session.stats')
 local Skin = require('src.ui.skin')
 local T = require('src.content.tuning')
 local Reload = require('src.combat.reload')
 local B = require('src.combat.ballistics')
 local Attributes = require('src.combat.attributes')
+local Chain = require('src.combat.chain')
+local Honours = require('src.content.chain')
 local L = require('src.ui.layout')
 local Portrait = require('src.ui.portrait')
 local Numbers = require('src.ui.fonts.painted_numbers')
@@ -99,6 +100,16 @@ local function notice(label, y, size, tint)
 end
 -- The status bar. What it shows of the mode (purse, glyph, echo, progress)
 -- is the mode's report (run/modes.lua: hud), never its record read here.
+-- A painted seal: what a deed or a chain looks like (assets/art/medals, by Codex).
+local seals = {}
+local function seal(id, x, y, size, alpha)
+  seals[id] = seals[id] or lg.newImage('assets/art/medals/' .. id .. '.png', { mipmaps = true })
+  local image = seals[id]
+  Skin.imageBounds('seal ' .. id, x, y, size, size)
+  lg.setColor(1, 1, 1, alpha)
+  lg.draw(image, x, y, 0, size / image:getWidth())
+  lg.setColor(1, 1, 1)
+end
 function H.status(g, run)
   run = run or Modes.act(g, 'hud')
   local p = Context.actor(g)
@@ -125,7 +136,14 @@ function H.status(g, run)
   Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
   Skin.endZone()
   Skin.zone('HUD arsenal', 421, 628, 115, 68)
-  centered(Text.get('arsenal'), 478, 630, 14, C.muted)
+  -- A chain is the weapon's: it stands in the niche of the weapons, as long as it lives.
+  local chain = Chain.step(p)
+  if chain then
+    seal(chain.id, 423, 629, 18, 1)
+    fitted(Text.get(chain.name), 487, 632, 12, 90, C.gold)
+  else
+    centered(Text.get('arsenal'), 478, 630, 14, C.muted)
+  end
   -- Two painted rows: scroll around the selected slot instead of silently
   -- dropping any third weapon or overflowing the fresco's lower ornament.
   local shown, count = Slots.weapons(g, 2)
@@ -136,7 +154,9 @@ function H.status(g, run)
       or Text.get(weapon.def.name)
     fitted(label, 478, 648 + (row - 1) * 16, 12, 114, tint)
   end
-  if run.glyph ~= 'none' then
+  if chain then
+    Skin.meter(425, 686, 106, p.chainLeft / Honours.window, C.gold, 12)
+  elseif run.glyph ~= 'none' then
     local label = Text.get(assert(Shop.get(run.glyph).short, 'missing engraving HUD label'))
     fitted(label, 478, 681, 12, 114, C.gold)
   end
@@ -186,21 +206,6 @@ function H.status(g, run)
     Skin.meter(974 + (i - 1) * 24, 683, 20, p.dash - i + 1, C.ivory, 4)
   end
   Skin.endZone()
-  if (g.view.soulsGainTimer or 0) > 0 then
-    Skin.panel(1030, 548, 150, 32, 2, 8)
-    Skin.zone('souls gain', 1038, 553, 134, 22)
-    Skin.boxText(
-      Text.get('hud_souls_gain', { amount = g.view.soulsGain }),
-      1039,
-      554,
-      132,
-      20,
-      U.fonts[16],
-      C.gold,
-      true
-    )
-    Skin.endZone()
-  end
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
   local showEcho = run.echo
@@ -212,7 +217,10 @@ function H.status(g, run)
     centered(Text.get('echo'), 1105, 672, 11, C.blue)
     number(tostring(run.echo.amount), 1105, 688, 98, 13, C.blue)
   else
-    fitted(run.progress, 1105, 680, 14, 98, C.muted)
+    -- What a kill just paid stands in the niche for a moment, in place of the count of deaths.
+    local gained = (g.view.soulsGainTimer or 0) > 0
+      and Text.get('hud_souls_gain', { amount = g.view.soulsGain })
+    fitted(gained or run.progress, 1105, 680, 14, 98, gained and C.gold or C.muted)
   end
   Skin.endZone()
 end
@@ -398,6 +406,30 @@ local function ammoNotice(g)
     Skin.endZone()
   end
 end
+local function medalOf(id)
+  if Honours.medals[id] then
+    return Honours.medals[id]
+  end
+  for _, step in ipairs(Honours.steps) do
+    if step.id == id then
+      return step
+    end
+  end
+end
+-- A deed or a new step of a chain: at the top of the view, large, for a moment, and it fades. What
+-- stays while a chain lives is quiet, in the niches of the bar (H.status).
+local function honours(g, cx)
+  local left = g.view.medalTimer or 0
+  if left <= 0 then
+    return
+  end
+  local medal = medalOf(g.view.medal)
+  seal(g.view.medal, cx - L.medalSeal / 2, L.medalTop, L.medalSeal, math.min(1, left / L.medalFade))
+  centered(Text.get(medal.name), cx, L.medalTop + L.medalSeal + 2, 20, C.gold)
+  if medal.effect then
+    centered(Text.get(medal.effect), cx, L.medalTop + L.medalSeal + 26, 14, C.ivory)
+  end
+end
 local function prompt(g)
   local ctx = g:context()
   if ctx then
@@ -457,10 +489,7 @@ function H.draw(g, settings, ui, descentUI)
   if g.view.feedbackTimer > 0 then
     notice(g.view.feedback, 486, 16, C.gold)
   end
-  local stats = Stats.read(g, Context.actor(g).id)
-  if stats.comboTimer > 0 and stats.combo > 1 then
-    notice(Text.get('hud_chain', { count = stats.combo }), 438, 16, C.ivory)
-  end
+  honours(g, cx)
   prompt(g)
   message(g)
   hints(g, p, settings)

@@ -16,6 +16,9 @@ local MovementMarks = require('src.feedback.movement_marks')
 local Text = require('src.content.text')
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
+local Medals = require('src.feedback.medals')
+local Chain = require('src.content.chain')
+local Characters = require('src.content.characters')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
@@ -74,6 +77,14 @@ local function enemyKilled(g, e)
     return
   end
   g = personal
+  local p = Context.actor(g)
+  if e.source == 'execution' then
+    Medals.show(g, 'absolved')
+  elseif p.hp <= Characters.maxHp(p) * Chain.lastRites then
+    Medals.show(g, 'last_rites')
+  elseif ((enemy.x - p.x) ^ 2 + (enemy.z - p.z) ^ 2) ^ 0.5 <= Chain.pointBlank then
+    Medals.show(g, 'point_blank')
+  end
   if e.souls then
     -- What the purse really gained, at the purse; a run of kills adds up.
     local running = (g.view.soulsGainTimer or 0) > 0 and g.view.soulsGain or 0
@@ -144,6 +155,12 @@ function Listeners.attach(g)
     -- immediate reset cannot clear feedback that has not been presented yet.
     -- Finish this lifecycle after the queued hurt response has run.
     Context.reset(g, e.knight)
+  end)
+  bus:on('present', 'ChainGrew', function(e)
+    local personal = Recipient.context(g, e.actor)
+    if personal then
+      Medals.chain(personal, e.step)
+    end
   end)
   bus:on('present', 'PerfectDodge', function(e)
     local personal = Recipient.context(g, e.actor)

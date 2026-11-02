@@ -3,6 +3,7 @@ local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
 local B = require('src.combat.ballistics')
 local Cast = require('src.combat.abilities')
+local Chain = require('src.combat.chain')
 local Reload = require('src.combat.reload')
 local Weapons = require('src.content.weapons')
 local Rules = require('src.combat.rules')
@@ -206,6 +207,7 @@ function C.shoot(g, command, who, alt)
   end
   local slot = Weapons.slot(g, a)
   local attack, spread = Loadout.attack(g, slot, a, alt), Loadout.spread(g, a, alt)
+  attack = Chain.edge(a, Weapons.idAt(g, slot, a), attack)
   local pellets = discharge(g, profile, command, a)
   local shot = {
     profile = profile,

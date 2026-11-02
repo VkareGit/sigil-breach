@@ -1,18 +1,20 @@
-SIGIL: BREACH — prototyp 0.40
+SIGIL: BREACH — prototyp 0.41
 1 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
-KAPLICA (0.40: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
+KAPLICA (0.41: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
 BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
 zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
 [E] przy ognisku: odpoczynek. Leczy, napełnia flaski i amunicję, zapisuje grę, ustawia
 miejsce powrotu i podnosi wszystkie stwory. Otwiera menu ognia: grawery, trwałe śluby (flaska,
 ward, zdrowie, po trzy rangi) i podróż do kolejnego zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim.
-[F] flaska. Strzał i unik kosztują wytrzymałość; przy pustej broń nadal strzela, ale uniku nie
-zrobisz. Rycerz idzie tyłem wolniej niż naprzód.
+[F] flaska. Unik kosztuje 26 wytrzymałości, strzał nic: po strzale przez chwilę nie zrobisz uniku.
+Rycerz idzie tyłem wolniej niż naprzód.
+Seria zabójstw jedną bronią w 6 s: DIPTYCH, TRIPTYCH (przebija pancerz), TETRAPTYCH (łamie gardę),
+POLYPTYCH (zabójstwa leczą). Trafienie kończy serię. Bonus działa tylko na broni serii.
 Gdy ręce nie mogą strzelać, celownik czerwienieje, a pod nim stoi powód. Naciśnięcie w trakcie
 blokady wykona się, gdy minie (strzał do 0,35 s, unik do 0,25 s).
 Stwór, na który patrzysz z 18 m lub bliżej, rusza na ciebie; najwyżej dwa naraz.

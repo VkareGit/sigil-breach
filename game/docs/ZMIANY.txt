@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.40 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.41 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,35 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.41.txt
+SIGIL: BREACH 0.41 / The Chapel
+
+Strzelanie i nagroda po strzale, według game/docs/PLAN-STRZELANIE.md.
+
+Strzał:
+- Nie bierze wytrzymałości. Kosztuje chwilę ciała: 0,22 s po shotgunie i 0,12 s po rewolwerze nie ma uniku, a naciśnięty unik wykona się zaraz potem.
+- Unik wymaga pełnych 26 wytrzymałości i nie robi długu. Na pasku jest znacznik progu.
+- Unik nie blokuje rąk, ale strzał z uniku oddaje resztę jego ochrony.
+- Lekkie zachwianie spowalnia, ale nie blokuje strzału. Ciężkie blokuje dalej.
+- Strzał przerywa picie, bez leczenia i bez zużycia flaski.
+- Strzał, który czekał dłużej niż 0,12 s, leci tam, gdzie gracz patrzy w chwili wystrzału.
+
+Potwierdzenia:
+- Jeden dźwięk na salwę, według ważności. Zabójstwo trzyma znacznik dłużej i pokazuje czaszkę nad celownikiem.
+- Dusze z zabójstwa widać w niszy SOULS jako +N, sumują się przez 1,4 s. W kaplicy nie ma już napisu z punktami.
+
+Serie i medale:
+- Seria należy do broni: DIPTYCH (2), TRIPTYCH (3, przebija pancerz), TETRAPTYCH (4, mocniej łamie gardę), POLYPTYCH (5+, każde zabójstwo leczy 8). Okno 6 s, trafienie ją kończy, zabójstwo inną bronią zaczyna nową.
+- Medale czynów: ABSOLVED, PARRY, ONE SHOT, LAST RITES, SMITTEN, POINT BLANK.
+- Medal pojawia się na chwilę u góry widoku. Stała informacja o serii stoi w niszy ARSENAL, z paskiem czasu.
+- Pieczęcie namalował Codex (assets/art/medals, provenance.json obok).
+
+Balans:
+- Śrut łamie gardę słabiej (impact 6 na śrucinę zamiast 12). Bez tego shotgun za darmo przerywał każdy cios.
+- Ognisko uzupełnia zapas do 16 nabojów shotguna i 36 rewolweru.
 
 
 ########################################################################

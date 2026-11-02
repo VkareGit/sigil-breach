@@ -81,6 +81,11 @@ Suite.registry = {
     module = 'tests.cases.responsiveness',
   },
   {
+    id = 'chain',
+    title = 'A chain of kills belongs to one weapon, and so does its edge',
+    module = 'tests.cases.chain',
+  },
+  {
     id = 'pilgrimage-save',
     title = 'A bad save never stops the game, kills wait for quiet, replays read no disk',
     module = 'tests.cases.pilgrimage_save',

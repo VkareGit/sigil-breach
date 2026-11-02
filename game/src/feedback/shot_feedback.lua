@@ -2,6 +2,7 @@
 -- ShotFired and VolleyResolved): recoil, flash, powder, surface marks,
 -- trails, damage numbers, the hitmarker and the named rules. The shot itself
 -- (rounds, cadence, pellets, damage) is resolved in combat/combat.lua.
+local Medals = require('src.feedback.medals')
 local A = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
 local FX = require('src.feedback.effects')
@@ -13,7 +14,6 @@ local Numbers = require('src.feedback.damage_numbers')
 local K = require('src.content.tuning').shot
 local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
-local Text = require('src.content.text')
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Shot = {}
@@ -156,9 +156,15 @@ function Shot.volley(g, e)
     g.view.killMark = K.killMark
   end
   if report.kills >= 2 then
-    g.view.feedback = Text.get('feedback_multikill', { count = report.kills })
-    g.view.feedbackTimer = 2
+    Medals.show(g, 'one_shot')
     A.play('multikill', 0.34)
+  elseif report.kills > 0 and report.headHits > 0 then
+    Medals.show(g, 'smitten')
+  end
+  for _, result in ipairs(results) do
+    if result.parried then
+      Medals.show(g, 'parry')
+    end
   end
   Weight.confirm(
     g,

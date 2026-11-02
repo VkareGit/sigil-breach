@@ -48,6 +48,11 @@ function Review.run(Game, renderer, output)
   g.view.hitmarker, g.view.lastKill, g.view.killMark = 0.2, true, 0.4
   g.view.soulsGain, g.view.soulsGainTimer = 140, 1
   shot(g, 'kill-confirm')
+  g.player.chainCount, g.player.chainLeft = 3, 4
+  g.player.chainWeapon = g.player.loadout[1]
+  g.view.medal, g.view.medalTimer = 'triptych', 1
+  shot(g, 'chain')
+  g.player.chainCount, g.player.chainLeft, g.view.medalTimer = nil, nil, 0
   g.view.hitmarker, g.view.lastKill, g.view.killMark, g.view.soulsGainTimer = 0, false, 0, 0
   g.view.refusalTimer, g.player.resources.stamina = 0, 100
   local p = g.player

@@ -5,6 +5,8 @@
 --                30 the mode's rewards and drops   40 reactions
 --   PlayerHit    10 damage record, measurements, pacing, combo reset
 --                20 the world's hit-stop when the knight's guard breaks
+local Bodies = require('src.combat.bodies')
+local Chain = require('src.combat.chain')
 local Characters = require('src.content.characters')
 local Rules = require('src.combat.rules')
 local Telemetry = require('src.combat.telemetry')
@@ -75,6 +77,13 @@ local function score(g, event)
     + math.min(K.comboSteps, r.combo - 1) * K.comboStep
   r.score = r.score + event.reward
 end
+-- A chain is the knight's, where effort is paid (combat/chain.lua).
+local function chain(g, event)
+  local knight = Bodies.actor(g, Stats.owner(g, event.owner))
+  if knight and Capabilities.attrition(g) then
+    Chain.kill(g, knight)
+  end
+end
 -- The mode's consequences (run/modes.lua: reward): the chapel counts souls.
 local function rewards(g, event)
   Modes.act(g, 'reward', event)
@@ -92,6 +101,7 @@ local function playerHit(g, event)
   g.intensity = (g.intensity or 0) + (info.requested or info.amount or 0)
   Telemetry.add(g, 'damageTaken', info.lost or 0)
   breakCombo(r)
+  Chain.broken(Roles.controlled(g))
 end
 -- Another knight hit: his own damage record and combo (plan v11 E3d).
 local function knightHit(g, event)
@@ -163,6 +173,7 @@ function Listeners.attach(g)
   end, 15)
   bus:on('sim', 'EnemyKilled', function(e)
     score(g, e)
+    chain(g, e)
   end, 20)
   bus:on('sim', 'EnemyKilled', function(e)
     rewards(g, e)

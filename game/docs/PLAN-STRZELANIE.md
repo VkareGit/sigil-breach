@@ -33,7 +33,7 @@ Claude zaczynał od wersji z mniejszym kosztem i zmienił zdanie: wspólny pasek
 | Egzekucja | odbicie, potem [E] z bliska | jest |
 | Unik | wymaga pełnych 26, bez długu poniżej zera | do zrobienia |
 | Przeładowanie | czas i pozycja, unik zatrzymuje postęp | do sprawdzenia |
-| Zapas | ognisko uzupełnia do 12 nabojów shotguna i 24 rewolweru | teraz 72 i 72 |
+| Zapas | ognisko uzupełnia do 16 nabojów shotguna i 36 rewolweru | teraz 72 i 72 |
 | Odzysk życia | zadane obrażenia po trafieniu | jest |
 
 ## Nagroda po strzale
@@ -60,7 +60,7 @@ Drabina serii, odpowiednik Double Kill do Ultra Kill. Nazwy pasują do fresków 
 | 4 | Fury Kill | TETRAPTYCH |
 | 5 i więcej | Frenzy, Mega, Ultra, Kill Chain | POLYPTYCH |
 
-Okno serii to 4 s od ostatniego zabójstwa, trafienie przez wroga ją zeruje (tak działa już `combo`). Seria jest czysto honorowa: nie daje dusz ani żadnego bonusu. Malowana pieczęć powstaje przez Codexa, w stylu gry.
+Trafienie przez wroga zeruje serię. Seria należy do broni, którą powstała, i tylko ta broń ma jej bonus: TRIPTYCH przebija pancerz, TETRAPTYCH mocniej łamie gardę, POLYPTYCH leczy po 8 za każde kolejne zabójstwo. Nie daje dusz. Okno to 6 s. Malowana pieczęć powstaje przez Codexa, w stylu gry.
 
 Medale czynów: ABSOLVED (egzekucja), PARRY (odbicie), SMITTEN (głowa), LAST RITES (zabójstwo przy małym życiu), ONE SHOT (kilka ciał jednym strzałem), POINT BLANK, LONG SHOT. Najtrudniejsze moby dostają duży napis ENEMY FELLED.
 
@@ -83,7 +83,7 @@ Multikill w czasie, wiele ciał jednym strzałem i seria bez trafienia to trzy r
 |---|---|---|---|
 | Koszt strzału | mniejszy | zero, czas i pozycja | Codex |
 | Zmęczenie a celność | gorsza celność | nie | Codex |
-| Seria w stylu Ultra Kill | drabina | ukryć w walce | Claude, bo właściciel jej chce; bez nagrody, co usuwa zarzut Codexa |
+| Seria w stylu Ultra Kill | drabina | ukryć w walce | Claude, bo właściciel jej chce; właściciel dołożył bonusy na broni serii |
 | Dusze za serię | tak | nie | Codex |
 | Zachwianie a strzał | pokazać | usunąć blokadę | do prób: bez blokady przy lekkim zachwianiu |
 | Bufor strzału | 0,35 s | 150 ms | patrz niżej |
@@ -107,3 +107,6 @@ WdraÅ¼ane po kolei, kaÅ¼dy krok z commitem.
 - Krok 1: strzał, który czekał dłużej niż 0,12 s, bierze cel z chwili wystrzału. Unik nie blokuje rąk (brak `rollLock`), a strzał z uniku oddaje resztę jego ochrony. Lekkie zachwianie rycerza to `shaken`: spowalnia, nie blokuje strzału; ciężkie dalej blokuje. Strzał przerywa picie bez leczenia i bez zużycia flaski. Pociągnięcie spustu przy przeładowaniu mówi `RELOADING`.
 - Krok 2: strzał nie bierze wytrzymałości, zamiast tego `fire.recovery` (0,22 s shotgun, 0,12 s rewolwer) blokuje unik, a bufor wykonuje go zaraz po tym czasie. Unik wymaga pełnych 26 i nie robi długu. Na pasku wytrzymałości jest znacznik progu uniku, poniżej niego pasek czerwienieje. Bot przechodzi kaplicę łatwiej (3–7 śmierci zamiast około 12), do skorygowania w krokach 5 i 6.
 - Krok 3: jeden dźwięk na salwę według ważności (przełamanie, mocne trafienie, głowa, trafienie; zabójstwo mówi samo). Znacznik zabójstwa trwa dłużej, nad celownikiem pojawia się czaszka na 0,4 s. Przy liczniku dusz `+N SOULS` z prawdziwą wartością, sumuje się przez 1,4 s; w kaplicy zniknął napis z punktami.
+- Krok 4: seria należy do broni (`combat/chain.lua`, `content/chain.lua`): TRIPTYCH przebija pancerz, TETRAPTYCH łamie gardę, POLYPTYCH leczy po 8. Medale czynów w `feedback/medals.lua`, pieczęcie od Codexa w `assets/art/medals`. Medal stoi u góry widoku przez 1,5 s, stała informacja o serii w niszy ARSENAL, `+N` w niszy SOULS; układ ustalony z właścicielem na zrzutach.
+- Krok 5: odbicie ciosu działa obiema broniami, egzekucja w grupie jest bezpieczna, przeładowanie przy mobach karane. Shotgun przerywał każdy cios, więc śrucina łamie gardę za 6 zamiast 12.
+- Krok 6: ognisko uzupełnia zapas do 16 i 36 (`K.carried`), model amunicji ma `stock`.

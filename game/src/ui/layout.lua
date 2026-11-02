@@ -9,6 +9,10 @@ local L = {
   -- How far the reticle opens while the hands cannot fire, and what is said below it (px).
   lockedGap = 7,
   refusalBelow = 34,
+  -- A deed at the top of the view (px); it fades over the end of its time (s).
+  medalSeal = 76,
+  medalTop = 84,
+  medalFade = 0.4,
 }
 function L.viewport(w, h)
   local scale = math.min(w / L.width, h / L.height)

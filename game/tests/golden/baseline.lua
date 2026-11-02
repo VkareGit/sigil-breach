@@ -6,10 +6,10 @@
 -- 0.40: what the knight is looking at wakes (combat_defaults: seenRange), so the walk meets it sooner.
 -- 0.40: breath never holds the trigger, so a tired knight keeps shooting.
 return {
-  playtest = '9e8db9fb/ece3b9c3',
-  human = '92f75593/edd81cb1',
-  drill = '088ec03e/dd65cc0a',
-  playtestContacts = '05e670e7/493',
-  humanContacts = '7b992be3/671',
-  drillContacts = 'cd2bd74b/357',
+  playtest = 'ecd83ace/2e699f4c',
+  human = '54a0f417/aca3d913',
+  drill = '693cf721/3ff62de9',
+  playtestContacts = '7d638e0a/83',
+  humanContacts = '53731cb8/122',
+  drillContacts = '6fd6230a/355',
 }
