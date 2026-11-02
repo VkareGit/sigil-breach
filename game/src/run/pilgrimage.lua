@@ -361,8 +361,11 @@ function P.retry(g)
   end
   r.phase = 'journey'
   g.state, g.map, g.help = 'playing', false, false
+  -- He wakes at his fire, on its area's map, wherever he fell; what fell where he died stays.
+  local fire, home = K.fireOf(r.fire)
+  enter(g, home.id)
   refresh(g)
-  wake(g, (K.fireOf(r.fire)))
+  wake(g, fire)
   P.populate(g)
   Presentation.capture(g, true)
   return true

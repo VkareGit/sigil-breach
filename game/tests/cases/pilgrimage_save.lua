@@ -438,6 +438,26 @@ local function areas(check, Game)
       #require('src.session.queries').world(g).doors == 1
     )
     check('and what fell behind is remembered', g.run.ruins.proving[big.id] ~= nil)
+    -- A death beyond the door before any rest there: he wakes at his own fire, on its map, and
+    -- the souls wait where he fell.
+    g.run.wallet, g.player.armor, g.player.invuln = 30, 0, 0
+    g:damagePlayer(500)
+    check('he can die beyond the door', g.state == 'dead' and g.run.echo.area == 'annex')
+    g:act('retry')
+    check(
+      'and wakes at his own fire, on its map',
+      g.run.area == 'chapel' and g.world.mapId == 'proving' and P.fireHere(g) ~= nil
+    )
+    check('with what fell there still fallen', Destruction.broken(g.world, big.id))
+    g.player.x, g.player.z = link.side.x, link.side.z
+    g:interact()
+    check('the door leads back', g.run.area == 'annex' and g.world.mapId == 'floor')
+    g.player.x, g.player.z = g.run.echo.x, g.run.echo.z
+    run(g, 0.05)
+    check('to the souls he left there', g.run.echo == nil and g.run.wallet == 30)
+    for _, body in ipairs(Pools.of(g, 'enemies')) do
+      body.awake = false
+    end
     g.player.x, g.player.z = 16, 15
     g:interact()
     check('a fire of the far area lights', g.run.lit.annex_fire and g.state == 'shop')

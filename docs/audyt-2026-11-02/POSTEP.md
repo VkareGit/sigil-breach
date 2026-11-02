@@ -42,6 +42,10 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | L07 | Przyczyna śmierci | zrobione | `pilgrimage.lua` (causes), render `look-dead` |
 | L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
 
+| E01 | Retry między obszarami | zrobione | `pilgrimage_save.lua` (areas) |
+
+Uwagi właściciela w trakcie (do zrobienia): paczki naboi na podłodze za jaskrawe, mają pasować kolorystyką do fresku; czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
+
 ## Notatki
 
 - R01: `P.save` (`game/src/run/pilgrimage.lua`) zeruje `dirty` i `waited` dopiero po wyniku zapisu. Przy odmowie `dirty` zostaje (także dla zapisów trwałych: ognisko, drzwi, śmierć), a `waited = 0`, więc kolejna próba przychodzi po `K.saveEvery` spokoju. Wynik zapisu jest paragonem w dzienniku (`storage/execution.lua`), więc powtórka zachowuje się tak samo.

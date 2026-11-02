@@ -43,6 +43,9 @@ Etap 2:
 - L07: ekran śmierci mówi, co zadało ostatni raniący cios: „Struck down by {stwór}.” albo „Struck down by your own powder charge.” Pocisk i ogień należą do stwora, który je wypuścił, nawet martwego (g.lastHarm, Queries.lastHarm).
 - L09 (decyzja D3): unik ogranicza tylko wytrzymałość. Ładunki uniku usunięte (dashCharges, dashRecharge, pole dash, napis NO DODGES LEFT). Trzy uniki z pełnego paska, czwarty czeka; po wysiłku odnowa rusza po 0,4 s (było 0,55). Doskonały unik oddaje wytrzymałość jednego uniku. Trucizna spowalnia odnowę wytrzymałości tak, jak dawniej odnowę ładunków. W niszy uniku jeden pasek wytrzymałości zamiast dwóch kresek. Poza trybem z wysiłkiem (stary poligon bez attrition) unik niczym nie jest ograniczony.
 
+Etap 3:
+- E01: retry przenosi na mapę obszaru ogniska, przy którym rycerz ostatnio odpoczywał, nawet gdy zginął za drzwiami w innym obszarze. To, co tam runęło, zostaje; echo czeka tam, gdzie padł, i drzwi prowadzą z powrotem do niego.
+
 
 ########################################################################
 ZMIANY-0.41.txt
