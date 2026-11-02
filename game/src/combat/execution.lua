@@ -2,6 +2,7 @@
 -- the use key. Its share of the body's full health is the body's own
 -- (content/defs/body.lua: execution). Emits Executed (session/event_catalog.lua).
 local Defaults = require('src.content.combat_defaults').execution
+local Area = require('src.combat.area_contact')
 local Presentation = require('src.session.presentation')
 local Bodies = require('src.combat.bodies')
 local Hit = require('src.combat.hit')
@@ -10,6 +11,17 @@ local Rules = require('src.combat.rules')
 local Signal = require('src.session.signal')
 local Text = require('src.content.text')
 local Execution = {}
+-- What his arm reaches: a column from below his feet to above his head, wherever he is in the
+-- air, cut by the first ceiling and by any wall between him and the body. The same contact
+-- query as a creature's blow (combat/area_contact.lua).
+local arm = { radius = Defaults.reach }
+local column = { sample = 'body', includeRadius = true }
+local function reaches(g, p, e)
+  arm.x, arm.z, arm.level = p.x, p.z, p.level
+  local air = p.jump or 0
+  column.bottom, column.top = air - Defaults.below, air + Defaults.above
+  return Area.test(g, arm, column, e)
+end
 -- The body the knight can finish where he stands and looks, if any.
 function Execution.target(g, actor)
   local p = actor or Roles.controlled(g)
@@ -26,6 +38,7 @@ function Execution.target(g, actor)
       and d < Rules.radius(e) + Defaults.reach
       and d < near
       and (d < 1e-6 or (dx * math.sin(p.yaw) + dz * math.cos(p.yaw)) / d >= Defaults.cone)
+      and reaches(g, p, e)
     then
       best, near = e, d
     end

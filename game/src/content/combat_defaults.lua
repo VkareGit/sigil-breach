@@ -270,9 +270,19 @@ return {
   -- damage dealt brings it back at rate per point (session/listeners.lua).
   rally = { share = 0.6, time = 3.5, rate = 0.04 },
   -- An execution (combat/execution.lua): within reach m of the body's edge,
-  -- looking at it (cosine above cone); the knight is untouchable iframes s, the
+  -- looking at it (cosine above cone), no wall between, the body within below m under
+  -- his feet and above m over them; the knight is untouchable iframes s, the
   -- world stops stop s, the body rises after rise s.
-  execution = { reach = 2.1, cone = 0.5, iframes = 0.8, stop = 0.18, rise = 0.6, cue = 0.8 },
+  execution = {
+    reach = 2.1,
+    cone = 0.5,
+    below = 0.6,
+    above = 2.6,
+    iframes = 0.8,
+    stop = 0.18,
+    rise = 0.6,
+    cue = 0.8,
+  },
   -- A killed body (enemies/corpse.lua). Its death strength counts overkill
   -- up to overkill x its health and a killing contact's impact against
   -- impactRef; when it first touches the floor and when it has settled are

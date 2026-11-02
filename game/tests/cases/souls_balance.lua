@@ -110,6 +110,21 @@ function T.run(Game)
     check('the knight is untouchable through it', g.player.invuln > 0.5)
     check('once', not g:interact())
     done()
+    -- Only what his arm reaches: no execution through stone or across a floor's height.
+    g = field(Game)
+    e = guardian(g, { cut('open') })
+    Attacks.begin(g, e, 3, A.of(e).attacks[1])
+    Rules.guard(e, 500)
+    g.player.z = 23
+    check('a body in reach is offered', Execution.target(g) == e)
+    g:setCell(10, 22, 1)
+    check('not through a wall', Execution.target(g) == nil and Execution.prompt(g) == nil)
+    g:setCell(10, 22, 0)
+    g.player.jump = 8
+    check('not from far above it', Execution.target(g) == nil)
+    g.player.jump = 0
+    check('back in reach it is again', Execution.target(g) == e)
+    done()
     -- Steadfast: blows do not hold it.
     g = field(Game)
     e = guardian(g, { cut('open') })
