@@ -12,6 +12,7 @@ local K = require('src.physics.kinematics')
 local A = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
+local Lessons = require('src.feedback.lessons')
 local W = {}
 local sin, cos, atan2, sqrt, min, max, abs, pi =
   math.sin, math.cos, math.atan2, math.sqrt, math.min, math.max, math.abs, math.pi
@@ -237,6 +238,7 @@ function W.confirm(g, report, results, hit, hitVolume)
   end
   g.view.breakConfirm = broke and 0.22 or (g.view.breakConfirm or 0)
   if broke then
+    Lessons.note(g.view, 'guard')
     say(4, 'break', 0.30 + 0.25 * (g.view.hitWeight or 0))
   end
   -- A heavy stagger lands with weight: a body blow and a short frame punch;

@@ -152,6 +152,8 @@ return {
     surgeFade = 1.4,
     trailHold = 0.7,
     trailFall = 0.8,
+    -- A lesson stands this long once nothing hunts the knight (s).
+    lessonTime = 6,
   },
   -- The knight's body in motion (player/feel.lua): steering below input is
   -- no steering; turning rad/s with the keys; a slide needs slideFrom m/s; the

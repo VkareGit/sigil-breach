@@ -17,6 +17,7 @@ local Text = require('src.content.text')
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Medals = require('src.feedback.medals')
+local Lessons = require('src.feedback.lessons')
 local Chain = require('src.content.chain')
 local Characters = require('src.content.characters')
 local Feel = Tuning.feel
@@ -161,6 +162,20 @@ function Listeners.attach(g)
     local personal = Recipient.context(g, e.actor)
     if personal then
       Medals.show(personal, e.step.id)
+      Lessons.note(personal.view, 'chain')
+    end
+  end)
+  -- The first golden ring a knight sees: a blow with a window to throw it back.
+  bus:on('present', 'AttackTelegraphed', function(e)
+    if e.attack and e.attack.parry then
+      local personal = Recipient.context(g)
+      Lessons.note(personal and personal.view, 'ring')
+    end
+  end)
+  bus:on('present', 'PickupTaken', function(e)
+    if e.pickup.kind == 'ammo' then
+      local personal = Recipient.context(g)
+      Lessons.note(personal and personal.view, 'rounds')
     end
   end)
   bus:on('present', 'PerfectDodge', function(e)

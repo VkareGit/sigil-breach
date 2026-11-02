@@ -1,0 +1,151 @@
+﻿{
+    "project":  "SIGIL: BREACH",
+    "created":  "2026-11-02",
+    "tool":  "image_gen.imagegen",
+    "mode":  "built-in",
+    "model":  "Not exposed by built-in tool",
+    "use_case":  "stylized-concept",
+    "references":  [
+                       "game/docs/KIERUNEK-ARTYSTYCZNY.txt",
+                       "game/assets/art/medals/provenance.json",
+                       "game/assets/art/medals/parry.png",
+                       "game/assets/art/medals/point_blank.png",
+                       "game/assets/art/imp-fresco-v12.png",
+                       "work/look/look-help.png",
+                       "work/look/look-chain.png"
+                   ],
+    "reference_method":  "Local references visually inspected before generation; stylistic and anatomical details described in prompts. No source asset was overwritten.",
+    "scope":  "Deliverables only under work/rules-art/. Built-in generator also automatically retained originals in its managed ~/.codex/generated_images cache.",
+    "images":  [
+                   {
+                       "file":  "rule_ring.png",
+                       "source":  "sources/rule_ring.png",
+                       "generator_file":  "C:/Users/nahiko/.codex/generated_images/01a19a4c-f44b-7c70-9965-bf0d547ba559/exec-4d09705b-780b-4723-8d8d-e4a6d411d744.png",
+                       "prompt":  "Use case: stylized-concept. Create ONE new illustration medal for the combat rules of SIGIL: BREACH, a living dark medieval fresco. Square composition, destined for a 256x256 RGBA PNG and must read at 96 pixels on pale parchment. ONE circular painted seal, centered and face-on, diameter 88 percent of canvas, with even transparent margin on all sides. Match the existing medals visible in the conversation: irregular dark madder red wax circumference, two very narrow weathered ochre rings, quiet deep muted red interior, hand-drawn burnt umber contours. Restrained rough egg tempera and lime fresco pigment, matte ochre, umber, muted iron and subdued madder red, small bone-colored accents. Broad painted planes, soft volume, sparse plaster chips; avoid evenly distributed noisy detail. Not shiny or metallic render, no gloss, no specular highlights, no photorealism, no modern vector style. All pictorial content contained inside circular border. Bold simple silhouettes and clear negative space. Truly transparent background outside seal, no fake checkerboard, no solid backdrop, no exterior shadow. No text, letters, numbers, runes, watermark, banner or skulls. No magic for humans.\nDemon identity must match existing imp-fresco-v12 shown in conversation: lean ochre humanoid goat demon, long muzzle, two tall backward-curved segmented horns, small russet bat wings, long clawed hands, thin tail, muted rust-red ragged loincloth, emaciated but living body; not a bulky new demon, no new armor, no skull face. Preserve the established painted anatomy and restrained colors.\nSubject rule_ring: full-body demon in a dramatic readable windup BEFORE striking: torso twisting, one long clawed arm raised high behind its head, the other down and forward, bent knees and both feet planted. A VERY CLEAR, THICK OCHRE-GOLD ELLIPTICAL RING surrounds both feet at ground level, like the game parry timing indicator. The front arc passes visibly in front of the toes and the rear arc behind the ankles. Make it a broad unbroken painted gold line, clearly separate from the circular medallion border. Ring is the key gameplay signal, reads strongly at 96 pixels. No glowing aura, rays, sparks or magic. No weapon or human in this particular icon. Capture the instant when firing a shot can interrupt the incoming claw strike.",
+                       "validation":  {
+                                          "width":  256,
+                                          "height":  256,
+                                          "pixel_format":  "Format32bppArgb",
+                                          "transparent_pixels":  26704,
+                                          "opaque_pixels":  621,
+                                          "partial_alpha_pixels":  38211,
+                                          "alpha_bounds":  [
+                                                               16,
+                                                               16,
+                                                               239,
+                                                               239
+                                                           ],
+                                          "sha256":  "169152614d86608a71f3c24196d06f6935d2e0ff5a9ec9fa50d91d1c2e314ec3",
+                                          "source_sha256":  "b2d6e875b0ab7387dce70b0a5315f2dbdfe7abe6dca08ab1a9e58c37f1bab9ed",
+                                          "source_dimensions":  [
+                                                                    1254,
+                                                                    1254
+                                                                ]
+                                      }
+                   },
+                   {
+                       "file":  "rule_guard.png",
+                       "source":  "sources/rule_guard.png",
+                       "generator_file":  "C:/Users/nahiko/.codex/generated_images/01a19a4c-f44b-7c70-9965-bf0d547ba559/exec-d1e213de-d182-449a-bd88-b4aa7c7ebba4.png",
+                       "prompt":  "Use case: stylized-concept. Create ONE new illustration medal for the combat rules of SIGIL: BREACH, a living dark medieval fresco. Square composition, destined for a 256x256 RGBA PNG and must read at 96 pixels on pale parchment. ONE circular painted seal, centered and face-on, diameter 88 percent of canvas, with even transparent margin on all sides. Match the existing medals visible in the conversation: irregular dark madder red wax circumference, two very narrow weathered ochre rings, quiet deep muted red interior, hand-drawn burnt umber contours. Restrained rough egg tempera and lime fresco pigment, matte ochre, umber, muted iron and subdued madder red, small bone-colored accents. Broad painted planes, soft volume, sparse plaster chips; avoid evenly distributed noisy detail. Not shiny or metallic render, no gloss, no specular highlights, no photorealism, no modern vector style. All pictorial content contained inside circular border. Bold simple silhouettes and clear negative space. Truly transparent background outside seal, no fake checkerboard, no solid backdrop, no exterior shadow. No text, letters, numbers, runes, watermark, banner or skulls. No magic for humans.\nDemon identity must match existing imp-fresco-v12 shown in conversation: lean ochre humanoid goat demon, long muzzle, two tall backward-curved segmented horns, small russet bat wings, long clawed hands, thin tail, muted rust-red ragged loincloth, emaciated but living body; not a bulky new demon, no new armor, no skull face. Preserve the established painted anatomy and restrained colors.\nSubject rule_guard: the same lean goat demon visibly staggered with BROKEN GUARD: whole body off balance, shoulders slumped diagonally, head hanging low to one side, knees bent, clawed arms dropped open and defenseless. Full body, no shield. FOUR VERY CLEAR THICK OCHRE-GOLD RIGHT-ANGLE CORNER MARKS frame its exposed upper torso, two above and two below, like four disconnected corners of a broken rectangular guard indicator. Put a visible jagged break in the painted stroke of each corner, with a tiny separated gold chip. Large bold corners must remain legible at 96 pixels and are clearly separate from the medallion rim. This gold is the game\u0027s broken guard signal, not armor or magic. Keep dark red negative space behind each gold corner. No foot ring, no starbursts, no glowing aura, no yellow eyes or cracks in flesh. One demon only, no human. Use same proportions, rim width and pigments as the rule_ring medal just generated. Leave a genuine transparent margin around the entire circular medallion; do not crop its edges.",
+                       "validation":  {
+                                          "width":  256,
+                                          "height":  256,
+                                          "pixel_format":  "Format32bppArgb",
+                                          "transparent_pixels":  30772,
+                                          "opaque_pixels":  601,
+                                          "partial_alpha_pixels":  34163,
+                                          "alpha_bounds":  [
+                                                               16,
+                                                               20,
+                                                               235,
+                                                               234
+                                                           ],
+                                          "sha256":  "d0a939dac4c805f2a79c29f9df2d33e47194207f03f96d751ff68306d7174843",
+                                          "source_sha256":  "e39547460f6ca50d227fcd7b38b137e3121c2dfce7681509f189dd3e460cdcd1",
+                                          "source_dimensions":  [
+                                                                    1254,
+                                                                    1254
+                                                                ]
+                                      }
+                   },
+                   {
+                       "file":  "rule_execution.png",
+                       "source":  "sources/rule_execution.png",
+                       "generator_file":  "C:/Users/nahiko/.codex/generated_images/01a19a4c-f44b-7c70-9965-bf0d547ba559/exec-595952f8-3939-4f0e-87ff-e7044e10e1b9.png",
+                       "prompt":  "Use case: stylized-concept. Create ONE new illustration medal for the combat rules of SIGIL: BREACH, a living dark medieval fresco. Square composition, destined for a 256x256 RGBA PNG and must read at 96 pixels on pale parchment. ONE circular painted seal, centered and face-on, diameter 88 percent of canvas, with even transparent margin on all sides. Match the existing medals visible in the conversation: irregular dark madder red wax circumference, two very narrow weathered ochre rings, quiet deep muted red interior, hand-drawn burnt umber contours. Restrained rough egg tempera and lime fresco pigment, matte ochre, umber, muted iron and subdued madder red, small bone-colored accents. Broad painted planes, soft volume, sparse plaster chips; avoid evenly distributed noisy detail. Not shiny or metallic render, no gloss, no specular highlights, no photorealism, no modern vector style. All pictorial content contained inside circular border. Bold simple silhouettes and clear negative space. Truly transparent background outside seal, no fake checkerboard, no solid backdrop, no exterior shadow. No text, letters, numbers, runes, watermark, banner or skulls. No magic for humans.\nDemon identity must match existing imp-fresco-v12 shown in conversation: lean ochre humanoid goat demon, long muzzle, two tall backward-curved segmented horns, small russet bat wings, long clawed hands, thin tail, muted rust-red ragged loincloth, emaciated but living body; not a bulky new demon, no new armor, no skull face. Preserve the established painted anatomy and restrained colors.\nSubject rule_execution: two full figures in a clear close-range execution tableau, filling the inner seal. A human knight on the left wearing plain matte dark iron plate armor and a fully closed rounded visor with narrow vertical ventilation slits, like the portrait in the game\u0027s HUD. He stands firmly and leans toward a defenseless kneeling goat demon on the right. The demon is the same emaciated ochre horned bat-winged imp as the other two medals, with both knees visibly bent to the floor, shoulders sagging, head bowed, arms hanging limp and chest exposed. The knight holds a short functional antique dark iron DOUBLE-BARREL SHOTGUN with dark wood stock in both armored gauntlets, angled downward, muzzle visibly pressed against the exposed upper chest of the kneeling demon. The weapon is a solid physical firearm, matte and restrained, clearly separates the two figures; no ornamental fantasy redesign, no sword or wand. Convey a final point-blank shot by the contact and poses, with NO muzzle flash obscuring the scene. Make the closed helmet, bent knees and barrel-to-chest contact readable at 96 pixels. Human is entirely nonmagical. No halo, no aura, no magic, no blood spray, no blood pool, no skulls, no detached body parts, no ring or guard brackets in this icon. Same red painted medallion and narrow double ochre rim as rule_ring and rule_guard. Transparent clear margin around whole seal.",
+                       "validation":  {
+                                          "width":  256,
+                                          "height":  256,
+                                          "pixel_format":  "Format32bppArgb",
+                                          "transparent_pixels":  27863,
+                                          "opaque_pixels":  617,
+                                          "partial_alpha_pixels":  37056,
+                                          "alpha_bounds":  [
+                                                               16,
+                                                               16,
+                                                               238,
+                                                               236
+                                                           ],
+                                          "sha256":  "922bf013059d8ec41c138ff16db34dfd31879f0fa618b2d863b06437e5d243d2",
+                                          "source_sha256":  "bdbb9fde0599e36225cbc5e19700febac5a429722cbd8697bfaec6350e426b3d",
+                                          "source_dimensions":  [
+                                                                    1254,
+                                                                    1254
+                                                                ]
+                                      }
+                   }
+               ],
+    "packaging":  {
+                      "script":  "package.ps1",
+                      "final_dimensions":  [
+                                               256,
+                                               256
+                                           ],
+                      "format":  "PNG RGBA",
+                      "resize":  "System.Drawing HighQualityBicubic; generated image fitted to 224x224, centered within transparent 256x256 canvas. Original generated alpha retained and resampled. No repainting, chroma key, sharpening, or color grading.",
+                      "sheet":  {
+                                    "file":  "sheet.png",
+                                    "dimensions":  [
+                                                       540,
+                                                       300
+                                                   ],
+                                    "columns":  [
+                                                    "rule_ring",
+                                                    "rule_guard",
+                                                    "rule_execution"
+                                                ],
+                                    "rows":  [
+                                                 {
+                                                     "size":  96,
+                                                     "y":  42,
+                                                     "x":  [
+                                                               42,
+                                                               222,
+                                                               402
+                                                           ]
+                                                 },
+                                                 {
+                                                     "size":  48,
+                                                     "y":  206,
+                                                     "x":  [
+                                                               66,
+                                                               246,
+                                                               426
+                                                           ]
+                                                 }
+                                             ],
+                                    "background":  "Mirrored tile of unlettered parchment crop [1040,530,120,100] from work/look/look-help.png. No text added."
+                                }
+                  },
+    "limitations":  [
+                        "Generated demon is a new painted interpretation; exact facial anatomy, wing shape and pigment of imp-fresco-v12 were not reproduced one-to-one.",
+                        "At 48 px the execution firearm and hands lose detail; the kneeling demon and standing knight remain the main readable shapes.",
+                        "The execution image depicts close-range firearm contact without blood or a firing flash; the exact instant of discharge is not explicitly visible.",
+                        "The built-in tool automatically saved originals to its managed cache outside work/rules-art/; all task-authored project files are restricted to work/rules-art/."
+                    ],
+    "review":  {
+                   "visual":  "Reviewed generated originals and final sheet.png at native resolution. At 96 px: foot ring and raised claw, broken gold corners and stagger, standing closed-visor knight and kneeling exposed demon are distinguishable. At 48 px: ring and guard signals remain recognizable; firearm contact and hands in execution become less clear. Final sheet contains no text. Transparent margins have no rectangular background.",
+                   "checks":  "All three outputs verified 256x256 Format32bppArgb with fully transparent pixels, opaque pixels and antialiased partial-alpha pixels; SHA-256 and alpha bounds recorded per image."
+               }
+}

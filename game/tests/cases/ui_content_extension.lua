@@ -64,10 +64,8 @@ function Tests.run(G)
     end
     check('changing counters retain a bounded bitmap measurement cache', #font.inkCacheKeys <= 256)
     local original = G.new('floor')
-    check(
-      'production bestiary retains exactly its existing single back button',
-      #Help.controls(original) == 1
-    )
+    -- The rules page comes before the bestiary (audit L04): back, and the two page turns.
+    check('production help has its back button and two page turns', #Help.controls(original) == 3)
     for index = 1, 5 do
       local id = 'trial_caption_' .. index
       local def = Schema.copy(Enemies.imp)
@@ -142,8 +140,8 @@ function Tests.run(G)
     Help.turn(g, 99)
     local _, first, last, page, pages = Help.page(g)
     check(
-      'all nine bestiary entries remain reachable in bounded pages',
-      first == 9 and last == 9 and page == 5 and pages == 5
+      'all nine bestiary entries remain reachable in bounded pages, after the rules page',
+      first == 9 and last == 9 and page == 6 and pages == 6
     )
     local function capture(name, width, height)
       local canvas = lg.newCanvas(width, height)
@@ -216,7 +214,7 @@ function Tests.run(G)
       { 1920, 810 },
     }) do
       g.help, g.state = true, 'paused'
-      g.view.helpPage = 3
+      g.view.helpPage = 4
       capture('bestiary', dimensions[1], dimensions[2])
       g.help, g.state = false, 'shop'
       Descent.turnShop(g, 99)

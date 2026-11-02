@@ -172,6 +172,7 @@ declareView('feedback/listeners.lua', {
   'soulsGain',
   'soulsGainTimer',
   'damageTrail',
+  'lessons',
   'sway',
   'hurt',
   'surge',

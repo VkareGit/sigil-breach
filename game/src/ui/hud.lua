@@ -19,6 +19,7 @@ local Weapons = require('src.content.weapons')
 local Loadout = require('src.combat.loadout')
 local Slots = require('src.ui.hud_slots')
 local Weight = require('src.feedback.weight')
+local Lessons = require('src.feedback.lessons')
 local Rules = require('src.combat.rules')
 local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
@@ -536,6 +537,9 @@ local function hints(g, p, settings)
     local tools = Queries.tools(g)
     local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
       or nil
+    -- A lesson of something first seen (feedback/lessons.lua), once nothing hunts him.
+    local lesson = Lessons.showing(g.view)
+    hint = lesson and Text.get(lesson) or hint
     -- The flask is named only while it has a draught to give.
     local flask = p.abilityState and p.abilityState.flask
     if Characters.low(p) and flask and flask.uses > 0 then

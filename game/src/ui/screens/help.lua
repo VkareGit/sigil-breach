@@ -16,6 +16,7 @@ local Pages = require('src.ui.pages')
 local Queries = require('src.session.queries')
 local S = {}
 require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
+-- Page 1 is the rules of the fight (audit L04); the bestiary follows, its pages after it.
 function S.page(g)
   local cards = Enemies.listed('bestiary')
   local detailed = false
@@ -29,8 +30,47 @@ function S.page(g)
       detailed = detailed or Kit.ui.fonts[11]:getInk(value).w > 208
     end
   end
-  local first, last, page, total = Pages.range(#cards, g and g.view.helpPage, detailed and 2 or 4)
-  return cards, first, last, page, total, detailed
+  local wanted = g and g.view.helpPage or 1
+  local first, last, inner, total =
+    Pages.range(#cards, math.max(1, wanted - 1), detailed and 2 or 4)
+  return cards, first, last, wanted <= 1 and 1 or inner + 1, total + 1, detailed
+end
+-- The rules page: the three moves the fight turns on, painted as seals (Codex,
+-- assets/art/rules), and one line for each rule beside them.
+-- Each rule's words are three set lines (rule_<art>_1..3): a line of a translation is its own
+-- text, never a fragment cut out of a longer one.
+local rules = {
+  { art = 'rule_ring', name = 'rule_ring_name' },
+  { art = 'rule_guard', name = 'rule_guard_name' },
+  { art = 'rule_execution', name = 'rule_execution_name' },
+}
+local lines = { 'rules_rally', 'rules_chain', 'rules_breath', 'rules_rounds', 'rules_fire' }
+local paintings = {}
+local function painting(id)
+  paintings[id] = paintings[id]
+    or lg.newImage('assets/art/rules/' .. id .. '.png', { mipmaps = true })
+  return paintings[id]
+end
+local function rulesPage(U)
+  center(Text.get('help_rules'), 170, 18, gold)
+  for i, rule in ipairs(rules) do
+    local x = 182 + (i - 1) * 310
+    local image = painting(rule.art)
+    Skin.imageBounds('rule ' .. rule.art, x + 100, 200, 96, 96)
+    lg.setColor(1, 1, 1)
+    lg.draw(image, x + 100, 200, 0, 96 / image:getWidth())
+    Skin.zone('rule ' .. rule.art, x, 304, 296, 92)
+    Skin.boxText(Text.get(rule.name), x, 304, 296, 24, U.fonts[18], gold, true)
+    for row = 1, 3 do
+      local part = Text.get(rule.art .. '_' .. row)
+      local size = Skin.inkBounds(U.fonts[14], part).w <= 290 and 14 or 12
+      Skin.boxText(part, x, 312 + row * 20, 296, 20, U.fonts[size], ivory, true)
+    end
+    Skin.endZone()
+  end
+  for i, key in ipairs(lines) do
+    center(Text.get(key), 410 + (i - 1) * 30, 14, i == 1 and gold or ivory)
+  end
 end
 function S.turn(g, delta)
   local _, _, _, page, total = S.page(g)
@@ -73,6 +113,13 @@ function S.draw(g, s, U)
     U.fonts[28],
     gold
   )
+  local listed, first, last, page, total, detailed = S.page(g)
+  if page == 1 then
+    rulesPage(U)
+    center(Text.get('page_count', { page = page, pages = total }), 590, 11, muted)
+    Skin.endZone()
+    return
+  end
   center(Text.get(field and 'help_field' or 'help_pilgrim'), 170, 18, gold)
   local keys = {
     { 'key_move', 'help_move' },
@@ -93,7 +140,6 @@ function S.draw(g, s, U)
   line(170, 294, 940, gold)
   -- One card per creature whose definition has one (catalog.bestiary), in
   -- its order; the text and the title colour are the creature's data.
-  local listed, first, last, page, total, detailed = S.page(g)
   local cards = {}
   for index = first, last do
     local def = listed[index]

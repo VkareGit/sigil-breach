@@ -7,6 +7,7 @@ local Timers = require('src.core.timers')
 local K = require('src.content.tuning').clocks
 local Roles = require('src.core.roles')
 local Pools = require('src.session.world')
+local Bodies = require('src.combat.bodies')
 local Stats = require('src.session.stats')
 local Context = require('src.session.context')
 local Clocks = { name = 'clocks' }
@@ -30,12 +31,33 @@ local function trail(view, dt)
     t.shown = math.max(t.hp, t.shown - t.maxHp * K.trailFall * dt)
   end
 end
-local function tickView(view, dt)
+-- The lessons of a view (feedback/lessons.lua): one stands for lessonTime s, and the next
+-- waiting starts only while nothing hunts the knight, never in the heat of a fight.
+local function lesson(view, dt, calm)
+  local lessons = view.lessons
+  if not lessons then
+    return
+  end
+  lessons.left = math.max(0, (lessons.left or 0) - dt)
+  if lessons.left <= 0 then
+    lessons.showing = nil
+  end
+  if not lessons.showing and calm and lessons.queue[1] then
+    lessons.showing, lessons.left = table.remove(lessons.queue, 1), K.lessonTime
+  end
+end
+local function tickView(view, dt, calm)
   Timers.tick(view, plainView, dt)
   view.hurt = Timers.down(view.hurt, dt * K.hurtFade)
   view.surge = Timers.down(view.surge, dt * K.surgeFade)
   Timers.tick(view, after, dt)
   trail(view, dt)
+  lesson(view, dt, calm)
+end
+local function calm(g)
+  return Bodies.each(g, function(b)
+    return b.awake and b.hp > 0
+  end) == nil
 end
 function Clocks.run(g, dt)
   Timers.tick(g, plain, dt)
@@ -54,9 +76,10 @@ function Clocks.run(g, dt)
     g.zone, g.zoneTimer = zone, K.zoneBanner
     Presentation.cue(g, 'bell', K.zoneBell)
   end
-  tickView(g.view, dt)
+  local quiet = calm(g)
+  tickView(g.view, dt, quiet)
   for _, view in pairs(Context.watched(g)) do
-    tickView(view, dt)
+    tickView(view, dt, quiet)
   end
 end
 return Clocks

@@ -86,6 +86,11 @@ Suite.registry = {
     module = 'tests.cases.chain',
   },
   {
+    id = 'lessons',
+    title = 'The rules page and the lessons of things first seen, out of the heat of a fight',
+    module = 'tests.cases.lessons',
+  },
+  {
     id = 'drops',
     title = 'Creatures leave the rounds of their family; an execution always pays',
     module = 'tests.cases.drops',
