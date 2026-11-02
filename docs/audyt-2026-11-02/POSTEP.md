@@ -45,6 +45,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | E01 | Retry między obszarami | zrobione | `pilgrimage_save.lua` (areas) |
 | E02 | Powrót do menu | zrobione | `mode_lifecycle.lua`; benchmark: pierwsza klatka menu 22–27 ms |
 | E03 | Scenariusz kaplicy, CI, „Report was not written” | zrobione | `tests/cases/chapel_route.lua`; ręczne uruchomienia piszą do `work/qa-direct` (`Release.handOutput`); CI zostaje przy Architekturze, powód niżej |
+| E04 | Sprzęt odniesienia i pomiar A/A | zrobione (odsłuch: właściciel) | `game/docs/DEVELOPMENT.txt`, ODBIOR-0.42 |
 | L06 | Próg nawy | zmierzone, liczby czekają na L01 | tabela niżej; zmieniłem tylko rozsądny kształt alarmu (1 krok, w strefie) |
 | L08 | Progi serii | czeka na L01 i L06 | progi stroi się pod gęstość po próbie człowieka |
 | L01 | Próba właściciela | scenariusz gotowy | `PROBA-WLASCICIELA.md` |

@@ -61,11 +61,22 @@ nie jest automatycznie pomiarem dysku po zimnym restarcie komputera.
 Po udanych testach źródeł można wykonać samo tools/build.ps1, a potem
 tools/verify.ps1. Drugi krok jest konieczny do poświadczenia i utworzenia ZIP.
 Testy są wyciszone, poza ekranem, bez przejmowania myszy i na osobnym zapisie.
-Główne raporty zapisują się w work/qa-v<wersja> (qaOutput w release.lua;
-numer wersji: game/src/core/build.lua, czytany też przez tools/project.ps1).
-Jeden zestaw testów: lovec.exe game --selftest --suite=<id> (id z
-tests/suite.lua); raport suite-<id>-results.txt nie nadpisuje pełnego
-test-results.txt. Błąd jednego zestawu przerywa pełny przebieg.
+Główne raporty zapisują się w work/qa (qaOutput w release.lua, czytany też
+przez tools/project.ps1; numer wersji: game/src/core/build.lua).
+Uruchomienie ręczne bez SIGIL_UI_QA_DIR pisze do work/qa-direct
+(handOutput), nigdy do raportów trwającego TEST.ps1.
+Jeden zestaw testów: lovec.exe game --suite=<id> (id z tests/suite.lua);
+raport suite-<id>-results.txt nie nadpisuje pełnego test-results.txt.
+Błąd jednego zestawu nie przerywa pozostałych; przebieg kończy się błędem.
+
+Sprzęt odniesienia (0.42, audyt E04): Intel Core Ultra 7 155H (16 rdzeni,
+22 wątki), Intel Arc Graphics, sterownik 32.0.101.8826, 31,5 GB RAM, Windows
+11 Pro 10.0.26200, ekran 1920x1200 60 Hz. --frame-watch (minuta gry
+w kaplicy, 1280x720, bez vsync), dwa przebiegi A/A na spokojnej maszynie:
+mediana 5,11 / 4,95 ms, p95 7,59 / 7,67, p99 11,46 / 10,61, klatek ponad
+16,7 ms 13 / 11 z 3600. Pomiar obok innego procesu jest niewiarygodny
+(audyt: 196 / 3600). Sondy bez okna muszą ustawić te same limity JIT co
+main.lua, inaczej mierzą rekompilację, nie grę.
 Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
   --core-measure   maski (start, pamięć), salwa, pociski, pazur, Snapshot,
                    krok z przebudzoną populacją (z osobną separacją), krok
