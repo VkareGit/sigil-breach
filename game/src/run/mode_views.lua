@@ -36,7 +36,7 @@ end
 -- record): what screens and the HUD show of it.
 function Views.run(_, state, run)
   run.wallet, run.echo, run.deaths = state.wallet, state.echo, state.deaths
-  run.glyph, run.owned = state.glyph, state.owned
+  run.glyph, run.owned, run.worn = state.glyph, state.owned, state.worn
   run.rest, run.lit, run.saved = state.fire, state.lit, state.saved
   run.area, run.slot = state.area, state.slot
   return run

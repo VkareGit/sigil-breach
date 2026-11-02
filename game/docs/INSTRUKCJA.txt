@@ -10,8 +10,10 @@ BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME k
 zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
 [E] przy ognisku: odpoczynek. Leczy, napełnia flaskę i amunicję, zapisuje grę, ustawia
 miejsce powrotu, podnosi wszystkie stwory i zaczyna rycerza od czysta (bez trucizny, odrzutu,
-picia w toku i wciśniętych wcześniej klawiszy). Otwiera menu ognia: grawery, trwałe śluby
-(flaska, ward, zdrowie, po trzy rangi) i podróż do kolejnego zapalonego ogniska. Ognisko
+picia w toku i wciśniętych wcześniej klawiszy). Otwiera menu ognia: grawery (każda broń nosi
+jeden swój: Exorcist FOCUS albo PIERCE, Judge BREAKER albo PRECISION; kupione zmienia się
+bezpłatnie), trwałe śluby (flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni
+(+8% obrażeń na zawsze) i podróż do kolejnego zapalonego ogniska. Ognisko
 zapala się przez odpoczynek przy nim; podróż prowadzi tylko do ognisk już zapalonych i nie
 jest proponowana, dopóki żadnego innego nie ma. Gdy jakiś stwór czuwa i cię ściga, ognisko
 odmawia odpoczynku i podróży i mówi dlaczego. Przy ogniskach sal bocznych budzisz się za

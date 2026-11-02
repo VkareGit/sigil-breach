@@ -113,7 +113,7 @@ local function goodFiles(check, Game)
   check('an unknown engraving is dropped', next(g.run.owned) == nil and g.run.glyph == 'none')
   check(
     'an unknown vow is dropped, a known kept to its limit',
-    next(g.run.vows) == 'vow_flask' and g.run.vows.vow_flask == 3
+    next(g.run.vows) == 'vow_flask' and g.run.vows.vow_flask == 2
   )
   check(
     'an unknown weapon is dropped',
@@ -306,8 +306,8 @@ local function timing(check, Game)
   g:interact()
   check('a rest is stored', stored().fire == 'west' and stored().wallet == g.run.wallet)
   g.run.wallet = 500
-  check('a purchase is stored', g:act('buy', 'vow_ward') and stored().wallet == 380)
-  check('with its vow', stored().vows.vow_ward == 1)
+  check('a purchase is stored', g:act('buy', 'vow_vigor') and stored().wallet == 340)
+  check('with its vow', stored().vows.vow_vigor == 1)
   g:act('closeShop')
   g.player.x, g.player.z = 12, 21
   g.run.wallet = 40

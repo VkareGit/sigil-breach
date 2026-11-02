@@ -58,6 +58,18 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
      pilgrimage.lua); wcześniej 5,5 m przed nim i twarzą do niego, w jego zasięgu.
   Podróż tylko do zapalonych ognisk była już w kodzie; teraz nie jest też proponowana (napis
   przy ognisku pilgrim_prompt_alone, przycisk w menu ognia wyłączony), dopóki inne nie płonie.
+- Ulepszenia przy ognisku, pierwszy pakiet z projektu (docs/analiza-rozgrywki-2026-11-02/
+  OGNISKO-ULEPSZENIA.md, wybór właściciela „5 ulepszeń”):
+  - każda broń nosi własny grawer (g.run.worn: broń -> grawer; oferta grawera ma pole weapon,
+    E.modifiers w run/economy.lua składa listę dla trybu); stare zapisy zakładają swój jeden
+    grawer na jego broń (validWorn w run/pilgrimage.lua);
+  - Judge: BREAKER (garda x1,25: 44 -> 55, Buer w 2 strzały w tułów), PRECISION (głowa x1,60
+    zamiast x1,35, Stolas w 3 strzały w głowę); Exorcist: FOCUS 180, PIERCE 220 (było 100);
+  - hartowanie: temper_judge i temper_exorcist, śluby z polem glyph, każda ranga to glif
+    broni raz więcej (obrażenia x1,08, tuning.temperDamage), 300 dusz, jedna ranga;
+  - śluby: wigor +15 HP, 160 i 360 dusz; flaska +1 łyk, 200 i 500; po dwie rangi. Ślub osłony
+    usunięty (dublował wigor, nie był odczuwalny); zapis z nim go pomija.
+  HUD pod bronią pokazuje grawer broni w ręku.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

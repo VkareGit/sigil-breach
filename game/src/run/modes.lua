@@ -140,8 +140,9 @@ Modes:register('pilgrimage', {
   runView = function(g, out)
     return Views.run(g, g.run, out)
   end,
+  -- One engraving on each gun, and its tempering (run/economy.lua).
   weaponModifier = function(g)
-    return g.run.glyph
+    return Economy.modifiers(g.run)
   end,
   init = function(g, options)
     Pilgrimage.init(g, options)

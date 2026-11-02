@@ -188,30 +188,45 @@ function T.run(Game)
   g.run.wallet = vow.price
   check('the next rank costs more', not g:act('buy', 'vow_flask'))
   g.run.wallet = Shop.maxWallet
-  check('a vow of health holds', g:act('buy', 'vow_vigor') and p.maxHp == 110 and p.hp == 110)
-  check('a vow of ward holds', g:act('buy', 'vow_ward') and p.maxArmor == 50 and p.armor == 50)
+  check('a vow of health holds', g:act('buy', 'vow_vigor') and p.maxHp == 115 and p.hp == 115)
+  check('the ward is no vow any more', not g:act('buy', 'vow_ward') and p.maxArmor == 40)
   -- The status bar measures against his maxima: full is 100% however many vows he swore.
   local Characters = require('src.content.characters')
   check('full health is 100%', Characters.percent(Characters.share(p)) == 100)
   check('a full ward is a full bar', Characters.wardShare(p) == 1)
-  p.hp, p.armor = 100, 25
-  check('100 of 110 is 91%', Characters.percent(Characters.share(p)) == 91)
+  p.hp, p.armor = 100, 20
+  check('100 of 115 is 87%', Characters.percent(Characters.share(p)) == 87)
   check('half the ward is half', Characters.percent(Characters.wardShare(p)) == 50)
   p.hp, p.armor = 0.2, 0
   check('alive is at least 1%', Characters.percent(Characters.share(p)) == 1)
   check('no ward is 0, never -0', tostring(Characters.percent(Characters.wardShare(p))) == '0')
   p.hp, p.armor = p.maxHp, p.maxArmor
   g:act('buy', 'vow_flask')
-  g:act('buy', 'vow_flask')
-  check('a vow ends', not g:act('buy', 'vow_flask') and g.run.vows.vow_flask == 3)
+  check('a vow ends', not g:act('buy', 'vow_flask') and g.run.vows.vow_flask == 2)
+  -- Each gun wears its own engraving, and tempering is the gun's for good (0.42).
+  check('an engraving for the Judge', g:act('buy', 'breaker') and g.run.worn.judge == 'breaker')
+  check('and one for the Exorcist', g:act('buy', 'choke') and g.run.worn.exorcist == 'choke')
+  check('the first stays on its gun', g.run.worn.judge == 'breaker')
+  check('the Judge is tempered', g:act('buy', 'temper_judge'))
+  local worn = table.concat(Economy.modifiers(g.run), ' ')
+  check('the guns change by what they wear', worn == 'choke breaker temper_judge')
+  local Weapons = require('src.content.weapons')
+  local judge = Weapons.slotOf(g, 'judge', p)
+  local hit = Weapons.attack(g, judge, Economy.modifiers(g.run), p)
+  check('a tempered Breaker', hit.base > 70 and hit.impact > 44)
   local kept = session(Game)
-  check('vows outlive the session', kept.player.maxHp == 110 and kept.player.maxArmor == 50)
-  check('and the flask', kept.player.abilityState.flask.uses == 6)
+  check('vows outlive the session', kept.player.maxHp == 115 and kept.player.maxArmor == 40)
+  check('and the flask', kept.player.abilityState.flask.uses == 5)
+  check(
+    'and what each gun wears',
+    kept.run.worn.judge == 'breaker' and kept.run.worn.exorcist == 'choke'
+  )
   check(
     'the kit outlives it',
     kept.player.loadout[1] == p.loadout[1] and kept.player.abilities[1] == p.abilities[1]
   )
   g.run.vows, p.maxHp, p.maxArmor = {}, 100, 40
+  g.run.worn, g.run.owned, g.run.glyph = {}, {}, 'none'
   p.abilityState.flask.extra = 0
   P.save(g)
   g.run.wallet = wallet

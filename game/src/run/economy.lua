@@ -17,6 +17,28 @@ local Text = require('src.content.text')
 local Presentation = require('src.session.presentation')
 local E = {}
 E.offers = Shop.offers
+-- Whether an engraving is the one worn: on its weapon when the run keeps one per weapon.
+function E.worn(r, offer)
+  if r.worn and offer.weapon then
+    return r.worn[offer.weapon] == offer.id
+  end
+  return r.glyph == offer.id
+end
+-- What changes the guns of a run that keeps one engraving per weapon: those worn and a
+-- glyph for every rank of a vow that names one (tempering), in the order of the offers.
+function E.modifiers(r)
+  local list = {}
+  for _, offer in ipairs(Shop.offers) do
+    if offer.kind == 'engraving' and E.worn(r, offer) and offer.weapon then
+      list[#list + 1] = offer.id
+    elseif offer.kind == 'vow' and offer.glyph then
+      for _ = 1, r.vows and r.vows[offer.id] or 0 do
+        list[#list + 1] = offer.glyph
+      end
+    end
+  end
+  return list
+end
 local function missing(g, def)
   return W.room(def, W.state(g))
 end
@@ -98,23 +120,28 @@ E.kinds = {
         or nil
     end,
   },
-  -- An engraving is bought once; owned, it is equipped for free.
+  -- An engraving is bought once; owned, it is equipped for free. A run that keeps one per
+  -- weapon (worn: weapon id -> engraving) changes only the one on that engraving's weapon.
   engraving = {
     quote = function(g, offer)
       local r = g.run
       if r.owned[offer.id] then
-        return 0, r.glyph == offer.id and Text.get('shop_equipped_reason') or nil, true
+        return 0, E.worn(r, offer) and Text.get('shop_equipped_reason') or nil, true
       end
       return offer.price
     end,
     apply = function(g, offer)
-      g.run.owned[offer.id] = true
-      g.run.glyph = offer.id
+      local r = g.run
+      r.owned[offer.id] = true
+      r.glyph = offer.id
+      if r.worn and offer.weapon then
+        r.worn[offer.weapon] = offer.id
+      end
     end,
     label = function(g, offer)
       local r = g.run
       return r.owned[offer.id]
-          and Text.get(r.glyph == offer.id and 'shop_equipped' or 'shop_equip_free')
+          and Text.get(E.worn(r, offer) and 'shop_equipped' or 'shop_equip_free')
         or nil
     end,
     done = 'shop_engraving_done',

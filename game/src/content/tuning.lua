@@ -118,6 +118,10 @@ return {
   revolverCapacity = 6,
   revolverStartReserve = 24,
   revolverMaxReserve = 72,
+  -- 0.42: the Judge's engravings (content/weapons.lua) and a rank of tempering, either gun.
+  judgeBreakerImpact = 1.25,
+  judgePrecisionHead = 1.6,
+  temperDamage = 1.08,
   -- 0.42: the Judge never stays dry: below a cylinder in all, a round a second comes back.
   revolverSpare = 6,
   revolverSpareEvery = 1,

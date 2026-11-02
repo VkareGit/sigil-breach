@@ -176,10 +176,19 @@ function H.status(g, run)
       fitted(label, 478, y, 12, 114, tint)
     end
   end
+  -- The engraving on the gun in hand, where each gun wears its own; else the run's one.
+  local engraving = run.glyph ~= 'none' and run.glyph or nil
+  if run.worn then
+    local held
+    for _, weapon in ipairs(shown) do
+      held = weapon.selected and weapon.def.id or held
+    end
+    engraving = held and run.worn[held]
+  end
   if chain then
     Skin.meter(425, 686, 106, p.chainLeft / Honours.window, C.gold, 12)
-  elseif run.glyph ~= 'none' then
-    local label = Text.get(assert(Shop.get(run.glyph).short, 'missing engraving HUD label'))
+  elseif engraving then
+    local label = Text.get(assert(Shop.get(engraving).short, 'missing engraving HUD label'))
     fitted(label, 478, 681, 12, 114, C.gold)
   end
   Skin.endZone()

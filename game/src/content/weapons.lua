@@ -80,6 +80,8 @@ local definitions = {
     glyphs = {
       pierce = { set = { penetration = 0.60 }, scale = { impact = 0.65 } },
       choke = { spread = 0.72 },
+      -- A rank of tempering at a fire (content/shop.lua: temper_exorcist).
+      temper_exorcist = { scale = { base = T.temperDamage } },
     },
     weight = {
       mass = 4,
@@ -147,6 +149,14 @@ local definitions = {
       -- penetration): 62 % of its power survives flesh, armour costs .45 %
       -- per rating point; below minRetain of its power it stops.
       pierce = { bodies = 2, retain = 0.62, armorCost = 0.0045, minRetain = 0.2 },
+    },
+    -- 0.42: the Judge's engravings and its tempering (content/shop.lua). BREAKER: a guard
+    -- breaks sooner (impact 44 -> 55; a Buer in 2 body shots, not 3), the throw stays.
+    -- PRECISION: the head is worth more (x1.35 -> x1.60; a Stolas in 3 head shots, not 4).
+    glyphs = {
+      breaker = { scale = { impact = T.judgeBreakerImpact } },
+      precision = { set = { headMultiplier = T.judgePrecisionHead } },
+      temper_judge = { scale = { base = T.temperDamage } },
     },
     weight = {
       mass = 1.5,

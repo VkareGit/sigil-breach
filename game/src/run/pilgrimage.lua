@@ -224,6 +224,7 @@ local function renew(g, slot)
     dirty = false,
     waited = 0,
     caches = {},
+    worn = {},
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
   stand(g)
@@ -662,6 +663,25 @@ local function listed(list, exists)
   end
   return kept
 end
+-- The engraving each weapon wears: owned ones on their own weapon. A save from before one per
+-- weapon (0.42) wears its one engraving on the weapon it belongs to.
+local function validWorn(worn, owned, glyph)
+  assert(worn == nil or type(worn) == 'table', 'invalid engravings worn')
+  local kept = {}
+  for weapon, id in pairs(worn or { [''] = glyph }) do
+    local offer = type(id) == 'string' and Shop.find(id)
+    if
+      offer
+      and offer.kind == 'engraving'
+      and offer.weapon
+      and owned[id]
+      and (worn == nil or offer.weapon == weapon)
+    then
+      kept[offer.weapon] = id
+    end
+  end
+  return kept
+end
 local function validVows(vows)
   assert(type(vows) == 'table', 'invalid vows')
   local kept = {}
@@ -711,6 +731,7 @@ Save.declare({
       echo = r.echo,
       owned = r.owned,
       glyph = r.glyph,
+      worn = r.worn,
       opened = r.opened,
       ruins = ruins,
       vows = r.vows,
@@ -749,12 +770,14 @@ Save.declare({
     }
     out.lit[fire.id] = true
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
+    out.worn = validWorn(data.worn, out.owned, out.glyph)
     return out
   end,
   restore = function(g, data)
     local r = g.run
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
+    r.worn = Copy(data.worn)
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
     r.vows = Copy(data.vows)
     stand(g)
