@@ -25,7 +25,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | R04 | Egzekucja z zasłoną i pionem | zrobione | `souls_balance.lua`: przed naprawą padało na „not through a wall” |
 | R05 | Liczby HP i wardu | zrobione | `pilgrimage.lua` (procenty wobec maksimum); render obejrzany razem z Etapem 1 |
 | R06 | frame-watch i sprostowanie ODBIOR 0.40 | zrobione | przebieg: 3600 klatek gry, 55 strzałów, 0 klatek sklepu w pomiarze; przy okazji złapany „-0%” z R05 |
-| R07 | Furfur 150 dusz | do zrobienia | |
+| R07 | Furfur 150 dusz | zrobione | `pilgrimage.lua`: każdy stwór z posterunku płaci, Furfur = Margrave |
 | R08 | Dokumenty wejściowe | do zrobienia | |
 | R09 | Złoty romb, stare komentarze, `multikill`, `guardianFell`, SHOTGUN/EXORCIST | do zrobienia | |
 

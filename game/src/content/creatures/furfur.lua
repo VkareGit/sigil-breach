@@ -29,6 +29,8 @@ local charge = Action.charge({
 return Creature.boss({
   id = 'furfur',
   name = 'creature_furfur',
+  -- As much as the Margrave: the other hardest body of the chapel (owner, 0.42).
+  souls = 150,
   catalog = { field = 6 },
   appearance = {
     seal = 'furfur',

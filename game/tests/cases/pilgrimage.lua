@@ -188,6 +188,15 @@ function T.run(Game)
   local before = g.run.wallet
   g:damageEnemy(hard, hard.hp + 1, 'weapon', nil, p.id)
   check('it pays and ends nothing', g.run.wallet > before and g.state == 'playing')
+  -- Every creature that stands at a post pays; the two hardest pay alike.
+  local Archetypes = require('src.content.enemies')
+  for _, entry in ipairs(K.start().garrison) do
+    check(entry.creature .. ' pays souls', (Archetypes.get(entry.creature).souls or 0) > 0)
+  end
+  check(
+    'Furfur pays as the Margrave',
+    Archetypes.get('furfur').souls == Archetypes.get('boss').souls
+  )
   -- A door stays barred until it is opened from its side, then it leads through.
   local World = require('src.world.arena')
   local door = K.start().doors[1]

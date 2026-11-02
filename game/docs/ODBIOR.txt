@@ -21,6 +21,7 @@ Sprawdzone automatycznie:
 - R04, tests/cases/souls_balance.lua: ciało w zasięgu jest do egzekucji; ściana między nimi i 8 m wysokości ją wyłączają, powrót przywraca; dawne sprawdzenia egzekucji przechodzą.
 - R05, tests/cases/pilgrimage.lua: po ślubach pełne zdrowie to 100%, pełny ward to pełny pasek, 100 z 110 to 91%, połowa wardu to 50%, żywy rycerz ma co najmniej 1%, zero wardu to 0 (nie -0).
 - R06, --frame-watch: mierzy tylko klatki gry. Śmierć robi retry, menu ogniska zamyka się od razu, raport podaje stany i liczbę strzałów, a pomiar trwa do pełnej minuty gry. Przebieg 2026-11-02 (obok działał Codex, więc maszyna nie była spokojna): 3600 klatek gry, 55 strzałów, sklep 2 klatki poza pomiarem, mediana 4,83 ms, p95 7,38, p99 9,57, 8 klatek ponad 16,7 ms. Pomiar na spokojnej maszynie: R06 w E04.
+- R07, tests/cases/pilgrimage.lua: każdy stwór z posterunku płaci dusze, Furfur tyle co Margrave.
 
 Niesprawdzone:
 - Odczucie i balans w grze: bot nie zastąpi gracza.
