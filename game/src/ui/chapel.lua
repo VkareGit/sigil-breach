@@ -377,6 +377,16 @@ function D.ending(g)
     blue
   )
   center(Text.get('ending_echo_warning'), 326, 18, muted)
+  -- What struck the last blow: what to read better next time.
+  local harm = Queries.lastHarm(g)
+  if harm then
+    center(
+      harm == 'death_by_self' and Text.get(harm) or Text.get('death_by', { name = Text.get(harm) }),
+      364,
+      22,
+      red
+    )
+  end
   center(
     Text.get('ending_stats', {
       minutes = string.format('%02d', math.floor(g.elapsed / 60)),

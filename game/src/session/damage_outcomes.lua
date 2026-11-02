@@ -17,6 +17,7 @@ local Dodge = require('src.combat.dodge')
 local Defaults = require('src.content.combat_defaults')
 local Effects = require('src.combat.effects')
 local Bodies = require('src.combat.bodies')
+local Pools = require('src.session.world')
 local Cast = require('src.combat.abilities')
 local Encounter = require('src.enemies.encounter')
 local DamageTypes = require('src.content.damage_types')
@@ -148,6 +149,17 @@ function Outcomes.recordPlayerDamage(g, info)
   emit(g, 'PlayerHit', { info = info })
 end
 
+-- Who dealt a blow to the knight, as the death screen names it: the text key of a creature's
+-- name, 'death_by_self' for his own charge, or nil when nothing is known. A missile or a burn
+-- names the body that owns it, alive or fallen.
+local function harmOf(g, source, context)
+  if source == 'self' then
+    return 'death_by_self'
+  end
+  local id = context and context.owner or (type(source) == 'table' and source.id)
+  local body = type(source) == 'table' and source.kind and source or (id and Pools.get(g, id))
+  return body and body.kind and Rules.archetype(body).name or nil
+end
 -- The amount is incoming damage; a packet adds type and physical impulse.
 -- source (optional): the demon whose own body delivered the blow, or 'self'
 -- for the knight's own powder charge. knight (optional): which knight
@@ -205,6 +217,9 @@ function Outcomes.player(g, amount, x, z, packet, source, context, knight)
     contact = context and context.contact,
   }
   if controlled then
+    if healthDamage > 0 then
+      g.lastHarm = harmOf(g, source, context)
+    end
     g:recordPlayerDamage(info)
   else
     emit(g, 'KnightHit', { knight = player, info = info })

@@ -37,6 +37,7 @@ Etap 1, czytelność bez zmiany designu:
 
 Etap 2:
 - L02 (decyzja D1): ognisko nie przyjmuje ściganego rycerza. Gdy jakiś żywy stwór czuwa, [E] przy ognisku nie leczy ani nie cofa stworów, tylko mówi „Something is awake and hunting you. No fire takes you in now.”, podpowiedź przy ognisku mówi NO REST WHILE YOU ARE HUNTED, a podróż do innego ogniska też odmawia.
+- L07: ekran śmierci mówi, co zadało ostatni raniący cios: „Struck down by {stwór}.” albo „Struck down by your own powder charge.” Pocisk i ogień należą do stwora, który je wypuścił, nawet martwego (g.lastHarm, Queries.lastHarm).
 - L09 (decyzja D3): unik ogranicza tylko wytrzymałość. Ładunki uniku usunięte (dashCharges, dashRecharge, pole dash, napis NO DODGES LEFT). Trzy uniki z pełnego paska, czwarty czeka; po wysiłku odnowa rusza po 0,4 s (było 0,55). Doskonały unik oddaje wytrzymałość jednego uniku. Trucizna spowalnia odnowę wytrzymałości tak, jak dawniej odnowę ładunków. W niszy uniku jeden pasek wytrzymałości zamiast dwóch kresek. Poza trybem z wysiłkiem (stary poligon bez attrition) unik niczym nie jest ograniczony.
 
 

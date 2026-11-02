@@ -124,6 +124,10 @@ end
 function Queries.run(g)
   return (ask(g, 'runView', 'run'))
 end
+-- What struck the knight's last wounding blow, as a text key (session/damage_outcomes.lua).
+function Queries.lastHarm(g)
+  return g.lastHarm
+end
 function Queries.field(g)
   return (ask(g, 'fieldView', 'field'))
 end

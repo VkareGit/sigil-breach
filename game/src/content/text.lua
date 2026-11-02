@@ -145,6 +145,8 @@ local definitions = {
   { 'confirm_new', 'START OVER' },
   { 'confirm_keep', 'KEEP GOING [ ESC ]' },
   { 'dead_menu', 'SAVE / MAIN MENU' },
+  { 'death_by', 'Struck down by {name}.' },
+  { 'death_by_self', 'Struck down by your own powder charge.' },
   { 'save_warning', 'WARNING: {reason}' },
   { 'shop_field_title', 'PROVING GROUND / UNSAVED SHOP' },
   { 'map_echo', 'ECHO' },

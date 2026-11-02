@@ -74,10 +74,30 @@ local function freshStarts(check, Game)
   still('after a journey')
   P.forget()
 end
+-- What struck the last wounding blow is kept for the death screen: a creature by its name, or
+-- his own charge.
+local function causes(check, Game)
+  P.forget()
+  local Queries = require('src.session.queries')
+  local g = session(Game)
+  local p = g.player
+  local stolas = byPost(g, 'nave_4')
+  p.armor, p.invuln = 0, 0
+  g:damagePlayer({ base = 10, impact = 0 }, stolas.x, stolas.z, nil, stolas)
+  check('a blow names the creature that struck it', Queries.lastHarm(g) == 'creature_stolas')
+  p.invuln = 0
+  g:damagePlayer({ base = 500, impact = 0 }, p.x, p.z, nil, 'self')
+  check(
+    'and a death by his own charge says so',
+    g.state == 'dead' and Queries.lastHarm(g) == 'death_by_self'
+  )
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
   freshStarts(check, Game)
+  causes(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player

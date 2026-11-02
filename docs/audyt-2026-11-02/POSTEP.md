@@ -36,6 +36,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | G05 | Q/F, znaki, niskie HP w niszach | zrobione (czeka na zgodę właściciela na wygląd) | grafiki Codexa w `game/assets/art/icons`; geometry 0 uwag |
 | G06 | Seria przy wierszu broni | zrobione | razem z G01 (`look-chain`) |
 | L02 | Odpoczynek przy czuwającym stworze (D1) | zrobione | `pilgrimage.lua` |
+| L07 | Przyczyna śmierci | zrobione | `pilgrimage.lua` (causes), render `look-dead` |
 | L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
 
 ## Notatki

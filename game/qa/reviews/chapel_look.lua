@@ -118,7 +118,7 @@ function Review.run(Game, renderer, output)
   g.state = 'playing'
   p.armor, p.invuln = 0, 0
   g.run.wallet = 480
-  g:damagePlayer(1000)
+  g:damagePlayer(1000, foe.x, foe.z, nil, foe)
   shot(g, 'dead')
   Way.forget()
 end

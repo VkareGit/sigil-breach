@@ -143,7 +143,7 @@ declare('session/listeners.lua', {
   -- (session/capabilities.lua: held; counted down by systems/clocks)
   'worldStop',
 })
-declare('session/damage_outcomes.lua', { 'playerDamageReport' })
+declare('session/damage_outcomes.lua', { 'playerDamageReport', 'lastHarm' })
 -- Modes.
 declare(
   'run/pilgrimage.lua',
