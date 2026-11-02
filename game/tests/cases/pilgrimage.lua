@@ -121,6 +121,16 @@ function T.run(Game)
   g.run.wallet = Shop.maxWallet
   check('a vow of health holds', g:act('buy', 'vow_vigor') and p.maxHp == 110 and p.hp == 110)
   check('a vow of ward holds', g:act('buy', 'vow_ward') and p.maxArmor == 50 and p.armor == 50)
+  -- The status bar measures against his maxima: full is 100% however many vows he swore.
+  local Characters = require('src.content.characters')
+  check('full health is 100%', Characters.percent(Characters.share(p)) == 100)
+  check('a full ward is a full bar', Characters.wardShare(p) == 1)
+  p.hp, p.armor = 100, 25
+  check('100 of 110 is 91%', Characters.percent(Characters.share(p)) == 91)
+  check('half the ward is half', Characters.percent(Characters.wardShare(p)) == 50)
+  p.hp, p.armor = 0.2, 0
+  check('alive is at least 1%', Characters.percent(Characters.share(p)) == 1)
+  p.hp, p.armor = p.maxHp, p.maxArmor
   g:act('buy', 'vow_flask')
   g:act('buy', 'vow_flask')
   check('a vow ends', not g:act('buy', 'vow_flask') and g.run.vows.vow_flask == 3)

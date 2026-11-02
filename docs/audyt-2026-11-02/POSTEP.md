@@ -23,7 +23,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | R02 | Wspólny reset aktora | zrobione | `pilgrimage.lua` `freshStarts`: przed naprawą padało na „the rest ends the drink unpaid”, a bez resetu (sam koniec picia) na „after a rest: nothing burns”; Mechanics zielone, złoty wzorzec zaktualizowany |
 | R03 | Broń ze zdarzenia w serii | zrobione | `chain.lua` `origins`; stary kod liczył trzy zabójstwa ładunkiem jako serię Judge'a (sonda Astry) |
 | R04 | Egzekucja z zasłoną i pionem | zrobione | `souls_balance.lua`: przed naprawą padało na „not through a wall” |
-| R05 | Liczby HP i wardu | do zrobienia | |
+| R05 | Liczby HP i wardu | zrobione | `pilgrimage.lua` (procenty wobec maksimum); render obejrzany razem z Etapem 1 |
 | R06 | frame-watch i sprostowanie ODBIOR 0.40 | do zrobienia | |
 | R07 | Furfur 150 dusz | do zrobienia | |
 | R08 | Dokumenty wejściowe | do zrobienia | |

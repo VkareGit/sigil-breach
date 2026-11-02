@@ -133,7 +133,14 @@ function H.status(g, run)
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
   centered(Text.get('health'), 330, 630, 14, C.muted)
-  number(math.ceil(p.hp) .. '%', 330, 648, 112, 29, Characters.low(p) and C.red or Palette.wound)
+  number(
+    Characters.percent(Characters.share(p)) .. '%',
+    330,
+    648,
+    112,
+    29,
+    Characters.low(p) and C.red or Palette.wound
+  )
   Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
   Skin.endZone()
   Skin.zone('HUD arsenal', 421, 628, 115, 68)
@@ -165,8 +172,9 @@ function H.status(g, run)
   Portrait.draw(g, 565, 584, 150)
   Skin.zone('HUD armor', 752, 628, 118, 68)
   centered(Text.get('ward'), 810, 630, 14, C.muted)
-  number(math.ceil(p.armor) .. '%', 810, 648, 114, 29, p.armor > 0 and C.blue or C.muted)
-  Skin.meter(753, 686, 114, p.armor / 100, C.blue, 12)
+  local ward = Characters.wardShare(p)
+  number(Characters.percent(ward) .. '%', 810, 648, 114, 29, p.armor > 0 and C.blue or C.muted)
+  Skin.meter(753, 686, 114, ward, C.blue, 12)
   Skin.endZone()
   Skin.zone('HUD abilities', 908, 628, 113, 68)
   -- The equipment of every keyed slot (ui/hud_slots.lua). One item: its key

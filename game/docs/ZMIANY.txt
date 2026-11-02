@@ -22,6 +22,7 @@ punkcie: docs/audyt-2026-11-02/POSTEP.md.
 - R02: odpoczynek, retry i podróż zaczynają od czysta, jednym resetem wspólnym z poligonem (run/actor_reset.lua). Trucizna Buera nie pali po odpoczynku, odrzut śmiertelnego ciosu nie przesuwa obudzonego rycerza, picie rozpoczęte przed odpoczynkiem nie zjada ładunku z napełnionej flaski, wciśnięty wcześniej strzał lub unik nie wykonuje się po starcie.
 - R03: serię buduje tylko zabójstwo pociskiem broni i liczy się dla tej broni, którą zdarzenie zabójstwa nazywa, nie dla trzymanej. Ładunek Q, egzekucja, uderzenie o ścianę i ogień nie budują serii ani jej nie przerywają. Śrut, który doleci po zmianie broni, liczy się dla broni, z której wyleciał.
 - R04: egzekucja tylko w zasięgu ręki: bez ściany między rycerzem a ciałem i w pionie od 0,6 m pod stopami do 2,6 m nad nimi (combat_defaults: execution.below, above). Ten sam test kontaktu co cios stwora (combat/area_contact.lua). Podpowiedź EXECUTE znika razem z możliwością.
+- R05: HEALTH i WARD na pasku to prawdziwy procent maksimum (Characters.percent, wardShare). Pełne zdrowie po ślubach to 100%, nie 130%. Pasek wardu mierzy się wobec maksimum wardu (śluby w kaplicy, 100 na poligonie), nie wobec stałej 100. Nisze, układ i kolory bez zmian.
 
 
 ########################################################################

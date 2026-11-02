@@ -64,6 +64,18 @@ end
 function C.share(actor)
   return actor.hp / C.maxHp(actor)
 end
+-- The most ward an actor can hold: his vows' in the chapel, the field's cap on the proving ground.
+function C.maxWard(actor)
+  return actor.maxArmor or C.of(actor).body.armor
+end
+function C.wardShare(actor)
+  return math.min(1, actor.armor / C.maxWard(actor))
+end
+-- A share as the whole percent the status bar shows: full is 100, a scratch below it 99,
+-- anything alive at least 1.
+function C.percent(share)
+  return math.ceil(share * 100 - 1e-9)
+end
 -- Below the share every wounded look of the interface starts from.
 function C.low(actor)
   return C.share(actor) < Tuning.lowHealth
