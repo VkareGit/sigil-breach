@@ -72,9 +72,9 @@ function C.wardShare(actor)
   return math.min(1, actor.armor / C.maxWard(actor))
 end
 -- A share as the whole percent the status bar shows: full is 100, a scratch below it 99,
--- anything alive at least 1.
+-- anything alive at least 1, nothing 0 (never -0, which the painted numbers cannot write).
 function C.percent(share)
-  return math.ceil(share * 100 - 1e-9)
+  return share > 0 and math.ceil(share * 100 - 1e-9) or 0
 end
 -- Below the share every wounded look of the interface starts from.
 function C.low(actor)

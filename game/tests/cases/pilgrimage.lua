@@ -130,6 +130,7 @@ function T.run(Game)
   check('half the ward is half', Characters.percent(Characters.wardShare(p)) == 50)
   p.hp, p.armor = 0.2, 0
   check('alive is at least 1%', Characters.percent(Characters.share(p)) == 1)
+  check('no ward is 0, never -0', tostring(Characters.percent(Characters.wardShare(p))) == '0')
   p.hp, p.armor = p.maxHp, p.maxArmor
   g:act('buy', 'vow_flask')
   g:act('buy', 'vow_flask')

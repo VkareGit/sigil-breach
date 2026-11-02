@@ -105,10 +105,17 @@ function Review.run(Game, renderer, output)
       hot[name] = (hot[name] or 0) + samples
     end)
   end
-  for frame = 1, SECONDS * 60 do
+  -- Only frames of play are measured: a death retries, a fire's menu closes at once (the bot
+  -- rests when it tries an execution at a fire), and the watch runs until it has a minute of
+  -- play or twice as long. The other states are counted, never mixed in.
+  local playing, passed, counted = 0, 0, {}
+  while playing < SECONDS * 60 and passed < SECONDS * 120 do
+    passed = passed + 1
     if g.state == 'dead' then
       g:act('retry')
       memory = {}
+    elseif g.state == 'shop' then
+      g:act('closeShop')
     end
     dearest, routes, routeTime = 0, 0, 0
     local startedAt, bot = clock(), 0
@@ -139,21 +146,25 @@ function Review.run(Game, renderer, output)
     local doneAt = clock()
     shots = shots + (g.player.shots - lastShots)
     lastShots = g.player.shots
-    frames[frame] = {
-      index = frame,
-      total = (doneAt - startedAt - bot) * 1000,
-      update = (updatedAt - startedAt - bot) * 1000,
-      bot = bot * 1000,
-      system = dearestName,
-      systemMs = dearest,
-      routes = routes,
-      routeMs = routeTime,
-      collected = heap - collectgarbage('count'),
-      draw = (drawnAt - updatedAt) * 1000,
-      ui = (doneAt - drawnAt) * 1000,
-      bodies = #Pools.of(g, 'enemies'),
-      state = g.state,
-    }
+    counted[g.state] = (counted[g.state] or 0) + 1
+    if g.state == 'playing' then
+      playing = playing + 1
+      frames[playing] = {
+        index = passed,
+        total = (doneAt - startedAt - bot) * 1000,
+        update = (updatedAt - startedAt - bot) * 1000,
+        bot = bot * 1000,
+        system = dearestName,
+        systemMs = dearest,
+        routes = routes,
+        routeMs = routeTime,
+        collected = heap - collectgarbage('count'),
+        draw = (drawnAt - updatedAt) * 1000,
+        ui = (doneAt - drawnAt) * 1000,
+        bodies = #Pools.of(g, 'enemies'),
+        state = g.state,
+      }
+    end
   end
   if os.getenv('SIGIL_WATCH_PROFILE') then
     Profile.stop()
@@ -171,9 +182,24 @@ function Review.run(Game, renderer, output)
   table.sort(frames, function(a, b)
     return a.total > b.total
   end)
+  local seen = {}
+  for state, count in pairs(counted) do
+    seen[#seen + 1] = state .. ' ' .. count
+  end
+  table.sort(seen)
   local lines = {
     string.format(
-      'FRAME ms median %.2f p95 %.2f p99 %.2f max %.2f over %d frames',
+      'STATES after each frame: %s (only playing is measured)',
+      table.concat(seen, ', ')
+    ),
+    string.format(
+      'PLAY %s: %d frames of play, %d shots',
+      playing >= SECONDS * 60 and 'complete' or 'INCOMPLETE',
+      playing,
+      shots
+    ),
+    string.format(
+      'FRAME ms median %.2f p95 %.2f p99 %.2f max %.2f over %d frames of play',
       percentile(totals, 0.5),
       percentile(totals, 0.95),
       percentile(totals, 0.99),
