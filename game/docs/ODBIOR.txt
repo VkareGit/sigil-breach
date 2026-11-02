@@ -17,10 +17,10 @@ SIGIL: BREACH 0.41: odbiór
 Sprawdzone automatycznie:
 - tests/cases/chain.lua i tests/cases/responsiveness.lua: seria na broni, bonusy tylko na niej, koniec serii przez czas, trafienie, inną broń i odpoczynek; strzał bez kosztu, odsłonięcie, unik bez długu, cel strzału z bufora.
 - Sonda walki: odbicie ciosu działa obiema broniami, egzekucja w grupie jest bezpieczna, przeładowanie przy dwóch mobach jest karane.
-- Bot przez kaplicę: 4–11 śmierci na 6 minut (w 0.40 około 12). Bot zużywa do sanktuarium około 70% zapasu.
+- Bot przez kaplicę: 6–15 śmierci na 6 minut, jak w 0.40 (około 12). Dochodzi do sanktuarium z prawie pustą bronią, ale strzela, gdy tylko widzi cel, i często po kilku śmierciach; cel 60–70% zużycia zapasu pozostaje do sprawdzenia przez gracza.
 
 Niesprawdzone:
-- Odczucie i balans w grze. Gra jest dla bota łatwiejsza niż w 0.40; bot nie zastąpi gracza.
+- Odczucie i balans w grze: bot nie zastąpi gracza.
 - Układ medali oglądany na zrzutach, nie w ruchu.
 - Pakowanie: bez -Package, zgodnie z ustaleniem.
 

@@ -110,3 +110,4 @@ WdraÅ¼ane po kolei, kaÅ¼dy krok z commitem.
 - Krok 4: seria należy do broni (`combat/chain.lua`, `content/chain.lua`): TRIPTYCH przebija pancerz, TETRAPTYCH łamie gardę, POLYPTYCH leczy po 8. Medale czynów w `feedback/medals.lua`, pieczęcie od Codexa w `assets/art/medals`. Medal stoi u góry widoku przez 1,5 s, stała informacja o serii w niszy ARSENAL, `+N` w niszy SOULS; układ ustalony z właścicielem na zrzutach.
 - Krok 5: odbicie ciosu działa obiema broniami, egzekucja w grupie jest bezpieczna, przeładowanie przy mobach karane. Shotgun przerywał każdy cios, więc śrucina łamie gardę za 6 zamiast 12.
 - Krok 6: ognisko uzupełnia zapas do 16 i 36 (`K.carried`), model amunicji ma `stock`.
+- Wynik na bocie: 6–15 śmierci na 6 minut, jak przed zmianą. Zużycie amunicji do oceny w grze.
