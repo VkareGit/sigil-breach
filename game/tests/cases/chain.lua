@@ -15,9 +15,51 @@ local function fresh(Game)
   g:act('start')
   return g, g.player
 end
-local function kill(g, p)
+-- A kill by a weapon's rounds: the one in hand unless another is named.
+local function kill(g, p, weapon)
   local e = g:spawn('imp', p.x + 8, p.z)
-  g:damageEnemy(e, e.hp + 1, 'weapon', nil, p.id)
+  g:damageEnemy(e, e.hp + 1, 'weapon', nil, p.id, weapon or Weapons.idAt(g, nil, p))
+end
+-- Only a weapon's rounds make a chain, and they make it for their weapon, whatever is in hand.
+local function origins(check, Game)
+  local g, p = fresh(Game)
+  g:switchWeapon(2)
+  local Abilities = require('src.content.abilities')
+  local action = Abilities:get('powder').action
+  for i = 1, 3 do
+    local e = g:spawn('imp', p.x + (i - 2) * 0.6, p.z - 6)
+    e.hp = 1
+  end
+  local struck = require('src.combat.explosives').strike(
+    g,
+    { x = p.x, y = 1, z = p.z - 6, owner = p.id },
+    action.radius,
+    action.blast,
+    'charge'
+  )
+  check('a charge kills three', struck.kills == 3 and p.shots == 0)
+  check('and makes no chain', p.chainCount == nil and Chain.step(p) == nil)
+  g, p = fresh(Game)
+  kill(g, p)
+  kill(g, p)
+  local e = g:spawn('imp', p.x, p.z - 1.5)
+  e.stun, e.hp = 2, 1
+  require('src.combat.rules').addCondition(e, 'exposed', 2)
+  p.yaw = math.pi
+  check('an execution kills', require('src.combat.execution').perform(g) and e.hp <= 0)
+  check('and neither grows nor ends the chain', p.chainCount == 2 and Chain.step(p) ~= nil)
+  local exorcist = p.chainWeapon
+  g:switchWeapon(2)
+  kill(g, p, exorcist)
+  check(
+    'rounds still in flight count for their weapon',
+    p.chainCount == 3 and p.chainWeapon == exorcist
+  )
+  local bare = Weapons.attack(g, nil, nil, p)
+  check(
+    'the edge stays on it',
+    Chain.edge(p, 'judge', bare) == bare and Chain.edge(p, exorcist, bare) ~= bare
+  )
 end
 local function run(g, seconds)
   for _ = 1, math.ceil(seconds * 120) do
@@ -78,6 +120,7 @@ function T.run(Game)
   p.x, p.z = 24, 9
   g:interact()
   check('a rest ends a chain', Chain.step(p) == nil)
+  origins(check, Game)
   P.forget()
   return lines
 end

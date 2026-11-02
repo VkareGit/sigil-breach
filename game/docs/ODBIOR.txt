@@ -17,6 +17,7 @@ SIGIL: BREACH 0.42: odbiór
 Sprawdzone automatycznie:
 - R01, tests/cases/pilgrimage_save.lua (refusals): odmowa dysku zostawia zapis do zrobienia, nie ponawia go co klatkę, ponawia po 5 s spokoju i zapisuje dusze; odmówiony odpoczynek trafia na dysk przy następnej okazji.
 - R02, tests/cases/pilgrimage.lua (freshStarts): po odpoczynku z trucizną Buera, odrzutem, unikiem i piciem w toku, po śmiertelnym ciosie z odrzutem i po podróży rycerz przez 0,6 s nie traci zdrowia ani wardu i nie przesuwa się; flaska zostaje pełna.
+- R03, tests/cases/chain.lua (origins): prawdziwy wybuch ładunku zabija trzy stwory przy zerze strzałów i nie tworzy serii; egzekucja nie zmienia serii; zabójstwo śrutem Exorcista z Judge'em w ręku dokłada do serii Exorcista, a bonus zostaje na Exorciście.
 
 Niesprawdzone:
 - Odczucie i balans w grze: bot nie zastąpi gracza.

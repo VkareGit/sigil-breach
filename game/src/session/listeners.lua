@@ -81,7 +81,7 @@ end
 local function chain(g, event)
   local knight = Bodies.actor(g, Stats.owner(g, event.owner))
   if knight and Capabilities.attrition(g) then
-    Chain.kill(g, knight)
+    Chain.kill(g, knight, event.weapon)
   end
 end
 -- The mode's consequences (run/modes.lua: reward): the chapel counts souls.

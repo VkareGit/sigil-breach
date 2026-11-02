@@ -3,7 +3,6 @@
 local Characters = require('src.content.characters')
 local K = require('src.content.chain')
 local Signal = require('src.session.signal')
-local Weapons = require('src.content.weapons')
 local Chain = {}
 -- The step a knight's chain stands on, or nil.
 function Chain.step(p)
@@ -17,8 +16,13 @@ function Chain.step(p)
   end
   return reached
 end
-function Chain.kill(g, p)
-  local weapon = Weapons.idAt(g, nil, p)
+-- A kill by a weapon's rounds (EnemyKilled: weapon), counted for that weapon whatever is in
+-- hand by now. A kill by no weapon (a charge, an execution, a slam, a burn) neither grows the
+-- chain nor ends it.
+function Chain.kill(g, p, weapon)
+  if not weapon then
+    return
+  end
   local going = (p.chainLeft or 0) > 0 and p.chainWeapon == weapon
   p.chainCount, p.chainWeapon = going and p.chainCount + 1 or 1, weapon
   p.chainLeft = K.window
