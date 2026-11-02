@@ -60,6 +60,8 @@ Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: 
 
 Konsultacja z Codexem Astra (ultra, tylko odczyt): `work/ammo-consult/astra-answer.md`. Zrobione w `ee17677`: ognisko nie zabiera zebranej nadwyżki; paczki fazowe Margrave'a i Furfura leżą w zasięgu; Judge 44 → 72. W odwodzie, jeśli po próbie nadal brakuje: ratunek przy pustej broni (paczka 6 naboi Judge'a po 6 s z pustymi obiema broniami, w miejsce zepsutego `mercy` w `session/interactions.lua`), pewna paczka z Ember Thralla (szansa 0.4 → 1), krwawe naboje (zdrowie za naboje), broń biała (koszt L).
 
+Doraźnie na prośbę właściciela (2026-11-02, po południu): więcej amunicji na podłodze (8 skrytek, razem 68 naboi Judge'a i 18 łusek; nowe w obu salach najtwardszych), a zebrana skrytka wraca po 60 s bez odpoczynku (`cacheReturn` w `content/pilgrimage.lua`, `restock` w `run/pilgrimage.lua`). Pełna analiza rozgrywki z Astrą i plan dalszych kroków: `docs/analiza-rozgrywki-2026-11-02/PLAN.md` (czeka na decyzję właściciela).
+
 ## Pomiar trudności po D1–D4 (bot, 6 minut, sonda bez okna)
 
 Sonda: bot `qa/souls_bot` przechodzi kaplicę od pierwszego ogniska do sanktuarium, potem do pozostałych ognisk, przez 6 minut gry, przy 0 / 10 / 30% chybień i dwóch ziarnach. Liczy śmierci, ogniska, zrzuty, strzały i odmowy odpoczynku. Audyt (0.41): chybienia 0 dawały 3 śmierci i sanktuarium po 137–188 s.

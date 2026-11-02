@@ -19,9 +19,11 @@
 -- 0.42: a fire gives the Judge a full reserve (72) and keeps rounds gathered beyond it; a phase
 -- drops its shells within reach: both walks change.
 -- 0.42: rounds lie about the chapel and are laid again at each rest: both walks change.
+-- 0.42: more rounds lie about, the halls have their own, and a cache taken lies again after a
+-- minute: both walks change.
 return {
-  playtest = 'e4e9b0f1/ee54ed24',
-  human = '2777e05b/7cd9dd20',
+  playtest = 'f2ea3439/07fcdaca',
+  human = 'de7b1e83/dd12fbf8',
   drill = '6cf13641/c25aa83e',
   playtestContacts = '059839b2/1061',
   humanContacts = '31fb4318/1495',

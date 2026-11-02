@@ -93,15 +93,21 @@ Way.areas:register('chapel', {
     },
   },
   -- Rounds left lying about (0.42, the owner: a way finds some on its floor). Each lies again at
-  -- every rest, as the creatures stand again; revolver rounds are plenty, shells few.
+  -- every rest, as the creatures stand again, and a cache taken lies again after cacheReturn s
+  -- even without one; revolver rounds are plenty, shells fewer. The halls of the hardest bodies
+  -- have their own, so a long fight there is not lost for want of rounds.
   supplies = {
-    { id = 'nave_left', weapon = 'judge', amount = 8, x = 21.5, z = 23 },
-    { id = 'nave_right', weapon = 'judge', amount = 8, x = 26.5, z = 23 },
-    { id = 'nave_front', weapon = 'judge', amount = 6, x = 24, z = 18.5 },
-    { id = 'crypt', weapon = 'exorcist', amount = 4, x = 24, z = 7 },
-    { id = 'west_hall', weapon = 'exorcist', amount = 4, x = 12, z = 18 },
-    { id = 'east_hall', weapon = 'judge', amount = 10, x = 36, z = 18 },
+    { id = 'nave_left', weapon = 'judge', amount = 14, x = 21.5, z = 23 },
+    { id = 'nave_right', weapon = 'judge', amount = 14, x = 26.5, z = 23 },
+    { id = 'nave_front', weapon = 'judge', amount = 10, x = 24, z = 18.5 },
+    { id = 'crypt', weapon = 'exorcist', amount = 6, x = 24, z = 7 },
+    { id = 'west_hall', weapon = 'exorcist', amount = 6, x = 12, z = 18 },
+    { id = 'west_hall_rounds', weapon = 'judge', amount = 14, x = 8, z = 18 },
+    { id = 'east_hall', weapon = 'judge', amount = 16, x = 36, z = 18 },
+    { id = 'east_hall_shells', weapon = 'exorcist', amount = 6, x = 40, z = 18 },
   },
+  -- A cache taken lies again after this long (s), rest or not.
+  cacheReturn = 60,
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then
     -- iron before the fire. Each notices only so far, so a careful knight takes them apart.

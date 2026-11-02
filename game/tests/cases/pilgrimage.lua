@@ -112,11 +112,31 @@ local function reserves(check, Game)
   check('and fills what is short', rounds.reserve == K.carried.judge)
   P.forget()
 end
+-- A cache taken lies again after K.cacheReturn s, without a rest (0.42, the owner).
+local function caches(check, Game)
+  P.forget()
+  local g = session(Game)
+  local function lying(id)
+    for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+      if pickup.rewardId == id then
+        return pickup
+      end
+    end
+  end
+  Pools.remove(g, 'pickups', lying('nave_left'))
+  P.update(g, K.start().cacheReturn - 1)
+  check('a cache taken stays gone for a while', lying('nave_left') == nil)
+  P.update(g, 2)
+  check('and then lies again', lying('nave_left') ~= nil)
+  check('once', #Pools.of(g, 'pickups') == #K.start().supplies)
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
   freshStarts(check, Game)
   reserves(check, Game)
+  caches(check, Game)
   causes(check, Game)
   P.forget()
   local g = session(Game)

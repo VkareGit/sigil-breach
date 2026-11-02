@@ -35,6 +35,10 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
   supplies): naboje Judge'a po bokach i przed nawą (8, 8, 6) i we wschodniej sali (10), łuski
   w kryptach i w zachodniej sali (po 4). Wracają przy każdym odpoczynku, jak stwory.
   P.problems sprawdza, czy każda leży w zasięgu i nazywa istniejącą broń.
+- Więcej amunicji na podłodze (prośba właściciela: „w połowie walki z najtwardszym brak naboi”):
+  8 skrytek, razem 68 naboi Judge'a i 18 łusek; obie sale najtwardszych mają po skrytce naboi
+  i łusek. Zebrana skrytka wraca po 60 s także bez odpoczynku (cacheReturn w content/
+  pilgrimage.lua, restock w run/pilgrimage.lua; g.run.caches liczy, jak długo jej nie ma).
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.
