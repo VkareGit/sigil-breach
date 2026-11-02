@@ -1,5 +1,6 @@
 -- The supplies every mode lays out (health, ammunition) and how the knight
 -- takes them. What [E] does and says is each mode's own.
+local Abilities = require('src.content.abilities')
 local Characters = require('src.content.characters')
 local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
@@ -29,8 +30,9 @@ end
 -- Supplies (0.24, Strategy): each pickup kind says whether the knight needs
 -- it and what taking it gives. A new kind of supply is a new entry.
 --   wanted(player, pickup)  true when the pickup would give something
---   take(player, pickup)    applies it and returns the notice text
--- Every supply names its amount where it is laid (map, mode or drop data).
+--   take(player, pickup)    applies it; returns the notice text and how much it gave
+-- Every supply names its amount where it is laid (map, mode or drop data). What a knight
+-- could not take stays on the floor, a smaller pack (0.42, the owner: nothing is wasted).
 Interactions.supplies = {
   health = {
     wanted = function(player)
@@ -39,7 +41,8 @@ Interactions.supplies = {
     take = function(player, pickup)
       local before = player.hp
       player.hp = math.min(Characters.maxHp(player), player.hp + pickup.amount)
-      return Text.get('pickup_health', { amount = math.floor(player.hp - before + 0.5) })
+      local gained = math.floor(player.hp - before + 0.5)
+      return Text.get('pickup_health', { amount = gained }), gained
     end,
   },
   -- Ammunition for one weapon (pickup.weapon, else pickup.slot, else the first).
@@ -50,7 +53,22 @@ Interactions.supplies = {
     end,
     take = function(player, pickup)
       local def, state = ammoFor(player, pickup)
-      return Text.get('pickup_rounds', { amount = Weapons.refill(def, state, pickup.amount) })
+      local gained = Weapons.refill(def, state, pickup.amount)
+      return Text.get('pickup_rounds', { amount = gained }), gained
+    end,
+  },
+  -- A draught for the flask (0.42): one more use, never beyond what it holds.
+  flask = {
+    wanted = function(player)
+      local state = player.abilityState and player.abilityState.flask
+      return state ~= nil and state.uses < Abilities.capacity('flask', state)
+    end,
+    take = function(player, pickup)
+      local state = player.abilityState.flask
+      local before = state.uses
+      state.uses = math.min(Abilities.capacity('flask', state), before + pickup.amount)
+      local gained = state.uses - before
+      return Text.get('pickup_flask', { amount = gained }), gained
     end,
   },
 }
@@ -107,8 +125,14 @@ function Interactions.collectSupplies(g)
         pickup.level
       )
     then
-      Signal(g, 'PickupTaken', { pickup = pickup, text = supply.take(player, pickup) })
-      Pools.removeAt(g, 'pickups', i)
+      local text, gained = supply.take(player, pickup)
+      Signal(g, 'PickupTaken', { pickup = pickup, text = text })
+      local rest = pickup.amount - (gained or pickup.amount)
+      if rest >= 1 then
+        pickup.amount = rest
+      else
+        Pools.removeAt(g, 'pickups', i)
+      end
     end
   end
 end

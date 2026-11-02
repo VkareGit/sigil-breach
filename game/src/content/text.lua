@@ -489,6 +489,7 @@ local definitions = {
   { 'shop_bought', 'Purchased.' },
   { 'pickup_health', '+{amount} HEALTH' },
   { 'pickup_rounds', '+{amount} ROUNDS' },
+  { 'pickup_flask', '+{amount} DRAUGHT' },
   { 'no_ammo', 'No ammo / switch weapons or restock at the Ember.' },
   { 'reload_open', 'OPEN' },
   { 'reload_load', 'LOAD' },

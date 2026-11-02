@@ -33,9 +33,20 @@ function D.elsewhere(g)
   end
   return false
 end
+-- The offers shown: what belongs to a weapon only under that weapon's tab (the gun in hand;
+-- the tabs at the top switch it), the rest under every tab (0.42, the owner).
+function D.offers(g)
+  local held, list = Weapons.idAt(g, nil, Context.actor(g)), {}
+  for _, offer in ipairs(E.offersFor(g)) do
+    if not offer.weapon or offer.weapon == held then
+      list[#list + 1] = offer
+    end
+  end
+  return list
+end
 function D.shopPage(g)
   local detailed = false
-  local offers = E.offersFor(g)
+  local offers = D.offers(g)
   for _, offer in ipairs(offers) do
     local name, description = E.describe(g, offer.id)
     detailed = detailed
@@ -80,7 +91,7 @@ function D.controls(g)
   if g.state == 'shop' then
     local list = {}
     local first, last, page, pages, rowHeight = D.shopPage(g)
-    local offers = E.offersFor(g)
+    local offers = D.offers(g)
     for i = first, last do
       local o = offers[i]
       local _, reason = E.quote(g, o.id)
@@ -257,7 +268,7 @@ function D.shop(g)
     muted
   )
   local first, last, _, _, rowHeight, detailed = D.shopPage(g)
-  local offers = E.offersFor(g)
+  local offers = D.offers(g)
   for i = first, last do
     local o = offers[i]
     local row = i - first + 1

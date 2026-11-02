@@ -16,4 +16,11 @@ Supplies:register('ammo', {
   },
 })
 Supplies:register('soul', { icon = 'soul', size = 0.42 })
+-- A draught for the flask lying about (0.42): the flask's painted icon until it has its own.
+Supplies:register('flask', {
+  icon = 'health',
+  size = 0.42,
+  light = 0.85,
+  image = 'assets/art/icons/flask.png',
+})
 return Supplies

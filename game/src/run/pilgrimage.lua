@@ -18,7 +18,7 @@ local Rules = require('src.combat.rules')
 local Sanctuary = require('src.session.sanctuary')
 local Save = require('src.storage.save')
 local Spawn = require('src.session.spawn')
-local Pools = require('src.session.world')
+local Interactions = require('src.session.interactions')
 local Text = require('src.content.text')
 local Weapons = require('src.content.weapons')
 local Archetypes = require('src.content.enemies')
@@ -52,39 +52,18 @@ local function place(g, entry)
   e.patrol, e.post = entry.patrol, entry.id
   return e
 end
--- Rounds lying about, where the area says (content/pilgrimage.lua: supplies); the pickup
--- carries its cache's id, so a cache taken is known and lies again later.
+-- What lies about, where the area says (content/pilgrimage.lua: supplies). Taken, it stays
+-- taken until the chapel stands again at a rest or a death, with the creatures (0.42, the
+-- owner: a way plans its route like a Doom level, a new try finds the floor full again).
 local function lay(g, cache)
   Spawn.make(g, 'pickup', {
     x = cache.x,
     z = cache.z,
-    kind = 'ammo',
+    kind = cache.kind or 'ammo',
     weapon = cache.weapon,
     amount = cache.amount,
     rewardId = cache.id,
   })
-end
--- A cache taken lies again after the area's cacheReturn s, rest or not (g.run.caches: seconds
--- gone).
-local function restock(g, dt)
-  local r, here, lying = g.run, area(g), {}
-  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
-    if pickup.rewardId then
-      lying[pickup.rewardId] = true
-    end
-  end
-  r.caches = r.caches or {}
-  for _, cache in ipairs(here.supplies or {}) do
-    if lying[cache.id] then
-      r.caches[cache.id] = nil
-    else
-      r.caches[cache.id] = (r.caches[cache.id] or 0) + dt
-      if r.caches[cache.id] >= here.cacheReturn then
-        r.caches[cache.id] = nil
-        lay(g, cache)
-      end
-    end
-  end
 end
 -- The world as a rest leaves it: every creature at its post, every cache full.
 function P.populate(g)
@@ -96,7 +75,6 @@ function P.populate(g)
     local e = place(g, entry)
     classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
   end
-  g.run.caches = {}
   for _, cache in ipairs(area(g).supplies or {}) do
     lay(g, cache)
   end
@@ -223,7 +201,6 @@ local function renew(g, slot)
     ruins = {},
     dirty = false,
     waited = 0,
-    caches = {},
     worn = {},
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
@@ -456,7 +433,6 @@ function P.update(g, dt)
     Presentation.cue(g, 'seal', 0.5)
     P.save(g)
   end
-  restock(g, dt)
   if r.dirty then
     r.waited = r.waited + dt
     if r.waited >= K.saveEvery and not fighting(g) then
@@ -584,7 +560,10 @@ function P.problems(area)
   end
   for _, cache in ipairs(area.supplies or {}) do
     stand('supply ' .. cache.id, cache)
-    if not Weapons.has(cache.weapon) then
+    local kind = cache.kind or 'ammo'
+    if not Interactions.supplies[kind] then
+      found[#found + 1] = area.id .. ': supply ' .. cache.id .. ' is of no known kind'
+    elseif kind == 'ammo' and not Weapons.has(cache.weapon) then
       found[#found + 1] = area.id .. ': supply ' .. cache.id .. ' names no weapon'
     end
   end

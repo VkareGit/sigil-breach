@@ -3,7 +3,9 @@
 -- save when it loads, an id that is renamed needs a migration there.
 --   fires     { id, name, x, z }; wake { x, z, yaw }: where a knight wakes, when not before it
 --   doors     { id, side, back, leads }; leads: the area back stands in, when not this one
---   supplies  { id, weapon, amount, x, z }: rounds lying on the floor, laid again at each rest
+--   supplies  { id, kind, weapon, amount, x, z }: what lies on the floor (kind: a supply of
+--             session/interactions.lua, 'ammo' when not named; weapon: the gun ammo is for),
+--             laid again at each rest and death
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
 --             leash: how far it follows, in place of the common leash; patrol: its points
 local Registry = require('src.core.registry')
@@ -94,22 +96,35 @@ Way.areas:register('chapel', {
       back = { x = 32.8, z = 4.3, yaw = math.pi, art = { x = 32.8, z = 5.46, yaw = math.pi } },
     },
   },
-  -- Rounds left lying about (0.42, the owner: a way finds some on its floor). Each lies again at
-  -- every rest, as the creatures stand again, and a cache taken lies again after cacheReturn s
-  -- even without one; revolver rounds are plenty, shells fewer. The halls of the hardest bodies
-  -- have their own, so a long fight there is not lost for want of rounds.
+  -- What lies about (0.42, the owner: like Doom, rounds everywhere). Taken, it is gone until the
+  -- chapel stands again at a rest or a death; a knight takes only what he has room for and the
+  -- rest stays on the floor. Revolver rounds are plenty, shells fewer, and a few draughts for
+  -- the flask (kind 'flask') lie behind the hardest bodies. The halls of the hardest have their
+  -- own, so a long fight there is not lost for want of rounds.
   supplies = {
+    { id = 'narthex_left', weapon = 'judge', amount = 6, x = 19.5, z = 35 },
+    { id = 'narthex_right', weapon = 'judge', amount = 6, x = 29, z = 37 },
+    { id = 'nave_back', weapon = 'judge', amount = 8, x = 24, z = 30 },
     { id = 'nave_left', weapon = 'judge', amount = 14, x = 21.5, z = 23 },
     { id = 'nave_right', weapon = 'judge', amount = 14, x = 26.5, z = 23 },
     { id = 'nave_front', weapon = 'judge', amount = 10, x = 24, z = 18.5 },
+    { id = 'nave_draught', kind = 'flask', amount = 1, x = 24, z = 12 },
     { id = 'crypt', weapon = 'exorcist', amount = 6, x = 24, z = 7 },
+    { id = 'crypt_west', weapon = 'judge', amount = 6, x = 19.5, z = 6.5 },
+    { id = 'crypt_east', weapon = 'judge', amount = 6, x = 28.5, z = 6.5 },
+    { id = 'gallery_west', weapon = 'exorcist', amount = 4, x = 16, z = 3.5 },
+    { id = 'gallery_east', weapon = 'exorcist', amount = 4, x = 32, z = 3.5 },
+    { id = 'threshold_west', weapon = 'judge', amount = 6, x = 18.5, z = 28 },
+    { id = 'threshold_east', weapon = 'exorcist', amount = 2, x = 29.5, z = 28 },
     { id = 'west_hall', weapon = 'exorcist', amount = 6, x = 12, z = 18 },
     { id = 'west_hall_rounds', weapon = 'judge', amount = 14, x = 8, z = 18 },
+    { id = 'west_hall_draught', kind = 'flask', amount = 1, x = 5, z = 26 },
+    { id = 'west_apse', weapon = 'judge', amount = 10, x = 10, z = 10 },
     { id = 'east_hall', weapon = 'judge', amount = 16, x = 36, z = 18 },
     { id = 'east_hall_shells', weapon = 'exorcist', amount = 6, x = 40, z = 18 },
+    { id = 'east_hall_draught', kind = 'flask', amount = 1, x = 43, z = 26 },
+    { id = 'east_apse', weapon = 'judge', amount = 10, x = 38, z = 10 },
   },
-  -- A cache taken lies again after this long (s), rest or not.
-  cacheReturn = 60,
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then
     -- iron before the fire. Each notices only so far, so a careful knight takes them apart.

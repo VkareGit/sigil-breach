@@ -12,7 +12,7 @@ zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
 miejsce powrotu, podnosi wszystkie stwory i zaczyna rycerza od czysta (bez trucizny, odrzutu,
 picia w toku i wciśniętych wcześniej klawiszy). Otwiera menu ognia: grawery (każda broń nosi
 jeden swój: Exorcist FOCUS albo PIERCE, Judge BREAKER albo PRECISION; kupione zmienia się
-bezpłatnie), trwałe śluby (flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni
+bezpłatnie; zakładki broni u góry menu pokazują grawery i hartowanie tej broni), trwałe śluby (flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni
 (+8% obrażeń na zawsze) i podróż do kolejnego zapalonego ogniska. Ognisko
 zapala się przez odpoczynek przy nim; podróż prowadzi tylko do ognisk już zapalonych i nie
 jest proponowana, dopóki żadnego innego nie ma. Gdy jakiś stwór czuwa i cię ściga, ognisko
@@ -37,9 +37,10 @@ część stworów patroluje, reszta stoi na warcie.
 Amunicja ze stworów: lekkie (Ember Thrall, Stolas) zostawiają czasem naboje rewolwerowe,
 ciężkie (Buer, opancerzony) rzadsze łuski. Egzekucja zawsze daje skromną paczkę, także gdy
 ciało przeżyje. Margrave i Furfur zawsze zostawiają łuski, także przy zmianie fazy (paczka
-leży przed nimi, po twojej stronie). W kaplicy leży też osiem skrytek z amunicją (nawa,
-krypty, obie sale boczne); wracają przy każdym odpoczynku i minutę po zebraniu. Paczki zbiera
-się przejściem. Ognisko dobija zapas do 20 łusek i 72 naboi Judge'a, ale nie zabiera tego, co
+leży przed nimi, po twojej stronie). Po całej kaplicy leży amunicja (19 miejsc) i trzy łyki
+flaski za najtwardszymi; zebrane znika aż do odpoczynku albo śmierci, kiedy kaplica wstaje
+na nowo razem ze stworami. Paczki zbiera się przejściem; z pełnym zapasem nic się nie
+podnosi, a czego nie zmieścisz, zostaje na ziemi jako mniejsza paczka. Ognisko dobija zapas do 20 łusek i 72 naboi Judge'a, ale nie zabiera tego, co
 zebrałeś ponad to. Judge nigdy nie zostaje pusty na długo: gdy ma mniej niż 6 naboi w sumie,
 co sekundę wraca jeden do zapasu. Łuski Exorcista się nie odnawiają.
 Stwory atakują najwyżej po dwa naraz (lekkie po trzy); reszta czeka poza zasięgiem i krąży.

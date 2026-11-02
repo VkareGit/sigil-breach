@@ -96,7 +96,7 @@ function Art.mural(r, frame, x, y, z, yaw, size, art, width, brightness)
   love.graphics.draw(r.sprite)
   s:send('wallRepeat', 1)
 end
--- A supply painted on its own (supplies: images by weapon), loaded once.
+-- A supply painted on its own (supplies: image, or images by weapon), loaded once.
 local packs = {}
 local function pack(path)
   packs[path] = packs[path] or love.graphics.newImage(path, { mipmaps = true })
@@ -105,7 +105,7 @@ end
 function Art.pickup(r, g, a)
   local supply = Supplies:get(a.kind)
   local s = r.spriteShader
-  local own = supply.images and a.weapon and supply.images[a.weapon]
+  local own = supply.image or (supply.images and a.weapon and supply.images[a.weapon])
   if own then
     local image = pack(own)
     local w, h = image:getDimensions()

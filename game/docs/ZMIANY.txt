@@ -70,6 +70,16 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
   - śluby: wigor +15 HP, 160 i 360 dusz; flaska +1 łyk, 200 i 500; po dwie rangi. Ślub osłony
     usunięty (dublował wigor, nie był odczuwalny); zapis z nim go pomija.
   HUD pod bronią pokazuje grawer broni w ręku.
+- Znajdźki jak w Doomie (właściciel; wariant „wracają przy odpoczynku i śmierci”):
+  - 22 miejsca w content/pilgrimage.lua: supplies (19 z amunicją, razem 126 naboi Judge'a
+    i 28 łusek; 3 łyki flaski, nowy rodzaj 'flask' w session/interactions.lua i content/
+    supplies.lua, malowany obrazem ikony flaski). Pole kind (domyślnie 'ammo').
+  - Zebrane nie wraca aż do odpoczynku, podróży albo śmierci (P.populate); 60-sekundowy
+    powrót skrytek (cacheReturn, restock, g.run.caches) usunięty, bo zachęcał do czekania.
+  - Częściowe zebranie: take zwraca, ile dał; co się nie zmieściło, zostaje na ziemi jako
+    mniejsza paczka (dotyczy też zrzutów stworów i zdrowia). Z pełnym zapasem nic się nie zbiera.
+  - Menu ognia: zakładki broni filtrują listę (D.offers w ui/chapel.lua): oferty z polem weapon
+    tylko pod swoją bronią, śluby pod każdą. Kupowanie się nie zmienia.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

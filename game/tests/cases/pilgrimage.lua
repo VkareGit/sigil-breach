@@ -7,6 +7,7 @@ local F = require('tests.support.fixtures')
 local K = require('src.content.pilgrimage')
 local P = require('src.run.pilgrimage')
 local Pools = require('src.session.world')
+local Weapons = require('src.content.weapons')
 local T = {}
 local function session(Game)
   local g = Game.new('pilgrimage')
@@ -112,10 +113,12 @@ local function reserves(check, Game)
   check('and fills what is short', rounds.reserve == K.carried.judge)
   P.forget()
 end
--- A cache taken lies again after K.cacheReturn s, without a rest (0.42, the owner).
+-- What lies about stays taken until a rest stands the chapel again; a knight takes only what
+-- he has room for and the rest stays on the floor (0.42, the owner).
 local function caches(check, Game)
   P.forget()
   local g = session(Game)
+  local p = g.player
   local function lying(id)
     for _, pickup in ipairs(Pools.of(g, 'pickups')) do
       if pickup.rewardId == id then
@@ -123,12 +126,29 @@ local function caches(check, Game)
       end
     end
   end
+  local cache = lying('nave_left')
+  local rounds = p.arsenal.judge
+  rounds.reserve = Weapons.get('judge').ammo.maxReserve - 4
+  p.x, p.z = cache.x, cache.z
+  require('src.session.interactions').collectSupplies(g)
+  check('he takes what he has room for', rounds.reserve == Weapons.get('judge').ammo.maxReserve)
+  check('and the rest stays on the floor', lying('nave_left') and lying('nave_left').amount == 10)
+  require('src.session.interactions').collectSupplies(g)
+  check('a full gun takes nothing', lying('nave_left').amount == 10)
   Pools.remove(g, 'pickups', lying('nave_left'))
-  P.update(g, K.start().cacheReturn - 1)
-  check('a cache taken stays gone for a while', lying('nave_left') == nil)
-  P.update(g, 2)
-  check('and then lies again', lying('nave_left') ~= nil)
-  check('once', #Pools.of(g, 'pickups') == #K.start().supplies)
+  P.update(g, 120)
+  check('a cache taken stays taken', lying('nave_left') == nil)
+  Encounter.clearStage(g)
+  p.x, p.z = 10, 21
+  g:interact()
+  check('a rest lays it again', lying('nave_left') ~= nil)
+  check('every one, once', #Pools.of(g, 'pickups') == #K.start().supplies)
+  local draught = lying('nave_draught')
+  p.abilityState.flask.uses = 1
+  p.x, p.z = draught.x, draught.z
+  g:act('closeShop')
+  require('src.session.interactions').collectSupplies(g)
+  check('a draught fills the flask by one', p.abilityState.flask.uses == 2)
   P.forget()
 end
 function T.run(Game)
