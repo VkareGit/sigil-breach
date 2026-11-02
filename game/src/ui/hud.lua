@@ -314,13 +314,13 @@ local function hitMarks(g, cx, cy, mark)
   -- A kill is the same mark in red, a little longer, with a small jump.
   local kill = g.view.lastKill
   local reach = kill and L.killReach * (1 + L.killPop * (g.view.killPop or 0) / Timing.killPop)
-    or (L.hitReach + math.floor((g.view.hitWeight or 0) * 3))
+    or (L.hitReach + math.floor((g.view.hitWeight or 0) * 2))
   local fade = math.min(1, g.view.hitmarker / L.markFade)
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
     local x1, y1 = cx + v[1] * L.markGap, cy + v[2] * L.markGap
     local x2, y2 = cx + v[1] * reach, cy + v[2] * reach
     color(Palette.inkSoft, 0.55 * fade)
-    lg.setLineWidth(3)
+    lg.setLineWidth(L.markWidth + 1)
     lg.line(x1, y1, x2, y2)
     color(mark, fade)
     lg.setLineWidth(L.markWidth)

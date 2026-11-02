@@ -27,6 +27,10 @@ local names = {
   'shrine',
   'ring',
 }
+-- Icons painted one per file (assets/art/icons, by Codex, provenance.json beside them), loaded
+-- with the skin, never on the first frame that shows one.
+local PAINTED = 'assets/art/icons/'
+local painted = {}
 function S.init()
   if S.image then
     return
@@ -85,6 +89,12 @@ function S.init()
     end
   end
   data:release()
+  for _, file in ipairs(love.filesystem.getDirectoryItems(PAINTED)) do
+    local name = file:match('^(.+)%.png$')
+    if name then
+      painted[name] = S.resources:image(PAINTED .. file, { mipmaps = true })
+    end
+  end
 end
 function S.release()
   if S.resources then
@@ -92,6 +102,7 @@ function S.release()
   end
   S.resources, S.image, S.frames, S.icons, S.bounds, S.fontTops, S.fields =
     nil, nil, nil, nil, nil, nil, nil
+  painted = {}
 end
 local function record(kind, label, x, y, w, h)
   if not S.audit then
@@ -296,16 +307,9 @@ function S.inscription(name, x, y, w, h)
   S.imageBounds('painted inscription ' .. name, px, py, pw, ph)
   return px, py, pw, ph
 end
--- Icons painted one per file (assets/art/icons, by Codex, provenance.json beside them), drawn
--- whole; a name the atlas does not have is looked for there.
-local painted = {}
+-- A painted icon (loaded by S.init), drawn whole: a name the atlas does not have.
 local function paintedIcon(name)
-  if painted[name] == nil then
-    local path = 'assets/art/icons/' .. name .. '.png'
-    painted[name] = love.filesystem.getInfo(path, 'file') and lg.newImage(path, { mipmaps = true })
-      or false
-  end
-  return painted[name] or nil
+  return painted[name]
 end
 function S.hasIcon(name)
   return S.icons[name] ~= nil or paintedIcon(name) ~= nil

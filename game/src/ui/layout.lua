@@ -10,12 +10,14 @@ local L = {
   lockedGap = 7,
   -- The hit mark: four strokes from markGap to hitReach px off the centre, markWidth px wide,
   -- fading over their last markFade s; a kill's reach killReach, landing killPop larger.
-  markGap = 7,
-  hitReach = 12,
-  markWidth = 2,
+  -- Small, as shooters keep it: about a hundredth of the screen's height across, never larger
+  -- than a body in the distance; a kill differs by colour, hardly by size (owner, 0.42).
+  markGap = 4,
+  hitReach = 8,
+  markWidth = 1.5,
   markFade = 0.06,
-  killReach = 15,
-  killPop = 0.15,
+  killReach = 9,
+  killPop = 0.1,
   refusalBelow = 34,
   -- A deed at the top of the view (px); it fades over the end of its time (s).
   medalSeal = 76,

@@ -21,7 +21,10 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
 - Znacznik trafienia (uwaga właściciela: X za bardzo rzucał się w oczy): cztery krótkie, cienkie
   kreski odsunięte od środka, z delikatnym cieniem zamiast czarnego obrysu, gasnące na końcu, jak
   w strzelankach typu Call of Duty. Zabójstwo: ten sam znak w zgaszonej czerwieni fresku, nieco
-  dłuższy, z małym skokiem. Krzyż celownika zostaje w kości słoniowej, kolor niesie tylko znacznik
+  dłuższy, z małym skokiem. Po drugiej uwadze właściciela (znacznik większy od stwora): kreski od 4 do
+  8 px od środka (zabójstwo do 9), 1,5 px grubości, około setnej części wysokości ekranu. Malowane
+  ikony HUD ładują się razem ze skórą, nie przy pierwszym rysowaniu (wykryła to kontrola startu).
+  Krzyż celownika zostaje w kości słoniowej, kolor niesie tylko znacznik
   (biały trafienie, niebieski pancerz, czerwony zabójstwo, złote narożniki garda bez zmian).
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
