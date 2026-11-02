@@ -170,6 +170,14 @@ Etap 3:
   sceny i światła zachowane. Sonda frame-watch ma jeden compositor zamiast dwóch,
   raportuje fazy, GPU wait i digest; parametry opisuje DEVELOPMENT.txt.
 
+- astra-fix2, sklep: kwota AFTER stoi obok komunikatu zakupu, a informacja
+  o odpoczynku ma osobny pełny wiersz. Usunięto 20 kolizji tekstu bez zmiany
+  malowanych czcionek, ram i treści; audyt obejmuje obie strony obu zakładek
+  broni, także grawery Judge'a, hartowanie i pieczęcie Goecji.
+- astra-fix2, golden: wzorzec uaktualniony po dwóch identycznych przebiegach
+  dla celowych zmian AI, odnowy naboi Judge'a, znajdziek i krótszego Furfura.
+  Zachowano scenariusze i historię komentarzy; końcowy golden 10/10.
+
 ########################################################################
 ZMIANY-0.41.txt
 SIGIL: BREACH 0.41 / The Chapel

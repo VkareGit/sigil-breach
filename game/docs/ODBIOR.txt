@@ -68,6 +68,25 @@ Niesprawdzone: czy Margrave'a da się teraz zabić w grze; to próba właścicie
 - L07, tests/cases/pilgrimage.lua (causes): cios Stolasa zapisuje jego nazwę, śmierć od własnego ładunku mówi to wprost; look-dead obejrzany.
 - L09: responsiveness (trzy uniki, czwarty nie; brak oddechu mówi dlaczego), consistency i push_forward (doskonały unik oddaje wytrzymałość, nie więcej niż maksimum), rules (trucizna połowi odnowę), złoty wzorzec zaktualizowany. Odczucie uniku do oceny w grze.
 
+- astra-fix2, sklep: geometry 316/316; bitmap UI 276 scen, 7128 granic tekstu,
+  zero problemów. Wszystkie 56 wpisów sklepu w ui-layout-audit bez uwag,
+  w 960x540, 1280x720, 1024x768, 1720x720 i 1920x1080. Obie strony zakładek
+  Exorcista i Judge'a obejrzane na PNG, także długie opisy i ikony pieczęci;
+  20 zrzutów jednakowych przed/po izolacji scen od zapisu gracza. Dowody:
+  work/astra-fix2/geometry-verified. Pomocniczy audyt stref ma jedną osobną
+  uwagę: komunikat amunicji „1 BARREL / 10 PELLETS” wystaje o 1 px na stronę;
+  to nie kolizja tekstów i nie sklep, pozostawiono poza zakresem tej naprawy.
+- astra-fix2, golden: dwa świeże przebiegi przed aktualizacją wzorca dały
+  identyczne sześć wyników (golden-a i golden-b, SHA256 pliku wynikowego
+  FF522635534C1B35C3E18388EC556F8F65432355728D9D3DA7F69149572DFB07).
+  Oczekiwane niezgodności starego baseline wyjaśniono celowymi zmianami;
+  po aktualizacji golden 10/10, ten sam wynik. Scenariusze nadal mają sens,
+  lecz nie sprawdzają planowanego odpoczynku ani zakupów pieczęci i cen;
+  drill obejmuje Furfura, nie Margrave'a. Nie zmieniano scenariuszy.
+  Analiza: work/astra-fix2/GOLDEN-ANALIZA.md; raport golden-verified.
+  Zestawy uruchamiane pojedynczo, APPDATA w work/astra-fix2/appdata,
+  bez edycji gry podczas testu; StyLua na trzech zmienionych plikach Lua.
+
 Niesprawdzone:
 - Odczucie i balans w grze: bot nie zastąpi gracza.
 - Pakowanie: bez -Package, zgodnie z ustaleniem.

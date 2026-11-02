@@ -306,6 +306,9 @@ function D.shop(g)
   if selected and selected.id:sub(1, 4) == 'buy_' then
     price, reason = E.quote(g, selected.id:sub(5))
   end
+  -- The purchase message and balance have their own columns; the rest message
+  -- spans the next line, clear of both even with the longest fire description.
+  Skin.zone('shop purchase message', 128, 530, 680, 32)
   text(
     reason or g.shopMessage or Text.get('shop_engraving_tip'),
     129,
@@ -313,10 +316,15 @@ function D.shop(g)
     18,
     reason and red or ivory
   )
+  Skin.endZone()
+  Skin.zone('shop remaining souls', 824, 530, 328, 28)
   if price and not reason then
-    text(Text.get('shop_after', { amount = r.wallet - price }), 825, 559, 16, gold)
+    text(Text.get('shop_after', { amount = r.wallet - price }), 825, 536, 16, gold)
   end
+  Skin.endZone()
+  Skin.zone('shop rest message', 128, 565, 1024, 26)
   text(Text.get('shop_fire_tip'), 129, 567, 16, muted)
+  Skin.endZone()
   Skin.endZone()
   if g.saveWarning then
     center(g.saveWarning, 679, 16, red)

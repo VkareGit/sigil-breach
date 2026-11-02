@@ -556,6 +556,35 @@ function Tests.run(G, renderer)
       end,
     }
   end
+  -- The fire has more offers than the old field shop. Inspect every page under
+  -- both weapon tabs, including the longer sigil descriptions and a full wallet.
+  local Chapel = require('src.ui.chapel')
+  local Weapons = require('src.content.weapons')
+  local function fireShop(slot)
+    local g = G.new('pilgrimage', nil, { origin = false })
+    g.ephemeral = true
+    g:start()
+    g.state = 'shop'
+    g.player.weapon = slot
+    g.run.wallet = 1000000
+    U.focus = 1
+    return g
+  end
+  for slot, weapon in ipairs(Weapons.defaultLoadout) do
+    local g = fireShop(slot)
+    local _, _, _, pages = Chapel.shopPage(g)
+    for page = 1, pages do
+      local weaponSlot, shopPage = slot, page
+      cases[#cases + 1] = {
+        'fire-' .. weapon .. '-page-' .. page,
+        function()
+          local shop = fireShop(weaponSlot)
+          shop.view.shopPage = shopPage
+          return shop
+        end,
+      }
+    end
+  end
   local protected = {}
   for _, state in ipairs({ 'settings', 'paused' }) do
     local screen = state
@@ -750,13 +779,14 @@ function Tests.run(G, renderer)
     local ok, err = pcall(U.draw, g, w, h, preferences or settings)
     lg.pop()
     local settingsPreview = name == 'settings-from-menu' or name == 'settings-motion-off'
+    local firePreview = name:match('^fire%-') ~= nil
     if
       ok
-      and ((w == 960 and preview[name]) or settingsPreview)
+      and ((w == 960 and preview[name]) or settingsPreview or firePreview)
       and os.getenv('SIGIL_UI_PREVIEW') == '1'
     then
       local data = target:newImageData()
-      local suffix = settingsPreview and ('-' .. w .. 'x' .. h) or ''
+      local suffix = (settingsPreview or firePreview) and ('-' .. w .. 'x' .. h) or ''
       local file = assert(io.open(output .. '/audit-' .. name .. suffix .. '.png', 'wb'))
       file:write(data:encode('png'):getString())
       file:close()
