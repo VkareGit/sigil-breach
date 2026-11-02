@@ -68,9 +68,23 @@ local function shots(check, Game)
   p.resources.stamina = -5
   run(g, 0.01, { shoot = true })
   check('out of breath the gun still answers', p.shots == before + 1)
-  check('and owes nothing below empty', p.resources.stamina >= -5)
   g:update(TICK, { dash = true, forward = 1 })
-  check('but the dodge is what it cost', p.dashTimer == 0 and g.view.refusal == 'hud_no_breath')
+  check('but no breath is no dodge', p.dashTimer == 0 and g.view.refusal == 'hud_no_breath')
+end
+local function cost(check, Game)
+  local g, p = fresh(Game)
+  p.resources.stamina = 100
+  g:shoot(nil)
+  check('a shot costs no breath', p.resources.stamina == 100)
+  g:update(TICK, { dash = true, forward = 1 })
+  check('it costs the moment after it', p.dashTimer == 0)
+  run(g, 0.25)
+  check('and the dodge pressed in it follows', p.dashTimer > 0 or p.dash < 2)
+  g, p = fresh(Game)
+  p.resources.stamina, p.resourcePause = 25, { stamina = 9 }
+  check('a dodge takes its whole price', not g:dash(1, 0))
+  p.resources.stamina = 26
+  check('and leaves no debt', g:dash(1, 0) and p.resources.stamina == 0)
 end
 local function hands(check, Game)
   local g, p = fresh(Game)
@@ -155,6 +169,7 @@ function T.run(Game)
   local check = F.checker(lines, 'responsiveness: ', 'responsiveness: ')
   dodges(check, Game)
   shots(check, Game)
+  cost(check, Game)
   hands(check, Game)
   sight(check, Game)
   P.forget()

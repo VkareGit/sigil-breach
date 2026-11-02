@@ -202,11 +202,15 @@ function H.status(g, run)
   Skin.endZone()
 end
 -- Effort, over the fresco, only while it is being spent.
+-- The bar, and the mark a dodge needs: below it the knight cannot get away.
 function H.stamina(p)
   local share = Resources.share(p, 'stamina')
   if share and share < 1 then
+    local price = Rules.playerBody(p).rollStamina / Characters.of(p).resources.stamina.max
     Skin.zone('HUD stamina', 496, 570, 288, 14)
-    Skin.meter(500, 574, 280, share, share > 0 and C.gold or C.red, 20)
+    Skin.meter(500, 574, 280, share, share >= price and C.gold or C.red, 20)
+    color(C.ivory)
+    lg.rectangle('fill', 500 + 280 * price, 572, 2, 10)
     Skin.endZone()
   end
 end

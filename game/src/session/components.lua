@@ -318,6 +318,7 @@ C.schemas.knight = {
   perfectUsed = f(nil),
   dodgeFromX = f(nil, 'where the dodge began: its afterimage (perfect dodge)'),
   dodgeEnds = f(nil, 'when the safety of this dodge ends: a shot gives up what is left'),
+  recoverAt = f(nil, 'when the body is back from its last shot and can dodge'),
   dodgeFromZ = f(nil),
   slideTimer = f(0),
   slideCooldown = f(0),

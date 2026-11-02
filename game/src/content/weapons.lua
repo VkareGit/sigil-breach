@@ -49,7 +49,7 @@ local definitions = {
     fire = {
       heavy = true,
       rounds = 2,
-      stamina = 34,
+      recovery = 0.22,
       pellets = T.shotgunPellets,
       ejects = true,
       autoReload = true,
@@ -122,7 +122,7 @@ local definitions = {
     range = T.revolverRange,
     reload = { mechanism = 'cylinder' },
     fire = {
-      stamina = 14,
+      recovery = 0.12,
       muzzle = 0.045,
       shake = 0.018,
       flash = { 1, 0.62, 0.25 },

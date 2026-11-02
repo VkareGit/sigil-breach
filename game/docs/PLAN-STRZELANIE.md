@@ -105,3 +105,4 @@ Materiały źródłowe są w `work/brainstorm/`: `claude.md`, `codex-report.md`,
 
 WdraÅ¼ane po kolei, kaÅ¼dy krok z commitem.
 - Krok 1: strzał, który czekał dłużej niż 0,12 s, bierze cel z chwili wystrzału. Unik nie blokuje rąk (brak `rollLock`), a strzał z uniku oddaje resztę jego ochrony. Lekkie zachwianie rycerza to `shaken`: spowalnia, nie blokuje strzału; ciężkie dalej blokuje. Strzał przerywa picie bez leczenia i bez zużycia flaski. Pociągnięcie spustu przy przeładowaniu mówi `RELOADING`.
+- Krok 2: strzał nie bierze wytrzymałości, zamiast tego `fire.recovery` (0,22 s shotgun, 0,12 s rewolwer) blokuje unik, a bufor wykonuje go zaraz po tym czasie. Unik wymaga pełnych 26 i nie robi długu. Na pasku wytrzymałości jest znacznik progu uniku, poniżej niego pasek czerwienieje. Bot przechodzi kaplicę łatwiej (3–7 śmierci zamiast około 12), do skorygowania w krokach 5 i 6.

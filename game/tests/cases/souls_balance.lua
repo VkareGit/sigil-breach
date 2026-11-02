@@ -132,15 +132,17 @@ function T.run(Game)
     local full = p.resources.stamina
     check('the knight has effort', full == 100)
     assert(g:shoot())
-    check('a pull costs it ' .. p.resources.stamina, p.resources.stamina == full - 34)
-    p.cooldown, p.resources.stamina = 0, 0
+    check('a pull costs none of it ' .. p.resources.stamina, p.resources.stamina == full)
+    check('but the moment after it', not g:dash(1, 0) and p.recoverAt > g.elapsed)
+    p.cooldown, p.resources.stamina, p.recoverAt = 0, 0, 0
     Resources.exert(p, 'stamina', 0)
     p.arsenal.exorcist.readyAt = 0
-    check('spent, no shot', not g:shoot())
-    check('and no dodge', not g:dash(1, 0))
-    p.resources.stamina, p.resourcePause.stamina = 5, 0.2
-    check('any left pays for a dodge', g:dash(1, 0))
-    check('and goes into debt', p.resources.stamina == 5 - 26)
+    check('spent, no dodge', not g:dash(1, 0))
+    p.resources.stamina, p.resourcePause.stamina = 25, 0.2
+    check('a dodge takes its whole price', not g:dash(1, 0))
+    p.resources.stamina = 26
+    check('and that pays for it', g:dash(1, 0))
+    check('leaving no debt', p.resources.stamina == 0)
     check('a dodge is long here', p.invuln == 0.32)
     check('and the hands stay free', p.cooldown == 0)
     local debt = p.resources.stamina

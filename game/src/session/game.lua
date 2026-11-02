@@ -188,6 +188,12 @@ function Game:look(dYaw, dPitch, who)
   p.pitch = math.max(-limit, math.min(limit, p.pitch + (dPitch or 0)))
 end
 
+-- Where effort is paid a dodge takes its whole price, and waits for the shot before it.
+function Game.canDodge(g, player)
+  return (player.recoverAt or 0) <= g.elapsed
+    and Resources.can(player, { stamina = Rules.playerBody(player).rollStamina })
+end
+
 function Game:dash(dx, dz, who)
   local player, presented = commander(self, who)
   if
@@ -197,7 +203,7 @@ function Game:dash(dx, dz, who)
     or self.help
     or player.dash < 1
     or player.dashTimer > 0
-    or (Capabilities.attrition(self) and not Resources.ready(player, 'stamina'))
+    or (Capabilities.attrition(self) and not Game.canDodge(self, player))
   then
     return false
   end

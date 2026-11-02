@@ -14,6 +14,7 @@ local Presentation = require('src.session.presentation')
 local Registry = require('src.core.registry')
 local Reload = require('src.combat.reload')
 local Resources = require('src.combat.resources')
+local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
 local function active(g)
   return g.state == 'playing' and not g.map and not g.help
@@ -35,7 +36,11 @@ I.init = I.clear
 local function refusal(g, p, act)
   if Attributes.forbids(p, act) then
     return p.conditions and (p.conditions.drinking or 0) > 0 and 'hud_drinking' or 'hud_off_balance'
-  elseif act == 'dash' and Capabilities.attrition(g) and not Resources.ready(p, 'stamina') then
+  elseif
+    act == 'dash'
+    and Capabilities.attrition(g)
+    and not Resources.can(p, { stamina = Rules.playerBody(p).rollStamina })
+  then
     return 'hud_no_breath'
   elseif act == 'dash' and p.dash < 1 then
     return 'hud_no_dodge'

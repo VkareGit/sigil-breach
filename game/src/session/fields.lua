@@ -166,6 +166,7 @@ declareView('feedback/listeners.lua', {
   'feedbackTimer',
   'refusal',
   'refusalTimer',
+  'sway',
   'hurt',
   'surge',
   'hitmarker',

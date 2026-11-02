@@ -1,5 +1,4 @@
 local Capabilities = require('src.session.capabilities')
-local Resources = require('src.combat.resources')
 local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
 local B = require('src.combat.ballistics')
@@ -30,7 +29,7 @@ C.react = Hit.answer
 
 -- 1. May the trigger be pulled now? A closed or empty action reloads instead.
 -- A knight off balance (staggered) cannot aim (0.25, D2). Breath never holds the trigger: a gun
--- answers its pull, and what a shot costs is the dodge after it. A pull may stop a
+-- answers its pull. A pull may stop a
 -- reload while rounds remain in the gun (combat/reload.lua: interrupt).
 -- a: the shooting actor (a knight; plan v11 E3b).
 local function ready(g, a)
@@ -75,8 +74,9 @@ local function discharge(g, profile, command, p)
     state.spent = (state.spent or 0) + rounds
   end
   AI.noise(g, p.x, p.z, fire.noise)
+  -- A pull costs a moment of the body, not its breath: the knight stands behind the shot.
   if Capabilities.attrition(g) then
-    Resources.tire(p, 'stamina', fire.stamina)
+    p.recoverAt = g.elapsed + fire.recovery
   end
   -- The world's shot id (journal, observations) and the actor's own shot
   -- sequence (its pellet pattern and contact seeds; plan v11 E3).
