@@ -296,7 +296,8 @@ local function hitMarks(g, cx, cy, reticle)
     end
   end
   if g.view.precisionHit then
-    -- A small closed diamond distinguishes precision without covering the target.
+    -- A small closed diamond distinguishes precision without covering the target. White, like
+    -- any hit: gold belongs to a broken guard alone.
     for _, v in ipairs({
       { -4, -21, 0, -25 },
       { 0, -25, 4, -21 },
@@ -309,11 +310,11 @@ local function hitMarks(g, cx, cy, reticle)
       },
     }) do
       line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
-      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.gold, 2)
+      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.ivory, 2)
     end
   end
 end
--- The hands cannot fire: the reticle opens and goes red for as long as that lasts, so a pull that
+-- The hands cannot fire: the reticle opens and dims for as long as that lasts, so a pull that
 -- does nothing is never a game that did not listen. What was refused is said under it.
 local function aimMarks(g, cx, cy)
   local p = Context.actor(g)

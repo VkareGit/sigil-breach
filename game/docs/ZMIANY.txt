@@ -25,6 +25,7 @@ punkcie: docs/audyt-2026-11-02/POSTEP.md.
 - R05: HEALTH i WARD na pasku to prawdziwy procent maksimum (Characters.percent, wardShare). Pełne zdrowie po ślubach to 100%, nie 130%. Pasek wardu mierzy się wobec maksimum wardu (śluby w kaplicy, 100 na poligonie), nie wobec stałej 100. Nisze, układ i kolory bez zmian.
 - R06: --frame-watch mierzy minutę samej gry: zamyka menu ogniska, robi retry po śmierci, podaje stany i strzały. Sprostowany wpis ODBIOR-0.40.
 - R07: Furfur daje 150 dusz w jednostkach treści (1500 w portfelu), tyle co Margrave. Decyzja właściciela D7.
+- R09: romb trafienia w głowę jest biały jak każde trafienie (złoto należy tylko do pękniętej gardy). Usunięte: martwy przepis dźwięku multikill, martwe gałęzie e.guardianFell z napisem „Return to the gate”, stary komentarz o czerwieniejącym celowniku. Zakładka Exorcista nazywa się EXORCIST, nie SHOTGUN (SHOTGUN zostaje jako rodzaj broni).
 
 
 ########################################################################

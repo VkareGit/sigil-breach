@@ -70,10 +70,6 @@ local function enemyKilled(g, e)
   if not personal then
     -- A world death leaves its stain regardless of who owns the blow.
     Audio.play('kill', 0.65)
-    if e.guardianFell then
-      g:notify(Text.get('feedback_guardian_fell'), 7)
-      Audio.play('seal')
-    end
     return
   end
   g = personal
@@ -103,10 +99,6 @@ local function enemyKilled(g, e)
       or Text.get('feedback_break_full')
   end
   Audio.play('kill_confirm', Tuning.shot.killVolume)
-  if e.guardianFell then
-    g:notify(Text.get('feedback_guardian_fell'), 7)
-    Audio.play('seal')
-  end
 end
 local function playerHit(g, e)
   local info, player = e.info, Context.actor(g)

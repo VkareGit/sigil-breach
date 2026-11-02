@@ -58,7 +58,9 @@ function T.run(Game)
     knight.character == 'knight'
       and knight.hp == 100
       and knight.maxHp == 100
-      and knight.maxArmor == 40
+      and Characters.of(knight).body.armor == 40
+      -- The proving ground fills the ward to its own cap, which the status bar measures against.
+      and knight.maxArmor == require('src.content.shop').maxWard
       and knight.dash == 2
   )
   Proof.with({

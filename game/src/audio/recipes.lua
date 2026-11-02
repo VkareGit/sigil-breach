@@ -207,12 +207,6 @@ R.kill = {
     return (slower * 2.8 + low * 0.8) * exp(-t * 12)
   end,
 }
-R.multikill = {
-  duration = 0.33,
-  voice = function(t)
-    return (sin(2 * pi * 330 * t) * 0.18 + sin(2 * pi * 495 * t) * 0.12) * exp(-t * 14)
-  end,
-}
 R.hurt = {
   duration = 0.25,
   voice = function(t, u, _, low)
