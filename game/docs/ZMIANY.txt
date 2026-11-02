@@ -12,6 +12,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
 
 ########################################################################
+ZMIANY-0.42.txt
+SIGIL: BREACH 0.42 / The Chapel, uczciwe połączenia
+
+Etap 0 planu z docs/audyt-2026-11-02/RAPORT-KONCOWY.md. Postęp punkt po
+punkcie: docs/audyt-2026-11-02/POSTEP.md.
+
+- R01: odmowa zapisu nie kasuje obowiązku zapisu. Gra próbuje ponownie w następnej spokojnej chwili, nie co klatkę. Odmówiony zapis przy ognisku, drzwiach lub śmierci też czeka na ponowienie.
+
+
+########################################################################
 ZMIANY-0.41.txt
 SIGIL: BREACH 0.41 / The Chapel
 

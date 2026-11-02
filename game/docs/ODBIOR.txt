@@ -11,6 +11,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 
 
 ########################################################################
+ODBIOR-0.42.txt
+SIGIL: BREACH 0.42: odbiór
+
+Sprawdzone automatycznie:
+- R01, tests/cases/pilgrimage_save.lua (refusals): odmowa dysku zostawia zapis do zrobienia, nie ponawia go co klatkę, ponawia po 5 s spokoju i zapisuje dusze; odmówiony odpoczynek trafia na dysk przy następnej okazji.
+
+Niesprawdzone:
+- Odczucie i balans w grze: bot nie zastąpi gracza.
+- Pakowanie: bez -Package, zgodnie z ustaleniem.
+
+
+########################################################################
 ODBIOR-0.41.txt
 SIGIL: BREACH 0.41: odbiór
 

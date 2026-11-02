@@ -2,6 +2,7 @@
 -- left is dropped, no kill waits for the disk, what matters is on it at once, and a session
 -- replays from what it began with, not from what is on the disk now.
 local Destruction = require('src.combat.destruction')
+local Encounter = require('src.session.encounter')
 local F = require('tests.support.fixtures')
 local Journal = require('src.session.journal')
 local K = require('src.content.pilgrimage')
@@ -319,6 +320,47 @@ local function timing(check, Game)
   g:act('ready')
   check('a journey is stored', stored().fire == g.run.fire and g.run.fire ~= 'sanctuary')
 end
+-- A disk that refuses keeps the duty to save: the next quiet moment tries again, and no
+-- sooner, so a refusal never becomes a write every frame.
+local function refusals(check, Game)
+  clean()
+  local g = begin(Game)
+  local real, calls, refuse = Save.write, 0, true
+  Save.write = function(...)
+    calls = calls + 1
+    if refuse then
+      return false, 'a disk that refuses'
+    end
+    return real(...)
+  end
+  local ok, problem = pcall(function()
+    kill(g, 'nave_1')
+    Encounter.clearStage(g)
+    run(g, K.saveEvery + 0.1)
+    check('a refused save is said', calls == 1 and g.saveWarning ~= nil)
+    check('and its souls still wait for the disk', g.run.dirty)
+    check('a stopped game that cannot write says so', not g:act('flush') and calls == 2)
+    run(g, K.saveEvery - 0.5)
+    check('a refusal is not tried every frame', calls == 2)
+    refuse = false
+    run(g, 1)
+    check('the next quiet moment tries again', calls == 3 and not g.run.dirty)
+    check('and the warning goes', g.saveWarning == nil)
+    check('with the souls', Game.new('pilgrimage').run.wallet == g.run.wallet)
+    -- A durable event refused is owed as well.
+    refuse = true
+    g.player.x, g.player.z = 10, 21
+    g:interact()
+    g:act('closeShop')
+    Encounter.clearStage(g)
+    check('a refused rest is owed', g.run.dirty and Game.new('pilgrimage').run.fire ~= 'west')
+    refuse = false
+    run(g, K.saveEvery + 0.1)
+    check('and stored at the next quiet moment', Game.new('pilgrimage').run.fire == 'west')
+  end)
+  Save.write = real
+  check('a refusing disk holds' .. (ok and '' or ': ' .. tostring(problem)), ok)
+end
 local function play(g)
   g:act('start')
   run(g, 0.5)
@@ -448,6 +490,7 @@ function T.run(Game)
   badFiles(check, Game)
   writes(check, Game)
   timing(check, Game)
+  refusals(check, Game)
   replays(check, Game)
   clean()
   return lines

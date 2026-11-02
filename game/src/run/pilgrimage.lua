@@ -104,15 +104,17 @@ local function wake(g, fire)
   p.yaw = math.pi
   p.jump, p.jumpV, p.dashTimer = 0, 0, 0
 end
+-- A refused write stays owed: the next quiet moment tries again, never the next frame.
 function P.save(g)
   local r = g.run
-  r.saves, r.dirty, r.waited = r.saves + 1, false, 0
+  r.saves = r.saves + 1
   local text = Save.encode('pilgrimage', Save.capture('pilgrimage', g), r.saves)
   local reason = Execution.effect(g, 'pilgrimage.save', function()
     local ok, problem = Save.write(P.file(r.slot), text)
     return not ok and problem or nil
   end)
   g.saveWarning = reason
+  r.dirty, r.waited = reason ~= nil, 0
   return reason == nil
 end
 -- What a kill left unsaved goes to disk now: the game stopped, or is about to.
