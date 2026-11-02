@@ -126,6 +126,12 @@ function ColdField.run(app, output, lines, check)
     app.renderer.present = originalPresent
     app:action('field_leave')
     local returned = app.game == menu
+    -- The menu is painted behind its own loading page on the way back (audit E02).
+    while app.loading do
+      assert(not app.loading.error, app.loading.error)
+      app:draw()
+      app:update(1 / 60)
+    end
     app:action('field_start')
     while app.loading do
       assert(not app.loading.error, app.loading.error)
