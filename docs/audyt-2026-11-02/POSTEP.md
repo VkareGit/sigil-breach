@@ -56,6 +56,10 @@ CI: `TEST.ps1 -Suite Mechanics` uruchamia LÖVE z oknem i rysuje (OpenGL 3.3). R
 
 Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); czerwony X zabójstwa zbyt rzucający się w oczy (zrobione kodem po Etapie 3: krótkie cienkie kreski odsunięte od środka, cień zamiast obrysu, gaśnięcie, zgaszona czerwień, krzyż bez koloru; render `look-kill-confirm`; jeśli właściciel zechce malowany znak, można zlecić Codexowi).
 
+## Amunicja (po uwadze właściciela, 2026-11-02)
+
+Konsultacja z Codexem Astra (ultra, tylko odczyt): `work/ammo-consult/astra-answer.md`. Zrobione w `ee17677`: ognisko nie zabiera zebranej nadwyżki; paczki fazowe Margrave'a i Furfura leżą w zasięgu; Judge 44 → 72. W odwodzie, jeśli po próbie nadal brakuje: ratunek przy pustej broni (paczka 6 naboi Judge'a po 6 s z pustymi obiema broniami, w miejsce zepsutego `mercy` w `session/interactions.lua`), pewna paczka z Ember Thralla (szansa 0.4 → 1), krwawe naboje (zdrowie za naboje), broń biała (koszt L).
+
 ## Pomiar trudności po D1–D4 (bot, 6 minut, sonda bez okna)
 
 Sonda: bot `qa/souls_bot` przechodzi kaplicę od pierwszego ogniska do sanktuarium, potem do pozostałych ognisk, przez 6 minut gry, przy 0 / 10 / 30% chybień i dwóch ziarnach. Liczy śmierci, ogniska, zrzuty, strzały i odmowy odpoczynku. Audyt (0.41): chybienia 0 dawały 3 śmierci i sanktuarium po 137–188 s.
