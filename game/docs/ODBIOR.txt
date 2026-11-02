@@ -33,6 +33,8 @@ Sprawdzone automatycznie:
 - L05, tests/cases/responsiveness.lua (sight): trzeci widoczny stwór nie czeka; alarm budzi stwora za plecami rycerza, a nie budzi stwora za ścianą (ściana sprawdzona: nie widzą się). Trudność po zmianie: pomiar bota w L06.
 - E01, tests/cases/pilgrimage_save.lua (areas): śmierć w drugim obszarze przed odpoczynkiem, retry przy ognisku kaplicy na jej mapie, ruina zachowana, drzwi z powrotem, echo odzyskane, potem zapis i wczytanie drugiego obszaru jak dotąd. Przed naprawą padało na „and wakes at his own fire, on its map”.
 - E02, tests/cases/mode_lifecycle.lua: powrót przygotowuje świat, do którego wraca. --benchmark --qa-smoke (obok działała sonda bota): pierwsza klatka menu po powrocie 22–27 ms (audyt: 1650–1720 ms), strona ładowania 1,8–2,3 s z postępem.
+- E03: tests/cases/chapel_route.lua zielone (90 s: 12+ zabójstw, zrzuty, ponad dwa stwory naraz, żadnego odpoczynku w pościgu); na próbę 6 minut tej trasy w grze liczy się w 27 s. Pełne Mechanics zielone.
+- Trudność po D1–D4 (bot, 6 minut, 0/10/30% chybień): 7–9 / 10–12 / 18–20 śmierci, sanktuarium raz na sześć przebiegów (audyt 0.41: 3 śmierci i sanktuarium przy 0%). Tabela i wnioski: docs/audyt-2026-11-02/POSTEP.md. Balans czeka na próbę właściciela.
 - L07, tests/cases/pilgrimage.lua (causes): cios Stolasa zapisuje jego nazwę, śmierć od własnego ładunku mówi to wprost; look-dead obejrzany.
 - L09: responsiveness (trzy uniki, czwarty nie; brak oddechu mówi dlaczego), consistency i push_forward (doskonały unik oddaje wytrzymałość, nie więcej niż maksimum), rules (trucizna połowi odnowę), złoty wzorzec zaktualizowany. Odczucie uniku do oceny w grze.
 

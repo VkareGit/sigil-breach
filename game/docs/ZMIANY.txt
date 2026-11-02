@@ -46,6 +46,9 @@ Etap 2:
 Etap 3:
 - E01: retry przenosi na mapę obszaru ogniska, przy którym rycerz ostatnio odpoczywał, nawet gdy zginął za drzwiami w innym obszarze. To, co tam runęło, zostaje; echo czeka tam, gdzie padł, i drzwi prowadzą z powrotem do niego.
 - E02: powrót z poligonu (i każdej wizyty) do menu maluje świat menu za stroną ładowania (app/navigation: adopt z przygotowaniem), więc pierwsza klatka menu niczego nie buduje i gra nie wygląda na zawieszoną. Benchmark mierzy osobno czas strony (return_loading_ms) i pierwszą klatkę po niej.
+- E03: nowy zestaw tests/cases/chapel_route.lua: 90 s kaplicy botem na prawdziwej mapie, ze wszystkimi stworami (zabójstwa, dusze, zrzuty, alarm, odmowa odpoczynku w pościgu, retry przy ognisku). Ręczne uruchomienia gry bez SIGIL_UI_QA_DIR piszą do work/qa-direct (Release.handOutput), więc nie nadpisują raportów trwającego TEST.ps1. To była przyczyna jednorazowego „Report was not written by run”. CI zostaje przy Architekturze: Mechanics rysuje i wymaga OpenGL 3.3, którego runnery nie gwarantują.
+- Alarm z L05 po pomiarze: przechodzi jeden krok i tylko w obrębie strefy mapy wołającego (senses.alarmHops = 1). Pierwsza wersja budziła łańcuchem prawie całą kaplicę w 2 sekundy.
+- Chodzenie: próba prostej drogi do celu (enemies/walking.lua) tylko w promieniu 8 m i co 0,15 s (walk.straight, walk.lineCheck). W profilu był to największy koszt kroku, gdy wiele stworów wracało na posterunki.
 
 
 ########################################################################

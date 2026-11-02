@@ -10,7 +10,7 @@ function Tests.run(G, renderer, check)
       q.capture
         and q.isolated
         and q:has('--showcase')
-        and q.output == (os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput)
+        and q.output == (os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput)
     )
   end
   check(

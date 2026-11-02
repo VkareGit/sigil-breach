@@ -66,10 +66,19 @@ local steps = { { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, 0 } }
 local function route(g, e, tx, tz, dt, level)
   local w = g.world
   local tall = Rules.tall(g, e)
-  if
-    W.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
-    and (not w.elevations or W.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
-  then
+  -- A straight walk is tried only toward a near goal, and asked again only every lineCheck s:
+  -- the trial moves a probe through every cell on the way, and many bodies going home at once
+  -- made a single step cost whole seconds (0.42). A far goal is reached down the field, whose
+  -- lookahead still cuts straight across.
+  e.lineTimer = (e.lineTimer or 0) - dt
+  if len(tx - e.x, tz - e.z) > Walk.straight then
+    e.lineClear, e.lineTimer = false, 0
+  elseif e.lineTimer <= 0 then
+    e.lineTimer = Walk.lineCheck
+    e.lineClear = W.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
+      and (not w.elevations or W.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
+  end
+  if e.lineClear then
     move(g, e, tx, tz, e.speed, dt)
     return
   end

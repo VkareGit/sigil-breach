@@ -109,6 +109,8 @@ C.schemas = {
     lastLevel = f(nil, 'the surface of the last sighting, on a world with decks'),
     path = f(nil),
     pathTimer = f(nil),
+    lineClear = f(nil, 'whether its goal was last found in a straight walk (enemies/walking.lua)'),
+    lineTimer = f(nil, 'seconds before that is asked again'),
     target = f(nil, 'id of the body it fights (enemies/target.lua)'),
   },
   attacker = {

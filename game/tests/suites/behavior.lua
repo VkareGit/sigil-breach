@@ -210,8 +210,9 @@ function Tests.run(G, initial, renderer, getGame)
   check('keyboard menu focus advances', U.selected(g, settings) == 'sens_down')
   g.help = true
   check(
-    'help has a single obvious return action',
-    #U.controls(g, settings) == 1 and U.controls(g, settings)[1].id == 'help_back'
+    -- First the return; the page turns lead from the rules to the bestiary (audit L04).
+    'help has one obvious return action, first',
+    U.controls(g, settings)[1].id == 'help_back' and #U.controls(g, settings) == 3
   )
   g.help = false
   -- The painted atlases in play (content/enemy_art), not archived sheets:

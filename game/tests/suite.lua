@@ -86,6 +86,11 @@ Suite.registry = {
     module = 'tests.cases.chain',
   },
   {
+    id = 'chapel-route',
+    title = 'The chapel played through for three minutes: fight, pay, death, fires, alarm',
+    module = 'tests.cases.chapel_route',
+  },
+  {
     id = 'lessons',
     title = 'The rules page and the lessons of things first seen, out of the heat of a fight',
     module = 'tests.cases.lessons',

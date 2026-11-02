@@ -143,6 +143,10 @@ return {
     -- Out of sight, a body walks straight to the furthest of the next
     -- lookahead cells of its route it can reach without touching stone.
     lookahead = 5,
+    -- A straight walk to the goal is tried only within this many metres of it, and the
+    -- answer is kept for lineCheck s.
+    straight = 8,
+    lineCheck = 0.15,
   },
   -- Movement style 'flank': beyond far m close in beside the player (lateral
   -- m off the line); within near m step aside (swing rad around the player,
@@ -181,8 +185,10 @@ return {
     -- does not wait for him: a post's own alert range is for what he has not seen.
     seenRange = 18,
     seenCone = 0.8,
-    -- A body that notices him wakes those that see it this near (m), and they the next (D4).
+    -- A body that notices him wakes those of its part of the hall that see it this near (m),
+    -- and the alarm passes on for this many steps (D4; one: no chain across the whole nave).
     alarmRange = 14,
+    alarmHops = 1,
     memory = 5,
     turnRate = 10,
     -- A knight this near (m) counts as close (enemies/answers.lua: hugging).

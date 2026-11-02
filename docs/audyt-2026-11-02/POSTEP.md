@@ -44,8 +44,31 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 
 | E01 | Retry między obszarami | zrobione | `pilgrimage_save.lua` (areas) |
 | E02 | Powrót do menu | zrobione | `mode_lifecycle.lua`; benchmark: pierwsza klatka menu 22–27 ms |
+| E03 | Scenariusz kaplicy, CI, „Report was not written” | zrobione | `tests/cases/chapel_route.lua`; ręczne uruchomienia piszą do `work/qa-direct` (`Release.handOutput`); CI zostaje przy Architekturze, powód niżej |
+| L06 | Próg nawy | zmierzone, liczby czekają na L01 | tabela niżej; zmieniłem tylko rozsądny kształt alarmu (1 krok, w strefie) |
+| L08 | Progi serii | czeka na L01 i L06 | progi stroi się pod gęstość po próbie człowieka |
+| L01 | Próba właściciela | scenariusz gotowy | `PROBA-WLASCICIELA.md` |
+
+CI: `TEST.ps1 -Suite Mechanics` uruchamia LÖVE z oknem i rysuje (OpenGL 3.3). Runnery GitHub nie gwarantują takiego sterownika, więc CI zostaje przy Architekturze i formacie. Pełne Mechanics, Input, Render i narzędzia idą lokalnie przez `BUILD.ps1`.
+
+„Report was not written by run”: `TEST.ps1` zawsze ustawia `SIGIL_UI_QA_DIR=work/qa` i identyfikator przebiegu. Ręczne uruchomienie bez tej zmiennej (sonda, `--chapel-look`, `--suite=`) pisało jednak do tego samego `work/qa`. Puszczone równolegle z TEST-em nadpisywało jego raport „direct invocation”, a bramka słusznie odrzucała obcy raport. W audycie obie strony puszczały takie rzeczy równolegle. Teraz ręczne uruchomienia piszą domyślnie do `work/qa-direct`.
 
 Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); do zrobienia: czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
+
+## Pomiar trudności po D1–D4 (bot, 6 minut, sonda bez okna)
+
+Sonda: bot `qa/souls_bot` przechodzi kaplicę od pierwszego ogniska do sanktuarium, potem do pozostałych ognisk, przez 6 minut gry, przy 0 / 10 / 30% chybień i dwóch ziarnach. Liczy śmierci, ogniska, zrzuty, strzały i odmowy odpoczynku. Audyt (0.41): chybienia 0 dawały 3 śmierci i sanktuarium po 137–188 s.
+
+| Wariant | 0% chybień | 10% | 30% |
+|---|---|---|---|
+| alarm bez ograniczeń (pierwsza wersja L05) | 13 śmierci, brak sanktuarium | 17 | 21 |
+| bez alarmu (sam koniec kolejki) | 9, sanktuarium 124 s | 14 | 18 |
+| alarm 1 krok w strefie, prosta droga co 0,15 s (stan obecny) | 9 i 7, brak sanktuarium | 12 i 10 (raz sanktuarium 221 s) | 20 i 18 |
+| jak wyżej, seenRange 12 zamiast 18 (tylko próba) | 12 i 5 (raz sanktuarium 317 s) | 10 | – |
+
+Wniosek: D3 i D4 wyraźnie podniosły trudność nawy dla bota. Liczb balansu nie ruszam przed próbą właściciela (zasada: jedna zmienna, po człowieku). Pierwsza zmienna do rozważenia po próbie: zasięg „widzę go przed sobą” (`combat_defaults.senses.seenRange`) albo rozstawienie progów sal (west_1/2, east_1–3).
+
+Zawieszenie sondy: z sondą bez okna (własny `main.lua`) pojedyncze odcinki gry liczyły się po 200 ms na krok. W prawdziwej grze, z jej `main.lua` i limitami JIT, 6 minut tej samej trasy liczy się w 27 s (`tests/cases/chapel_route.lua` wydłużone na próbę). To patologia JIT-a w środowisku sondy, nie błąd gry. Każdy zapis diagnostyczny ją usuwał. Przy okazji profil pokazał, że największym kosztem kroku jest próba prostej drogi stworów wracających na posterunek (`W.clear`). Ograniczyłem ją do 8 m i sprawdzania co 0,15 s.
 
 ## Notatki
 

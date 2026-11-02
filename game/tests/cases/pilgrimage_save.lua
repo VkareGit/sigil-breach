@@ -277,8 +277,11 @@ local function timing(check, Game)
     g:update(1 / 120, {})
   end
   check('no fight stops for the disk', love.filesystem.getInfo(FILE) == nil and g.run.dirty)
+  -- The fight is over: everyone back at its post, asleep; the alarm (owner, D4) had brought
+  -- some of them round him, and a patrol may walk into his sight.
   for _, body in ipairs(Pools.of(g, 'enemies')) do
-    body.awake, body.alertRange = false, 0
+    body.awake, body.alertRange, body.patrol = false, 0, nil
+    body.x, body.z = body.home.x, body.home.z
   end
   -- What he looks at wakes: quiet means nothing in front of him.
   g.player.yaw = 0

@@ -196,27 +196,31 @@ local function watched(e, p, d)
     and d < Senses.seenRange
     and math.abs(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) < Senses.seenCone
 end
--- The alarm (owner, D4): a body that notices the knight wakes every sleeping body that sees it
--- within alarmRange, and each of those the ones that see it in turn. An open hall comes at him
--- at once, those behind included; a part behind walls wakes when he enters it or the alarm
--- reaches it. Before that, posts stand guard or walk their patrols.
+-- The alarm (owner, D4): a body that notices the knight wakes every sleeping body of its part
+-- of the hall (the map's zones) that sees it within alarmRange, and those pass it on for
+-- alarmHops steps in all. Those near come at him at once, those behind included; another part
+-- wakes when he enters it and is seen there. Before that, posts stand guard or walk patrols.
 local function alarm(g, first, p)
-  local raised, at = { first }, 1
+  local raised, hops, at = { first }, { 0 }, 1
+  local part = W.zone(g.world, first.x, first.z)
   while raised[at] do
-    local caller = raised[at]
+    local caller, hop = raised[at], hops[at]
     at = at + 1
     Bodies.eachCreature(g, function(other)
       if
-        not other.awake
+        hop < Senses.alarmHops
+        and not other.awake
         and not other.dummy
         and other.hp > 0
         and len(other.x - caller.x, other.z - caller.z) < Senses.alarmRange
+        and W.zone(g.world, other.x, other.z) == part
         and Rules.sees(g, other, caller)
       then
         Signal(g, 'Alerted', { enemy = other })
         other.awake, other.memory = true, Senses.memory
         other.lastX, other.lastZ, other.lastLevel = p.x, p.z, p.level
-        raised[#raised + 1] = other
+        local index = #raised + 1
+        raised[index], hops[index] = other, hop + 1
       end
     end)
   end

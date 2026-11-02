@@ -228,7 +228,7 @@ function S.endAudit()
   end
   S.audit = nil
   local failures, checked = S.auditProblems(a)
-  local path = (S.auditOutput or os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput)
+  local path = (S.auditOutput or os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput)
     .. '/ui-layout-audit.txt'
   local f = assert(io.open(path, 'a'))
   f:write(

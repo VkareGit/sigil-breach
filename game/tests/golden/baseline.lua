@@ -14,11 +14,13 @@
 -- guns, so both walks change.
 -- 0.42: no queue of waiting creatures, an alarm wakes those that see the one that noticed him
 -- (owner, D4), and two posts patrol: all three scenarios change.
+-- 0.42: the alarm passes one step within its part of the hall, and a straight walk is tried only
+-- near the goal and every 0.15 s (enemies/walking.lua): all three change again.
 return {
-  playtest = '5d5aee1a/ba2cad7a',
-  human = '4954a43c/ccca8c03',
-  drill = '14f9ce3d/a64f81e9',
-  playtestContacts = '1c88e888/747',
-  humanContacts = 'a8136916/1143',
-  drillContacts = 'df3be14a/359',
+  playtest = '8147d234/af3ee6ca',
+  human = '581b3e6f/72c79342',
+  drill = '6cf13641/c25aa83e',
+  playtestContacts = '5538bd98/859',
+  humanContacts = 'c7ad796c/1251',
+  drillContacts = '96b7d751/332',
 }

@@ -3,7 +3,7 @@ local Release = require('src.app.release')
 local Output = {}
 
 function Output.directory()
-  return os.getenv('SIGIL_UI_QA_DIR') or Release.qaOutput
+  return os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput
 end
 
 function Output.path(name)
