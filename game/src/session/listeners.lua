@@ -175,13 +175,15 @@ function Listeners.attach(g)
     score(g, e)
     chain(g, e)
   end, 20)
+  -- The mode's rewards come after the score and combo (the order in the header above).
+  local rewardOrder = 30
   bus:on('sim', 'EnemyKilled', function(e)
     rewards(g, e)
-  end, 30)
+  end, rewardOrder)
   -- An execution pays the mode its own way, kill or not (run/modes.lua: executed).
   bus:on('sim', 'Executed', function(e)
     Modes.act(g, 'executed', e)
-  end, 30)
+  end, rewardOrder)
   bus:on('sim', 'PlayerHit', function(e)
     rallyOpens(g, e.info)
     playerHit(g, e)
