@@ -113,8 +113,8 @@ local function reserves(check, Game)
   check('and fills what is short', rounds.reserve == K.carried.judge)
   P.forget()
 end
--- What lies about stays taken until a rest stands the chapel again; a knight takes only what
--- he has room for and the rest stays on the floor (0.42, the owner).
+-- What lies about: a knight takes only what he has room for and the rest stays on the floor;
+-- a rest secures what was taken, a death brings back only what was taken since (0.42).
 local function caches(check, Game)
   P.forget()
   local g = session(Game)
@@ -138,15 +138,22 @@ local function caches(check, Game)
   Pools.remove(g, 'pickups', lying('nave_left'))
   P.update(g, 120)
   check('a cache taken stays taken', lying('nave_left') == nil)
-  Encounter.clearStage(g)
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    e.awake = false
+  end
   p.x, p.z = 10, 21
   g:interact()
-  check('a rest lays it again', lying('nave_left') ~= nil)
-  check('every one, once', #Pools.of(g, 'pickups') == #K.start().supplies)
+  check('a rest secures it', lying('nave_left') == nil and g.run.taken.nave_left)
+  g:act('closeShop')
+  Pools.remove(g, 'pickups', lying('nave_right'))
+  P.lose(g)
+  P.retry(g)
+  check('a death brings back what was taken since', lying('nave_right') ~= nil)
+  check('but not what a rest secured', lying('nave_left') == nil)
+  check('every other one, once', #Pools.of(g, 'pickups') == #K.start().supplies - 1)
   local draught = lying('nave_draught')
   p.abilityState.flask.uses = 1
   p.x, p.z = draught.x, draught.z
-  g:act('closeShop')
   require('src.session.interactions').collectSupplies(g)
   check('a draught fills the flask by one', p.abilityState.flask.uses == 2)
   P.forget()
@@ -182,15 +189,21 @@ function T.run(Game)
   local wallet = g.run.wallet
   -- No fire takes him in while something hunts him (owner, D1), and it says so.
   local hunter = byPost(g, 'nave_3')
-  hunter.awake = true
+  local postX, postZ = hunter.x, hunter.z
+  hunter.awake, hunter.x, hunter.z = true, p.x, p.z - 5
   check('no rest while something is awake', g:interact() and g.state == 'playing' and p.hp == 20)
   check('and the fire says why', g:context():find('HUNTED', 1, true) ~= nil)
   check('nor a journey', not P.travel(g))
-  hunter.awake = false
+  -- 0.42: only a fight near him counts; one far off in a crowded map does not.
+  hunter.x, hunter.z = p.x, p.z - K.huntReach - 1
+  check('one awake far off keeps no fire from him', not P.fighting(g))
+  hunter.awake, hunter.x, hunter.z = false, postX, postZ
   check('[E] rests at a fire', g:interact() and g.state == 'shop')
   check('it heals', p.hp == 100)
   check('it fills the flask', p.abilityState.flask.uses == 3)
-  check('it raises the fallen', byPost(g, 'nave_1').hp > 0)
+  -- 0.42: a rest secures what he cleared; nothing stands again at a fire.
+  check('the fallen stay fallen', byPost(g, 'nave_1').hp <= 0 and g.run.slain.nave_1)
+  check('the living are not slain', not g.run.slain.nave_3 and byPost(g, 'nave_3').hp > 0)
   check('souls stay', g.run.wallet == wallet)
   -- A fire sells what a rest cannot give.
   local Economy = require('src.run.economy')
@@ -234,12 +247,20 @@ function T.run(Game)
   local judge = Weapons.slotOf(g, 'judge', p)
   local hit = Weapons.attack(g, judge, Economy.modifiers(g.run), p)
   check('a tempered Breaker', hit.base > 70 and hit.impact > 44)
+  -- Sigils: a glyph on top of an engraving, or a trait of the knight (0.42).
+  check('a sigil of Buer', g:act('buy', 'sigil_buer') and p.rallyRate == 0.08)
+  check('a second copy is stronger', g:act('buy', 'sigil_buer') and p.rallyRate == 0.10)
+  check('a sigil of Furfur', g:act('buy', 'sigil_furfur') and p.dodgeEdge == 0.35)
+  g:act('buy', 'precision')
+  check('a sigil of Stolas', g:act('buy', 'sigil_stolas'))
+  local head = Weapons.attack(g, judge, Economy.modifiers(g.run), p).headMultiplier
+  check('adds to PRECISION, whatever the order', math.abs(head - 1.72) < 1e-9)
   local kept = session(Game)
   check('vows outlive the session', kept.player.maxHp == 115 and kept.player.maxArmor == 40)
   check('and the flask', kept.player.abilityState.flask.uses == 5)
   check(
     'and what each gun wears',
-    kept.run.worn.judge == 'breaker' and kept.run.worn.exorcist == 'choke'
+    kept.run.worn.judge == 'precision' and kept.run.worn.exorcist == 'choke'
   )
   check(
     'the kit outlives it',
@@ -269,7 +290,8 @@ function T.run(Game)
   check('and his purse is empty', g.run.wallet == 0)
   check('he wakes at his fire', g:act('retry') and g.state == 'playing')
   check('at the fire', P.fireHere(g) ~= nil)
-  local post = byPost(g, 'nave_1')
+  check('what a rest secured stays dead', byPost(g, 'nave_1') == nil or byPost(g, 'nave_1').hp <= 0)
+  local post = byPost(g, 'nave_3')
   g:damageEnemy(post, post.hp + 1, 'weapon', nil, p.id)
   p.x, p.z = 24, 31
   p.armor = 0

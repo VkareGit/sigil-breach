@@ -208,6 +208,11 @@ function C.shoot(g, command, who, alt)
   local slot = Weapons.slot(g, a)
   local attack, spread = Loadout.attack(g, slot, a, alt), Loadout.spread(g, a, alt)
   attack = Chain.edge(a, Weapons.idAt(g, slot, a), attack)
+  -- A shot armed by a perfect dodge (sigil of Furfur): once per pull, not per pellet.
+  if a.edgeUntil and a.edgeUntil > g.elapsed then
+    attack.base = attack.base * (1 + (a.dodgeEdge or 0))
+  end
+  a.edgeUntil = nil
   local pellets = discharge(g, profile, command, a)
   local shot = {
     profile = profile,

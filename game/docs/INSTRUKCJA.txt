@@ -9,15 +9,21 @@ KAPLICA (0.42: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
 BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
 zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
 [E] przy ognisku: odpoczynek. Leczy, napełnia flaskę i amunicję, zapisuje grę, ustawia
-miejsce powrotu, podnosi wszystkie stwory i zaczyna rycerza od czysta (bez trucizny, odrzutu,
-picia w toku i wciśniętych wcześniej klawiszy). Otwiera menu ognia: grawery (każda broń nosi
-jeden swój: Exorcist FOCUS albo PIERCE, Judge BREAKER albo PRECISION; kupione zmienia się
-bezpłatnie; zakładki broni u góry menu pokazują grawery i hartowanie tej broni), trwałe śluby (flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni
-(+8% obrażeń na zawsze) i podróż do kolejnego zapalonego ogniska. Ognisko
-zapala się przez odpoczynek przy nim; podróż prowadzi tylko do ognisk już zapalonych i nie
-jest proponowana, dopóki żadnego innego nie ma. Gdy jakiś stwór czuwa i cię ściga, ognisko
-odmawia odpoczynku i podróży i mówi dlaczego. Przy ogniskach sal bocznych budzisz się za
-ogniem, plecami do strażnika sali.
+miejsce powrotu i zaczyna rycerza od czysta (bez trucizny, odrzutu, picia w toku i wciśniętych
+wcześniej klawiszy). Stwory NIE wstają: odpoczynek zabezpiecza to, co oczyściłeś (zabici
+zostają martwi, zebrane zostaje zebrane, na zawsze). Śmierć budzi przy ostatnim ognisku i
+przywraca tylko to, co zabiłeś i zebrałeś od ostatniego odpoczynku. Otwiera menu ognia: grawery
+(każda broń nosi jeden swój: Exorcist FOCUS albo PIERCE, Judge BREAKER albo PRECISION; kupione
+zmienia się bezpłatnie; zakładki broni u góry menu pokazują rzeczy tej broni), trwałe śluby
+(flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni (+8% obrażeń na zawsze),
+pieczęcie Goecji (Stolas: mocniejsze strzały Judge'a w głowę; Buer: silniejszy rally; Furfur:
+po doskonałym uniku następny strzał w ciągu 2 s mocniejszy; do trzech kopii) i podróż do
+kolejnego zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim; podróż prowadzi
+tylko do ognisk już zapalonych i nie jest proponowana, dopóki żadnego innego nie ma. Gdy stwór
+czuwa i ściga cię w promieniu 14 m, ognisko odmawia odpoczynku i podróży i mówi dlaczego. Przy
+ogniskach sal bocznych budzisz się za ogniem, plecami do strażnika sali.
+Margrave i Furfur to elity, nie bossowie: 1680 i 1400 HP, pełne obrażenia także w trakcie
+ich ciosu, egzekucja zabiera 20% HP, dwa akty (drugi od połowy życia), 250 dusz i 2 łuski.
 [F] flaska. [Q] ładunek prochowy. Unik kosztuje 26 wytrzymałości i ogranicza go tylko
 wytrzymałość: trzy uniki z pełnego paska, odnowa po 0,4 s przerwy. Strzał nic nie kosztuje,
 ale po strzale przez chwilę nie zrobisz uniku (0,22 s po Exorciście, 0,12 s po Judge'u);
@@ -36,10 +42,9 @@ budzą się śpiący z tej samej części kaplicy, którzy go widzą w promieniu
 część stworów patroluje, reszta stoi na warcie.
 Amunicja ze stworów: lekkie (Ember Thrall, Stolas) zostawiają czasem naboje rewolwerowe,
 ciężkie (Buer, opancerzony) rzadsze łuski. Egzekucja zawsze daje skromną paczkę, także gdy
-ciało przeżyje. Margrave i Furfur zawsze zostawiają łuski, także przy zmianie fazy (paczka
-leży przed nimi, po twojej stronie). Po całej kaplicy leży amunicja (19 miejsc) i trzy łyki
-flaski za najtwardszymi; zebrane znika aż do odpoczynku albo śmierci, kiedy kaplica wstaje
-na nowo razem ze stworami. Paczki zbiera się przejściem; z pełnym zapasem nic się nie
+ciało przeżyje. Margrave i Furfur zawsze zostawiają 2 łuski (przy zmianie aktu nic). Po
+całej kaplicy leży amunicja (19 miejsc) i trzy łyki flaski za najtwardszymi; zebrane przed
+odpoczynkiem znika na zawsze, zebrane po nim wraca po śmierci. Paczki zbiera się przejściem; z pełnym zapasem nic się nie
 podnosi, a czego nie zmieścisz, zostaje na ziemi jako mniejsza paczka. Ognisko dobija zapas do 20 łusek i 72 naboi Judge'a, ale nie zabiera tego, co
 zebrałeś ponad to. Judge nigdy nie zostaje pusty na długo: gdy ma mniej niż 6 naboi w sumie,
 co sekundę wraca jeden do zapasu. Łuski Exorcista się nie odnawiają.

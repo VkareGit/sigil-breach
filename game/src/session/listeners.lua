@@ -41,7 +41,7 @@ end
 local function rallyBack(g, event)
   local player = event.owner and Stats.healed(g, event.owner)
   if player and (player.rally or 0) > 0 and (event.health or 0) > 0 then
-    local back = math.min(player.rally, event.health * Rally.rate)
+    local back = math.min(player.rally, event.health * (player.rallyRate or Rally.rate))
     player.rally = player.rally - back
     player.hp = math.min(Characters.maxHp(player), player.hp + back)
   end

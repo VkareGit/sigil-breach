@@ -342,6 +342,9 @@ C.schemas.knight = {
   resourcePause = f(nil, 'resource id -> seconds before it comes back'),
   rally = f(nil, 'health a blow took that can still be fought back'),
   rallyLeft = f(nil, 'for how much longer (s)'),
+  rallyRate = f(nil, 'rally back per point dealt when a sigil sets it (Buer), else the rule'),
+  dodgeEdge = f(nil, 'share more the shot after a perfect dodge does (sigil of Furfur)'),
+  edgeUntil = f(nil, 'until when that shot is armed (session clock)'),
   casting = f(nil, 'the cast in progress (combat/abilities.lua)'),
   trigger = f(nil, 'what the trigger mode of the weapon keeps (player/intent.lua)'),
   -- The actor's hands and trigger (plan v11 E3: the session kept them for

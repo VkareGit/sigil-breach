@@ -19,6 +19,9 @@ local Way = {
   -- How near a fire must be to rest at it (m); how far a body follows from its post.
   reach = 2.6,
   leash = 16,
+  -- A fire refuses a knight hunted by something awake within this far (m); a fight elsewhere
+  -- in a crowded map does not keep him from it (0.42).
+  huntReach = 14,
   -- Souls of a kill are the creature's own times this.
   souls = 10,
   -- The echo of a death is taken within echoReach m.
@@ -196,6 +199,26 @@ function Way.fires()
     end
   end
   return list
+end
+-- A post of a garrison by id, and its area (a save names the slain by post).
+function Way.postOf(id)
+  for _, area in Way.areas:each() do
+    for _, post in ipairs(area.garrison) do
+      if post.id == id then
+        return post, area
+      end
+    end
+  end
+end
+-- A supply by id, and its area (a save names what was taken).
+function Way.supplyOf(id)
+  for _, area in Way.areas:each() do
+    for _, cache in ipairs(area.supplies or {}) do
+      if cache.id == id then
+        return cache, area
+      end
+    end
+  end
 end
 -- A door by id, and its area.
 function Way.doorOf(id)

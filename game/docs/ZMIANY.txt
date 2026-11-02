@@ -80,6 +80,23 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
     mniejsza paczka (dotyczy też zrzutów stworów i zdrowia). Z pełnym zapasem nic się nie zbiera.
   - Menu ognia: zakładki broni filtrują listę (D.offers w ui/chapel.lua): oferty z polem weapon
     tylko pod swoją bronią, śluby pod każdą. Kupowanie się nie zmienia.
+- Kierunek hybrydy, kroki 1-3 (docs/analiza-rozgrywki-2026-11-02/KIERUNEK-HYBRYDA.md):
+  1. Elity: Margrave 9000 -> 1680 HP, garda 2600 -> 360; Furfur 10000 -> 1400, 2800 -> 320; bez
+     pancerza zamachu (shell 0,3 / 0,35 usunięte); egzekucja 20% HP; 25 dusz w treści (250 na
+     drodze, było 1500) i 2 łuski; dwa akty (drugi przy 50%, bez zrzutów łusek); cztery
+     rodziny ciosów każdy (reszta repertuaru czeka na prawdziwych bossów). Margrave: cięcie 45,
+     cięcie wsteczne 42, z góry 65, włócznia 30, 1,2 s na karę po końcu serii; Furfur: poroże
+     40, szarża 65 i 1,2 s otwarcia po niej (było 0,24).
+  2. Pieczęcie Goecji (Stolas, Buer, Furfur) jako śluby z polem glyph albo trait i ranks, do
+     trzech kopii, 150/225/338 dusz; ikony z malowanych pieczęci (assets/art/sigils, ui/skin.lua).
+     Stolas: glif Judge'a add headMultiplier 0,12 na kopię (nowe pole add w glifach broni,
+     dodawane po wszystkich set); Buer: rallyRate 0,08/0,10/0,12 (session/listeners.lua);
+     Furfur: dodgeEdge 0,35/0,5/0,65, doskonały unik uzbraja strzał na 2 s (combat/dodge.lua),
+     combat/combat.lua zużywa go raz na pociągnięcie spustu.
+  3. Ognisko nie odradza świata: odpoczynek zabezpiecza zabitych z posterunków i zebrane znajdźki
+     (run.slain, run.taken, zapisywane; secure w run/pilgrimage.lua), śmierć przywraca tylko to,
+     co od ostatniego odpoczynku. Podróż też niczego nie odradza. Odmowa tylko, gdy czuwający
+     stwór jest bliżej niż K.huntReach 14 m.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

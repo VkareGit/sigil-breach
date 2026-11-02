@@ -63,7 +63,7 @@ function T.run(Game)
   local hardest = packs(g)
   check(
     'the hardest body always leaves shells',
-    #hardest == 1 and hardest[1].weapon == 'exorcist' and hardest[1].amount >= 6
+    #hardest == 1 and hardest[1].weapon == 'exorcist' and hardest[1].amount >= 2
   )
   -- An execution: a sure modest pack, once, whether the body falls or rises.
   g, p = fresh(Game)
@@ -79,21 +79,13 @@ function T.run(Game)
   local before = p.arsenal.exorcist.reserve
   g:update(1 / 120, {})
   check('where he takes it at once', #packs(g) == 0 and p.arsenal.exorcist.reserve > before)
-  -- What a hardest body drops as it enters a phase lies beyond its edge, on the knight's side,
-  -- where he can walk and take it.
+  -- 0.42: an elite's fight is short, so its second act drops no shells (the phase drops of a
+  -- true boss lie beyond its edge, session/listeners.lua: spill).
   g, p = fresh(Game)
   local margrave = g:spawn('boss', p.x, p.z - 4)
   margrave.dummy = true
-  g:damageEnemy(margrave, margrave.hp * 0.4, 'weapon', nil, p.id, p.loadout[1])
-  local phased = packs(g)
-  local edge = Rules.radius(margrave)
-  local reachable = #phased > 0
-  for _, pack in ipairs(phased) do
-    local fromBody = math.sqrt((pack.x - margrave.x) ^ 2 + (pack.z - margrave.z) ^ 2)
-    local fromKnight = math.sqrt((pack.x - p.x) ^ 2 + (pack.z - p.z) ^ 2)
-    reachable = reachable and fromBody > edge and fromKnight < 4
-  end
-  check('a phase drops shells beyond the body, toward him', reachable)
+  g:damageEnemy(margrave, margrave.hp * 0.6, 'weapon', nil, p.id, p.loadout[1])
+  check('an elite drops nothing at its second act', #packs(g) == 0 and margrave.hp > 0)
   -- The same play drops the same.
   local function sample()
     local s = fresh(Game)

@@ -1,13 +1,17 @@
--- Margrave of Ash: the hardest body of the west hall.
+-- Margrave of Ash: the hardest body of the west hall. 0.42 (owner and Astra, docs/analiza-
+-- rozgrywki-2026-11-02/KIERUNEK-HYBRYDA.md): an elite, not a boss. He is hard by what he
+-- does, not by how long he lasts: 20-35 s of good play, full damage while he strikes, a
+-- broken guard worth a fifth of him, two acts and four kinds of blow (the cut string, the
+-- thrust, the lane of fire, the burst at his feet; the leap to close).
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 return Creature.boss({
   id = 'boss',
   name = 'creature_boss',
-  souls = 150,
-  -- The hardest bodies always pay in shells, and an execution feeds the fight against them.
-  ammo = { weapon = 'exorcist', chance = 1, least = 6, most = 8, executed = 4 },
+  -- 250 souls (x10 on the way; was 1500) and two shells.
+  souls = 25,
+  ammo = { weapon = 'exorcist', chance = 1, least = 2, most = 2, executed = 2 },
   catalog = { field = 5 },
   guardian = true,
   appearance = {
@@ -35,15 +39,15 @@ return Creature.boss({
     },
   },
   body = {
-    hp = 9000,
+    hp = 1680,
     armor = 30,
     -- An ash lord: fire barely warms it.
     resist = { astral = 0.15, fire = 0.4 },
     -- Weak point (Doom Eternal): the bare skull carries no armour.
     locationArmor = { head = 0, torso = 30, lower = 45 },
     mass = 1 / 0.12,
-    -- About a dozen clean volleys break him; he holds it for a long time.
-    poise = 2600,
+    -- A few clean volleys break him (was 2600); he holds it for a long time.
+    poise = 360,
     regenDelay = 4,
     regenRate = 0.05,
     struck = 'metal',
@@ -51,10 +55,10 @@ return Creature.boss({
     -- Blows do not hold him. He keeps his room, and a broken guard is an event.
     steadfast = true,
     personal = 1.3,
-    -- The ash hardens around him when he strikes: shots are for his openings.
-    shell = 0.3,
+    -- No hardening while he strikes any more (was 0.3 of the damage): every hit counts, the
+    -- openings pay through his guard and the execution.
     breakTime = 2.8,
-    execution = 0.08,
+    execution = 0.2,
   },
   move = {
     speed = 4.6,
@@ -83,9 +87,9 @@ return Creature.boss({
     { when = 'reloading', attack = 'ash-leap', rest = 9 },
     { when = 'sniped', attack = 'ash-leap', rest = 9, within = 7 },
   },
-  -- Three acts of one life: the blade, the blade with fire and his thralls, then
-  -- the same blows in a harder rhythm and the wave of the apse. He stops to be
-  -- read at each threshold.
+  -- Two acts (0.42; the third, the summons, the fan, the cage and the great wave wait for a
+  -- true boss): the blade, then the same four kinds with fire in the cut at half his life.
+  -- He stops to be read at the threshold. No shells at it: the fight is short now.
   phases = {
     {
       id = 'blade',
@@ -94,15 +98,10 @@ return Creature.boss({
         repeatPenalty = 0.25,
         moves = {
           { attack = 'cleave', ideal = 4, max = 6.5, weight = 5 },
-          { attack = 'ash-grip', ideal = 2.6, max = 3.8, weight = 1.2 },
           { attack = 'ash-leap', ideal = 7, min = 4.5, weight = 1.6 },
-          { attack = 'ash-rush', ideal = 9, min = 5, weight = 2 },
           { attack = 'ash-thrust', ideal = 5, min = 3, weight = 2.4 },
           { attack = 'ash-burst', ideal = 2.5, max = 4, weight = 2 },
-          { attack = 'ember-fan', ideal = 8, min = 4, weight = 0.8 },
-          { attack = 'ash-cage', ideal = 6, min = 2.5, weight = 1.5 },
           { attack = 'ash-lance', ideal = 5, min = 2.5, weight = 1.3 },
-          { attack = 'furnace', ideal = 1.5, max = 3.4, weight = 1.6 },
           {
             attack = 'cinder-spear',
             ideal = 6,
@@ -115,9 +114,8 @@ return Creature.boss({
     },
     {
       id = 'fire',
-      at = 0.66,
+      at = 0.5,
       opening = 'ash-ring',
-      drops = { { kind = 'ammo', amount = 14 } },
       recovery = 1.4,
       transitionPose = 'phase.cinders',
       tactics = {
@@ -125,16 +123,10 @@ return Creature.boss({
         repeatPenalty = 0.25,
         moves = {
           { attack = 'burning-cut', ideal = 4, max = 6.5, weight = 5 },
-          { attack = 'ash-grip', ideal = 2.6, max = 3.8, weight = 1.2 },
           { attack = 'ash-leap', ideal = 7, min = 4.5, weight = 1.6 },
-          { attack = 'ash-rush', ideal = 9, min = 5, weight = 2 },
           { attack = 'ash-thrust', ideal = 5, min = 3, weight = 2.4 },
           { attack = 'ash-burst', ideal = 2.5, max = 4, weight = 2 },
-          { attack = 'call-embers', ideal = 6, min = 3, weight = 2.4 },
-          { attack = 'ember-fan', ideal = 8, min = 4, weight = 0.8 },
-          { attack = 'ash-cage', ideal = 6, min = 2.5, weight = 1.5 },
           { attack = 'ash-lance', ideal = 5, min = 2.5, weight = 1.3 },
-          { attack = 'furnace', ideal = 1.5, max = 3.4, weight = 1.6 },
           {
             attack = 'cinder-spear',
             ideal = 6,
@@ -142,33 +134,6 @@ return Creature.boss({
             weight = 12,
             after = { attack = 'ash-lance', within = 1.4 },
           },
-        },
-      },
-    },
-    {
-      id = 'ruin',
-      at = 0.33,
-      opening = 'apse-wave',
-      drops = { { kind = 'ammo', amount = 14 } },
-      recovery = 1.4,
-      pace = 1.3,
-      speed = 1.15,
-      transitionPose = 'phase.cinders',
-      tactics = {
-        roll = true,
-        repeatPenalty = 0.2,
-        moves = {
-          { attack = 'burning-cut', ideal = 4, max = 6.5, weight = 5 },
-          { attack = 'ash-grip', ideal = 2.6, max = 3.8, weight = 1.2 },
-          { attack = 'ash-leap', ideal = 7, min = 4.5, weight = 1.6 },
-          { attack = 'ash-rush', ideal = 9, min = 5, weight = 2 },
-          { attack = 'ash-thrust', ideal = 5, min = 3, weight = 2.4 },
-          { attack = 'ash-burst', ideal = 2.5, max = 4, weight = 2 },
-          { attack = 'apse-wave', ideal = 8, min = 3.5, weight = 2.2 },
-          { attack = 'call-embers', ideal = 6, min = 3, weight = 1.4 },
-          { attack = 'ember-fan', ideal = 8, min = 4, weight = 0.8 },
-          { attack = 'ash-cage', ideal = 6, min = 2.5, weight = 1.5 },
-          { attack = 'furnace', ideal = 1.5, max = 3.4, weight = 1.6 },
         },
       },
     },
@@ -247,7 +212,7 @@ return Creature.boss({
       leadFloor = 1,
       big = true,
       color = { 0.95, 0.38, 0.12 },
-      packet = packet(36, 60, 'fire'),
+      packet = packet(30, 60, 'fire'),
     }),
     -- A shallow eruption at the caster, then its ring. Unlike
     -- the lane, retreating or jumping beats standing inside the eruption.
@@ -303,7 +268,7 @@ return Creature.boss({
       lungeTime = 0.2,
       closing = 0.6,
       duration = 0.34,
-      recover = 0.55,
+      recover = 1.2,
       cooldown = 0.6,
       string = {
         gap = 0.16,
@@ -313,7 +278,7 @@ return Creature.boss({
           { weight = 1 },
         },
       },
-      packet = packet(58, 160),
+      packet = packet(45, 160),
     }),
     Action.sweep({
       id = 'backcut',
@@ -335,7 +300,7 @@ return Creature.boss({
       lungeTime = 0.2,
       closing = 0.6,
       duration = 0.34,
-      recover = 0.75,
+      recover = 1.2,
       cooldown = 0.8,
       string = {
         gap = 0.2,
@@ -345,7 +310,7 @@ return Creature.boss({
           { weight = 2 },
         },
       },
-      packet = packet(52, 150),
+      packet = packet(42, 150),
     }),
     -- The end of the long string: narrow, far, and then he has to pull the
     -- blade out of the floor. This is the opening the whole string paid for.
@@ -372,7 +337,7 @@ return Creature.boss({
       duration = 0.36,
       recover = 1.5,
       cooldown = 1.6,
-      packet = packet(78, 240),
+      packet = packet(65, 240),
     }),
     -- A hand out of the ash: dodge it, or wait in it for a Judge round to make
     -- him falter.
@@ -451,7 +416,7 @@ return Creature.boss({
       lungeTime = 0.2,
       closing = 0.6,
       duration = 0.34,
-      recover = 0.6,
+      recover = 1.2,
       cooldown = 0.65,
       string = {
         gap = 0.16,
@@ -472,7 +437,7 @@ return Creature.boss({
         },
         packet = packet(10, 0, 'fire'),
       },
-      packet = packet(56, 160, 'fire'),
+      packet = packet(45, 160, 'fire'),
     }),
     -- Who stays at his feet is swept off them: a low blow all the way around.
     Action.sweep({

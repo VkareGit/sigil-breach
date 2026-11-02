@@ -1,4 +1,8 @@
--- Furfur, Storm Count: antlered boss with a charge and lightning.
+-- Furfur, Storm Count: antlered elite with a charge and lightning. 0.42 (owner and Astra,
+-- docs/analiza-rozgrywki-2026-11-02/KIERUNEK-HYBRYDA.md): an elite that makes the knight move,
+-- not a boss. 18-30 s of good play, full damage while he strikes, a broken guard worth a fifth
+-- of him, two acts and four kinds of blow (the antler string, the charge, the lightning, the
+-- spring back).
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
@@ -22,16 +26,17 @@ local charge = Action.charge({
   reach = 1.1,
   turns = 2,
   turnPause = 0.36,
-  recover = 0.24,
-  cooldown = 0.24,
-  packet = packet(60, 160, 'physical', 230),
+  -- 0.42: the end of the rush is the opening it pays for (was 0.24 s, too short to use).
+  recover = 1.2,
+  cooldown = 1.2,
+  packet = packet(65, 160, 'physical', 230),
 })
 return Creature.boss({
   id = 'furfur',
   name = 'creature_furfur',
-  -- As much as the Margrave: the other hardest body of the chapel (owner, 0.42).
-  souls = 150,
-  ammo = { weapon = 'exorcist', chance = 1, least = 6, most = 8, executed = 4 },
+  -- As much as the Margrave: 250 souls on the way (was 1500) and two shells.
+  souls = 25,
+  ammo = { weapon = 'exorcist', chance = 1, least = 2, most = 2, executed = 2 },
   catalog = { field = 6 },
   appearance = {
     seal = 'furfur',
@@ -52,12 +57,12 @@ return Creature.boss({
     },
   },
   body = {
-    hp = 10000,
-    shell = 0.35,
+    -- Was 10000 and 0.35 of the damage while he struck.
+    hp = 1400,
     steadfast = true,
     personal = 1.2,
     breakTime = 2.6,
-    execution = 0.07,
+    execution = 0.2,
     regenDelay = 4,
     regenRate = 0.05,
     -- A long collapse: settled after 0.44 s, on the floor at 0.22 s.
@@ -65,7 +70,7 @@ return Creature.boss({
     armor = 35,
     locationArmor = { head = 0, torso = 35, lower = 50 },
     mass = 1 / 0.12,
-    poise = 2800,
+    poise = 320,
     radius = 0.55,
     struck = 'bone',
     aimY = 1.55,
@@ -96,7 +101,8 @@ return Creature.boss({
     arrival = 'storm_arrival',
     death = 'boss_collapse',
   },
-  -- Three acts: the antlers, the storm answering them, and the whole room.
+  -- Two acts (0.42; the ring, the cross and the whole sky wait for a true boss): the antlers
+  -- and the charge, then the storm follows them at half his life. No shells at it.
   phases = {
     {
       id = 'antlers',
@@ -106,8 +112,6 @@ return Creature.boss({
         moves = {
           { attack = 'gore', ideal = 3.6, max = 6, weight = 5 },
           { attack = 'charge', ideal = 7, min = 3, weight = 2 },
-          { attack = 'storm-ring', ideal = 6, min = 2.5, weight = 1.6 },
-          { attack = 'storm-steps', ideal = 7, min = 3, weight = 1 },
           { attack = 'lightning', ideal = 8, min = 3, weight = 0.8 },
           {
             attack = 'antler-return',
@@ -121,10 +125,9 @@ return Creature.boss({
     },
     {
       id = 'storm',
-      at = 0.66,
-      drops = { { kind = 'ammo', amount = 14 } },
+      at = 0.5,
       recovery = 1.4,
-      opening = 'tempest-cross',
+      opening = 'storm-steps',
       transitionPose = 'phase.tempest',
       tactics = {
         roll = true,
@@ -132,8 +135,7 @@ return Creature.boss({
         moves = {
           { attack = 'gore', ideal = 3.6, max = 6, weight = 5 },
           { attack = 'charge', ideal = 7, min = 3, weight = 2 },
-          { attack = 'storm-ring', ideal = 6, min = 2.5, weight = 1.6 },
-          { attack = 'tempest-cross', ideal = 7, min = 3.5, weight = 1.6 },
+          { attack = 'lightning', ideal = 8, min = 3, weight = 1.2 },
           { attack = 'storm-steps', ideal = 7, min = 3, weight = 1 },
           { attack = 'recoil', ideal = 1.8, max = 2.8, weight = 2.2 },
           {
@@ -143,29 +145,6 @@ return Creature.boss({
             weight = 12,
             after = { attack = 'charge', within = 1 },
           },
-        },
-      },
-    },
-    {
-      id = 'heaven',
-      at = 0.33,
-      drops = { { kind = 'ammo', amount = 14 } },
-      recovery = 1.4,
-      opening = 'storm-steps',
-      pace = 1.3,
-      speed = 1.15,
-      transitionPose = 'phase.tempest',
-      tactics = {
-        roll = true,
-        repeatPenalty = 0.2,
-        moves = {
-          { attack = 'gore', ideal = 3.6, max = 6, weight = 5 },
-          { attack = 'charge', ideal = 7, min = 3, weight = 2 },
-          { attack = 'storm-ring', ideal = 6, min = 2.5, weight = 1.6 },
-          { attack = 'whole-sky', ideal = 7, min = 2, weight = 2.6 },
-          { attack = 'tempest-cross', ideal = 7, min = 3.5, weight = 1.4 },
-          { attack = 'storm-steps', ideal = 7, min = 3, weight = 1 },
-          { attack = 'recoil', ideal = 1.8, max = 2.8, weight = 2.2 },
         },
       },
     },
@@ -281,7 +260,7 @@ return Creature.boss({
           { weight = 1 },
         },
       },
-      packet = packet(60, 150),
+      packet = packet(40, 150),
     }),
     Action.sweep({
       id = 'gore-return',
@@ -305,7 +284,7 @@ return Creature.boss({
       recover = 0.7,
       cooldown = 0.75,
       string = { gap = 0.2, branches = { { into = 'crown', weight = 2 }, { weight = 2 } } },
-      packet = packet(56, 140),
+      packet = packet(40, 140),
     }),
     Action.sweep({
       id = 'crown',

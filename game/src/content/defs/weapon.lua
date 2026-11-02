@@ -25,6 +25,7 @@ Weapon.glyph = Schema:new('weapon modifier', {
   spread = { type = 'number', min = 0, max = 4 },
   set = { type = 'table', default = {} },
   scale = { type = 'table', default = {} },
+  add = { type = 'table', default = {}, desc = 'added after every set (a sigil on top)' },
   reactions = Reaction.field,
 })
 Weapon.hud = Schema:new('weapon labels', {

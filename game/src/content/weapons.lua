@@ -157,6 +157,9 @@ local definitions = {
       breaker = { scale = { impact = T.judgeBreakerImpact } },
       precision = { set = { headMultiplier = T.judgePrecisionHead } },
       temper_judge = { scale = { base = T.temperDamage } },
+      -- A copy of the sigil of Stolas (content/shop.lua): the head is worth more, on top of
+      -- PRECISION (an add comes after every set, whatever the order of the glyphs).
+      sigil_stolas = { add = { headMultiplier = T.stolasHead } },
     },
     weight = {
       mass = 1.5,
@@ -353,6 +356,7 @@ function W.attack(g, slot, glyph, actor, alt)
   for k, v in pairs(def.attack) do
     attack[k] = v
   end
+  local added = {}
   local function engrave(id)
     local mod = id and def.glyphs and def.glyphs[id]
     if mod then
@@ -361,6 +365,9 @@ function W.attack(g, slot, glyph, actor, alt)
       end
       for k, v in pairs(mod.scale or {}) do
         attack[k] = (attack[k] or 0) * v
+      end
+      for k, v in pairs(mod.add or {}) do
+        added[k] = (added[k] or 0) + v
       end
     end
   end
@@ -371,6 +378,9 @@ function W.attack(g, slot, glyph, actor, alt)
     end
   else
     engrave(glyph)
+  end
+  for k, v in pairs(added) do
+    attack[k] = (attack[k] or 0) + v
   end
   return attack
 end

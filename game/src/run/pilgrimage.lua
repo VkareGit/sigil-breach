@@ -19,6 +19,7 @@ local Sanctuary = require('src.session.sanctuary')
 local Save = require('src.storage.save')
 local Spawn = require('src.session.spawn')
 local Interactions = require('src.session.interactions')
+local Pools = require('src.session.world')
 local Text = require('src.content.text')
 local Weapons = require('src.content.weapons')
 local Archetypes = require('src.content.enemies')
@@ -65,18 +66,23 @@ local function lay(g, cache)
     rewardId = cache.id,
   })
 end
--- The world as a rest leaves it: every creature at its post, every cache full.
+-- The world as a death or a new arrival finds it: every creature at its post and every cache
+-- full, but for what a rest secured (run.slain, run.taken).
 function P.populate(g)
   Encounter.clearStage(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
-  local classes = {}
+  local r, classes = g.run, {}
   for _, entry in ipairs(area(g).garrison) do
-    local e = place(g, entry)
-    classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
+    if not r.slain[entry.id] then
+      local e = place(g, entry)
+      classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
+    end
   end
   for _, cache in ipairs(area(g).supplies or {}) do
-    lay(g, cache)
+    if not r.taken[cache.id] then
+      lay(g, cache)
+    end
   end
   -- The first route of a body's size walks the whole map: here, not in the first chase.
   for class, e in pairs(classes) do
@@ -92,7 +98,10 @@ local function swear(g)
     local given = (vows[offer.id] or 0) * (offer.amount or 0)
     if offer.stat then
       stats[offer.stat] = stats[offer.stat] + given
-    elseif offer.kind == 'vow' and p.abilityState[offer.ability] then
+    elseif offer.trait then
+      -- A sigil's trait: its value at the rank sworn, none before the first.
+      p[offer.trait] = offer.ranks[vows[offer.id] or 0]
+    elseif offer.kind == 'vow' and offer.ability and p.abilityState[offer.ability] then
       p.abilityState[offer.ability].extra = given
     end
   end
@@ -202,6 +211,8 @@ local function renew(g, slot)
     dirty = false,
     waited = 0,
     worn = {},
+    slain = {},
+    taken = {},
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
   stand(g)
@@ -298,11 +309,35 @@ local function door(g)
   end
   return true
 end
--- Something awake hunts the knight: no fire takes him in until it gives up or falls (owner, D1).
+-- Something awake hunts the knight near him: no fire takes him in until it gives up or falls
+-- (owner, D1). 0.42: only a fight within K.huntReach counts; a crowded map elsewhere does not.
 local function fighting(g)
+  local p = Roles.controlled(g)
   return Bodies.each(g, function(b)
-    return b.awake and b.hp > 0
+    return b.awake and b.hp > 0 and distance(b, p) < K.huntReach
   end) ~= nil
+end
+-- A rest secures what he has done (0.42, the owner and Astra: the chapel no longer stands again
+-- at a fire). What lies dead at a post stays dead and what was taken stays taken, for good; a
+-- death brings back only what fell or was taken since (run.slain, run.taken).
+local function secure(g)
+  local r, here, alive, lying = g.run, area(g), {}, {}
+  Bodies.eachCreature(g, function(e)
+    if e.post and e.hp > 0 then
+      alive[e.post] = true
+    end
+  end)
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    if pickup.rewardId then
+      lying[pickup.rewardId] = true
+    end
+  end
+  for _, entry in ipairs(here.garrison) do
+    r.slain[entry.id] = r.slain[entry.id] or not alive[entry.id] or nil
+  end
+  for _, cache in ipairs(here.supplies or {}) do
+    r.taken[cache.id] = r.taken[cache.id] or not lying[cache.id] or nil
+  end
 end
 P.fighting = fighting
 -- A purchase at a fire: a vow holds from this moment, and the fire fills what it added.
@@ -323,8 +358,10 @@ function P.interact(g)
   end
   local r = g.run
   r.fire, r.lit[fire.id] = fire.id, true
+  secure(g)
+  -- Small things stand again; what fell of the building stays down.
+  Destruction.settle(g.world)
   refresh(g)
-  P.populate(g)
   P.save(g)
   g:notify(Text.get('pilgrim_rested', { name = Text.get(fire.name) }), 3)
   Presentation.cue(g, 'seal', 0.5)
@@ -345,11 +382,16 @@ function P.travel(g)
     local fire = fires[(at + step - 1) % #fires + 1]
     if g.run.lit[fire.id] then
       local _, home = K.fireOf(fire.id)
+      local moved = home.id ~= g.run.area
+      secure(g)
       enter(g, home.id)
       g.run.fire = fire.id
       refresh(g)
       wake(g, fire)
-      P.populate(g)
+      -- The chapel he leaves stays as he left it; another area is laid as it was secured.
+      if moved then
+        P.populate(g)
+      end
       Feel.init(g)
       P.save(g)
       g:notify(Text.get('pilgrim_rested', { name = Text.get(fire.name) }), 3)
@@ -711,6 +753,8 @@ Save.declare({
       owned = r.owned,
       glyph = r.glyph,
       worn = r.worn,
+      slain = r.slain,
+      taken = r.taken,
       opened = r.opened,
       ruins = ruins,
       vows = r.vows,
@@ -739,6 +783,8 @@ Save.declare({
       lit = known(data.lit, K.fireOf),
       owned = known(data.owned, Shop.find),
       opened = known(data.opened, K.doorOf),
+      slain = known(data.slain or {}, K.postOf),
+      taken = known(data.taken or {}, K.supplyOf),
       ruins = validRuins(data.ruins),
       echo = validEcho(data.echo, home.id),
       vows = validVows(data.vows or {}),
@@ -757,6 +803,7 @@ Save.declare({
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
     r.worn = Copy(data.worn)
+    r.slain, r.taken = Copy(data.slain), Copy(data.taken)
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
     r.vows = Copy(data.vows)
     stand(g)

@@ -12,6 +12,7 @@ local Capabilities = require('src.session.capabilities')
 local Resources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
 local Roles = require('src.core.roles')
+local Tuning = require('src.content.tuning')
 local Dodge = {}
 -- While the knight dodges and its perfect dodge is unspent: the body he left
 -- where the dodge began, at his present height (one shared record).
@@ -47,6 +48,10 @@ function Dodge.perfect(g, packet, source, knight)
     return false
   end
   player.perfectUsed = true
+  -- The sigil of Furfur arms the next shot (combat/combat.lua spends it).
+  if player.dodgeEdge then
+    player.edgeUntil = g.elapsed + Tuning.furfurWindow
+  end
   -- refund: dodges' worth of stamina given back (a dodge is paid with stamina alone, 0.42).
   Resources.restore(player, 'stamina', body.rollStamina * rule.refund)
   g.impactSlow = math.max(g.impactSlow or 0, rule.freeze)

@@ -121,6 +121,49 @@ local Shop = {
       stat = 'maxHp',
       amount = 15,
     },
+    -- Sigils of the Goetia (0.42, a first three to try the kind; docs/analiza-rozgrywki-
+    -- 2026-11-02/KIERUNEK-HYBRYDA.md): up to three copies each, each copy stronger. A sigil
+    -- names a glyph of one gun (as tempering does) or a trait of the knight with its value at
+    -- each rank (ranks), which a rest and a purchase set (run/pilgrimage.lua: swear).
+    {
+      id = 'sigil_stolas',
+      icon = 'sigil_stolas',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_sigil_stolas',
+      description = 'offer_sigil_stolas_text',
+      price = 150,
+      growth = 1.5,
+      limit = 3,
+      weapon = 'judge',
+      glyph = 'sigil_stolas',
+    },
+    {
+      id = 'sigil_buer',
+      icon = 'sigil_buer',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_sigil_buer',
+      description = 'offer_sigil_buer_text',
+      price = 150,
+      growth = 1.5,
+      limit = 3,
+      trait = 'rallyRate',
+      ranks = { 0.08, 0.10, 0.12 },
+    },
+    {
+      id = 'sigil_furfur',
+      icon = 'sigil_furfur',
+      sold = 'fire',
+      kind = 'vow',
+      name = 'offer_sigil_furfur',
+      description = 'offer_sigil_furfur_text',
+      price = 150,
+      growth = 1.5,
+      limit = 3,
+      trait = 'dodgeEdge',
+      ranks = { 0.35, 0.5, 0.65 },
+    },
     -- Tempering: each rank is the weapon's glyph once more (glyph: its id in that weapon's
     -- glyphs, and in no other's), so the gun hits harder for good; From's reinforced weapons.
     {

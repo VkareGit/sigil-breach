@@ -30,6 +30,7 @@ local names = {
 -- Icons painted one per file (assets/art/icons, by Codex, provenance.json beside them), loaded
 -- with the skin, never on the first frame that shows one.
 local PAINTED = 'assets/art/icons/'
+local SEALS = 'assets/art/sigils/'
 local painted = {}
 function S.init()
   if S.image then
@@ -93,6 +94,14 @@ function S.init()
     local name = file:match('^(.+)%.png$')
     if name then
       painted[name] = S.resources:image(PAINTED .. file, { mipmaps = true })
+    end
+  end
+  -- The seals of the Goetia (assets/art/sigils, 1904 plates) are the icons of the sigils
+  -- sold at a fire (0.42): stolas-1904.png is the icon sigil_stolas.
+  for _, file in ipairs(love.filesystem.getDirectoryItems(SEALS)) do
+    local name = file:match('^(%a+)%-.*%.png$')
+    if name then
+      painted['sigil_' .. name] = S.resources:image(SEALS .. file, { mipmaps = true })
     end
   end
 end
