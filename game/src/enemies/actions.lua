@@ -17,7 +17,8 @@ local sin, cos, atan2 = math.sin, math.cos, math.atan2
 local len = MathX.len
 local angle = MathX.wrapAngle
 local arch = Rules.archetype
-local K = require('src.content.combat_defaults').attacks
+local Defaults = require('src.content.combat_defaults')
+local K = Defaults.attacks
 local function change(e, state)
   e.ai = state
   e.phase = 0
@@ -199,10 +200,12 @@ local function strike(g, e, dt, previousPlayer)
   end
 end
 -- The full rest after an attack. A phase's pace shortens the pause between
--- attacks, never a windup.
+-- attacks, never a windup. The body stands for at most recoverStill of it; what is left of
+-- the recovery it moves but cannot strike.
 function Attacks.rest(e, atk)
-  e.recover = atk.recover
-  e.attack = atk.cooldown / Selection.pace(e)
+  local still = math.min(atk.recover, Defaults.recoverStill)
+  e.recover = still
+  e.attack = (atk.recover - still) + atk.cooldown / Selection.pace(e)
 end
 -- The next blow of a string, when its beat ran out. A string the target left
 -- behind ends as the last blow would have.

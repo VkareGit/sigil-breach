@@ -97,6 +97,18 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
      (run.slain, run.taken, zapisywane; secure w run/pilgrimage.lua), śmierć przywraca tylko to,
      co od ostatniego odpoczynku. Podróż też niczego nie odradza. Odmowa tylko, gdy czuwający
      stwór jest bliżej niż K.huntReach 14 m.
+- Stwory „zacięte” (właściciel: stoją i nic nie robią za długo). Sonda bez okna (60 s, rycerz
+  stoi / krąży / buja się): Margrave stał ponad 0,8 s naraz 16-20 razy, razem 20-23 s z 60;
+  Furfur 12-14 razy, 13-15 s; opancerzony i Stolas do 12 s. Prawie zawsze w stanie recover po
+  ciosie, plus stanie i patrzenie w stylu duel. Poprawki:
+  - Attacks.rest (enemies/actions.lua): ciało stoi najwyżej recoverStill 0,7 s, resztę
+    regeneracji idzie, ale nie może uderzyć (doliczona do e.attack). Okno kary dla rycerza ma
+    tę samą długość; pace dalej nie skraca regeneracji.
+  - Stwór, który dojdzie tam, gdzie ostatnio widział rycerza (albo utknie po drodze), słyszy go
+    w promieniu senses.hearRange 12 m i idzie dalej, dalej odpuszcza (było: stał do 8 s).
+  - duel wait: Margrave 0,8 -> 0,3, Furfur 0,5 -> 0,2.
+  Po poprawce ta sama sonda: elity najwyżej 2 takie chwile na minutę (do 1,9 s razem), stado
+  0-4 s.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

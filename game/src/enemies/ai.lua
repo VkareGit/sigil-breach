@@ -387,6 +387,17 @@ local function free(g, e, d, dt)
   elseif evade(g, e, d, dt) then
     -- sidestepping out of the player's aim
   elseif not e.visible or AI.apart(g, e, target(g, e)) then
+    -- Where it last saw him, or stuck on the way, and nothing there: it hears where he is
+    -- near enough and goes on, else it gives up (0.42: it no longer stands there for seconds).
+    local lost = len(e.x - e.lastX, e.z - e.lastZ) < Walk.home * 2
+      or (e.blocked or 0) > Walk.stuckTime
+    if not e.visible and lost then
+      if d < Senses.hearRange then
+        e.lastX, e.lastZ, e.lastLevel = victim.x, victim.z, victim.level
+      else
+        e.memory = 0
+      end
+    end
     route(g, e, e.lastX, e.lastZ, dt, e.lastLevel)
   else
     -- Every slot taken: the body waits its turn out of reach (owner: one that stands at

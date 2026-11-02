@@ -82,8 +82,12 @@ function Tests.run(Game)
   e.ai, e.phase = 'strike', 2
   Actions.strike(g, e, 1 / 120)
   check(
+    -- 0.42: it stands for recoverStill of it and walks the rest, unable to strike.
     'finisher restores a full punishable recovery, no loop',
-    e.recover == 1.25 and not e.finishedAttack and Actions.choose(e, 2, g.elapsed).id ~= finish.id
+    math.abs(e.recover + e.attack - 1.25 - finish.cooldown / Select.pace(e)) < 1e-9
+      and e.recover <= 1.25
+      and not e.finishedAttack
+      and Actions.choose(e, 2, g.elapsed).id ~= finish.id
   )
   g, e = fresh()
   e.phaseIndex = 1

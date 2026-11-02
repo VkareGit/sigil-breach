@@ -81,7 +81,8 @@ return Creature.boss({
     style = 'duel',
     ideal = 3.6,
     turn = 3.4,
-    duel = { circle = 2.4, close = 4, back = 1, wait = 0.5, hold = 0.4, spread = 0.5 },
+    -- 0.42: it seldom stands and watches (wait 0.5 -> 0.2).
+    duel = { circle = 2.4, close = 4, back = 1, wait = 0.2, hold = 0.4, spread = 0.5 },
   },
   -- What he does about what he sees (enemies/answers.lua).
   answers = {

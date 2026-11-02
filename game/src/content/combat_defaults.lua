@@ -50,6 +50,10 @@ return {
   -- Recovery after an interrupted or cancelled action, and the pause before a
   -- body that lost sight of its committed target may commit again.
   interruptRecover = 0.35,
+  -- After a blow a body stands spent at most this long (s); the rest of its recovery it moves
+  -- but cannot strike (0.42, the owner: a body frozen for 1.5 s reads as stuck). The knight's
+  -- window is the same length; only the stillness is shorter.
+  recoverStill = 0.7,
   -- Friction of a demon's feet against a shove (the knight's is in its body).
   drag = 14,
   -- A blow of at least hitPausePush impulse holds its victim for hitPause.
@@ -192,6 +196,9 @@ return {
     alarmRange = 14,
     alarmHops = 1,
     memory = 5,
+    -- A body awake that reaches where it last saw him and finds nothing hears where he is
+    -- this near (m) and goes on; farther, it gives up (0.42: it no longer stands there).
+    hearRange = 12,
     turnRate = 10,
     -- A knight this near (m) counts as close (enemies/answers.lua: hugging).
     closeRange = 2.4,

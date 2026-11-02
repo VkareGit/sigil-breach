@@ -50,9 +50,10 @@ function Tests.run(Game)
   -- Preserve the ordered policy for a creature without tactics.
   local _, imp = fresh('imp')
   check(
-    'legacy choice still respects separated claw/leap bands',
+    -- 0.42: the leap starts where the claw ends, so no distance leaves the thrall without a blow.
+    'legacy choice keeps claw and leap bands, with no gap between them',
     Actions.choose(imp, 1, 0).id == 'claw'
-      and not Actions.choose(imp, 2.3, 0)
+      and Actions.choose(imp, 2.3, 0).id == 'leap'
       and Actions.choose(imp, 3, 0).id == 'leap'
       and Actions.choose(imp, 5, 0).id == 'leap'
   )
@@ -136,7 +137,10 @@ function Tests.run(Game)
   Actions.strike(g, e, 0.01)
   check(
     'phase pressure scales cooldown only, not punishable recovery',
-    near(e.attack, attack.cooldown / Selection.pace(e)) and e.recover == attack.recover
+    -- 0.42: the body stands for recoverStill of its recovery and walks the rest unable to
+    -- strike; the whole of it is never shortened by pace.
+    near(e.recover + e.attack, attack.recover + attack.cooldown / Selection.pace(e))
+      and e.recover <= attack.recover
   )
   -- Transition cancels an unreleased mark, but not existing projectiles.
   g, e = fresh()

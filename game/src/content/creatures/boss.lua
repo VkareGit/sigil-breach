@@ -66,7 +66,8 @@ return Creature.boss({
     ideal = 3.2,
     style = 'duel',
     turn = 2.4,
-    duel = { circle = 2, close = 4, back = 0.5, wait = 0.8, hold = 0.5, spread = 0.6 },
+    -- 0.42: it seldom stands and watches (wait 0.8 -> 0.3): a still elite reads as stuck.
+    duel = { circle = 2, close = 4, back = 0.5, wait = 0.3, hold = 0.5, spread = 0.6 },
   },
   sounds = {
     step = 'heavy_step',
