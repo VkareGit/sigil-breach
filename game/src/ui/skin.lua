@@ -296,7 +296,35 @@ function S.inscription(name, x, y, w, h)
   S.imageBounds('painted inscription ' .. name, px, py, pw, ph)
   return px, py, pw, ph
 end
+-- Icons painted one per file (assets/art/icons, by Codex, provenance.json beside them), drawn
+-- whole; a name the atlas does not have is looked for there.
+local painted = {}
+local function paintedIcon(name)
+  if painted[name] == nil then
+    local path = 'assets/art/icons/' .. name .. '.png'
+    painted[name] = love.filesystem.getInfo(path, 'file') and lg.newImage(path, { mipmaps = true })
+      or false
+  end
+  return painted[name] or nil
+end
+function S.hasIcon(name)
+  return S.icons[name] ~= nil or paintedIcon(name) ~= nil
+end
 function S.icon(name, x, y, size, alpha)
+  local image = not S.icons[name] and paintedIcon(name)
+  if image then
+    local w, h = image:getDimensions()
+    local scale = size / math.max(w, h)
+    local dw, dh = math.floor(w * scale + 0.5), math.floor(h * scale + 0.5)
+    record('icon', name, x + (size - dw) / 2, y + (size - dh) / 2, dw, dh)
+    local previous = lg.getShader()
+    lg.setShader()
+    lg.setColor(1, 1, 1, alpha or 1)
+    lg.draw(image, math.floor(x + (size - dw) / 2), math.floor(y + (size - dh) / 2), 0, scale)
+    lg.setShader(previous)
+    lg.setColor(1, 1, 1)
+    return
+  end
   local icon = assert(S.icons[name], name)
   local scale = size / math.max(icon.w, icon.h)
   local dw, dh = math.floor(icon.w * scale + 0.5), math.floor(icon.h * scale + 0.5)

@@ -70,7 +70,7 @@ local Shop = {
     -- what a fire can fill, so a fire sells nothing else that a rest would take back.
     {
       id = 'vow_flask',
-      icon = 'ammo',
+      icon = 'vow_flask',
       sold = 'fire',
       kind = 'vow',
       name = 'offer_vow_flask',
@@ -83,7 +83,7 @@ local Shop = {
     },
     {
       id = 'vow_ward',
-      icon = 'armor',
+      icon = 'vow_ward',
       sold = 'fire',
       kind = 'vow',
       name = 'offer_vow_ward',
@@ -96,7 +96,7 @@ local Shop = {
     },
     {
       id = 'vow_vigor',
-      icon = 'armor',
+      icon = 'vow_vigour',
       sold = 'fire',
       kind = 'vow',
       name = 'offer_vow_vigor',

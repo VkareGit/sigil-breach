@@ -33,7 +33,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | G02 | `trail` do widoku | zrobione | `tests/cases/damage_trail.lua` |
 | G03 | Priorytety komunikatów, warunek flaski | zrobione | rendery `look-medal-crowded`, `look-low-flask(-empty)` |
 | G04 | Powód oczekiwania na unik, kolor odmowy | zrobione | `responsiveness.lua`, render `look-recovering` |
-| G05 | Q/F, znaki, niskie HP w niszach | do zrobienia | grafiki Codexa w `work/hud-marks` |
+| G05 | Q/F, znaki, niskie HP w niszach | zrobione (czeka na zgodę właściciela na wygląd) | grafiki Codexa w `game/assets/art/icons`; geometry 0 uwag |
 | G06 | Seria przy wierszu broni | zrobione | razem z G01 (`look-chain`) |
 | L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
 

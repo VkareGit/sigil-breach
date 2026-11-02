@@ -1,4 +1,5 @@
 local TestField = require('src.ui.test_field')
+local Characters = require('src.content.characters')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local D = {}
@@ -231,9 +232,11 @@ function D.shop(g)
   text(Text.get('souls_amount', { amount = r.wallet }), 892, 84, 28, gold)
   text(Text.get(Queries.field(g) and 'shop_field_title' or 'shop_fire_title'), 130, 150, 20, gold)
   text(
+    -- The weapon by the name the bar gives it, the ward against the knight's own maximum.
     Text.get('shop_buying', {
-      weapon = Text.get(Weapons.inHand(g, nil, Context.actor(g)).hud.kind),
+      weapon = Text.get(Weapons.inHand(g, nil, Context.actor(g)).hud.tab),
       ward = math.ceil(p.armor),
+      max = Characters.maxWard(p),
     }),
     650,
     120,

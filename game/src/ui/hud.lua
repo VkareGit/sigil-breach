@@ -132,14 +132,16 @@ function H.status(g, run)
   )
   Skin.endZone()
   Skin.zone('HUD health', 271, 628, 119, 68)
-  centered(Text.get('health'), 330, 630, 14, C.muted)
+  -- Low health is said by the whole niche: its caption turns red with its number.
+  local low = Characters.low(p)
+  centered(Text.get('health'), 330, 630, 14, low and C.red or C.muted)
   number(
     Characters.percent(Characters.share(p)) .. '%',
     330,
     648,
     112,
     29,
-    Characters.low(p) and C.red or Palette.wound
+    low and C.red or Palette.wound
   )
   Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
   Skin.endZone()
@@ -210,24 +212,45 @@ function H.status(g, run)
     )
     Skin.meter(912, 667, 104, uses / capacity, C.gold, capacity)
   else
+    -- One row each, clear of the niche's edge: an item with a painted mark (assets/art/icons)
+    -- shows the mark, its key and its uses large at the right, red at none; one without keeps
+    -- its key and tag in small letters. Two rows have room to read large; more keep the old
+    -- small rows. The meter is a single item's.
+    local roomy = #kit <= 2
+    local size, step = roomy and 18 or 11, roomy and 21 or 15
     for row, item in ipairs(kit) do
-      local y = 630 + (row - 1) * 15
-      -- A row is narrow: the uses left (red at none); the meter is a single item's.
+      local y = 630 + (row - 1) * step
       local count = Text.get('uses_left', { uses = item.uses })
-      local ink = Skin.inkBounds(U.fonts[11], count)
-      text(count, 1021 - ink.w - ink.x, y, 11, item.uses > 0 and C.ivory or C.red)
-      local label = Text.get('ability_key', { key = item.key, tag = Text.get(item.def.tag) })
-      local fit = Fit.ellipsis(U.fonts[11], label, 107 - ink.w)
-      text(fit, 908 - Skin.inkBounds(U.fonts[11], fit).x, y, 11, C.gold)
+      local ink = Skin.inkBounds(U.fonts[size], count)
+      text(
+        count,
+        1015 - ink.w - ink.x,
+        y - (roomy and 1 or 0),
+        size,
+        item.uses > 0 and C.ivory or C.red
+      )
+      local marked = roomy and Skin.hasIcon(item.def.id)
+      local left, label = 912, nil
+      if marked then
+        Skin.icon(item.def.id, 912, y - 1, 18)
+        left, label = 934, item.key
+      else
+        label = Text.get('ability_key', { key = item.key, tag = Text.get(item.def.tag) })
+      end
+      local width = 1011 - ink.w - left
+      local font = marked and 14 or (Skin.inkBounds(U.fonts[12], label).w <= width and 12 or 11)
+      local fit = Fit.ellipsis(U.fonts[font], label, width)
+      text(fit, left - Skin.inkBounds(U.fonts[font], fit).x, y, font, C.gold)
     end
   end
-  text(Text.get('shift'), 912, 678, 12, C.muted)
-  -- A dodge is paid with stamina alone: its meter, in four parts, ivory while the next dodge is
-  -- paid for and red when it is not.
+  -- A dodge is paid with stamina alone: its mark, its key and its meter, in four parts, gold
+  -- while the next dodge is paid for and red when it is not.
   local stamina = Resources.share(p, 'stamina') or 1
   local resource = Characters.of(p).resources and Characters.of(p).resources.stamina
   local price = resource and Rules.playerBody(p).rollStamina / resource.max or 0
-  Skin.meter(974, 683, 44, stamina, stamina >= price and C.ivory or C.red, 4)
+  Skin.icon('stamina', 911, 676, 15, stamina >= price and 1 or 0.45)
+  text(Text.get('shift'), 928, 678, 12, C.muted)
+  Skin.meter(985, 683, 32, stamina, stamina >= price and C.gold or C.red, 4)
   Skin.endZone()
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)

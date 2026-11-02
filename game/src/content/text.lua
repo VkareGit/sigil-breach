@@ -128,7 +128,7 @@ local definitions = {
   { 'help_reload', 'R: reload. TAB: map. Judge: six rounds.' },
   { 'help_charge', 'Q: powder charge. 1 s fuse. The blast hurts you too.' },
   { 'help_ward', 'Ward: remaining pool. Absorbs 55% of damage until spent.' },
-  { 'shop_buying', 'BUYING FOR: {weapon} / WARD {ward}/100' },
+  { 'shop_buying', 'BUYING FOR: {weapon} / WARD {ward}/{max}' },
   { 'shop_after', 'AFTER: {amount} SOULS' },
   { 'shop_engraving_tip', 'Owned engravings switch for free. One is active.' },
   { 'weapon_slot', '{slot} {name}' },

@@ -26,6 +26,7 @@ Sprawdzone automatycznie:
 - G01: pełny Render z nową regułą ELIDED znalazł jedno ucięcie (PROVING GROU...), naprawione; scena serii obejrzana (look-chain.png). Test rozszerzenia z celowo długimi nazwami pomija tę regułę.
 - G02: tests/cases/damage_trail.lua: pierwszy cios ma sumę, ciosy się dodają, czas płynie przy odwróconym wzroku, inny cel zaczyna własny ślad, druga sesja ma własny.
 - G03, G04: look-medal-crowded, look-low-flask, look-low-flask-empty, look-recovering obejrzane: medal, opis i komunikat bez nakładania; podpowiedź o flasce znika przy pustej; „AFTER THE SHOT” w kości słoniowej. tests/cases/responsiveness.lua: unik po strzale mówi hud_recovering.
+- G05: geometry (bitmap UI, 255 scen w pięciu rozdzielczościach): 0 uwag; rendery look-first-fire, look-low-flask-empty, look-no-breath, look-fire-menu obejrzane w powiększeniu. Wymaga zgody właściciela na wygląd (zmiana treści w niszach).
 - L09: responsiveness (trzy uniki, czwarty nie; brak oddechu mówi dlaczego), consistency i push_forward (doskonały unik oddaje wytrzymałość, nie więcej niż maksimum), rules (trucizna połowi odnowę), złoty wzorzec zaktualizowany. Odczucie uniku do oceny w grze.
 
 Niesprawdzone:
