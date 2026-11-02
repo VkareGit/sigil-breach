@@ -45,6 +45,7 @@ Etap 2:
 
 Etap 3:
 - E01: retry przenosi na mapę obszaru ogniska, przy którym rycerz ostatnio odpoczywał, nawet gdy zginął za drzwiami w innym obszarze. To, co tam runęło, zostaje; echo czeka tam, gdzie padł, i drzwi prowadzą z powrotem do niego.
+- E02: powrót z poligonu (i każdej wizyty) do menu maluje świat menu za stroną ładowania (app/navigation: adopt z przygotowaniem), więc pierwsza klatka menu niczego nie buduje i gra nie wygląda na zawieszoną. Benchmark mierzy osobno czas strony (return_loading_ms) i pierwszą klatkę po niej.
 
 
 ########################################################################

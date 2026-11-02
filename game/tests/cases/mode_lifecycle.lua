@@ -107,8 +107,8 @@ function Tests.run(Game)
           resets = resets + 1
         end,
       },
-      adopt = function(self, game)
-        self.game = game
+      adopt = function(self, game, entering)
+        self.game, self.entering = game, entering
       end,
     }
     local visited = Navigation.enter(app, fixtureId)
@@ -140,6 +140,9 @@ function Tests.run(Game)
         and Navigation.previous(app) == nil
         and not Navigation.back(app)
     )
+    -- A return paints the world it comes back to behind a loading page, menu included: its
+    -- first frame never builds a world (audit E02).
+    check('a return prepares the world it returns to', app.entering == true)
     local before = app.game
     check(
       'invalid navigation target cannot consume a return destination',

@@ -43,6 +43,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
 
 | E01 | Retry między obszarami | zrobione | `pilgrimage_save.lua` (areas) |
+| E02 | Powrót do menu | zrobione | `mode_lifecycle.lua`; benchmark: pierwsza klatka menu 22–27 ms |
 
 Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); do zrobienia: czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
 

@@ -796,12 +796,22 @@ function B.run(output, smoke)
       app.game == menu and not app.fieldReturn and app.game.state == 'menu',
       'lifecycle did not return to its original menu'
     )
+    -- The menu's world is painted behind a loading page now (audit E02): its time is the page's,
+    -- and the first frame after it builds nothing.
+    local paging = clock()
+    local paged = app.loading ~= nil
+    if paged then
+      finishLoading()
+    end
+    local loading = (clock() - paging) * 1000
     _, _, _, submitted, waited, total = completeFrame(false)
     log(
       string.format(
-        '%s return_session_ms=%.3f first_menu_submit_ms=%.3f first_menu_readback_wait_ms=%.3f first_menu_complete_ms=%.3f',
+        '%s return_session_ms=%.3f return_loading_page=%s return_loading_ms=%.3f first_menu_submit_ms=%.3f first_menu_readback_wait_ms=%.3f first_menu_complete_ms=%.3f',
         label,
         returned,
+        tostring(paged),
+        loading,
         submitted,
         waited,
         total

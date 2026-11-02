@@ -51,7 +51,9 @@ function Navigation.back(app)
   if #app.navigation == 0 then
     Navigation.clear(app)
   end
-  app:adopt(previous)
+  -- The world it returns to is painted behind a loading page, a menu's included: the visit
+  -- painted its own, and a first frame must never build one (audit E02).
+  app:adopt(previous, true)
   if previous.state == 'playing' then
     previous.state = 'paused'
   end
