@@ -45,6 +45,10 @@ function Review.run(Game, renderer, output)
   g.view.refusal, g.view.refusalTimer = 'hud_no_breath', 1
   g.player.resources.stamina = -5
   shot(g, 'no-breath')
+  g.view.hitmarker, g.view.lastKill, g.view.killMark = 0.2, true, 0.4
+  g.view.soulsGain, g.view.soulsGainTimer = 140, 1
+  shot(g, 'kill-confirm')
+  g.view.hitmarker, g.view.lastKill, g.view.killMark, g.view.soulsGainTimer = 0, false, 0, 0
   g.view.refusalTimer, g.player.resources.stamina = 0, 100
   local p = g.player
   local area = K.start()

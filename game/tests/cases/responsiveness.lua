@@ -123,6 +123,21 @@ local function hands(check, Game)
   run(g, 0.02)
   check('a pull during a reload says so', g.view.refusal == 'hud_reloading')
 end
+local function reward(check, Game)
+  local g, p = fresh(Game)
+  local first, second = Pools.of(g, 'enemies')[1], Pools.of(g, 'enemies')[2]
+  local wallet = g.run.wallet
+  g:damageEnemy(first, first.hp + 1, 'weapon', nil, p.id)
+  g:update(TICK, {})
+  local paid = g.run.wallet - wallet
+  check('a kill shows what the purse gained', paid > 0 and g.view.soulsGain == paid)
+  check('not points the way never spends', g.view.feedback == nil or g.view.feedbackTimer == 0)
+  g:damageEnemy(second, second.hp + 1, 'weapon', nil, p.id)
+  g:update(TICK, {})
+  check('kills close together add up', g.view.soulsGain == g.run.wallet - wallet)
+  run(g, 1.6)
+  check('and it fades', g.view.soulsGainTimer == 0)
+end
 local function sight(check, Game)
   local g, p = fresh(Game)
   local e
@@ -171,6 +186,7 @@ function T.run(Game)
   shots(check, Game)
   cost(check, Game)
   hands(check, Game)
+  reward(check, Game)
   sight(check, Game)
   P.forget()
   return lines

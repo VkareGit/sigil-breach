@@ -192,7 +192,7 @@ function W.nearMiss(g, b, distance)
 end
 -- A hit landed on a demon: what the shooter needs to know, in one beat.
 -- result: the table returned by Rules.react (staggered, wounded, slam).
-function W.confirm(g, report, results)
+function W.confirm(g, report, results, hit, hitVolume)
   local broke, wounded, counter, crippled, falter, tripped =
     false, false, false, false, false, false
   local heavy, stopped = false, false
@@ -206,55 +206,66 @@ function W.confirm(g, report, results)
     heavy = heavy or (r.staggered and r.heavy)
     stopped = stopped or r.stopped
   end
+  -- One voice to a volley, the most important that holds: a pile of sounds says less than one.
+  -- A kill speaks for itself (feedback/listeners.lua). The hit is the least of them.
+  local voice, volume, rank = hit, hitVolume, 1
+  local function say(importance, name, level)
+    if importance > rank then
+      voice, volume, rank = name, level, importance
+    end
+  end
   -- Name the rule that just fired, once, unless a kill already speaks.
   local killed = report and (report.kills or 0) > 0
   if falter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), 1.6
-    A.play('break', 0.75)
+    say(4, 'break', 0.75)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.12)
   elseif not killed and stopped then
     -- 0.24: the blow reversed a rush; the body goes down.
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), 1.0
-    A.play('thud', 0.55)
+    say(3, 'thud', 0.55)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.10)
   elseif not killed and tripped then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), 1.0
-    A.play('thud', 0.5)
+    say(3, 'thud', 0.5)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.08)
   elseif not killed and counter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), 0.9
-    A.play('crit', 0.32)
+    say(3, 'crit', 0.32)
   elseif not killed and crippled then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_crippled'), 0.9
   end
   g.view.breakConfirm = broke and 0.22 or (g.view.breakConfirm or 0)
   if broke then
-    A.play('break', 0.30 + 0.25 * (g.view.hitWeight or 0))
+    say(4, 'break', 0.30 + 0.25 * (g.view.hitWeight or 0))
   end
   -- A heavy stagger lands with weight: a body blow and a short frame punch;
   -- a light falter keeps only the crack of the broken guard.
   if heavy and not killed then
-    A.play('thud', 0.38)
+    say(3, 'thud', 0.38)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.06)
   end
   if wounded or (counter and broke) then
     -- The player caused the decisive blow: a short frame punch (post shader
     -- 'kill' pulse) and a small view rise, presentation only.
-    A.play('heavyhit', 0.45)
+    say(3, 'heavyhit', 0.45)
     g.view.killPunch = math.max(g.view.killPunch or 0, 0.08)
     if g.view.motion ~= false then
       g.view.viewPunchV = (g.view.viewPunchV or 0) + 0.12
     end
   end
   if crippled then
-    A.play('thud', 0.28)
+    say(3, 'thud', 0.28)
   end
   if
     report
     and report.headHits > 0
     and (not report.strong or report.headHits * 4 >= report.pelletsHit)
   then
-    A.play('crit', 0.22)
+    say(2, 'crit', 0.22)
+  end
+  if voice and not killed then
+    A.play(voice, volume)
   end
 end
 function W.update(g, dt)

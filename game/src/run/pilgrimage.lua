@@ -350,7 +350,8 @@ end
 -- the next quiet moment, a durable event or the moment the game stops (P.flush).
 function P.reward(g, event)
   local r = g.run
-  r.wallet, r.dirty = r.wallet + (Archetypes.of(event.enemy).souls or 0) * K.souls, true
+  event.souls = (Archetypes.of(event.enemy).souls or 0) * K.souls
+  r.wallet, r.dirty = r.wallet + event.souls, true
 end
 local function fighting(g)
   return Bodies.each(g, function(b)

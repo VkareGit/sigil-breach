@@ -74,8 +74,14 @@ local function enemyKilled(g, e)
     return
   end
   g = personal
-  g.view.feedback, g.view.feedbackTimer =
-    Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
+  if e.souls then
+    -- What the purse really gained, at the purse; a run of kills adds up.
+    local running = (g.view.soulsGainTimer or 0) > 0 and g.view.soulsGain or 0
+    g.view.soulsGain, g.view.soulsGainTimer = running + e.souls, Feel.soulsGain
+  else
+    g.view.feedback, g.view.feedbackTimer =
+      Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
+  end
   if e.offBalance then
     local healed = e.healed or 0
     g.view.feedback = e.heal == 0 and Text.get('feedback_break')

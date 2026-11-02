@@ -228,6 +228,8 @@ return {
     armorShare = 0.25,
     heavyDamage = 100,
     hitmarker = 0.13,
+    killHitmarker = 0.2,
+    killMark = 0.4,
     hitmarkerWeight = 0.04,
     hitShake = 0.03,
     hitShakeWeight = 0.05,
@@ -274,6 +276,8 @@ return {
   },
   feel = {
     hitmarker = 0.14,
+    -- How long what a kill paid stays by the purse (s); kills inside it add up.
+    soulsGain = 1.4,
     bloodHeight = 1.3,
     breakKillFlash = 0.45,
     breakKillPunch = 0.14,

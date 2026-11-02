@@ -380,6 +380,7 @@ local definitions = {
   { 'hud_no_dodge', 'NO DODGES LEFT' },
   { 'hud_drinking', 'DRINKING' },
   { 'hud_reloading', 'RELOADING' },
+  { 'hud_souls_gain', '+{amount} SOULS' },
   { 'hud_reload', '[R] RELOAD' },
   { 'hud_chain', 'CHAIN x{count}' },
   { 'hud_hint_moves', 'WASD move / SHIFT dodge / CTRL slide / SPACE jump' },

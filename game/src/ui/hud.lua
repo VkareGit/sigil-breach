@@ -186,6 +186,21 @@ function H.status(g, run)
     Skin.meter(974 + (i - 1) * 24, 683, 20, p.dash - i + 1, C.ivory, 4)
   end
   Skin.endZone()
+  if (g.view.soulsGainTimer or 0) > 0 then
+    Skin.panel(1030, 548, 150, 32, 2, 8)
+    Skin.zone('souls gain', 1038, 553, 134, 22)
+    Skin.boxText(
+      Text.get('hud_souls_gain', { amount = g.view.soulsGain }),
+      1039,
+      554,
+      132,
+      20,
+      U.fonts[16],
+      C.gold,
+      true
+    )
+    Skin.endZone()
+  end
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
   local showEcho = run.echo
@@ -308,6 +323,9 @@ local function aimMarks(g, cx, cy)
   lg.rectangle('fill', cx - 1, cy - 1, 2, 2)
   if hit then
     hitMarks(g, cx, cy, reticle)
+  end
+  if (g.view.killMark or 0) > 0 then
+    Skin.icon('skull', cx - 12, cy - 48, 24)
   end
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)

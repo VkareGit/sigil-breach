@@ -150,16 +150,23 @@ function Shot.volley(g, e)
   if report.kills > 0 then
     g.view.killPunch = K.killPunch
   end
-  A.play(
-    report.maxHealthDamage >= K.heavyHitSound and 'heavyhit'
-      or (report.maxHealthDamage < K.grazeSound and 'graze' or 'hit'),
-    0.22 + g.view.hitWeight * 0.28
-  )
+  if report.kills > 0 then
+    -- Longer than a hit: he can stop shooting.
+    g.view.hitmarker = math.max(g.view.hitmarker, K.killHitmarker)
+    g.view.killMark = K.killMark
+  end
   if report.kills >= 2 then
     g.view.feedback = Text.get('feedback_multikill', { count = report.kills })
     g.view.feedbackTimer = 2
     A.play('multikill', 0.34)
   end
-  Weight.confirm(g, report, results)
+  Weight.confirm(
+    g,
+    report,
+    results,
+    report.maxHealthDamage >= K.heavyHitSound and 'heavyhit'
+      or (report.maxHealthDamage < K.grazeSound and 'graze' or 'hit'),
+    0.22 + g.view.hitWeight * 0.28
+  )
 end
 return Shot
