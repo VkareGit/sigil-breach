@@ -218,6 +218,31 @@ function Tests.run(Game, renderer)
     'playing HUD draw preserves keyboard focus and mouse coordinates',
     UI.focus == 3 and UI.mouseX == 9 and UI.mouseY == 11
   )
+  local Settings = require('src.content.settings')
+  local Camera = require('src.render.camera')
+  local scaleError, scaled, stable = 0, true, true
+  local _, nativeHeight = Camera.dimensions(g, 1280, 720)
+  for _, scale in ipairs(Settings.renderScale.choices) do
+    app.settings.renderScale = scale
+    app:applySettings()
+    for _, size in ipairs({ { 1280, 720 }, { 1001, 731 } }) do
+      local expectedW, expectedH = Camera.dimensions(g, size[1], size[2])
+      app:resize(size[1], size[2])
+      scaleError = math.max(scaleError, measure(g, size[1], size[2]))
+      scaled = scaled
+        and renderer.w == expectedW
+        and renderer.h == expectedH
+        and renderer.h == math.floor(nativeHeight * scale + 0.5)
+      stable = stable and before == Golden.digest(g)
+    end
+  end
+  check('all render scales keep the native HUD reticle on the shot after resize', scaleError < 1e-6)
+  check(
+    'all render scales survive window resize without touching simulation state',
+    scaled and stable
+  )
+  app.settings.renderScale = Settings.renderScale.default
+  app:applySettings()
   g.state = 'paused'
   app:draw()
   check(

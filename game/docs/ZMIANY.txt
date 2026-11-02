@@ -146,6 +146,30 @@ Etap 3:
 - Chodzenie: próba prostej drogi do celu (enemies/walking.lua) tylko w promieniu 8 m i co 0,15 s (walk.straight, walk.lineCheck). W profilu był to największy koszt kroku, gdy wiele stworów wracało na posterunki.
 
 
+- Naprawa crasha malowanych cyfr (astra-fix): trzecia pieczęć kosztowała 337,5 duszy
+  i zostawiała np. 17,5 w portfelu. Ceny ślubów są całkowite, zaokrąglane w górę
+  (trzecia pieczęć: 338); HUD dodatkowo zaokrągla dusze, echo i amunicję tylko
+  przy wyświetlaniu. Procenty zdrowia/osłony i liczby obrażeń już były zaokrąglane.
+
+- Wydajność kaplicy (astra-fix, Intel Arc, 3600 klatek walki, 46 strzałów,
+  pomiary pojedynczo, bez OBS): shader pomija próbkowanie cieni świateł zerowych
+  i poza zasięgiem. Zwykły potok, 100%: mediana 4,81 -> 3,93 ms (-18,3%),
+  p95 7,65 -> 6,39, p99 11,60 -> 9,76; ponad 16,7 ms: 9 -> 6 klatek.
+  Próba z jit.profile i jawną synchronizacją GPU: mediana 13,65 -> 10,91 ms,
+  p95 17,90 -> 14,16; GPU wait 8,32 -> 6,31; update 1,37 -> 1,36 ms.
+  Ta próba obejmuje koszt synchronizacji/odczytu, nie oznacza FPS normalnej gry.
+- Settings/pauza: 3D resolution 100/75/50%, zapisywane; domyślnie 100%.
+  Skala zmienia tylko scenę, HUD jest natywny, projekcja celownika pozostaje
+  zgodna z promieniem strzału. 75%: 1440x675 zamiast 1920x900 (-43,75% pikseli).
+  W próbie z synchronizacją GPU po shaderze: 10,91 -> 9,30 ms, p95 14,16 -> 12,53,
+  GPU wait 6,31 -> 4,84. W zwykłym potoku 3,93 -> 4,03 ms (p95 6,39 -> 6,81):
+  brak dodatkowego zysku czasu klatki na tej maszynie; opcja zmniejsza koszt GPU,
+  przydatny przy jego większym obciążeniu. Bez automatycznej zmiany jakości.
+  Digest walki fd34e459 jednakowy we wszystkich sześciu przebiegach. W siedmiu
+  obrazach kontrolnych tylko 11/12 096 000 pikseli różni się o 1/255 kanału;
+  sceny i światła zachowane. Sonda frame-watch ma jeden compositor zamiast dwóch,
+  raportuje fazy, GPU wait i digest; parametry opisuje DEVELOPMENT.txt.
+
 ########################################################################
 ZMIANY-0.41.txt
 SIGIL: BREACH 0.41 / The Chapel

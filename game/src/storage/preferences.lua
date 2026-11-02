@@ -1,4 +1,5 @@
 -- Persistence adapter: parsing is pure; filesystem access is confined here.
+local Settings = require('src.content.settings')
 local P = {}
 local defaults = {
   sensitivity = 1,
@@ -8,9 +9,10 @@ local defaults = {
   music = 0.65,
   hints = true,
   slot = 1,
+  renderScale = Settings.renderScale.default,
 }
 local bounds = { sensitivity = { 0.2, 3 }, fov = { 85, 115 }, music = { 0, 1 } }
-local order = { 'sensitivity', 'motion', 'fov', 'music', 'hints', 'muted' }
+local order = { 'sensitivity', 'motion', 'fov', 'music', 'hints', 'muted', 'renderScale' }
 function P.decode(text)
   local settings = {}
   for key, value in pairs(defaults) do
@@ -23,6 +25,12 @@ function P.decode(text)
       local number = tonumber(value)
       if number and number == number and math.abs(number) < math.huge then
         settings[key] = math.max(range[1], math.min(range[2], number))
+      end
+    elseif key == 'renderScale' then
+      for _, scale in ipairs(Settings.renderScale.choices) do
+        if tonumber(value) == scale then
+          settings.renderScale = scale
+        end
       end
     elseif type(defaults[key]) == 'boolean' and (value == 'true' or value == 'false') then
       settings[key] = value == 'true'

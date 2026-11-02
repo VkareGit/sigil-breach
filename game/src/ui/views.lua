@@ -15,6 +15,7 @@ local Registry = require('src.core.registry')
 local Views = Registry:new('views')
 local Text = require('src.content.text')
 local Queries = require('src.session.queries')
+local Settings = require('src.content.settings')
 -- A screen file's draw (full module names: tools/check follows them).
 local function screen(module)
   return function(g, s, U)
@@ -68,6 +69,7 @@ end
 -- Settings and pause share one page; settings swaps the last row.
 local function pageControls(g, s)
   local settings = g.state == 'settings'
+  local row = Settings.pause.scale
   return {
     {
       id = 'resume',
@@ -99,12 +101,29 @@ local function pageControls(g, s)
       w = 230,
       h = 42,
     },
-    { id = 'help', label = Text.get('page_help'), x = 380, y = 510, w = 252, h = 42 },
+    {
+      id = 'render_scale',
+      label = Text.get('setting_percent', {
+        percent = (s.renderScale or Settings.renderScale.default) * Settings.renderScale.percent,
+      }),
+      x = row.x,
+      y = row.y,
+      w = row.w,
+      h = row.h,
+    },
+    {
+      id = 'help',
+      label = Text.get('page_help'),
+      x = 380,
+      y = Settings.pause.helpY,
+      w = 252,
+      h = 42,
+    },
     {
       id = 'mute',
       label = Text.get(s.muted and 'page_unmute' or 'page_mute'),
       x = 648,
-      y = 510,
+      y = Settings.pause.helpY,
       w = 252,
       h = 42,
     },
@@ -112,7 +131,7 @@ local function pageControls(g, s)
       id = settings and 'fullscreen' or 'restart',
       label = Text.get(settings and 'page_fullscreen' or 'page_restart'),
       x = 380,
-      y = 570,
+      y = Settings.pause.footerY,
       w = 252,
       h = 42,
     },
@@ -120,7 +139,7 @@ local function pageControls(g, s)
       id = Queries.field(g) and 'field_leave' or (settings and 'quit' or 'menu'),
       label = Text.get(g.view.fieldReturnLabel or (settings and 'quit_game' or 'return_menu')),
       x = 648,
-      y = 570,
+      y = Settings.pause.footerY,
       w = 252,
       h = 42,
     },

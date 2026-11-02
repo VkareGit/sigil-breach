@@ -208,6 +208,7 @@ local definitions = {
   { 'setting_percent', '{percent}%' },
   { 'setting_motion', 'Weapon motion and FOV' },
   { 'setting_hints', 'Hints' },
+  { 'setting_render_scale', '3D resolution' },
   { 'settings_tip', 'Mouse or arrows + ENTER. F11: fullscreen.' },
   { 'key_move', 'WASD' },
   { 'key_aim', 'MOUSE' },

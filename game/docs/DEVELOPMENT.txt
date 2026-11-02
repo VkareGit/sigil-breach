@@ -77,6 +77,14 @@ mediana 5,11 / 4,95 ms, p95 7,59 / 7,67, p99 11,46 / 10,61, klatek ponad
 16,7 ms 13 / 11 z 3600. Pomiar obok innego procesu jest niewiarygodny
 (audyt: 196 / 3600). Sondy bez okna muszą ustawić te same limity JIT co
 main.lua, inaczej mierzą rekompilację, nie grę.
+--frame-watch (astra-fix) wykonuje jeden compositor na klatkę; wcześniejsza
+sonda robiła present drugi raz. SIGIL_WATCH_PROFILE=1 włącza jit.profile,
+SIGIL_WATCH_SYNC=1 dodaje odczyt jednego piksela i rozdziela oczekiwanie GPU
+od submit oraz HUD/present. To synchronizacja potoku, nie czysty timer GPU
+ani pomiar zwykłego FPS; porównuj tylko przebiegi z tym samym ustawieniem.
+SIGIL_WATCH_SCALE=1 / 0.75 / 0.5 wybiera skalę sceny dla tego przebiegu.
+Raport podaje rzeczywisty rozmiar sceny i końcowy digest symulacji.
+
 Pomiary rdzenia (0.29, każdy osobno, raport w work/qa):
   --core-measure   maski (start, pamięć), salwa, pociski, pazur, Snapshot,
                    krok z przebudzoną populacją (z osobną separacją), krok

@@ -28,6 +28,7 @@ function Review.run(Game, renderer, output)
   local UI = require('src.ui.interface')
   local lg = love.graphics
   local clock = love.timer.getTime
+  local synchronize = os.getenv('SIGIL_WATCH_SYNC') == '1'
   love.window.setVSync(0)
   if os.getenv('SIGIL_WATCH_NOGC') then
     collectgarbage('collect')
@@ -36,8 +37,12 @@ function Review.run(Game, renderer, output)
   UI.useMouse = false
   Way.forget()
   local settings = { motion = true, hints = false, sensitivity = 1, fov = 100, music = 0 }
+  settings.renderScale = require('src.storage.preferences').decode(
+    'renderScale=' .. (os.getenv('SIGIL_WATCH_SCALE') or '1')
+  ).renderScale
   local g = Game.new('pilgrimage')
   g.ephemeral = true
+  g.view.renderScale = settings.renderScale
   g:act('start')
   g.state = 'playing'
   renderer:resize(WIDTH, HEIGHT)
@@ -137,9 +142,13 @@ function Review.run(Game, renderer, output)
     g.view.presentationPrevious = nil
     renderer:draw(g, WIDTH, HEIGHT)
     local drawnAt = clock()
+    if synchronize then
+      local pixel = renderer.canvas:newImageData(1, 1, 0, 0, 1, 1)
+      pixel:release()
+    end
+    local readyAt = clock()
     lg.push('all')
     lg.origin()
-    renderer:present(g, WIDTH, HEIGHT)
     UI.draw(g, WIDTH, HEIGHT, settings)
     lg.pop()
     lg.present()
@@ -160,7 +169,8 @@ function Review.run(Game, renderer, output)
         routeMs = routeTime,
         collected = heap - collectgarbage('count'),
         draw = (drawnAt - updatedAt) * 1000,
-        ui = (doneAt - drawnAt) * 1000,
+        gpuWait = (readyAt - drawnAt) * 1000,
+        ui = (doneAt - readyAt) * 1000,
         bodies = #Pools.of(g, 'enemies'),
         state = g.state,
       }
@@ -172,13 +182,16 @@ function Review.run(Game, renderer, output)
   Scheduler.run = plainRun
   restoreFlow()
   restoreWaypoint()
-  local totals, updates, draws = {}, {}, {}
+  local totals, updates, draws, waits, interfaces = {}, {}, {}, {}, {}
   for i, f in ipairs(frames) do
     totals[i], updates[i], draws[i] = f.total, f.update, f.draw
+    waits[i], interfaces[i] = f.gpuWait, f.ui
   end
   table.sort(totals)
   table.sort(updates)
   table.sort(draws)
+  table.sort(waits)
+  table.sort(interfaces)
   table.sort(frames, function(a, b)
     return a.total > b.total
   end)
@@ -188,6 +201,13 @@ function Review.run(Game, renderer, output)
   end
   table.sort(seen)
   local lines = {
+    'RENDERER ' .. table.concat({ lg.getRendererInfo() }, ' / '),
+    string.format(
+      'SCENE %dx%d; GPU readback fence %s; one compositor per frame',
+      renderer.w,
+      renderer.h,
+      tostring(synchronize)
+    ),
     string.format(
       'STATES after each frame: %s (only playing is measured)',
       table.concat(seen, ', ')
@@ -207,6 +227,14 @@ function Review.run(Game, renderer, output)
       #totals
     ),
   }
+  lines[#lines + 1] = string.format(
+    'PRESENTATION gpu wait median %.2f p95 %.2f; UI/present median %.2f p95 %.2f',
+    percentile(waits, 0.5),
+    percentile(waits, 0.95),
+    percentile(interfaces, 0.5),
+    percentile(interfaces, 0.95)
+  )
+  lines[#lines + 1] = 'SIMULATION ' .. require('qa.golden').digest(g)
   lines[#lines + 1] = string.format(
     'PHASES update median %.2f p95 %.2f p99 %.2f; draw median %.2f p95 %.2f p99 %.2f; over 16.7 ms: %d',
     percentile(updates, 0.5),

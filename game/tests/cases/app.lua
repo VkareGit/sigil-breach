@@ -2,6 +2,7 @@ local Tests = {}
 function Tests.run(G, renderer, check)
   local Q = require('qa.runtime')
   local Preferences = require('src.storage.preferences')
+  local Settings = require('src.content.settings')
   local Release = require('src.app.release')
   for _, version in ipairs({ 10, 12, 13, 14, 15 }) do
     local q = Q.new({ '--showcase-v' .. version })
@@ -40,14 +41,33 @@ function Tests.run(G, renderer, check)
       and copy.motion == p.motion
       and copy.muted == p.muted
       and copy.hints == p.hints
+      and copy.renderScale == p.renderScale
   )
   p = Preferences.decode(
     'sensitivity=nan\nfov=inf\nmusic=no\nnot motion=false\nhints=garbage\nunknown=1'
   )
   check(
     'invalid preferences and embedded key names leave safe defaults',
-    p.sensitivity == 1 and p.fov == 100 and p.music == 0.65 and p.motion and p.hints
+    p.sensitivity == 1
+      and p.fov == 100
+      and p.music == 0.65
+      and p.motion
+      and p.hints
+      and p.renderScale == 1
   )
+  for _, scale in ipairs(Settings.renderScale.choices) do
+    local saved = Preferences.decode('renderScale=' .. scale)
+    check(
+      'render scale ' .. scale .. ' survives settings persistence',
+      Preferences.decode(Preferences.encode(saved)).renderScale == scale
+    )
+  end
+  for _, value in ipairs({ 'nan', 'inf', '0', '-1', '0.6', '2', 'invalid' }) do
+    check(
+      'unsupported render scale ' .. value .. ' keeps native quality',
+      Preferences.decode('renderScale=' .. value).renderScale == 1
+    )
+  end
   local Field = require('src.run.test_field')
   local Rules = require('src.combat.rules')
   local function fresh()
@@ -58,6 +78,25 @@ function Tests.run(G, renderer, check)
     return g
   end
   local g = fresh()
+  local Application = require('src.app.application')
+  local app = Application.new()
+  app.qa.isolated = true
+  app:adopt(g)
+  g.player.fireBuffer, g.player.jumpBuffer = 0.12, 0.12
+  for _, scale in ipairs({ 0.75, 0.5, 1 }) do
+    app:action('render_scale')
+    check(
+      'render scale command selects ' .. scale .. ' without clearing gameplay intentions',
+      app.settings.renderScale == scale
+        and g.view.renderScale == scale
+        and g.player.fireBuffer == 0.12
+        and g.player.jumpBuffer == 0.12
+    )
+  end
+  app.settings = Preferences.decode('renderScale=0.75')
+  app:adopt(fresh())
+  check('a new session inherits the saved render scale', app.game.view.renderScale == 0.75)
+  g.player.fireBuffer, g.player.jumpBuffer = 0, 0
   local before = g.player.hp
   local Audio = require('src.audio.audio')
   local play = Audio.play

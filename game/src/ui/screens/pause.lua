@@ -10,13 +10,14 @@ local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gol
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
+local Settings = require('src.content.settings')
 local S = {}
 function S.draw(g, s, U)
   Skin.auditLayer('settings')
   rect(0, 0, 1280, 720, Palette.veil, 0.88)
   panel(350, 62, 580, 586)
   Skin.inscription(g.state == 'settings' and 'settings' or 'interrupted', 430, 100, 420, 40)
-  Skin.zone('settings writing field', 382, 100, 516, 514)
+  Skin.zone('settings writing field', 382, 100, 516, Settings.pause.fieldHeight)
   local run = Queries.run(g)
   if run and run.rest and g.state == 'paused' then
     center(Text.get('pilgrim_saved'), 221, 14, muted)
@@ -42,6 +43,8 @@ function S.draw(g, s, U)
   Skin.boxText(motionLabel, 384, 399, 272, 32, U.fonts[size], ivory)
   Skin.endZone()
   text(Text.get('setting_hints'), 384, 448, 22, ivory)
+  local row = Settings.pause.scale
+  text(Text.get('setting_render_scale'), row.labelX, row.labelY, row.font, ivory)
   Skin.endZone()
   center(Text.get('settings_tip'), 667, 16, muted)
 end

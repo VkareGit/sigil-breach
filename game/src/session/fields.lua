@@ -158,7 +158,7 @@ declare('systems/clocks.lua', { 'zone', 'zoneTimer' })
 -- PRESENTATION --------------------------------------------------------------
 declareView('session/game.lua', { 'message', 'messageTimer' })
 declareView('feedback/damage_numbers.lua', { 'damageNumbers', 'numberSerial' }, 'world')
-declareView('app/commands.lua', { 'motion', 'fov', 'confirmReturn' }, 'world')
+declareView('app/commands.lua', { 'motion', 'fov', 'renderScale', 'confirmReturn' }, 'world')
 declareView('app/commands.lua', { 'presentationPrevious' }, 'view')
 declareView('app/input.lua', { 'swayX', 'swayY' })
 declareView('feedback/listeners.lua', {

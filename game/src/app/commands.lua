@@ -11,6 +11,7 @@ local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
 local Intent = require('src.player.intent')
 local Release = require('src.app.release')
+local Settings = require('src.content.settings')
 
 local Commands = {}
 local handlers = {}
@@ -22,6 +23,7 @@ local immediateSettings = {
   mute = true,
   motion = true,
   hints = true,
+  render_scale = true,
   sens_down = true,
   sens_up = true,
   fov_down = true,
@@ -199,6 +201,16 @@ handlers.motion = function(app)
 end
 handlers.hints = function(app)
   app.settings.hints = not app.settings.hints
+end
+handlers.render_scale = function(app)
+  local choices = Settings.renderScale.choices
+  for index, scale in ipairs(choices) do
+    if scale == app.settings.renderScale then
+      app.settings.renderScale = choices[index % #choices + 1]
+      app.game.view.renderScale = app.settings.renderScale
+      return
+    end
+  end
 end
 
 local function sensitivity(app, id)

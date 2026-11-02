@@ -114,10 +114,13 @@ vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel) {
   vec4 deck=Texel(deckAtlas,(floor(worldPos.xz-n.xz*.09+.5)-.5)/deckSpan);
   float deckBottom=deckDatum+deck.r*deckHeight,deckTop=deckDatum+deck.g*deckHeight;
   for(int i=0;i<16;i++){
+   // Skip shadow work when a light contributes nothing.
+   if(dot(lightColors[i],lightColors[i])==0.0)continue;
    vec3 delta=lights[i]-worldPos;float d2=dot(delta,delta);
+   float radius2=shadowTiles[i].x<0.0?9.0:72.0;
+   if(d2>=radius2)continue;
    vec2 shadowUV=clamp((surface-lightOrigins[i])/tileSpan*.25,vec2(.5/512.0),vec2(127.5/512.0));
    float visible=shadowTiles[i].x<0.0?1.0:Texel(shadowAtlas,shadowTiles[i]+shadowUV).r;
-   float radius2=shadowTiles[i].x<0.0?9.0:72.0;
    if(shadowTiles[i].x<0.0 && d2<9.0 && dot(lightColors[i],lightColors[i])>.001)
     visible=shortRayVisibility(lights[i].xz,worldPos.xz+n.xz*.09);
    if(deck.g>0.0&&((worldPos.y<deckBottom+.01&&lights[i].y>deckTop)||(worldPos.y>deckTop-.01&&lights[i].y<deckBottom)))

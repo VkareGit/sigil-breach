@@ -65,6 +65,7 @@ end
 function Application:applySettings()
   self.game.view.motion = self.settings.motion
   self.game.view.fov = self.settings.fov
+  self.game.view.renderScale = self.settings.renderScale
 end
 
 -- Make a session the active one (a new game, the proving ground, the way

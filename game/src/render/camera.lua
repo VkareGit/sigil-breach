@@ -3,6 +3,7 @@ local Ballistics = require('src.combat.ballistics')
 -- Presentation-only camera and the projection of the authoritative firing ray.
 -- Recoil can move the view; the reticle must still mark where the shot goes.
 local T = require('src.content.tuning')
+local Settings = require('src.content.settings')
 local Layout = require('src.ui.layout')
 local Camera = {}
 function Camera.roll(g)
@@ -46,6 +47,7 @@ local right, up, forward = {}, {}, {}
 function Camera.dimensions(g, w, h)
   local _, _, vw, vh = Layout.scene(g, w, h)
   local height = Layout.hasBar(g) and math.floor(T.renderHeight * 5 / 6) or T.renderHeight
+  height = math.floor(height * (g.view.renderScale or Settings.renderScale.default) + 0.5)
   return math.floor(height * vw / vh + 0.5), height
 end
 -- Logical GUI coordinates, accounting for the scene and GUI's distinct
