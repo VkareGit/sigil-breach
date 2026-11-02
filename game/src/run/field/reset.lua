@@ -17,7 +17,7 @@ function Reset.session(g)
   -- lingering numbers, flashes and trail clocks are not part of Feel.init.
   g.view.damageNumbers, g.view.numberSerial, g.view.markClocks = nil, nil, nil
   g.view.staggerFlash, g.view.killPunch, g.view.breakKill, g.view.perfectDodge = nil, nil, nil, nil
-  g.view.armorHit, g.view.damageDir = nil, 0
+  g.view.armorHit, g.view.damageDir, g.view.damageTrail = nil, 0, nil
   if g.bus then
     g.bus:clear()
   end

@@ -27,6 +27,16 @@ punkcie: docs/audyt-2026-11-02/POSTEP.md.
 - R07: Furfur daje 150 dusz w jednostkach treści (1500 w portfelu), tyle co Margrave. Decyzja właściciela D7.
 - R09: romb trafienia w głowę jest biały jak każde trafienie (złoto należy tylko do pękniętej gardy). Usunięte: martwy przepis dźwięku multikill, martwe gałęzie e.guardianFell z napisem „Return to the gate”, stary komentarz o czerwieniejącym celowniku. Zakładka Exorcista nazywa się EXORCIST, nie SHOTGUN (SHOTGUN zostaje jako rodzaj broni).
 
+Etap 1, czytelność bez zmiany designu:
+- G01: audyt układu traktuje wielokropek w napisie gry jako błąd (ELIDED). Ucięte napisy naprawione: seria w niszy ARSENAL (pieczęć i licznik, np. x3, zamiast „TRIPTY...”), przycisk mapy „BACK TO COMBAT [TAB]”, przycisk poligonu w menu „PROVING [ F2 ]” obok NEW WAY.
+- G02: ślad obrażeń na pasku celu należy do widoku (g.view.damageTrail), sumuje ciosy z wyników trafień, a jego czas płynie w zegarach symulacji, nie w rysowaniu. Pierwszy strzał ma sumę, odwrócenie wzroku nie zamraża czasu, inny cel i inna sesja nie mieszają się.
+- G03: najwyżej jeden komunikat nad sceną: przy medalu komunikat staje pod nim, a podpowiedź znika. Podpowiedź o flasce tylko wtedy, gdy flaska ma łyk.
+- G04: unik wciśnięty w chwili po strzale mówi „AFTER THE SHOT” (bez stuknięcia odmowy; unik i tak wykona się zaraz potem). Napis odmowy pod celownikiem jest w kości słoniowej, nie czerwony: czerwień przy celowniku tylko dla zabójstwa.
+- G06: mała pieczęć serii stoi przy wierszu broni, do której należy seria i jej bonus.
+
+Etap 2:
+- L09 (decyzja D3): unik ogranicza tylko wytrzymałość. Ładunki uniku usunięte (dashCharges, dashRecharge, pole dash, napis NO DODGES LEFT). Trzy uniki z pełnego paska, czwarty czeka; po wysiłku odnowa rusza po 0,4 s (było 0,55). Doskonały unik oddaje wytrzymałość jednego uniku. Trucizna spowalnia odnowę wytrzymałości tak, jak dawniej odnowę ładunków. W niszy uniku jeden pasek wytrzymałości zamiast dwóch kresek. Poza trybem z wysiłkiem (stary poligon bez attrition) unik niczym nie jest ograniczony.
+
 
 ########################################################################
 ZMIANY-0.41.txt

@@ -7,11 +7,13 @@
 -- 0.40: breath never holds the trigger, so a tired knight keeps shooting.
 -- 0.42: a retry and a rest start the knight afresh (run/actor_reset.lua): no shove, burn or
 -- buffered pull carries over, so both walks change after their first death.
+-- 0.42: a dodge is paid with stamina alone, no charges (owner, D3), and the digest folds the
+-- knight's stamina where it folded his charges; all three scenarios change.
 return {
-  playtest = '8958ac6b/d8a28601',
-  human = '954b7a72/c7bfdbb5',
-  drill = '6335f6e9/1adb37e6',
-  playtestContacts = 'b07330fe/583',
-  humanContacts = 'e6b10dd2/150',
+  playtest = '304b0602/bebcce67',
+  human = '445d30d6/f098d12b',
+  drill = '1fb5f6c3/39c4df31',
+  playtestContacts = '421cbf54/201',
+  humanContacts = '0ac75f10/678',
   drillContacts = '3e997544/352',
 }

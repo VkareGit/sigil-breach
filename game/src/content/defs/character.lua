@@ -22,7 +22,6 @@ Character.movement = Schema:new('movement', {
   slideCooldown = speed('between slides (s)'),
   dashSpeed = speed('speed of a dodge (m/s)'),
   dashTime = speed('length of a dodge (s)'),
-  dashRecharge = speed('dodge charges regained per second'),
 })
 Character.kit = Schema:new('kit', {
   weapons = { type = 'table', desc = 'weapon ids; none: the default loadout' },

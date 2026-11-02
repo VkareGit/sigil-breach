@@ -24,20 +24,30 @@ local function run(g, seconds, input)
 end
 local function dodges(check, Game)
   local g, p = fresh(Game)
-  p.dash = 0
+  p.resources.stamina = 0
   g:update(TICK, { dash = true, forward = 1 })
-  check('a dodge with no charge does not happen', p.dashTimer == 0)
-  check('and says why', g.view.refusal == 'hud_no_dodge' and g.view.refusalTimer > 0)
-  p.dash = 1
+  check('a dodge with no breath does not happen', p.dashTimer == 0)
+  check('and says why', g.view.refusal == 'hud_no_breath' and g.view.refusalTimer > 0)
+  p.resources.stamina = 100
   run(g, 0.05, { forward = 1 })
-  check('but it was not lost: it goes when it can', p.dash < 1 and p.dashTimer > 0)
+  check('but it was not lost: it goes when it can', p.dashTimer > 0)
   g, p = fresh(Game)
-  p.dash = 0
+  p.resources.stamina = 0
   g:update(TICK, { dash = true })
   run(g, 0.4)
-  p.dash = 1
+  p.resources.stamina = 100
   run(g, 0.1)
   check('a press too old is forgotten', p.dashTimer == 0)
+  -- Stamina is the only limit: three dodges from whole breath, the fourth waits for it.
+  g, p = fresh(Game)
+  local count = 0
+  for _ = 1, 4 do
+    if g:dash(1, 0) then
+      count = count + 1
+    end
+    run(g, 0.2)
+  end
+  check('three dodges in a row, not four', count == 3)
   g, p = fresh(Game)
   p.resources.stamina = -5
   g:update(TICK, { dash = true, forward = 1 })
@@ -78,8 +88,9 @@ local function cost(check, Game)
   check('a shot costs no breath', p.resources.stamina == 100)
   g:update(TICK, { dash = true, forward = 1 })
   check('it costs the moment after it', p.dashTimer == 0)
+  check('and the wait is said, not thudded', g.view.refusal == 'hud_recovering')
   run(g, 0.25)
-  check('and the dodge pressed in it follows', p.dashTimer > 0 or p.dash < 2)
+  check('and the dodge pressed in it follows', p.dashTimer > 0 or p.resources.stamina < 100)
   g, p = fresh(Game)
   p.resources.stamina, p.resourcePause = 25, { stamina = 9 }
   check('a dodge takes its whole price', not g:dash(1, 0))

@@ -201,7 +201,6 @@ function Game:dash(dx, dz, who)
     or self.state ~= 'playing'
     or self.map
     or self.help
-    or player.dash < 1
     or player.dashTimer > 0
     or (Capabilities.attrition(self) and not Game.canDodge(self, player))
   then
@@ -212,7 +211,6 @@ function Game:dash(dx, dz, who)
   -- The afterimage: a blow that would have met the knight where he stood
   -- is dodged perfectly (combat/dodge.lua: afterimage).
   player.dodgeFromX, player.dodgeFromZ = player.x, player.z
-  player.dash = player.dash - 1
   player.dashTimer = Rules.movement(player).dashTime
   local body = Rules.playerBody(player)
   if Capabilities.attrition(self) then

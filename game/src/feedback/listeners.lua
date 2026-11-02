@@ -47,6 +47,15 @@ local function bodyHit(g, e)
     personal.view.hitmarker, personal.view.precisionHit = Feel.hitmarker, false
     personal.view.lastDamage = math.floor(e.health + 0.5)
     personal.view.lastKill = enemy.hp <= 0
+    -- What this body lost to this view's blows: summed here, aged by systems/clocks, drawn by
+    -- ui/hud while the body is in the sights. Another body begins its own.
+    local trail = personal.view.damageTrail
+    if not trail or trail.id ~= enemy.id then
+      trail = { id = enemy.id, sum = 0, shown = enemy.hp + e.health }
+      personal.view.damageTrail = trail
+    end
+    trail.sum, trail.hold = trail.sum + e.health, Tuning.clocks.trailHold
+    trail.hp, trail.maxHp = enemy.hp, enemy.maxHp or enemy.hp + e.health
   end
   if e.source ~= 'weapon' then
     g:burst(enemy.x, Feel.bloodHeight, enemy.z, Rules.body(enemy).blood, 4, 1.0)

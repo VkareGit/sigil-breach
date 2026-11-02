@@ -13,23 +13,31 @@ function Tests.run(G)
   local Journal = require('src.session.journal')
   local Reload = require('src.combat.reload')
 
-  -- A1: the knight's dodge charges are data, wherever they are refilled.
-  local body = require('src.content.characters').standard().body
-  local charges = body.dashCharges
-  body.dashCharges = 3
-  local ok, err = pcall(function()
+  -- A1: a dodge is paid with stamina alone (0.42); a perfect one gives its price back, never
+  -- above the measure of the data.
+  do
+    local standard = require('src.content.characters').standard()
+    local body, measure = standard.body, standard.resources.stamina.max
     local g = Field.new(G)
     g.ephemeral = true
+    g.player.resources.stamina = 3
     Field.refill(g)
-    check('the proving ground refills every dodge charge of the data', g.player.dash == 3)
+    check(
+      'the proving ground refills the stamina of the data',
+      g.player.resources.stamina == measure
+    )
     Field.close(g)
     g.testField.invincible = false
-    g.player.dash = 2.5
+    g.player.resources.stamina = 10
     Dodge.perfect(g, { impact = 10 }, nil)
-    check('a perfect dodge refunds up to the data, not up to two', g.player.dash == 3)
-  end)
-  body.dashCharges = charges
-  assert(ok, err)
+    check(
+      'a perfect dodge gives back the price of its dodge',
+      g.player.resources.stamina == 10 + body.rollStamina * body.perfectDodge.refund
+    )
+    g.player.resources.stamina, g.player.perfectUsed = measure - 5, false
+    Dodge.perfect(g, { impact = 10 }, nil)
+    check('never above the measure of the data', g.player.resources.stamina == measure)
+  end
 
   -- A2: the proving ground's weapon buttons follow the knight's loadout.
   local g = Field.new(G)

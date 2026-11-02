@@ -92,10 +92,9 @@ function F.refill(g)
   Reload.cancel(g)
   local p = Roles.controlled(g)
   -- Health of the knight's body, the ward's cap (the field's, which the status bar measures
-  -- against), every dodge charge.
+  -- against), his stamina whole.
   p.maxArmor = Shop.maxWard
   p.hp, p.armor, p.souls = Characters.maxHp(p), Shop.maxWard, 0
-  p.dash = Characters.of(p).body.dashCharges
   Characters.rest(p)
   Abilities.fill(g, nil, Roles.controlled(g))
   -- Every weapon full, its reserve at its cap, its action at rest.

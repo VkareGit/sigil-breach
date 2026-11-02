@@ -1,7 +1,7 @@
 -- The knight's dodge as a defence (0.24 perfect dodge, 0.25 afterimage).
 -- A blow that lands while the knight is mid-dodge — on him, or on the
 -- afterimage he left where the dodge began (so it would have met him) — is
--- a perfect dodge. Once per dodge: the charge comes back, the demons freeze
+-- a perfect dodge. Once per dodge: its stamina comes back, the demons freeze
 -- for a beat and a melee attacker within reach takes its own blow on its
 -- guard. Attack kinds, missiles and marked strikes test their contact with
 -- Dodge.afterimage when they miss the knight himself; the damage path calls
@@ -9,6 +9,7 @@
 -- Emits PerfectDodge (session/event_catalog.lua).
 local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
+local Resources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
 local Roles = require('src.core.roles')
 local Dodge = {}
@@ -46,7 +47,8 @@ function Dodge.perfect(g, packet, source, knight)
     return false
   end
   player.perfectUsed = true
-  player.dash = math.min(body.dashCharges, player.dash + rule.refund)
+  -- refund: dodges' worth of stamina given back (a dodge is paid with stamina alone, 0.42).
+  Resources.restore(player, 'stamina', body.rollStamina * rule.refund)
   g.impactSlow = math.max(g.impactSlow or 0, rule.freeze)
   local returned
   if

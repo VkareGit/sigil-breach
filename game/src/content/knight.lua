@@ -7,7 +7,6 @@ return {
     hp = 100,
     -- The ward: a consumable pool the hero starts with.
     armor = 40,
-    dashCharges = 2,
     -- An armoured knight weighs more than a thrall: same law, less shove.
     mass = 1.5,
     poise = 70,
@@ -35,7 +34,8 @@ return {
     iframes = 0.32,
     dashIframes = 0.20,
     -- Where effort is paid (session/capabilities.lua: attrition) a dodge is a real
-    -- commitment: longer and dearer. A shot out of one gives up what is left of its safety.
+    -- commitment: longer and dearer, and stamina is all that limits it (0.42: no charges).
+    -- A shot out of one gives up what is left of its safety.
     rollIframes = 0.32,
     rollStamina = 26,
     -- Share of his walking speed going sideways and backwards there.
@@ -45,7 +45,7 @@ return {
     drag = 9,
     airDrag = 3.5,
     -- Perfect dodge: a blow landing during the dodge itself (not the later
-    -- i-frames). Once per dodge: refund the charge, freeze the demons for a
+    -- i-frames). Once per dodge: refund its stamina, freeze the demons for a
     -- beat, and a melee attacker within reach takes its own blow on its guard.
     perfectDodge = { refund = 1, freeze = 0.25, guardReturn = 1.0, reach = 3.5 },
     -- A major wound (woundAt) slows the knight for woundFor s.
@@ -54,7 +54,9 @@ return {
     -- (his armour and stance; the guard damage is the full one).
     slamShare = 0.5,
   },
-  resources = { stamina = { max = 100, start = 100, regen = 48, pause = 0.55 } },
+  -- Three dodges from whole stamina, then one each 0.9 s or so: a quick pause before it comes
+  -- back, so a fast fight keeps moving and a fourth dodge in a row is the one that fails.
+  resources = { stamina = { max = 100, start = 100, regen = 48, pause = 0.4 } },
   -- Speeds m/s, accelerations m/s^2, times s (player/feel.lua).
   movement = {
     moveSpeed = 5.25,
@@ -69,6 +71,5 @@ return {
     slideCooldown = 0.85,
     dashSpeed = 16.0,
     dashTime = 0.155,
-    dashRecharge = 0.78,
   },
 }

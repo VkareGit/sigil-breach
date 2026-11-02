@@ -400,7 +400,6 @@ function Tests.run(G, check)
     'jump',
     'jumpV',
     'crouch',
-    'dash',
     'dashTimer',
     'hp',
     'armor',

@@ -469,7 +469,7 @@ function Tests.run(G, renderer)
         and g.player.arsenal.exorcist.mag == 2
         and g.player.arsenal.exorcist.reserve == 70
     )
-    g.player.hp, g.player.armor, g.player.arsenal.exorcist.reserve, g.player.abilityState.powder.uses, g.player.dash =
+    g.player.hp, g.player.armor, g.player.arsenal.exorcist.reserve, g.player.abilityState.powder.uses, g.player.resources.stamina =
       12, 0, 0, 0, 0
     g.player.arsenal.judge.mag, g.player.arsenal.judge.reserve = 0, 0
     Field.refill(g)
@@ -480,7 +480,7 @@ function Tests.run(G, renderer)
         and g.player.arsenal.exorcist.mag == 2
         and g.player.arsenal.exorcist.reserve == 72
         and g.player.abilityState.powder.uses == 3
-        and g.player.dash == 2
+        and g.player.resources.stamina == 100
         and g.player.arsenal.judge.mag == 6
         and g.player.arsenal.judge.reserve == 72
         and g.player.reload == 0

@@ -32,13 +32,21 @@ function Resources.exert(actor, id, amount)
     actor.resourcePause[id] = Characters.of(actor).resources[id].pause
   end
 end
+-- Some of it given back (a perfect dodge returns its price), never above its measure.
+function Resources.restore(actor, id, amount)
+  local own = actor.resources
+  if own and own[id] ~= nil then
+    own[id] = math.min(Characters.of(actor).resources[id].max, own[id] + amount)
+  end
+end
 -- The share of it an actor has, or nil.
 function Resources.share(actor, id)
   local own = actor.resources
   local def = own and own[id] and Characters.of(actor).resources[id]
   return def and math.max(0, own[id] / def.max) or nil
 end
-function Resources.tick(actor, dt)
+-- rate (optional): how fast it comes back, 1 by default (poison halves it: combat/rules recovery).
+function Resources.tick(actor, dt, rate)
   local own = actor.resources
   if not own then
     return
@@ -48,7 +56,7 @@ function Resources.tick(actor, dt)
     if pause and (pause[id] or 0) > 0 then
       pause[id] = math.max(0, pause[id] - dt)
     else
-      own[id] = math.min(def.max, own[id] + def.regen * dt)
+      own[id] = math.min(def.max, own[id] + def.regen * dt * (rate or 1))
     end
   end
 end

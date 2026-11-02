@@ -34,22 +34,31 @@ function Tests.run(G, check)
   local p = g.player
   local attacker = g:spawn('imp', 16, 24)
   attacker.hp = 5000
+  local standard = require('src.content.characters').standard()
+  p.resources.stamina = 50
   g:dash(1, 0)
-  local charges = p.dash
+  local breath = p.resources.stamina
   local packet = A.imp.attacks[1].packet
   g:damagePlayer(packet.base, attacker.x, attacker.z, packet, attacker)
-  local rule = require('src.content.characters').standard().body.perfectDodge
+  local rule = standard.body.perfectDodge
+  local measure = standard.resources.stamina.max
   check(
-    'a blow during the dodge is a perfect dodge: no harm, charge back, attacker staggered',
+    'a blow during the dodge is a perfect dodge: no harm, breath back, attacker staggered',
     near(p.hp, 100)
-      and near(p.dash, math.min(2, charges + rule.refund))
+      and near(
+        p.resources.stamina,
+        math.min(measure, breath + standard.body.rollStamina * rule.refund)
+      )
       and g.impactSlow >= rule.freeze
       and attacker.ai == 'hurt'
       and Telemetry.get(g).perfectDodges == 1
   )
-  local again = p.dash
+  local again = p.resources.stamina
   g:damagePlayer(packet.base, attacker.x, attacker.z, packet, attacker)
-  check('one perfect dodge per dodge', near(p.dash, again) and Telemetry.get(g).perfectDodges == 1)
+  check(
+    'one perfect dodge per dodge',
+    near(p.resources.stamina, again) and Telemetry.get(g).perfectDodges == 1
+  )
   -- Posture by health: a wounded body recovers its guard slower.
   g = fresh()
   local whole, hurt = g:spawn('buer', 12, 20), g:spawn('buer', 20, 20)

@@ -86,6 +86,11 @@ Suite.registry = {
     module = 'tests.cases.chain',
   },
   {
+    id = 'damage-trail',
+    title = 'The damage trail is the view state of its own blows, aged by the clocks',
+    module = 'tests.cases.damage_trail',
+  },
+  {
     id = 'pilgrimage-save',
     title = 'A bad save never stops the game, kills wait for quiet, replays read no disk',
     module = 'tests.cases.pilgrimage_save',

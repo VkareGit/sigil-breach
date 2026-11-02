@@ -95,7 +95,7 @@ function Tests.input(G, check)
       local equal = true
       for _, id in ipairs({ 'knight1', 'other' }) do
         local a, b = Pools.get(coarse, id), Pools.get(fine, id)
-        for _, key in ipairs({ 'x', 'z', 'vx', 'vz', 'dash', 'dashTimer', 'slideTimer' }) do
+        for _, key in ipairs({ 'x', 'z', 'vx', 'vz', 'dashTimer', 'slideTimer' }) do
           equal = equal and math.abs((a[key] or 0) - (b[key] or 0)) < 1e-9
         end
       end

@@ -11,14 +11,13 @@ local L = {
   -- A kill's marker: how far it reaches (px) and how much larger it lands.
   killReach = 22,
   killPop = 0.3,
-  -- The trail on a target's bar: how long it waits (s), and the share of the bar it falls per s.
-  trailHold = 0.7,
-  trailFall = 0.8,
   refusalBelow = 34,
   -- A deed at the top of the view (px); it fades over the end of its time (s).
   medalSeal = 76,
   medalTop = 84,
   medalFade = 0.4,
+  -- A message shown with a medal stands this far under its seal, past its name and effect (px).
+  medalBelow = 46,
 }
 function L.viewport(w, h)
   local scale = math.min(w / L.width, h / L.height)

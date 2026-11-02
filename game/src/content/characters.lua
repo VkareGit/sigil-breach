@@ -29,7 +29,7 @@ end
 function C.standard()
   return entries[C.default]
 end
--- The health, ward and dodges a new actor starts with, unless it was given
+-- The health, ward and stamina a new actor starts with, unless it was given
 -- its own. A prefab hook (session/components.lua) and the save's migration.
 function C.born(actor)
   local def = C.of(actor)
@@ -39,7 +39,6 @@ function C.born(actor)
   actor.hp = actor.hp or actor.maxHp
   actor.maxArmor = actor.maxArmor or body.armor
   actor.armor = actor.armor or actor.maxArmor
-  actor.dash = actor.dash or body.dashCharges
   if def.resources and not actor.resources then
     actor.resources = {}
     for id, resource in pairs(def.resources) do

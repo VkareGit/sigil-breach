@@ -311,7 +311,6 @@ C.schemas.knight = {
   dashBuffer = f(nil),
   crouch = f(0),
   airCap = f(nil),
-  dash = f(nil, 'dodge charges'),
   dashTimer = f(0),
   dashX = f(nil),
   dashZ = f(nil),
@@ -377,6 +376,11 @@ require('src.core.strict').retire(
   'knight',
   { 'charges' },
   'ability uses live in player.abilityState[id] (content/abilities.lua)'
+)
+require('src.core.strict').retire(
+  'knight',
+  { 'dash' },
+  'a dodge is paid with stamina alone (0.42): player.resources.stamina'
 )
 -- Fields that are caches of a member, rebuilt rather than saved (plan v10
 -- V4): a route's distance field belongs to the world's field cache.

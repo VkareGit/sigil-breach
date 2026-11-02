@@ -103,9 +103,8 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   g:dash(0, -1)
   tick(0.16)
   check('dash travels 2 to 2.7 metres', 27 - g.player.z > 2 and 27 - g.player.z < 2.7)
-  check('dash consumes one charge', g.player.dash < 1.2)
-  tick(1.4)
-  check('dash refills', g.player.dash == 2)
+  check('a dash ends with its time', g.player.dashTimer <= 0)
+  check('and another can follow it', g:dash(0, -1))
   -- 0.14 open arena: the nave wall is the x=8 cell (face at 8.5).
   fresh()
   g.player.x = 9

@@ -144,11 +144,16 @@ function H.status(g, run)
   Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
   Skin.endZone()
   Skin.zone('HUD arsenal', 421, 628, 115, 68)
-  -- A chain is the weapon's: it stands in the niche of the weapons, as long as it lives.
+  -- A chain is the weapon's: it stands in the niche of the weapons, as long as it lives, quiet:
+  -- its seal and its count (the medal at the top of the view named it), and a small seal on
+  -- the row of the weapon that made it, the one its edge is on.
   local chain = Chain.step(p)
   if chain then
-    seal(chain.id, 423, 629, 18, 1)
-    fitted(Text.get(chain.name), 487, 632, 12, 90, C.gold)
+    local count = Text.get('hud_chain_count', { count = p.chainCount })
+    local ink = Skin.inkBounds(U.fonts[14], count)
+    local left = 478 - (18 + 4 + ink.w) / 2
+    seal(chain.id, left, 629, 18, 1)
+    text(count, left + 22 - ink.x, 631, 14, C.gold)
   else
     centered(Text.get('arsenal'), 478, 630, 14, C.muted)
   end
@@ -160,7 +165,13 @@ function H.status(g, run)
     local label = count > 2
         and (Text.get('weapon_slot', { slot = weapon.slot, name = Text.get(weapon.def.hud.tab) }))
       or Text.get(weapon.def.name)
-    fitted(label, 478, 648 + (row - 1) * 16, 12, 114, tint)
+    local y = 648 + (row - 1) * 16
+    if chain and p.chainWeapon == weapon.def.id then
+      seal(chain.id, 424, y + 1, 12, 1)
+      fitted(label, 486, y, 12, 96, tint)
+    else
+      fitted(label, 478, y, 12, 114, tint)
+    end
   end
   if chain then
     Skin.meter(425, 686, 106, p.chainLeft / Honours.window, C.gold, 12)
@@ -211,9 +222,12 @@ function H.status(g, run)
     end
   end
   text(Text.get('shift'), 912, 678, 12, C.muted)
-  for i = 1, 2 do
-    Skin.meter(974 + (i - 1) * 24, 683, 20, p.dash - i + 1, C.ivory, 4)
-  end
+  -- A dodge is paid with stamina alone: its meter, in four parts, ivory while the next dodge is
+  -- paid for and red when it is not.
+  local stamina = Resources.share(p, 'stamina') or 1
+  local resource = Characters.of(p).resources and Characters.of(p).resources.stamina
+  local price = resource and Rules.playerBody(p).rollStamina / resource.max or 0
+  Skin.meter(974, 683, 44, stamina, stamina >= price and C.ivory or C.red, 4)
   Skin.endZone()
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
@@ -329,7 +343,8 @@ local function aimMarks(g, cx, cy)
   local says = locked and (drinking and 'hud_drinking' or 'hud_off_balance')
     or (g.view.refusalTimer or 0) > 0 and g.view.refusal
   if says then
-    centered(Text.get(says), cx, cy + L.refusalBelow, 16, C.red)
+    -- Ivory with its ink, never red: red at the reticle belongs to a kill alone.
+    centered(Text.get(says), cx, cy + L.refusalBelow, 16, C.ivory)
   end
   for _, v in ipairs({ { -gap - 6, 0, -gap, 0 }, { gap, 0, gap + 6, 0 }, { 0, -gap - 6, 0, -gap } }) do
     line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
@@ -348,25 +363,6 @@ local function aimMarks(g, cx, cy)
       line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, Palette.inkSoft, 3)
       line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, C.muted, 1)
     end
-  end
-end
--- What the body in the sights just lost: a pale trail on its bar and the sum of the last blows,
--- once, where the eye already is, instead of a number on each hit.
-local trail = {}
-local function follow(target)
-  if trail.id ~= target.id then
-    trail.id, trail.hp, trail.shown, trail.sum, trail.hold = target.id, target.hp, target.hp, 0, 0
-  end
-  if target.hp < trail.hp then
-    trail.sum = trail.sum + trail.hp - target.hp
-    trail.hold = L.trailHold
-  end
-  trail.hp = target.hp
-  local dt = love.timer.getDelta()
-  trail.hold = trail.hold - dt
-  if trail.hold <= 0 then
-    trail.sum = 0
-    trail.shown = math.max(target.hp, trail.shown - target.maxHp * L.trailFall * dt)
   end
 end
 
@@ -408,13 +404,16 @@ local function foePanel(g, p)
         Skin.icon('armor', 515, 32, 22)
       end
       Skin.meter(520, 62, 240, target.hp / target.maxHp, C.red, 24)
-      follow(target)
-      if trail.shown > target.hp then
+      -- What this body just lost, as this view keeps it (feedback/listeners, systems/clocks): a
+      -- pale trail on its bar and the sum of the last blows, once, where the eye already is.
+      local trail = g.view.damageTrail
+      trail = trail and trail.id == target.id and trail
+      if trail and trail.shown > target.hp then
         local from = 520 + 240 * target.hp / target.maxHp
         color(C.ivory, 0.8)
         lg.rectangle('fill', from, 62, 240 * (trail.shown - target.hp) / target.maxHp, 6)
       end
-      if trail.sum >= 1 then
+      if trail and trail.sum >= 1 then
         Skin.boxText(
           Text.get('hud_damage_sum', { amount = math.floor(trail.sum + 0.5) }),
           690,
@@ -488,12 +487,24 @@ local function prompt(g)
     Skin.endZone()
   end
 end
-local function message(g)
+-- One notice over the scene at a time: while a medal stands at the top, the message waits
+-- under it rather than over it, and no hint is shown.
+local function message(g, medal)
   if g.view.messageTimer > 0 then
+    local top = medal and L.medalTop + L.medalSeal + L.medalBelow or 91
     local width = math.min(1180, U.fonts[16]:getWidth(g.view.message) + 40)
-    Skin.panel(640 - width / 2, 91, width, 46, 2, 10)
-    Skin.zone('message field', 652 - width / 2, 101, width - 24, 26)
-    Skin.boxText(g.view.message, 652 - width / 2, 102, width - 24, 24, U.fonts[16], C.ivory, true)
+    Skin.panel(640 - width / 2, top, width, 46, 2, 10)
+    Skin.zone('message field', 652 - width / 2, top + 10, width - 24, 26)
+    Skin.boxText(
+      g.view.message,
+      652 - width / 2,
+      top + 11,
+      width - 24,
+      24,
+      U.fonts[16],
+      C.ivory,
+      true
+    )
     Skin.endZone()
   end
 end
@@ -502,7 +513,9 @@ local function hints(g, p, settings)
     local tools = Queries.tools(g)
     local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
       or nil
-    if Characters.low(p) then
+    -- The flask is named only while it has a draught to give.
+    local flask = p.abilityState and p.abilityState.flask
+    if Characters.low(p) and flask and flask.uses > 0 then
       hint = Text.get('hud_hint_hurt')
     end
     if hint then
@@ -534,9 +547,12 @@ function H.draw(g, settings, ui, descentUI)
   if g.view.feedbackTimer > 0 then
     notice(g.view.feedback, 486, 16, C.gold)
   end
+  local medal = (g.view.medalTimer or 0) > 0
   honours(g, cx)
   prompt(g)
-  message(g)
-  hints(g, p, settings)
+  message(g, medal)
+  if not medal then
+    hints(g, p, settings)
+  end
 end
 return H

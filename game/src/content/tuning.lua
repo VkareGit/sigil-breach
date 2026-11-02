@@ -143,7 +143,16 @@ return {
   reactionOrder = 50,
   -- Session clocks (systems/clocks.lua): zone banner time (s), its bell
   -- volume, and how fast the hurt and surge overlays fade (x per second).
-  clocks = { zoneBanner = 3.5, zoneBell = 0.12, hurtFade = 1.6, surgeFade = 1.4 },
+  -- The damage trail on a target's bar: its sum holds trailHold s after the last blow, then
+  -- the pale share falls trailFall of the bar per s.
+  clocks = {
+    zoneBanner = 3.5,
+    zoneBell = 0.12,
+    hurtFade = 1.6,
+    surgeFade = 1.4,
+    trailHold = 0.7,
+    trailFall = 0.8,
+  },
   -- The knight's body in motion (player/feel.lua): steering below input is
   -- no steering; turning rad/s with the keys; a slide needs slideFrom m/s; the
   -- momentum above the air cap decays at airDecay /s; a slide slows by

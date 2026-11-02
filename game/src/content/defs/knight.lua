@@ -16,7 +16,6 @@ Knight.perfectDodge = Schema:new('perfect dodge', {
 })
 Knight.schema = Body.schema:extend('knight body', {
   armor = { type = 'number', required = true, min = 0, desc = 'ward at the start' },
-  dashCharges = { type = 'number', required = true, min = 0, desc = 'dodges it can hold' },
   height = { type = 'number', required = true, min = 0, desc = 'standing hit volume height (m)' },
   feet = { type = 'number', required = true, min = 0, desc = 'volume starts this high (m)' },
   eye = { type = 'number', required = true, min = 0, desc = 'standing eye (and muzzle) height (m)' },

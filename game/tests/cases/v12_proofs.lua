@@ -24,7 +24,7 @@ end
 local function warden()
   local def = require('src.core.schema').copy(Characters.standard())
   def.id, def.name = 'trial_warden', nil
-  def.body.hp, def.body.armor, def.body.shieldShare, def.body.dashCharges = 60, 10, 0.2, 3
+  def.body.hp, def.body.armor, def.body.shieldShare, def.body.rollStamina = 60, 10, 0.2, 20
   def.movement.moveSpeed = def.movement.moveSpeed * 1.4
   def.kit = { weapons = { 'judge' } }
   return def
@@ -61,7 +61,7 @@ function T.run(Game)
       and Characters.of(knight).body.armor == 40
       -- The proving ground fills the ward to its own cap, which the status bar measures against.
       and knight.maxArmor == require('src.content.shop').maxWard
-      and knight.dash == 2
+      and Characters.of(knight).body.rollStamina == 26
   )
   Proof.with({
     function()
@@ -83,7 +83,11 @@ function T.run(Game)
     })
     check(
       'a new actor starts from its character',
-      w.hp == 60 and w.maxHp == 60 and w.armor == 10 and w.dash == 3
+      w.hp == 60
+        and w.maxHp == 60
+        and w.armor == 10
+        and Rules.playerBody(w).rollStamina == 20
+        and w.resources.stamina == 100
     )
     check(
       'its shot leaves its own eye',

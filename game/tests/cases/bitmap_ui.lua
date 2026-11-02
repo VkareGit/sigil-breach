@@ -57,7 +57,7 @@ function Tests.run(G, renderer)
     g.player.arsenal.judge.mag = 6
     g.player.arsenal.judge.reserve = 72
     g.player.abilityState.powder.uses = 3
-    g.player.dash = 2
+    g.player.resources.stamina = 100
   end
   local settings =
     { sensitivity = 3, motion = true, music = 1, fov = 115, hints = true, muted = false }

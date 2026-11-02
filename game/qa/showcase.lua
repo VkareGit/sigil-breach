@@ -182,7 +182,7 @@ function S.run(G, renderer)
   g.player.arsenal.exorcist.mag = 0
   g.player.arsenal.exorcist.reserve = 0
   g.player.abilityState.powder.uses = 0
-  g.player.dash = 0.3
+  g.player.resources.stamina = 12
   save('33-low-resources')
   save('34-low-resources-small', 960, 540)
   g.player.arsenal.exorcist.mag = 2

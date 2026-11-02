@@ -46,11 +46,11 @@ function Tests.run(G, check)
   g = fresh()
   local p = g.player
   g:dash(1, 0)
-  local charges = p.dash
+  local breath = p.resources and p.resources.stamina
   g:damagePlayer(20, p.x + 1, p.z, { base = 20, impact = 100, damageType = 'physical' }, 'self')
   check(
     'dashing through your own blast earns no perfect dodge',
-    near(p.dash, charges) and Telemetry.get(g).perfectDodges == 0
+    (p.resources and p.resources.stamina) == breath and Telemetry.get(g).perfectDodges == 0
   )
   -- A leaper shot out of the air lands knocked down (the painted fall).
   g = fresh()

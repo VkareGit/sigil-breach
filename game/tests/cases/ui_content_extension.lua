@@ -151,7 +151,14 @@ function Tests.run(G)
       local issues
       Skin.forceAudit = true
       Skin.endAudit = function()
-        issues = Skin.auditProblems(Skin.audit)
+        -- The extension's names are made longer than any niche on purpose, so they are cut
+        -- with an ellipsis; the game's own text may never be (the showcase holds it to that).
+        issues = {}
+        for _, issue in ipairs((Skin.auditProblems(Skin.audit))) do
+          if not issue:match('^ELIDED') then
+            issues[#issues + 1] = issue
+          end
+        end
         if name == 'bestiary' then
           -- Nonintersection alone is insufficient: adjacent painted capitals
           -- with zero breathing room read as a fused block after downscaling.

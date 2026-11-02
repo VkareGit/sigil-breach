@@ -16,11 +16,26 @@ local actor = { 'cooldown', 'chainLeft' }
 local plainView =
   { 'feedbackTimer', 'refusalTimer', 'killPop', 'soulsGainTimer', 'medalTimer', 'muzzle' }
 local after = { 'staggerFlash', 'hitmarker', 'shake', 'killPunch', 'messageTimer', 'perfectDodge' }
+-- The damage trail of a view (feedback/listeners.lua): its sum holds trailHold s after the last
+-- blow, then the pale share falls to what the body has left. Time passes whether or not the
+-- body is in the sights.
+local function trail(view, dt)
+  local t = view.damageTrail
+  if not t then
+    return
+  end
+  t.hold = t.hold - dt
+  if t.hold <= 0 then
+    t.sum = 0
+    t.shown = math.max(t.hp, t.shown - t.maxHp * K.trailFall * dt)
+  end
+end
 local function tickView(view, dt)
   Timers.tick(view, plainView, dt)
   view.hurt = Timers.down(view.hurt, dt * K.hurtFade)
   view.surge = Timers.down(view.surge, dt * K.surgeFade)
   Timers.tick(view, after, dt)
+  trail(view, dt)
 end
 function Clocks.run(g, dt)
   Timers.tick(g, plain, dt)

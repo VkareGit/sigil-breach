@@ -29,6 +29,14 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | R08 | Dokumenty wejściowe | przeniesione na koniec Etapu 3 | Etap 2 zmienia unik i amunicję, więc INSTRUKCJA i START-HERE pisane raz, na końcu |
 | R09 | Złoty romb, stare komentarze, `multikill`, `guardianFell`, SHOTGUN/EXORCIST | zrobione | skan czysty; Mechanics zielone (jedyny błąd `v12-proofs` po R05 poprawiony w tym commicie) |
 
+| G01 | Ucięte napisy, wielokropek jako błąd audytu | zrobione | reguła ELIDED w `ui/skin.lua`; Render znalazł i naprawiono jedno ucięcie |
+| G02 | `trail` do widoku | zrobione | `tests/cases/damage_trail.lua` |
+| G03 | Priorytety komunikatów, warunek flaski | zrobione | rendery `look-medal-crowded`, `look-low-flask(-empty)` |
+| G04 | Powód oczekiwania na unik, kolor odmowy | zrobione | `responsiveness.lua`, render `look-recovering` |
+| G05 | Q/F, znaki, niskie HP w niszach | do zrobienia | grafiki Codexa w `work/hud-marks` |
+| G06 | Seria przy wierszu broni | zrobione | razem z G01 (`look-chain`) |
+| L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
+
 ## Notatki
 
 - R01: `P.save` (`game/src/run/pilgrimage.lua`) zeruje `dirty` i `waited` dopiero po wyniku zapisu. Przy odmowie `dirty` zostaje (także dla zapisów trwałych: ognisko, drzwi, śmierć), a `waited = 0`, więc kolejna próba przychodzi po `K.saveEvery` spokoju. Wynik zapisu jest paragonem w dzienniku (`storage/execution.lua`), więc powtórka zachowuje się tak samo.

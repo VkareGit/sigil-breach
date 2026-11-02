@@ -34,13 +34,10 @@ end
 local function recover(knight, dt)
   knight.invuln = math.max(0, knight.invuln - dt)
   local body = Rules.playerBody(knight)
-  knight.dash = math.min(
-    body.dashCharges,
-    knight.dash + dt * Rules.movement(knight).dashRecharge * Rules.recoveryScale(knight)
-  )
   Rules.tick(knight, dt)
   Rules.recover(knight, dt, body)
-  Resources.tick(knight, dt)
+  -- Breath comes back as the body recovers: poison slows it (it slowed the old dodge charges).
+  Resources.tick(knight, dt, Rules.recoveryScale(knight))
   if (knight.rallyLeft or 0) > 0 then
     knight.rallyLeft = knight.rallyLeft - dt
     if knight.rallyLeft <= 0 then

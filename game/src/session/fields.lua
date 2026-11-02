@@ -171,6 +171,7 @@ declareView('feedback/listeners.lua', {
   'medalTimer',
   'soulsGain',
   'soulsGainTimer',
+  'damageTrail',
   'sway',
   'hurt',
   'surge',

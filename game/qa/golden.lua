@@ -61,7 +61,8 @@ function Golden.describe(g)
     p.arsenal.exorcist.reserve,
     p.arsenal.judge.mag
   )
-  append(out, p.arsenal.judge.reserve, p.dash, p.jump, p.poise or 0, p.pushX or 0, p.pushZ or 0)
+  local stamina = p.resources and p.resources.stamina or 0
+  append(out, p.arsenal.judge.reserve, stamina, p.jump, p.poise or 0, p.pushX or 0, p.pushZ or 0)
   for _, e in ipairs(creatures(g)) do
     local phase = e.hp > 0 and (e.phase or 0) or 'dead'
     append(out, e.id, e.kind, e.x, e.z, e.hp, e.poise or 0, e.stun or 0, e.ai, phase)

@@ -200,19 +200,19 @@ function Tests.run(G, check)
   p = g.player
   p.armor = 100
   AI.hazard(g, p.x, p.z, 0, 1.5, 2, A.buer.attacks[1].pool)
-  p.dash = 0
+  p.resources.stamina, p.resourcePause = 0, nil
   for _ = 1, 24 do
     g:update(1 / 120, {})
   end
-  local poisonedDash = p.dash
+  local poisonedBreath = p.resources.stamina
   local poisoned = Rules.has(p, 'poisoned')
   check('a plague pool applies the poisoned condition', poisoned)
   -- The pool's first pulse lands after this tick's recovery; every later tick is halved.
   check(
-    'poison halves the dash recovery',
+    'poison halves the recovery of breath',
     near(
-      poisonedDash,
-      (1 + 23 * 0.5) / 120 * require('src.content.characters').standard().movement.dashRecharge,
+      poisonedBreath,
+      (1 + 23 * 0.5) / 120 * require('src.content.characters').standard().resources.stamina.regen,
       1e-3
     )
   )

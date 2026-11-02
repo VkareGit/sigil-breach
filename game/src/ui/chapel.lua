@@ -146,8 +146,14 @@ function D.controls(g)
     }
     if r.saved then
       list[2] = { id = 'restart', label = Text.get('menu_new'), x = 72, y = 455, w = 194, h = 44 }
-      list[3] =
-        { id = 'field_start', label = Text.get('menu_field'), x = 270, y = 455, w = 194, h = 44 }
+      list[3] = {
+        id = 'field_start',
+        label = Text.get('menu_field_short'),
+        x = 270,
+        y = 455,
+        w = 194,
+        h = 44,
+      }
     else
       list[2] =
         { id = 'field_start', label = Text.get('menu_field'), x = 72, y = 455, w = 400, h = 44 }

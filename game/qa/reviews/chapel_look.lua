@@ -54,13 +54,28 @@ function Review.run(Game, renderer, output)
   g.player.chainWeapon = g.player.loadout[1]
   g.view.medal, g.view.medalTimer = 'triptych', 1
   shot(g, 'chain')
+  -- A medal while a message stands and the knight is low: one under the other, no hint.
+  g.view.message, g.view.messageTimer = 'The door opens from this side.', 2
+  g.player.hp, settings.hints = 15, true
+  shot(g, 'medal-crowded')
+  -- Low, no medal: the hint names the flask while it has a draught, and not once it is empty.
+  g.view.medalTimer, g.view.messageTimer = 0, 0
+  shot(g, 'low-flask')
+  g.player.abilityState.flask.uses = 0
+  shot(g, 'low-flask-empty')
+  g.player.abilityState.flask.uses, g.player.hp, settings.hints = 3, 100, false
+  g.view.medalTimer = 1
+  -- A dodge pressed in the moment after a shot: why it waits, in ivory, not red.
+  g.view.refusal, g.view.refusalTimer = 'hud_recovering', 1
+  shot(g, 'recovering')
+  g.view.refusalTimer = 0
   -- The body in the sights: its bar before the blows, then their sum and pale trail.
   local foe = Pools.of(g, 'enemies')[1]
   local dx, _, dz = Ballistics.direction(g.player.yaw, g.player.pitch)
   foe.x, foe.z = g.player.x + dx * 5, g.player.z + dz * 5
   g.view.medalTimer = 0
   shot(g, 'target-whole')
-  foe.hp = foe.hp * 0.55
+  g:damageEnemy(foe, foe.hp * 0.45, 'weapon', nil, g.player.id, g.player.loadout[1])
   shot(g, 'target-trail')
   g.player.chainCount, g.player.chainLeft, g.view.medalTimer = nil, nil, 0
   g.view.hitmarker, g.view.lastKill, g.view.killPop, g.view.soulsGainTimer = 0, false, 0, 0

@@ -155,7 +155,7 @@ function Tests.run(G, check)
     near(g.elapsed, 0.1)
       and near(g.player.x, other.player.x)
       and near(g.player.z, other.player.z)
-      and near(g.player.dash, other.player.dash)
+      and near(g.player.dashTimer, other.player.dashTimer)
   )
   g = fresh()
   local start = g.player.z
@@ -189,10 +189,10 @@ function Tests.run(G, check)
   )
   g = fresh()
   g.state = 'paused'
-  local dash = g.player.dash
+  local breath = g.player.resources.stamina
   check(
     'paused direct dash cannot spend resources or grant invulnerability',
-    not g:dash(1, 0) and g.player.dash == dash and g.player.invuln == 0
+    not g:dash(1, 0) and g.player.resources.stamina == breath and g.player.invuln == 0
   )
 end
 return Tests

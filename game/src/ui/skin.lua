@@ -170,6 +170,10 @@ function S.auditProblems(a)
   local checked = 0
   for i, v in ipairs(a.items) do
     local z = v.zone
+    -- A word cut short is a word the player cannot read: no caption may need an ellipsis.
+    if v.kind == 'text' and tostring(v.label):sub(-3) == '...' then
+      failures[#failures + 1] = string.format('ELIDED %s: %s', z and z.name or a.name, v.label)
+    end
     if z and v.kind ~= 'panel' then
       checked = checked + 1
       if v.x < z.x or v.y < z.y or v.x + v.w > z.x + z.w or v.y + v.h > z.y + z.h then

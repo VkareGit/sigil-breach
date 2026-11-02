@@ -86,7 +86,6 @@ local function refresh(g)
   local p = Roles.controlled(g)
   ActorReset.actor(g, p)
   p.hp, p.armor = Characters.maxHp(p), p.maxArmor
-  p.dash = Characters.of(p).body.dashCharges
   Characters.rest(p)
   Abilities.fill(g, nil, p)
   Abilities.rest(g, p)
