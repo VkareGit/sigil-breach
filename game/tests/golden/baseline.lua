@@ -12,11 +12,13 @@
 -- 0.42: no fire takes in a hunted knight (owner, D1): the reading walk is refused a rest.
 -- 0.42: creatures leave rounds (owner, D2): the drops take the session's rolls and refill the
 -- guns, so both walks change.
+-- 0.42: no queue of waiting creatures, an alarm wakes those that see the one that noticed him
+-- (owner, D4), and two posts patrol: all three scenarios change.
 return {
-  playtest = '6e47de91/7e726656',
-  human = 'a525b88e/85a45355',
-  drill = '1fb5f6c3/39c4df31',
-  playtestContacts = 'c0427e73/529',
-  humanContacts = '4289529b/813',
-  drillContacts = '3e997544/352',
+  playtest = '5d5aee1a/ba2cad7a',
+  human = '4954a43c/ccca8c03',
+  drill = '14f9ce3d/a64f81e9',
+  playtestContacts = '1c88e888/747',
+  humanContacts = 'a8136916/1143',
+  drillContacts = 'df3be14a/359',
 }
