@@ -103,12 +103,29 @@ Way.areas:register('chapel', {
     },
     { id = 'nave_2', creature = 'imp', x = 21.5, z = 19, yaw = 0, alert = 6 },
     { id = 'nave_3', creature = 'imp', x = 26.5, z = 18, yaw = 0, alert = 6 },
-    { id = 'nave_4', creature = 'stolas', x = 24, z = 16, yaw = 0, alert = 9 },
+    -- Before the alarm (owner, D4) some walk and some stand guard: the caster crosses the nave.
+    {
+      id = 'nave_4',
+      creature = 'stolas',
+      x = 24,
+      z = 16,
+      yaw = 0,
+      alert = 9,
+      patrol = { { x = 22, z = 16 }, { x = 26, z = 16 } },
+    },
     { id = 'nave_5', creature = 'armored', x = 24, z = 14, yaw = 0, alert = 5 },
     -- The crypts: they wait in the dark for whoever comes close.
     { id = 'crypt_1', creature = 'imp', x = 19.5, z = 4, yaw = 1.5, alert = 4 },
     { id = 'crypt_2', creature = 'imp', x = 28.5, z = 4, yaw = -1.5, alert = 4 },
-    { id = 'crypt_3', creature = 'buer', x = 24, z = 4.5, yaw = 0, alert = 7 },
+    {
+      id = 'crypt_3',
+      creature = 'buer',
+      x = 24,
+      z = 4.5,
+      yaw = 0,
+      alert = 7,
+      patrol = { { x = 22, z = 4.5 }, { x = 26, z = 4.5 } },
+    },
     -- The thresholds of the halls: what stands in the door is met before the guardian.
     { id = 'west_1', creature = 'armored', x = 18.5, z = 27.5, yaw = 1.5, alert = 7 },
     { id = 'west_2', creature = 'imp', x = 19, z = 26.5, yaw = 1.5, alert = 5 },

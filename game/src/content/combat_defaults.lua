@@ -181,7 +181,8 @@ return {
     -- does not wait for him: a post's own alert range is for what he has not seen.
     seenRange = 18,
     seenCone = 0.8,
-    seenPack = 2,
+    -- A body that notices him wakes those that see it this near (m), and they the next (D4).
+    alarmRange = 14,
     memory = 5,
     turnRate = 10,
     -- A knight this near (m) counts as close (enemies/answers.lua: hugging).

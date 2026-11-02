@@ -170,7 +170,7 @@ local function sight(check, Game)
   p.yaw = math.pi
   run(g, 0.3)
   check('what he looks at does', e.awake)
-  -- A hall comes in turns.
+  -- No queue (owner, D4): what he sees comes, however many are already coming.
   local second, third
   for _, body in ipairs(Pools.of(g, 'enemies')) do
     if body.post == 'nave_3' then
@@ -185,10 +185,40 @@ local function sight(check, Game)
   e.awake = true
   run(g, 0.3)
   check('a second comes with it', second.awake)
-  check('a third waits its turn', not third.awake)
-  g:damageEnemy(e, e.hp + 1, 'weapon', nil, p.id)
+  check('and a third: a hall does not wait in turns', third.awake)
+  -- The alarm: one that notices him wakes the sleeping ones that see it, behind him too, but
+  -- not one walled off.
+  g, p = fresh(Game)
+  local caller, behind, walled
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake, body.dummy = false, nil
+    if body.post == 'nave_2' then
+      caller = body
+    elseif body.post == 'nave_3' then
+      behind = body
+    elseif body.post == 'crypt_1' then
+      walled = body
+    end
+  end
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    if body ~= caller and body ~= behind and body ~= walled then
+      body.x, body.z = 24, 39
+    end
+  end
+  p.x, p.z, p.yaw = caller.x, caller.z + 3, 0
+  behind.x, behind.z = caller.x + 1.5, caller.z - 3
+  -- Four metres from the caller, with stone between them.
+  walled.x, walled.z = caller.x - 4, caller.z
+  local wx, wz = math.floor(caller.x - 2 + 0.5), math.floor(caller.z + 0.5)
+  for dz = -1, 1 do
+    g:setCell(wx, wz + dz, 1)
+  end
+  check('the wall hides them from each other', not Rules.sees(g, walled, caller))
+  caller.alertRange, behind.alertRange, walled.alertRange = 6, 0, 0
   run(g, 0.3)
-  check('and steps up when one falls', third.awake)
+  check('the one near him notices him', caller.awake)
+  check('and its alarm wakes one he has his back to', behind.awake)
+  check('but not one behind the walls', not walled.awake)
 end
 function T.run(Game)
   local lines = {}

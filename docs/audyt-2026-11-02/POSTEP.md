@@ -38,6 +38,7 @@ Plan i kryteria: `RAPORT-KONCOWY.md` w tym katalogu. Właściciel zatwierdził 2
 | L02 | Odpoczynek przy czuwającym stworze (D1) | zrobione | `pilgrimage.lua` |
 | L03 | Amunicja ze stworów (D2) | zrobione, liczby do strojenia po L01 | `tests/cases/drops.lua`; `run/drops.lua`, pole `ammo` stworów |
 | L04 | Nauka: strona zasad i lekcje | zrobione (ocena właściciela) | `tests/cases/lessons.lua`, render `look-help`; ilustracje Codexa w `game/assets/art/rules` |
+| L05 | Alarm i grupy zamiast kolejki (D4) | zrobione | `responsiveness.lua` (sight); patrole nave_4 i crypt_3 |
 | L07 | Przyczyna śmierci | zrobione | `pilgrimage.lua` (causes), render `look-dead` |
 | L09 | Unik tylko na wytrzymałości (D3) | zrobione | wspólny commit z Etapem 1 (te same pliki) |
 

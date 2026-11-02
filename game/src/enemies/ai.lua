@@ -191,20 +191,35 @@ local function tickBody(g, e, dt, paused)
 end
 
 -- The knight is looking at it: a body in plain sight does not stand and wait for him.
-local function watched(g, e, p, d)
-  if
-    p.yaw == nil
-    or d >= Senses.seenRange
-    or math.abs(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) >= Senses.seenCone
-  then
-    return false
+local function watched(e, p, d)
+  return p.yaw ~= nil
+    and d < Senses.seenRange
+    and math.abs(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) < Senses.seenCone
+end
+-- The alarm (owner, D4): a body that notices the knight wakes every sleeping body that sees it
+-- within alarmRange, and each of those the ones that see it in turn. An open hall comes at him
+-- at once, those behind included; a part behind walls wakes when he enters it or the alarm
+-- reaches it. Before that, posts stand guard or walk their patrols.
+local function alarm(g, first, p)
+  local raised, at = { first }, 1
+  while raised[at] do
+    local caller = raised[at]
+    at = at + 1
+    Bodies.eachCreature(g, function(other)
+      if
+        not other.awake
+        and not other.dummy
+        and other.hp > 0
+        and len(other.x - caller.x, other.z - caller.z) < Senses.alarmRange
+        and Rules.sees(g, other, caller)
+      then
+        Signal(g, 'Alerted', { enemy = other })
+        other.awake, other.memory = true, Senses.memory
+        other.lastX, other.lastZ, other.lastLevel = p.x, p.z, p.level
+        raised[#raised + 1] = other
+      end
+    end)
   end
-  -- A hall comes at him in turns, not as one herd: the next steps up as one falls.
-  local coming = 0
-  Bodies.eachCreature(g, function(other)
-    coming = coming + (other.awake and 1 or 0)
-  end)
-  return coming < Senses.seenPack
 end
 -- Senses: sight on a short clock, memory of the last sighting, facing. The
 -- sight clock also renews whom it fights (never during a committed attack).
@@ -222,8 +237,9 @@ local function perceive(g, e, d, dt)
     end
     e.visible = Rules.sees(g, e, p)
     e.sense = Senses.interval + e.id % 3 * Senses.stagger
-    if e.visible and (d < (e.alertRange or Senses.alertRange) or watched(g, e, p, d)) then
-      if not e.awake then
+    if e.visible and (d < (e.alertRange or Senses.alertRange) or watched(e, p, d)) then
+      local woke = not e.awake
+      if woke then
         Signal(g, 'Alerted', { enemy = e })
       end
       e.awake = true
@@ -231,6 +247,9 @@ local function perceive(g, e, d, dt)
       e.lastX = p.x
       e.lastZ = p.z
       e.lastLevel = p.level
+      if woke then
+        alarm(g, e, p)
+      end
     end
   end
   if not e.visible then

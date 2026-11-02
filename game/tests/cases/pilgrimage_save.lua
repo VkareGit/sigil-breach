@@ -296,6 +296,10 @@ local function timing(check, Game)
   end
   kill(g, 'nave_3')
   g.player.x, g.player.z = 10, 21
+  -- A fire takes in only a knight nobody hunts (owner, D1).
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake = false
+  end
   g:interact()
   check('a rest is stored', stored().fire == 'west' and stored().wallet == g.run.wallet)
   g.run.wallet = 500
