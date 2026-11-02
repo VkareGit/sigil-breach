@@ -1,0 +1,30 @@
+Surowe pomiary Claude, commit 489e3a5, 2 listopada 2026.
+
+Bot przez kaplice, 6 minut (sonda z tego katalogu, wczesniejszy wariant):
+chybienia 0.0 seed 1: 3 smierci, 39 zabojstw, sanktuarium 137 s, west 222 s
+chybienia 0.0 seed 2: 3 smierci, 51 zabojstw, sanktuarium 188 s
+chybienia 0.1 seed 1: 6 smierci, 45 zabojstw, nie doszedl
+chybienia 0.1 seed 2: 8 smierci, 50 zabojstw, sanktuarium 327 s
+chybienia 0.3 seed 1: 12 smierci, 24 zabojstwa, nie doszedl
+chybienia 0.3 seed 2: 13 smierci, 51 zabojstw, nie doszedl
+
+Serie w tych samych przebiegach (0.0 i 0.1, 4 przebiegi, 185 zabojstw):
+TRIPTYCH 14 razy, TETRAPTYCH 1 raz, POLYPTYCH 0.
+
+Caly zapas z ogniska, 100% trafien z 3,5 m, nieruchomy cel, wszystkie sprawdzone wysokosci:
+Margrave: 5091 z 9000 (Judge 3043, Exorcist 2047). Furfur: 4926 z 10000 (Judge 2979, Exorcist 1947).
+Egzekucja: Margrave 8%, Furfur 7% zycia. Stwory bez bossow: 5320 zycia razem.
+Trzy ladunki Q rzucone z 4 m: 27 obrazen. Wynik niepewny, sonda mogla nie trafic wybuchem.
+
+Odmowy w 6 minutach bota: chybienia 0: unikow 273, hud_no_dodge 170, hud_no_breath 34.
+chybienia 0.1: unikow 254, hud_no_dodge 137, hud_no_breath 24.
+
+Odpoczynek obok czuwajacego stwora: hp 10 -> 100, stan shop, wszyscy na posterunkach.
+
+--frame-watch bez poprawki: 445 klatek gry, reszta sklep, 4 strzaly.
+--frame-watch z closeShop w kopii roboczej, 3600 klatek, 52 strzaly w pierwszym przebiegu:
+przebieg obok innego procesu: mediana 8,12 ms, p95 17,05, p99 24,12, ponad 16,7 ms: 196.
+przebieg na spokojnej maszynie: mediana 5,58 ms, p95 10,36, p99 13,87, max 99,99 (klatka 1), ponad 16,7 ms: 12.
+Leniwe ladowanie: lettering-en-v16.png 24 ms przy pierwszym sklepie, pieczec diptych 1,8 ms.
+
+Kontrast zmierzony na look-chain.png: AMMO 11,1:1, ARSENAL 11,0:1, HEALTH 7,5:1, WARD 7,8:1, Q/F 8,5:1, SOULS 8,3:1, medal 7,7:1, napis odmowy 4,3:1.

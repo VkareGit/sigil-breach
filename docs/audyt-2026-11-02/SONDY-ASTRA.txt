@@ -1,0 +1,13 @@
+CHAIN charge kills=3 shots=0 chain=3 weapon=judge
+HEALTH hp=130 maxHp=130 HUD=130%
+SAVE success=false dirty=false attempts_after_flush_and_update=1 warning=injected write failure
+EXECUTION wall=wall performed=true damage=216
+EXECUTION height_difference=8 performed=true damage=216
+OPENING awake=2 in_cone_with_LOS=6 waiting=4
+REST poison_instances=2 damage_after_0.6s=2.70 ward_lost=3.30
+RETRY fatal_push=-2.7543871043416 retained_push=-2.7543871043416 displacement_no_input=-0.1816
+RECOVERY dodge=false recover_ms=220 refusal=nil refusal_timer=nil buffer_ms=242
+TRAIL no_target_time_not_applied=true sum=50 timer_changes_only_by_draw_delta=0.0167
+AREA retry area=audit_annex map=floor expected_area=chapel expected_map=proving fire=narthex position=27.0,33.5
+WATCH_SIM playing_frames=444 shop_frames=3156 final=shop elapsed=7.408 shots=4
+PROBES COMPLETE
