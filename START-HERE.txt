@@ -1,72 +1,32 @@
-SIGIL: BREACH / główny projekt / Foundation 0.33
+SIGIL: BREACH / główny projekt / 0.42 (2 listopada 2026)
 C:\Users\nahiko\Documents\dev\sigil-breach
 
-ZACZNIJ OD: game\docs\DEVELOPMENT.txt
-SPECYFIKACJA GRY: game\docs\INSTRUKCJA.txt (tak gra działa teraz)
-ARCHITEKTURA: game\docs\ARCHITEKTURA.txt
-ZMIANY: game\docs\ZMIANY.txt (wszystkie wersje w jednym pliku, najnowsza na górze)
-ROZBUDOWA: game\docs\ROZSZERZANIE.txt (broń, dostawy, wyposażenie, granice)
-ODBIÓR: game\docs\ODBIOR.txt (sekcja 0.33: dowody techniczne i osobny B2 użytkownika)
-ANATOMIA I GRANICE: game\docs\ANATOMIA-I-FIZYKA-0.28.txt (uzupełnienia: ZMIANY.txt, sekcja 0.31)
-PLAN WYKONANY: game\docs\PLAN-FUNDAMENT-v10.md (przyjęty 2026-10-25, wykonany
-2026-10-26; blokery skalowania B1–B7, etapy V0–V7, zamknięcie na końcu).
-Plan v9 (2026-10-24) pozostaje źródłem kontraktów fundamentu 0.32.
-PLAN W REALIZACJI: game\docs\PLAN-FUNDAMENT-v11.md (przyjęty 2026-10-26; luki C1–C5:
-pozy, stan trybów, stan aktora, obserwator geometrii, kontekst prezentacji;
-etapy E0–E6, docelowo 0.34; E0 wykonany: game\docs\PLAN-v11-E0-RAPORT.md,
-referencje 0.33 w game\tests\fixtures\v033\, pomiar: MEASURE.ps1).
-Kontrakty trafień: game\docs\PLAN-ROZWOJU-v7.md; B2 wymaga oceny gracza.
-KONTEKST DLA NOWEGO CZATU: docs\KONTEKST.txt
-PODRĘCZNIK KODU: docs\podrecznik-codex (opis każdego pliku; w toku, poza gitem)
-Dawne konteksty, plany (m.in. PLAN-ROZWOJU-v4..v8) i opisy: docs\history.
+Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
+bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stworami,
+dusze i echo po śmierci, śluby przy ogniskach, 3 sloty zapisu. Bossów i zakończenia
+jeszcze nie ma: Margrave i Furfur to najtrudniejsze zwykłe moby.
 
-Pracuj w game/, nie w snapshotach outputs/.
-main.lua -> src/app -> src/session -> systemy gry -> render i UI.
-src/content zawiera definicje. tests/ zawiera regresje. qa/ generuje raporty.
-Warsztat atlasów: tools/art.
+ZACZNIJ OD:
+- game\docs\INSTRUKCJA.txt: jak gra działa teraz (rozdział KAPLICA ma pierwszeństwo).
+- docs\audyt-2026-11-02\RAPORT-KONCOWY.md: ostatni audyt i plan; postęp: POSTEP.md obok.
+- docs\KONTEKST.txt: decyzje właściciela i zasady pracy dla nowego czatu.
+- game\docs\DEVELOPMENT.txt: jak uruchamiać, testować i mierzyć.
+- game\docs\ARCHITEKTURA.txt i ROZSZERZANIE.txt: odpowiedzialności i przepisy rozbudowy.
+- game\docs\ZMIANY.txt i ODBIOR.txt: wersje w jednym pliku, najnowsza na górze.
+Podręcznik kodu: docs\podrecznik-codex (plik właściciela, poza gitem).
+Dawne konteksty i plany: docs\history (to zapis przeszłości, nie bieżące API).
 
-.\RUN.ps1                       aktualne źródła
-.\RUN.ps1 -Release              bieżące EXE
-.\FORMAT.ps1                    formatowanie Lua z kontrolą AST
-.\FORMAT.ps1 -Check             kontrola stylu
-.\BAKE-HIT-MASKS.ps1             maski po zmianie ilustracji
-.\EXPORT-SHEET.ps1 <id>          arkusz atlasu demona (-Spec: nowy atlas)
-.\EXPORT-ANATOMY.ps1 <id>        anatomia jako dane (-Legend: z masek części)
-.\ANATOMY-EDITOR.ps1 <id>        edytor regionów anatomii
-.\CHECK-CREATURE.ps1 <id>        czego brakuje demonowi
-.\TEST.ps1                      architektura, mechanika, wejście, rendery
-.\TEST.ps1 -Suite Architecture   szybka kontrola kodu bez okna
-.\BUILD.ps1                     testy źródeł; -Package: snapshot, testy EXE, ZIP
+Pracuj w game/. main.lua -> src/app -> src/session -> systemy -> render i UI.
+src/content: definicje i liczby. tests/: regresje. qa/: raporty i narzędzia. tools/: skrypty.
 
-Numer wersji: game/src/core/build.lua (tytuł i katalog QA: game/src/app/release.lua);
-skrypty odczytują wersję z jednego źródła. Nowa wersja dopisuje sekcje
-ZMIANY-<wersja>.txt i ODBIOR-<wersja>.txt na górze ZMIANY.txt i ODBIOR.txt.
-Wyniki: work/qa (trafienia: hit-*). EXE: outputs/SIGIL-BREACH-<wersja>-Player/SIGIL-BREACH.exe.
-Paczki: outputs/SIGIL-BREACH-0.33-Player-Windows.zip oraz -Developer-Windows.zip.
-Raport całości: work/foundation-v9/final-report.txt (tylko świeży dowód końcowy).
-telemetry.txt z gry: EXE %APPDATA%\sigil-breach-prototype\, źródła
-%APPDATA%\LOVE\sigil-breach-prototype\ (F9 pokazuje ścieżkę).
-Pomiary planu v5 przed i po etapach: work/v5-measure.
-Zmiana źródeł nie zmienia zbudowanego EXE.
-Testy nie przejmują myszy i nie korzystają z zapisu użytkownika.
+love .                          gra ze źródeł (tak gra właściciel)
+.\FORMAT.ps1                    formatowanie Lua (przed każdym commitem)
+.\TEST.ps1 -Suite Architecture  szybka kontrola kodu bez okna (to samo robi CI)
+.\TEST.ps1 -Suite Mechanics     wszystkie zestawy mechaniki, około 8 minut
+.\TEST.ps1 -Suite All           wszystko; .\BUILD.ps1 to same testy, około 13 minut
+.\BUILD.ps1 -Package            snapshot, EXE i ZIP: tylko na prośbę właściciela
 
-0.33 (plan v10): encje z cyklem życia, strony i cele, mapy w skali i płyty,
-zapis SIGIL09 ze schematem, Journal v4, otwarta prezentacja (przejścia,
-rejestr obiektów świata, HUD ze slotów, tabela tekstów), arkusze atlasów
-i narzędzia demonów. Produkcja i rozgrywka bez zmian.
-0.32: właściciele danych/zasobów, schematy i rejestry efektów, fabryki trybów,
-dekoracje i wysokości mapy, etapowe ładowanie, rozszerzalne atlasy/UI,
-literalny parser i Journal v3, osobne paczki Player/Developer. Broń znów
-na sprawdzonych arkuszach v16; retuszowane v32/v33 czekają poza gitem.
-Próby nowej treści pozostają w testach. Produkcja nadal ma dotychczasowy poligon.
-
-Jedna arena testowa. Dwie bronie fizyczne. Dopracowujemy ruch, strzelanie,
-animacje, fizykę i oprawę przed rozbudową świata. Styl: żywy, mroczny fresk.
-Historia wersji 0.2–0.32 jest w ZMIANY.txt.
-Stare grafiki, czcionki, narzędzia i szkic podręcznika: old/ (ZIP + manifest + README).
-
-Mapa starych i nowych modułów: work/module-migration-v18.json.
-outputs trzyma bieżące wydanie 0.33 i poprzednie 0.32, 0.31 (do porównania w grze).
-Kod, dokumenty i raporty tekstowe wydań 0.10–0.30 oraz dawnych kopii work/backup-*:
-old/SIGIL-BREACH-history-text-0.10-0.30.zip (git zaczyna się od 0.30).
-BUILD trzyma jedną poprzednią generację dostaw w work/qa-v<wersja>/rollback.
+Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
+Rendery kaplicy: toolchain\love-11.5-win64\love.exe game --chapel-look (pliki look-*.png).
+Wersja: game/src/core/build.lua. Wyniki TEST.ps1: work/qa. Uruchomienia ręczne: work/qa-direct.
+Grafikę, dźwięk i nagrania robi Codex Astra (gpt-6-astra), kod gry piszemy sami.

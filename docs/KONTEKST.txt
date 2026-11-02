@@ -1,69 +1,45 @@
-Stan na 0.36 (1 listopada 2026): plan v12 i walka souls wykonane, raporty w game/docs. Przepisy rozszerzeń: game/docs/ROZSZERZANIE.txt.
-
-SIGIL: BREACH / aktualny kontekst Foundation 0.33 / 26.10.2026
+SIGIL: BREACH / kontekst dla nowego czatu / 0.42 (2 listopada 2026)
 (dawne konteksty: docs/history/KONTEKSTY.txt)
 
-Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Pracuj w game/,
-nie w historycznym cwd Codex ani w snapshotach outputs/. LÖVE 11.5 + LuaJIT.
-Wersja: game/src/core/build.lua. Tytuł/QA: src/app/release.lua.
+Projekt: C:\Users\nahiko\Documents\dev\sigil-breach. Pracuj w game/. LÖVE 11.5 + LuaJIT.
+Wersja: game/src/core/build.lua. Stan gry: game/docs/INSTRUKCJA.txt. Ostatni audyt i plan:
+docs/audyt-2026-11-02/RAPORT-KONCOWY.md, postęp i otwarte sprawy: POSTEP.md obok.
 
-WIZJA I ZAKRES
-Nadal jeden istniejący poligon i dwie fizyczne bronie: Egzorcysta/Sędzia.
-Rycerz jest człowiekiem bez magii; Q to fizyczny ładunek. Nadnaturalne
-ataki należą do demonów. Dopiero po dopracowaniu bazy rozwijamy świat,
-mapy, fabułę, dodatkową zawartość i system łupów. Nie dodawać LIMBO TRIAL
-ani zmieniać zaakceptowanego HUD/menu pod pretekstem refaktoru.
-Feeling: szybki FPS, czytelne zamachy i precyzyjne kontakty; nie dowolne
-liczby bez nazwy, jednostek i spójnej drogi rozliczenia.
+WIZJA
+FPS staje się grą w stylu Souls: odczyt ciosu i wiedza ważniejsze niż refleks, ciężki
+i czytelny strzał, żywy mroczny fresk. Rycerz jest człowiekiem bez magii; Q to fizyczny
+ładunek prochowy. Call of Duty jest odniesieniem tylko dla nagrody i potwierdzenia po
+strzale. Bossów i zakończenia jeszcze nie ma.
+
+DECYZJE WŁAŚCICIELA (obowiązują)
+- Styl demonów, HUD i broni zostaje. Dolny pasek chroniony: charakter, kształt i kompozycja
+  bez zmian; wolno poprawiać czytelność treści w istniejących niszach.
+- Strzał nie bierze wytrzymałości, kosztuje chwilę po strzale. Unik ogranicza tylko
+  wytrzymałość (D3, bez ładunków).
+- Serie dają bonus tylko na broni, z której powstały. Medal chwilowo u góry, seria cicho w niszy.
+- Celownik: biały X trafienie, niebieski pancerz, złote narożniki pęknięta garda, czerwony X
+  zabójstwo (właściciel uznał X za zbyt krzykliwy: do przerobienia, patrz POSTEP.md).
+- D1: ognisko nie przyjmuje ściganego rycerza. D2: amunicja ze stworów (rodzina = rodzaj
+  naboi, szansa na zabójstwie, pewna paczka za egzekucję, łuski z najtrudniejszych).
+  D4: alarm zamiast kolejki, patrole i warty przed wykryciem. D7: Furfur 150 dusz.
+  D5 (koniec kaplicy) i D6 (mapa) otwarte.
+- Tekst w grze i na nagraniach po angielsku, dokumenty w game/docs po polsku.
+- Usuwać, nie przenosić. Rozmiar nie jest powodem do odkładania zatwierdzonej pracy.
+- Bez EXE i ZIP, dopóki właściciel nie poprosi. Gra przez `love .`.
+- Balans po jednej zmiennej i dopiero po próbie właściciela (docs/audyt-2026-11-02/PROBA-WLASCICIELA.md).
+- Grafikę, dźwięki, muzykę, modele i nagrania robi Codex Astra (gpt-6-astra, high/xhigh).
+  Nikt nie słyszał dźwięków, dopóki nie oceni ich właściciel.
+
+PRACA
+Commit po każdym punkcie: git -c user.name=Nahiko -c user.email=psmietanawork@gmail.com
+commit -F <plik> (bez BOM, na końcu Co-Authored-By). git add -u plus nowe pliki z nazwy,
+nigdy `git add game` (game/docs/PORADNIK-EDYCJI-GRY.md i docs/podrecznik-codex/ to pliki
+właściciela). Bez push. Nie edytuj game/ w trakcie TEST.ps1 ani BUILD.ps1. Przed commitem
+FORMAT.ps1. Złoty wzorzec: game/tests/golden/baseline.lua z work/qa/golden-current.lua,
+z notatką dlaczego. Warstwy pilnuje tools/check. Sondy bez okna muszą zrobić
+require('src.run.modes') i ustawić limity JIT jak game/main.lua.
 
 STYL
-Żywy mroczny fresk: Giovanni da Modena, Michał Anioł, Bosch i Memling.
-Matowe pigmenty, ochra/umbra/zgaszona czerwień, bez błyszczącego nadmiaru
-detalu. Zachować zaakceptowane modele demonów i dopasowaną paletę ich
-skoku/uniku. Animowanie nie upoważnia do przeprojektowania sylwetek.
-Bitmapowe glify składają tekst/liczby; tusz ma mieścić się we wnętrzu
-planszy z odstępami, nie na jej ornamentach. Manifest Nikogo to inspiracja
-wyglądu bohatera, nie polecenie tworzenia fabuły.
-
-CO WDROŻONO W FUNDAMENCIE V10 (0.33)
-Plan game/docs/PLAN-FUNDAMENT-v10.md, wykonany V0–V7; produkcja bez zmian.
-- V1: encje z cyklem życia (Pools, id w O(1), zwłoki w remains, pula
-  knights, definicje treści zapieczętowane w testach).
-- V2: strony i cele; jedna droga obrażeń dla każdego ciała; widz i
-  sterowany rycerz tylko w core/roles.lua.
-- V3: mapy width x depth, indeks przestrzenny, nawigacja w oknie i regionach,
-  płyty nad podłogą (most), dowolna liczba świateł, ciała rysowane po obrazie.
-- V4: zapis SIGIL09 jako drzewo sekcji ze schematem (Save.declare);
-  SIGIL06/07/08 przez adapter.
-- V5: Journal v4 (korytarze strzałów, delty geometrii): 10 minut walki
-  96 ciał = 29,6 MB.
-- V6: renderer w przejściach i rejestr obiektów świata; HUD z deklaracji
-  slotów; każdy napis w content/text.lua (języki: Text.language/use);
-  ekrany pytają tryb (run/queries).
-- V7: arkusze atlasów (content/art/sheets), narzędzia EXPORT-SHEET,
-  EXPORT-ANATOMY, ANATOMY-EDITOR, CHECK-CREATURE.
-
-ODBIÓR I DOWODY
-Aktualne API: ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt
-w game/docs. Specyfikacja INSTRUKCJA.txt. Odbiór: ODBIOR.txt, sekcja 0.33.
-TEST.ps1 -Suite All; BUILD.ps1 uruchamia testy i pakuje. Wyniki work/qa-v33.
-Złoty wzorzec v2: playtest 07f73bfa/a9192235, human fe26df14/563c8d0f,
-drill c13bcaec/f105ca06 (+ skróty kontaktów). Zapadki w tools/check:
-knight-references 1, pool-arrays 0, mode-records 0, player-text 0.
-Techniczny odbiór i B2 użytkownika są oddzielne. Nie ogłaszać perfekcyjnego
-feelingu na podstawie automatycznych testów lub pojedynczego screenshotu.
-
-GRANICE
-Sprite to billboard z maską w płaszczyźnie; geometria obrażeń jest osobna
-od kolizji ruchu/ataku. Drugi rycerz podlega regułom walki, ale nie ma
-własnego sterowania ani kamery. Jeden język tekstów (angielski).
-64 MiB nagrania to estymacja tekstu, nie gwarancja czasu ani limit RAM.
-Etapowanie uploadu nie daje gwarancji 16,7 ms dla pojedynczego zasobu.
-Historii docs/history, ZMIANY i starych planów nie traktować jako bieżącego API.
-
-DOKUMENTY
-game/docs/ZMIANY.txt i ODBIOR.txt to jedne pliki z sekcjami wersji,
-najnowsza na górze; odwołanie „ZMIANY-0.29.txt” wskazuje nagłówek sekcji.
-Dawne konteksty, plany i opisy: docs/history/KONTEKSTY.txt, PLANY.txt,
-OPISY.txt. Opis każdego pliku kodu: docs/podrecznik-codex (Codex, w toku,
-nieśledzony). game/docs/matematyka/index.html to migawka 0.24/0.25.
+Żywy mroczny fresk: Giovanni da Modena, Michał Anioł, Bosch, Memling. Matowe pigmenty,
+ochra, umbra, zgaszona czerwień, bez połysku. Zaakceptowane modele demonów zostają.
+Glify PNG składają tekst; tusz mieści się we wnętrzu planszy.

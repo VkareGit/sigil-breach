@@ -631,9 +631,9 @@ KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
     poprzednią politykę trwania ekspozycji. Nie zmieniaj jej przypadkiem.
 
 24. Zewnętrzny fakt i zapis podczas sesji
-    Execution.read(g, 'profil.nazwa', callback) utrwala skalarny wynik
-    w dzienniku. Execution.effect analogicznie utrwala wynik zapisu,
-    np. komunikat błędu; callback nie wykonuje się podczas replaya.
+    Execution.effect(g, 'nazwa', fn) (storage/execution.lua) utrwala skalarny
+    wynik zapisu w dzienniku, np. komunikat błędu (paragon); fn nie wykonuje
+    się podczas replaya ani w sesji efemerycznej. Odczytu z dysku w regule nie ma.
     Trwałe zapisy przeprowadzaj przez storage/save lub jawne canWrite.
     Nie czytaj pliku bezpośrednio z reguły wpływającej na Integrity.
     Test: nagraj A, zmień dane dysku na B, odtwórz A bez odczytu/zapisu.

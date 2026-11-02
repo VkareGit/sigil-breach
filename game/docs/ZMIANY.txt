@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.41 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.42 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -15,8 +15,12 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.42.txt
 SIGIL: BREACH 0.42 / The Chapel, uczciwe połączenia
 
-Etap 0 planu z docs/audyt-2026-11-02/RAPORT-KONCOWY.md. Postęp punkt po
-punkcie: docs/audyt-2026-11-02/POSTEP.md.
+Etapy 0–3 planu z docs/audyt-2026-11-02/RAPORT-KONCOWY.md (Etap 4 czeka na
+decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
+
+- R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
+  INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
+  bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.
 
 - R01: odmowa zapisu nie kasuje obowiązku zapisu. Gra próbuje ponownie w następnej spokojnej chwili, nie co klatkę. Odmówiony zapis przy ognisku, drzwiach lub śmierci też czeka na ponowienie.
 - R02: odpoczynek, retry i podróż zaczynają od czysta, jednym resetem wspólnym z poligonem (run/actor_reset.lua). Trucizna Buera nie pali po odpoczynku, odrzut śmiertelnego ciosu nie przesuwa obudzonego rycerza, picie rozpoczęte przed odpoczynkiem nie zjada ładunku z napełnionej flaski, wciśnięty wcześniej strzał lub unik nie wykonuje się po starcie.

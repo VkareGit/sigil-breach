@@ -1,29 +1,49 @@
-SIGIL: BREACH — prototyp 0.41
-1 listopada 2026
+SIGIL: BREACH — prototyp 0.42
+2 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
-KAPLICA (0.41: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
+KAPLICA (0.42: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
 BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
 zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
-[E] przy ognisku: odpoczynek. Leczy, napełnia flaski i amunicję, zapisuje grę, ustawia
-miejsce powrotu i podnosi wszystkie stwory. Otwiera menu ognia: grawery, trwałe śluby (flaska,
-ward, zdrowie, po trzy rangi) i podróż do kolejnego zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim.
-[F] flaska. Unik kosztuje 26 wytrzymałości, strzał nic: po strzale przez chwilę nie zrobisz uniku.
+[E] przy ognisku: odpoczynek. Leczy, napełnia flaskę i amunicję, zapisuje grę, ustawia
+miejsce powrotu, podnosi wszystkie stwory i zaczyna rycerza od czysta (bez trucizny, odrzutu,
+picia w toku i wciśniętych wcześniej klawiszy). Otwiera menu ognia: grawery, trwałe śluby
+(flaska, ward, zdrowie, po trzy rangi) i podróż do kolejnego zapalonego ogniska. Ognisko
+zapala się przez odpoczynek przy nim. Gdy jakiś stwór czuwa i cię ściga, ognisko odmawia
+odpoczynku i podróży i mówi dlaczego.
+[F] flaska. [Q] ładunek prochowy. Unik kosztuje 26 wytrzymałości i ogranicza go tylko
+wytrzymałość: trzy uniki z pełnego paska, odnowa po 0,4 s przerwy. Strzał nic nie kosztuje,
+ale po strzale przez chwilę nie zrobisz uniku (0,22 s po Exorciście, 0,12 s po Judge'u);
+wciśnięty unik wykona się zaraz potem, a pod celownikiem stoi AFTER THE SHOT.
 Rycerz idzie tyłem wolniej niż naprzód.
-Seria zabójstw jedną bronią w 6 s: DIPTYCH, TRIPTYCH (przebija pancerz), TETRAPTYCH (łamie gardę),
-POLYPTYCH (zabójstwa leczą). Trafienie kończy serię. Bonus działa tylko na broni serii.
-Celownik: biały X to trafienie, niebieski pancerz, romb głowa, złote narożniki pęknięta garda,
-duży czerwony X zabójstwo. Przy pasku celu stoi suma ostatnich obrażeń, a blada smuga pokazuje, co ubyło.
-Gdy ręce nie mogą strzelać, celownik przygasa i się rozsuwa, a pod nim stoi powód. Naciśnięcie w trakcie
-blokady wykona się, gdy minie (strzał do 0,35 s, unik do 0,25 s).
-Stwór, na który patrzysz z 18 m lub bliżej, rusza na ciebie; najwyżej dwa naraz.
-Śmierć: dusze zostają w miejscu zgonu, druga śmierć je kasuje.
+Seria zabójstw pociskami jednej broni w 6 s: DIPTYCH, TRIPTYCH (przebija pancerz), TETRAPTYCH
+(łamie gardę), POLYPTYCH (zabójstwa leczą). Liczy się broń, z której padł strzał. Ładunek,
+egzekucja i ogień nie budują serii ani jej nie przerywają. Trafienie rycerza kończy serię.
+Bonus działa tylko na broni serii; mała pieczęć stoi przy jej wierszu w niszy ARSENAL.
+Celownik: biały X to trafienie (biały romb: głowa), niebieski pancerz, złote narożniki pęknięta
+garda, czerwony X zabójstwo. Przy pasku celu stoi suma ostatnich obrażeń, a blada smuga pokazuje,
+co ubyło. Gdy ręce nie mogą strzelać, celownik przygasa i się rozsuwa, a pod nim stoi powód
+(kość słoniowa). Naciśnięcie w trakcie blokady wykona się, gdy minie (strzał do 0,35 s, unik do 0,25 s).
+Stwór, na który patrzysz z 18 m lub bliżej, rusza na ciebie. Kto cię zauważy, podnosi alarm:
+budzą się śpiący z tej samej części kaplicy, którzy go widzą w promieniu 14 m. Przed alarmem
+część stworów patroluje, reszta stoi na warcie.
+Amunicja ze stworów: lekkie (Ember Thrall, Stolas) zostawiają czasem naboje rewolwerowe,
+ciężkie (Buer, opancerzony) rzadsze łuski. Egzekucja zawsze daje skromną paczkę, także gdy
+ciało przeżyje. Margrave i Furfur zawsze zostawiają łuski. Paczki zbiera się przejściem.
+Egzekucja ([E] przy odsłoniętym ciele) działa tylko w zasięgu ręki: nie przez ścianę i nie
+z innego piętra.
+HEALTH i WARD na pasku to procent własnego maksimum (po ślubach pełne zdrowie to nadal 100%).
+Śmierć: dusze zostają w miejscu zgonu, druga śmierć je kasuje. Ekran śmierci mówi, co zadało
+ostatni cios. Po śmierci budzisz się przy ostatnim ognisku, na jego mapie.
+Pomoc (F1) zaczyna się od zasad walki; pierwszy złoty pierścień, pęknięta garda, seria i naboje
+ze stwora są objaśnione raz, gdy nikt cię nie ściga.
 Stwory stoją na posterunkach, wracają na nie i wstają po odpoczynku. Drzwi otwiera się
 tylko z jednej strony, [E] przy murze, i zostają otwarte. Zawalone zostaje, drobiazgi
-wracają. Na razie nie ma bossów ani zakończenia: Margrabia i Furfur to najtrudniejsze moby.
+wracają. Na razie nie ma bossów ani zakończenia: Margrabia i Furfur to najtrudniejsze moby
+(Furfur daje tyle dusz co Margrabia).
 Zapis: trzy sloty, wybór przyciskiem SAVE SLOT w menu; pliki pilgrimage.save, pilgrimage-2.save i
 pilgrimage-3.save w folderze gry. Dusze z zabójstwa zapisują się, gdy nikt nie walczy, przy pauzie i
 przy wyjściu. Zapis nie do odczytania trafia pod nazwę z .damaged, a gra zaczyna czysto.
@@ -44,10 +64,10 @@ Gra ma angielski interfejs. Poligon działa w pamięci i nie zmienia zapisu.
 STEROWANIE
 WASD — ruch; mysz — celowanie; LPM — strzał (można przytrzymać).
 1 / 2 / kółko — EXORCIST / JUDGE. R — przeładowanie wybranej broni.
-Shift — unik w kierunku ruchu; dwa odnawialne ładunki.
+Shift — unik w kierunku ruchu; kosztuje wytrzymałość (jedyny limit).
 Ctrl — ślizg; Spacja — skok (przytrzymanie powtarza skok po lądowaniu).
-Q — fizyczny ładunek prochowy (slot 1); F / C — sloty 2 i 3 na przyszłe
-wyposażenie (puste; rycerz nie używa magii). E — interakcja: ognisko, drzwi, pola poligonu.
+Q — fizyczny ładunek prochowy; F — flaska (rycerz nie używa magii).
+E — interakcja: ognisko, drzwi, egzekucja, pola poligonu.
 Tab — mapa; F1 — pomoc; Esc — pauza.
 F2 — katalog poligonu; F11 — pełny ekran; M — wyciszenie.
 F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
@@ -55,8 +75,8 @@ F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
 Menu: mysz, strzałki, Tab i Enter. Ustawienie MOTION ogranicza ruch obrazu.
 Wyłączenie MOTION pozostawia klatki strzału i przeładowania; usuwa kołysanie
 i dekoracyjny ruch kamery. Broń nadal pokazuje wykonane działanie.
-Krótkie naciśnięcie skoku lub strzału może czekać do 0,12 s na
-lądowanie/gotowość broni. Pauza, mapa, pomoc i utrata fokusu kasują
+Krótkie naciśnięcie skoku czeka do 0,12 s na lądowanie, strzału do 0,35 s
+na gotowość broni, uniku do 0,25 s. Pauza, mapa, pomoc i utrata fokusu kasują
 taki zamiar. Wznowienie nie odtwarza zaległych strzałów ani skoków.
 Mysz ma jedną czułość w obu osiach; widok sięga 69° w górę i w dół.
 Strzał podnosi widok (strzelba 2°, rewolwer 1°) i wraca na linię przed
@@ -64,11 +84,12 @@ następnym możliwym strzałem; sam strzał leci zawsze w środek celownika.
 
 CIAŁA I UNIK
 Rycerz i demony są ciałami: nie da się przejść przez demona ani go przepchnąć
-własnym ruchem; cios przenosi pęd według mas. Zachwiany rycerz nie strzela.
+własnym ruchem; cios przenosi pęd według mas. Lekkie zachwianie spowalnia
+rycerza, ale nie blokuje strzału; ciężkie blokuje (pod celownikiem: OFF BALANCE).
 Strzał przerywa przeładowanie, gdy w broni zostały naboje (wychylony bęben
 Sędziego zatrzaskuje się w 0,25 s). Unik zostawia powidok w miejscu startu:
 cios, który trafiłby powidok albo rycerza w trakcie uniku, to idealny unik
-(zwrot ładunku uniku, krótkie zamrożenie demonów, raz na unik).
+(zwrot wytrzymałości uniku, krótkie zamrożenie demonów, raz na unik).
 
 CZŁOWIEK BEZ MAGII
 Obie bronie zużywają amunicję. Q to proch, nie Fala Dusz.
@@ -120,8 +141,9 @@ Ogrodnika to jeden rating całego ciała; Margrabia (głowa 0 / tułów 30 /
 nogi 45) i Furfur (0 / 35 / 50) mają nagą czaszkę. Odsłonięty boss ma
 połowę pancerza każdej części. Obecne archetypy mają soak=0.
 Rating wroga to współczynnik, nie drugi pasek HP. Osłona gracza to
-zużywany zapas: pochłania 55% ciosu do wyczerpania. 40 na HUD oznacza
-40/100 zapasu, nie redukcję o 40%. Raport odróżnia HP, absorpcję, nadmiar.
+zużywany zapas: pochłania 55% ciosu do wyczerpania. WARD na HUD to procent
+własnego maksimum zapasu (40 na starcie, ślub +10, poligon 100), nie redukcja.
+Raport odróżnia HP, absorpcję, nadmiar.
 Hitscan przecina sylwetkę ostatniej pokazanej pozy (maska 320×320), następnie
 region części ciała. Przerwy między kończynami można przestrzelić; głowa
 podąża za przewróceniem i nakładką umiejętności. Róg nie zabiera HP, lecz
@@ -193,7 +215,8 @@ BUILD.ps1 — testy, paczka i sprawdzenie EXE/ZIP.
 Flagi: --selftest, --input-test, --showcase, --benchmark.
 Detale: --detail-test oraz --detail-review.
 Strzał i śmierć: --firing-review (wyciszone sekwencje, pomiary i obrazy).
-Wyniki wszystkich zestawów: work/qa-v<wersja> (release.lua). Raporty powstają od zera.
+Wyniki TEST.ps1 i BUILD.ps1: work/qa (release.lua: qaOutput); uruchomienia ręczne:
+work/qa-direct. Raporty powstają od zera.
 Powtórki: --record zapisuje dziennik poleceń; odtwarza się kaplicę, szybką
 potyczkę i poligon (także akcje katalogu poligonu).
 QA jest wyciszone, nie przejmuje kursora i ma osobny katalog zapisu.

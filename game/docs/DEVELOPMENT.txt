@@ -77,7 +77,7 @@ mediana 5,11 / 4,95 ms, p95 7,59 / 7,67, p99 11,46 / 10,61, klatek ponad
 16,7 ms 13 / 11 z 3600. Pomiar obok innego procesu jest niewiarygodny
 (audyt: 196 / 3600). Sondy bez okna muszą ustawić te same limity JIT co
 main.lua, inaczej mierzą rekompilację, nie grę.
-Pomiary rdzenia (0.29, każdy osobno, raport w work/qa-v<wersja>):
+Pomiary rdzenia (0.29, każdy osobno, raport w work/qa):
   --core-measure   maski (start, pamięć), salwa, pociski, pazur, Snapshot,
                    krok z przebudzoną populacją (z osobną separacją), krok
                    ze zwłokami, Journal, długa sesja -> core-measure.txt
