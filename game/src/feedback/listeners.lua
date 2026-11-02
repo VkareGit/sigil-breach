@@ -102,7 +102,7 @@ local function enemyKilled(g, e)
       )
       or Text.get('feedback_break_full')
   end
-  Audio.play('kill', 0.65)
+  Audio.play('kill_confirm', Tuning.shot.killVolume)
   if e.guardianFell then
     g:notify(Text.get('feedback_guardian_fell'), 7)
     Audio.play('seal')

@@ -22,6 +22,8 @@ Sprawdzone automatycznie:
 Niesprawdzone:
 - Odczucie i balans w grze: bot nie zastąpi gracza.
 - Układ medali oglądany na zrzutach, nie w ruchu.
+- Dźwięki medali i trafień: nikt ich nie słyszał, głośność szacowana z przepisów.
+- Czerwony znacznik i pasek celu oglądane na zrzutach, skok i smuga nie w ruchu.
 - Pakowanie: bez -Package, zgodnie z ustaleniem.
 
 

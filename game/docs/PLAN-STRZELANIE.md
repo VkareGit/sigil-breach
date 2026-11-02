@@ -111,8 +111,10 @@ WdraÅ¼ane po kolei, kaÅ¼dy krok z commitem.
 - Krok 5: odbicie ciosu działa obiema broniami, egzekucja w grupie jest bezpieczna, przeładowanie przy mobach karane. Shotgun przerywał każdy cios, więc śrucina łamie gardę za 6 zamiast 12.
 - Krok 6: ognisko uzupełnia zapas do 16 i 36 (`K.carried`), model amunicji ma `stock`.
 - Wynik na bocie: 6–15 śmierci na 6 minut, jak przed zmianą. Zużycie amunicji do oceny w grze.
+- Dźwięki medali: dziesięć przepisów Codexa w `audio/medal_voices.lua`, po jednym na medal. Zapas z ogniska 20 i 44.
+- Potwierdzenia po strzale według analizy niżej: kolory celownika (`ui/hud.lua`, `Palette.kill`), bez czaszki; cztery dźwięki w `audio/hit_voices.lua` (Codex), szacowane, nikt ich nie słyszał; `killPause` 0,06 s działał dotąd tylko w teorii, bo martwe ciało go ignorowało, teraz trzyma każde ciało zabite ciosem; w kaplicy zamiast liczb suma i blada smuga na pasku celu.
 
-## Analiza potwierdzeń po strzale (propozycja, nie wdrożona)
+## Analiza potwierdzeń po strzale (wdrożona)
 
 Co ustalono. Battlefield ma to opisane wprost: biały znacznik to trafienie, czerwony to zabójstwo. W Call of Duty czerwony znacznik zabójstwa pamiętamy z gry, ale żadne znalezione źródło tego nie potwierdza. Potwierdzone dla Call of Duty: hitmarker to sygnał wizualny i dźwiękowy, Warzone ma inny dźwięk trafienia w pancerz i w ciało oraz osobny trzask i ikonę przy jego rozbiciu, Sledgehammer stawia na jasne częstotliwości przebijające się przez miks. Poradniki o odczuciu strzału: znacznik 50–100 ms, zabójstwo większe, z osobnym dźwiękiem, a zatrzymanie gry najwyżej 0,1 s i nie za często.
 
@@ -122,7 +124,7 @@ Co jest źle u nas:
 - Zabójstwo różni się od trafienia kolorem i niewielkim rozmiarem, a powinno być widoczne kątem oka.
 - Czerwień na brzegach ekranu jest już zajęta: mówi, że dostałeś. Czerwone może być więc tylko przy celowniku, nie na całym ekranie.
 
-Propozycja: jeden kolor, jedno znaczenie.
+Zasada: jeden kolor, jedno znaczenie.
 | Zdarzenie | Znacznik | Dźwięk |
 |---|---|---|
 | Trafienie | biały X, 0,1 s | krótki jasny tik |
@@ -140,4 +142,3 @@ Kolejność:
 Bez: czerwonego błysku ekranu, kamery zabójstwa, zatrzymania świata przy każdym zabójstwie.
 
 Źródła: dokumentacja kolorów Battlefield (devtrackers.gg), notatki patcha Black Ops 6 (callofduty.com/patchnotes/2024/11), A Sound Effect o Warzone (asoundeffect.com/call-of-duty-warzone-sound), PC Gamer o hitmarkerach, Twinfinite o celownikach, notatki Codexa w work/sounds/notes.md.
-- Dźwięki medali: dziesięć przepisów Codexa w `audio/medal_voices.lua`, po jednym na medal. Zapas z ogniska 20 i 44.

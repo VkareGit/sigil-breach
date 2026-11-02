@@ -2,6 +2,7 @@
 -- ShotFired and VolleyResolved): recoil, flash, powder, surface marks,
 -- trails, damage numbers, the hitmarker and the named rules. The shot itself
 -- (rounds, cadence, pellets, damage) is resolved in combat/combat.lua.
+local Capabilities = require('src.session.capabilities')
 local Medals = require('src.feedback.medals')
 local A = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
@@ -113,18 +114,21 @@ function Shot.volley(g, e)
   rays(g, e)
   for i, detail in ipairs(report.hitTargets) do
     local result = results[i]
-    Numbers.add(
-      g,
-      detail.point,
-      detail.healthDamage,
-      detail.killed,
-      detail.headHits > 0,
-      detail.absorbed > detail.damage * 0.5,
-      result.staggered,
-      result.wounded,
-      result.counter,
-      result.crippled or result.tripped
-    )
+    -- Where effort is paid the sum stands on the target's bar (ui/hud.lua).
+    if not Capabilities.attrition(g) then
+      Numbers.add(
+        g,
+        detail.point,
+        detail.healthDamage,
+        detail.killed,
+        detail.headHits > 0,
+        detail.absorbed > detail.damage * 0.5,
+        result.staggered,
+        result.wounded,
+        result.counter,
+        result.crippled or result.tripped
+      )
+    end
   end
   local personal = Recipient.context(g, report.actor)
   if not personal then
@@ -141,9 +145,6 @@ function Shot.volley(g, e)
   if report.targets == 0 then
     return
   end
-  if g.view.armorHit then
-    A.play('shell', 0.22)
-  end
   g.view.hitmarker = K.hitmarker + g.view.hitWeight * K.hitmarkerWeight
   -- Heavy flesh hits and kills land in the frame itself, not only in the reticle.
   g.view.shake = math.max(g.view.shake or 0, K.hitShake + g.view.hitWeight * K.hitShakeWeight)
@@ -153,7 +154,7 @@ function Shot.volley(g, e)
   if report.kills > 0 then
     -- Longer than a hit: he can stop shooting.
     g.view.hitmarker = math.max(g.view.hitmarker, K.killHitmarker)
-    g.view.killMark = K.killMark
+    g.view.killPop = K.killPop
   end
   if report.kills >= 2 then
     Medals.show(g, 'one_shot')
@@ -169,9 +170,8 @@ function Shot.volley(g, e)
     g,
     report,
     results,
-    report.maxHealthDamage >= K.heavyHitSound and 'heavyhit'
-      or (report.maxHealthDamage < K.grazeSound and 'graze' or 'hit'),
-    0.22 + g.view.hitWeight * 0.28
+    g.view.armorHit and 'hit_armor' or 'hit_tick',
+    K.tickVolume + g.view.hitWeight * K.tickWeight
   )
 end
 return Shot

@@ -262,7 +262,7 @@ function W.confirm(g, report, results, hit, hitVolume)
     and report.headHits > 0
     and (not report.strong or report.headHits * 4 >= report.pelletsHit)
   then
-    say(2, 'crit', 0.22)
+    say(2, 'hit_head', 0.8)
   end
   if voice and not killed then
     A.play(voice, volume)

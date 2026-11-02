@@ -162,6 +162,10 @@ local function tickBody(g, e, dt, paused)
   if e.hp <= 0 then
     e.leapY = nil
     e.pendingHazard = nil
+    if e.hitPause > 0 then
+      e.hitPause = math.max(0, e.hitPause - dt)
+      return false
+    end
     Body.fall(g, e, dt)
     e.deathTime = e.deathTime + dt
     return false

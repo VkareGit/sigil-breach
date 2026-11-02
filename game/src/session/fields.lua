@@ -166,7 +166,7 @@ declareView('feedback/listeners.lua', {
   'feedbackTimer',
   'refusal',
   'refusalTimer',
-  'killMark',
+  'killPop',
   'medal',
   'medalTimer',
   'soulsGain',

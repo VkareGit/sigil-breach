@@ -26,7 +26,11 @@ Strzał:
 - Strzał, który czekał dłużej niż 0,12 s, leci tam, gdzie gracz patrzy w chwili wystrzału.
 
 Potwierdzenia:
-- Jeden dźwięk na salwę, według ważności. Zabójstwo trzyma znacznik dłużej i pokazuje czaszkę nad celownikiem.
+- Jeden dźwięk na salwę, według ważności.
+- Celownik: jeden kolor, jedno znaczenie. Biały X trafienie, niebieski pancerz, złote narożniki pęknięta garda, duży czerwony X zabójstwo z krótkim skokiem. Czaszka nad celownikiem usunięta.
+- Nowe dźwięki: trafienie, pancerz, głowa i zabójstwo (audio/hit_voices.lua, Codex).
+- Zabite ciało zatrzymuje się na 0,06 s, zanim upadnie. Rycerz, kamera i reszta walki idą dalej.
+- W kaplicy zamiast liczby na każde trafienie: suma ostatnich obrażeń przy pasku celu i blada smuga na tym pasku.
 - Dusze z zabójstwa widać w niszy SOULS jako +N, sumują się przez 1,4 s. W kaplicy nie ma już napisu z punktami.
 
 Serie i medale:

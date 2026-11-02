@@ -310,7 +310,7 @@ function Review.run(output, Game, renderer)
       }
       for _, case in ipairs(scenarios) do
         local g, e = fresh(slot, case.kind, case.motion)
-        local times = case.times or { 0.025, 0.14, 0.28, 0.55, 1, 2.4 }
+        local times = case.times or { 0.025, 0.14, 0.28, 0.55, 1, 2.5 }
         local strip = canvas(1536, math.ceil((#times + 1) / 3) * 330)
         paint(strip, { 0.075, 0.058, 0.045, 1 }, function() end)
         local weaponStrip

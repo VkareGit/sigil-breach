@@ -1,6 +1,8 @@
 -- The chapel as the player meets it, one frame of each place worth looking at.
 local Way = require('src.run.pilgrimage')
 local K = require('src.content.pilgrimage')
+local Ballistics = require('src.combat.ballistics')
+local Pools = require('src.session.world')
 local Review = {}
 local WIDTH, HEIGHT = 1280, 720
 function Review.run(Game, renderer, output)
@@ -45,15 +47,23 @@ function Review.run(Game, renderer, output)
   g.view.refusal, g.view.refusalTimer = 'hud_no_breath', 1
   g.player.resources.stamina = -5
   shot(g, 'no-breath')
-  g.view.hitmarker, g.view.lastKill, g.view.killMark = 0.2, true, 0.4
+  g.view.hitmarker, g.view.lastKill, g.view.killPop = 0.3, true, 0.04
   g.view.soulsGain, g.view.soulsGainTimer = 140, 1
   shot(g, 'kill-confirm')
   g.player.chainCount, g.player.chainLeft = 3, 4
   g.player.chainWeapon = g.player.loadout[1]
   g.view.medal, g.view.medalTimer = 'triptych', 1
   shot(g, 'chain')
+  -- The body in the sights: its bar before the blows, then their sum and pale trail.
+  local foe = Pools.of(g, 'enemies')[1]
+  local dx, _, dz = Ballistics.direction(g.player.yaw, g.player.pitch)
+  foe.x, foe.z = g.player.x + dx * 5, g.player.z + dz * 5
+  g.view.medalTimer = 0
+  shot(g, 'target-whole')
+  foe.hp = foe.hp * 0.55
+  shot(g, 'target-trail')
   g.player.chainCount, g.player.chainLeft, g.view.medalTimer = nil, nil, 0
-  g.view.hitmarker, g.view.lastKill, g.view.killMark, g.view.soulsGainTimer = 0, false, 0, 0
+  g.view.hitmarker, g.view.lastKill, g.view.killPop, g.view.soulsGainTimer = 0, false, 0, 0
   g.view.refusalTimer, g.player.resources.stamina = 0, 100
   local p = g.player
   local area = K.start()

@@ -22,6 +22,7 @@ local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
+local Timing = require('src.content.tuning').shot
 local Modes = require('src.session.modes')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
@@ -262,16 +263,15 @@ local function utilityPanel(g)
 end
 -- What a hit looks like at the reticle.
 local function hitMarks(g, cx, cy, reticle)
-  local reach = g.view.lastKill and 15 or (8 + math.floor((g.view.hitWeight or 0) * 4))
+  -- A kill is red, far larger and heavier than any hit, and lands with a small jump.
+  local kill = g.view.lastKill
+  local reach = kill and L.killReach * (1 + L.killPop * (g.view.killPop or 0) / Timing.killPop)
+    or (8 + math.floor((g.view.hitWeight or 0) * 4))
+  local width = kill and 4 or 2
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
-    line(
-      cx + v[1] * 6,
-      cy + v[2] * 6,
-      cx + v[1] * reach,
-      cy + v[2] * reach,
-      reticle,
-      g.view.lastKill and 3 or 2
-    )
+    local x1, y1, x2, y2 = cx + v[1] * 6, cy + v[2] * 6, cx + v[1] * reach, cy + v[2] * reach
+    line(x1, y1, x2, y2, Palette.ink, width + 2)
+    line(x1, y1, x2, y2, reticle, width)
   end
   if g.view.armorHit and not g.view.lastKill then
     Skin.icon('armor', cx + 19, cy - 10, 18)
@@ -312,8 +312,9 @@ local function aimMarks(g, cx, cy)
   local locked = Attributes.forbids(p, 'fire')
   local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and L.lockedGap or 0)
   local hit = g.view.hitmarker > 0
-  local reticle = locked and C.red
-    or hit and (g.view.lastKill and C.gold or (g.view.armorHit and C.blue or ((g.view.hitWeight or 0) < 0.25 and C.muted or C.red)))
+  -- One colour, one meaning: white a hit, blue armour, gold a broken guard, red a kill.
+  local reticle = locked and C.muted
+    or hit and (g.view.lastKill and Palette.kill or (g.view.armorHit and C.blue or C.ivory))
     or C.ivory
   local drinking = p.conditions and (p.conditions.drinking or 0) > 0
   local says = locked and (drinking and 'hud_drinking' or 'hud_off_balance')
@@ -332,9 +333,6 @@ local function aimMarks(g, cx, cy)
   if hit then
     hitMarks(g, cx, cy, reticle)
   end
-  if (g.view.killMark or 0) > 0 then
-    Skin.icon('skull', cx - 12, cy - 48, 24)
-  end
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)
     for _, side in ipairs({ -1, 1 }) do
@@ -343,6 +341,26 @@ local function aimMarks(g, cx, cy)
     end
   end
 end
+-- What the body in the sights just lost: a pale trail on its bar and the sum of the last blows,
+-- once, where the eye already is, instead of a number on each hit.
+local trail = {}
+local function follow(target)
+  if trail.id ~= target.id then
+    trail.id, trail.hp, trail.shown, trail.sum, trail.hold = target.id, target.hp, target.hp, 0, 0
+  end
+  if target.hp < trail.hp then
+    trail.sum = trail.sum + trail.hp - target.hp
+    trail.hold = L.trailHold
+  end
+  trail.hp = target.hp
+  local dt = love.timer.getDelta()
+  trail.hold = trail.hold - dt
+  if trail.hold <= 0 then
+    trail.sum = 0
+    trail.shown = math.max(target.hp, trail.shown - target.maxHp * L.trailFall * dt)
+  end
+end
+
 -- The name and health of what the knight fights or looks at.
 local function foePanel(g, p)
   local world = Queries.world(g)
@@ -371,7 +389,7 @@ local function foePanel(g, p)
       Skin.panel(503, 20, 274, 60, 2, 10)
       Skin.zone('target field', 514, 30, 252, 40)
       local name = target.displayName and Text.show(target.displayName) or Text.get('hud_demon')
-      local width = shield and 208 or 240
+      local width = shield and 150 or 165
       local size = 16
       while size > 12 and Skin.inkBounds(U.fonts[size], name).w > width do
         size = size - 2
@@ -381,6 +399,24 @@ local function foePanel(g, p)
         Skin.icon('armor', 515, 32, 22)
       end
       Skin.meter(520, 62, 240, target.hp / target.maxHp, C.red, 24)
+      follow(target)
+      if trail.shown > target.hp then
+        local from = 520 + 240 * target.hp / target.maxHp
+        color(C.ivory, 0.8)
+        lg.rectangle('fill', from, 62, 240 * (trail.shown - target.hp) / target.maxHp, 6)
+      end
+      if trail.sum >= 1 then
+        Skin.boxText(
+          Text.get('hud_damage_sum', { amount = math.floor(trail.sum + 0.5) }),
+          690,
+          31,
+          72,
+          22,
+          U.fonts[16],
+          C.gold,
+          true
+        )
+      end
       H.guardStrip(g, target, 520, 71, 240)
       Skin.endZone()
     end

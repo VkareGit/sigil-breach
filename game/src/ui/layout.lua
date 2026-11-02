@@ -8,6 +8,12 @@ local L = {
   aimY = 300,
   -- How far the reticle opens while the hands cannot fire, and what is said below it (px).
   lockedGap = 7,
+  -- A kill's marker: how far it reaches (px) and how much larger it lands.
+  killReach = 22,
+  killPop = 0.3,
+  -- The trail on a target's bar: how long it waits (s), and the share of the bar it falls per s.
+  trailHold = 0.7,
+  trailFall = 0.8,
   refusalBelow = 34,
   -- A deed at the top of the view (px); it fades over the end of its time (s).
   medalSeal = 76,

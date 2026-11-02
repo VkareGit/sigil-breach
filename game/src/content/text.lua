@@ -381,6 +381,7 @@ local definitions = {
   { 'hud_drinking', 'DRINKING' },
   { 'hud_reloading', 'RELOADING' },
   { 'hud_souls_gain', '+{amount}' },
+  { 'hud_damage_sum', '-{amount}' },
   { 'chain_diptych', 'DIPTYCH' },
   { 'chain_triptych', 'TRIPTYCH' },
   { 'chain_tetraptych', 'TETRAPTYCH' },

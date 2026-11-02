@@ -112,8 +112,11 @@ return function(R)
       e.woundFlash = defaults.woundFlash
       result.wounded = true
     end
-    if push >= defaults.hitPausePush and not (b.steadfast and e.hp > 0) then
-      e.hitPause = e.hp <= 0 and defaults.killPause or defaults.hitPause
+    -- A killing blow always holds the body before it falls; only the body stops, never the knight.
+    if e.hp <= 0 then
+      e.hitPause = defaults.killPause
+    elseif push >= defaults.hitPausePush and not b.steadfast then
+      e.hitPause = defaults.hitPause
     end
     -- A major wound holds the struck body a beat longer (victim-only hit-stop).
     if result.wounded then
