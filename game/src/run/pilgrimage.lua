@@ -3,6 +3,7 @@
 -- and raises every creature. Dying leaves the souls where the knight fell; dying again
 -- before reaching them loses them.
 local Abilities = require('src.content.abilities')
+local ActorReset = require('src.run.actor_reset')
 local Characters = require('src.content.characters')
 local Destruction = require('src.combat.destruction')
 local Encounter = require('src.session.encounter')
@@ -79,13 +80,13 @@ local function swear(g)
   end
   p.maxHp, p.maxArmor = stats.maxHp, stats.maxArmor
 end
+-- A rest, a retry, a journey and a purchase: a fresh start, then everything full.
 local function refresh(g)
   swear(g)
   local p = Roles.controlled(g)
+  ActorReset.actor(g, p)
   p.hp, p.armor = Characters.maxHp(p), p.maxArmor
   p.dash = Characters.of(p).body.dashCharges
-  p.rally, p.rallyLeft, p.conditions = nil, nil, nil
-  p.chainCount, p.chainLeft, p.chainWeapon = nil, nil, nil
   Characters.rest(p)
   Abilities.fill(g, nil, p)
   Abilities.rest(g, p)
@@ -102,7 +103,6 @@ local function wake(g, fire)
   local p = Roles.controlled(g)
   p.x, p.z, p.pitch = fire.x, fire.z - K.wake, 0
   p.yaw = math.pi
-  p.jump, p.jumpV, p.dashTimer = 0, 0, 0
 end
 -- A refused write stays owed: the next quiet moment tries again, never the next frame.
 function P.save(g)

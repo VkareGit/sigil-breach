@@ -1,26 +1,7 @@
--- The proving ground's full trial boundary, not resupply.
--- Clear known transient state by its owner. Never rebuild the knight from
--- a prefab or delete unknown fields: identity, equipment and future persistent
--- extensions belong to their owners and must survive this boundary.
-local Effects = require('src.combat.effects')
+-- The proving ground's full trial boundary for the session, not resupply. The
+-- knight's own boundary is the one every fresh start shares (run/actor_reset.lua).
+-- Clear known transient state by its owner.
 local Reset = {}
-
--- The caller supplies the knight whose existing movement/resupply contract
--- it is resetting. This does not change another actor's inventory or spawn.
-function Reset.actor(p)
-  -- combat/rules/{conditions,knight,balance}: every named condition (including
-  -- stagger), partial guard damage, shove provenance and the wall-slam lock.
-  p.conditions, p.poise, p.guardQuiet = nil, nil, nil
-  p.pushX, p.pushZ, p.pushOwner, p.slamLock = nil, nil, nil, nil
-  Effects.clear(p)
-  -- player/feel, physics/ground and combat/dodge: movement left over from the
-  -- previous location. Feel.init resets velocity/slide/intent; refill restores
-  -- charges and cancels weapon/ability actions through their existing owners.
-  p.jump, p.jumpV, p.dashTimer = 0, 0, 0
-  p.level, p.airCap = nil, nil
-  p.dashX, p.dashZ, p.perfectUsed = nil, nil, nil
-  p.dodgeFromX, p.dodgeFromZ, p.slideX, p.slideZ = nil, nil, nil, nil
-end
 
 function Reset.session(g)
   -- session/listeners: no inherited hit-stop or pacing from an old wound.

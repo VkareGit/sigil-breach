@@ -1,5 +1,8 @@
 -- Plan v13 O1-O3: the world stands at its posts, a rest raises it, a death leaves the
 -- souls behind, a second death loses them, guardians stay down and the save holds it.
+local Cast = require('src.combat.abilities')
+local Effects = require('src.combat.effects')
+local Encounter = require('src.session.encounter')
 local F = require('tests.support.fixtures')
 local K = require('src.content.pilgrimage')
 local P = require('src.run.pilgrimage')
@@ -23,9 +26,58 @@ local function run(g, seconds)
     g:update(1 / 120, {})
   end
 end
+-- A rest, a retry and a journey each start him afresh: nothing of the last fight burns,
+-- shoves or finishes on him after it.
+local function freshStarts(check, Game)
+  P.forget()
+  local g = session(Game)
+  local p = g.player
+  Encounter.clearStage(g)
+  local burn = require('src.content.enemies').get('buer').attacks[1].pool.packet.effects
+  local function still(title)
+    Encounter.clearStage(g)
+    local hp, armor, x, z = p.hp, p.armor, p.x, p.z
+    run(g, 0.6)
+    check(title .. ': nothing burns', p.hp == hp and p.armor == armor)
+    check(title .. ': nothing moves him', math.abs(p.x - x) + math.abs(p.z - z) < 1e-6)
+  end
+  -- A rest after Buer's fire, mid-shove, mid-dodge, with a drink under way.
+  for _ = 1, 3 do
+    Effects.apply(g, p, burn, { side = 'demons', id = 999 })
+  end
+  p.x, p.z = 10, 21
+  p.pushX, p.pushZ = 4, 0
+  p.dashTimer, p.dashX, p.dashZ = 0.2, 1, 0
+  local flask
+  for slot, id in ipairs(p.abilities) do
+    flask = id == 'flask' and slot or flask
+  end
+  p.hp = 50
+  check('a drink begins', Cast.cast(g, flask, p.id) and p.casting ~= nil)
+  check('a fire rests him', g:interact() and g.state == 'shop')
+  check('the rest ends the drink unpaid', p.casting == nil)
+  local uses = p.abilityState.flask.uses
+  g:act('closeShop')
+  still('after a rest')
+  check('the full flask stays full', p.abilityState.flask.uses == uses)
+  -- A blow that kills and shoves him.
+  p.armor, p.hp = 0, 1
+  g:damagePlayer({ base = 100, impact = 140 }, p.x, p.z + 1)
+  check('the fatal blow shoves', g.state == 'dead' and (p.pushZ or 0) ~= 0)
+  check('he wakes', g:act('retry'))
+  still('after a retry')
+  -- A journey from a fire with the fire still on him.
+  Effects.apply(g, p, burn, { side = 'demons', id = 999 })
+  p.pushX = 4
+  g:interact()
+  check('a journey leaves', g:act('ready') and g.state == 'playing')
+  still('after a journey')
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
+  freshStarts(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player

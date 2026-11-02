@@ -293,12 +293,13 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   stawianie celów i wezwania (run/field/placement.lua, run/gates.lua), odwiedziny
   pieczęci i sklepu (visits.lua), stanowiska (trials.lua); liczby
   poligonu w content/field.lua.
-  Pełny reset próby korzysta też z run/field/reset.lua: dla sterowanego
-  rycerza usuwa warunki (w tym oszołomienie), poise i impulsy; kończy
-  ekspozycje oraz worldStop, usuwa stare
-  podparcie, zapadki ruchu i diagnostykę walki. Zrzuca oczekujące efekty
-  prezentacji, zachowuje tożsamość aktora, wyposażenie i ustawienia poligonu.
-  Reset.actor przyjmuje jawnie rycerza; Reset.session ma zakres sesji.
+  Pełny reset próby korzysta z run/actor_reset.lua (rycerz) i
+  run/field/reset.lua (sesja). Reset aktora jest wspólny dla próby poligonu,
+  odpoczynku, retry, podróży i zakupu w kaplicy (0.42): kończy rzucanie bez
+  opłaty, usuwa warunki (w tym oszołomienie), poise, impulsy, efekty, rally,
+  serię, ruch, unik i bufory wejścia; zachowuje tożsamość, wyposażenie i
+  postęp. Reset.session kończy worldStop, usuwa stare podparcie, zapadki ruchu
+  i diagnostykę walki, zrzuca oczekujące efekty prezentacji.
   Refill uzupełnia zasoby; clearStage kończy falę. Żaden nie staje się
   pełnym resetem próby. ID, RNG i czas sesji nie są przewijane; obserwacje
   zostają unieważnione, a czas próby i pomiary zaczynają od nowa.

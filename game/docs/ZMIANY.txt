@@ -19,6 +19,7 @@ Etap 0 planu z docs/audyt-2026-11-02/RAPORT-KONCOWY.md. Postęp punkt po
 punkcie: docs/audyt-2026-11-02/POSTEP.md.
 
 - R01: odmowa zapisu nie kasuje obowiązku zapisu. Gra próbuje ponownie w następnej spokojnej chwili, nie co klatkę. Odmówiony zapis przy ognisku, drzwiach lub śmierci też czeka na ponowienie.
+- R02: odpoczynek, retry i podróż zaczynają od czysta, jednym resetem wspólnym z poligonem (run/actor_reset.lua). Trucizna Buera nie pali po odpoczynku, odrzut śmiertelnego ciosu nie przesuwa obudzonego rycerza, picie rozpoczęte przed odpoczynkiem nie zjada ładunku z napełnionej flaski, wciśnięty wcześniej strzał lub unik nie wykonuje się po starcie.
 
 
 ########################################################################

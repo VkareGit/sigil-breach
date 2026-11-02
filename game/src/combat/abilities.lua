@@ -147,6 +147,12 @@ function Cast.interrupt(g, actor)
     finish(g, actor, true)
   end
 end
+-- A fresh start (run/actor_reset.lua) ends any cast under way, unpaid.
+function Cast.stop(g, actor)
+  if actor.casting then
+    finish(g, actor, true)
+  end
+end
 -- Cast the ability in slot (default 1, the Q key) for who (an actor's id;
 -- default the controlled knight). Returns true when it went off. Casting a
 -- toggle that runs stops it.

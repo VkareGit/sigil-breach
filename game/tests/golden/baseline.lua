@@ -5,11 +5,13 @@
 -- earlier history of this file is in git.
 -- 0.40: what the knight is looking at wakes (combat_defaults: seenRange), so the walk meets it sooner.
 -- 0.40: breath never holds the trigger, so a tired knight keeps shooting.
+-- 0.42: a retry and a rest start the knight afresh (run/actor_reset.lua): no shove, burn or
+-- buffered pull carries over, so both walks change after their first death.
 return {
-  playtest = 'ec3065c0/4d987b72',
-  human = '2518632a/9de405e7',
+  playtest = '8958ac6b/d8a28601',
+  human = '954b7a72/c7bfdbb5',
   drill = '6335f6e9/1adb37e6',
-  playtestContacts = '2375d3a9/298',
+  playtestContacts = 'b07330fe/583',
   humanContacts = 'e6b10dd2/150',
   drillContacts = '3e997544/352',
 }

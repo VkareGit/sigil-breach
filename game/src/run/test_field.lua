@@ -16,6 +16,7 @@ local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
 local Chambers = require('src.run.field.chambers')
 local Stations = require('src.run.field.station_layout')
+local ActorReset = require('src.run.actor_reset')
 local TrialReset = require('src.run.field.reset')
 local Visits = require('src.run.field.visits')
 local Telemetry = require('src.combat.telemetry')
@@ -110,7 +111,7 @@ function F.reset(g)
     return false
   end
   Encounter.clearWorld(g)
-  TrialReset.actor(Roles.controlled(g))
+  ActorReset.actor(g, Roles.controlled(g))
   TrialReset.session(g)
   -- A reset ends every observation of the field before it (plan v11 E4).
   Observation.invalidate(g)
