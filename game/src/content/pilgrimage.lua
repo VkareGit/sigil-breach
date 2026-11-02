@@ -3,6 +3,7 @@
 -- save when it loads, an id that is renamed needs a migration there.
 --   fires     { id, name, x, z }
 --   doors     { id, side, back, leads }; leads: the area back stands in, when not this one
+--   supplies  { id, weapon, amount, x, z }: rounds lying on the floor, laid again at each rest
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
 --             leash: how far it follows, in place of the common leash; patrol: its points
 local Registry = require('src.core.registry')
@@ -90,6 +91,16 @@ Way.areas:register('chapel', {
       },
       back = { x = 32.8, z = 4.3, yaw = math.pi, art = { x = 32.8, z = 5.46, yaw = math.pi } },
     },
+  },
+  -- Rounds left lying about (0.42, the owner: a way finds some on its floor). Each lies again at
+  -- every rest, as the creatures stand again; revolver rounds are plenty, shells few.
+  supplies = {
+    { id = 'nave_left', weapon = 'judge', amount = 8, x = 21.5, z = 23 },
+    { id = 'nave_right', weapon = 'judge', amount = 8, x = 26.5, z = 23 },
+    { id = 'nave_front', weapon = 'judge', amount = 6, x = 24, z = 18.5 },
+    { id = 'crypt', weapon = 'exorcist', amount = 4, x = 24, z = 7 },
+    { id = 'west_hall', weapon = 'exorcist', amount = 4, x = 12, z = 18 },
+    { id = 'east_hall', weapon = 'judge', amount = 10, x = 36, z = 18 },
   },
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then

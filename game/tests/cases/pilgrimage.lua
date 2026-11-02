@@ -126,6 +126,8 @@ function T.run(Game)
     P.fireHere(g) ~= nil and P.fireHere(g).id == K.start().first
   )
   check('every post stands', #Pools.of(g, 'enemies') == #K.start().garrison)
+  check('rounds lie about where the way says', #Pools.of(g, 'pickups') == #K.start().supplies)
+  check('every one of them can be reached', #P.problems(K.start()) == 0)
   check('nobody knows he is here', byPost(g, 'nave_1').awake == false)
   check('no waves, effort is paid', require('src.session.capabilities').attrition(g))
   check('the flask is carried', p.abilityState.flask.uses == 3)

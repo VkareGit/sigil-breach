@@ -18,11 +18,12 @@
 -- near the goal and every 0.15 s (enemies/walking.lua): all three change again.
 -- 0.42: a fire gives the Judge a full reserve (72) and keeps rounds gathered beyond it; a phase
 -- drops its shells within reach: both walks change.
+-- 0.42: rounds lie about the chapel and are laid again at each rest: both walks change.
 return {
-  playtest = 'd7379392/2cabb6b5',
-  human = '2c93b7d9/6ccedb3d',
+  playtest = 'e4e9b0f1/ee54ed24',
+  human = '2777e05b/7cd9dd20',
   drill = '6cf13641/c25aa83e',
-  playtestContacts = '5fb34109/1149',
-  humanContacts = '6b4ad839/1454',
+  playtestContacts = '059839b2/1061',
+  humanContacts = '31fb4318/1495',
   drillContacts = '96b7d751/332',
 }

@@ -17,6 +17,7 @@ local Roles = require('src.core.roles')
 local Rules = require('src.combat.rules')
 local Sanctuary = require('src.session.sanctuary')
 local Save = require('src.storage.save')
+local Spawn = require('src.session.spawn')
 local Text = require('src.content.text')
 local Weapons = require('src.content.weapons')
 local Archetypes = require('src.content.enemies')
@@ -59,6 +60,16 @@ function P.populate(g)
   for _, entry in ipairs(area(g).garrison) do
     local e = place(g, entry)
     classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
+  end
+  -- Rounds lying about lie again, where the area says (content/pilgrimage.lua: supplies).
+  for _, cache in ipairs(area(g).supplies or {}) do
+    Spawn.make(g, 'pickup', {
+      x = cache.x,
+      z = cache.z,
+      kind = 'ammo',
+      weapon = cache.weapon,
+      amount = cache.amount,
+    })
   end
   -- The first route of a body's size walks the whole map: here, not in the first chase.
   for class, e in pairs(classes) do
@@ -518,6 +529,12 @@ function P.problems(area)
       if door.leads == area.id then
         stand('the far side of door ' .. door.id, door.back)
       end
+    end
+  end
+  for _, cache in ipairs(area.supplies or {}) do
+    stand('supply ' .. cache.id, cache)
+    if not Weapons.has(cache.weapon) then
+      found[#found + 1] = area.id .. ': supply ' .. cache.id .. ' names no weapon'
     end
   end
   for _, post in ipairs(area.garrison) do

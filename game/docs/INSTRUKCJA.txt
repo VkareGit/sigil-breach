@@ -33,7 +33,8 @@ część stworów patroluje, reszta stoi na warcie.
 Amunicja ze stworów: lekkie (Ember Thrall, Stolas) zostawiają czasem naboje rewolwerowe,
 ciężkie (Buer, opancerzony) rzadsze łuski. Egzekucja zawsze daje skromną paczkę, także gdy
 ciało przeżyje. Margrave i Furfur zawsze zostawiają łuski, także przy zmianie fazy (paczka
-leży przed nimi, po twojej stronie). Paczki zbiera się przejściem. Ognisko dobija zapas do
+leży przed nimi, po twojej stronie). W kaplicy leży też sześć skrytek z amunicją (nawa,
+krypty, sale boczne); wracają przy każdym odpoczynku. Paczki zbiera się przejściem. Ognisko dobija zapas do
 20 łusek i 72 naboi Judge'a, ale nie zabiera tego, co zebrałeś ponad to.
 Egzekucja ([E] przy odsłoniętym ciele) działa tylko w zasięgu ręki: nie przez ścianę i nie
 z innego piętra.
