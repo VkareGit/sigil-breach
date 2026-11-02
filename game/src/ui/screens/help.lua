@@ -116,7 +116,7 @@ function S.draw(g, s, U)
   local listed, first, last, page, total, detailed = S.page(g)
   if page == 1 then
     rulesPage(U)
-    center(Text.get('page_count', { page = page, pages = total }), 590, 11, muted)
+    center(Text.get('page_count', { page = page, pages = total }), 572, 11, muted)
     Skin.endZone()
     return
   end
