@@ -15,6 +15,7 @@
 --   room(spec, state)            what a supply could still add
 --   refill(spec, state, n, cap)  adds n, up to cap; returns what it added
 --   fill, clear, restock(spec, state)  everything, nothing, as it starts
+--   stock(spec, state, amount)   what it holds in reserve is amount
 --   left(spec, state)            shots it could still fire with what it holds
 --   meter(spec, state)           value, reserve, capacity for the interface
 --   offer(spec)                  pack, unit price and cap of the shop

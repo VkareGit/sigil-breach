@@ -85,10 +85,16 @@ local function refresh(g)
   p.hp, p.armor = Characters.maxHp(p), p.maxArmor
   p.dash = Characters.of(p).body.dashCharges
   p.rally, p.rallyLeft, p.conditions = nil, nil, nil
+  p.chainCount, p.chainLeft, p.chainWeapon = nil, nil, nil
   Characters.rest(p)
   Abilities.fill(g, nil, p)
   Abilities.rest(g, p)
   Weapons.fill(g, p)
+  for id, amount in pairs(K.carried) do
+    if Weapons.slotOf(g, id, p) then
+      Weapons.stock(g, id, amount, p)
+    end
+  end
   Weapons.rest(g)
   p.reload, p.cooldown, p.invuln = 0, 0, 0
 end

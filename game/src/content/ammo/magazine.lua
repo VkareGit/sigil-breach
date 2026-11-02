@@ -63,6 +63,9 @@ end
 function M.fill(spec, state)
   state.mag, state.reserve = spec.capacity, spec.maxReserve
 end
+function M.stock(_, state, amount)
+  state.reserve = amount
+end
 function M.clear(_, state)
   state.mag, state.reserve = 0, 0
 end
