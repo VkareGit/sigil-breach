@@ -23,8 +23,8 @@ Seria zabójstw pociskami jednej broni w 6 s: DIPTYCH, TRIPTYCH (przebija pancer
 (łamie gardę), POLYPTYCH (zabójstwa leczą). Liczy się broń, z której padł strzał. Ładunek,
 egzekucja i ogień nie budują serii ani jej nie przerywają. Trafienie rycerza kończy serię.
 Bonus działa tylko na broni serii; mała pieczęć stoi przy jej wierszu w niszy ARSENAL.
-Celownik: biały X to trafienie (biały romb: głowa), niebieski pancerz, złote narożniki pęknięta
-garda, czerwony X zabójstwo. Przy pasku celu stoi suma ostatnich obrażeń, a blada smuga pokazuje,
+Celownik: cztery krótkie białe kreski wokół krzyża to trafienie (biały romb: głowa), niebieskie
+pancerz, złote narożniki pęknięta garda, czerwone (nieco dłuższe) zabójstwo. Przy pasku celu stoi suma ostatnich obrażeń, a blada smuga pokazuje,
 co ubyło. Gdy ręce nie mogą strzelać, celownik przygasa i się rozsuwa, a pod nim stoi powód
 (kość słoniowa). Naciśnięcie w trakcie blokady wykona się, gdy minie (strzał do 0,35 s, unik do 0,25 s).
 Stwór, na który patrzysz z 18 m lub bliżej, rusza na ciebie. Kto cię zauważy, podnosi alarm:

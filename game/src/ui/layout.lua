@@ -8,9 +8,14 @@ local L = {
   aimY = 300,
   -- How far the reticle opens while the hands cannot fire, and what is said below it (px).
   lockedGap = 7,
-  -- A kill's marker: how far it reaches (px) and how much larger it lands.
-  killReach = 22,
-  killPop = 0.3,
+  -- The hit mark: four strokes from markGap to hitReach px off the centre, markWidth px wide,
+  -- fading over their last markFade s; a kill's reach killReach, landing killPop larger.
+  markGap = 7,
+  hitReach = 12,
+  markWidth = 2,
+  markFade = 0.06,
+  killReach = 15,
+  killPop = 0.15,
   refusalBelow = 34,
   -- A deed at the top of the view (px); it fades over the end of its time (s).
   medalSeal = 76,

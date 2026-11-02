@@ -308,16 +308,23 @@ local function utilityPanel(g)
   Skin.endZone()
 end
 -- What a hit looks like at the reticle.
-local function hitMarks(g, cx, cy, reticle)
-  -- A kill is red, far larger and heavier than any hit, and lands with a small jump.
+local function hitMarks(g, cx, cy, mark)
+  -- Four short thin strokes off the centre, as the hit markers of shooters do: they say "hit"
+  -- and get out of the way, fading over their last moment (owner: the old heavy X shouted).
+  -- A kill is the same mark in red, a little longer, with a small jump.
   local kill = g.view.lastKill
   local reach = kill and L.killReach * (1 + L.killPop * (g.view.killPop or 0) / Timing.killPop)
-    or (8 + math.floor((g.view.hitWeight or 0) * 4))
-  local width = kill and 4 or 2
+    or (L.hitReach + math.floor((g.view.hitWeight or 0) * 3))
+  local fade = math.min(1, g.view.hitmarker / L.markFade)
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
-    local x1, y1, x2, y2 = cx + v[1] * 6, cy + v[2] * 6, cx + v[1] * reach, cy + v[2] * reach
-    line(x1, y1, x2, y2, Palette.ink, width + 2)
-    line(x1, y1, x2, y2, reticle, width)
+    local x1, y1 = cx + v[1] * L.markGap, cy + v[2] * L.markGap
+    local x2, y2 = cx + v[1] * reach, cy + v[2] * reach
+    color(Palette.inkSoft, 0.55 * fade)
+    lg.setLineWidth(3)
+    lg.line(x1, y1, x2, y2)
+    color(mark, fade)
+    lg.setLineWidth(L.markWidth)
+    lg.line(x1, y1, x2, y2)
   end
   if g.view.armorHit and not g.view.lastKill then
     Skin.icon('armor', cx + 19, cy - 10, 18)
@@ -359,10 +366,10 @@ local function aimMarks(g, cx, cy)
   local locked = Attributes.forbids(p, 'fire')
   local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and L.lockedGap or 0)
   local hit = g.view.hitmarker > 0
-  -- One colour, one meaning: white a hit, blue armour, gold a broken guard, red a kill.
-  local reticle = locked and C.muted
-    or hit and (g.view.lastKill and Palette.kill or (g.view.armorHit and C.blue or C.ivory))
-    or C.ivory
+  -- One colour, one meaning, on the hit mark alone: white a hit, blue armour, gold a broken
+  -- guard, red a kill. The cross itself stays ivory, dimmed while the hands cannot fire.
+  local reticle = locked and C.muted or C.ivory
+  local mark = g.view.lastKill and Palette.kill or (g.view.armorHit and C.blue or C.ivory)
   local drinking = p.conditions and (p.conditions.drinking or 0) > 0
   local says = locked and (drinking and 'hud_drinking' or 'hud_off_balance')
     or (g.view.refusalTimer or 0) > 0 and g.view.refusal
@@ -379,7 +386,7 @@ local function aimMarks(g, cx, cy)
   color(reticle)
   lg.rectangle('fill', cx - 1, cy - 1, 2, 2)
   if hit then
-    hitMarks(g, cx, cy, reticle)
+    hitMarks(g, cx, cy, mark)
   end
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)

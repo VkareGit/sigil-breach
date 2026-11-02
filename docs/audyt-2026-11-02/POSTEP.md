@@ -54,7 +54,7 @@ CI: `TEST.ps1 -Suite Mechanics` uruchamia LÖVE z oknem i rysuje (OpenGL 3.3). R
 
 „Report was not written by run”: `TEST.ps1` zawsze ustawia `SIGIL_UI_QA_DIR=work/qa` i identyfikator przebiegu. Ręczne uruchomienie bez tej zmiennej (sonda, `--chapel-look`, `--suite=`) pisało jednak do tego samego `work/qa`. Puszczone równolegle z TEST-em nadpisywało jego raport „direct invocation”, a bramka słusznie odrzucała obcy raport. W audycie obie strony puszczały takie rzeczy równolegle. Teraz ręczne uruchomienia piszą domyślnie do `work/qa-direct`.
 
-Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); do zrobienia: czerwony X zabójstwa zbyt rzucający się w oczy (po Etapie 3: przegląd rozwiązań CoD i innych gier, ewentualnie grafika Codexa).
+Uwagi właściciela w trakcie: paczki naboi na podłodze za jaskrawe (zrobione: światło kaplicy zamiast stałego blasku, bez podskakiwania, render `look-ammo-drops`); czerwony X zabójstwa zbyt rzucający się w oczy (zrobione kodem po Etapie 3: krótkie cienkie kreski odsunięte od środka, cień zamiast obrysu, gaśnięcie, zgaszona czerwień, krzyż bez koloru; render `look-kill-confirm`; jeśli właściciel zechce malowany znak, można zlecić Codexowi).
 
 ## Pomiar trudności po D1–D4 (bot, 6 minut, sonda bez okna)
 
