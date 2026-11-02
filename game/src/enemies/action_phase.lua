@@ -42,10 +42,13 @@ function ActionPhase.sample(e, state)
   local elapsed = type(e.phase) == 'number' and e.phase or 0
   local duration
   if state == 'windup' then
-    duration = finitePositive(e.windupDuration) and e.windupDuration
+    -- A held blow is one long windup to the eye: the pose reaches its end when the blow
+    -- goes, not when the windup clock does (owner: "arm raised, it could already hit").
+    local windup = finitePositive(e.windupDuration) and e.windupDuration
       or spec.windup
       or Defaults.windup
-    elapsed = duration - (e.windup or duration)
+    duration = windup + (e.holdSpan or 0)
+    elapsed = duration - (e.windup or windup) - (e.holdLeft or 0)
   elseif state == 'strike' then
     local sampler = durations:find(spec.kind)
     duration = sampler and sampler(e, spec) or spec.duration

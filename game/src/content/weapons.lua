@@ -118,6 +118,8 @@ local definitions = {
       startReserve = T.revolverStartReserve,
       maxReserve = T.revolverMaxReserve,
       packSize = 6,
+      spare = T.revolverSpare,
+      spareEvery = T.revolverSpareEvery,
     },
     cycle = T.revolverInterval,
     range = T.revolverRange,

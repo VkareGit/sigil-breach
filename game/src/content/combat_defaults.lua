@@ -151,8 +151,10 @@ return {
   -- Movement style 'flank': beyond far m close in beside the player (lateral
   -- m off the line); within near m step aside (swing rad around the player,
   -- step m out, at slow of its speed); in between circle at claw range
-  -- (orbit rad off the line, ring m from the player).
+  -- (orbit rad off the line, ring m from the player). A body waiting for an attack slot
+  -- circles at wait m instead, out of its own reach (0.42, the owner).
   flank = {
+    wait = 3.2,
     far = 3.8,
     lateral = 0.9,
     near = 1.25,

@@ -145,10 +145,18 @@ local function refresh(g, fresh)
   Weapons.rest(g)
   p.reload, p.cooldown, p.invuln = 0, 0, 0
 end
+-- Where a knight wakes at a fire: its own spot, else K.wake m before it, facing on.
+local function wakeAt(fire)
+  local spot = fire.wake
+  if spot then
+    return spot.x, spot.z, spot.yaw
+  end
+  return fire.x, fire.z - K.wake, math.pi
+end
 local function wake(g, fire)
   local p = Roles.controlled(g)
-  p.x, p.z, p.pitch = fire.x, fire.z - K.wake, 0
-  p.yaw = math.pi
+  p.x, p.z, p.yaw = wakeAt(fire)
+  p.pitch = 0
 end
 -- A refused write stays owed: the next quiet moment tries again, never the next frame.
 function P.save(g)
@@ -237,8 +245,7 @@ end
 local function reachEcho(g)
   local r, echo = g.run, g.run.echo
   if echo and echo.area == r.area and World.solid(g.world, echo.x, echo.z, 0) then
-    local fire = K.fireOf(r.fire)
-    echo.x, echo.z = fire.x, fire.z - K.wake
+    echo.x, echo.z = wakeAt(K.fireOf(r.fire))
   end
 end
 -- options: slot; origin and saves when a journal replays a session, which reads no disk
@@ -373,11 +380,22 @@ function P.travel(g)
   end
   return false
 end
+-- Whether a fire other than this one is lit: travel goes only to fires already found, and
+-- is not offered before there is one (owner).
+local function elsewhere(g, here)
+  for _, fire in ipairs(K.fires()) do
+    if g.run.lit[fire.id] and fire.id ~= here.id then
+      return true
+    end
+  end
+  return false
+end
 function P.context(g)
   local fire = P.fireHere(g)
   if fire then
+    local prompt = elsewhere(g, fire) and 'pilgrim_prompt' or 'pilgrim_prompt_alone'
     return Text.get(
-      fighting(g) and 'pilgrim_prompt_hunted' or 'pilgrim_prompt',
+      fighting(g) and 'pilgrim_prompt_hunted' or prompt,
       { name = Text.get(fire.name) }
     )
   end
@@ -547,7 +565,8 @@ function P.problems(area)
   end
   for _, fire in ipairs(area.fires) do
     stand('fire ' .. fire.id, fire)
-    stand('the wake of fire ' .. fire.id, { x = fire.x, z = fire.z - K.wake })
+    local x, z = wakeAt(fire)
+    stand('the wake of fire ' .. fire.id, { x = x, z = z })
   end
   for _, door in ipairs(area.doors or {}) do
     stand('door ' .. door.id, door.side)

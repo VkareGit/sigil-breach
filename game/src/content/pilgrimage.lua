@@ -1,7 +1,7 @@
 -- The way as data: its areas, each a map with its fires, doors and who stands where.
 -- The rules are run/pilgrimage.lua. Ids go into saves: an id that leaves is dropped from a
 -- save when it loads, an id that is renamed needs a migration there.
---   fires     { id, name, x, z }
+--   fires     { id, name, x, z }; wake { x, z, yaw }: where a knight wakes, when not before it
 --   doors     { id, side, back, leads }; leads: the area back stands in, when not this one
 --   supplies  { id, weapon, amount, x, z }: rounds lying on the floor, laid again at each rest
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
@@ -64,8 +64,10 @@ Way.areas:register('chapel', {
   fires = {
     { id = 'narthex', name = 'fire_narthex', x = 27, z = 35 },
     { id = 'sanctuary', name = 'fire_sanctuary', x = 24, z = 9 },
-    { id = 'west', name = 'fire_west', x = 10, z = 21 },
-    { id = 'east', name = 'fire_east', x = 38, z = 21 },
+    -- The hall fires wake the knight behind them, the guardian at his back and out of its
+    -- notice (0.42: in front, 5.5 m from it and facing it, it woke before he moved).
+    { id = 'west', name = 'fire_west', x = 10, z = 21, wake = { x = 10, z = 23, yaw = 0 } },
+    { id = 'east', name = 'fire_east', x = 38, z = 21, wake = { x = 38, z = 23, yaw = 0 } },
   },
   -- A door stands on the wall between two places. It is barred until it is opened from
   -- its own side; from then on [E] goes through it either way. side and back are where

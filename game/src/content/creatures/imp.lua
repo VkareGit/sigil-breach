@@ -34,6 +34,8 @@ return Creature.define({
   },
   -- Below a knight walking on, above one backing away; the committed leap closes the gap.
   move = { speed = 4.6, accel = 20, style = 'flank', turn = 7 },
+  -- A light body: three of them may strike one knight at once (0.42; the common cap is two).
+  maxAttackers = 3,
   answers = {
     { when = 'reloading', attack = 'leap', rest = 6 },
     { when = 'drinking', attack = 'leap', rest = 6 },
@@ -43,12 +45,14 @@ return Creature.define({
     roll = true,
     moves = {
       { attack = 'claw', ideal = 1.6, max = 2.05, weight = 2 },
-      { attack = 'leap', ideal = 5, min = 2.6, weight = 1.5 },
+      -- 0.42: the leap starts where the claw ends, so no distance leaves it without a blow.
+      { attack = 'leap', ideal = 5, min = 2.05, weight = 1.5 },
       {
         attack = 'hop-back',
         ideal = 1.4,
         max = 2.4,
-        weight = 14,
+        -- 0.42 (was 14): it springs back now and then, not as its answer to everything.
+        weight = 5,
         after = { attack = 'claw-late', within = 1.3 },
       },
     },
@@ -79,7 +83,7 @@ return Creature.define({
     -- drops it out of the sky.
     Action.leap({
       id = 'leap',
-      minRange = 2.6,
+      minRange = 2.05,
       range = 7.5,
       rest = 1.8,
       windup = 0.45,
@@ -112,12 +116,13 @@ return Creature.define({
       cooldown = 0.7,
       packet = packet(34, 55),
     }),
-    -- It waits with the arm raised, watching: a dodge at the old beat is spent.
+    -- It waits with the arm raised, watching: a dodge at the old beat is spent. One in three
+    -- (0.42, the owner: an ordinary body that stands with its arm up reads as stuck).
     Action.lunge({
       id = 'claw-late',
       range = 2.8,
       windup = 0.42,
-      hold = { 0.1, 0.3, 0.55 },
+      hold = { 0, 0, 0.3 },
       shuffle = true,
       turn = 8,
       lockAt = 0.8,

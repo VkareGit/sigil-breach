@@ -79,8 +79,10 @@ local function change(e, state)
 end
 local move, route = Walking.move, Walking.route
 -- Attack slots and spacing belong to the body attacked: the controlled
--- knight's pacing is g.nextAttack, any other body's g.attackPacing[id].
-local function reserveAttack(g, e)
+-- knight's pacing is g.nextAttack, any other body's g.attackPacing[id]. An answer (urgent)
+-- skips the spacing but not the cap, so a reload is not met by the whole pack at once.
+-- Whether every slot at the body e fights is taken.
+local function crowded(g, e)
   local max = Rules.maxAttackers(e)
   local count = 0
   for _, other in ipairs(Pools.of(g, 'enemies')) do
@@ -92,11 +94,14 @@ local function reserveAttack(g, e)
       count = count + 1
     end
   end
+  return count >= max
+end
+local function reserveAttack(g, e, urgent)
   local victim = target(g, e)
   local controlled = victim == Bodies.controlled(g)
   local pacing = g.attackPacing
   local next = controlled and (g.nextAttack or 0) or (pacing and pacing[victim.id] or 0)
-  if count >= max or next > g.elapsed then
+  if crowded(g, e) or (next > g.elapsed and not urgent) then
     return false
   end
   local at = g.elapsed + Archetypes.defaults.attackSpacing / Selection.pace(e)
@@ -120,11 +125,11 @@ function AI.apart(g, e, p)
   end
   return math.abs(Ground.of(g.world, e) - Ground.of(g.world, p)) > (g.world.stepHeight or 0)
 end
-local function approach(g, e, d, dt)
+local function approach(g, e, d, dt, waiting)
   local name = arch(e).move.style
   local style = Styles[name]
   assert(type(style) == 'function', 'unknown movement style ' .. tostring(name))
-  style(g, e, d, dt)
+  style(g, e, d, dt, waiting)
 end
 
 -- The body itself, whatever its intent: timers, conditions, guard recovery,
@@ -377,14 +382,16 @@ local function free(g, e, d, dt)
   local answer = e.visible and Answers.pick(g, e, victim, d)
   local chosen = answer
     or (e.visible and e.attack <= 0 and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim))
-  if chosen and (answer or reserveAttack(g, e)) then
+  if chosen and reserveAttack(g, e, answer ~= nil) then
     Attacks.begin(g, e, d, chosen)
   elseif evade(g, e, d, dt) then
     -- sidestepping out of the player's aim
   elseif not e.visible or AI.apart(g, e, target(g, e)) then
     route(g, e, e.lastX, e.lastZ, dt, e.lastLevel)
   else
-    approach(g, e, d, dt)
+    -- Every slot taken: the body waits its turn out of reach (owner: one that stands at
+    -- his side and does not strike reads as stuck).
+    approach(g, e, d, dt, crowded(g, e))
   end
 end
 

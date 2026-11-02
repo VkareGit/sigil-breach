@@ -118,6 +118,9 @@ return {
   revolverCapacity = 6,
   revolverStartReserve = 24,
   revolverMaxReserve = 72,
+  -- 0.42: the Judge never stays dry: below a cylinder in all, a round a second comes back.
+  revolverSpare = 6,
+  revolverSpareEvery = 1,
   revolverInterval = 0.38,
   revolverDamage = 70,
   revolverPenetration = 0.50,

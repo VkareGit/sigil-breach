@@ -39,6 +39,25 @@ decyzje D5 i D6). Postęp punkt po punkcie: docs/audyt-2026-11-02/POSTEP.md.
   8 skrytek, razem 68 naboi Judge'a i 18 łusek; obie sale najtwardszych mają po skrytce naboi
   i łusek. Zebrana skrytka wraca po 60 s także bez odpoczynku (cacheReturn w content/
   pilgrimage.lua, restock w run/pilgrimage.lua; g.run.caches liczy, jak długo jej nie ma).
+- Analiza rozgrywki z Astrą (docs/analiza-rozgrywki-2026-11-02/PLAN.md), etapy 1-4 na prośbę
+  właściciela („zrób zmiany, ja sprawdzę odczucie”):
+  1. Uczciwy cios: przytrzymanie po zamachu (hold) było niewidoczne, ciało stało na ostatniej
+     klatce zamachu z błyskiem „teraz”. Animacja (enemies/action_phase.lua) liczy zamach i
+     przytrzymanie razem (nowe pole holdSpan), błysk (render/renderer.lua: tell) w ostatnich
+     0,18 s przed prawdziwym ciosem. Zwykłe stwory przytrzymują rzadziej: Ember Thrall
+     claw-late { 0, 0, 0.3 } (było 0.1/0.3/0.55), opancerzony cleave { 0, 0, 0.4 }.
+  2. Stwory bez slotu ataku nie stoją przy rycerzu: gdy sloty są zajęte, 'flank' krąży
+     w odległości flank.wait 3,2 m (combat_defaults). Odpowiedzi (przeładowanie, flaska) liczą
+     się do limitu atakujących (pomijają tylko odstęp). Ember Thrall i Stolas: maxAttackers 3.
+     Ember Thrall: skok od 2,05 m (luka 2,05-2,6 bez ciosu zamknięta), waga odskoku 14 -> 5.
+     Sonda (3 Ember Thralle, opancerzony, Stolas): czekanie w zasięgu bez slotu 14-36% -> 2-11%
+     czasu walki, trafienia stojącego rycerza 66 -> 86/min.
+  3. Judge nie zostaje pusty: poniżej 6 naboi w sumie jeden wraca do zapasu co sekundę
+     (content/ammo/magazine.lua: spare, spareEvery; tuning revolverSpare/revolverSpareEvery).
+  4. Ogniska sal bocznych budzą za ogniem, plecami do strażnika (fire.wake w content/
+     pilgrimage.lua); wcześniej 5,5 m przed nim i twarzą do niego, w jego zasięgu.
+  Podróż tylko do zapalonych ognisk była już w kodzie; teraz nie jest też proponowana (napis
+  przy ognisku pilgrim_prompt_alone, przycisk w menu ognia wyłączony), dopóki inne nie płonie.
 - R08: dokumenty wejściowe zgodne z 0.42: START-HERE.txt i docs/KONTEKST.txt przepisane,
   INSTRUKCJA.txt (kaplica, sterowanie, okna bufora, zachwianie, unik, ward), ROZSZERZANIE.txt
   bez usuniętego Execution.read, DEVELOPMENT.txt z katalogami QA i sprzętem odniesienia.

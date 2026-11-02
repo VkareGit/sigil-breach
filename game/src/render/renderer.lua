@@ -294,14 +294,16 @@ function R:project(x, y, z)
     d
 end
 -- Brightening of a body: the hit flash, the flash of a major wound, and the
--- soulslike tell: the last instant of a windup pulses so the dodge can be timed.
+-- soulslike tell: the last instant before the blow goes pulses so the dodge can be timed. A
+-- held blow is still waiting: the pulse comes at the end of the hold, not of the windup.
 function R.tell(e)
   local hit = math.min(1, (e.hit or 0) * 13)
   local wound = math.min(1, (e.woundFlash or 0) * 5)
   local broke = math.min(1, (e.breakFlash or 0) * 7) * 0.85
   local tell = 0
-  if e.ai == 'windup' and (e.windup or 1) < 0.18 then
-    tell = 0.35 + 0.30 * math.abs(math.sin((e.windup or 0) * 40))
+  local left = (e.windup or 1) + (e.holdLeft or 0)
+  if e.ai == 'windup' and left < 0.18 then
+    tell = 0.35 + 0.30 * math.abs(math.sin(left * 40))
   end
   -- An exposed boss glows in slow pulses for its whole window.
   local exposed = e.conditions and e.conditions.exposed or 0

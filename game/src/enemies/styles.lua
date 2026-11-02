@@ -62,12 +62,19 @@ end
 -- style is a new entry here. Session composition validates the names before
 -- a world is built; an explicit unknown name is never a request for 'keep'.
 local Styles = {}
--- 'flank' closes in and circles at claw range.
-function Styles.flank(g, e, d, dt)
+-- 'flank' closes in and circles at claw range. One waiting for a slot circles at wait m,
+-- out of its own reach, and steps in when a slot is free.
+function Styles.flank(g, e, d, dt, waiting)
   local p = target(g, e)
   local a = atan2(e.x - p.x, e.z - p.z)
   local F = Archetypes.defaults.flank
-  if d > F.far then
+  if waiting and d < F.far then
+    local offset = e.side * F.orbit
+    local tx, tz = p.x + sin(a + offset) * F.wait, p.z + cos(a + offset) * F.wait
+    if not W.solid(g.world, tx, tz, radius(e)) then
+      move(g, e, tx, tz, e.speed * (d < F.wait and 1 or F.slow), dt)
+    end
+  elseif d > F.far then
     move(g, e, p.x + cos(a) * e.side * F.lateral, p.z - sin(a) * e.side * F.lateral, e.speed, dt)
   elseif d <= F.near then
     -- Too close and waiting for an attack slot: step aside around the player

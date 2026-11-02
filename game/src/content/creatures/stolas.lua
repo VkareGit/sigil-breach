@@ -43,6 +43,8 @@ return Creature.define({
     accel = 14,
     evade = { speed = 6.5, time = 0.24, cooldown = 2.2 },
   },
+  -- A light body: one of three that may strike at once (0.42; the common cap is two).
+  maxAttackers = 3,
   answers = {
     { when = 'hugging', attack = 'slip', rest = 4, within = 2.4, after = 0.4 },
     { when = 'drinking', attack = 'star', rest = 4, within = 11 },

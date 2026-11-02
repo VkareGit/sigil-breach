@@ -106,7 +106,8 @@ return Creature.define({
       range = 4.6,
       rest = 3,
       windup = 0.72,
-      hold = { 0, 0.3, 0.55 },
+      -- 0.42 (owner): an ordinary body holds one blow in three, and not for long.
+      hold = { 0, 0, 0.4 },
       shuffle = true,
       turn = 2.2,
       lockAt = 0.7,

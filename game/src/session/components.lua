@@ -131,6 +131,7 @@ C.schemas = {
     didHit = f(nil),
     pendingHazard = f(nil),
     holdLeft = f(nil, 'stillness left after the windup (s)'),
+    holdSpan = f(nil, 'the whole of that stillness (s): the pose and tell reach the blow with it'),
     chain = f(nil, 'id of the attack its string flows into'),
     chainFrom = f(nil, 'the attack that string came from'),
     holding = f(nil, 'id of the body in its grip'),

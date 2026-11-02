@@ -23,6 +23,16 @@ local blue = Skin.colors.blue
 local red = Skin.colors.red
 local U
 require('src.session.fields').declareView('ui.chapel', { 'shopPage' })
+-- Whether a fire other than the one he rests at is lit (travel has somewhere to go).
+function D.elsewhere(g)
+  local r = Queries.run(g)
+  for _, fire in ipairs(Way.fires()) do
+    if r and r.lit[fire.id] and fire.id ~= r.fire then
+      return true
+    end
+  end
+  return false
+end
 function D.shopPage(g)
   local detailed = false
   local offers = E.offersFor(g)
@@ -84,13 +94,16 @@ function D.controls(g)
         disabled = reason ~= nil,
       }
     end
+    local field = Queries.field(g)
     list[#list + 1] = {
       id = 'ready',
-      label = Text.get(Queries.field(g) and 'shop_ready_field' or 'shop_travel'),
+      label = Text.get(field and 'shop_ready_field' or 'shop_travel'),
       x = 824,
       y = 593,
       w = 328,
       h = 48,
+      -- Travel goes only to a fire already found (owner): none yet, no journey.
+      disabled = not field and not D.elsewhere(g),
     }
     list[#list + 1] = {
       id = 'shop_back',

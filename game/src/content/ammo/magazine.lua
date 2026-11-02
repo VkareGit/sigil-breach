@@ -8,6 +8,11 @@ M.schema = Schema:new('magazine', {
   maxReserve = { type = 'number', required = true, min = 0 },
   packSize = { type = 'number', required = true, min = 1 },
   unitPrice = { type = 'number', default = 3, min = 0 },
+  -- 0.42 (owner and Astra: the basic gun is the knight's sword, it is never dry for long):
+  -- while it holds fewer than spare rounds in all, one comes back to the reserve every
+  -- spareEvery s. 0: none.
+  spare = { type = 'number', default = 0, min = 0 },
+  spareEvery = { type = 'number', default = 1, min = 0.05 },
 })
 function M.check(spec, path)
   for _, key in ipairs({ 'capacity', 'startReserve', 'maxReserve', 'packSize' }) do
@@ -74,6 +79,19 @@ function M.restock(spec, state)
 end
 function M.left(_, state)
   return state.mag + state.reserve
+end
+-- The spare rounds coming back (state.spareClock: seconds toward the next one).
+function M.tick(spec, state, dt)
+  if spec.spare <= 0 or state.mag + state.reserve >= spec.spare then
+    state.spareClock = nil
+    return
+  end
+  local clock = (state.spareClock or 0) + dt
+  if clock >= spec.spareEvery then
+    clock = clock - spec.spareEvery
+    state.reserve = math.min(spec.maxReserve, state.reserve + 1)
+  end
+  state.spareClock = clock
 end
 function M.meter(spec, state)
   return state.mag, state.reserve, spec.capacity

@@ -105,6 +105,7 @@ local function beginAttack(g, e, d, chosen)
   if atk.hold and atk.shuffle and rng then
     e.holdLeft = atk.hold[math.floor(rng:random() * #atk.hold) + 1]
   end
+  e.holdSpan = e.holdLeft
   -- The side a mirrored blow comes from is rolled here and shown by the body.
   e.swingSide = atk.mirror and rng and (rng:random() < 0.5 and -1 or 1) or nil
   e.aimX = p.x

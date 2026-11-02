@@ -21,7 +21,7 @@ function Kinds.abandon(e)
     mark.cancelled = true
     e.pendingHazard = nil
   end
-  e.chain, e.chainFrom, e.holdLeft = nil, nil, nil
+  e.chain, e.chainFrom, e.holdLeft, e.holdSpan = nil, nil, nil, nil
   Kinds.release(e)
 end
 -- A holder that falters lets go, whatever else it was doing.
