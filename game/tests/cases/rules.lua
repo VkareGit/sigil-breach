@@ -159,6 +159,22 @@ function Tests.run(G, check)
     'a stagger flashes the frame and shakes harder than a plain hit',
     (g.view.staggerFlash or 0) > 0 and g.view.shake >= 0.16
   )
+  -- 0.43 (D05): a heavy volley or a kill makes the demons wait a beat; a light one does not.
+  do
+    local function stopAfter(report)
+      local q = fresh()
+      q.impactSlow = 0
+      require('src.session.listeners').volleyStop(q, report)
+      return q.impactSlow or 0
+    end
+    local F = T.feel
+    check(
+      'a heavy volley and a kill stop the demons a beat, a light shot not',
+      near(stopAfter({ kills = 0, healthDamage = F.strikeDamage }), F.strikeStop)
+        and near(stopAfter({ kills = 1, healthDamage = 10 }), F.killStop)
+        and stopAfter({ kills = 0, healthDamage = F.strikeDamage - 1 }) == 0
+    )
+  end
   -- 0.43 (audit D03): a powder blast shakes the view by how near it went off.
   do
     local Signal = require('src.session.signal')

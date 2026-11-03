@@ -31,11 +31,12 @@
 -- and the elites' far blows reach 16-18 m.
 -- 0.43 (C01): relics lie in the chapel (engravings and sigils found, not bought).
 -- 0.43 (R01): Stolas casts a lance with a drawn line before it strikes.
+-- 0.43 (D05): a heavy volley or a kill holds the demons a beat.
 return {
-  playtest = 'f26863c9/df75fad0',
-  human = 'f1eb4229/ec49ed18',
-  drill = 'fb2a8089/32069610',
-  playtestContacts = 'a3a00935/850',
-  humanContacts = '5a97e736/1260',
-  drillContacts = '6dc55a8a/312',
+  playtest = '8d289bdd/29847b3d',
+  human = '7a558182/72b5649b',
+  drill = 'bae2a157/52778cb0',
+  playtestContacts = '57355a44/992',
+  humanContacts = '9a1072c7/1201',
+  drillContacts = 'ae5aaa3a/348',
 }

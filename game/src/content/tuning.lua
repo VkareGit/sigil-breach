@@ -321,6 +321,12 @@ return {
     perfectDodgeSurge = 0.6,
     perfectDodgeSound = 0.55,
     guardBreakStop = 0.06,
+    -- A heavy volley and a kill (0.43, D05, on trial for the owner): the demons wait a beat as
+    -- short as strikeStop / killStop s (impactSlow only: the knight's aim never stops). A volley
+    -- counts as heavy from strikeDamage of health taken.
+    strikeStop = 0.025,
+    killStop = 0.03,
+    strikeDamage = 120,
     sprayImpact = 110,
   },
 }

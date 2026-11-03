@@ -150,6 +150,15 @@ local function spill(g, event)
     })
   end
 end
+-- A heavy volley or a kill (0.43, D05): the demons wait strikeStop / killStop s.
+function Listeners.volleyStop(g, report)
+  local feel = Tuning.feel
+  local stop = report.kills > 0 and feel.killStop
+    or (report.healthDamage >= feel.strikeDamage and feel.strikeStop)
+  if stop then
+    g.impactSlow = math.max(g.impactSlow or 0, stop)
+  end
+end
 function Listeners.attach(g)
   local bus = g.bus
   bus:on('sim', 'EnemyPhaseChanged', function(e)
@@ -158,6 +167,11 @@ function Listeners.attach(g)
   bus:on('sim', 'VolleyResolved', function(e)
     Destruction.volley(g, e)
   end, Tuning.scenery.listenerOrder)
+  -- A heavy volley or a kill is felt in the demons (0.43, D05): they wait a beat, the knight's
+  -- aim does not.
+  bus:on('sim', 'VolleyResolved', function(e)
+    Listeners.volleyStop(g, e.report)
+  end)
   bus:on('sim', 'ChargeExploded', function(e)
     Destruction.blast(g, e.charge)
   end, Tuning.scenery.listenerOrder)
