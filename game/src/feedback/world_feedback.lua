@@ -153,8 +153,13 @@ World.handlers = {
   end,
   ChargeExploded = function(g, ev)
     local b = ev.charge
-    Recipient.each(g, function(personal)
-      personal.view.shake = math.max(personal.view.shake or 0, K.blastShake)
+    Recipient.each(g, function(personal, actor)
+      local d = math.sqrt((actor.x - b.x) ^ 2 + (actor.z - b.z) ^ 2)
+      if d < K.blastReach then
+        local fade = math.min(1, math.max(0, (d - K.blastNear) / (K.blastReach - K.blastNear)))
+        local shake = K.blastShake * (1 - (1 - K.blastFar) * fade)
+        personal.view.shake = math.max(personal.view.shake or 0, shake)
+      end
     end)
     g:burst(b.x, b.y + 0.15, b.z, K.blastColor, 24, 4.5)
     FX.emit(g, 'smoke', b.x, b.y + 0.25, b.z, 1.2)

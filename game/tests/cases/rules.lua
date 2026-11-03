@@ -159,6 +159,23 @@ function Tests.run(G, check)
     'a stagger flashes the frame and shakes harder than a plain hit',
     (g.view.staggerFlash or 0) > 0 and g.view.shake >= 0.16
   )
+  -- 0.43 (audit D03): a powder blast shakes the view by how near it went off.
+  do
+    local Signal = require('src.session.signal')
+    local W = T.world
+    local function shakeAt(d)
+      local q = fresh()
+      q.view.shake = 0
+      local knight = q.player
+      Signal(q, 'ChargeExploded', { charge = { x = knight.x + d, y = 0.2, z = knight.z } })
+      return q.view.shake or 0
+    end
+    local near2, far10, out20 = shakeAt(2), shakeAt(10), shakeAt(20)
+    check(
+      'a blast near shakes in full, far less, beyond its reach not at all',
+      near(near2, W.blastShake) and far10 < near2 and far10 > 0 and out20 == 0
+    )
+  end
   local slow = Rules.speedScale(p)
   for _ = 1, 60 do
     g:update(1 / 120, {})
