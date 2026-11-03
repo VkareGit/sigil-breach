@@ -23,6 +23,8 @@ local Lessons = require('src.feedback.lessons')
 local Rules = require('src.combat.rules')
 local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
+-- The gun not in hand (0.43, D04): the same ink, faded, so the one in hand reads first.
+local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.42 }
 local Timing = require('src.content.tuning').shot
 local Modes = require('src.session.modes')
 local Queries = require('src.session.queries')
@@ -168,16 +170,20 @@ function H.status(g, run)
   -- dropping any third weapon or overflowing the fresco's lower ornament.
   local shown, count = Slots.weapons(g, 2)
   for row, weapon in ipairs(shown) do
-    local tint = weapon.selected and C.gold or C.muted
+    -- 0.43 (D04): on the parchment muted prints the darkest ink and gold a brown, so the gun
+    -- not in hand used to read first; the gun in hand takes the dark ink, the other a grey.
+    local tint = weapon.selected and C.muted or quietInk
     local label = count > 2
         and (Text.get('weapon_slot', { slot = weapon.slot, name = Text.get(weapon.def.hud.tab) }))
       or Text.get(weapon.def.name)
     local y = 648 + (row - 1) * 16
+    -- 0.43 (D04): the gun in hand reads first, a size larger; the other stays quiet.
+    local size = weapon.selected and 14 or 12
     if chain and p.chainWeapon == weapon.def.id then
       seal(chain.id, 424, y + 1, 12, 1)
-      fitted(label, 486, y, 12, 96, tint)
+      fitted(label, 486, y - (size - 12) / 2, size, 96, tint)
     else
-      fitted(label, 478, y, 12, 114, tint)
+      fitted(label, 478, y - (size - 12) / 2, size, 114, tint)
     end
   end
   -- The engraving on the gun in hand, where each gun wears its own; else the run's one.
