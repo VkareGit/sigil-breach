@@ -63,7 +63,18 @@ end
 -- The surfaces struck and the trails of every pellet.
 local function rays(g, e)
   local report, fire = e.report, e.profile.fire
+  local marked = {}
   for i, ray in ipairs(report.rays) do
+    if ray.target and ray.part and not ray.corpse and not marked[ray.target] then
+      for _, hit in ipairs(report.hitTargets) do
+        if hit.id == ray.target then
+          local blood = hit.healthDamage > 0 and not debris(ray.material)
+          Impact.contact(g, ray, blood, hit.healthDamage + hit.armorAbsorbed)
+          marked[ray.target] = true
+          break
+        end
+      end
+    end
     if not ray.target and ray.kind ~= 'range' then
       ray.response = Impact.surface(g, e.attack, {
         x = ray.x,

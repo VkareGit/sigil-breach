@@ -159,10 +159,28 @@ local function solid(g, energy, contact, material, paintSprite)
   return r
 end
 I.solid = solid
+-- A compact mark of the resolved ray, distinct from the volley's averaged
+-- spray origin. In particular, an average of two wing contacts may be air.
+function I.contact(g, c, blood, energy)
+  local r = I.measure(energy, c, 'plaster')
+  local size = clamp(0.12 + sqrt(energy) * 0.012, 0.14, 0.25)
+  return FX.emit(
+    g,
+    blood and 'contact_blood' or 'contact_stone',
+    c.x + r.nx * r.offset,
+    c.y + r.ny * r.offset,
+    c.z + r.nz * r.offset,
+    size,
+    { material = blood and 'blood' or c.material, energy = energy }
+  )
+end
 function I.surface(g, attack, contact, paintSprite)
   local material = contact.kind == 'floor' and 'stone' or 'plaster'
   local response = solid(g, I.retained(attack, contact.distance), contact, material, paintSprite)
   SurfaceMarks.emit(g, contact, response)
+  if paintSprite then
+    I.contact(g, contact, false, response.energy)
+  end
   return response
 end
 function I.body(g, e, point, healthDamage, armorAbsorbed, contact)

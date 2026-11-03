@@ -53,6 +53,7 @@ Abilities:register(
     id = 'flask',
     name = 'ability_flask',
     tag = 'ability_flask_tag',
+    hands = 'flask',
     capacity = 3,
     start = 3,
     empty = 'ability_flask_empty',

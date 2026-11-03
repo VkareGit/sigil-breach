@@ -146,7 +146,7 @@ A.judge = sheet(
 -- long enough to read at 30 Hz, then catch it with the authored recovery pose.
 -- These are presentation clocks: ammunition, fire rate and latch transactions
 -- remain owned by combat/reload. No shot is delayed to wait for an animation.
-A.exorcist.fire = { { 0.065, 2 }, { 0.12, 3 } }
+A.exorcist.fire = { { 0.08, 2 }, { 0.14, 3 } }
 A.judge.fire = { { 0.09, 2 }, { 0.19, 3 } }
 -- A closing drawing must never precede the mechanical latch transaction.
 A.exorcist.timeline = {
@@ -252,6 +252,8 @@ present(A.judge, {
   { 1.55, 1, 5, 0.015 },
   { 1.85, 0, 0, 0 },
 })
+-- The shotgun holds its discharge drawing as long as its fire phases (0.44, V01).
+A.exorcist.automaticFireUntil = 0.14
 -- A trigger pull on an open cylinder closes it over readyAt (0.25 s).
 A.judge.phases.interruptedClose = {
   { finish = 0.12, frame = 'open' },

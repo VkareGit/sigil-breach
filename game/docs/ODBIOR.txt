@@ -1,4 +1,4 @@
-SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.43 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / ODBIÓR WYDAŃ 0.29–0.44 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ODBIOR-<wersja>.txt. Każda sekcja zaczyna się
 nagłówkiem z dawną nazwą pliku; odwołanie „ODBIOR-0.30.txt” wskazuje sekcję
@@ -8,6 +8,42 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.44.txt
+SIGIL: BREACH 0.44: odbiór
+
+Sprawdzone automatycznie:
+- Sonda przed/po: po 576 salw, 0 całkowitych pudeł przy celowaniu w ciało;
+  brak rozjazdu projekcji celownika i promienia. 40 960 próbek sylwetek:
+  26 próbek stóp zasłoniętych podłogą, jedna próbka dokładnie na granicy
+  teksela (niepewność zaokrąglenia), bez błędu wnętrza malowanego ciała.
+  Surowe CSV, scenariusz i wycinki w work/astra-044.
+- hit-feedback: 7 sprawdzeń; przywrócenie hitFlash 65 ms daje czerwony
+  test czytelności po 33,3 ms. 80 ms daje zielony. Akcent krwi/materiału
+  w rzeczywistym miejscu kontaktu; pudło bez znacznika trafienia.
+- flask-art: 24 sprawdzenia; sześć właściwych klatek w rzeczywistym draw,
+  shader rąk, zakończenie, cios, anulowanie, śmierć, zapis/odtworzenie,
+  podwojony czas zdolności, brak wpływu rysowania na stan symulacji.
+- firing-feedback 32, weight 808, geometry 316, open-presentation 38,
+  aim-truth 12, anatomy-data 17, hit-landmarks 220, painted-surfaces 15,
+  weapon-art-review 4, ability-art 85 sprawdzeń bez błędów.
+- Golden: dwa przebiegi po 10 sprawdzeń, identyczne golden-current.lua,
+  SHA-256 CFE9A54506CFE842C22F1760E6A710A351010E241A3BF2307143BC7644FB1679.
+  Dotychczasowy baseline przechodzi; nie został nadpisany.
+- Pełna brama: TEST.ps1 -Suite All -TestTimeoutSeconds 1800.
+  Jej końcowy wynik i świadectwo są zapisane w work/astra-044/RAPORT.md
+  oraz work/qa; raporty second/fourth/failure są celowymi próbami raportera.
+- Film 30 fps z rzeczywistego renderera, klatki PNG i pary przed/po
+  w work/astra-044. Film to sceny kontrolne i fragment walki bota,
+  bez ścieżki dźwiękowej; Judge IRON ma osobny plik odsłuchu A/B.
+
+Odbiór właściciela (B2): czeka. Do oceny: czy trafienie jest czytelne
+w ruchu, wielkość i charakter malowanej ręki, nowy rdzeń włóczni oraz
+atak Judge IRON. Nie zastąpiono arkuszy Iron Thralla/Stolasa, bo pierwsze
+warianty naruszały styl i zgodność z anatomią. Nie zamknięto celu kontrastu
+Iron Thralla. Nie zmieniano balansu, trudności ani czasu SI.
 
 
 ########################################################################

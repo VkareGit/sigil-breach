@@ -39,6 +39,16 @@ Effects:register(
   'blood',
   { duration = 0.32, frames = { 5, 6, 7, 8 }, alpha = 0.60, brightness = 1 }
 )
+-- The first two display frames show the actual point of contact before the
+-- longer spray disperses. These use the same pigment as the existing effects.
+Effects:register(
+  'contact_blood',
+  { duration = 0.067, frames = { 6 }, alpha = 0.95, brightness = 1 }
+)
+Effects:register(
+  'contact_stone',
+  { duration = 0.067, frames = { 2 }, alpha = 0.95, brightness = 1.12 }
+)
 Effects:register('smoke', {
   duration = 0.52,
   frames = { 9, 10, 11, 12 },

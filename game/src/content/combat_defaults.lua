@@ -91,7 +91,7 @@ return {
   -- another flinches at least collideFlinch; bodies closer than
   -- contactMargin m beyond their radii touch.
   woundFor = 1.6,
-  hitFlash = 0.065,
+  hitFlash = 0.08,
   -- A body held open to an execution reels (0.43, the owner: standing still it read as hung):
   -- it sways rate rad/s by lean either way and sags by sag of its height.
   exposedReel = { rate = 6, lean = 0.06, sag = 0.04 },

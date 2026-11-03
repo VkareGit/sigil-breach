@@ -172,6 +172,19 @@ end
 function V.sourceFrame(g)
   return Art.frame(g)
 end
+-- The hand's path is normalized to the gesture, whose time comes from the
+-- live cast for a drink and from the release timestamp for a throw.
+function V.equipmentPose(entry, progress)
+  for i = 2, #(entry.motion or {}) do
+    local a, b = entry.motion[i - 1], entry.motion[i]
+    if progress <= b[1] then
+      local t = math.max(0, math.min(1, (progress - a[1]) / (b[1] - a[1])))
+      t = t * t * (3 - 2 * t)
+      return a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t, a[4] + (b[4] - a[4]) * t
+    end
+  end
+  return 0, progress ^ entry.position.exitPower * entry.position.exitY, 0
+end
 function V.muzzlePhase(g, sourceFrame)
   local art = Art.of(g)
   if not art.frames[sourceFrame or V.sourceFrame(g)].muzzle then
@@ -330,16 +343,15 @@ function V.draw(g, w, h, tint)
     local _, _, tw = tq:getViewport()
     local ts = h * entry.screenScale / tw
     local position = entry.position
+    local hx, hy, tilt = V.equipmentPose(entry, throwAge / throwDuration)
     V.handsShader(tint, h, loaded.image)
     lg.setColor(1, 1, 1)
     lg.draw(
       loaded.image,
       tq,
-      w * position.x,
-      h * position.y
-        + position.biasY
-        + (throwAge / throwDuration) ^ position.exitPower * h * position.exitY,
-      0,
+      w * position.x + hx * h,
+      h * position.y + position.biasY + hy * h,
+      tilt,
       ts,
       ts,
       loaded.centers[throwFrame],

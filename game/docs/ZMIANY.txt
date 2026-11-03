@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.43 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.44 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -9,6 +9,50 @@ Nowa wersja: dopisz na samej górze sekcję z nagłówkiem ZMIANY-<wersja>.txt.
 BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
+
+
+########################################################################
+ZMIANY-0.44.txt
+SIGIL: BREACH 0.44 / czytelność trafienia i malowana flaska
+
+- Pomiar przed zmianami: 576 salw Judge'a i Exorcista, sześć gatunków,
+  3/6/10 m, spoczynek, ruch boczny, fazy ataku, skok i unik Stolasa,
+  ponowny strzał oraz strzał po szybkiej zmianie broni. Żadna salwa
+  wycelowana w środek malowanego ciała nie chybiła. Judge: 288/288;
+  śrut Exorcista: 93,1/72,8/50,3% trafionych promieni dla 3/6/10 m.
+  To pomiar kontrolowanych scen, nie obietnica trafienia każdego skrzydła.
+  Rozrzut, dekoracyjne efekty, osłonięte stopy i fizyczny unik nadal działają.
+- Trafienie: hitFlash 65 -> 80 ms. Mediana różnicy L* po 33,3 ms wzrosła
+  z 5,57-6,21 do 8,19-9,10 w czterech ujęciach obu broni z 3 i 10 m.
+  Podkład czterech cienkich kresek: alfa 0,55 -> 0,85; wymiary i kolory
+  znacznika bez zmian. Krótki akcent krwi lub materiału powstaje w punkcie
+  rzeczywistego promienia, nie w średniej między trafionymi skrzydłami.
+  Pudło daje akcent w miejscu kontaktu ze ścianą/podłogą i istniejący ślad.
+- Exorcist: końce dwóch faz ognia 65/120 -> 80/140 ms, automatyczne
+  podtrzymanie 120 -> 140 ms. Cykl 0,94 s bez zmian. ARSENAL: quietInk
+  0,42 -> 0,55. Kształt i kompozycja dolnego HUD pozostają bez zmian.
+- Włócznia Stolasa: malowany kościany rdzeń i ciemna krawędź w tym samym
+  polu rites-fresco-v36.png. Rozmiar, alfa, inne trzy pola i czas zagrożenia
+  bez zmian. W parze kontrolnej udział pikseli poniżej 1,5:1 spadł
+  z 38,45 do 29,70%; mediana kontrastu wzrosła z 1,75 do 2,37:1.
+- Judge IRON: trzy warianty B1 z atakiem 1,5-4 kHz przez 8 ms; energia
+  poniżej 150 Hz około 75%, RMS pierwszych 100 ms zachowany z dokładnością
+  0,001 dB, szczyt najwyżej 0,679. Odsłuch A/B w work/astra-044.
+- Flaska: sześć malowanych klatek ręki, opuszczenie broni, uniesienie,
+  przechył, opuszczenie flaski i powrót broni. Ręka korzysta z istniejącego
+  shadera oświetlenia. Postęp wynika z casting.left i czasu zdolności
+  (obecnie 0,95 s). Cios, anulowanie lub śmierć natychmiast kończą gest;
+  zapis odtwarza odpowiednią fazę. Dotychczasowy zakaz uniku w stanie
+  drinking zostaje: nie zmieniano reguł picia ani kosztów.
+- Dodane testy flask-art i hit-feedback, rozszerzony firing-feedback.
+  Dwa zgodne przebiegi golden przechodzą istniejący wzorzec; symulacja
+  i zegary SI bez zmian. Nie dodano zamrażania ciał ani dźwięku łyku.
+- Warianty tonów Iron Thralla i Stolasa odrzucone: generowanie naruszało
+  szczegóły sylwetki, fakturę i zgodność z maskami. Ich arkusze pozostają
+  oryginalne; cel kontrastu Iron Thralla nie został w tej wersji osiągnięty.
+
+Dowody, ograniczenia, wycinki, nagranie i lista plików:
+work/astra-044/RAPORT.md. Wygląd i dźwięk wymagają odbioru właściciela.
 
 
 ########################################################################

@@ -18,6 +18,17 @@ function EquipmentArt.registerAtlas(id, entry)
     Atlas.number(built.position[name], where .. '.position.' .. name)
   end
   assert(built.position.exitPower > 0, where .. ': exitPower must be positive')
+  if built.motion then
+    local previous = -1
+    for _, key in ipairs(built.motion) do
+      assert(#key == 4 and key[1] > previous and key[1] <= 1, where .. ': invalid motion key')
+      for _, value in ipairs(key) do
+        Atlas.number(value, where .. '.motion')
+      end
+      previous = key[1]
+    end
+    assert(built.motion[1][1] == 0 and previous == 1, where .. ': motion must cover the gesture')
+  end
   if built.worldFrames then
     for _, frame in ipairs(built.worldFrames) do
       assert(#frame.rect == 4, where .. ': world rectangle needs four coordinates')
@@ -49,6 +60,8 @@ end
 function EquipmentArt.register(id, entry)
   assert(not gestures:has(id), 'equipment gesture already registered: ' .. id)
   local built, where = Schema.copy(entry), 'equipment gesture ' .. id
+  built.clock = built.clock or 'release'
+  assert(built.clock == 'release' or built.clock == 'windup', where .. ': unknown clock')
   local atlas = atlases:get(built.atlas)
   Atlas.number(built.duration, where .. '.duration', 0)
   assert(built.duration > 0, where .. ': duration must be positive')
@@ -107,5 +120,46 @@ EquipmentArt.register('powder', {
   -- The throwing hand is the firearm's support hand: the gun drops out of
   -- the frame for the throw and comes back up like a swap.
   weapon = { lower = 0.55, drop = 0.06, rise = 0.18 },
+})
+-- Six painted grips. Windup phases are fractions of the ability's own clock;
+-- changing the time of a drink never requires retiming the hand animation.
+EquipmentArt.registerAtlas('flask', {
+  path = 'assets/art/flask-hands-v44.png',
+  width = 1536,
+  height = 1024,
+  screenScale = 0.82,
+  position = { x = 0.68, y = 1, biasY = 11, exitY = 0, exitPower = 2 },
+  frames = {
+    { id = 'held', rect = { 0, 0, 512, 512 }, grip = { 380, 499 } },
+    { id = 'raise', rect = { 512, 0, 512, 512 }, grip = { 400, 499 } },
+    { id = 'mouth', rect = { 1024, 0, 512, 512 }, grip = { 400, 499 } },
+    { id = 'sip', rect = { 0, 512, 512, 512 }, grip = { 400, 495 } },
+    { id = 'recover', rect = { 512, 512, 512, 512 }, grip = { 400, 495 } },
+    { id = 'lower', rect = { 1024, 512, 512, 512 }, grip = { 380, 495 } },
+  },
+  -- Fractions of scene height for translation, radians for the wrist.
+  motion = {
+    { 0, 0.04, 0.35, 0 },
+    { 0.18, 0, 0.02, 0 },
+    { 0.38, -0.10, 0.04, -0.06 },
+    { 0.54, -0.14, 0.04, -0.20 },
+    { 0.68, -0.14, 0.04, -0.20 },
+    { 0.82, -0.05, 0.02, -0.04 },
+    { 1, 0.04, 0.40, 0 },
+  },
+})
+EquipmentArt.register('flask', {
+  atlas = 'flask',
+  clock = 'windup',
+  duration = 1,
+  phases = {
+    { finish = 0.16, frame = 'held' },
+    { finish = 0.34, frame = 'raise' },
+    { finish = 0.47, frame = 'mouth' },
+    { finish = 0.69, frame = 'sip' },
+    { finish = 0.84, frame = 'recover' },
+    { finish = 1, frame = 'lower' },
+  },
+  weapon = { lower = 0.8, drop = 0.16, rise = 0.16 },
 })
 return EquipmentArt

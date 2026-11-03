@@ -216,9 +216,13 @@ function Tests.run(G, initial, renderer, getGame)
   reset()
   en = g:spawn('imp', 16, 24)
   g:shoot()
+  local blood = false
+  for _, effect in ipairs(g.view.effects) do
+    blood = blood or effect.kind == 'blood'
+  end
   check(
     'lethal impact leaves a floor stain and blood effect',
-    #g.view.decals == 1 and g.view.effects[#g.view.effects].kind == 'blood'
+    en.hp <= 0 and #g.view.decals == 1 and blood
   )
   reset()
   g:shoot()

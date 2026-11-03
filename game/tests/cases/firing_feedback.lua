@@ -114,12 +114,14 @@ function Tests.run(G)
     'automatic shotgun cycle preserves its discharge before opening',
     g.player.reload > 0 and V.sourceFrame(g) == 2
   )
-  advance(g, 0.08)
+  advance(g, 0.083)
   check(
     'automatic shotgun cycle visibly catches the recoil',
     V.sourceFrame(g) == 3 and not g.player.arsenal.exorcist.open
   )
   advance(g, 0.05)
+  check('automatic shotgun cycle holds its painted catch through 0.13 s', V.sourceFrame(g) == 3)
+  advance(g, 0.01)
   check('automatic shotgun cycle reaches for the breech after recovery', V.sourceFrame(g) == 4)
   return lines
 end

@@ -24,7 +24,7 @@ local Rules = require('src.combat.rules')
 local Resources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
 -- The gun not in hand (0.43, D04): the same ink, faded, so the one in hand reads first.
-local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.42 }
+local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.55 }
 local Timing = require('src.content.tuning').shot
 local Modes = require('src.session.modes')
 local Queries = require('src.session.queries')
@@ -338,7 +338,7 @@ local function hitMarks(g, cx, cy, mark)
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
     local x1, y1 = cx + v[1] * L.markGap, cy + v[2] * L.markGap
     local x2, y2 = cx + v[1] * reach, cy + v[2] * reach
-    color(Palette.inkSoft, 0.55 * fade)
+    color(Palette.inkSoft, 0.85 * fade)
     lg.setLineWidth(L.markWidth + 1)
     lg.line(x1, y1, x2, y2)
     color(mark, fade)
