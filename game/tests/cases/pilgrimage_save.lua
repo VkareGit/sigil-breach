@@ -531,7 +531,8 @@ local function resumes(check, Game)
   local q = again.player
   local standing = 0
   for _, post in ipairs({ 'nave_1', 'nave_2', 'nave_3' }) do
-    standing = standing + (byPost(again, post) and 1 or 0)
+    local body = byPost(again, post)
+    standing = standing + ((body and body.hp > 0) and 1 or 0)
   end
   local hunted = byPost(again, 'nave_5')
   check('the souls are kept', again.run.wallet == wallet and wallet > 0)
@@ -557,6 +558,60 @@ local function resumes(check, Game)
     P.fireHere(after) ~= nil and after.player.hp == after.player.maxHp
   )
   check('and what fell since the fire stands again', byPost(after, 'nave_1') ~= nil)
+  -- The audit review (2026-11-03): a quit with no kill since the last write, and the fight
+  -- in the middle of itself. A missile in the air, a blow begun, the rest of a cache, a
+  -- creature's drop and a wounded body asleep all come back as they were.
+  clean()
+  g = begin(Game)
+  p = g.player
+  local Spawn = require('src.session.spawn')
+  local Interactions = require('src.session.interactions')
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake = false
+  end
+  p.x, p.z = 19.5, 35
+  p.arsenal.judge.reserve = p.arsenal.judge.reserve - 5
+  Interactions.collectSupplies(g)
+  local rest
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    rest = pickup.rewardId == 'narthex_left' and pickup.amount or rest
+  end
+  Spawn.make(g, 'pickup', { x = 24, z = 31, kind = 'ammo', weapon = 'judge', amount = 3 })
+  local wounded = byPost(g, 'nave_5')
+  wounded.hp = 123
+  run(g, 0.2)
+  p.x, p.z = 24, 32
+  Spawn.make(g, 'projectile', {
+    x = p.x + 4,
+    y = 1.2,
+    z = p.z,
+    vx = -9,
+    vy = 0,
+    vz = 0,
+    life = 2,
+    side = 'demons',
+    packet = { base = 20, impact = 20 },
+    radius = 0.12,
+  })
+  local striker = byPost(g, 'nave_2')
+  striker.awake, striker.memory, striker.ai, striker.windup = true, 5, 'windup', 0.4
+  g:act('flush')
+  local back = begin(Game)
+  local missiles, drop, cache = #Pools.of(back, 'projectiles'), false, nil
+  for _, pickup in ipairs(Pools.of(back, 'pickups')) do
+    drop = drop or (not pickup.rewardId and pickup.amount == 3)
+    cache = pickup.rewardId == 'narthex_left' and pickup.amount or cache
+  end
+  check('a quit with no kill since the last write is written', back.player.x == 24)
+  check('the missile in the air flies on', missiles == 1)
+  check(
+    'the blow begun goes on',
+    byPost(back, 'nave_2').ai == 'windup' and byPost(back, 'nave_2').windup == striker.windup
+  )
+  check('what was left of a cache is left', rest ~= nil and cache == rest)
+  check('a creature drop still lies there', drop)
+  check('a wounded body asleep keeps its wound', byPost(back, 'nave_5').hp == 123)
+  check('the clock goes on from where it stood', back.elapsed == g.elapsed)
   clean()
 end
 function T.run(Game)

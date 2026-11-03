@@ -32,6 +32,8 @@ local Copy = require('src.core.schema').copy
 local World = require('src.world.arena')
 local P = {}
 local distance = MathX.distance
+-- Read below (Save.declare), taken up above (resumeField).
+local readPools
 -- The file of a save slot; the first keeps the name every earlier version wrote.
 function P.file(slot)
   return (slot or 1) == 1 and 'pilgrimage.save' or ('pilgrimage-' .. slot .. '.save')
@@ -56,7 +58,7 @@ local function place(g, entry)
   return e
 end
 -- What lies about, where the area says (content/pilgrimage.lua: supplies). Taken, it stays
--- taken until the chapel stands again at a rest or a death, with the creatures (0.42, the
+-- taken for good once a rest secures it (D10), or until a death before that, with the creatures (0.42, the
 -- owner: a way plans its route like a Doom level, a new try finds the floor full again).
 local function lay(g, cache)
   Spawn.make(g, 'pickup', {
@@ -159,11 +161,18 @@ function P.save(g)
   end)
   g.saveWarning = reason
   r.dirty, r.waited = reason ~= nil, 0
+  -- moved: the field changed since this write (0.43, D9); a refused write keeps it owed.
+  r.moved = r.moved and reason ~= nil or false
   return reason == nil
 end
--- What a kill left unsaved goes to disk now: the game stopped, or is about to.
+-- Whether the game holds anything the disk has not: a kill, or a field walked since the last
+-- write (0.43, D9: leaving with no kill since then wrote nothing, and Continue refilled).
+function P.unsaved(g)
+  return g.run.dirty or g.run.moved == true
+end
+-- What is unsaved goes to disk now: the game stopped, or is about to.
 function P.flush(g)
-  return g.run.dirty and P.save(g)
+  return P.unsaved(g) and P.save(g)
 end
 -- A new way: the old one is gone, every copy of it.
 function P.forget(g, slot)
@@ -273,6 +282,13 @@ local function resumeField(g, field)
       end
     end)
   end
+  -- Then the fight exactly as it was, when the field carries it (0.43, audit review: a quit
+  -- dropped the missile in the air, the blow begun, the rest of a cache, a drop, a wound).
+  if field.pools then
+    Save.section('pools').restore(g, readPools(field.pools))
+    g.elapsed = field.elapsed or g.elapsed
+    g.nextAttack = field.nextAttack
+  end
 end
 -- Souls left where the map no longer has floor wait where he wakes.
 local function reachEcho(g)
@@ -363,18 +379,45 @@ end
 -- Something awake hunts the knight near him: no fire takes him in until it gives up or falls
 -- (owner, D1). 0.42: only a fight within K.huntReach counts; a crowded map elsewhere does not.
 -- 0.43 (audit F02): a missile on its way near him is a fight too, whoever let it go.
+-- How far a body's blows reach (its longest attack), once per kind of body.
+local reaches = setmetatable({}, { __mode = 'k' })
+local function reachOf(e)
+  local def = Rules.archetype(e)
+  if not reaches[def] then
+    local far = 0
+    for _, atk in ipairs(def.attacks or {}) do
+      far = math.max(far, atk.range or 0)
+    end
+    reaches[def] = far
+  end
+  return reaches[def]
+end
+-- 0.43 (audit review): a body that sees him within the reach of its blows hunts him too (the
+-- elites' far blows reach 18 m), and so does a missile near him or the mark of a body still
+-- hunting (what a sleeping or dead body left is no fight: a rest clears it, calm).
 local function fighting(g)
   local p = Roles.controlled(g)
   if
     Bodies.each(g, function(b)
-      return b.awake and b.hp > 0 and distance(b, p) < K.huntReach
+      if not (b.awake and b.hp > 0) then
+        return false
+      end
+      local d = distance(b, p)
+      return d < K.huntReach or (b.visible and d < reachOf(b))
     end) ~= nil
   then
     return true
   end
-  for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    if Bodies.harms(g, b.side or 'demons', p, 'missile') and distance(b, p) < K.huntReach then
-      return true
+  for _, list in ipairs({ { 'projectiles', 'missile' }, { 'hazards', 'hazard' } }) do
+    for _, b in ipairs(Pools.of(g, list[1])) do
+      local owner = b.owner and Pools.get(g, b.owner)
+      if
+        Bodies.harms(g, b.side or 'demons', p, list[2])
+        and distance(b, p) < K.huntReach
+        and (list[1] == 'projectiles' or (owner and owner.hp > 0 and owner.awake))
+      then
+        return true
+      end
     end
   end
   return false
@@ -547,6 +590,7 @@ function P.update(g, dt)
   if r.phase ~= 'journey' or g.state ~= 'playing' then
     return
   end
+  r.moved = true
   local echo = r.echo
   if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < K.echoReach then
     r.wallet, r.echo = r.wallet + echo.amount, nil
@@ -855,10 +899,33 @@ local function fieldOf(g)
       field.picked[cache.id] = true
     end
   end
+  -- The fight itself as the session save keeps it (plan v10 V4: its pools section): every
+  -- creature with its blow, clocks and wounds, what flies and burns, what lies where and how
+  -- much is left, the knight with what he was doing; and the clock those times are on.
+  -- Packed, so the way's origin stays plain data for a journal.
+  local pools = Save.section('pools')
+  field.pools = { version = pools.version, data = pools.pack(g) }
+  field.elapsed, field.nextAttack = g.elapsed, g.nextAttack
   return field
 end
 local function finiteNumber(value)
   return type(value) == 'number' and MathX.finite(value)
+end
+-- The pools of a field read as the session save reads them: migrated, then unpacked.
+function readPools(packed)
+  local def = Save.section('pools')
+  assert(type(packed) == 'table' and whole(packed.version, 1, def.version), 'invalid field pools')
+  local data = Copy(packed.data)
+  for v = packed.version, def.version - 1 do
+    data = def.migrations[v](data)
+  end
+  return def.unpack(data)
+end
+-- A field's packed pools when they read, else nothing.
+local function fieldPools(packed)
+  if packed ~= nil and pcall(readPools, packed) then
+    return Copy(packed)
+  end
 end
 -- A field from a file: judged like the rest, what names gone content is dropped.
 local function validField(field)
@@ -871,6 +938,8 @@ local function validField(field)
     assert(finiteNumber(field[key]), 'invalid field ' .. key)
   end
   assert(field.hp > 0 and field.armor >= 0, 'invalid field health')
+  assert(field.elapsed == nil or finiteNumber(field.elapsed), 'invalid field clock')
+  assert(field.nextAttack == nil or finiteNumber(field.nextAttack), 'invalid field pacing')
   assert(field.weapon == nil or whole(field.weapon, 1, math.huge), 'invalid field weapon')
   local out = {
     area = field.area,
@@ -881,6 +950,11 @@ local function validField(field)
     armor = field.armor,
     weapon = field.weapon,
     weapons = {},
+    elapsed = field.elapsed,
+    nextAttack = field.nextAttack,
+    -- The fight's pools stay packed (plain data for a journal's origin); one that does not
+    -- read is left out and the way is taken up from the rest of the field.
+    pools = fieldPools(field.pools),
     uses = {},
     fallen = known(field.fallen or {}, K.postOf),
     picked = known(field.picked or {}, K.supplyOf),

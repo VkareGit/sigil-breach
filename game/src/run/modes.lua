@@ -174,7 +174,7 @@ Modes:register('pilgrimage', {
     return Pilgrimage.creatures(g)
   end,
   unsaved = function(g)
-    return g.run.dirty
+    return Pilgrimage.unsaved(g)
   end,
   start = function(g)
     return Pilgrimage.start(g)

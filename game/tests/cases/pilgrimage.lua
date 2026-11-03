@@ -116,6 +116,32 @@ local function safeRest(check, Game)
   })
   check('a missile on its way is a fight', P.fighting(g))
   check('and no fire takes him in', g:interact() and g.state ~= 'shop')
+  -- The audit review: Furfur's lightning reaches 18 m (B01); seeing him from 14-18 m, he
+  -- hunts him, and his mark on the floor is a fight too.
+  P.forget()
+  g = session(Game)
+  p = g.player
+  Encounter.clearStage(g)
+  P.populate(g)
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake = false
+  end
+  p.x, p.z = 38, 23
+  local furfur = byPost(g, 'east_hall')
+  furfur.x, furfur.z, furfur.awake, furfur.visible, furfur.memory = 41, 7.5, true, true, 5
+  check('an elite that sees him within its far reach hunts him', P.fighting(g))
+  furfur.visible = false
+  furfur.x, furfur.z = 41, 3
+  Hazards.add(
+    g,
+    p.x,
+    p.z,
+    0.5,
+    1.5,
+    0.3,
+    { kind = 'lightning', owner = furfur.id, side = 'demons' }
+  )
+  check('a living body mark near him is a fight', P.fighting(g))
   P.forget()
 end
 -- 0.43 (audit F07): the bar names the engraving of the gun in hand, each gun its own.

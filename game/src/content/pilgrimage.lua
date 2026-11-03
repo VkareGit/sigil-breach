@@ -5,7 +5,7 @@
 --   doors     { id, side, back, leads }; leads: the area back stands in, when not this one
 --   supplies  { id, kind, weapon, amount, x, z }: what lies on the floor (kind: a supply of
 --             session/interactions.lua, 'ammo' when not named; weapon: the gun ammo is for),
---             laid again at each rest and death
+--             taken for good at a rest (D10), laid again at a death when taken since
 --   garrison  { id, creature, x, z, yaw }; alert: it notices only this near (an ambush);
 --             leash: how far it follows, in place of the common leash; patrol: its points
 local Registry = require('src.core.registry')
@@ -100,7 +100,8 @@ Way.areas:register('chapel', {
     },
   },
   -- What lies about (0.42, the owner: like Doom, rounds everywhere). Taken, it is gone until the
-  -- chapel stands again at a rest or a death; a knight takes only what he has room for and the
+  -- chapel stands again at a death before a rest (D10: a rest secures it, like Doom); a knight
+  -- takes only what he has room for and the
   -- rest stays on the floor. Revolver rounds are plenty, shells fewer, and a few draughts for
   -- the flask (kind 'flask') lie behind the hardest bodies. The halls of the hardest have their
   -- own, so a long fight there is not lost for want of rounds.
