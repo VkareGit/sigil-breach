@@ -128,12 +128,12 @@ STAN PO 998b189 — W GRZE ZNÓW ARKUSZE v16
 Powyższa aktualizacja opisuje etap F12. Przed wydaniem 0.32 gra wróciła
 do sprawdzonych arkuszy shotgun-iron-v16 i revolver-iron-v16 (źródła:
 assets/art/weapon-provenance-v16.json). Arkusze fresco-v32/v33 czekają
-poza grą i poza gitem (work/weapon-art-v32-v33-backup) na następcę.
+poza grą w old/weapon-art-v32-v33 na następcę.
 Katalog zachował warianty widocznej amunicji, więc nowy atlas wejdzie
 jako dane. Nowy arkusz broni wymaga osobnej akceptacji użytkownika w ruchu.
 
 POLIGON — MALOWANA ARCHITEKTURA (31 października 2026)
-Wzorzec: work/inferno-direction-2026-10-31/02-painted-direction.png, przyciemniony.
+Wzorzec: docs/art/painted-direction-2026-10-31.png, przyciemniony.
 Mapa nie jest siatką z teksturami. Obie sale, nawa i mniejsze pomieszczenia
 są zbudowane tym samym sposobem, scena rysuje się w 1080 liniach. Każda ściana ma jedno malowidło i układ
 w metrach (content/art/chapel_hall.lua). Ten sam układ daje szablon dla malarza

@@ -1,0 +1,38 @@
+{
+  "version": 32,
+  "date": "2026-10-24",
+  "method": "Built-in image_gen; local System.Drawing retouch explicitly authorized by user",
+  "authorization": "Tak — popraw lokalnie i sprawdź pełne animacje",
+  "scope": "Both complete firearm sheets: grip and reload, preserve approved matte fresco style. Existing demon artwork untouched.",
+  "generation": [
+    {
+      "weapon": "shotgun",
+      "prompt": "Use case: precise-object-edit. Asset: transparent 4 by 4 animation sprite sheet for the existing first-person fictional game SIGIL BREACH. Image 1 is the approved firearm, gauntlets, correct grip and EXACT matte fresco pigment style. Image 2 is the old animation sheet to replace: its hands are anatomically wrong, both gripping the barrels. Build a complete coherent 16-pose replacement sheet of the shotgun from image 1. Each of 16 equally sized square cells shows the same first-person armoured hands and the same double-barrel shotgun at consistent camera scale and bottom wrist anchors. The right hand stays on the wooden grip behind the action with trigger finger anatomically under the action inside the trigger guard, thumb at the side, never over the top of the breech; the left hand supports the wooden fore-end, never wraps the exposed barrels. The object remains clearly separate from both hands. Read left to right: row1 ready pose, rearward recoil pose, settling pose, left hand begins to reach. Row2 thumb unlatches breech, action breaks downward, fully open breech showing two chambers, spent cases lifted out. Row3 one fresh cartridge inserted, second cartridge inserted, both pressed home, left hand returns under the fore-end. Row4 beginning to close, closing action, latched nearly ready, exact ready pose. No muzzle flash painted in the sheet because that effect is separate. Preserve image1 historical church fresco aesthetic: earth ochre, tarnished bronze, charcoal iron, dull red cloth, weathered painted pigment, restrained detail, flat hand-painted shading; absolutely no gloss or new decorative detail. Hands have consistent believable five-finger anatomy, no floating extra fingers or fingers fused into wood. Background fully transparent alpha, no checkerboard, no labels or text, no cast shadows on backdrop. Keep every pose in its own cell with clear transparent gutters; no spill into neighboring cells. This is only a game prop animation sheet, no targets, people being hurt, or combat scene.",
+      "source": "C:/Users/nahiko/.codex/generated_images/01a14fa3-4fbf-71c1-b96d-9f327ba385fc/exec-7b82472e-2d8a-421d-a8b7-6e12b4d7a318.png",
+      "sourceSha256": "140C9F6B59DFE632DA4FBA5856E96C69C2C0FC6FB9C65B53A2379BBDCC9E8759",
+      "output": "assets/art/shotgun-fresco-v32.png",
+      "preparedSha256": "A4517C1884255C5F30DBB60471E67DD7F16319608996D5BD3D3740F163524A77"
+    },
+    {
+      "weapon": "revolver",
+      "prompt": "Use case precise-object-edit. Create a replacement animation sprite sheet for the existing fictional first person game prop: Image1 is the revolver design and its 16 animation phases; Image2 is the EXACT approved matte fresco paint style and gauntlet design to match. Transparent alpha background. Exactly 4 columns by 4 rows equal square cells, each self contained with gutters, no text or checkerboard. Preserve the revolver design from image1 (long iron barrel, six chamber swing-out cylinder, aged wooden grip) and red cloth plus weathered bronze/iron armoured gloves from image2. Correct the anatomy: the RIGHT hand wraps the wooden grip below and behind the cylinder with thumb on the left side of the grip; index finger rests anatomically inside the trigger guard BELOW the frame. LEFT hand supports the right hand at wrist/grip for ready pose and reaches to cylinder only during reload. Neither hand holds the barrel, neither fused to receiver, no extra fingers. First person rear-quarter view aiming toward upper centre, both wrists emerge at bottom of each cell; steady camera scale. Row1 ready, rearward/upward recoil with hammer back, recoil settling, identical ready. Row2 left hand reaches cylinder latch, cylinder starts swinging out LEFT, fully open cylinder showing six empty circular chambers, thumb pushes ejector. Row3 thumb and index hold a cartridge at one chamber, insert next cartridge, press last cartridge home, fully loaded cylinder still OPEN (MUST remain visibly open with brass bases). Row4 left hand starts pushing cylinder inward, half closed, cylinder fully latched, identical ready. No muzzle flash in the artwork (effect is separate), no targets or combat scene. Painterly matte religious fresco art consistent with medieval church paintings: warm earth pigment, charcoal metal, subdued rusty red cloth, restrained brush patches, broad readable shapes at low display resolution, no photorealism, no shiny high contrast metallic detail. The same weapon and two hands in every cell, no parts morphing or barrel length changes. Every cell has same bottom baseline, allow empty space above each pose. Complete sheet suitable for direct slicing.",
+      "source": "C:/Users/nahiko/.codex/generated_images/01a14fa3-4fbf-71c1-b96d-9f327ba385fc/exec-7b14434e-5faa-4ec4-88a0-76ff91e0c6fc.png",
+      "sourceSha256": "5DE82BB833FBEADE80C3CBF2ADCC3743C91249F0F4D3C5FDC5C4CC4553487FFC",
+      "output": "assets/art/revolver-fresco-v32.png",
+      "preparedSha256": "C0A76CB454258FFFD2EAC7E96FE952BD14A8C5965ED152A91E9D955AADF28B70"
+    }
+  ],
+  "localRetouch": [
+    "Alpha cleanup and edge-only despill; no global sharpening or pigment changes.",
+    "Painted chamber variants 0..capacity cloned from existing bores/primers. Live weapon magazine selects presentation only.",
+    "No fixed ejected cases painted into the runtime extraction phase; actual spent-case feedback remains simulation driven.",
+    "Final atlases: shotgun1272x2544 /31 frames, revolver2544x2544 /58 frames. Every pose has2px transparent padding; all retained source ARGB pixels verified unchanged by integer translation. Grip/muzzle/eject anchors translated by the same2px; logical draw scale preserved."
+  ],
+  "scripts": [
+    "tools/art/weapon_cycles_v32/clean-atlases.ps1",
+    "tools/art/weapon_cycles_v32/retouch-reloads.ps1",
+    "tools/art/weapon_cycles_v32/pack-atlases.ps1"
+  ],
+  "correctionRefusal": "Targeted generated reload correction rejected by image service (request 8f93122c-2444-422e-8d1f-fd987b56f20b); no retry to bypass; user then authorized local retouch.",
+  "approval": "Technical live-cycle and independent visual review completed; final build evidence external; human B2 pending."
+}
