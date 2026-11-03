@@ -57,7 +57,8 @@ return Creature.boss({
     personal = 1.3,
     -- No hardening while he strikes any more (was 0.3 of the damage): every hit counts, the
     -- openings pay through his guard and the execution.
-    breakTime = 2.8,
+    -- 0.43 (owner: open too long, also after a spell turned aside; it made the fight easy).
+    breakTime = 1.6,
     execution = 0.2,
   },
   move = {

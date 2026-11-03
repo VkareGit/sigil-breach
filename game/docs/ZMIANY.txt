@@ -138,6 +138,12 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   złoto broni w ręku drukowało się na pergaminie jako brąz, a muted drugiej jako czerń, więc
   nieużywana broń czytała się pierwsza. Nisza, kształt i kompozycja paska bez zmian. Przed i po:
   docs/audyt-2026-11-03/gui/arsenal-przed.png, arsenal-po.png.
+- B01b (uwaga właściciela: elita z pękniętą gardą stała jak zawieszona, za długo, także po
+  odbitym czarze, co ułatwiało walkę): otwarcie elity trwa 1,6 s (Margrave, było 2,8) i 1,5 s
+  (Furfur, było 2,6). Ciało otwarte na egzekucję chwieje się i przysiada przez cały czas
+  otwarcia (enemies/animation.lua, combat_defaults.exposedReel), a jego złoty puls jest
+  jaśniejszy i wolniejszy (render/renderer.lua: tell). Boty: stojący przegrywa, czytający
+  wygrywa (Margrave 12,8 s, Furfur 14,6 s). Do oceny właściciela w ruchu.
 
 ########################################################################
 ZMIANY-0.42.txt

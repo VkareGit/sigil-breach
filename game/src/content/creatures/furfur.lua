@@ -61,7 +61,8 @@ return Creature.boss({
     hp = 2250,
     steadfast = true,
     personal = 1.2,
-    breakTime = 2.6,
+    -- 0.43 (owner: open too long, also after a spell turned aside; it made the fight easy).
+    breakTime = 1.5,
     execution = 0.2,
     regenDelay = 4,
     regenRate = 0.05,

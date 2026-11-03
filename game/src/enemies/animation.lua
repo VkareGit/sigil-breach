@@ -96,11 +96,19 @@ function Anim.pose(g, e, observer)
       lean = -0.08
       sy = 0.95
     end
+    -- 0.43 (owner: an elite held open stood as if the game had hung): a body open to an
+    -- execution reels, swaying and sagging, for as long as it stays open.
+    if e.conditions and (e.conditions.exposed or 0) > 0 then
+      local reel = (g.time or 0) * Archetypes.defaults.exposedReel.rate + (e.id or 0)
+      lean = lean + math.sin(reel) * Archetypes.defaults.exposedReel.lean
+      sy = sy * (1 - Archetypes.defaults.exposedReel.sag * (0.5 + 0.5 * math.sin(reel * 2)))
+    end
   -- A boss falter (broken guard): the pain pose for the pause itself, bowed.
   elseif (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0 then
     frame = Poses.frame(posed(e, 'pain'), e.phase or 0)
-    lean = -0.05
-    sy = 0.95
+    local reel = (g.time or 0) * Archetypes.defaults.exposedReel.rate + (e.id or 0)
+    lean = -0.05 + math.sin(reel) * Archetypes.defaults.exposedReel.lean
+    sy = 0.95 * (1 - Archetypes.defaults.exposedReel.sag * (0.5 + 0.5 * math.sin(reel * 2)))
   elseif
     e.ai == 'recover'
     and encounter

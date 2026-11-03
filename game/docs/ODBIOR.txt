@@ -62,6 +62,8 @@ Sprawdzone automatycznie:
   albo work/sound-ab/odsluch.wav).
 - D04: geometry 316, interface 19, open-presentation 38, equipment-presentation 14 bez uwag;
   rendery przed/po niszy ARSENAL w docs/audyt-2026-11-03/gui. Wygląd: zgoda właściciela.
+- B01b: souls-gate 6, souls-bots 9, animation 206, boss-pressure 29, encounters 74,
+  hit-landmarks 220 bez błędów; golden odświeżony. Wygląd chwiania: nagranie / próba.
 
 Odbiór właściciela (B2): czeka.
 

@@ -307,7 +307,8 @@ function R.tell(e)
   end
   -- An exposed boss glows in slow pulses for its whole window.
   local exposed = e.conditions and e.conditions.exposed or 0
-  local open = exposed > 0 and (0.18 + 0.16 * math.abs(math.sin(exposed * 9))) or 0
+  -- 0.43 (owner: it must be seen): brighter and slower, a beat a third of a second.
+  local open = exposed > 0 and (0.30 + 0.28 * math.abs(math.sin(exposed * 4.7))) or 0
   return math.max(hit, wound, broke, tell, open)
 end
 -- Where and how a demon's painting is placed: the one transform the sprite

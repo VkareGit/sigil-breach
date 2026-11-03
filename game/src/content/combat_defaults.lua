@@ -92,6 +92,9 @@ return {
   -- contactMargin m beyond their radii touch.
   woundFor = 1.6,
   hitFlash = 0.065,
+  -- A body held open to an execution reels (0.43, the owner: standing still it read as hung):
+  -- it sways rate rad/s by lean either way and sags by sag of its height.
+  exposedReel = { rate = 6, lean = 0.06, sag = 0.04 },
   breakFlash = 0.16,
   woundFlash = 0.18,
   slamLock = 0.3,
