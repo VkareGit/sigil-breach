@@ -31,6 +31,10 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Odbiór poprawek v11
 - Dawny kontekst
 - Poradnik edycji gry właściciela (ok. 0.33)
+- Plan po audycie 2026-11-03 i jego postęp (zastąpiony wieczorem 2026-11-03)
+- Analiza 2026-11-03b: prompt (czytelność walki, ekran, sklep, dźwięk, animacje, znajdźki)
+- Analiza 2026-11-03b: Claude
+- Analiza 2026-11-03b: Astra
 
 ## Zmiany wersji
 
@@ -9842,3 +9846,872 @@ Nie edytuj ręcznie `work/qa-*`, manifestów, ZIP-ów, EXE, katalogów `outputs`
 | paczkę Windows | root `BUILD.ps1`, `tools/*.ps1` | pełne QA, `BUILD.ps1`, `tools/verify.ps1` |
 
 To jest granica między zmianą zawartości a zmianą silnika: najpierw edytuj dane i istniejące wykonawce, a dopiero gdy nie da się opisać zachowania danymi, dodaj mały, zarejestrowany moduł z testem.
+
+## Plan po audycie 2026-11-03 i jego postęp (zastąpiony wieczorem 2026-11-03)
+
+_Dawniej: docs/PLAN.md do 2026-11-03._
+
+Jeden bieżący plan. Gdy powstaje nowy plan, ten plik w całości trafia jako rozdział do `docs/HISTORIA.md`, a tutaj zostaje tylko nowy. Stan punktów jest w rozdziale „Postęp”.
+
+#### Spis rozdziałów
+
+- Postęp (stan punktów)
+- Plan z audytu 2026-11-03
+
+#### Postęp (stan punktów)
+
+_Dawniej: `docs/audyt-2026-11-03/POSTEP.md`_
+
+##### Postęp planu po audycie z 3 listopada 2026
+
+Plan: `RAPORT-KONCOWY.md`, decyzje właściciela: `DECYZJE.md`. Zakres zatwierdzony 2026-11-03: całość planu (Etapy 0–3) z R01 (laser), D02 (próbkowany dźwięk z odsłuchem A/B), D05 (mikro-zatrzymanie do testu); C02 (wariant bez ognisk) po próbie właściciela. Wersja 0.43.
+
+Uwaga dla edycji z PowerShell 5.1: pliki są w UTF-8 bez BOM; czytać przez `[IO.File]::ReadAllText`, nie `Get-Content -Raw`.
+
+| ID | Punkt | Stan | Dowód |
+|---|---|---|---|
+| A01 | Zielona brama i prawdziwe testy | zrobione | 4 asercje dopasowane do reguł 0.42; render menu ognia; drop ≠ skrytka; bot bierze tylko potrzebny zapas. souls-gate/souls-bots czerwone do B01 |
+| A05 | Zegary AI i reakcja na unik | zrobione | `attack_followups.lua`: cios i odpowiedź po pełnej regeneracji (było 0,7 s), gore-return na unik w serii; oba czerwone bez naprawy |
+| A03 | Bezpieczny odpoczynek | zrobione | `pilgrimage.lua` safeRest: plama po martwym Buerze nie rani po odpoczynku (bez naprawy rani), pocisk w drodze = odmowa |
+| A06 | HUD, teksty, podpowiedź w ramie | zrobione | grawer broni w ręku; teksty bez odradzania; audyt 3 podpowiedzi × 5 rozdzielczości; komunikat sklepu poligonu w polu |
+| A02 | Continue wznawia w miejscu (D9) | zrobione po przeglądzie Astry | pierwsza wersja (01dfef8) miała luki (wyjście bez zabójstwa, pociski, ciosy, resztki, dropy, rany); poprawione zapisem sekcji pools i flagą moved. Odłożone: niezabezpieczeni zabici innego obszaru (przed dodaniem obszarów) |
+| A07 | Reguła procesu | zrobione | `game/docs/DEVELOPMENT.txt`, DODAWANIE TESTU 6–8 |
+| A04 | Znajdźki | rozstrzygnięte (D10) | nie wracają po odpoczynku z decyzji właściciela; tylko teksty (A06) |
+| B01 | Elity | częściowo: stanie i cofanie przegrywają; boty odruchowe i połowiczne wygrywają, ocena w B02 | patrz tabela niżej; souls-gate i souls-bots zielone |
+| C01 | Rozwój w świecie (D8) | zrobione | relikwie w kaplicy, 2 miejsca na pieczęcie, śluby za dusze 1378 |
+| D03 | Wstrząs wybuchu z odległością | zrobione | rules.lua: 2 / 10 / 20 m |
+| R01 | Atak z laserem (Stolas, star-lance) | zrobione | attack_followups: linia przed uderzeniem, trafia stojącego, nie tego, kto zszedł |
+| D05 | Mikro-zatrzymanie (do testu) | wycofane | wstrzymanie SI łamało creature-pressure; wersja wizualna do V01 |
+| D02 | Próbkowany dźwięk A/B | zrobione, czeka na wybór właściciela | Astra: paczka B1/B2; F7 w grze przełącza zestawy |
+| D04 | Nisza ARSENAL: broń w ręku czytelna | zrobione, czeka na zgodę właściciela | gui/arsenal-przed.png, arsenal-po.png |
+| B01b | Elita otwarta: krócej i widocznie | zrobione | 1,6/1,5 s zamiast 2,8/2,6; chwianie i mocniejszy puls |
+| V01 | Analiza obrazu i strzelania (Astra) | analiza zrobiona; P0 wdrożone | V01-ASTRA.md; linia włóczni 1,29 -> 1,52:1, narożniki gardy pełne 0,22 s; P1/P2 i grafika czekają na właściciela |
+| D01 | Nagranie bazowe (Astra) | zrobione | Astra (high), 54 s, 6 scen; `work/film-baseline/` (baseline.mp4, baseline-phone.mp4, README, klatki kontrolne); czeka na ocenę właściciela |
+| 0.44 | Czytelność trafienia, V01 P1/P2, picie z flaski (Astra ultra, przegląd Claude) | zrobione, czeka na ocenę właściciela | `RAPORT-ASTRY-044.md`; sonda 576 salw: 0 całych pudeł; ΔL* błysku po 33 ms 5,6–6,2 → 8,2–9,1; golden bez zmian |
+| V01 tony | Rozjaśnienie Iron Thralla i Stolasa | otwarte | warianty Astry zmieniały sylwetkę i alfę; nie podmienione |
+
+###### B01: pomiar elit (sonda 4 strategii, komnaty poligonu, bot z idealnym celem)
+
+| Strategia | Margrave przed | Margrave po | Furfur przed | Furfur po |
+|---|---|---|---|---|
+| stoi i strzela | wygrana 13,5 s, 86% HP | porażka (2/2) | wygrana 10,6 s, 16% HP | porażka (2/2) |
+| cofa się | wygrana, 84–89% HP | porażka (2/2) | wygrana, 15% HP | porażka (2/2) |
+| okrąża | porażka po A05 | porażka (2/2) | wygrana, 88% HP | wygrana, 71% HP |
+| czyta ciosy | wygrana 11–15 s | wygrana 12–13 s, 83–100% HP | wygrana 10 s | wygrana 15–17 s, 79–93% HP |
+
+Zmiany: styl duel idzie trasą (Furfur stał zablokowany 9,3 s z 12 s), zasięg dystansowy elit 16–18 m (rycerz strzela do 42 m), HP 2700 / 2250. Sonda: `sonda-elity-main.lua` w tym katalogu.
+###### Przegląd Astry (ultra, tylko odczyt) i odpowiedź
+
+Pełny tekst: `PRZEGLAD-ASTRY.md`. P1 (Continue bez zabójstwa, wznowienie walki, resztki/dropy/rany, odpoczynek pod błyskawicą 18 m) naprawione i zakryte testami czerwonymi bez naprawy. P2: kwota w teście sklepu, przywracanie `spare`, komentarze — naprawione; obszary — odłożone; jedna zmienna na commit w B01 — złamana, odnotowane.
+
+###### 0.44: przegląd zmian Astry
+
+Astra (ultra) pracowała w osobnym klonie bez commitów; Claude przejrzał diff, przeniósł go łatką i puścił pełne `-Suite All` na `main`. Uwagi z przeglądu: osobne nadpisanie `automaticFireUntil` Exorcista dostało komentarz; nowy rdzeń promienia Stolasa czyta się lepiej (udział pikseli < 1,5:1 39 → 32%), ale jest płaski i szary wobec malowanego pola — osobny commit, łatwy do cofnięcia po ocenie właściciela; Judge IRON też osobno. Nie zrobiono: zamrożenia pozy trafionego (błysk spełnił cel), dźwięku łyku. Picie nadal blokuje unik (reguła stanu `drinking`), przerywa je cios, anulowanie i śmierć.
+
+###### Uwagi właściciela 2026-11-03 (do zrobienia po reszcie planu)
+
+- **B01b, elita „zacięta”**: elita z pękniętą gardą (EXPOSED) stoi i wygląda jak zawieszona; wskaźnik ogłuszenia ma być wyraźniejszy, a ogłuszenie trwa za długo, także przy ładowaniu czaru, co ułatwia walkę.
+- **V01, analiza z Astrą po naprawach**: odbiór obrazu przez człowieka (kolorystyka, kontrasty, czy rzeczy się zlewają), znaczniki (zabójstwo, celownik) i — bardzo ważne — odczucie strzelania.
+
+#### Plan z audytu 2026-11-03
+
+_Dawniej: `docs/audyt-2026-11-03/RAPORT-KONCOWY.md`_
+
+##### Raport końcowy: SIGIL: BREACH 0.42, commit `f69a19b` (2026-11-03)
+
+Synteza dwóch niezależnych audytów: `AUDYT-CLAUDE.md` i `AUDYT-ASTRA.md` w tym katalogu. Surowe dane Astry: `dane-astry/`, moja sonda: `sonda-continue.lua`. Plan jest propozycją modeli, **właściciel go nie zatwierdził**.
+
+###### 1. Stan projektu i zakres weryfikacji
+
+0.42 to grywalny poligon: kaplica, 15 stanowisk (2 elity), 4 ogniska, 2 bronie, Q, F, zapis w 3 slotach. 2 listopada wprowadzono w jeden dzień ok. 10 zmian pętli (znajdźki jak w Doomie, grawery i hartowanie na broń, pieczęcie Goecji, krótkie elity 1680/1400 HP, ognisko zabezpieczające zamiast odradzania, odnawianie Judge'a do 6 naboi, poprawki AI). **Pełne QA na `f69a19b` nie przechodzi** (6 FAIL w Mechanics, oba audyty niezależnie).
+
+| | Claude | Astra |
+|---|---|---|
+| Model i poziom | Opus 5.5 | `gpt-6-astra`, `reasoning_effort: ultra` (potwierdzone w `turn_context` logu sesji Codexa; dostępne też `max`) |
+| Prompt | `PROMPT-AUDYTU.md`, SHA-256 `CBCA92B8B1C12977…25B1` | ten sam plik bajt w bajt (stdin) |
+| Kod | klon `sigil-audit-claude-1103` na `f69a19b` | klon `sigil-audit-astra-1103` na `f69a19b`, piaskownica workspace-write, bez sieci |
+| Materiały | te same: repo + podręczniki właściciela + pliki `.md` z `work/*-consult`, `work/brainstorm`, `work/sounds/notes.md` | identyczne kopie |
+| Niezależność | audyt zapisany przed odczytem Astry (SHA `D642D744…`, z dopiskiem sondy `1FFD9AD4…`, 10:20); wynik Astry otwarty po jej zakończeniu (10:48) | nie widziała mojego wyniku |
+| Uruchomione | `TEST -Suite All`, `--chapel-look` 1280×720, sonda Continue | `-Suite All`, `Input`, `Render`, `Tools`, rendery w 5 rozdzielczościach, benchmark, core-measure, 2× frame-watch, zimny start ×3, sonda stanu, 48 walk w komnatach, 6 przebiegów kaplicy po 180 s |
+
+Różnice w dostępie: znałem brief sesji nadrzędnej (streszczony w prompcie dla obu). Mój `-Suite All` szedł równolegle z pierwszą częścią pracy Astry, więc jej pomiary czasu mogły częściowo nakładać się na moje testy; jej mediany (4,15–4,55 ms) zgadzają się z pomiarem z ZMIANY-0.42 (3,93 ms), maksima 982/1000 ms są niewyjaśnione. Żaden model nie grał ręcznie i nie słuchał dźwięku.
+
+###### 2. Porównanie
+
+##### Wskazane przez oba modele
+
+| Temat | Claude | Astra | Stanowisko |
+|---|---|---|---|
+| Czerwona bramka | U01 | F05 | potwierdzone; 4 testy są nieaktualne wobec celowych zmian (cena Focus 100 → 180, odnawianie Judge'a, wytrzymałość elit, zapas w trakcie przeładowania), 2 (`souls-gate`, `souls-bots`) to prawdziwy sygnał projektowy |
+| Elity przegrywają z prostymi strategiami | U02: bot stojący wygrywa z Margrave'em w 13,5 s | F06: 48/48 walk wygranych przez 4 strategie, Furfur nieruchomy 10,6 s | potwierdzone; wniosek dotyczy bota z idealnym celem, nie ludzi |
+| Continue = darmowy odpoczynek i farma | U04, sonda: portfel 120 zostaje, HP 20 → 100, 3/3 zabitych wraca | F01, sonda z prawdziwym plikiem: to samo plus pełna amunicja i łyki | potwierdzone dwiema sondami |
+| Podpowiedź ogniska poza ramą | U05 (1280×720) | F07: x 19–476 wobec bezpiecznego 32–464, wszystkie 5 formatów | potwierdzone |
+| Render `fire-menu` pokazuje odmowę | U06 | F05 | potwierdzone |
+| Dusze: 1420 za przejście, katalog 4759 | U03 | ta sama arytmetyka | fakt; ocena różna (niżej) |
+| Fizyka spójna, nie przepisywać | tak | tak | zgoda, potwierdzona kodem |
+| Pociski stworów to osobne obiekty x/y/z, v, promień | tak | tak; strzały rycerza to hitscan | zgoda |
+| Broń stwora: częściowo oddzielona (ciosy jako dane, tasak jako blokująca część maski) | U07 | O02 | zgoda: rozwijać tylko przy konkretnym zastosowaniu |
+| Uniki nie są „darmową ucieczką” | U08 | tak | zgoda |
+| Soczystość istnieje w kodzie | U11 | tak | zgoda; ocena siły wymaga nagrania i odsłuchu |
+| Ogniska: zostawić, rozwój przesuwać w świat / porównać wariant | tak | tak, z eksperymentem O01 | zgoda |
+
+##### Tylko Astra (wszystkie sprawdziłem w kodzie)
+
+| Ustalenie | Weryfikacja |
+|---|---|
+| F02: odpoczynek przy ognisku przy żywej plamie trucizny po martwym Buerze; po odpoczynku 100 → 92,8 HP | `fighting` sprawdza tylko ciała (`run/pilgrimage.lua:314-319`), `interact` nie czyści zagrożeń; sonda Astry. **Potwierdzone** |
+| F03: zebrane znajdźki nie wracają ani po odpoczynku, ani po śmierci, choć właściciel wybrał wariant „wracają przy odpoczynku i śmierci” (ZMIANY-0.42, commit `0747889`) | `secure` wpisuje je do `run.taken` (`:338-340`), `populate` ich nie kładzie (`:82-86`); zmienił to późniejszy krok hybrydy `1268d37`. **Potwierdzone**; przeoczyłem to |
+| F04: skrócona regeneracja po ciosie i nieosiągalna reakcja na unik | `Attacks.rest` (`enemies/actions.lua:205-209`): `recover` ≤ 0,7 s, reszta w `attack`, oba liczą równolegle. **Doprecyzowanie:** przed `f043139` też liczyły równolegle (odstęp = max(recover, cooldown)); teraz odstęp zwykłego ciosu kurczy się zależnie od danych (cleave 1,2 → 1,1 s; przy małym cooldownie do 0,5 s krócej), a **odpowiedzi pilne** (przeładowanie, picie) czekają tylko na `recover`, czyli ≤ 0,7 s zamiast 1,2 s (`ai.lua:351-385`). Commit obiecywał, że okno zostaje. Reakcja `dodged` nieosiągalna — opisana już 2 listopada, nadal otwarta |
+| F07: HUD pokazuje grawer drugiej broni | `P.hud` nie przekazuje `worn` (`run/pilgrimage.lua:635-639`), HUD bierze `run.glyph` (`ui/hud.lua:184-191`). **Potwierdzone** |
+| Teksty obiecują odradzanie przy ognisku | `content/text.lua:148, 282` („raise every creature”, „rises when you do”), `:171` „One is active”. **Potwierdzone** |
+| F08: pierwsza klatka menu po zimnym starcie ok. 0,92 s | pomiar Astry ×3; przyczyna niepewna. Nie sprawdzałem |
+| Wstrząs prochu bez zależności od dystansu | `feedback/world_feedback.lua:154-158` (stałe `K.blastShake`). **Potwierdzone** |
+| Kaplica dla bota: 12–17 śmierci / 180 s, 0 odpoczynków, 20–28 s przy paczce, której nie podniesie (pełny zapas), 0 s z pustymi broniami | dane Astry; bot ma ograniczenia (`qa/souls_bot.lua:174`), test trasy przyjmuje paczkę z mapy za drop |
+| Benchmark: 20 żywych 7,4 ms, 48 → 9,5 ms, 96 → 11,5 ms (p99 23,6); tekstury ok. 749 MiB | dane Astry |
+
+##### Tylko Claude
+
+| Ustalenie | Stanowisko |
+|---|---|
+| Cały dźwięk syntezowany w kodzie, 0 plików audio | fakt (`audio/recipes.lua`); Astra dodaje, że receptury mają warstwy basu 48/85 Hz. Bez odsłuchu nic nie wiadomo o „płaskości” |
+| Nisza ARSENAL: nie widać od razu broni w ręku; pasek SHIFT bardzo niski | do potwierdzenia renderem przed/po; Astra mierzy podpisy ok. 9 px w 960×540 |
+| Łączny efekt zmian 0.42: zasób mógł przejść z braku w nadmiar | wsparte danymi Astry: 0 s z pustymi broniami w 6 przebiegach |
+| Proces: commity hybrydy weszły bez zielonego Mechanics | fakt z U01/F05 |
+
+##### Rozbieżności i rozstrzygnięcia
+
+| Spór | Claude | Astra | Rozstrzygnięcie i dowód |
+|---|---|---|---|
+| Ekonomia 1420 / 4759 | błąd projektu | nie błąd: wymusza wybór | **Astra ma rację co do samej liczby.** Niespójność jest w połączeniu: odpoczynek nie odradza, więc dodatkowe dusze dają tylko F01 (do naprawy) i celowa śmierć (wraca niezabezpieczone). To decyzja właściciela D8, nie naprawa |
+| Jak przywrócić elitom egzamin | pancerz w zamachu 60–70%, ewentualnie HP | najpierw F04, potem strojenie ciosów, domykania i ryzyka wymiany; nie wracać do gąbek | **Kolejność Astry.** Pancerz zamachu przywraca „nic mu nie robię”, które właściciel zgłosił. Moje progi przyjmuję jako kryteria odbioru |
+| Atak z celownikiem-laserem | jeden nowy atak | niepotrzebny teraz | **Odłożyć.** Najpierw F04 i strojenie; jeśli pociski dalej nie zagrażają, wrócić do pomysłu właściciela |
+| Mikro-zatrzymanie przy trafieniu | opcja dla bliskiego Exorcista i zabójstwa | ostrzega przed ogłuszeniem każdego śrutu | zgodne po doprecyzowaniu: zatrzymanie prezentacji, nie ogłuszenie; tylko po nagraniu i ocenie właściciela |
+| F04 jako P1 | – | P1 | **P1**: wczorajsza zmiana skraca okna kary wbrew własnemu opisowi, a strojenie elit bez tej naprawy mierzyłoby błędny zegar |
+
+**Nierozstrzygnięte:** odczucie strzału, odrzutu i trafienia; miks; trudność nawy dla człowieka (bot nie rozróżnia ograniczeń bota od ściany trudności); czy znajdźki mają wracać (F03 — wybór właściciela kontra późniejszy krok hybrydy); przyczyna zatrzymania F08 i maksimów 1 s w frame-watch; co ma znaczyć wyjście z gry (D9).
+
+###### 3. Wnioski
+
+1. **Fundament jest dobry i nie wymaga przepisywania**: stały krok, determinizm i powtórki, schematy treści, spójna fizyka 2,5D, osobne pociski z ciągłym przeciąganiem, modularny potok trafienia. Wydajność z zapasem dla obecnej skali (20 żywych ok. 7,4 ms).
+2. **Najsłabsze są granice reguł po 0.42**: zapis/Continue (F01), odpoczynek a zagrożenia świata (F02), cykl znajdziek (F03), zegary AI (F04), informacja HUD i teksty (F07). Każde podważa zaufanie gracza do reguł, które gra właśnie wprowadziła.
+3. **Bramka jakości przestała chronić** (6 FAIL, testy potwierdzające inne scenariusze niż w nazwie). Zanim cokolwiek się stroi, QA musi znów mówić prawdę.
+4. **Trudność się odwróciła**: pojedynek z elitą jest za łatwy dla prostych strategii, grupa w nawie bardzo trudna dla bota. Zasoby z deficytu przeszły prawdopodobnie w nadmiar. Bez próby człowieka nie wiadomo, gdzie leży prawda.
+5. **Ogniska zostają (rekomendacja obu modeli)**: po 0.42 już nie odradzają świata, więc są punktami kontrolnymi. Rozwój z Dooma (wzmocnienia z ziemi) można dodać bez ich usuwania. Usunięcie ognisk nie naprawia F01–F04; ewentualny wariant porównać później na tej samej treści (C02).
+6. **Spostrzeżenia właściciela**: kite'owanie po prostej nie działa na walczących wręcz (cofanie 3,15 m/s wobec 3,8–4,6 m/s stworów i skoku Thralla), ale bot wygrywa okrążaniem i cofaniem z elitami — problem jest w strojeniu i zegarach, nie w braku stylów AI. Pociski są wolne celowo (zmiana kierunku unika), globalne przyspieszenie nie ma dowodu. I-frames w normie. Soczystość jest w kodzie, ale siła nieoceniona; dźwięk w całości syntezowany.
+
+**Efekt łączny zasad planu:** jedna zmienna balansu na raz z sondą przed/po; nad sceną najwyżej jeden komunikat i jeden napis pod celownikiem; dolny pasek bez zmian kompozycji; zmiany oprawy dopiero po nagraniu bazowym, żeby nie zatrzeć fresku nadmiarem błysków i wstrząsów.
+
+###### 4. Plan rozwoju i poprawek (propozycja, niezatwierdzona)
+
+P1 konieczne, P2 usprawnienie, P3 opcjonalne. Nakład: S lokalna zmiana, M kilka modułów i testy integracyjne, L seria iteracji z grą.
+
+**Decyzje właściciela potrzebne do planu:** D8 gdzie żyje rozwój (sklep przy ognisku czy znaleziska w świecie, ile ma kosztować katalog); D9 co znaczy wyjście z gry w trakcie (wznowienie dokładnie tam / powrót do ogniska bez leczenia i z zachowaniem zabitych); D10 czy znajdźki wracają przy odpoczynku i śmierci (jego wybór z 2.11) czy zostają zabrane po odpoczynku (późniejszy krok hybrydy).
+
+##### Etap 0: wiarygodne QA i uczciwe reguły
+
+| ID | P | Problem i dowód | Zmiana i zakres | Korzyść | Zależy | Nakład / ryzyko | Ukończone, gdy |
+|---|---|---|---|---|---|---|---|
+| A01 | P1 | 6 FAIL (U01/F05); render sklepu pokazuje odmowę; test trasy liczy paczki mapy jako drop; bot idzie do paczek, których nie podniesie | zaktualizować 4 nieaktualne asercje z uzasadnieniem; `souls-gate`/`souls-bots` zostają kryterium B01 (opisane jako znane czerwone do B01); `chapel_look` usypia stwory przed `fire-menu` i sprawdza stan; `chapel_route` odróżnia drop od zapasu; bot bierze paczkę tylko przy potrzebie | brama znów chroni | – | M / średnie (osłabienie testów) | `-Suite All`: tylko 2 znane FAIL z opisem; render pokazuje menu ognia; test dropu czerwony bez dropu |
+| A02 | P1 | F01/U04: Continue leczy, odnawia i przywraca zabitych, portfel zostaje | jedna reguła zapisu wg D9; zalecane minimum: zapis przy wyjściu utrwala zasoby i zabitych od ostatniego ogniska, Continue budzi przy ognisku bez `refresh` | stawka śmierci i odpoczynku | D9 | M / wysokie (zapis, migracja) | sonda `sonda-continue.lua` odwrócona: brak darmowego leczenia i ponownej nagrody; testy pauzy, wyjścia, śmierci, błędu zapisu |
+| A03 | P1 | F02: odpoczynek przy żywej plamie/pocisku | odmowa z powodem przy aktywnym zagrożeniu w zasięgu albo przyjęty odpoczynek usuwa wrogie zagrożenia przy ognisku | odpoczynek bezpieczny | – | S–M / średnie | sonda Astry: 0 obrażeń po przyjętym odpoczynku; brak leczenia pod ostrzałem |
+| A04 | P1 | F03: znajdźki nie wracają | wg D10; przy wariancie właściciela rozdzielić `taken` (zapasy, wracają) od `slain` (zabezpieczeni zabici), migracja starych zapisów | zgodność z decyzją | D10, A02 | M / średnie | zebrane wracają po odpoczynku i śmierci, zabici zostają martwi, brak duplikatów po wczytaniu |
+| A05 | P1 | F04: okna kary krótsze, `dodged` nieosiągalne | pełna regeneracja blokuje zwykłe ciosy i odpowiedzi; stanie ≤ 0,7 s zostaje (ruch bez ciosu); cooldown po regeneracji; kolejność sekwencji vs reakcji na unik | uczciwe okna kary | – | M / wysokie (trudność) | test zegarów: cleave nie uderza przed 1,2 s, odpowiedź na przeładowanie też; `dodged` osiągalne w sekwencji |
+| A06 | P1 | F07/U05: zły grawer w HUD, teksty o odradzaniu, podpowiedź poza ramą | `P.hud` przekazuje `worn`; teksty 148/171/282; krótsza odmowa w istniejącej ramie; audyt układu sprawdza szerokość tekstu wobec wnętrza ramy | gracz ufa UI | A04 (treść tekstów) | S / niskie | dwa grawery na dwóch broniach pokazują swoje; 5 formatów bez wyjścia poza ramę; pasek bez zmian |
+| A07 | P2 | proces: commity bez zielonego Mechanics | reguła w DEVELOPMENT: commit tylko po zielonym `-Suite All` (lub znanych FAIL z A01); balans jedna zmienna na commit z sondą | koniec nakładania | A01 | S / brak | wpis i przestrzeganie |
+
+##### Etap 1: walka po naprawach
+
+| ID | P | Problem i dowód | Zmiana | Korzyść | Zależy | Nakład / ryzyko | Ukończone, gdy |
+|---|---|---|---|---|---|---|---|
+| B01 | P1 | U02/F06: elity przegrywają z bezmyślnymi strategiami | stroić istniejące ciosy elit: domykanie dystansu, kara za stanie i cofanie, przerwania; bez powrotu do gąbek; pancerz zamachu dopiero jako ostatnia dźwignia | elita znów uczy ciosów | A05, A01 | M–L / wysokie | `souls-gate` zielone: careless/backpedal/orbit nie wygrywają pewnie (≥1 z 2 ziaren porażka albo <30% HP), learning 3/3 z >70% HP, walka 20–35 s; ocena właściciela |
+| B02 | P1 | L01 nadal niezrobione; bot w nawie 12–17 śmierci, nie rozróżnia własnych ograniczeń | próba właściciela wg `docs/audyt-2026-11-02/PROBA-WLASCICIELA.md` uzupełnionej o: elity, nawa, Continue, znajdźki; notatka zgonów | fakty o trudności dla człowieka | A01–A06, B01 | S / brak | notatka z próby w tym katalogu |
+| B03 | P2 | U12: 0 s z pustymi broniami, odnawianie Judge'a + 126 naboi na mapie | po B02: sonda zasobów (nadwyżka przy wejściu do elity, czas pustych broni), jedna zmienna (np. liczba skrytek) | amunicja znów decyzją (D2) | B02 | S / średnie | liczby przed/po, ocena właściciela |
+| B04 | P2 | grupa w nawie a pojedynek | po B02: jeśli człowiek też ginie w nawie, rozstawienie progów sal i `seenRange` (L06 z poprzedniego planu) | uczciwy pierwszy próg | B02 | M / średnie | bot i właściciel: śmierci w nawie z jasną przyczyną |
+
+##### Etap 2: progresja i kierunek
+
+| ID | P | Problem i dowód | Zmiana | Korzyść | Zależy | Nakład / ryzyko | Ukończone, gdy |
+|---|---|---|---|---|---|---|---|
+| C01 | P2 | U03: 1420 dusz na przejście, katalog 4759, odpoczynek nie odradza | wg D8: ceny pod realny dochód albo część katalogu jako znaleziska w świecie (pieczęcie, grawery za elity i sekrety), ognisko do wymiany; tabela „co kupię po pierwszym przejściu” | progresja bez farmy | D8, A02 | M / średnie | tabela w docs, test sumy, ocena właściciela |
+| C02 | P3 | pytanie właściciela o Doom bez ognisk | eksperyment: naprawiona hybryda kontra automatyczny punkt kontrolny i więcej wzmocnień z ziemi, na tej samej treści | wybór kierunku z gry, nie z teorii | Etap 0, B01, B02 | M / wysokie projektowo | krótkie porównywalne próby: przestoje, zgony, zrozumienie progresji; decyzja właściciela |
+| C03 | P3 | U07/O02: broń stwora jako osobna warstwa | mała warstwa `arms` (materiał, dźwięk zderzenia, które ciosy, czy blokuje strzał) dopiero przy mechanice: blok, rozbrojenie, dwa warianty uzbrojenia | właściwości broni bez osobnej fizyki | A05, konkretna potrzeba | S–M / średnie | jeden stwór z dwoma wariantami oręża bez duplikacji AI |
+
+##### Etap 3: oprawa i czytelność (bez zmiany designu paska)
+
+| ID | P | Problem i dowód | Zmiana | Korzyść | Zależy | Nakład / ryzyko | Ukończone, gdy |
+|---|---|---|---|---|---|---|---|
+| D01 | P2 | brak nagrania bazowego; ocena odrzutu, błysku, wstrząsu tylko z kodu | **Codex**: nagranie bazowe `f69a19b` (patrz prompt) | właściciel ocenia z obrazu | – | S / brak | nagrania i klatki kontrolne w `work/`, ocena właściciela |
+| D02 | P2 | U11: dźwięk syntezowany, „płaski” bez odsłuchu | odsłuch A/B właściciela (E04); jeśli płaski: **Codex** przygotowuje próbkowane warstwy strzału Judge/Exorcist i trafienia (ciało, pancerz, broń) | strzał „waży” | D01 | M / niskie | ocena właściciela przy równej głośności |
+| D03 | P2 | wstrząs prochu bez dystansu; hierarchia efektów w tłoku | spadek siły z odległością, sprawdzenie wyłączenia ruchu kamery | zagrożenie widoczne | D01 | S / niskie | daleki wybuch nie dominuje bliskiego; nagranie |
+| D04 | P2 | nisza ARSENAL, pasek SHIFT, podpisy ok. 9 px w 960×540 | broń w ręku pełną kością słoniową, druga przygaszona; pasek wytrzymałości wyższy w tej samej niszy; grubość/kontrast najmniejszych podpisów | szybki odczyt | A06 | S–M / niskie | rendery przed/po w 5 formatach, **zgoda właściciela na wygląd** |
+| D05 | P3 | opcjonalnie mikro-zatrzymanie 0,02–0,03 s przy bliskim Exorcist i zabójstwie | jedna stała w `tuning.feel`, bez ogłuszenia | trafienie czuć | D01, ocena właściciela | S / średnie (rytm) | nagranie przed/po |
+| D06 | P2 | F08: ok. 0,9 s pierwszej klatki po zimnym starcie | dokończyć przygotowanie pod stroną ładowania, zmierzyć przyczynę | brak pozornego zawieszenia | – | M / średnie | 3 zimne starty: pierwsza gotowa klatka < 100 ms |
+
+##### Etap 4: opcjonalny rozwój
+
+| ID | P | Zmiana | Warunek |
+|---|---|---|---|
+| R01 | P3 | atak z celownikiem-laserem (hitscan po 0,4–0,6 s telegrafu) dla jednej rodziny, przerywalny kontrą — pomysł właściciela | po B01 i B02, jeśli pociski nadal nie zagrażają |
+| R02 | P3 | skalowanie AI (licznik atakujących na cel, siatka dla wyboru celu) | gdy sala ma > 30 ciał |
+| R03 | – | etap 4 z poprzedniego planu (koniec kaplicy, mapa, druga droga) | **odłożony decyzją właściciela**, nie zaczynać bez zgody |
+
+**Kolejność:** A01 → (D9, D10 od właściciela) → A05, A03, A06 → A02 → A04 → A07 → B01 → B02 (próba) → B03, B04 → C01 (D8) → D01 równolegle od początku (Codex), D02–D06 po nagraniu → C02, C03, R01 według wyników.
+
+## Analiza 2026-11-03b: prompt (czytelność walki, ekran, sklep, dźwięk, animacje, znajdźki)
+
+_Dawniej: prompt wspólny dla Claude i Astry._
+
+### Analiza dla właściciela SIGIL: BREACH: czytelność walki, ekran, ogniska jako sklep, dźwięk, animacje, znajdźki
+
+Ten sam prompt dostają dwa modele (Claude Opus 5.5 i Codex Astra `gpt-6-astra`, xhigh), każdy w osobnym klonie na tym samym commicie. Pracujecie niezależnie; potem Claude łączy obie analizy w raport końcowy i plan. Odpowiadaj po polsku; tekst w grze i na obrazach po angielsku.
+
+**To jest analiza, nie wdrożenie.** Nie zmieniaj kodu, zasobów ani dokumentów repozytorium. Wolno uruchamiać grę, testy, sondy i rendery w swoim klonie i zapisywać wyniki w swoim katalogu roboczym (podanym niżej). Bez nagrań wideo; klatki PNG i wycinki są w porządku. Nie przekazuj zadania nikomu dalej.
+
+#### Projekt
+
+Gra: `game/` (LÖVE 11.5 / LuaJIT), wersja w `game/src/core/build.lua` (0.44). Przeczytaj najpierw `START-HERE.txt`, `docs/PROMPT-NOWY-AGENT.md` (zasady właściciela, obowiązują), `docs/WIZJA.md` (gra i decyzje), `docs/STYL.md`, `docs/PLAN.md` (bieżący plan i postęp), `game/INSTRUKCJA.txt`; w razie potrzeby `docs/TECHNIKA.md` i górę `docs/HISTORIA.md` (zmiany 0.43 i 0.44, analiza V01). Uruchamianie: `toolchain\love-11.5-win64\lovec.exe game --suite=<id>` z `$env:SIGIL_UI_QA_DIR=<katalog>` i `$env:APPDATA=<klon>\work\appdata`; rendery `love.exe game --chapel-look`; pełne testy `.\scripts\TEST.ps1 -Suite All -TestTimeoutSeconds 1800`. Okno z błędem Lua potrafi wisieć bez komunikatu: czytaj raporty.
+
+Filary (z `WIZJA.md`): FPS, który staje się souls-like; trudność z czytania ciosów (telegraf, przytrzymanie, kontra strzałem, doskonały unik, pęknięta garda, egzekucja), nie z paska HP. Doom dla znajdziek i tempa, Dark Souls dla walki i ognisk, Call of Duty tylko dla potwierdzenia trafienia i nagrody. Żywy mroczny fresk; styl demonów, HUD i broni się nie zmienia; **dolny pasek HUD jest chroniony** (kształt, kompozycja, styl; wolno poprawiać czytelność treści). Znacznik trafienia zostaje mały. Zegarów SI nie zmienia się „dla odczucia” (wstrzymanie stworów przy trafieniu łamało `creature-pressure`). Bossowie odłożeni; Margrave i Furfur to elity (moby). Jedna zmiana balansu na raz.
+
+#### Co zgłosił właściciel po grze (3 listopada 2026, wersja 0.44)
+
+Cytaty sparafrazowane wiernie; traktuj je jako hipotezy do sprawdzenia, ale to jego odczucia z gry.
+
+1. **Klimat animacji i efektów.** Linia włóczni Stolasa (jasny rdzeń z 0.44) mogłaby być bardziej klimatyczna, nie płaska. Dotyczy to ogólnie animacji ataków i efektów.
+2. **Elita burzy (Furfur, „koń”) strzela.** Brakuje wskaźnika, że zaraz leci pocisk: „żeby coś wynikało z czegoś”. Teraz wygląda, jakby się zacinała. Właściciel nadal uważa, że ten stwór ma problem: „stutter” (chwianie odsłoniętej gardy i/lub zastój przy ładowaniu ataku) trwa za długo. To samo u drugiej elity (Margrave).
+3. **Za dużo informacji na ekranie.** SHIFT (wytrzymałość / unik) i OUT OF BREATH są dobrze sygnalizowane paskiem nad HUD-em; po co jeszcze napis SHIFT na HUD-zie? Przejrzyj cały ekran pod tym kątem (napisy stanu, podpowiedzi, liczniki, znaczniki), z uwzględnieniem chronionego paska.
+4. **Ogniska jak sklep w Killing Floor.** Gracz zaczyna z bronią podstawową (nie kopiujemy na razie zbierania broni z Dooma). Bronią podstawową zdobywa dusze (albo inną walutę, nazwa do ustalenia). Przy ognisku za dusze kupuje kolejne bronie, potem ulepszenia tych broni. Okrągłe sigile są tylko znajdźkami w świecie, stakują się i można je zakładać i zdejmować przy ognisku — to ma dodać decyzje na dalszej drodze, ale trzeba przemyśleć, co dokładnie sigile mają dawać. (Dziś: dwie bronie od startu, śluby za dusze, relikwie i grawery w świecie — zob. `WIZJA.md`, decyzje D8–D10, `content/shop.lua`, `run/economy.lua`, `run/pilgrimage.lua`.)
+5. **Dźwięk.** Przy muzyce i ambiencie na 0 nadal słychać odgłosy strzelania, chodzenia, potworów itd. Potrzebny osobny suwak efektów (i przemyśl cały miks: jakie suwaki mają duże gry).
+6. **Animacja picia z flaski** (nowa w 0.44): wygląda, jakby rycerz wylewał miksturę za siebie. Do poprawy.
+7. **Znajdźki amunicji na mapie**: bardziej klimatyczne i lepiej widoczne.
+
+#### Zadanie
+
+Dla każdego punktu 1–7:
+
+a) **Stan obecny z dowodami**: jak to dziś działa w kodzie (pliki, funkcje, liczby z `content/tuning.lua`, `content/combat_defaults.lua`, `content/creatures/*.lua`), jak wygląda w grze (rendery PNG, wycinki, sondy z czasami: np. ile trwa telegraf, ładowanie, chwianie, zastój Furfura i Margrave'a od początku ataku do pocisku). Odróżnij, co jest błędem, a co decyzją projektową.
+b) **Jak to robią inne gry** — nie tylko Doom (2016/Eternal), souls-like (Dark Souls, Elden Ring, Bloodborne, Sekiro, Lies of P) i Killing Floor 2, ale też inne duże tytuły, gdzie pasuje (np. Hunt: Showdown, Destiny 2, Halo, Hades, Returnal, Monster Hunter, God of War, Darktide/Vermintide, Diablo, Hollow Knight, Ultrakill, Prey, Dishonored, Resident Evil). Konkretnie: jaki mechanizm, dlaczego działa, co z tego pasuje do filarów tej gry, a co nie. Pisz z wiedzy, podaj tytuł i mechanizm; nie wymyślaj szczegółów, których nie jesteś pewien — zaznacz niepewność.
+c) **Propozycje**: 1–3 warianty z kompromisami (czytelność, trudność, styl, nakład, ryzyko dla testów i złotego wzorca), rekomendacja, kryterium odbioru (mierzalne, gdzie się da: np. czas telegrafu, kontrast, liczba elementów na ekranie, głośność w dB).
+d) **Decyzje dla właściciela**: co musi rozstrzygnąć sam (np. nazwa waluty, ile broni, czy dwie bronie od startu znikają, czym są sigile, czy grawery i śluby zostają).
+
+Szczególnie w punkcie 4 zaprojektuj spójną ekonomię: cykl „zabijasz → zbierasz walutę → ognisko → kupujesz broń / ulepszenie / zakładasz sigile”, wpływ na śmierć i echo dusz (souls-like), ceny względem obecnych ~1420 dusz na przejście kaplicy, co dzieje się z obecnymi ślubami, grawerami, hartowaniem i relikwiami (D8), czy bronie mają poziomy jak w Killing Floor (tiery) albo ulepszenia jak w Bloodborne. Zaproponuj co najmniej 8 konkretnych sigili (efekt, liczby, stakowanie, koszt slotu, przeciwwaga), z myślą o decyzjach i buildach, nie o samych procentach.
+
+Na koniec:
+
+- **Własne pomysły i uwagi** spoza listy (współtworzymy projekt; liczy się Twoja opinia): co jeszcze psuje czytelność, odczucie lub tempo, co by najbardziej podniosło grę, z uzasadnieniem.
+- **Plan**: kolejność kroków (zależności, co najpierw, co równolegle, co Codex/Astra — grafika, animacje, dźwięk — a co Claude — kod i walka), nakład, ryzyko, kryteria odbioru, decyzje właściciela przed startem.
+
+#### Wynik
+
+Jeden plik `ANALIZA.md` po polsku w Twoim katalogu roboczym (Claude: `ANALIZA-CLAUDE.md`, Astra: `work/analiza/ANALIZA-ASTRA.md` w klonie), z rozdziałami 1–7, „Własne pomysły”, „Plan”, oraz katalog z dowodami (PNG, CSV, sondy). Każde twierdzenie o kodzie z plikiem i linią; każde o grze z dowodem (render, sonda) albo oznaczone jako hipoteza.
+
+## Analiza 2026-11-03b: Claude
+
+_Dawniej: analiza Claude (Opus 5.5)._
+
+### Analiza Claude (Opus 5.5): czytelność walki, ekran, ogniska jako sklep, dźwięk, animacje, znajdźki
+
+Commit `5fecf90` (0.44), 3 listopada 2026. Analiza kodu, renderów z ostatniego pełnego przebiegu (`work/qa/*.png`) i wiedzy o innych grach. Gry nie prowadziłem ręcznie; odczucia właściciela traktuję jako dane, a moje wnioski o odbiorze jako hipotezy do sprawdzenia w jego próbie.
+
+#### 1. Klimat animacji i efektów (linia włóczni Stolasa i ataki w ogóle)
+
+**Stan.** Włócznia gwiazd Stolasa (`content/creatures/stolas.lua`, `Action.beam`: windup 0,6 s, delay 0,45 s ostrzeżenia, długość 14 m) jest rysowana z pola w `assets/art/rites-fresco-v36.png`. W 0.44 Astra dała mu kościany rdzeń i ciemne obrzeże: kontrast z podłogą wzrósł (udział pikseli < 1,5:1 39 → 32%), ale pole jest jednolite, nieruchome i szare — na wycinkach z 0.44 wygląda jak namalowany pas taśmy, nie jak magia. Ostrzeżenie i wystrzał różnią się dziś głównie jasnością.
+
+**Inne gry.** Destiny 2 i Halo: atak naładowany ma *źródło* (blask na broni/dłoni rośnie), *ścieżkę* (cienki laser celowania, który gęstnieje) i *wyzwolenie* (błysk, wstrząs, smuga). Returnal: kolor i kształt pocisku mówią, co to za atak; ostrzeżenia na ziemi wypełniają się w czasie. Elden Ring / Bloodborne: zaklęcia mają rosnące światło i dźwięk ładowania, a ich linia jest żywa (iskry, mgła), nie płaska. Hades: czerwone pola z rosnącym wypełnieniem — gracz widzi *ile czasu zostało*.
+
+**Propozycja.** Trzy stany promienia, wszystkie w stylu fresku: (1) ostrzeżenie — cienka, przerywana linia złotych run/pyłu od dzioba Stolasa do końca, która *zagęszcza się* w czasie (postęp = ile zostało); (2) uderzenie — kościany rdzeń z drobną fakturą farby i migotaniem 2–3 klatek, iskry/popiół wzdłuż; (3) wygasanie — linia pęka na odłamki. Klatki maluje Astra (atlas efektu, nie jedno pole). Kryterium: kontrast rdzenia ≥ 1,5:1 jak w 0.44, ale też rozróżnialność stanów (ostrzeżenie vs uderzenie) w jednym kadrze; właściciel ocenia klimat.
+
+#### 2. Elity: „zacina się”, brak zapowiedzi pocisku, za długi „stutter”
+
+**Stan — przyczyna wizualna (pewna).** Elity mają mało malowanych klatek i trzymają *jedną* klatkę długo:
+
+- Furfur (`content/art/sheets/furfur.lua`): `pain = { frames = { 13 } }` przez całe odsłonięcie (`breakTime = 1.5` s), `recover = { frames = { 12 } }` przez 0,8–1,5 s po ciosach (gore 0,5; lightning 0,8; charge 1,2; antler-return 1,25; crown 1,5), `strike.charge = { frames = { 10 } }`.
+- Margrave (`sheets/boss.lua`): `pain = {9}`, `recover = {8}`, `strike = {7}` — po prawie każdym ciosie 1,0–1,5 s w jednej klatce (cleave 1,2; overhead 1,5; ash-grip 1,5; apse-wave 3,0), odsłonięcie 1,6 s.
+- Ruch proceduralny w tym czasie jest minimalny: w `enemies/animation.lua:133–136` regeneracja to tylko `sy = 0.98 + 0.02 t`; w windupie `lean = -0.025 t`, skala ±2,5% (`:121–126`). Chwianie odsłoniętej gardy (0.43) to sinus 6 rad/s ±0,06 (`combat_defaults.exposedReel`) — kołysanie jednej klatki może czytać się jak drganie („stutter”), nie jak cierpienie.
+
+Od 0.43 regeneracja jest „wydawana w całości” (`Attacks.rest`, decyzja B01) — to celowe okno kary souls-like. Problem nie leży w istnieniu okna, tylko w tym, że nic w nim nie żyje.
+
+**Stan — błyskawica Furfura.** To nie pocisk, lecz uderzenie w miejsce (`ranged_kinds.lua` `Kinds.strike`): w windupie (0,72 s) na ziemi pod rycerzem pojawia się znak, po nim pada piorun. Furfur w tym czasie gra *ogólne* klatki zamachu porożem (`windup = {7,8,9}`, `strike = {10,11}`) — nie ma pozy rzucania, blasku na porożu, łuku od niego do znaku. Gracz widzi: stwór stoi i macha głową, potem coś go trafia. Stąd „nic z niczego nie wynika”.
+
+**Inne gry.** Sekiro: zapowiedź = poza + dźwięk + symbol zagrożenia; okno deathblow jest krótkie, a wróg *animuje* utratę równowagi (zgięcie, chwiejny krok). Bloodborne: po parowaniu wróg klęka w 2–3 klatkowej animacji, ok. 1 s okna. Monster Hunter: potwór po ciosie ma wyraźne animacje zmęczenia (dyszy, ślini się) — okno kary *wygląda* jak okno kary. Hollow Knight: zasada antycypacja → akcja → powrót, każda faza z ruchem. Halo/Destiny: atak dystansowy ładowany zawsze ma świecące źródło. God of War (2018): kolorowe wskaźniki rodzaju ataku przy wrogu (blokowalny / nieblokowalny). Monster Hunter i Elden Ring: elementarne ataki mają *ładowanie na ciele* (elektryczność na rogach Kirina, pioruny na broni).
+
+**Propozycje.**
+- A (rekomendowana, Astra + Claude): *Żywe okna kary* — 3–4 klatki na `recover` i `pain/exposed` (dyszenie, opadanie poroża/ostrza, ciężki krok), zapętlone; zamiast kołysania sinusem: jedno „zatoczenie” na początku i oddech. Dla Furfura dedykowany `windup.lightning`/`strike.lightning`: uniesione poroże, wyładowania na porożu narastające przez 0,72 s, łuk/drgająca nić od poroża do znaku w ostatnich 0,25 s, błysk na porożu w chwili uderzenia. Dźwięk: narastający trzask (`storm_warning` dziś jest jeden).
+- B (Claude, liczby, jedna zmiana na raz): skrócić najdłuższe pojedyncze bezruchy, gdy A nie wystarczy: regeneracja Margrave'a 1,5 → 1,2 s dla overhead/ash-grip, `breakTime` 1,6/1,5 → 1,2 s. Każda zmiana balansu osobno z sondą `souls-gate`.
+- C: rozbić długi `recover` na „recover + reposition” (krok w tył), co zmienia SI i złoty wzorzec — tylko jeśli A i B nie wystarczą.
+Kryterium: żaden stan elity nie trzyma jednej klatki dłużej niż 0,3 s (test na danych arkuszy: najdłuższy odcinek jednej klatki w każdej pozie); od początku windupu błyskawicy do uderzenia w każdej klatce widać przynajmniej jeden z trzech sygnałów (źródło, ścieżka, znak); właściciel w próbie nie widzi „zacięć”.
+
+#### 3. Za dużo informacji na ekranie
+
+**Stan (render `17-combat-wide.png`).** Stale widoczne: nazwa obszaru (lewy górny), nazwa i pasek zwykłego stwora (góra środek), „TAB MAP / F1 HELP” i zegar (prawy górny), celownik z dwoma bocznymi kreskami, siedem nisz paska: AMMO + RES., HEALTH % + pasek, ARSENAL (trzy nazwy: EXORCIST / JUDGE / FOCUS), portret, WARD % + pasek, Q BLAST 2/3 + miernik i SHIFT + miernik, SOULS + DEATHS. Wytrzymałość jest sygnalizowana dwa razy: w niszy (`ui/hud.lua:268–273`, ikona + napis „SHIFT” + 4-częściowy miernik) i paskiem nad HUD-em; „OUT OF BREATH” jest napisem stanu (`player/intent.lua:44`).
+
+**Inne gry.** Dark Souls / Elden Ring: stale tylko HP/FP/wytrzymałość i szybkie przedmioty; paski zwykłych wrogów pojawiają się *po trafieniu* i znikają po kilku sekundach; pasek bossa na dole. Hunt: Showdown i Dead Space: HUD w dużej mierze kontekstowy lub diegetyczny. Doom Eternal: pełny HUD, ale z opcją uproszczenia. Halo: elementy pojawiają się, gdy się zmieniają. Zasada wspólna: informacja stała tylko, gdy gracz potrzebuje jej *w każdej chwili*; reszta pojawia się na zmianę i gaśnie.
+
+**Propozycje (bez zmiany kształtu chronionego paska).**
+- Usunąć napis „SHIFT” i miernik z niszy Q (pasek nad HUD-em zostaje jedynym sygnałem wytrzymałości); nisza zostaje dla Q BLAST, które zyskuje miejsce na czytelniejszy licznik. Zmienia treść, nie kształt — do akceptacji na renderze.
+- Pasek zwykłego stwora u góry: pokazywać tylko po trafieniu i przez 3–4 s po ostatnim; elity zachowują pasek. Nazwa obszaru: na wejściu, gaśnie po 3 s. „TAB MAP / F1 HELP”: przez pierwsze minuty i w pauzie. Zegar: tylko w trybach z czasem. DEATHS: do menu/ekranu ogniska.
+- ARSENAL: broń w ręku duża, pozostałe jako znaki lub tylko numer (spójne z ewentualnym sklepem — mniej broni na starcie).
+Kryterium: w walce poza paskiem stałe ≤ 2 elementy (celownik + pasek celu, gdy dotyczy); render przed/po w 5 formatach i zgoda właściciela.
+
+#### 4. Ogniska jak sklep (Killing Floor): waluta, bronie, ulepszenia, sigile
+
+**Stan.** Dziś: dwie bronie od startu (Exorcist, Judge), ładunek Q, flaska; przy ognisku śluby za dusze (wycenione na ~1420 dusz na przejście kaplicy, `content/shop.lua`, `run/economy.lua`), hartowanie 250, grawery i sigile znajdowane w świecie (relikwie, D8), dwa sloty sigili (`sigilSlots = 2`). Echo dusz po śmierci jak w Souls. Znajdźki nie wracają po odpoczynku (D10). Amunicja ze stworów według rodziny (D2).
+
+**Inne gry.** Killing Floor 2: Trader między falami — kupno/sprzedaż broni w tierach 1–5, waga i sloty ograniczają ekwipunek; pieniądze za zabójstwa. Bloodborne: waluta (krwawe echa) służy do kupna *i* do poziomowania; ulepszenia broni wymagają odłamków znalezionych w świecie — waluta + materiał ze świata = eksploracja ma sens. Dark Souls: kowal ulepsza za dusze + tytanit. Hades: dwie waluty — jedna na bieg (Charon), druga stała (lustro). Hunt: Showdown: wybór broni przed meczem, waga slotów. Returnal / Dead Cells: znalezione modyfikatory zmieniają styl, nie tylko liczby. Diablo / Path of Exile: przedmioty jako decyzje buildu.
+
+**Ocena.** Pomysł właściciela dobrze łączy oba filary: Doom (podnosisz, strzelasz) + Souls (ognisko jako miejsce decyzji, waluta zagrożona śmiercią). Ryzyka: (1) treść — dziś są tylko dwie bronie, sklep z jedną bronią do kupienia jest pusty; potrzeba 2–4 nowych broni (grafika Astry, animacje, dźwięk, balans) — największy koszt planu; (2) broń podstawowa musi wystarczać na pierwsze sale, a amunicja z D2 musi ją karmić (KF: pistolet z nieskończoną amunicją).
+
+**Propozycja ekonomii (do decyzji).**
+- Start: Judge (rewolwer) jako broń podstawowa z nieskończoną rezerwą i wolnym przeładowaniem (bezpiecznik przeciw softlockowi). Exorcist kupowany przy pierwszym ognisku po nawie (~350–400 dusz — mniej więcej to, co daje pierwsza część kaplicy).
+- Ognisko ma trzy pozycje: **Zbrojownia** (kup broń; kupione zostają na stałe w biegu), **Kuźnia** (tiery ulepszeń broni, 3 poziomy: obrażenia/przeładowanie/specjalna cecha; koszt rośnie 150 → 300 → 500), **Ołtarz** (zakładanie/zdejmowanie sigili, bez kosztu).
+- Dusze zostają walutą (echo po śmierci jak dziś). Śluby: zostają jako tańsze „miękkie” ulepszenia postaci albo znikają na rzecz Kuźni — decyzja właściciela. Grawery z D8 → stają się *sigilami* (jedna kategoria znajdźki zamiast dwóch). Hartowanie → poziom Kuźni.
+- Budżet: przejście kaplicy ~1420 dusz pokrywa Exorcista + 2 poziomy Kuźni; reszta wymaga powtórzeń/ryzyka — souls-like.
+
+**Sigile (znajdźki w świecie, stakują się, zakładane przy ognisku; sloty 2 → 3 z postępem).** Każdy daje decyzję, nie tylko procent; każda kopia mocniejsza, z malejącym przyrostem:
+1. **Furfura (burza)**: doskonały unik zostawia na 1 s pole iskier (obrażenia lightning); stak: większy promień. Przeciwwaga: unik kosztuje +10% wytrzymałości.
+2. **Margrave'a (popiół)**: egzekucja odnawia 1 ładunek Q; stak: szansa na drugi. Przeciwwaga: Q zadaje 15% mniej.
+3. **Stolasa (gwiazda)**: trafienie w głowę z Judge'a oznacza cel na 3 s (+15% obrażeń dla następnego strzału); stak: +czas.
+4. **Żelaza**: pancerz/ward +20, ale wytrzymałość odnawia się wolniej (−10%/kopię).
+5. **Krwi**: zabójstwo z bliska (≤ 3 m) leczy 4% HP; stak +2%. Przeciwwaga: flaska leczy mniej.
+6. **Ciszy**: stwory budzą się 25% później (zasięg słuchu); stak; przeciwwaga: mniej dusz z cichych zabójstw? (do przemyślenia).
+7. **Pokuty**: +25% dusz, ale echo po śmierci przepada w całości (ryzyko za nagrodę); nie stakuje się.
+8. **Prochu**: przeładowanie Exorcista w trakcie uniku; stak: szybsze o 10%. Przeciwwaga: −1 łuska w magazynku? (jeśli model amunicji pozwala).
+9. **Ostatniego tchu**: przy HP < 25% ataki zadają +20%; stak +10%; przeciwwaga: flaska nie leczy powyżej 50%.
+Zasady: maks. 3 kopie tego samego; każda znaleziona kopia to decyzja „załóż teraz czy zachowaj sloty”; na ekranie ogniska opis w jednym zdaniu z liczbą.
+
+Decyzje właściciela: broń startowa (Judge?), lista nowych broni i ich kolejność, nazwa waluty (zostają dusze?), los ślubów i hartowania, sloty sigili, czy kupione bronie przepadają po śmierci (rekomendacja: nie).
+
+#### 5. Dźwięk: osobny suwak efektów
+
+**Stan (błąd UX, pewny).** Preferencje mają tylko `music` (etykieta „Music and ambience”, `storage/preferences.lua:10,16`; `content/text.lua:214`) i `muted`. Efekty grają przez `love.audio.setVolume(A.muted and 0 or 0.7)` (`audio/audio.lua:232`) i `s:setVolume((volume or 0.65) * gain)` (`:174`) — bez suwaka. Suwak muzyki mnoży tylko pętle soundscape (`audio/soundscape.lua:323`). Dlatego przy 0 nadal słychać strzały, kroki i potwory.
+
+**Inne gry.** Prawie każda duża gra: Master, Music, Effects (SFX), Voice/Dialogue; często też Ambience/Environment, UI, czasem „dynamic range” (Destiny, Doom Eternal: Master/Music/SFX/Voice; Elden Ring: BGM/SFX/Voice; Hunt: osobno ambience i muzyka, bo dźwięk otoczenia jest informacją).
+
+**Propozycja.** Suwaki: Główna głośność, Efekty (broń, kroki, stwory, uderzenia), Muzyka, Otoczenie (ambient), Interfejs. Zapis w preferencjach (migracja: stary `music` → muzyka i otoczenie). Test: przy Efektach 0 źródła z kategorii broni/stworów mają głośność 0; przy Muzyce 0 pętle muzyki 0, ambient bez zmian. Nakład mały (Claude), ryzyko małe.
+
+#### 6. Animacja picia z flaski
+
+**Stan.** 0.44: arkusz `assets/art/flask-hands-v44.png` (6 klatek), ścieżka ręki w `content/equipment_art.lua` (`motion`: przesunięcie w lewo do −0,14 wysokości ekranu i obrót nadgarstka do −0,20 rad w fazie „sip”). Na klatkach kontrolnych szyjka flaski w fazie łyku wychodzi w lewo-górę poza kadr, a dno jest przy dole ekranu — z perspektywy pierwszej osoby wygląda to jak wylewanie *za siebie / przez ramię*, nie jak picie.
+
+**Inne gry (pierwsza osoba).** Picie/leczenie w FPP (np. Dying Light, Far Cry, Hunt: Showdown, Skyrim w trybie FPP z modami, Resident Evil Village): przedmiot przychodzi *do środka dolnej krawędzi kadru i ku kamerze*; przy łyku widać *dno* flaski unoszące się ku górze ekranu (szyjka skierowana na widza, skrócona perspektywicznie), często z lekkim uniesieniem widoku i przyciemnieniem krawędzi; potem efekt leczenia (ciepłe światło, dźwięk). Dark Souls/Elden Ring (TPP): uniesienie flaski do ust, krótki przechył, błysk Estus.
+
+**Propozycja.** Nowe klatki „mouth/sip/recover”: flaska na środku dolnej części kadru, szyjka ku kamerze, dno w górę; ścieżka `motion` bez wyjazdu w lewo (x ≈ 0, y w górę, obrót przeciwny niż dziś lub zerowy); opcjonalnie widok unosi się o 2–3° w fazie łyku (tylko prezentacja). Dźwięk łyku (synteza w `audio/recipes.lua`). Leczenie wizualnie w chwili zastosowania (ciepła winieta). Astra maluje klatki; Claude ścieżkę i test faz (istniejący `flask-art`).
+
+#### 7. Znajdźki amunicji na mapie
+
+**Stan.** Dwa małe obrazy `assets/art/pickups/ammo_rounds.png` (28 KB) i `ammo_shells.png` (19 KB), billboard na podłodze. Na renderach kaplicy giną w szachownicy posadzki (podobna wartość i nasycenie).
+
+**Inne gry.** Doom/Quake: przedmioty obracają się lub unoszą, mają jasny kontur i stały kolor dla rodzaju; Hunt: małe skrzynki z odbłyskiem i dźwiękiem z bliska; souls: znajdźki jako świecące „duszki” widoczne z daleka; Bioshock/Prey: krótki błysk/obwódka, gdy celownik jest blisko. Wspólne: *sygnał z daleka* (światło, ruch) + *rozpoznanie z bliska* (kształt, kolor rodzaju).
+
+**Propozycja.** Nowe malowane znajdźki w stylu fresku: sakwa z łuskami (Exorcist) i woreczek/szkatułka z nabojami (Judge), z ciepłym nimbem świecy na podłodze pod spodem (plama światła rysowana jak u ognisk), powolne „oddychanie” jasności 1–2 Hz, kolor rodzaju (miedź/złoto vs kość). Kryterium: kontrast z posadzką ≥ 3:1 z 8 m; rozpoznanie rodzaju z 4 m; właściciel ocenia klimat.
+
+#### Własne pomysły i uwagi
+
+1. **Jedna zasada sygnałów ataku** dla wszystkich stworów: źródło (świeci/porusza się) → ścieżka (linia/znak) → wyzwolenie (błysk + dźwięk) → okno (zmęczenie). Zapisać ją w `STYL.md` i sprawdzać testem danych (każdy atak dystansowy ma `windupSound`, pozę `windup.<id>` i efekt źródła).
+2. **Dźwięk jako informacja**: każdy rodzaj ataku z własnym dźwiękiem zapowiedzi (dziś wiele ataków dzieli `return_warning`/`antler_warning`); kierunkowość ataków spoza ekranu (wskaźnik krawędzi ekranu jak w Halo/Destiny dla obrażeń zza pleców).
+3. **Odczucie trafienia elity**: elity mają ward/pancerz; trafienie w pancerz powinno brzmieć i wyglądać inaczej niż w ciało (iskry vs krew) — część już jest, warto sprawdzić z właścicielem, czy czyta się przy elitach.
+4. **Sklep potrzebuje broni**: zanim powstanie Zbrojownia, zaplanować 2–3 bronie z wyraźnymi rolami (np. kusza z bełtami przebijającymi, ciężka strzelba/kartaczownica, broń białej egzekucji) — inaczej ekonomia z punktu 4 nie ma treści.
+5. **Ekran ogniska** jako jedna scena z trzema „stacjami” (zbrojownia/kuźnia/ołtarz) zamiast listy — lepiej oddaje klimat i porządkuje decyzje.
+6. **Test „bezruchu”**: automatyczny test, który dla każdego stwora mierzy najdłuższy czas bez zmiany klatki i bez ruchu proceduralnego w każdym stanie — chroni przed nawrotem problemu z punktu 2.
+
+#### Plan (propozycja)
+
+Decyzje właściciela przed startem: ekonomia z punktu 4 (broń startowa, los ślubów/grawerów/hartowania, nowe bronie), zakres HUD z punktu 3, czy skracamy okna kary (2B) czy tylko je animujemy (2A).
+
+Etap A — szybkie, niezależne (Claude): A1 suwaki dźwięku (5); A2 HUD: usunięcie SHIFT z niszy + kontekstowe paski/teksty (3), render do akceptacji; A3 test bezruchu i raport bieżących wartości (2, kryterium).
+Etap B — animacje i efekty (Astra, xhigh; Claude integruje i testuje): B1 elity: klatki okien kary i odsłonięcia, Furfur `windup/strike.lightning` + ładowanie na porożu i łuk do znaku (2A); B2 promień Stolasa w trzech stanach (1); B3 picie z flaski (6); B4 znajdźki amunicji (7). Po każdym — klatki kontrolne i ocena właściciela.
+Etap C — po ocenie B: C1 ewentualne skrócenie okien kary (2B), jedna liczba na commit z sondą.
+Etap D — ekonomia (po decyzjach): D1 projekt danych sklepu (Zbrojownia/Kuźnia/Ołtarz) na obecnych dwóch broniach; D2 sigile jako jedna kategoria znajdźki, sloty i zakładanie przy ognisku; D3 nowe bronie (Astra: grafika, Claude: walka) jedna po drugiej; D4 wycena i bot ekonomii (~1420 dusz/przejście).
+Niezrobione z poprzedniego planu, do przeniesienia: próba właściciela B02, B03/B04, C02, wybór zestawu dźwięku (F7), kontrast Iron Thralla, niezabezpieczeni zabici innych obszarów, testy `weight`/`floor-layers` na Linuxie z GPU.
+
+## Analiza 2026-11-03b: Astra
+
+_Dawniej: analiza Codex Astra (xhigh); odnośniki evidence/ i probes/ prowadzą do jej klonu sigil-analiza-astra/work/analiza._
+
+### SIGIL: BREACH 0.44 — analiza Astra dla właściciela
+
+3 listopada 2026 · niezależna analiza · commit `5fecf90d42922382ba6ee5103b6dbb86c841f329`.
+
+**Rekomenduję najpierw naprawić związek między czynnością przeciwnika a jej obrazem, odciążyć komunikaty i poprawić gest picia. Potem wdrożyć sklep: Judge na start, zakup Exorcista, trwałe hartowanie i znalezione sigile zakładane wyłącznie przy ogniu.** Nie skracałbym teraz okien odsłoniętej gardy ani telegrafów. Wykryty problem animacji Furfura pozwala poprawić jego odbiór bez zmiany tych czasów.
+
+Najważniejsze ustalenia:
+
+- Furfur w badanych atakach dystansowych wywołuje pioruny na ziemi, nie lecące pociski. Ostrzeżenia istnieją, ale gest nie wyjaśnia dobrze skutku. W `storm-steps` postęp animacji liczy się względem 0,4 s, chociaż aktywna sekwencja trwa 2,08 s. Jedna klatka uderzenia pozostaje przez 1,875 s. To konkretny błąd prezentacji, nie dowód na zawieszenie SI.
+- Ekonomia ma lukę: tę samą unikalną pieczęć można zebrać, umrzeć i zebrać ponownie, podnosząc zachowaną rangę. Naprawa jest warunkiem rozszerzenia stakowania. Osobno: 1420 dusz to dochód z jednego czyszczenia kaplicy, a nie nieprzekraczalny budżet całego zapisu.
+- Ekran powiela wytrzymałość i kilka innych komunikatów. Usunięcie tekstu `SHIFT` i małego licznika z istniejącej niszy nie wymaga przebudowy chronionego fresku HUD.
+- Suwak `Music and ambience` nie steruje efektami, a nawet niektóre odgłosy otoczenia omijają tę regulację. Potrzebne są jawne kategorie dźwięku.
+
+Dowody i linie kodu dla tych ustaleń znajdują się w odpowiednich rozdziałach poniżej.
+
+#### Zakres, metoda i pewność ustaleń
+
+Przeczytałem `START-HERE.txt`, `docs/PROMPT-NOWY-AGENT.md`, `docs/WIZJA.md`, `docs/STYL.md`, bieżące i istotne historyczne części `docs/PLAN.md`, `game/INSTRUKCJA.txt`, odpowiednie części `docs/TECHNIKA.md` oraz historię 0.43–0.44. Historyczne propozycje z WIZJI nie są tabelą obecnego balansu: w tym raporcie aktualne liczby pochodzą z uruchomionego kodu. Nie zlecałem pracy innym agentom. Nie zmieniałem kodu, zasobów ani dokumentów repozytorium; materiały analizy są w `work/analiza/`, standardowe wyniki testów w `work/qa/`, izolowane zapisy w `work/appdata/`.
+
+Oznaczenia:
+
+- **Kod / pomiar** — odczyt konkretnej implementacji lub wynik sondy; ścieżki `game/...:N` wskazują linię w badanym commicie.
+- **Ocena obrazu** — moja interpretacja wskazanego PNG, nie pomiar opinii graczy.
+- **Hipoteza** — wymaga swobodnej gry albo badania z właścicielem.
+- **Projekt** — proponowane zachowanie i liczby; nie są już wdrożone ani zbalansowane.
+
+Uruchomiłem `scripts/TEST.ps1 -Suite All -TestTimeoutSeconds 1800`: wszystkie osiem etapów PASS, **6044 sprawdzenia mechaniki/zasobów, w tym 10 golden**, oraz **50 sprawdzeń sterowania**. Formatowanie, 654 pliki Lua, architektura i 5049 odwołań do plików również przeszły. Benchmark, core-measure, step-study i audio-export w tym poleceniu pracują jako smoke; nie przedstawiam ich jako pełnego profilowania ani odsłuchu. [Log wykonania](evidence/full-tests.stdout.log), [testy mechaniki](evidence/tests/test-results.txt), [sterowanie](evidence/tests/input-results.txt), [rendery](evidence/tests/render-results.txt), [potwierdzenie startu i niezmienności źródeł](evidence/tests/source-startup-check.evidence.json).
+
+Własna sonda używa niezmienionej kopii modułów i zasobów gry, jej renderera oraz rzeczywistych `Game.update`, `Actions.begin`, `Rules.guard` i obsługi ekwipunku. Próby ataków: jeden przeciwnik, dystans początkowy 8 m, nieruchomy gracz, krok symulacji 1/120 s. Wymuszam **konkretny dostępny atak**, blokuję rozpoczęcie następnego i nadaję graczowi nieśmiertelność; to izoluje sekwencję, ale nie odtwarza pełnej walki, doboru ataków, reakcji na strzały ani kolejnych kombosów. Różnica do jednego kroku, 8,33 ms, wynika z dyskretyzacji i kolejności aktualizacji; nie jest pomiarem opóźnienia sprzętu. Obraz można analizować klatkami, ale **nie nagrywałem wideo** i nie twierdzę, że oceniłem płynność przy swobodnym sterowaniu.
+
+W katalogu dowodów jest **110 PNG**: 74 własne podstawowe klatki, 28 scen istniejącego `chapel_look`, sześć dodatkowych ujęć i dwa arkusze wycinków. Dla 74 podstawowych klatek digest symulacji przed i po renderowaniu jest identyczny: [manifest](evidence/capture-manifest.csv). Dodatkowych sześciu ujęć ten test digest nie obejmuje. Sceny `PROVING` są kontrolowanym stanowiskiem; jego pomocniczych napisów nie doliczam do HUD kaplicy. [Kod sond](probes/probe.lua), [sondy gospodarki/dźwięku i dodatkowych ujęć](probes/extra.lua), [instrukcja odtworzenia](evidence/README.txt).
+
+Porównania z innymi grami są opisem znanych mechanizmów, nie nowym testem porównawczym tych tytułów. Nie przypisuję im wymyślonych czasów animacji czy wartości miksu. Kilka szczegółów sprawdziłem w podlinkowanych materiałach producentów.
+
+#### 1. Linia Stolasa i klimat efektów ataków
+
+##### Stan obecny i dowody
+
+`star-lance` ma zasięg i długość 14 m, windup 0,6 s, parametr kontry `parry = 0.4`, opóźnienie zagrożenia 0,45 s, kąt przemiatania 0,02 rad, prędkość kątową 1, czas fazy uderzenia 0,3 s, recovery 1 s i cooldown 1,2 s. Pakiet zawiera 42 obrażenia i 60 impetu astralnego. To parametry definicji, a nie suma czasu do następnego ataku. Źródło: `game/src/content/creatures/stolas.lua:132`.
+
+Wykonanie ataku tworzy `sweepline` przy przeciwniku dopiero po windup; malowany pas ostrzega przed późniejszym aktywnym przecięciem. Sama kolizja używa geometrii przemiatania, a nie jasnych pikseli tekstury. Źródła: `game/src/enemies/ranged_kinds.lua:172`, `game/src/enemies/hazards.lua:209`. Obraz pochodzi z atlasu `rites-fresco-v36.png`, komórki `ray`: rozmiar 1,7, krok 1,5, alfa ostrzeżenia 0,48. Renderer układa powtarzane fragmenty na ziemi; faza aktywna ma alfę 1. Źródła: `game/src/content/art/rites.lua:8`, `game/src/render/hazard_kinds.lua:86`.
+
+**Pomiar:** wypuszczenie i pojawienie pasa w 0,600 s, aktywacja zagrożenia w 1,0417 s, wejście w recovery w 0,900 s, powrót do ruchu w 1,600 s. Zagrożenie nadal czeka, kiedy ciało zaczyna już recovery. Nie jest to samo w sobie błędem: ciało może zakończyć zaklęcie przed jego skutkiem. Ważne, żeby obraz pokazał przekazanie energii. [Zdarzenia](evidence/attack-events.csv), [klatka 0,85 s](evidence/stolas-star-lance-t0850.png).
+
+**Ocena obrazu:** [ujęcie z góry na tor](evidence/lance-aimed-down.png) i [ujęcie z boku](evidence/lance-side-down.png) potwierdzają odczucie płaskości: długi, równy, jasny rdzeń wygląda jak namalowana szyna. Jednocześnie jest czytelny. Zwykłe ujęcie w stronę twarzy przeciwnika pokazuje mniej toru — jego część leży pod bronią i dolną częścią obrazu. Nie znalazłem tu dowodu na znikający renderer; zmiana kąta kamery ujawnia pas.
+
+**Klasyfikacja:** poprawna mechanika i celowa poprawa czytelności; problem plastyki i przyczynowości. Zamiana na lecący promień albo uszkodzenia przez cały czas widoczności byłaby zmianą mechaniki.
+
+##### Co warto wziąć z innych gier
+
+| Gra i mechanizm | Dlaczego działa | Przeniesienie do SIGIL |
+|---|---|---|
+| **Returnal:** konsekwentne rodziny kształtów pocisków i rozpoznawalne trajektorie | Wzór ruchu daje się czytać przed dotarciem zagrożenia | Jedna gramatyka „przygotowanie → kierunek → aktywacja”. Nie neonowa paleta i gęstość bullet hell |
+| **Hades:** zapowiadanie obszaru ataku na ziemi | Zasięg zagrożenia jest informacją przestrzenną | Zachować prawdziwy obszar, materiał fresku; pamiętać, że kamera FPS widzi mniej ziemi niż izometria |
+| **Doom Eternal:** wyraźne sylwetki i rodzaje niebezpiecznych pocisków | Efekt daje się odróżnić od dekoracji | Różnicować tor/sylwetkę ataku, nie dokładać poświaty wszystkiemu |
+| **Halo, ładowany strzał pistoletu plazmowego:** widoczny i słyszalny etap ładowania | Energia ma czytelne źródło i moment uwolnienia | Przed pasem — wyraźny gest Stolasa i mały punkt skupienia; bez kopiowania futurystycznego światła |
+
+##### Warianty i rekomendacja
+
+1. **Retusz materiału, bez nowej choreografii** — pozostawić jasny, ciągły rdzeń, dodać poszarpany ciemny brzeg, osmalenie, drobne nieregularności pigmentu i złotą poświatę wyłącznie przy aktywacji. Najmniejszy koszt i ryzyko; sam nie wyjaśni początku ataku. Uważać na widoczny rytm powtarzania kafla co 1,5 m.
+2. **Rekomendacja: materiał + trzy fazy prezentacji** — gest gromadzenia przy ciele podczas istniejących 0,6 s; po wypuszczeniu jasny tor z narastającymi pęknięciami na istniejących 0,45 s; krótki płomień astralny na faktycznej aktywacji i szybko gasnący ślad. Stan bierze się z autorytatywnego zegara, bez nowego timera walki. Rdzeń pozostaje czytelny cały czas ostrzeżenia; ozdobniki nie mogą sugerować, że bezpieczna część pasa jeszcze nie istnieje.
+3. **Przestrzenna włócznia lecąca od dłoni** — bardzo czytelna przyczyna, lecz nowy model ataku, inna możliwość uniku, nowe kolizje. Większy koszt i zmiana golden. Odradzam na tę iterację.
+
+Nakład orientacyjny: wariant 1 — 0,5–1 dnia; wariant 2 — 1,5–3 dni grafiki i integracji; wariant 3 — 3–5 dni plus balans. To szacunki, nie gwarancje.
+
+**Odbiór projektu:** w tych samych próbach czasy zdarzeń i trafień identyczne co do kroku; digest i golden bez zmian. Obejrzeć tor z 4/8/12 m, na jasnym i ciemnym kamieniu, z dołu i pod kątem, we wszystkich pięciu rozdzielczościach. Docelowy kontrast lokalny rdzenia do bezpośredniego tła minimum 3:1 na reprezentatywnych przekrojach ostrzeżenia; mierzyć luminancję liniową z PNG, a nie wartość alfa. To **próg projektowy**, nie wynik tego audytu. W próbie rozpoznawania po krótkim pokazie co najmniej 8/10 osób wskazuje tor zagrożenia; dekoracyjny ślad po ataku nie jest mylony z aktywną kolizją.
+
+**Decyzja właściciela:** zachowujemy ziemny rytuał czy naprawdę chcemy przestrzenną włócznię? Rekomenduję pierwsze i wybór materiału: nadpalone złoto/kość z ciemnym pęknięciem. Nie zmieniamy stylu samego Stolasa.
+
+#### 2. Furfur i Margrave: telegraf, ładowanie, „stutter”, odsłonięta garda
+
+##### Co naprawdę robią
+
+Furfur wybiera w pierwszej fazie m.in. `gore`, `charge`, `lightning`; przy połowie życia wchodzi w fazę burzy z przejściem 1,4 s i otwarciem `storm-steps`. Margrave ma m.in. `ash-lance`, a po nim preferowany `cinder-spear`; jego przejście przy połowie HP również trwa 1,4 s. To elity, chociaż Margrave ma wewnętrzne ID `boss`. Zapisane w katalogach wielkie ataki typu `tempest-cross` nie są automatycznie repertuarem obecnego moba. Źródła: `game/src/content/creatures/furfur.lua:108`, `game/src/content/creatures/boss.lua:95`.
+
+**W badanych dystansowych atakach Furfur nie wystrzeliwuje lecącego obiektu.** `lightning` przygotowuje piorun w oznaczonym miejscu, a `storm-steps` kolejno znaczy pozycje gracza. Ten drugi tworzy pięć zagrożeń co 0,42 s, każde z opóźnieniem 0,62 s i promieniem 1,2 m. Pociskiem jest natomiast `cinder-spear` Margrave'a: prędkość 16 m/s, windup 0,62 s. Źródła: `game/src/content/creatures/furfur.lua:174`, `game/src/content/creatures/furfur.lua:317`, `game/src/enemies/ranged_kinds.lua:241`, `game/src/content/creatures/boss.lua:202`; potwierdzenie braku/obecności pocisków w [pełnym śladzie](evidence/attack-trace-120hz.csv). Nie podważa to odczucia właściciela — ekran powinien wyjaśniać, skąd przychodzi atak.
+
+| Sekwencja, od początku przygotowania | Telegraf → wypuszczenie | Pierwsze rzeczywiste zagrożenie | Przejście do recovery | Powrót do ruchu w sondzie |
+|---|---:|---:|---:|---:|
+| Furfur `lightning` | 0 → 0,725 s; definicja 0,72 | 0,725 s, piorun | 1,050 s | 1,750 s |
+| Furfur `storm-steps` | 0 → 0,600 s | pierwszy znak 0,6083 s; pierwszy piorun 1,225 s | 2,6833 s | 3,3833 s |
+| Margrave `ash-lance` | 0 → 0,650 s | trzy znaki od 0,650 s; ogień od 1,2917 s | 1,000 s | 1,3833 s |
+| Margrave `cinder-spear` | 0 → 0,625 s; definicja 0,62 | pocisk od 0,625 s | 0,9083 s | 1,6083 s |
+
+Źródło całej tabeli: [attack-events.csv](evidence/attack-events.csv), próbki 120 Hz. Dalsze pioruny Furfura aktywują się w 1,6417 / 2,0583 / 2,4833 / 2,900 s. Dalsze pola `ash-lance` w 1,600 / 1,900 s. Definicje: `game/src/content/creatures/furfur.lua:174`, `:324`; `game/src/content/creatures/boss.lua:177`, `:203`. „Powrót do ruchu” nie oznacza gotowości na następny atak — sonda specjalnie go blokuje.
+
+Obecny kod zatrzymuje ciało na recovery najwyżej **0,7 s**, ale pełne `spent` nadal blokuje atak. Dla `cinder-spear` recovery ma 1,25 s; po pierwszych 0,7 s przeciwnik może iść, ale nie atakować. Cooldown biegnie obok tego mechanizmu, nie dodaje się go mechanicznie do każdej kolumny tabeli. Źródła: `game/src/content/combat_defaults.lua:56`, `game/src/enemies/actions.lua:202`, `game/src/enemies/ai.lua:351`, `:393`.
+
+Opóźnione ciosy są inną kategorią: Furfur `gore` ma windup 0,56 s i warianty hold 0 / 0,3 / 0,6 s; Margrave `cleave` 0,62 s i hold 0 / 0,34 / 0,68 s, `ash-thrust` 0,7 s i hold 0,1 / 0,45 / 0,9 s. Atak spoza kierunku patrzenia dostaje dodatkowo 0,26 s ostrzeżenia. To **odczyt danych, nie osobne zmierzone próby wszystkich holdów**. Źródła: `game/src/content/creatures/furfur.lua:240`, `game/src/content/creatures/boss.lua:257`, `:559`, `game/src/enemies/actions.lua:97`, `game/src/content/combat_defaults.lua:245`. Nie usuwałbym tych przytrzymań: uczą czytania wypuszczenia zamiast rytmicznego wciskania uniku.
+
+##### Potwierdzony problem prezentacji długiego ataku
+
+`Actions.strike` bierze czas z implementacji rodzaju ataku. Dla burzy jest to `(count−1)×interval+duration`, czyli **2,08 s**. `ActionPhase.sample`, z którego czytana jest animacja, ma specjalny sampler tylko dla szarży i w pozostałych przypadkach używa samego `spec.duration`, tu **0,4 s**. Źródła: `game/src/enemies/actions.lua:185`, `game/src/enemies/ranged_kinds.lua:261`, `game/src/enemies/action_phase.lua:36`, `:52`.
+
+Furfur używa dwóch ogólnych klatek `strike`, 10 i 11; drugą osiąga w próbce 0,8083 s i trzyma do 2,6833 s — **1,875 s na tej samej klatce atlasu**. To nie znaczy, że każdy piksel stoi: mogą działać transformacje całego sprite'a i efekty świata. Jednak sylwetka nie pokazuje kolejnych pięciu uderzeń. [Arkusz dziewięciu klatek](evidence/furfur-storm-contact-sheet.png), [surowy ślad z numerem klatki](evidence/attack-trace-120hz.csv). Ogólne pozy: `game/src/content/art/sheets/furfur.lua:94`. Ten sam wzorzec rozbieżności czasu dotyczy rodzaju `salvo` i wymaga audytu, choć nie zmierzyłem tu wszystkich jego użytkowników: `game/src/enemies/ranged_kinds.lua:236`.
+
+**Istotne ryzyko architektury:** `Pose.base` pobiera klatkę i transformację z `Animation.pose`, a `Surface.prepare` wybiera na tej podstawie maskę trafienia i regiony anatomii. Zatem poprawienie postępu pozy może zmienić miejsce trafienia strzału **nawet przy identycznych zegarach SI i bez przemalowania atlasu**. Źródła: `game/src/enemies/pose.lua:28`, `game/src/enemies/surface.lua:84`. Nie rozdzielać tego pochopnie na „ładny obraz” i niewidzialną starą bryłę. Najmniej ryzykowny etap to akcenty energii/wyładowań bez zmiany obrysu; pełna korekta pozy wymaga porównania trafień na głowę, korpus i skraj sylwetki w każdej fazie. Jeśli zmieni kontakty, wrócić do wariantu zachowującego geometrię albo wydzielić świadomie zatwierdzaną zmianę mechaniki. Zielony golden jest bramką, a nie obietnicą, że każda animacja musi go automatycznie zachować.
+
+**Ocena obrazu:** Furfur w trakcie burzy wygląda bardziej jak koń zawieszony w ruchu niż sprawca kolejnych wyładowań. Coś trwa w symulacji, ale ciało tego nie opowiada. Margrave ma własne pozy dla `ash-lance` i `cinder-spear`, dlatego nie diagnozuję u niego identycznej usterki na podstawie samego wrażenia właściciela. Jego [przygotowanie pocisku](evidence/boss-cinder-spear-t0600.png) i [recovery](evidence/boss-cinder-spear-t0950.png) wymagają raczej mocniejszego rozdzielenia gestów. Źródło pozy: `game/src/content/art/sheets/boss.lua:91`.
+
+##### Odsłonięta garda to osobny stan
+
+`breakTime`: **Furfur 1,5 s**, **Margrave 1,6 s**; pomiar z rzeczywistego przekroczenia progu gardy: koniec odpowiednio **1,5083 s i 1,6083 s**. Źródła: `game/src/content/creatures/furfur.lua:65`, `game/src/content/creatures/boss.lua:61`, `game/src/combat/rules/balance.lua:142`; [CSV](evidence/attack-events.csv), [Furfur 0,8 s](evidence/furfur-exposed-t0800.png), [Margrave 0,8 s](evidence/boss-exposed-t0800.png).
+
+Prezentacja opiera się na pozie bólu i sinusoidalnym przechylaniu całego ciała: `sin(time×6+id)×0,06`, z dodatkowym ugięciem do 0,04. **6 oznacza parametr argumentu sinusa, nie sześć pełnych chwiań na sekundę**. Źródła: `game/src/content/combat_defaults.lua:97`, `game/src/enemies/animation.lua:69`. Powtarzane kołysanie może wyglądać komicznie; to moja ocena PNG i przebiegu parametrów, nie wynik testu odczucia animacji.
+
+Ostrzegawczy dźwięk już istnieje: `AttackTelegraphed` odtwarza `windupSound` z priorytetem 3 i głośnością wejściową 0,7; wypuszczenie zatrzymuje ostrzeżenie i odtwarza właściwy efekt z priorytetem 2, głośnością 0,65. Furfur ma `storm_warning` / `storm_release`. Źródła: `game/src/feedback/world_feedback.lua:35`, `:57`, `game/src/content/creatures/furfur.lua:175`. Brak czytelności nie oznacza braku zdarzenia audio; miks i rozpoznawalność są osobnym problemem z rozdziału 5.
+
+##### Wzorce i warianty
+
+**Monster Hunter** dobrze wiąże dużą sylwetkę, przeniesienie ciężaru i uwolnienie ataku. To właściwa inspiracja dla konia: osadzenie nóg, uniesienie poroża, napięcie przed wyładowaniem. **Elden Ring** świadomie używa opóźnionych uderzeń — samo skrócenie holdów usuwa treść walki. **Sekiro** dodaje znak niebezpieczeństwa, lecz gracz nadal musi rozróżnić ruch; samo dodanie wielkiego symbolu nie zastąpi gestu. **Bloodborne** wiąże strzał-kontrę z czytelnym momentem agresji i następującym otwarciem. Pasuje rytm nagrody, nie identyczne czasy ani zamiana każdego ataku na bezwarunkowo parowalny. **Darktide/Vermintide** wykorzystują charakterystyczne odgłosy zagrożeń także poza centrum uwagi; inspiracja dla warstwy dźwięku, nie dla dodatkowej ściany komunikatów.
+
+| Wariant | Korzyść i kompromis | Nakład / ryzyko |
+|---|---|---|
+| A. **Rekomendowany:** poprawić źródło postępu animacji; odrębny gest ładowania burzy, akcent przy każdym istniejącym wyładowaniu, wygaszane ugięcie przy przełamaniu gardy | Naprawia przyczynowość i zachowuje zegary; zachowanie trudności trzeba potwierdzić kontrolą trafień. Wymaga kilku nowych klatek w tym samym stylu | 2–4 dni; średnie ryzyko prezentacji, istotne ryzyko kontaktów przy zmianie pozy lub atlasu |
+| B. Zostawić pozy, dodać tylko świetlny punkt na porożu/mieczu i bardziej wyraźny dźwięk | Szybko wskazuje źródło; nadal wisząca sylwetka i słaba różnica między hold a exposed | 0,5–1 dnia; niski koszt, ograniczony efekt |
+| C. Skrócić exposed/recovery/serię burzy | Mniej stania, ale mniej czasu na kontrę i egzekucję; realnie trudniejsza walka, nie poprawka animacji | 1–2 dni kodu plus kilka sesji balansu; zmiana golden i `creature-pressure` |
+
+W A chwianie po przełamaniu gardy: mocne jednorazowe ugięcie w pierwszych 0,15–0,25 s, potem czytelna osłabiona poza i powrót w ostatnich ~0,2 s. **Pełne okno 1,5/1,6 s zostaje.** Nie animować swobodnego gotowego ataku, zanim reguły rzeczywiście pozwolą uderzyć. Dla burzy pokazać wszystkie pięć wyładowań gestem/akcentem przy istniejących zdarzeniach; nie dodawać pięciu nowych pauz.
+
+**Odbiór:** wydarzenia z tabeli i geometria trafień bez przesunięć większych niż jeden krok; brak zatrzymywania zegarów innych stworów. Żadna nieuzasadniona końcowa poza `strike` burzy nie trwa ponad 0,45 s bez czytelnego akcentu podtrzymania/wyładowania. Z kamerą na torsie gracz rozpoznaje „ładuje / wypuścił / odsłonięty” w ≥80% z 30 pomieszanych ujęć lub krótkich obserwacji na żywo, po zapoznaniu się z mechaniką. To cel do przyszłego testu. Sprawdzić wszystkie warianty hold, przerwanie/cancel, offscreen +0,26 s, przejście fazy, zapis/wczytanie w trakcie akcji i kontrę. Testy `creature-pressure`, animacji, kontaktów i golden muszą pozostać zielone; nie przyjmować nowego golden automatycznie dlatego, że „to tylko grafika”.
+
+**Decyzja właściciela:** zaakceptować najpierw naprawę prezentacji z zachowaniem czasów. Dopiero po jej obejrzeniu ocenić, czy nadal za długo trwa **konkretne** okno. Jeżeli tak: osobna próba jednej zmiany, np. wyłącznie Furfur exposed 1,5 → 1,3 s, świadomie trudniejsza i z oddzielnym pomiarem skuteczności egzekucji. To wariant eksperymentalny, nie moja bieżąca rekomendacja.
+
+#### 3. Ekran: hierarchia informacji bez naruszenia dolnego HUD
+
+##### Inwentaryzacja
+
+Dolny fresk zajmuje w układzie referencyjnym 1280×720 obszar od y=584 o wysokości 136. Zawiera m.in. amunicję/rezerwę, zdrowie, arsenał, portret, ward, narzędzia, dusze i informacje o serii. Chronię jego kształt, ilustracje i podział pól. Źródło: `game/src/ui/hud.lua:121`, `:156`, `:215`.
+
+| Element | Obecna rola i dowód kodu | Zalecenie projektowe |
+|---|---|---|
+| `SHIFT` + ikona + mały pasek 32 px w niszy narzędzi | `game/src/ui/hud.lua:266` | Usunąć tę powtórkę treści. Nie przesuwać ram, portretu ani sąsiednich pól i nie zapełniać pustego miejsca kolejnym licznikiem |
+| Pasek wytrzymałości 280 px nad HUD, tylko gdy zasób <100%; próg uniku | `game/src/ui/hud.lua:293`; unik 26/100: `game/src/content/knight.lua:40`, `:59` | Zachować jako jedyne ciągłe źródło stanu wytrzymałości |
+| Centralne `OUT OF BREATH`, `OFF BALANCE`, `DRINKING`, odmowy akcji | `game/src/ui/hud.lua:387`; `game/src/content/text.lua:435` | Jedna wiadomość przyczyny na raz. OUT OF BREATH krótko po nieudanej próbie, nie drugi stały pasek. DRINKING zniknie, jeśli gest sam będzie czytelny; opcja pomocy może je zachować |
+| Panel `TAB MAP / F1 HELP` i zegar | Rysowany stale: `game/src/ui/hud.lua:315` | Pomoc w pauzie/mapie i podczas pierwszej nauki; czas opcjonalny w ustawieniu speedrun. W normalnej walce panel ukryty |
+| Nagłówek lokacji / etapu | Wywołanie `descentUI.heading`: `game/src/ui/hud.lua:601` | Krótkie pojawienie po wejściu, potem mapa/pauza. Nie mylić z panelem debug `PROVING` |
+| Zdrowie/garda wroga, ślad ostatniej straty, suma obrażeń | `game/src/ui/hud.lua:425` | Jeden aktualny cel, wygaszanie po zejściu z celu. Zachować gardę i ślad — uczą skutku strzału; sumę obrażeń schować domyślnie lub do trybu pomiarowego |
+| Medal, nazwa, opis efektu, seria w dolnym pasku | `game/src/ui/hud.lua:156`, `:521` | Jednorazowy medal po osiągnięciu, bez dodatkowej prozy efektu w walce; szczegóły w pomocy/ogniu. Nie usuwać funkcjonalnego potwierdzenia nagrody |
+| Amunicja i centralny panel braku/reload | `game/src/ui/hud.lua:488` | Czerwony/zmieniony stan w polu AMMO jako podstawa; panel tylko po nieskutecznej próbie albo gdy potrzebna zmiana broni. Samo przeładowanie już opisuje AMMO |
+| Interakcja przy ogniu/drzwiach | `game/src/ui/hud.lua:533` | Pozostawić, bo odpowiada na „co mogę zrobić tutaj”; tylko jedna dostępna interakcja |
+| Wiadomość, hint ruchu, rada flaski | `game/src/ui/hud.lua:554`, `:573` | Kolejka według znaczenia; nowe pouczenia po walce, znane nie wracają. Obecny kod już wycisza hint podczas medalu, ale medal i message mogą współistnieć |
+| Dusze, echo, ostatni przychód/licznik postępu | `game/src/ui/hud.lua:275` | Wallet i echo są istotne dla nowego sklepu. Zostawić; zysk krótko w tej samej niszy. Zgony/statystyki przenieść do podsumowania |
+| Mały celownik, mały hitmarker i kierunek otrzymanego ciosu | `game/src/ui/hud.lua:387`, `:603` | Zachować rozmiar hitmarkera. Kierunkowe zagrożenie ma wyższy priorytet niż medal |
+
+Dowody obrazu: [spokój 1280×720](evidence/hud-idle-1280x720.png), [wyczerpanie 960×540](evidence/hud-exhausted-960x540.png), [4:3](evidence/hud-exhausted-1024x768.png), [szeroki ekran](evidence/hud-exhausted-1920x810.png), [zatłoczona nagroda](evidence/look-medal-crowded.png), [kończąca się flaska](evidence/look-low-flask.png). W scenie spoczynkowej poza dolnym paskiem i celownikiem widać trzy prostokątne panele: lokacji, pomocy/czasu i interakcji. W wyczerpaniu dochodzą duży pasek wytrzymałości i centralna odmowa — **pięć odrębnych grup ponad dolnym HUD**, a wytrzymałość występuje jeszcze raz wewnątrz niego. To policzone grupy w tych konkretnych ujęciach, nie maksymalna liczba wszystkich nakładek gry.
+
+**Klasyfikacja:** powielenie informacji i brak silnej hierarchii, nie błąd geometrii chronionego paska. Ekran próbuje jednocześnie nauczać, pokazywać stan, nagradzać i raportować diagnostykę walki. Dodawanie wskaźnika do każdego problemu Furfura pogłębi tę sytuację.
+
+##### Porównania i warianty
+
+**Dark Souls/Elden Ring:** zasoby są stale w jednym miejscu, a nieudana czynność ma zrozumiały powód w stanie zasobu. **Dead Space:** część informacji niesie sam sprzęt i animacja; dla SIGIL użyteczna jest zasada „ręka opowiada czynność”, nie likwidacja autorskiego dolnego HUD. **God of War** łączy stan zasobów z lokalnymi ostrzeżeniami o niebezpieczeństwie; kierunek i priorytet komunikatu są ważniejsze od ilości tekstu. **Call of Duty:** krótkie potwierdzenie trafienia i nagrody działa, ponieważ jest natychmiastowe; nie wynika z tego potrzeba długiego opisu każdego bonusu.
+
+1. **Minimalny:** usunąć tylko powtórkę SHIFT i ukryć zegar/pomoc. 0,5 dnia, małe ryzyko, zauważalny porządek; pozostawia konflikty medali/stanów.
+2. **Rekomendowany:** powyższe oraz jedno miejsce dla bieżącej odmowy, wspólna kolejka informacji, warunkowe pouczenia i krótkie nagrody. 1–2 dni. Ryzyko: ukrycie potrzebnej przyczyny; zapobiega temu test wszystkich odmów i interakcji.
+3. **Pełna konfiguracja każdego widgetu:** swoboda, ale mnogość opcji i kombinacji QA. 3–5 dni; na tym etapie za duża cena. Wystarczą ustawienia `Tutorial hints`, `Combat details`, `Timer`.
+
+**Odbiór:** warstwa ilustracji, ramy i kompozycja dolnego HUD identyczne; dozwolone różnice tylko w uzgodnionych polach treści. W zwykłej walce maksymalnie dwie prozowe wiadomości poza dolnym HUD: jedna przyczyna/ostrzeżenie i ewentualnie jedna krótka nagroda; ważny stan ma pierwszeństwo. Przy spokojnej eksploracji bez interakcji zero stałych prostokątnych paneli nad sceną po wygaśnięciu nazwy miejsca. Nie liczę tu celownika, kierunków zagrożenia ani pasków celu jako „prozowych wiadomości”; one też mają kontrolowany zasięg i czas. Stamina ma jeden ciągły wskaźnik. Wszystkie pięć rozdzielczości bez ucięć, 0 konfliktów stanu flaski/przeładowania/odmowy, te same dane symulacji i golden.
+
+**Decyzje właściciela:** zaakceptować usunięcie tekstu i miniwskaźnika SHIFT przy zachowaniu niszy; czy czas i liczby obrażeń mają być domyślnie wyłączone; czy tekst `DRINKING` zostaje tylko w pomocy dostępności. Rekomenduję „tak” dla wszystkich trzech.
+
+#### 4. Ognisko jako sklep, ekonomia broni i znajdowane sigile
+
+##### Stan obecny: co naprawdę jest kupowane i zachowywane
+
+- Domyślny zestaw zawiera **Exorcista i Judge'a**, a nowa pielgrzymka zaczyna z portfelem 0. Źródła: `game/src/content/weapons.lua:193`, `game/src/run/pilgrimage.lua:237`. Judge ma bazowo 70 obrażeń, bęben sześciu nabojów, interwał 0,38 s i zabezpieczenie przed całkowitym wyschnięciem: poniżej sześciu nabojów łącznie odzyskuje jeden na sekundę. To ważny fundament broni początkowej. Źródło: `game/src/content/tuning.lua:118`.
+- Ognisko odnawia zdrowie, ward, narzędzia i amunicję posiadanych broni. Zapasy docelowe to Judge 72, Exorcist 20; odpoczynek zachowuje większy już zgromadzony zapas. Ogień odmawia interakcji w zagrożeniu. Źródła: `game/src/content/pilgrimage.lua:20`, `game/src/run/pilgrimage.lua:144`, `:496`.
+- Dusze są **automatycznie dopisywane za zabicie**, nie trzeba podnosić każdej porcji z posadzki. Mnożnik nagrody to 10. Śmierć przenosi bieżący portfel do jednego echa, zastępując poprzednie; echo jest odbierane z odległości <1,2 m. Źródła: `game/src/run/pilgrimage.lua:583`, `:610`, `:622`, `game/src/content/pilgrimage.lua:20`.
+- Przy ogniu kupuje się Flaskę I/II: **150/338**, każda +1 użycie, oraz Wigor I/II: **120/270**, każdy +15 HP. Hartowanie każdej z dwóch broni ma obecnie **jeden** poziom za **250**, mnożnik obrażeń **1,08**. Razem wszystkie te zakupy kosztują **1378**. Źródła: `game/src/content/shop.lua:109`, `:123`, `:178`, `game/src/run/economy.lua:166`, `game/src/content/tuning.lua:124`; [wyliczenie z rzeczywistych definicji](evidence/economy.csv). Nie używać starszych tabel 150/300/600 ani +3 jako opisu wersji 0.44.
+- Grawery są oznaczone `found=true` i nie są sprzedawane przy ognisku, choć mają ceny dla poligonu. Exorcist: `choke`, `pierce`; Judge: `breaker`, `precision`. Jeden grawer na broń, wymiana przy ogniu. Źródła: `game/src/content/shop.lua:43`, `game/src/run/economy.lua:232`. Przykładowe efekty: Judge Breaker ×1,25 impetu, Precision mnożnik głowy 1,6; Exorcist Focus zawęża rozrzut mnożnikiem 0,72, Pierce zwiększa penetrację kosztem impetu. Źródła: `game/src/content/weapons.lua:81`, `:156`, `game/src/content/tuning.lua:122`.
+- Są **dwa miejsca na rodzaje sigili**, każdy do trzech kopii/rang: Stolas dodaje po 0,12 do mnożnika trafienia w głowę Judge'a, Buer ustawia `rallyRate` na 0,08/0,10/0,12, Furfur `dodgeEdge` na 0,35/0,50/0,65; okno po doskonałym uniku wynosi 2 s. Źródła: `game/src/content/shop.lua:13`, `:140`, `game/src/content/tuning.lua:125`, `game/src/run/economy.lua:21`. To stan zastany, nie rekomendowane wartości nowego katalogu poniżej.
+- Znalezisko **automatycznie się zakłada**, jeśli odpowiednie miejsce jest puste. Ranga/posiadanie zapisują się w strukturze rozwoju; odwiedzenie ognia utrwala zabitych i zabrane przedmioty świata. Śmierć odtwarza nieutrwalony odcinek. Źródła: `game/src/run/pilgrimage.lua:45`, `:100`, `:469`, `:591`, `:1046`. To D8/D10 obecnej gry; postulowane „zakładanie wyłącznie przy ognisku” wymaga usunięcia autozakładania.
+
+**Obraz obecnego ognia:** [menu z nowego zapisu](evidence/look-fire-menu.png) pokazuje dwie bronie już posiadane, dwa śluby oraz hartowanie wybranej broni. Nagłówek `MERCHANT / At the fire`, portfel i komunikat `Missing 150 souls` są czytelne; ekran nie jest obecnie przeładowany ofertami. Warto zachować jasne uzasadnienie braku możliwości zakupu. Nowa gospodarka wymaga przede wszystkim dodania prawdziwej własności/kupna broni i czytelnego wyboru konfiguracji, nie samego powiększenia listy. Filtrowanie ofert do wybranej broni: `game/src/run/economy.lua:232`.
+
+**Dochód z pojedynczego czyszczenia:** [economy.csv](evidence/economy.csv), odczyt `game/src/content/pilgrimage.lua:141` i nagród rzeczywistych archetypów.
+
+| Część kaplicy / grupa posterunków | Dusze | Znaczenie dla zakupów |
+|---|---:|---|
+| Nawa, pięć posterunków | 320 | Dobre miejsce na pierwszy rzeczywisty wybór |
+| Krypta | 200 | Tańszy rozwój albo dopłata do broni |
+| Zachodnia grupa | 160 | Wspiera trasę boczną |
+| Wschodnia grupa | 240 | Większy dochód, inny zestaw zagrożeń |
+| Margrave | 250 | Znaczna nagroda i potencjalne odblokowanie kolejnego hartowania |
+| Furfur | 250 | Jak wyżej |
+| **Razem** | **1420** | Obecnie wystarcza na 1378 zakupów, zostaje 42 |
+
+Wniosek projektowy: obecny pełny dochód prawie równa się cenie wszystkiego. Bez strat dusz wybór dotyczy głównie **kolejności**, słabiej końcowej specjalizacji. Nowe bronie mogą tę sytuację zmienić, lecz należy pokazać koszt utraconej alternatywy, nie tylko podnieść wszystkie ceny.
+
+##### Dwa odkrycia dotyczące śmierci
+
+**Błąd: duplikowanie tej samej unikalnej relikwii.** Sonda znajduje `rewardId=relic_stolas`, podnosi go normalnym `collectSupplies`, wywołuje utratę życia/retry, ponownie odnajduje ten sam identyfikator. Ranga wynosi kolejno 1 → 2 → 3, po śmierci zostaje, a `run.taken.relic_stolas` nadal jest false. To nie są trzy różne kopie w sekretach. [Odtwarzalny scenariusz](probes/extra.lua), wiersze `relic-cycle` w [wyniku](evidence/economy.csv). Przyczyna: trwała zmiana `vows` w `game/src/run/pilgrimage.lua:51` i utrwalanie zabranych identyfikatorów dopiero w `secure`, `:469`. **Najpierw naprawić atomowość nadania i zużycia unikalnego przedmiotu.**
+
+**Zachowanie systemowe, nie automatycznie błąd:** ten sam nieutrwalony `nave_1` daje 40 dusz; po śmierci i odbiorze echa 40 zostaje, ponowne zabicie daje portfel 80. [Wiersze `soul-cycle`](evidence/economy.csv). To konsekwencja souls-like: niezabezpieczeni wrogowie wracają, a odzyskane pieniądze się sumują. **1420 nie ogranicza grindu.** Jeżeli właściciel chce zamkniętej ekonomii bez farmienia, potrzebna byłaby jawna zmiana nagród odrodzonych posterunków lub zasad odradzania, nie samo dostrojenie cen.
+
+Rekomenduję zachować możliwość ryzykownego odrabiania strat przez walkę i echo; nie projektować obowiązkowego grindu. Utrwalone odpoczynkiem posterunki nadal nie wracają. Powielanie tego samego trwałego przedmiotu trzeba usunąć niezależnie od tej decyzji.
+
+##### Co bierzemy z innych gier
+
+| Gra | Mechanizm | Wniosek dla SIGIL |
+|---|---|---|
+| **Killing Floor 2** | Dosh zdobywany w walce, sklep między falami, kupno i wzmacnianie broni; ulepszenia mogą zwiększać również wagę | Bierzemy moment oddechu i inwestycji w arsenał. Nie kopiujemy fal, odliczania handlu, resetu ekwipunku meczu ani obowiązku sprzedaży starej broni |
+| **Bloodborne** | Wzmacnianie lubianej broni i oddzielne modyfikatory; rozwój nie wymaga ciągłego wyrzucania modelu broni | Judge pozostaje przydatny; poziom nie zastępuje roli broni. Sigile i grawery mają różne zadania, ale nie kopiujemy całej liczby warstw Bloodborne |
+| **Resident Evil 4** | Kupno i ulepszanie konkretnych broni u kupca | Każdy zakup ma jasny efekt; specjalizacja i oszczędzanie są czytelne. Nie potrzeba losowych statystyk i kolorów rzadkości |
+| **Hollow Knight** | Charms zużywają różną liczbę miejsc i zmieniają sposób grania | Koszt miejsca jest rzeczywistą przeciwwagą, a nie darmowym mnożnikiem mocy. Stakowanie kopii w SIGIL to nasz projekt, nie cecha skopiowana z charms |
+| **Hades** | Efekty zależne od sposobu ataku, uniku i kombinacji | Budowa stylu przez zachowanie. Nie kopiujemy losowego resetu całego zestawu po każdym zgonie |
+| **Elden Ring** | Upuszczenie waluty przy śmierci, możliwość odzyskania; kolejna śmierć grozi utratą | Napięcie dotyczy niezainwestowanego portfela, nie utraty kupionego karabinu |
+
+Opis ulepszeń KF2 potwierdza [komunikat Tripwire z 20 kwietnia 2018](https://store.steampowered.com/news/posts/?appids=232090&enddate=1524856462&feed=steam_community_announcements): obrażenia i w niektórych przypadkach ciężar. Nie zakładam, że każda dzisiejsza broń ma identyczny przyrost lub koszt. Zasady utraty/odzyskiwania run opisuje [oficjalny przewodnik Elden Ring](https://en.bandainamcoent.eu/elden-ring/news/elden-ring-starter-guide-tips-know-playing-the-game).
+
+##### Trzy warianty ekonomii
+
+1. **Sklep niemal jak KF2:** tańszy model zastępowany wyższym tierem, handel bronią, większy arsenał, płatne zapasy. Duża satysfakcja zakupowa, ale wymaga wielu nowych modeli, nowej gospodarki amunicji i zmienia sens obecnego odpoczynku. Ryzyko, że Judge staje się śmieciem po pierwszym zakupie. Odradzam teraz.
+2. **Rekomendowany: stałe bronie + mała drabina hartowania + wymienne specjalizacje.** Judge startowy, Exorcist kupowany; każda broń zostaje własną rolą. Śluby dotyczą przeżycia, hartowanie mocy konkretnej broni, grawer jej charakteru, sigil zachowania gracza. Umiarkowany koszt, możliwość etapowego testu, zgodność z aktualnym kierunkiem.
+3. **Maksymalne uproszczenie:** kupno broni i wyłącznie sigile; usunąć śluby, grawery, hartowanie. Mało menu i łatwiejsze objaśnienie, lecz po zakupie dwóch broni zanika sens pieniędzy, a znalezione sigile musiałyby przejąć za dużo funkcji. Możliwy wariant krótkiej gry, nie mój wybór dla rozwoju projektu.
+
+##### Rekomendowany cykl i zasady trwałości — projekt
+
+**Zabijasz → dusze dopisywane do portfela → odnajdujesz sekrety/sigile → docierasz do bezpiecznego ognia → odpoczywasz i zabezpieczasz drogę → kupujesz broń lub rozwój → zmieniasz wyposażone sigile/grawer → wychodzisz na następną trasę.** Wizualna smuga dusz do rycerza może potwierdzać zysk, ale nie dodajemy obowiązku biegania po każdy pieniążek. Fizyczne podnoszenie zostaje domeną przedmiotów.
+
+- **Nowy zapis:** wyłącznie Judge, flaska i obecny podstawowy zestaw narzędzi. Exorcist w sklepie każdego zapalonego ognia za 300. W pierwszym wdrożeniu **dwie istniejące bronie łącznie**, nie dwie nowe. Docelowo trzecia broń wymaga odrębnej roli i budżetu grafiki; nie sprzedajemy kolejnych nazw z tym samym sposobem strzelania.
+- **Broń kupiona raz jest trwała**, nie wypada po śmierci. Jej hartowanie i posiadane grawery również zostają. Nie ma sprzedaży ani odzyskiwania wydanych dusz w pierwszej wersji. Można nosić obie istniejące bronie; limit dwóch aktywnych slotów staje się istotny dopiero przy trzeciej.
+- **Bezpiecznik Judge'a zostaje.** Ognisko uzupełnia zapasy tylko posiadanej broni; nowy zakup daje pełny magazynek i docelowy zapas przy tym ogniu. Przed kupnem Exorcista jego amunicja zostaje na ziemi, nie przepada i nie zmienia się automatycznie w dusze. Takie zachowanie dla nieposiadanej broni już ma punkt zaczepienia w `game/src/session/interactions.lua:20`.
+- **Śmierć:** cały niewydany portfel do jednego echa; kolejna śmierć zastępuje je zgodnie z obecną regułą. Brak opłat za odrodzenie i brak utraty zakupów. Odpoczynek nie jest bankiem waluty, a zakup jest sposobem bezpowrotnego zabezpieczenia wartości.
+- **Unikalny sigil/grawer:** jego zdobycie i trwałe zużycie `rewardId` są jedną transakcją zapisu. To jawny wyjątek od resetu zwykłych zapasów D10. Po śmierci przed ogniem nie wraca ten sam obiekt, a znaleziony przedmiot zostaje w kolekcji. Alternatywa „tracisz przedmiot i wraca do świata” jest spójna, ale mniej zgodna z radością ze znajdźki; nie mieszać obu reguł.
+- **Wyposażanie tylko przy ogniu.** Nowo znaleziony sigil trafia do kolekcji bez autozakładania. Nie kupuje się sigili ani ich rang za dusze. Ranga wymaga różnych, prawidłowo zużytych kopii w świecie; po osiągnięciu limitu nadmiar nie daje dodatkowej mocy ani sprzedaży za walutę w pierwszym wdrożeniu.
+- **Continue** zachowuje miejsce, HP, naboje, łyki, ekwipunek i etap czynności; nie wywołuje odnowienia ogniska. Migracja starego zapisu uznaje obie już posiadane bronie za kupione, bez odbierania Exorcista i bez wypłaty 300 dusz. Rygorystyczny start jedną bronią dotyczy nowych zapisów.
+
+##### Ceny i osiągalne decyzje — projekt liczbowy
+
+| Oferta | Cena | Zasada |
+|---|---:|---|
+| Judge | 0 | Broń początkowa |
+| Exorcist | **300** | Od pierwszego ognia; nowy sposób walki |
+| Wigor I / II | **120 / 270** | Zachować obecne +15/+15 HP, czyli 100→115→130 |
+| Flaska I / II | **150 / 338** | Zachować obecne 3→4→5 użyć po 45 HP |
+| Hartowanie I, osobno każda broń | **250** | Zachować obecne ×1,08 |
+| Hartowanie II, osobno każda broń | **350** | Docelowy etap po pierwszej pokonanej elicie; kolejne ×1,08, razem ×1,1664 |
+| Grawer / sigil | **nie na sprzedaż** | Znalezisko; zmiana przy ogniu bez opłaty |
+| Odnowienie zasobów przy odpoczynku | **0** | Nie wprowadzać równocześnie kosztu amunicji i nowego sklepu broni |
+
+Pierwsza implementacja powinna zatrzymać się na **+I**, a +II włączyć dopiero po porównaniu przejść jedną i dwiema broniami. Cena +II nie wynika z obecnego mnożnika `growth=2`; to nowa propozycja jawnej tabeli cen. Broń +II nie zmienia modelu, nie dostaje kolorowej rzadkości i nie zwiększa HP wrogów w odpowiedzi.
+
+Przy 320 duszach z nawy: Exorcist 300, zostaje 20 **albo** Wigor I + Flaska I =270, zostaje 50. Oba wybory są sensowne, drugi opóźnia zakup nowej broni. Nie dawać Exorcista gratis chwilę po takim wyborze. Nie zamykać przejścia ani elity wymaganiem jego posiadania.
+
+Przykłady końcowych koszyków przy jednorazowym przychodzie 1420; to arytmetyka projektu, nie rezultat playtestu:
+
+| Styl | Koszyk | Wydane / zostaje |
+|---|---|---:|
+| Ofensywa z dwiema broniami | Exorcist 300 + Judge I 250 + Judge II 350 + Exorcist I 250 + Wigor I 120 + Flaska I 150 | **1420 / 0** |
+| Bezpieczny arsenał | Exorcist 300 + Wigor I/II 390 + Flaska I/II 488 | **1178 / 242**; brakuje 8 do hartowania |
+| Specjalista Judge'a | Judge I/II 600 + Wigor I/II 390 + Flaska I 150 | **1140 / 280**; wybór: oszczędzać na broń czy flaskę |
+
+Wszystkie zakupy z dwiema rangami hartowania kosztują **2378**, czyli ok. 167% pojedynczego dochodu. Pierwsza wersja z samym +I: **1678**, czyli ok. 118%. Dzięki temu nie wszystko mieści się w bezbłędnym przejściu, ale do ukończenia nie może być wymagany pełny koszyk. [CSV z modelem cen i koszyków](evidence/proposed-economy.csv).
+
+Konsekwencja farmienia jest jawna: gracz może z czasem wykupić więcej. To nie ekonomia rywalizacji ani ranking bez grindu. Jeśli właściciel chce trwałego ograniczenia builda, odpowiada za nie **pojemność sigili i wybór graweru**, a nie fikcyjne założenie, że 1420 nigdy nie zostanie przekroczone.
+
+##### Co dzieje się z D8 i obecnymi warstwami rozwoju
+
+| Warstwa | Proponowane znaczenie | Los obecnej zawartości |
+|---|---|---|
+| Waluta | `SOULS` do czasu decyzji nazewniczej | Bez drugiego rodzaju pieniędzy i bez kosztów realnych |
+| Śluby | Stała odporność na błędy: zdrowie i liczba łyków | Zostają dwa obecne; nie przywracać ślubu ward |
+| Hartowanie | Stała moc wybranej broni | Zostaje +I, potem rozważyć +II. W menu pod bronią, nie jako trzecia kopia opisu ślubu |
+| Grawery | Jedna wymienna specjalizacja **konkretnej broni** | Cztery obecne pozostają znajdźkami, darmowa wymiana, jedna na broń; nie stackują |
+| Sigile | Wymienne warunki nagradzające **sposób gry rycerza** | Znajdowane, stackowane fizycznymi kopiami, ubierane tylko przy ogniu; katalog poniżej |
+| Relikwia | Nazwa kategorii przedmiotu świata, nie kolejny system statystyk | Sigil lub grawer; brak osobnego licznika „relikwii” i osobnej waluty |
+
+To aktualizacja D8: dusze kupują teraz **również broń**, reszta rozdziału „świat daje modyfikatory” pozostaje. Do potwierdzenia przez właściciela, a później zapisania w WIZJI przez osobę wdrażającą; w tej analizie dokumentów repozytorium nie aktualizowałem.
+
+##### Osiem konkretnych sigili — katalog projektu do prototypów
+
+Proponuję **4 punkty pojemności**, zamiast dwóch równorzędnych miejsc na dowolnie silny rodzaj. Pierwsza kopia kosztuje 1 albo 2 punkty według tabeli, każda następna wyposażona kopia tego samego rodzaju **+1 punkt**, maksimum 3 kopie/ranga. Przykład: Furfur I kosztuje 2, II 3, III 4; Stolas III kosztuje 3. Właściciel trzech kopii może założyć tylko jedną lub dwie. Nie ma automatycznej obowiązkowej maksymalnej rangi. Zdejmowanie bez opłat przy ogniu; niedozwolony układ nie daje częściowych/ukrytych efektów.
+
+Wartości poniżej są **nowym balansem do testu**, nie opisem istniejących sigili. Nazwy odnoszą się do demonologii, ale znaczenie bonusów jest autorskie; nie przypisuję go źródłom historycznym. Wizerunki pieczęci powinny pochodzić z tej samej sprawdzonej konwencji co obecne, nie z przypadkowego generatora ornamentów.
+
+| Sigil, nazwa na ekranie | Efekt rang I / II / III | Koszt I / II / III | Przeciwwaga i reguły |
+|---|---|---:|---|
+| **Stolas — `Measured Verdict`** | Dwa kolejne trafione wystrzały Judge'a w tego samego przeciwnika uzbrajają następne trafienie w głowę: **+15 / +25 / +35% obrażeń tego trafienia**. Pudło, zmiana celu lub zużycie premii zeruje serię | 1 / 2 / 3 | Trafienia w korpus Judge'a **−10% obrażeń** podczas noszenia. Nagroda za skupienie na celu, nie za chaotyczny spam; seria liczy wystrzały, nie śrut |
+| **Furfur — `Storm's Reply`** | Po doskonałym uniku pierwszy wystrzał w ciągu **2 s** ma **+20 / +30 / +35% obrażeń**; jeden ładunek, kolejne uniki tylko odnawiają okno | 2 / 3 / 4 | Każdy unik kosztuje **+4 staminy**: bazowo 26→30. Doskonały unik nadal zachowuje dotychczasowe reguły zwrotu, ale uwzględnia koszt rzeczywiście pobrany. Nie wydłuża nietykalności |
+| **Buer — `Red Reprisal`** | Pierwsze trafienie z ≤4 m po otrzymaniu obrażeń odzyskuje dodatkowo do **8 / 12 / 16 HP**, wyłącznie z istniejącej puli możliwej do odzyskania i podczas jej okna | 1 / 2 / 3 | Flaska leczy o **10 HP mniej**. Raz na nowe zdarzenie obrażeń, nie na każdy pellet; brak leczenia ponad utracone odzyskiwalne HP. Buduje agresywny powrót do zwarcia |
+| **Paimon — `Last Chamber`** | Po ręcznym przeładowaniu **pustej** broni pierwszy wystrzał dostaje **+20 / +35 / +50 punktów impetu**, dzielonych między trafienia danego wystrzału | 2 / 3 / 4 | Czas przeładowania **+0,20 s**. Bez bonusu z darmowego odnowienia amunicji albo odpoczynku. Przerwanie przeładowania nie uzbraja efektu. Zachęca do kończenia magazynka i szukania gardy, nie do bezmyślnego przeładowywania po każdym strzale |
+| **Andrealphus — `Narrow Mercy`** | Po doskonałym uniku następny wystrzał Exorcista w 2 s zwęża stożek do **85 / 75 / 65% szerokości**, kosztem **2 / 3 / 4 zewnętrznych śrucin** z bazowych 20 | 1 / 2 / 3 | Mniejsza łączna liczba trafień/impetu; trudniej trafić grupę. Nie dodaje obrażeń. Z grawerem Focus łączna szerokość nie spada poniżej 55% bazowej; wymaga jawnego opisu ograniczenia w sklepie |
+| **Valefor — `Tithe of Iron`** | Egzekucja daje dodatkowe **1 / 2 / 3 naboje Judge'a** albo **1 / 1 / 2 łuski Exorcista**, według broni w ręku, do limitu zapasu | 1 / 2 / 3 | Wszystkie dochody z zabójstw **−20% dusz**. Jednorazowo na zabitego przeciwnika, bez nagrody za wielokrotne trafianie zwłok. Przemienia dochód z rozwoju w komfort amunicji |
+| **Sabnock — `Rooted Oath`** | Po staniu bez translacji ≥0,4 s następny otrzymany cios ma **−20 / −30 / −40 punktów impetu**, minimum 0; aktywacja najwyżej raz na 3 s | 2 / 3 / 4 | Nie zmniejsza HP damage; każdy unik **+6 staminy**. Ruch rozbraja przygotowaną ochronę. Daje stabilność strzelcowi, ale wymaga podjęcia ryzyka, zamiast bezpiecznego tankowania wszystkiego |
+| **Marbas — `Bitter Draught`** | Ukończona flaska oprócz swojego leczenia odnawia **12 / 18 / 24 ward**, do zwykłego maksimum | 1 / 2 / 3 | Picie trwa **o 0,15 s dłużej**; to jawna zmiana ryzyka, nie dodatkowa darmowa tarcza przy anulowaniu. Leczenie i ward dopiero po sukcesie; z Buerem utrzymuje się kara −10 HP |
+
+Każdy ma widoczny powód wyboru: precyzja, kontra po uniku, odzyskiwanie zdrowia, przełamywanie gardy, skupiony strzał, ekonomia amunicji, stabilny ostrzał albo ryzykowne leczenie. Nie wszystkie potrzebują nowego wskaźnika. Krótki akcent istniejącego znaku broni/dźwięku może sygnalizować uzbrojenie efektu; szczegóły liczbowe pozostają w menu ognia. Dla dostępności możliwa jedna mała ikona przygotowanej premii, w uzgodnionej obecnej strefie treści, nie nowy panel na środku.
+
+**Zasady kombinacji:** procentowe bonusy obrażeń **z sigili** sumowane z limitem +35% dla jednego trafienia; hartowanie i bazowe mnożniki głowy pozostają osobną, opisaną warstwą. To nie globalny limit wszystkich obrażeń. Bonus Paimona jest łączny na wystrzał, nie +50 dla każdej śruciny. Zwrot amunicji nie przekracza limitu i nie uruchamia się sam od skutków sigila. Kary staminy sumują się; sigile nie tworzą darmowych zwykłych uników ani zwrotów większych niż rzeczywiście poniesiony koszt doskonałego uniku. Regeneracja/rally zawsze ograniczona istniejącą pulą. Każdy efekt sprawdza właściciela i identyfikator zdarzenia, aby uniknąć podwójnego naliczenia w tej samej klatce i po wczytaniu.
+
+**Przykładowe układy na 4 punkty:** Furfur I + Andrealphus I + Buer I — ryzykowny Exorcist po doskonałym uniku, mniej wygodna flaska. Paimon I + Stolas II — Judge do gardy i kontrolowanych trafień w głowę, wolniejsze przeładowanie. Buer II + Marbas II — odrabianie ran i odnawianie ward, lecz gorsze i wolniejsze leczenie awaryjne. Sabnock I + Valefor II — stabilność i amunicja z egzekucji kosztem mobilności i rozwoju portfela. Furfur III zajmuje wszystko: prosta specjalizacja zamiast czterech efektów naraz.
+
+Nie umieszczałbym od razu wszystkich ośmiu rodzin i rang III w jednej krótkiej kaplicy. To **pełny katalog projektowy**, a pierwszy test powinien obejmować Stolas, Furfur, Buer, Paimon i dwie dodatkowe kopie w sekretach. Aktualnie mapa ma siedem relikwii łącznie, w tym grawery: `game/src/content/pilgrimage.lua:108`; [spis](evidence/economy.csv). Rozszerzenie do sześciu sigilowych znalezisk plus czterech grawerów oznacza trzy dodatkowe miejsca i wymaga przeglądu tempa eksploracji. Pozostałe rodziny można testować na poligonie, a do trasy dodawać po potwierdzeniu czytelności. Nie losować wszystkich bonusów na nowo po zgonie.
+
+##### Sklep, ryzyka i kryteria odbioru
+
+Menu ognia ma trzy zadania: **`Arsenal`** (zakup, hartowanie, grawer w karcie broni), **`Vows`** (zdrowie/flaska), **`Sigils`** (kolekcja i 4 punkty). Odpoczynek pozostaje pojedynczą czynnością wejścia; podróż do odkrytych ogni jest osobnym przyciskiem. Każda oferta pokazuje `Owned`, koszt, rzeczywisty skutek przed→po i przyczynę blokady. Przykład: `EXORCIST — 300 SOULS`; `JUDGE +1 — Damage 70 → 75.6` z zaznaczeniem, że to bazowa wartość przed lokalizacją trafienia/pancerzem. Nie używać fikcyjnego jednolitego `DPS`, który ukrywa przeładowanie, śrut i gardę.
+
+Nakład: podstawowe kupowanie istniejących broni + migracja + zachowanie zapisów 2–4 dni; poprawka trwałości unikalnych znajdziek 0,5–1,5 dnia; uporządkowanie menu 1–2 dni; system punktów i pierwsze cztery warunkowe sigile 3–6 dni; pełne osiem i strojenie następne 3–6 dni. Wysokie ryzyko dotyczy zapisów, kolejności nadawania nagród, zdublowanych zdarzeń oraz mnożników walki. Nie łączyć w jednym kroku zmiany startowej broni, cen, darmowej amunicji, obrażeń i HP elit.
+
+**Mierzalny odbiór:**
+
+1. Nowy zapis ma dokładnie Judge'a; po zapłacie 300 ma dokładnie jednego Exorcista, poprawne naboje i portfel pomniejszony raz. Zakup przetrwa śmierć, rest, travel i Continue. Stary zapis zachowa swoją broń.
+2. Ten sam `rewardId` nie podniesie rangi drugi raz po śmierci ani restarcie procesu. Dwie różne kopie podnoszą ją prawidłowo; ranga III nie przekracza limitu. Atomowość sprawdzona także przy przerwaniu zapisu.
+3. Sigil znaleziony w terenie nie zmienia statystyk do wyposażenia przy ogniu; pojemność ≤4, ranga wyposażona może być niższa od posiadanej. Zmiana kompletu nie leczy ani nie tworzy amunicji poza jawnym odpoczynkiem.
+4. Portfel/echo zachowują znane kwoty w łańcuchu 40 → śmierć → odzysk → 80 → druga śmierć; żadne pieniądze nie powstają od samego otwarcia sklepu, wyłączania sigila ani wczytania.
+5. Pierwsze 320 dusz pozwala na pokazane alternatywy. Co najmniej trzy testowe trasy dają ukończyć kaplicę bez farmienia i obowiązkowego Exorcista; nie oznacza to identycznej łatwości dla nowicjusza. Sprawdzić ilość powrotów do ognia i sytuacje bez amunicji. Docelowo u obeznanych graczy różne koszyki nie powinny różnić mediany czasu walk z elitami o więcej niż ~20% bez wyraźnej ceny w ryzyku — próg do przyszłego testu, nie wynik audytu.
+6. Przed startem implementacji ustalić bazowy przebieg z Judge'em: obecne testy pełnego zestawu dwóch broni nie dowodzą, że nowy start jest sprawiedliwy. Dla każdej nowej mechaniki osobne testy znaczących przypadków, a golden zmieniać tylko świadomie wraz z zatwierdzoną zmianą balansu.
+
+**Decyzje właściciela przed wdrożeniem:** nazwa waluty (`SOULS` rekomendowane); Judge jako jedyna broń nowego zapisu; dwie bronie na pierwszą iterację czy finansowanie trzeciej; cena Exorcista 300; utrzymanie darmowego odnowienia przy ogniu i ratunkowych nabojów Judge'a; zachowanie ślubów i grawerów; 4 punkty i płatne pojemnością kopie sigili; trwałość unikalnych znajdziek od razu po podniesieniu; dopuszczenie ryzykownego farmienia; +II dopiero po teście +I. Najbardziej fundamentalne są rozdzielenie ról rozwoju i reguła śmierci — nazwy można dopracować później.
+
+#### 5. Dźwięk: regulacja efektów i miks, który pomaga walczyć
+
+##### Stan obecny i dowód
+
+W ustawieniach jest jeden zapisany poziom **`music`**, domyślnie 0,65, oraz przełącznik `muted`. Nie ma niezależnych poziomów effects ani ambience. Nazwa widocznej opcji to **`Music and ambience`**. Regulacja zmienia tylko `Soundscape.music`; master po uruchomieniu ma 0,7 albo 0 przy mute. Źródła: `game/src/storage/preferences.lua:5`, `game/src/content/text.lua:214`, `game/src/app/commands.lua:246`, `game/src/app/application.lua:253`.
+
+`Audio.play` ustawia głośność efektu na przekazany poziom × wariant nagrania, bez mnożenia przez `Soundscape.music`. Strzały, kroki i demony słusznie nie są muzyką; brakuje kontroli ich wspólnej kategorii. Co więcej, część odgłosów pomieszczenia (`crypt_drip`, `stone_creak`, `chain_settle`) jest emitowana jako `world_cues` przez ten sam tor efektów, więc nie podlega ustawieniu obiecującemu regulację ambience. Źródła: `game/src/audio/audio.lua:141`, `:174`, `game/src/audio/world_cues.lua:93`.
+
+**Pomiar routingu:** przy `Soundscape.music=0` sprawdzone efekty `shot`, `revolver`, `heavy_step`, `growl`, `storm_warning`, `storm_release`, `thunder` mają nadal gain źródła ok. **0,65**; źródła warstw score mają **0**. Cues otoczenia nadal są wywoływane z poziomami np. 0,13–0,20. [audio-routing.csv](evidence/audio-routing.csv), [sonda](probes/extra.lua). Podczas tej próby celowo ustawiłem master na 0, aby nie emitować dźwięku w tle; wynik dowodzi ścieżki sygnału, **nie jest pomiarem głośności odsłuchowej ani zapisem tego, co słyszałem**. Przy normalnym master 0,7 te źródła nie są wyciszone samą regulacją muzyki.
+
+Istnieje już sensowna podstawa miksu: limit **28 głosów**, ochrona wyższych priorytetów przed słabszymi, ostrzeżenia priorytetu ≥3 uruchamiają `warningHold=0.65`; warstwy score są ściszane do mnożnika **0,48**, czyli docelowo ok. **−6,38 dB gain**, z wygładzaniem. Źródła: `game/src/audio/audio.lua:145`, `:171`, `game/src/audio/soundscape.lua:313`. Nie jest to gwarancja czytelności ostrzeżeń pod własnym strzałem: duck dotyczy score, a nie całego pozostałego miksu.
+
+Pozycjonowanie: zasięg 32 m, tłumienie `1/(1+0.13×d)`, przez przeszkodę dodatkowo ×0,38, pozycja audio wyznaczana z kierunku lewo–prawo `(side×0.8,0,−0.6)`. To uproszczone pozycjonowanie; nie deklarować na tej podstawie pełnego rozpoznawania góra/dół ani przód/tył. Źródło: `game/src/audio/audio.lua:196`.
+
+**Klasyfikacja:** brak suwaka efektów to brak funkcji; pozostające odgłosy pomieszczeń przy `Music and ambience=0` to dodatkowo niezgodność nazwy opcji z routingiem. Nie ma podstaw, by uznać wszystkie istniejące próbki za złe bez odsłuchu.
+
+##### Wzorce i zalecany podział
+
+Duże gry mają różne zestawy opcji, nie jeden obowiązkowy standard. **God of War Ragnarök** dokumentuje m.in. głośność globalną, efektów, dialogów, muzyki, kontrolera, sygnałów dostępności i czytnika ekranu; także mono i wsparcie kierunkowości. Wniosek: rozdzielać funkcje rzeczywiście występujące w grze. SIGIL nie potrzebuje pustego suwaka dialogów ani czatu głosowego. Źródło: [oficjalne opcje dostępności](https://www.playstation.com/en-us/games/god-of-war-ragnarok/accessibility/).
+
+**Hunt: Showdown** traktuje kierunek i przestrzeń dźwięku jako informację do decyzji; producent opisuje rozwiązania HRTF służące rozróżnianiu położenia. Dla SIGIL ważniejsze od natychmiastowego budowania takiego systemu są odróżnialne dźwięki przygotowania i wypuszczenia oraz ich pierwszeństwo w miksie. [Opis producenta](https://www.huntshowdown.com/news/dev-insight-a-deep-dive-into-3d-audio-in-hunt). **Halo** pokazuje użyteczność rozpoznawalnego dźwięku ładowania. **Darktide/Vermintide** — charakterystycznych zagrożeń słyszanych bez patrzenia na napastnika. Nie kopiować głośnego sygnału alarmowego do każdego zwykłego ciosu.
+
+| Wariant | Suwaki | Ocena |
+|---|---|---|
+| Minimalny | `Master`, `Music and ambience`, `Effects` | Szybki, ale tylko jeżeli wszystkie odgłosy otoczenia naprawdę przejdą do ambience. Trudniej ustawić sam klimat bez muzyki |
+| **Rekomendowany** | **`Master`, `Effects`, `Music`, `Ambience`** | Wystarcza do faktycznych potrzeb gry; UI pod Effects, ostrzeżenia i demony też pod Effects, pomieszczenia pod Ambience |
+| Rozbudowany | Powyższe + UI, własne kroki, broń, przeciwnicy, profile dynamiki | Elastyczny, ale ryzyko ustawienia przewagi przez wyciszenie wszystkich przeszkadzających efektów i duży koszt QA. Dopiero później opcje dostępności/mono, jeśli potrzebne |
+
+Dla wariantu rekomendowanego reguła jest prosta: poziom końcowy = master × poziom kategorii × bazowy gain zdarzenia × przestrzeń × ewentualne ściszenie kontekstowe. Przeliczać z zapamiętanej wartości bazowej, nie przemnażać w kółko już ściszonego źródła. Zmiana suwaka obejmuje również aktualnie grające pętle i ponownie używane źródła z puli. `Master=0` i mute wyciszają wszystko, również klik menu; zdjęcie mute przywraca poprzednie ustawienia.
+
+**Miks — propozycja do odsłuchu, nie zmierzone obecne parametry:** zachować priorytet ostrzeżeń, skrócić zbędne ogony własnego huku w krytycznym paśmie i ewentualnie ściszać mniej ważne warstwy efektów o 2–3 dB na 150–250 ms podczas wyraźnego przygotowania ciosu. Nie zabierać transjentu własnego strzału, bo pogorszy się siła broni. Duck muzyki można zacząć od istniejących ~−6 dB. Ambient podczas walki jeszcze 3–6 dB ciszej. Następnie stroić na odsłuchu przy 1, 3 i 6 przeciwnikach; liczba głosów sama nie zapewnia separacji częstotliwości.
+
+Trzy obecne zestawy brzmień to osobna preferencja estetyczna, nie zamiennik suwaków: `game/src/content/sound_sets.lua:1`, wybór przy starcie `game/src/app/application.lua:255`. Wszystkie wymagają tej samej poprawnej kategorii zdarzeń i odsłuchu ostrzeżeń.
+
+**Odbiór:** `Effects=0` daje dokładne zero dla strzałów, kroków, demonów, trafień i ostrzeżeń; nie wycisza muzyki/ambience. `Ambience=0` wycisza krople/łańcuchy/skrzypienie budynku, nie piorun ataku. Wszystkie zera oraz master zero — brak sygnału, także po restarcie i recyklingu źródła. Migracja ustawień zachowuje dotychczasowy poziom muzyki. Jeżeli zastosować krzywą gain = pozycja², 50% daje ok. −12 dB, nie −6 dB; sprawdzić to pomiarem, nie opisem „połowa głośności”.
+
+Dla próby miksu: szczyt wyeksportowanego sumarycznego sygnału ≤−1 dBTP w wybranych najgłośniejszych scenach, bez przesterów; ostrzeżenie wykrywane przez ≥8/10 uczestników przy równoczesnym strzale i trzech przeciwnikach, na słuchawkach oraz głośnikach. **To cele projektu, nie normy wszystkich gier ani wynik niniejszej analizy.** Odsłuch przy bezpiecznym, stałym poziomie urządzenia; nie „naprawiać” czytelności samym zwiększaniem gain ponad resztę miksu.
+
+Nakład: routing i cztery suwaki z zapisem 1–2 dni kodu, odsłuch/trzy zestawy/porządkowanie priorytetów 1–2 dni. Ryzyko dla golden małe, bo to prezentacja; duże ryzyko regresji użytkowej przy starych ustawieniach, pętlach i voice pool. **Decyzja właściciela:** cztery suwaki i rozdzielenie ambience od music; zachować możliwość całkowitego wyciszenia Effects, nawet jeżeli użytkownik traci wówczas pomocne ostrzeżenia.
+
+#### 6. Flaska: poprawić perspektywę gestu, nie czas leczenia
+
+##### Stan obecny i dowody
+
+Flaska: 3 użycia początkowo, windup **0,95 s**, cooldown 0,3 s, leczenie **45 HP**, czynność przerywalna. W trakcie `drinking` prędkość ruchu ×0,45, zakaz strzału i uniku. Źródła: `game/src/content/abilities.lua:48`, `game/src/content/conditions.lua:53`.
+
+Atlas `flask-hands-v44.png` ma sześć klatek 512×512 w arkuszu 1536×1024: held, raise, mouth, sip, recover, lower. Skala ekranowa 0,82; ręka przesuwa się w lewo do −0,14 wysokości sceny i obraca do −0,20 rad w środkowej części czynności. Fazy są ułamkami rzeczywistego czasu picia, nie niezależnym animatorem. Źródła: `game/src/content/equipment_art.lua:124`, `game/src/feedback/ability_feedback.lua:23`.
+
+| Klatka | Zmierzony przedział w próbie 120 Hz |
+|---|---|
+| Held | 0–0,150 s |
+| Raise | 0,1583–0,3167 s |
+| Mouth | 0,325–0,4417 s |
+| Sip | 0,450–0,650 s |
+| Recover | 0,6583–0,7917 s |
+| Lower | 0,800–0,950 s |
+| Koniec | 0,9583 s: HP 30→75, użycia 3→2, powrót broni |
+
+Źródło: [flask.csv](evidence/flask.csv). Testy gry potwierdzają pojedyncze leczenie, przerwanie obrażeniami bez zużycia/leczenia, odtworzenie fazy po snapshot i brak zawieszonej flaski po śmierci: `game/tests/cases/flask_art.lua:48`, `:74`, `:93`; [wynik pełnych testów](evidence/tests/test-results.txt). Nie dowodzą naturalności gestu.
+
+**Ocena obrazu:** [arkusz sześciu klatek](evidence/flask-contact-sheet.png) pokazuje problem bardzo wyraźnie. Przedramię przechodzi przez środek, pojemnik obraca się w płaszczyźnie obrazu, a szyjka kieruje się na bok; brakuje skrótu perspektywicznego sugerującego zbliżenie do ust tuż pod kamerą. To może wyglądać jak wylewanie. Nie pokazano faktycznego strumienia rozlanej mikstury; „wylewa za siebie” jest interpretacją obrazu, nie mechaniką utraty napoju. W [0,9 s](evidence/flask-t0900.png) ręka z flaską już znika, a broń wraca, chociaż napis i blokada picia jeszcze trwają. To dodatkowy punkt do zsynchronizowania.
+
+##### Wzorce, warianty i odbiór
+
+**Dark Souls/Elden Ring:** czytelne uniesienie naczynia, przechylenie i opuszczenie uzasadniają okno podatności, lecz są widziane z trzeciej osoby — nie kopiować ich pozy kamery do FPS. **Hunt: Showdown**, użycie strzykawki, i **Resident Evil 7/Village**, leczenie widziane z oczu bohatera, pokazują użyteczność czytelnego kontaktu dłoni z przedmiotem i krótkiej sekwencji „przygotuj → użyj → odłóż”. W RE nie chodzi o skopiowanie polewania ręki; tutaj właśnie należy pokazać picie. **Monster Hunter** uczy też, że animacja leczenia jest decyzją taktyczną, a nie tylko ozdobą przy natychmiastowym przyznaniu HP.
+
+1. **Zmienić tylko trajektorię całego obecnego atlasu.** Szybkie 0,5 dnia; może ograniczyć przesunięcie w lewo, ale nie naprawi orientacji szyjki wewnątrz klatki.
+2. **Rekomendacja: przemalować mouth/sip/recover i dopasować tor.** Zostawić tę samą rękawicę, metal, kolory i naczynie. Szyjka przybliża się do płaszczyzny kamery/ust i częściowo wychodzi poza widok, podstawa naczynia unosi się, zmienia się widoczna elipsa otworu. Unikać płaskiego machnięcia przez środek. Krótki dźwięk przełknięcia i sukces na prawdziwym końcu czynności. 1–2 dni z ujęciami pięciu rozdzielczości.
+3. **Całkiem ukryć flaskę i zostawić efekt/dźwięk.** Najczyściej na ekranie, ale mniej cielesna postać i zmarnowana dobra nowa warstwa sztuki. Odradzam.
+
+Proponowane znaczenie sześciu faz: 0–0,15 przygotowanie; 0,15–0,32 zbliżenie; 0,32–0,45 kontakt przy kamerze; 0,45–0,66 łyk; 0,66–0,80 cofnięcie; 0,80–0,95 wyraźne domknięcie czynności. To prawie obecny podział, więc nie trzeba zmieniać 0,95 s leczenia. Dźwięk/światło „sukcesu” nie może obiecywać odzyskanych HP w 0,5 s, skoro cios w 0,8 s nadal może przerwać całość.
+
+**Odbiór:** bez tekstu `DRINKING` minimum 8/10 obserwatorów rozpoznaje picie, nie wylewanie/rzut. Kontrola ujęć 0,2/0,4/0,5/0,7/0,9 s i pięciu proporcji ekranu; brak przecinania chronionego HUD i nadmiernego zasłaniania celu. W 0,9 s gest nadal wyraźnie się kończy, broń nie wygląda na gotową do strzału przed odblokowaniem. HP, zużycie, szybkość ruchu, anulowanie i czasy identyczne z obecnym śladem; przypadki przerwania w każdej fazie, śmierci oraz Continue w połowie picia. Golden bez zmian.
+
+**Decyzja właściciela:** zakres wymiany klatek i dopuszczenie częściowego wyjścia szyjki poza ekran. Rekomenduję to jako naturalną perspektywę FPS. Dodatkowe 0,15 s z projektowanego sigila Marbas to późniejsza osobna zmiana mechaniki; animator powinien już umieć podążać za autorytatywnym czasem.
+
+#### 7. Znajdźki amunicji: materiał, sylwetka, miejsce w świecie
+
+##### Stan obecny i dowody
+
+Amunicja ma własne dwa obrazy 128×128: trzy czerwone łuski Exorcista i papierowy pakiet nabojów Judge'a. Rozmiar świata **0,48**, mnożnik światła **0,85**. Źródło mapowania i parametrów: `game/src/content/supplies.lua:9`; wymiary sprawdzone bezpośrednio w PNG `game/assets/art/pickups/ammo_shells.png` oraz `ammo_rounds.png`.
+
+Renderer używa billboardu zwróconego ku graczowi, ze środkiem `floor+size×0,5`; dla tych własnych obrazów nie stosuje sinusoidalnego unoszenia ani starego stałego blasku. Jasność pochodzi z próbki oświetlenia pomieszczenia i jest mnożona przez 0,85. To świadoma decyzja „leży w świetle kaplicy, bez glare”, nie brak zaimplementowanego podświetlenia przez przeoczenie. Źródło: `game/src/render/world_art.lua:105`, `:129`.
+
+Próg automatycznego podniesienia **0,7 m**: `game/src/content/tuning.lua:117`, `game/src/session/interactions.lua:116`. Przy pełnym zapasie rzecz zostaje; przy częściowym uzupełnieniu reszta nie przepada. Broń nieposiadana nie zabiera swojego pakietu. Źródło: `game/src/session/interactions.lua:20`, `:35`, `:49`.
+
+Na stałej mapie jest **19 miejsc amunicji**: 13 dla Judge'a, łącznie 126 nabojów, i 6 dla Exorcista, łącznie 28. To nie suma z dynamicznych dropów ani darmowych odnowień. Źródło: `game/src/content/pilgrimage.lua:108`; [zliczenie](evidence/economy.csv).
+
+Dowody kontrolowane: [2 m](evidence/pickups-2m.png), [4 m](evidence/pickups-4m.png), [8 m](evidence/pickups-8m.png), [12 m](evidence/pickups-12m.png); dodatkowo [scena amunicji przeglądu kaplicy](evidence/look-ammo-drops.png). **Ocena obrazu:** z 4 m kształty są rozróżnialne, ale przy 8–12 m łatwo czytać je jako drobne elementy brązowej posadzki. Czerwony papier jest dobrym początkiem rozróżnienia; w cieniu staje się kolejnym ciemnym brązem. Pakiety wyglądają użytkowo, brakuje im związku z rytuałem i opowieścią miejsca.
+
+Sonda oświetlenia dla ujęć 2/4 m zwraca RGB próbki **0,46/0,45/0,44**, a wyliczony parametr `brightness` **0,3841**; dla 8 m ok. 0,420 i dla 12 m ok. 0,585. [pickup-lighting.csv](evidence/pickup-lighting.csv). **To parametry renderowania, nie zmierzony kontrast przedmiotu do tła.** Różne wartości wynikają z położenia w scenie, nie z automatycznego rozjaśniania dalszej znajdźki.
+
+##### Wzorce i propozycje
+
+**Doom 2016/Eternal:** pakiety zasobów są natychmiast rozpoznawalne w ruchu; dla SIGIL warto przejąć wyraźną sylwetkę i szybką konsumpcję, ale nie jaskrawą grę kolorów każdego dropu. **Resident Evil 4:** opakowanie i kontekst przedmiotu wspierają rozpoznawanie zapasu; przedmiot ma „ciało”. **Prey/Dishonored:** funkcja i ustawienie obiektów w przestrzeni pomagają odczytać, co warto zbadać; inspiracja dla niszy zaopatrzenia i świadomego prowadzenia wzroku. **Destiny 2:** silne rozróżnienie rodzin amunicji działa w szybkim starciu, ale kolorystycznych cegieł i looterowej rzadkości nie przenosiłbym do fresku. Nie twierdzę tu, że konkretne aktualne wydanie tych gier używa podanych wartości jasności lub odległości.
+
+| Wariant | Zysk | Koszt / ryzyko |
+|---|---|---|
+| A. **Rekomendowany:** wyraźniejszy materiał i kształt, kompozycja miejsca | Łuski spięte ciemnym drutem z jasnymi denkami; pakiet Judge'a w lnianym/papierowym zawiniątku z jednym czerwonym znakiem. Oszczędny cień kontaktowy i pobliski kontrast tła. Zachowany fresk | 1–2 dni grafiki; niski kod, uwaga na mipmapy i migotanie krawędzi |
+| B. A + subtelny minimalny poziom oświetlenia samego przedmiotu | Lepsza czytelność w najciemniejszych miejscach bez wielkiej aureoli | Kolejne 0,5–1 dnia i macierz ciemnych/jasnych scen; może wyglądać na samoświecący przedmiot. Opcja dopiero po ocenie A |
+| C. Słup światła / kontur / marker z odległością | Bardzo łatwe szukanie | Niska zgodność ze stylem, kolejny element ekranowy, zmniejsza znaczenie eksploracji. Nie rekomenduję jako domyślnego |
+
+Proponuję zwiększyć **czytelną masę rysunku wewnątrz obecnego obrazu**, zanim zmienimy rozmiar świata. Jeden charakterystyczny jasny akcent, jeden ciemny obrys materiału, rozdzielenie „czerwone cylindry” od „jasny prostokątny pakiet”. Mała pieczęć/wosk może dodać świata, ale nie na tyle podobna do okrągłych sigili, żeby mylić zasób z trwałą nagrodą. Nie przyklejać napisu `AMMO` w przestrzeni. Atmosferę daje też ułożenie obok martwego pielgrzyma, skrzynki albo zgasłej świecy, nie tylko tekstura.
+
+**Odbiór:** przy znajomości obu typów ≥8/10 obserwatorów wykrywa pakiet do 2 s z 8 m i prawidłowo rozróżnia broń z 4 m; 12 m jako dodatkowy test eksploracji, nie gwarancja identyfikacji. Próbki na ciemnym/jasnym kamieniu, czerwonym dywanie, przy ogniu i pod ścianą; pięć rozdzielczości. Docelowo lokalny kontrast głównej sylwetki ≥2,5:1 w większości reprezentatywnych miejsc; wyjątki rozwiązywać ustawieniem/tłem, nie wielkim neonem. Są to założenia odbioru, nie wyniki przeprowadzonego badania graczy. Niezmieniony próg 0,7 m, zapasy, częściowy odbiór, kolizje i D10; bez migotania w ruchu, przenikania ścian i konieczności nowego HUD. Golden powinien zostać identyczny.
+
+**Decyzja właściciela:** dopuścić delikatny jaśniejszy materiał oraz świadome jaśniejsze miejsce odkładania. Minimalne samooświetlenie traktować jako drugi wariant po obejrzeniu porównania. Nie zmieniać w tej samej iteracji liczby pakietów i ich wartości — nowy start Judge'em wymaga oddzielnego sprawdzenia zasobów.
+
+#### Własne pomysły i uwagi
+
+##### Największy wspólny problem: ekran nie zawsze pokazuje przyczynę przed skutkiem
+
+To moja główna diagnoza na podstawie sekwencji Furfura, Stolasa i flaski. Przybywa poprawnych technicznie zdarzeń, lecz część nie ma dostatecznie czytelnego przejścia między stanami. Nie rozwiąże tego nowy napis. Wprowadziłbym jedną regułę autorską dla każdego ataku: **źródło → napięcie → wypuszczenie → skutek → odzyskanie równowagi**. Każdy etap musi być wskazywalny na klatce lub w dźwięku, a przerwanie musi rzeczywiście przerwać zapowiedź. Podstawa zdarzeniowa już istnieje w `game/src/feedback/world_feedback.lua:35`; rozbieżność czasu animacji opisana w rozdziale 2 jest dobrym pierwszym przypadkiem do naprawy.
+
+##### Zagrożenie na ziemi nie powinno wymagać stałego patrzenia pod nogi
+
+[Zwykły widok Stolasa](evidence/stolas-star-lance-t0850.png) i [ten sam etap z kamerą w dół](evidence/lance-aimed-down.png) pokazują ograniczenie perspektywy FPS. **Hipoteza:** właściciel często patrzy na przeciwnika i celuje, więc nie widzi całej zapowiedzi pod sobą. Zamiast podnosić ogromny marker na środek ekranu, wzmocnić gest sprawcy i kierunkowy dźwięk; potem sprawdzić, czy niewielki wizualny akcent miejsca uderzenia jest potrzebny wyżej nad podłożem. Nie naruszać zasięgu ani tworzyć złudnej bariery. To większy zysk niż ogólne zwiększanie blasku wszystkich zagrożeń.
+
+##### HP elit warto zmierzyć po naprawie prezentacji, bez automatycznego zwiększania broni
+
+Aktualne HP to **Margrave 2700, Furfur 2250**, nie historyczne mniejsze wartości z niektórych opisów. Źródła: `game/src/content/creatures/boss.lua:42`, `game/src/content/creatures/furfur.lua:59`. **Hipoteza do gry:** długi czas walki może wzmacniać odbiór monotonii tych samych póz, a sklep może skłaniać do „naprawiania” tego coraz większym DPS. Zmierzyłbym liczbę cykli ataków do zwycięstwa, skuteczne przełamania i egzekucje, obrażenia na zużyty magazynek oraz czas bez własnej decyzji. Dopiero potem wybór: więcej taktycznych okazji albo osobna zmiana HP. Nie podaję tu niezmierzonego TTK jako faktu.
+
+##### Ognisko powinno dawać plan dalszej drogi, nie tylko listę cen
+
+Po zakupie warto pokazać krótko efekt i zostawić kontekst trasy: odkryte ognie, znaleziska w kolekcji, nieodkryte obszary bez spoilerowania dokładnych lokalizacji. Mój projekt: jedno zdanie opisujące styl broni i czytelne „brakuje 8 dusz”, zamiast kilkunastu technicznych statystyk. Układ ma ułatwiać decyzję „idę na wschód po modyfikator / wracam na elitę z nową bronią”. To propozycja, nie opis obecnego menu.
+
+##### Wartość znajdźki musi być rozpoznawalna przed podniesieniem
+
+Zasób, grawer i okrągły sigil powinny różnić się formą: **pakiet / płytka do broni / okrągła pieczęć**. Dziś grawery częściowo korzystają z ikon sklepu, a flaska z ikony zdrowia: `game/src/content/supplies.lua:19`, `:26`. **Hipoteza:** to osłabia wrażenie fizycznego świata i utrudni nową gospodarkę. Po amunicji narysowałbym własne leżące grawery i naczynie, zachowując odrębność historycznych sigili. Nie zwiększać jednocześnie liczby rodzajów zasobów.
+
+##### Testy są mocne w regułach, lecz brakuje im kontraktów znaczenia obrazu
+
+6044 przechodzące sprawdzenia nie wychwyciły ani kompozycji picia, ani mojego scenariusza mnożenia `relic_stolas`; pełny wynik jest w [raporcie testów](evidence/tests/test-results.txt). Nie jest to krytyka samej liczby testów. Brakowało **konkretnych przypadków**: czas prezentacji ma obejmować rzeczywisty czas rodzaju `storm`; ta sama trwała nagroda nie może zostać nadana ponownie po cofnięciu świata. Dla grafiki potrzebny jest mały zatwierdzany arkusz klatek, a nie setka nowych asercji powtarzających definicję atlasu.
+
+##### Dwa osobne rodzaje akceptacji
+
+Po zmianie grafiki sprawdzamy jednocześnie „czy to nadal ten sam atak?” i „czy gracz rozumie go lepiej?”. Pierwsze mierzy sonda i golden, drugiego sam golden nie dowodzi. Przy zmienionym sklepie odwrotnie: oczekiwana zmiana progresji nie powinna usprawiedliwiać dowolnych zmian walki. Ustalić przed każdą próbą, który parametr balansu wolno zmienić, i zapisać wynik gry właściciela jako osobny dowód.
+
+#### Plan
+
+To plan przyszłego wdrożenia do połączenia z analizą Claude'a, **nie wykonane zlecenie implementacyjne**. Przypisania Astra/Claude określają proponowany podział późniejszej pracy; w tym audycie nie było delegowania.
+
+##### Decyzje przed startem
+
+Najpierw zatwierdzić: chroniony HUD pozostaje kompozycyjnie identyczny, powtórka SHIFT znika; Furfur i Margrave dostają najpierw naprawę prezentacji bez zmiany czasu; cztery suwaki audio; Judge jako jedyny start, Exorcist 300; sigile wyłącznie znajdowane i wyposażane przy ogniu; regułę trwałych przedmiotów po śmierci; pozostawienie ślubów/grawerów; model pojemności sigili i dopuszczenie farmienia. Wybór koloru żaru, ostateczne nazwy angielskie i kolejne rodzaje sigili nie muszą blokować napraw błędów.
+
+| Kolejność | Praca i odpowiedzialność | Zależności | Szacunek | Ryzyko i bramka odbioru |
+|---|---|---|---|---|
+| **0** | Claude: odtworzyć dwa błędy z sond, ustalić kontrakty. Właściciel: decyzje powyżej | Zestaw dowodów tej analizy i niezależna analiza Claude'a | 0,5–1 dnia | Zero kodu „na wyczucie”; powtórzone timingi i cykl relikwii |
+| **1A** | Claude: trwałość `rewardId` + rozwój przedmiotu jako jedna operacja, test śmierci/Continue | Uzgodniona reguła D10 dla trwałych przedmiotów | 0,5–1,5 dnia | Wysokie ryzyko zapisu; brak duplikacji, zachowanie starych zapisów, brak utraty legalnej drugiej kopii |
+| **1B** | Claude: wspólne autorytatywne źródło długości akcji dla animacji `storm`/`salvo`, audyt cancel/hold | Odtworzona rozbieżność 0,4 vs 2,08 | 0,5–1,5 dnia | Nie zmienia zegarów AI; zdarzenia i golden takie same, poprawny postęp animacji |
+| **1C** | Astra: arkusze gestów Furfura, exposed i flaski; materiały lancy/amunicji. Claude: przygotować punkty integracji | Kontrakty faz z 1B; istniejący styl i atlas | 3–6 dni, częściowo równolegle z 1A/1B | Właściciel ogląda klatki, potem działanie; brak zmiany sylwetki/stylu demona, maski trafień kontrolowane |
+| **2A** | Claude: hierarchia wiadomości i usunięcie powtórki SHIFT; Astra: kontrola kompozycji | Akceptacja zakresu treści dolnego HUD | 1–2 dni | Pięć rozmiarów, wszystkie odmowy; ramy i malowidło chronione |
+| **2B** | Claude: kategorie/suwaki/persistencja audio. Astra: miks trzech zestawów i ostrzeżeń | Rozdzielenie effects/music/ambience | 2–4 dni łącznie | Routing zera, poprawny mute i pool; odsłuch przy obciążeniu, bez zmian symulacji |
+| **2C** | Astra + Claude: integracja i przegląd grafiki 1C | 1B; niezależne od nowej ekonomii | 1–2 dni | Flask 0,95 s, właściwe pięć wyładowań, te same hitboxy/kolizje; full test po scaleniu |
+| **3** | Claude: mały sklep broni — nowy start Judge, Exorcist 300, bez +II i bez nowych sigili; migracja. Astra: karty istniejących broni | 1A, decyzje sklepu, bazowy test Judge-only | 2–4 dni | Osobna zmiana balansu: start/zakup. Ukończenie bez grindu i bez miękkiej blokady amunicji; śmierć i Continue zachowują zakup |
+| **4** | Claude: pojemność 4, ręczne wyposażanie i pierwsze cztery sigile; Astra: ikony/przedmioty/krótkie sygnały | 3 ocenione, 1A pewne | 3–6 dni | Każdy efekt osobno; kopiowanie przedmiotu i wielokrotne eventy zablokowane, brak nowej ściany HUD |
+| **5** | Właściciel gra; Claude mierzy ekonomię i walkę; Astra ocenia odczyt gestów i miks. Dopiero potem +II lub kolejne sigile | Stabilne 2–4 | 2–4 sesje + 1–3 dni poprawek | Jedna zmiana balansu na próbę; porównanie koszyków, odzyskiwania echa, czasu walk i czytelności |
+| **6** | Claude: zatwierdzone decyzje do WIZJI/PLANU/HISTORII i końcowe testy. Astra: arkusz akceptacyjny zasobów | Właściciel zatwierdził rezultat, nie sam plan | 0,5–1 dnia | Bez maskowania regresji nowym golden; wersja i instrukcja odpowiadają rzeczywistemu zachowaniu |
+
+Nakład jest orientacyjny w dniach pracy, bez nowej trzeciej broni i bez wielkiego przebudowania mapy. Wiersze częściowo się nakładają, więc nie należy sumować ich jako kalendarza; przy dwóch wykonawcach realny pierwszy spójny pakiet to około **2–3 tygodnie robocze**, zależnie od liczby iteracji artystycznych i decyzji właściciela. Pełny katalog ośmiu sigili oraz trzecia broń to dalszy zakres, nie warunek poprawienia obecnej wersji.
+
+##### Co można robić równolegle, a czego nie łączyć
+
+Grafika flaski, retusz pakietów, routing audio i analiza trwałości zapisu mogą powstawać równolegle w osobnych obszarach. Ostateczna animacja burzy zależy od poprawnego odczytu faz. Nowy sklep zależy od reguły trwałych przedmiotów i testu startowej broni; balans sigili zależy od ustabilizowanego sklepu. Nie równoleglić pomiaru nowych cen z jednoczesną zmianą obrażeń elit, odzysku amunicji i czasu uniku — wynik nie wskaże przyczyny poprawy/pogorszenia.
+
+##### Minimalny pakiet kontroli każdej iteracji
+
+- **Prezentacja:** te same sceny i czasy z CSV, pięć rozmiarów ekranu, kontrola protected HUD, relacja źródła/ostrzeżenia/skutku. Bez wideo; kontaktowe arkusze PNG i obserwacja na żywo wystarczą.
+- **Walka:** odpowiednie istniejące testy animacji, trafień, parowania, egzekucji i `creature-pressure`; golden bez zmian dla zmian deklarowanych jako prezentacyjne. W razie zmiany maski trafień wyjaśnić różnicę, nie automatycznie przyjąć nowy wzorzec.
+- **Ekonomia:** cykle kupno→śmierć→echo→Continue; dwa różne sigile i dwa egzemplarze tego samego; ten sam `rewardId` po śmierci; pełne i częściowe zapasy; stary zapis z dwiema broniami; brak naliczeń po anulowaniu/ponownym zdarzeniu.
+- **Audio:** macierz zer i poziomów kategorii, trwające pętle, voice pool, zmiana zestawu brzmień, restart ustawień oraz osobny odsłuch. Sam sukces audio-export nie jest odsłuchem.
+- **Po scaleniu spójnego pakietu:** pełne `TEST.ps1 -Suite All`, inspekcja końcowych raportów, nie tylko zamknięcia okna. Dzisiejsza zielona baza i wszystkie surowe dowody pozostają punktem porównania.
+
+Największą wartość pierwszej iteracji widzę w tym, żeby gracz mógł wskazać **dlaczego właśnie został trafiony, dlaczego teraz może odpowiedzieć i co naprawdę zyskał przy ogniu**. Tę poprawę można osiągnąć bez zmiany tożsamości fresku, rozmiaru hitmarkera i rytmu całej SI.
