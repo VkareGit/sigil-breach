@@ -163,6 +163,11 @@ return {
     surgeFade = 1.4,
     trailHold = 0.7,
     trailFall = 0.8,
+    -- What rests over the scene (0.45, owner D18): an ordinary body's bar after a hit, the keys
+    -- and clock at the start of a game, a place's name after it changes (s).
+    foeBar = 4,
+    helpFor = 90,
+    placeFor = 4,
     -- A lesson stands this long once nothing hunts the knight (s).
     lessonTime = 6,
   },

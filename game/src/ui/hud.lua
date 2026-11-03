@@ -26,6 +26,7 @@ local Palette = require('src.ui.palette')
 -- The gun not in hand (0.43, D04): the same ink, faded, so the one in hand reads first.
 local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.55 }
 local Timing = require('src.content.tuning').shot
+local Clocks = require('src.content.tuning').clocks
 local Modes = require('src.session.modes')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
@@ -263,14 +264,6 @@ function H.status(g, run)
       text(fit, left - Skin.inkBounds(U.fonts[font], fit).x, y, font, C.gold)
     end
   end
-  -- A dodge is paid with stamina alone: its mark, its key and its meter, in four parts, gold
-  -- while the next dodge is paid for and red when it is not.
-  local stamina = Resources.share(p, 'stamina') or 1
-  local resource = Characters.of(p).resources and Characters.of(p).resources.stamina
-  local price = resource and Rules.playerBody(p).rollStamina / resource.max or 0
-  Skin.icon('stamina', 911, 676, 15, stamina >= price and 1 or 0.45)
-  text(Text.get('shift'), 928, 678, 12, C.muted)
-  Skin.meter(985, 683, 32, stamina, stamina >= price and C.gold or C.red, 4)
   Skin.endZone()
   Skin.zone('HUD souls', 1055, 628, 100, 76)
   fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
@@ -312,7 +305,12 @@ function H.rally(p)
     lg.setColor(1, 1, 1)
   end
 end
+-- The keys and the clock (0.45, owner D18): for the first minutes and whenever the game stands;
+-- in play nothing rests over the scene.
 local function utilityPanel(g)
+  if g.state == 'playing' and not g.map and g.elapsed >= Clocks.helpFor then
+    return
+  end
   Skin.panel(1028, 12, 236, 68, 7, 10)
   Skin.zone('utility caption field', 1038, 22, 216, 48)
   local utility = Text.get('hud_utility')
@@ -394,7 +392,8 @@ local function aimMarks(g, cx, cy)
   local reticle = locked and C.muted or C.ivory
   local mark = g.view.lastKill and Palette.kill or (g.view.armorHit and C.blue or C.ivory)
   local drinking = p.conditions and (p.conditions.drinking or 0) > 0
-  local says = locked and (drinking and 'hud_drinking' or 'hud_off_balance')
+  -- The hands show a drink themselves (0.45, owner D18); it is said only to a refused pull.
+  local says = locked and not drinking and 'hud_off_balance'
     or (g.view.refusalTimer or 0) > 0 and g.view.refusal
   if says then
     -- Ivory with its ink, never red: red at the reticle belongs to a kill alone.
@@ -444,7 +443,14 @@ local function foePanel(g, p)
   else
     local dx, dy, dz = B.direction(p.yaw, p.pitch)
     local target = B.traceVector(g, dx, dy, dz, 25, B.prepare(g, p, {}), { B.origin(g, p) })
-    if target and target.hp > 0 then
+    -- An ordinary body's bar comes with a hit and goes foeBar s after the last one (0.45, owner
+    -- D18); one with a banner stands in the sights as before.
+    local struck = g.view.damageTrail
+    struck = struck
+      and target
+      and struck.id == target.id
+      and struck.hold + Clocks.foeBar > Clocks.trailHold
+    if target and target.hp > 0 and (struck or Enemies.look(target).banner) then
       local shield = (target.armorRating or 0) > 0
       Skin.panel(503, 20, 274, 60, 2, 10)
       Skin.zone('target field', 514, 30, 252, 40)
@@ -460,25 +466,13 @@ local function foePanel(g, p)
       end
       Skin.meter(520, 62, 240, target.hp / target.maxHp, C.red, 24)
       -- What this body just lost, as this view keeps it (feedback/listeners, systems/clocks): a
-      -- pale trail on its bar and the sum of the last blows, once, where the eye already is.
+      -- pale trail on its bar, where the eye already is.
       local trail = g.view.damageTrail
       trail = trail and trail.id == target.id and trail
       if trail and trail.shown > target.hp then
         local from = 520 + 240 * target.hp / target.maxHp
         color(C.ivory, 0.8)
         lg.rectangle('fill', from, 62, 240 * (trail.shown - target.hp) / target.maxHp, 6)
-      end
-      if trail and trail.sum >= 1 then
-        Skin.boxText(
-          Text.get('hud_damage_sum', { amount = math.floor(trail.sum + 0.5) }),
-          690,
-          31,
-          72,
-          22,
-          U.fonts[16],
-          C.gold,
-          true
-        )
       end
       H.guardStrip(g, target, 520, 71, 240)
       Skin.endZone()
@@ -526,9 +520,6 @@ local function honours(g, cx)
   local medal = medalOf(g.view.medal)
   seal(g.view.medal, cx - L.medalSeal / 2, L.medalTop, L.medalSeal, math.min(1, left / L.medalFade))
   centered(Text.get(medal.name), cx, L.medalTop + L.medalSeal + 2, 20, C.gold)
-  if medal.effect then
-    centered(Text.get(medal.effect), cx, L.medalTop + L.medalSeal + 26, 14, C.ivory)
-  end
 end
 local function prompt(g)
   local ctx = g:context()

@@ -227,20 +227,29 @@ function D.controls(g)
     }
   end
 end
+local Clocks = require('src.content.tuning').clocks
+local place = {}
 function D.heading(g)
   if Queries.field(g) then
     return TestField.heading(g, U)
   end
-  Skin.panel(20, 16, 378, 64, 2, 9)
-  Skin.zone('objective field', 32, 26, 354, 44)
-  Skin.boxText(Text.get('menu_chapel'), 35, 27, 348, 20, U.fonts[14], gold)
+  -- The place stands for a moment when it changes and whenever the game stands (0.45, owner
+  -- D18); in play nothing rests over the scene.
   local objective = Queries.objective(g)
-  local size = 16
-  if Skin.inkBounds(U.fonts[size], objective).w > 348 then
-    size = 14
+  if objective ~= place.shown then
+    place.shown, place.at = objective, g.elapsed
   end
-  Skin.boxText(objective, 35, 48, 348, 22, U.fonts[size], ivory)
-  Skin.endZone()
+  if g.state ~= 'playing' or g.map or g.elapsed - place.at < Clocks.placeFor then
+    Skin.panel(20, 16, 378, 64, 2, 9)
+    Skin.zone('objective field', 32, 26, 354, 44)
+    Skin.boxText(Text.get('menu_chapel'), 35, 27, 348, 20, U.fonts[14], gold)
+    local size = 16
+    if Skin.inkBounds(U.fonts[size], objective).w > 348 then
+      size = 14
+    end
+    Skin.boxText(objective, 35, 48, 348, 22, U.fonts[size], ivory)
+    Skin.endZone()
+  end
   if g.saveWarning then
     center(Text.get('save_warning', { reason = g.saveWarning }), 448, 18, red)
   end
