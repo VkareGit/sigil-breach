@@ -1,5 +1,7 @@
 Kontynuujesz pracę nad grą SIGIL: BREACH po podwójnym audycie z 2026-11-03 (Claude Opus 5.5 + Codex Astra). Rozmawiaj ze mną po polsku. Najpierw przeczytaj ten prompt do końca.
 
+> **Stan na koniec 3 listopada (wersja 0.43, commit `19ca5b7` lub nowszy):** Etapy 0–3 tego planu są wykonane, a właściciel podjął decyzje D8, D9, D10 i określił cel elit (`DECYZJE.md`). Co zrobiono, z dowodami, opisuje `POSTEP.md`; przegląd Astry: `PRZEGLAD-ASTRY.md`; analiza obrazu i strzelania: `V01-ASTRA.md`. Sekcje „Plan” i „Pierwszy krok” niżej są historyczne. **Pierwszy krok teraz:** sprawdź `git log 19ca5b7..HEAD`, przeczytaj `POSTEP.md` i zapytaj właściciela o wynik jego próby (B02: elity, nawa, Continue, relikwie, F7 dźwięk, nisza ARSENAL, chwianie elity, linia włóczni) oraz o decyzje do propozycji V01 (P1/P2 i zadania graficzne dla Codexa). Otwarte: B03/B04 (po próbie), C02 (wariant bez ognisk, po próbie), wybór zestawu dźwięku (potem usunąć F7), niezabezpieczeni zabici innych obszarów (przed dodaniem obszarów), D05 tylko w wersji wizualnej.
+
 ## Projekt i filary
 
 - Repozytorium: `C:\Users\nahiko\Documents\dev\sigil-breach`. Gra w LÖVE 11.5 / LuaJIT (`toolchain\love-11.5-win64`), kod w `game/src`, testy w `game/tests`, QA w `game/qa`, narzędzia w `tools`, skrypty `*.ps1` w katalogu głównym. Wersja 0.42 (`game/src/core/build.lua`).
