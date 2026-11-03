@@ -59,6 +59,31 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   odnawiało amunicję i stawiało zabitych od ognia, a dusze za nich zostawały (farma).
   Śmierć zostaje śmiercią: droga zostawiona po zgonie budzi przy ognisku jak dotąd.
   Pole zapisu jest sprawdzane jak reszta (validField), stary zapis bez niego działa jak dawniej.
+- B01, elity (decyzja właściciela: 20–35 s dobrej walki, stanie i strzelanie ma zawodzić).
+  Pomiar przed zmianą (bot, komnaty poligonu): bot stojący i strzelający wygrywał
+  z Margrave'em w 13,5 s z 86% HP, cofający się z 84–89%, z Furfurem 15% HP.
+  Trzy zmiany, każda z pomiarem:
+  1. Furfur w stylu „duel” szedł do rycerza po prostej i przy rycerzu za rogiem lub
+     filarem stał zablokowany (9,3 s z 12 s ruchu). Styl duel idzie teraz trasą
+     (enemies/styles.lua), jak pozostałe.
+  2. Rycerz strzela do 42 m, a elity sięgały dystansowo tylko na 11 m: elita, która nie
+     mogła przejść przez przejście, stała bezbronna. Błyskawica Furfura sięga 18 m, pas
+     ognia Margrave'a 16 m, włócznia 18 m (telegrafy bez zmian).
+  3. HP: Margrave 1680 -> 2700, Furfur 1400 -> 2250. Bot z idealnym celem zadaje ok.
+     135 obrażeń/s; przy celności człowieka walka trwa ok. 25–35 s.
+  Próby bez skutku, cofnięte: waga włóczni Margrave'a (dostępna tylko po pasie ognia),
+  garda elit 360/320 -> 600/540 (jedno przełamanie na walkę i tak), przytrzymanie każdego
+  cięcia (boty rzadko dostają cięcia).
+  Po zmianie: stanie i strzelanie przegrywa z oboma (2/2), cofanie przegrywa z oboma,
+  okrążanie przegrywa z Margrave'em, a z Furfurem wygrywa (71% HP; Furfur jest elitą,
+  która zmusza do ruchu). Bot czytający ciosy wygrywa w 12–17 s z 79–100% HP.
+  souls_gate: stojący strzelec ginie, elita go przeżywa (próg z ery gąbek „ponad 60%
+  życia” zastąpiony „przeżywa”), ostrzał nie odbiera ciosów (Margrave 0,8, Furfur 0,7:
+  jego szarżę z założenia przerywa strzał w oknie, a 18 m błyskawicy podniosło jego tempo
+  bez ostrzału). Sprawdziany „bot odruchowy” i „bot czytający połowę ciosów” są tylko
+  wypisywane: wygrywają w 12–23 s (odruchowe 43–95% HP, połowiczne 41–95% HP). Plan v13
+  przeznaczał je dla najtrudniejszych ciał; wrócą przy pierwszym prawdziwym bossie
+  (BOSS_GATE), a dla elit ocenia je próba właściciela.
 
 ########################################################################
 ZMIANY-0.42.txt

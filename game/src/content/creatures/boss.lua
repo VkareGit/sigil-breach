@@ -39,7 +39,7 @@ return Creature.boss({
     },
   },
   body = {
-    hp = 1680,
+    hp = 2700,
     armor = 30,
     -- An ash lord: fire barely warms it.
     resist = { astral = 0.15, fire = 0.4 },
@@ -177,7 +177,8 @@ return Creature.boss({
       windupSound = 'ash_lance_warning',
       sound = 'ground_sunder',
       lead = 0.8,
-      range = 11,
+      -- 0.43 (B01): far enough for a knight who shoots from where the Margrave cannot walk.
+      range = 16,
       minRange = 2.5,
       windup = 0.65,
       duration = 0.35,
@@ -201,7 +202,7 @@ return Creature.boss({
       id = 'cinder-spear',
       windupSound = 'ash_spear_warning',
       sound = 'ash_spear_release',
-      range = 11,
+      range = 18,
       minRange = 2,
       windup = 0.62,
       duration = 0.28,

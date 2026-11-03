@@ -34,6 +34,13 @@ Sprawdzone automatycznie:
   zabici leżą, opancerzony ściga z tego samego miejsca z tym samym zdrowiem, ognisko
   odmawia; po śmierci i wyjściu: budzi przy ognisku, zabici od ognia stoją. Bez zapisu pola
   test jest czerwony. pilgrimage-save 155, pilgrimage 167 sprawdzeń.
+- B01: souls-gate 6 i souls-bots 9 sprawdzeń bez błędów (stojący strzelec ginie przed
+  Margrave'em w 17,7 s i przed Furfurem w 13,4 s). Sonda 4 strategii x 2 ziarna:
+  docs/audyt-2026-11-03/POSTEP.md (B01). Złoty wzorzec odświeżony po dwóch zgodnych
+  przebiegach.
+  Do próby właściciela (B02): czy elity nie są za łatwe dla gracza, który dobrze celuje,
+  a słabo czyta ciosy (boty odruchowe i połowiczne wygrywają); czy okrążanie Furfura
+  ma wygrywać; czy 25–35 s to dobra długość.
 
 Odbiór właściciela (B2): czeka.
 

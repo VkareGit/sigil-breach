@@ -132,10 +132,16 @@ function Styles.duel(g, e, d, dt)
   local dx, dz = (p.x - e.x) / math.max(K.nearest, d), (p.z - e.z) / math.max(K.nearest, d)
   local stage = Archetypes.phase(e)
   local ideal = stage and stage.ideal or spec.ideal
+  -- Coming in, it walks the route, not the bare line (0.43, B01: a knight who backed round a
+  -- pillar or a door's edge held an elite against the stone for most of a fight).
   if d > ideal + D.far then
-    move(g, e, p.x, p.z, e.speed, dt)
+    Walking.route(g, e, p.x, p.z, dt, p.level)
   elseif e.duelMove == 'close' then
-    move(g, e, p.x, p.z, e.speed * K.closing, dt)
+    if (e.blocked or 0) > 0 then
+      Walking.route(g, e, p.x, p.z, dt, p.level)
+    else
+      move(g, e, p.x, p.z, e.speed * K.closing, dt)
+    end
   elseif e.duelMove == 'back' then
     move(g, e, e.x - dx * K.step, e.z - dz * K.step, e.speed * K.giving, dt)
   elseif e.duelMove == 'circle' then

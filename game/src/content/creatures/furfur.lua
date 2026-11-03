@@ -58,7 +58,7 @@ return Creature.boss({
   },
   body = {
     -- Was 10000 and 0.35 of the damage while he struck.
-    hp = 1400,
+    hp = 2250,
     steadfast = true,
     personal = 1.2,
     breakTime = 2.6,
@@ -174,7 +174,8 @@ return Creature.boss({
       id = 'lightning',
       windupSound = 'storm_warning',
       rest = 3.4,
-      range = 11,
+      -- 0.43 (B01): it reaches a knight who shoots from beyond a door it cannot pass.
+      range = 18,
       windup = 0.72,
       duration = 0.32,
       recover = 0.8,

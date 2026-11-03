@@ -13,4 +13,16 @@ Uwaga dla edycji z PowerShell 5.1: pliki są w UTF-8 bez BOM; czytać przez `[IO
 | A02 | Continue wznawia w miejscu (D9) | zrobione | `pilgrimage_save.lua` resumes: miejsce, HP, naboje, łyki, zabici leżą, ścigający ściga; po śmierci jak dawniej |
 | A07 | Reguła procesu | zrobione | `game/docs/DEVELOPMENT.txt`, DODAWANIE TESTU 6–8 |
 | A04 | Znajdźki | rozstrzygnięte (D10) | nie wracają po odpoczynku z decyzji właściciela; tylko teksty (A06) |
+| B01 | Elity | zrobione (do oceny w B02) | patrz tabela niżej; souls-gate i souls-bots zielone |
 | D01 | Nagranie bazowe (Astra) | zrobione | Astra (high), 54 s, 6 scen; `work/film-baseline/` (baseline.mp4, baseline-phone.mp4, README, klatki kontrolne); czeka na ocenę właściciela |
+
+## B01: pomiar elit (sonda 4 strategii, komnaty poligonu, bot z idealnym celem)
+
+| Strategia | Margrave przed | Margrave po | Furfur przed | Furfur po |
+|---|---|---|---|---|
+| stoi i strzela | wygrana 13,5 s, 86% HP | porażka (2/2) | wygrana 10,6 s, 16% HP | porażka (2/2) |
+| cofa się | wygrana, 84–89% HP | porażka (2/2) | wygrana, 15% HP | porażka (2/2) |
+| okrąża | porażka po A05 | porażka (2/2) | wygrana, 88% HP | wygrana, 71% HP |
+| czyta ciosy | wygrana 11–15 s | wygrana 12–13 s, 83–100% HP | wygrana 10 s | wygrana 15–17 s, 79–93% HP |
+
+Zmiany: styl duel idzie trasą (Furfur stał zablokowany 9,3 s z 12 s), zasięg dystansowy elit 16–18 m (rycerz strzela do 42 m), HP 2700 / 2250. Sonda: `sonda-elity-main.lua` w tym katalogu.

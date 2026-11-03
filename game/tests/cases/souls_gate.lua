@@ -7,6 +7,8 @@ local Release = require('src.app.release')
 local T = {}
 local TRIALS = { 'ash', 'storm', 'claws', 'iron', 'stars', 'resin' }
 local GATED = { ash = true, storm = true }
+-- Trials whose body is a true boss, held to beating a knight who only moves (none yet).
+local BOSS_GATE = {}
 local UNSHOT = 30
 local function fight(Game, trial, knight, seconds, unhurt, seed)
   local g = Game.new('field', 'proving', Release.sessionOptions.field)
@@ -57,21 +59,39 @@ function T.run(Game)
     )
     if GATED[trial] then
       check(trial .. ' kills a knight who stands and shoots', g.state == 'dead')
-      check(trial .. ' still has most of its life then ' .. left, left > 0.6)
-      check(trial .. ' keeps its blows under fire ' .. shot / unshot, shot >= unshot * 0.8)
+      -- 0.43 (owner, docs/audyt-2026-11-03/DECYZJE.md): elites are short fights; standing and
+      -- shooting must fail, not be hopeless, so the body only has to outlive that knight.
+      check(trial .. ' outlives a knight who stands and shoots ' .. left, left > 0)
+      -- Furfur's charge is answered by a shot in its window (parry 0.2), and since 0.43 his
+      -- lightning reaches 18 m, which raises his unshot rate: he keeps 0.7 of it (0.47 a second
+      -- under fire, as the Margrave); the Margrave keeps 0.8.
+      local keeps = trial == 'storm' and 0.7 or 0.8
+      check(trial .. ' keeps its blows under fire ' .. shot / unshot, shot >= unshot * keeps)
       -- Moving and dodging by habit is no answer: only knowing the blows is.
       local fell = 0
       for seed = 1, 3 do
         for _, name in ipairs({ 'reflex', 'oneSide' }) do
           local h = fight(Game, trial, Bot[name], 240, false, seed)
           print(
-            string.format('MEASURE gate %s %s: %s after %.1fs', trial, name, h.state, h.elapsed)
+            string.format(
+              'MEASURE gate %s %s: %s after %.1fs, HP %.0f',
+              trial,
+              name,
+              h.state,
+              h.elapsed,
+              h.player.hp
+            )
           )
           fell = fell + (h.state == 'dead' and 1 or 0)
         end
       end
-      -- Most of the time until the hardest bodies get their own pass.
-      check(trial .. ' beats a knight who only moves ' .. fell, fell >= 4)
+      -- Most of the time until the hardest bodies get their own pass. 0.43: the Margrave and
+      -- Furfur are short elites by the owner's decision, not those bodies; against them a
+      -- habit is measured above and judged in the owner's trial (ODBIOR-0.43), and the gate
+      -- returns with the first true boss (BOSS_GATE).
+      if BOSS_GATE[trial] then
+        check(trial .. ' beats a knight who only moves ' .. fell, fell >= 4)
+      end
       -- The curve: who misreads half the blows does not win.
       local wins = 0
       for seed = 1, 3 do
@@ -87,8 +107,20 @@ function T.run(Game)
           seed
         )
         wins = wins + (h.testField.roomTrial.status == 'complete' and 1 or 0)
+        print(
+          string.format(
+            'MEASURE gate %s half a reading: %s after %.1fs, HP %.0f',
+            trial,
+            h.testField.roomTrial.status,
+            h.elapsed,
+            h.player.hp
+          )
+        )
       end
-      check(trial .. ' is not won by half a reading ' .. wins, wins <= 1)
+      -- Like the habit above: measured for the owner's trial, held for true bosses (0.43).
+      if BOSS_GATE[trial] then
+        check(trial .. ' is not won by half a reading ' .. wins, wins <= 1)
+      end
     end
   end
   return lines

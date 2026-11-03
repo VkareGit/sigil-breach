@@ -27,11 +27,13 @@
 -- 0.43 (A01): the bot walks only to supplies it can take; both walks change, the drill not.
 -- 0.43 (A05): the whole recovery holds every blow and answer, a dodge in a string is answered;
 -- both walks and the drill change.
+-- 0.43 (B01): elites last longer (Margrave 2700, Furfur 2250 HP), a duellist walks the route to the knight,
+-- and the elites' far blows reach 16-18 m.
 return {
-  playtest = 'e6cabfb7/aea705ea',
-  human = '7d2ddc92/5b16e3c0',
-  drill = '3527a790/a5550acb',
-  playtestContacts = '705bb094/1009',
-  humanContacts = '96ac081f/1330',
-  drillContacts = '44dc9dc7/278',
+  playtest = '4dc8af1e/e83c8b4e',
+  human = 'cfa4b22b/52eb3d0b',
+  drill = '4bc4a1e1/4b1349e5',
+  playtestContacts = '0a232091/906',
+  humanContacts = 'a1c21dff/1238',
+  drillContacts = 'c3aeb326/353',
 }
