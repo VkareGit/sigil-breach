@@ -1,6 +1,7 @@
 * text=auto
 *.lua text eol=lf
 *.ps1 text eol=crlf
+*.sh text eol=lf
 *.txt text
 *.md text
 *.png binary

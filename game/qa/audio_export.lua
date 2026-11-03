@@ -67,7 +67,7 @@ end
 
 local function directory(name)
   local dir = Output.path(name)
-  os.execute('mkdir "' .. dir:gsub('/', '\\') .. '" 2>nul')
+  require('qa.directory').ensure(dir)
   return dir
 end
 local function report(dir, lines, smoke)

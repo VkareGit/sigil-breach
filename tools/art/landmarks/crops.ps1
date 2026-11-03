@@ -10,12 +10,22 @@ param(
 # run `lovec game --hit-review` first (work/qa-v<n>/hit-frame-rects.csv).
 # Output: work/annotate/<kind>-<frame>.png. Kind 'art-leap' / 'art-evade'
 # for the ability sheets.
-Add-Type -AssemblyName System.Drawing
-. (Join-Path $PSScriptRoot '..\..\project.ps1')
+$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../../project.ps1')
 $project = Get-Project
 $rects = Import-Csv (Join-Path $project.Qa 'hit-frame-rects.csv')
-$out = Join-Path $project.Root 'work\annotate'
+$out = Join-Path $project.Root 'work/annotate'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
+if (-not (Test-SigilWindows)) {
+    $selected = foreach ($f in $Frame) {
+        $r = $rects | Where-Object { $_.kind -eq $Kind -and [int]$_.frame -eq $f } | Select-Object -First 1
+        if (-not $r) { throw "no frame $Kind $f in hit-frame-rects.csv" }
+        $r
+    }
+    & (Join-Path $PSScriptRoot '../annotations/export.ps1') -Mode crops -Rows @($selected) -Output $out -Scale $Scale -Points $Points
+    return
+}
+Add-Type -AssemblyName System.Drawing
 foreach ($f in $Frame) {
     $r = $rects | Where-Object { $_.kind -eq $Kind -and [int]$_.frame -eq $f } | Select-Object -First 1
     if (-not $r) { throw "no frame $Kind $f in hit-frame-rects.csv" }

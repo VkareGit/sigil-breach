@@ -19,3 +19,25 @@ jobs:
         with:
           name: qa-reports
           path: work/qa/*.txt
+  linux-architecture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y love
+          love --version | grep -E 'LOVE 11\.5|LÖVE 11\.5'
+          cargo install stylua --version 2.6.0 --locked --features luajit
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Architecture and format (no display)
+        shell: pwsh
+        run: ./TEST.ps1 -Suite Architecture -TestTimeoutSeconds 600
+      - name: Keep the Linux reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-linux
+          path: work/qa/*.txt

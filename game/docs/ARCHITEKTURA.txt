@@ -51,8 +51,8 @@ phaseIndex/phaseBaseHp/lastAttack/attackRepeats są stanem komponentów;
 snapshot, zapis i journal obejmują je. damageEnemy zwraca rzeczywistą
 utratę zdrowia; puls efektu nie odejmuje nowego zapasu HP od starego.
 EnemyPhaseChanged służy prezentacji, a nagrody i otwarcie wyjścia nadal
-należą tylko do EnemyKilled. Szczegóły i źródła:
-../../docs/PLAN-DOPRACOWANIA-POLIGONU.md, punkt 4.
+należą tylko do EnemyKilled. Bieżące kontrakty: ROZSZERZANIE.txt;
+plan etapu poligonu pozostaje w historii gita.
 
 LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
 zaklęć demonów, broni i wyposażenia rycerza, map, trybów). Model: sesja = świat ECS nad własnymi tablicami

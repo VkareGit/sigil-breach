@@ -526,11 +526,21 @@ local function scalingAudit(rule, counts, directory, failure, lines)
   lines[#lines + 1] = rule.label .. ' ' .. total
 end
 
-local function audit(manifest, root, reportPath, literalsPath, edgesPath)
+local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesPath)
   local sources, graph, errors, lines, numbers, crossing = {}, {}, {}, {}, {}, {}
   local scaling = {}
   local function failure(message)
     errors[#errors + 1] = message
+  end
+  lines[#lines + 1] = require('directory_test')(root, reportPath:match('^(.*)[/\\][^/\\]+$'))
+  if filesPath then
+    local problems, count = require('asset_paths')(root, filesPath)
+    for _, problem in ipairs(problems) do
+      failure('ASSET PATH ' .. problem)
+    end
+    lines[#lines + 1] = 'ASSET PATHS: '
+      .. count
+      .. ' constructed sound paths; 2 checker regressions.'
   end
   for relative in read(manifest):gmatch('[^\r\n]+') do
     local text = read(root .. '/' .. relative)
@@ -763,7 +773,8 @@ function love.load(arguments)
       assert(arguments[2]),
       assert(arguments[3]),
       arguments[4],
-      arguments[5]
+      arguments[5],
+      arguments[6]
     )
   end, debug.traceback)
   if not ok then

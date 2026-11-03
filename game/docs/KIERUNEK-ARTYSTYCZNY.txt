@@ -119,9 +119,10 @@ freskowy styl nowego chwytu w całych cyklach. Retusz lokalny obu arkuszy
 został jawnie zaakceptowany przez użytkownika. Metal, rękawica i drewno
 mają czytelne granice, bez dodatkowego ostrzenia. Widoczne komory odczytują
 amunicję gry; małe warianty nie stanowią odrębnych mechanizmów strzelania.
-Dokładne prompty i źródła: assets/art/weapon-provenance-v32.json.
+Dokładne prompty i źródła: old/weapon-art-v32-v33/weapon-provenance-v32.json
+(ścieżka od katalogu repozytorium).
 Modele, atlasy animacji i pigment demonów nie zostały zmienione w tym etapie.
-Stare dwa atlasy broni są odtwarzalne z old/ (ZIP, manifest SHA i restore).
+Wzorce dwóch atlasów pozostają w old/weapon-art-v32-v33.
 Techniczny filmstrip nie zastępuje osobnej oceny użytkownika w ruchu.
 
 STAN PO 998b189 — W GRZE ZNÓW ARKUSZE v16

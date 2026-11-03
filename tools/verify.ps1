@@ -1,10 +1,11 @@
 param(
-    [string]$RuntimeRoot = (Join-Path (Split-Path -Parent $PSScriptRoot) 'toolchain\love-11.5-win64'),
+    [string]$RuntimeRoot = (Join-Path (Split-Path -Parent $PSScriptRoot) 'toolchain/love-11.5-win64'),
     [ValidateRange(10, 1800)][int]$TestTimeoutSeconds = 300
 )
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'project.ps1')
+Assert-WindowsPackaging
 . (Join-Path $PSScriptRoot 'package.ps1')
 . (Join-Path $PSScriptRoot 'package-verification.ps1')
 $project = Get-Project

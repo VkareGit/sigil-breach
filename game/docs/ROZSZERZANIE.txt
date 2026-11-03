@@ -28,7 +28,7 @@ recover          okno na karę; ciało z shell przyjmuje pełne obrażenia dopie
 
 Ciało: shell, breakTime, execution, steadfast, personal. Reakcje: answers (drinking,
 reloading, behind, hugging, sniped, dodged). Każdy nowy cios potrzebuje jednej właściwej
-odpowiedzi: wpisz ją do karty w PLAN-SOULS-v13.md i naucz jej bota w qa/souls_bot.lua.
+odpowiedzi: opisz ją w bieżącej instrukcji i naucz jej bota w qa/souls_bot.lua.
 Bramka tests/cases/souls_gate.lua pilnuje, żeby ruch i unik z nawyku przegrywały.
 
 PRZEPISY PLANU v12 (0.36)

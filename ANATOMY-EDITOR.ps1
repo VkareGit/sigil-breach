@@ -3,7 +3,7 @@
 # Usage: .\ANATOMY-EDITOR.ps1 <annotation id> [atlas id]
 param([Parameter(Mandatory = $true)][string]$Id, [string]$Atlas)
 $ErrorActionPreference = 'Stop'
-$runtime = Join-Path $PSScriptRoot 'toolchain/love-11.5-win64/lovec.exe'
+. (Join-Path $PSScriptRoot 'tools/platform.ps1')
 $arguments = @((Join-Path $PSScriptRoot 'tools/art/anatomy_editor'), (Join-Path $PSScriptRoot 'game'), $Id)
 if ($Atlas) { $arguments += $Atlas }
-& $runtime @arguments
+Invoke-Love $arguments

@@ -1,17 +1,24 @@
 SIGIL: BREACH / JAK ROZWIJAĆ PROJEKT
 
 GŁÓWNY KATALOG
-C:\Users\nahiko\Documents\dev\sigil-breach
+Klon wskazany w zadaniu: Windows lub Linux (migracja: ../../docs/LINUX.md).
 
 Pracuj w game/, nie w outputs/*/source. outputs to zbudowane snapshoty.
-outputs ma bieżące i poprzednie wydanie; tekst starszych wydań i kopii jest w
-old/SIGIL-BREACH-history-text-0.10-0.30.zip. Przebudowa przenosi poprzednie
+outputs ma bieżące i poprzednie wydanie. Przebudowa przenosi poprzednie
 dostawy do work/qa-v<wersja>/rollback (jedna generacja, następny build ją zastępuje).
 Aktualna architektura: game/docs/ARCHITEKTURA.txt. Historia zmian: game/docs/ZMIANY.txt
-(jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy: docs/history.
+(jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy są w historii gita.
 Opis każdego pliku kodu: podręcznik docs/podrecznik-codex (nieśledzony, w toku).
 
 POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
+
+Windows: PowerShell 5.1 i dołączony toolchain/love-11.5-win64.
+Linux: PowerShell 7, LÖVE 11.5 i StyLua 2.6.0. Z bash uruchamiaj poniższe
+skrypty jako pwsh -NoProfile -File TEST.ps1 ... (albo ./TEST.ps1 w pwsh).
+LÖVE: love z PATH lub SIGIL_LOVE; StyLua: toolchain/stylua/stylua, PATH lub
+SIGIL_STYLUA. Bez DISPLAY/WAYLAND_DISPLAY skrypty używają xvfb-run -a.
+Architecture nie wymaga ekranu. -Release i -Package są tylko dla Windows.
+Zapisy: %APPDATA%/LOVE na Windows; ${XDG_DATA_HOME:-~/.local/share}/love na Linuxie.
 
   .\RUN.ps1                     uruchom aktualne źródła
   .\RUN.ps1 -Release            uruchom EXE bieżącej wersji
@@ -65,7 +72,8 @@ Główne raporty zapisują się w work/qa (qaOutput w release.lua, czytany też
 przez tools/project.ps1; numer wersji: game/src/core/build.lua).
 Uruchomienie ręczne bez SIGIL_UI_QA_DIR pisze do work/qa-direct
 (handOutput), nigdy do raportów trwającego TEST.ps1.
-Jeden zestaw testów: lovec.exe game --suite=<id> (id z tests/suite.lua);
+Jeden zestaw: Windows toolchain/love-11.5-win64/lovec.exe game --suite=<id>,
+Linux love game --suite=<id> (id z tests/suite.lua);
 raport suite-<id>-results.txt nie nadpisuje pełnego test-results.txt.
 Błąd jednego zestawu nie przerywa pozostałych; przebieg kończy się błędem.
 
@@ -119,8 +127,8 @@ na pigmencie lub w powietrzu tak, jak gra go rysuje.
 Zmiana numeru wersji wymaga też nowej sekcji ZMIANY-X.txt na górze
 docs/ZMIANY.txt i sekcji ODBIOR-X.txt na górze docs/ODBIOR.txt; BUILD
 odmawia budowy bez nich.
-Do uruchamiania i testowania wystarcza dołączony runtime; Node/Python nie są
-zależnościami projektu. StyLua jest dołączonym narzędziem deweloperskim.
+Node/Python nie są zależnościami gry ani testów. Runtime i StyLua dla Windows
+są dołączone; na Linuxie zainstaluj wersje podane w ../../docs/LINUX.md.
 
 GDZIE WPROWADZIĆ ZMIANĘ
 
@@ -353,15 +361,11 @@ Nowe moduły importuj dosłowną ścieżką, np. require('src.combat.damage').
 Nie twórz nowych plików system_v19.lua: nazwa ma opisywać odpowiedzialność.
 Wersje w nazwach atlasów i metadanych źródłowych grafiki pozostają celowe.
 
-Archiwum starych plików: old/ w katalogu głównym (poza game/, więc nie trafia
-do paczki). old/SIGIL-BREACH-old-assets-0.31.zip trzyma pod pierwotnymi
-ścieżkami nieużywane grafiki (także 25 PNG z porządków 0.29), dawne
-czcionki TTF z licencjami i wycofane narzędzia tools/art wraz z wejściami;
-old/manifest.csv podaje SHA-256 i powód, old/RESTORE.ps1 przywraca bez
-nadpisywania. ZIP nie jest w gicie (za duży); pliki z game/ i tools/ są też
-w historii commitów sprzed archiwizacji. Starsza nazwa nie oznacza śmiecia:
-przed archiwizacją sprawdź odwołania w game/src, tests, qa i tools (także
-ścieżki składane w kodzie), nie samym rg po nazwie.
+Stary kod i wycofane pliki są w historii gita. old/weapon-art-v32-v33
+zachowuje wzorce wskazane przez KIERUNEK-ARTYSTYCZNY.txt. Prywatne old/*.zip
+nie są potrzebne do bieżącej gry. Starsza nazwa nie oznacza śmiecia:
+przed usunięciem sprawdź odwołania w game/src, tests, qa i tools, także
+ścieżki składane w kodzie oraz źródła odbudowy zasobów.
 
 Narzędzia grafiki: tools/art; wymagają własnych zmiennych SIGIL_* wskazujących
 materiał wejściowy. Są zachowanym warsztatem produkcji, nie częścią uruchomienia
@@ -392,7 +396,7 @@ w ROZSZERZANIE (punkty 17–22). Ich działające próby: named-poses,
 mode-state, actors, observer, view-context. W produkcji nadal jeden
 poligon, jeden gracz i ten sam HUD. Kolejny widok nie wykonuje kroku świata.
 
-Pomiary E3–E5: PLAN-v11-POMIARY.md, pełne tabele median/IQR i surowe logi
+Pomiary E3–E5: raport planu v11 w historii gita, surowe logi
 work/v11-measure-final-e3, e4, e5. Baza: E0 710d1ac; etapy: 8797d30,
 4a03cb4, e00c817. Każdy wariant w świeżym procesie, pięć naprzemiennych
 par, High bez affinity; rozgrzewka 300, kroków 2400, klatek 720.
@@ -428,4 +432,4 @@ Zmierzony koszt drugiego widoku (mediana pięciu procesów, ms):
   cały krok z capture: 1 widok 0.1817, 2 widoki 0.2072, iloraz 1.140.
   pełny obraz z HUD i synchronizacją: 1 widok 5.1249, 2 widoki 9.4206, iloraz 1.838.
   W obu wariantach ta sama symulacja dwóch rycerzy; dziesięć prób
-  daje identyczny SHA-256 stanu. Pełne IQR: PLAN-v11-POMIARY.md.
+  daje identyczny SHA-256 stanu. Pełne IQR: raport planu v11 w historii gita.

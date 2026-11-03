@@ -89,16 +89,8 @@ function Q.new(arguments)
     assert(selected == 1, '--qa-smoke requires exactly one registered diagnostic tool')
   end
   q.output = os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput
-  if q.capture and not os.getenv('SIGIL_UI_QA_DIR') then
-    -- A hand run's own directory, made if it is missing (cmd and sh both know mkdir).
-    local probe = io.open(q.output .. '/.hand-runs', 'a')
-    if probe then
-      probe:close()
-    else
-      os.execute('mkdir "' .. q.output:gsub('/', package.config:sub(1, 1)) .. '"')
-    end
-  end
   if q.capture then
+    require('qa.directory').ensure(q.output)
     require('qa.floor').install()
   end
   return q

@@ -2,8 +2,8 @@ SIGIL: BREACH — prototyp 0.43
 3 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
-jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
-(nic z planu nie obowiązuje, dopóki nie trafi tutaj).
+jest w ZMIANY.txt, dawne plany w historii gita; bieżący plan w docs/audyt-2026-11-03
+od katalogu repozytorium (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
 KAPLICA (0.43: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
 BEGIN wchodzi do kaplicy od pierwszego ogniska. CONTINUE wznawia drogę dokładnie tam, gdzie ją

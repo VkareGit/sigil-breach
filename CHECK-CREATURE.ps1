@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'tools/project.ps1')
 $project = Get-Project
 New-Item -ItemType Directory -Force -Path $project.Qa | Out-Null
-$runtime = Join-Path $project.Root 'toolchain/love-11.5-win64/lovec.exe'
+$runtime = Get-LoveRuntime -Console
 $report = Join-Path $project.Qa ('creature-' + $Id + '.txt')
 $session = Enter-QaSession $project.Qa
 try {

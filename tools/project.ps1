@@ -1,10 +1,11 @@
 # Shared release metadata and packaging primitives. Dot-source from entry scripts.
+. (Join-Path $PSScriptRoot 'platform.ps1')
 function Get-Project {
     $root = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
     # The version is game/src/core/build.lua (the simulation stamps it on
     # journals); title and QA output are game/src/app/release.lua.
-    $build = [IO.File]::ReadAllText((Join-Path $root 'game\src\core\build.lua'))
-    $identity = [IO.File]::ReadAllText((Join-Path $root 'game\src\app\release.lua'))
+    $build = [IO.File]::ReadAllText((Join-Path $root 'game/src/core/build.lua'))
+    $identity = [IO.File]::ReadAllText((Join-Path $root 'game/src/app/release.lua'))
     $values = @{}
     foreach ($entry in @(@('version', $build), @('title', $identity), @('qaOutput', $identity))) {
         $key = $entry[0]
@@ -18,9 +19,9 @@ function Get-Project {
     return [PSCustomObject]@{
         Root = $root; Source = (Join-Path $root 'game'); Qa = $qa
         Version = $values.version; Title = $values.title; Name = $releaseName
-        Release = (Join-Path $root ('outputs\' + $releaseName))
-        DeveloperZip = (Join-Path $root ('outputs\' + $releaseName + '-Developer-Windows.zip'))
-        PlayerZip = (Join-Path $root ('outputs\' + $releaseName + '-Player-Windows.zip'))
+        Release = (Join-Path $root ('outputs/' + $releaseName))
+        DeveloperZip = (Join-Path $root ('outputs/' + $releaseName + '-Developer-Windows.zip'))
+        PlayerZip = (Join-Path $root ('outputs/' + $releaseName + '-Player-Windows.zip'))
         RenderEvidence = @('lighting-review.txt','weapon-carry-readability.txt',
             'weapon-shotgun-16-poses.png','weapon-revolver-16-poses.png',
             'weapon-shotgun-partial-one.png','weapon-revolver-partial-one.png',
@@ -58,12 +59,12 @@ function Get-Project {
             'charge-handoff-off-0.png','charge-handoff-off-8.png','charge-handoff-off-17.png',
             'charge-handoff-off-50.png','charge-handoff-off-100.png',
             'charge-return-on.png','charge-return-off.png')
-        Documents = @('docs\INSTRUKCJA.txt', 'docs\ZMIANY.txt',
-            'docs\ARCHITEKTURA.txt', 'docs\DEVELOPMENT.txt', 'docs\ROZSZERZANIE.txt', 'docs\SYSTEM-SWIATA-0.14.txt',
-            'docs\KIERUNEK-ARTYSTYCZNY.txt', 'docs\MANIFEST-NIKOGO.txt',
-            'docs\ANATOMIA-I-FIZYKA-0.28.txt', 'docs\PLAN-ROZWOJU-v7.md', 'docs\PLAN-FUNDAMENT-v9.md', 'docs\ODBIOR.txt')
+        Documents = @('docs/INSTRUKCJA.txt', 'docs/ZMIANY.txt',
+            'docs/ARCHITEKTURA.txt', 'docs/DEVELOPMENT.txt', 'docs/ROZSZERZANIE.txt', 'docs/SYSTEM-SWIATA-0.14.txt',
+            'docs/KIERUNEK-ARTYSTYCZNY.txt', 'docs/MANIFEST-NIKOGO.txt',
+            'docs/ANATOMIA-I-FIZYKA-0.28.txt', 'docs/KONWENCJE.txt', 'docs/ODBIOR.txt')
         # Each version adds its own section on top of these two documents.
-        VersionSections = @(('docs\ZMIANY.txt', ('ZMIANY-' + $values.version + '.txt')), ('docs\ODBIOR.txt', ('ODBIOR-' + $values.version + '.txt')))
+        VersionSections = @(('docs/ZMIANY.txt', ('ZMIANY-' + $values.version + '.txt')), ('docs/ODBIOR.txt', ('ODBIOR-' + $values.version + '.txt')))
     }
 }
 
@@ -80,7 +81,8 @@ function Reset-Rollback([string]$Qa, [string]$Name) {
 function Assert-ChildPath([string]$Path, [string]$Root) {
     $full = [IO.Path]::GetFullPath($Path)
     $base = [IO.Path]::GetFullPath($Root).TrimEnd('\', '/')
-    if (-not $full.StartsWith($base + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    $comparison = if (Test-SigilWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    if (-not $full.StartsWith($base + [IO.Path]::DirectorySeparatorChar, $comparison)) {
         throw "Path must stay inside '$base': $full"
     }
     return $full
@@ -141,8 +143,9 @@ function Require-Fresh([string]$Path, [DateTime]$Started, [DateTime]$Previous, [
 # session waits. Re-entrant within one PowerShell process (TEST.ps1 runs
 # tools\check.ps1 inside its own session).
 function Enter-QaSession([string]$Qa, [int]$TimeoutSeconds = 3600) {
-    if ($null -eq $global:SigilQaSessions) { $global:SigilQaSessions = @{} }
-    $key = [IO.Path]::GetFullPath($Qa).TrimEnd('\').ToLowerInvariant()
+    if ($null -eq $global:SigilQaSessions) { $global:SigilQaSessions = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal) }
+    $key = [IO.Path]::GetFullPath($Qa).TrimEnd([IO.Path]::DirectorySeparatorChar)
+    if (Test-SigilWindows) { $key = $key.ToLowerInvariant() }
     $held = $global:SigilQaSessions[$key]
     if ($held) { $held.Depth++; return $key }
     New-Item -ItemType Directory -Force -Path $Qa | Out-Null
@@ -168,7 +171,7 @@ function Exit-QaSession([string]$Key) {
     $held = if ($global:SigilQaSessions) { $global:SigilQaSessions[$Key] } else { $null }
     if (-not $held) { return }
     $held.Depth--
-    if ($held.Depth -le 0) { $held.Stream.Dispose(); $global:SigilQaSessions.Remove($Key) }
+    if ($held.Depth -le 0) { $held.Stream.Dispose(); [void]$global:SigilQaSessions.Remove($Key) }
 }
 
 # A version string alone does not identify a dirty working tree. Hash names as
@@ -194,7 +197,7 @@ function Get-SourceFingerprint([string]$Root) {
 }
 
 function Invoke-IsolatedGame([string]$Executable, [string[]]$Arguments, [string]$Root,
-    [string]$Qa, [string]$Name, [int]$TimeoutSeconds = 300) {
+    [string]$Qa, [string]$Name, [int]$TimeoutSeconds = 300, [switch]$NoDisplay) {
     $stdout = Join-Path $Qa ($Name + '.stdout.txt')
     $stderr = Join-Path $Qa ($Name + '.stderr.txt')
     $started = [DateTime]::UtcNow
@@ -214,7 +217,7 @@ function Invoke-IsolatedGame([string]$Executable, [string[]]$Arguments, [string]
         $env:SIGIL_QA_SOURCE_FINGERPRINT = $sourceFingerprint
         $env:SIGIL_QA_BUILD_FINGERPRINT = $buildFingerprint
         $env:SIGIL_QA_RUN = $runId
-        $process = Start-Process -FilePath $Executable -ArgumentList $Arguments -WorkingDirectory $Root -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+        $process = Start-SigilProcess $Executable $Arguments $Root $stdout $stderr -NoDisplay:$NoDisplay
     }
     finally {
         $env:SIGIL_UI_QA_DIR = $previousQa
@@ -224,7 +227,7 @@ function Invoke-IsolatedGame([string]$Executable, [string[]]$Arguments, [string]
     }
     $null = $process.Handle
     if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-        Stop-Process -Id $process.Id -Force
+        Stop-SigilProcess $process
         throw "Timeout: $Name. See $stdout and $stderr."
     }
     $process.WaitForExit(); $process.Refresh()

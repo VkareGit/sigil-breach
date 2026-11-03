@@ -1,5 +1,5 @@
-SIGIL: BREACH / główny projekt / 0.43 (3 listopada 2026)
-C:\Users\nahiko\Documents\dev\sigil-breach
+SIGIL: BREACH / główny projekt / 0.44 (3 listopada 2026)
+Pracuj w klonie wskazanym w zadaniu (Windows albo Linux).
 
 Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
 bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stworami,
@@ -15,12 +15,12 @@ ZACZNIJ OD:
 - game\docs\ARCHITEKTURA.txt i ROZSZERZANIE.txt: odpowiedzialności i przepisy rozbudowy.
 - game\docs\ZMIANY.txt i ODBIOR.txt: wersje w jednym pliku, najnowsza na górze.
 Podręcznik kodu: docs\podrecznik-codex (plik właściciela, poza gitem).
-Dawne konteksty i plany: docs\history (to zapis przeszłości, nie bieżące API).
+Dawne konteksty i plany są w historii gita. Linux i migracja: docs/LINUX.md.
 
 Pracuj w game/. main.lua -> src/app -> src/session -> systemy -> render i UI.
 src/content: definicje i liczby. tests/: regresje. qa/: raporty i narzędzia. tools/: skrypty.
 
-love .                          gra ze źródeł (tak gra właściciel)
+love game                       gra ze źródeł, z katalogu repo (w game/: love .)
 .\FORMAT.ps1                    formatowanie Lua (przed każdym commitem)
 .\TEST.ps1 -Suite Architecture  szybka kontrola kodu bez okna (to samo robi CI)
 .\TEST.ps1 -Suite Mechanics     wszystkie zestawy mechaniki, około 8 minut
@@ -29,5 +29,11 @@ love .                          gra ze źródeł (tak gra właściciel)
 
 Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
 Rendery kaplicy: toolchain\love-11.5-win64\love.exe game --chapel-look (pliki look-*.png).
+Linux (bash): pwsh -NoProfile -File TEST.ps1 -Suite All -TestTimeoutSeconds 1800;
+analogicznie FORMAT.ps1, RUN.ps1 i BUILD.ps1. W pwsh: ./TEST.ps1 itd.
+Jeden zestaw: SIGIL_UI_QA_DIR="$PWD/work/qa-direct" love game --suite=<id>.
+Bez ekranu dodaj xvfb-run -a przed love; skrypty PS robią to automatycznie.
+Na Linuxie zapisy: ${XDG_DATA_HOME:-~/.local/share}/love/sigil-breach*;
+na Windows: %APPDATA%\LOVE\sigil-breach*. Pakowanie EXE tylko na Windows.
 Wersja: game/src/core/build.lua. Wyniki TEST.ps1: work/qa. Uruchomienia ręczne: work/qa-direct.
 Grafikę, dźwięk i nagrania robi Codex Astra (gpt-6-astra), kod gry piszemy sami.

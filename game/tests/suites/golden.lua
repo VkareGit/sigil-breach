@@ -1,8 +1,8 @@
 -- Golden master (0.24 / E0). Deterministic scenarios fold the simulation
 -- state every second into one digest each. Every refactor must reproduce
--- tests/golden/baseline.lua exactly. A deliberate gameplay change updates
--- the baseline: copy work/<qa>/golden-current.lua over it and say why in
--- the change log.
+-- tests/golden/baseline.lua exactly (baseline_linux.lua on Linux). A
+-- deliberate gameplay change updates the baseline of the system it was run
+-- on: copy work/<qa>/golden-current.lua over it and say why in the change log.
 local Fixtures = require('tests.support.fixtures')
 local T = {}
 function T.run(G)
@@ -72,7 +72,14 @@ function T.run(G)
     'content definitions are unchanged by the whole run',
     Suite.contentAtStart == nil or Suite.contentAtStart == Suite.contentText()
   )
-  local ok, baseline = pcall(require, 'tests.golden.baseline')
+  -- The C libraries' sin, cos and atan2 round differently on Windows and Linux,
+  -- so a long walk drifts apart: each system keeps its own baseline.
+  local ok, baseline
+  if love.system.getOS() == 'Linux' then
+    ok, baseline = pcall(require, 'tests.golden.baseline_linux')
+  else
+    ok, baseline = pcall(require, 'tests.golden.baseline')
+  end
   check('a golden baseline exists', ok and type(baseline) == 'table')
   for _, key in ipairs(keys) do
     check(

@@ -1,5 +1,6 @@
 function love.conf(t)
   t.window = false
+  t.modules.window = false
   t.console = true
   t.modules.graphics = false
   t.modules.audio = false

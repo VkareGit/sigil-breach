@@ -160,7 +160,7 @@ function love.mousereleased()
 end
 local function save()
   local dir = root .. '/../work/anatomy'
-  os.execute('mkdir "' .. dir:gsub('/', '\\') .. '" 2>nul')
+  require('qa.directory').ensure(dir)
   local path = dir .. '/' .. id .. '.lua'
   local file = assert(io.open(path, 'w'))
   file:write(editor:text())

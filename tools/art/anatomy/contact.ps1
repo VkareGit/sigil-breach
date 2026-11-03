@@ -1,10 +1,16 @@
-param([string[]]$Kind = @('stolas','buer','boss','furfur','art-evade'), [string]$Rects = 'work/qa-v27/hit-frame-rects.csv')
+param([string[]]$Kind = @('stolas','buer','boss','furfur','art-evade'), [string]$Rects = 'work/qa/hit-frame-rects.csv')
 # Diagnostic source-UV contact sheets only; never edits production art.
-Add-Type -AssemblyName System.Drawing
-$root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..'))
+$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../../project.ps1')
+$root = (Get-Project).Root
 $rows = Import-Csv (Join-Path $root $Rects)
-$out = Join-Path $root 'work\anatomy-contact'
+$out = Join-Path $root 'work/anatomy-contact'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
+if (-not (Test-SigilWindows)) {
+  & (Join-Path $PSScriptRoot '../annotations/export.ps1') -Mode contact -Rows @($rows | Where-Object { $_.kind -in $Kind }) -Output $out
+  return
+}
+Add-Type -AssemblyName System.Drawing
 foreach ($name in $Kind) {
   $frames = @($rows | Where-Object { $_.kind -eq $name })
   $columns=4; $cell=320; $label=24

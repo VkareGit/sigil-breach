@@ -70,6 +70,7 @@ function Assert-PlayerPayload([string]$Root, [string]$Source, [string]$Fingerpri
 }
 
 function Invoke-PackageProcess([string]$Executable, [string[]]$Arguments, [string]$WorkingDirectory, [string]$Evidence, [string]$Name, [int]$TimeoutSeconds) {
+    Assert-WindowsPackaging
     New-Item -ItemType Directory -Force -Path $Evidence | Out-Null
     $oldQa, $oldSource, $oldBuild = $env:SIGIL_UI_QA_DIR, $env:SIGIL_QA_SOURCE_FINGERPRINT, $env:SIGIL_QA_BUILD_FINGERPRINT
     try {

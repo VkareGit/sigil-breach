@@ -3,14 +3,15 @@ param(
     [ValidateRange(10, 1800)][int]$TestTimeoutSeconds = 300
 )
 $ErrorActionPreference = 'Stop'
-. (Join-Path $PSScriptRoot 'tools\project.ps1')
+. (Join-Path $PSScriptRoot 'tools/project.ps1')
 $project = Get-Project
 $session = Enter-QaSession $project.Qa
 try {
     if ($Suite -eq 'All' -or $Suite -eq 'Architecture') {
         & (Join-Path $PSScriptRoot 'FORMAT.ps1') -Check
         if ($LASTEXITCODE -ne 0) { throw 'Lua formatting differs; run FORMAT.ps1.' }
-        & (Join-Path $PSScriptRoot 'tools\check.ps1')
+        & (Join-Path $PSScriptRoot 'tools/check-platform.ps1')
+        & (Join-Path $PSScriptRoot 'tools/check.ps1')
     }
     $flags = switch ($Suite) {
         'All' { '--selftest'; '--input-test'; '--showcase'; '--benchmark'; '--core-measure'; '--step-study'; '--audio-export'; '--startup-check' }
@@ -39,7 +40,7 @@ try {
         Write-Host "Testing source: $flag (smoke=$smoke)"
         $arguments = @(('"' + $project.Source + '"'), $flag)
         if ($smoke) { $arguments += '--qa-smoke' }
-        $runtime = Join-Path $PSScriptRoot 'toolchain\love-11.5-win64\lovec.exe'
+        $runtime = Get-LoveRuntime -Console
         $run = Invoke-IsolatedGame $runtime $arguments $project.Root $destination $name $TestTimeoutSeconds
         foreach ($report in $reports[$flag]) {
             $path = Join-Path $destination $report

@@ -35,8 +35,8 @@ against its letter bodies, independently of accents and descenders.
 Numeral cell gutters are measured, not assumed equal: the generator shifted
 several letters across nominal grid positions. The source's extra dot next
 to the slash is outside its selected crop and is never rendered.
-The v11 punctuation sheet and the v11 font atlases remain; the other v11/v08
-sources are archived in old/SIGIL-BREACH-old-assets-0.31.zip.
+The v11 punctuation sheet and comparison font atlases remain; retired
+letter sheets and their selector masks are available in git history.
 
 Sampling: original source alpha > .55; exact area coverage > .23.
 RGB is area-weighted and blended 25% toward ivory for stable tiny lettering.
@@ -47,9 +47,12 @@ tests can reconstruct the silhouettes from the original raster.
 Rebuild from project root:
   $env:SIGIL_FONT_SOURCE='<project>/game'
   & '<project>/toolchain/love-11.5-win64/lovec.exe' tools/art/bake_type_v16
+Linux (bash, from the project root):
+  SIGIL_FONT_SOURCE="$PWD/game" love tools/art/bake_type_v16
 
 Offscreen visual/source review:
   & '<project>/toolchain/love-11.5-win64/lovec.exe' tools/art/review_type_v16
+Linux: SIGIL_FONT_SOURCE="$PWD/game" xvfb-run -a love tools/art/review_type_v16
 
 The importer disables graphics/audio; the specimen tool is hidden and muted,
 uses no production saves and does not interact with desktop mouse or keyboard.

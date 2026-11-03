@@ -4,14 +4,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$formatter = Join-Path $PSScriptRoot 'toolchain/stylua/stylua.exe'
-$expectedHash = '8BE0383E979B3C699BF6BFBFC0770038534D071B0479FEE188636C4B54CD338B'
-if (-not (Test-Path -LiteralPath $formatter -PathType Leaf)) {
-    throw 'Pinned StyLua 2.6.0 is missing from toolchain/stylua. See its PROVENANCE.txt.'
-}
-if ((Get-FileHash -LiteralPath $formatter -Algorithm SHA256).Hash -ne $expectedHash) {
-    throw 'StyLua executable does not match the pinned 2.6.0 binary. See toolchain/stylua/PROVENANCE.txt.'
-}
+. (Join-Path $PSScriptRoot 'tools/platform.ps1')
+$formatter = Get-Stylua
 
 $formatArguments = @('--config-path', (Join-Path $PSScriptRoot '.stylua.toml'), '--verify', '--color', 'Never')
 if ($Check) {

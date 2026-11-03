@@ -1,6 +1,7 @@
 param([switch]$Installed, [ValidateRange(10, 1800)][int]$TestTimeoutSeconds = 180)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'project.ps1')
+if ($Installed) { Assert-WindowsPackaging }
 . (Join-Path $PSScriptRoot 'package.ps1')
 . (Join-Path $PSScriptRoot 'package-verification.ps1')
 $project = Get-Project

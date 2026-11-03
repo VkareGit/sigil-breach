@@ -7,8 +7,7 @@ param(
     [string]$Populations = '20,96,256',
     [string]$Out = ''
 )
-# The measurement protocol of plan v11 (game/docs/PLAN-FUNDAMENT-v11.md,
-# "Koszt - protokol pomiaru"): every measurement is its own process with a
+# The measurement protocol: every measurement is its own process with a
 # 300-step warm-up; pairs alternate their order (before-after, after-before,
 # ...); the median and the interquartile range (IQR) of each variant are
 # reported separately for the simulation step (--core-measure, map qa_crowd)
@@ -18,10 +17,10 @@ param(
 #   INCONCLUSIVE    anything else (repeat with more pairs; still
 #                   inconclusive counts as a regression)
 $ErrorActionPreference = 'Stop'
-. (Join-Path $PSScriptRoot 'tools\project.ps1')
+. (Join-Path $PSScriptRoot 'tools/project.ps1')
 $project = Get-Project
-$runtime = Join-Path $PSScriptRoot 'toolchain\love-11.5-win64\lovec.exe'
-if (-not $Out) { $Out = Join-Path $project.Root ('work\v11-measure\' + (Get-Date -Format 'yyyyMMdd-HHmmss')) }
+$runtime = Get-LoveRuntime -Console
+if (-not $Out) { $Out = Join-Path $project.Root ('work/v11-measure/' + (Get-Date -Format 'yyyyMMdd-HHmmss')) }
 $Out = [IO.Path]::GetFullPath($Out)
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $variants = [ordered]@{ before = [IO.Path]::GetFullPath($Before) }
@@ -36,25 +35,19 @@ function Add-Sample([string]$Variant, [string]$Metric, [double]$Value) {
 # Every measured process runs at high priority. (Pinning it to six logical
 # processors was tried for E1 and made the spread worse: not used.)
 function Invoke-Pinned([string]$Tree, [string]$Flag, [string]$Log) {
-    $info = New-Object Diagnostics.ProcessStartInfo $runtime
-    $info.Arguments = '"' + $Tree + '" ' + $Flag
-    $info.UseShellExecute = $false
-    $info.RedirectStandardOutput = $true
-    $info.RedirectStandardError = $true
-    $process = [Diagnostics.Process]::Start($info)
+    $process = Start-SigilProcess $runtime @(('"' + $Tree + '"'), $Flag) $project.Root $Log ($Log + '.stderr.txt')
+    $null = $process.Handle
     try {
         $process.PriorityClass = 'High'
     }
     catch { }
-    $out = $process.StandardOutput.ReadToEndAsync()
-    $err = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
-    [IO.File]::WriteAllText($Log, $out.Result + $err.Result)
+    if (-not $process.WaitForExit(1800 * 1000)) { Stop-SigilProcess $process; throw "Timeout: $Flag; see $Log" }
+    $process.WaitForExit(); $process.Refresh()
     if ($process.ExitCode -ne 0) { throw "$Flag failed in $Tree (exit $($process.ExitCode)); see $Log" }
 }
 function Invoke-Measure([string]$Variant, [string]$Tree, [int]$Index) {
     foreach ($count in $counts) {
-        $dir = Join-Path $Out ("$Variant\core-$count-$Index")
+        $dir = Join-Path $Out ("$Variant/core-$count-$Index")
         New-Item -ItemType Directory -Force -Path $dir | Out-Null
         $env:SIGIL_UI_QA_DIR = $dir
         $env:SIGIL_CORE_POPULATION = "$count"
@@ -68,7 +61,7 @@ function Invoke-Measure([string]$Variant, [string]$Tree, [int]$Index) {
         if (-not $m.Success) { throw "No step measurement in $dir" }
         Add-Sample $Variant ('step ' + $m.Groups[1].Value + ' bodies (ms)') ([double]$m.Groups[2].Value)
     }
-    $dir = Join-Path $Out ("$Variant\bench-$Index")
+    $dir = Join-Path $Out ("$Variant/bench-$Index")
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     $env:SIGIL_UI_QA_DIR = $dir
     $env:SIGIL_BENCH_POPULATIONS = $Populations
