@@ -7,15 +7,38 @@ local defaults = {
   muted = false,
   motion = true,
   fov = 100,
+  -- Four levels (0.45, owner D17): master, effects (guns, steps, demons, warnings, menus),
+  -- music and the ambience of the rooms.
+  master = 1,
+  effects = 1,
   music = 0.65,
+  ambience = 0.65,
   hints = true,
   slot = 1,
   renderScale = Settings.renderScale.default,
   soundSet = Sets.default,
 }
-local bounds = { sensitivity = { 0.2, 3 }, fov = { 85, 115 }, music = { 0, 1 } }
-local order =
-  { 'sensitivity', 'motion', 'fov', 'music', 'hints', 'muted', 'renderScale', 'soundSet' }
+local bounds = {
+  sensitivity = { 0.2, 3 },
+  fov = { 85, 115 },
+  master = { 0, 1 },
+  effects = { 0, 1 },
+  music = { 0, 1 },
+  ambience = { 0, 1 },
+}
+local order = {
+  'sensitivity',
+  'motion',
+  'fov',
+  'master',
+  'effects',
+  'music',
+  'ambience',
+  'hints',
+  'muted',
+  'renderScale',
+  'soundSet',
+}
 function P.decode(text)
   local settings = {}
   for key, value in pairs(defaults) do
@@ -44,6 +67,10 @@ function P.decode(text)
     elseif type(defaults[key]) == 'boolean' and (value == 'true' or value == 'false') then
       settings[key] = value == 'true'
     end
+  end
+  -- A file from before 0.45 had one level for music and ambience together.
+  if text and not text:find('ambience=', 1, true) then
+    settings.ambience = settings.music
   end
   return settings
 end

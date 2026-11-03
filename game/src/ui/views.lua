@@ -70,6 +70,9 @@ end
 local function pageControls(g, s)
   local settings = g.state == 'settings'
   local row = Settings.pause.scale
+  local function rowY(i)
+    return Settings.pause.rowY + (i - 1) * Settings.pause.rowStep
+  end
   return {
     {
       id = 'resume',
@@ -79,17 +82,24 @@ local function pageControls(g, s)
       w = 520,
       h = 46,
     },
-    { id = 'sens_down', label = Text.get('page_minus'), x = 784, y = 249, w = 48, h = 34 },
-    { id = 'sens_up', label = Text.get('page_plus'), x = 852, y = 249, w = 48, h = 34 },
-    { id = 'fov_down', label = Text.get('page_minus'), x = 784, y = 297, w = 48, h = 34 },
-    { id = 'fov_up', label = Text.get('page_plus'), x = 852, y = 297, w = 48, h = 34 },
-    { id = 'music_down', label = Text.get('page_minus'), x = 784, y = 345, w = 48, h = 34 },
-    { id = 'music_up', label = Text.get('page_plus'), x = 852, y = 345, w = 48, h = 34 },
+    { id = 'sens_down', label = Text.get('page_minus'), x = 784, y = rowY(1), w = 48, h = 34 },
+    { id = 'sens_up', label = Text.get('page_plus'), x = 852, y = rowY(1), w = 48, h = 34 },
+    { id = 'fov_down', label = Text.get('page_minus'), x = 784, y = rowY(2), w = 48, h = 34 },
+    { id = 'fov_up', label = Text.get('page_plus'), x = 852, y = rowY(2), w = 48, h = 34 },
+    -- The four sound levels, two to a row (0.45, owner D17).
+    { id = 'master_down', label = Text.get('page_minus'), x = 530, y = rowY(3), w = 40, h = 34 },
+    { id = 'master_up', label = Text.get('page_plus'), x = 576, y = rowY(3), w = 40, h = 34 },
+    { id = 'effects_down', label = Text.get('page_minus'), x = 814, y = rowY(3), w = 40, h = 34 },
+    { id = 'effects_up', label = Text.get('page_plus'), x = 860, y = rowY(3), w = 40, h = 34 },
+    { id = 'music_down', label = Text.get('page_minus'), x = 530, y = rowY(4), w = 40, h = 34 },
+    { id = 'music_up', label = Text.get('page_plus'), x = 576, y = rowY(4), w = 40, h = 34 },
+    { id = 'ambience_down', label = Text.get('page_minus'), x = 814, y = rowY(4), w = 40, h = 34 },
+    { id = 'ambience_up', label = Text.get('page_plus'), x = 860, y = rowY(4), w = 40, h = 34 },
     {
       id = 'motion',
       label = Text.get(s.motion == false and 'page_motion_off' or 'page_motion_on'),
       x = 670,
-      y = 397,
+      y = rowY(5) - 2,
       w = 230,
       h = 42,
     },
@@ -97,7 +107,7 @@ local function pageControls(g, s)
       id = 'hints',
       label = Text.get(s.hints == false and 'page_off' or 'page_on'),
       x = 670,
-      y = 445,
+      y = rowY(6) - 2,
       w = 230,
       h = 42,
     },

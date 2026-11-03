@@ -254,7 +254,10 @@ function Application:beginStartup()
         Audio.muted = self.settings.muted or self.qa.capture
         Audio.useSet(self.settings.soundSet)
         Soundscape.music = self.settings.music
-        love.audio.setVolume(Audio.muted and 0 or 0.7)
+        Audio.levels.master = self.settings.master
+        Audio.levels.effects = self.settings.effects
+        Audio.levels.ambience = self.settings.ambience
+        Audio.applyMaster()
       end,
     },
     {

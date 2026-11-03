@@ -1,5 +1,5 @@
-SIGIL: BREACH — prototyp 0.43
-3 listopada 2026
+SIGIL: BREACH — prototyp 0.45
+4 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w docs/HISTORIA.md, bieżący plan w docs/PLAN.md, wizja w docs/WIZJA.md
@@ -98,6 +98,7 @@ Q — fizyczny ładunek prochowy; F — flaska (rycerz nie używa magii).
 E — interakcja: ognisko, drzwi, egzekucja, pola poligonu.
 Tab — mapa; F1 — pomoc; Esc — pauza.
 F2 — katalog poligonu; F11 — pełny ekran; M — wyciszenie.
+Głośność w ustawieniach: Master, Effects, Music, Ambience, każda osobno.
 F12 — zrzut ekranu w katalogu danych gry. F9 — statystyki walki
 (telemetry.txt w katalogu danych gry; ścieżka wyżej i na ekranie po F9).
 Menu: mysz, strzałki, Tab i Enter. Ustawienie MOTION ogranicza ruch obrazu.

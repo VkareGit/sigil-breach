@@ -43,6 +43,29 @@ function Tests.run(G, renderer, check)
       and copy.hints == p.hints
       and copy.renderScale == p.renderScale
   )
+  -- 0.45 (owner D17): four levels; an older file's one level serves music and ambience.
+  local old = Preferences.decode('music=0.3')
+  check(
+    'an older single level becomes music and ambience, effects and master stay full',
+    old.music == 0.3 and old.ambience == 0.3 and old.effects == 1 and old.master == 1
+  )
+  local four = Preferences.decode(
+    Preferences.encode(Preferences.decode('master=0.5\neffects=0\nmusic=0.2\nambience=0.9'))
+  )
+  check(
+    'the four sound levels round trip',
+    four.master == 0.5 and four.effects == 0 and four.music == 0.2 and four.ambience == 0.9
+  )
+  local Audio = require('src.audio.audio')
+  local before = Audio.levels.effects
+  Audio.levels.effects = 0
+  local voice = next(Audio.sources)
+  local source = voice and not Audio.muted and Audio.play(voice, 0.65, 9)
+  check('effects at zero play every effect silently', not source or source:getVolume() == 0)
+  if source then
+    source:stop()
+  end
+  Audio.levels.effects = before
   p = Preferences.decode(
     'sensitivity=nan\nfov=inf\nmusic=no\nnot motion=false\nhints=garbage\nunknown=1'
   )

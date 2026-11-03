@@ -100,7 +100,7 @@ function C.update(audio, g, dt)
       remaining = source.interval
       local d2 = (source.x - p.x) ^ 2 + (source.z - p.z) ^ 2
       if budget > 0 and (g.threat or 0) < 1 and d2 < source.reach ^ 2 then
-        audio.playAt(source.voice, source.x, source.z, p, source.volume, 0, g.world)
+        audio.playAt(source.voice, source.x, source.z, p, source.volume, 0, g.world, 'ambience')
         budget = budget - 1
       end
     end

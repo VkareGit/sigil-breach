@@ -33,6 +33,12 @@ local immediateSettings = {
   fov_up = true,
   music_down = true,
   music_up = true,
+  master_down = true,
+  master_up = true,
+  effects_down = true,
+  effects_up = true,
+  ambience_down = true,
+  ambience_up = true,
 }
 
 -- The test field temporarily owns a different session. Keep return routing here,
@@ -243,12 +249,19 @@ local function fov(app, id)
   app.game.view.fov = app.settings.fov
 end
 handlers.fov_down, handlers.fov_up = fov, fov
-local function music(app, id)
-  app.settings.music =
-    math.max(0, math.min(1, app.settings.music + (id == 'music_up' and 0.1 or -0.1)))
+-- The four levels (0.45, owner D17) step by a tenth; each takes effect at once.
+local function level(app, id)
+  local which, way = id:match('^(%a+)_(%a+)$')
+  app.settings[which] = Settings.stepLevel(app.settings[which], way == 'up')
   Soundscape.music = app.settings.music
+  Audio.levels.master = app.settings.master
+  Audio.levels.effects = app.settings.effects
+  Audio.levels.ambience = app.settings.ambience
+  Audio.applyMaster()
 end
-handlers.music_down, handlers.music_up = music, music
+for _, which in ipairs({ 'master', 'effects', 'music', 'ambience' }) do
+  handlers[which .. '_down'], handlers[which .. '_up'] = level, level
+end
 
 -- Shared dispatch policy applies equally to mouse, keyboard, and menu commands.
 -- Add a handler here without extending a long sequence of unrelated branches.

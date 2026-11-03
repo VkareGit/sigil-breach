@@ -138,7 +138,13 @@ local function recycle(s)
     s:release()
   end
 end
-function A.play(name, volume, priority)
+-- The player's levels (0.45, owner D17): every voice belongs to effects unless it is the
+-- ambience of a room; the music is the soundscape's (Soundscape.music). Master scales all.
+A.levels = { master = 1, effects = 1, ambience = 0.65 }
+function A.applyMaster()
+  love.audio.setVolume(A.muted and 0 or 0.7 * A.levels.master)
+end
+function A.play(name, volume, priority, category)
   if A.muted or not A.sources[name] then
     return
   end
@@ -171,7 +177,7 @@ function A.play(name, volume, priority)
   if priority >= 3 then
     A.warningHold = 0.65
   end
-  s:setVolume((volume or 0.65) * gain)
+  s:setVolume((volume or 0.65) * gain * A.levels[category or 'effects'])
   s:setPitch(1)
   s:setRelative(true)
   s:setPosition(0, 0, 0)
@@ -193,7 +199,7 @@ function A.stopVoice(source, ticket)
     source:stop()
   end
 end
-function A.playAt(name, x, z, p, volume, priority, world)
+function A.playAt(name, x, z, p, volume, priority, world, category)
   local dx, dz = x - p.x, z - p.z
   local d = math.sqrt(dx * dx + dz * dz)
   if d > 32 then
@@ -203,7 +209,7 @@ function A.playAt(name, x, z, p, volume, priority, world)
   if world and not Arena.visible(world, x, z, p.x, p.z) then
     gain = gain * 0.38
   end
-  local s, ticket = A.play(name, gain, priority)
+  local s, ticket = A.play(name, gain, priority, category)
   if s then
     local side =
       math.max(-1, math.min(1, (dx * math.cos(p.yaw) - dz * math.sin(p.yaw)) / math.max(1, d)))
@@ -229,6 +235,6 @@ function A.update(dt, g)
 end
 function A.toggle()
   A.muted = not A.muted
-  love.audio.setVolume(A.muted and 0 or 0.7)
+  A.applyMaster()
 end
 return A
