@@ -59,12 +59,11 @@ function Get-Project {
             'charge-handoff-off-0.png','charge-handoff-off-8.png','charge-handoff-off-17.png',
             'charge-handoff-off-50.png','charge-handoff-off-100.png',
             'charge-return-on.png','charge-return-off.png')
-        Documents = @('docs/INSTRUKCJA.txt', 'docs/ZMIANY.txt',
-            'docs/ARCHITEKTURA.txt', 'docs/DEVELOPMENT.txt', 'docs/ROZSZERZANIE.txt', 'docs/SYSTEM-SWIATA-0.14.txt',
-            'docs/KIERUNEK-ARTYSTYCZNY.txt', 'docs/MANIFEST-NIKOGO.txt',
-            'docs/ANATOMIA-I-FIZYKA-0.28.txt', 'docs/KONWENCJE.txt', 'docs/ODBIOR.txt')
-        # Each version adds its own section on top of these two documents.
-        VersionSections = @(('docs/ZMIANY.txt', ('ZMIANY-' + $values.version + '.txt')), ('docs/ODBIOR.txt', ('ODBIOR-' + $values.version + '.txt')))
+        # The player's manual travels with the game; the developer documents are
+        # the tracked docs/ folder, copied whole into the developer package.
+        Documents = @('INSTRUKCJA.txt')
+        # Each version adds its own sections on top of the two chapters of the history.
+        VersionSections = @(('../docs/HISTORIA.md', ('ZMIANY-' + $values.version + '.txt')), ('../docs/HISTORIA.md', ('ODBIOR-' + $values.version + '.txt')))
     }
 }
 

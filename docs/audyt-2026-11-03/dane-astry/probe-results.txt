@@ -1,9 +1,0 @@
-PICKUP collected=true reserve=6
-PICKUP after_rest present=false secured=true
-PICKUP after_death present=false
-CONTINUE wallet=40 deaths=0 hp=100 ward=40 judge=6+72 flask=3 slain_nave1=nil enemy_alive=true
-RECOVERY cleave configured_recover=1.200 cooldown=0.600 initial_recover=0.700 initial_attack=1.100 both_expired=1.108 sum_configured=1.800
-REST_POOL hunting=false hazards=1 hp=100.000->92.800 ward=40.000->31.200
-HUD exorcist_worn=choke judge_worn=breaker report_worn=nil report_glyph=breaker selected=1
-ECONOMY souls_once=1420 enemy_hp=8400 shop_all=4759 caches_judge=126 shells=28 flask=3
-PROBE COMPLETE

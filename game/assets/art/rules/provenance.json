@@ -6,7 +6,7 @@
     "model":  "Not exposed by built-in tool",
     "use_case":  "stylized-concept",
     "references":  [
-                       "game/docs/KIERUNEK-ARTYSTYCZNY.txt",
+                       "docs/STYL.md",
                        "game/assets/art/medals/provenance.json",
                        "game/assets/art/medals/parry.png",
                        "game/assets/art/medals/point_blank.png",

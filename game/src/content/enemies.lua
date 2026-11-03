@@ -1,7 +1,7 @@
 -- Archetypes of the world: every creature is DATA read by one set of rules
 -- (src/combat/rules.lua). Nothing in the simulation asks "is this an imp?"; it asks
 -- the body, the movement style and the attack list. Full description:
--- game/docs/SYSTEM-SWIATA-0.14.txt.
+-- docs/WIZJA.md (System świata 0.14).
 --
 -- Registry (0.24): one file per creature in src/content/creatures/, the
 -- knight's body in content/knight.lua, the shared rule constants in

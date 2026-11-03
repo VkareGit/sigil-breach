@@ -1,5 +1,5 @@
 -- The order of the systems of one simulation step: THE place that decides
--- it (docs/ARCHITEKTURA.txt). Move before sweeping attacks, fire before the
+-- it (docs/TECHNIKA.md, Architektura). Move before sweeping attacks, fire before the
 -- demons act, measure, stop immediately after the knight's death, then
 -- the world around the fight and the mode's progression. Bodies (0.25):
 -- whoever moved into another body stops at the contact (the knight after

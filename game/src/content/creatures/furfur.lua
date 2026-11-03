@@ -1,5 +1,5 @@
 -- Furfur, Storm Count: antlered elite with a charge and lightning. 0.42 (owner and Astra,
--- docs/analiza-rozgrywki-2026-11-02/KIERUNEK-HYBRYDA.md): an elite that makes the knight move,
+-- docs/WIZJA.md, Kierunek hybrydy): an elite that makes the knight move,
 -- not a boss. 18-30 s of good play, full damage while he strikes, a broken guard worth a fifth
 -- of him, two acts and four kinds of blow (the antler string, the charge, the lightning, the
 -- spring back).

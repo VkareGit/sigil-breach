@@ -27,8 +27,8 @@ try {
         'game/assets/art/example.png'='fixture image'; 'game/assets/art/masks.lua'='return {}'
         'game/assets/art/photo.jpg'='fixture image'
         'game/assets/art/provenance.json'='{}'; 'game/qa/private.lua'='excluded'
-        'game/tests/private.lua'='excluded'; 'game/docs/DEVELOPMENT.txt'='excluded'
-        'game/docs/INSTRUKCJA.txt'='instructions'; 'runtime/love.exe'='fixture runtime'
+        'game/tests/private.lua'='excluded'; 'game/qa/notes.txt'='excluded'
+        'game/INSTRUKCJA.txt'='instructions'; 'runtime/love.exe'='fixture runtime'
         'runtime/love.dll'='fixture dll'; 'runtime/license.txt'='fixture license'
     }.GetEnumerator()) {
         $path = Join-Path $fixture $pair.Key

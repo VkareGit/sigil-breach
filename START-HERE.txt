@@ -1,39 +1,38 @@
-SIGIL: BREACH / główny projekt / 0.44 (3 listopada 2026)
-Pracuj w klonie wskazanym w zadaniu (Windows albo Linux).
+SIGIL: BREACH / 0.44 (3 listopada 2026)
 
 Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
 bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stworami,
 dusze i echo po śmierci, śluby przy ogniskach, 3 sloty zapisu. Bossów i zakończenia
 jeszcze nie ma: Margrave i Furfur to najtrudniejsze zwykłe moby.
 
-ZACZNIJ OD:
-- game\docs\INSTRUKCJA.txt: jak gra działa teraz (rozdział KAPLICA ma pierwszeństwo).
-- docs\audyt-2026-11-03\RAPORT-KONCOWY.md: ostatni audyt i plan; decyzje właściciela:
-  DECYZJE.md, postęp: POSTEP.md obok; poprzedni audyt: docs\audyt-2026-11-02.
-- docs\KONTEKST.txt: decyzje właściciela i zasady pracy dla nowego czatu.
-- game\docs\DEVELOPMENT.txt: jak uruchamiać, testować i mierzyć.
-- game\docs\ARCHITEKTURA.txt i ROZSZERZANIE.txt: odpowiedzialności i przepisy rozbudowy.
-- game\docs\ZMIANY.txt i ODBIOR.txt: wersje w jednym pliku, najnowsza na górze.
-Podręcznik kodu: docs\podrecznik-codex (plik właściciela, poza gitem).
-Dawne konteksty i plany są w historii gita. Linux i migracja: docs/LINUX.md.
+KATALOGI
+  game/       gra (main.lua, src/, assets/), testy (tests/), narzędzia QA (qa/),
+              instrukcja gracza INSTRUKCJA.txt
+  docs/       dokumenty projektu (lista niżej)
+  scripts/    polecenia: TEST, FORMAT, RUN, BUILD, MEASURE i warsztat grafiki
+  tools/      wnętrze skryptów i narzędzia artystyczne
+  toolchain/  LÖVE 11.5 i StyLua dla Windows
+  work/       wyniki testów (work/qa) i uruchomień ręcznych (work/qa-direct);
+              poza gitem, można usunąć w każdej chwili
 
-Pracuj w game/. main.lua -> src/app -> src/session -> systemy -> render i UI.
-src/content: definicje i liczby. tests/: regresje. qa/: raporty i narzędzia. tools/: skrypty.
+DOKUMENTY (docs/)
+  PROMPT-NOWY-AGENT.md  zacznij tu: prompt dla nowego czatu Claude lub Codex
+  WIZJA.md              czym jest gra, decyzje właściciela, kierunek, manifest
+  STYL.md               kierunek artystyczny i atmosfera
+  TECHNIKA.md           uruchamianie, testy, architektura, konwencje, Linux
+  PLAN.md               jeden bieżący plan i jego postęp
+  HISTORIA.md           wszystkie dawne wersje, odbiory, audyty i plany
+Nowy plan zastępuje PLAN.md; stary przechodzi jako rozdział do HISTORIA.md.
+Nowa wersja dopisuje sekcje ZMIANY-<wersja>.txt i ODBIOR-<wersja>.txt na górze
+rozdziałów historii (BUILD ich szuka). Nie twórz nowych plików w docs/.
 
-love game                       gra ze źródeł, z katalogu repo (w game/: love .)
-.\FORMAT.ps1                    formatowanie Lua (przed każdym commitem)
-.\TEST.ps1 -Suite Architecture  szybka kontrola kodu bez okna (to samo robi CI)
-.\TEST.ps1 -Suite Mechanics     wszystkie zestawy mechaniki, około 8 minut
-.\TEST.ps1 -Suite All           wszystko; .\BUILD.ps1 to same testy, około 13 minut
-.\BUILD.ps1 -Package            snapshot, EXE i ZIP: tylko na prośbę właściciela
-
-Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
-Rendery kaplicy: toolchain\love-11.5-win64\love.exe game --chapel-look (pliki look-*.png).
-Linux (bash): pwsh -NoProfile -File TEST.ps1 -Suite All -TestTimeoutSeconds 1800;
-analogicznie FORMAT.ps1, RUN.ps1 i BUILD.ps1. W pwsh: ./TEST.ps1 itd.
-Jeden zestaw: SIGIL_UI_QA_DIR="$PWD/work/qa-direct" love game --suite=<id>.
-Bez ekranu dodaj xvfb-run -a przed love; skrypty PS robią to automatycznie.
-Na Linuxie zapisy: ${XDG_DATA_HOME:-~/.local/share}/love/sigil-breach*;
-na Windows: %APPDATA%\LOVE\sigil-breach*. Pakowanie EXE tylko na Windows.
-Wersja: game/src/core/build.lua. Wyniki TEST.ps1: work/qa. Uruchomienia ręczne: work/qa-direct.
-Grafikę, dźwięk i nagrania robi Codex Astra (gpt-6-astra), kod gry piszemy sami.
+POLECENIA (z katalogu repozytorium)
+  love game                                 gra ze źródeł (w game/: love .)
+  .\scripts\FORMAT.ps1                      formatowanie Lua
+  .\scripts\TEST.ps1 -Suite Architecture    szybka kontrola kodu (to samo robi CI)
+  .\scripts\TEST.ps1 -Suite All -TestTimeoutSeconds 1800   pełna brama przed commitem
+  .\scripts\BUILD.ps1 -Package              EXE i ZIP: tylko na prośbę właściciela
+  Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
+Linux: te same skrypty przez pwsh (./scripts/TEST.ps1); szczegóły w docs/TECHNIKA.md.
+Wersja: game/src/core/build.lua. Grafikę, dźwięk i nagrania robi Codex Astra.
+Robocze pliki agentów (skrypty, wiadomości commitów, sondy) trzymaj poza repozytorium.

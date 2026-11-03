@@ -1,6 +1,0 @@
-LOAD STARTED
-NORMAL START capture=false firstMenuDraw=923.40ms elapsed=8.56s frames=233 maxUpdate=1186.24ms maxDraw=923.40ms
-FIRST MENU images=4 world=899.92ms UI=23.14ms
-FIRST MENU sources=assets/art/pickups/ammo_rounds.png; assets/art/icons/flask.png; assets/art/pickups/ammo_shells.png; assets/art/lettering-en-v16.png
-HUD inventory: exorcist choke, judge breaker; held exorcist
-SNAPSHOTS COMPLETE; layout issues 5

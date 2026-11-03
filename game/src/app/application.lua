@@ -481,11 +481,9 @@ end
 
 function Application:errorhandler(message)
   local err = tostring(message) .. '\n' .. debug.traceback()
-  local file = io.open('sigil-error.log', 'w')
-  if file then
-    file:write(err)
-    file:close()
-  end
+  -- The log goes to the save directory, beside the saves, not into whichever
+  -- folder the game was started from.
+  pcall(love.filesystem.write, 'sigil-error.log', err)
   print(err)
   if self.qa.capture then
     return function()

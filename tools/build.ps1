@@ -12,7 +12,7 @@ $sourceRoot = Join-Path $taskRoot 'game'
 $qaRoot = $project.Qa
 # This replaces shared outputs: only under the lock BUILD.ps1 holds for the whole release.
 $lockKey = [IO.Path]::GetFullPath($qaRoot).TrimEnd('\').ToLowerInvariant()
-if (-not ($global:SigilQaSessions -and $global:SigilQaSessions[$lockKey])) { throw 'Run the release through BUILD.ps1.' }
+if (-not ($global:SigilQaSessions -and $global:SigilQaSessions[$lockKey])) { throw 'Run the release through scripts/BUILD.ps1.' }
 $outputsRoot = Join-Path $taskRoot 'outputs'
 $releaseRoot = $project.Release
 $stageRoot = Join-Path $outputsRoot ('.' + $project.Name + '-build-' + [Guid]::NewGuid().ToString('N'))
@@ -99,7 +99,7 @@ $buildInfo = @(
     ('Source files: ' + @(Get-ChildItem -LiteralPath $sourceDestination -File -Recurse -Force).Count),
     'SIGIL-BREACH.love is a ZIP of the exact included source snapshot plus build-fingerprint.txt.',
     ('Game tree SHA256: ' + $sourceFingerprint),
-    'development/ is a self-contained source workspace with pinned tools; use its RUN.ps1, TEST.ps1 and BUILD.ps1.',
+    'development/ is a self-contained source workspace with pinned tools; use its scripts/RUN.ps1, scripts/TEST.ps1 and scripts/BUILD.ps1.',
     'The separate Player package contains the game, runtime and legal/provenance without QA/tests/developer documents; its game archive exists only inside its EXE.',
     'SIGIL-BREACH.exe consists of love.exe followed by that .love archive.',
     'Next: run tools/verify.ps1 from the development workspace.',

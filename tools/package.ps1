@@ -88,7 +88,7 @@ function Export-PlayerPackage([string]$Source, [string]$Destination, [string]$Ru
     Remove-Item -LiteralPath (Assert-ChildPath $archive $Destination) -Force
     foreach ($dll in Get-ChildItem -LiteralPath $RuntimeRoot -File -Filter '*.dll') { Copy-Item -LiteralPath $dll.FullName -Destination $Destination }
     Copy-PackageFile (Join-Path $RuntimeRoot 'license.txt') $Destination 'LOVE-LICENSE.txt'
-    Copy-PackageFile (Join-Path $Source 'docs/INSTRUKCJA.txt') $Destination 'INSTRUKCJA.txt'
+    Copy-PackageFile (Join-Path $Source 'INSTRUKCJA.txt') $Destination 'INSTRUKCJA.txt'
     # Lua inside the executable's LÖVE payload is runtime code, not a loose
     # developer source checkout. No QA module is hidden in the player archive.
     $checked = Assert-ChildPath $payload $Destination
@@ -125,7 +125,7 @@ function Export-DeveloperWorkspace([string]$Root, [string]$Destination, [string]
     foreach ($relative in @(Get-TrackedFiles $Root 'docs')) {
         Copy-PackageFile (Join-Path $Root $relative) $Destination $relative
     }
-    foreach ($name in @('BUILD.ps1', 'TEST.ps1', 'RUN.ps1', 'FORMAT.ps1', 'BAKE-HIT-MASKS.ps1', 'EXPORT-SHEET.ps1', 'EXPORT-ANATOMY.ps1', 'ANATOMY-EDITOR.ps1', 'CHECK-CREATURE.ps1', 'MEASURE.ps1', 'START-HERE.txt', '.stylua.toml')) {
+    foreach ($name in @('scripts/BUILD.ps1', 'scripts/TEST.ps1', 'scripts/RUN.ps1', 'scripts/FORMAT.ps1', 'scripts/BAKE-HIT-MASKS.ps1', 'scripts/EXPORT-SHEET.ps1', 'scripts/EXPORT-ANATOMY.ps1', 'scripts/ANATOMY-EDITOR.ps1', 'scripts/CHECK-CREATURE.ps1', 'scripts/MEASURE.ps1', 'START-HERE.txt', '.stylua.toml')) {
         Copy-PackageFile (Join-Path $Root $name) $Destination $name
     }
     foreach ($file in Get-ChildItem -LiteralPath (Join-Path $Root 'tools') -File -Filter '*.ps1') {

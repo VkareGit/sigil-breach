@@ -1,3 +1,0 @@
-"Path","Bytes","SHA256","Reason"
-"game/assets/art/revolver-iron-v16.png","1680816","F8C2CD0127144A6F8334B48D8AFF5D41881DE5297BE8130C574463C8FDB40490","Replaced by active fresco-v32 atlas; no runtime/test/tool/font references. Historical provenance retained."
-"game/assets/art/shotgun-iron-v16.png","1568743","5785A1B18E08096F63C2F06E075A075E3C23D6370A1AF9920C29F4C24F9DD1A3","Replaced by active fresco-v32 atlas; no runtime/test/tool/font references. Historical provenance retained."

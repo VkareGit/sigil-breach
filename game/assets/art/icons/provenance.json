@@ -4,7 +4,7 @@
     "tool":  "image_gen.imagegen",
     "mode":  "built-in",
     "references":  [
-                       "game/docs/KIERUNEK-ARTYSTYCZNY.txt",
+                       "docs/STYL.md",
                        "game/assets/art/medals/provenance.json",
                        "game/assets/art/medals/last_rites.png",
                        "game/assets/art/medals/parry.png",

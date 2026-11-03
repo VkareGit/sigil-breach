@@ -1,5 +1,5 @@
 -- The fixed order of the systems of one simulation step. The order is part
--- of the rules (see docs/ARCHITEKTURA.txt): it is declared here once and
+-- of the rules (see docs/TECHNIKA.md, Architektura): it is declared here once and
 -- never decided by who registered first at run time. A system returning
 -- false stops the rest of the step (the player died, the mode paused).
 local Class = require('src.core.class')

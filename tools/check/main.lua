@@ -325,7 +325,7 @@ local scalingRatchets = {
   },
   -- Plan v12 (R0): the assumptions its stages remove. Counted from 0.35; a
   -- stage ends with its own rule at zero (enemy-pool-reads ends as a justified
-  -- list, game/docs/PLAN-FUNDAMENT-v12.md).
+  -- list, plan v12 in git history).
   {
     name = 'player-body',
     label = 'BODY OF THE ONE PLAYER',

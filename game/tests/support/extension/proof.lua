@@ -1,6 +1,6 @@
 -- Proofs of plan v12: content added only through public registries, removed
 -- again after its test. A proof that needs the inside of a module means its
--- contract is not ready (game/docs/PLAN-FUNDAMENT-v12.md).
+-- contract is not ready (plan v12, in git history).
 local Extension = {}
 -- Runs fn with the registered things undone afterwards, also when it fails.
 function Extension.with(undo, fn)

@@ -59,7 +59,7 @@ function T.run(Game)
     )
     if GATED[trial] then
       check(trial .. ' kills a knight who stands and shoots', g.state == 'dead')
-      -- 0.43 (owner, docs/audyt-2026-11-03/DECYZJE.md): elites are short fights; standing and
+      -- 0.43 (owner, docs/WIZJA.md, Decyzje): elites are short fights; standing and
       -- shooting must fail, not be hopeless, so the body only has to outlive that knight.
       check(trial .. ' outlives a knight who stands and shoots ' .. left, left > 0)
       -- Furfur's charge is answered by a shot in its window (parry 0.2), and since 0.43 his

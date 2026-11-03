@@ -20,7 +20,7 @@ function Get-LoveRuntime([switch]$Console) {
         $name = if ($Console) { 'lovec.exe' } else { 'love.exe' }
         return Resolve-SigilCommand (Join-Path (Join-Path $root 'toolchain/love-11.5-win64') $name) 'Missing bundled LOVE 11.5 Windows runtime.'
     }
-    return Resolve-SigilCommand 'love' 'Install LOVE 11.5 and put love on PATH, or set SIGIL_LOVE to its executable. See docs/LINUX.md.'
+    return Resolve-SigilCommand 'love' 'Install LOVE 11.5 and put love on PATH, or set SIGIL_LOVE to its executable. See docs/TECHNIKA.md (Linux).'
 }
 
 function Get-Stylua {
@@ -28,7 +28,7 @@ function Get-Stylua {
     $name = if (Test-SigilWindows) { 'stylua.exe' } else { 'stylua' }
     $bundled = Join-Path $root ('toolchain/stylua/' + $name)
     $selected = if ($env:SIGIL_STYLUA) { $env:SIGIL_STYLUA } elseif (Test-Path -LiteralPath $bundled -PathType Leaf) { $bundled } else { 'stylua' }
-    $formatter = Resolve-SigilCommand $selected 'Install StyLua 2.6.0 (Linux release binary on PATH, or cargo install stylua --version 2.6.0 --locked --features luajit); alternatively set SIGIL_STYLUA. See docs/LINUX.md.'
+    $formatter = Resolve-SigilCommand $selected 'Install StyLua 2.6.0 (Linux release binary on PATH, or cargo install stylua --version 2.6.0 --locked --features luajit); alternatively set SIGIL_STYLUA. See docs/TECHNIKA.md (Linux).'
     if ((Test-SigilWindows) -and $formatter -eq $bundled) {
         $expected = '8BE0383E979B3C699BF6BFBFC0770038534D071B0479FEE188636C4B54CD338B'
         if ((Get-FileHash -LiteralPath $formatter -Algorithm SHA256).Hash -ne $expected) { throw 'Bundled StyLua differs from pinned 2.6.0; see toolchain/stylua/PROVENANCE.txt.' }
@@ -45,7 +45,7 @@ function Get-LoveDataRoot {
 }
 
 function Assert-WindowsPackaging {
-    if (-not (Test-SigilWindows)) { throw 'EXE packaging and -Release are Windows-only. On Linux use ./RUN.ps1 or ./BUILD.ps1 without -Package.' }
+    if (-not (Test-SigilWindows)) { throw 'EXE packaging and -Release are Windows-only. On Linux use ./scripts/RUN.ps1 or ./scripts/BUILD.ps1 without -Package.' }
 }
 
 # Arguments here are already quoted for Start-Process (also on PowerShell 7).

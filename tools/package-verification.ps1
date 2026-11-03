@@ -114,7 +114,7 @@ function Test-InstalledPackages([string]$Player, [string]$Developer, [string]$Qa
         # The full EXE suite is handled by verify.ps1. Here check that a fresh
         # developer checkout can use its own pinned formatter, checker and Lua.
         $shell = (Get-Process -Id $PID).Path
-        Invoke-PackageProcess $shell @('-NoProfile', '-File', ('"' + (Join-Path $devCopy 'TEST.ps1') + '"'), '-Suite', 'Architecture') $cwd $evidence 'installed-dev-architecture' $TimeoutSeconds
+        Invoke-PackageProcess $shell @('-NoProfile', '-File', ('"' + (Join-Path $devCopy 'scripts/TEST.ps1') + '"'), '-Suite', 'Architecture') $cwd $evidence 'installed-dev-architecture' $TimeoutSeconds
         Invoke-PackageProcess (Join-Path $devCopy 'toolchain/love-11.5-win64/lovec.exe') @(('"' + (Join-Path $devCopy 'game') + '"'), '--suite=foundation-contracts') $cwd $evidence 'installed-dev-contracts' $TimeoutSeconds
         $contracts = Get-Content -LiteralPath (Join-Path $evidence 'installed-dev-contracts.stdout.txt') -Raw
         if ($contracts -notmatch 'SUITE foundation-contracts: \d+ passing checks\.') { throw 'Relocated developer contract suite did not complete.' }

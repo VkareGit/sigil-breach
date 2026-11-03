@@ -132,8 +132,8 @@ local Shop = {
       stat = 'maxHp',
       amount = 15,
     },
-    -- Sigils of the Goetia (0.42, a first three to try the kind; docs/analiza-rozgrywki-
-    -- 2026-11-02/KIERUNEK-HYBRYDA.md): up to three copies each, each copy stronger. A sigil
+    -- Sigils of the Goetia (0.42, a first three to try the kind; docs/WIZJA.md,
+    -- Kierunek hybrydy): up to three copies each, each copy stronger. A sigil
     -- names a glyph of one gun (as tempering does) or a trait of the knight with its value at
     -- each rank (ranks), which a rest and a purchase set (run/pilgrimage.lua: swear).
     {

@@ -4,7 +4,7 @@
 -- current demon is painted and meets shots on its painted surface
 -- (enemies/surface.lua, content/art/anatomy). Until 0.28 this file held the
 -- cylinders calibrated to the six painted atlases; they no longer decided any
--- hit and were removed in 0.29 (history: docs/ZMIANY.txt, section 0.29).
+-- hit and were removed in 0.29 (history: docs/HISTORIA.md, ZMIANY-0.29).
 --   profiles[name] = {
 --     shapes = { { id, zone, material?, x, bottom, top, radius }, ... },
 --     frameShapes = { [frame] = { ... } },   optional, per painted frame

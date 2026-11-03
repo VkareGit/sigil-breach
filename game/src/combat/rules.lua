@@ -1,6 +1,6 @@
 -- The rules of the world: one resolution for every body that can be hurt,
 -- the player included. Data lives in src/content/enemies.lua; the full written
--- description is game/docs/SYSTEM-SWIATA-0.14.txt. Inspired by tabletop systems:
+-- description is docs/WIZJA.md (System świata 0.14). Inspired by tabletop systems:
 -- D&D (damage types, resistance/vulnerability/immunity, conditions with a
 -- duration), Warhammer (armour points per location, flat Toughness soak,
 -- mass), Call of Cthulhu (a single hit taking a large share of the body

@@ -1,5 +1,5 @@
--- Margrave of Ash: the hardest body of the west hall. 0.42 (owner and Astra, docs/analiza-
--- rozgrywki-2026-11-02/KIERUNEK-HYBRYDA.md): an elite, not a boss. He is hard by what he
+-- Margrave of Ash: the hardest body of the west hall. 0.42 (owner and Astra, docs/WIZJA.md,
+-- Kierunek hybrydy): an elite, not a boss. He is hard by what he
 -- does, not by how long he lasts: 20-35 s of good play, full damage while he strikes, a
 -- broken guard worth a fifth of him, two acts and four kinds of blow (the cut string, the
 -- thrust, the lane of fire, the burst at his feet; the leap to close).
