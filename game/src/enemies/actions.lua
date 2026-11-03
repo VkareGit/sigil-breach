@@ -54,9 +54,16 @@ end
 -- A kind that moves the body writes the velocity it moves with to
 -- e.rushVX / e.rushVZ; the shared rules read it (counter-hits, trips)
 -- without knowing which kind it is.
+-- A kind that measures its own strike (a storm's five bolts, a salvo's shots) gives the same
+-- length to the pose: the body acts the whole of it, not a single frame held for 1.9 s (0.45,
+-- Astra 2026-11-03b: storm-steps read 0.4 s of a 2.08 s action).
+local ActionPhase = require('src.enemies.action_phase')
 for _, family in ipairs({ require('src.enemies.melee_kinds'), require('src.enemies.ranged_kinds') }) do
   for id, kind in pairs(family) do
     ActionKinds:register(id, kind)
+    if kind.duration and not ActionPhase.has(id) then
+      ActionPhase.register(id, kind.duration)
+    end
   end
 end
 local Kinds = ActionKinds:view()

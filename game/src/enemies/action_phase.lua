@@ -30,6 +30,9 @@ function ActionPhase.register(id, sampler)
   assert(not durations:has(id), 'action phase duration already registered: ' .. id)
   return durations:register(id, sampler)
 end
+function ActionPhase.has(id)
+  return durations:has(id)
+end
 function ActionPhase.unregister(id)
   return durations:unregister(id)
 end

@@ -316,6 +316,24 @@ function Tests.run(Game)
   check('who stays on the line is struck ' .. lost, lost > 0)
   local _, spared = lance(true)
   check('who leaves it in time is not ' .. spared, spared == 0)
+  -- 0.45 (Astra, 2026-11-03b): the storm's pose runs over its whole five bolts (2.08 s), not
+  -- over the 0.4 s of one, which held a single painted frame for 1.875 s.
+  local storm
+  for _, a in ipairs(require('src.content.enemies').get('furfur').attacks) do
+    if a.id == 'storm-steps' then
+      storm = a
+    end
+  end
+  local phase = require('src.enemies.action_phase').sample({
+    ai = 'strike',
+    attackSpec = storm,
+    attackKind = storm.id,
+    phase = 1.04,
+  }, 'strike')
+  check(
+    'the storm pose is halfway through at half its bolts ' .. phase,
+    math.abs(phase - 0.5) < 0.01
+  )
   return lines
 end
 return Tests
