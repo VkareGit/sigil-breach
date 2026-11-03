@@ -348,9 +348,13 @@ function T.run(G, check, renderer, output)
   for _ in pairs(signatures) do
     count = count + 1
   end
+  -- 0.42 (owner): the elites are short deadly fights, not sponges; they stay the toughest
+  -- bodies by a clear margin, and how long they last is held by souls_gate, not by HP.
   check(
-    'durability roles retain six distinct HP/armor pairs and substantial boss endurance',
-    count == #kinds and Def.boss.hp > maxNormalHP * 3 and Def.furfur.hp > Def.boss.hp
+    'durability roles retain six distinct HP/armor pairs and elites tougher than any mob',
+    count == #kinds
+      and Def.boss.hp > maxNormalHP * 2
+      and Def.furfur.hp > maxNormalHP * 2
   )
   local R = require('src.combat.reload')
   local A = require('src.audio.audio')

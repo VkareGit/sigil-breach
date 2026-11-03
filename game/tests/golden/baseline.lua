@@ -24,11 +24,12 @@
 -- 0.42: held blows, waiting out of reach, shorter still recovery and hearing change the fights;
 -- the Judge restores spare rounds, supplies leave their remainder, and Furfur is a short elite.
 -- Both walks and the drill, including their contact receipts, agree in two fresh runs.
+-- 0.43 (A01): the bot walks only to supplies it can take; both walks change, the drill not.
 return {
-  playtest = 'bd5dff28/4c70aaef',
-  human = '5292b304/b08cad6e',
+  playtest = '33b3a3ea/3a52c8c7',
+  human = '1571dbd9/c721a0d7',
   drill = '6e83e64f/85c26f47',
-  playtestContacts = '72e21535/1338',
-  humanContacts = '0f5d2370/1461',
+  playtestContacts = '1dc08b5d/848',
+  humanContacts = '1d3c5a6a/1399',
   drillContacts = '582e06df/310',
 }

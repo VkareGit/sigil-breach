@@ -118,7 +118,8 @@ function Tests.run(G, renderer)
   check('hover updates the selected offer in the same frame', U.focus == 4)
   check(
     'current failure reason replaces a stale purchase receipt',
-    text:find('Missing 100 souls.', 1, true) and not text:find('Stale message', 1, true)
+    -- The price is the offer's own (0.42 engravings cost 180 and 220), the rule is the reason.
+    text:find('Missing %d+ souls%.') and not text:find('Stale message', 1, true)
   )
   U.useMouse = false
   U.mouseX = -1

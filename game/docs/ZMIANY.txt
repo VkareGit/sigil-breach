@@ -1,4 +1,4 @@
-SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.42 (jeden plik, najnowsze na górze)
+SIGIL: BREACH / HISTORIA ZMIAN 0.2–0.43 (jeden plik, najnowsze na górze)
 
 Dawniej osobne pliki ZMIANY-<wersja>.txt w game/docs i docs/history.
 Każda sekcja zaczyna się nagłówkiem z dawną nazwą pliku, więc odwołanie
@@ -10,6 +10,25 @@ BUILD.ps1 odmawia budowy, gdy sekcji bieżącej wersji (src/core/build.lua)
 brakuje. Opisy historyczne są zapisem tamtej chwili, a nie bieżącym API.
 Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
+
+########################################################################
+ZMIANY-0.43.txt
+SIGIL: BREACH 0.43 / naprawy po audycie z 2026-11-03
+
+Plan i decyzje właściciela: docs/audyt-2026-11-03/ (RAPORT-KONCOWY.md, DECYZJE.md),
+postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
+
+- A01: bramka znów chroni. Cztery asercje przeczyły celowym zmianom 0.42 i zostały
+  dopasowane do obecnych reguł: pusty Judge nie strzela, ale odzyskuje naboje zapasowe
+  do 6 i nigdy ponad (tests/suites/weapons.lua); arkusze przeładowań liczą transakcje
+  bez naboi zapasowych (qa/reviews/weapon_timeline.lua); elity są wyraźnie
+  wytrzymalsze od każdego moba, a długość ich walki trzyma souls_gate, nie HP
+  (tests/cases/enemy_durability.lua); powód odmowy w sklepie bierze cenę oferty
+  (tests/suites/interface.lua). Render look-fire-menu pokazuje menu ognia (kaplica
+  uśpiona), a nie odmowę pod tą nazwą. Test trasy kaplicy liczy jako drop tylko paczkę
+  stwora, nie skrytkę mapy. Bot idzie tylko po zapas, który może wziąć.
+  souls-gate i souls-bots zostają czerwone do B01: stojący i strzelający bot wygrywa
+  z elitą, czyli elity jeszcze nie egzaminują.
 
 ########################################################################
 ZMIANY-0.42.txt

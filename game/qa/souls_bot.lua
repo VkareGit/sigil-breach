@@ -7,6 +7,7 @@ local Resources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local World = require('src.world.arena')
+local Supplies = require('src.session.interactions').supplies
 local Bot = {}
 local function nearest(g)
   local p, best, bestD = g.player, nil, nil
@@ -168,10 +169,17 @@ function Bot.learning(g, memory)
   if (p.hp < 40 or (p.hp < 70 and distance > 6)) and not p.casting and quiet(g) then
     g:cast(2)
   end
-  -- Rounds and health lying near are worth the walk.
+  -- Supplies lying near are worth the walk, but only what the knight can take: a full
+  -- reserve leaves a pack on the floor (audit 2026-11-03: the bot stood by such packs).
   for _, pickup in ipairs(Pools.of(g, 'pickups')) do
     local d = math.sqrt((pickup.x - p.x) ^ 2 + (pickup.z - p.z) ^ 2)
-    if d < 9 and (pickup.kind == 'ammo' or (pickup.kind == 'health' and p.hp < 80)) then
+    local supply = Supplies[pickup.kind]
+    if
+      d < 9
+      and supply
+      and supply.wanted(p, pickup)
+      and (pickup.kind ~= 'health' or p.hp < 80)
+    then
       input.forward, input.strafe = steer(p, pickup.x, pickup.z)
       break
     end

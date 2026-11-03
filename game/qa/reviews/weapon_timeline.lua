@@ -196,6 +196,11 @@ function Review.run(Game, renderer, output)
       .. #entry.frames
       .. ' authored rectangles.'
   end
+  -- These sheets count the rounds of each reload transaction exactly; the Judge's spare rounds
+  -- (0.42, tests/suites/weapons.lua holds them) would add to the count while it loads.
+  local judgeAmmo = require('src.content.weapons').get('judge').ammo
+  local spare = judgeAmmo.spare
+  judgeAmmo.spare = 0
   for slot, name in ipairs({ 'shotgun', 'revolver' }) do
     sequence(slot, 'weapon-' .. name .. '-16-poses', 'full')
     sequence(slot, 'weapon-' .. name .. '-partial-one', 'partial')
@@ -204,6 +209,7 @@ function Review.run(Game, renderer, output)
   sequence(2, 'weapon-revolver-trigger-interrupt', 'interrupt')
   sequence(2, 'weapon-revolver-retained-three', 'retained')
   sequence(2, 'weapon-revolver-speedloader-full', 'empty')
+  judgeAmmo.spare = spare
   local file = assert(io.open(output .. '/weapon-timeline.txt', 'w'))
   file:write(table.concat(report, '\n') .. '\n')
   file:close()

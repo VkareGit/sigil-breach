@@ -105,7 +105,13 @@ function Review.run(Game, renderer, output)
     shot(g, 'fire-' .. fire.id)
   end
   p.x, p.z = area.fires[2].x, area.fires[2].z + 1
+  -- A fire takes in only a knight nobody hunts (D1): the menu is shown with the chapel asleep,
+  -- and the picture is taken only of the menu itself, never of a refusal under its name.
+  for _, body in ipairs(Pools.of(g, 'enemies')) do
+    body.awake = false
+  end
   g:interact()
+  assert(g.state == 'shop', 'chapel look: the fire did not open its menu')
   shot(g, 'fire-menu')
   g:act('closeShop')
   for _, door in ipairs(area.doors) do

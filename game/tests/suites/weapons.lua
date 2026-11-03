@@ -223,12 +223,21 @@ function Tests.run(G, renderer)
   p.arsenal.judge.mag = 0
   p.arsenal.judge.reserve = 0
   local shots = g.player.shots
+  -- 0.42 (owner and Astra): the Judge is never dry for good; below its spare rounds one comes
+  -- back to the reserve each spareEvery s, up to the spare and never past it.
+  local spare = require('src.content.tuning').revolverSpare
   check(
-    'an empty revolver cannot fire or regenerate ammunition over time',
+    'an empty revolver cannot fire and regains only its spare rounds over time',
     not g:shoot()
       and (function()
         tick(g, 4)
-        return p.arsenal.judge.mag == 0 and p.arsenal.judge.reserve == 0 and g.player.shots == shots
+        local early = p.arsenal.judge.reserve
+        tick(g, 10)
+        return p.arsenal.judge.mag == 0
+          and early >= 3
+          and early <= 4
+          and p.arsenal.judge.reserve == spare
+          and g.player.shots == shots
       end)()
   )
   for _, bad in ipairs({ -1, 7, 0.5, math.huge, 0 / 0 }) do

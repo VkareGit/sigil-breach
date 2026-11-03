@@ -33,8 +33,9 @@ function T.run(Game)
       refused = refused + (g.state == 'shop' and 1 or 0)
     end
     g:update(1 / 120, knight(g, memory, 24, 10.5))
+    -- A creature's drop, not a cache the map laid (those carry the map's rewardId).
     for _, pickup in ipairs(Pools.of(g, 'pickups')) do
-      packs = math.max(packs, pickup.kind == 'ammo' and 1 or 0)
+      packs = math.max(packs, (pickup.kind == 'ammo' and not pickup.rewardId) and 1 or 0)
     end
     local awake = 0
     for _, e in ipairs(Pools.of(g, 'enemies')) do
