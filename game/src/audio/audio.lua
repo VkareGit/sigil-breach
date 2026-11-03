@@ -6,6 +6,7 @@ local WorldCues = require('src.audio.world_cues')
 local Arena = require('src.world.arena')
 local Synth = require('src.audio.synth')
 local Recipes = require('src.audio.recipes')
+local Sets = require('src.content.sound_sets')
 local A = {
   sources = {},
   live = {},
@@ -14,8 +15,14 @@ local A = {
   pooled = 0,
   voiceNames = {},
   priorities = {},
+  -- Recorded takes by set and cue (content/sound_sets.lua), and the set in use (0.43, D02).
+  takes = {},
+  set = Sets.default,
+  lastTake = {},
 }
 A.rate = 44100
+-- Its own stream: the take a cue plays never moves the rolls of the fight.
+local takeRolls = love and love.math and love.math.newRandomGenerator(43)
 local tickets, serial = setmetatable({}, { __mode = 'k' }), 0
 -- Every sound has its own seeded noise (Synth.seed of its name), so the order
 -- of rendering decides nothing and a new recipe changes no other sound.
@@ -35,6 +42,15 @@ function A.release()
     end
   end
   A.sources, A.live, A.pool, A.voiceNames, A.pooled = {}, {}, {}, {}, 0
+  for _, cues in pairs(A.takes) do
+    for _, list in pairs(cues) do
+      for _, source in ipairs(list) do
+        source:stop()
+        source:release()
+      end
+    end
+  end
+  A.takes, A.lastTake = {}, {}
   A.priorities = {}
   A.warningHold = 0
   tickets = setmetatable({}, { __mode = 'k' })
@@ -59,7 +75,51 @@ function A.init(checkpoint)
       checkpoint('sound ' .. name)
     end
   end
+  -- The recorded sets (0.43, D02): a cue whose takes are missing stays synthesised.
+  for set, prefix in pairs(Sets.prefix) do
+    A.takes[set] = {}
+    for cue, spec in pairs(Sets.cues) do
+      local list = {}
+      for take = 1, Sets.takes do
+        local path = Sets.root .. spec.event .. '/' .. prefix .. '-' .. take .. '.wav'
+        if love.filesystem.getInfo(path, 'file') then
+          list[#list + 1] = love.audio.newSource(path, 'static')
+        end
+      end
+      A.takes[set][cue] = #list > 0 and list or nil
+    end
+  end
   Soundscape.init(checkpoint)
+end
+-- The set of sounds in use: classic (synthesis) or a recorded one.
+function A.useSet(set)
+  A.set = Sets.prefix[set] and set or Sets.default
+  return A.set
+end
+-- Whether a shot's own takes carry its thump and hall (feedback/weight.lua leaves them out).
+function A.baked(name)
+  local spec = Sets.cues[name]
+  return spec ~= nil
+    and spec.baked == true
+    and A.takes[A.set] ~= nil
+    and A.takes[A.set][name] ~= nil
+end
+-- The recorded take of a cue in the set in use, never the same twice running: its source,
+-- the pool key and the gain; nothing for a cue the set does not replace.
+local function takeOf(name)
+  local list = A.takes[A.set] and A.takes[A.set][name]
+  if not list then
+    return nil
+  end
+  local last, take = A.lastTake[name], 1
+  if #list > 1 then
+    take = takeRolls:random(1, #list - (last and 1 or 0))
+    if last and take >= last then
+      take = take + 1
+    end
+  end
+  A.lastTake[name] = take
+  return list[take], name .. '#' .. A.set .. take, Sets.cues[name].gain
 end
 -- Reuse finished voices instead of allocating a new Source on every pellet,
 -- step and impact. Both active voices and the idle cache have strict caps.
@@ -96,20 +156,22 @@ function A.play(name, volume, priority)
     end
     recycle(table.remove(A.live, victim))
   end
-  local list = A.pool[name]
+  local base, key, gain = takeOf(name)
+  base, key, gain = base or A.sources[name], key or name, gain or 1
+  local list = A.pool[key]
   local s
   if list and #list > 0 then
     s = table.remove(list)
     A.pooled = A.pooled - 1
   else
-    s = A.sources[name]:clone()
+    s = base:clone()
   end
-  A.voiceNames[s] = name
+  A.voiceNames[s] = key
   A.priorities[s] = priority
   if priority >= 3 then
     A.warningHold = 0.65
   end
-  s:setVolume(volume or 0.65)
+  s:setVolume((volume or 0.65) * gain)
   s:setPitch(1)
   s:setRelative(true)
   s:setPosition(0, 0, 0)

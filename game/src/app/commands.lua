@@ -12,6 +12,8 @@ local Audio = require('src.audio.audio')
 local Intent = require('src.player.intent')
 local Release = require('src.app.release')
 local Settings = require('src.content.settings')
+local Sets = require('src.content.sound_sets')
+local Text = require('src.content.text')
 
 local Commands = {}
 local handlers = {}
@@ -24,6 +26,7 @@ local immediateSettings = {
   motion = true,
   hints = true,
   render_scale = true,
+  sound_set = true,
   sens_down = true,
   sens_up = true,
   fov_down = true,
@@ -201,6 +204,23 @@ handlers.motion = function(app)
 end
 handlers.hints = function(app)
   app.settings.hints = not app.settings.hints
+end
+-- The owner's A/B of the sounds (0.43, D02): F7 goes round the sets and says which one plays.
+handlers.sound_set = function(app)
+  local order = Sets.order
+  local now = Audio.set
+  for index, set in ipairs(order) do
+    if set == now then
+      app.settings.soundSet = Audio.useSet(order[index % #order + 1])
+      break
+    end
+  end
+  if app.game then
+    app.game:notify(
+      Text.get('sound_set_notice', { name = Text.get(Sets.names[app.settings.soundSet]) }),
+      2
+    )
+  end
 end
 handlers.render_scale = function(app)
   local choices = Settings.renderScale.choices

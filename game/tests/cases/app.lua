@@ -96,6 +96,39 @@ function Tests.run(G, renderer, check)
   app.settings = Preferences.decode('renderScale=0.75')
   app:adopt(fresh())
   check('a new session inherits the saved render scale', app.game.view.renderScale == 0.75)
+  -- 0.43 (D02): the owner's A/B of the sounds. Every take of every set lies where the set says;
+  -- the preference keeps a set and refuses a name it does not know; F7 goes round the sets.
+  do
+    local Sets = require('src.content.sound_sets')
+    local missing = 0
+    for _, prefix in pairs(Sets.prefix) do
+      for _, spec in pairs(Sets.cues) do
+        for take = 1, Sets.takes do
+          local path = Sets.root .. spec.event .. '/' .. prefix .. '-' .. take .. '.wav'
+          missing = missing + (love.filesystem.getInfo(path, 'file') and 0 or 1)
+        end
+      end
+    end
+    check('every recorded take lies where its set says', missing == 0)
+    check(
+      'the sound set is kept and a strange one refused',
+      Preferences.decode('soundSet=stone').soundSet == 'stone'
+        and Preferences.decode('soundSet=loud').soundSet == Sets.default
+    )
+    local Sound = require('src.audio.audio')
+    local was = Sound.set
+    Sound.useSet('classic')
+    app:action('sound_set')
+    local first = app.settings.soundSet
+    app:action('sound_set')
+    local second = app.settings.soundSet
+    app:action('sound_set')
+    check(
+      'F7 goes round the sets in order',
+      first == 'iron' and second == 'stone' and app.settings.soundSet == 'classic'
+    )
+    Sound.useSet(was)
+  end
   g.player.fireBuffer, g.player.jumpBuffer = 0, 0
   local before = g.player.hp
   local Audio = require('src.audio.audio')

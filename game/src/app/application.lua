@@ -252,6 +252,7 @@ function Application:beginStartup()
       run = function(checkpoint)
         Audio.init(checkpoint)
         Audio.muted = self.settings.muted or self.qa.capture
+        Audio.useSet(self.settings.soundSet)
         Soundscape.music = self.settings.music
         love.audio.setVolume(Audio.muted and 0 or 0.7)
       end,

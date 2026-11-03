@@ -91,11 +91,13 @@ function W.shot(g, profile, power)
     g.view.aimKickRate = w.viewKickRate
     g.view.aimKickV = (g.view.aimKickV or 0) + w.viewKick * power * w.viewKickRate * math.exp(1)
   end
-  if w.tail then
+  -- A recorded shot carries its own hall and thump (0.43, D02: audio/audio.lua baked).
+  local baked = A.baked and A.baked(profile.fire.sound)
+  if w.tail and not baked then
     A.play('hall', w.tail * (0.6 + 0.4 * power))
   end
   -- The gut of the report: a low thump under it.
-  if (w.thump or 0) > 0 then
+  if (w.thump or 0) > 0 and not baked then
     A.play('thud', w.thump * (0.6 + 0.4 * power))
   end
   return kick

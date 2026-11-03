@@ -213,6 +213,10 @@ function Input:keypressed(app, key, scancode, isrepeat)
     app:action('mute')
     return
   end
+  if key == 'f7' then
+    app:action('sound_set')
+    return
+  end
   if key == 'f9' then
     app:report()
     return
