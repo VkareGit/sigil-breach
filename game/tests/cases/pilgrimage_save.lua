@@ -508,10 +508,62 @@ local function slots(check, Game)
     Game.new('pilgrimage', nil, { slot = 1 }).run.wallet == 11
   )
 end
+-- 0.43 (owner, D9; audit F01): a way is taken up where it was left. Health, rounds and
+-- draughts as they were, what fell since the fire stays fallen, what hunted him hunts him
+-- still; a quit is no rest and no second payment for the same kills.
+local function resumes(check, Game)
+  clean()
+  local g = begin(Game)
+  local p = g.player
+  for _, post in ipairs({ 'nave_1', 'nave_2', 'nave_3' }) do
+    kill(g, post)
+  end
+  local hunter = byPost(g, 'nave_5')
+  hunter.awake, hunter.memory, hunter.x, hunter.z, hunter.hp = true, 5, p.x + 3, p.z, 200
+  p.hp, p.x = 20, p.x + 0.5
+  local judge = p.arsenal.judge
+  judge.mag, judge.reserve = 2, 5
+  local uses = p.abilityState.flask.uses - 1
+  p.abilityState.flask.uses = uses
+  local wallet, x, z = g.run.wallet, p.x, p.z
+  g:act('flush')
+  local again = begin(Game)
+  local q = again.player
+  local standing = 0
+  for _, post in ipairs({ 'nave_1', 'nave_2', 'nave_3' }) do
+    standing = standing + (byPost(again, post) and 1 or 0)
+  end
+  local hunted = byPost(again, 'nave_5')
+  check('the souls are kept', again.run.wallet == wallet and wallet > 0)
+  check('he stands where he left', math.abs(q.x - x) < 1e-6 and math.abs(q.z - z) < 1e-6)
+  check('with the health he had', q.hp == 20)
+  check(
+    'and the rounds and draughts he had',
+    q.arsenal.judge.mag == 2 and q.arsenal.judge.reserve == 5 and q.abilityState.flask.uses == uses
+  )
+  check('what he cut down since the fire stays down', standing == 0)
+  check(
+    'what hunted him hunts him still, from where it was',
+    hunted and hunted.awake and math.abs(hunted.x - (x + 2.5)) < 1 and hunted.hp == 200
+  )
+  check('no fire takes him in now', P.fighting(again))
+  -- A death is still a death: the fire, what it secured, and the rest standing again.
+  q.hp, q.armor = 1, 0
+  again:damagePlayer({ base = 100, impact = 10 }, q.x, q.z + 1)
+  again:act('flush')
+  local after = begin(Game)
+  check(
+    'a way left dead wakes at the fire',
+    P.fireHere(after) ~= nil and after.player.hp == after.player.maxHp
+  )
+  check('and what fell since the fire stands again', byPost(after, 'nave_1') ~= nil)
+  clean()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage save: ', 'pilgrimage save: ')
   areas(check, Game)
+  resumes(check, Game)
   slots(check, Game)
   goodFiles(check, Game)
   badFiles(check, Game)

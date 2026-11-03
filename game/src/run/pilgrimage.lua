@@ -68,20 +68,21 @@ local function lay(g, cache)
   })
 end
 -- The world as a death or a new arrival finds it: every creature at its post and every cache
--- full, but for what a rest secured (run.slain, run.taken).
-function P.populate(g)
+-- full, but for what a rest secured (run.slain, run.taken). fallen, picked (optional): what a
+-- way resumed in the field had cleared and taken since its last fire (0.43, D9).
+function P.populate(g, fallen, picked)
   Encounter.clearStage(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
   local r, classes = g.run, {}
   for _, entry in ipairs(area(g).garrison) do
-    if not r.slain[entry.id] then
+    if not r.slain[entry.id] and not (fallen and fallen[entry.id]) then
       local e = place(g, entry)
       classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
     end
   end
   for _, cache in ipairs(area(g).supplies or {}) do
-    if not r.taken[cache.id] then
+    if not r.taken[cache.id] and not (picked and picked[cache.id]) then
       lay(g, cache)
     end
   end
@@ -231,6 +232,52 @@ local function resume(g, slot)
   end
   return nil, 0, damaged
 end
+-- A way taken up where it was left (owner, D9): the knight stands where he was, with the
+-- health, rounds and draughts he had; what he cleared and took since his fire stays so, and
+-- what hunted him hunts him still, from where it was. Nothing is refilled: quitting is no
+-- rest and no way out of a fight.
+local function resumeField(g, field)
+  local r, p = g.run, Roles.controlled(g)
+  if field.area ~= r.area then
+    enter(g, field.area)
+  end
+  refresh(g, true)
+  for id, ammo in pairs(field.ammo) do
+    local state, def = p.arsenal[id], Weapons.get(id)
+    if state and def then
+      state.mag = math.min(ammo.mag, def.ammo.capacity)
+      state.reserve = math.min(ammo.reserve, def.ammo.maxReserve)
+    end
+  end
+  for id, uses in pairs(field.uses) do
+    local state = p.abilityState[id]
+    if state then
+      state.uses = math.min(uses, Abilities.capacity(id, state))
+    end
+  end
+  p.hp = math.min(field.hp, Characters.maxHp(p))
+  p.armor = math.min(field.armor, p.maxArmor)
+  if not World.solid(g.world, field.x, field.z, Rules.radius(p)) then
+    p.x, p.z, p.yaw, p.pitch = field.x, field.z, field.yaw, 0
+  else
+    wake(g, (K.fireOf(r.fire)))
+  end
+  if field.weapon and p.loadout[field.weapon] then
+    p.weapon = field.weapon
+  end
+  P.populate(g, field.fallen, field.picked)
+  local memory = require('src.content.combat_defaults').senses.memory
+  for _, hunter in ipairs(field.hunters) do
+    Bodies.eachCreature(g, function(e)
+      if e.post == hunter.post and e.hp > 0 then
+        e.x, e.z, e.facing = hunter.x, hunter.z, hunter.yaw
+        e.hp = math.min(hunter.hp, e.maxHp)
+        e.awake, e.memory, e.spawnAge = true, memory, 2
+        e.lastX, e.lastZ, e.lastLevel = p.x, p.z, p.level
+      end
+    end)
+  end
+end
 -- Souls left where the map no longer has floor wait where he wakes.
 local function reachEcho(g)
   local r, echo = g.run, g.run.echo
@@ -258,6 +305,13 @@ function P.init(g, options)
   r.origin, r.saved = data or false, data and true or false
   r.saves, r.begun = sequence, sequence
   g.availableSave, g.saveRecovered = data or nil, damaged
+  local field = r.resume
+  r.resume = nil
+  if field then
+    resumeField(g, field)
+    reachEcho(g)
+    return
+  end
   refresh(g, true)
   reachEcho(g)
   wake(g, (K.fireOf(r.fire)))
@@ -756,6 +810,116 @@ local function validRuins(ruins)
   end
   return kept
 end
+-- The field as the knight stands in it (D9): written with every save while he lives on the
+-- way, so a quit, a crash or a quiet save is taken up where it was. Nothing when he is down.
+local function fieldOf(g)
+  local r, p = g.run, Roles.controlled(g)
+  if r.phase ~= 'journey' or g.state == 'dead' or (p.hp or 0) <= 0 then
+    return nil
+  end
+  local field = {
+    area = r.area,
+    x = p.x,
+    z = p.z,
+    yaw = p.yaw or 0,
+    hp = p.hp,
+    armor = p.armor or 0,
+    weapon = p.weapon,
+    ammo = {},
+    uses = {},
+    fallen = {},
+    picked = {},
+    hunters = {},
+  }
+  for id, state in pairs(p.arsenal or {}) do
+    field.ammo[id] = { mag = state.mag, reserve = state.reserve }
+  end
+  for id, state in pairs(p.abilityState or {}) do
+    field.uses[id] = state.uses
+  end
+  local alive, lying = {}, {}
+  Bodies.eachCreature(g, function(e)
+    if e.post and e.hp > 0 then
+      alive[e.post] = true
+      if e.awake then
+        field.hunters[#field.hunters + 1] =
+          { post = e.post, x = e.x, z = e.z, yaw = e.facing or 0, hp = e.hp }
+      end
+    end
+  end)
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    if pickup.rewardId then
+      lying[pickup.rewardId] = true
+    end
+  end
+  for _, entry in ipairs(area(g).garrison) do
+    if not alive[entry.id] and not r.slain[entry.id] then
+      field.fallen[entry.id] = true
+    end
+  end
+  for _, cache in ipairs(area(g).supplies or {}) do
+    if not lying[cache.id] and not r.taken[cache.id] then
+      field.picked[cache.id] = true
+    end
+  end
+  return field
+end
+local function finiteNumber(value)
+  return type(value) == 'number' and MathX.finite(value)
+end
+-- A field from a file: judged like the rest, what names gone content is dropped.
+local function validField(field)
+  if field == nil then
+    return nil
+  end
+  assert(type(field) == 'table', 'invalid field')
+  assert(type(field.area) == 'string' and K.areas:has(field.area), 'invalid field area')
+  for _, key in ipairs({ 'x', 'z', 'yaw', 'hp', 'armor' }) do
+    assert(finiteNumber(field[key]), 'invalid field ' .. key)
+  end
+  assert(field.hp > 0 and field.armor >= 0, 'invalid field health')
+  assert(field.weapon == nil or whole(field.weapon, 1, 16), 'invalid field weapon')
+  local out = {
+    area = field.area,
+    x = field.x,
+    z = field.z,
+    yaw = field.yaw,
+    hp = field.hp,
+    armor = field.armor,
+    weapon = field.weapon,
+    ammo = {},
+    uses = {},
+    fallen = known(field.fallen or {}, K.postOf),
+    picked = known(field.picked or {}, K.supplyOf),
+    hunters = {},
+  }
+  for id, ammo in pairs(field.ammo or {}) do
+    assert(type(ammo) == 'table', 'invalid field rounds')
+    assert(whole(ammo.mag, 0, 1000) and whole(ammo.reserve, 0, 10000), 'invalid field rounds')
+    if Weapons.has(id) then
+      out.ammo[id] = { mag = ammo.mag, reserve = ammo.reserve }
+    end
+  end
+  for id, uses in pairs(field.uses or {}) do
+    assert(whole(uses, 0, 1000), 'invalid field uses')
+    if Abilities:has(id) then
+      out.uses[id] = uses
+    end
+  end
+  for _, hunter in ipairs(field.hunters or {}) do
+    assert(type(hunter) == 'table' and type(hunter.post) == 'string', 'invalid hunter')
+    assert(
+      finiteNumber(hunter.x) and finiteNumber(hunter.z) and finiteNumber(hunter.yaw),
+      'invalid hunter position'
+    )
+    assert(finiteNumber(hunter.hp) and hunter.hp > 0, 'invalid hunter health')
+    if K.postOf(hunter.post) then
+      out.hunters[#out.hunters + 1] =
+        { post = hunter.post, x = hunter.x, z = hunter.z, yaw = hunter.yaw, hp = hunter.hp }
+    end
+  end
+  return out
+end
 Save.declare({
   name = 'pilgrimage',
   file = 'pilgrimage',
@@ -790,6 +954,7 @@ Save.declare({
       vows = r.vows,
       loadout = (Weapons.inventory(g, Roles.controlled(g))),
       abilities = select(2, Abilities.inventory(g, Roles.controlled(g))),
+      field = fieldOf(g),
     }
   end,
   -- A file is judged here, before it touches a session: a wrong type refuses the whole of
@@ -824,6 +989,7 @@ Save.declare({
       end),
     }
     out.lit[fire.id] = true
+    out.field = validField(data.field)
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
     out.worn = validWorn(data.worn, out.owned, out.glyph)
     return out
@@ -836,6 +1002,8 @@ Save.declare({
     r.slain, r.taken = Copy(data.slain), Copy(data.taken)
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
     r.vows = Copy(data.vows)
+    -- Taken up by P.init once the kit below is in place (D9).
+    r.resume = data.field and Copy(data.field) or nil
     stand(g)
     -- The kit last: nothing above can leave it half changed. A way with no kit of its own
     -- keeps the knight's.

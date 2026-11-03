@@ -28,6 +28,12 @@ Sprawdzone automatycznie:
   pasek pokazuje grawer broni w ręku. tests/cases/open_presentation.lua (firePrompts):
   trzy podpowiedzi ogniska z najdłuższą nazwą w 5 rozdzielczościach bez wyjścia z ramy
   (przed naprawą: INTERIOR przy 960x540). Pełne Mechanics: tylko znane czerwone B01.
+- A02, tests/cases/pilgrimage_save.lua (resumes): po zabiciu 3 stworów, 20 HP, 2+5 naboi
+  Judge'a, łyk mniej i ścigającym opancerzonym zapis przy wyjściu i nowa gra z tego slotu:
+  dusze te same, rycerz w tym samym miejscu z 20 HP, tymi samymi nabojami i łykami,
+  zabici leżą, opancerzony ściga z tego samego miejsca z tym samym zdrowiem, ognisko
+  odmawia; po śmierci i wyjściu: budzi przy ognisku, zabici od ognia stoją. Bez zapisu pola
+  test jest czerwony. pilgrimage-save 155, pilgrimage 167 sprawdzeń.
 
 Odbiór właściciela (B2): czeka.
 

@@ -50,6 +50,15 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   ustępuje, klawisze zostają. Komunikat sklepu poligonu schodzi o rozmiar zamiast wchodzić
   w kolumnę salda. Rozstrzygnięcie właściciela (DECYZJE.md, D10): zebrane znajdźki po
   odpoczynku nie wracają, jak w Doomie; zgodnie z tym poprawiono tylko teksty.
+- A02 (decyzja właściciela D9): Continue wznawia drogę tam, gdzie gracz ją zostawił.
+  Każdy zapis za życia rycerza na drodze niesie stan pola (run/pilgrimage.lua: fieldOf):
+  miejsce, zdrowie, ward, naboje każdej broni, łyki i ładunki, broń w ręku, co padło i co
+  zebrano od ostatniego ogniska oraz stwory, które ścigały rycerza (miejsce, zdrowie).
+  Wznowienie niczego nie dolewa: wyjście nie jest odpoczynkiem ani ucieczką, ścigający
+  ściga dalej z tego samego miejsca, ognisko odmawia. Wcześniej Continue leczyło do pełna,
+  odnawiało amunicję i stawiało zabitych od ognia, a dusze za nich zostawały (farma).
+  Śmierć zostaje śmiercią: droga zostawiona po zgonie budzi przy ognisku jak dotąd.
+  Pole zapisu jest sprawdzane jak reszta (validField), stary zapis bez niego działa jak dawniej.
 
 ########################################################################
 ZMIANY-0.42.txt
