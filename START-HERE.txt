@@ -1,4 +1,4 @@
-SIGIL: BREACH / główny projekt / 0.42 (2 listopada 2026)
+SIGIL: BREACH / główny projekt / 0.43 (3 listopada 2026)
 C:\Users\nahiko\Documents\dev\sigil-breach
 
 Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
@@ -8,7 +8,8 @@ jeszcze nie ma: Margrave i Furfur to najtrudniejsze zwykłe moby.
 
 ZACZNIJ OD:
 - game\docs\INSTRUKCJA.txt: jak gra działa teraz (rozdział KAPLICA ma pierwszeństwo).
-- docs\audyt-2026-11-02\RAPORT-KONCOWY.md: ostatni audyt i plan; postęp: POSTEP.md obok.
+- docs\audyt-2026-11-03\RAPORT-KONCOWY.md: ostatni audyt i plan; decyzje właściciela:
+  DECYZJE.md, postęp: POSTEP.md obok; poprzedni audyt: docs\audyt-2026-11-02.
 - docs\KONTEKST.txt: decyzje właściciela i zasady pracy dla nowego czatu.
 - game\docs\DEVELOPMENT.txt: jak uruchamiać, testować i mierzyć.
 - game\docs\ARCHITEKTURA.txt i ROZSZERZANIE.txt: odpowiedzialności i przepisy rozbudowy.

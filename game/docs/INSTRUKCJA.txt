@@ -1,29 +1,39 @@
-SIGIL: BREACH — prototyp 0.42
-2 listopada 2026
+SIGIL: BREACH — prototyp 0.43
+3 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w ZMIANY.txt, plany i pomysły w PLAN-FUNDAMENT-v11.md i PLAN-ROZWOJU-v7.md
 (nic z planu nie obowiązuje, dopóki nie trafi tutaj).
 
-KAPLICA (0.42: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
-BEGIN albo CONTINUE w menu wchodzi do kaplicy, od ostatniego ogniska. NEW GAME kasuje
-zapis po potwierdzeniu. PROVING GROUND zostaje warsztatem obok.
+KAPLICA (0.43: ten rozdział ma pierwszeństwo przed starszymi opisami poniżej)
+BEGIN wchodzi do kaplicy od pierwszego ogniska. CONTINUE wznawia drogę dokładnie tam, gdzie ją
+zostawiłeś: to samo miejsce, zdrowie, naboje, łyki, ta sama walka (pociski w locie, ciosy
+w toku, ranni, resztki skrytek); ścigający ściga dalej, nic się nie dolewa. Drogę zostawioną po
+śmierci wznawia się przy ognisku. NEW GAME kasuje zapis po potwierdzeniu. PROVING GROUND zostaje
+warsztatem obok. F7 przełącza brzmienie (CLASSIC, IRON AND POWDER, STONE AND EMBER) do
+porównania; wybór zostaje w ustawieniach.
 [E] przy ognisku: odpoczynek. Leczy, napełnia flaskę i amunicję, zapisuje grę, ustawia
 miejsce powrotu i zaczyna rycerza od czysta (bez trucizny, odrzutu, picia w toku i wciśniętych
 wcześniej klawiszy). Stwory NIE wstają: odpoczynek zabezpiecza to, co oczyściłeś (zabici
 zostają martwi, zebrane zostaje zebrane, na zawsze). Śmierć budzi przy ostatnim ognisku i
-przywraca tylko to, co zabiłeś i zebrałeś od ostatniego odpoczynku. Otwiera menu ognia: grawery
-(każda broń nosi jeden swój: Exorcist FOCUS albo PIERCE, Judge BREAKER albo PRECISION; kupione
-zmienia się bezpłatnie; zakładki broni u góry menu pokazują rzeczy tej broni), trwałe śluby
-(flaska +1 łyk, zdrowie +15, po dwie rangi), hartowanie każdej broni (+8% obrażeń na zawsze),
-pieczęcie Goecji (Stolas: mocniejsze strzały Judge'a w głowę; Buer: silniejszy rally; Furfur:
-po doskonałym uniku następny strzał w ciągu 2 s mocniejszy; do trzech kopii) i podróż do
-kolejnego zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim; podróż prowadzi
-tylko do ognisk już zapalonych i nie jest proponowana, dopóki żadnego innego nie ma. Gdy stwór
-czuwa i ściga cię w promieniu 14 m, ognisko odmawia odpoczynku i podróży i mówi dlaczego. Przy
-ogniskach sal bocznych budzisz się za ogniem, plecami do strażnika sali.
-Margrave i Furfur to elity, nie bossowie: 1680 i 1400 HP, pełne obrażenia także w trakcie
+przywraca tylko to, co zabiłeś i zebrałeś od ostatniego odpoczynku. Grawery (Exorcist FOCUS
+albo PIERCE, Judge BREAKER albo PRECISION) i pieczęcie Goecji (Stolas: mocniejsze strzały
+Judge'a w głowę; Buer: silniejszy rally; Furfur: po doskonałym uniku następny strzał w ciągu
+2 s mocniejszy) to relikwie leżące w kaplicy, najlepsze w salach elit; wzięta zostaje na
+zawsze i zakłada się sama, jeśli jest wolne miejsce. Menu ognia: zmiana grawerów (każda broń
+nosi jeden swój) i pieczęci (dwie naraz) za darmo; za dusze trwałe śluby (flaska +1 łyk 150
+i 338, zdrowie +15 120 i 270, hartowanie każdej broni +8% obrażeń 250) i podróż do kolejnego
+zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim; podróż prowadzi tylko do
+ognisk już zapalonych i nie jest proponowana, dopóki żadnego innego nie ma. Ognisko odmawia
+odpoczynku i podróży i mówi dlaczego, gdy ściga cię czuwający stwór w promieniu 14 m albo
+widzący cię w zasięgu swoich ciosów (elity do 18 m), gdy leci na ciebie pocisk albo obok leży
+znak polującego stwora. Przyjęty odpoczynek usuwa to, co stwory zostawiły (plamy, znaki,
+pociski). Przy ogniskach sal bocznych budzisz się za ogniem, plecami do strażnika sali.
+Margrave i Furfur to elity, nie bossowie: 2700 i 2250 HP, pełne obrażenia także w trakcie
 ich ciosu, egzekucja zabiera 20% HP, dwa akty (drugi od połowy życia), 250 dusz i 2 łuski.
+Ich ciosy dystansowe sięgają 16–18 m. Z pękniętą gardą elita chwieje się i jest otwarta na
+egzekucję przez 1,6 s (Margrave) albo 1,5 s (Furfur). Stolas rzuca też włócznię gwiazdy:
+linia od jego dłoni do ciebie świeci na podłodze przez chwilę, potem uderza na całej długości.
 [F] flaska. [Q] ładunek prochowy. Unik kosztuje 26 wytrzymałości i ogranicza go tylko
 wytrzymałość: trzy uniki z pełnego paska, odnowa po 0,4 s przerwy. Strzał nic nie kosztuje,
 ale po strzale przez chwilę nie zrobisz uniku (0,22 s po Exorciście, 0,12 s po Judge'u);
