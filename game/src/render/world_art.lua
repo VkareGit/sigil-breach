@@ -129,6 +129,10 @@ function Art.pickup(r, g, a)
   -- A painted pack lies on the floor in the chapel's own light, like the rest of the fresco
   -- (owner: no glare); an atlas supply keeps its old hover and glow.
   local lift = own and supply.size * 0.5 or 0.27 + math.sin(g.time * 3 + a.x) * 0.04
+  local foot = own and supply.footInset and supply.footInset[which]
+  if foot then
+    lift = -supply.size * foot
+  end
   s:send('objectPos', r:vec3(a.x, floor + lift, a.z))
   s:send('objectYaw', math.atan2(Context.viewer(g).x - a.x, Context.viewer(g).z - a.z))
   s:send('objectScale', supply.size)

@@ -1,7 +1,7 @@
 -- The furfur atlas sheet (content/art/sheet.lua): written by the sheet
 -- tool (qa/art/sheet_tool.lua, EXPORT-SHEET.ps1 furfur). Cuts, order and anchors
 -- are authored here; feet and sizes are measured from the images.
-return {
+local sheet = {
   id = 'furfur',
   size = 3.4,
   idle = { period = 3.7, weights = { 0.36, 0.18, 0.17, 0.29 } },
@@ -92,6 +92,34 @@ return {
     { source = 2, cell = 4, feet = 51, anchors = { head = { 0.32999999999999996, 0.6 } } },
   },
   poses = {
+    ['windup.lightning'] = {
+      clock = 'action',
+      frames = { 7, 8, 29, 30, 31 },
+      bounds = { 0.16, 0.34, 0.56, 0.78 },
+    },
+    ['strike.lightning'] = {
+      clock = 'action',
+      frames = { 31, 30, 29 },
+      bounds = { 0.25, 0.62 },
+    },
+    ['windup.storm-steps'] = { fallback = 'windup.lightning' },
+    -- Five releases at 0, .42, .84, 1.26 and 1.68 s of the 2.08 s action.
+    -- P1b supplies normalized progress across the complete storm, not its tail.
+    ['strike.storm-steps'] = {
+      clock = 'action',
+      frames = { 31, 30, 31, 29, 31, 30, 31, 29, 31, 30 },
+      bounds = {
+        0.06,
+        0.2019230769,
+        0.26,
+        0.4038461538,
+        0.46,
+        0.6057692308,
+        0.66,
+        0.8076923077,
+        0.87,
+      },
+    },
     ['windup.antler-return'] = { clock = 'action', frames = { 12, 7, 8 }, bounds = { 0.24, 0.7 } },
     ['strike.antler-return'] = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
     ['phase.tempest'] = {
@@ -99,19 +127,57 @@ return {
       frames = { 13, 7, 8, 9 },
       bounds = { 0.18, 0.38, 0.68 },
     },
-    ['windup.tempest-cross'] = { clock = 'action', frames = { 7, 8, 9 }, bounds = { 0.18, 0.4 } },
+    ['windup.tempest-cross'] = {
+      clock = 'action',
+      frames = { 7, 8, 29, 30, 31 },
+      bounds = { 0.18, 0.4, 0.6, 0.8 },
+    },
     ['strike.tempest-cross'] = { clock = 'action', frames = { 9, 8, 12 }, bounds = { 0.4, 0.78 } },
     collapse = { clock = 'seconds', frames = { 14, 15, 16, 17, 18 }, step = 0.11 },
     knockdown = { clock = 'seconds', frames = { 14, 15 }, bounds = { 0.06 }, ends = 0.12 },
-    pain = { frames = { 13 } },
+    pain = { clock = 'seconds', frames = { 32, 33, 34 }, bounds = { 0.065, 0.135 } },
+    exposed = {
+      clock = 'action',
+      frames = { 32, 33, 34, 33, 32 },
+      bounds = { 0.16, 0.39, 0.62, 0.85 },
+    },
     painHeavy = { clock = 'seconds', frames = { 14, 13 }, bounds = { 0.12 } },
-    recover = { frames = { 12 } },
+    recover = { clock = 'action', frames = { 35, 36, 37 }, bounds = { 0.3, 0.66 } },
     rise = { clock = 'countdown', frames = { 16, 15, 14 }, bounds = { -0.15, -0.07 } },
     strike = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
     ['strike.charge'] = { frames = { 10 } },
     walk = { clock = 'stride', frames = { 1, 2, 3, 4, 5, 6 }, rate = 4.2 },
     walkRear = { clock = 'stride', frames = { 19, 20, 21, 22, 23, 24 }, rate = 4.2 },
     watchRear = { frames = { 19 } },
-    windup = { clock = 'action', frames = { 7, 8, 9 }, bounds = { 0.22, 0.6 } },
+    windup = {
+      clock = 'action',
+      frames = { 7, 8, 29, 30, 31, 30 },
+      bounds = { 0.16, 0.32, 0.49, 0.66, 0.83 },
+    },
   },
 }
+-- Interior breathing paintings retain the source silhouette and registration.
+sheet.sources[3] = {
+  path = 'assets/art/furfur-breath-fresco-v45.png',
+  size = { 1536, 1536 },
+  columns = 3,
+  rows = 3,
+  scale = 2,
+  crops = {
+    { 0, 0, 250, 268 },
+    { 512, 0, 250, 268 },
+    { 1024, 0, 250, 268 },
+    { 0, 512, 262, 241 },
+    { 512, 512, 262, 241 },
+    { 1024, 512, 262, 241 },
+    { 0, 1024, 216, 256 },
+    { 512, 1024, 216, 256 },
+    { 1024, 1024, 216, 256 },
+  },
+}
+for cell, base in ipairs({ 9, 9, 9, 13, 13, 13, 12, 12, 12 }) do
+  local frame = require('src.core.schema').copy(sheet.frames[base])
+  frame.source, frame.cell = 3, cell
+  sheet.frames[28 + cell] = frame
+end
+return sheet

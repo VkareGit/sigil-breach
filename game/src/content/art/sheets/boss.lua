@@ -1,7 +1,7 @@
 -- The boss atlas sheet (content/art/sheet.lua): written by the sheet
 -- tool (qa/art/sheet_tool.lua, EXPORT-SHEET.ps1 boss). Cuts, order and anchors
 -- are authored here; feet and sizes are measured from the images.
-return {
+local sheet = {
   id = 'boss',
   size = 3.9,
   idle = { period = 5.2, weights = { 0.38, 0.16, 0.18, 0.28 } },
@@ -89,23 +89,68 @@ return {
     { source = 3, cell = 4, feet = 53, anchors = { head = { 0.15, 0.8245114832535885 } } },
   },
   poses = {
-    ['windup.cinder-spear'] = { clock = 'action', frames = { 5, 6 }, bounds = { 0.6 } },
+    ['windup.cinder-spear'] = {
+      clock = 'action',
+      frames = { 5, 30, 31, 32 },
+      bounds = { 0.25, 0.5, 0.75 },
+    },
     ['strike.cinder-spear'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.4 } },
     ['windup.furnace'] = { clock = 'action', frames = { 9, 5, 6 }, bounds = { 0.3, 0.72 } },
     ['strike.furnace'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.55 } },
-    ['phase.cinders'] = { clock = 'action', frames = { 9, 5, 6, 7 }, bounds = { 0.18, 0.42, 0.76 } },
+    ['phase.cinders'] = {
+      clock = 'action',
+      frames = { 24, 5, 30, 31, 21 },
+      bounds = { 0.18, 0.38, 0.6, 0.8 },
+    },
     ['windup.ash-lance'] = { clock = 'action', frames = { 8, 5, 6 }, bounds = { 0.25, 0.65 } },
     ['strike.ash-lance'] = { clock = 'action', frames = { 7, 8 }, bounds = { 0.55 } },
     collapse = { clock = 'seconds', frames = { 10, 11, 12 }, step = 0.14 },
     knockdown = { clock = 'seconds', frames = { 10 }, ends = 0.08 },
-    pain = { frames = { 9 } },
+    pain = { clock = 'seconds', frames = { 24, 25, 26 }, bounds = { 0.065, 0.135 } },
+    exposed = {
+      clock = 'action',
+      frames = { 24, 25, 26, 25, 24 },
+      bounds = { 0.16, 0.39, 0.62, 0.85 },
+    },
     painHeavy = { clock = 'seconds', frames = { 10, 9 }, bounds = { 0.12 } },
-    recover = { frames = { 8 } },
+    recover = { clock = 'action', frames = { 27, 28, 29 }, bounds = { 0.3, 0.66 } },
     rise = { clock = 'countdown', frames = { 11, 10 }, bounds = { -0.12 } },
-    strike = { frames = { 7 } },
+    strike = { clock = 'action', frames = { 21, 22, 23 }, bounds = { 0.26, 0.64 } },
     walk = { clock = 'stride', frames = { 1, 2, 3, 4 }, rate = 3.4 },
     walkRear = { clock = 'stride', frames = { 13, 14, 15, 16 }, rate = 3.4 },
     watchRear = { frames = { 13 } },
-    windup = { clock = 'action', frames = { 5, 6 }, bounds = { 0.42 } },
+    windup = {
+      clock = 'action',
+      frames = { 5, 30, 31, 32, 31, 30 },
+      bounds = { 0.16, 0.32, 0.49, 0.66, 0.83 },
+    },
   },
 }
+-- The silhouette, head, cleaver and feet remain registered to their source poses.
+sheet.sources[4] = {
+  path = 'assets/art/boss-breath-fresco-v45.png',
+  size = { 1536, 2048 },
+  columns = 3,
+  rows = 4,
+  scale = 512 / 313.5,
+  crops = {
+    { 0, 0, 313, 322 },
+    { 512, 0, 313, 322 },
+    { 1024, 0, 313, 322 },
+    { 0, 512, 313, 310 },
+    { 512, 512, 313, 310 },
+    { 1024, 512, 313, 310 },
+    { 0, 1024, 314, 315 },
+    { 512, 1024, 314, 315 },
+    { 1024, 1024, 314, 315 },
+    { 0, 1536, 314, 320 },
+    { 512, 1536, 314, 320 },
+    { 1024, 1536, 314, 320 },
+  },
+}
+for cell, base in ipairs({ 7, 7, 7, 9, 9, 9, 8, 8, 8, 6, 6, 6 }) do
+  local frame = require('src.core.schema').copy(sheet.frames[base])
+  frame.source, frame.cell = 4, cell
+  sheet.frames[20 + cell] = frame
+end
+return sheet

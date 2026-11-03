@@ -57,8 +57,8 @@ return Creature.boss({
     personal = 1.3,
     -- No hardening while he strikes any more (was 0.3 of the damage): every hit counts, the
     -- openings pay through his guard and the execution.
-    -- 0.43 (owner: open too long, also after a spell turned aside; it made the fight easy).
-    breakTime = 1.6,
+    -- 0.45 (owner D11): 1.6 -> 1.2 s; even animated the opening stood too long.
+    breakTime = 1.2,
     execution = 0.2,
   },
   move = {
@@ -338,7 +338,7 @@ return Creature.boss({
       lungeTime = 0.2,
       closing = 0.7,
       duration = 0.36,
-      recover = 1.5,
+      recover = 1.2,
       cooldown = 1.6,
       packet = packet(65, 240),
     }),
@@ -363,7 +363,7 @@ return Creature.boss({
       lungeTime = 0.22,
       grip = 0.95,
       duration = 0.34,
-      recover = 1.5,
+      recover = 1.2,
       cooldown = 1.7,
       packet = packet(70, 200),
     }),
@@ -525,7 +525,7 @@ return Creature.boss({
       lungeSpeed = 12,
       lungeTime = 0.14,
       duration = 0.3,
-      recover = 1.5,
+      recover = 1.2,
       cooldown = 1.6,
       packet = packet(48, 160),
     }),

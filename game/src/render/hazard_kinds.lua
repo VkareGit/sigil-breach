@@ -7,6 +7,7 @@ local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
+local Context = require('src.session.context')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
@@ -89,14 +90,62 @@ Kinds:register('sweepline', {
     local ground = Ground.of(g.world, h)
     local dx, dz = math.sin(h.angle), math.cos(h.angle)
     local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
+    local progress = h.delay > 0 and (1 - h.delay / math.max(0.001, h.maxDelay)) or 1
     local alpha = h.delay > 0 and R.warned or 1
     for step = 1, math.floor(reach / R.step) do
       local d = step * R.step
       spot.x, spot.z = h.x + dx * d, h.z + dz * d
-      HazardArt.band(r, g, spot, 'ray', R.size, h.angle, alpha)
+      -- Alternate the irregular pigment and vary its extent, keeping the whole
+      -- route present from the first warning. Extra fissures open within it.
+      local yaw = h.angle + (step % 2) * math.pi
+      HazardArt.band(r, g, spot, 'ray', R.size * (0.96 + (step % 3) * 0.04), yaw, alpha)
+      if progress > 0 then
+        HazardArt.band(r, g, spot, 'ray', R.size * (0.48 + progress * 0.22), yaw, progress)
+      end
     end
   end,
 })
+-- The brief flame and settling fragments are a view record of a released ray.
+-- No ground warning remains once the authoritative hazard has gone.
+function Kinds.rayAfterimage(r, g, h, age)
+  local R = Rites.ray
+  if age < 0 or age >= R.embers then
+    return
+  end
+  local ground = Ground.of(g.world, h)
+  local dx, dz = math.sin(h.angle), math.cos(h.angle)
+  local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
+  for step = 1, math.floor(reach / R.step) do
+    local d = step * R.step
+    local x, z = h.x + dx * d, h.z + dz * d
+    local y = Ground.height(g.world, x, z)
+    if age < R.flare then
+      HazardArt.upright(
+        r,
+        x,
+        y + 0.03,
+        z,
+        'cut',
+        0.65 * (1 - age / R.flare) + 0.15,
+        math.atan2(Context.viewer(g).x - x, Context.viewer(g).z - z),
+        1 - age / R.flare
+      )
+    end
+    local fade = 1 - age / R.embers
+    for chip = 1, 3 do
+      local side = ((step * 7 + chip * 3) % 11 - 5) * 0.035
+      r:object(
+        r.spark,
+        x + dz * side,
+        y + 0.04 + age * (0.8 + chip * 0.2),
+        z - dx * side,
+        step + chip + age * 2,
+        fade * (0.38 + chip * 0.09),
+        { 0.78 * fade, 0.58 * fade, 0.30 * fade }
+      )
+    end
+  end
+end
 function Kinds.of(h)
   return Kinds:get(h.kind or Definitions.default)
 end

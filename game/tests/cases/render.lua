@@ -13,9 +13,51 @@ function S.run(G, r)
     r.enemyAtlas == nil and r.legacyArmored == nil
   )
   check(
-    'Furfur has 24 action frames and four registered watchful frames',
-    r.frames.furfur and #r.frames.furfur == 28 and #r.feet.furfur == 28
+    'Furfur has 33 action frames and four registered watchful frames',
+    r.frames.furfur and #r.frames.furfur == 37 and #r.feet.furfur == 37
   )
+  do
+    local Supplies = require('src.content.supplies')
+    local Ground = require('src.physics.ground')
+    local Art = require('src.render.world_art')
+    local field = require('tests.support.fixtures').arena(G)
+    local supply = Supplies:get('ammo')
+    local originY
+    local shader = {
+      send = function(_, name, ...)
+        if name == 'objectPos' then
+          local position = ...
+          originY = position[2]
+        end
+        r.spriteShader:send(name, ...)
+      end,
+    }
+    local proxy = setmetatable({ spriteShader = shader }, { __index = r })
+    love.graphics.push('all')
+    love.graphics.setShader(r.spriteShader)
+    for _, weapon in ipairs({ 'judge', 'exorcist' }) do
+      local data = love.image.newImageData(supply.images[weapon])
+      local w, h = data:getDimensions()
+      local bottom = 0
+      for y = 0, h - 1 do
+        for x = 0, w - 1 do
+          local _, _, _, alpha = data:getPixel(x, y)
+          if alpha >= 0.30 then
+            bottom = math.max(bottom, y)
+          end
+        end
+      end
+      local pickup = { kind = 'ammo', weapon = weapon, x = 16, z = 18 }
+      Art.pickup(proxy, field, pickup)
+      local paintedFoot = originY + supply.size * (1 - (bottom + 0.5) / h)
+      check(
+        weapon .. ' painted contact shadow touches its supporting floor',
+        math.abs(paintedFoot - Ground.of(field.world, pickup)) <= supply.size / h
+      )
+      data:release()
+    end
+    love.graphics.pop()
+  end
   local function bodySpan(frame, dx, dy)
     local image = (r.frameImages.furfur and r.frameImages.furfur[frame]) or r.animations.furfur
     local w, h = image:getDimensions()

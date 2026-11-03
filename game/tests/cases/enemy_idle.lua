@@ -88,9 +88,12 @@ function T.run(check, renderer)
     local frames, feet = renderer.frames[kind], renderer.feet[kind]
     Geometry.register(kind, frames, feet)
     verify(
-      'idle ' .. kind .. ' appends exactly four poses after the complete action atlas',
-      #frames == entry.originalCount + 4 and quiet.first == entry.originalCount + 1
+      'idle ' .. kind .. ' has exactly four consecutive poses alongside its action frames',
+      #frames == entry.originalCount + 4 and quiet.first + 3 <= #frames
     )
+    local function active(frame)
+      return frame < quiet.first or frame >= quiet.first + 4
+    end
     local g = { time = 0, player = { x = 0, z = 10 } }
     local e = enemy(kind)
     local selected = {}
@@ -115,22 +118,16 @@ function T.run(check, renderer)
       e.ai = state
       e.phase = 0.05
       e.walkSpeed = 0
-      verify(
-        'idle ' .. kind .. ' cannot interrupt ' .. state,
-        Anim.pose(g, e) <= entry.originalCount
-      )
+      verify('idle ' .. kind .. ' cannot interrupt ' .. state, active(Anim.pose(g, e)))
     end
     e.hp = 0
     e.ai = 'idle'
-    verify('idle ' .. kind .. ' cannot replace death', Anim.pose(g, e) <= entry.originalCount)
+    verify('idle ' .. kind .. ' cannot replace death', active(Anim.pose(g, e)))
     e.hp = 100
     e.ai = 'move'
     e.walkSpeed = 2
     e.walk = 1
-    verify(
-      'idle ' .. kind .. ' cannot replace a movement cycle',
-      Anim.pose(g, e) <= entry.originalCount
-    )
+    verify('idle ' .. kind .. ' cannot replace a movement cycle', active(Anim.pose(g, e)))
     local source = 'assets/art/' .. kind .. '-idle-fresco-v13.png'
     local data = love.image.newImageData(source)
     local minHeight, maxHeight = math.huge, 0

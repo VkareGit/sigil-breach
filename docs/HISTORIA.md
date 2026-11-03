@@ -35,6 +35,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: prompt (czytelność walki, ekran, sklep, dźwięk, animacje, znajdźki)
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
+- Raport Astry P4 (animacje i efekty, 0.45)
 
 ## Zmiany wersji
 
@@ -69,6 +70,40 @@ SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D
   liczyła się względem 0,4 s jednego pioruna i jedna klatka stała 1,875 s
   („zacina się”). Każdy rodzaj ataku z własną długością rejestruje ją też
   dla pozy (enemies/actions.lua). Zegary SI i złoty wzorzec bez zmian.
+- P1c (D11): krótsze okna elit. Odsłonięta garda Furfur 1,5 → 1,2 s,
+  Margrave 1,6 → 1,2 s. Regeneracje 1,5 → 1,2 s: Margrave overhead,
+  ash-grip, ash-catch; Furfur crown. Sonda 4 strategii w komnatach (dwa
+  ziarna, obie elity): stanie i cofanie przegrywają jak dotąd; okrążanie
+  z wygranej przy 33–50% HP do 3 porażek na 4 próby (Furfur raz wygrywa
+  z 58% HP); czytanie ciosów bez zmian (12–17 s, 79–100% HP).
+- P2 (D17): cztery poziomy dźwięku: Master, Effects, Music, Ambience.
+  Efekty (broń, kroki, stwory, ostrzeżenia, interfejs) miały dotąd stałą
+  głośność; odgłosy pomieszczeń szły torem efektów, a teraz mają własny.
+  Stary zapis: jeden poziom przechodzi do Music i Ambience. Ekran ustawień:
+  wiersze co 44 px, poziomy w dwóch wierszach po dwa. Zapis każdego
+  poziomu w settings-v03.txt.
+- P3 (D18): spokojniejszy ekran. Z niszy narzędzi znika napis SHIFT i mały
+  miernik (wytrzymałość pokazuje pasek nad HUD-em). Pomoc i zegar: pierwsze
+  90 s, pauza i mapa. Nazwa miejsca: 4 s po zmianie. Pasek zwykłego stwora:
+  po trafieniu, gaśnie po 4 s; stwory z banerem bez zmian. Bez sumy
+  obrażeń przy pasku, bez opisu efektu medalu w walce. DRINKING tylko przy
+  odmówionym strzale, bo gest flaski mówi to sam. Kompozycja dolnego paska
+  bez zmian; licznik DEATHS zostaje.
+- P4 (D11, D19; Astra, xhigh; przegląd Claude): nowe klatki elit. Furfur:
+  gest błyskawicy (poroże, narastająca energia, błysk), akcent przy każdym
+  z pięciu piorunów burzy. Obie elity: odsłonięcie to ugięcie i trzy
+  warianty oddechu zamiast kołysania jednej klatki (krzywa zależna od
+  postępu okna). Margrave: warianty bólu, regeneracji i uderzenia.
+  Najdłuższa klatka: exposed 1,5–1,6 → 0,28–0,37 s, recover 0,70 → 0,25 s,
+  burza 1,87 → 0,31 s. Nowe maski trafień (189 klatek), bo poza wybiera
+  maskę: próba drill zmienia się (w jednym miejscu 20,7 obrażeń), oba
+  przejścia kaplicy nie. Flaska: szyjka pod kamerę, dnem do góry, ręka bez
+  wyjazdu w lewo, gest trwa do końca picia. Promień Stolasa: punkt skupienia
+  przy dziobie, narastające pęknięcie, płomień i odłamki na istniejących
+  zegarach, kontrast rdzenia 4,5–5:1. Amunicja: łuski spięte drutem i
+  naboje w płótnie, ciemniejsze warianty wybrane przez właściciela (Astra
+  wybrała jaśniejsze dla kontrastu), odbicie światła 0,85 → 1,25, dół
+  paczki na posadzce zamiast 0,24 m nad nią.
 
 
 ########################################################################
@@ -3928,8 +3963,22 @@ Sprawdzone automatycznie:
 - P1b: test attack-followups: poza burzy w połowie (1,04 s) ma fazę 0,5;
   przed poprawką 1,0 (czerwony), po niej zielony. Złoty wzorzec bez zmian.
 
-Do oceny właściciela: czy Furfur w burzy nadal „zacina się” (po P1b
-poza biegnie przez cały atak; nowe klatki gestu dochodzą w P4).
+- P1c: sonda elit (odzyskana z historii gita) przed, po odsłonięciu i po
+  regeneracjach. Druga zmiana nie zmieniła wyników: te ciosy nie padają w
+  krótkich komnatach. Złoty wzorzec: drill zmieniony świadomie, oba
+  przejścia kaplicy bez zmian (dwa identyczne przebiegi).
+- P2: testy w tests/cases/app.lua (migracja starego poziomu, zapis czterech
+  poziomów, zero efektów). P3: testy interfejsu i audyt układu w showcase.
+- P4: raport Astry (rozdział „Raport Astry P4”): elite-art 88, flask-art 27,
+  hit-landmarks 356, porównanie 18 450 promieni na fazę.
+- Złoty wzorzec Linuksa odświeżany osobno w WSL.
+
+Niesprawdzone: gra ręczna, odsłuch. `weight` i `floor-layers` na Linuxie
+czekają na prawdziwą kartę graficzną.
+
+Do oceny właściciela: czy elity przestały się „zacinać”, gest błyskawicy,
+trudność przy oknach 1,2 s, flaska, promień Stolasa, amunicja, nowy ekran
+ustawień i cztery suwaki, spokojniejszy ekran w walce.
 
 
 ########################################################################
@@ -10749,3 +10798,149 @@ Grafika flaski, retusz pakietów, routing audio i analiza trwałości zapisu mog
 - **Po scaleniu spójnego pakietu:** pełne `TEST.ps1 -Suite All`, inspekcja końcowych raportów, nie tylko zamknięcia okna. Dzisiejsza zielona baza i wszystkie surowe dowody pozostają punktem porównania.
 
 Największą wartość pierwszej iteracji widzę w tym, żeby gracz mógł wskazać **dlaczego właśnie został trafiony, dlaczego teraz może odpowiedzieć i co naprawdę zyskał przy ogniu**. Tę poprawę można osiągnąć bez zmiany tożsamości fresku, rozmiaru hitmarkera i rytmu całej SI.
+
+## Raport Astry P4 (animacje i efekty, 0.45)
+
+_Dawniej: raport końcowy Astry z klonu sigil-p4-astra; odnośniki do work/p4 prowadzą do tego klonu. Ciemniejsze obrazy amunicji podmienił Claude na życzenie właściciela._
+
+[Raport P4](C:/Users/nahiko/Documents/dev/sigil-p4-astra/work/p4/RAPORT.md). Zmiany są zapisane w klonie `C:\Users\nahiko\Documents\dev\sigil-p4-astra`, na bazie `eb39fbf`. **Pełna bramka nie jest zielona: zmiana pozy odsłoniętego Furfura zmienia trafienie w próbie `golden`. Wzorca nie aktualizowałam.** Nie wykonywałam commitów, zapisów przez Git, nagrań wideo ani delegowania. Pliki zastrzeżone dla Claude pozostały nietknięte.
+
+Furfur otrzymał gest błyskawicy z uniesionym porożem, narastającą energią i błyskiem wypuszczenia. Burza ma pięć akcentów przy znakowaniu miejsc: 0 / 0,42 / 0,84 / 1,26 / 1,68 s. Odsłonięcie obu elit zaczyna się ugięciem, po którym następują trzy malowane warianty oddychania. Margrave ma również trzy warianty bólu, regeneracji i zwykłego uderzenia. Zastąpiłam sinus odsłonięcia krzywą zależną od postępu okna; kolejne trafienie nie rozpoczyna jej od nowa.
+
+Flaska kieruje szyjkę pod kamerę, dnem do góry. Ręka nie wyjeżdża w lewo i pozostaje widoczna do końca picia. Broń jest opuszczona do końca rzeczywistego windupu, obecnie 0,95 s. Promień Stolasa ma punkt skupienia przy dziobie, narastające pęknięcie i krótki płomień z odłamkami. Korzysta z istniejących zegarów 0,6 s / 0,45 s. Faktyczna aktywność zagrożenia wynosi około 0,02 s; ogon wizualny do 0,32 s nie przedłuża obrażeń.
+
+Amunicja ma jasne denka, ciemny drut, lniane zawiniątko Judge’a z czerwonym krzyżykiem oraz cień kontaktowy. Współczynnik odbicia światła amunicji wzrósł z 0,85 do 1,25; nadal mnoży lokalne światło kaplicy, bez emisji, aureoli ani słupa światła. Rozmiar 0,48 i progi podnoszenia pozostały bez zmian. Dół malowanego cienia jest ustawiony na posadzce; usunęłam dotychczasowe unoszenie paczki o 0,24 m.
+
+Zmiany plik po pliku — ścieżki w tabeli są względem `game/`, chyba że zaczynają się od `scripts/`:
+
+| Plik | Zmiana |
+|---|---|
+| `assets/art/furfur-breath-fresco-v45.png` | 9 dodatkowych klatek; zachowany obrys źródłowych sylwetek, przemalowane wnętrze korpusu. |
+| `assets/art/boss-breath-fresco-v45.png` | 12 dodatkowych klatek uderzenia, bólu, regeneracji i przygotowania. |
+| `assets/art/flask-hands-v45.png` | Nowe komórki mouth/sip/recover; pozostałe trzy zachowane. |
+| `assets/art/flask-hands-v44.png` | Usunięty zastąpiony zasób. |
+| `assets/art/rites-fresco-v45.png` | Kość, nadpalone złoto i ciemne pęknięcie; pozostałe trzy komórki atlasu zachowane. |
+| `assets/art/rites-fresco-v36.png` | Usunięty zastąpiony zasób. |
+| `assets/art/rites-provenance-v45.json` | Pochodzenie i hash nowego atlasu. |
+| `assets/art/rites-provenance-v36.json` | Usunięty nieaktualny opis. |
+| `assets/art/pickups/ammo_shells.png` | Przemalowane łuski z jasnymi denkami i drutem. |
+| `assets/art/pickups/ammo_rounds.png` | Przemalowane naboje w jasnym płótnie z kanciastym czerwonym znakiem. |
+| `src/content/art/sheets/furfur.lua` | Nowe źródło, klatki 29–37 i sekwencje faz. |
+| `src/content/art/sheets/boss.lua` | Nowe źródło, klatki 21–32 i sekwencje faz. |
+| `src/content/art/anatomy/furfur.lua` | Anatomia nowych komórek zgodna z ich źródłowymi pozami. |
+| `src/content/art/anatomy/boss.lua` | Analogiczne przypisanie anatomii Margrave’a. |
+| `src/content/art/hit_masks.lua` | Ponowny wypiek: 189 klatek, w tym 21 nowych. |
+| `src/content/art/poses.lua` | Nazwa exposed i jej zegar postępu. |
+| `src/content/combat_defaults.lua` | Klucze ugięcia i uspokojenia zamiast parametrów sinusa. |
+| `src/enemies/animation.lua` | Próbkowanie zmęczenia; liczba klatek obejmuje suplementy atlasów. |
+| `src/render/cast_accents.lua` | Energia na porożu i przy dziobie, poza maską trafień. |
+| `src/content/equipment_art.lua` | Atlas flaski v45 oraz tor ręki. |
+| `src/feedback/ability_feedback.lua` | Broń opuszczona przez całe picie. |
+| `src/content/art/rites.lua` | Nowy atlas i parametry prezentacji promienia. |
+| `src/render/hazard_kinds.lua` | Nieregularny tor, narastanie pęknięć, płomień i odłamki. |
+| `src/feedback/rite_feedback.lua` | Krótka pamięć geometrii promienia, zgodna z opóźnioną obsługą zdarzeń prezentacji. |
+| `src/feedback/world_feedback.lua` | Podłączenie efektu do AttackReleased. |
+| `src/feedback/transients.lua` | Usuwanie wygasłych odłamków. |
+| `src/render/effects.lua` | Rysowanie akcentów i wizualnego ogona promienia. |
+| `src/content/supplies.lua` | Odbicie światła oraz dolne marginesy obrazków amunicji. |
+| `src/render/world_art.lua` | Ustawienie widocznego dołu paczek na podłożu. |
+| `qa/data/hit_landmarks.lua` | Punkty kontrolne na nowych komórkach. |
+| `qa/art/creature_check.lua` | Obsługa klatek akcji dopisanych po czterech klatkach spoczynku. |
+| `tests/cases/elite_art.lua` | Normalizacja odsłonięcia, trafienia nowych klatek, pięć akcentów burzy i odroczony efekt promienia. |
+| `tests/cases/flask_art.lua` | Kontrola końca gestu i opuszczenia broni. |
+| `tests/cases/enemy_idle.lua` | Spoczynek sprawdzany jako własny zakres atlasu. |
+| `tests/cases/render.lua` | Liczba klatek Furfura: 37; dwa testy kontaktu cienia amunicji z podłożem. |
+| `tests/cases/impulse_law.lua` | Początek nowej malowanej pozy odsłonięcia. |
+| `tests/suite.lua` | Rejestracja elite-art. |
+| `scripts/BAKE-HIT-MASKS.ps1` | Poprawiona ścieżka do scripts/FORMAT.ps1. |
+| `scripts/EXPORT-ANATOMY.ps1` | Ta sama poprawka ścieżki formatowania. |
+
+Pomiary czasu pojedynczej klatki faz bojowych, w sekundach. Windupy uwzględniają najdłuższy hold i dodatkowe 0,26 s poza polem widzenia. Wiersze ogólne podają maksimum wśród ataków używających danej pozy. Dokładny wykaz każdego ataku znajduje się w `work/p4/pose-holds.csv`, a próbki działającego zegara w `klatki/{przed,po}/timing.csv`.
+
+| Elita / poza | Przed | Po |
+|---|---:|---:|
+| Furfur — windup ogólny | 0,680 | 0,289 |
+| Furfur — windup.lightning | 0,392 | 0,216 |
+| Furfur — windup.storm-steps | 0,344 | 0,189 |
+| Furfur — windup.tempest-cross | 0,576 | 0,211 |
+| Furfur — windup.antler-return | 0,373 | 0,373 |
+| Furfur — strike ogólny | 0,250 | 0,250 |
+| Furfur — strike.lightning | 0,160 | 0,122 |
+| Furfur — strike.storm-steps, obecny zegar | 1,872 | 1,731 |
+| Furfur — strike.storm-steps, po P1b | 1,040 | 0,307 |
+| Furfur — strike.tempest-cross | 0,260 | 0,260 |
+| Furfur — strike.antler-return | 0,150 | 0,150 |
+| Furfur — strike.charge | 0,850 | 0,850 |
+| Furfur — exposed, okno 1,5 s | 1,500 | 0,345 |
+| Furfur — recover | 0,700 | 0,252 |
+| Furfur — pain, okno 0,2 s | 0,200 | 0,070 |
+| Furfur — phase.tempest | 0,448 | 0,448 |
+| Margrave — windup ogólny | 1,079 | 0,316 |
+| Margrave — windup.cinder-spear | 0,528 | 0,220 |
+| Margrave — windup.ash-lance | 0,364 | 0,364 |
+| Margrave — windup.furnace | 0,340 | 0,340 |
+| Margrave — strike ogólny | 0,800 | 0,304 |
+| Margrave — strike.cinder-spear | 0,168 | 0,168 |
+| Margrave — strike.ash-lance | 0,193 | 0,193 |
+| Margrave — strike.furnace | 0,275 | 0,275 |
+| Margrave — exposed, okno 1,6 s | 1,600 | 0,368 |
+| Margrave — recover | 0,700 | 0,252 |
+| Margrave — pain, okno 0,2 s | 0,200 | 0,070 |
+| Margrave — phase.cinders | 0,476 | 0,308 |
+
+Przy zwykłym windupie lightning 0,72 s maksimum spada z 0,288 do 0,158 s. Dla planowanego odsłonięcia 1,2 s obie elity mają maksimum 0,276 s. Istniejąca szarża Furfura zachowuje jedną klatkę przez maksymalnie 0,85 s, ale ciało przemieszcza się; pauza nawrotu trwa 0,36 s. W obecnej burzy nieruchomą pozę przełamuje efekt co 0,42 s, natomiast poprawne rozłożenie wszystkich nowych klatek wymaga P1b. Wiersz „po P1b” jest pomiarem znormalizowanej sekwencji, nie deklaracją wdrożenia poprawki Claude. Klatki spoczynku, chodu i upadku pozostały bez zmian.
+
+Kontrast mierzyłam w liniowej luminancji sRGB względem identycznej klatki bez obiektu, z wyłączeniem HUD. Poniższe liczby dotyczą mediany kontrastu najjaśniejszej ćwiartki zmienionych pikseli: jasnego płótna, denek i kościanego rdzenia. Pełny rozkład, również dla ciemnych fragmentów, jest w `work/p4/contrast.csv`.
+
+| Próbka | Przed | Po |
+|---|---:|---:|
+| Rdzeń Stolasa, obserwacja z 4 m | 2,40:1 | 5,01:1 |
+| Rdzeń Stolasa, obserwacja z 8 m | 2,23:1 | 4,46:1 |
+| Rdzeń Stolasa, obserwacja z 12 m | 3,20:1 | 5,04:1 |
+| Judge, amunicja z 4 m | 1,83:1 | 7,45:1 |
+| Exorcist, amunicja z 4 m | 1,56:1 | 7,19:1 |
+| Judge, amunicja z 8 m | 2,15:1 | 5,96:1 |
+| Exorcist, amunicja z 8 m | 1,52:1 | 5,61:1 |
+
+W pięciu odsłoniętych miejscach kaplicy jasne części amunicji osiągają 3,46–7,65:1 dla Judge’a i 4,58–8,68:1 dla Exorcista. W ocenie PNG paczki są widoczne z 8 m, a ich kształty rozróżnialne z 4 m. **Nie potwierdzam 2,5:1 dla całego obrysu lub wszystkich pikseli:** mediana całego Exorcista w tych miejscach wynosi tylko 1,14–1,82:1. Ciemne łuski i drut nadal zlewają się z częścią posadzki. Odległości Stolasa odnoszą się do początku toru; sam tor biegnie ku kamerze.
+
+Sprawdziłam głowę i korpus wszystkich 21 nowych klatek oraz krawędzie w każdej fazie. Tabela podaje wyniki 18 450 stałych promieni na wiersz: dziesięć ustawień pozy, siatka co 0,1 m. „Utracone/nowe” oznacza zmianę trafienie–pudło na krawędzi, a nie obrażenia.
+
+| Elita / faza | Głowa przed → po | Korpus przed → po | Utracone / nowe |
+|---|---:|---:|---:|
+| Furfur / windup | 264 → 276 | 2108 → 2082 | 346 / 318 |
+| Furfur / strike | 244 → 285 | 1956 → 1907 | 2207 / 2012 |
+| Furfur / exposed | 286 → 284 | 2196 → 2008 | 784 / 520 |
+| Furfur / recover | 240 → 238 | 1674 → 1652 | 60 / 24 |
+| Margrave / windup | 359 → 382 | 3444 → 3391 | 472 / 467 |
+| Margrave / strike | 343 → 343 | 3568 → 3553 | 20 / 14 |
+| Margrave / exposed | 312 → 306 | 3670 → 3464 | 942 / 672 |
+| Margrave / recover | 270 → 266 | 3208 → 3188 | 70 / 38 |
+
+Największa różnica dotyczy uniesionej pozy Furfura w strike oraz ugięcia korpusu obu elit. Regeneracja i uderzenie Margrave’a mają mniejsze różnice na krawędziach nowych komórek. Maski pochodzą z rzeczywistych obrazów; nie podstawiłam starych masek pod nowe pozy. Porównanie pikseli potwierdziło identyczną alfę źródłowych sylwetek we wszystkich 21 suplementach oraz identyczność sześciu niezmienianych komórek flaski i rytuałów. Szczegóły wraz ze zmianami stref: `work/p4/hit-diff.csv`.
+
+Pierwsza rozbieżność deterministycznej próby występuje w kroku 4347, czyli 36,225 s. Po tym samym strzale Furfur ma 512,750 HP przed zmianą i 492,016 HP po niej: różnica 20,734 obrażeń. `drill` zmienia się z `a6aaf674/5ad03e34` na `86ba68bc/57aacd83`, a kontakty z `e6c5c86b/362` na `4cd9ff15/364`. Oba przebiegi kaplicy oraz ich kontakty pozostają identyczne ze wzorcem. Dowód pierwszej rozbieżności: `work/p4/divergence.txt`.
+
+Wyniki testów końcowego kodu:
+
+- `scripts/TEST.ps1 -Suite All -TestTimeoutSeconds 1800`: **6300 zaliczonych sprawdzeń; FAIL golden**. Celowe `second`, `fourth`, `failure` pozostają próbami raportera.
+- Formatowanie, 7 sprawdzeń platformy, 657 plików Lua, architektura i 5105 odwołań do plików: PASS. `git diff --check`: czysto.
+- `flask-art`: 27; `elite-art`: 88; `anatomy-data`: 17; `hit-landmarks`: 356; `painted-surfaces`: 15 — PASS.
+- Input: 50 sprawdzeń — PASS.
+- Render/showcase: 144 sceny i 5275 kontroli granic elementów obrazu — PASS.
+- Benchmark, core-measure, step-study, audio-export: PASS w trybie smoke; startup-check: PASS. Nie przedstawiam smoke jako pełnego profilowania lub odsłuchu.
+
+Po zatrzymaniu All na golden wykonałam pozostałe tryby osobno przez `TEST.ps1`. Wszystkie osiem uruchomień ma ten sam odcisk źródeł i `sourceStable=true`; raporty oraz potwierdzenia są w `work/p4/testy/`.
+
+Uruchomiłam BAKE-HIT-MASKS i EXPORT-ANATOMY dla obu elit. CHECK-CREATURE potwierdza obrazy, pozy, stopy, anatomię, maski i punkty kontrolne; obie kontrole kończą się jednak kodem 1 przez istniejący brak `catalog.bestiary`. Nie zmieniałam zastrzeżonych definicji stworów ani tekstów. Eksporty i raporty znajdują się w `work/p4/testy/`.
+
+[Arkusze PNG](C:/Users/nahiko/Documents/dev/sigil-p4-astra/work/p4/klatki) obejmują porównania przed/po: cztery fazy elit, flaskę w 0,2 / 0,4 / 0,5 / 0,7 / 0,9 s i dodatkowo jej koniec, promień z 4 / 8 / 12 m oraz amunicję z 2 / 4 / 8 / 12 m i w pięciu miejscach kaplicy. Jest 19 arkuszy i 245 pojedynczych klatek. Podgląd pięciu znakowań po P1b jest jawnie oznaczony jako preview. Prompty zapisano w `work/p4/PROMPTY.md`, a metody i odtworzenie w `work/p4/ODTWORZENIE.md`.
+
+Prośby do Claude i pozostałe ograniczenia:
+
+- Dołączyć P1b: storm/salvo muszą przekazywać postęp całej akcji. Nowe pozy storm-steps są gotowe na 2,08 s.
+- Po P1c ponownie sprawdzić skrócone odsłonięcia i regeneracje. Obecny sampler czyta `body.breakTime`; sprawdziłam także okna 0,6 / 1,2 / 1,6 s.
+- Rozstrzygnąć wpływ nowych póz na trafienia przed przyjęciem całości. Nie uznaję czerwonego golden za zaliczony i nie przyjmuję nowego wzorca.
+- Opcjonalnie podłączyć krótki łyk do fazy sip. Nie dodałam dźwięku, ponieważ podłączenie należy do modyfikowanego przez Claude `audio/`.
+- Uzupełnić lub świadomie wyłączyć wymóg kart bestiariusza dla tych elit w osobnym zakresie.
+- Kontrast jasnych części amunicji spełnia cel; pełna ciemna sylwetka Exorcista nie ma potwierdzonego minimum 2,5:1. Ocena czytelności pochodzi z PNG, bez badania z graczem i bez nagrania.

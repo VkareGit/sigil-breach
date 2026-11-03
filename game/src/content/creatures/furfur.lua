@@ -61,8 +61,8 @@ return Creature.boss({
     hp = 2250,
     steadfast = true,
     personal = 1.2,
-    -- 0.43 (owner: open too long, also after a spell turned aside; it made the fight easy).
-    breakTime = 1.5,
+    -- 0.45 (owner D11): 1.5 -> 1.2 s; even animated the opening stood too long.
+    breakTime = 1.2,
     execution = 0.2,
     regenDelay = 4,
     regenRate = 0.05,
@@ -309,7 +309,7 @@ return Creature.boss({
       lungeTime = 0.2,
       closing = 0.7,
       duration = 0.36,
-      recover = 1.5,
+      recover = 1.2,
       cooldown = 1.6,
       packet = packet(70, 220, 'physical', 230),
     }),

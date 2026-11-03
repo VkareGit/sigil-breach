@@ -70,6 +70,18 @@ function T.run(G)
   g = fresh()
   advance(g, 0.4)
   check('the gun stands aside during the sip', Feedback.weaponLowered(g) > 0.7)
+  local ending = fresh()
+  advance(ending, duration - 1 / 60)
+  check(
+    'the final grip keeps the weapon lowered until healing actually completes',
+    ending.player.casting
+      and ending.player.hp == 30
+      and Feedback.frame(ending) == 6
+      and Feedback.weaponLowered(ending) > 0.7
+      and drawn(ending, 6)
+  )
+  local _, down = V.equipmentPose(Equipment.atlases.flask, 0.99)
+  check('the last grip stays inside the scene until completion', down <= 0.11)
   local uses = g.player.abilityState.flask.uses
   g:damageBody(
     g.player,

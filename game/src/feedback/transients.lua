@@ -6,6 +6,7 @@ local Trails = require('src.feedback.shot_trails')
 local Presentation = require('src.session.presentation')
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
+local RiteFeedback = require('src.feedback.rite_feedback')
 local Transients = {}
 -- Particles draw from the session's presentation stream (core/rng: present),
 -- never the simulation's: repeatable from its seed (fixed in QA, the clock in
@@ -103,6 +104,7 @@ function Transients.beforeCombat(g, dt)
 end
 
 function Transients.afterCombat(g, dt)
+  RiteFeedback.update(g)
   for i = #g.view.particles, 1, -1 do
     local particle = g.view.particles[i]
     particle.life = particle.life - dt

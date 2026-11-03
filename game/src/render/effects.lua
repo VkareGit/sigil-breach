@@ -6,6 +6,7 @@ local Context = require('src.session.context')
 local Action = require('src.content.defs.action')
 local Rites = require('src.content.art.rites')
 local HazardArt = require('src.render.hazard_art')
+local CastAccents = require('src.render.cast_accents')
 -- Visual interpretation of authoritative attack clocks. No gameplay timers,
 -- extra hit regions, or hidden randomness are introduced by the renderer.
 local Archetypes = require('src.content.enemies')
@@ -111,7 +112,14 @@ function E.spells(r, g)
     if e.hp > 0 and e.ai == 'strike' and spec and Action.trait(spec, 'cuts') then
       cut(r, g, e, spec)
     end
-    if e.hp > 0 and e.ai == 'windup' and casts and (casts.all or casts[e.attackKind]) then
+    local accented = CastAccents.draw(r, g, e, E)
+    if
+      not accented
+      and e.hp > 0
+      and e.ai == 'windup'
+      and casts
+      and (casts.all or casts[e.attackKind])
+    then
       local progress = 1 - e.windup / math.max(0.01, e.windupDuration or 1)
       local yaw = math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
       local size = look.cast.size
@@ -140,6 +148,9 @@ function E.spells(r, g)
     if art.air then
       art.air(r, g, h, E)
     end
+  end
+  for _, burst in ipairs(g.view.riteBursts or {}) do
+    HazardKinds.rayAfterimage(r, g, burst, g.elapsed - burst.starts)
   end
 end
 -- During the hand-off only, avoid magnifying a world sprite placed centimetres

@@ -5,7 +5,7 @@
 --   cut       the visible life of a cut, in seconds past its active window
 --   ray       size of one length of a ray and its spacing (m)
 return {
-  path = 'assets/art/rites-fresco-v36.png',
+  path = 'assets/art/rites-fresco-v45.png',
   width = 2048,
   height = 2048,
   columns = 2,
@@ -16,8 +16,8 @@ return {
   cutSize = 0.78,
   cutHeight = 1.4,
   cutForward = 0.2,
-  -- warned: how strongly a ray is drawn while it waits (0.43, V01: the star-lance line sank
-  -- into the floor at 0.3, contrast 1.29:1; 0.48 gives 1.52:1 on the same floor).
-  ray = { size = 1.7, step = 1.5, warned = 0.48 },
+  antlerCasts = { lightning = true, ['storm-steps'] = true },
+  -- Opaque bone against burnt underpaint carries contrast without a luminous column.
+  ray = { size = 1.7, step = 1.5, warned = 0.94, flare = 0.10, embers = 0.32, limit = 16 },
   storm = { bolts = 12, near = 1.2, spread = 2.2, height = 1.5, size = 2.8, mark = 2.6 },
 }

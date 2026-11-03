@@ -57,7 +57,9 @@ function Feedback.weaponLowered(g)
   end
   age = age / duration * entry.duration
   local t
-  local ending = entry.clock == 'windup' and entry.duration - weapon.rise or entry.duration
+  -- A drink owns the hand until the cast ends, including its last lowered grip.
+  -- Returning the weapon inside that window falsely advertises a ready shot.
+  local ending = entry.duration
   if age < 0 or age >= ending + weapon.rise then
     return 0
   elseif age < weapon.drop then

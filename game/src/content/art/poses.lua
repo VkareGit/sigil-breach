@@ -36,6 +36,7 @@ Poses.clockOf = {
   windup = 'action',
   strike = 'action',
   recover = 'action',
+  exposed = 'action',
   pain = 'seconds',
   painHeavy = 'seconds',
   knockdown = 'seconds',
@@ -63,6 +64,7 @@ Poses.fallbacks = {
   walkRear = 'walk',
   watchRear = 'quiet',
   painHeavy = 'pain',
+  exposed = 'pain',
   hover = 'walk',
   hoverRear = 'walkRear',
 }

@@ -14,6 +14,7 @@ local K = require('src.content.tuning').world
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Bodies = require('src.combat.bodies')
+local RiteFeedback = require('src.feedback.rite_feedback')
 local World = {}
 local warnings = setmetatable({}, { __mode = 'k' })
 local function stopWarning(enemy)
@@ -56,6 +57,7 @@ World.handlers = {
   end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
+    RiteFeedback.released(g, ev)
     stopWarning(e)
     A.playAt(
       ev.attack.sound or sounds(e).strike or 'cast',

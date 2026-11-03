@@ -92,9 +92,16 @@ return {
   -- contactMargin m beyond their radii touch.
   woundFor = 1.6,
   hitFlash = 0.08,
-  -- A body held open to an execution reels (0.43, the owner: standing still it read as hung):
-  -- it sways rate rad/s by lean either way and sags by sag of its height.
-  exposedReel = { rate = 6, lean = 0.06, sag = 0.04 },
+  -- A broken guard gives way once, holds its weight, then starts to stand.
+  -- Each key is normalized progress, lean and vertical scale; painted ribs breathe.
+  exposedReel = {
+    { 0, -0.03, 0.98 },
+    { 0.14, -0.10, 0.89 },
+    { 0.36, -0.075, 0.92 },
+    { 0.62, -0.065, 0.925 },
+    { 0.84, -0.06, 0.93 },
+    { 1, -0.025, 0.98 },
+  },
   breakFlash = 0.16,
   woundFlash = 0.18,
   slamLock = 0.3,

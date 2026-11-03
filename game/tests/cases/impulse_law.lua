@@ -206,7 +206,7 @@ function Tests.run(G, check)
   boss = g:spawn('boss', 16, 20)
   Rules.react(g, boss, A.boss.body.poise + 100, true, nil, 0)
   local falterFrame = Anim.pose(g, boss)
-  check('a faltering boss shows its pain pose', falterFrame == 9 and boss.stun > 0)
+  check('a faltering boss starts its painted exhaustion', falterFrame == 24 and boss.stun > 0)
   g = fresh()
   Weight.confirm(g, { kills = 0, headHits = 0 }, { { counter = true, staggered = true } })
   local counterText = g.view.feedback

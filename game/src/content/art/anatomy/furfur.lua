@@ -311,4 +311,8 @@ Furfur.frames[9].anchors = { claw = { 0.81, 0.22 } }
 Furfur.frames[10].anchors = { claw = { 0.89, 0.81 } }
 Furfur.frames[11].anchors = { claw = { 0.95, 0.70 } }
 Furfur.frames[12].anchors = { claw = { 0.91, 0.49 } }
+-- Supplemental breath changes interior pigment only, with identical source UV anatomy.
+for i, base in ipairs({ 9, 9, 9, 13, 13, 13, 12, 12, 12 }) do
+  Furfur.frames[28 + i] = require('src.core.schema').copy(Furfur.frames[base])
+end
 return Furfur

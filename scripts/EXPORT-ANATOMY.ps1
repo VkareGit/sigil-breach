@@ -32,7 +32,7 @@ if ($run.ExitCode -ne 0) { throw ('The annotation has problems; see ' + $run.Std
 if ($Install) {
     $destination = Join-Path $project.Source ('src/content/art/anatomy/' + $Id + '.lua')
     Copy-Item -LiteralPath $written -Destination $destination -Force
-    & (Join-Path $project.Root 'FORMAT.ps1') -Target @(('game/src/content/art/anatomy/' + $Id + '.lua'))
+    & (Join-Path $project.Root 'scripts/FORMAT.ps1') -Target @(('game/src/content/art/anatomy/' + $Id + '.lua'))
     if ($LASTEXITCODE -ne 0) { throw 'The annotation failed formatting validation.' }
     Write-Host ('Annotation installed: ' + $destination)
 } else { Write-Host ('Annotation written: ' + $written) }

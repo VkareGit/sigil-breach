@@ -9,7 +9,10 @@ Supplies:register('health', { icon = 'health', size = 0.48 })
 Supplies:register('ammo', {
   icon = 'ammo',
   size = 0.48,
-  light = 0.85,
+  -- Linen and cartridge bases reflect the chapel light; no emission or halo.
+  light = 1.25,
+  -- Transparent rows below the painted contact shadow, as a share of height.
+  footInset = { exorcist = 25 / 256, judge = 12 / 256 },
   images = {
     exorcist = 'assets/art/pickups/ammo_shells.png',
     judge = 'assets/art/pickups/ammo_rounds.png',

@@ -35,11 +35,13 @@
 -- 0.43 (B01b): an elite held open reels and stays open 1.5-1.6 s (was 2.6-2.8).
 -- 0.43: the D05 hold of the demons withdrawn (it took the cost from standing and shooting).
 -- 0.45 (D15): a relic taken before a death is not laid again; the clumsy walk dies and changes.
+-- 0.45 (D11, P4): the elites stand open 1.2 s and their new poses (masks of the hit) change the
+-- drill; both walks of the chapel stay the same.
 return {
   playtest = 'f26863c9/df75fad0',
   human = '965645ea/3500a3d2',
-  drill = 'a6aaf674/5ad03e34',
+  drill = 'd80f2df1/3c4a4e65',
   playtestContacts = 'a3a00935/850',
   humanContacts = '5a97e736/1260',
-  drillContacts = 'e6c5c86b/362',
+  drillContacts = '0bc58ffe/377',
 }

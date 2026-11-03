@@ -73,12 +73,12 @@ function Check.run(id)
     local quiet = Atlases.idle[atlas]
     report(
       #sheet.frames == entry.originalCount + Sheet.quietFrames
-        and quiet.first == entry.originalCount + 1,
+        and quiet.first + Sheet.quietFrames - 1 <= #sheet.frames,
       'frames',
       #sheet.frames
         .. ' frames ('
         .. entry.originalCount
-        .. ' action frames, the last '
+        .. ' action frames, '
         .. Sheet.quietFrames
         .. ' quiet)'
     )

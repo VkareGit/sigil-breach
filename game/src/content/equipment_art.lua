@@ -124,7 +124,7 @@ EquipmentArt.register('powder', {
 -- Six painted grips. Windup phases are fractions of the ability's own clock;
 -- changing the time of a drink never requires retiming the hand animation.
 EquipmentArt.registerAtlas('flask', {
-  path = 'assets/art/flask-hands-v44.png',
+  path = 'assets/art/flask-hands-v45.png',
   width = 1536,
   height = 1024,
   screenScale = 0.82,
@@ -141,11 +141,11 @@ EquipmentArt.registerAtlas('flask', {
   motion = {
     { 0, 0.04, 0.35, 0 },
     { 0.18, 0, 0.02, 0 },
-    { 0.38, -0.10, 0.04, -0.06 },
-    { 0.54, -0.14, 0.04, -0.20 },
-    { 0.68, -0.14, 0.04, -0.20 },
-    { 0.82, -0.05, 0.02, -0.04 },
-    { 1, 0.04, 0.40, 0 },
+    { 0.38, 0, 0.04, 0 },
+    { 0.54, 0.015, 0.08, 0.025 },
+    { 0.68, 0.015, 0.08, 0.025 },
+    { 0.84, 0.02, 0.04, 0 },
+    { 1, 0.04, 0.10, 0 },
   },
 })
 EquipmentArt.register('flask', {

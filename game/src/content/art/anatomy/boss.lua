@@ -280,4 +280,8 @@ Boss.frames[12].parts = {
   Author.segment('arm-right', 'torso', 'flesh', 0.29, 0.79, 0.18, 0.77, 0.04),
   Author.head(unpack(heads[12])),
 }
+-- Supplemental breath changes interior pigment only, with identical source UV anatomy.
+for i, base in ipairs({ 7, 7, 7, 9, 9, 9, 8, 8, 8, 6, 6, 6 }) do
+  Boss.frames[20 + i] = require('src.core.schema').copy(Boss.frames[base])
+end
 return Boss

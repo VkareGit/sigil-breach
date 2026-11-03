@@ -1,0 +1,8 @@
+﻿{
+    "method":  "Built-in image_gen; P4",
+    "output":  "assets/art/rites-fresco-v45.png",
+    "sha256":  "38F61A333CFC201547C977EF54B600CD25ABD184B66B1DAE43CFA83F60ABB704",
+    "scope":  "Only the ray cell repainted; the other three cells are byte-identical pixels from v36.",
+    "prompt":  "Broad near-white bone and burnt-gold fragments on dense charcoal underpaint with a narrow dark fissure; irregular brush-painted horizontal floor band on green key; no glow.",
+    "processing":  "Green key to alpha; bottom-right cell resampled into 1024 pixels, empty gutter clipped. Full prompt and generation inputs retained in work/p4/PROMPTY.md."
+}

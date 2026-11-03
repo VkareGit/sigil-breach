@@ -64,7 +64,30 @@ Anim.motions:register('sway', function(_, e, frame, bounce, lean)
   return frame, bounce, lean + math.sin(e.walk * 5.5) * 0.018
 end)
 function Anim.frameCount(kind)
-  return Idle.total(kind)
+  return #Atlases.layouts[kind].frames
+end
+-- A normalized read of the current falter, independent of the world's clock.
+-- Shorter guard windows use the same painted recovery without a second timer.
+function Anim.exposedProgress(e)
+  local left = e.conditions and e.conditions.exposed or 0
+  local age = math.max(0, e.phase or 0)
+  local body = Archetypes.of(e).body
+  local duration = math.max(left, body.breakTime or (age + left), 0.001)
+  return math.max(0, math.min(1, 1 - left / duration))
+end
+local function exhausted(e)
+  local t = Anim.exposedProgress(e)
+  local keys = Archetypes.defaults.exposedReel
+  for i = 2, #keys do
+    local a, b = keys[i - 1], keys[i]
+    if t <= b[1] then
+      local blend = (t - a[1]) / (b[1] - a[1])
+      blend = blend * blend * (3 - 2 * blend)
+      return Poses.frame(posed(e, 'exposed'), t),
+        a[2] + (b[2] - a[2]) * blend,
+        a[3] + (b[3] - a[3]) * blend
+    end
+  end
 end
 function Anim.pose(g, e, observer)
   if e.previewFrame and Capabilities.posed(g) then
@@ -86,6 +109,8 @@ function Anim.pose(g, e, observer)
     frame = Poses.frame(posed(e, 'knockdown'), total - e.stun)
       or Poses.frame(posed(e, 'rise'), -e.stun)
     lean = -0.06
+  elseif (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0 then
+    frame, lean, sy = exhausted(e)
   -- A heavy stagger throws the body back (the first painted recoil frame),
   -- then bows it in pain; a light falter only flinches in place.
   elseif e.ai == 'hurt' and (e.phase < 0.20 or (e.stun or 0) > 0) then
@@ -96,19 +121,6 @@ function Anim.pose(g, e, observer)
       lean = -0.08
       sy = 0.95
     end
-    -- 0.43 (owner: an elite held open stood as if the game had hung): a body open to an
-    -- execution reels, swaying and sagging, for as long as it stays open.
-    if e.conditions and (e.conditions.exposed or 0) > 0 then
-      local reel = (g.time or 0) * Archetypes.defaults.exposedReel.rate + (e.id or 0)
-      lean = lean + math.sin(reel) * Archetypes.defaults.exposedReel.lean
-      sy = sy * (1 - Archetypes.defaults.exposedReel.sag * (0.5 + 0.5 * math.sin(reel * 2)))
-    end
-  -- A boss falter (broken guard): the pain pose for the pause itself, bowed.
-  elseif (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0 then
-    frame = Poses.frame(posed(e, 'pain'), e.phase or 0)
-    local reel = (g.time or 0) * Archetypes.defaults.exposedReel.rate + (e.id or 0)
-    lean = -0.05 + math.sin(reel) * Archetypes.defaults.exposedReel.lean
-    sy = 0.95 * (1 - Archetypes.defaults.exposedReel.sag * (0.5 + 0.5 * math.sin(reel * 2)))
   elseif
     e.ai == 'recover'
     and encounter

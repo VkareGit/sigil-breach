@@ -17,7 +17,7 @@
 -- and the Margrave's own poses (wind-up 5, strike 7, recovery 8, exposed 9).
 -- The bosses are never knocked down alive: their collapse frames are the
 -- dead's (enemies/corpse.lua) and are not here.
-return {
+local landmarks = {
   {
     kind = 'imp',
     frame = 14,
@@ -240,3 +240,33 @@ return {
     },
   },
 }
+-- These supplements preserve the original pixel silhouettes. Transfer the
+-- independently marked source pixels by crop offset, not from the hit masks.
+local supplements = {
+  boss = {
+    [7] = { first = 21, x = 627, y = 313, row = 0 },
+    [8] = { first = 27, x = 940, y = 313, row = 1024 },
+    [9] = { first = 24, x = 0, y = 627, row = 512 },
+  },
+  furfur = { [13] = { first = 32, x = 0, y = 512, row = 512 } },
+}
+local result = {}
+for _, entry in ipairs(landmarks) do
+  local group = supplements[entry.kind]
+  local transfer = group and group[entry.frame]
+  if transfer then
+    for i = 0, 2 do
+      local copy = require('src.core.schema').copy(entry)
+      copy.frame = transfer.first + i
+      copy.image = 'assets/art/' .. entry.kind .. '-breath-fresco-v45.png'
+      for _, point in ipairs(copy.points) do
+        point[1] = point[1] - transfer.x + i * 512
+        point[2] = point[2] - transfer.y + transfer.row
+      end
+      result[#result + 1] = copy
+    end
+  else
+    result[#result + 1] = entry
+  end
+end
+return result

@@ -16,6 +16,11 @@ Suite.registry = {
     module = 'tests.cases.flask_art',
   },
   {
+    id = 'elite-art',
+    title = 'Elite breath, normalized guard and storm accents',
+    module = 'tests.cases.elite_art',
+  },
+  {
     id = 'inscriptions',
     title = 'Painted inscriptions share bounded supporting surfaces',
     module = 'tests.cases.inscriptions',
