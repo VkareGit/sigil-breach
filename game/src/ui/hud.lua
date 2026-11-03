@@ -348,17 +348,6 @@ local function hitMarks(g, cx, cy, mark)
   if g.view.armorHit and not g.view.lastKill then
     Skin.icon('armor', cx + 19, cy - 10, 18)
   end
-  if (g.view.breakConfirm or 0) > 0 then
-    -- Guard broken: four gold brackets snap outward around the marker.
-    local r = 17 + (1 - g.view.breakConfirm / 0.22) * 7
-    for _, v in ipairs({ { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }) do
-      local x, y = cx + v[1] * r, cy + v[2] * r
-      line(x, y, x - v[1] * 6, y, Palette.ink, 4)
-      line(x, y, x, y - v[2] * 6, Palette.ink, 4)
-      line(x, y, x - v[1] * 6, y, C.gold, 2)
-      line(x, y, x, y - v[2] * 6, C.gold, 2)
-    end
-  end
   if g.view.precisionHit then
     -- A small closed diamond distinguishes precision without covering the target. White, like
     -- any hit: gold belongs to a broken guard alone.
@@ -376,6 +365,21 @@ local function hitMarks(g, cx, cy, mark)
       line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
       line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.ivory, 2)
     end
+  end
+end
+-- Guard broken: four gold brackets snap outward around the marker, for their own whole time
+-- (0.43, V01: drawn inside the hit marks they were cut off with them, 5 frames of 7).
+local function breakMarks(g, cx, cy)
+  if (g.view.breakConfirm or 0) <= 0 then
+    return
+  end
+  local r = 17 + (1 - g.view.breakConfirm / 0.22) * 7
+  for _, v in ipairs({ { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }) do
+    local x, y = cx + v[1] * r, cy + v[2] * r
+    line(x, y, x - v[1] * 6, y, Palette.ink, 4)
+    line(x, y, x, y - v[2] * 6, Palette.ink, 4)
+    line(x, y, x - v[1] * 6, y, C.gold, 2)
+    line(x, y, x, y - v[2] * 6, C.gold, 2)
   end
 end
 -- The hands cannot fire: the reticle opens and dims for as long as that lasts, so a pull that
@@ -407,6 +411,7 @@ local function aimMarks(g, cx, cy)
   if hit then
     hitMarks(g, cx, cy, mark)
   end
+  breakMarks(g, cx, cy)
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)
     for _, side in ipairs({ -1, 1 }) do

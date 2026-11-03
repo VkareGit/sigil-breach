@@ -125,6 +125,14 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   grupy Ember Thralli (creature-pressure czerwony; samo zabójstwo też). Odczucie trafienia
   ma iść przez obraz, nie przez czas SI: wersję tylko wizualną (zamrożenie klatki ciała)
   rozważa analiza V01 z Astrą.
+- V01 (analiza Astry obrazu, znaczników i odczucia strzelania, docs/audyt-2026-11-03/
+  V01-ASTRA.md; nagranie work/visual-v01): wdrożone dwa punkty P0. Linia włóczni Stolasa
+  (i każdego promienia w oczekiwaniu) jest rysowana mocniej: content/art/rites.lua ray.warned
+  0,3 -> 0,48, kontrast z płytami 1,29 -> 1,52:1, pole rażenia bez zmian. Złote narożniki
+  pękniętej gardy trwają swoje pełne 0,22 s (ui/hud.lua: breakMarks), zamiast znikać razem
+  ze znacznikiem trafienia po ok. 0,14 s. Pozostałe propozycje (podkład znaczników, dłuższy
+  błysk trafienia, poza strzału Exorcista, tony demonów, rdzeń linii, atak Judge iron) czekają
+  na decyzję właściciela.
 - D02 (do odsłuchu właściciela A/B w grze): nagrane brzmienia od Codexa Astry (paczka
   work/sound-ab, offline, warstwowe). F7 przełącza CLASSIC (dotychczasowa synteza), IRON AND
   POWDER (B1) i STONE AND EMBER (B2), z komunikatem na ekranie; wybór zostaje w ustawieniach.

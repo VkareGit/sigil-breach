@@ -21,6 +21,7 @@ Uwaga dla edycji z PowerShell 5.1: pliki są w UTF-8 bez BOM; czytać przez `[IO
 | D02 | Próbkowany dźwięk A/B | zrobione, czeka na wybór właściciela | Astra: paczka B1/B2; F7 w grze przełącza zestawy |
 | D04 | Nisza ARSENAL: broń w ręku czytelna | zrobione, czeka na zgodę właściciela | gui/arsenal-przed.png, arsenal-po.png |
 | B01b | Elita otwarta: krócej i widocznie | zrobione | 1,6/1,5 s zamiast 2,8/2,6; chwianie i mocniejszy puls |
+| V01 | Analiza obrazu i strzelania (Astra) | analiza zrobiona; P0 wdrożone | V01-ASTRA.md; linia włóczni 1,29 -> 1,52:1, narożniki gardy pełne 0,22 s; P1/P2 i grafika czekają na właściciela |
 | D01 | Nagranie bazowe (Astra) | zrobione | Astra (high), 54 s, 6 scen; `work/film-baseline/` (baseline.mp4, baseline-phone.mp4, README, klatki kontrolne); czeka na ocenę właściciela |
 
 ## B01: pomiar elit (sonda 4 strategii, komnaty poligonu, bot z idealnym celem)

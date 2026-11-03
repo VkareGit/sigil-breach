@@ -16,6 +16,8 @@ return {
   cutSize = 0.78,
   cutHeight = 1.4,
   cutForward = 0.2,
-  ray = { size = 1.7, step = 1.5, warned = 0.3 },
+  -- warned: how strongly a ray is drawn while it waits (0.43, V01: the star-lance line sank
+  -- into the floor at 0.3, contrast 1.29:1; 0.48 gives 1.52:1 on the same floor).
+  ray = { size = 1.7, step = 1.5, warned = 0.48 },
   storm = { bolts = 12, near = 1.2, spread = 2.2, height = 1.5, size = 2.8, mark = 2.6 },
 }
