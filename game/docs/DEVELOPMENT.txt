@@ -334,6 +334,14 @@ DODAWANIE TESTU
 4. Gdy zmieniasz grafikę lub UI, dodaj scenę do qa/showcase.lua albo odpowiedniego
    qa/reviews. Test powinien używać prawdziwego renderera i działań gry.
 5. Nie czytaj starego test-results.txt jako podstawy powodzenia nowego testu.
+6. Commit dopiero przy zielonym .\TEST.ps1 -Suite All (0.43, audyt 2026-11-03:
+   commity 0.42 weszły z czerwonym Mechanics i ukryły regresje). Czerwony selftest
+   zatrzymuje Render i Input, więc przy znanym czerwonym zestawie uruchom je osobno
+   (-Suite Render -TestTimeoutSeconds 1800, -Suite Input). Znany czerwony zestaw
+   wolno zostawić tylko z wpisem w ODBIOR, który mówi, co go zazieleni.
+7. Zmiana balansu: jedna zmienna na commit, z sondą lub zestawem przed i po
+   (souls_gate, souls_bots, chapel_route), liczby w ODBIOR.
+8. Test naprawy ma być czerwony bez niej: sprawdź to, chwilowo cofając zmianę.
 
 STYL I ZALEŻNOŚCI
 
