@@ -22,6 +22,12 @@ Sprawdzone automatycznie:
   przy przytulonym rycerzu uderza dopiero po 1,05 s (przed naprawą: 0,7 s); Furfur
   odpowiada gore-return na unik w rytmie serii. Oba sprawdzenia czerwone bez naprawy.
   encounters 74, souls-balance 59, souls-engine 33, responsiveness 39 bez błędów.
+- A03, tests/cases/pilgrimage.lua (safeRest): plama martwego Buera przy ognisku nie rani
+  po odpoczynku i znika (bez naprawy: rani); lecący pocisk w pobliżu to odmowa.
+- A06: tests/cases/pilgrimage.lua (engravings): Choke na Exorcist, Breaker na Judge,
+  pasek pokazuje grawer broni w ręku. tests/cases/open_presentation.lua (firePrompts):
+  trzy podpowiedzi ogniska z najdłuższą nazwą w 5 rozdzielczościach bez wyjścia z ramy
+  (przed naprawą: INTERIOR przy 960x540). Pełne Mechanics: tylko znane czerwone B01.
 
 Odbiór właściciela (B2): czeka.
 

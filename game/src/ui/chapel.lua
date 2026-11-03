@@ -309,13 +309,14 @@ function D.shop(g)
   -- The purchase message and balance have their own columns; the rest message
   -- spans the next line, clear of both even with the longest fire description.
   Skin.zone('shop purchase message', 128, 530, 680, 32)
-  text(
-    reason or g.shopMessage or Text.get('shop_engraving_tip'),
-    129,
-    536,
-    18,
-    reason and red or ivory
-  )
+  -- A long message (the proving ground's) steps down a size or two rather than run into the
+  -- balance column (0.43: it crossed the zone since the balance got its own column).
+  local message = reason or g.shopMessage or Text.get('shop_engraving_tip')
+  local size = 18
+  while size > 14 and Skin.inkBounds(U.fonts[size], message).w > 676 do
+    size = size - 2
+  end
+  text(message, 129, 536 + (18 - size) / 2, size, reason and red or ivory)
   Skin.endZone()
   Skin.zone('shop remaining souls', 824, 530, 328, 28)
   if price and not reason then

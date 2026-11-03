@@ -526,6 +526,12 @@ local function prompt(g)
     while size > 12 and Skin.inkBounds(U.fonts[size], ctx).w > 430 do
       size = size - 2
     end
+    -- Still too wide at the least size (a long fire's name): the place before the first ' / '
+    -- gives way, the keys stay (0.43, audit F07: it ran past its frame).
+    local rest = ctx:match('^.- / (.+)$')
+    if rest and Skin.inkBounds(U.fonts[size], ctx).w > 430 then
+      ctx = rest
+    end
     Skin.panel(18, 535, 460, 48, 2, 9)
     Skin.zone('interaction field', 32, 545, 432, 28)
     Skin.boxText(ctx, 33, 546, 430, 26, U.fonts[size], C.gold, true)

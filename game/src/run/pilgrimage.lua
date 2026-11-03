@@ -1,7 +1,8 @@
 -- The way: fires, area by area. The world stands where the map
 -- puts it; a rest heals the knight, fills his flask and rounds, sets where he wakes,
--- and raises every creature. Dying leaves the souls where the knight fell; dying again
--- before reaching them loses them.
+-- and secures what he cleared and took (0.42). A death brings back only what was cleared
+-- or taken since; it leaves the souls where the knight fell; dying again before reaching
+-- them loses them.
 local Abilities = require('src.content.abilities')
 local ActorReset = require('src.run.actor_reset')
 local Characters = require('src.content.characters')
@@ -311,11 +312,36 @@ local function door(g)
 end
 -- Something awake hunts the knight near him: no fire takes him in until it gives up or falls
 -- (owner, D1). 0.42: only a fight within K.huntReach counts; a crowded map elsewhere does not.
+-- 0.43 (audit F02): a missile on its way near him is a fight too, whoever let it go.
 local function fighting(g)
   local p = Roles.controlled(g)
-  return Bodies.each(g, function(b)
-    return b.awake and b.hp > 0 and distance(b, p) < K.huntReach
-  end) ~= nil
+  if
+    Bodies.each(g, function(b)
+      return b.awake and b.hp > 0 and distance(b, p) < K.huntReach
+    end) ~= nil
+  then
+    return true
+  end
+  for _, b in ipairs(Pools.of(g, 'projectiles')) do
+    if Bodies.harms(g, b.side or 'demons', p, 'missile') and distance(b, p) < K.huntReach then
+      return true
+    end
+  end
+  return false
+end
+-- What creatures left behind them that can still harm him (pools, marks, missiles) is gone
+-- once a fire takes him in, a journey moves him or he wakes from death: a rest is safe
+-- (0.43, audit F02: a dead Buer's poison pool burnt a knight who had just rested).
+local function calm(g)
+  local p = Roles.controlled(g)
+  for _, pool in ipairs({ { 'hazards', 'hazard' }, { 'projectiles', 'missile' } }) do
+    local list = Pools.of(g, pool[1])
+    for i = #list, 1, -1 do
+      if Bodies.harms(g, list[i].side or 'demons', p, pool[2]) then
+        Pools.removeAt(g, pool[1], i)
+      end
+    end
+  end
 end
 -- A rest secures what he has done (0.42, the owner and Astra: the chapel no longer stands again
 -- at a fire). What lies dead at a post stays dead and what was taken stays taken, for good; a
@@ -358,6 +384,7 @@ function P.interact(g)
   end
   local r = g.run
   r.fire, r.lit[fire.id] = fire.id, true
+  calm(g)
   secure(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
@@ -383,6 +410,7 @@ function P.travel(g)
     if g.run.lit[fire.id] then
       local _, home = K.fireOf(fire.id)
       local moved = home.id ~= g.run.area
+      calm(g)
       secure(g)
       enter(g, home.id)
       g.run.fire = fire.id
@@ -450,6 +478,7 @@ function P.retry(g)
   -- He wakes at his fire, on its area's map, wherever he fell; what fell where he died stays.
   local fire, home = K.fireOf(r.fire)
   enter(g, home.id)
+  calm(g)
   refresh(g)
   wake(g, fire)
   P.populate(g)
@@ -634,7 +663,8 @@ end
 local report = {}
 function P.hud(g)
   local r = g.run
-  report.glyph, report.wallet, report.echo = r.glyph, r.wallet, r.echo
+  -- worn: each gun's own engraving, so the bar names the one on the gun in hand (0.43, F07).
+  report.glyph, report.wallet, report.echo, report.worn = r.glyph, r.wallet, r.echo, r.worn
   report.progress = Text.get('pilgrim_progress', { deaths = r.deaths })
   return report
 end

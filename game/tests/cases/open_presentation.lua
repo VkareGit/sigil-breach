@@ -202,6 +202,34 @@ local function hudSlots(G, check)
   Snapshot.invalidateDefinitions()
   assert(ok, problem)
 end
+-- 0.43 (audit F07): every prompt a fire can show, with its longest name, stays inside the
+-- interaction field at all five sizes (the hunted one used to run past its frame).
+local function firePrompts(G, check)
+  local K = require('src.content.pilgrimage')
+  local Text = require('src.content.text')
+  local P = require('src.run.pilgrimage')
+  P.forget()
+  local g = G.new('pilgrimage', nil, { origin = false })
+  g.ephemeral = true
+  g:act('start')
+  g.state, g.view.messageTimer = 'playing', 0
+  local longest = ''
+  for _, area in K.areas:each() do
+    for _, fire in ipairs(area.fires) do
+      local name = Text.get(fire.name)
+      longest = #name > #longest and name or longest
+    end
+  end
+  local context = g.context
+  for _, key in ipairs({ 'pilgrim_prompt', 'pilgrim_prompt_alone', 'pilgrim_prompt_hunted' }) do
+    local text = Text.get(key, { name = longest })
+    g.context = function()
+      return text
+    end
+    audit(g, 'fire-' .. key, check)
+  end
+  g.context = context
+end
 -- Every lettered string drawn on the screens below carries the mark.
 local function language(G, renderer, check)
   local Text = require('src.content.text')
@@ -539,6 +567,7 @@ function Tests.run(G, renderer)
   culling(G, renderer, check)
   worldObjects(G, renderer, check)
   hudSlots(G, check)
+  firePrompts(G, check)
   language(G, renderer, check)
   return lines
 end

@@ -38,6 +38,18 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   Reakcja na unik w rytmie serii (Margrave ash-catch, Furfur gore-return) była
   nieosiągalna, bo seria kasowała się przed pytaniem o odpowiedź; teraz odpowiedź jest
   sprawdzana przed dalszym ciosem serii, a unik liczy się, póki trwa jego ochrona.
+- A03: odpoczynek jest bezpieczny. Przyjęty odpoczynek, podróż i przebudzenie po śmierci
+  usuwają to, co stwory zostawiły i co nadal może zranić rycerza (plamy, znaki, pociski;
+  run/pilgrimage.lua: calm). Wcześniej plama trucizny martwego Buera paliła rycerza tuż po
+  odpoczynku. Pocisk lecący w promieniu pościgu (14 m) liczy się jak walka: ognisko odmawia.
+- A06: pasek pod bronią pokazuje grawer broni w ręku (P.hud przekazuje worn; wcześniej
+  pokazywał grawer drugiej broni). Teksty nie obiecują już odradzania przy ognisku
+  (strona zasad, początek drogi, komunikat odpoczynku, wskazówka sklepu: „każda broń nosi
+  swój”). Podpowiedź przy ognisku mieści się w ramie: odmowa w pościgu to „HUNTED: NO
+  REST”, a gdy tekst z długą nazwą ogniska nie mieści się nawet najmniejszym pismem, nazwa
+  ustępuje, klawisze zostają. Komunikat sklepu poligonu schodzi o rozmiar zamiast wchodzić
+  w kolumnę salda. Rozstrzygnięcie właściciela (DECYZJE.md, D10): zebrane znajdźki po
+  odpoczynku nie wracają, jak w Doomie; zgodnie z tym poprawiono tylko teksty.
 
 ########################################################################
 ZMIANY-0.42.txt

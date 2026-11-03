@@ -75,6 +75,92 @@ local function freshStarts(check, Game)
   still('after a journey')
   P.forget()
 end
+-- 0.43 (audit F02): what a creature left behind cannot burn a knight a fire took in, and a
+-- missile on its way to him is a fight no fire takes him out of.
+local function safeRest(check, Game)
+  P.forget()
+  local g = session(Game)
+  local p = g.player
+  Encounter.clearStage(g)
+  local Hazards = require('src.enemies.hazards')
+  local Spawn = require('src.session.spawn')
+  p.x, p.z, p.hp = 10, 21, 20
+  local e = g:spawn('buer', 10, 17)
+  local pool = require('src.content.enemies').get('buer').attacks[1].pool
+  Hazards.add(g, p.x, p.z, 0, pool.radius, pool.life, {
+    packet = pool.packet,
+    pulse = pool.pulse,
+    volume = pool.volume,
+    owner = e.id,
+    side = 'demons',
+  })
+  g:damageEnemy(e, e.hp + 1, 'weapon', nil, p.id, 'judge')
+  check('a dead body hunts nobody', not P.fighting(g))
+  check('the fire takes him in beside its pool', g:interact() and g.state == 'shop')
+  g:act('closeShop')
+  local hp, armor = p.hp, p.armor
+  run(g, 0.6)
+  check('what it left burns nobody who rested', p.hp == hp and p.armor == armor)
+  check('and is gone', #Pools.of(g, 'hazards') == 0)
+  Spawn.make(g, 'projectile', {
+    x = p.x + 6,
+    y = 1.2,
+    z = p.z,
+    vx = -9,
+    vy = 0,
+    vz = 0,
+    life = 2,
+    side = 'demons',
+    packet = { base = 20, impact = 20 },
+    radius = 0.12,
+  })
+  check('a missile on its way is a fight', P.fighting(g))
+  check('and no fire takes him in', g:interact() and g.state ~= 'shop')
+  P.forget()
+end
+-- 0.43 (audit F07): the bar names the engraving of the gun in hand, each gun its own.
+local function engravings(check, Game)
+  P.forget()
+  local g = session(Game)
+  local p = g.player
+  Encounter.clearStage(g)
+  local Shop = require('src.content.shop')
+  local Skin = require('src.ui.skin')
+  local Text = require('src.content.text')
+  local U = require('src.ui.interface')
+  p.x, p.z = 10, 21
+  g.run.wallet = 10000
+  check('a fire opens its trade', g:interact() and g.state == 'shop')
+  check('choke for the Exorcist', g:act('buy', 'choke'))
+  check('breaker for the Judge', g:act('buy', 'breaker'))
+  g:act('closeShop')
+  local function shownWith(id)
+    p.weapon = Weapons.slotOf(g, id, p)
+    local printed = {}
+    local original = Skin.text
+    Skin.text = function(str, ...)
+      printed[#printed + 1] = tostring(str)
+      return original(str, ...)
+    end
+    local ok, problem = pcall(U.draw, g, 1280, 720, {})
+    Skin.text = original
+    assert(ok, problem)
+    return table.concat(printed, '\n')
+  end
+  local choke = Text.get(Shop.get('choke').short)
+  local breaker = Text.get(Shop.get('breaker').short)
+  local held = shownWith('exorcist')
+  check(
+    'the Exorcist in hand shows its choke',
+    held:find(choke, 1, true) and not held:find(breaker, 1, true)
+  )
+  held = shownWith('judge')
+  check(
+    'the Judge in hand shows its breaker',
+    held:find(breaker, 1, true) and not held:find(choke, 1, true)
+  )
+  P.forget()
+end
 -- What struck the last wounding blow is kept for the death screen: a creature by its name, or
 -- his own charge.
 local function causes(check, Game)
@@ -212,6 +298,8 @@ function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
   freshStarts(check, Game)
+  safeRest(check, Game)
+  engravings(check, Game)
   reserves(check, Game)
   caches(check, Game)
   causes(check, Game)
