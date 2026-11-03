@@ -70,7 +70,10 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
      mogła przejść przez przejście, stała bezbronna. Błyskawica Furfura sięga 18 m, pas
      ognia Margrave'a 16 m, włócznia 18 m (telegrafy bez zmian).
   3. HP: Margrave 1680 -> 2700, Furfur 1400 -> 2250. Bot z idealnym celem zadaje ok.
-     135 obrażeń/s; przy celności człowieka walka trwa ok. 25–35 s.
+     135 obrażeń/s. Hipoteza do próby właściciela (nie pomiar): przy celności człowieka
+     walka trwa ok. 25–35 s.
+  Uwaga z przeglądu Astry: trzy dźwignie weszły jednym commitem, wbrew regule jednej
+  zmiennej (DEVELOPMENT.txt); kryteria B01 nie są w pełni potwierdzone, ocenia je B02.
   Próby bez skutku, cofnięte: waga włóczni Margrave'a (dostępna tylko po pasie ognia),
   garda elit 360/320 -> 600/540 (jedno przełamanie na walkę i tak), przytrzymanie każdego
   cięcia (boty rzadko dostają cięcia).
@@ -84,6 +87,57 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   wypisywane: wygrywają w 12–23 s (odruchowe 43–95% HP, połowiczne 41–95% HP). Plan v13
   przeznaczał je dla najtrudniejszych ciał; wrócą przy pierwszym prawdziwym bossie
   (BOSS_GATE), a dla elit ocenia je próba właściciela.
+- Poprawki po niezależnym przeglądzie Astry (docs/audyt-2026-11-03/PRZEGLAD-ASTRY.md):
+  1. Wyjście bez zabójstwa od ostatniego zapisu niczego nie zapisywało, więc Continue
+     znów leczyło i odnawiało. Każdy krok gry na drodze oznacza pole jako zmienione
+     (run.moved); wyjście, pauza i śmierć zapisują je raz (P.unsaved, P.flush).
+  2. Wznowienie gubiło pocisk w locie, rozpoczęty cios, resztkę skrytki, drop stwora
+     i ranę śpiącego ciała. Pole niesie teraz sekcję pools zapisu sesji (wszystkie stwory
+     z ich zegarami, pociski, zagrożenia, znajdźki, rycerz z akcją w toku), spakowaną,
+     więc origin dziennika zostaje zwykłymi danymi, oraz zegar sesji.
+  3. Po B01 (błyskawica 18 m) dało się odpocząć pod zapowiedzianym ciosem. Ognisko
+     odmawia, gdy czuwający stwór widzi rycerza w zasięgu swoich ciosów albo gdy obok
+     leży znak stwora, który wciąż poluje; pozostałości po martwych i śpiących usuwa
+     odpoczynek.
+  4. Test sklepu sprawdza dokładną brakującą kwotę; arkusz przeładowań przywraca naboje
+     zapasowe Judge'a także po błędzie; komentarze nie obiecują odnawiania zapasów.
+  Odłożone (przed dodaniem obszarów): przejście do innego obszaru i powrót przywraca
+  niezabezpieczonych zabitych (istniało wcześniej; kaplica ma dziś jeden obszar).
+- C01 (decyzja właściciela D8): rozwój w świecie. Grawery (Focus, Pierce, Breaker, Precision)
+  i pieczęcie Goecji (Stolas, Buer, Furfur) leżą w kaplicy jako relikwie (nowy rodzaj zapasu
+  relic, content/pilgrimage.lua: supplies; najlepsze w salach elit), nie są sprzedawane przy
+  ognisku (na poligonie nadal tak). Wzięta relikwia jest własnością drogi: grawer posiadany,
+  pieczęć o rangę wyżej; zakłada się od razu, gdy jest wolne miejsce. Przy ognisku grawery
+  i pieczęcie zmienia się za darmo; pieczęci nosi się naraz dwie (Shop.sigilSlots). Dusze
+  kupują tylko śluby, wycenione pod jedno przejście kaplicy (1420 dusz): flaska 150/338,
+  wigor 120/270, hartowanie 250 na broń, razem 1378. Zapis niesie założone pieczęcie (stary
+  zapis zakłada wszystkie znalezione). Znaleziska rysuje malowana tablica pieczęci albo ikona
+  grawera, dopóki Codex nie namaluje relikwii.
+- D03: wybuch ładunku trzęsie widokiem w pełni do 3 m, słabiej z odległością (20% siły przy
+  16 m), a dalej wcale (feedback/world_feedback.lua, tuning.world.blastNear/Reach/Far).
+  Wcześniej daleki wybuch trząsł jak bliski i przykrywał telegrafy.
+- R01 (pomysł właściciela): Stolas ma włócznię gwiazdy (star-lance), atak z laserem
+  celowniczym. Rzut blokuje linię od dłoni do rycerza i rysuje ją na podłodze przez 0,45 s,
+  potem cała linia (14 m) uderza naraz (42 obrażeń). Zejście z linii w porę chroni, strzał
+  w oknie rzutu (0,4 s) go odbija. Zbudowane na istniejącym promieniu sweepline bez obrotu.
+- D05 (do próby właściciela): mikro-zatrzymanie. Salwa, która zabiera co najmniej 120 zdrowia
+  (bliski Exorcist), wstrzymuje stwory na 0,025 s, zabójstwo na 0,03 s (session/listeners.lua:
+  volleyStop, tuning.feel). Celowanie i ruch rycerza się nie zatrzymują. Wyłączenie: zero
+  w tuning.feel.
+- D02 (do odsłuchu właściciela A/B w grze): nagrane brzmienia od Codexa Astry (paczka
+  work/sound-ab, offline, warstwowe). F7 przełącza CLASSIC (dotychczasowa synteza), IRON AND
+  POWDER (B1) i STONE AND EMBER (B2), z komunikatem na ekranie; wybór zostaje w ustawieniach.
+  Zestaw zastępuje strzał Judge'a i Exorcista (z własnym basem i salą: synteza nie dokłada
+  wtedy hall i thud), trafienie w ciało, pancerz i głowę, potwierdzenie zabójstwa i wybuch
+  ładunku. Trzy ujęcia na zdarzenie, nigdy to samo dwa razy z rzędu (osobny generator, nie
+  rusza losowania walki); głośność wyrównana wzmocnieniem z manifestu paczki.
+  content/sound_sets.lua, audio/audio.lua, assets/sounds/. Po wyborze właściciela: jeden
+  zestaw na stałe, przełącznik do usunięcia.
+- D04 (czeka na zgodę właściciela na wygląd): w niszy ARSENAL broń w ręku ma najciemniejszy
+  tusz i o stopień większe pismo, druga jest przygaszona (ten sam tusz, krycie 0,42). Wcześniej
+  złoto broni w ręku drukowało się na pergaminie jako brąz, a muted drugiej jako czerń, więc
+  nieużywana broń czytała się pierwsza. Nisza, kształt i kompozycja paska bez zmian. Przed i po:
+  docs/audyt-2026-11-03/gui/arsenal-przed.png, arsenal-po.png.
 
 ########################################################################
 ZMIANY-0.42.txt

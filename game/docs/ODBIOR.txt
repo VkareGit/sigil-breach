@@ -41,6 +41,27 @@ Sprawdzone automatycznie:
   Do próby właściciela (B02): czy elity nie są za łatwe dla gracza, który dobrze celuje,
   a słabo czyta ciosy (boty odruchowe i połowiczne wygrywają); czy okrążanie Furfura
   ma wygrywać; czy 25–35 s to dobra długość.
+- Przegląd Astry, poprawki: tests/cases/pilgrimage_save.lua (resumes): wyjście bez
+  zabójstwa jest zapisane, pocisk w locie leci dalej, rozpoczęty cios trwa, resztka skrytki
+  i drop leżą, śpiący ranny zachowuje ranę, zegar biegnie dalej (bez odtworzenia pools:
+  czerwone). tests/cases/pilgrimage.lua: Furfur widzący rycerza z 14-18 m i znak
+  polującego stwora to odmowa odpoczynku. Pełny -Suite All zielony na 4cf8ebd.
+- C01, tests/cases/pilgrimage.lua (relics): nieznalezione nie są sprzedawane, trzy kopie
+  Buera to trzy rangi, dwie pierwsze pieczęcie założone, trzecia czeka, zmiana za darmo,
+  grawer znaleziony jest posiadany i założony, zapis trzyma znalezione i założone; ceny ślubów
+  całe. P.problems: każda relikwia leży w zasięgu i nazywa ofertę do znalezienia.
+  Do oceny właściciela: miejsca relikwii i czy dwie pieczęcie naraz to dobra liczba.
+- D03, tests/cases/rules.lua: wybuch 2 m = pełny wstrząs, 10 m słabszy, 20 m żaden.
+- R01, tests/cases/attack_followups.lua: linia włóczni Stolasa pojawia się przed uderzeniem,
+  rycerz na linii obrywa, ten, kto zszedł 2 m w bok po jej pojawieniu się, nie. souls-bots
+  i souls-gate bez zmian. Do oceny właściciela: czytelność linii w ruchu.
+- D05, tests/cases/rules.lua: salwa od 120 zdrowia i zabójstwo wstrzymują stwory, lżejszy
+  strzał nie. Ocena odczucia: próba właściciela.
+- D02, tests/cases/app.lua: 42 ujęcia leżą na miejscu, preferencja trzyma zestaw i odrzuca
+  nieznany, F7 idzie CLASSIC -> IRON -> STONE -> CLASSIC. Odsłuch: właściciel (F7 w grze
+  albo work/sound-ab/odsluch.wav).
+- D04: geometry 316, interface 19, open-presentation 38, equipment-presentation 14 bez uwag;
+  rendery przed/po niszy ARSENAL w docs/audyt-2026-11-03/gui. Wygląd: zgoda właściciela.
 
 Odbiór właściciela (B2): czeka.
 
