@@ -33,11 +33,12 @@
 -- 0.43 (R01): Stolas casts a lance with a drawn line before it strikes.
 -- 0.43 (D05): a heavy volley or a kill holds the demons a beat.
 -- 0.43 (B01b): an elite held open reels and stays open 1.5-1.6 s (was 2.6-2.8).
+-- 0.43: the D05 hold of the demons withdrawn (it took the cost from standing and shooting).
 return {
-  playtest = '8d289bdd/29847b3d',
-  human = '7a558182/72b5649b',
-  drill = 'a5d91c66/28cb939a',
-  playtestContacts = '57355a44/992',
-  humanContacts = '9a1072c7/1201',
-  drillContacts = '01f1f300/346',
+  playtest = 'f26863c9/df75fad0',
+  human = 'f1eb4229/ec49ed18',
+  drill = 'a6aaf674/5ad03e34',
+  playtestContacts = 'a3a00935/850',
+  humanContacts = '5a97e736/1260',
+  drillContacts = 'e6c5c86b/362',
 }

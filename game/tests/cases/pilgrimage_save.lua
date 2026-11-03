@@ -283,6 +283,9 @@ local function timing(check, Game)
     body.awake, body.alertRange, body.patrol = false, 0, nil
     body.x, body.z = body.home.x, body.home.z
   end
+  -- And nothing of it still flies or burns (0.43: a missile on its way is a fight, A03).
+  Pools.clear(g, 'projectiles')
+  Pools.clear(g, 'hazards')
   -- What he looks at wakes: quiet means nothing in front of him.
   g.player.yaw = 0
   run(g, 0.1)

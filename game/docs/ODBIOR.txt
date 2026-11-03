@@ -55,8 +55,10 @@ Sprawdzone automatycznie:
 - R01, tests/cases/attack_followups.lua: linia włóczni Stolasa pojawia się przed uderzeniem,
   rycerz na linii obrywa, ten, kto zszedł 2 m w bok po jej pojawieniu się, nie. souls-bots
   i souls-gate bez zmian. Do oceny właściciela: czytelność linii w ruchu.
-- D05, tests/cases/rules.lua: salwa od 120 zdrowia i zabójstwo wstrzymują stwory, lżejszy
-  strzał nie. Ocena odczucia: próba właściciela.
+- D05: wycofane po pełnym -Suite All (creature-pressure: stojący strzelec z Exorcistem
+  przestawał płacić za stanie). Lekcja procesu: R01 i D05 weszły po testach wybranych
+  zestawów, nie całości; pełny przebieg wykrył też, że lecąca gwiazda Stolasa (R01) psuła
+  scenariusz testu spokojnego zapisu (test nie sprzątał pocisków; poprawiony).
 - D02, tests/cases/app.lua: 42 ujęcia leżą na miejscu, preferencja trzyma zestaw i odrzuca
   nieznany, F7 idzie CLASSIC -> IRON -> STONE -> CLASSIC. Odsłuch: właściciel (F7 w grze
   albo work/sound-ab/odsluch.wav).
