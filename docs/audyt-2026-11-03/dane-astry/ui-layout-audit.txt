@@ -1,0 +1,48 @@
+playing 960x540: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1024x768: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1280x720: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x810: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x1080: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+shop 960x540: 42 ink/indicator bounds, 31 interior checks, 0 issues
+shop 1280x720: 42 ink/indicator bounds, 31 interior checks, 0 issues
+playing 1280x720: 40 ink/indicator bounds, 34 interior checks, 0 issues
+playing 960x540: 43 ink/indicator bounds, 35 interior checks, 0 issues
+playing 1920x1080: 43 ink/indicator bounds, 35 interior checks, 0 issues
+help 960x540 / bestiary: 33 ink/indicator bounds, 29 interior checks, 0 issues
+playing 960x540: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1024x768: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1280x720: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x810: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x1080: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+shop 960x540: 42 ink/indicator bounds, 31 interior checks, 0 issues
+shop 1280x720: 42 ink/indicator bounds, 31 interior checks, 0 issues
+playing 1280x720: 40 ink/indicator bounds, 34 interior checks, 0 issues
+playing 960x540: 43 ink/indicator bounds, 35 interior checks, 0 issues
+playing 1920x1080: 43 ink/indicator bounds, 35 interior checks, 0 issues
+help 960x540 / bestiary: 33 ink/indicator bounds, 29 interior checks, 0 issues
+playing 960x540: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1024x768: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1280x720: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x810: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+playing 1920x1080: 39 ink/indicator bounds, 33 interior checks, 1 issues
+  INTERIOR interaction field: Narthex Fire / NO REST WHILE YOU ARE HUNTED [19,552..476,566] safe [32,545..464,573]
+shop 960x540: 42 ink/indicator bounds, 31 interior checks, 0 issues
+shop 1280x720: 42 ink/indicator bounds, 31 interior checks, 0 issues
+playing 1280x720: 40 ink/indicator bounds, 34 interior checks, 0 issues
+playing 960x540: 43 ink/indicator bounds, 35 interior checks, 0 issues
+playing 1920x1080: 43 ink/indicator bounds, 35 interior checks, 0 issues
+help 960x540 / bestiary: 33 ink/indicator bounds, 29 interior checks, 0 issues
