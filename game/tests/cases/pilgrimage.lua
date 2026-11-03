@@ -336,6 +336,30 @@ local function relics(check, Game)
   )
   g:act('closeShop')
   P.forget()
+  -- 0.45 (owner, D15): a relic of the map found once stays found; a death before a fire does
+  -- not lay it down again, so the same find cannot raise its rank twice (Astra, 2026-11-03b).
+  g = session(Game)
+  local stolas
+  for _, pickup in ipairs(require('src.session.world').of(g, 'pickups')) do
+    if pickup.rewardId == 'relic_stolas' then
+      stolas = pickup
+    end
+  end
+  check('the chapel lays the Stolas relic', stolas ~= nil)
+  p = g.player
+  p.x, p.z = stolas.x, stolas.z
+  Interactions.collectSupplies(g)
+  P.lose(g)
+  P.retry(g)
+  local again = false
+  for _, pickup in ipairs(require('src.session.world').of(g, 'pickups')) do
+    again = again or pickup.rewardId == 'relic_stolas'
+  end
+  check('a relic taken before a death is not laid again', not again)
+  p.x, p.z = stolas.x, stolas.z
+  Interactions.collectSupplies(g)
+  check('and its rank was raised once', g.run.vows.sigil_stolas == 1)
+  P.forget()
 end
 function T.run(Game)
   local lines = {}

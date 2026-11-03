@@ -15,4 +15,4 @@ then
   assert(fingerprint and #fingerprint == 64, 'invalid packaged source fingerprint')
   origin = 'packaged-source-tree'
 end
-return { version = '0.44', sourceFingerprint = fingerprint, provenance = origin }
+return { version = '0.45', sourceFingerprint = fingerprint, provenance = origin }

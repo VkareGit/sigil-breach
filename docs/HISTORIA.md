@@ -54,6 +54,24 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
 
 ########################################################################
+ZMIANY-0.45.txt
+SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- P1a (D15): relikwia z mapy podniesiona raz zostaje podniesiona. Dotąd
+  ranga rosła od razu, a zabranie utrwalało dopiero ognisko, więc po
+  śmierci ta sama relikwia leżała znowu i podnosiła rangę drugi raz
+  (Astra: relic_stolas 1 → 2 → 3). Teraz podniesienie od razu zapisuje
+  ją jako zabraną (run.taken), w przeciwieństwie do zwykłych zapasów (D10).
+  Złoty wzorzec: zmienia się przejście niezgrabnego rycerza (ginie, a
+  relikwia nie leży drugi raz).
+- P1b: animacja ataku, który sam liczy swoją długość (burza Furfura:
+  pięć piorunów, 2,08 s; salwy), biegnie przez całe uderzenie. Dotąd
+  liczyła się względem 0,4 s jednego pioruna i jedna klatka stała 1,875 s
+  („zacina się”). Każdy rodzaj ataku z własną długością rejestruje ją też
+  dla pozy (enemies/actions.lua). Zegary SI i złoty wzorzec bez zmian.
+
+
+########################################################################
 ZMIANY-0.44.txt
 SIGIL: BREACH 0.44 / czytelność trafienia i malowana flaska
 
@@ -3896,6 +3914,22 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.45.txt
+SIGIL: BREACH 0.45: odbiór
+
+Sprawdzone automatycznie:
+- P1a: test pilgrimage (relikwia Stolasa z mapy: podniesienie, śmierć,
+  ponowna próba): czerwony przed poprawką („a relic taken before a death
+  is not laid again”), zielony po niej; ranga 1. Złoty wzorzec Windows
+  odświeżony dwoma identycznymi przebiegami.
+- P1b: test attack-followups: poza burzy w połowie (1,04 s) ma fazę 0,5;
+  przed poprawką 1,0 (czerwony), po niej zielony. Złoty wzorzec bez zmian.
+
+Do oceny właściciela: czy Furfur w burzy nadal „zacina się” (po P1b
+poza biegnie przez cały atak; nowe klatki gestu dochodzą w P4).
 
 
 ########################################################################

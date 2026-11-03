@@ -45,11 +45,16 @@ end
 -- A relic found in the chapel (0.43, owner D8; session/interactions.lua: relic). Taken, it is
 -- the way's: an engraving owned, a sigil one rank higher; it is put on at once when its place
 -- is free (a gun with none, a free sigil place), else a fire changes it. Returns the notice.
+-- 0.45 (owner, D15): the find and its place on the map go together, unlike supplies (D10): a
+-- death before a fire does not lay it again, so the same relic cannot raise a rank twice.
 function P.relicWanted(g, pickup)
   return g.run ~= nil and Shop.find(pickup.offer) ~= nil
 end
 function P.takeRelic(g, pickup)
   local r, offer = g.run, Shop.get(pickup.offer)
+  if pickup.rewardId then
+    r.taken[pickup.rewardId] = true
+  end
   if offer.kind == 'sigil' then
     r.vows[offer.id] = math.min(offer.limit, (r.vows[offer.id] or 0) + 1)
     if r.sigils and not r.sigils[offer.id] and Economy.sigilsWorn(r) < Shop.sigilSlots then

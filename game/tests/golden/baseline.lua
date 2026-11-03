@@ -34,9 +34,10 @@
 -- 0.43 (D05): a heavy volley or a kill holds the demons a beat.
 -- 0.43 (B01b): an elite held open reels and stays open 1.5-1.6 s (was 2.6-2.8).
 -- 0.43: the D05 hold of the demons withdrawn (it took the cost from standing and shooting).
+-- 0.45 (D15): a relic taken before a death is not laid again; the clumsy walk dies and changes.
 return {
   playtest = 'f26863c9/df75fad0',
-  human = 'f1eb4229/ec49ed18',
+  human = '965645ea/3500a3d2',
   drill = 'a6aaf674/5ad03e34',
   playtestContacts = 'a3a00935/850',
   humanContacts = '5a97e736/1260',

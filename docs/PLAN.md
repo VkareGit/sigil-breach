@@ -16,7 +16,7 @@ Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub s
 | Punkt | Co | Stan | Dowód / uwagi |
 |---|---|---|---|
 | P0 | Decyzje właściciela (lista w raporcie, rozdział 9) | zrobione 2026-11-03 | D11–D20 w `docs/WIZJA.md`; elity: animacja i od razu krótsze okna |
-| P1 | Błędy: duplikowanie relikwii przez śmierć; czas animacji `storm`/`salvo` | do zrobienia | |
+| P1 | Błędy: duplikowanie relikwii przez śmierć; czas animacji `storm`/`salvo` | zrobione (0.45) | P1a: test pilgrimage czerwony → zielony, golden „human” odświeżony; P1b: test attack-followups, golden bez zmian |
 | P1c | Elity: krótsze okna (D11) — odsłonięcie 1,5/1,6 → ok. 1,2 s, najdłuższe regeneracje krócej; każda liczba osobno z sondą | do zrobienia | po P1b |
 | P2 | Dźwięk: cztery suwaki i kategorie | do zrobienia | |
 | P3 | Ekran: hierarchia informacji, bez SHIFT w niszy | do zrobienia | render do akceptacji |
