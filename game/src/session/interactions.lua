@@ -13,6 +13,7 @@ local Weapons = require('src.content.weapons')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
+local Modes = require('src.session.modes')
 local Interactions = {}
 
 local distance = MathX.distance
@@ -71,6 +72,16 @@ Interactions.supplies = {
       return Text.get('pickup_flask', { amount = gained }), gained
     end,
   },
+  -- A relic (0.43, owner D8): an engraving or a copy of a sigil found in the chapel, never sold
+  -- at a fire. What it gives is the mode's (run/pilgrimage.lua: takeRelic).
+  relic = {
+    wanted = function(_, pickup, g)
+      return g ~= nil and Modes.act(g, 'relicWanted', pickup) == true
+    end,
+    take = function(_, pickup, g)
+      return Modes.act(g, 'takeRelic', pickup), pickup.amount
+    end,
+  },
 }
 -- A guardian is never fought with empty hands: a knight out of rounds finds
 -- some where it can reach them, one bundle at a time.
@@ -111,7 +122,7 @@ function Interactions.collectSupplies(g)
     local supply = Interactions.supplies[pickup.kind]
     if
       supply
-      and supply.wanted(player, pickup)
+      and supply.wanted(player, pickup, g)
       and distance(player, pickup) < Tuning.reach.supply
       and World.visible(
         g.world,
@@ -125,7 +136,7 @@ function Interactions.collectSupplies(g)
         pickup.level
       )
     then
-      local text, gained = supply.take(player, pickup)
+      local text, gained = supply.take(player, pickup, g)
       Signal(g, 'PickupTaken', { pickup = pickup, text = text })
       local rest = pickup.amount - (gained or pickup.amount)
       if rest >= 1 then

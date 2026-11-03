@@ -105,7 +105,9 @@ end
 function Art.pickup(r, g, a)
   local supply = Supplies:get(a.kind)
   local s = r.spriteShader
-  local own = supply.image or (supply.images and a.weapon and supply.images[a.weapon])
+  -- By the gun its rounds are for, or by the offer a relic is (0.43).
+  local which = a.weapon or a.offer
+  local own = supply.image or (supply.images and which and supply.images[which])
   if own then
     local image = pack(own)
     local w, h = image:getDimensions()
@@ -113,7 +115,7 @@ function Art.pickup(r, g, a)
     s:send('spriteStretch', r:vec2(w / h, 1))
     s:send('frameRect', { 0, 0, 1, 1 })
   else
-    local icon = Skin.icons[supply.icon]
+    local icon = Skin.icons[supply.icons and a.offer and supply.icons[a.offer] or supply.icon]
     local x, y, w, h = icon.q:getViewport()
     local iw, ih = Skin.image:getDimensions()
     r.sprite:setTexture(Skin.image)

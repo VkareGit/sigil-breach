@@ -157,6 +157,8 @@ local function engravings(check, Game)
   p.x, p.z = 10, 21
   g.run.wallet = 10000
   check('a fire opens its trade', g:interact() and g.state == 'shop')
+  -- 0.43 (D8): engravings are found in the chapel; owned, a fire puts them on for free.
+  g.run.owned.choke, g.run.owned.breaker = true, true
   check('choke for the Exorcist', g:act('buy', 'choke'))
   check('breaker for the Judge', g:act('buy', 'breaker'))
   g:act('closeShop')
@@ -270,13 +272,16 @@ local function caches(check, Game)
   check('a draught fills the flask by one', p.abilityState.flask.uses == 2)
   P.forget()
 end
--- A third sigil used to cost half a soul and leave a wallet the HUD and saves refused.
-local function sigilPrices(check, Game)
+-- Vows are whole souls (a third sigil once cost half a soul). 0.43 (owner, D8): sigils and
+-- engravings are found in the chapel, worn at a fire, Shop.sigilSlots at once.
+local function relics(check, Game)
   P.forget()
   local g = session(Game)
   local Economy = require('src.run.economy')
   local Shop = require('src.content.shop')
   local Save = require('src.storage.save')
+  local Spawn = require('src.session.spawn')
+  local Interactions = require('src.session.interactions')
   for _, offer in ipairs(Shop.offers) do
     if offer.kind == 'vow' then
       for rank = 0, offer.limit - 1 do
@@ -285,39 +290,51 @@ local function sigilPrices(check, Game)
       end
     end
   end
-  g:interact()
-  g.run.wallet = 375
-  check('the first sigil costs 150', Economy.quote(g, 'sigil_buer') == 150)
-  check('the first copy is bought', g:act('buy', 'sigil_buer'))
-  check('the second sigil costs 225', Economy.quote(g, 'sigil_buer') == 225)
-  check('the second copy is bought', g:act('buy', 'sigil_buer') and g.run.wallet == 0)
-  check('the third sigil costs 338 whole souls', Economy.quote(g, 'sigil_buer') == 338)
-  g.run.wallet = 337
+  Encounter.clearStage(g)
+  local p = g.player
+  p.x, p.z = 10, 21
+  check('a fire opens its trade', g:interact() and g.state == 'shop')
+  g.run.wallet = 10000
+  check('a sigil not found is not sold', not g:act('buy', 'sigil_buer'))
+  check('nor an engraving', not g:act('buy', 'choke'))
+  g:act('closeShop')
+  local function find(offer)
+    Spawn.make(g, 'pickup', { x = p.x, z = p.z, kind = 'relic', offer = offer, amount = 1 })
+    Interactions.collectSupplies(g)
+  end
+  for _ = 1, 3 do
+    find('sigil_buer')
+  end
+  find('sigil_stolas')
+  find('sigil_furfur')
+  find('choke')
+  check('three copies are three ranks', g.run.vows.sigil_buer == 3)
   check(
-    'one soul short buys nothing',
-    not g:act('buy', 'sigil_buer') and g.run.wallet == 337 and g.run.vows.sigil_buer == 2
+    'the first two found are worn',
+    g.run.sigils.sigil_buer and g.run.sigils.sigil_stolas and not g.run.sigils.sigil_furfur
   )
-  g.run.wallet = 355
   check(
-    'the third copy leaves whole souls and its full trait',
-    g:act('buy', 'sigil_buer') and g.run.wallet == 17 and g.player.rallyRate == 0.12
+    'an engraving found is owned and worn',
+    g.run.owned.choke and g.run.worn.exorcist == 'choke'
   )
+  check('a fire takes him in', g:interact() and g.state == 'shop')
+  check('and his worn sigil works', p.rallyRate == 0.12 and p.dodgeEdge == nil)
+  check('a third waits for a free place', not g:act('buy', 'sigil_furfur'))
+  check('one taken off for free', g:act('buy', 'sigil_buer') and p.rallyRate == nil)
+  check('the other put on', g:act('buy', 'sigil_furfur') and p.dodgeEdge == 0.35)
+  check('nothing was paid', g.run.wallet == 10000)
   local encoded = Save.encode('pilgrimage', Save.capture('pilgrimage', g), 1)
-  local decoded, reason = Save.decode('pilgrimage', encoded)
-  check(
-    'the wallet is valid save data' .. (decoded and '' or ': ' .. tostring(reason)),
-    decoded ~= nil
-  )
+  local decoded = Save.decode('pilgrimage', encoded)
   local restored = Game.new('pilgrimage', nil, { origin = false })
   Save.restore('pilgrimage', restored, decoded)
-  check('the wallet survives a save', restored.run.wallet == 17)
+  check(
+    'a save keeps what was found and worn',
+    restored.run.vows.sigil_buer == 3
+      and restored.run.sigils.sigil_furfur
+      and not restored.run.sigils.sigil_buer
+      and restored.run.owned.choke
+  )
   g:act('closeShop')
-  P.lose(g)
-  check('death leaves a whole echo', g.run.wallet == 0 and g.run.echo.amount == 17)
-  P.retry(g)
-  g.player.x, g.player.z = g.run.echo.x, g.run.echo.z
-  P.update(g, 0)
-  check('the echo returns every soul', g.run.wallet == 17 and g.run.echo == nil)
   P.forget()
 end
 function T.run(Game)
@@ -329,7 +346,7 @@ function T.run(Game)
   reserves(check, Game)
   caches(check, Game)
   causes(check, Game)
-  sigilPrices(check, Game)
+  relics(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player
@@ -402,6 +419,7 @@ function T.run(Game)
   g:act('buy', 'vow_flask')
   check('a vow ends', not g:act('buy', 'vow_flask') and g.run.vows.vow_flask == 2)
   -- Each gun wears its own engraving, and tempering is the gun's for good (0.42).
+  g.run.owned.choke, g.run.owned.breaker = true, true -- found in the chapel (0.43, D8)
   check('an engraving for the Judge', g:act('buy', 'breaker') and g.run.worn.judge == 'breaker')
   check('and one for the Exorcist', g:act('buy', 'choke') and g.run.worn.exorcist == 'choke')
   check('the first stays on its gun', g.run.worn.judge == 'breaker')
@@ -412,12 +430,19 @@ function T.run(Game)
   local judge = Weapons.slotOf(g, 'judge', p)
   local hit = Weapons.attack(g, judge, Economy.modifiers(g.run), p)
   check('a tempered Breaker', hit.base > 70 and hit.impact > 44)
-  -- Sigils: a glyph on top of an engraving, or a trait of the knight (0.42).
+  -- Sigils: a glyph on top of an engraving, or a trait of the knight (0.42). 0.43 (D8): found
+  -- in the chapel (here given), put on and taken off for free, two at once.
+  g.run.vows.sigil_buer, g.run.owned.precision, g.run.sigils = 1, true, {}
   check('a sigil of Buer', g:act('buy', 'sigil_buer') and p.rallyRate == 0.08)
-  check('a second copy is stronger', g:act('buy', 'sigil_buer') and p.rallyRate == 0.10)
+  g.run.vows.sigil_buer = 2
+  check(
+    'a second copy is stronger',
+    g:act('buy', 'sigil_buer') and g:act('buy', 'sigil_buer') and p.rallyRate == 0.10
+  )
+  g.run.vows.sigil_furfur, g.run.vows.sigil_stolas = 1, 1
   check('a sigil of Furfur', g:act('buy', 'sigil_furfur') and p.dodgeEdge == 0.35)
   g:act('buy', 'precision')
-  check('a sigil of Stolas', g:act('buy', 'sigil_stolas'))
+  check('a sigil of Stolas', g:act('buy', 'sigil_furfur') and g:act('buy', 'sigil_stolas'))
   local head = Weapons.attack(g, judge, Economy.modifiers(g.run), p).headMultiplier
   check('adds to PRECISION, whatever the order', math.abs(head - 1.72) < 1e-9)
   local kept = session(Game)

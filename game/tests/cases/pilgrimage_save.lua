@@ -306,7 +306,8 @@ local function timing(check, Game)
   g:interact()
   check('a rest is stored', stored().fire == 'west' and stored().wallet == g.run.wallet)
   g.run.wallet = 500
-  check('a purchase is stored', g:act('buy', 'vow_vigor') and stored().wallet == 340)
+  -- 0.43 (D8): the first vow of vigour costs 120.
+  check('a purchase is stored', g:act('buy', 'vow_vigor') and stored().wallet == 380)
   check('with its vow', stored().vows.vow_vigor == 1)
   g:act('closeShop')
   g.player.x, g.player.z = 12, 21

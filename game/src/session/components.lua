@@ -261,6 +261,7 @@ C.schemas.pickup = {
   amount = f(nil),
   slot = f(nil, 'weapon slot of ammunition'),
   weapon = f(nil, 'weapon id of ammunition (before slot)'),
+  offer = f(nil, 'the shop offer a relic is (0.43, D8)'),
   rewardId = f(nil),
   owner = f(nil, 'whose kill left it (plan v11 E3d: the reward noted with its owner)'),
 }

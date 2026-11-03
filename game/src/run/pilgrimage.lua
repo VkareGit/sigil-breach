@@ -29,6 +29,7 @@ local Bodies = require('src.combat.bodies')
 local Maps = require('src.content.maps.index')
 local Shop = require('src.content.shop')
 local Copy = require('src.core.schema').copy
+local Economy = require('src.run.economy')
 local World = require('src.world.arena')
 local P = {}
 local distance = MathX.distance
@@ -40,6 +41,28 @@ function P.file(slot)
 end
 local function area(g)
   return K.areas:get(g.run.area)
+end
+-- A relic found in the chapel (0.43, owner D8; session/interactions.lua: relic). Taken, it is
+-- the way's: an engraving owned, a sigil one rank higher; it is put on at once when its place
+-- is free (a gun with none, a free sigil place), else a fire changes it. Returns the notice.
+function P.relicWanted(g, pickup)
+  return g.run ~= nil and Shop.find(pickup.offer) ~= nil
+end
+function P.takeRelic(g, pickup)
+  local r, offer = g.run, Shop.get(pickup.offer)
+  if offer.kind == 'sigil' then
+    r.vows[offer.id] = math.min(offer.limit, (r.vows[offer.id] or 0) + 1)
+    if r.sigils and not r.sigils[offer.id] and Economy.sigilsWorn(r) < Shop.sigilSlots then
+      r.sigils[offer.id] = true
+    end
+  else
+    r.owned[offer.id] = true
+    if r.worn and offer.weapon and not r.worn[offer.weapon] then
+      r.worn[offer.weapon] = offer.id
+    end
+  end
+  r.dirty = true
+  return Text.get('pickup_relic', { name = Text.get(offer.name) })
 end
 -- The fire the knight stands at, if any.
 function P.fireHere(g)
@@ -66,6 +89,7 @@ local function lay(g, cache)
     z = cache.z,
     kind = cache.kind or 'ammo',
     weapon = cache.weapon,
+    offer = cache.offer,
     amount = cache.amount,
     rewardId = cache.id,
   })
@@ -104,8 +128,10 @@ local function swear(g)
     if offer.stat then
       stats[offer.stat] = stats[offer.stat] + given
     elseif offer.trait then
-      -- A sigil's trait: its value at the rank sworn, none before the first.
-      p[offer.trait] = offer.ranks[vows[offer.id] or 0]
+      -- A sigil's trait: its value at the rank found, none before the first or when it is not
+      -- worn (0.43, D8: a knight wears Shop.sigilSlots of those he found).
+      local worn = offer.kind ~= 'sigil' or Economy.wearing(g.run, offer)
+      p[offer.trait] = worn and offer.ranks[vows[offer.id] or 0] or nil
     elseif offer.kind == 'vow' and offer.ability and p.abilityState[offer.ability] then
       p.abilityState[offer.ability].extra = given
     end
@@ -225,6 +251,7 @@ local function renew(g, slot)
     worn = {},
     slain = {},
     taken = {},
+    sigils = {},
   }
   Abilities.give(g, 'flask', Roles.controlled(g))
   stand(g)
@@ -730,6 +757,8 @@ function P.problems(area)
       found[#found + 1] = area.id .. ': supply ' .. cache.id .. ' is of no known kind'
     elseif kind == 'ammo' and not Weapons.has(cache.weapon) then
       found[#found + 1] = area.id .. ': supply ' .. cache.id .. ' names no weapon'
+    elseif kind == 'relic' and not (Shop.find(cache.offer) and Shop.find(cache.offer).found) then
+      found[#found + 1] = area.id .. ': relic ' .. cache.id .. ' names nothing to be found'
     end
   end
   for _, post in ipairs(area.garrison) do
@@ -833,7 +862,7 @@ local function validVows(vows)
   for id, rank in pairs(vows) do
     assert(type(id) == 'string' and whole(rank, 1, math.huge), 'invalid vow')
     local offer = Shop.find(id)
-    if offer and offer.kind == 'vow' then
+    if offer and (offer.kind == 'vow' or offer.kind == 'sigil') then
       kept[id] = math.min(rank, offer.limit)
     end
   end
@@ -1022,6 +1051,7 @@ Save.declare({
       owned = r.owned,
       glyph = r.glyph,
       worn = r.worn,
+      sigils = r.sigils,
       slain = r.slain,
       taken = r.taken,
       opened = r.opened,
@@ -1067,6 +1097,13 @@ Save.declare({
     out.field = validField(data.field)
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
     out.worn = validWorn(data.worn, out.owned, out.glyph)
+    -- Sigils worn (0.43, D8): found ones only; a save from before wears all it found.
+    out.sigils = data.sigils ~= nil
+        and known(data.sigils, function(id)
+          local offer = Shop.find(id)
+          return offer and offer.kind == 'sigil' and (out.vows[id] or 0) > 0
+        end)
+      or nil
     return out
   end,
   restore = function(g, data)
@@ -1074,6 +1111,7 @@ Save.declare({
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
     r.worn = Copy(data.worn)
+    r.sigils = data.sigils and Copy(data.sigils) or nil
     r.slain, r.taken = Copy(data.slain), Copy(data.taken)
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
     r.vows = Copy(data.vows)

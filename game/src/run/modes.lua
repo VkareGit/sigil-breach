@@ -176,6 +176,12 @@ Modes:register('pilgrimage', {
   unsaved = function(g)
     return Pilgrimage.unsaved(g)
   end,
+  relicWanted = function(g, pickup)
+    return Pilgrimage.relicWanted(g, pickup)
+  end,
+  takeRelic = function(g, pickup)
+    return Pilgrimage.takeRelic(g, pickup)
+  end,
   start = function(g)
     return Pilgrimage.start(g)
   end,

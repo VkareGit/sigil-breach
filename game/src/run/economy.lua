@@ -24,6 +24,18 @@ function E.worn(r, offer)
   end
   return r.glyph == offer.id
 end
+-- Whether a found sigil is worn (0.43, D8): a run that keeps no set wears every one it has.
+function E.wearing(r, offer)
+  return r.sigils == nil or r.sigils[offer.id] == true
+end
+-- Sigils worn now.
+function E.sigilsWorn(r)
+  local count = 0
+  for _, on in pairs(r.sigils or {}) do
+    count = count + (on and 1 or 0)
+  end
+  return count
+end
 -- What changes the guns of a run that keeps one engraving per weapon: those worn and a
 -- glyph for every rank of a vow that names one (tempering), in the order of the offers.
 function E.modifiers(r)
@@ -32,6 +44,10 @@ function E.modifiers(r)
     if offer.kind == 'engraving' and E.worn(r, offer) and offer.weapon then
       list[#list + 1] = offer.id
     elseif offer.kind == 'vow' and offer.glyph then
+      for _ = 1, r.vows and r.vows[offer.id] or 0 do
+        list[#list + 1] = offer.glyph
+      end
+    elseif offer.kind == 'sigil' and offer.glyph and E.wearing(r, offer) then
       for _ = 1, r.vows and r.vows[offer.id] or 0 do
         list[#list + 1] = offer.glyph
       end
@@ -172,13 +188,54 @@ E.kinds = {
     end,
     done = 'shop_vow_done',
   },
+  -- A sigil is found, never bought (0.43, D8): its ranks are the copies found in the chapel.
+  -- At a fire it is put on or taken off for free, up to Shop.sigilSlots at once.
+  sigil = {
+    quote = function(g, offer)
+      local r = g.run
+      if (r.vows[offer.id] or 0) <= 0 then
+        return 0, Text.get('shop_sigil_unfound_reason'), true
+      end
+      if not E.wearing(r, offer) and E.sigilsWorn(r) >= Shop.sigilSlots then
+        return 0, Text.get('shop_sigil_slots_reason', { slots = Shop.sigilSlots }), true
+      end
+      return 0, nil, true
+    end,
+    apply = function(g, offer)
+      local r = g.run
+      r.sigils = r.sigils or {}
+      r.sigils[offer.id] = not E.wearing(r, offer) or nil
+    end,
+    label = function(g, offer)
+      return Text.get(E.wearing(g.run, offer) and 'shop_sigil_worn' or 'shop_sigil_wear')
+    end,
+    describe = function(g, offer)
+      return Text.get(offer.name),
+        Text.get('shop_sigil_text', {
+          text = Text.get(offer.description),
+          rank = g.run.vows[offer.id] or 0,
+          limit = offer.limit,
+        })
+    end,
+    done = 'shop_sigil_done',
+  },
 }
 -- What is on sale here. A fire and the field fill a knight differently, so they sell
 -- different things; an offer that names no market is sold in both.
+-- 0.43 (D8): at a fire what is found in the chapel shows only once it was found.
+local function found(r, offer)
+  if offer.kind == 'sigil' then
+    return (r.vows[offer.id] or 0) > 0
+  end
+  return r.owned[offer.id] == true
+end
 function E.offersFor(g)
   local market, list = g.run and g.run.market or 'field', {}
   for _, offer in ipairs(E.offers) do
-    if not offer.sold or offer.sold == market then
+    if
+      (not offer.sold or offer.sold == market)
+      and not (market ~= 'field' and offer.found and not found(g.run, offer))
+    then
       list[#list + 1] = offer
     end
   end

@@ -9,6 +9,8 @@ local Shop = {
   maxWard = 100,
   -- How loud a purchase is.
   boughtCue = 0.35,
+  -- How many sigils a knight wears at once (0.43, D8: found in the chapel, worn at a fire).
+  sigilSlots = 2,
   offers = {
     {
       id = 'ammo',
@@ -42,6 +44,8 @@ local Shop = {
     -- content/weapons.lua). Each weapon wears one at a time; owned ones change hands for free.
     {
       id = 'choke',
+      -- 0.43 (owner, D8): found in the chapel, never sold at a fire (the proving ground sells it).
+      found = true,
       icon = 'choke',
       short = 'offer_choke_short',
       kind = 'engraving',
@@ -52,6 +56,8 @@ local Shop = {
     },
     {
       id = 'pierce',
+      -- 0.43 (owner, D8): found in the chapel, never sold at a fire (the proving ground sells it).
+      found = true,
       icon = 'pierce',
       short = 'offer_pierce_short',
       kind = 'engraving',
@@ -63,6 +69,8 @@ local Shop = {
     -- 0.42 (owner and Astra: the basic gun grows too): the Judge's own engravings.
     {
       id = 'breaker',
+      -- 0.43 (owner, D8): found in the chapel, never sold at a fire (the proving ground sells it).
+      found = true,
       icon = 'armor',
       short = 'offer_breaker_short',
       kind = 'engraving',
@@ -73,6 +81,8 @@ local Shop = {
     },
     {
       id = 'precision',
+      -- 0.43 (owner, D8): found in the chapel, never sold at a fire (the proving ground sells it).
+      found = true,
       icon = 'choke',
       short = 'offer_precision_short',
       kind = 'engraving',
@@ -102,8 +112,9 @@ local Shop = {
       kind = 'vow',
       name = 'offer_vow_flask',
       description = 'offer_vow_flask_text',
-      price = 200,
-      growth = 2.5,
+      -- 0.43 (D8): souls buy the vows only, priced for one way through the chapel (1420).
+      price = 150,
+      growth = 2.25,
       limit = 2,
       ability = 'flask',
       amount = 1,
@@ -115,7 +126,7 @@ local Shop = {
       kind = 'vow',
       name = 'offer_vow_vigor',
       description = 'offer_vow_vigor_text',
-      price = 160,
+      price = 120,
       growth = 2.25,
       limit = 2,
       stat = 'maxHp',
@@ -129,11 +140,10 @@ local Shop = {
       id = 'sigil_stolas',
       icon = 'sigil_stolas',
       sold = 'fire',
-      kind = 'vow',
+      kind = 'sigil',
+      found = true,
       name = 'offer_sigil_stolas',
       description = 'offer_sigil_stolas_text',
-      price = 150,
-      growth = 1.5,
       limit = 3,
       weapon = 'judge',
       glyph = 'sigil_stolas',
@@ -142,11 +152,10 @@ local Shop = {
       id = 'sigil_buer',
       icon = 'sigil_buer',
       sold = 'fire',
-      kind = 'vow',
+      kind = 'sigil',
+      found = true,
       name = 'offer_sigil_buer',
       description = 'offer_sigil_buer_text',
-      price = 150,
-      growth = 1.5,
       limit = 3,
       trait = 'rallyRate',
       ranks = { 0.08, 0.10, 0.12 },
@@ -155,11 +164,10 @@ local Shop = {
       id = 'sigil_furfur',
       icon = 'sigil_furfur',
       sold = 'fire',
-      kind = 'vow',
+      kind = 'sigil',
+      found = true,
       name = 'offer_sigil_furfur',
       description = 'offer_sigil_furfur_text',
-      price = 150,
-      growth = 1.5,
       limit = 3,
       trait = 'dodgeEdge',
       ranks = { 0.35, 0.5, 0.65 },
@@ -173,7 +181,7 @@ local Shop = {
       kind = 'vow',
       name = 'offer_temper_judge',
       description = 'offer_temper_text',
-      price = 300,
+      price = 250,
       growth = 2,
       limit = 1,
       weapon = 'judge',
@@ -186,7 +194,7 @@ local Shop = {
       kind = 'vow',
       name = 'offer_temper_exorcist',
       description = 'offer_temper_text',
-      price = 300,
+      price = 250,
       growth = 2,
       limit = 1,
       weapon = 'exorcist',

@@ -128,6 +128,15 @@ Way.areas:register('chapel', {
     { id = 'east_hall_shells', weapon = 'exorcist', amount = 6, x = 40, z = 18 },
     { id = 'east_hall_draught', kind = 'flask', amount = 1, x = 43, z = 26 },
     { id = 'east_apse', weapon = 'judge', amount = 10, x = 38, z = 10 },
+    -- Relics (0.43, owner D8): the engravings and sigils are found, not bought. The halls of
+    -- the hardest bodies keep the best of them; the galleries and the crypt the rest.
+    { id = 'relic_breaker', kind = 'relic', offer = 'breaker', amount = 1, x = 20.5, z = 23 },
+    { id = 'relic_choke', kind = 'relic', offer = 'choke', amount = 1, x = 23, z = 7 },
+    { id = 'relic_stolas', kind = 'relic', offer = 'sigil_stolas', amount = 1, x = 17, z = 3.5 },
+    { id = 'relic_buer', kind = 'relic', offer = 'sigil_buer', amount = 1, x = 31, z = 3.5 },
+    { id = 'relic_pierce', kind = 'relic', offer = 'pierce', amount = 1, x = 11, z = 10 },
+    { id = 'relic_precision', kind = 'relic', offer = 'precision', amount = 1, x = 37, z = 10 },
+    { id = 'relic_furfur', kind = 'relic', offer = 'sigil_furfur', amount = 1, x = 42, z = 26 },
   },
   garrison = {
     -- The nave, in three bites: one that walks, then two with a caster behind them, then

@@ -29,9 +29,10 @@
 -- both walks and the drill change.
 -- 0.43 (B01): elites last longer (Margrave 2700, Furfur 2250 HP), a duellist walks the route to the knight,
 -- and the elites' far blows reach 16-18 m.
+-- 0.43 (C01): relics lie in the chapel (engravings and sigils found, not bought).
 return {
-  playtest = '4dc8af1e/e83c8b4e',
-  human = 'cfa4b22b/52eb3d0b',
+  playtest = 'd84c7d98/fc5c3945',
+  human = '9eed864e/980af394',
   drill = '4bc4a1e1/4b1349e5',
   playtestContacts = '0a232091/906',
   humanContacts = 'a1c21dff/1238',
