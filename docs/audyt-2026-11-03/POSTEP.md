@@ -23,6 +23,8 @@ Uwaga dla edycji z PowerShell 5.1: pliki są w UTF-8 bez BOM; czytać przez `[IO
 | B01b | Elita otwarta: krócej i widocznie | zrobione | 1,6/1,5 s zamiast 2,8/2,6; chwianie i mocniejszy puls |
 | V01 | Analiza obrazu i strzelania (Astra) | analiza zrobiona; P0 wdrożone | V01-ASTRA.md; linia włóczni 1,29 -> 1,52:1, narożniki gardy pełne 0,22 s; P1/P2 i grafika czekają na właściciela |
 | D01 | Nagranie bazowe (Astra) | zrobione | Astra (high), 54 s, 6 scen; `work/film-baseline/` (baseline.mp4, baseline-phone.mp4, README, klatki kontrolne); czeka na ocenę właściciela |
+| 0.44 | Czytelność trafienia, V01 P1/P2, picie z flaski (Astra ultra, przegląd Claude) | zrobione, czeka na ocenę właściciela | `RAPORT-ASTRY-044.md`; sonda 576 salw: 0 całych pudeł; ΔL* błysku po 33 ms 5,6–6,2 → 8,2–9,1; golden bez zmian |
+| V01 tony | Rozjaśnienie Iron Thralla i Stolasa | otwarte | warianty Astry zmieniały sylwetkę i alfę; nie podmienione |
 
 ## B01: pomiar elit (sonda 4 strategii, komnaty poligonu, bot z idealnym celem)
 
@@ -37,6 +39,10 @@ Zmiany: styl duel idzie trasą (Furfur stał zablokowany 9,3 s z 12 s), zasięg 
 ## Przegląd Astry (ultra, tylko odczyt) i odpowiedź
 
 Pełny tekst: `PRZEGLAD-ASTRY.md`. P1 (Continue bez zabójstwa, wznowienie walki, resztki/dropy/rany, odpoczynek pod błyskawicą 18 m) naprawione i zakryte testami czerwonymi bez naprawy. P2: kwota w teście sklepu, przywracanie `spare`, komentarze — naprawione; obszary — odłożone; jedna zmienna na commit w B01 — złamana, odnotowane.
+
+## 0.44: przegląd zmian Astry
+
+Astra (ultra) pracowała w osobnym klonie bez commitów; Claude przejrzał diff, przeniósł go łatką i puścił pełne `-Suite All` na `main`. Uwagi z przeglądu: osobne nadpisanie `automaticFireUntil` Exorcista dostało komentarz; nowy rdzeń promienia Stolasa czyta się lepiej (udział pikseli < 1,5:1 39 → 32%), ale jest płaski i szary wobec malowanego pola — osobny commit, łatwy do cofnięcia po ocenie właściciela; Judge IRON też osobno. Nie zrobiono: zamrożenia pozy trafionego (błysk spełnił cel), dźwięku łyku. Picie nadal blokuje unik (reguła stanu `drinking`), przerywa je cios, anulowanie i śmierć.
 
 ## Uwagi właściciela 2026-11-03 (do zrobienia po reszcie planu)
 
