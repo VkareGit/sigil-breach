@@ -57,6 +57,7 @@ return Creature.define({
       { attack = 'talon-fan', ideal = 2.8, max = 4.2, weight = 2.5 },
       { attack = 'star-trio', ideal = 6, min = 3.5, weight = 1.4 },
       { attack = 'star-ray', ideal = 6, min = 3, weight = 1.1 },
+      { attack = 'star-lance', ideal = 9, min = 5, weight = 1.2 },
       { attack = 'slip', ideal = 1.5, max = 3.2, weight = 5 },
     },
   },
@@ -127,6 +128,25 @@ return Creature.define({
       recover = 1.3,
       cooldown = 1.4,
       packet = packet(40, 50, 'astral'),
+    }),
+    -- 0.43 (owner, R01): a lance of starlight, its aiming laser. The cast locks a line from its
+    -- hand to the knight and draws it on the floor for delay s; then the whole line strikes at
+    -- once. Leave the line in time, or shoot in the cast's window and it is turned aside.
+    Action.beam({
+      id = 'star-lance',
+      range = 14,
+      rest = 6,
+      windup = 0.6,
+      parry = 0.4,
+      parryReach = 16,
+      delay = 0.45,
+      length = 14,
+      arc = 0.02,
+      spin = 1,
+      duration = 0.3,
+      recover = 1.0,
+      cooldown = 1.2,
+      packet = packet(42, 60, 'astral'),
     }),
     -- It will not be caught: gone, and behind a shoulder.
     Action.blink({

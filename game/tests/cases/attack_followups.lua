@@ -7,6 +7,7 @@ local Creature = require('src.content.defs.creature')
 local Snapshot = require('src.session.snapshot')
 local Integrity = require('src.session.integrity')
 local Journal = require('src.session.journal')
+local Pools = require('src.session.world')
 local Tests = {}
 local function attack(e, id)
   for _, a in ipairs(A.of(e).attacks) do
@@ -283,6 +284,38 @@ function Tests.run(Game)
       body.attackSpec ~= nil and body.attackSpec.id == 'gore-return' and body.chain == nil
     )
   end
+  -- 0.43 (owner, R01): Stolas's lance. Its line is drawn before it strikes; a knight who stays
+  -- on it is struck at once along all of it, one who steps off in time is not.
+  local function lance(step)
+    local arena = F.arena(Real)
+    arena.player.x, arena.player.z, arena.player.yaw = 16, 26, math.pi
+    local body = arena:spawn('stolas', 16, 17)
+    body.awake, body.visible, body.memory, body.spawnAge = true, true, 60, 2
+    body.target, body.facing, body.attack = arena.player.id, 0, 5
+    local spec
+    for _, atk in ipairs(require('src.content.enemies').of(body).attacks) do
+      spec = atk.id == 'star-lance' and atk or spec
+    end
+    Actions.begin(arena, body, 9, spec)
+    local drawn, hp = false, arena.player.hp
+    for _ = 1, 240 do
+      arena.player.hp = math.max(arena.player.hp, 1)
+      arena:update(1 / 120, {})
+      local mark = Pools.of(arena, 'hazards')[1]
+      if mark and not drawn then
+        drawn = true
+        if step then
+          arena.player.x = arena.player.x + 2
+        end
+      end
+    end
+    return drawn, hp - arena.player.hp
+  end
+  local drawn, lost = lance(false)
+  check('the lance draws its line before it strikes', drawn)
+  check('who stays on the line is struck ' .. lost, lost > 0)
+  local _, spared = lance(true)
+  check('who leaves it in time is not ' .. spared, spared == 0)
   return lines
 end
 return Tests
