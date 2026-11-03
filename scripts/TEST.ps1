@@ -7,6 +7,14 @@ $ErrorActionPreference = 'Stop'
 $project = Get-Project
 $session = Enter-QaSession $project.Qa
 try {
+    if ($Suite -eq 'All') {
+        # A full run starts from an empty folder, so every report in it is this
+        # run's and nothing a retired test wrote lingers. The session lock and the
+        # previous delivery kept for rollback stay.
+        Get-ChildItem -LiteralPath $project.Qa -Force |
+            Where-Object { $_.Name -notin @('.qa-session.lock', 'rollback') } |
+            Remove-Item -Recurse -Force
+    }
     if ($Suite -eq 'All' -or $Suite -eq 'Architecture') {
         & (Join-Path $PSScriptRoot 'FORMAT.ps1') -Check
         if ($LASTEXITCODE -ne 0) { throw 'Lua formatting differs; run FORMAT.ps1.' }

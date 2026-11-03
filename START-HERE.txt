@@ -13,7 +13,8 @@ KATALOGI
   tools/      wnętrze skryptów i narzędzia artystyczne
   toolchain/  LÖVE 11.5 i StyLua dla Windows
   work/       wyniki testów (work/qa) i uruchomień ręcznych (work/qa-direct);
-              poza gitem, można usunąć w każdej chwili
+              poza gitem; pełny przebieg testów zaczyna od pustego work/qa,
+              więc są tam tylko wyniki ostatniego; można usunąć w każdej chwili
 
 DOKUMENTY (docs/)
   PROMPT-NOWY-AGENT.md  zacznij tu: prompt dla nowego czatu Claude lub Codex

@@ -120,8 +120,7 @@ function Export-DeveloperWorkspace([string]$Root, [string]$Destination, [string]
             Copy-PackageFile $file.FullName $Destination $relative
         }
     }
-    # docs: only what the repository tracks. Untracked work in progress there
-    # (a handbook being written, its renderer and page renders) is not delivered.
+    # docs: only what the repository tracks; nothing untracked there is delivered.
     foreach ($relative in @(Get-TrackedFiles $Root 'docs')) {
         Copy-PackageFile (Join-Path $Root $relative) $Destination $relative
     }

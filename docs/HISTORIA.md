@@ -30,6 +30,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Domknięcie audytu v11
 - Odbiór poprawek v11
 - Dawny kontekst
+- Poradnik edycji gry właściciela (ok. 0.33)
 
 ## Zmiany wersji
 
@@ -9200,3 +9201,644 @@ STYL
 Żywy mroczny fresk: Giovanni da Modena, Michał Anioł, Bosch, Memling. Matowe pigmenty,
 ochra, umbra, zgaszona czerwień, bez połysku. Zaakceptowane modele demonów zostają.
 Glify PNG składają tekst; tusz mieści się we wnętrzu planszy.
+
+## Poradnik edycji gry właściciela (ok. 0.33)
+
+_Dawniej: `game/docs/PORADNIK-EDYCJI-GRY.md` (poza gitem). Ścieżki z tamtej wersji: skrypty są dziś w `scripts/`, dokumenty w `docs/`, wyniki testów w `work/qa`._
+
+### SIGIL: BREACH — poradnik edycji gry
+
+Ten dokument opisuje, gdzie zmieniać najczęstsze elementy gry i jakie pliki muszą pozostać spójne. Projekt jest napisany w Lua dla LÖVE 11.5. Pracuj w `game/`; katalog `outputs/` zawiera zbudowane snapshoty i nie jest źródłem zmian.
+
+#### Od czego zacząć
+
+Najważniejsze dokumenty projektu:
+
+- [DEVELOPMENT.txt](DEVELOPMENT.txt) — uruchamianie, testy, QA i build;
+- [ARCHITEKTURA.txt](ARCHITEKTURA.txt) — granice modułów i przepływ danych;
+- [INSTRUKCJA.txt](INSTRUKCJA.txt) — aktualny kontrakt gry;
+- [ROZSZERZANIE.txt](ROZSZERZANIE.txt) — rozszerzanie map, bossów, ataków, broni i wyposażenia;
+- [ZMIANY.txt](ZMIANY.txt) — historia wersji;
+- [ANATOMIA-I-FIZYKA-0.28.txt](ANATOMIA-I-FIZYKA-0.28.txt) — anatomia, maski i trafienia.
+
+Główny przepływ programu wygląda tak:
+
+```text
+main.lua
+  -> src/app
+  -> src/session
+  -> src/systems
+  -> src/render, src/ui, src/audio
+```
+
+Definicje zawartości są przede wszystkim w `src/content/`. Kod symulacji znajduje się w `src/session`, `src/systems`, `src/combat`, `src/enemies`, `src/player` i `src/physics`.
+
+#### Uruchamianie i podstawowa kontrola
+
+Z głównego katalogu repozytorium:
+
+```powershell
+.\RUN.ps1
+.\RUN.ps1 -Release
+.\FORMAT.ps1
+.\FORMAT.ps1 -Check
+.\TEST.ps1 -Suite Architecture
+.\TEST.ps1 -Suite Mechanics
+.\TEST.ps1 -Suite Input
+.\TEST.ps1 -Suite Render
+.\TEST.ps1 -Suite Tools
+.\TEST.ps1 -Suite All -TestTimeoutSeconds 600
+```
+
+- `RUN.ps1` uruchamia aktualne źródła z `game/`.
+- `RUN.ps1 -Release` uruchamia ostatnie zbudowane EXE, więc nie pokazuje świeżych zmian Lua.
+- `FORMAT.ps1 -Check` sprawdza styl Lua bez zapisywania plików.
+- `TEST.ps1` uruchamia testy w izolowanym zapisie i generuje raporty w `work/qa-v<wersja>`.
+- `BUILD.ps1` wykonuje pełny test, build, test EXE, pakowanie i weryfikację.
+
+Po zmianie plików Lua zamknij grę i uruchom ją ponownie. Reset trybu w menu nie przeładowuje modułów Lua.
+
+#### Mapa i świat
+
+Mapę edytuje się jako dane Lua, nie w `world/arena.lua`.
+
+Najważniejsze pliki:
+
+- [maps/proving.lua](../src/content/maps/proving.lua) — obecny poligon;
+- [maps/limbo.lua](../src/content/maps/limbo.lua) — bazowa mapa areny i starsze scenariusze;
+- [maps/index.lua](../src/content/maps/index.lua) — rejestr map i mapa domyślna;
+- [maps/schema.lua](../src/content/maps/schema.lua) — walidacja danych map;
+- [maps/limbo_art.lua](../src/content/maps/limbo_art.lua) — dekoracje bazowej mapy;
+- [world/arena.lua](../src/world/arena.lua) — budowanie świata, kolizje, widoczność i nawigacja;
+- [physics/ground.lua](../src/physics/ground.lua) — wysokości podłóg, stopnie i decki;
+- [physics/collision.lua](../src/physics/collision.lua) — fizyczne ściany i ruch;
+- [world/navigation.lua](../src/world/navigation.lua) — regiony i prowadzenie ciał poza lokalnym polem.
+
+`proving.lua` kopiuje bazę z `limbo.lua`, a potem zmienia jej układ. Dla poligonu edytuj przede wszystkim `proving.lua`. Zmiana `limbo.lua` może wpłynąć na klasyczną arenę, wyprawę, galerie i testy.
+
+##### Najważniejsze pola mapy
+
+| Pole | Co zmienia |
+| --- | --- |
+| `id`, `size` lub `width`/`depth` | identyfikację i rozmiar siatki |
+| `rooms` | prostokątne obszary podłogi |
+| `pillars` | rzeczywiste okrągłe przeszkody |
+| `floor` | wysokość całej mapy |
+| `elevations` | stopnie i podniesienia podłogi |
+| `decks` | płyty nad podłogą, z dolną i górną powierzchnią |
+| `spawn` | początkową pozycję i kierunek gracza |
+| `seals` | ołtarze, znaki, nazwy i kolory |
+| `lamps` | pozycje mis i ich opcjonalny poziom |
+| `portal`, `ember`, `gates` | portal, kapliczkę i bramy fal |
+| `zones` | nazwy obszarów używane przez UI i logikę |
+| `decor` | łuki, świece, propsy, aleję i atmosferę |
+| `proving` | komnaty prób, miejsca przywołań i próby |
+
+Świat zaczyna jako ściana, a `rooms` wycina w nim podłogę. Prostokąty są domknięte: `{ 3, 10, 9, 21 }` otwiera komórki `x=3..9` i `z=10..21`. Nakładające się pokoje łączą się. Aby zostawić ścianę, trzeba pozostawić pas niewyciętych komórek.
+
+Przykład stopni:
+
+```lua
+map.elevations = {
+  { x1 = 14, z1 = 4, x2 = 18, z2 = 5, height = 0.16 },
+  { x1 = 14, z1 = 2, x2 = 18, z2 = 3, height = 0.32 },
+}
+```
+
+Dekoracja nie jest automatycznie kolizją. Jeśli łuk lub props ma wyglądać jak oparty na ścianie, sprawdź jego końce względem `rooms` i `pillars`. Po ręcznej zmianie `world.map` w narzędziu lub teście wywołaj `World.rebuild(world)`, aby odświeżyć geometrię, lampy i cache pól.
+
+##### Poligon, komnaty i próby
+
+W `map.proving` znajdują się trzy powiązane dane:
+
+```text
+pad lub znak -> trial -> chamber + creature
+```
+
+- `chambers[].entry` — miejsce wejścia gracza;
+- `chambers[].slots` — kolejne miejsca przywołań;
+- `chambers[].fire` — dekoracyjne obrzeże ognia, nie zadaje obrażeń;
+- `trials[].creature` — identyfikator stworzenia z rejestru;
+- `pads[].altar` — korzysta z pozycji istniejącego ołtarza;
+- `pads[].trial` — uruchamia próbę;
+- `pads[].weapon` — daje broń;
+- `pads[].refill = true` — uzupełnia zasoby.
+
+Po poszerzeniu komnaty sprawdź osobno wejście, sloty, kolumny, ołtarz, lampy, dekoracje i ogień. Żaden z tych elementów nie przesuwa się automatycznie razem z `rooms`.
+
+#### Tryby gry i przebieg sesji
+
+Punkty wejścia:
+
+- [app/application.lua](../src/app/application.lua) — aplikacja LÖVE i przełączanie sesji;
+- [app/commands.lua](../src/app/commands.lua) — znaczenie komend menu i gry;
+- [run/modes.lua](../src/run/modes.lua) — rejestr trybów;
+- [run/test_field.lua](../src/run/test_field.lua) — poligon;
+- [run/descent.lua](../src/run/descent.lua) — wyprawa, fale i zapis;
+- [run/queries.lua](../src/run/queries.lua) — dane odczytywane przez UI;
+- [session/game.lua](../src/session/game.lua) — publiczne operacje sesji;
+- [session/simulation.lua](../src/session/simulation.lua) — stały krok symulacji.
+
+`field` jest poligonem, `classic` klasyczną areną regresyjną, a `descent` wyprawą. Komendy powinny przechodzić przez `Game:act` i rejestr trybów. Nie dodawaj wyjątków dla konkretnego trybu do przypadkowych systemów.
+
+Stan symulacji należy do sesji i aktorów. Stan prezentacji należy do `g.view`. Nie zapisuj danych UI w aktorze ani danych fizyki w widoku.
+
+#### Gracz, ruch i fizyka
+
+Najczęściej zmieniane pliki:
+
+- [player/feel.lua](../src/player/feel.lua) — ruch, skok, unik, ślizg i reakcje kamery;
+- [content/knight.lua](../src/content/knight.lua) — ciało gracza;
+- [content/tuning.lua](../src/content/tuning.lua) — prędkości, przyspieszenie, czasy i kamera;
+- [physics/kinematics.lua](../src/physics/kinematics.lua) — integracja ruchu;
+- [physics/collision.lua](../src/physics/collision.lua) — przeszkody i przesuwanie;
+- [world/arena.lua](../src/world/arena.lua) — wysokość podłoża, decki i ścieżki;
+- [feedback/movement_marks.lua](../src/feedback/movement_marks.lua) — ślady, błysk uniku i pigment.
+
+Ruch jest liczony w stałym kroku `1/120 s`. Zależne od prędkości siły i obrażenia licz w symulacji, nie w `love.draw`. Animacja może pokazywać stan, ale nie powinna przyznawać amunicji, obrażeń ani kontaktu.
+
+Zmiana rozmiaru ciała wpływa na kolizję, przejścia, nawigację i trafienia. Po takiej zmianie sprawdź małe przejścia, schody, decki, eksplozje i miejsca przywołania.
+
+#### Demony i bossowie
+
+Rejestr demonów znajduje się w [content/enemies.lua](../src/content/enemies.lua), a konkretne definicje w [content/creatures](../src/content/creatures/). Przykładowe pliki:
+
+- [creatures/boss.lua](../src/content/creatures/boss.lua) — Margrave;
+- [creatures/furfur.lua](../src/content/creatures/furfur.lua) — Furfur;
+- [creatures/imp.lua](../src/content/creatures/imp.lua) — prosty demon;
+- [creatures/armored.lua](../src/content/creatures/armored.lua) — ciało opancerzone.
+
+Nowy demon zwykle wymaga:
+
+1. pliku w `content/creatures/`;
+2. wpisu ID w `content/enemies.lua`;
+3. katalogu i tekstów;
+4. atlasu, pozy i anatomii;
+5. masek trafień;
+6. przypisania do mapy, fal lub testu QA.
+
+W definicji stworzenia zmieniasz przede wszystkim `body`, `move`, `attacks`, `tactics`, `phases`, `appearance` i `catalog`. Wspólne wykonanie ataków znajduje się w [enemies/actions.lua](../src/enemies/actions.lua), wybór w `enemies/attack_selection.lua`, a fazy i przejścia w `enemies/encounter.lua`.
+
+##### Fazy bossa
+
+W `phases`:
+
+- `at` — próg przejścia jako udział bieżącego zapasu HP;
+- `refill` — odnowienie jako udział początkowego HP po TIER;
+- `recovery` — czas przejścia w sekundach;
+- `pace` — skala odnowień i odstępów między atakami;
+- `speed` — mnożnik ruchu;
+- `transitionPose` — nazwa pozy przejścia;
+- `tactics` — zestaw ataków używany w tej fazie.
+
+`at = 0` oznacza przejście po wyczerpaniu obecnego zapasu. Usunięcie `refill` przełącza fazę bez odnowienia zdrowia. `pace` nie skraca zapowiedzi ciosu ani nie zmienia obrażeń.
+
+W `tactics.moves`:
+
+```lua
+{ attack = 'ash-lance', ideal = 8, weight = 1.4, min = 2.5 }
+```
+
+`ideal` to preferowany dystans, `min` i `max` zawężają użycie, a `weight` wpływa na wybór razem z dystansem, powtórzeniami i odnowieniem. Waga nie jest procentową szansą.
+
+#### Ataki, obrażenia i hazardy
+
+Wspólne punkty:
+
+- [combat/combat.lua](../src/combat/combat.lua) — strzały, salwy, kontakty i zużycie amunicji;
+- [combat/damage.lua](../src/combat/damage.lua) — końcowe rozliczenie obrażeń;
+- `combat/ballistics.lua` — promienie i pociski;
+- `combat/area_contact.lua` — kontakt obszarów;
+- `combat/melee.lua`, `projectiles.lua`, `explosives.lua` — dostawy;
+- `content/defs/action.lua`, `area.lua`, `packet.lua` — schematy danych;
+- [content/ballistic_surfaces.lua](../src/content/ballistic_surfaces.lua) — materiały, osłona i penetracja.
+
+`Damage.resolve` rozlicza obrażenia, pancerz, odporność, poise i impuls dokładnie raz. UI i efekty powinny korzystać z raportu kontaktu, a nie liczyć obrażenia drugi raz.
+
+##### Atak obszarowy
+
+Dla wzoru na ziemi zmieniaj dane `Action.pattern`, np. `range`, `windup`, `duration`, `recover`, `radius`, `life`, `pulse`, `volume`, `marks` i `packet`. `marks` opisuje punkty względem celu i kierunku ataku:
+
+```lua
+marks = {
+  { forward = 0, lateral = -2.2, delay = 0.65 },
+  { forward = 0, lateral =  0,   delay = 0.95 },
+  { forward = 0, lateral =  2.2, delay = 1.25 },
+}
+```
+
+`forward` przesuwa punkt wzdłuż osi ataku, `lateral` w bok, a `delay` określa czas aktywacji od wypuszczenia. Układ nie omija ścian ani nie tworzy dodatkowego hit-testu w rendererze. Zmianę geometrii testuj w [tests/cases/attack_volumes.lua](../tests/cases/attack_volumes.lua) lub odpowiednim teście kontaktu.
+
+#### Broń i wyposażenie
+
+Definicje broni są w [content/weapons.lua](../src/content/weapons.lua). Wspólne liczby znajdują się w [content/tuning.lua](../src/content/tuning.lua), [content/combat_defaults.lua](../src/content/combat_defaults.lua) i [combat/reload.lua](../src/combat/reload.lua).
+
+Broń ma niezależne części:
+
+- `delivery` — hitscan albo projectile;
+- `attack` — obrażenia, typ, pancerz, penetracja i impuls;
+- `fire` — amunicja, kadencja i sygnały;
+- `mechanism` — przeładowanie;
+- `weight` — odrzut i odczuwalna masa;
+- `art` i `hud` — atlas i teksty.
+
+Stan żywej broni znajduje się w `actor.arsenal[id]`, a kolejność w `actor.loadout`. Nie dodawaj warunków typu `if weapon.id == ...` do Game, AI, HUD ani damage. Dla wariantu użyj `extends`, zgodnie z przykładem w [tests/cases/weapon_extension.lua](../tests/cases/weapon_extension.lua). Listy zastępują listy rodzica, a `nil` nie usuwa pola odziedziczonego w Lua.
+
+Zmiana `delivery.kind` może wymagać rejestracji wykonawcy w `combat/weapon_delivery`. Nowy rodzaj dostawy musi mieć test lotu, kontaktu, zasobów, zapisu i replayu.
+
+#### Umiejętności i przedmioty
+
+- [content/abilities.lua](../src/content/abilities.lua) — definicje i wyposażanie umiejętności;
+- [content/defs/action.lua](../src/content/defs/action.lua) — typ zachowania;
+- [combat/abilities.lua](../src/combat/abilities.lua) — wykonanie po stronie gracza;
+- `content/equipment_art.lua` — grafika dłoni i gesty;
+- `ui/hud_slots.lua` — sloty i ich prezentacja;
+- [app/bindings.lua](../src/app/bindings.lua) — klawisze.
+
+Zmiana parametrów istniejącego `bolt` lub `throw` jest zmianą danych. Nowa logika wymaga `Action.defineKind`, wykonawcy i testu. Rejestruj wykonawców przy starcie, nie w każdej klatce. Animacja ręki nie może samodzielnie wybierać przedmiotu ani zmieniać zasobów.
+
+#### Grafika, pozy, anatomia i maski
+
+Pipeline grafik demonów:
+
+```text
+PNG -> content/art/sheets -> enemy_frames/poses -> anatomia -> maski -> render i trafienia
+```
+
+Najważniejsze miejsca:
+
+- `content/art/sheets/` — źródłowe arkusze;
+- [content/art/atlases.lua](../src/content/art/atlases.lua) — rejestr atlasów;
+- `content/art/poses.lua` — nazwane pozy i granice klatek;
+- [content/art/anatomy](../src/content/art/anatomy/) — regiony ciała, materiały i kotwice;
+- [content/enemy_art.lua](../src/content/enemy_art.lua) — powiązanie demonów z grafiką;
+- `render/fresco_enemies.lua` i `render/renderer.lua` — ładowanie i rysowanie;
+- `enemies/pose.lua` i `enemies/surface.lua` — wspólna poza oraz powierzchnia trafienia.
+
+Po zmianie ilustracji lub klatek uruchom:
+
+```powershell
+.\BAKE-HIT-MASKS.ps1
+.\EXPORT-SHEET.ps1 <id>
+.\EXPORT-ANATOMY.ps1 <id>
+.\CHECK-CREATURE.ps1 <id>
+```
+
+`EXPORT-SHEET` służy do pomiaru arkusza, `EXPORT-ANATOMY` do eksportu danych anatomii, a `ANATOMY-EDITOR.ps1` do ręcznej edycji regionów. Zmiana PNG bez odświeżenia masek może dać obraz wyglądający poprawnie, ale błędne trafienia. Billboard, kolizja ruchu, hitbox ataku i maska pigmentu są różnymi kontraktami.
+
+Dla nowej pozy przejścia dodaj nazwę w atlasie, np. `phase.last_stand`, z istniejącymi klatkami i rosnącymi granicami w zakresie `0..1`. Dla czterech klatek potrzebne są trzy granice.
+
+#### Audio
+
+- [audio/recipes.lua](../src/audio/recipes.lua) — efekty jako receptury;
+- [audio/score.lua](../src/audio/score.lua) — warstwy muzyki i nastroje;
+- `audio/audio.lua` — cache i odtwarzanie;
+- `audio/soundscape.lua` — miks według zagrożenia i stanu;
+- [content/weapons.lua](../src/content/weapons.lua) — `fire.sound` broni;
+- [content/tuning.lua](../src/content/tuning.lua) — głosy etapów przeładowania.
+
+Nowy efekt dodaj jako recepturę i wywołuj po ID. Nowa warstwa muzyki wymaga wpisu warstwy i moodu. Odsłuch poza grą generuje:
+
+```powershell
+.\TEST.ps1 -Suite Tools
+```
+
+W szczególności nie twórz dźwięku bezpośrednio w `love.draw` i nie używaj losowego ziarna współdzielonego przez wszystkie efekty.
+
+#### UI, wejście i teksty
+
+Najważniejsze pliki:
+
+- [ui/interface.lua](../src/ui/interface.lua) — kontrolki i layout;
+- `ui/views.lua`, `ui/screens/` — widoki ekranów;
+- `app/screens.lua` — rejestr ekranów i ich klawiszy;
+- `app/input.lua` — fokus, priorytet ekranów i krawędzie klawiszy;
+- [app/commands.lua](../src/app/commands.lua) — działanie przycisków;
+- [content/text.lua](../src/content/text.lua) — klucze tekstów;
+- `ui/hud_slots.lua` — wyposażenie i sloty;
+- `render/presentation.lua` — interpolacja stanu bez zmiany symulacji.
+
+Kontrolka powinna przekazywać ID komendy, a znaczenie komendy powinno być w `app/commands.lua`. Przy zmianie UI sprawdź minimum `960x540`, `1280x720`, `1024x768`, szeroki ekran i długie wartości liczbowe. Teksty używane przez katalogi, bronie, stwory i UI dodawaj w `content/text.lua`, zamiast wpisywać je na stałe w rendererze.
+
+#### Zapisy, snapshot i replay
+
+- [storage/save.lua](../src/storage/save.lua) — sekcje zapisu, schematy, migracje i checksum;
+- [storage/run_save.lua](../src/storage/run_save.lua) — stan wyprawy i kompatybilność starszych zapisów;
+- [run/descent.lua](../src/run/descent.lua) — zapis i odczyt wyprawy;
+- `session/snapshot.lua` i `session/journal.lua` — snapshoty oraz odtwarzanie prób.
+
+Nie zapisuj GPU, meshów, transientów, cache ani stanu klawiszy. Zapisuj dane potrzebne do odtworzenia stanu, nie wynik renderowania.
+
+Każda zmiana formatu wymaga nowej wersji sekcji, migracji i testów starego oraz uszkodzonego zapisu. Poligon pozostaje trybem bez zapisu wyprawy. Zmiana kolejności wyposażenia, użyć lub identyfikatorów wymaga sprawdzenia migracji SIGIL06/07/08/09 oraz replayu.
+
+#### Zasady, które łatwo złamać
+
+##### Stan zmieniany poza poleceniem musi trafić do dziennika
+
+Dziennik (`session/journal.lua`) odtwarza sesję z poleceń `Game` (`look`, `update`, `shoot`, `cast`, `reloadGun`, `switchWeapon`, `dash`, `act`, `actorJoin`, `actorLeave`, `actorControl`…). Polecenie wskazuje aktora przez jego **id**, nigdy przez tabelę rycerza.
+
+- Zmieniaj stan symulacji przez polecenia. Wtedy dziennik zapisze je sam.
+- Jeżeli aplikacja lub narzędzie musi zmienić pole poza poleceniem (bufor spustu, bufor skoku, generacja obserwacji, pauza), pole musi być na liście:
+  - `Journal.external` — pola sesji i sterowanego rycerza (`player.<pole>`);
+  - `Journal.actorExternal` — te same pola pozostałych rycerzy (wpis `actorSet`).
+- Nowe takie pole dopisz do właściwej listy i dodaj test, który nagrywa przebieg, odtwarza go i porównuje stan przez `Integrity`. Bez tego odtworzenie się rozjedzie („journal final state differs”).
+
+##### Prezentacja pyta kontekst, nie sterowanego
+
+Kod w `app`, `audio`, `feedback`, `render` i `ui` nie czyta `g.player` ani `Roles.controlled` (zapadka `one-player-presentation` = 0). Moduł kontekstu: `session/context.lua`.
+
+- `Context.actor(g)` — czyj jest HUD, ręce, portret, odrzut i błysk zranienia;
+- `Context.viewer(g)` — skąd patrzy kamera: billboardy, tył demonów, światła, słuchacz dźwięku;
+- `Context.of(g, actor, viewer)` — kontekst innego widoku; dla jednego gracza zwraca samą sesję;
+- `Context.watch(g, id)` — osobisty stan widoku dostaje tylko obserwowany rycerz.
+
+Funkcje z domyślnym aktorem (`Weapons.state`, `Weapons.inHand`, `Reload.left`, `Stats.read` itd.) wołaj w prezentacji z jawnym `Context.actor(g)`. Inaczej drugi widok pokaże dane sterowanego.
+
+Feedback zdarzenia kieruj przez `feedback/recipient.lua`:
+- `Recipient.context(g, id)` — id aktora polecenia; `nil` oznacza sterowanego;
+- `Recipient.chain(g, owner)` — właściciel łańcucha obrażeń; zabójstwo demona bez rycerza należy tam, gdzie liczy je `Stats.owner`.
+
+Efekty świata (krew, plamy, ślady, liczby) emituj raz na zdarzenie, bez pętli po widokach.
+
+Nowe pole widoku deklaruj przez `Fields.declareView(owner, names, scope)` z zakresem:
+- `world` — wspólne;
+- `actor` — osobiste;
+- `view` — historia jednej kamery.
+
+W drugą stronę: symulacja nigdy nie pyta kamery (zapadka `viewer-in-simulation` = 0). Zapytanie o geometrię malowanego ciała (`Pose.sample`, `Surface.prepare`, `Geometry.volumes`) dostaje jawnego obserwatora:
+- strzał — oko strzelca;
+- pocisk — żywego właściciela albo punkt wystrzału;
+- stworzenie — jego cel.
+
+##### Bez wejścia-wyjścia i zegara w symulacji
+
+Warstwy symulacji (`core`, `session`, `systems`, `combat`, `enemies`, `player`, `physics`, `world`, `run`, `content`) nie czytają plików, zegara systemowego (`os.time`) ani `love.*`. Losowość symulacji pochodzi wyłącznie z `g.rng.sim`, a dekoracji z `g.rng.present`. Wynik odczytu z dysku nie może trafić do stanu sesji: dziennik go nie zapisuje, więc odtworzenie da inny wynik.
+
+Zapis i odczyt należą do `storage/` i są wywoływane z aplikacji lub z haków trybu. Dwa znane wyjątki to dług do spłacenia, a nie wzorzec:
+- `run/classic.lua` (plik najlepszego wyniku przy wygranej);
+- `run/descent.lua: R.save` (zapis wyprawy; chroniony tylko flagą `g.testing`).
+
+Każde odtwarzanie dziennika poza testami musi działać na sesji z `testing = true` albo z wyłączonym zapisem.
+
+#### Testowanie zmian
+
+Dopasuj test do rodzaju zmiany. Pliki bez katalogu leżą w `tests/cases/`; `tests/suites/` zawiera suity zbiorcze, które uruchamiają po kilka plików `tests/cases/`.
+
+| Zmiana | Zacznij od |
+| --- | --- |
+| moduł, import, granica danych | `tests/cases/architecture.lua`, `TEST.ps1 -Suite Architecture` |
+| ruch, kolizja, decki, nawigacja | `floor_layers.lua`, `movement.lua`, `tests/suites/collision.lua` |
+| boss, faza, AI, atak | `encounters.lua`, `attack_contact.lua`, `attack_volumes.lua` |
+| broń, przeładowanie, obrażenia | `tests/suites/weapons.lua` (w nim `breech_reload.lua`), `fight_feel.lua` (suite `fight-rules`) |
+| anatomia i trafienia | `anatomy_data.lua`, `hit_landmarks.lua`, `painted_surfaces.lua` |
+| UI, wejście i menu | `input_geometry_contracts.lua`, `tests/suites/interface.lua`, `action_presentation.lua` |
+| render i światło | `architecture.lua`, `lighting.lua`, `floor_layers.lua` |
+| zapis i replay | `save_format.lua`, `replay.lua`, `recording_budget.lua` |
+
+Pojedynczą suitę uruchamia `toolchain\love-11.5-win64\lovec.exe game --selftest --suite=<id>` (wynik w `work/qa-v33/suite-<id>-results.txt`). `<id>` to identyfikator z rejestru, a nie nazwa pliku. Plik uruchamiany wewnątrz suity zbiorczej (np. `breech_reload.lua`, `test_field.lua`, `typography.lua`, `movement_impact.lua`, `stations.lua`) nie ma własnego `--suite`; uruchom suitę, która go zawiera, albo `TEST.ps1 -Suite Mechanics`.
+
+Testy rejestruje [tests/suite.lua](../tests/suite.lua) (bezpośrednio lub przez suitę z `tests/suites/`). Przy większej zmianie przejdź od testu wąskiego do właściwego suite, a dopiero potem do pełnego `All`. Nie aktualizuj wzorców `golden` tylko dlatego, że test się różni: najpierw ustal, czy różnica jest zamierzonym skutkiem zmiany.
+
+#### Build i paczki
+
+- [BUILD.ps1](../../BUILD.ps1) — pełny build i odbiór;
+- [tools/build.ps1](../../tools/build.ps1) — kompilacja;
+- [tools/package.ps1](../../tools/package.ps1) — paczki Player/Developer;
+- [tools/verify.ps1](../../tools/verify.ps1) — fingerprint, manifest, EXE, ZIP i SHA-256;
+- [tools/check.ps1](../../tools/check.ps1) — kontrola architektury i reguł;
+- [core/build.lua](../src/core/build.lua) — numer wersji;
+- [app/release.lua](../src/app/release.lua) — nazwa wydania i katalog QA.
+
+Pełny proces:
+
+```powershell
+.\FORMAT.ps1 -Check
+.\TEST.ps1 -Suite All -TestTimeoutSeconds 600
+.\BUILD.ps1
+```
+
+Zmiana wersji wymaga dopisania odpowiednich sekcji w `game/docs/ZMIANY.txt` i `game/docs/ODBIOR.txt`. Zbudowany EXE nie zmienia się po samej edycji źródeł. Paczka Player i Developer mają różną zawartość; nie testuj wydania na podstawie starego katalogu `outputs/`.
+
+#### Bezpieczny rytm pracy
+
+1. Znajdź właściciela zachowania: dane `content`, symulację, render, UI albo narzędzie.
+2. Zmień najmniejszy możliwy fragment danych lub jeden wykonawca.
+3. Uruchom `FORMAT.ps1 -Check` i najbliższy test.
+4. Sprawdź zmianę ręcznie na poligonie po ponownym uruchomieniu gry.
+5. Jeśli zmiana dotyczy grafiki, wykonaj bake masek i sprawdź trafienia.
+6. Jeśli dotyczy zapisu, sprawdź stary, nowy i uszkodzony zapis oraz replay.
+7. Przed wydaniem uruchom pełne testy i `BUILD.ps1`.
+
+Najważniejsza zasada projektu: nowa zawartość powinna składać istniejące definicje, rejestry i wykonawców. Gdy pojawia się nowa mechanika, dodaj mały moduł z własnym testem zamiast dopisywać wyjątek po nazwie broni, demona lub mapy do kilku niezależnych systemów.
+
+#### Pełna mapa kodu `src`
+
+Poniższa sekcja jest indeksem całego kodu produkcyjnego. Wcześniejsze rozdziały opisują najczęstsze zmiany; tutaj można znaleźć właściciela mniej oczywistego zachowania.
+
+##### `src/core` — fundament
+
+- `class.lua`, `ecs.lua` — klasy, encje, prefabrykaty i komponenty;
+- `schema.lua`, `registry.lua`, `id.lua` — schematy danych, rejestry i identyfikatory;
+- `events.lua`, `scheduler.lua` — zdarzenia i uporządkowane wykonywanie;
+- `rng.lua`, `timers.lua`, `mathx.lua` — deterministyczna losowość, czas i matematyka;
+- `serialize.lua`, `data_reader.lua`, `data_tree.lua` — zapis i literalne dane;
+- `strict.lua`, `roles.lua` — własność pól i role aktorów/obserwatora;
+- `build.lua` — wersja źródłowa wydania.
+
+Tu zmieniaj tylko kontrakt fundamentu. Nie przenoś do `core` liczb broni, map ani zachowań demonów. Nie używaj `pairs()` tam, gdzie kolejność wpływa na symulację, zapis, RNG, raport lub renderowanie. Po zmianie uruchom `TEST.ps1 -Suite Architecture`.
+
+##### `src/feedback` — odczucie bez zmiany praw gry
+
+- `motion.lua`, `movement_impact.lua`, `movement_marks.lua` — ruch, lądowanie i ślady;
+- `weapon_motion.lua`, `weight.lua`, `shot_feedback.lua` — odrzut, ciężar i reakcja strzału;
+- `impact_response.lua`, `death_response.lua`, `ability_feedback.lua` — reakcje po rozliczonym kontakcie;
+- `effects.lua`, `transients.lua`, `shot_trails.lua`, `surface_marks.lua`, `damage_numbers.lua` — krótkotrwałe efekty;
+- `listeners.lua`, `install.lua`, `recipient.lua`, `world_feedback.lua` — podłączenie zdarzeń do prezentacji.
+
+Feedback może czytać wynik kontaktu i emitować efekt, ale nie może drugi raz naliczać obrażeń, amunicji ani śmierci. Dane śladów i timingów trzymaj w `content/movement_marks.lua`, `content/effect_art.lua` albo definicji broni. Sprawdź suity `weight` (zawiera `movement_impact.lua` i `impact_response.lua`), `firing-feedback` i `death-feedback`.
+
+##### `src/world` — dane przestrzeni i obiekty świata
+
+- `arena.lua` — mapa, wysokość, kolizja, widoczność i pola przepływu;
+- `navigation.lua` — regiony i prowadzenie ruchu poza lokalnym polem;
+- `proving_pads.lua` — aktywne stanowiska poligonu;
+- `gallery.lua` — obiekty i układ galerii.
+
+Mapa pozostaje w `content/maps`. `arena.lua` jest wspólną abstrakcją dla gracza, demonów, promieni, pocisków i rendererów. Jeśli zmiana wymaga wyjątku dla jednego ID mapy, najpierw sprawdź, czy nie powinna być danymi `maps/schema.lua` lub `content/defs/proving.lua`.
+
+##### `src/app` — aplikacja LÖVE
+
+- `application.lua` — ładowanie zasobów, aktywna sesja i przejścia;
+- `input.lua`, `bindings.lua` — callbacki, klawisze, fokus i obserwacja myszy;
+- `commands.lua` — wspólne komendy z menu i klawiatury;
+- `screens.lua`, `navigation.lua` — stos ekranów i powroty;
+- `load_plan.lua` — etapowe ładowanie;
+- `runtime.lua`, `session_report.lua` — profile QA i raport ścieżki startowej;
+- `release.lua`, `package_smoke.lua` — publiczny profil wydania i test paczki.
+
+`main.lua` jest cienkim adapterem callbacków LÖVE. `conf.lua` ustala LÖVE 11.5, identity zapisu i minimalny rozmiar okna. Zmiana `release.lua` może zmienić publicznie dostępne tryby i mapy, ale nie powinna zastępować rejestru `run/modes.lua`.
+
+##### `src/session` — stan i deterministyczna symulacja
+
+- `game.lua` — fasada publicznych poleceń sesji;
+- `simulation.lua` — stały krok symulacji;
+- `state.lua`, `fields.lua`, `components.lua` — właściciele pól i schematy aktorów;
+- `world.lua`, `spawn.lua` — pule encji i tworzenie ciał;
+- `encounter.lua`, `interactions.lua`, `sanctuary.lua` — przebieg walki, interakcje i kapliczka;
+- `event_catalog.lua`, `signal.lua`, `listeners.lua` — wydarzenia;
+- `snapshot.lua`, `journal.lua`, `integrity.lua`, `journal_values.lua` — snapshot, replay i integralność;
+- `presentation.lua`, `view_state.lua`, `context.lua` — stan widoku i kontekst prezentacji;
+- `capabilities.lua`, `definitions.lua`, `content_contracts.lua` — dostępne operacje i walidacja zawartości;
+- `stats.lua`, `damage_outcomes.lua` — statystyki i przechowywanie wyników walki.
+
+Nowe pole aktora dopisz do właściciela i schematu komponentu. Nie dopisuj swobodnego pola tylko dlatego, że Lua na to pozwala: tryb ścisły i testy własności mają wykrywać takie przecieki. `present` może interpolować stan, ale nie może go mutować.
+
+##### `src/systems` — kolejność wykonywania
+
+Kolejność systemów jest deklarowana w [systems/index.lua](../src/systems/index.lua), a nie przez przypadkowe importy. Aktualny przepływ obejmuje zegary, regenerację i przeładowanie rycerza, ruch i kontakt, efekty świata, wyzwalanie strzału, walkę demonów, separację ciał, pociski, ładunki, efekty, telemetrykę, zwłoki, progresję i zasoby.
+
+- `clocks.lua` — zegary i zatrzymania;
+- `knight.lua` — systemy rycerza;
+- `combat.lua` — systemy walki;
+- `world.lua` — efekty świata, zwłoki, zapasy i progresja.
+
+Jeżeli wynik zależy od tego, czy coś wydarzyło się przed pociskiem, po pocisku albo po śmierci, zmiana należy do `systems/index.lua` i wymaga testu kolejności. Nie naprawiaj kolejności przez dodatkowy timer w rendererze.
+
+##### `src/run` — tryby i poligon
+
+`modes.lua`, `classic.lua`, `descent.lua`, `economy.lua`, `spawner.lua`, `navigation.lua`, `queries.lua` i `mode_views.lua` tworzą warstwę trybów. Poligon jest rozbity na `run/field/access.lua`, `actions.lua`, `catalog.lua`, `chambers.lua`, `placement.lua`, `reset.lua`, `stations.lua`, `trials.lua` i `visits.lua`.
+
+Gdy zmieniasz zachowanie poligonu, najpierw sprawdź, czy jest to:
+
+- dane mapy — `content/maps/proving.lua`;
+- dostęp lub komenda — `field/access.lua`, `field/actions.lua`, `app/commands.lua`;
+- rozmieszczenie — `field/placement.lua`, `field/chambers.lua`;
+- reset i cykl próby — `field/reset.lua`, `field/trials.lua`;
+- dane dla UI — `run/queries.lua`, `mode_views.lua`.
+
+Nie przenoś logiki poligonu do ekranu UI. Sprawdź suity `field-access`, `chambers`, `mode-lifecycle`, `geometry` (zawiera `test_field.lua`) i `weight` (zawiera `stations.lua`).
+
+#### Zasoby i pipeline artystyczny
+
+##### `game/assets`
+
+To źródła obrazów, fontów i metadanych. Najważniejsze grupy to `assets/art/`, `assets/art/sigils/`, `assets/fonts/painted/` oraz aktywny `assets/fonts/painted-v16/`. Pliki `*provenance.json` i `prompts-*.json` dokumentują pochodzenie i authoring; nie są modułami runtime.
+
+Po zmianie źródłowego PNG ustal, czy jest to:
+
+1. zwykła dekoracja — wystarczy test renderu;
+2. atlas pozy lub broni — przelicz arkusz i sprawdź klatki;
+3. ilustracja trafialnego ciała — przelicz anatomię i maski;
+4. font/UI — sprawdź pomiary tekstu na kilku rozdzielczościach.
+
+##### `content/art`
+
+- `sheets/` i `sheet.lua` — opis źródeł atlasu, cięć i skal;
+- `atlases.lua` — rejestr i walidacja atlasów;
+- `enemy_frames.lua`, `weapon_frames.lua`, `ability_frames.lua`, `hand_atlas.lua` — widoki wynikowe;
+- `poses.lua`, `enemy_idle.lua` — pozy i cykle;
+- `anatomy/`, `anatomy_regions.lua` — regiony, materiały, kotwice i poligony;
+- `sources.lua` — rozmiary i pochodzenie obrazów;
+- `mask_codec.lua`, `hit_masks.lua` — zakodowane maski;
+- `hazards.lua` — grafika zagrożeń.
+
+`atlases.lua`, `enemy_frames.lua` i `hit_masks.lua` są wynikami pipeline'u. Zmieniaj arkusz źródłowy, anatomię lub dane narzędzia, a nie wynik ręcznie, chyba że świadomie naprawiasz generator. Rejestr arkuszy w `content/art/sheets/index.lua` musi zawierać nowy atlas.
+
+##### Narzędzia grafiki
+
+- `EXPORT-SHEET.ps1` / `qa/art/sheet_tool.lua` — cięcia, stopy, kotwice i pozy;
+- `EXPORT-ANATOMY.ps1` / `qa/art/anatomy_export.lua` — dane regionów;
+- `ANATOMY-EDITOR.ps1` / `qa/art/anatomy_editor.lua` — ręczna edycja regionów;
+- `BAKE-HIT-MASKS.ps1` / `qa/bake_hit_masks.lua` — maski trafień;
+- `CHECK-CREATURE.ps1` / `qa/art/creature_check.lua` — kompletność stworzenia;
+- `tools/art/anatomy/contact.ps1` — pomoc przy kotwicach kontaktu;
+- `tools/art/landmarks/crops.ps1` — wycinki punktów anatomicznych.
+
+#### Pełny przepływ: od pomysłu do wydania
+
+##### Zmiana danych
+
+1. Znajdź właściciela w `content`, `run`, `ui`, `audio` albo `art`.
+2. Sprawdź schemat w `content/defs` i rejestr, który musi znać nowe ID.
+3. Zmień dane bez dodawania wyjątku po nazwie do silnika.
+4. Uruchom `FORMAT.ps1 -Check` i najbliższy test mechaniki.
+5. Uruchom grę z `RUN.ps1`, nie z `-Release`, i sprawdź scenę ręcznie.
+
+##### Zmiana kodu symulacji
+
+1. Ustal, czy logika należy do `combat`, `enemies`, `player`, `physics`, `session` czy `systems`.
+2. Sprawdź, jaki stan jest właścicielem wyniku i jakie zdarzenie go przekazuje.
+3. Nie przenoś reguły do UI, renderera, audio ani animacji.
+4. Dodaj test regresyjny w `tests/cases` i wpisz go do `tests/suite.lua`.
+5. Sprawdź reset, snapshot, replay i zachowanie headless, jeśli zmiana dotyka stanu.
+
+##### Zmiana grafiki
+
+1. Zmień źródłowy PNG albo arkusz, nie wynikowy atlas.
+2. Przelicz arkusz, anatomię i maski, jeśli obraz reprezentuje ciało lub broń.
+3. Uruchom `CHECK-CREATURE.ps1 <id>`.
+4. Uruchom `TEST.ps1 -Suite Render` i przejrzyj wygenerowane obrazy.
+5. Sprawdź, czy widoczny obraz, poza, hitbox i pigment nadal opisują tę samą scenę.
+
+##### Zmiana zapisu
+
+1. Znajdź sekcję w `storage/*.lua` i jej schemat.
+2. Zwiększ wersję sekcji albo dodaj migrację, zamiast zmieniać znaczenie starego pola.
+3. Dodaj test starego, nowego i uszkodzonego zapisu.
+4. Sprawdź replay i zapis w trakcie lotu pocisku, aktywnej próby oraz przeładowania, jeśli dotyczy.
+
+##### Zmiana wydania
+
+1. Zaktualizuj wersję w `src/core/build.lua` oraz wymagane sekcje `ZMIANY.txt` i `ODBIOR.txt`.
+2. Uruchom formatowanie i wszystkie testy.
+3. Wygeneruj świeże evidence renderu i UI.
+4. Uruchom `BUILD.ps1`.
+5. Uruchom `tools/verify.ps1`, które dopiero testuje i poświadcza paczki Windows.
+
+#### QA: co właściwie mierzy który poziom
+
+- `TEST.ps1 -Suite Architecture` — importy, granice modułów, własność stanu, format i kontrakty.
+- `TEST.ps1 -Suite Mechanics` — symulacja, walka, ruch, fizyka, zapis i zawartość.
+- `TEST.ps1 -Suite Input` — prawdziwe callbacki, menu, fokus, komendy i ścieżki zapisu.
+- `TEST.ps1 -Suite Render` — GPU, światła, anatomia, animacje, UI i pomiary obrazu.
+- `TEST.ps1 -Suite Tools` — smoke narzędzi, eksport audio, benchmarki i start paczki.
+- `TEST.ps1 -Suite All` — cały zestaw; na wolniejszym komputerze zwiększ timeout, nie pomijaj próbek.
+
+Katalog `game/qa` zawiera również scenariusze `ai_audit`, `balance`, `classic_playtest`, `drill`, `expedition_trial`, `playtest` i `attribution_trial`. Są to scenariusze dowodowe, nie nowe źródła gameplayu. `--qa-smoke` sprawdza, czy narzędzie działa, ale nie zastępuje pełnego pomiaru ani oceny człowieka.
+
+Raport jest wiarygodny tylko wtedy, gdy jest świeży i ma zgodny `QA run`, fingerprint źródeł oraz fingerprint runtime. Nie kopiuj ręcznie starego raportu do nowego odbioru.
+
+#### Root, `tools`, `old` i `outputs`
+
+##### Rootowe skrypty
+
+- `RUN.ps1` — źródła lub istniejące EXE;
+- `TEST.ps1` — suite i izolowana sesja QA;
+- `BUILD.ps1` — build źródeł i staging paczek;
+- `FORMAT.ps1` — StyLua;
+- `MEASURE.ps1` — porównanie median i IQR;
+- `BAKE-HIT-MASKS.ps1`, `EXPORT-SHEET.ps1`, `EXPORT-ANATOMY.ps1`, `ANATOMY-EDITOR.ps1`, `CHECK-CREATURE.ps1` — warsztat artystyczny.
+
+##### `tools`
+
+`project.ps1` ustala wersję, ścieżki, lock QA i fingerprinty. `check.ps1` kontroluje architekturę. `build.ps1`, `package.ps1`, `package-check.ps1`, `package-verification.ps1` i `verify.ps1` odpowiadają kolejno za staging, allowlistę, testy manipulacji, fingerprinty i weryfikację EXE/ZIP/SHA-256. `tools/check`, `tools/art`, `tools/gen` i `tools/spikes` są warsztatem, nie kodem gry.
+
+Nie edytuj ręcznie `work/qa-*`, manifestów, ZIP-ów, EXE, katalogów `outputs` ani wygenerowanych plików grafiki. `old/` jest archiwum z narzędziami przywracania; przywracanie wymaga sprawdzenia aktualnych rejestrów i kontraktów.
+
+#### Najkrótsza lista decyzji przed edycją
+
+| Chcesz zmienić | Zacznij tutaj | Potem sprawdź |
+| --- | --- | --- |
+| kształt mapy | `src/content/maps/*.lua` | `floor-layers`, `chambers`, `collision`, render |
+| HP lub odporność | `src/content/creatures/*.lua` | `intent` (zawiera `enemy_durability.lua`), `encounters` |
+| atak bossa | definicja stworzenia i `content/defs/action.lua` | `attack-contact`, `attack-volumes`, render |
+| ruch gracza | `player/feel.lua`, `content/tuning.lua` | `movement`, `terrain-motion`, input |
+| broń | `content/weapons.lua` | `weapons` (zawiera `breech_reload.lua`), `shot-observation`, `weapon-extension` |
+| grafikę demona | `assets/art`, `content/art/sheets` | sheet, anatomy, masks, `fresco`, `hit-landmarks` |
+| UI | `ui/interface.lua`, `ui/screens/`, `content/text.lua` | `interface`, `animation` (typografia), `geometry` (bitmapowe UI), `TEST.ps1 -Suite Input` |
+| dźwięk | `audio/recipes.lua`, `audio/score.lua` | `TEST.ps1 -Suite Tools` (eksport audio) i odsłuch |
+| zapis | `storage/*.lua` | `save-format`, `serialization`, `replay` |
+| kolejność symulacji | `systems/index.lua` | architecture, headless, replay |
+| paczkę Windows | root `BUILD.ps1`, `tools/*.ps1` | pełne QA, `BUILD.ps1`, `tools/verify.ps1` |
+
+To jest granica między zmianą zawartości a zmianą silnika: najpierw edytuj dane i istniejące wykonawce, a dopiero gdy nie da się opisać zachowania danymi, dodaj mały, zarejestrowany moduł z testem.

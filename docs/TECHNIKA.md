@@ -25,7 +25,6 @@ outputs ma bieżące i poprzednie wydanie. Przebudowa przenosi poprzednie
 dostawy do work/qa-v<wersja>/rollback (jedna generacja, następny build ją zastępuje).
 Aktualna architektura: rozdział Architektura niżej. Historia zmian: docs/HISTORIA.md
 (jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy są w historii gita.
-Opis każdego pliku kodu: podręcznik docs/podrecznik-codex (nieśledzony, w toku).
 
 POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
 
@@ -2172,10 +2171,8 @@ zachowując nazwy, sloty i zapasowe generacje. Najpierw zachowaj kopię istniej�
 zapisów z nowego komputera. Zapisów nie ma w repozytorium. Pliki QA można pominąć,
 jeśli nie chcesz przenosić danych testowych.
 
-Ręcznie przenieś także pliki właściciela, których klon nie odtworzy:
+Ręcznie przenieś to, czego klon nie odtworzy:
 
-- `game/docs/PORADNIK-EDYCJI-GRY.md`;
-- `docs/podrecznik-codex/`;
 - pamięć Claude Code: `~/.claude/projects/<ścieżka-projektu>/memory/`.
   Nazwa katalogu projektu jest wyprowadzana z pełnej ścieżki. Po pierwszym
   uruchomieniu Claude w nowym klonie odszukaj utworzony katalog dla tej ścieżki
