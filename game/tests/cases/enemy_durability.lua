@@ -352,9 +352,7 @@ function T.run(G, check, renderer, output)
   -- bodies by a clear margin, and how long they last is held by souls_gate, not by HP.
   check(
     'durability roles retain six distinct HP/armor pairs and elites tougher than any mob',
-    count == #kinds
-      and Def.boss.hp > maxNormalHP * 2
-      and Def.furfur.hp > maxNormalHP * 2
+    count == #kinds and Def.boss.hp > maxNormalHP * 2 and Def.furfur.hp > maxNormalHP * 2
   )
   local R = require('src.combat.reload')
   local A = require('src.audio.audio')

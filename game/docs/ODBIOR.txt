@@ -18,6 +18,10 @@ Sprawdzone automatycznie:
 - A01: weapons 347, weight 807, interface 19, chapel-route 9, weapon-art-review 4
   sprawdzeń bez błędów; --chapel-look: look-fire-menu pokazuje menu ognia.
   Znane czerwone do B01: souls-gate, souls-bots (elita przegrywa ze stojącym botem).
+- A05, tests/cases/attack_followups.lua: opancerzony po cleave (regeneracja 1,05 s)
+  przy przytulonym rycerzu uderza dopiero po 1,05 s (przed naprawą: 0,7 s); Furfur
+  odpowiada gore-return na unik w rytmie serii. Oba sprawdzenia czerwone bez naprawy.
+  encounters 74, souls-balance 59, souls-engine 33, responsiveness 39 bez błędów.
 
 Odbiór właściciela (B2): czeka.
 

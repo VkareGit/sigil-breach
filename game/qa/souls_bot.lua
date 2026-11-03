@@ -174,12 +174,7 @@ function Bot.learning(g, memory)
   for _, pickup in ipairs(Pools.of(g, 'pickups')) do
     local d = math.sqrt((pickup.x - p.x) ^ 2 + (pickup.z - p.z) ^ 2)
     local supply = Supplies[pickup.kind]
-    if
-      d < 9
-      and supply
-      and supply.wanted(p, pickup)
-      and (pickup.kind ~= 'health' or p.hp < 80)
-    then
+    if d < 9 and supply and supply.wanted(p, pickup) and (pickup.kind ~= 'health' or p.hp < 80) then
       input.forward, input.strafe = steer(p, pickup.x, pickup.z)
       break
     end

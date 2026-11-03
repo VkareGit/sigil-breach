@@ -94,6 +94,7 @@ C.schemas = {
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
     phase = f(0, 'time in the state'),
     recover = f(0),
+    spent = f(0, 'what is left of the recovery after a blow: it moves but cannot strike (s)'),
     attack = f(1.5, 'time until the next attack may begin'),
     decision = f(0),
     side = f(1, 'circling side'),

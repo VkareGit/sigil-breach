@@ -185,6 +185,7 @@ local function tickBody(g, e, dt, paused)
   e.attack = e.attack - dt
   if not paused then
     e.recover = math.max(0, (e.recover or 0) - dt)
+    e.spent = math.max(0, (e.spent or 0) - dt)
   end
   if math.abs(e.pushX) + math.abs(e.pushZ) > Walk.minPush then
     Body.push(g, e, dt, Rules.body(e).drag or defaults.drag)
@@ -354,8 +355,18 @@ local function free(g, e, d, dt)
     end
     return
   end
-  if e.chain and Attacks.flow(g, e, d) then
-    return
+  -- In the beat of a string the body may meet what the knight just did (a dodge) before it
+  -- goes on; the string ends there (0.43, audit F04: the flow used to clear it first).
+  if e.chain then
+    local answer = e.visible and Answers.pick(g, e, target(g, e), d)
+    if answer and reserveAttack(g, e, true) then
+      e.chain, e.chainFrom = nil, nil
+      Attacks.begin(g, e, d, answer)
+      return
+    end
+    if Attacks.flow(g, e, d) then
+      return
+    end
   end
   if e.recover > 0 then
     return
@@ -379,9 +390,16 @@ local function free(g, e, d, dt)
   end
   e.ai = 'move'
   local victim = target(g, e)
-  local answer = e.visible and Answers.pick(g, e, victim, d)
+  -- The rest of a recovery it walks, but strikes with nothing, answers included.
+  local ready = (e.spent or 0) <= 0
+  local answer = ready and e.visible and Answers.pick(g, e, victim, d)
   local chosen = answer
-    or (e.visible and e.attack <= 0 and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim))
+    or (
+      ready
+      and e.visible
+      and e.attack <= 0
+      and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim)
+    )
   if chosen and reserveAttack(g, e, answer ~= nil) then
     Attacks.begin(g, e, d, chosen)
   elseif evade(g, e, d, dt) then

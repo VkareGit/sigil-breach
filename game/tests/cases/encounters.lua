@@ -137,9 +137,10 @@ function Tests.run(Game)
   Actions.strike(g, e, 0.01)
   check(
     'phase pressure scales cooldown only, not punishable recovery',
-    -- 0.42: the body stands for recoverStill of its recovery and walks the rest unable to
-    -- strike; the whole of it is never shortened by pace.
-    near(e.recover + e.attack, attack.recover + attack.cooldown / Selection.pace(e))
+    -- 0.43: the body stands for recoverStill of its recovery and walks the rest unable to
+    -- strike; the whole of it (spent) is never shortened by pace.
+    near(e.attack, attack.cooldown / Selection.pace(e))
+      and e.spent == attack.recover
       and e.recover <= attack.recover
   )
   -- Transition cancels an unreleased mark, but not existing projectiles.

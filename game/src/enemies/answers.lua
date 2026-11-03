@@ -25,9 +25,12 @@ end
 function Events.hugging(_, e, _, d, answer)
   return d < answer.within and (e.closeFor or 0) >= answer.after
 end
--- The knight dodged in the beat of a string: the body was waiting for it.
-function Events.dodged(_, e, p, d, answer)
-  return e.chain ~= nil and (p.dashTimer or 0) > 0 and d < answer.within
+-- The knight dodged in the beat of a string: the body was waiting for it. The dodge counts
+-- while it moves him and while its safety lasts (dodgeEnds, where a dodge is paid for).
+function Events.dodged(g, e, p, d, answer)
+  return e.chain ~= nil
+    and ((p.dashTimer or 0) > 0 or (p.dodgeEnds or 0) > g.elapsed)
+    and d < answer.within
 end
 -- A shot from far away has just landed.
 function Events.sniped(_, e, _, d, answer)

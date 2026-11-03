@@ -29,6 +29,15 @@ postęp punkt po punkcie: docs/audyt-2026-11-03/POSTEP.md.
   stwora, nie skrytkę mapy. Bot idzie tylko po zapas, który może wziąć.
   souls-gate i souls-bots zostają czerwone do B01: stojący i strzelający bot wygrywa
   z elitą, czyli elity jeszcze nie egzaminują.
+- A05: okno kary po ciosie stwora znów ma pełną długość. Od 0.42 ciało stało najwyżej
+  0,7 s regeneracji, a odpowiedzi (na przeładowanie, picie, przytulenie) mogły wejść
+  zaraz potem, choć opis obiecywał, że resztę regeneracji „idzie, ale nie może
+  uderzyć”. Teraz pole spent (session/components.lua) trzyma całą regenerację: nic,
+  także odpowiedź, nie wychodzi przed jej końcem; przerwa między atakami (cooldown)
+  biegnie obok, jak przed 0.42 (enemies/actions.lua: Attacks.rest, enemies/ai.lua).
+  Reakcja na unik w rytmie serii (Margrave ash-catch, Furfur gore-return) była
+  nieosiągalna, bo seria kasowała się przed pytaniem o odpowiedź; teraz odpowiedź jest
+  sprawdzana przed dalszym ciosem serii, a unik liczy się, póki trwa jego ochrona.
 
 ########################################################################
 ZMIANY-0.42.txt

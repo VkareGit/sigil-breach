@@ -17,6 +17,7 @@ local function attack(e, id)
   error('missing action ' .. id)
 end
 function Tests.run(Game)
+  local Real = Game
   Game = A.game(Game)
   local lines = {}
   local check = F.checker(lines, 'follow-ups: ', 'follow-ups: ')
@@ -82,10 +83,12 @@ function Tests.run(Game)
   e.ai, e.phase = 'strike', 2
   Actions.strike(g, e, 1 / 120)
   check(
-    -- 0.42: it stands for recoverStill of it and walks the rest, unable to strike.
+    -- 0.43: it stands for recoverStill of it and walks the rest, striking nothing until the
+    -- whole recovery is spent; the pause between attacks runs beside it.
     'finisher restores a full punishable recovery, no loop',
-    math.abs(e.recover + e.attack - 1.25 - finish.cooldown / Select.pace(e)) < 1e-9
+    e.spent == 1.25
       and e.recover <= 1.25
+      and math.abs(e.attack - finish.cooldown / Select.pace(e)) < 1e-9
       and not e.finishedAttack
       and Actions.choose(e, 2, g.elapsed).id ~= finish.id
   )
@@ -238,6 +241,48 @@ function Tests.run(Game)
       table.remove(m, 2)
     end)
   )
+  -- 0.43 (audit F04): after a heavy blow nothing comes before its whole recovery, an answer
+  -- included. A knight hugging the armoured body is answered by a slam, not 0.7 s in.
+  do
+    local arena = F.arena(Game)
+    arena.player.x, arena.player.z, arena.player.yaw = 16, 18.6, math.pi
+    local body = arena:spawn('armored', 16, 17)
+    body.awake, body.visible, body.memory, body.spawnAge = true, true, 60, 2
+    body.target, body.facing = arena.player.id, 0
+    local cleave = attack(body, 'cleave')
+    Actions.rest(body, cleave)
+    body.ai, body.attack = 'recover', 0
+    local first
+    for step = 1, 240 do
+      body.closeFor = 5
+      arena.player.hp = arena.player.maxHp
+      arena:update(1 / 120, {})
+      if not first and (body.ai == 'windup' or body.ai == 'strike') then
+        first = step / 120
+      end
+    end
+    check(
+      'no blow nor answer before the whole recovery ' .. tostring(first),
+      first ~= nil and first >= cleave.recover - 1e-6 and first < cleave.recover + 0.4
+    )
+  end
+  -- 0.43 (audit F04): a dodge in the beat of a string is met by the answer the body waits
+  -- with (Furfur: gore-return); the flow used to clear the string before the answer was asked.
+  do
+    local arena = F.arena(Real)
+    arena.player.x, arena.player.z, arena.player.yaw = 16, 20, math.pi
+    local body = arena:spawn('furfur', 16, 17)
+    body.awake, body.visible, body.memory, body.spawnAge = true, true, 60, 2
+    body.target, body.facing = arena.player.id, 0
+    body.ai, body.recover, body.spent, body.attack = 'recover', 0, 0, 5
+    body.chain, body.chainFrom = 'crown', 'gore'
+    arena:dash(1, 0)
+    arena:update(1 / 120, {})
+    check(
+      'a dodge in the beat of a string is answered',
+      body.attackSpec ~= nil and body.attackSpec.id == 'gore-return' and body.chain == nil
+    )
+  end
   return lines
 end
 return Tests

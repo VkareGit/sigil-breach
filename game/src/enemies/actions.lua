@@ -201,11 +201,12 @@ local function strike(g, e, dt, previousPlayer)
 end
 -- The full rest after an attack. A phase's pace shortens the pause between
 -- attacks, never a windup. The body stands for at most recoverStill of it; what is left of
--- the recovery it moves but cannot strike.
+-- the recovery it moves but cannot strike, not even an answer (spent: the whole recovery, so
+-- the knight's window keeps its length; 0.43, audit F04). The pause runs beside it, as before.
 function Attacks.rest(e, atk)
-  local still = math.min(atk.recover, Defaults.recoverStill)
-  e.recover = still
-  e.attack = (atk.recover - still) + atk.cooldown / Selection.pace(e)
+  e.recover = math.min(atk.recover, Defaults.recoverStill)
+  e.spent = atk.recover
+  e.attack = atk.cooldown / Selection.pace(e)
 end
 -- The next blow of a string, when its beat ran out. A string the target left
 -- behind ends as the last blow would have.
