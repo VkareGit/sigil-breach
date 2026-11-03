@@ -23,6 +23,7 @@ local Interactions = require('src.session.interactions')
 local Pools = require('src.session.world')
 local Text = require('src.content.text')
 local Weapons = require('src.content.weapons')
+local Ammo = require('src.content.ammo.index')
 local Archetypes = require('src.content.enemies')
 local Bodies = require('src.combat.bodies')
 local Maps = require('src.content.maps.index')
@@ -242,13 +243,8 @@ local function resumeField(g, field)
     enter(g, field.area)
   end
   refresh(g, true)
-  for id, ammo in pairs(field.ammo) do
-    local state, def = p.arsenal[id], Weapons.get(id)
-    if state and def then
-      state.mag = math.min(ammo.mag, def.ammo.capacity)
-      state.reserve = math.min(ammo.reserve, def.ammo.maxReserve)
-    end
-  end
+  -- The rounds as the ammunition model packed them (Weapons.inventory) and checked them.
+  Weapons.restore(g, nil, field.weapons, p)
   for id, uses in pairs(field.uses) do
     local state = p.abilityState[id]
     if state then
@@ -272,7 +268,7 @@ local function resumeField(g, field)
       if e.post == hunter.post and e.hp > 0 then
         e.x, e.z, e.facing = hunter.x, hunter.z, hunter.yaw
         e.hp = math.min(hunter.hp, e.maxHp)
-        e.awake, e.memory, e.spawnAge = true, memory, 2
+        e.awake, e.memory = true, memory
         e.lastX, e.lastZ, e.lastLevel = p.x, p.z, p.level
       end
     end)
@@ -825,15 +821,12 @@ local function fieldOf(g)
     hp = p.hp,
     armor = p.armor or 0,
     weapon = p.weapon,
-    ammo = {},
+    weapons = select(2, Weapons.inventory(g, p)),
     uses = {},
     fallen = {},
     picked = {},
     hunters = {},
   }
-  for id, state in pairs(p.arsenal or {}) do
-    field.ammo[id] = { mag = state.mag, reserve = state.reserve }
-  end
   for id, state in pairs(p.abilityState or {}) do
     field.uses[id] = state.uses
   end
@@ -878,7 +871,7 @@ local function validField(field)
     assert(finiteNumber(field[key]), 'invalid field ' .. key)
   end
   assert(field.hp > 0 and field.armor >= 0, 'invalid field health')
-  assert(field.weapon == nil or whole(field.weapon, 1, 16), 'invalid field weapon')
+  assert(field.weapon == nil or whole(field.weapon, 1, math.huge), 'invalid field weapon')
   local out = {
     area = field.area,
     x = field.x,
@@ -887,21 +880,29 @@ local function validField(field)
     hp = field.hp,
     armor = field.armor,
     weapon = field.weapon,
-    ammo = {},
+    weapons = {},
     uses = {},
     fallen = known(field.fallen or {}, K.postOf),
     picked = known(field.picked or {}, K.supplyOf),
     hunters = {},
   }
-  for id, ammo in pairs(field.ammo or {}) do
-    assert(type(ammo) == 'table', 'invalid field rounds')
-    assert(whole(ammo.mag, 0, 1000) and whole(ammo.reserve, 0, 10000), 'invalid field rounds')
+  -- Each weapon's rounds through its ammunition model, held within what the weapon holds.
+  local function rounds(value, low, high)
+    assert(whole(value, low, high), 'invalid field rounds')
+    return value
+  end
+  for id, saved in pairs(field.weapons or {}) do
+    assert(type(saved) == 'table', 'invalid field rounds')
     if Weapons.has(id) then
-      out.ammo[id] = { mag = ammo.mag, reserve = ammo.reserve }
+      local def = Weapons.get(id)
+      local model = Ammo.of(def)
+      local values = model.list(saved)
+      values[#values + 1] = rounds
+      out.weapons[id] = model.unpack(def.ammo, unpack(values))
     end
   end
   for id, uses in pairs(field.uses or {}) do
-    assert(whole(uses, 0, 1000), 'invalid field uses')
+    assert(whole(uses, 0, math.huge), 'invalid field uses')
     if Abilities:has(id) then
       out.uses[id] = uses
     end
