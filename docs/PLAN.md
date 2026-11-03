@@ -15,8 +15,9 @@ Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub s
 
 | Punkt | Co | Stan | Dowód / uwagi |
 |---|---|---|---|
-| P0 | Decyzje właściciela (lista w raporcie, rozdział 9) | czeka na właściciela | |
+| P0 | Decyzje właściciela (lista w raporcie, rozdział 9) | zrobione 2026-11-03 | D11–D20 w `docs/WIZJA.md`; elity: animacja i od razu krótsze okna |
 | P1 | Błędy: duplikowanie relikwii przez śmierć; czas animacji `storm`/`salvo` | do zrobienia | |
+| P1c | Elity: krótsze okna (D11) — odsłonięcie 1,5/1,6 → ok. 1,2 s, najdłuższe regeneracje krócej; każda liczba osobno z sondą | do zrobienia | po P1b |
 | P2 | Dźwięk: cztery suwaki i kategorie | do zrobienia | |
 | P3 | Ekran: hierarchia informacji, bez SHIFT w niszy | do zrobienia | render do akceptacji |
 | P4 | Animacje i efekty (Astra): elity, flaska, promień Stolasa, amunicja | do zrobienia | klatki do oceny |
@@ -219,6 +220,8 @@ Pierwszy test: Stolas, Furfur, Buer, Paimon i dwie dodatkowe kopie w sekretach. 
 
 ### 9. Decyzje właściciela (przed startem)
 
+**Rozstrzygnięte 3 listopada wieczorem: D11–D20 w `docs/WIZJA.md`.** Różnice wobec rekomendacji: elity dostają od razu także krótsze okna (D11); licznik DEATHS zostaje w niszy dusz (D18); kolejne bronie tylko na wyraźne polecenie właściciela (D20). Lista poniżej to pytania w brzmieniu z raportu.
+
 1. Elity: najpierw naprawa prezentacji przy tych samych czasach okien (rekomendacja: tak). Skrócenie okien dopiero po obejrzeniu, jako osobna próba.
 2. Promień Stolasa: rytuał na ziemi z nowym materiałem (rekomendacja), nie latająca włócznia.
 3. Ekran: usunąć SHIFT z niszy; pomoc i zegar tylko w pauzie i na początku; suma obrażeń domyślnie ukryta; DRINKING tylko w pomocy (rekomendacja: tak dla wszystkich).
@@ -248,6 +251,7 @@ Podział: **Claude** — kod gry, walka, testy, integracja i przegląd. **Astra*
 | P0 | Właściciel: decyzje z rozdziału 9 | — | — | zapis w `WIZJA.md` |
 | P1a | Claude: atomowe nadanie i zużycie unikalnej znajdźki (`rewardId`), test śmierci, restartu i Continue | — | 0,5–1,5 dnia | sonda `relic-cycle` czerwona przed, zielona po; stare zapisy działają |
 | P1b | Claude: autorytatywny czas animacji `storm`/`salvo`, audyt hold i cancel | — | 0,5–1,5 dnia | 1,875 s na jednej klatce znika; zdarzenia i golden identyczne |
+| P1c | Claude: krótsze okna elit (D11): Furfur exposed 1,5 → 1,2 s, Margrave 1,6 → 1,2 s, regeneracje ≥ 1,5 s (overhead, ash-grip, ash-catch, crown) → 1,2 s; każda zmiana osobnym commitem | P1b | 1 dzień + sondy | `souls-gate`, `creature-pressure`, egzekucja nadal osiągalna; nowy golden świadomie |
 | P2 | Claude: cztery suwaki, kategorie, routing ambience, migracja ustawień | P0.4 | 1–2 dni | macierz zer; pętle i pula głosów; odsłuch właściciela |
 | P3 | Claude: hierarchia wiadomości, SHIFT poza niszą, kontekstowe panele i paski | P0.3 | 1–2 dni | 5 renderów do akceptacji; chroniony HUD identyczny |
 | P4 | Astra: Furfur (gest błyskawicy i burzy, akcenty piorunów), odsłonięta garda obu elit, Margrave regeneracja; flaska (3 klatki + tor); promień Stolasa (3 fazy); znajdźki amunicji A. Claude: integracja i kontrola masek trafień | P1b dla burzy | 3–6 dni grafiki + 1–2 integracji | arkusze klatek do oceny; brak klatki > 0,45 s bez akcentu; trafienia bez przesunięć; golden bez zmian |

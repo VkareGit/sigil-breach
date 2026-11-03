@@ -4,12 +4,27 @@ Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właści
 
 ## Spis rozdziałów
 
+- Decyzje właściciela (3 listopada 2026, wieczór)
 - Decyzje właściciela (2026-11-03)
 - Kierunek hybrydy: Doom i souls-like (2026-11-02)
 - Ogniska i ulepszenia (2026-11-02)
 - System świata (0.14)
 - Manifest Nikogo
 
+## Decyzje właściciela (3 listopada 2026, wieczór)
+
+Po analizie Claude i Astry z 3 listopada wieczorem (raport w `docs/PLAN.md`). Uzupełniają i częściowo zmieniają decyzje niżej; przy sprzeczności obowiązują te.
+
+- **D11 (elity):** animacja i od razu krótsze okna. Naprawa czasu animacji burzy, gest błyskawicy na porożu Furfura, kilka klatek w oknach odsłonięcia i regeneracji obu elit, a do tego krótsze okna: odsłonięta garda Furfur 1,5 s i Margrave 1,6 s → ok. 1,2 s, najdłuższe regeneracje skrócone. Każda zmiana czasu to osobna zmiana balansu z sondą.
+- **D12 (broń na start):** nowa gra zaczyna tylko z Judge'em (z awaryjnym odnawianiem nabojów). Exorcist kosztuje 300 dusz w sklepie każdego zapalonego ogniska. Kupiona broń zostaje na stałe, także po śmierci. Stare zapisy zachowują obie bronie.
+- **D13 (rozwój przy ognisku, zmienia D8):** dusze kupują teraz także broń. Śluby (Wigor, Flaska) zostają; grawery zostają znajdźkami, jeden na broń, wymiana przy ogniu bez opłaty; hartowanie +I za 250 teraz, +II za 350 dopiero po teście +I. Waluta pozostaje „SOULS”.
+- **D14 (sigile):** tylko znajdźki ze świata, nie do kupienia. Zakładane i zdejmowane wyłącznie przy ognisku (bez automatycznego zakładania). Pojemność 4 punkty; kolejne kopie tego samego sigila są mocniejsze i zajmują więcej miejsca, najwyżej 3 kopie.
+- **D15 (unikalne znajdźki a śmierć):** sigil albo grawer podniesiony raz zostaje w kolekcji także po śmierci przed ogniskiem i nie wraca do świata; nie da się go zebrać drugi raz.
+- **D16 (dusze):** zostaje ryzykowne odrabianie jak w Souls: niezabezpieczeni wrogowie wracają po śmierci i dają dusze. Granicą buildu są pojemność sigili i grawery, nie 1420 dusz.
+- **D17 (dźwięk):** cztery suwaki: Master, Effects (broń, kroki, stwory, ostrzeżenia, interfejs), Music, Ambience (odgłosy pomieszczeń). Każdy do zera.
+- **D18 (ekran):** usunąć napis SHIFT i miniwskaźnik z niszy (wytrzymałość tylko paskiem nad HUD-em); pomoc i zegar tylko w pauzie, na mapie i w pierwszych minutach, nazwa miejsca gaśnie; w walce jedna wiadomość naraz, suma obrażeń ukryta, DRINKING i OUT OF BREATH tylko gdy potrzebne, pasek zwykłego wroga po trafieniu i gaśnie. Licznik DEATHS zostaje w niszy dusz. Kompozycja dolnego paska bez zmian.
+- **D19 (wygląd):** promień Stolasa zostaje rytuałem na ziemi (nowy materiał i trzy fazy, mechanika bez zmian). Flaska: przemalować trzy klatki, szyjka do ust pod kamerą (może wyjść poza kadr), dno w górę, gest kończy się z piciem. Amunicja: najpierw materiał i kształt bez świecenia, potem decyzja o delikatnym blasku.
+- **D20 (bronie):** najpierw dopracowujemy dwie obecne bronie, sklep i sigile. Kolejne bronie dopiero na wyraźne polecenie właściciela.
 ## Decyzje właściciela (2026-11-03)
 
 _Dawniej: `docs/audyt-2026-11-03/DECYZJE.md`_
