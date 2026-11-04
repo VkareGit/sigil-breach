@@ -34,3 +34,4 @@ if (assert_child "$(printf '%s' "$fixture" | tr '[:lower:]' '[:upper:]')/file" "
 fi
 checks=$((checks + 1))
 echo "PLATFORM: $checks checks passed."
+bash "$SIGIL_ROOT/tools/linux/check-work-paths.sh"

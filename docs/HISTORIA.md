@@ -58,6 +58,33 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Ustalenie właściciela, 2026-11-04: po zakończeniu zmian i wymaganej
+  weryfikacji Codex robi commit bez osobnego pytania; obejmuje także nowe
+  pliki należące do zadania. Używa skonfigurowanej tożsamości Git.
+  Push nadal tylko na polecenie. Zastępuje to dawny domyślny tryb bez commitów.
+- Porządki Linux / Omarchy, 2026-11-04: usunięto PROMPT-NOWY-AGENT.md,
+  lokalny NOWY-KOMPUTER.md i wygenerowany katalog work/ w repozytorium.
+  START-HERE.txt pozostaje wejściem; instrukcje agentów są w docs/AGENTS.md,
+  decyzje gry w WIZJI, a ograniczenia grafiki w STYLU. Zapisano zasadę:
+  zwykła praca w głównym repo, klon tylko do potrzebnej izolacji lub
+  porównania; po przeniesieniu zmian i weryfikacji usuwamy go z wynikami.
+- Linux zapisuje QA i warsztat poza repozytorium, w
+  ~/Work/tries/sigil-breach-<SHA-256 ścieżki repo>/work. Każdy klon ma
+  osobny katalog; ręczne QA, pomiary i edytor anatomii mają osobne podkatalogi.
+  SIGIL_TRIES_DIR zmienia bazę; SIGIL_UI_QA_DIR jawnie wybiera ręczny raport.
+  Pełny All czyści tylko zablokowane qa/, zachowując rollback i dane obok.
+  Wspólna reguła Lua/bash, sprawdzenie ścieżek i aktualizacja artefaktów CI.
+  Skrypty Windows pozostają bez zmian zgodnie z zakresem właściciela.
+- Test behavior przelicza kliknięcia FOV przez skalę i marginesy interfejsu.
+  Omarchy może zmienić proporcje okna przez kafelkowanie; stary test
+  rozciągał każdą oś osobno i klikał poza właściwym przyciskiem. Reguły gry,
+  wygląd interfejsu, symulacja i oczekiwania testu pozostają takie same.
+
+- Dokumentacja, 2026-11-04: AGENTS.md wskazuje instrukcje projektu dla
+  kolejnych zadań Codexa. Zapisano natywne Omarchy, katalog Work/tries,
+  używanie skonfigurowanej tożsamości git, zgodę na edycję istniejących
+  zmian w zakresie zadania oraz pracę nad jednym celem z kontrolą regresji.
+  Bez zmian kodu, grafiki, dźwięku i wersji gry.
 - Linux w pełni: każde polecenie ma parę. scripts/win/*.ps1 i tools/win/*.ps1
   to Windows, scripts/linux/*.sh i tools/linux/*.sh to Linux, z tym samym
   zakresem: TEST (wszystkie zestawy, formatowanie, Architecture, render,
@@ -3991,6 +4018,69 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Polecenie właściciela, 2026-11-04 — zatwierdzenie porządków:
+- Po przedstawieniu dwóch wcześniejszych błędów bramy (weight i cień
+  w Render) właściciel wyraźnie polecił commit wszystkich obecnych zmian,
+  dodanie nowych plików i push na origin/main. Dotyczy to tego zakresu;
+  wymagania testów dla kolejnych zmian pozostają zgodne z docs/AGENTS.md.
+- Od końcowej bramy opisanej niżej zmieniono tylko instrukcje i wpisy
+  dokumentacji. Kontrola diff i UTF-8 bez BOM; bez powtarzania testów gry.
+  Wynik bramy pozostaje NIEZALICZONY; nie zmieniono tolerancji ani wzorców.
+
+Codex, 2026-11-04 — porządki dokumentów i wyniki Linuxa poza repozytorium:
+- Sondy przed zmianą wykazały zapis ręcznego QA do work/qa-direct oraz
+  skryptów do repozytoryjnego work/qa. Po zmianie check-work-paths przechodzi:
+  zgodność Lua/bash, zapis ręczny i jawny katalog, osobne wyniki klonów
+  o tej samej nazwie, stabilna ścieżka przez dowiązanie, spacje i polskie
+  znaki, odmowa względnej bazy oraz czyszczenie wyłącznie z blokadą.
+  Próba czyszczenia wspólnego Work/tries jest odrzucana; dane sąsiednie,
+  rollback i blokada zostają. Test działa w Architecture bez grafiki.
+- Podczas weryfikacji ujawniło się zależne od okna kliknięcie FOV w behavior.
+  Kontrolowana sonda 960×1080: przed poprawką FAIL tego samego warunku,
+  po przeliczeniu przez U.viewport PASS 39. Ręczne love . --suite=behavior
+  potwierdziło zapis do zewnętrznego qa-direct. Omarchy może dopasować
+  okno do kafelka; test nie zakłada już stałych proporcji.
+- Końcowe All na Intel Arc / Mesa: formatowanie, kontrola ścieżek i
+  Architecture PASS (663 pliki Lua, 0 naruszeń); Mechanics 5639 zaliczonych,
+  w tym behavior 39, golden 10 i floor-layers 16. Jedyny błędny zestaw
+  mechaniki to wcześniejszy weight (różnica pikseli dla 35 ciał).
+  Osobny Input PASS 50. Render ponownie zatrzymuje wcześniejszy warunek
+  cienia w qa/reviews/lighting_review.lua:87; dalszy showcase niewykonany.
+  Tools PASS: benchmark/core-measure/step-study/audio-export smoke oraz
+  startup-check. Dziewięć świadectw ma stabilny, ten sam odcisk bieżącego
+  kodu; dowody w $SIGIL_WORK/qa/*.evidence.json i qa/tool-smoke/.
+  Brama Linux pozostaje NIEZALICZONA wyłącznie na dwóch wcześniejszych
+  błędach obrazu; ich przyczyn nie rozstrzygano w tym zadaniu. Nie zmieniano
+  tolerancji, złotego wzorca ani skryptów Windows. Bez commita i pakowania.
+- Usunięto tylko wygenerowany work/ repozytorium i własny przejściowy katalog
+  wyników ze skróconym identyfikatorem. Pozostaje jeden katalog raportów
+  pod Work/tries z pełnym identyfikatorem; żaden klon nie był tworzony.
+  Usunięcie promptu i NOWY-KOMPUTER oraz przeniesienie AGENTS do docs są
+  zgodne z poleceniem właściciela. Skrypty Windows nietknięte.
+
+Codex, 2026-11-04 — przegląd projektu na natywnym Omarchy:
+- Stan zastany: main, d10e5e1, wersja 0.45. LÖVE 11.5 z repozytorium,
+  Intel Arc (MTL), Mesa 26.2.5; X11, zapisy QA odizolowane w /tmp.
+  Przywrócono prawa wykonywania zgodne z indeksem gita. Kod gry bez zmian.
+- Linux All zatrzymał się na Mechanics: 5639 zaliczonych sprawdzeń;
+  weight: różny obraz przy zbiorczym i pojedynczym rysowaniu 35 stworów
+  (tests/cases/draw_batching.lua:43). floor-layers i golden przeszły.
+- Osobno dokończono pozostałe etapy. Input: 50 PASS. Render: FAIL w
+  qa/reviews/lighting_review.lua:87, warunek przyciemniania podłogi
+  przez cień stwora; dalsza część showcase nie została wykonana.
+- Architecture: 662 pliki Lua, 0 naruszeń; formatowanie i kontrola platform
+  PASS. Tools: benchmark, core-measure, step-study i audio-export w trybie
+  smoke oraz startup-check PASS. Osobne --chapel-look PASS; obrazy obejrzane.
+- Dziesięć świadectw uruchomień ma stabilny, ten sam odcisk źródeł.
+  Świadectwa i logi: work/qa/*.evidence.json oraz work/qa/tool-smoke/;
+  błędy: test-results.txt i source-showcase.stdout.txt. Wyniki są poza gitem
+  i kolejny pełny All je usuwa. Brama Linux NIEZALICZONA; przyczyn błędów
+  nie rozstrzygnięto. Wcześniejszy zielony odbiór Windows pozostaje historią.
+- Właściciel ocenia 0.45 „na razie dobrze”, chce jednego celu naraz i poda
+  następny zakres później. Nie oznacza to pełnego odbioru P7 ani zgody
+  na dalsze funkcje. Bieżące utrwalenie instrukcji zmienia tylko dokumenty;
+  sprawdzenie diff/UTF-8 bez BOM, bez ponownego uruchamiania testów gry.
 
 Astra, 2026-11-04 — efekty oraz P5/P6:
 - Raport plik po pliku, dowody i ograniczenia: work/reszta/RAPORT.md.

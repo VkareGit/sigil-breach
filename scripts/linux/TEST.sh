@@ -21,8 +21,7 @@ enter_qa_session
 if [ "$suite" = All ]; then
   # A full run starts from an empty folder, so every report in it is this run's and nothing
   # a retired test wrote lingers. The session lock and the delivery kept for rollback stay.
-  find "$SIGIL_QA" -mindepth 1 -maxdepth 1 ! -name .qa-session.lock ! -name rollback \
-    -exec rm -rf -- {} +
+  clean_qa_session
 fi
 if [ "$suite" = All ] || [ "$suite" = Architecture ]; then
   "$SIGIL_ROOT/scripts/linux/FORMAT.sh" --check || die 'Lua formatting differs; run FORMAT.sh.'

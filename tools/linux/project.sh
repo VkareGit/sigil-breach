@@ -1,7 +1,7 @@
 # Shared by every Linux script: source it. The counterpart of tools/win/project.ps1 and
 # platform.ps1. Needs bash, coreutils, flock and python3; LOVE and StyLua are in toolchain/.
 set -euo pipefail
-SIGIL_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+SIGIL_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)
 SIGIL_GAME="$SIGIL_ROOT/game"
 
 die() {
@@ -19,7 +19,20 @@ SIGIL_VERSION=$(literal version "$SIGIL_GAME/src/core/build.lua")
 SIGIL_TITLE=$(literal title "$SIGIL_GAME/src/app/release.lua")
 qa_relative=$(literal qaOutput "$SIGIL_GAME/src/app/release.lua")
 [ -n "$qa_relative" ] || die 'Missing literal release metadata: qaOutput'
-SIGIL_QA="$SIGIL_ROOT/$qa_relative"
+[[ "$qa_relative" = work/* ]] || die 'QA metadata must name a path inside work/.'
+# Keep the same rule as src/app/workspace.lua, including for two clones with
+# the same basename. Sourcing this file alone never creates an output folder.
+SIGIL_WORK=$(python3 -I - "$SIGIL_ROOT" << 'PY'
+import hashlib, os, sys
+project = os.path.realpath(sys.argv[1])
+tries = os.environ.get('SIGIL_TRIES_DIR') or os.path.join(os.environ['HOME'], 'Work', 'tries')
+if not os.path.isabs(tries):
+    sys.exit('SIGIL_TRIES_DIR must be an absolute path')
+digest = hashlib.sha256(project.encode('utf-8')).hexdigest()
+print(tries.rstrip('/') + '/sigil-breach-' + digest + '/work')
+PY
+) || die 'Cannot resolve external work directory.'
+SIGIL_QA="$SIGIL_WORK/${qa_relative#work/}"
 SIGIL_NAME="SIGIL-BREACH-$SIGIL_VERSION"
 SIGIL_OUTPUTS="$SIGIL_ROOT/outputs"
 
@@ -90,6 +103,15 @@ enter_qa_session() {
     flock -w 3600 9 || die "Another QA session still holds $SIGIL_QA after 3600 s."
   fi
   export SIGIL_QA_HELD=$SIGIL_QA
+}
+
+# Only the locked report directory is disposable. Manual reports, other clones
+# and the previous delivery kept for rollback must survive a full test run.
+clean_qa_session() {
+  [ "${SIGIL_QA_HELD:-}" = "$SIGIL_QA" ] || die 'QA cleanup requires the session lock.'
+  assert_child "$SIGIL_QA" "$SIGIL_WORK" > /dev/null
+  find "$SIGIL_QA" -mindepth 1 -maxdepth 1 ! -name .qa-session.lock ! -name rollback \
+    -exec rm -rf -- {} +
 }
 
 # Names as well as contents, so a renamed, added or removed asset invalidates old evidence.

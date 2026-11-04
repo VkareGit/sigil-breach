@@ -248,9 +248,11 @@ function Tests.run(G, initial, renderer, getGame)
   love.keypressed('escape')
   check('closing help retains safe pause', not getGame().help and getGame().state == 'paused')
   local before = getGame().view.fov
-  love.mousepressed(870 * love.graphics.getWidth() / 1280, 310 * love.graphics.getHeight() / 720, 1)
+  -- The window manager may resize QA windows; click the letterboxed UI, as a player does.
+  local scale, ox, oy = U.viewport(love.graphics.getDimensions())
+  love.mousepressed(ox + 870 * scale, oy + 310 * scale, 1)
   check('click updates live camera FOV', getGame().view.fov == math.min(115, before + 5))
-  love.mousepressed(805 * love.graphics.getWidth() / 1280, 310 * love.graphics.getHeight() / 720, 1)
+  love.mousepressed(ox + 805 * scale, oy + 310 * scale, 1)
   U.focus = 1
   love.keypressed('return')
   love.keypressed('tab')

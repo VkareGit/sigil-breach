@@ -15,7 +15,7 @@ function Tests.run(G, renderer)
   local failures = {}
   local inspected = 0
   local imagesChecked = 0
-  local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
+  local output = require('qa.output').directory()
   local preview = {
     ['maximum-wallet-and-clock'] = true,
     ['catalog-furfur'] = true,

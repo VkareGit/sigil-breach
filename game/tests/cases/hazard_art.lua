@@ -17,7 +17,7 @@ local function save(data, path)
   bytes:release()
 end
 function Test.run(Game, renderer)
-  local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
+  local output = require('qa.output').directory()
   local lines = {}
   local check = Fixtures.checker(lines, 'hazard art: ', 'hazard art: ')
   local function field()

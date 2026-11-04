@@ -1,6 +1,14 @@
 # SIGIL: BREACH — styl
 
-Kierunek artystyczny: żywy mroczny fresk, HUD, broń, demony, atmosfera. Wzorzec malowanej architektury: `docs/art/painted-direction-2026-10-31.png`. Analiza czytelności obrazu i strzelania (V01) jest w `docs/HISTORIA.md`.
+Kierunek artystyczny: żywy mroczny fresk, HUD, broń, demony, atmosfera. Główny wzorzec całej gry: `docs/art/giovanni-da-modena-inferno.webp` (Giovanni da Modena, Inferno, Bolonia). Starszy wzorzec architektury: `docs/art/painted-direction-2026-10-31.png`. Analiza czytelności obrazu i strzelania (V01) jest w `docs/HISTORIA.md`.
+
+## Obowiązujące ograniczenia właściciela (4 listopada 2026)
+
+- Do każdego zlecenia grafiki dołącz obraz Inferno. Zachowuj istniejący styl demonów, HUD i broni; odczucie trafienia i wyraźnego chybienia jest jednym z najważniejszych priorytetów.
+- Dolny pasek HUD jest chroniony: kształt, kompozycja i styl. Wolno poprawiać czytelność treści w istniejących niszach. Zmianę wyglądu pokaż przed/po w 960×540, 1024×768, 1280×720, 1920×810 i 1920×1080, zanim uznasz ją za przyjętą.
+- Znacznik trafienia: cztery cienkie kreski 4–8 px, zabójstwo zgaszoną czerwienią. Nie powiększać ani nie wracać do dużego X.
+- Amunicja: zachować ciepłe, ciemniejsze obrazy wybrane przez właściciela; jaśniejsze i matowe warianty odrzucono. Bez przemalowania bez pytania.
+- Tekst gry i tekst na obrazach po angielsku. Nowe klatki stworów muszą zachować zgodność anatomii i masek (`anatomy-data`, `hit-landmarks`, `painted-surfaces`). Ocena klimatu malarskich efektów 0.45 nadal należy do właściciela.
 
 ## Spis rozdziałów
 

@@ -8,10 +8,7 @@ function Tests.run(G, renderer, check)
     local q = Q.new({ '--showcase-v' .. version })
     check(
       'legacy showcase v' .. version .. ' shares current isolation and capture route',
-      q.capture
-        and q.isolated
-        and q:has('--showcase')
-        and q.output == (os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput)
+      q.capture and q.isolated and q:has('--showcase') and q.output == Release.output()
     )
   end
   check(

@@ -159,7 +159,7 @@ function love.mousereleased()
   dragging = false
 end
 local function save()
-  local dir = root .. '/../work/anatomy'
+  local dir = require('src.app.workspace').directory(root .. '/..') .. '/anatomy'
   require('qa.directory').ensure(dir)
   local path = dir .. '/' .. id .. '.lua'
   local file = assert(io.open(path, 'w'))

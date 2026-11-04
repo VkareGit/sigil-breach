@@ -2,8 +2,8 @@
 .claude/
 .mcp.json
 .codex/
-# Test reports (work/qa), manual runs (work/qa-direct) and built packages
-# (outputs/) are regenerated; delete them any time. Old files live in git history.
+# Legacy/Windows work output and built packages stay out of Git.
+# Linux developer output now lives under ~/Work/tries, outside this checkout.
 work/
 outputs/
 *.log

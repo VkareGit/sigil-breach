@@ -1,4 +1,4 @@
-SIGIL: BREACH / 0.44 (3 listopada 2026)
+SIGIL: BREACH / 0.45 (4 listopada 2026)
 
 Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
 bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stworami,
@@ -13,12 +13,27 @@ KATALOGI
               MEASURE i warsztat grafiki
   tools/      wnętrze skryptów (win/, linux/) i narzędzia artystyczne
   toolchain/  LÖVE 11.5 i StyLua dla Windows i Linuxa
-  work/       wyniki testów (work/qa) i uruchomień ręcznych (work/qa-direct);
-              poza gitem; pełny przebieg testów zaczyna od pustego work/qa,
-              więc są tam tylko wyniki ostatniego; można usunąć w każdej chwili
+  docs/AGENTS.md  zasady pracy agentów; zacznij od tego pliku START-HERE
+
+WYNIKI NA LINUXIE (poza repozytorium)
+  ~/Work/tries/sigil-breach-<id>/work/
+    qa/           raporty TEST/BUILD; All czyści tylko ten katalog,
+                  zachowując blokadę sesji i rollback/
+    qa-direct/    ręczne uruchomienia QA (np. love game --suite=app)
+    measure-*/    pomiary MEASURE
+    anatomy/      zapis edytora anatomii
+  To raporty i dane QA, nie kopia projektu. Zwykle pracujemy w głównym repo.
+  Klon (osobna kopia repozytorium) powstaje tylko do potrzebnej izolacji
+  lub porównania; po przeniesieniu zmian usuwamy go razem z jego wynikami.
+  <id> to SHA-256 pełnej ścieżki repozytorium, więc kopie mają osobne wyniki.
+  SIGIL_TRIES_DIR zmienia bazę ~/Work/tries; SIGIL_UI_QA_DIR wskazuje
+  katalog raportów konkretnego ręcznego uruchomienia. Bieżąca ścieżka:
+    source tools/linux/project.sh
+    printf '%s\n' "$SIGIL_WORK"
+  Windows zachowuje dotychczasowe work/qa i work/qa-direct; jego skrypty
+  nie są częścią obecnego przenoszenia wyników.
 
 DOKUMENTY (docs/)
-  PROMPT-NOWY-AGENT.md  zacznij tu: prompt dla nowego czatu Claude lub Codex
   WIZJA.md              czym jest gra, decyzje właściciela, kierunek, manifest
   STYL.md               kierunek artystyczny i atmosfera
   TECHNIKA.md           uruchamianie, testy, architektura, konwencje, Linux
@@ -29,6 +44,10 @@ Nowa wersja dopisuje sekcje ZMIANY-<wersja>.txt i ODBIOR-<wersja>.txt na górze
 rozdziałów historii (BUILD ich szuka). Nie twórz nowych plików w docs/.
 
 POLECENIA (z katalogu repozytorium)
+  scripts/linux/RUN.sh                       gra na Linuxie / Omarchy
+  scripts/linux/FORMAT.sh                    formatowanie Lua
+  scripts/linux/TEST.sh Architecture          szybka kontrola kodu i ścieżek QA
+  scripts/linux/TEST.sh All --timeout 1800     pełna brama
   love game                                 gra ze źródeł (w game/: love .)
   .\scripts\win\FORMAT.ps1                      formatowanie Lua
   .\scripts\win\TEST.ps1 -Suite Architecture    szybka kontrola kodu (to samo robi CI)
@@ -37,5 +56,6 @@ POLECENIA (z katalogu repozytorium)
   Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
 Linux: te same polecenia w scripts/linux/: scripts/linux/TEST.sh All --timeout 1800 itd.;
 tabela wszystkich par w docs/TECHNIKA.md, rozdział Linux.
-Wersja: game/src/core/build.lua. Grafikę, dźwięk i nagrania robi Codex Astra.
+Wersja: game/src/core/build.lua. Zasady agentów: docs/AGENTS.md. Bez nagrań wideo
+i pakowania gry, chyba że właściciel o to poprosi.
 Robocze pliki agentów (skrypty, wiadomości commitów, sondy) trzymaj poza repozytorium.

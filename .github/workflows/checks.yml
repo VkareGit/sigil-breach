@@ -25,11 +25,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Architecture and format (no display, bundled tools)
+        id: linux-check
         shell: bash
-        run: scripts/linux/TEST.sh Architecture --timeout 600
+        env:
+          SIGIL_TRIES_DIR: ${{ runner.temp }}/sigil-tries
+        run: |
+          source tools/linux/project.sh
+          printf 'qa=%s\n' "$SIGIL_QA" >> "$GITHUB_OUTPUT"
+          scripts/linux/TEST.sh Architecture --timeout 600
       - name: Keep the Linux reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qa-reports-linux
-          path: work/qa/*.txt
+          path: ${{ steps.linux-check.outputs.qa }}/*.txt

@@ -1,6 +1,6 @@
 local S = {}
 function S.run(G, renderer)
-  local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
+  local output = require('qa.output').directory()
   local Skin = require('src.ui.skin')
   local previousForce, previousOutput = Skin.forceAudit, Skin.auditOutput
   Skin.forceAudit = true

@@ -26,7 +26,7 @@ while [ "$#" -gt 0 ]; do
   shift 2
 done
 [ "$pairs" -ge 1 ] && [ "$pairs" -le 50 ] || die 'Pairs must be 1..50.'
-[ -n "$out" ] || out="$SIGIL_ROOT/work/qa/measure-$(date +%Y%m%d-%H%M%S)"
+[ -n "$out" ] || out="$SIGIL_WORK/measure-$(date +%Y%m%d-%H%M%S)"
 out=$(realpath -m -- "$out")
 mkdir -p "$out"
 before=$(realpath -- "$before")

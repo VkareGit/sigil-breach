@@ -23,6 +23,16 @@ Klon wskazany w zadaniu: Windows lub Linux (migracja: rozdział Linux niżej).
 Pracuj w game/, nie w outputs/*/source. outputs to zbudowane snapshoty.
 outputs ma bieżące i poprzednie wydanie. Przebudowa przenosi poprzednie
 dostawy do work/qa-v<wersja>/rollback (jedna generacja, następny build ją zastępuje).
+Zasada właściciela (2026-11-04): zwykłe zadania wykonujemy w głównym
+repozytorium /home/nahiko/Work/sigil-breach. Klon oznacza osobną kopię kodu,
+zasobów i historii Git; powstaje w Work/tries tylko wtedy, gdy potrzebna
+jest izolacja lub porównanie wersji. Po przeniesieniu potrzebnych zmian
+oraz zakończeniu weryfikacji usuwamy własny klon i przypisany mu zewnętrzny
+katalog wyników. Katalog sigil-breach-<id>/work w Work/tries zawiera raporty
+oraz dane QA, a nie kopię projektu. Dla głównego repozytorium pozostaje
+jeden taki katalog; następny pełny All zastępuje poprzednie raporty w qa/,
+chroniąc rollback, blokadę sesji i sąsiednie dane ręczne/pomiary.
+
 Aktualna architektura: rozdział Architektura niżej. Historia zmian: docs/HISTORIA.md
 (jeden plik, najnowsze na górze). Dawne konteksty, plany i opisy są w historii gita.
 
@@ -80,10 +90,18 @@ nie jest automatycznie pomiarem dysku po zimnym restarcie komputera.
 Po udanych testach źródeł można wykonać samo tools/win/build.ps1, a potem
 tools/win/verify.ps1. Drugi krok jest konieczny do poświadczenia i utworzenia ZIP.
 Testy są wyciszone, poza ekranem, bez przejmowania myszy i na osobnym zapisie.
-Główne raporty zapisują się w work/qa (qaOutput w release.lua, czytany też
-przez tools/win/project.ps1; numer wersji: game/src/core/build.lua).
-Uruchomienie ręczne bez SIGIL_UI_QA_DIR pisze do work/qa-direct
-(handOutput), nigdy do raportów trwającego TEST.ps1.
+Na Linuxie raporty zapisują się poza repozytorium, w
+~/Work/tries/sigil-breach-<id>/work/qa; ręczne uruchomienia bez
+SIGIL_UI_QA_DIR w sąsiednim qa-direct. <id> to pełny skrót SHA-256
+kanonicznej ścieżki klonu (dowolny katalog roboczy i dowiązanie dają ten sam wynik).
+SIGIL_TRIES_DIR pozwala wskazać inną bezwzględną bazę. tools/linux/project.sh
+udostępnia SIGIL_WORK i SIGIL_QA, a gra stosuje tę samą regułę przez
+src/app/workspace.lua. Wszystkie ręczne raporty i audyt UI używają tej samej
+ścieżki; SIGIL_UI_QA_DIR nadal jawnie wybiera katalog danego uruchomienia.
+Windows zachowuje work/qa i work/qa-direct (skrypty Windows poza zakresem
+przenoszenia). Numery wersji: game/src/core/build.lua. Pełny All usuwa
+stare wyniki tylko z zablokowanego qa, z zachowaniem rollback i blokady;
+nie usuwa qa-direct, pomiarów ani wyników innych klonów.
 Jeden zestaw: Windows toolchain/love-11.5-win64/lovec.exe game --suite=<id>,
 Linux love game --suite=<id> (id z tests/suite.lua);
 raport suite-<id>-results.txt nie nadpisuje pełnego test-results.txt.
@@ -262,6 +280,7 @@ Nowy demon z nowym atlasem (plan v10 V7):
        .\scripts\win\EXPORT-ANATOMY.ps1 -Legend <plik> -Install;
      - edytor regionów: .\scripts\win\ANATOMY-EDITOR.ps1 <id> (przeciąganie wierzchołków,
        I/Del, nowe części, strefa, materiał, kotwica, cofanie; S zapisuje
+       anatomy/<id>.lua w zewnętrznym SIGIL_WORK na Linuxie; Windows:
        work/anatomy/<id>.lua), potem kopia do content/art/anatomy/.
      Dopisz moduł do content/art/anatomy/index.lua. Istniejącą adnotację
      zapisze jako dane .\scripts\win\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
@@ -2105,9 +2124,11 @@ scripts/linux/RUN.sh
 
 Wewnętrzne części też mają pary: `project`, `check`, `check-paths`, `check-platform`, `build`, `verify`, `package-check`. Wspólna biblioteka to `tools/linux/project.sh`, a zasady paczki gracza `tools/linux/package.py`.
 
+Na Omarchy okno bez trybu floating może zostać dopasowane do kafelka. Testy kliknięć muszą korzystać z rzeczywistego obszaru interfejsu (`U.viewport`, skala i marginesy), zamiast niezależnie rozciągać współrzędne X/Y. Sonda FOV przy 960×1080 odtworzyła błędne kliknięcie starego testu; po poprawce przechodzi 39 sprawdzeń behavior.
+
 Na pulpicie testy otwierają okno i rysuje prawdziwa karta graficzna. `SIGIL_XVFB=1` albo brak `DISPLAY` i `WAYLAND_DISPLAY` przenosi je na wirtualny ekran z rysowaniem programowym. W WSL uruchamiaj z Windows, np. `wsl.exe -d Ubuntu -- bash scripts/linux/TEST.sh Mechanics --timeout 1800`, z folderu repozytorium. `/mnt/c` nie rozróżnia wielkości liter, ale brama `check-paths` sprawdza pisownię ścieżek niezależnie od systemu plików.
 
-Wyniki idą do `work/qa`, uruchomienia ręczne bez `SIGIL_UI_QA_DIR` do `work/qa-direct`. Wpisy `FAIL second/fourth/failure` to celowe próby raportera. Złoty wzorzec Linuksa to `game/tests/golden/baseline_linux.lua`, bo biblioteki C inaczej zaokrąglają sin, cos i atan2.
+Wyniki idą do `~/Work/tries/sigil-breach-<id>/work/qa`, uruchomienia ręczne bez `SIGIL_UI_QA_DIR` do sąsiedniego `qa-direct`. `SIGIL_TRIES_DIR` wybiera inną bezwzględną bazę (także w CI); `<id>` to pełny skrót SHA-256 kanonicznej ścieżki repozytorium. Po `source tools/linux/project.sh` zmienne `SIGIL_WORK` i `SIGIL_QA` podają pełne ścieżki. `MEASURE` zapisuje w `$SIGIL_WORK/measure-<czas>`, edytor w `anatomy/`, a narzędzia UV w `annotate/` i `anatomy-contact/`; ich domyślne dane po ręcznym `--hit-review` pochodzą z `qa-direct/`. Skrypty Linux nie tworzą repozytoryjnego `work/`. Wpisy `FAIL second/fourth/failure` to celowe próby raportera. Złoty wzorzec Linuksa to `game/tests/golden/baseline_linux.lua`, bo biblioteki C inaczej zaokrąglają sin, cos i atan2.
 
 Paczka na Linuxa (`BUILD.sh --package`, tylko na prośbę właściciela): `outputs/<nazwa>-Player-Linux` z `game.love`, AppImage LÖVE, `run.sh`, instrukcją i dokumentami pochodzenia oraz `outputs/<nazwa>-Developer-Linux` ze źródłami i narzędziami. `tools/linux/verify.sh` sprawdza sumy i zawartość, uruchamia gracza na 20 s, puszcza bramę Architecture w kopii deweloperskiej i pisze archiwa `.tar.gz`. Paczka EXE i ZIP powstaje tylko na Windows.
 
@@ -2147,9 +2168,10 @@ nie weryfikowano ich przez sieć podczas tego porządkowania.
 Przykład pracy Astry w osobnym klonie, z bash:
 
 ```bash
-cd ~/dev/sigil-linux
-mkdir -p work/xdg-data/love/sigil-breach-qa /tmp/sigil-codex
-export XDG_DATA_HOME="$PWD/work/xdg-data"
+cd ~/Work/tries/sigil-linux
+source tools/linux/project.sh
+export XDG_DATA_HOME="$SIGIL_WORK/xdg-data"
+mkdir -p "$XDG_DATA_HOME/love/sigil-breach-qa" /tmp/sigil-codex
 codex exec -m gpt-6-astra -c 'model_reasoning_effort="ultra"' \
   --sandbox workspace-write -C "$PWD" --json \
   -o /tmp/sigil-codex/last-message.md - < BRIEF.md > /tmp/sigil-codex/codex.jsonl
@@ -2157,7 +2179,7 @@ codex exec -m gpt-6-astra -c 'model_reasoning_effort="ultra"' \
 
 Na Linuxie izolację danych LÖVE ustawia `XDG_DATA_HOME`, zamiast `APPDATA`.
 `SIGIL_UI_QA_DIR` nadal wybiera katalog raportów, niezależnie od zapisów gry.
-Zasady właściciela: `docs/PROMPT-NOWY-AGENT.md`. Nie dodawaj prywatnych konfiguracji,
+Punkt wejścia: `START-HERE.txt`; zasady pracy: `docs/AGENTS.md`; decyzje właściciela: `docs/WIZJA.md`. Nie dodawaj prywatnych konfiguracji,
 pamięci agentów ani plików właściciela do gita.
 
 #### Znane różnice (sprawdzone w WSL, 3 listopada 2026)

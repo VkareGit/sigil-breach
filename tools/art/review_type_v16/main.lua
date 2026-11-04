@@ -12,7 +12,7 @@ function love.load()
  love.graphics.newImage=function(p,...)if type(p)=='string'then p=file(p)end;return image(p,...)end
  love.image.newImageData=function(p,...)if type(p)=='string'then p=file(p)end;return data(p,...)end
  local ok,err=xpcall(function()
-  local output=require('qa.directory').ensure(root..'/../work/qa-typography-v16')
+  local output=require('qa.directory').ensure(require('src.app.workspace').directory(root..'/..')..'/qa-typography-v16')
   local count=require('qa.reviews.typography_review').run(output)
   print('PASS '..count..' illustrated typography checks; two specimens.')
  end,debug.traceback)

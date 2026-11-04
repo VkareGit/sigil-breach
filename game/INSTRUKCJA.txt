@@ -244,8 +244,10 @@ BUILD.ps1 — testy, paczka i sprawdzenie EXE/ZIP.
 Flagi: --selftest, --input-test, --showcase, --benchmark.
 Detale: --detail-test oraz --detail-review.
 Strzał i śmierć: --firing-review (wyciszone sekwencje, pomiary i obrazy).
-Wyniki TEST.ps1 i BUILD.ps1: work/qa (release.lua: qaOutput); uruchomienia ręczne:
-work/qa-direct. Raporty powstają od zera.
+Linux: wyniki TEST.sh i BUILD.sh w ~/Work/tries/sigil-breach-<id>/work/qa,
+ręczne QA w sąsiednim qa-direct. Ścieżki i opcje: START-HERE.txt w repozytorium.
+Windows: TEST.ps1 i BUILD.ps1 nadal używają work/qa, ręczne QA work/qa-direct.
+Pełny All czyści swoje raporty; pozostałe katalogi pozostają.
 Powtórki: --record zapisuje dziennik poleceń; odtwarza się kaplicę, szybką
 potyczkę i poligon (także akcje katalogu poligonu).
 QA jest wyciszone, nie przejmuje kursora i ma osobny katalog zapisu.

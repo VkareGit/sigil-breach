@@ -11,7 +11,12 @@ Jeden bieżący plan. Gdy powstaje nowy plan, ten plik w całości trafia jako r
 
 ## Postęp (stan punktów)
 
-Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub sonda czerwona przed zmianą, zmiana, sekcje `ZMIANY-<wersja>.txt` / `ODBIOR-<wersja>.txt` w `docs/HISTORIA.md`, wiersz tutaj, commit przy zielonym `.\scripts\TEST.ps1 -Suite All -TestTimeoutSeconds 1800`.
+**Aktualizacja 2026-11-04, Omarchy:** przegląd na `d10e5e1` zakończony bez zmian gry. Architecture, Input, golden i Tools przeszły; brama Linux pozostaje czerwona na `weight` oraz kontroli cienia w Render. Pełny zapis na górze `ODBIOR-0.45.txt` w `docs/HISTORIA.md`. Ustalenia właściciela są w `docs/AGENTS.md`, a punktem wejścia jest `START-HERE.txt`. Usunięto zbędny prompt, lokalny NOWY-KOMPUTER i wygenerowane work/; wyniki Linuxa przeniesiono do Work/tries. Test behavior uwzględnia proporcje kafelka Omarchy (sonda 960×1080: FAIL → PASS 39). Końcowa weryfikacja całego zakresu jest w najnowszym wpisie ODBIOR.
+
+
+**Porządki zakończone 2026-11-04:** zasady tymczasowych klonów i kafelkowania Omarchy zapisane; wszystkie domyślne wyniki Linuxa poza repozytorium. Końcowy przebieg: Architecture 663 pliki / 0 naruszeń, ścieżki QA PASS, Mechanics 5639 zaliczonych (FAIL tylko wcześniejszy weight), Input 50 PASS, Tools PASS; Render zatrzymuje wcześniejszy test cienia. Dziewięć zgodnych świadectw źródeł, bez zmian Windows. Po przedstawieniu wyników właściciel polecił zatwierdzić cały obecny zakres, wraz z nowymi plikami, i wysłać go na origin/main mimo dwóch opisanych wcześniejszych błędów. Następny zakres wybierze właściciel.
+
+Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub sonda czerwona przed zmianą, zmiana, sekcje `ZMIANY-<wersja>.txt` / `ODBIOR-<wersja>.txt` w `docs/HISTORIA.md`, wiersz tutaj. Obecnie pracujemy na Linuxie: `scripts/linux/TEST.sh All --timeout 1800`; każdy zakończony zakres domykaj commitem po wymaganej weryfikacji, zgodnie z `docs/AGENTS.md`; push wymaga polecenia właściciela.
 
 | Punkt | Co | Stan | Dowód / uwagi |
 |---|---|---|---|
@@ -23,7 +28,7 @@ Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub s
 | P4 | Animacje i efekty (Astra): elity, flaska, promień Stolasa, amunicja | kolejna wersja malarska 2026-11-04, do oceny | `work/reszta/RAPORT.md`; 55 arkuszy efektów, audyt stylu; czasy elit i maski bez zmian |
 | P5 | Sklep przy ognisku: start z Judge'em, Exorcist za dusze, hartowanie +I | zaimplementowane; odbiór tras NIEZALICZONY | zakup i migracje przetestowane; 3/3 porażki bota przed i po, bez braku amunicji; `work/reszta/RAPORT.md` |
 | P6 | Sigile: pojemność, zakładanie przy ognisku, pierwsze cztery | zaimplementowane 2026-11-04 | Stolas/Furfur/Buer/Paimon, 4 punkty, ręczny wybór, migracja starych pasywów, testy naliczeń; `work/reszta/RAPORT.md` |
-| P7 | Próba właściciela i pomiary; potem +II, kolejne sigile, ewentualne okna elit | do próby właściciela | +II i kolejne sigile niewłączone; balans oraz czasy elit nietknięte w zakresie Astry 2026-11-04 |
+| P7 | Próba właściciela i pomiary; potem +II, kolejne sigile, ewentualne okna elit | wstępna ocena 2026-11-04: „na razie dobrze”; pełny odbiór otwarty | właściciel chce jednego celu naraz i sam poda następny zakres; +II, nowe sigile i zmiany elit niezatwierdzone |
 
 Aktualizacja 2026-11-04: cały zakres kodu, grafiki i dźwięku wykonała Astra sama, bez delegacji i bez commitów, zgodnie z bieżącym poleceniem właściciela. Historyczny podział wykonawców poniżej nie opisuje tej realizacji. Pełny wynik testów i ograniczenia są w `work/reszta/RAPORT.md`.
 

@@ -88,7 +88,7 @@ function Q.new(arguments)
     end
     assert(selected == 1, '--qa-smoke requires exactly one registered diagnostic tool')
   end
-  q.output = os.getenv('SIGIL_UI_QA_DIR') or Release.handOutput
+  q.output = Release.output()
   if q.capture then
     require('qa.directory').ensure(q.output)
     require('qa.floor').install()

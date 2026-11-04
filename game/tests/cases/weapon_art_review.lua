@@ -3,7 +3,7 @@ function Tests.run(Game, renderer)
   local Fixtures = require('tests.support.fixtures')
   local Field = require('src.run.test_field')
   local UI = require('src.ui.interface')
-  local output = os.getenv('SIGIL_UI_QA_DIR') or require('src.app.release').qaOutput
+  local output = require('qa.output').directory()
   local lines = {}
   local check = Fixtures.checker(lines, 'weapon review: ', 'weapon review: ')
   for slot, name in ipairs({ 'shotgun', 'revolver' }) do

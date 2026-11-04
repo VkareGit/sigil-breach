@@ -1,6 +1,6 @@
 # SIGIL: BREACH — wizja
 
-Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właściciela obowiązują każdego agenta. Skrót dla nowego czatu jest w `docs/PROMPT-NOWY-AGENT.md`; bieżący plan w `docs/PLAN.md`.
+Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właściciela obowiązują każdego agenta. Mapa projektu jest w `START-HERE.txt`, zasady pracy w `docs/AGENTS.md`, a bieżący plan w `docs/PLAN.md`.
 
 ## Spis rozdziałów
 
@@ -10,6 +10,20 @@ Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właści
 - Ogniska i ulepszenia (2026-11-02)
 - System świata (0.14)
 - Manifest Nikogo
+
+## Uzupełnienia obowiązujące (4 listopada 2026)
+
+Przeniesione z instrukcji przekazanej przez właściciela; mają pierwszeństwo przed starszymi propozycjami niżej.
+
+- D1: ognisko odmawia odpoczynku i podaje powód, gdy ściga rycerza czuwający stwór.
+- D2: amunicja pochodzi ze stworów; rodzina daje swój rodzaj, egzekucja pewny skromny zwrot, rzadka amunicja z trudniejszych.
+- D3: unik ogranicza tylko wytrzymałość. Strzał nie zużywa wytrzymałości, lecz po nim ciało potrzebuje chwili.
+- D4: zaalarmowane stwory w otwartej przestrzeni ruszają wszystkie; oddzielone części budzą się grupą. Przed wykryciem część patroluje, część stoi.
+- D7: Furfur płaci tyle samo dusz co Margrave.
+- Nie zmieniać zegarów SI dla odczucia trafienia. D05 (wstrzymanie stworów przy trafieniu) złamało `creature-pressure` i zostało wycofane; odczucie poprawiać obrazem i dźwiękiem.
+- Elity po próbie 0.45 działają lepiej; jedna nie stanowi problemu, ale nie są bossami. Dalsze zmiany elit tylko na osobne polecenie. Bossowie, docelowa mapa i druga droga pozostają odłożone.
+- Ogniska zostają; kluczowe są rozmieszczenie i tempo. C02 tylko po próbie właściciela.
+- Wstępna ocena 0.45: „na razie dobrze”. Właściciel chce jednego celu naraz i sam wybiera następny zakres; nie jest to pełny odbiór P7 ani zgoda na +II i nowe funkcje.
 
 ## Decyzje właściciela (3 listopada 2026, wieczór)
 
