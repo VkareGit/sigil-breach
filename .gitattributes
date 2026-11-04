@@ -11,3 +11,5 @@
 *.zip binary
 # Reference files compared byte for byte (plan v11 E0): never converted.
 game/tests/fixtures/** -text
+*.AppImage binary
+toolchain/stylua/stylua binary

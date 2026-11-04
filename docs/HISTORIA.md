@@ -58,6 +58,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Linux w pełni: każde polecenie ma parę. scripts/win/*.ps1 i tools/win/*.ps1
+  to Windows, scripts/linux/*.sh i tools/linux/*.sh to Linux, z tym samym
+  zakresem: TEST (wszystkie zestawy, formatowanie, Architecture, render,
+  narzędzia), FORMAT, RUN, BUILD, MEASURE, BAKE-HIT-MASKS, CHECK-CREATURE,
+  EXPORT-SHEET, EXPORT-ANATOMY, ANATOMY-EDITOR, arkusze kontaktowe i
+  powiększenia. Repozytorium ma LÖVE 11.5 (AppImage) i StyLua 2.6.0 dla
+  Linuxa w toolchain/, więc PowerShell na Linuxie nie jest potrzebny. Paczka
+  na Linuxa: game.love, AppImage i run.sh oraz obszar deweloperski. Przy okazji
+  naprawiona zła ścieżka FORMAT w scripts/win/EXPORT-SHEET.ps1. Maski wypieczone
+  na obu systemach są identyczne bajt w bajt.
 - Astra, 2026-11-04, dalszy zakres 0.45: efekty jako malowane sceny
   Giovanniego da Modeny. Stolas: rysa Kocytu, twarze i dłonie, pióra
   oraz odłamki przy odskoku i teleportacji; Furfur: pęknięcie fresku;

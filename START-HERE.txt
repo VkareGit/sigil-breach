@@ -9,9 +9,10 @@ KATALOGI
   game/       gra (main.lua, src/, assets/), testy (tests/), narzędzia QA (qa/),
               instrukcja gracza INSTRUKCJA.txt
   docs/       dokumenty projektu (lista niżej)
-  scripts/    polecenia: TEST, FORMAT, RUN, BUILD, MEASURE i warsztat grafiki
-  tools/      wnętrze skryptów i narzędzia artystyczne
-  toolchain/  LÖVE 11.5 i StyLua dla Windows
+  scripts/    polecenia: win/*.ps1 i linux/*.sh, te same: TEST, FORMAT, RUN, BUILD,
+              MEASURE i warsztat grafiki
+  tools/      wnętrze skryptów (win/, linux/) i narzędzia artystyczne
+  toolchain/  LÖVE 11.5 i StyLua dla Windows i Linuxa
   work/       wyniki testów (work/qa) i uruchomień ręcznych (work/qa-direct);
               poza gitem; pełny przebieg testów zaczyna od pustego work/qa,
               więc są tam tylko wyniki ostatniego; można usunąć w każdej chwili
@@ -29,11 +30,12 @@ rozdziałów historii (BUILD ich szuka). Nie twórz nowych plików w docs/.
 
 POLECENIA (z katalogu repozytorium)
   love game                                 gra ze źródeł (w game/: love .)
-  .\scripts\FORMAT.ps1                      formatowanie Lua
-  .\scripts\TEST.ps1 -Suite Architecture    szybka kontrola kodu (to samo robi CI)
-  .\scripts\TEST.ps1 -Suite All -TestTimeoutSeconds 1800   pełna brama przed commitem
-  .\scripts\BUILD.ps1 -Package              EXE i ZIP: tylko na prośbę właściciela
+  .\scripts\win\FORMAT.ps1                      formatowanie Lua
+  .\scripts\win\TEST.ps1 -Suite Architecture    szybka kontrola kodu (to samo robi CI)
+  .\scripts\win\TEST.ps1 -Suite All -TestTimeoutSeconds 1800   pełna brama przed commitem
+  .\scripts\win\BUILD.ps1 -Package              EXE i ZIP: tylko na prośbę właściciela
   Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
-Linux: te same skrypty przez pwsh (./scripts/TEST.ps1); szczegóły w docs/TECHNIKA.md. Bez pwsh (np. WSL): bash scripts/TEST-LINUX.sh.
+Linux: te same polecenia w scripts/linux/: scripts/linux/TEST.sh All --timeout 1800 itd.;
+tabela wszystkich par w docs/TECHNIKA.md, rozdział Linux.
 Wersja: game/src/core/build.lua. Grafikę, dźwięk i nagrania robi Codex Astra.
 Robocze pliki agentów (skrypty, wiadomości commitów, sondy) trzymaj poza repozytorium.

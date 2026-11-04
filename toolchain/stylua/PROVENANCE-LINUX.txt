@@ -1,0 +1,17 @@
+StyLua 2.6.0 / Linux x86_64
+
+Upstream project:
+https://github.com/JohnnyMorganz/StyLua
+
+Downloaded unmodified binary archive:
+https://github.com/JohnnyMorganz/StyLua/releases/download/v2.6.0/stylua-linux-x86_64.zip
+SHA-256 of the archive: a485f72bbfa22e4642e77a84b5edc2611a5cab7477b34e2e709dd8f78e919895
+
+LOVE 11.5 / Linux x86_64 (toolchain/love-11.5-linux)
+
+Upstream project:
+https://github.com/love2d/love
+
+Downloaded unmodified:
+https://github.com/love2d/love/releases/download/11.5/love-11.5-x86_64.AppImage
+SHA-256: 65a673406431eff7167a15a032bf7a2e4ba50108e091eb7b176465831f9b5e00

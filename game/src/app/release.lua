@@ -4,7 +4,7 @@ return {
   version = require('src.core.build').version,
   title = 'SIGIL: BREACH / The Chapel',
   menuLabel = 'menu_release',
-  -- The QA directory of TEST.ps1 and BUILD.ps1 (tools/project.ps1 reads it from here); they
+  -- The QA directory of TEST.ps1 and BUILD.ps1 (tools/win/project.ps1 and tools/linux/project.sh read it); they
   -- always name it to the game with a run id.
   qaOutput = 'work/qa',
   -- Where a run started by hand writes when no QA directory is named: never over the reports

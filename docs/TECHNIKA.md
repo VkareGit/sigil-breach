@@ -29,35 +29,31 @@ Aktualna architektura: rozdział Architektura niżej. Historia zmian: docs/HISTO
 POLECENIA POWERSHELL Z GŁÓWNEGO KATALOGU
 
 Windows: PowerShell 5.1 i dołączony toolchain/love-11.5-win64.
-Linux: PowerShell 7, LÖVE 11.5 i StyLua 2.6.0. Z bash uruchamiaj poniższe
-skrypty jako pwsh -NoProfile -File scripts/TEST.ps1 ... (albo ./scripts/TEST.ps1 w pwsh).
-LÖVE: love z PATH lub SIGIL_LOVE; StyLua: toolchain/stylua/stylua, PATH lub
-SIGIL_STYLUA. Bez DISPLAY/WAYLAND_DISPLAY skrypty używają xvfb-run -a.
-Architecture nie wymaga ekranu. -Release i -Package są tylko dla Windows.
+Linux: każde polecenie niżej ma odpowiednik w scripts/linux/*.sh (tabela w rozdziale Linux).
 Zapisy: %APPDATA%/LOVE na Windows; ${XDG_DATA_HOME:-~/.local/share}/love na Linuxie.
 
-  .\scripts\RUN.ps1                     uruchom aktualne źródła
-  .\scripts\RUN.ps1 -Release            uruchom EXE bieżącej wersji
-  .\scripts\FORMAT.ps1                  sformatuj aktywny kod Lua
-  .\scripts\FORMAT.ps1 -Check           sprawdź styl bez zapisywania zmian
-  .\scripts\BAKE-HIT-MASKS.ps1           przelicz maski po zmianie ilustracji/klatek
-  .\scripts\EXPORT-SHEET.ps1 <id>        arkusz atlasu: zmierz stopy i rozmiary (-Spec: nowy)
-  .\scripts\EXPORT-ANATOMY.ps1 <id>      adnotacja jako dane (-Legend: z warstw części)
-  .\scripts\ANATOMY-EDITOR.ps1 <id>      edytor regionów anatomii na klatkach
-  .\scripts\CHECK-CREATURE.ps1 <id>      wszystkie elementy demona: OK / MISSING
-  .\scripts\TEST.ps1 -Suite Architecture składnia, zależności i granice modułów
-  .\scripts\TEST.ps1 -Suite Mechanics    mechanika, zasoby i kontrakty aplikacji
-  .\scripts\TEST.ps1 -Suite Input        prawdziwe callbacki, menu i zapis
-  .\scripts\TEST.ps1 -Suite Render       widoki gry i pomiary interfejsu
-  .\scripts\TEST.ps1 -Suite Tools        smoke narzędzi + realny start/retry/cancel
-  .\scripts\TEST.ps1                     wszystkie powyższe kontrole
+  .\scripts\win\RUN.ps1                     uruchom aktualne źródła
+  .\scripts\win\RUN.ps1 -Release            uruchom EXE bieżącej wersji
+  .\scripts\win\FORMAT.ps1                  sformatuj aktywny kod Lua
+  .\scripts\win\FORMAT.ps1 -Check           sprawdź styl bez zapisywania zmian
+  .\scripts\win\BAKE-HIT-MASKS.ps1           przelicz maski po zmianie ilustracji/klatek
+  .\scripts\win\EXPORT-SHEET.ps1 <id>        arkusz atlasu: zmierz stopy i rozmiary (-Spec: nowy)
+  .\scripts\win\EXPORT-ANATOMY.ps1 <id>      adnotacja jako dane (-Legend: z warstw części)
+  .\scripts\win\ANATOMY-EDITOR.ps1 <id>      edytor regionów anatomii na klatkach
+  .\scripts\win\CHECK-CREATURE.ps1 <id>      wszystkie elementy demona: OK / MISSING
+  .\scripts\win\TEST.ps1 -Suite Architecture składnia, zależności i granice modułów
+  .\scripts\win\TEST.ps1 -Suite Mechanics    mechanika, zasoby i kontrakty aplikacji
+  .\scripts\win\TEST.ps1 -Suite Input        prawdziwe callbacki, menu i zapis
+  .\scripts\win\TEST.ps1 -Suite Render       widoki gry i pomiary interfejsu
+  .\scripts\win\TEST.ps1 -Suite Tools        smoke narzędzi + realny start/retry/cancel
+  .\scripts\win\TEST.ps1                     wszystkie powyższe kontrole
 
 Pełny Render obejmuje także gęste próbkowanie trafień w żywych animacjach.
 Na wolniejszym komputerze można jawnie zwiększyć limit procesu, bez pomijania
-próbek: .\scripts\TEST.ps1 -Suite Render -TestTimeoutSeconds 1200.
-Analogiczny parametr ma tools/verify.ps1. Limit domyślny wynosi 300 sekund;
+próbek: .\scripts\win\TEST.ps1 -Suite Render -TestTimeoutSeconds 1200.
+Analogiczny parametr ma tools/win/verify.ps1. Limit domyślny wynosi 300 sekund;
 timeout nie jest zaliczonym testem. Przebieg trafień wypisuje kolejne archetypy.
-  .\scripts\BUILD.ps1                    testy źródeł; -Package: snapshot, testy EXE, ZIP
+  .\scripts\win\BUILD.ps1                    testy źródeł; -Package: snapshot, testy EXE, ZIP
 
 0.32: BUILD tworzy osobne paczki Developer-Windows i Player-Windows.
 Gracz dostaje EXE/runtime i niezbędną zawartość; nie dostaje qa/tests ani
@@ -66,7 +62,7 @@ luźnego source i dokumentacji warsztatu. Deweloper dostaje także pełne
 Lua — paczka gracza nie jest ochroną kodu przed odczytem. Archiwum gry
 gracza istnieje tylko wewnątrz jego EXE (bez drugiej kopii .love obok);
 weryfikacja czyta je z EXE i odrzuca bajty dopisane za archiwum.
-tools/package-check.ps1 sprawdza manifesty/allowlistę i odrzucanie zmian;
+tools/win/package-check.ps1 sprawdza manifesty/allowlistę i odrzucanie zmian;
 -Installed uruchamia rzeczywiste paczki z katalogu poza repo.
 PACKAGE-MANIFEST.json oraz build-fingerprint.txt wiążą wynik z SHA-256
 źródeł, a osobne .sha256 poświadczają ZIP. Sam timestamp PASS nie wystarcza.
@@ -81,11 +77,11 @@ TEST/BUILD/BAKE, np. równoległego agenta, czeka zamiast nadpisywać raporty.
 Hashowanie może rozgrzać cache plików OS, więc pierwszy przebieg procesu
 nie jest automatycznie pomiarem dysku po zimnym restarcie komputera.
 
-Po udanych testach źródeł można wykonać samo tools/build.ps1, a potem
-tools/verify.ps1. Drugi krok jest konieczny do poświadczenia i utworzenia ZIP.
+Po udanych testach źródeł można wykonać samo tools/win/build.ps1, a potem
+tools/win/verify.ps1. Drugi krok jest konieczny do poświadczenia i utworzenia ZIP.
 Testy są wyciszone, poza ekranem, bez przejmowania myszy i na osobnym zapisie.
 Główne raporty zapisują się w work/qa (qaOutput w release.lua, czytany też
-przez tools/project.ps1; numer wersji: game/src/core/build.lua).
+przez tools/win/project.ps1; numer wersji: game/src/core/build.lua).
 Uruchomienie ręczne bez SIGIL_UI_QA_DIR pisze do work/qa-direct
 (handOutput), nigdy do raportów trwającego TEST.ps1.
 Jeden zestaw: Windows toolchain/love-11.5-win64/lovec.exe game --suite=<id>,
@@ -244,7 +240,7 @@ Nowy demon z nowym atlasem (plan v10 V7):
      2 x 2 czterech póz spoczynku, w assets/art/.
   2. Specyfikacja (plik Lua: { id, size, idle?, sources = { { path,
      columns, rows, scale?, idle? } }, poses? | template? }) i
-     .\scripts\EXPORT-SHEET.ps1 -Spec <plik>: narzędzie znajduje cięcia
+     .\scripts\win\EXPORT-SHEET.ps1 -Spec <plik>: narzędzie znajduje cięcia
      w przezroczystych przerwach, mierzy stopy, proponuje kotwicę głowy
      (szczyt sylwetki) i zapisuje nazwane pozy (plan v11 E1). Pozy podaje
      specyfikacja (poses) albo szablon dawnego układu (template =
@@ -263,19 +259,19 @@ Nowy demon z nowym atlasem (plan v10 V7):
      - warstwy części: maska na część (PNG wielkości źródła, nieprzezroczyste
        = część) i legenda ({ id, atlas, body, parts = { { id, zone,
        material, hittable?, masks = { [obraz] = maska } } } });
-       .\scripts\EXPORT-ANATOMY.ps1 -Legend <plik> -Install;
-     - edytor regionów: .\scripts\ANATOMY-EDITOR.ps1 <id> (przeciąganie wierzchołków,
+       .\scripts\win\EXPORT-ANATOMY.ps1 -Legend <plik> -Install;
+     - edytor regionów: .\scripts\win\ANATOMY-EDITOR.ps1 <id> (przeciąganie wierzchołków,
        I/Del, nowe części, strefa, materiał, kotwica, cofanie; S zapisuje
        work/anatomy/<id>.lua), potem kopia do content/art/anatomy/.
      Dopisz moduł do content/art/anatomy/index.lua. Istniejącą adnotację
-     zapisze jako dane .\scripts\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
-  4. .\scripts\BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem).
+     zapisze jako dane .\scripts\win\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
+  4. .\scripts\win\BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem).
   5. Definicja: content/creatures/<id>.lua (appearance.atlas, klucze
      tekstów nazwy i karty bestiariusza; body.corpse = { settle, landing }
      to czas osiadania zwłok i moment uderzenia o podłogę, niezależne od
      długości malowanego upadku), id w A.creatures;
      punkty anatomiczne w qa/data/hit_landmarks.lua.
-  6. .\scripts\CHECK-CREATURE.ps1 <id> wypisuje każdy brakujący element (definicja,
+  6. .\scripts\win\CHECK-CREATURE.ps1 <id> wypisuje każdy brakujący element (definicja,
      arkusz, obrazy, klatki, pozy (każda klatka pozy z kotwicą, anatomią
      i maską), stopy, anatomia, maski, punkty, galeria,
      bestiariusz, grafika ataków); kod wyjścia 0 = komplet.
@@ -358,7 +354,7 @@ DODAWANIE TESTU
 4. Gdy zmieniasz grafikę lub UI, dodaj scenę do qa/showcase.lua albo odpowiedniego
    qa/reviews. Test powinien używać prawdziwego renderera i działań gry.
 5. Nie czytaj starego test-results.txt jako podstawy powodzenia nowego testu.
-6. Commit dopiero przy zielonym .\scripts\TEST.ps1 -Suite All (0.43, audyt 2026-11-03:
+6. Commit dopiero przy zielonym .\scripts\win\TEST.ps1 -Suite All (0.43, audyt 2026-11-03:
    commity 0.42 weszły z czerwonym Mechanics i ukryły regresje). Czerwony selftest
    zatrzymuje Render i Input, więc przy znanym czerwonym zestawie uruchom je osobno
    (-Suite Render -TestTimeoutSeconds 1800, -Suite Input). Znany czerwony zestaw
@@ -1015,7 +1011,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
 14. NARZĘDZIA
 
   FORMAT.ps1 (StyLua) przed testami; TEST.ps1 -Suite All|Architecture|
-  Mechanics|Input|Render|Tools; tools/check.ps1; raporty w work/qa-v<wersja>/
+  Mechanics|Input|Render|Tools; tools/win/check.ps1; raporty w work/qa-v<wersja>/
   (qaOutput w game/src/app/release.lua). Flagi: --selftest, --input-test,
   --showcase, --benchmark, --hit-review
   (raporty trafień, GPU, opóźnienia i koszt salwy, nakładki hit-overlay-*),
@@ -2076,87 +2072,46 @@ _Dawniej: `docs/LINUX.md`_
 
 ### SIGIL: BREACH na Linuxie
 
-Gra używa LÖVE 11.5 z LuaJIT. Zwykłe uruchomienie nie potrzebuje osobnego
-Lua ani LuaJIT. Narzędzia projektu obsługują Windows PowerShell 5.1 oraz
-PowerShell 7 na Linuxie. Numer wersji gry pozostaje w `game/src/core/build.lua`.
+Każde polecenie ma tu pełny odpowiednik linuksowy: `scripts/win/*.ps1` i `tools/win/*.ps1` to Windows, `scripts/linux/*.sh` i `tools/linux/*.sh` to Linux, o tych samych nazwach poleceń i tym samym zakresie. PowerShell na Linuxie nie jest potrzebny. Sklonowane repozytorium ma własne LÖVE 11.5 (`toolchain/love-11.5-linux`, AppImage) i StyLua 2.6.0 (`toolchain/stylua/stylua`), z pochodzeniem w `toolchain/stylua/PROVENANCE-LINUX.txt`.
 
 #### Instalacja i pierwszy start
 
-Zainstaluj git, **LÖVE 11.5**, **PowerShell 7** (`pwsh`) i **StyLua 2.6.0**.
-Bez pulpitu potrzebny jest również `xvfb-run` z pakietu xvfb oraz xauth.
-Użyj pakietów swojej dystrybucji, a jeśli nie oferują wymaganej wersji,
-oficjalnych wydań LÖVE, PowerShell i StyLua. Sprawdź wersje przed testami:
+Potrzebne z systemu: git, bash, coreutils, flock (util-linux), python3 i biblioteki graficzne pulpitu. Bez pulpitu także `xvfb-run` z pakietu xvfb oraz xauth. Biblioteka libfuse2 nie jest potrzebna: AppImage rozpakowuje się sam do `/tmp` i zostaje tam na następne uruchomienia.
 
 ```bash
-git --version
-love --version
-pwsh --version
-stylua --version
-```
-
-StyLua można też zbudować z zainstalowanym Rust/Cargo:
-`cargo install stylua --version 2.6.0 --locked --features luajit`.
-Dodaj `~/.cargo/bin` do PATH. Plik `toolchain/stylua/stylua.exe` jest tylko
-dla Windows; na Linuxie skrypt szuka `toolchain/stylua/stylua`, następnie PATH.
-`SIGIL_STYLUA` ma pierwszeństwo. Wszystkie warianty muszą zgłaszać 2.6.0.
-
-```bash
-git clone <URL-repozytorium-z-GitHuba> ~/dev/sigil-breach
+git clone git@github.com:VkareGit/sigil-breach.git ~/dev/sigil-breach
 cd ~/dev/sigil-breach
-pwsh -NoProfile -File scripts/RUN.ps1
-### Równoważne uruchomienie z katalogu repozytorium:
-love game
-### Z katalogu game: love .
+scripts/linux/RUN.sh
 ```
 
-Skrypty wybierają na Linuxie `love` z PATH. Możesz wskazać inną binarkę:
-`export SIGIL_LOVE=/pełna/ścieżka/do/love`. Zmienna wskazuje sam plik,
-bez argumentów i bez `xvfb-run`. Analogicznie działa `SIGIL_STYLUA`.
-Ścieżki mogą zawierać spacje. Na Windows domyślnie pozostaje
-`toolchain/love-11.5-win64/love.exe` (gra) i `lovec.exe` (QA).
+`SIGIL_LOVE=/ścieżka/do/love` i `SIGIL_STYLUA=/ścieżka/do/stylua` wskazują inne programy (sam plik, bez argumentów). Bez dołączonego LÖVE skrypty biorą `love` z PATH. Sam uruchomisz grę także przez `love game`, jeśli masz LÖVE w systemie.
 
 #### Testy i warsztat
 
-Polecenia poniżej wykonuj w katalogu repozytorium, w bash:
+| Windows | Linux | Co robi |
+|---|---|---|
+| `.\scripts\win\RUN.ps1` | `scripts/linux/RUN.sh` | gra ze źródeł (`--release`: ostatnia paczka) |
+| `.\scripts\win\FORMAT.ps1 [-Check]` | `scripts/linux/FORMAT.sh [--check]` | StyLua |
+| `.\scripts\win\TEST.ps1 -Suite All -TestTimeoutSeconds 1800` | `scripts/linux/TEST.sh All --timeout 1800` | pełna brama; także `Architecture`, `Mechanics`, `Input`, `Render`, `Tools` |
+| `.\scripts\win\BUILD.ps1 [-Package]` | `scripts/linux/BUILD.sh [--package]` | testy i paczki |
+| `.\scripts\win\MEASURE.ps1` | `scripts/linux/MEASURE.sh --before A --after B` | protokół pomiaru |
+| `.\scripts\win\BAKE-HIT-MASKS.ps1` | `scripts/linux/BAKE-HIT-MASKS.sh` | maski trafień |
+| `.\scripts\win\CHECK-CREATURE.ps1 <id>` | `scripts/linux/CHECK-CREATURE.sh <id>` | kompletność demona |
+| `.\scripts\win\EXPORT-SHEET.ps1 <id>` | `scripts/linux/EXPORT-SHEET.sh <id>` (`--spec plik`) | arkusz atlasu |
+| `.\scripts\win\EXPORT-ANATOMY.ps1 <id>` | `scripts/linux/EXPORT-ANATOMY.sh <id>` (`--legend plik`, `--install`) | dane anatomii |
+| `.\scripts\win\ANATOMY-EDITOR.ps1 <id>` | `scripts/linux/ANATOMY-EDITOR.sh <id>` | edytor regionów |
+| `tools\win\art-contact.ps1` | `tools/linux/art-contact.sh` | arkusze kontaktowe UV |
+| `tools\win\art-crops.ps1` | `tools/linux/art-crops.sh <kind> <frame>` | powiększenia klatek |
 
-```bash
-pwsh -NoProfile -File scripts/FORMAT.ps1
-pwsh -NoProfile -File scripts/TEST.ps1 -Suite Architecture
-pwsh -NoProfile -File scripts/TEST.ps1 -Suite Mechanics -TestTimeoutSeconds 1800
-pwsh -NoProfile -File scripts/TEST.ps1 -Suite All -TestTimeoutSeconds 1800
-pwsh -NoProfile -File scripts/BUILD.ps1
-```
+Wewnętrzne części też mają pary: `project`, `check`, `check-paths`, `check-platform`, `build`, `verify`, `package-check`. Wspólna biblioteka to `tools/linux/project.sh`, a zasady paczki gracza `tools/linux/package.py`.
 
-W otwartej sesji `pwsh` skrótem jest `./scripts/TEST.ps1 ...`, a w Windows PowerShell
-` .\scripts\TEST.ps1 ...` (bez początkowej spacji). `BUILD.ps1` bez parametrów testuje
-źródła. `-Package`, bezpośrednie `tools/build.ps1`, `tools/verify.ps1`, instalacyjne
-testy paczek i `RUN.ps1 -Release` dotyczą EXE dla Windows.
+Na pulpicie testy otwierają okno i rysuje prawdziwa karta graficzna. `SIGIL_XVFB=1` albo brak `DISPLAY` i `WAYLAND_DISPLAY` przenosi je na wirtualny ekran z rysowaniem programowym. W WSL uruchamiaj z Windows, np. `wsl.exe -d Ubuntu -- bash scripts/linux/TEST.sh Mechanics --timeout 1800`, z folderu repozytorium. `/mnt/c` nie rozróżnia wielkości liter, ale brama `check-paths` sprawdza pisownię ścieżek niezależnie od systemu plików.
 
-Architecture sprawdza format, składnię, zależności i wielkość liter w nazwach
-ścieżek; działa bez okna i serwera X. Pozostałe skrypty same dodają `xvfb-run -a`,
-gdy nie ma ani DISPLAY, ani WAYLAND_DISPLAY. Do bezpośredniego wywołania LÖVE
-bez ekranu dodaj ten prefiks sam:
+Wyniki idą do `work/qa`, uruchomienia ręczne bez `SIGIL_UI_QA_DIR` do `work/qa-direct`. Wpisy `FAIL second/fourth/failure` to celowe próby raportera. Złoty wzorzec Linuksa to `game/tests/golden/baseline_linux.lua`, bo biblioteki C inaczej zaokrąglają sin, cos i atan2.
 
-```bash
-export SIGIL_UI_QA_DIR="$PWD/work/qa-direct/linux"
-xvfb-run -a love game --suite=golden
-xvfb-run -a love game --selftest
-xvfb-run -a love game --input-test
-xvfb-run -a love game --startup-check
-xvfb-run -a love game --chapel-look
-```
+Paczka na Linuxa (`BUILD.sh --package`, tylko na prośbę właściciela): `outputs/<nazwa>-Player-Linux` z `game.love`, AppImage LÖVE, `run.sh`, instrukcją i dokumentami pochodzenia oraz `outputs/<nazwa>-Developer-Linux` ze źródłami i narzędziami. `tools/linux/verify.sh` sprawdza sumy i zawartość, uruchamia gracza na 20 s, puszcza bramę Architecture w kopii deweloperskiej i pisze archiwa `.tar.gz`. Paczka EXE i ZIP powstaje tylko na Windows.
 
-QA tworzy katalog wraz z rodzicami. `TEST.ps1` zawsze zapisuje własne wyniki
-w `work/qa`; uruchomienia ręczne bez zmiennej trafiają do `work/qa-direct`.
-Celowe wpisy `FAIL second/fourth/failure` testują reporter. Samodzielny
-`hazard-art` ma znane niepowodzenie już na bazie 0.44; pełna brama jest miarodajna.
-Złotego wzorca nie aktualizuje się przy przenoszeniu narzędzi między systemami.
-
-`BAKE-HIT-MASKS`, `EXPORT-SHEET`, `EXPORT-ANATOMY`, `CHECK-CREATURE`,
-`ANATOMY-EDITOR` i `MEASURE` uruchamia się tak samo przez `pwsh -File`.
-Eksporty anatomii używają na Linuxie LÖVE zamiast System.Drawing.
-Warsztat malowideł `tools/art/chapel_hall/*.py` wymaga opcjonalnie Python 3,
-Pillow i NumPy; nie są zależnościami gry ani bramy Architecture.
+Warsztat malowideł `tools/art/chapel_hall/*.py` wymaga opcjonalnie Pillow i NumPy; nie są zależnościami gry ani bramy.
 
 #### Zapisy i przenoszenie komputera
 
@@ -2178,9 +2133,7 @@ Ręcznie przenieś to, czego klon nie odtworzy:
   uruchomieniu Claude w nowym klonie odszukaj utworzony katalog dla tej ścieżki
   i skopiuj do niego `memory/`; nie zostawiaj jej pod nazwą opisującą dysk C:.
 
-Opcjonalnie zachowaj potrzebne lokalne dowody z `work/`, paczki z `outputs/`
-i prywatne archiwa `old/*.zip`. Nie są wymagane do uruchomienia bieżącej gry.
-Śledzone wzorce `docs/art/` i `old/weapon-art-v32-v33/` przychodzą z klonem.
+Śledzone wzorce z `docs/art/` przychodzą z klonem.
 
 #### Agenci na Linuxie
 
@@ -2221,5 +2174,5 @@ Przeszło 116 ze 119 zestawów. Pozostałe trzy:
   `floor-layers` (ogień na moście nie świeci na podłogę pod spodem) porównują
   piksele dokładnie albo z tolerancją 0,004. WSL rysuje programowo (llvmpipe),
   więc najpewniej to różnica sterownika. **Sprawdź je przy pierwszym
-  `./scripts/TEST.ps1 -Suite All` na nowym komputerze z prawdziwą kartą graficzną.** Jeśli
+  `./scripts/win/TEST.ps1 -Suite All` na nowym komputerze z prawdziwą kartą graficzną.** Jeśli
   dalej nie przechodzą, ustal przyczynę, zanim zmienisz tolerancję.
