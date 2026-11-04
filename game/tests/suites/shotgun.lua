@@ -221,13 +221,14 @@ function Tests.run(G, initial, renderer, getGame)
   a.windupDuration = 0.74
   a.aimX = 16
   a.aimZ = 27
+  local castingPose = Anim.pose(g, a)
   g:damageEnemy(a, 12)
   C.react(g, a, 12, true, { 16, 1.4, 23 })
   check(
     'one pellet does not cancel a committed spell',
     a.ai == 'windup' and a.stun == 0 and a.windup == 0.6
   )
-  check('minor hit leaves current animation playing', Anim.pose(g, a) >= 7 and Anim.pose(g, a) <= 9)
+  check('minor hit leaves current animation playing', Anim.pose(g, a) == castingPose)
   local weak = math.abs(a.pushZ)
   g:damageEnemy(a, 60)
   C.react(g, a, 60, true, { 16, 1.4, 23 })
@@ -369,7 +370,8 @@ function Tests.run(G, initial, renderer, getGame)
   local f2 = Anim.pose(g, a)
   a.windup = 0.05
   local f3 = Anim.pose(g, a)
-  check('Stolas builds a cast through three anticipation poses', f1 == 7 and f2 == 8 and f3 == 9)
+  -- The hand-painted preparation replaces the original blue-light frames.
+  check('Stolas builds a cast through three anticipation poses', f1 == 29 and f2 == 33 and f3 == 39)
   for _, sheet in ipairs({
     { 'stolas', require('src.content.enemy_art').entries.stolas.path },
     { 'exorcist', require('src.render.weapon_art').exorcist.path },

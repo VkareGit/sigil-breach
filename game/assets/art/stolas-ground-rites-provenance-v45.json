@@ -1,0 +1,11 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "reference": [
+    "docs/art/giovanni-da-modena-inferno.webp",
+    "game/assets/art/stolas-hell-rites-v45.png"
+  ],
+  "layout": "3 columns, 2 rows, 1536 x 1024. First row: closed, open, spent ground cleft. Second: windup, counter, spent demon-feather wreath.",
+  "prompt": "Medieval Inferno floor decal atlas. Broad matte tempera shapes with restrained detail, burnt sienna, charcoal, ochre and sparse ivory. Continuous tapered ground tear with small damned silhouettes, not repeated floating portraits. Horned demon heads and scorched feather ring; brighter inner teeth signal counter. Six equal cells, pure green chroma background, no neon, laser, text, or realistic detail.",
+  "processing": "Chroma key: alpha zero where G > 1.08 R and G > 1.08 B, suppress residual green spill, fill zero-alpha RGB with #35221a to prevent filtered green fringes. PNG32; no painted shapes changed.",
+  "sha256": "c3b0a18ee0620eebe83191a1ab4cf26d2b2e4ed3274fd0d657cc0eb0cd7e953e"
+}

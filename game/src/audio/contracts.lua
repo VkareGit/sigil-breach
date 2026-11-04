@@ -29,6 +29,12 @@ function C.scene(scene)
   end
 end
 function C.validate()
+  for name, recipe in pairs(Recipes) do
+    assert(
+      not recipe.path or love.filesystem.getInfo(recipe.path, 'file'),
+      name .. ': missing recording'
+    )
+  end
   for _, map in Maps:each() do
     C.scene(map.decor and map.decor.soundscape)
   end
@@ -37,7 +43,7 @@ function C.validate()
       assert(Recipes[name], id .. ': unknown voice ' .. name)
     end
     for _, attack in ipairs(def.attacks) do
-      for _, key in ipairs({ 'sound', 'windupSound' }) do
+      for _, key in ipairs({ 'sound', 'windupSound', 'windupVoice' }) do
         local name = attack[key]
         assert(
           not name or Recipes[name],

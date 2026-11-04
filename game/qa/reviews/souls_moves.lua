@@ -6,9 +6,12 @@ local MOVES = {
   { 'imp', 'hop-back', 2 },
   { 'armored', 'cleave', 2.4 },
   { 'armored', 'ground-slam', 3 },
+  { 'stolas', 'star', 6 },
+  { 'stolas', 'talon-fan', 3.8 },
   { 'stolas', 'star-trio', 6 },
   { 'stolas', 'star-ray', 6 },
-  { 'stolas', 'slip', 2.5 },
+  { 'stolas', 'star-lance', 8 },
+  { 'stolas', 'slip', 3 },
   { 'buer', 'late-bloom', 5 },
   { 'buer', 'root-brace', 2.6 },
   { 'boss', 'cleave', 3 },
@@ -80,6 +83,24 @@ function Review.run(Game, renderer, output)
     end
     step(attack.windup * 0.6, 'windup')
     step(attack.windup * 0.42 + (e.holdLeft or 0), 'release')
+    if attack.kind == 'blink' then
+      -- The landing is behind the knight. Turn only for the captured frame,
+      -- leaving the player's position and the following simulation unchanged.
+      for phase = 1, 4 do
+        if phase > 1 then
+          step(require('src.content.art.rites').blink.duration / 4, 'departure-' .. phase)
+        end
+        local yaw = p.yaw
+        p.yaw = math.atan2(e.x - p.x, e.z - p.z)
+        capture(g, string.format('%s-%s-arrival-%d', id, attackId, phase))
+        p.yaw = yaw
+      end
+    end
+    if attack.kind == 'salvo' then
+      for index = 2, attack.count do
+        step(attack.interval, 'release-' .. index)
+      end
+    end
     step(0.12, 'strike')
     step(0.45, 'after')
     if #Pools.of(g, 'hazards') > 0 or #Pools.of(g, 'projectiles') > 0 then

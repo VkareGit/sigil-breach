@@ -58,6 +58,86 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- STAR ACOLYTE, trzecia iteracja (2026-11-05), po wyborze właściciela:
+  niska fala do przeskoczenia oraz wysokie rozdarcie do ominięcia bokiem.
+  `star-ray` używa istniejącego wykonawcy wave: wysokość 0,35 m, szerokość
+  0,8 m, prędkość 8 m/s, zasięg 9 m, zwłoka po geście 0,35 s. Przygotowanie,
+  odpoczynek, obrażenia 40 i HP postaci pozostają. `star-lance` zachowuje
+  42 obrażenia, szerokość 1,2 m, ostrzeżenie 0,45 s i aktywność 0,20 s;
+  jego malowana kurtyna pokazuje rzeczywistą wysokość 2,2 m.
+- Nowy arkusz erupcji według dołączonego Inferno: trzy klatki niskiego
+  grzbietu, trzy wynurzania i opadania potępionych. Wspólna ograniczona
+  siatka rysuje wstęgę fali i ściany rozdarcia. Popiół za przebytą falą
+  i po rozdarciu jest wyłącznie obrazem. Pozostałe fale stworów zachowują
+  swój wygląd. Pole art podróżuje z zagrożeniem także przez zapis.
+- Czary zbierają pigment w obu namalowanych dłoniach. Po wypuszczeniu
+  zostaje krótki ślad 0,18 s; salwa powtarza go według rzeczywistych
+  wypuszczeń. Nowe istniejące pozy zastępują klatki z dawnym błękitnym
+  blaskiem. Punkty dłoni są w anatomii; obrysy i maski samych klatek
+  nie zmieniły się, ale wybór pozy zmienia maskę widoczną podczas walki.
+- Cztery dodatkowe, suche głosy ciała przy rzucaniu: pomruk, inkantacja,
+  rozkaz i wdech. Grają obok odgłosu rytuału; przerwanie lub śmierć
+  zatrzymuje obie warstwy. Te same źródła CC0 co w drugiej iteracji,
+  proweniencja i obróbka w assets/sounds/stolas/provenance.json.
+- Test shotguna zachowuje dokładną pozę sprzed drobnego trafienia zamiast
+  utożsamiać windup Stolasa ze starymi klatkami 7–9. Pierwsza pełna brama
+  wykryła tę zależność; oczekiwanie nieprzerwanego przygotowania zostaje.
+
+Druga iteracja (stan przed powyższym dopracowaniem):
+
+- STAR ACOLYTE, druga iteracja po próbie właściciela: poprzedni dźwięk
+  był odrzucony jako podobny do szuflady, oba ataki liniowe oraz jasny krąg
+  pod stopami wymagały zmiany. Pozostałe czary i teleport zachowują kierunek.
+- Oba rytuały są rozdarciem posadzki z potępionymi, bez pionowych powielonych
+  obrazków. Malowidło powtarza się w swojej skali na jednej ograniczonej
+  siatce. Popiół pojawia się po zakończeniu obrażeń w końcowym kierunku rysy.
+  Krąg Stolasa zastąpił ciemny wieniec piór i demonicznych głów; jaśniejsze
+  wewnętrzne znaki nadal oznaczają to samo okno kontry. Inferno dołączone
+  do generacji; bez podnoszenia szczegółowości postaci ani zmian HUD-u.
+- Rysa zamiatająca: śledzenie przez pierwsze 75% przygotowania, szerokość
+  0,9 m. Prosta: śledzenie do wypuszczenia, szerokość 1,2 m, aktywność
+  0,20 zamiast 0,02 s. Ostrzeżenia na ziemi nadal 0,55/0,45 s; po ich
+  utworzeniu cel nie podąża za graczem. HP i obrażenia bez zmian. Szerokość
+  należy do wspólnej definicji beam i zapisywanego zagrożenia, nie wyjątku
+  po nazwie stworzenia. Ściany, kontratak i unik korzystają ze wspólnego kontaktu.
+- Nagrany głos zastąpił proceduralną barwę pierwszej iteracji. Stolas ma
+  oddech, pomruk, zauważenie, ból, śmierć oraz odróżnione przygotowania
+  czarów. Czternaście krótkich plików mono CC0; autorzy iletzy i AntumDeluge,
+  źródła i obróbka w assets/sounds/stolas/provenance.json. Runtime i eksport
+  QA czytają tę samą recepturę. Stan głosu jest wyłącznie prezentacją:
+  słabe klucze, zatrzymanie przy pauzie/śmierci, pierwszeństwo ostrzeżeń,
+  odstęp między oddechami całej grupy oraz ograniczenie nakładania bólu.
+- Lokalnie na Omarchy: okna SIGIL otwierają się na pulpicie 2 bez zmiany
+  aktywnego pulpitu. render_unfocused pozwala ukończyć ładowanie i QA na
+  niewidocznym pulpicie. Reguła jest w konfiguracji użytkownika, nie gry.
+
+Pierwsze podejście do Stolasa (poniżej); dźwięk i linie zastępują punkty powyżej:
+
+- STAR ACOLYTE / Stolas, 2026-11-04: właściciel wybrał dopracowanie
+  obecnych pięciu czarów i teleportu. Odskok kończy ruch przed następnym
+  czarem, jego odnowienie działa także podczas rzucania, a wybór strony
+  uwzględnia ścianę i prześwit całej drogi. Końcowy krok nie przekracza
+  pozostałego czasu; animacja i prędkość czytają rzeczywisty ruch.
+- Osobne gesty pojedynczego pocisku, wachlarza, salwy, dwóch rytuałów
+  i teleportu; trzy gesty salwy wybiera licznik naprawdę wypuszczonych
+  pocisków, bez drugiego zegara. Powrót z czaru ma kolejne malowane pozy.
+  Nowe klatki zachowują wzorzec istniejącego Stolasa i Inferno; pierwszy
+  wariant odrzucono przy porównaniu proporcji twarzy i malarskiego modelunku.
+  HP, obrażenia, czasy czarów, ekonomia i pozostałe stworzenia bez strojenia.
+- Na dodatkowe polecenie właściciela: czterofazowe zniknięcie i powrót,
+  rozdzierany tynk, brunatne pióra, potępione twarze w pociskach i kolejno
+  otwierana rysa na ziemi. Malowane klatki zastępują ogólny blask rzucania.
+  Teleport zapamiętuje oba końce zdarzenia; efekt nie goni późniejszej
+  pozycji stworzenia. Bez znikania maski trafienia, zmiany geometrii czaru
+  ani przedłużania obrażeń przez pozostałości efektu.
+- Ostatni etap, dźwięk Stolasa: sześć różnych ostrzeżeń, zduszony lament,
+  suche pęknięcie przy czarze i powrocie. Barwę budują niskie formanty,
+  szelest i krótka odpowiedź kamiennego wnętrza, bez ostrego pisku.
+  Powrót odzywa się raz w rzeczywistym miejscu lądowania; wcześniej
+  nakładały się dwa głosy. Nieudany teleport nie udaje udanego powrotu.
+  Pozostają ograniczenie liczby głosów, priorytety ostrzeżeń i suwaki.
+
+
 - Ustalenie właściciela, 2026-11-04: po zakończeniu zmian i wymaganej
   weryfikacji Codex robi commit bez osobnego pytania; obejmuje także nowe
   pliki należące do zadania. Używa skonfigurowanej tożsamości Git.
@@ -4018,6 +4098,241 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-05 — trzecia iteracja STAR ACOLYTE: fala, rozdarcie, dłonie i głos.
+- Kierunek zatwierdzony w rozmowie: niska fala do przeskoczenia i wysokie
+  rozdarcie do ominięcia bokiem. Nadal zwykły kruchy mag, bez podnoszenia
+  HP/obrażeń, zmian elit, broni, HUD-u, mapy ani zegarów SI dla odczucia.
+- Dowód przed/po: na rzeczywistym skoku, 6 m od maga, skok 0,72 s po
+  wypuszczeniu dawał 40 obrażeń, teraz 0. Skok zbyt wczesny (0,05 s) nadal
+  daje 40; mur chroni; wznowienie w trakcie fali zachowuje skok i pojedyncze
+  trafienie. Rozdarcie trafia skaczącego za 42, zejście w bok daje 0.
+  Zachowane poprawione czerwone próby mają trzy oczekiwane błędy fali.
+  Pierwsza wersja sondy ręcznie wywoływała execute bez zmiany windup na
+  strike, więc uruchamiała czar dwukrotnie: nie jest podstawą porównania.
+- Sonda skoku: 504 próby na wersję, 30/60/120 Hz, dystanse 3/6/8 m,
+  start skoku co 0,05 s. Poprzednie obie linie: brak skutecznego skoku.
+  Fala po zmianie: ok. 0,25–0,30 s okna (granica próbkowania 0,05 s),
+  przy 6 m skok 0,65–0,90 s po wypuszczeniu, przy 8 m 0,90–1,15 s.
+  Przy 3 m 0,30–0,55 s dla 60/120 Hz, 0,25–0,50 s dla 30 Hz.
+  To pomiar rytmu i fizyki, nie odbiór trudności przez człowieka.
+- Testy celowane: 41 ruch/rytuały, 37 grafika, 57 dźwięk — PASS.
+  Anatomia 17, niezależne punkty trafień 356, powierzchnie 15,
+  attack-contact 30, attack-followups 51, creature-pressure 45 — PASS.
+  Obraz sprawdzono renderami etapów; pigment fali ma wysokość i zasięg
+  z fizyki, UV nie wychodzą poza komórkę, rysowanie nie mutuje symulacji.
+  Czerwony test dłoni przed zmianą: 10 błędów; po: dwa punkty skupienia
+  i utrzymany ślad po geście, także przy salwie.
+- Dwa identyczne golden Linux: d4d19581/e426f88c, 309f8e54/268527fd,
+  30ea43a9/bdecd8ef; kontakty 99bb8675/134, d9a060ab/172,
+  1c419a1d/381. Wzorzec zmieniono dla nowej fali i wyboru póz, nie dla
+  samej oprawy ani uzyskania PASS. Stan końcowy drill i jego kontakty
+  są identyczne z poprzednim; przebieg w czasie jest inny.
+- Bot kaplicy w pełnym przebiegu: 6 zabójstw, 4 śmierci, maksimum 10
+  czuwających, sanktuarium nieosiągnięte; wcześniej druga iteracja 6/6.
+  Nie jest to potwierdzenie startu z Judge'em; P7 pozostaje próbą człowieka.
+- Koszt renderowania, ten sam izolowany klon, natywny Intel Arc/Mesa,
+  1280×720, mieszanka dwóch równoczesnych rytuałów: 1/8/32/128 sztuk,
+  mediany przed 5,02/4,86/5,40/9,13 ms; po 5,57/5,54/7,43/17,58 ms.
+  P95 przy 128: 9,87 → 18,53 ms; wywołania 150 → 278. To rzeczywisty
+  koszt pionowego pigmentu, nie deklaracja przyspieszenia. Nowe tekstury
+  to wspólne +6 MiB, a siatka ma maks. 384 wierzchołki i jest używana
+  ponownie. Brak osobnych tekstur/siatek na moba. Pomiar syntetycznego
+  tłumu nie gwarantuje kosztu przyszłej mapy.
+- Głosy rzucania: cztery pliki mono 44,1 kHz, peak 0,252–0,377, RMS
+  0,085, bez ostrego pasma i bez klipowania. Montaż cast-voice-preview.wav
+  łączy czar, głos i wypuszczenie (peak 0,451); nie jest nagraniem gry.
+- Dowody: qa-direct/star-acolyte-r3-before i star-acolyte-r3-after
+  w zewnętrznym katalogu wyników tego repozytorium w ~/Work/tries.
+  Proweniencja nowego atlasu: stolas-eruptions-provenance-v45.json,
+  narzędzie wbudowane image_gen, referencje Inferno i istniejące rytuały.
+- Końcowa brama Linux: Architecture PASS (670 Lua, 5317 odwołań ścieżek),
+  Mechanics 5818 PASS i wyłącznie wcześniejszy FAIL weight (piksele 35
+  ciał); Input 50 PASS; Render wcześniejszy FAIL w lighting_review.lua:87
+  (cień ma zaciemniać wyłącznie widoczną posadzkę); Tools PASS: benchmark,
+  core-measure, step-study, audio-export jako smoke oraz pełny startup-check.
+  Dalsza część showcase nie została wykonana po błędzie cienia. Celowane
+  rendery Stolasa i kontrole obrazu przeszły osobno. Windows niesprawdzony.
+  Wszystkie 9 świadectw ma sourceStable=true i odcisk
+  580EB616C6E371264D921E2CC65087C7475FE892A7520B7946FEE34DB5E9192A.
+  Wyniki: star-acolyte-r3-after/final-gate; nie ogłaszamy zielonego All.
+- Dodatkowa sonda uniku przy 6 m: fala 40 → 0 dla uniku 0,75/0,85/0,90 s
+  po wypuszczeniu; wczesny i spóźniony nadal trafiony. Rozdarcie 42 → 0
+  przy uniku 0,30 s, przy 0,45 s za późno. Ślad po ataku nie daje obrażeń.
+- Shotgun: po aktualizacji dwóch założeń o starych numerach klatek PASS
+  43; nadal dokładnie sprawdza nieprzerwaną pozę oraz trzy kolejne gesty.
+  Wynik pierwszego pełnego przebiegu i obu diagnoz zachowany osobno.
+- Diff przejrzany pod kątem wspólnych executorów, zapisu, pul audio i
+  renderowania; brak zmian skryptów Windows. Własny klon oraz jego
+  przypisany katalog wyników usunięte. Źródła sond i potrzebne kadry
+  zachowane przy raporcie. Właściciel 2026-11-05 wyraźnie polecił commit
+  całego dopracowania mimo dwóch przedstawionych wcześniejszych błędów
+  bramy; jest to wymagane odstępstwo od docs/AGENTS.md. Brak push.
+  Błędy odtworzono na Linuxie przed zmianami, ale nie potwierdzono, że
+  przyczyną jest sam system; Windows pozostaje niesprawdzony.
+  Odbiór artystyczny i próba walki właściciela pozostają otwarte.
+
+Druga iteracja, zachowana jako punkt odniesienia:
+
+Codex, odbiór 2026-11-05 — druga iteracja STAR ACOLYTE po uwagach właściciela:
+- Zakres potwierdzony: oba ataki liniowe, jasny krąg pod nogami i wszystkie
+  odgłosy Stolasa, w tym głos samego moba. Poprzednie brzmienie nie jest
+  zaakceptowane. Odbiór nowej barwy oraz obrazu nadal należy do właściciela.
+- Czerwone testy przed zmianą: brak breath/hurt/death i cisza nieatakującej
+  postaci; oba beam nie śledzą ruchu w przygotowaniu, nie mają szerokości,
+  prosta linia ma tylko 20 ms aktywności. Zachowano logi i kadry pierwszej
+  iteracji w qa-direct/star-acolyte-r2-before. Stan wyjściowy jest pełnym
+  pierwszym podejściem, nie samym HEAD 844254c.
+- Sonda izolowana, 240 Hz, pusty poligon, 3 dystanse na każdy czar i 7
+  strategii, ruch 4 m/s: wąska linia przed zmianą chybiała gracza, który
+  przeszedł w przygotowaniu i się zatrzymał (0/3), po zmianie trafia 3/3.
+  Reakcja 150 ms po znaku pozostaje skuteczna (0/3 trafień przed i po).
+  Reakcja 300 ms: 0/3 → 3/3 trafień. Stanie: 3/3 w obu. Ciągły ruch:
+  0/3 w obu. Szeroka rysa trafiała już 19/21 prób, po zmianie także 19/21,
+  ale zmieniły się trafione strategie: poprawiona odpowiedź na wczesne
+  odejście blisko maga, zmiana kierunku może go zmylić. To sonda zachowania,
+  nie dowód trudności dla człowieka. Surowe dane: lines.csv przed/po.
+- Testy zakresu: ruch/rytuały 35, grafika 25, dźwięk 40; powiązane weapons
+  362, attack-contact 30, attack-followups 51, creature-pressure 45,
+  souls-gate 6, souls-bots 9 — PASS. Sprawdzenia obejmują
+  trafienie brzegu i ominięcie rysy, mur, zapis w ostrzeżeniu, stały cel po
+  wypuszczeniu, okno kontry, brak zielonej obwódki klucza, brak mutacji
+  symulacji, ciszę w pauzie i poza zasięgiem, tłum oraz serię trafień.
+- Bot kaplicy: pierwsza iteracja 10 zabójstw/3 śmierci, druga 6/6,
+  maksimum 10 czuwających w obu, sanktuarium nadal nieosiągnięte.
+  Test przechodzi (12 sprawdzeń), ale trudniejszy rytuał pogarsza ten
+  przebieg. Nie zmieniano elit ani nie osłabiano testu; potrzebna próba
+  człowieka. Znany niezaliczony odbiór startu z Judge'em pozostaje otwarty.
+- Golden Linux: dwa identyczne przebiegi dały 5ccfe78a/abbfa791,
+  4bf5ec3d/1af323c7, bb4e668d/bdecd8ef; kontakty 5754c2cb/165,
+  04542afa/164, 1c419a1d/381. Wzorzec zmieniono wyłącznie dla świadomego
+  śledzenia/szerokości/czasu beam. Drill pozostał identyczny. Dalszy golden
+  PASS 10. Windows i jego wzorzec nie były uruchamiane ani edytowane.
+- Pomiary w tym samym tymczasowym klonie: 128 nieatakujących ciał odzywa
+  się 8 razy/10 s łącznie. Obsługa obecności 2,70 → 7,96 mikrosekundy
+  mediany, P95 po 20,03 mikrosekundy. Wspólna pula nadal ograniczona do
+  28 głosów; nagrania dekodowane tylko przy starcie. Peak 0,309–0,580,
+  RMS 0,036–0,095, mono 44,1 kHz, wygaszone końce. Parametry sygnału nie
+  zastępują odsłuchu. Próbki body/spell-voices.wav to montaż, nie rozgrywka.
+- CPU symulacji 1/8/32/128 ciał, mediany z 3 przebiegów: przed
+  0,0081/0,0488/0,3810/2,3039 ms; po 0,0089/0,0367/0,2838/1,6311 ms.
+  Rozrzut przy 128: 1,35–2,52 → 1,54–3,14 ms; zmienił się przebieg
+  walki, więc nie wnioskujemy o przyspieszeniu. Statyczny render 128 ciał:
+  ok. 8,28 → 7,88 ms, 343 wywołania w obu, tekstury 380,29 → 386,29 MiB.
+  Nowy atlas kosztuje wspólne 6 MiB, bez kopii na stworzenie. Przy 128 aktywnych rysach: 774 → 150 wywołań rysowania,
+  ok. 10,17 → 9,09 ms. Siatka ma stały limit 16 części na rytuał; nie
+  powstają osobne zasoby na każdego maga. To syntetyczny stres, nie mapa.
+- Brama końcowa: Architecture PASS (670 Lua), Mechanics 5780 PASS i wcześniejszy FAIL weight; Input 50 PASS; Render wcześniejszy FAIL cienia; Tools PASS. Wyniki w qa-direct/star-acolyte-r2-after/final-gate,
+  obok kadry i odsłuchy. Wszystkie 9 świadectw ma sourceStable=true,
+  odcisk 1ED728B5B3AF70C5C8CFC8D7684A59BD975320E2DF90E11742D077A5B047984C.
+  Natywny Linux, bez Xvfb, bez pakowania i wideo.
+  Nie ogłaszamy zielonej bramy ani zatwierdzenia kierunku artystycznego.
+- Własny klon i jego katalog wyników usunięte; potrzebne dowody i sondy zachowane poza repozytorium. Diff przejrzany i przygotowany w indeksie. Commit wymaga wyraźnego odstępstwa właściciela od zielonej bramy; push niezamówiony.
+
+Pierwsze podejście, zachowane jako punkt odniesienia:
+
+Codex, 2026-11-04 — STAR ACOLYTE, analiza i realizacja:
+- Punkt wyjścia: main 844254c, 0.45. Bazowa brama ma dwa wcześniejsze błędy:
+  weight (piksele 35 ciał) oraz cień w Render. Odcisk źródeł identyczny z
+  przebiegiem porządków; jego świadectwa zachowano przed zmianami.
+- Fakty z kodu i sondy: Stolas ma bolt, fan, salvo, dwa beam i blink.
+  Wszystkie przygotowania pokazywały 7/8/9, wypuszczenia 10/11, powrót 12.
+  Gotowy atak przerywał odskok; jego reszta wracała po rzucaniu. Odnowienie
+  upływało tylko w swobodnym ruchu. Kierunek uniku nie sprawdzał ściany.
+- Pomiar graniczny, 120 Hz: bot z natychmiastowym śledzeniem głowy wygrywał
+  9/9 nieruchomych prób z 3/7/11 m w 1,358 s, czterema strzałami Judge'a,
+  bez straty HP/ward. To perfekcyjne celowanie, nie symulacja człowieka.
+  Stojący biernie ginął po 5,15–17,09 s. Kruchy mag ma dać się szybko
+  ukarać; z tych wyników nie wynika potrzeba podniesienia HP ani obrażeń.
+- Zależności: wybrana poza steruje zarazem obrazem i maską trafienia.
+  Nowe źródło wymaga anotacji twarzy/kończyn, kotwic i wypieczenia masek.
+  Odskok korzysta z istniejących pól sesji; zapis nie dostaje nowego schematu.
+  Przerwanie przez trafienie nadal kończy ruch. Zdarzenia rzucenia,
+  dźwięki i efekty rytuałów korzystają z istniejącej ścieżki. Sprawdzane są
+  zapis w trakcie uniku i salwy, śmierć, odpoczynek oraz walka w grupie.
+- Wniosek projektowy: od Dooma bierzemy wyraźne role przeciwników i presję
+  pozycji, od Souls zobowiązanie do gestu i czytelne okno kary. To nasza
+  interpretacja, bez kopiowania liczb balansu. Źródła pierwotne:
+  wywiad z Martinem i Strattonem w Game Developer,
+  https://www.gamedeveloper.com/design/-make-me-think-make-me-move-new-i-doom-i-s-deceptively-simple-design
+  oraz poradnik wydawcy Elden Ring,
+  https://www.bandainamcoent.com/news/elden-ring-introduction-part-4-combat-guide
+- Zachowane czasy (przygotowanie / aktywna faza / pełny powrót, sekundy):
+  star 0,74/0,23/0,34; fan 0,90/0,23/0,65;
+  trio 0,95/1,14/1,05 (pociski co 0,42);
+  ray 0,90/0,50/1,30; lance 0,60/0,30/1,00;
+  slip 0,34/0,20/0,50. Rytuały ostrzegają dodatkowo przez 0,55/0,45 s;
+  szeroki przesuwa się po ziemi, wąski wymaga zejścia z linii. Okna kontry
+  trio/ray/lance: 0,45/0,45/0,40 s. Bez nowych czarów i wyjątków po nazwie
+  stworzenia w kodzie SI albo animatora.
+- Dowody przed zmianą: regression-red-complete, bolt-salvo-red,
+  wall-evade-red, teleport-anchor-red, rites-red i audio-red. Odtwarzają
+  urwanie ruchu, powielone gesty, odskok w ścianę, błędne miejsce powrotu,
+  dwufazowe efekty i wspólny głos wszystkich czarów. Po poprawkach:
+  star-acolyte PASS 24, star-acolyte-art PASS 22, star-acolyte-audio PASS 18.
+  Wśród sprawdzeń: pełna sekunda po odtworzeniu zapisu, trzy rytmy salwy,
+  rzeczywiste punkty teleportu mimo odroczonego zdarzenia, nieprzezroczysty
+  środek każdego pocisku obejmujący dotychczasowy promień kolizji, stały
+  limit śladów teleportu oraz brak wpływu rysowania na symulację.
+- Sonda 27 pojedynków: celowanie w korpus, opóźnione śledzenie (200 ms),
+  opóźnione śledzenie ze strafowaniem; 3 dystanse i 3 ziarna. Przed/po
+  27/27 zwycięstw bota. Dwa pierwsze warianty nadal 1,792/1,408 s;
+  strafowanie 1,408–4,033 → 1,408–4,417 s. W dwóch bliskich próbach ruch
+  odskoku trwał 0,075 → 0,250 s, droga 0,559 → 1,671 m (z odrzutem trafienia).
+  Właściwy odskok zachowuje 0,24 s i 1,56 m. Naprawa usuwa urwanie ruchu;
+  nie dowodzi trudności dla człowieka ani nie czyni zwykłego maga minibossem.
+- Pomiary w jednym klonie, bez drugiej ciężkiej próby równolegle, LÖVE 11.5,
+  natywny Intel Arc / Mesa. CPU: mediana median trzech przebiegów dla
+  1/8/32/128 ciał: 0,0087/0,0424/0,3138/1,5998 ms przed oraz
+  0,0097/0,0428/0,3753/1,9717 ms po. P95 przy 128: 1,922 → 2,245 ms.
+  Pełny odskok zmienia też przebieg walki; koszt przy 128 wzrósł o ok. 0,37 ms.
+  Statyczny render 1280×720, 60 próbek po rozgrzaniu, odczyt piksela jako
+  synchronizacja CPU/GPU: przy 128 ciałach 8,57 → 8,21 ms, P95 9,85 → 9,06 ms.
+  To pomiar całej ścieżki, nie sam GPU, a różnicy nie traktujemy jako poprawy
+  wydajności. Wywołania rysowania 341 → 343; wspólne tekstury 366,30 →
+  380,29 MiB (+14 MiB, bez kopii na każdego stwora). Nie badano całej przyszłej mapy.
+- Obraz: 12 nowych póz, ręczna anatomia, maski wypieczone z faktycznych PNG,
+  niezależne punkty twarzy przy 3/8/16 m. CHECK-CREATURE stolas: complete;
+  fresco 327, hit-landmarks 356, anatomy-data 17, named-poses 15,
+  painted-surfaces 15, attack-followups 51, creature-pressure 45,
+  souls-gate 6, souls-bots 9 — PASS w próbach powiązanych.
+  creature-pressure nadal używa historycznej definicji 0.33; żywego Stolasa
+  sprawdzają dodatkowo nowy zestaw i sonda pojedynków. Porównano wszystkie
+  sześć akcji, trzy wypuszczenia salwy i oba miejsca teleportu w rendererze
+  gry, z podłączoną prezentacją zdarzeń. Bez zmian HUD-u i jego chronionych nisz.
+- Dźwięk: dziesięć nowych krótkich receptur, generowanych raz przy starcie;
+  bez nowych Source podczas syntezy w walce. Szczyty 0,286–0,597, RMS
+  0,082–0,097; bez obcięcia sygnału, ostrego skoku na końcach i zwiększania
+  miksera. Wspólne weapons (w tym audio) PASS 358. Odsłuch porównawczy
+  stolas-listening.wav jest złożonym przykładem mono z klasycznym Judge'em,
+  z tymi samymi głośnościami przed/po, bez normalizacji; nie nagraniem gry.
+  Szczyt miksu 0,325 w obu, RMS 0,061 → 0,034. Subiektywna groza, wygoda
+  odsłuchu i czytelność w pełnym miksie wymagają próby właściciela.
+- Golden: dwa identyczne przebiegi Linux dały nowy świadomy wzorzec dla
+  odskoków oraz póz/masek; komentarz w baseline_linux.lua. Końcowe efekty
+  i dźwięk zachowują wszystkie sześć tych wartości; golden PASS 10.
+  Windows oraz baseline.lua nieweryfikowane i niezmieniane.
+- Końcowa brama Linux: Architecture PASS (667 Lua, 0 naruszeń), Mechanics
+  5736 zaliczonych sprawdzeń, jedyny FAIL: wcześniejszy weight dla 35 ciał.
+  Input PASS 50, Tools PASS (benchmark, core-measure, step-study,
+  audio-export smoke oraz startup-check). Render ponownie FAIL na tym
+  samym warunku cienia w qa/reviews/lighting_review.lua:87; późniejsza
+  część showcase nie została wykonana. Nowe rendery Stolasa wykonano
+  niezależnie. Dziewięć świadectw ma sourceStable=true i odcisk
+  1031E61E0912A040FD5B03C9AE3C5B4FBF06A8D3B2FC3E8D321C3F5CDFEA65F5.
+  Nie zmieniano tolerancji ani wzorców obrazu, aby ukryć wcześniejsze błędy.
+  Brama ogólna pozostaje NIEZALICZONA. Zgodnie z AGENTS commit czeka na
+  wyraźne odstępstwo właściciela po przedstawieniu wyników; push niezamówiony.
+- Przebieg bota w całej kaplicy (chapel-route): przed 8 zabójstw, 5 śmierci,
+  po 10 zabójstw, 3 śmierci; maksymalnie 10 czuwających w obu. Sanktuarium
+  nieosiągnięte w obu. Spadek liczby sprawdzeń tego zestawu 11 → 9 wynika
+  z dwóch mniej śmierci (każda sprawdza powrót do ogniska), nie usunięcia
+  testów. P5 i odbiór startu przez człowieka nadal otwarte.
+- Dowody poza repo: $SIGIL_WORK/qa-direct/star-acolyte-before i
+  star-acolyte-after; brama w $SIGIL_WORK/qa. Zachowane CSV, czerwone testy,
+  PNG przed/po, dwa zgodne golden i WAV. Skrypty sond zachowane z wynikami;
+  własny klon pomiarowy i przypisane mu wyniki usunięto po weryfikacji.
+  Odbiór stylu, gestów w ruchu i głosów pozostaje po stronie właściciela.
 
 Polecenie właściciela, 2026-11-04 — zatwierdzenie porządków:
 - Po przedstawieniu dwóch wcześniejszych błędów bramy (weight i cień

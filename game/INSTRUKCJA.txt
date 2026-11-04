@@ -32,8 +32,10 @@ pociski). Przy ogniskach sal bocznych budzisz się za ogniem, plecami do strażn
 Margrave i Furfur to elity, nie bossowie: 2700 i 2250 HP, pełne obrażenia także w trakcie
 ich ciosu, egzekucja zabiera 20% HP, dwa akty (drugi od połowy życia), 250 dusz i 2 łuski.
 Ich ciosy dystansowe sięgają 16–18 m. Z pękniętą gardą elita chwieje się i jest otwarta na
-egzekucję przez 1,6 s (Margrave) albo 1,5 s (Furfur). Stolas rzuca też włócznię gwiazdy:
-linia od jego dłoni do ciebie świeci na podłodze przez chwilę, potem uderza na całej długości.
+egzekucję przez 1,6 s (Margrave) albo 1,5 s (Furfur). Stolas ma dwa różne rytuały posadzki:
+niską falę można przeskoczyć, gdy dojdzie do nóg; przed wysokim rozdarciem trzeba zejść
+w bok z zaznaczonego toru albo przerwać przygotowanie strzałem. Skok nie chroni przed
+rozdarciem. Gasnący popiół po ataku już nie zadaje obrażeń.
 [F] flaska. [Q] ładunek prochowy. Unik kosztuje 26 wytrzymałości i ogranicza go tylko
 wytrzymałość: trzy uniki z pełnego paska, odnowa po 0,4 s przerwy. Strzał nic nie kosztuje,
 ale po strzale przez chwilę nie zrobisz uniku (0,22 s po Exorciście, 0,12 s po Judge'u);

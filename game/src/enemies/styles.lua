@@ -26,19 +26,25 @@ local function evade(g, e, d, dt)
   if not spec then
     return false
   end
-  e.evadeReady = math.max(0, (e.evadeReady or 0) - dt)
   if (e.evadeTime or 0) > 0 then
-    e.evadeTime = e.evadeTime - dt
-    local step = spec.speed * dt
+    local elapsed = math.min(dt, e.evadeTime)
+    e.evadeTime = math.max(0, e.evadeTime - dt)
+    local step = spec.speed * elapsed
     local ox, oz = e.x, e.z
     W.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e), nil, Rules.tall(g, e))
-    e.walk = e.walk + len(e.x - ox, e.z - oz)
+    local dx, dz = e.x - ox, e.z - oz
+    local distance = len(dx, dz)
+    e.walk = e.walk + distance
+    if dt > 0 then
+      e.walkVX, e.walkVZ = dx / dt, dz / dt
+      e.walkSpeed = distance / dt
+    end
     return true
   end
   -- It sidesteps the aim of the body it fights; a body that does not aim
   -- (a creature) gives it nothing to read.
   local p = target(g, e)
-  if e.evadeReady > 0 or not e.visible or d > Senses.evadeRange or not p.yaw then
+  if (e.evadeReady or 0) > 0 or not e.visible or d > Senses.evadeRange or not p.yaw then
     return false
   end
   local toward = atan2(e.x - p.x, e.z - p.z)
@@ -48,7 +54,28 @@ local function evade(g, e, d, dt)
   end
   -- Step to the side the aim is already furthest from.
   local side = off >= 0 and 1 or -1
-  e.evadeX, e.evadeZ = cos(toward) * side, -sin(toward) * side
+  local dx, dz = cos(toward), -sin(toward)
+  local distance = spec.speed * spec.time
+  local function clear(direction)
+    return W.clear(
+      g.world,
+      e.x,
+      e.z,
+      e.x + dx * direction * distance,
+      e.z + dz * direction * distance,
+      radius(e),
+      e.level,
+      Rules.tall(g, e),
+      e.level
+    )
+  end
+  if not clear(side) then
+    side = -side
+    if not clear(side) then
+      return false
+    end
+  end
+  e.evadeX, e.evadeZ = dx * side, dz * side
   e.evadeTime = spec.time
   e.evadeSide = side
   e.evadeReady = spec.cooldown

@@ -139,7 +139,9 @@ function Anim.pose(g, e, observer)
   elseif e.ai == 'strike' then
     local t = Anim.actionPhase(e)
     -- An attack may hold its own painted frame (strike.<attack id>).
-    frame = Poses.frame(posed(e, e.attackKind and ('strike.' .. e.attackKind) or 'strike'), t)
+    local pose = posed(e, e.attackKind and ('strike.' .. e.attackKind) or 'strike')
+    local clock = pose.clock == 'release' and math.max(0, (e.released or 0) - 1) or t
+    frame = Poses.frame(pose, clock)
     lean = 0.06 * (1 - t)
     sx = 1 + 0.035 * math.sin(t * math.pi)
   elseif e.ai == 'recover' then

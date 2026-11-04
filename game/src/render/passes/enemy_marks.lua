@@ -38,15 +38,16 @@ function Pass.draw(r, g)
   lg.setDepthMode('less', true)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
-      -- The moment a shot can turn the blow aside: a clear gold ring.
+      -- The moment a shot can turn the blow aside, in this body's painted language.
+      local look = Archetypes.look(e)
       local open = e.attackSpec and e.attackSpec.parry
       if e.ai == 'windup' and open and e.windup + (e.holdLeft or 0) <= open then
-        HazardArt.circle(r, g, e, 'circle', Rules.radius(e) * COUNTER_RING, 1)
+        HazardArt.circle(r, g, e, look.counterMark, Rules.radius(e) * COUNTER_RING, 1)
       end
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         local step = math.min(2, math.floor(progress * 3))
-        HazardArt.circle(r, g, e, 'circle', 0.42 + step * 0.175, 1)
+        HazardArt.circle(r, g, e, look.windupMark, 0.42 + step * 0.175, 1)
       end
       -- A leap marks its landing point from the crouch to the landing: the
       -- player always sees where the arc ends (dodgeable, never a surprise).

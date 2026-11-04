@@ -6,11 +6,22 @@
 -- 0.45 P5/P6 (2026-11-04): deliberate new-way Judge-only start; three new
 -- world relics. No automatic sigils. Existing two-weapon drill and contacts
 -- remain identical. Linux repeat matched; Windows verified by the final gate.
+-- 0.45 Stolas (2026-11-04): completed sidesteps with continuous cooldown,
+-- wall-aware direction and distinct cast poses (therefore painted hit masks).
+-- Two identical native Linux runs; HP, damage and spell timings unchanged.
+-- Windows baseline requires its own verification and was not modified.
+-- 0.45 Stolas review: both floor tears track during preparation and acquire
+-- finite widths; the straight tear lasts 0.2 s instead of 0.02 s. Damage and HP
+-- stay unchanged. Two identical native Linux runs on 2026-11-04; the drill
+-- remains identical. Recorded voice and ground art are presentation only.
+-- 0.45 Stolas follow-up (2026-11-05): the rotating beam becomes a low
+-- jumpable wave; projectile casting uses the new hand poses and hit masks.
+-- Two identical native Linux captures. Windows remains unverified.
 return {
-  playtest = 'df250a73/579db835',
-  human = 'be5dd9f7/7e219861',
-  drill = '1e05d6f6/ce2035f8',
-  playtestContacts = 'd8f4c21c/126',
-  humanContacts = '6a20ed12/196',
-  drillContacts = '8f3896cc/377',
+  playtest = 'd4d19581/e426f88c',
+  human = '309f8e54/268527fd',
+  drill = '30ea43a9/bdecd8ef',
+  playtestContacts = '99bb8675/134',
+  humanContacts = 'd9a060ab/172',
+  drillContacts = '1c419a1d/381',
 }

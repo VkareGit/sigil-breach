@@ -101,11 +101,22 @@ function T.run(G)
   check('deferred ray release creates one afterimage', #(g.view.riteBursts or {}) == 1)
   check('ray presentation leaves simulation unchanged', Golden.digest(g) == digest)
   local burst = g.view.riteBursts[1]
-  check('ray flare starts at the remaining hazard clock', math.abs(burst.starts - ray.delay) < 1e-8)
-  g.elapsed = ray.delay + 0.06
-  Hazards.update(g, ray.delay + 0.06)
+  local live = ray.arc / ray.spin
+  check(
+    'settled pigment waits until the real tear ends',
+    math.abs(burst.starts - ray.delay - live) < 1e-8
+  )
+  check(
+    'the settling painting remembers the final swept direction',
+    math.abs(burst.angle - (hazard.angle + hazard.spin * hazard.life)) < 1e-8
+  )
+  g.elapsed = ray.delay + live + 0.06
+  Hazards.update(g, ray.delay + live + 0.06)
   RiteFeedback.update(g)
-  check('flame can outlive the brief damage ray', #g.hazards == 0 and #g.view.riteBursts == 1)
+  check(
+    'settled pigment outlives damage without an invisible hazard',
+    #g.hazards == 0 and #g.view.riteBursts == 1
+  )
   g.elapsed = burst.starts + 0.33
   RiteFeedback.update(g)
   check('ray fragments expire without a hazard', #g.view.riteBursts == 0)

@@ -17,16 +17,27 @@ local Bodies = require('src.combat.bodies')
 local RiteFeedback = require('src.feedback.rite_feedback')
 local Rites = require('src.content.art.rites')
 local World = {}
+local BodyVoices = require('src.audio.body_voices')
 local warnings = setmetatable({}, { __mode = 'k' })
 local function stopWarning(enemy)
-  local voice = warnings[enemy]
-  if voice then
+  for _, voice in ipairs(warnings[enemy] or {}) do
     A.stopVoice(voice.source, voice.ticket)
-    warnings[enemy] = nil
   end
+  warnings[enemy] = nil
 end
 local function sounds(e)
   return Rules.archetype(e).sounds or {}
+end
+local function warningLayer(g, e, name, gain, priority)
+  if not name then
+    return
+  end
+  local source, ticket = A.playAt(name, e.x, e.z, Context.viewer(g), gain, priority, g.world)
+  if source then
+    local list = warnings[e] or {}
+    warnings[e] = list
+    list[#list + 1] = { source = source, ticket = ticket }
+  end
 end
 -- event kind -> function(g, event)
 World.handlers = {
@@ -36,30 +47,32 @@ World.handlers = {
   end,
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
+    BodyVoices.interrupt(A, g, e)
     stopWarning(e)
-    local source, ticket = A.playAt(
-      ev.attack.windupSound or sounds(e).windup or 'growl',
-      e.x,
-      e.z,
-      Context.viewer(g),
-      0.7,
-      3,
-      g.world
-    )
-    if source then
-      warnings[e] = { source = source, ticket = ticket }
-    end
+    warningLayer(g, e, ev.attack.windupSound or sounds(e).windup or 'growl', 0.7, 3)
+    warningLayer(g, e, ev.attack.windupVoice, 0.58, 2)
   end,
   AttackCancelled = function(_, ev)
     stopWarning(ev.enemy)
   end,
-  EnemyKilled = function(_, ev)
+  EnemyKilled = function(g, ev)
     stopWarning(ev.enemy)
+    BodyVoices.interrupt(A, g, ev.enemy)
+  end,
+  BodyHit = function(g, ev)
+    if ev.health > 0 then
+      BodyVoices.hurt(A, g, ev.enemy)
+    end
   end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
     RiteFeedback.released(g, ev)
     stopWarning(e)
+    -- A successful blink sounds at the two recorded endpoints. A failed
+    -- destination search has no arrival, and must not fake one here.
+    if ev.attack.kind == 'blink' then
+      return
+    end
     A.playAt(
       ev.attack.sound or sounds(e).strike or 'cast',
       e.x,
@@ -124,11 +137,20 @@ World.handlers = {
     g:burst(s.x, 1.0, s.z, color, 14, 2.6)
     A.playAt(sounds(e).arrival or 'pulse', s.x, s.z, Context.viewer(g), 0.55, 2, g.world)
   end,
-  -- Gone in a breath of its own colour, there and where it stands now.
+  -- Folding wings at departure; the stronger cast marks its actual arrival.
   Blinked = function(g, ev)
-    local e = ev.enemy
     RiteFeedback.blinked(g, ev)
-    A.playAt('cast', e.x, e.z, Context.viewer(g), 0.5, 2, g.world)
+    local voices = sounds(ev.enemy)
+    A.playAt(voices.step or 'wing_fold', ev.fromX, ev.fromZ, Context.viewer(g), 0.18, 2, g.world)
+    A.playAt(
+      ev.attack.sound or voices.strike or 'cast',
+      ev.toX,
+      ev.toZ,
+      Context.viewer(g),
+      0.5,
+      2,
+      g.world
+    )
   end,
   -- The grip closes: felt in the view, heard in the bones.
   Seized = function(g, ev)

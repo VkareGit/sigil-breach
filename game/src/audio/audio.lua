@@ -4,7 +4,7 @@ local Contracts = require('src.audio.contracts')
 local Soundscape = require('src.audio.soundscape')
 local WorldCues = require('src.audio.world_cues')
 local Arena = require('src.world.arena')
-local Synth = require('src.audio.synth')
+local VoiceData = require('src.audio.voice_data')
 local Recipes = require('src.audio.recipes')
 local Sets = require('src.content.sound_sets')
 local A = {
@@ -67,8 +67,7 @@ function A.init(checkpoint)
   table.sort(names)
   for _, name in ipairs(names) do
     local recipe = Recipes[name]
-    local voice = recipe.voice or recipe.make(A.rate)
-    local data = Synth.effect(recipe.duration, A.rate, Synth.seed(name), voice)
+    local data = VoiceData.render(name, recipe, A.rate)
     A.sources[name] = love.audio.newSource(data, 'static')
     data:release()
     if checkpoint then

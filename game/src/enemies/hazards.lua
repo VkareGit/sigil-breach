@@ -222,7 +222,7 @@ Hazards.kinds:register('sweepline', {
       local d = math.max(1e-6, MathX.len(dx, dz))
       local radius = Bodies.extent(g, b)
       local off = MathX.wrapAngle(math.atan2(dx, dz) - from) * sign
-      local margin = math.atan2(radius, d)
+      local margin = math.atan2(radius + (h.width or 0) / 2, d)
       if off < -margin or off > math.abs(turn) + margin then
         return false
       end

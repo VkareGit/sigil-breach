@@ -148,13 +148,13 @@ function E.spells(r, g)
   for _, burst in ipairs(g.view.blinkBursts or {}) do
     local age = g.elapsed - burst.starts
     if age >= 0 and age < Rites.blink.duration then
-      local early = age < Rites.blink.duration * 0.5
-      local frame = (early ~= burst.arriving) and 'feathers' or 'fragments'
+      local frames = burst.arriving and Rites.blink.arrival or Rites.blink.departure
+      local frame = HazardArt.sequence(frames, age / Rites.blink.duration)
       local viewer = Context.viewer(g)
       HazardArt.upright(
         r,
         burst.x,
-        Ground.height(g.world, burst.x, burst.z),
+        Ground.of(g.world, burst),
         burst.z,
         frame,
         Rites.blink.size,

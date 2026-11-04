@@ -6,7 +6,7 @@
 local Output = require('qa.output')
 local Score = require('src.audio.score')
 local Soundscape = require('src.audio.soundscape')
-local Synth = require('src.audio.synth')
+local VoiceData = require('src.audio.voice_data')
 local Recipes = require('src.audio.recipes')
 local Audio = require('src.audio.audio')
 local Tooling = require('qa.tooling')
@@ -136,8 +136,7 @@ local function chapelExcerpt(buffers, rate, dir, lines)
     { 40, 'boss_collapse', 0.4 },
   }) do
     local recipe = Recipes[cue[2]]
-    local sound =
-      Synth.effect(recipe.duration, rate, Synth.seed(cue[2]), recipe.voice or recipe.make(rate))
+    local sound = VoiceData.render(cue[2], recipe, rate)
     local start = math.floor(cue[1] * rate) + 1
     for i = 0, sound:getSampleCount() - 1 do
       if mix[start + i] then
@@ -174,12 +173,7 @@ function Export.sounds(smoke)
       break
     end
     local recipe = Recipes[name]
-    local data = Synth.effect(
-      recipe.duration,
-      Audio.rate,
-      Synth.seed(name),
-      recipe.voice or recipe.make(Audio.rate)
-    )
+    local data = VoiceData.render(name, recipe, Audio.rate)
     local buffer = {}
     for i = 0, data:getSampleCount() - 1 do
       buffer[i + 1] = data:getSample(i)

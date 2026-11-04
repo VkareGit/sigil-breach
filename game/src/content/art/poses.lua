@@ -5,6 +5,7 @@
 --   pose = { clock, frames, bounds? | rate? | step?, ends?, offset? }
 --   clock    what chooses the frame (a pose of one frame needs none):
 --              action     the action's normalized phase, 0..1 (ActionPhase)
+--              release    zero-based index of the projectile already released
 --              seconds    seconds since the state began
 --              countdown  minus the seconds the state has left (rising to 0)
 --              stride     metres walked (the walk clock, e.walk)
@@ -22,6 +23,7 @@
 local Poses = {}
 Poses.clocks = {
   action = true,
+  release = true,
   seconds = true,
   countdown = true,
   stride = true,
@@ -141,6 +143,7 @@ function Poses.boundsProblems(bounds, low, high)
 end
 local DOMAINS = {
   action = { 0, 1 },
+  release = { 0 },
   seconds = { 0 },
   countdown = { nil, 0 },
   stride = { 0 },
@@ -169,7 +172,8 @@ local function poseProblems(name, pose, frameCount, fail)
     fail(name .. ': unknown clock ' .. tostring(clock))
   end
   local wanted = clockOf(name)
-  if clock and wanted and clock ~= wanted then
+  local release = clock == 'release' and (name == 'strike' or name:match('^strike%.'))
+  if clock and wanted and clock ~= wanted and not release then
     fail(name .. ': chosen by the ' .. wanted .. ' clock, not ' .. clock)
   end
   if pose.bounds then

@@ -1,4 +1,4 @@
--- Owl anatomy reviewed on all 28 actual frame crops (including repaired poses).
+-- Owl anatomy reviewed on all original and supplementary frame crops (including repaired poses).
 -- Face discs exclude ear tufts; feathers, limbs and painted spell light have their own IDs.
 local Author = require('src.content.art.anatomy.author')
 local Stolas = { frames = {} }
@@ -249,4 +249,114 @@ table.insert(
   Stolas.frames[11].parts,
   Author.effect('cast-glow-low', { 0.74, 0.58, 0.97, 0.58, 0.97, 0.71, 0.74, 0.71 })
 )
+-- Supplementary casts: face discs, bent knees and toes traced on the source painting.
+-- Coordinates below are local cell pixels; no region is inferred from a render anchor.
+local casts = {
+  { 181, 50, 114, 30, 185, 201, 165, 240, 200, 240, 151, 314, 209, 314 },
+  { 182, 50, 115, 30, 185, 202, 164, 240, 200, 240, 153, 313, 211, 313 },
+  { 181, 68, 132, 30, 176, 205, 153, 242, 203, 241, 136, 312, 218, 312 },
+  { 199, 72, 132, 30, 172, 209, 140, 242, 188, 243, 107, 314, 215, 312 },
+  { 184, 37, 93, 27, 185, 188, 168, 229, 204, 230, 151, 304, 216, 304 },
+  { 182, 46, 102, 28, 168, 186, 145, 227, 186, 226, 137, 302, 218, 303 },
+  { 181, 79, 135, 29, 186, 200, 158, 226, 211, 228, 150, 304, 225, 304 },
+  { 181, 37, 98, 29, 178, 190, 161, 229, 193, 229, 147, 304, 218, 304 },
+  { 182, 42, 102, 29, 185, 186, 169, 226, 204, 226, 153, 311, 215, 311 },
+  { 183, 41, 101, 29, 186, 188, 169, 228, 203, 229, 154, 311, 221, 311 },
+  { 185, 49, 108, 29, 180, 186, 159, 222, 202, 226, 141, 312, 222, 310 },
+  { 182, 40, 101, 29, 181, 186, 162, 228, 202, 228, 157, 311, 222, 311 },
+}
+local castArms = {
+  { 149, 115, 111, 146, 166, 142, 213, 115, 251, 146, 199, 142 },
+  { 152, 116, 124, 131, 90, 141, 212, 116, 237, 132, 267, 139 },
+  { 159, 138, 158, 184, 204, 218, 223, 133, 252, 155, 301, 174 },
+  { 163, 130, 186, 176, 267, 257, 245, 138, 263, 146, 285, 144 },
+  { 155, 94, 139, 131, 177, 104, 211, 94, 227, 132, 191, 107 },
+  { 150, 109, 161, 158, 193, 230, 213, 108, 231, 131, 196, 128 },
+  { 144, 136, 151, 180, 170, 244, 218, 136, 215, 183, 196, 245 },
+  { 144, 96, 128, 144, 104, 211, 218, 108, 241, 153, 264, 211 },
+  { 149, 110, 124, 159, 87, 195, 217, 110, 245, 152, 299, 179 },
+  { 154, 102, 140, 169, 126, 228, 216, 103, 227, 171, 244, 229 },
+  { 147, 121, 133, 146, 175, 124, 219, 111, 256, 112, 304, 104 },
+  { 149, 103, 128, 126, 141, 124, 212, 103, 239, 128, 223, 120 },
+}
+for cell, points in ipairs(casts) do
+  local h = {}
+  for i, point in ipairs(points) do
+    h[i] = point / 362
+  end
+  local parts = {
+    Author.body('flesh'),
+    Author.part(
+      'wing-left',
+      'torso',
+      'flesh',
+      { 0, 0.12, h[1] - 0.10, 0.12, h[1] - 0.13, 0.48, h[1] - 0.20, 0.82, 0, 0.90 }
+    ),
+    Author.part(
+      'wing-right',
+      'torso',
+      'flesh',
+      { h[1] + 0.10, 0.12, 1, 0.12, 1, 0.90, h[1] + 0.20, 0.82, h[1] + 0.13, 0.48 }
+    ),
+  }
+  for side = 0, 1 do
+    local knee = 7 + side * 2
+    local toe = 11 + side * 2
+    local name = side == 0 and 'left' or 'right'
+    parts[#parts + 1] =
+      Author.segment('leg-' .. name, 'lower', 'flesh', h[5], h[6], h[knee], h[knee + 1], 0.048)
+    parts[#parts + 1] = Author.segment(
+      'shin-' .. name,
+      'lower',
+      'flesh',
+      h[knee],
+      h[knee + 1],
+      h[toe],
+      h[toe + 1],
+      0.035
+    )
+    parts[#parts + 1] = Author.box(
+      'claws-' .. name,
+      'lower',
+      'flesh',
+      h[toe] - 0.075,
+      h[toe + 1] - 0.045,
+      h[toe] + 0.075,
+      h[toe + 1] + 0.035
+    )
+  end
+  for side = 0, 1 do
+    local a, offset = castArms[cell], side * 6
+    local name = side == 0 and 'left' or 'right'
+    parts[#parts + 1] = Author.segment(
+      'arm-' .. name,
+      'torso',
+      'flesh',
+      a[offset + 1] / 362,
+      a[offset + 2] / 362,
+      a[offset + 3] / 362,
+      a[offset + 4] / 362,
+      0.032
+    )
+    parts[#parts + 1] = Author.segment(
+      'forearm-' .. name,
+      'torso',
+      'flesh',
+      a[offset + 3] / 362,
+      a[offset + 4] / 362,
+      a[offset + 5] / 362,
+      a[offset + 6] / 362,
+      0.037
+    )
+  end
+  parts[#parts + 1] = Author.head(h[1], h[2], h[3], h[4])
+  local hands = castArms[cell]
+  Stolas.frames[28 + cell] = {
+    parts = parts,
+    anchors = {
+      castLeft = { hands[5] / 362, hands[6] / 362 },
+      castRight = { hands[11] / 362, hands[12] / 362 },
+    },
+  }
+end
 return Stolas

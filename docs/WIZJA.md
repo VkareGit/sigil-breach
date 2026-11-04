@@ -38,6 +38,7 @@ Po analizie Claude i Astry z 3 listopada wieczorem (raport w `docs/PLAN.md`). Uz
 - **D17 (dźwięk):** cztery suwaki: Master, Effects (broń, kroki, stwory, ostrzeżenia, interfejs), Music, Ambience (odgłosy pomieszczeń). Każdy do zera.
 - **D18 (ekran):** usunąć napis SHIFT i miniwskaźnik z niszy (wytrzymałość tylko paskiem nad HUD-em); pomoc i zegar tylko w pauzie, na mapie i w pierwszych minutach, nazwa miejsca gaśnie; w walce jedna wiadomość naraz, suma obrażeń ukryta, DRINKING i OUT OF BREATH tylko gdy potrzebne, pasek zwykłego wroga po trafieniu i gaśnie. Licznik DEATHS zostaje w niszy dusz. Kompozycja dolnego paska bez zmian.
 - **D19 (wygląd):** promień Stolasa zostaje rytuałem na ziemi (nowy materiał i trzy fazy, mechanika bez zmian). Flaska: przemalować trzy klatki, szyjka do ust pod kamerą (może wyjść poza kadr), dno w górę, gest kończy się z piciem. Amunicja: najpierw materiał i kształt bez świecenia, potem decyzja o delikatnym blasku.
+  Doprecyzowanie właściciela, 2026-11-05: u Stolasa zamiatającą linię zastępuje niska fala do przeskoczenia, a prosta rysa zostaje rozdarciem do ominięcia bokiem. Wolno zmienić te mechaniki w tym zakresie; obraz ma wyjaśniać wysokość ataku, a pozostałość po nim być nieszkodliwa. Czar ma zaczynać się w dłoniach i mieć także osobny głos rzucającej postaci. Styl Inferno oraz oszczędny detal pozostają wiążące.
 - **D20 (bronie):** najpierw dopracowujemy dwie obecne bronie, sklep i sigile. Kolejne bronie dopiero na wyraźne polecenie właściciela.
 ## Decyzje właściciela (2026-11-03)
 

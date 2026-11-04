@@ -3,7 +3,7 @@
 --   cells     column and row in the atlas
 --   rim       share of the half-cell a painted circle reaches
 --   cut       the visible life of a cut, in seconds past its active window
---   ray       size of one length of a ray and its spacing (m)
+--   ray       pigment fit and settling of the authoritative floor tear
 return {
   path = 'assets/art/rites-fresco-v45.png',
   width = 2048,
@@ -12,6 +12,45 @@ return {
   rows = 2,
   cells = { wave = { 0, 0 }, circle = { 1, 0 }, cut = { 0, 1 }, ray = { 1, 1 } },
   supplements = {
+    {
+      path = 'assets/art/stolas-eruptions-v45.png',
+      columns = 3,
+      rows = 2,
+      cells = {
+        crest1 = { 0, 0 },
+        crest2 = { 1, 0 },
+        crest3 = { 2, 0 },
+        rise1 = { 0, 1 },
+        rise2 = { 1, 1 },
+        rise3 = { 2, 1 },
+      },
+      crops = {
+        crest1 = { 0.03, 0.46, 0.94, 0.328 },
+        crest2 = { 0.03, 0.46, 0.94, 0.328 },
+        crest3 = { 0.03, 0.46, 0.94, 0.328 },
+        rise1 = { 0.03, 0.17, 0.94, 0.65 },
+        rise2 = { 0.03, 0.17, 0.94, 0.65 },
+        rise3 = { 0.03, 0.17, 0.94, 0.65 },
+      },
+    },
+    {
+      path = 'assets/art/stolas-ground-rites-v45.png',
+      columns = 3,
+      rows = 2,
+      cells = {
+        cleftWarning = { 0, 0 },
+        cleftOpen = { 1, 0 },
+        cleftSpent = { 2, 0 },
+        owlMark = { 0, 1 },
+        owlCounter = { 1, 1 },
+      },
+      -- The cracks are horizontal paintings inside otherwise square atlas cells.
+      crops = {
+        cleftWarning = { 0, 0.34, 1, 0.32 },
+        cleftOpen = { 0, 0.34, 1, 0.32 },
+        cleftSpent = { 0, 0.34, 1, 0.32 },
+      },
+    },
     {
       path = 'assets/art/projectiles-fresco-v45.png',
       columns = 4,
@@ -33,13 +72,46 @@ return {
       rows = 2,
       cells = { fissure = { 0, 0 }, damned = { 1, 0 }, feathers = { 0, 1 }, fragments = { 1, 1 } },
     },
+    {
+      path = 'assets/art/stolas-hell-rites-v45.png',
+      columns = 4,
+      rows = 3,
+      cells = {
+        blink1 = { 0, 0 },
+        blink2 = { 1, 0 },
+        blink3 = { 2, 0 },
+        blink4 = { 3, 0 },
+        condemned1 = { 0, 1 },
+        condemned2 = { 1, 1 },
+        condemned3 = { 2, 1 },
+        condemned4 = { 3, 1 },
+        rift1 = { 0, 2 },
+      },
+      crops = { rift1 = { 0, 0.32, 1, 0.36 } },
+    },
   },
-  blink = { duration = 0.36, limit = 12, size = 2.1 },
+  blink = {
+    duration = 0.36,
+    limit = 12,
+    size = 2.1,
+    departure = { 'blink1', 'blink2', 'blink3', 'blink4' },
+    arrival = { 'blink3', 'blink2', 'blink1', 'blink4' },
+    prepare = { 'blink1', 'blink2' },
+  },
+  casts = {
+    condemned = {
+      frames = { 'condemned1', 'condemned2', 'condemned3', 'condemned4' },
+      anchors = { 'castLeft', 'castRight' },
+      release = 0.18,
+      forward = 0.25,
+      minScale = 0.65,
+    },
+  },
   -- Measured inscribed opaque core, distinct from the peripheral ice/flame tips.
   projectiles = {
     rate = 9,
     default = { prefix = 'cinder', core = 0.34, impact = 'arc' },
-    styles = { astral = { prefix = 'star', core = 0.41, impact = 'stone' } },
+    styles = { astral = { prefix = 'condemned', core = 0.41, impact = 'stone' } },
   },
   rim = 0.92,
   cut = 0.1,
@@ -48,6 +120,31 @@ return {
   cutForward = 0.2,
   antlerCasts = { lightning = true, ['storm-steps'] = true },
   -- Opaque bone against burnt underpaint carries contrast without a luminous column.
-  ray = { size = 1.7, step = 1.5, warned = 0.94, flare = 0.10, embers = 0.32, limit = 16 },
+  ray = {
+    defaultWidth = 0.9,
+    pigmentWidth = 0.8,
+    pigmentLength = 0.94,
+    tileLength = 3.2,
+    tileLimit = 16,
+    warned = 0.94,
+    embers = 0.32,
+    limit = 16,
+    warning = { 'rift1', 'cleftWarning' },
+    active = 'cleftOpen',
+    settling = 'cleftSpent',
+  },
+  ribbon = { segments = 64, tileLength = 2.4 },
+  waves = {
+    hell = {
+      frames = { 'crest1', 'crest2', 'crest3' },
+      rate = 10,
+      trail = 0.7,
+      residue = 'cleftSpent',
+      embers = 0.32,
+    },
+  },
+  fissures = {
+    hell = { frames = { 'rise1', 'rise2', 'rise3' }, opening = 0.15 },
+  },
   storm = { bolts = 12, near = 1.2, spread = 2.2, height = 1.5, size = 2.8, mark = 2.6 },
 }

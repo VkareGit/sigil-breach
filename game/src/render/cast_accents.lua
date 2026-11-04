@@ -1,5 +1,6 @@
 -- Energy belongs to the presentation, never to a body's alpha or hit mask.
 local Surface = require('src.enemies.surface')
+local Anchor = require('src.enemies.contact_anchor')
 local ActionPhase = require('src.enemies.action_phase')
 local Rites = require('src.content.art.rites')
 local HazardArt = require('src.render.hazard_art')
@@ -38,7 +39,8 @@ function Accents.draw(r, g, e, effects)
       e.x,
       Ground.of(g.world, e) + 0.1,
       e.z,
-      progress < 0.55 and 'fragments' or 'feathers',
+      slipping and HazardArt.sequence(Rites.blink.prepare, progress)
+        or (progress < 0.55 and 'fragments' or 'feathers'),
       1.65,
       math.atan2(viewer.x - e.x, viewer.z - e.z),
       1
@@ -49,11 +51,31 @@ function Accents.draw(r, g, e, effects)
     return false
   end
   local windup = e.ai == 'windup'
-  if spec.id == 'star-lance' and windup then
+  local cast = look.cast and Rites.casts[look.cast.sequence]
+  if cast and (windup or e.ai == 'strike') then
     local t = ActionPhase.sample(e)
-    local x, y, z = centre(g, e, 'head')
-    if x then
-      effects.spell(r, g, 0, t, x, y - 0.09, z + 0.03, 0.53, 1, false)
+    local age = e.phase or 0
+    if not windup and spec.kind == 'salvo' then
+      age = age - math.max(0, (e.released or 1) - 1) * spec.interval
+    end
+    local alpha = windup and 1 or math.max(0, 1 - age / cast.release)
+    local viewer = Context.viewer(g)
+    local yaw = math.atan2(viewer.x - e.x, viewer.z - e.z)
+    local size = look.cast.size * (windup and (cast.minScale + (1 - cast.minScale) * t) or 1)
+    for _, hand in ipairs(cast.anchors) do
+      local x, y, z = Anchor.point(g, e, e.phase or 0, e.x, e.z, hand, viewer)
+      if x and alpha > 0 then
+        HazardArt.upright(
+          r,
+          x + math.sin(yaw) * cast.forward,
+          Ground.of(g.world, e) + y - size * 0.5,
+          z + math.cos(yaw) * cast.forward,
+          HazardArt.sequence(cast.frames, windup and t or 1),
+          size,
+          yaw,
+          alpha
+        )
+      end
     end
     return true
   end

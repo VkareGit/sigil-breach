@@ -573,7 +573,7 @@ local definitions = {
   { 'creature_imp_text', 'Flanks and lunges.' },
   { 'creature_imp_tip', 'Sidestep its swing.' },
   { 'creature_stolas', 'Star Acolyte' },
-  { 'creature_stolas_text', 'Keeps away, shoots.' },
+  { 'creature_stolas_text', 'A distant caster. Jump its low wave; sidestep its tall fissure.' },
   { 'creature_stolas_tip', 'Heavy shots interrupt.' },
   { 'ability_powder', 'POWDER CHARGE' },
   { 'ability_powder_tag', 'BLAST' },

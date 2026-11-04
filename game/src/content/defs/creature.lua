@@ -20,6 +20,9 @@ Creature.sounds = Schema:new('creature sounds', {
   summon = { type = 'string' },
   arrival = { type = 'string' },
   death = { type = 'string' },
+  hurt = { type = 'string' },
+  breath = { type = 'string' },
+  murmur = { type = 'string' },
 })
 Creature.evade = Schema:new('evade', {
   speed = { type = 'number', required = true, min = 0 },
@@ -73,6 +76,8 @@ Creature.appearance = Schema:new('appearance', {
   portal = { type = 'table', required = true, desc = 'colour of its summoning portal' },
   stain = { type = 'table', desc = 'colour of its ground stain (default: blood)' },
   warning = { type = 'table', desc = 'colour of its wind-up ring (default: ember)' },
+  windupMark = { type = 'string', default = 'circle', desc = 'painted ground preparation' },
+  counterMark = { type = 'string', default = 'circle', desc = 'painted counter window' },
   shadow = { type = 'number', default = 1, min = 0, desc = 'shadow scale' },
   stature = { type = 'string', default = 'normal', values = { 'normal', 'large' } },
   casts = { type = 'table', desc = 'attack ids that glow as a spell in wind-up (all = every)' },

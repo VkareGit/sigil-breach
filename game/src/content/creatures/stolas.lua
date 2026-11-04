@@ -21,7 +21,10 @@ return Creature.define({
     portal = { 0.48, 0.66, 1 },
     stain = { 0.10, 0.075, 0.055 },
     warning = { 0.82, 0.73, 0.52 },
+    windupMark = 'owlMark',
+    counterMark = 'owlCounter',
     casts = { all = true },
+    cast = { size = 0.55, height = 1.35, sequence = 'condemned' },
     motion = 'hover',
     evadeArt = 'evade',
   },
@@ -49,7 +52,16 @@ return Creature.define({
     { when = 'hugging', attack = 'slip', rest = 4, within = 2.4, after = 0.4 },
     { when = 'drinking', attack = 'star', rest = 4, within = 11 },
   },
-  sounds = { step = 'wing_fold', alert = 'owl', windup = 'owl', strike = 'cast' },
+  sounds = {
+    step = 'wing_fold',
+    alert = 'owl_lament',
+    windup = 'owl_star_warning',
+    strike = 'owl_release',
+    breath = 'owl_breath',
+    murmur = 'owl_murmur',
+    hurt = 'owl_hurt',
+    death = 'owl_death',
+  },
   tactics = {
     roll = true,
     moves = {
@@ -65,6 +77,8 @@ return Creature.define({
     -- 0.21: faster than a running player; a change of direction dodges it.
     Action.bolt({
       id = 'star',
+      windupVoice = 'owl_cast_grunt',
+      windupSound = 'owl_star_warning',
       range = 11,
       windup = 0.74,
       recover = 0.34,
@@ -79,6 +93,8 @@ return Creature.define({
     -- change direction after the cast, then punish its longer recovery.
     Action.fan({
       id = 'talon-fan',
+      windupVoice = 'owl_cast_grunt',
+      windupSound = 'owl_fan_warning',
       range = 4.2,
       rest = 3.8,
       windup = 0.9,
@@ -98,6 +114,8 @@ return Creature.define({
     -- bound to the cast until the last has left.
     Action.salvo({
       id = 'star-trio',
+      windupVoice = 'owl_cast_chant',
+      windupSound = 'owl_trio_warning',
       range = 10,
       rest = 5,
       windup = 0.95,
@@ -112,28 +130,37 @@ return Creature.define({
       color = { 0.72, 0.58, 0.34 },
       packet = packet(34, 40, 'astral'),
     }),
-    -- A ray across the floor, warned along its whole length.
-    Action.beam({
+    -- A low ring of hellfire. Time a jump as its crest approaches.
+    Action.wave({
       id = 'star-ray',
+      windupVoice = 'owl_cast_chant',
+      windupSound = 'owl_ray_warning',
+      sound = 'owl_rupture',
       range = 9,
       rest = 8,
       windup = 0.9,
       parry = 0.45,
       parryReach = 14,
-      delay = 0.55,
-      length = 9,
-      arc = 1.5,
-      spin = 1.7,
+      delay = 0.35,
+      reach = 9,
+      speed = 8,
+      width = 0.8,
+      art = 'hell',
+      volume = { bottom = 0, top = 0.35, sample = 'feet', includeRadius = true },
       duration = 0.5,
       recover = 1.3,
       cooldown = 1.4,
       packet = packet(40, 50, 'astral'),
     }),
-    -- 0.43 (owner, R01): a lance of starlight, its aiming laser. The cast locks a line from its
-    -- hand to the knight and draws it on the floor for delay s; then the whole line strikes at
-    -- once. Leave the line in time, or shoot in the cast's window and it is turned aside.
+    -- A straight tear follows the visible target during preparation, then locks.
+    -- Leave its painted width during the warning, or counter the caster first.
     Action.beam({
       id = 'star-lance',
+      art = 'hell',
+      windupVoice = 'owl_cast_command',
+      track = 1,
+      windupSound = 'owl_lance_warning',
+      sound = 'owl_rupture',
       range = 14,
       rest = 6,
       windup = 0.6,
@@ -141,8 +168,9 @@ return Creature.define({
       parryReach = 16,
       delay = 0.45,
       length = 14,
+      width = 1.2,
       arc = 0.02,
-      spin = 1,
+      spin = 0.1,
       duration = 0.3,
       recover = 1.0,
       cooldown = 1.2,
@@ -151,6 +179,9 @@ return Creature.define({
     -- It will not be caught: gone, and behind a shoulder.
     Action.blink({
       id = 'slip',
+      windupVoice = 'owl_cast_gasp',
+      windupSound = 'owl_slip_warning',
+      sound = 'owl_return',
       range = 3.2,
       rest = 5,
       windup = 0.34,

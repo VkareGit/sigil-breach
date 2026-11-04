@@ -1,0 +1,39 @@
+{
+  "asset": "game/assets/art/stolas-casts-v45.png",
+  "date": "2026-11-04",
+  "tool": "built-in image_gen",
+  "references": [
+    {
+      "path": "game/assets/art/stolas-fresco-v12.png",
+      "sha256": "ff94685b8c9e552f029c24811f7f88202f261d65a79b124958a3e3818d5b163d"
+    },
+    {
+      "path": "docs/art/giovanni-da-modena-inferno.webp",
+      "sha256": "1fc2334d3651ac6223223a6ee349e7cc80b703e976634a7722b673641167888c"
+    }
+  ],
+  "edit_target": "Initial twelve-pose draft generated from the same Stolas and Inferno references; rejected for small face and soft modelling.",
+  "prompt": "Edit the FIRST image only: a 4-column, 3-row game animation sheet. The SECOND image is the approved exact character design and paint treatment; THIRD is Giovanni da Modena Inferno, the mandatory fresco reference. Correct the first sheet's style and proportions to be an exact continuation of the second sheet, not a new owl model. Preserve all twelve action poses, cell positions, full-body framing, foot positions, empty gutters and uniform solid #FF00FF chroma-key background. Specific correction: the first sheet's owl faces look too small and doll-like and the body paint too soft and rounded. Restore the second reference's same sharp ivory owl facial disc, same small dark eyes and long pointed beak, larger head-to-body ratio (face disc about 25% taller and wider than first image), spindly limbs and thin body; copy its ochre, ivory and muted brown feather colors, not purple or pink feathers. Match the broad matte painted planes, sparse fine brown contour, restrained irregular brush marks and modest detail density of the approved old sheet. Each feather should be a broad legible painted shape; no new microdetail, no sharpened feathers, no shiny edges, no digital smooth gradients, no plastic 3D muscles, no glossy round eyes. The sprite should look cut from the SAME fresco as image two. Do not simplify it into a cartoon or blur the contours. Same legible gestural silhouette at game size. No added objects, light effects, text, grid lines, drop shadows or scenery. Keep magenta completely flat and separated from all character pigment.",
+  "poses": [
+    "fan preparation",
+    "fan release",
+    "sweep preparation",
+    "sweep release",
+    "lance preparation",
+    "lance release",
+    "blink fold",
+    "blink return",
+    "recovery extension",
+    "recovery settle",
+    "salvo second release",
+    "salvo third release"
+  ],
+  "raw_generation_sha256": "09c937758834c60d69572c78c57899b3e3e098b8497aa1f6d16b7c7a6bb7b46c",
+  "technical_processing": {
+    "alpha": "Remove magenta where min(R,B)-G > 0.24; fill transparent RGB with #553c2e.",
+    "spill": "R := R-max(0,B-G); B := min(B,G). No resizing, sharpening or painting.",
+    "color_space": "sRGB, channels normalized to 0..1"
+  },
+  "asset_sha256": "7fc3f5f18c3f1944ba6f890034e66c7efcc5f452636fd17d6da3f72c084af4d3",
+  "acceptance": "Owner review of appearance and motion pending; automated anatomy and hit checks recorded in docs/HISTORIA.md."
+}

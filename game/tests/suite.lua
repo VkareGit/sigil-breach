@@ -6,6 +6,21 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'star-acolyte-audio',
+    title = 'Distinct owl warnings and spatial teleport voices',
+    module = 'tests.cases.star_acolyte_audio',
+  },
+  {
+    id = 'star-acolyte-art',
+    title = 'Painted hell rites and teleport phases',
+    module = 'tests.cases.star_acolyte_art',
+  },
+  {
+    id = 'star-acolyte',
+    title = 'Owl sidesteps, distinct spell tells and live action continuity',
+    module = 'tests.cases.star_acolyte',
+  },
+  {
     id = 'sigil-builds',
     title = 'Four-point sigil builds and event ownership',
     module = 'tests.cases.sigil_builds',

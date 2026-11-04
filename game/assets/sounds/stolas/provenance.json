@@ -1,0 +1,202 @@
+{
+  "license": "CC0-1.0",
+  "sources": [
+    {
+      "id": "ghost",
+      "title": "Ghost/Monster sounds",
+      "author": "iletzy",
+      "page": "https://opengameart.org/content/ghostmonster-sounds",
+      "sha256": "79718e0f6c72697671b193b6e5f9e7d89cecbfeaa3647031684efaf75f56b65e"
+    },
+    {
+      "id": "vulture",
+      "title": "Vulture imitation",
+      "author": "AntumDeluge",
+      "page": "https://opengameart.org/content/vulture-imitation",
+      "sha256": "0e7d2811e631529bd6c9f5deb5dd9bb196726168dd4a7afcad8841800d38d515"
+    }
+  ],
+  "processing": "Mono 44100 Hz PCM16. Selected vocal excerpts, restrained pitch layers, 65-2900 Hz band, short reflections, faded endpoints, peak <= 0.58, RMS <= 0.095. No game audio copied.",
+  "cues": {
+    "owl_lament": {
+      "duration": 1.25,
+      "peak": 0.3092,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 9.95,
+      "pitch": 0.78,
+      "layer": 0.3,
+      "pulses": 0
+    },
+    "owl_breath": {
+      "duration": 1.55,
+      "peak": 0.4745,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 3.52,
+      "pitch": 0.92,
+      "layer": 0.1,
+      "pulses": 0
+    },
+    "owl_murmur": {
+      "duration": 1.8,
+      "peak": 0.5008,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 6.38,
+      "pitch": 0.76,
+      "layer": 0.24,
+      "pulses": 0
+    },
+    "owl_hurt": {
+      "duration": 0.42,
+      "peak": 0.3364,
+      "rms": 0.095,
+      "source": "vulture",
+      "start": 0.12,
+      "pitch": 0.9,
+      "layer": 0.16,
+      "pulses": 0
+    },
+    "owl_death": {
+      "duration": 2.05,
+      "peak": 0.4007,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 15.9,
+      "pitch": 0.72,
+      "layer": 0.38,
+      "pulses": 0
+    },
+    "owl_star_warning": {
+      "duration": 0.68,
+      "peak": 0.58,
+      "rms": 0.094,
+      "source": "vulture",
+      "start": 0.15,
+      "pitch": 0.78,
+      "layer": 0.15,
+      "pulses": 1
+    },
+    "owl_fan_warning": {
+      "duration": 0.82,
+      "peak": 0.58,
+      "rms": 0.0927,
+      "source": "ghost",
+      "start": 0.2,
+      "pitch": 0.74,
+      "layer": 0.22,
+      "pulses": 2
+    },
+    "owl_trio_warning": {
+      "duration": 0.88,
+      "peak": 0.58,
+      "rms": 0.0746,
+      "source": "vulture",
+      "start": 0.22,
+      "pitch": 0.72,
+      "layer": 0.18,
+      "pulses": 3
+    },
+    "owl_ray_warning": {
+      "duration": 0.82,
+      "peak": 0.3163,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 10.0,
+      "pitch": 0.66,
+      "layer": 0.36,
+      "pulses": 0
+    },
+    "owl_lance_warning": {
+      "duration": 0.54,
+      "peak": 0.3732,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 12.9,
+      "pitch": 0.84,
+      "layer": 0.18,
+      "pulses": 0
+    },
+    "owl_slip_warning": {
+      "duration": 0.3,
+      "peak": 0.3281,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 6.45,
+      "pitch": 0.94,
+      "layer": 0.15,
+      "pulses": 0
+    },
+    "owl_release": {
+      "duration": 0.5,
+      "peak": 0.58,
+      "rms": 0.0364,
+      "source": "vulture",
+      "start": 0.55,
+      "pitch": 0.72,
+      "layer": 0.28,
+      "pulses": 0
+    },
+    "owl_rupture": {
+      "duration": 0.85,
+      "peak": 0.4529,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 0.25,
+      "pitch": 0.6,
+      "layer": 0.4,
+      "pulses": 0
+    },
+    "owl_return": {
+      "duration": 0.75,
+      "peak": 0.4126,
+      "rms": 0.095,
+      "source": "ghost",
+      "start": 16.4,
+      "pitch": 0.69,
+      "layer": 0.25,
+      "pulses": 0
+    },
+    "owl_cast_grunt": {
+      "duration": 0.48,
+      "peak": 0.3524,
+      "rms": 0.085,
+      "source": "ghost",
+      "start": 6.32,
+      "pitch": 0.94,
+      "pulses": 1,
+      "processing": "Dry voiced excerpt, 80-2300 Hz, faded endpoints; no reflections. Additional caster performance over the unchanged spell sound."
+    },
+    "owl_cast_chant": {
+      "duration": 0.78,
+      "peak": 0.3481,
+      "rms": 0.085,
+      "source": "ghost",
+      "start": 15.88,
+      "pitch": 0.9,
+      "pulses": 2,
+      "processing": "Dry voiced excerpt, 80-2300 Hz, faded endpoints; no reflections. Additional caster performance over the unchanged spell sound."
+    },
+    "owl_cast_command": {
+      "duration": 0.5,
+      "peak": 0.377,
+      "rms": 0.085,
+      "source": "ghost",
+      "start": 12.86,
+      "pitch": 0.96,
+      "pulses": 1,
+      "processing": "Dry voiced excerpt, 80-2300 Hz, faded endpoints; no reflections. Additional caster performance over the unchanged spell sound."
+    },
+    "owl_cast_gasp": {
+      "duration": 0.26,
+      "peak": 0.252,
+      "rms": 0.085,
+      "source": "vulture",
+      "start": 0.08,
+      "pitch": 0.82,
+      "pulses": 1,
+      "processing": "Dry voiced excerpt, 80-2300 Hz, faded endpoints; no reflections. Additional caster performance over the unchanged spell sound."
+    }
+  }
+}

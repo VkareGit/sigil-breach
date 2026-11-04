@@ -105,7 +105,7 @@ function Tests.run()
       check(id .. ' sound ' .. role .. ' resolves', Recipes[name] ~= nil)
     end
     for _, attack in ipairs(def.attacks) do
-      for _, key in ipairs({ 'sound', 'windupSound' }) do
+      for _, key in ipairs({ 'sound', 'windupSound', 'windupVoice' }) do
         if attack[key] then
           check(id .. '/' .. attack.id .. ' ' .. key .. ' resolves', Recipes[attack[key]] ~= nil)
         end

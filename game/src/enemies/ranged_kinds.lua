@@ -152,6 +152,7 @@ Kinds.wave = {
     Contact.face(g, e, atk, a)
     Spawn.make(g, 'hazard', {
       kind = 'wave',
+      art = atk.art,
       owner = e.id,
       side = Bodies.side(g, e),
       x = e.x,
@@ -177,6 +178,7 @@ Kinds.beam = {
     local turn = e.attackCount % 2 == 0 and 1 or -1
     Spawn.make(g, 'hazard', {
       kind = 'sweepline',
+      art = atk.art,
       owner = e.id,
       side = Bodies.side(g, e),
       x = e.x,
@@ -185,6 +187,7 @@ Kinds.beam = {
       delay = atk.delay,
       maxDelay = atk.delay,
       radius = atk.length,
+      width = atk.width,
       angle = a - turn * atk.arc * 0.5,
       spin = turn * atk.spin,
       volume = Schema.copy(atk.volume),
@@ -277,9 +280,19 @@ Kinds.blink = {
       if
         not World.solid(g.world, x, z, K.aimClearance) and World.visible(g.world, t.x, t.z, x, z)
       then
-        Signal(g, 'Blinked', { enemy = e, fromX = e.x, fromZ = e.z })
+        local fromX, fromZ = e.x, e.z
         e.x, e.z = x, z
         e.lastX, e.lastZ = t.x, t.z
+        Signal(g, 'Blinked', {
+          enemy = e,
+          attack = atk,
+          fromX = fromX,
+          fromZ = fromZ,
+          toX = x,
+          toZ = z,
+          level = e.level,
+          at = g.elapsed,
+        })
         break
       end
     end

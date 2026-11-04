@@ -186,6 +186,9 @@ local function tickBody(g, e, dt, paused)
   if not paused then
     e.recover = math.max(0, (e.recover or 0) - dt)
     e.spent = math.max(0, (e.spent or 0) - dt)
+    if e.evadeReady then
+      e.evadeReady = math.max(0, e.evadeReady - dt)
+    end
   end
   if math.abs(e.pushX) + math.abs(e.pushZ) > Walk.minPush then
     Body.push(g, e, dt, Rules.body(e).drag or defaults.drag)
@@ -389,6 +392,10 @@ local function free(g, e, d, dt)
     return
   end
   e.ai = 'move'
+  -- Finish a committed sidestep before reserving another action.
+  if (e.evadeTime or 0) > 0 and evade(g, e, d, dt) then
+    return
+  end
   local victim = target(g, e)
   -- The rest of a recovery it walks, but strikes with nothing, answers included.
   local ready = (e.spent or 0) <= 0

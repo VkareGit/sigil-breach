@@ -1,0 +1,11 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "reference": [
+    "docs/art/giovanni-da-modena-inferno.webp",
+    "game/assets/art/stolas-ground-rites-v45.png"
+  ],
+  "layout": "3 columns, 2 rows, 1536x1024: low flame crest phases; rising, open and falling damned curtain. Side elevation, no ground perspective.",
+  "prompt": "Medieval tempera Inferno sprite atlas matching existing ground-rites. Broad simple ochre, oxblood and burnt sienna shapes, sparse bone. Three low curled flame/claw crests, three rising/falling ragged curtains of damned arms. Solid chroma green, no text, no realistic fire, neon, bloom or fine sculptural detail.",
+  "processing": "Technical chroma cleanup only: remove green-dominant pixels, suppress edge green; transparent RGB #35221a. Crops stored in rites.lua.",
+  "sha256": "8b4f344f0a6ec81b77e65daf159a2c6179cb69b71d7352bbf86cbbe9a8480fa5"
+}

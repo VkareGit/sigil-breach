@@ -7,7 +7,6 @@ local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
-local Context = require('src.session.context')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
@@ -28,10 +27,51 @@ Kinds:register('lightning', {
     end
   end,
 })
+local function waveResidue(r, g, h, radius, alpha)
+  local style = Rites.waves[h.art]
+  if style and radius > 0 then
+    HazardArt.ribbon(
+      r,
+      g,
+      h,
+      style.residue,
+      'ring',
+      radius,
+      math.min(radius, style.trail),
+      0,
+      0,
+      alpha
+    )
+  end
+end
 Kinds:register('wave', {
   ground = function(r, g, h)
-    if h.delay <= 0 then
+    if Rites.waves[h.art] then
+      if h.delay > 0 then
+        HazardArt.circle(r, g, h, 'owlMark', h.radius, 1)
+      else
+        waveResidue(r, g, h, h.radius - h.width, 0.5)
+      end
+    elseif h.delay <= 0 then
       HazardArt.circle(r, g, h, 'wave', h.radius, 1)
+    end
+  end,
+  air = function(r, g, h)
+    local style = Rites.waves[h.art]
+    if style and h.delay <= 0 then
+      local frame = style.frames[1 + math.floor(-h.delay * style.rate) % #style.frames]
+      HazardArt.ribbon(
+        r,
+        g,
+        h,
+        frame,
+        'ring',
+        h.radius,
+        math.min(h.width, h.radius),
+        h.volume.top,
+        0,
+        1
+      )
     end
   end,
 })
@@ -63,53 +103,104 @@ Kinds:register('tempest', {
     end
   end,
 })
+-- Both the warning and its opened floor tear use the released width and wall reach.
+local function floorTear(r, g, h, cell, alpha)
+  local R = Rites.ray
+  local ground = Ground.of(g.world, h)
+  local dx, dz = math.sin(h.angle), math.cos(h.angle)
+  local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
+  spot.x, spot.z, spot.level = h.x + dx * reach / 2, h.z + dz * reach / 2, h.level
+  HazardArt.strip(
+    r,
+    g,
+    spot,
+    cell,
+    reach / R.pigmentLength,
+    (h.width and h.width > 0 and h.width or R.defaultWidth) / R.pigmentWidth,
+    h.angle,
+    alpha
+  )
+end
 Kinds:register('sweepline', {
   ground = function(r, g, h)
     local R = Rites.ray
-    local ground = Ground.of(g.world, h)
-    local dx, dz = math.sin(h.angle), math.cos(h.angle)
-    local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
     local progress = h.delay > 0 and (1 - h.delay / math.max(0.001, h.maxDelay)) or 1
-    local alpha = h.delay > 0 and R.warned or 1
-    for step = 1, math.floor(reach / R.step) do
-      local d = step * R.step
-      spot.x, spot.z = h.x + dx * d, h.z + dz * d
-      -- Alternate the irregular pigment and vary its extent, keeping the whole
-      -- route present from the first warning. Extra fissures open within it.
-      local yaw = h.angle + (step % 2) * math.pi
-      local cell = progress >= 0.72 and 'damned' or 'fissure'
-      HazardArt.band(r, g, spot, cell, R.size, yaw, alpha)
+    floorTear(
+      r,
+      g,
+      h,
+      h.delay > 0 and HazardArt.sequence(R.warning, progress) or R.active,
+      h.delay > 0 and R.warned or 1
+    )
+  end,
+  air = function(r, g, h)
+    local style = Rites.fissures[h.art]
+    if not style or h.delay > style.opening then
+      return
     end
+    local height = h.volume.top
+    local ground = Ground.of(g.world, h)
+    local reach = Ballistics.world(
+      g.world,
+      h.x,
+      ground + 1,
+      h.z,
+      math.sin(h.angle),
+      0,
+      math.cos(h.angle),
+      h.radius
+    )
+    local preparing = h.delay > 0
+    local growth = preparing and (1 - h.delay / style.opening) or 1
+    HazardArt.ribbon(
+      r,
+      g,
+      h,
+      style.frames[preparing and 1 or 2],
+      'line',
+      reach,
+      h.width or Rites.ray.defaultWidth,
+      height * growth,
+      h.angle,
+      1
+    )
   end,
 })
--- The brief flame and settling fragments are a view record of a released ray.
--- No ground warning remains once the authoritative hazard has gone.
+-- Settled pigment follows the last real line, never a floating duplicate of its origin.
 function Kinds.rayAfterimage(r, g, h, age)
   local R = Rites.ray
   if age < 0 or age >= R.embers then
     return
   end
-  local ground = Ground.of(g.world, h)
-  local dx, dz = math.sin(h.angle), math.cos(h.angle)
-  local reach = Ballistics.world(g.world, h.x, ground + 1, h.z, dx, 0, dz, h.radius)
-  for step = 1, math.floor(reach / R.step) do
-    local d = step * R.step
-    local x, z = h.x + dx * d, h.z + dz * d
-    local y = Ground.height(g.world, x, z)
-    if age < R.flare then
-      HazardArt.upright(
-        r,
-        x,
-        y + 0.03,
-        z,
-        'damned',
-        0.9,
-        math.atan2(Context.viewer(g).x - x, Context.viewer(g).z - z),
-        1
+  if h.kind == 'wave' then
+    waveResidue(r, g, h, h.radius, 0.5 * (1 - age / R.embers))
+  else
+    floorTear(r, g, h, R.settling, 0.7 * (1 - age / R.embers))
+    local style = Rites.fissures[h.art]
+    if style then
+      local ground = Ground.of(g.world, h)
+      local reach = Ballistics.world(
+        g.world,
+        h.x,
+        ground + 1,
+        h.z,
+        math.sin(h.angle),
+        0,
+        math.cos(h.angle),
+        h.radius
       )
-    end
-    if age >= R.flare then
-      HazardArt.upright(r, x, y + 0.04, z, 'fragments', 0.36, h.angle, 0.85)
+      HazardArt.ribbon(
+        r,
+        g,
+        h,
+        style.frames[3],
+        'line',
+        reach,
+        h.width,
+        h.height * (1 - age / R.embers),
+        h.angle,
+        1 - age / R.embers
+      )
     end
   end
 end

@@ -6,11 +6,13 @@ local Pools = require('src.session.world')
 local Creatures = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
+local BodyVoices = require('src.audio.body_voices')
 local C = {}
 local impacts = { fire = 'ash_eruption', lightning = 'thunder' }
 local sessions = setmetatable({}, { __mode = 'k' })
 function C.reset()
   sessions = setmetatable({}, { __mode = 'k' })
+  BodyVoices.reset()
 end
 -- Same distance clock and frame cycle as the painted walk, two contacts/cycle.
 function C.stepIndex(e)
@@ -22,6 +24,7 @@ function C.stepIndex(e)
   return math.floor((e.walk or 0) * pose.rate * 2 / #pose.frames)
 end
 function C.update(audio, g, dt)
+  BodyVoices.update(audio, g, dt)
   local p = Context.viewer(g)
   if g.state ~= 'playing' or not p or not g.world or g.map or g.help then
     return

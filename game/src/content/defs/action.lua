@@ -99,6 +99,10 @@ Action.common = {
   },
   sound = { type = 'string' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
+  windupVoice = {
+    type = 'string',
+    desc = 'optional creature vocalization beside the spell warning',
+  },
   packet = { type = 'table', schema = Packet.schema },
 }
 -- A projectile as part of an action (bolt, pool's spit, fan orbs).
@@ -336,6 +340,7 @@ Action.kinds:register(
     start = { type = 'number', default = 0.6, min = 0, desc = 'its first radius (m)' },
     delay = { type = 'number', default = 0, min = 0 },
     volume = Area.field('wave'),
+    art = { type = 'string', desc = 'painted ground rite style' },
   }, { 'speed', 'reach', 'packet' })
 )
 -- A ray sweeping the room around the body; standing stone stops it.
@@ -343,10 +348,12 @@ Action.kinds:register(
   'beam',
   kind('beam', {
     length = { type = 'number', min = 0 },
+    width = { type = 'number', default = 0, min = 0, desc = 'full width of the floor tear (m)' },
     arc = { type = 'number', min = 0, desc = 'the angle it crosses (radians)' },
     spin = { type = 'number', min = 0, desc = 'radians per second' },
     delay = { type = 'number', default = 0.5, min = 0, desc = 'warned before it moves (s)' },
     volume = Area.field('beam'),
+    art = { type = 'string', desc = 'painted ground rite style' },
   }, { 'length', 'arc', 'spin', 'packet' })
 )
 -- Existing creatures called to the body, bounded by a limit of the living.
