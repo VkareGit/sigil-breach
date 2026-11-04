@@ -18,12 +18,14 @@ Plan zatwierdzany punkt po punkcie przez właściciela. Każdy punkt: test lub s
 | P0 | Decyzje właściciela (lista w raporcie, rozdział 9) | zrobione 2026-11-03 | D11–D20 w `docs/WIZJA.md`; elity: animacja i od razu krótsze okna |
 | P1 | Błędy: duplikowanie relikwii przez śmierć; czas animacji `storm`/`salvo` | zrobione (0.45) | P1a: test pilgrimage czerwony → zielony, golden „human” odświeżony; P1b: test attack-followups, golden bez zmian |
 | P1c | Elity: krótsze okna (D11) — odsłonięcie 1,5/1,6 → 1,2 s, regeneracje 1,5 → 1,2 s | zrobione (0.45), do oceny w grze | sonda 4 strategii: okrążanie z wygranej do 3/4 porażek, czytanie ciosów bez zmian |
-| P2 | Dźwięk: cztery suwaki i kategorie | zrobione (0.45), do odsłuchu | test w `app`; dźwięk łyku jeszcze nie podłączony |
+| P2 | Dźwięk: cztery suwaki i kategorie | zrobione (0.45), do odsłuchu | test w `app`; łyk podłączony do `sip` 2026-11-04, potwierdzenie tylko za leczenie |
 | P3 | Ekran: hierarchia informacji, bez SHIFT w niszy | zrobione (0.45), do akceptacji | testy interfejsu i audyt układu |
-| P4 | Animacje i efekty (Astra): elity, flaska, promień Stolasa, amunicja | zrobione (0.45), do oceny | rozdział „Raport Astry P4” w `HISTORIA.md`; ciemniejsza amunicja wg właściciela |
-| P5 | Sklep przy ognisku: start z Judge'em, Exorcist za dusze, hartowanie +I | po decyzjach | |
-| P6 | Sigile: pojemność, zakładanie przy ognisku, pierwsze cztery | po P5 | |
-| P7 | Próba właściciela i pomiary; potem +II, kolejne sigile, ewentualne okna elit | po P1–P6 | |
+| P4 | Animacje i efekty (Astra): elity, flaska, promień Stolasa, amunicja | kolejna wersja malarska 2026-11-04, do oceny | `work/reszta/RAPORT.md`; 55 arkuszy efektów, audyt stylu; czasy elit i maski bez zmian |
+| P5 | Sklep przy ognisku: start z Judge'em, Exorcist za dusze, hartowanie +I | zaimplementowane; odbiór tras NIEZALICZONY | zakup i migracje przetestowane; 3/3 porażki bota przed i po, bez braku amunicji; `work/reszta/RAPORT.md` |
+| P6 | Sigile: pojemność, zakładanie przy ognisku, pierwsze cztery | zaimplementowane 2026-11-04 | Stolas/Furfur/Buer/Paimon, 4 punkty, ręczny wybór, migracja starych pasywów, testy naliczeń; `work/reszta/RAPORT.md` |
+| P7 | Próba właściciela i pomiary; potem +II, kolejne sigile, ewentualne okna elit | do próby właściciela | +II i kolejne sigile niewłączone; balans oraz czasy elit nietknięte w zakresie Astry 2026-11-04 |
+
+Aktualizacja 2026-11-04: cały zakres kodu, grafiki i dźwięku wykonała Astra sama, bez delegacji i bez commitów, zgodnie z bieżącym poleceniem właściciela. Historyczny podział wykonawców poniżej nie opisuje tej realizacji. Pełny wynik testów i ograniczenia są w `work/reszta/RAPORT.md`.
 
 ## Raport końcowy (2026-11-03): czytelność walki, ekran, ogniska jako sklep, dźwięk, animacje, znajdźki
 

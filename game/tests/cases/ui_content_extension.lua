@@ -85,7 +85,7 @@ function Tests.run(G)
       Enemies[id], Enemies.creatures[#Enemies.creatures + 1], ids[#ids + 1] = def, id, id
     end
     for index = 1, 7 do
-      local offer = Schema.copy(Shop.offers[3])
+      local offer = Schema.copy(Shop.get('armor'))
       local id = 'trial_offer_' .. index
       Fixtures.words({
         [id] = 'PRZYWRÓCENIE OCHRONY STRAŻNIKA ŻELAZNEJ BRAMY ' .. index,

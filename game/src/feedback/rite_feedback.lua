@@ -3,7 +3,20 @@
 local Pools = require('src.session.world')
 local Rites = require('src.content.art.rites')
 local Feedback = {}
-require('src.session.fields').declareView('feedback.rite_feedback', { 'riteBursts' }, 'world')
+require('src.session.fields').declareView(
+  'feedback.rite_feedback',
+  { 'riteBursts', 'blinkBursts' },
+  'world'
+)
+function Feedback.blinked(g, event)
+  local list = g.view.blinkBursts or {}
+  g.view.blinkBursts = list
+  list[#list + 1] = { x = event.fromX, z = event.fromZ, starts = g.elapsed, arriving = false }
+  list[#list + 1] = { x = event.enemy.x, z = event.enemy.z, starts = g.elapsed, arriving = true }
+  while #list > Rites.blink.limit do
+    table.remove(list, 1)
+  end
+end
 function Feedback.released(g, event)
   if event.attack.kind ~= 'beam' then
     return
@@ -32,6 +45,12 @@ function Feedback.released(g, event)
   end
 end
 function Feedback.update(g)
+  local blinks = g.view.blinkBursts
+  for i = #(blinks or {}), 1, -1 do
+    if g.elapsed - blinks[i].starts >= Rites.blink.duration then
+      table.remove(blinks, i)
+    end
+  end
   local bursts = g.view.riteBursts
   for i = #(bursts or {}), 1, -1 do
     if g.elapsed - bursts[i].starts > Rites.ray.embers then

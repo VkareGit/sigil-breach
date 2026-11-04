@@ -128,7 +128,7 @@ local function hands(check, Game)
   run(g, 0.25)
   check('a press that waited goes where he looks now', fired == 'now')
   g, p = fresh(Game)
-  p.arsenal.exorcist.mag = 0
+  p.arsenal[p.loadout[p.weapon]].mag = 0
   require('src.combat.reload').start(g, false, p)
   Intent.queue(g, 'fire', nil)
   run(g, 0.02)

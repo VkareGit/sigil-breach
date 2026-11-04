@@ -41,17 +41,24 @@ function Test.run(Game, renderer)
     'textured footprint never extends beyond its authoritative radius',
     math.abs(largest - 0.5) < 1e-12
   )
+  -- A single-suite run has not visited the creatures gallery. Match the real
+  -- loading page before measuring allocations in this effect's draw calls.
+  renderer:prepareCreatures({ 'boss', 'buer' })
   local nativeImage, imageData = love.graphics.newImage, love.image.newImageData
   local loads = 0
+  local loaded = {}
+  local drawing = false
   love.graphics.newImage = function(source, ...)
-    if type(source) == 'string' and source:match('%.png$') then
+    if drawing and type(source) == 'string' and source:match('%.png$') then
       loads = loads + 1
+      loaded[#loaded + 1] = source
     end
     return nativeImage(source, ...)
   end
   love.image.newImageData = function(source, ...)
-    if type(source) == 'string' and source:match('%.png$') then
+    if drawing and type(source) == 'string' and source:match('%.png$') then
       loads = loads + 1
+      loaded[#loaded + 1] = source
     end
     return imageData(source, ...)
   end
@@ -79,6 +86,7 @@ function Test.run(Game, renderer)
           id .. ' keeps radius in ' .. stage,
           sample.radius == spec.radius and hazard.radius == spec.radius
         )
+        drawing = true
         renderer:draw(game, 1280, 720)
         check(
           id .. ' draw leaves simulation unchanged in ' .. stage,
@@ -91,6 +99,7 @@ function Test.run(Game, renderer)
         renderer:present(game, 1280, 720)
         UI.draw(game, 1280, 720, { sensitivity = 1, motion = false, music = 0, hints = false })
         love.graphics.pop()
+        drawing = false
         local pixels = target:newImageData()
         save(pixels, output .. '/hazard-' .. id .. '-' .. (label or stage) .. '-v33.png')
         pixels:release()
@@ -103,10 +112,12 @@ function Test.run(Game, renderer)
       Hazards.update(game, 0.001001)
       local ignition = capture('active', 'activation')
       check(
-        id .. ' starts on the same painted frame and alpha as its last warning',
-        ignition.first == lastWarning.first
-          and math.abs(ignition.alpha - lastWarning.alpha) < 0.002
-          and math.abs(ignition.warning - lastWarning.warning) < 0.002
+        id .. ' replaces the warning cel exactly when damage becomes active',
+        ignition.first ~= lastWarning.first
+          and ignition.mix == 0
+          and lastWarning.mix == 0
+          and ignition.warning >= 0.9
+          and lastWarning.warning >= 0.9
       )
       Hazards.update(game, 0.2)
       local active = capture('active')
@@ -117,8 +128,11 @@ function Test.run(Game, renderer)
       Hazards.update(game, hazard.life - 0.12)
       local fading = capture('fading')
       check(
-        id .. ' loses pigment without losing the readable live boundary',
-        fading.alpha < active.alpha and fading.warning > 0
+        id .. ' uses an ash cel without fading its still dangerous boundary',
+        fading.first ~= active.first
+          and fading.mix == 0
+          and fading.alpha == active.alpha
+          and fading.warning >= 0.9
       )
       Hazards.update(game, 0.13)
       check(id .. ' illustration expires with the real hazard', #game.hazards == 0)
@@ -127,11 +141,15 @@ function Test.run(Game, renderer)
     hidden.player.x, hidden.player.z, hidden.player.yaw, hidden.player.pitch =
       12, 24, math.pi, -0.25
     hidden.view.motion = false
+    drawing = true
     renderer:draw(hidden, 1280, 720)
+    drawing = false
     local clear = renderer.canvas:newImageData()
     local clearBytes = clear:getString()
     Hazards.add(hidden, 12, 18, 0, 0.35, 1, { packet = Archetypes.boss.attacks[1].line.packet })
+    drawing = true
     renderer:draw(hidden, 1280, 720)
+    drawing = false
     local covered = renderer.canvas:newImageData()
     check(
       'an existing opaque pillar occludes the complete ground illustration',
@@ -141,7 +159,9 @@ function Test.run(Game, renderer)
     clear:release()
     covered:release()
     hidden.hazards[1].x, hidden.hazards[1].z = 13.3, 22
+    drawing = true
     renderer:draw(hidden, 1280, 720)
+    drawing = false
     local exposed = renderer.canvas:newImageData()
     check(
       'moving the same illustration in front of the pillar makes it visible',
@@ -152,7 +172,10 @@ function Test.run(Game, renderer)
   end, debug.traceback)
   love.graphics.newImage, love.image.newImageData = nativeImage, imageData
   assert(ok, problem)
-  check('drawing phases performs no lazy PNG decode or file upload', loads == 0)
+  check(
+    'drawing phases performs no lazy PNG decode or file upload: ' .. table.concat(loaded, ', '),
+    loads == 0
+  )
   return lines
 end
 return Test

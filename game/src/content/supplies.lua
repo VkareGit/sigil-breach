@@ -36,6 +36,13 @@ Supplies:register('relic', {
     sigil_stolas = 'assets/art/sigils/stolas-1904.png',
     sigil_buer = 'assets/art/sigils/buer-1904.png',
     sigil_furfur = 'assets/art/sigils/furfur-1904.png',
+    sigil_paimon = 'assets/art/sigils/paimon-1904.png',
+  },
+  seals = {
+    sigil_stolas = 'stolas',
+    sigil_buer = 'buer',
+    sigil_furfur = 'furfur',
+    sigil_paimon = 'paimon',
   },
   icons = { choke = 'choke', pierce = 'pierce', breaker = 'armor', precision = 'choke' },
 })

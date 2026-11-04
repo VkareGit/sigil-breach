@@ -70,6 +70,15 @@ function HazardArt.init(renderer)
     mesh = renderer.native:own(love.graphics.newMesh(format, vertices(), 'triangles', 'static')),
     band = renderer.native:own(love.graphics.newMesh(format, quad(), 'triangles', 'static')),
   }
+  renderer.hazardArt.images = {}
+  for _, sheet in ipairs(Rites.supplements or {}) do
+    local extra = renderer.resources:image(sheet.path)
+    for name, cell in pairs(sheet.cells) do
+      renderer.hazardArt.images[name] = extra
+      cells[name] =
+        { cell[1] / sheet.columns, cell[2] / sheet.rows, 1 / sheet.columns, 1 / sheet.rows }
+    end
+  end
 end
 function HazardArt.sample(hazard)
   local kind = hazard.packet and hazard.packet.damageType
@@ -82,7 +91,7 @@ function HazardArt.sample(hazard)
       first = row * 4 + 1,
       second = row * 4 + 1,
       mix = 0,
-      alpha = 0.16 + 0.20 * progress,
+      alpha = 0.72,
       warning = Definition.warningAlpha,
       warningFrame = 9 + math.min(3, math.floor(progress * 4)),
       radius = hazard.radius,
@@ -91,27 +100,19 @@ function HazardArt.sample(hazard)
   local age = math.max(0, -hazard.delay)
   local phase = age * Definition.cycleRate
   local first = row * 4 + 2 + math.floor(phase) % 2
-  local second = row * 4 + 2 + (math.floor(phase) + 1) % 2
-  local mix = phase % 1
   local alpha = Definition.stainAlpha
   local stage = 'active'
-  if age < Definition.emergeTime then
-    first, second, mix = row * 4 + 1, row * 4 + 2, clamp(age / Definition.emergeTime)
-    alpha = 0.36 + (alpha - 0.36) * mix
-  elseif hazard.life < Definition.fadeTime then
+  if hazard.life < Definition.fadeTime then
     stage = 'fading'
-    second, mix = row * 4 + 4, clamp(1 - hazard.life / Definition.fadeTime)
-    alpha = alpha * (0.25 + 0.75 * clamp(hazard.life / Definition.fadeTime))
+    first = row * 4 + 4
   end
   return {
     stage = stage,
     first = first,
-    second = second,
-    mix = mix,
+    second = first,
+    mix = 0,
     alpha = alpha,
-    warning = Definition.warningAlpha
-      + (Definition.liveBoundaryAlpha - Definition.warningAlpha)
-        * clamp(age / Definition.emergeTime),
+    warning = Definition.liveBoundaryAlpha,
     warningFrame = 12,
     radius = hazard.radius,
   }
@@ -161,7 +162,7 @@ function HazardArt.upright(renderer, x, y, z, name, size, yaw, alpha)
   layer(
     renderer,
     upright,
-    art.rites,
+    art.images[name] or art.rites,
     art.cells[name],
     alpha,
     y,
@@ -178,7 +179,17 @@ function HazardArt.band(renderer, game, at, name, size, yaw, alpha)
   love.graphics.setDepthMode('less', false)
   love.graphics.setColor(1, 1, 1)
   local height = Ground.of(game.world, at) + Definition.groundOffset
-  layer(renderer, at, art.rites, art.cells[name], alpha, height, size, yaw, art.band)
+  layer(
+    renderer,
+    at,
+    art.images[name] or art.rites,
+    art.cells[name],
+    alpha,
+    height,
+    size,
+    yaw,
+    art.band
+  )
   love.graphics.pop()
 end
 function HazardArt.draw(renderer, game, hazard)
@@ -188,22 +199,15 @@ function HazardArt.draw(renderer, game, hazard)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setColor(1, 1, 1)
+  layer(renderer, hazard, art.image, art.frames[sample.first], sample.alpha, height)
   layer(
     renderer,
     hazard,
-    art.image,
-    art.frames[sample.first],
-    sample.alpha * (1 - sample.mix),
-    height
-  )
-  layer(renderer, hazard, art.image, art.frames[sample.second], sample.alpha * sample.mix, height)
-  layer(
-    renderer,
-    hazard,
-    renderer.spells,
-    renderer.spellFrames[sample.warningFrame].rect,
+    art.rites,
+    art.cells.circle,
     sample.warning,
-    height + Definition.warningOffset
+    height + Definition.warningOffset,
+    hazard.radius * 2 / Rites.rim
   )
   love.graphics.pop()
 end

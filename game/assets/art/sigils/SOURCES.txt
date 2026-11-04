@@ -91,3 +91,12 @@ Commons credits S. L. MacGregor Mathers and Aleister Crowley, 1904;
 uploader Bioika0201, 2018-06-28; public domain (PD-old-70-expired / PDM 1.0).
 SHA256: 70A272DDA99872824C713866FEE77E302127F3E7A6D6CE2CE5804B5CE446F9AA
 Used on Furfur's proving altar. Historic symbol, not an invented substitute.
+
+PAIMON ADDITION (2026-11-04, P6)
+paimon-1904.png: 450x450 original bytes; no rotation, redraw or generated replacement.
+Description: https://commons.wikimedia.org/wiki/File:09-Paimon_seal01.png
+Bytes: https://upload.wikimedia.org/wikipedia/commons/f/fb/09-Paimon_seal01.png
+S. L. MacGregor Mathers and Aleister Crowley, Goetia (1904).
+Commons upload Bioika0201, 2018-06-28; PD-old-70-expired / PDM 1.0.
+SHA256: 170f9b1ca51e4ce15989257f1137cb9fcefb314f89eca1ee3004ba776e59fa78
+SHA1: c6383f4dc72827bcf74122480bd215e6a7b45bab

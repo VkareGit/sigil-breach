@@ -1,206 +1,227 @@
-﻿{
-    "project":  "SIGIL: BREACH",
-    "date":  "2026-11-02",
-    "tool":  "image_gen.imagegen",
-    "mode":  "built-in",
-    "references":  [
-                       "docs/STYL.md",
-                       "game/assets/art/medals/provenance.json",
-                       "game/assets/art/medals/last_rites.png",
-                       "game/assets/art/medals/parry.png",
-                       "work/look/look-first-fire.png"
-                   ],
-    "reference_use":  "Read and visually inspected; new-image prompts describe their art direction. No game assets modified.",
-    "processing":  "Mechanical downsampling with System.Drawing HighQualityBicubic, preserving generated alpha. No color edits, sharpening, background removal, or painted content generated with code.",
-    "images":  [
-                   {
-                       "file":  "flask.png",
-                       "size":  [
-                                    64,
-                                    64
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-a812045d-0b74-47fe-84d3-8f971d36ac26.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: A squat glass healing flask with a short narrow neck and ochre cork, round broad shoulders and flattened base. Filled three quarters with muted deep madder-red healing liquid, ONE clearly visible horizontal liquid level. Thick pale grey-ivory glass border with dark umber outer contour; opaque matte painted treatment. Plain flask, no seal, no ribbon. Final delivered asset will be reduced to 64x64 pixels.",
-                       "sha256":  "d19516953dde4cea499fe9ec770a00ec8dc24b290ccd360d5d8fa2ec056a60bf",
-                       "source_sha256":  "ce3390f5ff0faec6471c3cbaf1596b59ae0aaaf99c7c359494b73e877eacf0bd",
-                       "validation":  {
-                                          "width":  64,
-                                          "height":  64,
-                                          "transparent_pixels":  2164,
-                                          "opaque_pixels":  159,
-                                          "partial_alpha_pixels":  1773,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "powder.png",
-                       "size":  [
-                                    64,
-                                    64
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-20c1d11a-7478-43f8-b6f4-afe811d4a890.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: A squat ochre cloth gunpowder pouch with wide pear-shaped body, pinched tied neck and one thick curved unlit fuse rising to the upper right. A few charcoal powder grains visible at the mouth. Strong pouch silhouette and clearly separated hooked fuse; dark umber folds limited to two broad strokes. Not a bottle, not a spherical bomb. No flames. Final delivered asset will be reduced to 64x64 pixels.",
-                       "sha256":  "cfcea898a0da9174fa5a423c5dd983bcd17cac21215ff7ddb04a754491b31ee4",
-                       "source_sha256":  "aa04bfa97a30020501abd86a356737a90777d626c6b0773631ec956cea66faf5",
-                       "validation":  {
-                                          "width":  64,
-                                          "height":  64,
-                                          "transparent_pixels":  2560,
-                                          "opaque_pixels":  179,
-                                          "partial_alpha_pixels":  1357,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "stamina.png",
-                       "size":  [
-                                    64,
-                                    64
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-691f4b65-750d-4b6d-ae45-9c7fcf636224.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One winged leather boot symbolizing stamina/endurance for a dodge niche. Short ochre-brown boot pointing right, dark sole and broad raised heel, with ONE swept-back old-ivory wing growing from the ankle towards upper left, just three large feather lobes. Dynamic single flowing silhouette readable at 18 px. No charges, counters, pips or circular frame. Final delivered asset will be reduced to 64x64 pixels.",
-                       "sha256":  "38f8d0d292fdadcee341fc41aa3b3ae29c09fa515e3c7b379ef529d6ad64d2a2",
-                       "source_sha256":  "d39929336259970578c32c04e6b17cfb66287d5e2b2b4274a8ff61ed56fa3f39",
-                       "validation":  {
-                                          "width":  64,
-                                          "height":  64,
-                                          "transparent_pixels":  2623,
-                                          "opaque_pixels":  184,
-                                          "partial_alpha_pixels":  1289,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "vow_flask.png",
-                       "size":  [
-                                    96,
-                                    96
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-19cb6326-8569-407c-896d-49c0a460610b.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One sacred vow flask: broad squat muted-red glass healing flask with ochre stopper and a short ochre neck cord holding ONE large wax vow seal attached on its lower right shoulder, partly extending outside the bottle silhouette. The seal is a flat muted ochre disk with a simple deep umber central indentation, no writing or rune. Bold red flask plus clearly visible ochre seal, restrained decoration, pale matte glass border. Final delivered asset will be reduced to 96x96 pixels.",
-                       "sha256":  "b60fb9a1c4c6dafe233f2aec6c45a49ed24f2d846d22cf708a0841666b1347ea",
-                       "source_sha256":  "99a4474658fb8f77ef0a7c3fee1a754f57dcb7ff13396b00af24843ebe530962",
-                       "validation":  {
-                                          "width":  96,
-                                          "height":  96,
-                                          "transparent_pixels":  4609,
-                                          "opaque_pixels":  252,
-                                          "partial_alpha_pixels":  4355,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "vow_ward.png",
-                       "size":  [
-                                    96,
-                                    96
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-7bad24e5-eaac-4ef4-8546-2b831f82e13b.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One stout pointed-bottom medieval ward shield, broad shoulders and slightly arched top. Dull cold desaturated slate blue painted field with a wide worn ochre rim and dark umber outline. ONE simple broad pale blue arch-shaped protective band painted within the field, without lettering, runes or crest. Restrained shallow painted volume, no radiance. It must clearly read as a cool blue shield at 18 pixels. Final delivered asset will be reduced to 96x96 pixels.",
-                       "sha256":  "ca09db848eebcbc29f75729091215f73bc15279a318d69e02aebc071dca13415",
-                       "source_sha256":  "ad8e6c77424da0a46bde41c995a63849e9494d5987a7284b8ca78905dacb56b7",
-                       "validation":  {
-                                          "width":  96,
-                                          "height":  96,
-                                          "transparent_pixels":  4673,
-                                          "opaque_pixels":  241,
-                                          "partial_alpha_pixels":  4302,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "vow_vigour.png",
-                       "size":  [
-                                    96,
-                                    96
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-c0def290-f7d2-4bc5-b4b8-fcf86c8042f9.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One strong stylized anatomical heart symbolizing vigour, broad compact muted deep iron-red body and only two short thick vessels on top. Broad umber contour and two large muted ochre-red modeling planes, simple bold silhouette at 18px. Not a shield, not a bottle, no wings, no surrounding badge, no blood droplets or gore. Somber matte painted organ, not a shiny candy heart. Final delivered asset will be reduced to 96x96 pixels.",
-                       "sha256":  "5d32ce00961d141a73118994f8ee0ab550b05a70c53f45cd890cd2f61b8651e9",
-                       "source_sha256":  "900e7ca4aba37daa00d8e9c23f6b9becde43bbfab2ba350b6897c1ba91626992",
-                       "validation":  {
-                                          "width":  96,
-                                          "height":  96,
-                                          "transparent_pixels":  5528,
-                                          "opaque_pixels":  220,
-                                          "partial_alpha_pixels":  3468,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "ammo_shells.png",
-                       "size":  [
-                                    128,
-                                    128
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-664cd9a2-d275-414f-93c4-87fd1233ef4f.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One small ground pickup pile of exactly THREE thick shotgun cartridges for the Exorcist. Red paper cylindrical shotgun shells with wide flat ochre-brass bases. Resting horizontally in a loose staggered FAN, one to left, one diagonal central, one to right, with three broad rounded ends making a strongly jagged elongated silhouette. Elevated three-quarter view from above, visible cylindrical sides and blunt circular ends. Large matte light ochre brass planes and muted red paper make the pickup visible against dark brown chapel flooring at 48 pixels. No box, wrapper, string, loose bullet points or additional cartridges. No floor painted into sprite, no cast shadow, transparent everywhere around the shells. Final delivered asset will be reduced to 128x128 pixels.",
-                       "sha256":  "3564829a714a0479ab9726a122e0212b4f1c63e9ab16eb013a04aced5629ea39",
-                       "source_sha256":  "f9af2a5ea77da235e7fcad1e9523594686599b44a436423391bbb05191b5664a",
-                       "validation":  {
-                                          "width":  128,
-                                          "height":  128,
-                                          "transparent_pixels":  10844,
-                                          "opaque_pixels":  328,
-                                          "partial_alpha_pixels":  5212,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   },
-                   {
-                       "file":  "ammo_rounds.png",
-                       "size":  [
-                                    128,
-                                    128
-                                ],
-                       "source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-d9f83422-3b13-4c51-a73d-099c39940b57.png",
-                       "prompt":  "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One ground pickup of revolver ammunition for the Judge: a small compact rectangular ochre paper packet tied crosswise with thick dark umber twine and ONE visible simple knot. Its upper end is open enough to reveal a short orderly row of four small brass revolver cartridges with rounded bullet noses. A single coherent SQUAT RECTANGULAR BUNDLE silhouette, nearly square, contrasting with a loose splayed shotgun-shell pile. Lying down, viewed from elevated three-quarter angle, broad light ochre paper planes readable against dark chapel floor at 48 pixels. Restrained umber side face. No red shotgun tubes, no scattered bullets, no labels or stamps. No floor or cast shadow, transparent everywhere around the packet. Final delivered asset will be reduced to 128x128 pixels.",
-                       "edit_prompt":  "Edit this SIGIL: BREACH ammunition pickup sprite. Preserve its exact compact tied paper packet composition, silhouette, brown twine, knot, bullet arrangement, ochre paper, umber contours, transparent background and painted fresco style. Change ONLY the metallic cartridge surfaces: remove ALL white and pale specular streaks, hotspots and glossy reflective appearance from bullet noses and brass casings. Repaint as quiet flat matte umber and subdued ochre pigment planes with restrained soft broad modeling. Tarnished chalky egg tempera, absolutely no metal shine. Keep recognizable rounded bullet noses. No text, skulls, glow, scenery or shadows. Genuine transparent background.",
-                       "original_source":  "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-e5b9c70c-1f1d-4617-9e49-857481084075.png",
-                       "sha256":  "acf0b4d0580b2da07075349843c97803582f65b67af3cce88f62e47bd7d0d9e0",
-                       "source_sha256":  "e68825fd13086dc6c2a6efc882c67dcfcde1056da9ed87264be234099782384a",
-                       "validation":  {
-                                          "width":  128,
-                                          "height":  128,
-                                          "transparent_pixels":  7868,
-                                          "opaque_pixels":  317,
-                                          "partial_alpha_pixels":  8199,
-                                          "nontransparent_border_pixels":  0
-                                      }
-                   }
-               ],
-    "limitations":  [
-                        "Widocznosc paczek z 6–8 m nie zostala sprawdzona w silniku; sheet.png pokazuje probe 48 px na rzeczywistej ciemnej posadzce z referencji.",
-                        "Detale materialu i pieczeci redukuja sie przy 18 px; ocenie podlega przede wszystkim sylwetka."
-                    ],
-    "sheet":  {
-                  "file":  "sheet.png",
-                  "icon_sizes":  [
-                                     18,
-                                     36
-                                 ],
-                  "ammo_floor_size":  48,
-                  "background_reference":  "work/look/look-first-fire.png",
-                  "parchment_crop":  [
-                                         1040,
-                                         55,
-                                         100,
-                                         18
-                                     ],
-                  "floor_crop":  [
-                                     900,
-                                     440,
-                                     250,
-                                     70
-                                 ],
-                  "labels":  "No text. Eight rows follow images array order; left column 18 px, right 36 px. Bottom floor: ammo_shells left and ammo_rounds right, each 48 px. Inspect sheet at 100 percent scale.",
-                  "sha256":  "66ca2801ebdaef71068467fae03be1b2f5f36d3bef14d6991af4a757b56df330"
-              },
-    "visual_review":  {
-                          "sheet_inspected":  true,
-                          "icon_18px":  "All silhouettes distinguishable on parchment. Vow flask seal reduces to a small ochre accent; fine indentation and material texture do not survive at 18 px.",
-                          "icon_36px":  "Seal, wing, fuse, shield and heart are clear.",
-                          "ammo_48px":  "Loose three-shell pile and compact tied packet are distinct and visible on actual floor crop.",
-                          "in_engine_6_to_8_m":  "Not tested; no integration or game code changes.",
-                          "text_skulls_gloss":  "No text or skulls. Revolver cartridge highlights were removed with imagegen edit."
-                      }
+{
+  "project": "SIGIL: BREACH",
+  "date": "2026-11-02",
+  "tool": "image_gen.imagegen",
+  "mode": "built-in",
+  "references": [
+    "docs/STYL.md",
+    "game/assets/art/medals/provenance.json",
+    "game/assets/art/medals/last_rites.png",
+    "game/assets/art/medals/parry.png",
+    "work/look/look-first-fire.png"
+  ],
+  "reference_use": "Read and visually inspected; new-image prompts describe their art direction. No game assets modified.",
+  "processing": "Mechanical downsampling with System.Drawing HighQualityBicubic, preserving generated alpha. No color edits, sharpening, background removal, or painted content generated with code.",
+  "images": [
+    {
+      "file": "flask.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-a812045d-0b74-47fe-84d3-8f971d36ac26.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: A squat glass healing flask with a short narrow neck and ochre cork, round broad shoulders and flattened base. Filled three quarters with muted deep madder-red healing liquid, ONE clearly visible horizontal liquid level. Thick pale grey-ivory glass border with dark umber outer contour; opaque matte painted treatment. Plain flask, no seal, no ribbon. Final delivered asset will be reduced to 64x64 pixels.",
+      "sha256": "d19516953dde4cea499fe9ec770a00ec8dc24b290ccd360d5d8fa2ec056a60bf",
+      "source_sha256": "ce3390f5ff0faec6471c3cbaf1596b59ae0aaaf99c7c359494b73e877eacf0bd",
+      "validation": {
+        "width": 64,
+        "height": 64,
+        "transparent_pixels": 2164,
+        "opaque_pixels": 159,
+        "partial_alpha_pixels": 1773,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "powder.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-20c1d11a-7478-43f8-b6f4-afe811d4a890.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: A squat ochre cloth gunpowder pouch with wide pear-shaped body, pinched tied neck and one thick curved unlit fuse rising to the upper right. A few charcoal powder grains visible at the mouth. Strong pouch silhouette and clearly separated hooked fuse; dark umber folds limited to two broad strokes. Not a bottle, not a spherical bomb. No flames. Final delivered asset will be reduced to 64x64 pixels.",
+      "sha256": "cfcea898a0da9174fa5a423c5dd983bcd17cac21215ff7ddb04a754491b31ee4",
+      "source_sha256": "aa04bfa97a30020501abd86a356737a90777d626c6b0773631ec956cea66faf5",
+      "validation": {
+        "width": 64,
+        "height": 64,
+        "transparent_pixels": 2560,
+        "opaque_pixels": 179,
+        "partial_alpha_pixels": 1357,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "stamina.png",
+      "size": [
+        64,
+        64
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-691f4b65-750d-4b6d-ae45-9c7fcf636224.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One winged leather boot symbolizing stamina/endurance for a dodge niche. Short ochre-brown boot pointing right, dark sole and broad raised heel, with ONE swept-back old-ivory wing growing from the ankle towards upper left, just three large feather lobes. Dynamic single flowing silhouette readable at 18 px. No charges, counters, pips or circular frame. Final delivered asset will be reduced to 64x64 pixels.",
+      "sha256": "38f8d0d292fdadcee341fc41aa3b3ae29c09fa515e3c7b379ef529d6ad64d2a2",
+      "source_sha256": "d39929336259970578c32c04e6b17cfb66287d5e2b2b4274a8ff61ed56fa3f39",
+      "validation": {
+        "width": 64,
+        "height": 64,
+        "transparent_pixels": 2623,
+        "opaque_pixels": 184,
+        "partial_alpha_pixels": 1289,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "vow_flask.png",
+      "size": [
+        96,
+        96
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-19cb6326-8569-407c-896d-49c0a460610b.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One sacred vow flask: broad squat muted-red glass healing flask with ochre stopper and a short ochre neck cord holding ONE large wax vow seal attached on its lower right shoulder, partly extending outside the bottle silhouette. The seal is a flat muted ochre disk with a simple deep umber central indentation, no writing or rune. Bold red flask plus clearly visible ochre seal, restrained decoration, pale matte glass border. Final delivered asset will be reduced to 96x96 pixels.",
+      "sha256": "b60fb9a1c4c6dafe233f2aec6c45a49ed24f2d846d22cf708a0841666b1347ea",
+      "source_sha256": "99a4474658fb8f77ef0a7c3fee1a754f57dcb7ff13396b00af24843ebe530962",
+      "validation": {
+        "width": 96,
+        "height": 96,
+        "transparent_pixels": 4609,
+        "opaque_pixels": 252,
+        "partial_alpha_pixels": 4355,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "vow_ward.png",
+      "size": [
+        96,
+        96
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-7bad24e5-eaac-4ef4-8546-2b831f82e13b.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One stout pointed-bottom medieval ward shield, broad shoulders and slightly arched top. Dull cold desaturated slate blue painted field with a wide worn ochre rim and dark umber outline. ONE simple broad pale blue arch-shaped protective band painted within the field, without lettering, runes or crest. Restrained shallow painted volume, no radiance. It must clearly read as a cool blue shield at 18 pixels. Final delivered asset will be reduced to 96x96 pixels.",
+      "sha256": "ca09db848eebcbc29f75729091215f73bc15279a318d69e02aebc071dca13415",
+      "source_sha256": "ad8e6c77424da0a46bde41c995a63849e9494d5987a7284b8ca78905dacb56b7",
+      "validation": {
+        "width": 96,
+        "height": 96,
+        "transparent_pixels": 4673,
+        "opaque_pixels": 241,
+        "partial_alpha_pixels": 4302,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "vow_vigour.png",
+      "size": [
+        96,
+        96
+      ],
+      "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-c0def290-f7d2-4bc5-b4b8-fcf86c8042f9.png",
+      "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One strong stylized anatomical heart symbolizing vigour, broad compact muted deep iron-red body and only two short thick vessels on top. Broad umber contour and two large muted ochre-red modeling planes, simple bold silhouette at 18px. Not a shield, not a bottle, no wings, no surrounding badge, no blood droplets or gore. Somber matte painted organ, not a shiny candy heart. Final delivered asset will be reduced to 96x96 pixels.",
+      "sha256": "5d32ce00961d141a73118994f8ee0ab550b05a70c53f45cd890cd2f61b8651e9",
+      "source_sha256": "900e7ca4aba37daa00d8e9c23f6b9becde43bbfab2ba350b6897c1ba91626992",
+      "validation": {
+        "width": 96,
+        "height": 96,
+        "transparent_pixels": 5528,
+        "opaque_pixels": 220,
+        "partial_alpha_pixels": 3468,
+        "nontransparent_border_pixels": 0
+      }
+    },
+    {
+      "file": "ammo_shells.png",
+      "dimensions": [
+        256,
+        256
+      ],
+      "sha256": "069ad193bbf9eeaf5039e792bc5801197280e71c8bd8d84f4bc6349994401e5f",
+      "previousSha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45",
+      "currentRevision": "../reszta-provenance-v45.json",
+      "previousRevision": {
+        "file": "ammo_shells.png",
+        "size": [
+          128,
+          128
+        ],
+        "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-664cd9a2-d275-414f-93c4-87fd1233ef4f.png",
+        "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One small ground pickup pile of exactly THREE thick shotgun cartridges for the Exorcist. Red paper cylindrical shotgun shells with wide flat ochre-brass bases. Resting horizontally in a loose staggered FAN, one to left, one diagonal central, one to right, with three broad rounded ends making a strongly jagged elongated silhouette. Elevated three-quarter view from above, visible cylindrical sides and blunt circular ends. Large matte light ochre brass planes and muted red paper make the pickup visible against dark brown chapel flooring at 48 pixels. No box, wrapper, string, loose bullet points or additional cartridges. No floor painted into sprite, no cast shadow, transparent everywhere around the shells. Final delivered asset will be reduced to 128x128 pixels.",
+        "sha256": "3564829a714a0479ab9726a122e0212b4f1c63e9ab16eb013a04aced5629ea39",
+        "source_sha256": "f9af2a5ea77da235e7fcad1e9523594686599b44a436423391bbb05191b5664a",
+        "validation": {
+          "width": 128,
+          "height": 128,
+          "transparent_pixels": 10844,
+          "opaque_pixels": 328,
+          "partial_alpha_pixels": 5212,
+          "nontransparent_border_pixels": 0
+        }
+      }
+    },
+    {
+      "file": "ammo_rounds.png",
+      "dimensions": [
+        256,
+        256
+      ],
+      "sha256": "0f260a02a552c37265351b4bc33d2e7642cab5df28a4fc0ba6f5226b63e003f1",
+      "previousSha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "currentRevision": "../reszta-provenance-v45.json",
+      "previousRevision": {
+        "file": "ammo_rounds.png",
+        "size": [
+          128,
+          128
+        ],
+        "source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-d9f83422-3b13-4c51-a73d-099c39940b57.png",
+        "prompt": "Use case: stylized-concept. Create ONE isolated painted game sprite for SIGIL: BREACH, a living dark chapel fresco. A square transparent PNG with genuine alpha, no backdrop. Match aged egg-tempera fresco: matte chalky ochre, umber, subdued iron/madder red, warm old ivory, hand-painted dark brown contour, broad quiet pigment planes and very sparse dry-brush wear. Shallow medieval painted volume, no gloss. This is a functional tiny HUD mark on light parchment: instantly readable at 18 pixels. Strong simple silhouette, thick continuous umber outline, very few internal details, no hairlines. Centered single object occupying 85 percent of square, all parts contained, even clear margin. No surrounding medallion or frame. No text, letters, numerals, runes, labels, skulls, faces, glow, specular highlights, sparkles, plastic, modern vector art, floor, cast shadow or scenery. Do not imitate photographic glass or metallic reflections. Subject: One ground pickup of revolver ammunition for the Judge: a small compact rectangular ochre paper packet tied crosswise with thick dark umber twine and ONE visible simple knot. Its upper end is open enough to reveal a short orderly row of four small brass revolver cartridges with rounded bullet noses. A single coherent SQUAT RECTANGULAR BUNDLE silhouette, nearly square, contrasting with a loose splayed shotgun-shell pile. Lying down, viewed from elevated three-quarter angle, broad light ochre paper planes readable against dark chapel floor at 48 pixels. Restrained umber side face. No red shotgun tubes, no scattered bullets, no labels or stamps. No floor or cast shadow, transparent everywhere around the packet. Final delivered asset will be reduced to 128x128 pixels.",
+        "edit_prompt": "Edit this SIGIL: BREACH ammunition pickup sprite. Preserve its exact compact tied paper packet composition, silhouette, brown twine, knot, bullet arrangement, ochre paper, umber contours, transparent background and painted fresco style. Change ONLY the metallic cartridge surfaces: remove ALL white and pale specular streaks, hotspots and glossy reflective appearance from bullet noses and brass casings. Repaint as quiet flat matte umber and subdued ochre pigment planes with restrained soft broad modeling. Tarnished chalky egg tempera, absolutely no metal shine. Keep recognizable rounded bullet noses. No text, skulls, glow, scenery or shadows. Genuine transparent background.",
+        "original_source": "C:\\Users\\nahiko\\.codex\\generated_images\\01a19a4c-bf31-7542-b26f-93322c9f7cbb\\exec-e5b9c70c-1f1d-4617-9e49-857481084075.png",
+        "sha256": "acf0b4d0580b2da07075349843c97803582f65b67af3cce88f62e47bd7d0d9e0",
+        "source_sha256": "e68825fd13086dc6c2a6efc882c67dcfcde1056da9ed87264be234099782384a",
+        "validation": {
+          "width": 128,
+          "height": 128,
+          "transparent_pixels": 7868,
+          "opaque_pixels": 317,
+          "partial_alpha_pixels": 8199,
+          "nontransparent_border_pixels": 0
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Widocznosc paczek z 6–8 m nie zostala sprawdzona w silniku; sheet.png pokazuje probe 48 px na rzeczywistej ciemnej posadzce z referencji.",
+    "Detale materialu i pieczeci redukuja sie przy 18 px; ocenie podlega przede wszystkim sylwetka."
+  ],
+  "sheet": {
+    "file": "sheet.png",
+    "icon_sizes": [
+      18,
+      36
+    ],
+    "ammo_floor_size": 48,
+    "background_reference": "work/look/look-first-fire.png",
+    "parchment_crop": [
+      1040,
+      55,
+      100,
+      18
+    ],
+    "floor_crop": [
+      900,
+      440,
+      250,
+      70
+    ],
+    "labels": "No text. Eight rows follow images array order; left column 18 px, right 36 px. Bottom floor: ammo_shells left and ammo_rounds right, each 48 px. Inspect sheet at 100 percent scale.",
+    "sha256": "66ca2801ebdaef71068467fae03be1b2f5f36d3bef14d6991af4a757b56df330"
+  },
+  "visual_review": {
+    "sheet_inspected": true,
+    "icon_18px": "All silhouettes distinguishable on parchment. Vow flask seal reduces to a small ochre accent; fine indentation and material texture do not survive at 18 px.",
+    "icon_36px": "Seal, wing, fuse, shield and heart are clear.",
+    "ammo_48px": "Loose three-shell pile and compact tied packet are distinct and visible on actual floor crop.",
+    "in_engine_6_to_8_m": "Not tested; no integration or game code changes.",
+    "text_skulls_gloss": "No text or skulls. Revolver cartridge highlights were removed with imagegen edit."
+  },
+  "currentRevisionNote": "Selected files have a 0.45 revision recorded per image; original generator metadata below describes previous revisions."
 }

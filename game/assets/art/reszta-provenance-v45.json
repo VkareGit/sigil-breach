@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-04",
+  "tool": "Built-in image_gen.imagegen",
+  "revision": "Astra: Modena fresco, P5/P6",
+  "primaryReference": "Giovanni da Modena, Inferno, Bolognini Chapel, San Petronio, Bologna",
+  "processing": "User-authorized repaint cleanup: median filter, fixed 24/26 earth-pigment palette without dithering, hard alpha, registration to original cell bounds. Existing canvas sizes and UV partitions retained. Cards composite unmodified original weapon pixels on new generated painted backgrounds. No demon, weapon, HUD or hit-mask art modified. Full sources retained under work/reszta/generacje.",
+  "palette": [
+    "221b18",
+    "382820",
+    "50382a",
+    "6b4934",
+    "856346",
+    "a88459",
+    "c5a678",
+    "d7c49d",
+    "ebddbd",
+    "f1e5cc",
+    "391e1b",
+    "572820",
+    "743526",
+    "914332",
+    "ad5940",
+    "bd7950",
+    "ce985c",
+    "444345",
+    "606266",
+    "7a7c7b",
+    "9c9b91",
+    "48452b",
+    "65603a",
+    "85804a",
+    "a09a62",
+    "bbb17b"
+  ],
+  "generations": [
+    {
+      "request": "work/reszta/rites-generation.json",
+      "prompt": "Repaint the first image as a square transparent game effects atlas with EXACTLY four equal cells, 2 columns by 2 rows, preserving the centered positions and relative extents in each cell. PRIMARY style reference Giovanni da Modena's Inferno in Bologna, second and third references, match the broad ochre/iron-red/umber pigment and decisive brown outlines of the demon in the fourth reference. These are painted punishments from a medieval infernal wall, not magical VFX. TOP LEFT: a circular band of 12-16 sharp simple medieval flame tongues, charred almost-black base, iron red and ochre bodies, narrow opaque bone-white tips. Large empty transparent center. The fire is graphic and flat with separated deliberately drawn tongues, NO realistic turbulent flames or sparks. TOP RIGHT: a quiet warning boundary, a plain circular scar in dirty bone and graphite plaster with 8 blunt chips, dark brown underpaint, absolutely no glyphs, stars, runes, ornaments or invented seal. Large transparent center. BOTTOM LEFT: one broad upward-arching crescent of exactly five hooked tongues of infernal fire, strong brown-black outline and flat iron red planes, ochre inside and limited bone on the edge, not a smooth speed smear. BOTTOM RIGHT: a broad horizontal jagged cracked plaster fissure, dirty bone lips over a narrow almost black interior, a few restrained iron-red shadows, hand-drawn coarse flat forms; no light emission. Every cell has clear empty gutters. Tempera, a few broad dry-brush marks, selective lime losses, strong readable silhouette at small size. No 3D volume, no soft gradients, no bloom, no gold jewelry, no lens flare, no particle dust, no digitally glowing white core. Bright bone is opaque pigment against dark contours. Transparent background, no text, no grid lines.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/rites-fresco-v45.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/boss-fresco-v12.png"
+      ],
+      "source": "work/reszta/generacje/source-rites-fresco-v45.png",
+      "sourceSha256": "293ed2ed91b6c4dcb74481eb71e38163f4f6ffdcf8f497e7316e13161a8d6e98",
+      "outputs": [
+        {
+          "file": "rites-fresco-v45.png",
+          "dimensions": [
+            2048,
+            2048
+          ],
+          "sha256": "31e873f787a2f3f1f90323160e84ed550f7c5072a688728aa322b975de4f60e7",
+          "previousSha256": "38f61a333cfc201547c977ef54b600cd25abd184b66b1dae43cfa83f60abb704"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/spells-generation.json",
+      "prompt": "Repaint the supplied game effect sprite sheet completely in the flat medieval fresco technique of the supplied Giovanni da Modena Inferno in Bologna, the PRIMARY style reference. Output a transparent square atlas, exactly 4 columns by 4 rows, sixteen separate sprites, generous transparent gutters, no labels or frames. Each row is four distinct hand-painted animation cels. Broad confident dark umber outlines, flat large planes of bone white, ochre, iron red, umber and cool slate. Very little small detail; occasional broad scraped plaster chips, no uniformly speckled noise. NO digital glow, halos, realistic smoke, bloom, gradients, glossy objects, decorative fantasy runes or seals. Row 1: four successive cels of an opening little jagged wound in plaster, pale hand of a damned soul and crow feather struggling out of a dark crack; modest contained silhouette, grows only through the drawn cels. Row 2: four horizontal rightwards flying hooked tongues of medieval fire, like sharp flames painted around the devils in the reference; a pale pointed bone core, opaque black-red contour, three swept flames not smooth motion trails. Row 3: four top-down circular ground-warning boundaries: very clear plain bone-white circle outlined in near-black umber, slightly chipped plaster edges, tiny inward slate fissures. Keep the circle identical diameter throughout; empty transparent centre. These are unlettered boundaries NOT occult symbols, NO stars, spikes or invented sigils. Row 4: four successive cels of a vertical rupture in the wall of Hell: first a simple crooked white plaster split framed by slate, second broad split exposing one small anguished pale face and two hands, third large bone/slate fallen angular slabs, fourth a few heavy plaster shards. This is a painted crack in the fresco, NOT an electric discharge or lightning glow. Entire artwork flat and forceful like the reference's broad rock planes and naked pale bodies. All sixteen cells cleanly isolated, equal 4x4 grid, centred in each cell.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/spells-fresco-v12.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg"
+      ],
+      "source": "work/reszta/generacje/source-spells-fresco-v12.png",
+      "sourceSha256": "920582c4908e5a244e0df42503896dff2bc0581392b392147eebc706bfae4576",
+      "outputs": [
+        {
+          "file": "spells-fresco-v12.png",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "sha256": "875c7cc672a0da62579b3486ff94c0eb0a0204e2348e3c78fc05fbe892e6be6b",
+          "previousSha256": "6d5db08ea60a3a59cf7d1c091765e4c551adbedde4cf28475f349a6e6ab0199d"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/hazards-generation.json",
+      "prompt": "Repaint this game ground-effects atlas entirely as a medieval painted fresco in the style of Giovanni da Modena Inferno, San Petronio Bologna shown in references 2 and 3. Transparent wide canvas with exactly FOUR columns TWO rows, eight isolated top-down circular effect sprites, each centred in its own equal square cell, all same outer diameter, clear gutters. These are flat paintings laid on the floor, not perspective scenes. Primary palette: broad umber/iron-red/ochre/dirty bone/slate areas with thick dark-brown brush contour. Simplify greatly, decisive large shapes, just a few plaster chips. NO glow, no bloom, no realistic rendered smoke or bubbles, no evenly noisy microdetail, no digital highlights, no decorative glyphs. TOP ROW four animation cels of hellfire: 1 cold black-red cracked plaster around a small painted ember; 2 five sharp angular medieval flame tongues, iron red filled with ochre and bone cores, rising out of black crack; 3 same site with flames bent differently, two tiny pale hands reaching from between flames; 4 angular ash fragments and dull bone scars after the fire. The outlines of the circular site stay fixed. BOTTOM ROW four cels of Buer's poison: 1 sickly ochre and olive-grey plaster wound with black-root cracks; 2 a flat murky black-olive pool with two pale clawing damned hands and a simple contorted face, thick sweeping bile strokes not realistic liquid; 3 same pool with hands shifted and big ochre ripples / thorn roots; 4 dead bone-grey root shards and olive residue. Restrained green pigment, never acid neon. Each of eight sprites has a transparent background with irregular chipped perimeter, no painted rectangular backing. The circles occupy about 88 percent of cell width; no overlap between cells. Broad simple forms readable when tiny in game, like the rocks, flames and damned bodies painted on the reference wall.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/hazards-fresco-v33.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg"
+      ],
+      "source": "work/reszta/generacje/source-hazards-fresco-v33.png",
+      "sourceSha256": "0674cd0e6d7d22ca835cdc1901abab67451afa47b1ff0993327876263c47a559",
+      "outputs": [
+        {
+          "file": "hazards-fresco-v33.png",
+          "dimensions": [
+            1774,
+            887
+          ],
+          "sha256": "5eefb1e909ec0f1ae778acf851522a8983856e80be89a8076caa94b648c94b00",
+          "previousSha256": "06504163131c78741775e488ef265dc983411cb91445aee52604401aa493fd7d"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/effects-generation.json",
+      "prompt": "Repaint the supplied sixteen-sprite game impact atlas as flat medieval tempera on chipped plaster, primary reference Giovanni da Modena Inferno (Bologna) supplied. Transparent square, exactly 4 columns by 4 rows, equal square cells with generous clear gutters, no labels. Each row is an impact animation sequence of four different hand-painted cels: 1 small initial impact, 2 decisive large burst, 3 dispersal, 4 a few falling pieces. Row 1: angular fragments of limestone, umber contours, flat broad bone and slate planes, maximum 8 large chips in any cel, no fine powder. Row 2: blood in broad irregular iron-red brush strokes, dark brown contour and deep burgundy underside, like pigments flung from a fresco brush, not realistic watery droplets, never glossy. Row 3: thick flat ochre/umber plaster dust shapes and 4 large chips, shape like a scraped-off section of a painted wall, NOT volumetric smoke. Row 4: gunpowder detonation in medieval Hell: sharp irregular black-red flame tongues with bone-white and ochre cores and 5 flying plaster chips, at the heart of second cel a tiny bleak face glimpsed in the wall crack. Expanding only through the drawn cels then leaving dark plaster fragments. No electricity, stars, sparkles or lens flare. Broad dark sinopia drawing, confident simple shapes, uneven modest plaster scars, low detail. Palette very restricted bone, ochre, iron red, umber, slate. No smooth shading, glow, bloom, neon, photographic realism, 3D rendering, uniform speckle, decorative glyphs or seals. All sprites stay entirely inside their own cells on genuinely transparent background. The game must feel like the Inferno fresco came alive.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/effects-fresco-v12.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg"
+      ],
+      "source": "work/reszta/generacje/source-effects-fresco-v12.png",
+      "sourceSha256": "182d9c2eb54a09ca1896adf240f848b8046a14d422c47620b44eb052fce283d7",
+      "outputs": [
+        {
+          "file": "effects-fresco-v12.png",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "sha256": "1c42e1da2231a51de643095f2bfbc2220e5be0ee5cff623ee46b5999fa8dca64",
+          "previousSha256": "577679f5e12e043705748044c43053c6acabe1d1fa1da6ecb56514064b9c9e1b"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/flask-generation.json",
+      "prompt": "Edit ONLY the FIRST image, the flask animation atlas, preserving its EXACT 1536x1024 canvas, six 512x512 cells in three columns and two rows, each hand and bottle silhouette, exact grip, scale, wrist orientation, camera perspective and transparent gutters. All six existing poses must remain in precisely the same locations. Do not repaint the weapon reference. Repaint the flask grips as a confidently drawn late medieval tempera fresco, PRIMARY reference Giovanni da Modena Inferno in Bolognini chapel, Bologna (second and third images). Match the dark iron glove in the fourth reference: soot-grey iron and umber dark outlines, NOT shiny bronze armor. Bottle is dull iron-red pigment and dirty bone-colored fired clay, never glossy glass. Reduce detail severely: broad opaque pigment planes with a few purposeful dry brush marks, clearly drawn dark outlines, selective chalk scars rather than evenly sprinkled microtexture. Remove plastic specular highlights, smooth gradient modeling, gold studio edge lights, decorative noise and the uniform fine crazing. Slightly imperfect preparatory drawing visible within the existing silhouette. No glow, no magical effects, no added text or symbols. The form should read as a flat wall painting brought to life, not digitally rendered medieval armor. Keep the held, raise, mouth, sip, recover, lower gestures identical. Transparent background.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/flask-hands-v45.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/revolver-iron-v16.png"
+      ],
+      "source": "work/reszta/generacje/flask-source.png",
+      "sourceSha256": "757f5829a25527432237669d06b99cf19621bf31771c1a8b55f8ee16362ded3c",
+      "outputs": [
+        {
+          "file": "flask-hands-v45.png",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "sha256": "9524a2eb2ae7fe379b3b187959434227f0c5bfd3933211be892a0d37fd108c0b",
+          "previousSha256": "ab13a21fcd30aa111807742c3f05bde83e5c8e1cd6a7164f67bd4f7605615ae4"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/cards-generation.json",
+      "prompt": "Paint an empty background atlas for TWO weapon cards in SIGIL: BREACH, two equal landscape 4:3 cards placed side by side, overall 8:3 composition, opaque. DO NOT PAINT ANY WEAPONS OR HANDS; the supplied original weapon paintings will be composited into the empty cards afterwards, unchanged. Primary visual reference is the supplied Giovanni da Modena Inferno fresco: broad flat bone-plaster, ochre and iron-red planes with decisive dark umber brush outlines, sparse large scrapes and sinopia underdrawing. Quiet balanced medieval composition suitable for Memling-like panels. Each card has a simple flat iron-red painted narrow rectangular border and two slim side piers; a little ochre arch at the top frames a VERY LARGE EMPTY dark umber/slate central recess occupying middle 70 percent width and top 65 percent height. Lower quarter is entirely EMPTY pale bone plaster for game-rendered text, NO painted lettering. Left card small sober crow feather motif above the recess, right card two simple crossed keys in upper corner (familiar medieval objects, not sigils). Keep motifs tiny, no ornamental clutter. No pseudo-writing, no seals, no fancy filigree, no sculptural golden frame, no glossy varnish, no smooth gradient, no realistic studio lighting, no glowing effects. At edges large flat confident outlines. Entire two-card sheet completely filled; vertical seam at exact middle. This is a painting on old lime plaster, not a digital UI mock-up.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/revolver-iron-v16.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/shotgun-iron-v16.png"
+      ],
+      "source": "work/reszta/generacje/cards-source.png",
+      "sourceSha256": "a06f5a7ce9c04a0ef0e154a1346009299e787ca8f14d4b246edc7984ea105285",
+      "outputs": [
+        {
+          "file": "weapon-cards-v45.png",
+          "dimensions": [
+            1568,
+            524
+          ],
+          "sha256": "b37f43ff076dfed91c81305863ab0a6c4a06cf47430f258deea7995ef404aa9f"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/icons-generation.json",
+      "prompt": "Repaint all eight icons from the first reference as a flat medieval fresco atlas, using Giovanni da Modena Inferno (second reference) as PRIMARY stylistic guide. Transparent wide canvas, exactly four equal columns and two rows, eight isolated objects with generous transparent margins. Each icon should occupy roughly 80 percent of its own cell for readability. Preserve the eight subjects and order exactly. Top row: 1 paper/linen packet of seven revolver cartridges with brown string and a simple iron-red painted X; 2 three red shotgun cartridges bound together, dull ochre bases not shiny brass; 3 a single stylized iron-red heart (icon only, no gore); 4 a simple slate-blue shield with one bone chevron. Bottom row: 1 round red healing flask with cork and tiny ochre hanging tag; 2 circular iron-red badge, inside one short antique gun crossed by three pale claw marks; 3 circular iron-red badge with an upraised open bone-coloured hand above a small plain skull; 4 circular iron-red badge containing a triptych with THREE arched panels and three robed silhouettes. The three badges have a single flat ochre rim, not embossed gold. No letters, numbers, words, occult signs or invented seals. Technique: broad flat planes of dark umber, ochre, iron red, dirty bone, slate; thick confident brown outline, few deliberate sinopia strokes. No smooth shading or highlights, no metallic sparkle, bloom, glow, glass reflection, plastic, studio light or 3D rendering. Very low detail; remove the original glossy golden edges and even scratch noise. A few large lime-plaster abrasions only. Every design readable as simple painted silhouette at 64 pixels. Keep contents entirely inside their cells, no contact shadows on the transparent background.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/generacje/supplies-icons-before.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp"
+      ],
+      "source": "work/reszta/generacje/icons-source.png",
+      "sourceSha256": "b41027578b22a858dd7fd11ffdb526e9770dc9210dc30242379d4b2c3918d2a1",
+      "outputs": [
+        {
+          "file": "pickups/ammo_rounds.png",
+          "dimensions": [
+            256,
+            256
+          ],
+          "sha256": "0f260a02a552c37265351b4bc33d2e7642cab5df28a4fc0ba6f5226b63e003f1",
+          "previousSha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e"
+        },
+        {
+          "file": "pickups/ammo_shells.png",
+          "dimensions": [
+            256,
+            256
+          ],
+          "sha256": "069ad193bbf9eeaf5039e792bc5801197280e71c8bd8d84f4bc6349994401e5f",
+          "previousSha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45"
+        },
+        {
+          "file": "icons/vow_vigour.png",
+          "dimensions": [
+            96,
+            96
+          ],
+          "sha256": "c37190c5cdde1aff8c5101c54bf571d32ffe5691390ab829108430b6ee1d2a20",
+          "previousSha256": "5d32ce00961d141a73118994f8ee0ab550b05a70c53f45cd890cd2f61b8651e9"
+        },
+        {
+          "file": "icons/vow_ward.png",
+          "dimensions": [
+            96,
+            96
+          ],
+          "sha256": "ff8dabc819df1158c929f320a326d116c57c6ee80f4b50fae83c26b6a5df46d6",
+          "previousSha256": "ca09db848eebcbc29f75729091215f73bc15279a318d69e02aebc071dca13415"
+        },
+        {
+          "file": "icons/vow_flask.png",
+          "dimensions": [
+            96,
+            96
+          ],
+          "sha256": "125e09adca883c7e8b0ed26c7cd3a39610104c0112ca58d6c4107c700433e9e5",
+          "previousSha256": "b60fb9a1c4c6dafe233f2aec6c45a49ed24f2d846d22cf708a0841666b1347ea"
+        },
+        {
+          "file": "medals/parry.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "9e74502c9a7806bc2f4be5091cc46127596d5abd3eba1f76c6396417dd714098",
+          "previousSha256": "8b49e0ffccb04b1b9dd856c3a50a45e5ef1812be5b804bbc69fbb2ce56d698fc"
+        },
+        {
+          "file": "medals/absolved.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "870b21ac2b8b69ca46875ef9ed3d1ee899928ad21cbe2f1e39ee13e92c4ce0c2",
+          "previousSha256": "fe888db121bd866a1318dd735aaf927076b1da5102846980514d8b800004e5f5"
+        },
+        {
+          "file": "medals/triptych.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "4f7a2cc4102c51f53ae4c7269b41da0350eb8107d0804122fe50ac2519806a0f",
+          "previousSha256": "82afadb1eef235e52933b12feddace28f654bf5f194297c2c6b069f05d51d858"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/textures-generation.json",
+      "prompt": "Repaint these two architectural texture images as confident flat medieval fresco surfaces in the technique of the supplied Giovanni da Modena Inferno, primary reference. Output exactly TWO SQUARE PANELS SIDE BY SIDE, overall 2:1 ratio, opaque, no border, no text. LEFT square preserves first reference's exact 2x2 texture layout: top-left pale bone limestone blocks, top-right slate-grey limestone blocks, bottom-left plain iron-red painted plaster, bottom-right a 4x4 checker of bone/red/slate floor tiles. Preserve the major grout pattern and color assignment. RIGHT square preserves second reference's six horizontal courses of large staggered rectangular limestone blocks. This must read as STONE PAINTED ON A FRESCO WALL, NOT carved realistically: outlines are definite irregular dark umber brush lines, faces broad quiet bone/ochre/slate planes. Simplify away almost all the noisy fine cracks and fine mottling. Use only a FEW LARGE worn lime patches and thin preparatory red brush lines. No bevel highlights, no 3D shading, no procedural noise, no glossy stone, no gradient. Not flat vector art either: broad visible brush drag and uneven confident contours. Fine detail should be scarce, while big pigment planes dominate like the rocks in the Inferno reference. Both panels fill their squares exactly and can be cropped directly into existing textures without adding any margins. Restrained palette, darker ochre/grout and cooler slate, bone faces warm grey rather than yellow. Keep overall contrast modest so demons and warnings remain the focus.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/textures-fresco-v12.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/chapel-masonry-v34.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp"
+      ],
+      "source": "work/reszta/generacje/textures-source.png",
+      "sourceSha256": "78641e2d5caba1231eff10ece147c67beed7798631e378c4c203fc0c8ca3541b",
+      "outputs": [
+        {
+          "file": "textures-fresco-v12.png",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "sha256": "c6738b002eceadd929887ff9bb453128be9cdeb9a382f1878307103ee88f1cea",
+          "previousSha256": "3f9e4c13383465a556b613500ba1f16c1b29714097522d2f355c1341692393e3"
+        },
+        {
+          "file": "chapel-masonry-v34.png",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "sha256": "ed1e298ef9bc3c0153130561fc1d00fc922eb323f341fd6f376901dffe3689c9",
+          "previousSha256": "71ac994450e50efb4f217f1410b0d115d69ac684db4c9a79ddd4c011b50f7038"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/projectiles-generation.json",
+      "prompt": "Paint a transparent game projectile animation atlas in the technique of the supplied Giovanni da Modena Inferno fresco, matching the broad flat plaster pigments of the first reference. Exactly FOUR columns by TWO rows, eight isolated centered sprites in equal square cells, wide 2:1 composition, clear gutters. TOP ROW is four cels of Stolas's star: an irregular angular chunk of Cocytus ice and bone-white plaster, a solid central slate/umber disk outlined in dirty bone, four UNEVEN sharp blade-like ice points and just two dark crow feathers. It is a tangible painted ice splinter, not a glowing fantasy star or occult symbol. The solid opaque core occupies 70 percent of each cell's width and height, with small uneven tips reaching 88 percent. Each of four cels changes the fracture and position of feather slightly, same core size. BOTTOM ROW four cels of Margrave's flying cinder: a solid dark iron-red and umber centre 70 percent of the cell, surrounded by five simple crooked sharp medieval flame tongues, flat ochre and bone interior shapes. Different painted flame bends each cel but same core size. Thick confident dark-brown contour, broad flat pigment areas, a few large lime losses. NO glow, bloom, gradients, sparkles, lens flare, smooth trails, realistic smoke, 3D shading or even microtexture. Limited palette bone white, slate, iron red, umber, ochre. Simple strong silhouettes readable at tiny game scale. All eight objects on genuine transparent background, no labels, circles of writing, fake sigils or borders. These are moving fragments of the Inferno wall.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/stolas-rites-v45.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp"
+      ],
+      "source": "work/reszta/generacje/projectiles-source.png",
+      "sourceSha256": "9ca708876b0eedb191fd3247d813a25bd01fdec106ad258f4daae2c306c298a2",
+      "outputs": [
+        {
+          "file": "projectiles-fresco-v45.png",
+          "dimensions": [
+            1776,
+            888
+          ],
+          "sha256": "f695faa141b8fa3eb27e33511970077dfbac02d7490fbb656a4c249bc64b2b88"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/horizon_generation_safe.json",
+      "prompt": "Create a SAFE architectural reinterpretation of this game panorama as a flat medieval wall fresco, using the supplied Giovanni da Modena Inferno only for its broad shapes, historical painting technique and palette. Depict architecture and landscape only: NO nudity, NO bodily injury, NO torture, NO people being harmed. Very wide 3:1 panorama. Dark foreground in bottom quarter, red-ochre fortress city of Dis in middle, slate sky in upper half. Replace the first image's deep realistic perspective and haze with broad flat planes, confident dark umber brush contours, simple squat towers and quiet monumental gates. Small sharp stylized painted flame tongues appear behind distant walls. At the bottom a blue-grey frozen lake is a flat expanse with a few angular plaster-white cracks, empty of people. A few tiny FULLY CLOTHED travellers in long bone-coloured robes walk a calm foreground path. High above, two black bird silhouettes in profile. Broken plaster with a few large lime losses, visible sinopia drawing; no evenly distributed microtexture. Limited iron red, ochre, bone, umber, slate. Flat tempera painting on wall, quiet severe composition. No glowing effects, no neon, no gradients, no fog or realistic clouds, no 3D lighting, no text or symbols. Opaque full canvas, similar dark sky/wall colours at left and right edges for panoramic wrapping.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/horizon-fresco-v12.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp"
+      ],
+      "source": "work/reszta/generacje/source-horizon-fresco-v12.png",
+      "sourceSha256": "3ef8b0f7ba27bb2d1df9f9c625e17cfb8400c7b53fb4440ad5bb9619fcf6075e",
+      "outputs": [
+        {
+          "file": "horizon-fresco-v12.png",
+          "dimensions": [
+            2172,
+            724
+          ],
+          "sha256": "001a3f169b0300ff06d02837de32df53952ab628a93161e8e02e1f9b24251459",
+          "previousSha256": "bccfd155dc1ff84e5c628e97aa3d4a47fd7ed6cea50ed62de2d739cc68b1031e"
+        }
+      ]
+    },
+    {
+      "request": "First Stolas direction study in this conversation; exact prompt not persisted to disk.",
+      "promptSummary": "Cocytus fissure and damned hands, feathers and fractured fresco plaster; primary reference Giovanni da Modena Inferno and existing Stolas art.",
+      "references": [
+        "work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "work/reszta/wzorce/modena-inferno-cropped.jpg",
+        "game/assets/art/stolas-fresco-v12.png"
+      ],
+      "source": "work/reszta/stolas-source.png",
+      "sourceSha256": "526e69c05b54dd820df92ff3abce45823e97ad74f06c848009ba2fe2ba11df23",
+      "outputs": [
+        {
+          "file": "stolas-rites-v45.png",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "sha256": "d2a6e1292ba9142dabc5c1fd574b4b675c9feae4398c7937d773507e1aef44f3"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/medals-rest-generation.json",
+      "prompt": "Create exactly EIGHT isolated round painted achievement plaques in a transparent 4-column by 2-row game atlas, generous blank gutters, identical overall scale. PRIMARY reference Giovanni da Modena Inferno Bologna, images2 and3. The final reference image is the exact flat pigment technique to match. The first image shows old subjects to simplify, NOT its labels or background. Every plaque must be a FLAT iron-red circle with an imperfect ochre/bone painted rim, decisive umber contours, 3-5 broad pigment planes, selective few missing lime patches; no embossed gold, metallic jewelry, bevels, gradient lighting, realistic volume, uniform grain or micro cracks, no fake runes or Goetic symbols, no text. Keep extremely simple readable drawing, almost sinopia underdrawing, not vector-perfect symmetry. Row1 left to right: DIPTYCH two distinct full-length clothed hooded medieval figures in two plain arches; LAST RITES one upright pale hand holding a single short ochre candle with one simple pointed flame; ONE SHOT two plain small iron-red anatomical heart silhouettes pierced together by one bone arrow; POINT BLANK the sideways bust of a red medieval goat devil with one simple dark gun barrel pointing toward it from left, no wounds. Row2 left to right: POLYPTYCH five small fully robed figures under exactly five rounded arches; SMITTEN one simple pale skull with a diagonal arrow across it; TETRAPTYCH exactly four fully robed figures under four plain rounded arches; last cell one EMPTY matching plain red plaque with no subject as spare. Preserve the subjects as clearly distinguishable pictograms with bold clear outlines and very sparse details. No background rectangles, no captions, no weapons beyond specified little barrel and arrows, no extra decorative objects. Transparent outside each circular plaque. Match flat fresco of the provided reference, NOT shiny fantasy coin art.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/klatki/plakietki-przeglad.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/medals/absolved.png"
+      ],
+      "source": "work/reszta/generacje/medals-rest-source.png",
+      "sourceSha256": "a23501ed8a418c7ad8d281c97cb2b55f0a3ea270df0299ab11142d0d523ec8ec",
+      "outputs": [
+        {
+          "file": "medals/diptych.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "12e0275600362c1eeeac50b44415847398e85878b5fda9680ec434d35fdf4b86",
+          "previousSha256": "7ac8d7e6e41ea93c1ab35e4addc67d3dbc791095fe155f71bf08699e807a1153"
+        },
+        {
+          "file": "medals/last_rites.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "a9513311e76c7711b287fba3cd8226fe7c4819f23579841b98eda8dd983f7032",
+          "previousSha256": "e3c9d38c5720e4f7372b6fa1e2ff7c3d7a2e91cc5166bafd4845066f89ddfc26"
+        },
+        {
+          "file": "medals/one_shot.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "974e687df4a010740e2c7ffb1872ba6ca4a527671f2ab34236759783fb89db84",
+          "previousSha256": "c3c3a0bf12a1538fb8063de7f4898069d600cf81cce9f3393c94633fa3f6aaea"
+        },
+        {
+          "file": "medals/point_blank.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "524c4af665b33e65b3bb0ad6514039bfcb52d608e944a600c9935f057ed79f30",
+          "previousSha256": "7a98cfcb2c07ec457b3837fdda243b9b96434df0f09198fa2b8d1ef094dd8962"
+        },
+        {
+          "file": "medals/polyptych.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "1b356afa8e7d34ea1310593e2db8cdb0d615a8b15d72f42aedc220752c8566c2",
+          "previousSha256": "8b16aa2930f1da4e3b800601950103924061bf0f6acc36afda028855197866cf"
+        },
+        {
+          "file": "medals/smitten.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "826b45c6311dd6433ac690363a4538cc54d7e3f29959a7292100d1c4127665ba",
+          "previousSha256": "cd2e31e42537e462e8631e8d27b1ecec00358b37851dd10d3ceab6bb28fa6196"
+        },
+        {
+          "file": "medals/tetraptych.png",
+          "dimensions": [
+            128,
+            128
+          ],
+          "sha256": "cbdd6bf032bfad19ad2e6de0e58d6d6f432d6811203f9649839ba6ee4851d2d3",
+          "previousSha256": "13bc5ba79e8e7e6c5626b2f40988a3ea8ea00121c3736a78146929126f4c40b2"
+        }
+      ]
+    },
+    {
+      "request": "work/reszta/props-generation.json",
+      "prompt": "Repaint ONLY the first image, the 4 columns by 2 rows environment sprite atlas. Preserve ALL eight subjects, original proportions, silhouettes, pose, placement and relative size. PRIMARY art reference Giovanni da Modena Inferno Bologna, images2 and3, with broad confidently drawn umber outlines and FLAT planes of ochre, bone, iron red and soot graphite as in the fourth game demon reference. These are painted objects inside the same infernal wall, not 3D renders. Row1 all four cells: the EXACT SAME three-legged dark iron fire bowl in four discrete flame poses: leftward tongues, tall vertical tongues, rightward tongues, shorter vertical tongues. Fire must be 5-7 large sharp simple medieval red/ochre tongues with narrow bone edges outlined dark brown, NOT realistic hot flame, glow, radiance, thin particles or transparent smoke. Bowl and legs stay unchanged in pose across all four. Row2 cells: one narrow tall hooded stone mourner, one low broad pile of two dry skulls and simple bones on red cloth, three thick different-height candles on one low iron tray, one short wide closed dark wooden reliquary chest with an old dry skull and small hanging red cloth. Keep all objects recognizable with their existing outer silhouettes and flat bottoms; no new ornaments. Use a few purposeful brush planes, clear preparatory drawing, sparse selective lime loss; REMOVE uniformly scattered microdetail, photo texture, glossy highlights and smoothly modeled folds. Hooded statue face is a dark shadow. Bones and candle wax are flat warm dirty bone pigment with umber drawings, not realistic scans. No people, no text, no symbols, no borders, no seal glyphs. Transparent gutters and backgrounds. Exactly eight isolated sprites, regular 4x2 grid with ample margins.",
+      "references": [
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/props-fresco-v12.png",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/giovanni-da-modena-inferno-calosc.webp",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/work/reszta/wzorce/modena-inferno-cropped.jpg",
+        "/mnt/c/Users/nahiko/Documents/dev/sigil-astra-reszta/game/assets/art/boss-fresco-v12.png"
+      ],
+      "source": "work/reszta/generacje/source-props-fresco-v12.png",
+      "sourceSha256": "1efad698ba591ea455a9baed67924f5a16d8bd7ae67ce43337a197dfe6971129",
+      "outputs": [
+        {
+          "file": "props-fresco-v12.png",
+          "dimensions": [
+            1774,
+            887
+          ],
+          "sha256": "437a00f798af8d5df7c2b9bafc7a5a2b479b9bdb653bb54996a602b701231aeb",
+          "previousSha256": "8f28f99befbf330defdcb6571f843f9bf08832db4268a6882548d7b0b717bb58"
+        }
+      ]
+    }
+  ]
+}

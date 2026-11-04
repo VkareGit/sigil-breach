@@ -32,6 +32,8 @@ local Way = {
   -- 0.42: the Judge, the gun of the ordinary fight, carries a full reserve (was 44); the
   -- Exorcist's shells stay scarce (owner: the strongest fire is not for every fight).
   carried = { exorcist = 20, judge = 72 },
+  startingWeapons = { 'judge' },
+  legacyWeapons = { 'exorcist', 'judge' },
   -- How near a door a knight must stand, and how tall it is painted (m).
   doorReach = 1.5,
   doorSize = 2.7,
@@ -136,6 +138,17 @@ Way.areas:register('chapel', {
     { id = 'relic_buer', kind = 'relic', offer = 'sigil_buer', amount = 1, x = 31, z = 3.5 },
     { id = 'relic_pierce', kind = 'relic', offer = 'pierce', amount = 1, x = 11, z = 10 },
     { id = 'relic_precision', kind = 'relic', offer = 'precision', amount = 1, x = 37, z = 10 },
+    -- The two extra copies lie at the ends of the burial galleries, off the main route.
+    {
+      id = 'relic_stolas_copy',
+      kind = 'relic',
+      offer = 'sigil_stolas',
+      amount = 1,
+      x = 14.8,
+      z = 2.7,
+    },
+    { id = 'relic_buer_copy', kind = 'relic', offer = 'sigil_buer', amount = 1, x = 33.2, z = 2.7 },
+    { id = 'relic_paimon', kind = 'relic', offer = 'sigil_paimon', amount = 1, x = 10, z = 6.8 },
     { id = 'relic_furfur', kind = 'relic', offer = 'sigil_furfur', amount = 1, x = 42, z = 26 },
   },
   garrison = {

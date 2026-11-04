@@ -40,6 +40,12 @@ function S.init()
   local w, h = data:getDimensions()
   S.resources = Resources.new('UI skin')
   S.image = S.resources:image(S.path, nil, data)
+  S.weaponCards = S.resources:image('assets/art/weapon-cards-v45.png')
+  S.weaponCardQuads = {}
+  local cw, ch = S.weaponCards:getDimensions()
+  for i, id in ipairs({ 'judge', 'exorcist' }) do
+    S.weaponCardQuads[id] = S.resources:own(lg.newQuad((i - 1) * cw / 2, 0, cw / 2, ch, cw, ch))
+  end
   S.image:setFilter('nearest', 'nearest')
   S.frames = {}
   S.icons = {}
@@ -112,6 +118,12 @@ function S.release()
   S.resources, S.image, S.frames, S.icons, S.bounds, S.fontTops, S.fields =
     nil, nil, nil, nil, nil, nil, nil
   painted = {}
+  S.weaponCards, S.weaponCardQuads = nil, nil
+end
+function S.weaponCard(id, x, y, width, height)
+  local w, h = S.weaponCards:getDimensions()
+  lg.setColor(1, 1, 1)
+  lg.draw(S.weaponCards, S.weaponCardQuads[id], x, y, 0, width / (w / 2), height / h)
 end
 local function record(kind, label, x, y, w, h)
   if not S.audit then

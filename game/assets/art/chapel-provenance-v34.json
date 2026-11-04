@@ -12,15 +12,25 @@
     },
     {
       "file": "chapel-masonry-v34.png",
-      "prompt": "Create one square seamless painted limestone masonry texture for the SAME GAME as the two reference sprite sheets. Match the first reference's stone statue and the second reference's broad fresco-painted modelling, softness, ochre/grey/brown palette. Do NOT depict any characters or flames. This is NOT a photograph of an old fresco: it is stone illustrated BY the painter who painted those sprites. Six courses of old large hand-cut blocks with uneven thin recessed mortar; worn limewash in broad quiet shapes; several chipped corners, three larger branching cracks, subdued damp umber patches toward lower third. Minimal scattered specks. Painted contour edges and two or three broad tonal bands model every block, just as anatomy is modelled in the reference. Simplify microdetail so it survives a 16-bit game rendering, no photographic crackle or grain, no uniformly noisy erosion, no hard embossed highlight, no smooth modern wall, no hyperreal sharpness. Flat orthographic diffuse surface with no perspective or cast shadows, matte old muted pigments, full bleed, four edges tile continuously. It should look like part of a Giovanni da Modena infernal fresco rather than a scanned museum wall.",
-      "generated": "exec-04707193-8545-47fe-9d74-8b09dceccf49.png",
-      "tool": "image_gen built-in",
-      "date": "2026-10-28",
-      "note": "Copied verbatim. No post-generation raster edits. UV crops and lighting are runtime metadata.",
-      "references": [
-        "props-fresco-v12.png",
-        "imp-idle-fresco-v13.png"
-      ]
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ed1e298ef9bc3c0153130561fc1d00fc922eb323f341fd6f376901dffe3689c9",
+      "previousSha256": "71ac994450e50efb4f217f1410b0d115d69ac684db4c9a79ddd4c011b50f7038",
+      "currentRevision": "reszta-provenance-v45.json",
+      "previousRevision": {
+        "file": "chapel-masonry-v34.png",
+        "prompt": "Create one square seamless painted limestone masonry texture for the SAME GAME as the two reference sprite sheets. Match the first reference's stone statue and the second reference's broad fresco-painted modelling, softness, ochre/grey/brown palette. Do NOT depict any characters or flames. This is NOT a photograph of an old fresco: it is stone illustrated BY the painter who painted those sprites. Six courses of old large hand-cut blocks with uneven thin recessed mortar; worn limewash in broad quiet shapes; several chipped corners, three larger branching cracks, subdued damp umber patches toward lower third. Minimal scattered specks. Painted contour edges and two or three broad tonal bands model every block, just as anatomy is modelled in the reference. Simplify microdetail so it survives a 16-bit game rendering, no photographic crackle or grain, no uniformly noisy erosion, no hard embossed highlight, no smooth modern wall, no hyperreal sharpness. Flat orthographic diffuse surface with no perspective or cast shadows, matte old muted pigments, full bleed, four edges tile continuously. It should look like part of a Giovanni da Modena infernal fresco rather than a scanned museum wall.",
+        "generated": "exec-04707193-8545-47fe-9d74-8b09dceccf49.png",
+        "tool": "image_gen built-in",
+        "date": "2026-10-28",
+        "note": "Copied verbatim. No post-generation raster edits. UV crops and lighting are runtime metadata.",
+        "references": [
+          "props-fresco-v12.png",
+          "imp-idle-fresco-v13.png"
+        ]
+      }
     },
     {
       "file": "chapel-ossuary-v34.png",

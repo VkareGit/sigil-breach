@@ -77,7 +77,7 @@ function Tests.run(_, r)
     canvas:release()
     return pixels
   end
-  for _, name in ipairs({ 'asmoday', 'stolas', 'buer' }) do
+  for _, name in ipairs({ 'asmoday', 'stolas', 'buer', 'furfur', 'paimon' }) do
     source = love.image.newImageData('assets/art/sigils/' .. Sigils.entries[name].file)
     sw, sh = source:getDimensions()
     local function inkAt(x, y)

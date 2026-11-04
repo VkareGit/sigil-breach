@@ -15,6 +15,7 @@ local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Bodies = require('src.combat.bodies')
 local RiteFeedback = require('src.feedback.rite_feedback')
+local Rites = require('src.content.art.rites')
 local World = {}
 local warnings = setmetatable({}, { __mode = 'k' })
 local function stopWarning(enemy)
@@ -126,10 +127,7 @@ World.handlers = {
   -- Gone in a breath of its own colour, there and where it stands now.
   Blinked = function(g, ev)
     local e = ev.enemy
-    local color = Enemies.look(e).portal
-    g:burst(ev.fromX, 1.2, ev.fromZ, color, 12, 2.2)
-    g:burst(e.x, 1.2, e.z, color, 12, 2.2)
-    FX.emit(g, 'smoke', ev.fromX, 0.7, ev.fromZ, 0.7)
+    RiteFeedback.blinked(g, ev)
     A.playAt('cast', e.x, e.z, Context.viewer(g), 0.5, 2, g.world)
   end,
   -- The grip closes: felt in the view, heard in the bones.
@@ -163,8 +161,7 @@ World.handlers = {
         personal.view.shake = math.max(personal.view.shake or 0, shake)
       end
     end)
-    g:burst(b.x, b.y + 0.15, b.z, K.blastColor, 24, 4.5)
-    FX.emit(g, 'smoke', b.x, b.y + 0.25, b.z, 1.2)
+    FX.emit(g, 'powder', b.x, b.y + 0.65, b.z, 3.2)
     FX.emit(g, 'stone', b.x, b.y + 0.15, b.z, 0.9)
     A.playAt('blast', b.x, b.z, Context.viewer(g), 0.85)
   end,
@@ -176,7 +173,9 @@ World.handlers = {
   end,
   ProjectileBurst = function(g, ev)
     local b = ev.bullet
-    g:burst(b.x, b.y, b.z, b.color or K.boltColor, 6, 1.2)
+    local style = Rites.projectiles.styles[b.packet and b.packet.damageType]
+      or Rites.projectiles.default
+    FX.emit(g, style.impact, b.x, b.y, b.z, 0.65)
     A.playAt(
       DamageTypes.cue(b.packet and b.packet.damageType, 'impact'),
       b.x,

@@ -215,11 +215,18 @@ function Tests.run(Game, renderer)
       s:send('objectScale', 1)
       s:send('flash', 0)
       s:send('flashColor', { 1, 1, 1 })
-      s:send('tint', { 1, 1, 1 })
+      s:send('tint', { 0.5, 0.5, 0.5 })
+      s:send('atlas', renderer.blank)
       s:send('objectAlpha', 1)
+      -- This measures deck light transport on neutral material, independent
+      -- of painted albedo or the last scene's masonry uniforms. A white
+      -- atlas with 50% tint gives the same neutral surface to all probes.
+      s:send('painted', 0)
+      s:send('useStonePaint', 0)
       lighting:bind(s)
       lg.draw(mesh)
       lg.pop()
+      s:send('atlas', renderer.textures)
       local data = target:newImageData()
       local r, green, b = data:getPixel(64, 64)
       data:release()
@@ -230,7 +237,12 @@ function Tests.run(Game, renderer)
     local topLit, topDark = shade(TOP, 62.2, 65.8, true), shade(TOP, 62.2, 65.8, false)
     local besideLit, besideDark = shade(0, 57.5, 61.5, true), shade(0, 57.5, 61.5, false)
     check(
-      'a brazier on the bridge lights its deck and the floor beside it, not the floor beneath',
+      string.format(
+        'a brazier on the bridge lights its deck and beside, not beneath [%.4f %.4f %.4f]',
+        topLit - topDark,
+        besideLit - besideDark,
+        underLit - underDark
+      ),
       deckLamp ~= nil
         and topLit - topDark > 0.04
         and besideLit - besideDark > 0.01

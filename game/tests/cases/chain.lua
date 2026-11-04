@@ -13,6 +13,8 @@ local function fresh(Game)
   local g = Game.new('pilgrimage')
   g.ephemeral = true
   g:act('start')
+  Weapons.restore(g, { 'exorcist', 'judge' }, nil, g.player)
+  g.player.weapon = 1
   return g, g.player
 end
 -- A kill by a weapon's rounds: the one in hand unless another is named.

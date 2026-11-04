@@ -104,6 +104,9 @@ function Transients.beforeCombat(g, dt)
 end
 
 function Transients.afterCombat(g, dt)
+  Recipient.each(g, function(personal)
+    require('src.feedback.ability_feedback').update(personal)
+  end)
   RiteFeedback.update(g)
   for i = #g.view.particles, 1, -1 do
     local particle = g.view.particles[i]

@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 local Enemies = require('src.content.enemies')
 local Shop = require('src.content.shop')
 local Reliquary = require('src.ui.reliquary')
@@ -288,7 +289,8 @@ end
 function H.stamina(p)
   local share = Resources.share(p, 'stamina')
   if share and share < 1 then
-    local price = Rules.playerBody(p).rollStamina / Characters.of(p).resources.stamina.max
+    local price = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina)
+      / Characters.of(p).resources.stamina.max
     Skin.zone('HUD stamina', 496, 570, 288, 14)
     Skin.meter(500, 574, 280, share, share >= price and C.gold or C.red, 20)
     color(C.ivory)

@@ -4,6 +4,7 @@ local S = { images = {}, order = require('src.content.occult_catalog').seals }
 local Resources = require('src.render.resources')
 local commons = 'https://commons.wikimedia.org/wiki/File:'
 S.entries = {
+  paimon = { number = 9, file = 'paimon-1904.png', source = commons .. '09-Paimon_seal01.png' },
   furfur = {
     number = 34,
     file = 'furfur-1904.png',

@@ -140,6 +140,18 @@ end
 handlers.shop_next = function(app)
   Chapel.turnShop(app.game, 1)
 end
+for _, station in ipairs({ 'arsenal', 'vows', 'sigils' }) do
+  handlers['shop_station_' .. station] = function(app)
+    require('src.ui.fire_shop').select(app.game, station)
+    UI.focus = 1
+  end
+end
+for _, weapon in ipairs({ 'judge', 'exorcist' }) do
+  handlers['shop_card_' .. weapon] = function(app)
+    require('src.ui.fire_shop').select(app.game, 'arsenal', weapon)
+    UI.focus = 1
+  end
+end
 local function shopWeapon(app, id)
   local slot = tonumber(id:match('%d+$'))
   if slot > Weapons.count(app.game) then
@@ -279,6 +291,8 @@ function Commands.dispatch(app, id)
   local handler = handlers[id] or (id:match('^shop_weapon_%d+$') and shopWeapon)
   if handler then
     handler(app, id)
+  elseif id:sub(1, 7) == 'remove_' then
+    app.game:act('removeSigil', id:sub(8))
   elseif id:sub(1, 4) == 'buy_' then
     app.game:act('buy', id:sub(5))
   end

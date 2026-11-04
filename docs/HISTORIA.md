@@ -58,6 +58,32 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Astra, 2026-11-04, dalszy zakres 0.45: efekty jako malowane sceny
+  Giovanniego da Modeny. Stolas: rysa Kocytu, twarze i dłonie, pióra
+  oraz odłamki przy odskoku i teleportacji; Furfur: pęknięcie fresku;
+  Margrave: ostre języki ognia; Buer: plama z bladymi dłońmi.
+  Nowe klatki pocisków i wybuchu Q, bez cyfrowej aury i rozmywania.
+  Zegary, promienie, obrażenia i definicje przeciwników bez zmian.
+- Audyt stylu: przemalowane niebo, kamień i atlas posadzek, amunicja,
+  ikony ślubów, cały zestaw plakietek, misy ognia, dekoracje oraz tła kart broni.
+  Grafiki demonów, broni i dolnego HUD-u pozostają identyczne.
+- Flaska: sześć przemalowanych klatek przy tym samym geście i torze;
+  suchy łyk raz w fazie sip, potwierdzenie tylko przy faktycznym leczeniu.
+- P5: nowy zapis zaczyna z Judge'em; Exorcist 300 przy każdym zapalonym
+  ogniu, zakup trwały, 2 naboje w broni i 20 w zapasie. Bez posiadanej
+  strzelby jej amunicja pozostaje na ziemi. Stare zapisy zachowują obie
+  bronie bez rekompensaty. Arsenal / Vows / Sigils, skutek przed → po,
+  widoczne blokady. Hartowanie +I 250; +II nadal zamknięte.
+- P6: pojemność 4, najwyżej trzy kopie, ręczne zakładanie i zdejmowanie
+  wyłącznie przy zapalonym ogniu. Stolas, Furfur, Buer, Paimon według
+  tabeli PLAN; limit premii obrażeń +35%, naliczenie raz na zdarzenie.
+  Trzy nowe miejsca relikwii: Paimon oraz sekretne kopie Stolasa i Buera.
+  Historyczne pieczęcie leżą płasko, bez odbijania i obracania znaków.
+  Migracje pilgrimage/pools usuwają dawny automatyczny efekt sigili.
+- Złoty wzorzec zmieniony świadomie tylko dla nowego startu Judge'a,
+  nowych relikwii i ręcznego wyposażania; nie dla efektów ani elit.
+  Zmiany bez commita zgodnie z poleceniem właściciela.
+
 - P1a (D15): relikwia z mapy podniesiona raz zostaje podniesiona. Dotąd
   ranga rosła od razu, a zabranie utrwalało dopiero ognisko, więc po
   śmierci ta sama relikwia leżała znowu i podnosiła rangę drugi raz
@@ -3954,6 +3980,24 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Astra, 2026-11-04 — efekty oraz P5/P6:
+- Raport plik po pliku, dowody i ograniczenia: work/reszta/RAPORT.md.
+  55 arkuszy efektów (53 ataki, odskok Stolasa, Q), flaska, karty,
+  kaplica, menu oraz audyt stylu: work/reszta/klatki/.
+- Testy czerwone przed zmianą: fire-shop, sigil-builds, faza sip,
+  migracja starego zapisu i dyskretne klatki hazardów; dowody w
+  work/reszta/testy. Układ sklepu sprawdzony przy 1280×720, 960×540,
+  1024×768. Historyczna orientacja pięciu pieczęci sprawdzona na GPU.
+- Kryterium P5 „trzy trasy bota bez grindu” NIEZALICZONE. Przed i po
+  zmianie ten sam pilot Judge'a ginie: 72,258 / 72,258 / 28,225 s,
+  zabójstwa 5 / 5 / 1, minimalny zapas 31 / 31 / 61 nabojów,
+  brak czasu z pustym całym zapasem. To nie dowodzi nieprzechodniości
+  gry; nie dowodzi też ukończenia. Balansu elit nie zmieniano.
+- P7 nadal wymaga próby właściciela. Pierwsze arkusze Stolasa pokazano
+  i zapytano o kierunek; w chwili pracy brak odpowiedzi. Ocena klimatu
+  i odsłuch nie są zastąpione testem automatycznym. +II niewłączone.
+- Końcowy wynik pełnego Windows All: PASS; 6447 mechanika/zasoby, 50 sterowanie, 144 sceny; render i wszystkie próby narzędzi/startu zielone. Źródło stabilne; work/reszta/testy/final-windows..
 
 Sprawdzone automatycznie:
 - P1a: test pilgrimage (relikwia Stolasa z mapy: podniesienie, śmierć,

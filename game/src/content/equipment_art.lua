@@ -79,6 +79,10 @@ function EquipmentArt.register(id, entry)
       where .. ': weapon timing must be positive'
     )
   end
+  if built.voice then
+    built.voice.frame =
+      assert(atlas.frameNames[built.voice.frame], where .. ': voice frame missing')
+  end
   built.frames = {}
   for index, key in ipairs(compiled) do
     built.frames[index] = { finish = key[1], frame = key[2] }
@@ -152,6 +156,7 @@ EquipmentArt.register('flask', {
   atlas = 'flask',
   clock = 'windup',
   duration = 1,
+  voice = { frame = 'sip', sound = 'flaskSip', volume = 0.65 },
   phases = {
     { finish = 0.16, frame = 'held' },
     { finish = 0.34, frame = 'raise' },

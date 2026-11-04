@@ -14,35 +14,14 @@ local Kinds = Registry:new('hazard art', function(entry, id)
 end)
 Kinds:register('pool', { ground = HazardArt.draw })
 Kinds:register('lightning', {
-  ground = function(r, g, h, effects)
-    r:object(
-      r.warning,
-      h.x,
-      Ground.of(g.world, h) + 0.03,
-      h.z,
-      0,
-      h.radius,
-      h.delay > 0 and effects.colors.bone or effects.colors.brimstone
-    )
+  ground = function(r, g, h)
+    HazardArt.circle(r, g, h, 'circle', h.radius, 1)
   end,
   air = function(r, g, h, effects)
     local preparing = h.delay > 0
     local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
       or (1 - (h.life or 0) / 0.22)
-    if preparing then
-      effects.spell(
-        r,
-        g,
-        2,
-        progress,
-        h.x,
-        Ground.of(g.world, h) + 0.045,
-        h.z,
-        h.radius * 2,
-        0.68,
-        true
-      )
-    else
+    if not preparing then
       -- A short narrow strike leaves the enemy silhouette visible. The ground ring
       -- is still the exact authoritative damage radius, not this ornamental width.
       effects.spell(r, g, 3, progress, h.x, Ground.of(g.world, h) + 1.5, h.z, 2.8, 0.9, false)
@@ -76,7 +55,7 @@ Kinds:register('tempest', {
       local y = Ground.of(g.world, at)
       if h.delay > 0 then
         local progress = 1 - h.delay / math.max(0.01, h.maxDelay)
-        effects.spell(r, g, 2, progress, at.x, y + 0.045, at.z, S.mark, 0.68, true)
+        effects.spell(r, g, 2, progress, at.x, y + 0.045, at.z, S.mark, 1, true)
       elseif h.pulse > h.interval * 0.72 then
         local progress = 1 - (h.pulse - h.interval * 0.72) / (h.interval * 0.28)
         effects.spell(r, g, 3, progress, at.x, y + S.height, at.z, S.size, 0.9, false)
@@ -98,10 +77,8 @@ Kinds:register('sweepline', {
       -- Alternate the irregular pigment and vary its extent, keeping the whole
       -- route present from the first warning. Extra fissures open within it.
       local yaw = h.angle + (step % 2) * math.pi
-      HazardArt.band(r, g, spot, 'ray', R.size * (0.96 + (step % 3) * 0.04), yaw, alpha)
-      if progress > 0 then
-        HazardArt.band(r, g, spot, 'ray', R.size * (0.48 + progress * 0.22), yaw, progress)
-      end
+      local cell = progress >= 0.72 and 'damned' or 'fissure'
+      HazardArt.band(r, g, spot, cell, R.size, yaw, alpha)
     end
   end,
 })
@@ -125,24 +102,14 @@ function Kinds.rayAfterimage(r, g, h, age)
         x,
         y + 0.03,
         z,
-        'cut',
-        0.65 * (1 - age / R.flare) + 0.15,
+        'damned',
+        0.9,
         math.atan2(Context.viewer(g).x - x, Context.viewer(g).z - z),
-        1 - age / R.flare
+        1
       )
     end
-    local fade = 1 - age / R.embers
-    for chip = 1, 3 do
-      local side = ((step * 7 + chip * 3) % 11 - 5) * 0.035
-      r:object(
-        r.spark,
-        x + dz * side,
-        y + 0.04 + age * (0.8 + chip * 0.2),
-        z - dx * side,
-        step + chip + age * 2,
-        fade * (0.38 + chip * 0.09),
-        { 0.78 * fade, 0.58 * fade, 0.30 * fade }
-      )
+    if age >= R.flare then
+      HazardArt.upright(r, x, y + 0.04, z, 'fragments', 0.36, h.angle, 0.85)
     end
   end
 end

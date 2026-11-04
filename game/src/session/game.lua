@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- Session facade used by the application, combat systems and QA. Construction
 -- and player commands live here; simulation, consequences and world triggers
 -- have separate owners. Public methods keep one stable entry point.
@@ -191,7 +192,9 @@ end
 -- Where effort is paid a dodge takes its whole price, and waits for the shot before it.
 function Game.canDodge(g, player)
   return (player.recoverAt or 0) <= g.elapsed
-    and Resources.can(player, { stamina = Rules.playerBody(player).rollStamina })
+    and Resources.can(player, {
+      stamina = Sigils.dodgeCost(player, Rules.playerBody(player).rollStamina),
+    })
 end
 
 function Game:dash(dx, dz, who)
@@ -214,7 +217,7 @@ function Game:dash(dx, dz, who)
   player.dashTimer = Rules.movement(player).dashTime
   local body = Rules.playerBody(player)
   if Capabilities.attrition(self) then
-    Resources.exert(player, 'stamina', body.rollStamina)
+    Resources.exert(player, 'stamina', Sigils.dodgeCost(player, body.rollStamina))
     player.invuln = math.max(player.invuln, body.rollIframes)
     player.dodgeEnds = self.elapsed + body.rollIframes
   else

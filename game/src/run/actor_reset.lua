@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- A fresh start of one knight: a rest, a retry, a journey, a new trial of the proving
 -- ground. What the last fight left on him ends here, each by its owner. Never rebuild the
 -- knight from a prefab or delete unknown fields: identity, equipment, progress and future
@@ -19,6 +20,7 @@ function Reset.actor(g, p)
   -- combat/rally and combat/chain: health to fight back and a run of kills end with the
   -- fight they belonged to.
   p.rally, p.rallyLeft = nil, nil
+  Sigils.reset(p)
   p.chainCount, p.chainLeft, p.chainWeapon = nil, nil, nil
   -- player/feel, physics/ground, combat/dodge: movement left over from the moment before.
   p.vx, p.vz = 0, 0

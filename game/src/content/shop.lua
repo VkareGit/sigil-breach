@@ -3,6 +3,7 @@
 -- a new entry here, a new kind of offer is a new entry there. name,
 -- description, short: text keys (content/text.lua).
 local Shop = {
+  markets = { fire = 'fire', field = 'field' },
   -- A wallet beyond this is a corrupted save, not a purchase.
   maxWallet = 1000000,
   -- The ward (consumable shield) is mended up to maxWard.
@@ -10,8 +11,18 @@ local Shop = {
   -- How loud a purchase is.
   boughtCue = 0.35,
   -- How many sigils a knight wears at once (0.43, D8: found in the chapel, worn at a fire).
-  sigilSlots = 2,
+  sigilSlots = require('src.content.sigils').capacity,
   offers = {
+    {
+      id = 'weapon_exorcist',
+      icon = 'ammo',
+      sold = 'fire',
+      kind = 'weapon',
+      weapon = 'exorcist',
+      name = 'offer_weapon_exorcist',
+      description = 'offer_weapon_exorcist_text',
+      price = 300,
+    },
     {
       id = 'ammo',
       icon = 'ammo',
@@ -132,10 +143,8 @@ local Shop = {
       stat = 'maxHp',
       amount = 15,
     },
-    -- Sigils of the Goetia (0.42, a first three to try the kind; docs/WIZJA.md,
-    -- Kierunek hybrydy): up to three copies each, each copy stronger. A sigil
-    -- names a glyph of one gun (as tempering does) or a trait of the knight with its value at
-    -- each rank (ranks), which a rest and a purchase set (run/pilgrimage.lua: swear).
+    -- World relics, manually equipped only at a fire. Copies spend capacity;
+    -- their combat triggers and drawbacks live in content/sigils.lua.
     {
       id = 'sigil_stolas',
       icon = 'sigil_stolas',
@@ -145,8 +154,6 @@ local Shop = {
       name = 'offer_sigil_stolas',
       description = 'offer_sigil_stolas_text',
       limit = 3,
-      weapon = 'judge',
-      glyph = 'sigil_stolas',
     },
     {
       id = 'sigil_buer',
@@ -157,8 +164,6 @@ local Shop = {
       name = 'offer_sigil_buer',
       description = 'offer_sigil_buer_text',
       limit = 3,
-      trait = 'rallyRate',
-      ranks = { 0.08, 0.10, 0.12 },
     },
     {
       id = 'sigil_furfur',
@@ -169,8 +174,16 @@ local Shop = {
       name = 'offer_sigil_furfur',
       description = 'offer_sigil_furfur_text',
       limit = 3,
-      trait = 'dodgeEdge',
-      ranks = { 0.35, 0.5, 0.65 },
+    },
+    {
+      id = 'sigil_paimon',
+      icon = 'sigil_paimon',
+      sold = 'fire',
+      kind = 'sigil',
+      found = true,
+      name = 'offer_sigil_paimon',
+      description = 'offer_sigil_paimon_text',
+      limit = 3,
     },
     -- Tempering: each rank is the weapon's glyph once more (glyph: its id in that weapon's
     -- glyphs, and in no other's), so the gun hits harder for good; From's reinforced weapons.

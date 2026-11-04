@@ -122,10 +122,6 @@ return {
   judgeBreakerImpact = 1.25,
   judgePrecisionHead = 1.6,
   temperDamage = 1.08,
-  -- 0.42: a copy of the sigil of Stolas adds this to the Judge's head multiplier; the sigil of
-  -- Furfur arms the next shot for furfurWindow s after a perfect dodge.
-  stolasHead = 0.12,
-  furfurWindow = 2,
   -- 0.42: the Judge never stays dry: below a cylinder in all, a round a second comes back.
   revolverSpare = 6,
   revolverSpareEvery = 1,

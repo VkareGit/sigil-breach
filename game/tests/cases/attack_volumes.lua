@@ -79,19 +79,19 @@ function Tests.run(Game)
     'airborne muzzle and authored aim height determine the real flight',
     near(b.y, 2.6) and near(b.y + b.vy * ((10 - b.z) / b.vz), 1.9) and b.radius == 0.18
   )
-  local E = require('src.render.effects')
-  local draw, size = E.spell
-  E.spell = function(_, _, row, _, _, _, _, scale)
-    if row == 1 then
-      size = scale
-    end
+  local Art = require('src.render.hazard_art')
+  local Pass = require('src.render.passes.projectiles')
+  local paint, size, foot = Art.upright
+  Art.upright = function(_, _, y, _, _, scale)
+    size, foot = scale, y
   end
-  local ok, problem = pcall(E.spells, {}, g)
-  E.spell = draw
+  local ok, problem = pcall(Pass.draw, {}, g)
+  Art.upright = paint
   assert(ok, problem)
   check(
-    'the existing painted aura scales with a custom physical radius',
-    near(size, 0.52 * 0.18 / 0.12)
+    'painted projectile core contains the custom physical diameter',
+    near(size * require('src.content.art.rites').projectiles.default.core, 0.36)
+      and near(foot + size * 0.5, b.y)
   )
   for _, jump in ipairs({ 0.41, 0.43 }) do
     g, p = fresh()

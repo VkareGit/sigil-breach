@@ -66,8 +66,12 @@ Effects:register('dust', {
   rise = 0.3,
   limit = 22,
 })
-Effects:register(
-  'arc',
-  { duration = 0.24, frames = { 13, 14, 15, 16 }, alpha = 0.78, brightness = 1.12 }
-)
+Effects:register('arc', { duration = 0.24, frames = { 13, 14, 15, 16 }, alpha = 1, brightness = 1 })
+Effects:register('powder', {
+  duration = 0.36,
+  frames = { 13, 14, 15, 16 },
+  alpha = 1,
+  brightness = 1,
+  limit = 8,
+})
 return Effects

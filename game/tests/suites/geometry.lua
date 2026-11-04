@@ -25,6 +25,7 @@ function Tests.run(G, renderer)
     g.pickups = {}
     g.bullets = {}
     g.view.particles = {}
+    g.view.effects = {}
     return g
   end
   -- Sample the complete pellet pattern in a local orthonormal aim plane, including
@@ -244,7 +245,7 @@ function Tests.run(G, renderer)
   Projectiles.update(g, 1 / 30)
   check(
     'fast projectile cannot tunnel through a player in one tick',
-    g.player.hp == 86 and #g.bullets == 0 and near(g.view.particles[1].z, 26.66)
+    g.player.hp == 86 and #g.bullets == 0 and near(g.view.effects[1].z, 26.66)
   )
   g = fresh()
   g.player.x = 11
@@ -256,7 +257,7 @@ function Tests.run(G, renderer)
     g.player.hp == 100
       and #g.bullets == 0
       and near(
-        g.view.particles[1].x,
+        g.view.effects[1].x,
         12 + B.pillarRadius + require('src.content.combat_defaults').attacks.boltRadius
       )
   )
@@ -267,7 +268,7 @@ function Tests.run(G, renderer)
   Projectiles.update(g, 1 / 30)
   check(
     'player collision wins when it lies before the next pillar',
-    g.player.hp == 86 and near(g.view.particles[1].x, 13.34)
+    g.player.hp == 86 and near(g.view.effects[1].x, 13.34)
   )
   g = fresh()
   g.bullets = { bullet(16, 0.2, 25, 0, -200, 0) }
@@ -277,7 +278,7 @@ function Tests.run(G, renderer)
     g.player.hp == 100
       and #g.bullets == 0
       and near(
-        g.view.particles[1].y,
+        g.view.effects[1].y,
         T.floorSurface + require('src.content.combat_defaults').attacks.boltRadius
       )
   )
@@ -290,10 +291,7 @@ function Tests.run(G, renderer)
     'vertical projectile hits the player cap before the floor',
     -- 0.24: one knight volume for melee and projectiles: height + own radius.
     g.player.hp == 86
-      and near(
-        g.view.particles[1].y,
-        require('src.content.characters').standard().body.height + 0.12
-      )
+      and near(g.view.effects[1].y, require('src.content.characters').standard().body.height + 0.12)
   )
   g = fresh()
   g.player.x = 17
@@ -335,7 +333,7 @@ function Tests.run(G, renderer)
   Projectiles.update(g, 1 / 30)
   check(
     'short-lived projectile travels only its remaining lifetime',
-    g.player.hp == 100 and #g.bullets == 0 and near(g.view.particles[1].z, 24)
+    g.player.hp == 100 and #g.bullets == 0 and near(g.view.effects[1].z, 24)
   )
   g = fresh()
   local expired = bullet(16, 1.2, 27, 0, 0, 200)
@@ -374,7 +372,7 @@ function Tests.run(G, renderer)
     for _ = 1, 4 do
       Projectiles.update(g, step)
     end
-    impacts[i] = { hp = g.player.hp, z = g.view.particles[1].z, count = #g.bullets }
+    impacts[i] = { hp = g.player.hp, z = g.view.effects[1].z, count = #g.bullets }
   end
   check(
     '30 Hz and 120 Hz projectile updates agree on hit point and damage',

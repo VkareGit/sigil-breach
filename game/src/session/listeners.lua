@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- Simulation consequences of events ('sim' phase): they run inside the
 -- emitting system, in the priority order below, exactly where the direct
 -- calls used to be. Presentation is attached by feedback/listeners.lua.
@@ -40,8 +41,11 @@ local function rallyOpens(g, info)
 end
 local function rallyBack(g, event)
   local player = event.owner and Stats.healed(g, event.owner)
+  if player and Sigils.rally(player, event) then
+    return
+  end
   if player and (player.rally or 0) > 0 and (event.health or 0) > 0 then
-    local back = math.min(player.rally, event.health * (player.rallyRate or Rally.rate))
+    local back = math.min(player.rally, event.health * Rally.rate)
     player.rally = player.rally - back
     player.hp = math.min(Characters.maxHp(player), player.hp + back)
   end
@@ -202,6 +206,7 @@ function Listeners.attach(g)
   end, rewardOrder)
   bus:on('sim', 'PlayerHit', function(e)
     rallyOpens(g, e.info)
+    Sigils.hurt(Roles.controlled(g), e)
     playerHit(g, e)
   end, 10)
   bus:on('sim', 'PlayerHit', function(e)

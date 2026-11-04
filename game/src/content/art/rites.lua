@@ -11,6 +11,36 @@ return {
   columns = 2,
   rows = 2,
   cells = { wave = { 0, 0 }, circle = { 1, 0 }, cut = { 0, 1 }, ray = { 1, 1 } },
+  supplements = {
+    {
+      path = 'assets/art/projectiles-fresco-v45.png',
+      columns = 4,
+      rows = 2,
+      cells = {
+        star1 = { 0, 0 },
+        star2 = { 1, 0 },
+        star3 = { 2, 0 },
+        star4 = { 3, 0 },
+        cinder1 = { 0, 1 },
+        cinder2 = { 1, 1 },
+        cinder3 = { 2, 1 },
+        cinder4 = { 3, 1 },
+      },
+    },
+    {
+      path = 'assets/art/stolas-rites-v45.png',
+      columns = 2,
+      rows = 2,
+      cells = { fissure = { 0, 0 }, damned = { 1, 0 }, feathers = { 0, 1 }, fragments = { 1, 1 } },
+    },
+  },
+  blink = { duration = 0.36, limit = 12, size = 2.1 },
+  -- Measured inscribed opaque core, distinct from the peripheral ice/flame tips.
+  projectiles = {
+    rate = 9,
+    default = { prefix = 'cinder', core = 0.34, impact = 'arc' },
+    styles = { astral = { prefix = 'star', core = 0.41, impact = 'stone' } },
+  },
   rim = 0.92,
   cut = 0.1,
   cutSize = 0.78,

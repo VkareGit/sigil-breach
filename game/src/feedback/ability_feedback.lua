@@ -4,7 +4,10 @@ local Art = require('src.content.equipment_art')
 local Abilities = require('src.content.abilities')
 local Context = require('src.session.context')
 local Feedback = {}
-require('src.session.fields').declareView('feedback.ability_feedback', { 'abilityCast' })
+require('src.session.fields').declareView(
+  'feedback.ability_feedback',
+  { 'abilityCast', 'abilityVoice' }
+)
 function Feedback.cast(g, event)
   local hands = event.ability.hands
   assert(not hands or Art.entries[hands], 'unknown equipment hands: ' .. tostring(hands))
@@ -70,5 +73,28 @@ function Feedback.weaponLowered(g)
     t = 1 - (age - ending) / weapon.rise
   end
   return t * t * (3 - 2 * t) * weapon.lower
+end
+-- Audio follows the live cast in update, never in a draw call. A new cast
+-- gets its own receipt; an interrupted one cannot play a delayed swallow.
+function Feedback.update(g)
+  local actor = Context.actor(g)
+  local casting = actor and actor.hp > 0 and actor.casting
+  if not casting then
+    g.view.abilityVoice = nil
+    return
+  end
+  local entry = sample(g)
+  if not entry or not entry.voice then
+    return
+  end
+  local receipt = g.view.abilityVoice
+  if not receipt or receipt.cast ~= casting then
+    receipt = { cast = casting, played = false }
+    g.view.abilityVoice = receipt
+  end
+  if not receipt.played and Feedback.frame(g) == entry.voice.frame then
+    receipt.played = true
+    require('src.audio.audio').play(entry.voice.sound, entry.voice.volume)
+  end
 end
 return Feedback

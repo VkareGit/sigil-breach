@@ -2,7 +2,7 @@
 -- name, source and detail are text keys (content/text.lua).
 local A = {}
 -- The historical seals the interface carries.
-A.seals = { 'asmoday', 'stolas', 'buer', 'furfur' }
+A.seals = { 'asmoday', 'stolas', 'buer', 'furfur', 'paimon' }
 -- Those in the margins of the help parchment, and where.
 A.margins = { { 'asmoday', 110, 326 }, { 'buer', 110, 426 }, { 'stolas', 1134, 370 } }
 -- Those a proving ground can visit (names: text keys).

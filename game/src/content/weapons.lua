@@ -157,9 +157,6 @@ local definitions = {
       breaker = { scale = { impact = T.judgeBreakerImpact } },
       precision = { set = { headMultiplier = T.judgePrecisionHead } },
       temper_judge = { scale = { base = T.temperDamage } },
-      -- A copy of the sigil of Stolas (content/shop.lua): the head is worth more, on top of
-      -- PRECISION (an add comes after every set, whatever the order of the glyphs).
-      sigil_stolas = { add = { headMultiplier = T.stolasHead } },
     },
     weight = {
       mass = 1.5,

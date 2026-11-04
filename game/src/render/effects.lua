@@ -18,7 +18,6 @@ local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local Queries = require('src.session.queries')
 local Pools = require('src.session.world')
-local ProjectileShape = require('src.combat.projectile_shape')
 local E = {}
 E.colors = {
   coal = { 0.018, 0.016, 0.014 },
@@ -69,7 +68,7 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   shader:send('silhouette', 0)
   shader:send('spriteStretch', ground and unit or r:vec2(data.width, data.height))
   shader:send('effectAlpha', alpha)
-  shader:send('soft', 1)
+  shader:send('soft', 0)
   shader:send('mirror', 0)
   shader:send('frameRect', data.rect)
   shader:send('objectPos', r:vec3(x, ground and y or y - size * data.height * 0.5, z))
@@ -80,7 +79,7 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   shader:send('objectScale', size)
   shader:send('lean', 0)
   shader:send('pain', 0)
-  shader:send('brightness', 1.12)
+  shader:send('brightness', 1)
   love.graphics.draw(mesh)
 end
 -- The cut a wide blow leaves in the air, while it can land and a moment after.
@@ -101,7 +100,7 @@ local function cut(r, g, e, spec)
       or e.attackCount % 2 * math.pi
     )
   local y = Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight - size * 0.5
-  HazardArt.upright(r, x, y, z, 'cut', size, yaw, 1 - age / span)
+  HazardArt.upright(r, x, y, z, 'cut', size, yaw, age < span * 0.65 and 1 or 0.8)
 end
 function E.spells(r, g)
   love.graphics.setDepthMode('less', false)
@@ -137,12 +136,6 @@ function E.spells(r, g)
       )
     end
   end
-  for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    -- The painted aura scales with authored radius; it is not an extra hitbox.
-    -- Default bolts retain their accepted size and artwork.
-    local scale = ProjectileShape.radius(b) / ProjectileShape.defaultRadius(b.big)
-    E.spell(r, g, 1, (g.time * 9) % 1, b.x, b.y, b.z, (b.big and 0.82 or 0.52) * scale, 0.9, false)
-  end
   for _, h in ipairs(Pools.of(g, 'hazards')) do
     local art = HazardKinds.of(h)
     if art.air then
@@ -151,6 +144,24 @@ function E.spells(r, g)
   end
   for _, burst in ipairs(g.view.riteBursts or {}) do
     HazardKinds.rayAfterimage(r, g, burst, g.elapsed - burst.starts)
+  end
+  for _, burst in ipairs(g.view.blinkBursts or {}) do
+    local age = g.elapsed - burst.starts
+    if age >= 0 and age < Rites.blink.duration then
+      local early = age < Rites.blink.duration * 0.5
+      local frame = (early ~= burst.arriving) and 'feathers' or 'fragments'
+      local viewer = Context.viewer(g)
+      HazardArt.upright(
+        r,
+        burst.x,
+        Ground.height(g.world, burst.x, burst.z),
+        burst.z,
+        frame,
+        Rites.blink.size,
+        math.atan2(viewer.x - burst.x, viewer.z - burst.z),
+        1
+      )
+    end
   end
 end
 -- During the hand-off only, avoid magnifying a world sprite placed centimetres

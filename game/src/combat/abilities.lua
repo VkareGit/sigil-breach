@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- Casting the knight's abilities (0.24 F4). One caster for every ability:
 -- the same gates (in play, armed, ready), the same live record (uses left,
 -- ready time) and a delivery kind that does the rest. The powder charge is
@@ -74,8 +75,12 @@ end
 ActionKinds:register('drink', {
   cast = function(g, action, caster)
     local actor = caster.body
-    actor.hp = math.min(Characters.maxHp(actor), actor.hp + action.heal)
-    Presentation.cue(g, 'pickup', 0.5)
+    local before = actor.hp
+    local heal = Sigils.flask(actor, action.heal)
+    actor.hp = math.min(Characters.maxHp(actor), actor.hp + heal)
+    if actor.hp > before then
+      Presentation.cue(g, 'pickup', 0.5)
+    end
     return true
   end,
 })

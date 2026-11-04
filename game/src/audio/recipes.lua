@@ -11,6 +11,24 @@ local pi, sin, exp, min, max = math.pi, math.sin, math.exp, math.min, math.max
 local clip, ring, mail = Synth.clip, Synth.ring, Synth.mail
 local R = {}
 
+-- One dry swallow: a low throat pulse, liquid knocking inside clay, then
+-- a short breath. No bell, shimmer or long electronic tail.
+R.flaskSip = {
+  duration = 0.19,
+  jitter = 0.015,
+  make = function(rate)
+    local throat = Synth.resonator(310, 1.2, rate)
+    return function(t, u, noise, low)
+      local first = exp(-((t - 0.035) / 0.018) ^ 2)
+      local second = exp(-((t - 0.095) / 0.026) ^ 2)
+      local gulp = throat(low) * (first * 0.48 + second * 0.30)
+      local clay = ring(t, 0.018, 690, 85) * 0.055
+      local breath = noise * 0.025 * sin(pi * u) ^ 2
+      return clip(gulp + clay + breath) * (1 - u)
+    end
+  end,
+}
+
 -- WEAPONS ------------------------------------------------------------------------
 -- Black powder in a stone nave: a heavy report, its smoke still crackling,
 -- the walls answering a moment later (the long ring is R.hall).

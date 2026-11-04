@@ -123,9 +123,6 @@ function R.new(checkpoint)
     HazardKinds:get(id)
   end
   local v = {}
-  M.sphere(v, 0, 0, 0, 0.09, 0.09, 0.09, { 1, 1, 1, 1 }, 6)
-  r.orb = M.finish(v)
-  v = {}
   M.box(v, 0, -0.025, 0, 0.045, 0.045, 0.045, { 1, 1, 1, 0.6 })
   r.spark = M.finish(v)
   r.particleBatch = Batch.new(v, 240)
@@ -194,7 +191,6 @@ function R.new(checkpoint)
     'tracerShader',
     'tracerMesh',
     'sprite',
-    'orb',
     'spark',
     'sigil',
     'warning',
@@ -393,8 +389,8 @@ function R:effect(g, e)
   self.sprite:setTexture(self.effects)
   s:send('silhouette', 0)
   s:send('spriteStretch', self:vec2(region.width, region.height))
-  s:send('soft', 1)
-  s:send('effectAlpha', math.min(1, (1 - e.age / e.duration) * 3) * profile.alpha)
+  s:send('soft', 0)
+  s:send('effectAlpha', profile.alpha)
   s:send('frameRect', region.rect)
   s:send('objectPos', self:vec3(e.x, e.y - size * region.height * 0.5, e.z))
   s:send('objectYaw', math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z))

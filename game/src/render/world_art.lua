@@ -104,6 +104,29 @@ local function pack(path)
 end
 function Art.pickup(r, g, a)
   local supply = Supplies:get(a.kind)
+  local seal = supply.seals and supply.seals[a.offer]
+  if seal then
+    love.graphics.push('all')
+    love.graphics.setDepthMode('less', false)
+    love.graphics.setColor(1, 1, 1)
+    Ritual.layer(
+      r,
+      Goetic.image(seal),
+      a.x,
+      Ground.of(g.world, a) + 0.028,
+      a.z,
+      supply.size * 2,
+      0,
+      nil,
+      true,
+      1,
+      nil,
+      nil,
+      0.8
+    )
+    love.graphics.pop()
+    return
+  end
   local s = r.spriteShader
   -- By the gun its rounds are for, or by the offer a relic is (0.43).
   local which = a.weapon or a.offer

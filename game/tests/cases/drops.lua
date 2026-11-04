@@ -76,6 +76,8 @@ function T.run(Game)
   check('an execution the body survives', Execution.perform(g) and hard.hp > 0)
   local edge = packs(g)
   check('pays too, at his feet', #edge == 1 and edge[1].weapon == 'exorcist')
+  require('src.content.weapons').give(g, 'exorcist')
+  require('src.content.weapons').stock(g, 'exorcist', 0)
   local before = p.arsenal.exorcist.reserve
   g:update(1 / 120, {})
   check('where he takes it at once', #packs(g) == 0 and p.arsenal.exorcist.reserve > before)

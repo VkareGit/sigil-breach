@@ -24,6 +24,64 @@ function T.run(G)
       g:update(1 / 120, {})
     end
   end
+  check('a swallow has its own sound recipe', require('src.audio.recipes').flaskSip ~= nil)
+  local Audio = require('src.audio.audio')
+  local play = Audio.play
+  local sounds = {}
+  Audio.play = function(name)
+    sounds[#sounds + 1] = name
+  end
+  local okSound, errSound = pcall(function()
+    local function count(name)
+      local n = 0
+      for _, id in ipairs(sounds) do
+        if id == name then
+          n = n + 1
+        end
+      end
+      return n
+    end
+    local drink = fresh()
+    advance(drink, 0.3)
+    check('no gulp before sip', count('flaskSip') == 0 and count('pickup') == 0)
+    advance(drink, 0.22)
+    check(
+      'one gulp in sip, before healing',
+      count('flaskSip') == 1 and drink.player.hp == 30 and count('pickup') == 0
+    )
+    advance(drink, 0.12)
+    check('remaining sip frames do not repeat the sound', count('flaskSip') == 1)
+    advance(drink, 0.4)
+    check(
+      'healing success sounds once at completion',
+      count('pickup') == 1 and drink.player.hp == 75
+    )
+    sounds = {}
+    drink = fresh()
+    advance(drink, 0.2)
+    Cast.stop(drink, drink.player)
+    advance(drink, 1)
+    check(
+      'interrupted before sip plays neither gulp nor success',
+      count('flaskSip') == 0 and count('pickup') == 0
+    )
+    sounds = {}
+    drink = fresh()
+    advance(drink, 0.52)
+    Cast.stop(drink, drink.player)
+    advance(drink, 1)
+    check(
+      'interrupted after gulp plays no healing success',
+      count('flaskSip') == 1 and count('pickup') == 0
+    )
+    sounds = {}
+    drink = fresh()
+    drink.player.hp = 100
+    advance(drink, 1.1)
+    check('no success sound without actual healing', count('pickup') == 0)
+  end)
+  Audio.play = play
+  assert(okSound, errSound)
   local atlas = V.handAtlases.flask
   local canvas = love.graphics.newCanvas(960, 540)
   local function drawn(g, expected)

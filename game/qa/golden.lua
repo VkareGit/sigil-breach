@@ -57,8 +57,8 @@ function Golden.describe(g)
     p.yaw,
     p.hp,
     p.armor,
-    p.arsenal.exorcist.mag,
-    p.arsenal.exorcist.reserve,
+    p.arsenal.exorcist and p.arsenal.exorcist.mag or 'unowned',
+    p.arsenal.exorcist and p.arsenal.exorcist.reserve or 'unowned',
     p.arsenal.judge.mag
   )
   local stamina = p.resources and p.resources.stamina or 0

@@ -211,8 +211,19 @@ end
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 3,
+  version = 4,
   migrations = {
+    [3] = function(data)
+      local all = Tree.decode(data.pools)
+      for _, knight in ipairs(all.knights or {}) do
+        -- P6 replaces the old passive sigil fields. Equipped copies belong
+        -- to the pilgrimage collection; resumeField binds those afterwards.
+        knight.rallyRate, knight.dodgeEdge, knight.edgeUntil = nil, nil, nil
+        knight.sigilRanks, knight.sigilState = nil, nil
+      end
+      data.pools = Tree.encode(all)
+      return data
+    end,
     [1] = function(data)
       data.actorDefaults = true
       return data

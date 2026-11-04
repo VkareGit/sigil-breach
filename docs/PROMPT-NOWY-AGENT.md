@@ -13,7 +13,7 @@ Przejmujesz pracę nad grą SIGIL: BREACH. Ten prompt jest taki sam dla Claude C
 - FPS, który staje się souls-like. Rycerz bez magii, dwie bronie palne (Exorcist to strzelba, Judge to rewolwer), ładunek prochowy Q, flaska F (picie ok. 0,95 s, ma własną animację rąk od 0.44), unik z wytrzymałością, kaplica z ogniskami, dusze i echo po śmierci. Elity Margrave i Furfur są mobami, nie bossami.
 - Trudność ma wynikać z czytania ciosów (telegraf, przytrzymanie, kontra strzałem, doskonały unik, pęknięta garda i egzekucja), nie z paska HP. Strzał nie zużywa wytrzymałości, ale po nim ciało potrzebuje chwili.
 - Odniesienia: Doom dla znajdziek na mapie i tempa, Dark Souls dla walki i ognisk, Call of Duty tylko dla potwierdzenia trafienia i nagrody (medale serii).
-- Styl to żywy mroczny fresk. Nie zmieniaj stylu demonów, HUD ani broni. Odczucie strzału i trafienia jest dla mnie jedną z najważniejszych rzeczy: strzał musi wyraźnie trafiać albo wyraźnie chybiać.
+- Styl to żywy mroczny fresk. Główny wzorzec całej gry to Giovanni da Modena, Inferno, Bolonia (`docs/art/giovanni-da-modena-inferno.webp`): dołączaj ten obraz do każdego zlecenia grafiki. Nie zmieniaj stylu demonów, HUD ani broni. Odczucie strzału i trafienia jest dla mnie jedną z najważniejszych rzeczy: strzał musi wyraźnie trafiać albo wyraźnie chybiać.
 - Kaplica jest poligonem, nie docelową mapą. Bossowie i dawny etap 4 (koniec kaplicy, mapa, druga droga) są odłożeni do mojej zgody.
 
 ## Moje decyzje (obowiązują)

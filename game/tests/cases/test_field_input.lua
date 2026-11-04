@@ -128,7 +128,8 @@ function Tests.run(get, settings, settle)
     low
       and field.player.hp == 100
       and field.player.arsenal.exorcist.reserve == 72
-      and original.player.arsenal.exorcist.reserve ~= nil
+      and original.player.arsenal.exorcist == nil
+      and original.player.arsenal.judge.reserve ~= nil
       and held() == snapshot
   )
   click('field_close')

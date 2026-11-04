@@ -37,11 +37,14 @@
 -- 0.45 (D15): a relic taken before a death is not laid again; the clumsy walk dies and changes.
 -- 0.45 (D11, P4): the elites stand open 1.2 s and their new poses (masks of the hit) change the
 -- drill; both walks of the chapel stay the same.
+-- 0.45 P5/P6 (2026-11-04): deliberate new-way Judge-only start; three new
+-- world relics. No automatic sigils. Existing two-weapon drill and contacts
+-- remain identical. Linux repeat matched; Windows verified by the final gate.
 return {
-  playtest = 'f26863c9/df75fad0',
-  human = '965645ea/3500a3d2',
+  playtest = 'bd652679/0441155d',
+  human = '1a29c6cf/7e219861',
   drill = 'd80f2df1/3c4a4e65',
-  playtestContacts = 'a3a00935/850',
-  humanContacts = '5a97e736/1260',
+  playtestContacts = 'b978e41e/126',
+  humanContacts = '0ef06769/196',
   drillContacts = '0bc58ffe/377',
 }

@@ -11,11 +11,10 @@ return {
   segments = 64,
   groundOffset = 0.024,
   warningOffset = 0.002,
-  emergeTime = 0.12,
   fadeTime = 0.30,
   cycleRate = 4,
   stainAlpha = 0.90,
-  warningAlpha = 0.66,
-  liveBoundaryAlpha = 0.42,
+  warningAlpha = 1,
+  liveBoundaryAlpha = 1,
   pigmentLightFloor = 0.68,
 }

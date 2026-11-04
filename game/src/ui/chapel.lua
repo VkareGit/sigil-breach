@@ -3,6 +3,7 @@ local Characters = require('src.content.characters')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
 local D = {}
+local FireShop = require('src.ui.fire_shop')
 local Stats = require('src.session.stats')
 local Text = require('src.content.text')
 local Pages = require('src.ui.pages')
@@ -89,6 +90,9 @@ function D.controls(g)
     return nil
   end
   if g.state == 'shop' then
+    if Queries.run(g).market == require('src.content.shop').markets.fire then
+      return FireShop.controls(g, D.elsewhere(g))
+    end
     local list = {}
     local first, last, page, pages, rowHeight = D.shopPage(g)
     local offers = D.offers(g)
@@ -255,6 +259,9 @@ function D.heading(g)
   end
 end
 function D.shop(g)
+  if Queries.run(g).market == require('src.content.shop').markets.fire then
+    return FireShop.draw(g, U)
+  end
   local r, p = Queries.run(g), Context.actor(g)
   rect(0, 0, 1280, 720, Palette.veilDeep, 0.9)
   Skin.panel(96, 44, 1088, 628, 5, 14)

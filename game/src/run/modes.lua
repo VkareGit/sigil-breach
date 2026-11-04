@@ -151,7 +151,8 @@ Modes:register('pilgrimage', {
     return Pilgrimage.construction(g)
   end,
   canTrade = function(g)
-    return Pilgrimage.fireHere(g) ~= nil
+    local fire = Pilgrimage.fireHere(g)
+    return fire ~= nil and g.run.lit[fire.id] == true
   end,
   closeShop = Sanctuary.closeTrade,
   buy = function(g, offer)
@@ -160,6 +161,13 @@ Modes:register('pilgrimage', {
       Pilgrimage.bought(g)
     end
     return ok
+  end,
+  removeSigil = function(g, id)
+    if Economy.unequip(g, id) then
+      Pilgrimage.bought(g)
+      return true
+    end
+    return false
   end,
   newRequiresConfirmation = function(g)
     return g.run.saved

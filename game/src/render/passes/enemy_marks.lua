@@ -6,8 +6,9 @@ local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Rules = require('src.combat.rules')
 local Shadows = require('src.render.shadows')
-local COUNTER_RING, COUNTER_GOLD = 7, { 1, 0.86, 0.42 }
-local COLORS = require('src.render.effects').colors
+local COUNTER_RING = 7
+local HazardArt = require('src.render.hazard_art')
+local landing = {}
 local Context = require('src.session.context')
 local Characters = require('src.content.characters')
 local Pass = {}
@@ -37,33 +38,15 @@ function Pass.draw(r, g)
   lg.setDepthMode('less', true)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
-      local look = Archetypes.look(e)
-      local ground = Ground.of(g.world, e)
       -- The moment a shot can turn the blow aside: a clear gold ring.
       local open = e.attackSpec and e.attackSpec.parry
       if e.ai == 'windup' and open and e.windup + (e.holdLeft or 0) <= open then
-        r:object(
-          r.warning,
-          e.x,
-          ground + 0.03,
-          e.z,
-          0,
-          Rules.radius(e) * COUNTER_RING,
-          COUNTER_GOLD,
-          0.95
-        )
+        HazardArt.circle(r, g, e, 'circle', Rules.radius(e) * COUNTER_RING, 1)
       end
       if e.ai == 'windup' then
         local progress = 1 - e.windup / (e.windupDuration or 1)
-        r:object(
-          r.warning,
-          e.x,
-          ground + 0.025,
-          e.z,
-          0,
-          0.42 + progress * 0.35,
-          look.warning or COLORS.ember
-        )
+        local step = math.min(2, math.floor(progress * 3))
+        HazardArt.circle(r, g, e, 'circle', 0.42 + step * 0.175, 1)
       end
       -- A leap marks its landing point from the crouch to the landing: the
       -- player always sees where the arc ends (dodgeable, never a surprise).
@@ -71,16 +54,8 @@ function Pass.draw(r, g)
       local spec = e.attackSpec
       if spec and Action.trait(spec, 'lands') and (e.ai == 'windup' or e.leaping) and e.aimX then
         local reachLand = spec.landRadius + Characters.of(Context.actor(g)).body.radius
-        r:object(
-          r.warning,
-          e.aimX,
-          Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + 0.03,
-          e.aimZ,
-          0,
-          reachLand * 1.04,
-          COLORS.ember,
-          0.85
-        )
+        landing.x, landing.z, landing.level = e.aimX, e.aimZ, e.aimLevel
+        HazardArt.circle(r, g, landing, 'circle', reachLand * 1.04, 1)
       end
     end
   end

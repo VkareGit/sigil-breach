@@ -1,3 +1,7 @@
+local Modes = require('src.session.modes')
+local Way = require('src.content.pilgrimage')
+local Tuning = require('src.content.tuning')
+local SigilRules = require('src.content.sigils')
 -- The Ember's trade (0.24, Strategy): the offers are content (content/shop.lua),
 -- each of a kind that says how it is priced, when it is unavailable and what
 -- it gives. A new kind of offer (equipment, a relic, a base upgrade) is a new
@@ -17,6 +21,45 @@ local Text = require('src.content.text')
 local Presentation = require('src.session.presentation')
 local E = {}
 E.offers = Shop.offers
+function E.preview(g, id)
+  local offer = Shop.get(id)
+  local r = g.run
+  if offer.kind == 'weapon' then
+    return Text.get('shop_weapon_change')
+  elseif offer.kind == 'vow' then
+    local rank = r.vows[offer.id] or 0
+    if offer.weapon then
+      local base = W.get(offer.weapon).attack.base
+      local factor = Tuning.temperDamage
+      return Text.get('shop_temper_change', {
+        before = string.format('%.1f', base * factor ^ rank),
+        after = string.format('%.1f', base * factor ^ math.min(offer.limit, rank + 1)),
+      })
+    end
+    local p = Roles.controlled(g)
+    local before = offer.stat and p[offer.stat]
+      or Abilities.capacity(offer.ability, p.abilityState[offer.ability])
+    return Text.get(
+      'shop_vow_change',
+      { before = before, after = before + (rank < offer.limit and offer.amount or 0) }
+    )
+  elseif offer.kind == 'sigil' then
+    local before = r.sigils and r.sigils[id] or 0
+    return Text.get('shop_sigil_change', {
+      before = before,
+      after = math.min(offer.limit, before + 1),
+      found = r.vows[id] or 0,
+      cost = E.sigilCost(id, math.min(offer.limit, before + 1)),
+    })
+  elseif offer.kind == 'engraving' then
+    local current = r.worn and r.worn[offer.weapon]
+    return Text.get('shop_engraving_change', {
+      before = current and Text.get(Shop.get(current).name) or Text.get('shop_plain'),
+      after = Text.get(offer.name),
+    })
+  end
+  return Text.get(offer.description)
+end
 -- Whether an engraving is the one worn: on its weapon when the run keeps one per weapon.
 function E.worn(r, offer)
   if r.worn and offer.weapon then
@@ -24,15 +67,18 @@ function E.worn(r, offer)
   end
   return r.glyph == offer.id
 end
--- Whether a found sigil is worn (0.43, D8): a run that keeps no set wears every one it has.
+-- Equipped copies, never the collection's rank. A missing set wears nothing.
 function E.wearing(r, offer)
-  return r.sigils == nil or r.sigils[offer.id] == true
+  return (r.sigils and r.sigils[offer.id] or 0) > 0
 end
--- Sigils worn now.
+function E.sigilCost(id, copies)
+  local def = SigilRules[id]
+  return copies > 0 and def.costs[copies] or 0
+end
 function E.sigilsWorn(r)
   local count = 0
-  for _, on in pairs(r.sigils or {}) do
-    count = count + (on and 1 or 0)
+  for id, copies in pairs(r.sigils or {}) do
+    count = count + E.sigilCost(id, copies)
   end
   return count
 end
@@ -44,10 +90,6 @@ function E.modifiers(r)
     if offer.kind == 'engraving' and E.worn(r, offer) and offer.weapon then
       list[#list + 1] = offer.id
     elseif offer.kind == 'vow' and offer.glyph then
-      for _ = 1, r.vows and r.vows[offer.id] or 0 do
-        list[#list + 1] = offer.glyph
-      end
-    elseif offer.kind == 'sigil' and offer.glyph and E.wearing(r, offer) then
       for _ = 1, r.vows and r.vows[offer.id] or 0 do
         list[#list + 1] = offer.glyph
       end
@@ -95,6 +137,21 @@ local function rounds(count, fill)
   }
 end
 E.kinds = {
+  weapon = {
+    quote = function(g, offer)
+      if W.slotOf(g, offer.weapon) then
+        return 0, Text.get('shop_weapon_owned'), true
+      end
+      return offer.price
+    end,
+    apply = function(g, offer)
+      W.give(g, offer.weapon)
+      W.stock(g, offer.weapon, Way.carried[offer.weapon])
+    end,
+    label = function(g, offer)
+      return W.slotOf(g, offer.weapon) and Text.get('shop_weapon_owned') or nil
+    end,
+  },
   rounds = rounds(function(g, def)
     return math.min((terms(def)), missing(g, def))
   end, false),
@@ -188,34 +245,36 @@ E.kinds = {
     end,
     done = 'shop_vow_done',
   },
-  -- A sigil is found, never bought (0.43, D8): its ranks are the copies found in the chapel.
-  -- At a fire it is put on or taken off for free, up to Shop.sigilSlots at once.
+  -- Each click equips one collected copy. Removing has its own explicit action.
   sigil = {
     quote = function(g, offer)
       local r = g.run
-      if (r.vows[offer.id] or 0) <= 0 then
-        return 0, Text.get('shop_sigil_unfound_reason'), true
+      local copies = r.sigils and r.sigils[offer.id] or 0
+      if (r.vows[offer.id] or 0) <= copies then
+        return 0, Text.get('shop_sigil_no_copy'), true
       end
-      if not E.wearing(r, offer) and E.sigilsWorn(r) >= Shop.sigilSlots then
+      local capacity = E.sigilsWorn(r)
+        - E.sigilCost(offer.id, copies)
+        + E.sigilCost(offer.id, copies + 1)
+      if capacity > Shop.sigilSlots then
         return 0, Text.get('shop_sigil_slots_reason', { slots = Shop.sigilSlots }), true
       end
       return 0, nil, true
     end,
     apply = function(g, offer)
-      local r = g.run
-      r.sigils = r.sigils or {}
-      r.sigils[offer.id] = not E.wearing(r, offer) or nil
+      g.run.sigils = g.run.sigils or {}
+      g.run.sigils[offer.id] = (g.run.sigils[offer.id] or 0) + 1
     end,
     label = function(g, offer)
-      return Text.get(E.wearing(g.run, offer) and 'shop_sigil_worn' or 'shop_sigil_wear')
-    end,
-    describe = function(g, offer)
-      return Text.get(offer.name),
-        Text.get('shop_sigil_text', {
-          text = Text.get(offer.description),
-          rank = g.run.vows[offer.id] or 0,
-          limit = offer.limit,
-        })
+      local copies = g.run.sigils and g.run.sigils[offer.id] or 0
+      if copies >= (g.run.vows[offer.id] or 0) then
+        return Text.get('shop_sigil_no_spare')
+      end
+      local _, reason = E.kinds.sigil.quote(g, offer)
+      if reason then
+        return Text.get('shop_sigil_full')
+      end
+      return Text.get('shop_sigil_add')
     end,
     done = 'shop_sigil_done',
   },
@@ -234,7 +293,12 @@ function E.offersFor(g)
   for _, offer in ipairs(E.offers) do
     if
       (not offer.sold or offer.sold == market)
-      and not (market ~= 'field' and offer.found and not found(g.run, offer))
+      and not (
+        market ~= 'field'
+        and offer.found
+        and offer.kind ~= 'sigil'
+        and not found(g.run, offer)
+      )
     then
       list[#list + 1] = offer
     end
@@ -301,6 +365,9 @@ function E.quote(g, id)
   end
   -- final: the kind's answer stands even when the wallet could not pay.
   local price, reason, final = E.kinds[offer.kind].quote(g, offer, (W.inHand(g)))
+  if offer.weapon and offer.kind ~= 'weapon' and not W.slotOf(g, offer.weapon) then
+    return price, Text.get('shop_weapon_needed', { weapon = Text.get(W.get(offer.weapon).hud.tab) })
+  end
   if reason or final then
     return price, reason
   end
@@ -320,6 +387,9 @@ end
 function E.buy(g, id)
   local r = g.run
   if not r or g.state ~= 'shop' then
+    return false, Text.get('shop_closed')
+  end
+  if r.market == Shop.markets.fire and not Modes.act(g, 'canTrade') then
     return false, Text.get('shop_closed')
   end
   local price, reason = E.quote(g, id)
@@ -342,5 +412,22 @@ function E.trade(g, id)
     g.shopMessage = reason
   end
   return ok
+end
+function E.unequip(g, id)
+  local r, offer = g.run, Shop.find(id)
+  if
+    not r
+    or g.state ~= 'shop'
+    or r.market ~= Shop.markets.fire
+    or not Modes.act(g, 'canTrade')
+    or not offer
+    or offer.kind ~= 'sigil'
+    or not E.wearing(r, offer)
+  then
+    return false
+  end
+  local copies = r.sigils[id] - 1
+  r.sigils[id] = copies > 0 and copies or nil
+  return true
 end
 return E

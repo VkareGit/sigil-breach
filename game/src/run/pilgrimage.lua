@@ -52,14 +52,14 @@ function P.relicWanted(g, pickup)
 end
 function P.takeRelic(g, pickup)
   local r, offer = g.run, Shop.get(pickup.offer)
+  if pickup.rewardId and r.taken[pickup.rewardId] then
+    return ''
+  end
   if pickup.rewardId then
     r.taken[pickup.rewardId] = true
   end
   if offer.kind == 'sigil' then
     r.vows[offer.id] = math.min(offer.limit, (r.vows[offer.id] or 0) + 1)
-    if r.sigils and not r.sigils[offer.id] and Economy.sigilsWorn(r) < Shop.sigilSlots then
-      r.sigils[offer.id] = true
-    end
   else
     r.owned[offer.id] = true
     if r.worn and offer.weapon and not r.worn[offer.weapon] then
@@ -141,6 +141,7 @@ local function swear(g)
       p.abilityState[offer.ability].extra = given
     end
   end
+  p.sigilRanks = Copy(g.run.sigils or {})
   p.maxHp, p.maxArmor = stats.maxHp, stats.maxArmor
 end
 -- A rest, a retry, a journey and a purchase: a fresh start, then everything full. A fire fills
@@ -258,6 +259,8 @@ local function renew(g, slot)
     taken = {},
     sigils = {},
   }
+  Weapons.restore(g, K.startingWeapons, nil, Roles.controlled(g))
+  Roles.controlled(g).weapon = 1
   Abilities.give(g, 'flask', Roles.controlled(g))
   stand(g)
 end
@@ -318,6 +321,7 @@ local function resumeField(g, field)
   -- dropped the missile in the air, the blow begun, the rest of a cache, a drop, a wound).
   if field.pools then
     Save.section('pools').restore(g, readPools(field.pools))
+    Roles.controlled(g).sigilRanks = Copy(r.sigils or {})
     g.elapsed = field.elapsed or g.elapsed
     g.nextAttack = field.nextAttack
   end
@@ -1032,8 +1036,25 @@ end
 Save.declare({
   name = 'pilgrimage',
   file = 'pilgrimage',
-  version = 2,
+  version = 4,
   migrations = {
+    [3] = function(data)
+      -- Old saves wore types, not copies. Keep one of each formerly worn
+      -- type in catalogue order within capacity; retain every found copy.
+      local old, used, worn = data.sigils or {}, 0, {}
+      for _, id in ipairs(require('src.content.sigils').order) do
+        local cost = Economy.sigilCost(id, 1)
+        if old[id] and (data.vows[id] or 0) > 0 and used + cost <= Shop.sigilSlots then
+          worn[id], used = 1, used + cost
+        end
+      end
+      data.sigils = worn
+      return data
+    end,
+    [2] = function(data)
+      data.loadout = data.loadout and data.loadout[1] and data.loadout or Copy(K.legacyWeapons)
+      return data
+    end,
     -- One area, one map, one ruin.
     [1] = function(data)
       data.ruins, data.ruin = { proving = data.ruin }, nil
@@ -1102,13 +1123,17 @@ Save.declare({
     out.field = validField(data.field)
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
     out.worn = validWorn(data.worn, out.owned, out.glyph)
-    -- Sigils worn (0.43, D8): found ones only; a save from before wears all it found.
-    out.sigils = data.sigils ~= nil
-        and known(data.sigils, function(id)
-          local offer = Shop.find(id)
-          return offer and offer.kind == 'sigil' and (out.vows[id] or 0) > 0
-        end)
-      or nil
+    out.sigils = {}
+    assert(data.sigils == nil or type(data.sigils) == 'table', 'invalid sigil set')
+    for id, copies in pairs(data.sigils or {}) do
+      local offer = Shop.find(id)
+      assert(whole(copies, 1, 3), 'invalid equipped copies')
+      if offer and offer.kind == 'sigil' then
+        assert(copies <= (out.vows[id] or 0), 'unfound equipped copies')
+        out.sigils[id] = copies
+      end
+    end
+    assert(Economy.sigilsWorn(out) <= Shop.sigilSlots, 'sigil capacity exceeded')
     return out
   end,
   restore = function(g, data)
@@ -1116,7 +1141,7 @@ Save.declare({
     r.wallet, r.deaths, r.area, r.fire = data.wallet, data.deaths, data.area, data.fire
     r.lit, r.owned, r.glyph = Copy(data.lit), Copy(data.owned), data.glyph
     r.worn = Copy(data.worn)
-    r.sigils = data.sigils and Copy(data.sigils) or nil
+    r.sigils = Copy(data.sigils or {})
     r.slain, r.taken = Copy(data.slain), Copy(data.taken)
     r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
     r.vows = Copy(data.vows)

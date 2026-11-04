@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 local Signal = require('src.session.signal')
 local T = require('src.content.tuning')
 local W = require('src.content.weapons')
@@ -177,13 +178,16 @@ function R.start(g, afterShot, a)
   end
   a.reloadWeapon = a.weapon
   a.reloadOffset = offset
-  a.reloadDuration = m.duration - offset
+  a.reloadDuration = m.duration
+    - offset
+    + Sigils.reloadStart(a, def.id, not Ammo.of(def).canFire(def.ammo, state))
   a.reload = a.reloadDuration
   a.reloadStage = 0
   return true
 end
 function R.cancel(g, a)
   a = actor(g, a)
+  Sigils.reloadCancel(a)
   a.reload = 0
   a.reloadStage = 0
   a.reloadWeapon = nil
@@ -235,6 +239,8 @@ function R.update(g, dt, a)
   local w = W.state(g, a.reloadWeapon, a)
   m.step(g, w, before, after, a)
   if a.reload == 0 then
+    local def = W.inHand(g, a.reloadWeapon, a)
+    Sigils.reloaded(a, def.id, Ammo.of(def).canFire(def.ammo, w))
     m.finish(g, w)
     a.reloadStage = 0
     a.reloadWeapon = nil

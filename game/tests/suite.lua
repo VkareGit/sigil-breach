@@ -6,6 +6,16 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'sigil-builds',
+    title = 'Four-point sigil builds and event ownership',
+    module = 'tests.cases.sigil_builds',
+  },
+  {
+    id = 'fire-shop',
+    title = 'Permanent fire purchases and Judge start',
+    module = 'tests.cases.fire_shop',
+  },
+  {
     id = 'hit-feedback',
     title = 'Readable real contact and missed surface',
     module = 'tests.cases.hit_feedback',

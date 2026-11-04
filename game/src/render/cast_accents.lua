@@ -2,6 +2,10 @@
 local Surface = require('src.enemies.surface')
 local ActionPhase = require('src.enemies.action_phase')
 local Rites = require('src.content.art.rites')
+local HazardArt = require('src.render.hazard_art')
+local Ground = require('src.physics.ground')
+local Context = require('src.session.context')
+local Archetypes = require('src.content.enemies')
 local Accents = {}
 local posed = {}
 local function centre(g, e, id)
@@ -19,7 +23,29 @@ local function centre(g, e, id)
 end
 function Accents.draw(r, g, e, effects)
   local spec = e.attackSpec
-  if not spec or e.hp <= 0 then
+  if e.hp <= 0 then
+    return false
+  end
+  local look = Archetypes.look(e)
+  local evading = look.evadeArt and e.ai == 'move' and (e.evadeTime or 0) > 0
+  local slipping = spec and spec.kind == 'blink' and e.ai == 'windup'
+  if evading or slipping then
+    local viewer = Context.viewer(g)
+    local progress = slipping and ActionPhase.sample(e)
+      or (1 - e.evadeTime / Archetypes.of(e).move.evade.time)
+    HazardArt.upright(
+      r,
+      e.x,
+      Ground.of(g.world, e) + 0.1,
+      e.z,
+      progress < 0.55 and 'fragments' or 'feathers',
+      1.65,
+      math.atan2(viewer.x - e.x, viewer.z - e.z),
+      1
+    )
+    return true
+  end
+  if not spec then
     return false
   end
   local windup = e.ai == 'windup'
@@ -27,7 +53,7 @@ function Accents.draw(r, g, e, effects)
     local t = ActionPhase.sample(e)
     local x, y, z = centre(g, e, 'head')
     if x then
-      effects.spell(r, g, 0, t, x, y - 0.09, z + 0.03, 0.18 + 0.35 * t, 0.45 + t * 0.5, false)
+      effects.spell(r, g, 0, t, x, y - 0.09, z + 0.03, 0.53, 1, false)
     end
     return true
   end
@@ -48,12 +74,12 @@ function Accents.draw(r, g, e, effects)
           r,
           g,
           0,
-          (t + i * 0.19) % 1,
+          math.floor(charge * 3) / 3,
           x + p.rx * side,
           y + (i % 2) * 0.13,
           z + p.rz * side,
-          0.13 + charge * 0.35,
-          0.22 + charge * 0.70,
+          0.42,
+          1,
           false
         )
       end

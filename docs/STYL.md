@@ -19,6 +19,8 @@ Gracz nie ogląda współczesnej gry przez filtr „starego obrazu”. Chodzi po
 
 Wciąż mamy jedno pole testowe: dotychczasową arenę 31×31, z nawą, bocznymi dziedzińcami i ołtarzem. Nie budujemy teraz kampanii ani następnych kręgów. Dopracowujemy oprawę, ruch, ataki, trafienia, broń, animację, interfejs i czytelność przed projektowaniem świata. F2 służy do powtarzalnych prób istniejących demonów, bossów, pieczęci i stanów walki. Człowiek pozostaje bez magii; manifest jest wskazówką dla jego wyglądu, nie nowym scenariuszem.
 
+GŁÓWNY WZORZEC CAŁEJ GRY (właściciel, 2026-11-04): Giovanni da Modena, Inferno, Bolonia. Obraz: `docs/art/giovanni-da-modena-inferno.webp`. Każde zlecenie grafiki musi go dołączać, a nie tylko wymieniać. Po nim: projekty demonów w grze, pozostałe obrazy niżej, dziewięć kręgów piekła Dantego i Goetia. Efekt ma wyglądać jak ożywający mur, nie jak cyfrowa nakładka; właściciel odrzuca wszystko, co wygląda jak AI.
+
 CZTERY PUNKTY ODNIESIENIA — RÓŻNE ROLE, WSPÓLNY JĘZYK
 1. Giovanni da Modena, Inferno, kaplica Bolognini, San Petronio.
    To główne odniesienie dla potworów i materialności malowidła: hybrydy człowieka i zwierzęcia, wydłużone gesty, wyraźny kontur, rozpoznawalne sceny, okrutny porządek zamiast przypadkowego zbioru kolców. Przewodnik kaplicy opisuje układ Sądu nad Infernem i przypisanie kar do win; zastrzega, że część ikonografii kar jest starsza od Dantego. Nie nazywamy całego malowidła ilustracją Dantego.

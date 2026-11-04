@@ -159,6 +159,7 @@ local function engravings(check, Game)
   check('a fire opens its trade', g:interact() and g.state == 'shop')
   -- 0.43 (D8): engravings are found in the chapel; owned, a fire puts them on for free.
   g.run.owned.choke, g.run.owned.breaker = true, true
+  check('Exorcist bought before its engraving', g:act('buy', 'weapon_exorcist'))
   check('choke for the Exorcist', g:act('buy', 'choke'))
   check('breaker for the Judge', g:act('buy', 'breaker'))
   g:act('closeShop')
@@ -214,12 +215,17 @@ local function reserves(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player
-  local shells, rounds = p.arsenal.exorcist, p.arsenal.judge
   check(
-    'a new way carries what a fire gives',
-    shells.reserve == K.carried.exorcist and rounds.reserve == K.carried.judge
+    'new Judge has its target reserve',
+    p.arsenal.judge.reserve == K.carried.judge and not p.arsenal.exorcist
   )
   Encounter.clearStage(g)
+  p.x, p.z = 27, 35
+  g:interact()
+  g.run.wallet = 300
+  check('Exorcist bought for reserve test', g:act('buy', 'weapon_exorcist'))
+  g:act('closeShop')
+  local shells, rounds = p.arsenal.exorcist, p.arsenal.judge
   shells.reserve, rounds.reserve = K.carried.exorcist + 15, 3
   p.x, p.z = 10, 21
   g:interact()
@@ -309,19 +315,28 @@ local function relics(check, Game)
   find('sigil_furfur')
   find('choke')
   check('three copies are three ranks', g.run.vows.sigil_buer == 3)
-  check(
-    'the first two found are worn',
-    g.run.sigils.sigil_buer and g.run.sigils.sigil_stolas and not g.run.sigils.sigil_furfur
-  )
+  check('found copies stay in the collection', next(g.run.sigils) == nil)
   check(
     'an engraving found is owned and worn',
     g.run.owned.choke and g.run.worn.exorcist == 'choke'
   )
   check('a fire takes him in', g:interact() and g.state == 'shop')
-  check('and his worn sigil works', p.rallyRate == 0.12 and p.dodgeEdge == nil)
-  check('a third waits for a free place', not g:act('buy', 'sigil_furfur'))
-  check('one taken off for free', g:act('buy', 'sigil_buer') and p.rallyRate == nil)
-  check('the other put on', g:act('buy', 'sigil_furfur') and p.dodgeEdge == 0.35)
+  check(
+    'three Buer copies deliberately equipped',
+    g:act('buy', 'sigil_buer')
+      and g:act('buy', 'sigil_buer')
+      and g:act('buy', 'sigil_buer')
+      and p.sigilRanks.sigil_buer == 3
+  )
+  check('another waits for capacity', not g:act('buy', 'sigil_furfur'))
+  check(
+    'copies removed one at a time',
+    g:act('removeSigil', 'sigil_buer')
+      and g:act('removeSigil', 'sigil_buer')
+      and g:act('removeSigil', 'sigil_buer')
+      and not p.sigilRanks.sigil_buer
+  )
+  check('the other put on', g:act('buy', 'sigil_furfur') and p.sigilRanks.sigil_furfur == 1)
   check('nothing was paid', g.run.wallet == 10000)
   local encoded = Save.encode('pilgrimage', Save.capture('pilgrimage', g), 1)
   local decoded = Save.decode('pilgrimage', encoded)
@@ -445,6 +460,7 @@ function T.run(Game)
   -- Each gun wears its own engraving, and tempering is the gun's for good (0.42).
   g.run.owned.choke, g.run.owned.breaker = true, true -- found in the chapel (0.43, D8)
   check('an engraving for the Judge', g:act('buy', 'breaker') and g.run.worn.judge == 'breaker')
+  check('Exorcist purchased before tempering', g:act('buy', 'weapon_exorcist'))
   check('and one for the Exorcist', g:act('buy', 'choke') and g.run.worn.exorcist == 'choke')
   check('the first stays on its gun', g.run.worn.judge == 'breaker')
   check('the Judge is tempered', g:act('buy', 'temper_judge'))
@@ -457,18 +473,15 @@ function T.run(Game)
   -- Sigils: a glyph on top of an engraving, or a trait of the knight (0.42). 0.43 (D8): found
   -- in the chapel (here given), put on and taken off for free, two at once.
   g.run.vows.sigil_buer, g.run.owned.precision, g.run.sigils = 1, true, {}
-  check('a sigil of Buer', g:act('buy', 'sigil_buer') and p.rallyRate == 0.08)
+  check('a sigil of Buer', g:act('buy', 'sigil_buer') and p.sigilRanks.sigil_buer == 1)
   g.run.vows.sigil_buer = 2
-  check(
-    'a second copy is stronger',
-    g:act('buy', 'sigil_buer') and g:act('buy', 'sigil_buer') and p.rallyRate == 0.10
-  )
+  check('a second copy is stronger', g:act('buy', 'sigil_buer') and p.sigilRanks.sigil_buer == 2)
   g.run.vows.sigil_furfur, g.run.vows.sigil_stolas = 1, 1
-  check('a sigil of Furfur', g:act('buy', 'sigil_furfur') and p.dodgeEdge == 0.35)
+  check('a sigil of Furfur', g:act('buy', 'sigil_furfur') and p.sigilRanks.sigil_furfur == 1)
   g:act('buy', 'precision')
-  check('a sigil of Stolas', g:act('buy', 'sigil_furfur') and g:act('buy', 'sigil_stolas'))
+  check('a sigil of Stolas', g:act('removeSigil', 'sigil_furfur') and g:act('buy', 'sigil_stolas'))
   local head = Weapons.attack(g, judge, Economy.modifiers(g.run), p).headMultiplier
-  check('adds to PRECISION, whatever the order', math.abs(head - 1.72) < 1e-9)
+  check('conditional verdict does not alter PRECISION passively', math.abs(head - 1.60) < 1e-9)
   local kept = session(Game)
   check('vows outlive the session', kept.player.maxHp == 115 and kept.player.maxArmor == 40)
   check('and the flask', kept.player.abilityState.flask.uses == 5)
@@ -481,6 +494,7 @@ function T.run(Game)
     kept.player.loadout[1] == p.loadout[1] and kept.player.abilities[1] == p.abilities[1]
   )
   g.run.vows, p.maxHp, p.maxArmor = {}, 100, 40
+  g.run.sigils, p.sigilRanks = {}, {}
   g.run.worn, g.run.owned, g.run.glyph = {}, {}, 'none'
   p.abilityState.flask.extra = 0
   P.save(g)

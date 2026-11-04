@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- A volley: rounds traced as rays, their contacts summed per body, then
 -- applied once. Public to every delivery of a weapon (combat/weapon_delivery.lua):
 -- a new way of hitting traces or contacts through this and reports like a shot.
@@ -61,8 +62,9 @@ end
 function Volley:contact(e, d, x, y, z, normal, part, retain, dx, dy, dz, surface)
   local report = self.report
   local material = surface and surface.material or Rules.body(e).struck or 'flesh'
+  local attack = Sigils.contact(self.attack, e, part)
   local damage, absorbed, impact, push =
-    Hit.measure(self.attack, e, d, nil, surface or { zone = part, material = material })
+    Hit.measure(attack, e, d, nil, surface or { zone = part, material = material })
   damage, absorbed, impact, push =
     damage * retain, absorbed * retain, impact * retain, push * retain
   local receipt = {
@@ -110,7 +112,7 @@ function Volley:contact(e, d, x, y, z, normal, part, retain, dx, dy, dz, surface
   detail.distanceMax = math.max(detail.distanceMax, d)
   detail.absorbed = detail.absorbed + absorbed
   self.details[e] = detail
-  detail.armorAbsorbed = detail.armorAbsorbed + Damage.armorLoss(self.attack, e, d, part) * retain
+  detail.armorAbsorbed = detail.armorAbsorbed + Damage.armorLoss(attack, e, d, part) * retain
   if part == 'head' then
     detail.headHits = detail.headHits + 1
     report.headHits = report.headHits + 1
@@ -276,6 +278,7 @@ function Volley:apply()
       report.maxDamage = math.max(report.maxDamage, damage)
     end
   end
+  Sigils.resolved(self.shooter, self.attack, report)
   report.blocked = self.blocked
   if self.things then
     for _, thing in ipairs(Pools.of(g, 'entities')) do

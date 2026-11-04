@@ -1,3 +1,4 @@
+local Sigils = require('src.combat.sigils')
 -- Short input intentions, independent of render frames. The public scalar
 -- fields remain compatible with saves, the test field and old QA fixtures.
 -- Holding jump still repeats on landing; a quick tap survives for 120 ms. A shot or a dodge
@@ -39,7 +40,7 @@ local function refusal(g, p, act)
   elseif
     act == 'dash'
     and Capabilities.attrition(g)
-    and not Resources.can(p, { stamina = Rules.playerBody(p).rollStamina })
+    and not Resources.can(p, { stamina = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina) })
   then
     return 'hud_no_breath'
   elseif act == 'dash' and Capabilities.attrition(g) and (p.recoverAt or 0) > g.elapsed then
