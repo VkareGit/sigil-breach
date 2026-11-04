@@ -271,4 +271,4 @@ Podział: **Claude** — kod gry, walka, testy, integracja i przegląd. **Astra*
 - **Wybór zestawu dźwięku (F7: classic / iron / stone),** potem usunięcie przełącznika — razem z odsłuchem w P2.
 - **Kontrast Iron Thralla w nawie** (cel ≥ 1,5:1; warianty Astry z 0.44 naruszały styl) — do P4 albo osobno.
 - **Niezabezpieczeni zabici w innych obszarach** — przed dodaniem nowych obszarów.
-- **Linux:** testy `weight` i `floor-layers` na prawdziwej karcie graficznej przy pierwszym uruchomieniu na nowym komputerze.
+- **Linux:** test `weight` na prawdziwej karcie graficznej przy pierwszym uruchomieniu na nowym komputerze (`bash scripts/TEST-LINUX.sh`; w WSL pada tylko on).

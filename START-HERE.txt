@@ -34,6 +34,6 @@ POLECENIA (z katalogu repozytorium)
   .\scripts\TEST.ps1 -Suite All -TestTimeoutSeconds 1800   pełna brama przed commitem
   .\scripts\BUILD.ps1 -Package              EXE i ZIP: tylko na prośbę właściciela
   Jeden zestaw: $env:SIGIL_UI_QA_DIR=<katalog>; toolchain\love-11.5-win64\lovec.exe game --suite=<id>
-Linux: te same skrypty przez pwsh (./scripts/TEST.ps1); szczegóły w docs/TECHNIKA.md.
+Linux: te same skrypty przez pwsh (./scripts/TEST.ps1); szczegóły w docs/TECHNIKA.md. Bez pwsh (np. WSL): bash scripts/TEST-LINUX.sh.
 Wersja: game/src/core/build.lua. Grafikę, dźwięk i nagrania robi Codex Astra.
 Robocze pliki agentów (skrypty, wiadomości commitów, sondy) trzymaj poza repozytorium.
