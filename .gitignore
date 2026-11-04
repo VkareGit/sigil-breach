@@ -10,3 +10,4 @@ outputs/
 toolchain/**/*.zip
 Thumbs.db
 Desktop.ini
+prompt.md
