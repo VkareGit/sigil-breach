@@ -133,8 +133,8 @@
         256,
         256
       ],
-      "sha256": "069ad193bbf9eeaf5039e792bc5801197280e71c8bd8d84f4bc6349994401e5f",
-      "previousSha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45",
+      "sha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45",
+      "previousSha256": "069ad193bbf9eeaf5039e792bc5801197280e71c8bd8d84f4bc6349994401e5f",
       "currentRevision": "../reszta-provenance-v45.json",
       "previousRevision": {
         "file": "ammo_shells.png",
@@ -162,8 +162,8 @@
         256,
         256
       ],
-      "sha256": "0f260a02a552c37265351b4bc33d2e7642cab5df28a4fc0ba6f5226b63e003f1",
-      "previousSha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "sha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "previousSha256": "0f260a02a552c37265351b4bc33d2e7642cab5df28a4fc0ba6f5226b63e003f1",
       "currentRevision": "../reszta-provenance-v45.json",
       "previousRevision": {
         "file": "ammo_rounds.png",
@@ -223,5 +223,5 @@
     "in_engine_6_to_8_m": "Not tested; no integration or game code changes.",
     "text_skulls_gloss": "No text or skulls. Revolver cartridge highlights were removed with imagegen edit."
   },
-  "currentRevisionNote": "Selected files have a 0.45 revision recorded per image; original generator metadata below describes previous revisions."
+  "currentRevisionNote": "Selected files have a 0.45 revision recorded per image; original generator metadata below describes previous revisions. ammo_shells.png and ammo_rounds.png are the darker paintings the owner chose (git 4ab9bab), restored over the later repaint recorded in reszta-provenance-v45.json, which their previousSha256 names."
 }

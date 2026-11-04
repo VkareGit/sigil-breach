@@ -129,7 +129,8 @@ SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D
   zegarach, kontrast rdzenia 4,5–5:1. Amunicja: łuski spięte drutem i
   naboje w płótnie, ciemniejsze warianty wybrane przez właściciela (Astra
   wybrała jaśniejsze dla kontrastu), odbicie światła 0,85 → 1,25, dół
-  paczki na posadzce zamiast 0,24 m nad nią.
+  paczki na posadzce zamiast 0,24 m nad nią. Późniejsze matowe przemalowanie
+  amunicji właściciel odrzucił: w grze zostają te ciemniejsze obrazy.
 
 
 ########################################################################
