@@ -130,5 +130,21 @@ return {
     walkRear = { clock = 'stride', frames = { 19, 20, 21, 22, 23, 24 }, rate = 4.2 },
     watchRear = { frames = { 19 } },
     windup = { clock = 'action', frames = { 7, 8, 9 }, bounds = { 0.22, 0.6 } },
+    -- The second claw gathers out of its predecessor instead of resetting high.
+    ['windup.claw-late'] = {
+      clock = 'action',
+      frames = { 12, 7, 8, 9 },
+      bounds = { 0.12, 0.42, 0.86 },
+    },
+    ['strike.claw-late'] = { clock = 'action', frames = { 9, 10, 11 }, bounds = { 0.12, 0.5 } },
+    ['recover.claw-late'] = { clock = 'action', frames = { 11, 12, 1 }, bounds = { 0.12, 0.75 } },
+    -- A low landing becomes one broad committed rake, then the body settles.
+    ['windup.pounce'] = { clock = 'action', frames = { 12, 9 }, bounds = { 0.4 } },
+    ['strike.pounce'] = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
+    ['recover.pounce'] = { clock = 'action', frames = { 11, 12, 1 }, bounds = { 0.15, 0.72 } },
+    -- Existing walking feet step back; no raised claw or painted attack is shown.
+    ['windup.hop-back'] = { clock = 'action', frames = { 12, 3 }, bounds = { 0.6 } },
+    ['strike.hop-back'] = { clock = 'seconds', frames = { 3, 2, 1 }, step = 0.075 },
+    ['recover.hop-back'] = { clock = 'action', frames = { 1, 25 }, bounds = { 0.7 } },
   },
 }

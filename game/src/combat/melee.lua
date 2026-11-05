@@ -220,6 +220,18 @@ function M.claw(
         body
       )
       if hit then
+        -- A long blade sample can already be beyond a wall before its
+        -- short swept interval begins. It must remain connected to the
+        -- attacking body through clear space at the contact height.
+        local phase = lerp(t1, t2, t)
+        local moved = math.min(1, (phase - before) / movingDuration)
+        local rootX, rootZ = lerp(oldX, e.x, moved), lerp(oldZ, e.z, moved)
+        local tipX = lerp(x1 + dx1 * reach, x2 + dx2 * reach, t)
+        local tipZ = lerp(z1 + dz1 * reach, z2 + dz2 * reach, t)
+        local height = Ground.height(g.world) + lerp(y1, y2, t)
+        hit = W.visible(g.world, rootX, rootZ, tipX, tipZ, height, height)
+      end
+      if hit then
         local fraction = (t1 - before + (t2 - t1) * t) / duration
         contact.fraction = fraction
         contact.time = fraction * duration

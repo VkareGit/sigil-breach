@@ -49,8 +49,10 @@ World.handlers = {
     local e = ev.enemy
     BodyVoices.interrupt(A, g, e)
     stopWarning(e)
-    warningLayer(g, e, ev.attack.windupSound or sounds(e).windup or 'growl', 0.7, 3)
-    warningLayer(g, e, ev.attack.windupVoice, 0.58, 2)
+    local warns = ev.attack.warning ~= false
+    local material = ev.attack.windupSound or (warns and (sounds(e).windup or 'growl'))
+    warningLayer(g, e, material, 0.7, warns and 3 or 0)
+    warningLayer(g, e, ev.attack.windupVoice, 0.58, warns and 2 or 0)
   end,
   AttackCancelled = function(_, ev)
     stopWarning(ev.enemy)
@@ -79,10 +81,10 @@ World.handlers = {
       e.z,
       Context.viewer(g),
       0.65,
-      2,
+      ev.attack.warning == false and 0 or 2,
       g.world
     )
-    warningLayer(g, e, ev.attack.releaseVoice, 0.58, 2)
+    warningLayer(g, e, ev.attack.releaseVoice, 0.58, ev.attack.warning == false and 0 or 2)
   end,
   ChargeBlocked = function(g, ev)
     A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.5)
@@ -91,7 +93,12 @@ World.handlers = {
   Landed = function(g, ev)
     local e, p = ev.enemy, Context.viewer(g)
     FX.emit(g, 'stone', e.x, K.dustHeight, e.z, ev.heavy and 0.75 or 0.5)
-    A.playAt('thud', e.x, e.z, p, ev.heavy and 0.55 or 0.42)
+    local voice = e.attackSpec and e.attackSpec.landingSound
+    if voice then
+      A.playAt(voice, e.x, e.z, p, ev.heavy and 0.55 or 0.42, 1, g.world)
+    else
+      A.playAt('thud', e.x, e.z, p, ev.heavy and 0.55 or 0.42)
+    end
     Recipient.each(g, function(personal, actor)
       local d = math.sqrt((actor.x - e.x) ^ 2 + (actor.z - e.z) ^ 2)
       if d < K.tremorReach then

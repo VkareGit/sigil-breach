@@ -87,8 +87,11 @@ local function crowded(g, e)
   local count = 0
   for _, other in ipairs(Pools.of(g, 'enemies')) do
     if
-      other.hp > 0
-      and (other.ai == 'windup' or other.ai == 'strike')
+      other ~= e
+      and other.hp > 0
+      -- The connecting beat is still the same commitment. Releasing its
+      -- slot here lets a newcomer enter before the next blow resumes.
+      and (other.ai == 'windup' or other.ai == 'strike' or (other.ai == 'recover' and other.chain ~= nil))
       and other.target == e.target
     then
       count = count + 1

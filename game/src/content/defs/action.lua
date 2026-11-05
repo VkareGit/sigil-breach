@@ -98,6 +98,8 @@ Action.common = {
     desc = 'share of the windup after which a turning body stops turning',
   },
   sound = { type = 'string' },
+  warning = { type = 'boolean', desc = 'false for movement without a damaging release' },
+  landingSound = { type = 'string', desc = 'physical body contact after an airborne action' },
   releaseVoice = { type = 'string', desc = 'body effort layered with released material' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   windupVoice = {

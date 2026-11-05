@@ -2,87 +2,84 @@
 
 ## Zakres i status
 
-**2026-11-05: dopracowanie dźwięku Stolasa, Iron Thralla i Plague Gardenera. Wdrożone; pełna brama Linux zielona, odsłuch właściciela otwarty.**
-Polecenie właściciela obejmuje śmierć, różne głosy czynności oraz słyszalne
-ataki podczas walki. To zakres audio; nie zmieniamy wyglądu, balansu, SI,
-trafień, zapisów, HUD-u ani pozostałych stworów. Commit po zielonej pełnej
-bramie Linux; bez push. Poprzedni PLAN zachowano w całości w HISTORII.
+**2026-11-05: Ember Thrall — zaakceptowane wdrożenie zakończone i zweryfikowane na Linuxie.**
+Zachować rolę najliczniejszego, lekkiego przeciwnika wręcz, 360 HP,
+obrażenia i podstawowe czasy ataków. Dopracować gesty, odwrót, przejścia,
+efekty i pełny głos ciała. Bez nowego czaru i reinterpretacji wyglądu.
+Właściciel zaakceptował także naprawę wspólnego limitu atakujących podczas
+kontynuacji serii. Nie stroić innych stworów; sprawdzić regresje ich walki.
+Po wymaganej zielonej bramie commit bez ponownego pytania, bez push.
+Poprzedni PLAN zachowano w całości w HISTORII, wraz z analizą Embera.
 
 ## Plan wykonania
 
-1. Zachować próbki i pomiary sprzed zmiany; testem odtworzyć pojedynczy
-   wariant śmierci, brak głosu zależnego od ruchu/odpoczynku i słabe zapowiedzi
-   z dystansu walki. Prześledzić priorytety, wyciszanie i recykling Source.
-2. Trzy odrębne tożsamości: Stolas — gardłowa inkantacja i urywany lament;
-   Iron — zduszona ludzka agonia pod żelazem; Gardener — mokry oddech,
-   dławiący wysiłek i gasnące ciało. Dodać warianty śmierci i głosów ciała
-   oraz krótkie oddechy po wysiłku. Ciemna barwa bez ostrych skoków i pisku.
-3. Podnieść czytelność własnych ostrzeżeń/wykonań tych trzech stworów przez
-   mastering, poziom i tłumienie dystansu. Zachować pozycję źródła,
-   tłumienie przez ściany i suwaki. Wspólne dźwięki innych stworów bez zmian.
-4. Warianty nagrań wybiera wspólny odtwarzacz, bez powtórzenia pod rząd
-   i bez losowań symulacji. Nadal najwyżej 28 aktywnych i 28 buforowanych
-   głosów. Sprawdzić przerwanie, śmierć, pauzę, zmianę świata i tłum stworów.
-5. Porównać PCM i rzeczywiste poziomy runtime przed/po, wykonać powiązane
-   testy audio oraz pełne `scripts/linux/TEST.sh All --timeout 1800`.
-   Golden ma pozostać niezmieniony. Zapisać ograniczenia i zrobić commit.
-
-## Inspiracje i źródła
-
-- Bethesda, [chór DOOM Eternal](https://bethesda.net/en-EU/news/heavy-metal-choir):
-  inspiracja ekspresją ludzkiego głosu, nie kopiowanie dźwięków gry.
-- GDC, [The Mix: Understanding Your Tools](https://gdcvault.com/play/1024604/The-Mix-Understanding-Your-Tools):
-  dostępny opis wskazuje na równowagę treści i narzędzi miksu; nie traktujemy
-  samego podbicia głośności jako dowodu dobrego brzmienia.
-- Źródła nagrań CC0 i przetwarzanie zapisane przy próbkach w provenance.json.
-  Groza potępionych z fresku ma wynikać z oddechu, wysiłku i urwania głosu,
-  bez zmieniania zwykłych mobów w ciągle krzyczący chór bossów.
+1. Zachować dowody przed zmianą. Dodać czerwone testy limitu serii,
+   mylącej prezentacji odskoku i brakujących ról audio.
+2. Domknąć rezerwację miejsca przez serię, zachowując jej rytm oraz
+   zwalnianie po przerwaniu, śmierci i utracie możliwości kontynuacji.
+   Sprawdzić grupy, różnych odbiorców ataku i zapis w przerwie serii.
+3. Rozróżnić gesty drugiego pazura, ciosu po skoku i odwrotu istniejącymi
+   zaakceptowanymi klatkami. Dopasować powrót do chodu. Odwrót nie może
+   pokazywać ani odtwarzać ostrzeżenia o ciosie. Nie zmieniać zegarów SI.
+4. Sprawdzić kontakt pazurów, znak lądowania i fizyczne punkty efektów;
+   stosować oszczędne, zaakceptowane malowane efekty. Zachować paletę,
+   fakturę, twarz, anatomię, kontur i skalę detalu. Chroniony HUD poza zakresem.
+5. Własny suchy, chrapliwy głos potępieńca: oddech, pościg, alarm,
+   wysiłek, powrót, ból i trzy śmierci; oddzielnie materiał pazurów,
+   wybicia, odwrotu i lądowania. Warianty, cisza i budżet tłumu; źródła,
+   licencje i przetwarzanie zapisane przy nagraniach. Nie ruszać wspólnych
+   próbek używanych przez inne postacie.
+6. Sprawdzić zgodność masek, anatomii i cieni; wykonać trzy kontrole
+   grafiki: klatki obok bazy w tej samej skali, rendery blisko/średnio/daleko
+   w jednym świetle, rzeczywiste przejścia stanów. Audio sprawdzić
+   technicznie i przygotować odsłuch właściciela; pomiar nie jest odsłuchem.
+7. Próby 60/120/240 Hz, unik/skok/chybienie, ściany/kolumny/wysokości,
+   przerwanie/śmierć, zapis/Continue/odpoczynek, grupy mieszane i koszty
+   większej populacji. Testy osobno i razem. Golden: dwa identyczne przebiegi
+   oraz uzasadnienie tylko świadomej zmiany symulacji; Windows bez aktualizacji.
+8. Pełne `scripts/linux/TEST.sh All --timeout 1800`, dokończenie pozostałych
+   bram po ewentualnym błędzie, przegląd diffu, ZMIANY/ODBIOR i commit.
 
 ## Postęp
 
-- Stan wejściowy `31af872`, repo czyste, poprzednia pełna brama Linux PASS
-  (7035 Mechanics/Assets, Input 50, Render, Architecture i Tools).
-- Potwierdzono: po jednej próbce śmierci; oddech/pomruk przełączane bez
-  kontekstu czynności; liniowe tłumienie 0,13 mocno zmniejsza obecność z 10 m.
-  Zachowano kopie wszystkich 50 istniejących próbek trzech postaci i ich PCM.
-- Odbiór emocji/barwy przez właściciela pozostaje oddzielny od pomiarów.
-  Środowisko agenta nie udostępnia wiarygodnego odsłuchu; testy techniczne
-  nie będą przedstawiane jako ocena słuchowa.
+- Stan wejściowy `304388d`, wersja 0.45, repo czyste. Historyczne All PASS:
+  7328 Mechanics/Assets, Input 50, Architecture, Render i Tools; świadectwa
+  odpowiadają obecnemu fingerprintowi głównego katalogu gry.
+- Analiza: 90 prób czynności/reakcji, 18 prób grup, 94 kadry badawcze.
+  Istniejące `attack-contact` PASS 30, `ability-art` PASS 85.
+  Nowa sonda: 6/6 prób ośmiu Emberów osiąga czterech atakujących przy limicie 3.
+  Odwrót używa gestu i odgłosu ciosu; brak własnych ról ciała i śmierci.
+- Dowody w zewnętrznym `work/qa-direct/ember-*-20261105*`; punkt odniesienia
+  czynności to `ember-analysis-20261105-r2` (pierwsza sonda miała niewłaściwe
+  początkowe ustawienie kierunku). Własny klon pomiarowy usunięto.
+- Pomiar wejściowy p95 aktualizacji CPU: 1/8/24/64 postacie —
+  0,4006/0,9012/1,2644/2,2227 ms. Jedna seria, bez odtwarzania audio,
+  bez GPU present; nie jest to FPS. Kod i zasoby wykonawcze zgodne z HEAD.
+- Testy przed/po: `attack-slots` PASS 11, `ember-thrall` PASS 117,
+  `creature-audio-mix` PASS 375. Zachowane czerwone próby rezerwacji,
+  odwrotu, brakujących ról audio, kontaktu przez ścianę i nakładania sygnału.
+  Pounce przez kamień: 34 → 0 HP; żywy wspólny cel w grupie ośmiu Emberów:
+  4 → 3 atakujących, w grupie mieszanej 4–5 → 3. Pośmiertną końcówkę klatki
+  raportuje osobny licznik; nie posłużyła do maskowania wyniku.
+- Cztery PNG postaci, maski, anatomia, baza i użyty istniejący efekt pazurów
+  są identyczne bajtowo. Trzy kontrole grafiki zapisane w ODBIOR: porównanie
+  źródeł/bazy, 174 kadry blisko/średnio/daleko, rzeczywiste przejścia ataków
+  oraz dodatkowe 36 kadrów trafienia i śmierci. Chroniony HUD bez zmian.
+- 35 własnych próbek z wariantami; trzy śmierci, oddechy, konteksty ruchu,
+  wysiłek i materiały. Końcowe 252 modele miksu z pełną muzyką i bronią
+  bez przesterowania (szczyt 0,975). Odsłuch w `ember-audio-final-20261105`.
+- Dwa identyczne golden i późniejszy PASS; zaktualizowany tylko Linux.
+  Pełne All PASS: Architecture 695 Lua, Mechanics/Assets 7572, Input 50,
+  Render i Tools. Dziewięć stabilnych świadectw, 701 s. Raporty zachowane
+  w `ember-full-gate-20261105`; komplet wyników w bieżącym ODBIOR HISTORII.
+- Powtórzony pomiar w izolowanym klonie (po trzy przebiegi): p95 CPU przy
+  64 ciałach 1,7914 → 1,8778 ms, przy 24: 0,9782 → 1,1587 ms. Bez audio
+  i GPU present; nie jest to pomiar FPS. Klon i jego katalog roboczy usunięto.
+  Nie zmieniano plików gry podczas testów; końcowy diff przejrzany.
 
-- Wdrożono 91 nagrań, trzy śmierci na postać, 35 wariantów i sześć głosów
-  kontekstu. Miks ostrzeżeń i wysiłku jest przestrzenny, z większą obecnością
-  na dystansie. 442 celowane sprawdzenia PASS; 3 cykle natywnego zwolnienia
-  i ponownego wczytania wariantów PASS. Po wznowieniu usunięto przyczynę błędu izolacji testu; pełna brama PASS.
+## Odbiór i ograniczenia
 
-## Wznowienie i końcowa weryfikacja
-
-- Przerwę właściciela zakończono 2026-11-05. Osobna natywna sonda
-  potwierdziła przyczynę błędu: test miksu pozostawiał 28 bezczynnych Source,
-  przez co następny test nie miał wolnego miejsca do ponownego użycia
-  rewolweru. Sam mechanizm puli wykonywał obowiązującą regułę limitu.
-- Nowy test otrzymał własny stan odtwarzania i zwalnia swoje Source także
-  po błędzie, po czym przywraca wcześniejszy stan. Sonda przed/po: FAIL
-  (pula 28, reuse=false) → PASS (pula wraca do 0, reuse=true). Nie osłabiono
-  istniejącego testu i nie zmieniono reguł odtwarzacza dla tego problemu.
-- Input osobno PASS (50), Render i Tools PASS. Końcowe All PASS:
-  Architecture (692 Lua), Mechanics/Assets (7328), Input (50), Render i Tools;
-  692.47 s, dziewięć świadectw z jednym stabilnym fingerprintem. Golden
-  PASS bez zmiany wzorców. Przegląd diffu zakończony; commit bez push.
-- Rozszerzona próba miksu: 178 kombinacji trzech stworów, obu broni i ich
-  nagrań, dystansów 0/4/10 m i pełnej muzyki walki bez ściszenia ostrzegawczego.
-  Brak próbek przekraczających zakres; najwyższy szczyt 0,978 przy master 0,7.
-  To wybrane scenariusze sumowania PCM, nie gwarancja dla dowolnej walki.
-- 41 nowych plików zajmuje 3,57 MiB; statyczne warianty wczytywane raz,
-  budżet odtwarzanych i buforowanych głosów nadal 28+28. Sprawdzone formaty,
-  kompletność oraz SHA-256 wszystkich 91 WAV w plikach pochodzenia.
-- Dowody w `~/Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct`:
-  trio-audio-before, trio-audio-after-r2, trio-audio-isolation-before/after,
-  trio-audio-mix-evidence, trio-audio-paused oraz trio-audio-final-gates.
-
-## Odbiór
-
-Do odsłuchu właściciela: charakter trzech głosów, śmierci i obecność ataków
-w rzeczywistej walce. Techniczne PASS nie potwierdza emocji ani wrażenia grozy.
-Próbka `trio-audio-mix-evidence/death-performances.wav`: Stolas → Iron →
-Gardener, po trzy śmierci bez muzyki. Windows nie uruchamiano. Nie zmieniono
-wyglądu ani reguł walki. Dalsze postacie czekają na osobne zlecenie.
+Odsłuch barwy, grozy i obecności Embera należy do właściciela. Środowisko
+agenta nie udostępnia wiarygodnego odsłuchu. Windows poza zakresem.
+Odbiór dźwięku trzech poprzednich postaci pozostaje osobnym otwartym punktem
+z zakończonego planu; bieżące zlecenie nie zmienia ich próbek.

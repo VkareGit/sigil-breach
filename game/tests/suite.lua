@@ -196,6 +196,16 @@ Suite.registry = {
     module = 'tests.cases.souls_engine',
   },
   {
+    id = 'attack-slots',
+    title = 'Committed strings retain their attack slot',
+    module = 'tests.cases.attack_slots',
+  },
+  {
+    id = 'ember-thrall',
+    title = 'Common thrall movement, gestures and voice',
+    module = 'tests.cases.ember_thrall',
+  },
+  {
     id = 'v12-pack',
     title = 'One whole content pack through public registries',
     module = 'tests.cases.v12_pack',

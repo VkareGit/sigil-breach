@@ -79,6 +79,10 @@ Creature.appearance = Schema:new('appearance', {
   cut = { type = 'string', desc = 'painted physical sweep sequence' },
   windupMark = { type = 'string', default = 'circle', desc = 'painted ground preparation' },
   counterMark = { type = 'string', default = 'circle', desc = 'painted counter window' },
+  landingMark = {
+    type = 'boolean',
+    desc = 'false when the physical body and its shadow describe the leap',
+  },
   shadow = { type = 'number', default = 1, min = 0, desc = 'shadow scale' },
   stature = { type = 'string', default = 'normal', values = { 'normal', 'large' } },
   casts = { type = 'table', desc = 'attack ids that glow as a spell in wind-up (all = every)' },

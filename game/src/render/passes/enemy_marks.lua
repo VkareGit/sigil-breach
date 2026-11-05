@@ -44,7 +44,7 @@ function Pass.draw(r, g)
       if e.ai == 'windup' and open and e.windup + (e.holdLeft or 0) <= open then
         HazardArt.circle(r, g, e, look.counterMark, Rules.radius(e) * COUNTER_RING, 1)
       end
-      if e.ai == 'windup' then
+      if e.ai == 'windup' and (not e.attackSpec or e.attackSpec.warning ~= false) then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         local step = math.min(2, math.floor(progress * 3))
         HazardArt.circle(r, g, e, look.windupMark, 0.42 + step * 0.175, 1)
@@ -53,7 +53,13 @@ function Pass.draw(r, g)
       -- player always sees where the arc ends (dodgeable, never a surprise).
       -- The ring is the real reach: landing radius plus the knight's body.
       local spec = e.attackSpec
-      if spec and Action.trait(spec, 'lands') and (e.ai == 'windup' or e.leaping) and e.aimX then
+      if
+        look.landingMark ~= false
+        and spec
+        and Action.trait(spec, 'lands')
+        and (e.ai == 'windup' or e.leaping)
+        and e.aimX
+      then
         local reachLand = spec.landRadius + Characters.of(Context.actor(g)).body.radius
         landing.x, landing.z, landing.level = e.aimX, e.aimZ, e.aimLevel
         HazardArt.circle(r, g, landing, 'circle', reachLand * 1.04, 1)

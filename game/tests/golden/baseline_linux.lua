@@ -1,11 +1,12 @@
--- Linux: approved Plague Gardener rework, 2026-11-05.
--- Physical retch/sowing, consumed owned gardens, slower turn and original-pose
--- timing deliberately change simulation and contacts. Two identical native runs.
+-- Linux: approved Ember Thrall refinement, 2026-11-05.
+-- Strings retain their attack slots; connected melee cannot reach through stone.
+-- Existing pose sequences deliberately change painted hit surfaces during preparation
+-- and recovery. Two identical native runs; Windows baseline remains unverified.
 return {
-  playtest = '1acdbfc7/e459aff1',
-  human = 'e150ef62/dd3f8dbf',
-  drill = 'c01ecbea/7062f8b8',
-  playtestContacts = '65449712/132',
-  humanContacts = 'f9d7aa69/191',
-  drillContacts = '73abe184/368',
+  playtest = '4646b5e7/2c3dd061',
+  human = 'a764394a/0dc65dff',
+  drill = '55591424/79ce24c1',
+  playtestContacts = '9959d9ff/159',
+  humanContacts = '6483b82f/172',
+  drillContacts = '9bf50ea7/345',
 }

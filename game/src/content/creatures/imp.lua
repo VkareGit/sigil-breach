@@ -21,6 +21,9 @@ return Creature.define({
   appearance = {
     portal = { 1, 0.42, 0.14 },
     art = { leap = 'leap' },
+    -- A bodily leap follows its shadow; the aimed point can be stopped by contact.
+    landingMark = false,
+    cut = 'iron',
   },
   -- Three clean volleys. Its lesson is the wait: the late claw, and a shot in the beat
   -- before it turns the claw aside.
@@ -40,7 +43,16 @@ return Creature.define({
     { when = 'reloading', attack = 'leap', rest = 6 },
     { when = 'drinking', attack = 'leap', rest = 6 },
   },
-  sounds = { step = 'cloven_step', alert = 'snarl', windup = 'snarl', strike = 'claw' },
+  sounds = {
+    step = 'cloven_step',
+    alert = 'ember_alert',
+    windup = 'ember_prepare',
+    strike = 'ember_claw',
+    breath = 'ember_breath',
+    murmur = 'ember_murmur',
+    hurt = 'ember_hurt',
+    death = 'ember_death',
+  },
   tactics = {
     roll = true,
     moves = {
@@ -61,6 +73,9 @@ return Creature.define({
     -- Every second claw goes on: a beat, then the late one.
     Action.lunge({
       id = 'claw',
+      windupSound = 'ember_prepare',
+      windupVoice = 'ember_claw_effort',
+      sound = 'ember_claw',
       range = 2.05,
       windup = 0.54,
       lead = 0.24,
@@ -83,6 +98,10 @@ return Creature.define({
     -- drops it out of the sky.
     Action.leap({
       id = 'leap',
+      windupSound = 'ember_prepare',
+      windupVoice = 'ember_leap_effort',
+      sound = 'ember_takeoff',
+      landingSound = 'ember_landing',
       minRange = 2.05,
       range = 7.5,
       rest = 1.8,
@@ -98,6 +117,9 @@ return Creature.define({
     -- the gap, so the answer is across it, not away.
     Action.sweep({
       id = 'pounce',
+      windupSound = 'ember_prepare',
+      windupVoice = 'ember_pounce_effort',
+      sound = 'ember_rake',
       range = 6,
       windup = 0.3,
       turn = 8,
@@ -120,6 +142,9 @@ return Creature.define({
     -- (0.42, the owner: an ordinary body that stands with its arm up reads as stuck).
     Action.lunge({
       id = 'claw-late',
+      windupSound = 'ember_prepare',
+      windupVoice = 'ember_late_effort',
+      sound = 'ember_claw',
       range = 2.8,
       windup = 0.42,
       hold = { 0, 0, 0.3 },
@@ -136,6 +161,8 @@ return Creature.define({
     -- Out of the reach of the answer to a long string.
     Action.hop({
       id = 'hop-back',
+      warning = false,
+      sound = 'ember_backstep',
       range = 2.4,
       windup = 0.12,
       speed = 7,

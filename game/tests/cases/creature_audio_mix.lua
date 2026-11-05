@@ -33,7 +33,7 @@ function T.run(Game)
   A.muted, A.levels.effects = false, 1
   local ok, err = xpcall(function()
     drain()
-    for _, kind in ipairs({ 'stolas', 'armored', 'buer' }) do
+    for _, kind in ipairs({ 'stolas', 'armored', 'buer', 'imp' }) do
       local sounds = Enemies[kind].sounds
       local recipe = Recipes[sounds.death]
       check(kind .. ' has three death performances', #(recipe.variants or {}) == 2)
@@ -95,6 +95,8 @@ function T.run(Game)
       'iron_slam_effort',
       'gardener_retch_prepare',
       'gardener_sow_release',
+      'ember_claw_effort',
+      'ember_leap_effort',
     }) do
       local data = require('src.audio.voice_data').render(name, Recipes[name], A.rate)
       local sum = 0
@@ -111,6 +113,7 @@ function T.run(Game)
       require('src.audio.owl_voices'),
       require('src.audio.iron_voices'),
       require('src.audio.garden_voices'),
+      require('src.audio.ember_voices'),
     }) do
       for name, recipe in pairs(voices) do
         local paths, hashes = { recipe.path }, {}
@@ -146,6 +149,44 @@ function T.run(Game)
         drain()
         A.levels.effects = 1
       end
+    end
+    do
+      -- Three simultaneous reload answers can align their recordings. Test
+      -- the actual runtime gains with the loud recorded Exorcist take.
+      local VoiceData = require('src.audio.voice_data')
+      local throat = VoiceData.render('ember_leap_effort', Recipes.ember_leap_effort, A.rate)
+      local cloth = VoiceData.render('ember_prepare', Recipes.ember_prepare, A.rate)
+      local shot = VoiceData.render('shot', { path = 'assets/sounds/exorcist/B1-3.wav' }, A.rate)
+      local voice = A.playAt('ember_leap_effort', 0, 0, { x = 0, z = 0, yaw = 0 }, 0.58, 2)
+      local throatGain = voice:getVolume()
+      drain()
+      voice = A.playAt('ember_prepare', 0, 0, { x = 0, z = 0, yaw = 0 }, 0.7, 3)
+      local clothGain = voice:getVolume()
+      drain()
+      local peak, start = 0, math.floor(A.rate * 0.15)
+      for i = 0, math.max(throat:getSampleCount(), cloth:getSampleCount(), shot:getSampleCount() + start) - 1 do
+        local sample = 0
+        if i < throat:getSampleCount() then
+          sample = sample + throat:getSample(i) * throatGain * 3
+        end
+        if i < cloth:getSampleCount() then
+          sample = sample + cloth:getSample(i) * clothGain * 3
+        end
+        if i >= start and i - start < shot:getSampleCount() then
+          sample = sample
+            + shot:getSample(i - start) * 0.95 * require('src.content.sound_sets').cues.shot.gain
+        end
+        peak = math.max(peak, math.abs(sample * 0.7))
+      end
+      throat:release()
+      cloth:release()
+      shot:release()
+      check(
+        'three aligned Ember warnings leave headroom for Exorcist (peak '
+          .. string.format('%.3f', peak)
+          .. ')',
+        peak < 1
+      )
     end
     -- Defaults must not rebalance shared spells or the knight's weapon sets.
     local generic = A.playAt('cast', 10, 0, { x = 0, z = 0, yaw = 0 }, 0.7)

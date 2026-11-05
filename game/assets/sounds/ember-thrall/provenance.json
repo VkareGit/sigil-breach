@@ -1,0 +1,540 @@
+{
+  "sources": [
+    {
+      "author": "Ogrebane",
+      "title": "Monster Sound Effects Pack",
+      "url": "https://opengameart.org/content/monster-sound-effects-pack",
+      "license": "CC0",
+      "archive_sha256": "f39c5ae356b1fc01284057ee48e35ec1a52fcc84bfa959b77d0a696adc8459e4"
+    },
+    {
+      "author": "ArcadeParty",
+      "title": "Zombie / Skeleton / Monster Voice Effects",
+      "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+      "license": "CC0"
+    }
+  ],
+  "processing": "Mono 44100 Hz PCM16; per-take pitch and offsets, 130 Hz highpass / 3000 Hz lowpass; quiet 31 ms reflection at .07; crest shaping x/sqrt(1+(x/(k*RMS))^2), k=1.4 effort / 2 body / .6 preparation / 1.8 material, two 2800 Hz smoothing stages, 12/65 ms fades. Peak <= .30 effort, .38 body, .18 preparation, .32 physical material. Physical materials are original deterministic filtered-noise fibre/ground gestures generated for SIGIL: BREACH, not recordings from another game. Listening approval remains with the owner.",
+  "cues": {
+    "ember_breath": {
+      "source": "monster-6.wav",
+      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+      "pitch": 0.94,
+      "offset": 0,
+      "sha256": "fb740393f14eb773761603a22c3c818cb57f42bd023183e61f847b14c4e11185",
+      "peak": 0.2235354575240625,
+      "rms": 0.08,
+      "duration": 1.1
+    },
+    "ember_breath-2": {
+      "source": "monster-8.wav",
+      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+      "pitch": 0.97,
+      "offset": 0.12,
+      "sha256": "a18e7a74d036df5c159feb3dfee1df35022e4e600ba35eda9d598751ff952cda",
+      "peak": 0.2218836074500212,
+      "rms": 0.08,
+      "duration": 1.1
+    },
+    "ember_murmur": {
+      "source": "monster-8.wav",
+      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+      "pitch": 0.88,
+      "offset": 0,
+      "sha256": "3a8667bd61b7810296d2208a36f8c088e47e38a6178304a2cd258445e4132828",
+      "peak": 0.21727362801087913,
+      "rms": 0.08,
+      "duration": 1.15
+    },
+    "ember_murmur-2": {
+      "source": "monster-6.wav",
+      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+      "pitch": 0.88,
+      "offset": 0.1,
+      "sha256": "7c399dd9415fce8581cc767ef5e4dc6cae1524fd7b07c987eae7a549a84510f5",
+      "peak": 0.22185638767209184,
+      "rms": 0.08,
+      "duration": 1.15
+    },
+    "ember_move": {
+      "source": "monster-1.wav",
+      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+      "pitch": 1.02,
+      "offset": 0,
+      "sha256": "37b21632d8e19ddff426fd845d9ef139659be7c800f291f6f289fe3891e21b32",
+      "peak": 0.2639557987059589,
+      "rms": 0.095,
+      "duration": 0.66
+    },
+    "ember_move-2": {
+      "source": "monster-10.wav",
+      "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+      "pitch": 1.01,
+      "offset": 0,
+      "sha256": "d061d9bddff490d65d5f4cbf30d75cf70c755277683e13b630207f3e8131a991",
+      "peak": 0.27163679787095774,
+      "rms": 0.095,
+      "duration": 0.66
+    },
+    "ember_recover": {
+      "source": "monster-7.wav",
+      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+      "pitch": 1.0,
+      "offset": 0,
+      "sha256": "40a14fb79d39f0199aae600768315a97b26ac881d718a3ab263fabc69070d82c",
+      "peak": 0.2716449438624286,
+      "rms": 0.095,
+      "duration": 0.48
+    },
+    "ember_recover-2": {
+      "source": "monster-5.wav",
+      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+      "pitch": 0.96,
+      "offset": 0,
+      "sha256": "0a300f07f40fb025a65b75eee14725575bf5d1e5d73116d53dd71cfd50053715",
+      "peak": 0.3232601616360053,
+      "rms": 0.09500000000000001,
+      "duration": 0.48
+    },
+    "ember_alert": {
+      "source": "monster-8.wav",
+      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+      "pitch": 1.04,
+      "offset": 0,
+      "sha256": "a41c636de5a16eb636d4894321d207dea8c2a6c549814ee148d4c8c9ca8025c2",
+      "peak": 0.29658815298132024,
+      "rms": 0.115,
+      "duration": 0.85
+    },
+    "ember_alert-2": {
+      "source": "monster-6.wav",
+      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+      "pitch": 1.06,
+      "offset": 0,
+      "sha256": "5f5e744eb5f4752aa121b089cfea2689d2a9df402e618a4ab321f289ce7da938",
+      "peak": 0.31431177563688845,
+      "rms": 0.115,
+      "duration": 0.85
+    },
+    "ember_hurt": {
+      "source": "monster-3.wav",
+      "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
+      "pitch": 0.96,
+      "offset": 0,
+      "sha256": "4361b38808d328a7280da33647e15f6a7b389b3e5b99a61859e0f03a49fb2dd3",
+      "peak": 0.36615533612234274,
+      "rms": 0.115,
+      "duration": 0.43
+    },
+    "ember_hurt-2": {
+      "source": "monster-2.wav",
+      "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
+      "pitch": 0.97,
+      "offset": 0,
+      "sha256": "eb67e9ae1cd5e6037529cbb058ca1ef042ea80558a6c7052dc7ada1a4437f7e7",
+      "peak": 0.3350235264634253,
+      "rms": 0.11499999999999999,
+      "duration": 0.43
+    },
+    "ember_death": {
+      "source": "monster-8.wav",
+      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+      "pitch": 0.86,
+      "offset": 0,
+      "layer": {
+        "source": "humanDeath2.wav",
+        "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+        "pitch": 0.93,
+        "gain": 0.3
+      },
+      "sha256": "c2492dd3eae82efc782017f8474d8b4a0f42e0b29f662d008d7fea1f18ce8ce6",
+      "peak": 0.36146830579291933,
+      "rms": 0.125,
+      "duration": 1.55
+    },
+    "ember_death-2": {
+      "source": "monster-6.wav",
+      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+      "pitch": 0.84,
+      "offset": 0,
+      "layer": {
+        "source": "zombieDeath1.wav",
+        "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
+        "pitch": 0.98,
+        "gain": 0.3
+      },
+      "sha256": "d18e81254c8345a9f79f89dba4378b8a824f83217335023eb081971226ed39de",
+      "peak": 0.3680074387211413,
+      "rms": 0.12499999999999999,
+      "duration": 1.55
+    },
+    "ember_death-3": {
+      "source": "monster-1.wav",
+      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+      "pitch": 0.9,
+      "offset": 0,
+      "layer": {
+        "source": "humanDeath1.wav",
+        "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "pitch": 1.01,
+        "gain": 0.3
+      },
+      "sha256": "eb993c08c20b1eb092c9715ff6e8ae91f20a36eb3c88c6f2302fe0bf8c3b56d2",
+      "peak": 0.38,
+      "rms": 0.11159005130100345,
+      "duration": 1.55
+    },
+    "ember_claw_effort": {
+      "source": "monster-1.wav",
+      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+      "pitch": 1.03,
+      "offset": 0.05,
+      "sha256": "b2ce40cf71b0420cb7ce6c53947fb8068572c606c04e05159aa70c00a01ce6b9",
+      "peak": 0.3,
+      "rms": 0.13697477219864956,
+      "duration": 0.48
+    },
+    "ember_claw_effort-2": {
+      "source": "monster-10.wav",
+      "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+      "pitch": 1.04,
+      "offset": 0.04,
+      "sha256": "be7789f644915a0c38db81cca91682ad66ed5a4da0859bae202ecf464ab4e561",
+      "peak": 0.3,
+      "rms": 0.13005580425624902,
+      "duration": 0.48
+    },
+    "ember_late_effort": {
+      "source": "monster-5.wav",
+      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+      "pitch": 1.01,
+      "offset": 0,
+      "sha256": "24be6c54870590130dd44c5891285d0f99038c8eda15d99f945a979b8233303a",
+      "peak": 0.3,
+      "rms": 0.10969369112263881,
+      "duration": 0.38
+    },
+    "ember_late_effort-2": {
+      "source": "monster-7.wav",
+      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+      "pitch": 1.05,
+      "offset": 0,
+      "sha256": "55d33c721c9618e9af3ab7e17f44af8a92b9f911a209b1850d01ea9daed1cd86",
+      "peak": 0.3,
+      "rms": 0.1296180904315225,
+      "duration": 0.38
+    },
+    "ember_leap_effort": {
+      "source": "monster-4.wav",
+      "source_sha256": "23cb32d814846c22e5141e69f90814d9b3d9e283219e48fbb798f19d1a1bb35f",
+      "pitch": 1.04,
+      "offset": 0,
+      "sha256": "07c29e84c021962e13c2b80443864c408ab090ca749ed1e072567476453b49c4",
+      "peak": 0.3,
+      "rms": 0.12427082721943987,
+      "duration": 0.4
+    },
+    "ember_leap_effort-2": {
+      "source": "monster-9.wav",
+      "source_sha256": "a4aeacd88e614fccf15e9c47b4258a76811f3c77a5d7402b7ceb1a89f5f367fc",
+      "pitch": 1.06,
+      "offset": 0.03,
+      "sha256": "bb351e81b2e5205f100e07a3bb928828192700cfb8609b16de4b9a8634b09464",
+      "peak": 0.3,
+      "rms": 0.1350331374272584,
+      "duration": 0.4
+    },
+    "ember_pounce_effort": {
+      "source": "monster-2.wav",
+      "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
+      "pitch": 1.04,
+      "offset": 0,
+      "sha256": "ecd4a92fe40d85c46649e41a232a6f99f95b24f632a11a805a09a6535778dc64",
+      "peak": 0.3,
+      "rms": 0.13232719653301198,
+      "duration": 0.28
+    },
+    "ember_pounce_effort-2": {
+      "source": "monster-3.wav",
+      "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
+      "pitch": 1.02,
+      "offset": 0,
+      "sha256": "3a37da0dac39efbacd492d3a668a69d0596f47f11fa76c4c714869faeebf9b29",
+      "peak": 0.3,
+      "rms": 0.12004553970250306,
+      "duration": 0.28
+    },
+    "ember_prepare": {
+      "synthetic": true,
+      "seed": 711,
+      "bursts": [
+        [
+          0.03,
+          0.19,
+          0.5
+        ],
+        [
+          0.15,
+          0.16,
+          0.7
+        ]
+      ],
+      "low_weight": 0.35,
+      "sha256": "398c633b03a2d36d69ced8f10a2300941983a67e3ff2195e973232383fbe3e2c",
+      "peak": 0.1763408201030929,
+      "rms": 0.07,
+      "duration": 0.38
+    },
+    "ember_prepare-2": {
+      "synthetic": true,
+      "seed": 712,
+      "bursts": [
+        [
+          0.03,
+          0.19,
+          0.5
+        ],
+        [
+          0.15,
+          0.16,
+          0.7
+        ]
+      ],
+      "low_weight": 0.35,
+      "sha256": "bb742cdce72cee7b37b4f12171d23a37f6e84ee95d5f3be49bbfb9eb5e746897",
+      "peak": 0.18,
+      "rms": 0.06886419707554417,
+      "duration": 0.38
+    },
+    "ember_claw": {
+      "synthetic": true,
+      "seed": 721,
+      "bursts": [
+        [
+          0.02,
+          0.13,
+          1
+        ],
+        [
+          0.075,
+          0.11,
+          0.6
+        ]
+      ],
+      "low_weight": 0.4,
+      "sha256": "ad420ab0c605e156c90446bdd45335de1df769da90eec3c9a23a4ee7b48b8af7",
+      "peak": 0.32,
+      "rms": 0.08550024779054191,
+      "duration": 0.24
+    },
+    "ember_claw-2": {
+      "synthetic": true,
+      "seed": 722,
+      "bursts": [
+        [
+          0.02,
+          0.13,
+          1
+        ],
+        [
+          0.075,
+          0.11,
+          0.6
+        ]
+      ],
+      "low_weight": 0.4,
+      "sha256": "a3971739f140585d16c7075c078a886ff70b01de83c0f9c0bc656c9cdddb6397",
+      "peak": 0.32000000000000006,
+      "rms": 0.08914095385868642,
+      "duration": 0.24
+    },
+    "ember_rake": {
+      "synthetic": true,
+      "seed": 731,
+      "bursts": [
+        [
+          0.015,
+          0.16,
+          1
+        ],
+        [
+          0.07,
+          0.16,
+          0.8
+        ],
+        [
+          0.13,
+          0.12,
+          0.4
+        ]
+      ],
+      "low_weight": 0.45,
+      "sha256": "169081f472e792b5ed1f67fd20f05a357e4036cf846bda38bdb068cfe931aa04",
+      "peak": 0.32,
+      "rms": 0.09050794302740173,
+      "duration": 0.3
+    },
+    "ember_rake-2": {
+      "synthetic": true,
+      "seed": 732,
+      "bursts": [
+        [
+          0.015,
+          0.16,
+          1
+        ],
+        [
+          0.07,
+          0.16,
+          0.8
+        ],
+        [
+          0.13,
+          0.12,
+          0.4
+        ]
+      ],
+      "low_weight": 0.45,
+      "sha256": "9b40f5d73a8cfa778118d70a6b9ddbd190023edc5ca537a00e27b783754a3a18",
+      "peak": 0.32,
+      "rms": 0.09102043230209231,
+      "duration": 0.3
+    },
+    "ember_takeoff": {
+      "synthetic": true,
+      "seed": 741,
+      "bursts": [
+        [
+          0.01,
+          0.055,
+          1
+        ],
+        [
+          0.06,
+          0.19,
+          0.8
+        ]
+      ],
+      "low_weight": 0.65,
+      "sha256": "57fc7cb95679ecaf23cd8d194ddf55b0f5c3bcbdb1b998d6e380e8c9ee35f427",
+      "peak": 0.32,
+      "rms": 0.09155738124695462,
+      "duration": 0.29
+    },
+    "ember_takeoff-2": {
+      "synthetic": true,
+      "seed": 742,
+      "bursts": [
+        [
+          0.01,
+          0.055,
+          1
+        ],
+        [
+          0.06,
+          0.19,
+          0.8
+        ]
+      ],
+      "low_weight": 0.65,
+      "sha256": "9b3760373304807e4be9997d05bcf8a8ad4367ac2f4405d6ace3428ece1a6834",
+      "peak": 0.32,
+      "rms": 0.09492888953171212,
+      "duration": 0.29
+    },
+    "ember_backstep": {
+      "synthetic": true,
+      "seed": 751,
+      "bursts": [
+        [
+          0.02,
+          0.055,
+          0.7
+        ],
+        [
+          0.14,
+          0.09,
+          1
+        ]
+      ],
+      "low_weight": 0.75,
+      "sha256": "cc1f1ff44623ce84651a2a49f90e2fb007b913cc7b342f36a238314268461b5e",
+      "peak": 0.32,
+      "rms": 0.08155425952709677,
+      "duration": 0.27
+    },
+    "ember_backstep-2": {
+      "synthetic": true,
+      "seed": 752,
+      "bursts": [
+        [
+          0.02,
+          0.055,
+          0.7
+        ],
+        [
+          0.14,
+          0.09,
+          1
+        ]
+      ],
+      "low_weight": 0.75,
+      "sha256": "af450dd8301364364c2c822f7859c8ddfa2ab4bf509cc5ecb8e0a68f1f7fdf4b",
+      "peak": 0.32,
+      "rms": 0.08089618858952413,
+      "duration": 0.27
+    },
+    "ember_landing": {
+      "synthetic": true,
+      "seed": 761,
+      "bursts": [
+        [
+          0.012,
+          0.07,
+          1
+        ],
+        [
+          0.055,
+          0.11,
+          0.55
+        ],
+        [
+          0.14,
+          0.1,
+          0.15
+        ]
+      ],
+      "low_weight": 1.0,
+      "sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
+      "peak": 0.32,
+      "rms": 0.08868662779426661,
+      "duration": 0.34
+    },
+    "ember_landing-2": {
+      "synthetic": true,
+      "seed": 762,
+      "bursts": [
+        [
+          0.012,
+          0.07,
+          1
+        ],
+        [
+          0.055,
+          0.11,
+          0.55
+        ],
+        [
+          0.14,
+          0.1,
+          0.15
+        ]
+      ],
+      "low_weight": 1.0,
+      "sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
+      "peak": 0.32,
+      "rms": 0.08935710199125617,
+      "duration": 0.34
+    }
+  }
+}
