@@ -28,18 +28,26 @@ function T.run(G, check, renderer)
   end
   local batched, batchedDraws = frame(false)
   local single, singleDraws = frame(true)
-  local same = batched:getWidth() == single:getWidth() and batched:getHeight() == single:getHeight()
-  for y = 0, batched:getHeight() - 1, 2 do
-    for x = 0, batched:getWidth() - 1 do
-      if same then
-        local r1, g1, b1 = batched:getPixel(x, y)
-        local r2, g2, b2 = single:getPixel(x, y)
-        same = r1 == r2 and g1 == g2 and b1 == b2
-      end
-    end
+  local function sameFrame(a, b)
+    return a:getWidth() == b:getWidth()
+      and a:getHeight() == b:getHeight()
+      and a:getString() == b:getString()
   end
+  local same = sameFrame(batched, single)
+  local repeatedBatch = frame(false)
+  local repeatedSingle = frame(true)
+  check(
+    'an unchanged scene repeats every pixel with batched bodies',
+    sameFrame(batched, repeatedBatch)
+  )
+  check(
+    'an unchanged scene repeats every pixel with individual bodies',
+    sameFrame(single, repeatedSingle)
+  )
   batched:release()
   single:release()
+  repeatedBatch:release()
+  repeatedSingle:release()
   check(
     'bodies drawn by image paint the same frame as one draw per body ('
       .. #Pools.of(g, 'enemies')

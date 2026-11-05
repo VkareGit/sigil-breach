@@ -58,6 +58,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Brama Linux, 2026-11-05: naprawiono wspólną przyczynę wcześniejszych
+  FAIL-i weight i cienia. Shader próbkował mipmapowane tekstury konturu
+  wewnątrz warunku zależnego od alfa; pigment dodatkowo po discard.
+  Niejawne pochodne takiego odczytu są niezdefiniowane w GLSL. Odczyty
+  poprzedzają teraz rozbieżne sterowanie, przy zachowanych mipmapach,
+  kolorach, maskach i regułach cienia. Dotyczy obu ścieżek rysowania ciał.
+- Test porównuje wszystkie bajty obrazu zamiast co drugiego wiersza RGB
+  i sprawdza ponowne rysowanie tej samej sceny osobno dla ciał pojedynczych
+  oraz grupowanych. Żadne kryterium zgodności ani cienia nie zostało osłabione.
+
 - STAR ACOLYTE, trzecia iteracja (2026-11-05), po wyborze właściciela:
   niska fala do przeskoczenia oraz wysokie rozdarcie do ominięcia bokiem.
   `star-ray` używa istniejącego wykonawcy wave: wysokość 0,35 m, szerokość
@@ -4098,6 +4108,37 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-05 — usunięcie wcześniejszych błędów bramy.
+- Odtworzenie na Intel Arc MTL / OpenGL 4.6 / Mesa 26.2.5: nieruchoma
+  scena 35 ciał dawała 1014 różnych pikseli między ścieżkami rysowania
+  i 923/1035 między powtórzeniami tej samej ścieżki. Błąd pozostawał
+  po wyłączeniu cieni i JIT; pozy były identyczne. Diagnostyczne wyłączenie
+  mipmap usuwało różnice. Poprawka zachowuje mipmapy i usuwa nieokreślony
+  odczyt w shaderze. Nie ma podstaw do przypisywania błędu samemu Linuxowi.
+  Reguła GLSL: https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.60.html
+  (implicit derivatives in non-uniform control flow).
+- Po zmianie: 0 różnych pikseli we wszystkich sześciu porównaniach;
+  test cienia 10 PASS, 3574 przyciemnione / 0 rozjaśnionych pikseli.
+  Nowy test przed poprawką: trzy FAIL-e zgodności; po: weight 858 PASS.
+  Symulacja, źródłowe obrazy, wypieczone maski i golden nie zmieniły się.
+- Koszt na izolowanym klonie, dwa naprzemienne przebiegi, 30 klatek
+  rozgrzewki + 60 próbek pełnego rysowania z odczytem 1 piksela:
+  32 ciała: mediany 3,72–3,76 → 3,67 ms; 128: 4,14–4,19 → 4,44–4,47 ms;
+  256: 5,28–6,03 → 5,86–5,88 ms. Koszt przy 128 ciałach ok. 0,3 ms;
+  rozrzut 256 nie pozwala na mocniejszą tezę. Nie jest to pomiar opóźnienia wejścia.
+- Pełna brama Linux, natywne GPU: Architecture 670 plików / 5317 ścieżek,
+  Mechanics 6677 PASS, Input 50 PASS, Render PASS, Tools PASS.
+  Dwa pełne przebiegi mają po 9 zgodnych świadectw, exitCode=0 i sourceStable=true,
+  fingerprint 6987D22E2846CC2C91CBA6A7928DA5377398A8DFC4592E56DA13FE4909C7669C.
+  Drugi przebieg dodatkowo zapisuje końcowy exitCode=0 całego skryptu
+  (pierwszy transport terminala zwrócił 143 już po wszystkich PASS-ach).
+  Na niewidocznym pulpicie użyto SDL_VIDEODRIVER=x11 i vblank_mode=0;
+  ustawień gracza ani konfiguracji pulpitu nie zmieniano. Windows niesprawdzony.
+- Dowody poza repozytorium: Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/
+  gate-fixes-before oraz gate-fixes-after (obrazy różnic, regresja, pomiar,
+  logi i kopia raportów pełnej bramy). Odbiór obrazu i dźwięku Stolasa
+  pozostaje osobną decyzją właściciela. Push niezamówiony.
 
 Codex, 2026-11-05 — trzecia iteracja STAR ACOLYTE: fala, rozdarcie, dłonie i głos.
 - Kierunek zatwierdzony w rozmowie: niska fala do przeskoczenia i wysokie

@@ -159,15 +159,17 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
  vec2 atlasUV=frameRect.xy+localUV*frameRect.zw;vec4 p=Texel(tex,atlasUV);
  vec2 stepUV=frameRect.zw/320.0;
  vec2 lo=frameRect.xy+stepUV*.5,hi=frameRect.xy+frameRect.zw-stepUV*.5;
+ // Mipmapped samples need derivatives from every fragment in the quad.
+ // Fetch before alpha branches/discard, including the pigment neighbours.
+ float edge=max(max(Texel(tex,clamp(atlasUV+vec2(stepUV.x,0.0),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(stepUV.x,0.0),lo,hi)).a),max(Texel(tex,clamp(atlasUV+vec2(0.0,stepUV.y),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(0.0,stepUV.y),lo,hi)).a));
+ vec3 pigment=bodyPigment(tex,spriteUV,p);
  if(p.a<(soft>.5?.025:.30)) {
   if(silhouette>.5) {
-   float edge=max(max(Texel(tex,clamp(atlasUV+vec2(stepUV.x,0.0),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(stepUV.x,0.0),lo,hi)).a),max(Texel(tex,clamp(atlasUV+vec2(0.0,stepUV.y),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(0.0,stepUV.y),lo,hi)).a));
    if(edge>.5)return vec4(.24,.11,.07,effectAlpha); // sinopia contour
   }
   discard;
  }
  // New sprites contain their own fresco colour and drawn contours.
- vec3 pigment=bodyPigment(tex,spriteUV,p);
  float l=dot(pigment,vec3(.30,.59,.11));
  vec3 base=mix(pigment,vec3(l),.025);
  // Pickups and other generic icons are repainted in the demons' pigments.
