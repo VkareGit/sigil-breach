@@ -23,14 +23,7 @@ function P.frames()
   end
   for _, id in ipairs(Art.kinds) do
     for index, region in ipairs(Art.layouts[id].frames) do
-      add(
-        'layouts',
-        id,
-        index,
-        region,
-        region.sourcePath,
-        region.sourcePath ~= Art.entries[id].path
-      )
+      add('layouts', id, index, region, region.sourcePath, region.filter == 'linear')
     end
   end
   for id, entry in Ability.each() do

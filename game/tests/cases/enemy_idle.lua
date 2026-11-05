@@ -128,12 +128,14 @@ function T.run(check, renderer)
     e.walkSpeed = 2
     e.walk = 1
     verify('idle ' .. kind .. ' cannot replace a movement cycle', active(Anim.pose(g, e)))
-    local source = 'assets/art/' .. kind .. '-idle-fresco-v13.png'
-    local data = love.image.newImageData(source)
+    local sources = {}
     local minHeight, maxHeight = math.huge, 0
     for n = 0, 3 do
       local frame = quiet.first + n
       local region = frames[frame]
+      local source = region.sourcePath
+      sources[source] = sources[source] or love.image.newImageData(source)
+      local data = sources[source]
       local r = region.rect
       local b = readBounds(data, r)
       local sourceImage = renderer.frameImages[kind][frame]
@@ -164,10 +166,14 @@ function T.run(check, renderer)
       local height = (b.max - b.min + 1) / b.h * region.height
       minHeight = math.min(minHeight, height)
       maxHeight = math.max(maxHeight, height)
-      g.testField = true
+      g.mode, g.testField = 'field', {}
       e.previewFrame = frame
       e.ai = 'idle'
       e.walkSpeed = 0
+      verify(
+        'idle ' .. kind .. ' inspected pose is the actual selected frame',
+        Anim.pose(g, e) == frame
+      )
       -- The head a shot meets in this pose: the centre of its painted region.
       local surface = Surface.prepare(g, e)
       local hx, hy, _, u, v = Surface.locate(surface, 'head')
@@ -195,7 +201,9 @@ function T.run(check, renderer)
       'idle ' .. kind .. ' maintains physical scale across the breathing loop',
       maxHeight / minHeight < 1.08
     )
-    data:release()
+    for _, data in pairs(sources) do
+      data:release()
+    end
   end
   return count
 end
@@ -215,7 +223,7 @@ function T.contacts(renderer, output)
     love.graphics.clear(0.17, 0.16, 0.15)
     for i = 1, 5 do
       local frame = i == 1 and 1 or I.entries[kind].first + i - 2
-      local g = { time = 0, player = { x = 0, z = 10 }, testField = true }
+      local g = { time = 0, mode = 'field', player = { x = 0, z = 10 }, testField = {} }
       local e = enemy(kind)
       e.previewFrame = frame
       local _, _, _, _, _, size, width, height, base = Geometry.pose(g, e)

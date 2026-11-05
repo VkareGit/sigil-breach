@@ -118,7 +118,7 @@ function T.sample(kind, slot, distance, aim, frame, serial)
   -- centres cannot prove that their own head region is actually reachable.
   local marks = {
     imp = { [1] = { head = { 174, 50 }, torso = { 140, 101 } }, [25] = { head = { 430, 110 } } },
-    armored = { [1] = { head = { 179, 45 }, torso = { 149, 94 } }, [25] = { head = { 533, 107 } } },
+    armored = { [1] = { head = { 179, 45 }, torso = { 149, 94 } }, [25] = { head = { 179, 45 } } },
     stolas = { [1] = { head = { 130, 96 }, torso = { 131, 148 } }, [25] = { head = { 405, 99 } } },
     buer = { [1] = { head = { 207, 125 }, torso = { 172, 181 } }, [17] = { head = { 428, 182 } } },
     boss = { [1] = { head = { 205, 55 }, torso = { 168, 104 } }, [17] = { head = { 417, 125 } } },
@@ -126,6 +126,17 @@ function T.sample(kind, slot, distance, aim, frame, serial)
   }
   local art = Pose.sample(g, e)
   local point = assert(marks[kind][art.frame][aim], 'missing independent source aim')
+  if kind == 'armored' then
+    -- Both states now reuse the independently marked original painting.
+    local x, y = require('qa.art.visual_identity').referencePoint(
+      require('src.content.art.atlases').sheets.armored,
+      require('qa.data.visual_baselines').armored,
+      art.frame,
+      point[1],
+      point[2]
+    )
+    point = { x, y }
+  end
   local image = love.image.newImageData(art.sourcePath)
   local iw, ih = image:getDimensions()
   assert(

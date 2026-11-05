@@ -11,14 +11,18 @@ function FrescoEnemies.load(kind, resources)
   image:setFilter('nearest', 'nearest')
   local images, mirrors, supplements, sources = {}, {}, {}, { [entry.path] = image }
   for _, replacement in ipairs(entry.replacements or {}) do
+    local filter = replacement.filter or 'linear'
+    local mipmaps = replacement.mipmaps ~= false
     local painted = resources
         and resources:image(
           replacement.path,
-          { mipmaps = true, filter = 'linear', mipmapFilter = 'linear' }
+          { mipmaps = mipmaps, filter = filter, mipmapFilter = mipmaps and 'linear' or nil }
         )
-      or love.graphics.newImage(replacement.path, { mipmaps = true })
-    painted:setFilter('linear', 'linear')
-    painted:setMipmapFilter('linear')
+      or love.graphics.newImage(replacement.path, { mipmaps = mipmaps })
+    painted:setFilter(filter, filter)
+    if mipmaps then
+      painted:setMipmapFilter('linear')
+    end
     supplements[#supplements + 1] = painted
     sources[replacement.path] = painted
   end

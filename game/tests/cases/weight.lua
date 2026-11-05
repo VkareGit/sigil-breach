@@ -248,10 +248,13 @@ function Tests.run(G, check)
   local Damage = require('src.combat.damage')
   local function line(first, second)
     local t = fresh()
+    -- Keep the physical material under this penetration probe fixed.
+    t.mode, t.testField = 'field', {}
     t.player.weapon = 2
     local a = t:spawn(first, 16, 21.5)
     local b = t:spawn(second or 'imp', 16, 19.5)
     a.hp, a.maxHp, b.hp, b.maxHp = 5000, 5000, 5000, 5000
+    a.previewFrame, b.previewFrame = 1, 1
     t:shoot()
     return t, a, b
   end

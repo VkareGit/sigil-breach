@@ -21,11 +21,15 @@
 -- hit masks; the forward claw now carries its painted palm through the target.
 -- HP, damage packets and action timings are unchanged. Two identical native
 -- Linux captures; Windows requires its own capture and remains untouched.
+-- 0.45 visual continuity correction (2026-11-05): restore the owner's
+-- original Iron Thrall poses and their masks, including nearest sampling
+-- for the technical copy and passthrough of loose cloak. No combat tuning.
+-- Two identical independent native Linux captures; Windows is not updated.
 return {
-  playtest = '9d079cf9/f298cf18',
-  human = '289b31af/63954170',
-  drill = '1a5fcb89/d35eff44',
-  playtestContacts = '5b3980dc/151',
-  humanContacts = 'ecf47677/155',
-  drillContacts = '6e664cd9/352',
+  playtest = 'a416f22f/0f418894',
+  human = 'b6593f81/f709d142',
+  drill = '122d2542/f1953305',
+  playtestContacts = 'b6de1242/147',
+  humanContacts = 'dac355dc/173',
+  drillContacts = '466ba09c/370',
 }

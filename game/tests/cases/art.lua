@@ -145,7 +145,7 @@ function Tests.run(G, renderer)
     for _, replacement in ipairs(entry.replacements or {}) do
       local extra = love.image.newImageData(replacement.path)
       extraSources[#extraSources + 1] = extra
-      for _, frame in ipairs(replacement.targets) do
+      for _, frame in pairs(replacement.targets) do
         frameSources[frame] = extra
       end
     end
@@ -168,11 +168,14 @@ function Tests.run(G, renderer)
           matchTexture(renderer.frameImages[kind][i], actual)
         )
       end
-      unique = unique and not seen[s.signature]
-      seen[s.signature] = true
+      -- Multiple named states may reuse one authored cell. Two different
+      -- source cells must still contain genuinely different paintings.
+      local cell = region.sourcePath .. ':' .. table.concat(region.rect, ',')
+      unique = unique and (not seen[s.signature] or seen[s.signature] == cell)
+      seen[s.signature] = cell
     end
     check(
-      kind .. ' has every required separate opaque pose on transparent cells',
+      kind .. ' has every required opaque pose and distinct paintings in distinct source cells',
       #regions == Catalog.frameCount(kind) and alpha < 0.05 and all and unique
     )
     local grounded = true

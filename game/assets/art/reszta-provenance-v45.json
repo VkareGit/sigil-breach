@@ -443,5 +443,34 @@
         }
       ]
     }
-  ]
+  ],
+  "restoration": {
+    "date": "2026-11-05",
+    "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+    "reason": "Owner rejected flattened paint and standing fire. These files are exact pre-repaint bytes; earlier generation records below are historical, not provenance of the restored production files. Owner-selected ammunition remains untouched.",
+    "files": [
+      "game/assets/art/chapel-masonry-v34.png",
+      "game/assets/art/effects-fresco-v12.png",
+      "game/assets/art/flask-hands-v45.png",
+      "game/assets/art/hazards-fresco-v33.png",
+      "game/assets/art/horizon-fresco-v12.png",
+      "game/assets/art/icons/vow_flask.png",
+      "game/assets/art/icons/vow_vigour.png",
+      "game/assets/art/icons/vow_ward.png",
+      "game/assets/art/medals/absolved.png",
+      "game/assets/art/medals/diptych.png",
+      "game/assets/art/medals/last_rites.png",
+      "game/assets/art/medals/one_shot.png",
+      "game/assets/art/medals/parry.png",
+      "game/assets/art/medals/point_blank.png",
+      "game/assets/art/medals/polyptych.png",
+      "game/assets/art/medals/smitten.png",
+      "game/assets/art/medals/tetraptych.png",
+      "game/assets/art/medals/triptych.png",
+      "game/assets/art/props-fresco-v12.png",
+      "game/assets/art/rites-fresco-v45.png",
+      "game/assets/art/spells-fresco-v12.png",
+      "game/assets/art/textures-fresco-v12.png"
+    ]
+  }
 }

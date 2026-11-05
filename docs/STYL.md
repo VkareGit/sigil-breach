@@ -498,3 +498,20 @@ miały kod 0 i stabilne źródła. Fingerprint przed dopisaniem tej informacji
 do dziennika zmian: `205449FA016D7BF6DFC8B8E65A27C6B91A4B0B823D8EBDEBA144C89F943D3010`.
 Przebiegi narzędzi benchmark/core/step/audio w tym zestawie są testami smoke,
 nie nowym pomiarem wydajności ani oceną odsłuchową.
+
+### Baza i pełny spis tekstur (2026-11-05)
+
+`baza/` w korzeniu jest biblioteką odniesienia, nigdy źródłem zasobów gry.
+`index.json` zapisuje pochodzenie wzorców, `catalog.json` wszystkie produkcyjne
+tekstury i ich powiązania z bazą. Początkowe wzorce wyciągnięto z pierwszego
+commitu na polecenie właściciela. Nowy projekt najpierw wymaga propozycji
+i jego akceptacji; po wdrożeniu trafia tu jeden reprezentatywny obraz.
+Nie odkładać każdej animacji. Brak własnego wzorca nie daje zgody na nowy
+styl: trzeba porównać do pokrewnych rzeczy, potem utrwalić odniesienie.
+
+Kontrola sum wykrywa podmianę i pominięte pliki, a nie ocenia sztuki.
+Dla kopii Iron Thralla `visual-identity` porównuje wszystkie widoczne
+piksele z zatwierdzonym arkuszem, również przezroczystość, skalę i filtr.
+Pozostają trzy obowiązkowe oględziny przed commitem. Nie sprowadzać całej
+grafiki do krótkiej wspólnej palety: redukcja koloru i wygładzanie potrafią
+zniszczyć zatwierdzoną fakturę, choć barwy średnie i testy alfa przechodzą.

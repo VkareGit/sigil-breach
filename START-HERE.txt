@@ -12,6 +12,8 @@ ZASADA GRAFIKI
   porównania z zaakceptowanymi zasobami w rzeczywistej skali gry.
 
 KATALOGI
+  baza/       wzorce wyglądu; jeden obraz na projekt, poza zasobami gry.
+              Nowy projekt: pomysł → akceptacja → wdrożenie → obraz w bazie.
   game/       gra (main.lua, src/, assets/), testy (tests/), narzędzia QA (qa/),
               instrukcja gracza INSTRUKCJA.txt
   docs/       dokumenty projektu (lista niżej)

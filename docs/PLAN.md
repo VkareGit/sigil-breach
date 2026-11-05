@@ -11,11 +11,25 @@ Jeden bieżący plan. Gdy powstaje nowy plan, ten plik w całości trafia jako r
 
 ## Postęp (stan punktów)
 
+**Audyt tekstur, 2026-11-05 — zakończony:** przejrzano 158/158
+początkowych obrazów. Powstała biblioteka `baza/` (44 wzorce, wyłącznie do
+porównań) i pełny katalog 152 wynikowych tekstur. Iron Thrall wrócił do
+oryginalnych pikseli wskazanego arkusza 6×4; siedem odrzuconych dodatków
+usunięto. Przywrócono 22 tekstury sprzed spłaszczającego przemalowania,
+w tym stojący ogień. Regresja obejmuje sumy wszystkich obrazów oraz każde
+kopiowane piksele Iron Thralla. Wykonano trzy przeglądy: obrazy i klatki,
+natywne sceny 3/6/12 m oraz przejścia animacji. Pełna brama Linux PASS:
+6878 sprawdzeń mechaniki/zasobów, Input 50, Architecture, Render i Tools;
+dziewięć stabilnych świadectw, exitCode=0. Dwa identyczne golden przed
+aktualizacją Linux; 173 maski innych stworów pozostały identyczne.
+Windows niesprawdzony. Szczegóły w najnowszym ZMIANY/ODBIOR-0.45
+i `baza/catalog.json`; obrazy przed/po zachowano w wynikach audytu.
+
 Obowiązkowe przed commitem grafiki: trzy kontrole spójności opisane w
 AGENTS/STYLU oraz test regresji odrzucający niewłaściwy wariant. Wzorzec
 Iron Thralla potwierdzony przez właściciela: bazowy arkusz 6×4 v12; osobna
-klatka strike-matte v12 także odrzucona. Korekta trwa, bez akceptacji nowych
-zasobów na podstawie samego PASS.
+klatka strike-matte v12 także odrzucona i usunięta. Korekta używa oryginalnych
+pikseli; techniczny PASS nadal nie stanowi akceptacji nowego projektu.
 
 
 **Odrzucony odbiór grafiki, 2026-11-05:** właściciel odrzucił nowe klatki
@@ -25,7 +39,8 @@ nienaruszalna ciągłość zatwierdzonych zasobów (AGENTS/STYL/WIZJA).
 Kolejność zlecona: (1) poprawić Iron Thralla na podstawie oryginalnych
 arkuszy; (2) przejrzeć każdą teksturę, jej historię i wcześniejsze podmiany,
 ze szczególnym uwzględnieniem odrzuconego ognia; naprawić stwierdzone
-niespójności i pokazać porównania w grze. Oba punkty pozostają otwarte.
+niespójności i pokazać porównania w grze. Oba punkty zamknięto audytem
+opisanym powyżej; wcześniejsze wyniki poniżej są zapisem sprzed korekty.
 
 **IRON THRALL, 2026-11-05:** dopracowano pięć obecnych ataków: 15 nowych malowanych póz, rozróżnione gesty, widoczne zaparcie nawrotu, niski grzbiet odłamków do przeskoczenia, ślad pazura i ciemny znak żelaza. Naprawiono rzeczywisty kontakt pazura (0 → 30 obrażeń stojącemu celowi bez zwiększania zasięgu, HP i pakietów obrażeń). Własny głos ciała, pięć wysiłków i kroki szarży, ze wspólnym limitem dla tłumu. Celowane 89 PASS, hit-landmarks 521 PASS, dwa identyczne golden Linux. Koszt 128 atakujących/25 fal: około 5,0–5,3 → 7,8–8,3 ms w naprzemiennym porównaniu (dodatkowe końcowe sesje 7,1–7,3 ms); szczegóły w ODBIOR. Pełna brama Linux PASS: 6977 mechaniki/zasobów, Input 50, Architecture, Render i Tools; dziewięć stabilnych świadectw, exitCode=0. Kontrast nawy nadal wymaga odbioru; bot kaplicy nadal nie kończy mapy. Klon pomiarowy usunięty, dowody zachowane. Odbiór artystyczny i odsłuch należą do właściciela; Windows niesprawdzony.
 

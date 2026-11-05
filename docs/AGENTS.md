@@ -20,6 +20,19 @@ klatkami jest błędem blokującym, nawet przy zielonych testach. Nie uznawaj
 technicznego PASS za odbiór artystyczny. Dotyczy to także ognia, efektów,
 otoczenia, broni i HUD-u. Szczegóły i odrzucenie Iron Thralla: docs/STYL.md.
 
+**Baza wyglądu (polecenie właściciela, 2026-11-05).** Katalog `baza/`
+w korzeniu repozytorium jest wyłącznie wzorcem dla pracy i przeglądu; gra
+nie może go ładować. Początkowe wzorce pochodzą z pierwszego commitu,
+ze wskazanym przez właściciela oryginalnym arkuszem Iron Thralla. Nowy
+projekt postaci lub przedmiotu: propozycje → akceptacja właściciela →
+wdrożenie → jeden reprezentatywny obraz w bazie. Nie dodawaj osobno każdej
+klatki. Brak wzorca wymaga porównania do pokrewnych zaakceptowanych
+obiektów i udokumentowania pochodzenia. Stary plik w Git nie jest
+automatycznie poprawny: odrzucony strike-matte Iron Thralla też był stary.
+`baza/catalog.json` obejmuje każdą teksturę produkcyjną; zmiana pliku,
+nowy plik i zniknięcie wzorca muszą zatrzymać bramę. Aktualizacja sumy
+nie jest akceptacją wyglądu i wymaga zapisanych trzech kontroli poniżej.
+
 Obowiązek przed każdym commitem dotyczącym grafiki (właściciel, 2026-11-05):
 wykonać co najmniej trzy odrębne kontrole spójności i zapisać ich wyniki
 w ODBIOR w HISTORII: (1) każda zmieniona klatka/tekstura obok zatwierdzonej

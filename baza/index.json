@@ -1,0 +1,357 @@
+{
+  "purpose": "Wzorce wizualne, poza zasobami używanymi przez grę.",
+  "references": [
+    {
+      "id": "iron-thrall",
+      "reference": "baza/iron-thrall.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/armored-fresco-v12.png",
+      "sha256": "f03d7c87527b2e5fd80208d9cdcf58f69493dd3e36701cd3353f6226dc5ba4a8",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "ember-thrall",
+      "reference": "baza/ember-thrall.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/imp-fresco-v12.png",
+      "sha256": "d2237d04954004fb5f6687dd57875ceec3b92c3b1f4fb33bd246e4f4cf5f039d",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "star-acolyte",
+      "reference": "baza/star-acolyte.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/stolas-fresco-v12.png",
+      "sha256": "ff94685b8c9e552f029c24811f7f88202f261d65a79b124958a3e3818d5b163d",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "buer",
+      "reference": "baza/buer.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/buer-fresco-v12.png",
+      "sha256": "b0c35650a0f57fea82414efe75779f9c09090758d868c5fa07148a0f96e3a59b",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "margrave-of-ash",
+      "reference": "baza/margrave-of-ash.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/boss-fresco-v12.png",
+      "sha256": "9b6ec319fd388385a03f3de423195092e24d3bd6dab5cd6f2ac9530870b7761d",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "furfur",
+      "reference": "baza/furfur.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/furfur-fresco-v12.png",
+      "sha256": "f7eb0f361b0304fd597d9edeecb1645a1234e2e6d9e09dcde6a1de027011adc2",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "knight",
+      "reference": "baza/knight.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/nosiciel-iron-v16.png",
+      "sha256": "6681687691c425fbbcb22631cfbf00d177fb99763a870f5827bd73c617509827",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "judge",
+      "reference": "baza/judge.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/revolver-iron-v16.png",
+      "sha256": "f8c2cd0127144a6f8334b48d8aff5d41881de5297be8130c574463c8fdb40490",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "exorcist",
+      "reference": "baza/exorcist.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/shotgun-iron-v16.png",
+      "sha256": "5785a1b18e08096f63c2f06e075a075e3c23d6370a1af9920c29f4c24f9dd1a3",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "powder-charge",
+      "reference": "baza/powder-charge.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/charge-fresco-v12.png",
+      "sha256": "4310d8afac2f137e4ef78f770ba6466ad9a04a7a2053d523b17f1fa88eea88de",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "world-props-and-fire",
+      "reference": "baza/world-props-and-fire.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/props-fresco-v12.png",
+      "sha256": "8f28f99befbf330defdcb6571f843f9bf08832db4268a6882548d7b0b717bb58",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "bonfire",
+      "reference": "baza/bonfire.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/shrine-fresco-v12.png",
+      "sha256": "df871e1c019ed0a38bbd710ea01be8743ae08ffcfe4417ca7c402dbc4d692bc4",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "world-materials",
+      "reference": "baza/world-materials.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/textures-fresco-v12.png",
+      "sha256": "3f9e4c13383465a556b613500ba1f16c1b29714097522d2f355c1341692393e3",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "horizon",
+      "reference": "baza/horizon.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/horizon-fresco-v12.png",
+      "sha256": "bccfd155dc1ff84e5c628e97aa3d4a47fd7ed6cea50ed62de2d739cc68b1031e",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "murals",
+      "reference": "baza/murals.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/murals-fresco-v12.png",
+      "sha256": "85f71be3f972ad402b9ab3e0aa000623a4286644ca409a75ab0bf0d988d87ab9",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "impact-effects",
+      "reference": "baza/impact-effects.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/effects-fresco-v12.png",
+      "sha256": "577679f5e12e043705748044c43053c6acabe1d1fa1da6ecb56514064b9c9e1b",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "spell-effects",
+      "reference": "baza/spell-effects.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/spells-fresco-v12.png",
+      "sha256": "6d5db08ea60a3a59cf7d1c091765e4c551adbedde4cf28475f349a6e6ab0199d",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "muzzle-flash",
+      "reference": "baza/muzzle-flash.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/muzzle-fresco-v12.png",
+      "sha256": "4413a94bc6de0e516b81a72f7f02163a79aa8f3bbdf375a26074a8cdc67d374e",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "portal",
+      "reference": "baza/portal.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/portal-fresco-v23.png",
+      "sha256": "c3af1322046eb82aa4a0cc2584a9eebe6678a4af73bbd0967711ee6591f52b0b",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "hud",
+      "reference": "baza/hud.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/reliquary-ash-v16.png",
+      "sha256": "8bd7e83bc2fb2e64c9106b8c2223b03b9e1f9c925b0c268ee5c0275dc49aed3d",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "lettering",
+      "reference": "baza/lettering.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/lettering-en-v16.png",
+      "sha256": "6ae10f5e35c2626acec0da682865218e53421035e7dfbb5c9c308fb460b36145",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "alphabet-upper",
+      "reference": "baza/alphabet-upper.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/alphabet-upper-v16.png",
+      "sha256": "ec458761ff23a80b69711cad21ef28f91efb5661349f1150b57269c4876e03e5",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "alphabet-lower",
+      "reference": "baza/alphabet-lower.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/alphabet-lower-v16.png",
+      "sha256": "74fad771b03a1e5c1896dccafc5075a8b362e35ad04e04b5e6074890357329c4",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "numerals",
+      "reference": "baza/numerals.png",
+      "sourceCommit": "31c4c3a6ee630131d5863e018c6733b0118fea0a",
+      "sourcePath": "game/assets/art/numerals-v16.png",
+      "sha256": "a9bddb9d23d7a4891199eab82ca7ad8ee46ac3e3e55ae59089a79f8a286376be",
+      "basis": "Właściciel polecił użyć pierwszego commitu jako bazy; Iron Thrall dodatkowo wskazany obrazem 6×4."
+    },
+    {
+      "id": "chapel-masonry",
+      "reference": "baza/chapel-masonry.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/chapel-masonry-v34.png",
+      "sha256": "71ac994450e50efb4f217f1410b0d115d69ac684db4c9a79ddd4c011b50f7038",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "chapel-murals",
+      "reference": "baza/chapel-murals.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/chapel-fresco-v34.png",
+      "sha256": "20a35c0d4a4748487efc0275c24dbe0a595fe52f8f701c7d0de21367ecab594d",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "chapel-door",
+      "reference": "baza/chapel-door.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/chapel-door-open-v38.png",
+      "sha256": "d90ae1b5d64425e0d2eb3eb3810528611ba0631dda3b1b330bba878eef846598",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "chapel-ossuary",
+      "reference": "baza/chapel-ossuary.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/chapel-ossuary-v34.png",
+      "sha256": "a03f7581c5ae3146c606c11389660a7ea6f11940f4a5f536968195c344052ce5",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "ritual-remains",
+      "reference": "baza/ritual-remains.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/chapel-ritual-remains-v34.png",
+      "sha256": "cf31e3eae928c78ae99af94d166938188dd9fbca71cc0fa512c79752b4943734",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "loculi",
+      "reference": "baza/loculi.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/catacomb-loculi-fresco.png",
+      "sha256": "59f78754c5ab02e5bcaf77a2c088ed814a44c8294d6c3647e059a2b87a840135",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "flask-gesture",
+      "reference": "baza/flask-gesture.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/flask-hands-v45.png",
+      "sha256": "ab13a21fcd30aa111807742c3f05bde83e5c8e1cd6a7164f67bd4f7605615ae4",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "medals",
+      "reference": "baza/medals.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/medals/triptych.png",
+      "sha256": "82afadb1eef235e52933b12feddace28f654bf5f194297c2c6b069f05d51d858",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "vows",
+      "reference": "baza/vows.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/icons/vow_flask.png",
+      "sha256": "b60fb9a1c4c6dafe233f2aec6c45a49ed24f2d846d22cf708a0841666b1347ea",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "rules",
+      "reference": "baza/rules.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/rules/rule_execution.png",
+      "sha256": "922bf013059d8ec41c138ff16db34dfd31879f0fa618b2d863b06437e5d243d2",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "ammunition",
+      "reference": "baza/ammunition.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/pickups/ammo_rounds.png",
+      "sha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "sigils",
+      "reference": "baza/sigils.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/sigils/stolas-1904.png",
+      "sha256": "4d6e79eb80f4bbf5c9bab862769c3ce72aa40ac3a7056c53fce9ec641d5f627b",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "hazards",
+      "reference": "baza/hazards.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/hazards-fresco-v33.png",
+      "sha256": "06504163131c78741775e488ef265dc983411cb91445aee52604401aa493fd7d",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "rituals",
+      "reference": "baza/rituals.png",
+      "sourceCommit": "c7b0505c64bd421c4596a81f748eabe7b0f93a02",
+      "sourcePath": "game/assets/art/rites-fresco-v45.png",
+      "sha256": "38f61a333cfc201547c977ef54b600cd25abd184b66b1dae43cfa83f60abb704",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "spell-projectiles",
+      "reference": "baza/spell-projectiles.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/projectiles-fresco-v45.png",
+      "sha256": "f695faa141b8fa3eb27e33511970077dfbac02d7490fbb656a4c249bc64b2b88",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "stolas-rituals",
+      "reference": "baza/stolas-rituals.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/stolas-hell-rites-v45.png",
+      "sha256": "b54a1030a7d3b1369f340be2ab39b587d1d8d1b867e138339a8f4ec8bd0a611e",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "stolas-wave",
+      "reference": "baza/stolas-wave.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/stolas-eruptions-v45.png",
+      "sha256": "8b4f344f0a6ec81b77e65daf159a2c6179cb69b71d7352bbf86cbbe9a8480fa5",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "iron-impact",
+      "reference": "baza/iron-impact.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/armored-rites-v45.png",
+      "sha256": "7a3987fb2ce967fad99d8a184ac9c9eac2698cbfed25f783e33321e6e575846d",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "weapon-card",
+      "reference": "baza/weapon-card.png",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/weapon-cards-v45.png",
+      "sha256": "b37f43ff076dfed91c81305863ab0a6c4a06cf47430f258deea7995ef404aa9f",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "chapel-sky",
+      "reference": "baza/chapel-sky.jpg",
+      "sourceCommit": "8d52c0d226963bec4a30c054e5b07284a23e6cc2",
+      "sourcePath": "game/assets/art/chapel-hall/inferno-sky.jpg",
+      "sha256": "1394154a511f9a4ec5ca051e9818dcdf6afc924181122ce7a23409ae8c159b8e",
+      "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    }
+  ]
+}

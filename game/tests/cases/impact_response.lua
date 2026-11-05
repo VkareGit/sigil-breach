@@ -130,11 +130,26 @@ function T.run(G, check)
   )
   local function target(kind, hp, resistance)
     local g = fresh(2, 60)
+    g.mode, g.testField = 'field', {}
     local e = g:spawn(kind, 32, 35)
+    e.previewFrame = 1
     e.hp = hp or 1000
     e.maxHp = e.hp
     e.resistances = resistance and { physical = resistance } or {}
     local initial = e.hp
+    -- This probe compares damage/feedback on the torso, not where a previous
+    -- painting happened to cross a fixed horizontal ray.
+    local Surface = require('src.enemies.surface')
+    local surface = Surface.prepare(g, e)
+    local x, y, z = Surface.locate(surface, 'torso')
+    if not x then
+      x, y, z = Surface.locateZone(surface, 'torso')
+    end
+    assert(x, 'impact probe needs a painted torso')
+    local ox, oy, oz = require('src.combat.ballistics').origin(g)
+    local dx, dz = x - ox, z - oz
+    g.player.yaw, g.player.pitch =
+      math.atan2(dx, dz), math.atan2(y - oy, math.sqrt(dx * dx + dz * dz))
     assert(g:shoot())
     return g, e, initial
   end

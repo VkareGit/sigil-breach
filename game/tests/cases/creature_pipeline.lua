@@ -94,7 +94,7 @@ function Tests.run(G, renderer)
     local layout, entry = Frames[id], Atlases.entries[id]
     for _, index in ipairs({ 1, entry.replacements[1].targets[1], #layout.frames }) do
       local region = layout.frames[index]
-      local mask = Bake.frame(region, region.sourcePath, region.sourcePath ~= entry.path)
+      local mask = Bake.frame(region, region.sourcePath, region.filter == 'linear')
       rebaked = rebaked and Export.same(mask, Masks.layouts[id][index])
       compared = compared + 1
     end
@@ -242,7 +242,7 @@ function Tests.run(G, renderer)
     timed('masks', function()
       local layout, baked = Atlases.layouts[id], {}
       for index, region in ipairs(layout.frames) do
-        baked[index] = Bake.frame(region, region.sourcePath, region.sourcePath ~= main)
+        baked[index] = Bake.frame(region, region.sourcePath, region.filter == 'linear')
       end
       Masks.layouts[id] = baked
       local frames = {}

@@ -71,7 +71,7 @@ function Bake.run(destination)
     group('layouts', kind, Art.layouts[kind].frames, function(region)
       return region.sourcePath
     end, function(region)
-      return region.sourcePath ~= Art.entries[kind].path
+      return region.filter == 'linear'
     end)
   end
   for key, entry in Ability.each() do

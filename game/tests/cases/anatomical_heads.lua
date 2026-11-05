@@ -94,7 +94,7 @@ function T.run(check, renderer)
       local entry = Catalog.entries[kind]
       local path = entry.path
       for _, replacement in ipairs(entry.replacements or {}) do
-        for _, target in ipairs(replacement.targets) do
+        for _, target in pairs(replacement.targets) do
           if target == frame then
             path = replacement.path
           end

@@ -5,7 +5,7 @@
 --   idle             { period, weights }: the quiet poses' breathing
 --   sources          its images, in order; the first is the action atlas:
 --                    { path, size = { w, h }, columns, rows, bands?,
---                      columnBands?, crops?, scale?, idle? }
+--                      columnBands?, crops?, scale?, idle?, filter?, mipmaps? }
 --   frames           in play order: { source, cell, feet, anchors }
 --                    cell: a grid cell of its source (row by row) or a crop;
 --                    feet: transparent pixels under the opaque feet;
@@ -69,6 +69,7 @@ function Sheet.layout(sheet)
       width = width,
       height = height,
       sourcePath = source.path,
+      filter = source.filter or (frame.source == 1 and 'nearest' or 'linear'),
       registration = registration,
     }
   end
@@ -101,6 +102,8 @@ function Sheet.entry(sheet)
       columnBands = s.columnBands,
       crops = s.crops,
       idle = s.idle,
+      filter = s.filter,
+      mipmaps = s.mipmaps,
     }
   end
   for index, frame in ipairs(sheet.frames) do
@@ -156,6 +159,12 @@ function Sheet.problems(sheet)
     fail('idle breathing')
   end
   for index, source in ipairs(sheet.sources or {}) do
+    if source.filter and source.filter ~= 'nearest' and source.filter ~= 'linear' then
+      fail('source ' .. index .. ' filter')
+    end
+    if source.mipmaps ~= nil and type(source.mipmaps) ~= 'boolean' then
+      fail('source ' .. index .. ' mipmaps')
+    end
     if type(source.path) ~= 'string' or type(source.size) ~= 'table' then
       fail('source ' .. index .. ' path and size')
     elseif not (source.columns and source.rows) then

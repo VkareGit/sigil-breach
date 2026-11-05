@@ -2,6 +2,9 @@
 # The architecture gate, as tools/win/check.ps1. The checker draws nothing: no display needed.
 source "$(dirname -- "${BASH_SOURCE[0]}")/project.sh"
 mkdir -p "$SIGIL_QA"
+python3 "$SIGIL_ROOT/tools/art/check_visual_catalog.py" --self-test \
+  > "$SIGIL_QA/visual-catalog.txt" || { cat "$SIGIL_QA/visual-catalog.txt"; exit 1; }
+tail -1 "$SIGIL_QA/visual-catalog.txt"
 "$SIGIL_ROOT/tools/linux/check-paths.sh" "$SIGIL_GAME" "$SIGIL_QA/path-case.txt"
 manifest="$SIGIL_QA/lua-files.txt"
 files="$SIGIL_QA/game-files.txt"

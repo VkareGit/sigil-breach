@@ -2200,3 +2200,22 @@ Przeszło 116 ze 119 zestawów. Pozostałe trzy:
   więc najpewniej to różnica sterownika. **Sprawdź je przy pierwszym
   `./scripts/win/TEST.ps1 -Suite All` na nowym komputerze z prawdziwą kartą graficzną.** Jeśli
   dalej nie przechodzą, ustal przyczynę, zanim zmienisz tolerancję.
+
+### Kontrola bazy wyglądu (2026-11-05)
+
+`baza/` nie jest zasobem gry ani częścią pakietu `.love`. `index.json`
+zapisuje reprezentatywne wzorce z ich pochodzeniem, a `catalog.json`
+obejmuje wszystkie rastrowe pliki produkcyjne. Architecture na Linuxie
+uruchamia `python3 tools/art/check_visual_catalog.py --self-test`;
+raport to `visual-catalog.txt`. Siedem prób kontrolnych sprawdza także
+podmianę pod tą samą nazwą, nowy/utracony plik i zależność gry od bazy.
+Zmiana SHA-256 w katalogu wymaga trzech przeglądów opisanych w STYLU.
+Nie jest sposobem zatwierdzania niezaakceptowanego malowania.
+
+Zestaw `visual-identity` w Mechanics wiąże Iron Thralla z oryginalnym
+arkuszem 6×4. Przepakowana kopia zachowuje każdy widoczny RGB i każdą alfę,
+przezroczyste obramowanie, skalę pikseli i najbliższe próbkowanie. Cztery
+pozy spoczynku mogą wskazywać komórki używane przez ruch; każda nadal jest
+sprawdzana. Inne nowe projekty przechodzą procedurę akceptacji właściciela,
+a nie automatyczne rozszerzenie listy akceptacji. Windows nie był objęty
+podłączeniem skryptu Pythona, zgodnie z obecnym zakresem właściciela.

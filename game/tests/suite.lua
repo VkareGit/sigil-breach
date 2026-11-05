@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'visual-identity',
+    title = 'Owner-approved paint continuity through every creature frame',
+    module = 'tests.cases.visual_identity',
+  },
+  {
     id = 'iron-thrall',
     title = 'Iron Thrall contact, movement and recovery',
     module = 'tests.cases.iron_thrall',

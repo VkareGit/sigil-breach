@@ -21,14 +21,25 @@ function T.run(Game, check)
     e.previewFrame = p[2]
     g.player.x, g.player.z = e.x, e.z + 3
     local art = Pose.sample(g, e)
+    local px, py = p[3], p[4]
+    local policy = require('qa.data.visual_baselines')[p[1]]
+    if policy then
+      px, py = require('qa.art.visual_identity').referencePoint(
+        require('src.content.art.atlases').sheets[p[1]],
+        policy,
+        p[2],
+        px,
+        py
+      )
+    end
     local data = love.image.newImageData(art.sourcePath)
     local iw, ih = data:getDimensions()
     local r = art.region.rect
     check(
       p[1] .. ' pose ' .. p[2] .. ' independent skull landmark is real pigment',
-      select(4, data:getPixel(p[3], p[4])) > 0.65
+      select(4, data:getPixel(px, py)) > 0.65
     )
-    local u, v = (p[3] + 0.5 - r[1] * iw) / (r[3] * iw), (p[4] + 0.5 - r[2] * ih) / (r[4] * ih)
+    local u, v = (px + 0.5 - r[1] * iw) / (r[3] * iw), (py + 0.5 - r[2] * ih) / (r[4] * ih)
     local y = art.baseY + (1 - v) * art.sy * art.size
     local x = e.x + (u - 0.5) * art.sx * art.size + (1 - v) * art.sy * art.size * art.lean
     local hits = true

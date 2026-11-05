@@ -1,0 +1,1249 @@
+{
+  "review": "Audyt 2026-11-05; HISTORIA: audyt spójności wszystkich tekstur. Hash chroni tożsamość, nie zastępuje oględzin.",
+  "textures": [
+    {
+      "path": "game/assets/art/alphabet-lower-v16.png",
+      "sha256": "74fad771b03a1e5c1896dccafc5075a8b362e35ad04e04b5e6074890357329c4",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "74fad771b03a1e5c1896dccafc5075a8b362e35ad04e04b5e6074890357329c4",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/alphabet-punctuation-v11.png",
+      "sha256": "14a204639b8b41c2d469c05af42b634097a940513aa1c0178f108138ae8dec77",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "14a204639b8b41c2d469c05af42b634097a940513aa1c0178f108138ae8dec77",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/alphabet-upper-v16.png",
+      "sha256": "ec458761ff23a80b69711cad21ef28f91efb5661349f1150b57269c4876e03e5",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "ec458761ff23a80b69711cad21ef28f91efb5661349f1150b57269c4876e03e5",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/armored-fresco-v12.png",
+      "sha256": "f03d7c87527b2e5fd80208d9cdcf58f69493dd3e36701cd3353f6226dc5ba4a8",
+      "reference": "iron-thrall",
+      "review": "2026-11-05: Wskazany przez właściciela oryginalny arkusz; wszystkie aktywne klatki sprawdzone również piksel po pikselu.",
+      "beforeSha256": "f03d7c87527b2e5fd80208d9cdcf58f69493dd3e36701cd3353f6226dc5ba4a8",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/armored-rites-v45.png",
+      "sha256": "7a3987fb2ce967fad99d8a184ac9c9eac2698cbfed25f783e33321e6e575846d",
+      "reference": "iron-impact",
+      "review": "2026-11-05: Obejrzano każdą fazę odłamków, cięcia i ciemnego kręgu; materiał odpowiada żelazu i wapiennemu podłożu.",
+      "beforeSha256": "7a3987fb2ce967fad99d8a184ac9c9eac2698cbfed25f783e33321e6e575846d",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/boss-breath-fresco-v45.png",
+      "sha256": "bc7284e4897a3728ace9fe914279ca0bed94b2c5d0a9ca8dbf9fbc8654d6eb24",
+      "reference": "margrave-of-ash",
+      "review": "2026-11-05: Porównano czaszkę, żelazo i skórę; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "bc7284e4897a3728ace9fe914279ca0bed94b2c5d0a9ca8dbf9fbc8654d6eb24",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/boss-fall-fresco-v12.png",
+      "sha256": "fc18d6d25083b0bc5bba4719d7bfab4c6f793cd75194437820753d296b001080",
+      "reference": "margrave-of-ash",
+      "review": "2026-11-05: Porównano czaszkę, żelazo i skórę; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "fc18d6d25083b0bc5bba4719d7bfab4c6f793cd75194437820753d296b001080",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/boss-fresco-v12.png",
+      "sha256": "9b6ec319fd388385a03f3de423195092e24d3bd6dab5cd6f2ac9530870b7761d",
+      "reference": "margrave-of-ash",
+      "review": "2026-11-05: Porównano czaszkę, żelazo i skórę; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "9b6ec319fd388385a03f3de423195092e24d3bd6dab5cd6f2ac9530870b7761d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/boss-idle-fresco-v13.png",
+      "sha256": "5692bc052cc82909f443eacbd62a89362fa81cabc4ee036d7cf06e34f1fd8b75",
+      "reference": "margrave-of-ash",
+      "review": "2026-11-05: Porównano czaszkę, żelazo i skórę; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "5692bc052cc82909f443eacbd62a89362fa81cabc4ee036d7cf06e34f1fd8b75",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/buer-fresco-v12.png",
+      "sha256": "b0c35650a0f57fea82414efe75779f9c09090758d868c5fa07148a0f96e3a59b",
+      "reference": "buer",
+      "review": "2026-11-05: Porównano twarz, mięśnie i czerwone włosy; wszystkie klatki oraz rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "b0c35650a0f57fea82414efe75779f9c09090758d868c5fa07148a0f96e3a59b",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/buer-idle-fresco-v13.png",
+      "sha256": "a2cbc2356cec993fd631df085e9d4fc77d93d813203175cf124cd0a8455db575",
+      "reference": "buer",
+      "review": "2026-11-05: Porównano twarz, mięśnie i czerwone włosy; wszystkie klatki oraz rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "a2cbc2356cec993fd631df085e9d4fc77d93d813203175cf124cd0a8455db575",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/catacomb-loculi-fresco.png",
+      "sha256": "59f78754c5ab02e5bcaf77a2c088ed814a44c8294d6c3647e059a2b87a840135",
+      "reference": "loculi",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "59f78754c5ab02e5bcaf77a2c088ed814a44c8294d6c3647e059a2b87a840135",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-door-barred-v38.png",
+      "sha256": "302a6fbbba48adfe46c5244bce4b11c199431117995973f553c5937d9aec9aaa",
+      "reference": "world-materials",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "302a6fbbba48adfe46c5244bce4b11c199431117995973f553c5937d9aec9aaa",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-door-open-v38.png",
+      "sha256": "d90ae1b5d64425e0d2eb3eb3810528611ba0631dda3b1b330bba878eef846598",
+      "reference": "chapel-door",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "d90ae1b5d64425e0d2eb3eb3810528611ba0631dda3b1b330bba878eef846598",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-fresco-v34.png",
+      "sha256": "20a35c0d4a4748487efc0275c24dbe0a595fe52f8f701c7d0de21367ecab594d",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "20a35c0d4a4748487efc0275c24dbe0a595fe52f8f701c7d0de21367ecab594d",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/apse-side.png",
+      "sha256": "3ada2af6cfd3650b2a350ffd6f733506ca1c6f175737ee5a849b068335f86f41",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "3ada2af6cfd3650b2a350ffd6f733506ca1c6f175737ee5a849b068335f86f41",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/ashlar.jpg",
+      "sha256": "dcb8fd6089bcc6f6125f14fd108988cd1b8b147ac9732c9829dbdd32f9e129bf",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "dcb8fd6089bcc6f6125f14fd108988cd1b8b147ac9732c9829dbdd32f9e129bf",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/banner-a.png",
+      "sha256": "422b364e25e3a972592c9b9883ef917c45fd1a61260312fe0641d7339079238c",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "422b364e25e3a972592c9b9883ef917c45fd1a61260312fe0641d7339079238c",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/banner-b.png",
+      "sha256": "a844c8858559ddd161f4bf03d2455e5e1473281b5fa5e2b0daa71843c3188c37",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "a844c8858559ddd161f4bf03d2455e5e1473281b5fa5e2b0daa71843c3188c37",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/bay-a.jpg",
+      "sha256": "c89fc44ba557e2f4f28f0e09eb7aca6c1c9f8c64b8e7254389196a504b4e877e",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "c89fc44ba557e2f4f28f0e09eb7aca6c1c9f8c64b8e7254389196a504b4e877e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/bay-b.jpg",
+      "sha256": "2438dc27ca2e3209834a90aa4ff54582432e11dcfe4c9c21f3d6dfdfb6366e0f",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "2438dc27ca2e3209834a90aa4ff54582432e11dcfe4c9c21f3d6dfdfb6366e0f",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/bay-c.jpg",
+      "sha256": "286ded217e35d734ce01fb60b077840a300169f4db54cd5d44a3768efd8afafc",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "286ded217e35d734ce01fb60b077840a300169f4db54cd5d44a3768efd8afafc",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/ceiling.jpg",
+      "sha256": "c78fe3fabfaa980e9881c2cd5a4e0bf35409e89d5e96f48d5cb1b0c4ac4a3572",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "c78fe3fabfaa980e9881c2cd5a4e0bf35409e89d5e96f48d5cb1b0c4ac4a3572",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/chancel.png",
+      "sha256": "bc38499f91d8fa3a455219925b6cadbaf4425feeaac11baa6442c8461171e283",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "bc38499f91d8fa3a455219925b6cadbaf4425feeaac11baa6442c8461171e283",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/clay.jpg",
+      "sha256": "c7fa03e6129aa3fbbdb0bfb9d4c3157f953dcf0576a594ebfc908c4709f6d832",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "c7fa03e6129aa3fbbdb0bfb9d4c3157f953dcf0576a594ebfc908c4709f6d832",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/crypt.jpg",
+      "sha256": "a082df0961ecbc11c7981f6f8971ef64d0fc4f6634270d7ac965ffd5befb5cbc",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "a082df0961ecbc11c7981f6f8971ef64d0fc4f6634270d7ac965ffd5befb5cbc",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/door-wall.png",
+      "sha256": "f08f709b6a0ce8f54bf3af85c16ca5139c4f3384686311c3bc7efffdbafaaf52",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "f08f709b6a0ce8f54bf3af85c16ca5139c4f3384686311c3bc7efffdbafaaf52",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/drum.jpg",
+      "sha256": "8ec37e7823691cb4105046d5fc31788347d93360287ea558af416714e8cd6db0",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "8ec37e7823691cb4105046d5fc31788347d93360287ea558af416714e8cd6db0",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/far-ruins.png",
+      "sha256": "8cc36c8ca6d70cd7f448f6db1f7d231b8ce08b7c327aec5ff7df693ae61ff147",
+      "reference": "chapel-sky",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "8cc36c8ca6d70cd7f448f6db1f7d231b8ce08b7c327aec5ff7df693ae61ff147",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/floor.jpg",
+      "sha256": "ec01ab22438f7d219c7d4239b2b2f523f29b7466e519af9334029563e42ab74b",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "ec01ab22438f7d219c7d4239b2b2f523f29b7466e519af9334029563e42ab74b",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/inferno-sky.jpg",
+      "sha256": "1394154a511f9a4ec5ca051e9818dcdf6afc924181122ce7a23409ae8c159b8e",
+      "reference": "chapel-sky",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "1394154a511f9a4ec5ca051e9818dcdf6afc924181122ce7a23409ae8c159b8e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/iron.jpg",
+      "sha256": "c225f36c9feda7e40fb22716eec9c80926d6763f188cc9c79e814ae1518ce6c5",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "c225f36c9feda7e40fb22716eec9c80926d6763f188cc9c79e814ae1518ce6c5",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/narthex.jpg",
+      "sha256": "c96db0580e57020aef437581a134936b9751c6d13d05b3770711b1f16bb5dae9",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "c96db0580e57020aef437581a134936b9751c6d13d05b3770711b1f16bb5dae9",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-a.jpg",
+      "sha256": "b3a5ff550d73e168c6f8268b04631d7da94a7c488045f6f144baf4be88615a6d",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "b3a5ff550d73e168c6f8268b04631d7da94a7c488045f6f144baf4be88615a6d",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-b.jpg",
+      "sha256": "85223acc764f1712c806f4876d8d52b09271b947bbe73649281d9e9faa4b0342",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "85223acc764f1712c806f4876d8d52b09271b947bbe73649281d9e9faa4b0342",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-c.jpg",
+      "sha256": "ee1cbd8d43a09f3a38bc6cb4577781f4627f45d94daac52d2e72b10684d61979",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "ee1cbd8d43a09f3a38bc6cb4577781f4627f45d94daac52d2e72b10684d61979",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-chancel.png",
+      "sha256": "4e212d4b194822f16c188f604b2e556b20836b8d643bed2e6f1dcb5a995730cd",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "4e212d4b194822f16c188f604b2e556b20836b8d643bed2e6f1dcb5a995730cd",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-door.png",
+      "sha256": "c2912d93329c6b35a2d349650cbb8f8e621de6a2879937a31932ee1c55b8b2ac",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "c2912d93329c6b35a2d349650cbb8f8e621de6a2879937a31932ee1c55b8b2ac",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-end.png",
+      "sha256": "0c68f6865f7f9d3214973b6a3101d7f80a22b571e19c883464e64ff052d8cb3a",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "0c68f6865f7f9d3214973b6a3101d7f80a22b571e19c883464e64ff052d8cb3a",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/nave-south.png",
+      "sha256": "4fbb647315c8889cd90bf88cab327cea958798692c3edf13980c976acf9f8ca3",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "4fbb647315c8889cd90bf88cab327cea958798692c3edf13980c976acf9f8ca3",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/rear.png",
+      "sha256": "94f343195dd44e120f160b6db9d347e32afb99b2815a2c8657f3c33eb446da4e",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "94f343195dd44e120f160b6db9d347e32afb99b2815a2c8657f3c33eb446da4e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/rubble.jpg",
+      "sha256": "dae1eb9225252051ef653ed052b5795f174675a7b875159d8eff3d13ec259a52",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "dae1eb9225252051ef653ed052b5795f174675a7b875159d8eff3d13ec259a52",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/sanctuary.jpg",
+      "sha256": "f3edeeff70816ad4e921cabf376c14577ab638733e101aa080f71a53e14009af",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "f3edeeff70816ad4e921cabf376c14577ab638733e101aa080f71a53e14009af",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/south.jpg",
+      "sha256": "864b39772335f53039c86971937bf37cf8d59ef6aec60383c7e170e21df3bfa1",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "864b39772335f53039c86971937bf37cf8d59ef6aec60383c7e170e21df3bfa1",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/storm-a.jpg",
+      "sha256": "3230de66ae6c7a6249ddffd346c1575aaa1dc21cb063f28e35356c73c5e10553",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "3230de66ae6c7a6249ddffd346c1575aaa1dc21cb063f28e35356c73c5e10553",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/storm-b.jpg",
+      "sha256": "5a320cfae115dbe970e9e618865e9116fbeab54d96164821570194c43e67fa86",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "5a320cfae115dbe970e9e618865e9116fbeab54d96164821570194c43e67fa86",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/storm-c.jpg",
+      "sha256": "98c6c1813b852c122eeda75a08570d3e660ff74a5f9a22616afc59b1bacc074e",
+      "reference": "chapel-murals",
+      "review": "2026-11-05: Obejrzano każdy obraz; malowane postacie i przetarcia spójne z freskami oraz materiałami bazowymi.",
+      "beforeSha256": "98c6c1813b852c122eeda75a08570d3e660ff74a5f9a22616afc59b1bacc074e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/strip.jpg",
+      "sha256": "5c71b424d1b41c29a706818643a85dd21f7b85ce6d8f6657383afa487b723604",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "5c71b424d1b41c29a706818643a85dd21f7b85ce6d8f6657383afa487b723604",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/tomb.jpg",
+      "sha256": "38554106f63f102ccabbd309fedb00a2632dc6af948429f72621c3446aa82ec1",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "38554106f63f102ccabbd309fedb00a2632dc6af948429f72621c3446aa82ec1",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/wood.jpg",
+      "sha256": "51da86d0443da579bc20b57d28c211bb495d98feed11b22fc5fc0c4db7ece50e",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: Obejrzano każdy materiał; kamień i tynk porównane z bazą świata.",
+      "beforeSha256": "51da86d0443da579bc20b57d28c211bb495d98feed11b22fc5fc0c4db7ece50e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-hall/zenith.jpg",
+      "sha256": "c18696fff4f34d60be1dd02bc5d45a6adfc0e8ca5a678799f7d4404297719e61",
+      "reference": "chapel-sky",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "c18696fff4f34d60be1dd02bc5d45a6adfc0e8ca5a678799f7d4404297719e61",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-masonry-v34.png",
+      "sha256": "71ac994450e50efb4f217f1410b0d115d69ac684db4c9a79ddd4c011b50f7038",
+      "reference": "chapel-masonry",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "ed1e298ef9bc3c0153130561fc1d00fc922eb323f341fd6f376901dffe3689c9",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-ossuary-v34.png",
+      "sha256": "a03f7581c5ae3146c606c11389660a7ea6f11940f4a5f536968195c344052ce5",
+      "reference": "chapel-ossuary",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "a03f7581c5ae3146c606c11389660a7ea6f11940f4a5f536968195c344052ce5",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/chapel-ritual-remains-v34.png",
+      "sha256": "cf31e3eae928c78ae99af94d166938188dd9fbca71cc0fa512c79752b4943734",
+      "reference": "ritual-remains",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "cf31e3eae928c78ae99af94d166938188dd9fbca71cc0fa512c79752b4943734",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/charge-fresco-v12.png",
+      "sha256": "4310d8afac2f137e4ef78f770ba6466ad9a04a7a2053d523b17f1fa88eea88de",
+      "reference": "powder-charge",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "4310d8afac2f137e4ef78f770ba6466ad9a04a7a2053d523b17f1fa88eea88de",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/effects-fresco-v12.png",
+      "sha256": "577679f5e12e043705748044c43053c6acabe1d1fa1da6ecb56514064b9c9e1b",
+      "reference": "impact-effects",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "1c42e1da2231a51de643095f2bfbc2220e5be0ee5cff623ee46b5999fa8dca64",
+      "history": "changed since first commit"
+    },
+    {
+      "path": "game/assets/art/flask-hands-v45.png",
+      "sha256": "ab13a21fcd30aa111807742c3f05bde83e5c8e1cd6a7164f67bd4f7605615ae4",
+      "reference": "flask-gesture",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "9524a2eb2ae7fe379b3b187959434227f0c5bfd3933211be892a0d37fd108c0b",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/furfur-breath-fresco-v45.png",
+      "sha256": "57a684e75fdd49c86a85e329c22e18806719eff3896aa189e4fcb9cf13948fc5",
+      "reference": "furfur",
+      "review": "2026-11-05: Porównano kości, rogi, skórę i ogon; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "57a684e75fdd49c86a85e329c22e18806719eff3896aa189e4fcb9cf13948fc5",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/furfur-fresco-v12.png",
+      "sha256": "f7eb0f361b0304fd597d9edeecb1645a1234e2e6d9e09dcde6a1de027011adc2",
+      "reference": "furfur",
+      "review": "2026-11-05: Porównano kości, rogi, skórę i ogon; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "f7eb0f361b0304fd597d9edeecb1645a1234e2e6d9e09dcde6a1de027011adc2",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/furfur-idle-fresco-v13.png",
+      "sha256": "847ea1c9bfbdc9502f056d6f0d1f5f3d4a8ca31eeb6178d33a65d0129efd1504",
+      "reference": "furfur",
+      "review": "2026-11-05: Porównano kości, rogi, skórę i ogon; komplet póz i rendery 3/6/12 m. Zachowane.",
+      "beforeSha256": "847ea1c9bfbdc9502f056d6f0d1f5f3d4a8ca31eeb6178d33a65d0129efd1504",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/hazards-fresco-v33.png",
+      "sha256": "06504163131c78741775e488ef265dc983411cb91445aee52604401aa493fd7d",
+      "reference": "hazards",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "5eefb1e909ec0f1ae778acf851522a8983856e80be89a8076caa94b648c94b00",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/horizon-fresco-v12.png",
+      "sha256": "bccfd155dc1ff84e5c628e97aa3d4a47fd7ed6cea50ed62de2d739cc68b1031e",
+      "reference": "horizon",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "001a3f169b0300ff06d02837de32df53952ab628a93161e8e02e1f9b24251459",
+      "history": "changed since first commit"
+    },
+    {
+      "path": "game/assets/art/icons/flask.png",
+      "sha256": "d19516953dde4cea499fe9ec770a00ec8dc24b290ccd360d5d8fa2ec056a60bf",
+      "reference": "hud",
+      "review": "2026-11-05: Obejrzano i zachowano chroniony projekt UI; brak zmiany tekstury.",
+      "beforeSha256": "d19516953dde4cea499fe9ec770a00ec8dc24b290ccd360d5d8fa2ec056a60bf",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/icons/powder.png",
+      "sha256": "cfcea898a0da9174fa5a423c5dd983bcd17cac21215ff7ddb04a754491b31ee4",
+      "reference": "hud",
+      "review": "2026-11-05: Obejrzano i zachowano chroniony projekt UI; brak zmiany tekstury.",
+      "beforeSha256": "cfcea898a0da9174fa5a423c5dd983bcd17cac21215ff7ddb04a754491b31ee4",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/icons/stamina.png",
+      "sha256": "38f8d0d292fdadcee341fc41aa3b3ae29c09fa515e3c7b379ef529d6ad64d2a2",
+      "reference": "hud",
+      "review": "2026-11-05: Obejrzano i zachowano chroniony projekt UI; brak zmiany tekstury.",
+      "beforeSha256": "38f8d0d292fdadcee341fc41aa3b3ae29c09fa515e3c7b379ef529d6ad64d2a2",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/icons/vow_flask.png",
+      "sha256": "b60fb9a1c4c6dafe233f2aec6c45a49ed24f2d846d22cf708a0841666b1347ea",
+      "reference": "vows",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "125e09adca883c7e8b0ed26c7cd3a39610104c0112ca58d6c4107c700433e9e5",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/icons/vow_vigour.png",
+      "sha256": "5d32ce00961d141a73118994f8ee0ab550b05a70c53f45cd890cd2f61b8651e9",
+      "reference": "vows",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "c37190c5cdde1aff8c5101c54bf571d32ffe5691390ab829108430b6ee1d2a20",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/icons/vow_ward.png",
+      "sha256": "ca09db848eebcbc29f75729091215f73bc15279a318d69e02aebc071dca13415",
+      "reference": "vows",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "ff8dabc819df1158c929f320a326d116c57c6ee80f4b50fae83c26b6a5df46d6",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/imp-fresco-v12.png",
+      "sha256": "d2237d04954004fb5f6687dd57875ceec3b92c3b1f4fb33bd246e4f4cf5f039d",
+      "reference": "ember-thrall",
+      "review": "2026-11-05: Porównano sylwetkę, rogi, skrzydła i fakturę z bazą; obejrzano komplet klatek oraz zdolność skoku z profilem pigmentu w grze.",
+      "beforeSha256": "d2237d04954004fb5f6687dd57875ceec3b92c3b1f4fb33bd246e4f4cf5f039d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/imp-idle-fresco-v13.png",
+      "sha256": "e55b4194c3565fe49135ad46b6382072c9d72fc0ca301afd59d150c86e173944",
+      "reference": "ember-thrall",
+      "review": "2026-11-05: Porównano sylwetkę, rogi, skrzydła i fakturę z bazą; obejrzano komplet klatek oraz zdolność skoku z profilem pigmentu w grze.",
+      "beforeSha256": "e55b4194c3565fe49135ad46b6382072c9d72fc0ca301afd59d150c86e173944",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/imp-leap-fresco-v23.png",
+      "sha256": "3e62b8ce0866cf9d9014756111505b01ca207f5159c592608ebe3ccd25091907",
+      "reference": "ember-thrall",
+      "review": "2026-11-05: Porównano sylwetkę, rogi, skrzydła i fakturę z bazą; obejrzano komplet klatek oraz zdolność skoku z profilem pigmentu w grze.",
+      "beforeSha256": "3e62b8ce0866cf9d9014756111505b01ca207f5159c592608ebe3ccd25091907",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/imp-strike-fresco-v12.png",
+      "sha256": "b148e5aa2630f1c227a0f9fd3f81187a0a8e0d1fd73b3764ad34e5dbbfa9d9ef",
+      "reference": "ember-thrall",
+      "review": "2026-11-05: Porównano sylwetkę, rogi, skrzydła i fakturę z bazą; obejrzano komplet klatek oraz zdolność skoku z profilem pigmentu w grze.",
+      "beforeSha256": "b148e5aa2630f1c227a0f9fd3f81187a0a8e0d1fd73b3764ad34e5dbbfa9d9ef",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/impact-scars-v17.png",
+      "sha256": "009617a47456016371467cf520d11a45a2f4fc85624dc8e307d40739202fd6e9",
+      "reference": "world-materials",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "009617a47456016371467cf520d11a45a2f4fc85624dc8e307d40739202fd6e9",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/lettering-en-v16.png",
+      "sha256": "6ae10f5e35c2626acec0da682865218e53421035e7dfbb5c9c308fb460b36145",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "6ae10f5e35c2626acec0da682865218e53421035e7dfbb5c9c308fb460b36145",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/medals/absolved.png",
+      "sha256": "fe888db121bd866a1318dd735aaf927076b1da5102846980514d8b800004e5f5",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "870b21ac2b8b69ca46875ef9ed3d1ee899928ad21cbe2f1e39ee13e92c4ce0c2",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/diptych.png",
+      "sha256": "7ac8d7e6e41ea93c1ab35e4addc67d3dbc791095fe155f71bf08699e807a1153",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "12e0275600362c1eeeac50b44415847398e85878b5fda9680ec434d35fdf4b86",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/last_rites.png",
+      "sha256": "e3c9d38c5720e4f7372b6fa1e2ff7c3d7a2e91cc5166bafd4845066f89ddfc26",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "a9513311e76c7711b287fba3cd8226fe7c4819f23579841b98eda8dd983f7032",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/one_shot.png",
+      "sha256": "c3c3a0bf12a1538fb8063de7f4898069d600cf81cce9f3393c94633fa3f6aaea",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "974e687df4a010740e2c7ffb1872ba6ca4a527671f2ab34236759783fb89db84",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/parry.png",
+      "sha256": "8b49e0ffccb04b1b9dd856c3a50a45e5ef1812be5b804bbc69fbb2ce56d698fc",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "9e74502c9a7806bc2f4be5091cc46127596d5abd3eba1f76c6396417dd714098",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/point_blank.png",
+      "sha256": "7a98cfcb2c07ec457b3837fdda243b9b96434df0f09198fa2b8d1ef094dd8962",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "524c4af665b33e65b3bb0ad6514039bfcb52d608e944a600c9935f057ed79f30",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/polyptych.png",
+      "sha256": "8b16aa2930f1da4e3b800601950103924061bf0f6acc36afda028855197866cf",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "1b356afa8e7d34ea1310593e2db8cdb0d615a8b15d72f42aedc220752c8566c2",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/smitten.png",
+      "sha256": "cd2e31e42537e462e8631e8d27b1ecec00358b37851dd10d3ceab6bb28fa6196",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "826b45c6311dd6433ac690363a4538cc54d7e3f29959a7292100d1c4127665ba",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/tetraptych.png",
+      "sha256": "13bc5ba79e8e7e6c5626b2f40988a3ea8ea00121c3736a78146929126f4c40b2",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "cbdd6bf032bfad19ad2e6de0e58d6d6f432d6811203f9649839ba6ee4851d2d3",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/medals/triptych.png",
+      "sha256": "82afadb1eef235e52933b12feddace28f654bf5f194297c2c6b069f05d51d858",
+      "reference": "medals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "4f7a2cc4102c51f53ae4c7269b41da0350eb8107d0804122fe50ac2519806a0f",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/murals-fresco-v12.png",
+      "sha256": "85f71be3f972ad402b9ab3e0aa000623a4286644ca409a75ab0bf0d988d87ab9",
+      "reference": "world-materials",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "85f71be3f972ad402b9ab3e0aa000623a4286644ca409a75ab0bf0d988d87ab9",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/muzzle-fresco-v12.png",
+      "sha256": "4413a94bc6de0e516b81a72f7f02163a79aa8f3bbdf375a26074a8cdc67d374e",
+      "reference": "muzzle-flash",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "4413a94bc6de0e516b81a72f7f02163a79aa8f3bbdf375a26074a8cdc67d374e",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/nosiciel-iron-v16.png",
+      "sha256": "6681687691c425fbbcb22631cfbf00d177fb99763a870f5827bd73c617509827",
+      "reference": "knight",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "6681687691c425fbbcb22631cfbf00d177fb99763a870f5827bd73c617509827",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/numerals-v16.png",
+      "sha256": "a9bddb9d23d7a4891199eab82ca7ad8ee46ac3e3e55ae59089a79f8a286376be",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "a9bddb9d23d7a4891199eab82ca7ad8ee46ac3e3e55ae59089a79f8a286376be",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/pickups/ammo_rounds.png",
+      "sha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "reference": "ammunition",
+      "review": "2026-11-05: Zachowano wybrany przez właściciela ciepły ciemny wariant; oba obrazy porównano z historią.",
+      "beforeSha256": "3fbeb52bc4f01fb48a0bfa38f81a5a539170696936d4a67765adf76e45223d0e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/pickups/ammo_shells.png",
+      "sha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45",
+      "reference": "ammunition",
+      "review": "2026-11-05: Zachowano wybrany przez właściciela ciepły ciemny wariant; oba obrazy porównano z historią.",
+      "beforeSha256": "e4319adafc42349fde0cbdb5ed97734deea8d97c94957f3b66889aea80349d45",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/portal-fresco-v23.png",
+      "sha256": "c3af1322046eb82aa4a0cc2584a9eebe6678a4af73bbd0967711ee6591f52b0b",
+      "reference": "portal",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "c3af1322046eb82aa4a0cc2584a9eebe6678a4af73bbd0967711ee6591f52b0b",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/projectiles-fresco-v45.png",
+      "sha256": "f695faa141b8fa3eb27e33511970077dfbac02d7490fbb656a4c249bc64b2b88",
+      "reference": "spell-projectiles",
+      "review": "2026-11-05: Obejrzano każdą komórkę; zwarte pigmentowe pociski zachowane. Nie są teksturą stojącego ognia.",
+      "beforeSha256": "f695faa141b8fa3eb27e33511970077dfbac02d7490fbb656a4c249bc64b2b88",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/props-fresco-v12.png",
+      "sha256": "8f28f99befbf330defdcb6571f843f9bf08832db4268a6882548d7b0b717bb58",
+      "reference": "world-props-and-fire",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "437a00f798af8d5df7c2b9bafc7a5a2b479b9bdb653bb54996a602b701231aeb",
+      "history": "changed since first commit"
+    },
+    {
+      "path": "game/assets/art/reliquary-ash-v16.png",
+      "sha256": "8bd7e83bc2fb2e64c9106b8c2223b03b9e1f9c925b0c268ee5c0275dc49aed3d",
+      "reference": "hud",
+      "review": "2026-11-05: Obejrzano i zachowano chroniony projekt UI; brak zmiany tekstury.",
+      "beforeSha256": "8bd7e83bc2fb2e64c9106b8c2223b03b9e1f9c925b0c268ee5c0275dc49aed3d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/revolver-iron-v16.png",
+      "sha256": "f8c2cd0127144a6f8334b48d8aff5d41881de5297be8130c574463c8fdb40490",
+      "reference": "judge",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "f8c2cd0127144a6f8334b48d8aff5d41881de5297be8130c574463c8fdb40490",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/rites-fresco-v45.png",
+      "sha256": "38f61a333cfc201547c977ef54b600cd25abd184b66b1dae43cfa83f60abb704",
+      "reference": "rituals",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "31e873f787a2f3f1f90323160e84ed550f7c5072a688728aa322b975de4f60e7",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/ritual-medallion-v31.png",
+      "sha256": "58894b3dfb843722b11e840942283fa2ff893db311423d307fe58b6aa8047123",
+      "reference": "world-materials",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "58894b3dfb843722b11e840942283fa2ff893db311423d307fe58b6aa8047123",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/rules/rule_execution.png",
+      "sha256": "922bf013059d8ec41c138ff16db34dfd31879f0fa618b2d863b06437e5d243d2",
+      "reference": "rules",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "922bf013059d8ec41c138ff16db34dfd31879f0fa618b2d863b06437e5d243d2",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/rules/rule_guard.png",
+      "sha256": "d0a939dac4c805f2a79c29f9df2d33e47194207f03f96d751ff68306d7174843",
+      "reference": "rules",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "d0a939dac4c805f2a79c29f9df2d33e47194207f03f96d751ff68306d7174843",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/rules/rule_ring.png",
+      "sha256": "169152614d86608a71f3c24196d06f6935d2e0ff5a9ec9fa50d91d1c2e314ec3",
+      "reference": "rules",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "169152614d86608a71f3c24196d06f6935d2e0ff5a9ec9fa50d91d1c2e314ec3",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/shotgun-iron-v16.png",
+      "sha256": "5785a1b18e08096f63c2f06e075a075e3c23d6370a1af9920c29f4c24f9dd1a3",
+      "reference": "exorcist",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "5785a1b18e08096f63c2f06e075a075e3c23d6370a1af9920c29f4c24f9dd1a3",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/shrine-fresco-v12.png",
+      "sha256": "df871e1c019ed0a38bbd710ea01be8743ae08ffcfe4417ca7c402dbc4d692bc4",
+      "reference": "bonfire",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "df871e1c019ed0a38bbd710ea01be8743ae08ffcfe4417ca7c402dbc4d692bc4",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/asmoday-1904.png",
+      "sha256": "732bf72097d1c6a3d1659104a7965d5f715e38e3b7fa40305983df6d259a5b29",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "732bf72097d1c6a3d1659104a7965d5f715e38e3b7fa40305983df6d259a5b29",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/buer-1904.png",
+      "sha256": "eae7654b052dd384a78c29a03b9d44eba861b50b8bd4784358cef784ac6c4231",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "eae7654b052dd384a78c29a03b9d44eba861b50b8bd4784358cef784ac6c4231",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/clavicula-saturn-plate-ii.png",
+      "sha256": "3beaf2cfd99aab9fb4af86b136fac8c480ee77d847de3d9129ac1a185a02e0f2",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "3beaf2cfd99aab9fb4af86b136fac8c480ee77d847de3d9129ac1a185a02e0f2",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/furfur-1904.png",
+      "sha256": "70a272dda99872824c713866fee77e302127f3e7a6d6ce2ce5804b5ce446f9aa",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "70a272dda99872824c713866fee77e302127f3e7a6d6ce2ce5804b5ce446f9aa",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/paimon-1904.png",
+      "sha256": "170f9b1ca51e4ce15989257f1137cb9fcefb314f89eca1ee3004ba776e59fa78",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "170f9b1ca51e4ce15989257f1137cb9fcefb314f89eca1ee3004ba776e59fa78",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/sigils/stolas-1904.png",
+      "sha256": "4d6e79eb80f4bbf5c9bab862769c3ce72aa40ac3a7056c53fce9ec641d5f627b",
+      "reference": "sigils",
+      "review": "2026-11-05: Obejrzano cały obraz i porównano fakturę, paletę oraz skalę detalu z przypisanym wzorcem; zachowano.",
+      "beforeSha256": "4d6e79eb80f4bbf5c9bab862769c3ce72aa40ac3a7056c53fce9ec641d5f627b",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/spells-fresco-v12.png",
+      "sha256": "6d5db08ea60a3a59cf7d1c091765e4c551adbedde4cf28475f349a6e6ab0199d",
+      "reference": "spell-effects",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "875c7cc672a0da62579b3486ff94c0eb0a0204e2348e3c78fc05fbe892e6be6b",
+      "history": "changed since first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-casts-v45.png",
+      "sha256": "7fc3f5f18c3f1944ba6f890034e66c7efcc5f452636fd17d6da3f72c084af4d3",
+      "reference": "star-acolyte",
+      "review": "2026-11-05: Porównano twarz, pióra i modelunek z bazą; obejrzano wszystkie pozy i odskok z profilem pigmentu. Zachowano ostatnio dopracowany zestaw.",
+      "beforeSha256": "7fc3f5f18c3f1944ba6f890034e66c7efcc5f452636fd17d6da3f72c084af4d3",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-eruptions-v45.png",
+      "sha256": "8b4f344f0a6ec81b77e65daf159a2c6179cb69b71d7352bbf86cbbe9a8480fa5",
+      "reference": "stolas-wave",
+      "review": "2026-11-05: Obejrzano wszystkie sześć faz; zachowano ostatnio dopracowaną niską falę i pionowe rozdarcie.",
+      "beforeSha256": "8b4f344f0a6ec81b77e65daf159a2c6179cb69b71d7352bbf86cbbe9a8480fa5",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-evade-fresco-v23.png",
+      "sha256": "cc6af0593baaa0fd9ba0333cd02db119620ec0c654078208c8d28a5ef237d5ec",
+      "reference": "star-acolyte",
+      "review": "2026-11-05: Porównano twarz, pióra i modelunek z bazą; obejrzano wszystkie pozy i odskok z profilem pigmentu. Zachowano ostatnio dopracowany zestaw.",
+      "beforeSha256": "cc6af0593baaa0fd9ba0333cd02db119620ec0c654078208c8d28a5ef237d5ec",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-fresco-v12.png",
+      "sha256": "ff94685b8c9e552f029c24811f7f88202f261d65a79b124958a3e3818d5b163d",
+      "reference": "star-acolyte",
+      "review": "2026-11-05: Porównano twarz, pióra i modelunek z bazą; obejrzano wszystkie pozy i odskok z profilem pigmentu. Zachowano ostatnio dopracowany zestaw.",
+      "beforeSha256": "ff94685b8c9e552f029c24811f7f88202f261d65a79b124958a3e3818d5b163d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-ground-rites-v45.png",
+      "sha256": "c3b0a18ee0620eebe83191a1ab4cf26d2b2e4ed3274fd0d657cc0eb0cd7e953e",
+      "reference": "stolas-rituals",
+      "review": "2026-11-05: Obejrzano wszystkie komórki efektów i porównano z malowanymi rytuałami. Zachowano zestaw dopracowany według ostatnich uwag właściciela.",
+      "beforeSha256": "c3b0a18ee0620eebe83191a1ab4cf26d2b2e4ed3274fd0d657cc0eb0cd7e953e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-hell-rites-v45.png",
+      "sha256": "b54a1030a7d3b1369f340be2ab39b587d1d8d1b867e138339a8f4ec8bd0a611e",
+      "reference": "stolas-rituals",
+      "review": "2026-11-05: Obejrzano wszystkie komórki efektów i porównano z malowanymi rytuałami. Zachowano zestaw dopracowany według ostatnich uwag właściciela.",
+      "beforeSha256": "b54a1030a7d3b1369f340be2ab39b587d1d8d1b867e138339a8f4ec8bd0a611e",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-idle-fresco-v13.png",
+      "sha256": "2bc06bb8bf49b43633516628fce36e7e16ea29375515df139ddd2d312d30eb23",
+      "reference": "star-acolyte",
+      "review": "2026-11-05: Porównano twarz, pióra i modelunek z bazą; obejrzano wszystkie pozy i odskok z profilem pigmentu. Zachowano ostatnio dopracowany zestaw.",
+      "beforeSha256": "2bc06bb8bf49b43633516628fce36e7e16ea29375515df139ddd2d312d30eb23",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-repair-fresco-v12.png",
+      "sha256": "c851b34dac8c7486004fed3e5ee5f130d8e23cc74b925800f299a14718190770",
+      "reference": "star-acolyte",
+      "review": "2026-11-05: Porównano twarz, pióra i modelunek z bazą; obejrzano wszystkie pozy i odskok z profilem pigmentu. Zachowano ostatnio dopracowany zestaw.",
+      "beforeSha256": "c851b34dac8c7486004fed3e5ee5f130d8e23cc74b925800f299a14718190770",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/stolas-rites-v45.png",
+      "sha256": "d2a6e1292ba9142dabc5c1fd574b4b675c9feae4398c7937d773507e1aef44f3",
+      "reference": "stolas-rituals",
+      "review": "2026-11-05: Obejrzano wszystkie komórki efektów i porównano z malowanymi rytuałami. Zachowano zestaw dopracowany według ostatnich uwag właściciela.",
+      "beforeSha256": "d2a6e1292ba9142dabc5c1fd574b4b675c9feae4398c7937d773507e1aef44f3",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/art/textures-fresco-v12.png",
+      "sha256": "3f9e4c13383465a556b613500ba1f16c1b29714097522d2f355c1341692393e3",
+      "reference": "world-materials",
+      "review": "2026-11-05: odrzucono spłaszczoną fakturę z 4dd68aa; przywrócono dokładne PNG z jego rodzica, po porównaniu obu obrazów z bazą.",
+      "beforeSha256": "c6738b002eceadd929887ff9bb453128be9cdeb9a382f1878307103ee88f1cea",
+      "history": "changed since first commit"
+    },
+    {
+      "path": "game/assets/art/ui-fresco-v12.png",
+      "sha256": "2c4601f0eb3ab00f1ef4148f47fb01c82e719f05623dade9bff00682ba7e29d3",
+      "reference": "hud",
+      "review": "2026-11-05: Obejrzano i zachowano chroniony projekt UI; brak zmiany tekstury.",
+      "beforeSha256": "2c4601f0eb3ab00f1ef4148f47fb01c82e719f05623dade9bff00682ba7e29d3",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/weapon-cards-v45.png",
+      "sha256": "b37f43ff076dfed91c81305863ab0a6c4a06cf47430f258deea7995ef404aa9f",
+      "reference": "weapon-card",
+      "review": "2026-11-05: Porównano malowane podłoże z UI oraz zachowane piksele broni z oryginałami; brak zmiany karty.",
+      "beforeSha256": "b37f43ff076dfed91c81305863ab0a6c4a06cf47430f258deea7995ef404aa9f",
+      "history": "added after first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-11.png",
+      "sha256": "bd63337869af141eab0fee61dc4a5fa7861b5df5f54c1af9ead2bba030b11756",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "bd63337869af141eab0fee61dc4a5fa7861b5df5f54c1af9ead2bba030b11756",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-12.png",
+      "sha256": "bca0d8a3d2ace8b8309d86923ff8f8b06a413c4ddbcb5e2d3d0aa5cf8411d1b2",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "bca0d8a3d2ace8b8309d86923ff8f8b06a413c4ddbcb5e2d3d0aa5cf8411d1b2",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-13.png",
+      "sha256": "102d6a134f1e3f7d99592419ebb9ada56867234c45539f9ed7c55f975a2cb10e",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "102d6a134f1e3f7d99592419ebb9ada56867234c45539f9ed7c55f975a2cb10e",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-14.png",
+      "sha256": "d92746b8c0ac8f7bf8b61d18e88c7b9d4e5079ee63ac90fca70e6047577bd164",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "d92746b8c0ac8f7bf8b61d18e88c7b9d4e5079ee63ac90fca70e6047577bd164",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-16.png",
+      "sha256": "ea5b922499923611f548bafa5b9358a4066d936d8396854242f046f06aa1e220",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "ea5b922499923611f548bafa5b9358a4066d936d8396854242f046f06aa1e220",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-18.png",
+      "sha256": "1269ef770dd8e07a97ecf4c4aa6f9ceae844e333b04e205ef8746362b0ab7705",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "1269ef770dd8e07a97ecf4c4aa6f9ceae844e333b04e205ef8746362b0ab7705",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-20.png",
+      "sha256": "bf407c54ee02bf72d879c6200a0f3c9a35c3b2fb84740be4701ce53718091da4",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "bf407c54ee02bf72d879c6200a0f3c9a35c3b2fb84740be4701ce53718091da4",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-22.png",
+      "sha256": "c4e95609a1d5f1baa9ed05f745f4e17c871d95752e4fcee0baa3133da63707be",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "c4e95609a1d5f1baa9ed05f745f4e17c871d95752e4fcee0baa3133da63707be",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-24.png",
+      "sha256": "1a782d1bdf9b9fc45346273299a92a32fc018b2d2a5c6b8a7cfcaae1244c7af0",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "1a782d1bdf9b9fc45346273299a92a32fc018b2d2a5c6b8a7cfcaae1244c7af0",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-28.png",
+      "sha256": "dcc2ec6df4706c19d197a7bf33d06ed96f565f2f9c3012032b4e7a99a0210762",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "dcc2ec6df4706c19d197a7bf33d06ed96f565f2f9c3012032b4e7a99a0210762",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-36.png",
+      "sha256": "c4f89c9ee3dbef66a9d56a2de3c113be4018e190cecee41de030e2e3b600c131",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "c4f89c9ee3dbef66a9d56a2de3c113be4018e190cecee41de030e2e3b600c131",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-42.png",
+      "sha256": "43255313d819e66b52541f2364ac45425a951a4b3970ace417e46961c8dcf850",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "43255313d819e66b52541f2364ac45425a951a4b3970ace417e46961c8dcf850",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-48.png",
+      "sha256": "f11921399f140a6a4edd804dc0292f0d2b9a9eaac0ae87534d6081527d0f4142",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "f11921399f140a6a4edd804dc0292f0d2b9a9eaac0ae87534d6081527d0f4142",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-64.png",
+      "sha256": "85224b85344b132150b9c4c648c72b03e20cf5ba089e596ad0d52ca7c610286d",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "85224b85344b132150b9c4c648c72b03e20cf5ba089e596ad0d52ca7c610286d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted/sigil-94.png",
+      "sha256": "1e413a3e57c0935f41353c6ddc9a92002950674144cd582de9728bf55bd69f4d",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "1e413a3e57c0935f41353c6ddc9a92002950674144cd582de9728bf55bd69f4d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-11.png",
+      "sha256": "c5bf63f879d4b639d14311e05d484459ce832de41bb26d373518b6d47701d49f",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "c5bf63f879d4b639d14311e05d484459ce832de41bb26d373518b6d47701d49f",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-12.png",
+      "sha256": "e74744b143f5f2c1255a8ea6bd8c3262cff8ac45a1c2975259907ec071870655",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "e74744b143f5f2c1255a8ea6bd8c3262cff8ac45a1c2975259907ec071870655",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-13.png",
+      "sha256": "8363f4dda2346a57ec9c9d0df4ef6b7d790cd9021c8b5833f3a929bc433ff64d",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "8363f4dda2346a57ec9c9d0df4ef6b7d790cd9021c8b5833f3a929bc433ff64d",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-14.png",
+      "sha256": "2a48f94f0aa9180e66cab59a7fa063403ab76335af57ad48c209845fe246a952",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "2a48f94f0aa9180e66cab59a7fa063403ab76335af57ad48c209845fe246a952",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-16.png",
+      "sha256": "41484313d7cf2767c97485fc1eef21e3b0f96c92d1dcbbd2e7cf51dd89c40503",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "41484313d7cf2767c97485fc1eef21e3b0f96c92d1dcbbd2e7cf51dd89c40503",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-18.png",
+      "sha256": "cde89c99299e29ac3908b602063eb6801606287b3b49ba5b6edb2e11762c21ef",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "cde89c99299e29ac3908b602063eb6801606287b3b49ba5b6edb2e11762c21ef",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-20.png",
+      "sha256": "ac5591a9db1950f67409cea6cba1fa318804c9c9584fa2ac9706830e11bd8330",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "ac5591a9db1950f67409cea6cba1fa318804c9c9584fa2ac9706830e11bd8330",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-22.png",
+      "sha256": "a0baec76e5c24055e691bee84b47d4438a7ec73375634c8255169288661c4514",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "a0baec76e5c24055e691bee84b47d4438a7ec73375634c8255169288661c4514",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-24.png",
+      "sha256": "f520ee66997d38985b6529f322a5e56daeaa079590e1616c90e3a3dcb04a3dda",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "f520ee66997d38985b6529f322a5e56daeaa079590e1616c90e3a3dcb04a3dda",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-28.png",
+      "sha256": "080480681f1bef3f63d98743daaac617785d130331a95e145568d4efa5726223",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "080480681f1bef3f63d98743daaac617785d130331a95e145568d4efa5726223",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-36.png",
+      "sha256": "e4f26fe7357719841d038cefa7b7976dff7cbde4c561b037f8edc8df2b896e61",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "e4f26fe7357719841d038cefa7b7976dff7cbde4c561b037f8edc8df2b896e61",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-42.png",
+      "sha256": "028574671b932f827e39a48aab16fae2c2becb2e9e562ad613a714b62dce3f76",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "028574671b932f827e39a48aab16fae2c2becb2e9e562ad613a714b62dce3f76",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-48.png",
+      "sha256": "e09ef6562a18cafb30119e312407e3a0f8ab9dc4f97e2c684979d7b360962f31",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "e09ef6562a18cafb30119e312407e3a0f8ab9dc4f97e2c684979d7b360962f31",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-64.png",
+      "sha256": "3c8f661958d0a9251ab0f86ae58421dcaf6cbef8806a43df9ae9dcabb37aeb91",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "3c8f661958d0a9251ab0f86ae58421dcaf6cbef8806a43df9ae9dcabb37aeb91",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/fonts/painted-v16/sigil-94.png",
+      "sha256": "8ff75dab42f814cf573cc0c0c1bf07a88aae26bdc486f54bd704d126b101b81b",
+      "reference": "lettering",
+      "review": "2026-11-05: Obejrzano arkusz znaków; zgodność istniejących liter i czcionek, bez zmiany formy.",
+      "beforeSha256": "8ff75dab42f814cf573cc0c0c1bf07a88aae26bdc486f54bd704d126b101b81b",
+      "history": "identical to first commit"
+    },
+    {
+      "path": "game/assets/art/armored-base-gutters-v45.png",
+      "sha256": "c4c2e7182f3c1ee7ae7a7e47ed2a54e17fe747ddddee67f891f58224a2bb49fc",
+      "reference": "iron-thrall",
+      "review": "2026-11-05: techniczna kopia oryginalnych pikseli z przezroczystym obramowaniem; oddzielny test każdego piksela, filtra i skali."
+    }
+  ],
+  "retired": [
+    {
+      "path": "game/assets/art/armored-attacks-v45.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-claw-v45.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-fall-fresco-v12.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-idle-fresco-v13.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-step-fresco-v12.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-strike-matte-fresco-v12.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    },
+    {
+      "path": "game/assets/art/armored-windup-fresco-v12.png",
+      "reason": "Odrzucone zastępcze malowanie Iron Thralla; źródło: Git 18c25e0. Obowiązuje oryginalny arkusz 6×4."
+    }
+  ]
+}

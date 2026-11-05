@@ -150,6 +150,8 @@ function Tool.propose(spec)
       rows = s.rows,
       scale = s.scale,
       idle = s.idle,
+      filter = s.filter,
+      mipmaps = s.mipmaps,
       bands = {},
       columnBands = {},
     }
@@ -194,11 +196,24 @@ local function list(values)
   end
   return '{ ' .. table.concat(out, ', ') .. ' }'
 end
-local SOURCE_FIELDS =
-  { 'path', 'size', 'columns', 'rows', 'scale', 'idle', 'bands', 'columnBands', 'crops' }
-local POSE_FIELDS = { 'clock', 'frames', 'bounds', 'rate', 'step', 'ends', 'offset', 'fallback' }
+local SOURCE_FIELDS = {
+  'path',
+  'size',
+  'columns',
+  'rows',
+  'scale',
+  'idle',
+  'filter',
+  'mipmaps',
+  'bands',
+  'columnBands',
+  'crops',
+}
+local POSE_FIELDS =
+  { 'clock', 'frames', 'bounds', 'rate', 'step', 'ends', 'offset', 'fallback', 'footsteps' }
 local function scalar(value)
   return type(value) == 'string' and string.format('%q', value)
+    or (type(value) == 'boolean' and tostring(value))
     or (type(value) == 'table' and list(value))
     or number(value)
 end

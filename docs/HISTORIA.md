@@ -58,6 +58,35 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Audyt spójności 2026-11-05, na polecenie właściciela: utworzono `baza/`
+  jako bibliotekę porównawczą poza runtime. 44 reprezentatywne wzorce mają
+  źródło Git i SHA-256. Początkowe postacie, broń, HUD, materiały i ogień
+  pochodzą z pierwszego commitu 31c4c3a; późniejsze rodziny porównano z nimi.
+  Nowy projekt wymaga propozycji i akceptacji przed wdrożeniem oraz dodaniem
+  jednego obrazu do bazy. Nie wolno zapisywać tam każdej animacji.
+- Iron Thrall korzysta wyłącznie z pikseli oryginalnego arkusza 6×4 wskazanego
+  przez właściciela. Usunięto siedem zastępczych PNG (także stary strike-matte),
+  a pięć ataków złożono z istniejących póz. Techniczne przepakowanie dodaje
+  przezroczyste obramowanie klatek, bez retuszu, skalowania i redukcji kolorów.
+  Spoczynek ponownie używa czterech oryginalnych póz. Anatomia została
+  dopasowana do oryginału; luźna tkanina nadal przepuszcza strzały, ciało
+  zachowuje strefy. Dźwięk, zegary, obrażenia i reguły pięciu ataków pozostają.
+- Przejrzano wszystkie 158 początkowych plików rastrowych, w tym czcionki,
+  otoczenie, efekty, broń i UI. Wspólną przyczyną 22 rozjazdów było przemalowanie
+  4dd68aa: filtr medianowy, ograniczenie do 24/26 kolorów i uproszczenie faktury.
+  Przywrócono dokładne wcześniejsze PNG: stojący ogień i rekwizyty, materiały,
+  horyzont, mur, ogólne efekty/czary/rytuały, hazardy, ręce flaski, trzy ikony
+  ślubów i dziesięć medali. Pełna lista z pochodzeniem jest w katalogu bazy
+  i provenance zasobów. Właścicielskie ciemne obrazy amunicji, broń i dolny
+  pasek HUD nie zostały zmienione.
+- Brama Architecture na Linuxie sprawdza katalog wszystkich 152 wynikowych
+  tekstur, niezmienność 44 wzorców i brak zależności runtime od `baza/`.
+  Nowy/zmieniony/utracony obraz wymaga jawnego przeglądu. Test visual-identity
+  porównuje piksel po pikselu wszystkie klatki Iron Thralla i ich próbkowanie;
+  negatywne próby odrzucają podmianę pod tą samą nazwą, nową ilustrację oraz
+  zmianę filtra, mipmap i skali. QA źródeł czyta metadane zamiast zgadywać
+  nazwy plików. Eksport arkusza zachowuje filtry i oznaczenie kroków szarży.
+
 - Dodatkowe polecenie właściciela: przed commitem grafiki obowiązują trzy
   kontrole spójności (arkusz, rendery w grze, przejścia animacji) i test
   regresji. Jawnie wskazano bazowy arkusz Iron Thralla 6×4; odrzucono też
@@ -4140,6 +4169,79 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-05 — audyt spójności wszystkich tekstur i korekta Iron Thralla.
+- Pokrycie: 158/158 początkowych obrazów obejrzanych na 21 opisanych planszach;
+  71 identycznych z pierwszym commitem, 82 dodane później, pięć podmienionych
+  pod pierwotną nazwą. Każdy plik ma przypisany wzorzec i decyzję w
+  `baza/catalog.json`. Siedem odrzuconych arkuszy usunięto, jeden techniczny
+  atlas dodano: wynik to 152 tekstury. Porównanie wszystkich 24 par z 4dd68aa
+  wykazało 22 cofnięte przemalowania; dwa obrazy amunicji były już wcześniej
+  przywrócone zgodnie z wyborem właściciela i pozostały nietknięte.
+- Dowód czerwony: visual-identity wskazał 24 klatki Iron Thralla spoza
+  zaakceptowanego malowania. Nowa kontrola katalogu wskazała dokładnie 22
+  rozjazdy bajtów przed przywróceniem plików. Dodatkowa negatywna próba wykryła
+  lukę kontroli filtra, gdy spoczynek współdzieli już sprawdzony obraz; poprawiono
+  walidację każdego źródła, zachowując jednokrotne porównanie jego pikseli.
+- Dodatkowa przyczyna rozbieżności trafień: baker i provenance zakładały
+  filtr liniowy dla każdego dodatkowego PNG, podczas gdy techniczna kopia
+  oryginału zachowuje najbliższe próbkowanie. Sonda wskazała jeden kontakt
+  w niewidocznym miejscu. Filtr jest teraz częścią metadanych klatki;
+  generator masek, provenance i GPU korzystają z tego samego ustawienia.
+  Oczekiwanie zerowej liczby niewyjaśnionych trafień pozostaje niezmienione.
+- Pierwsza Mechanics ujawniła brak przywróconych oznaczeń luźnej tkaniny,
+  sztywną nazwę dawnego idle w QA oraz założenie, że dwa stany nie mogą używać
+  tej samej klatki. Przywrócono przepuszczanie tkaniny, QA odczytuje rzeczywiste
+  źródło, a wymóg odmiennych malowanych komórek nadal obowiązuje. Oddzielny
+  test wymaga czterech różnych póz spoczynku. Kryteria trafień, masek, granic
+  klatek i skali nie zostały poluzowane.
+- W starym QA idle brakowało trybu poligonu: previewFrame nie wybierał
+  żądanej pozy. Dodano tryb i 24 asercje potwierdzające rzeczywistą klatkę.
+  Próby energii trafienia oraz przebijania pancerza mają ustaloną pozę i cel
+  na torsie; wcześniejszy poziomy strzał po przywróceniu grafiki trafiał w
+  odsłoniętą rękę. Niezależne piksele prób wytrzymałości przeniesiono do
+  oryginalnego arkusza z uwzględnieniem samego obramowania, nie do kolidera.
+  Zachowano oczekiwane obrażenia, absorpcję i zatrzymanie pocisku przez metal.
+- Kontrola wizualna 1: wszystkie pliki źródłowe i pary stary/nowy, następnie
+  każda aktywna klatka sześciu stworów w jednakowej skali świata i z filtrem
+  używanym w grze. Iron: oryginalne malowanie we wszystkich 28 stanach arkusza;
+  1 572 876 porównań pikseli źródłowych, zero przemalowanych pikseli.
+- Kontrola wizualna 2: natywne sceny sześciu stworów i rekwizytów z 3/6/12 m,
+  identyczne światło i kamera. Stojący ogień odzyskał dawną fakturę. Sprawdzono
+  również wszystkie 16 klatek zdolności z istniejącymi profilami pigmentu:
+  surowa jasna plansza nie jest finalnym wyglądem w grze. Zachowano wcześniej
+  dopracowane rytuały Stolasa; nowe rendery nie wykazały potrzeby ich cofania.
+- Kontrola wizualna 3: obejrzano po 14 rzeczywistych klatek przygotowania,
+  uderzenia i powrotu każdego z pięciu ataków Iron Thralla oraz sześć faz
+  flaski. Przejścia zachowują pierwotną twarz, pancerz, tkaninę i fakturę.
+  Porównanie ognia przed/po używa tej samej sceny, kamery i światła.
+  Arkusz właściciela ma własne skróty perspektywiczne i kadrowanie kończyn;
+  nie domalowywano ich ani nie wymieniano na odrzucone nowe ilustracje.
+  Katalog i dokładna zgodność plików nie są automatyczną oceną artystyczną
+  ani akceptacją nowego projektu przez właściciela.
+- Maski: wszystkie 173 maski innych stworów są identyczne z HEAD po
+  rozkodowaniu wierszy. Zmiany dotyczą wyłącznie przywróconych 28 klatek
+  Iron Thralla. Dwa niezależne golden dały identyczne pliki: playtest
+  a416f22f/0f418894, human b6593f81/f709d142, drill 122d2542/f1953305,
+  kontakty odpowiednio b6de1242/147, dac355dc/173 i 466ba09c/370.
+  Dopiero wtedy zaktualizowano wzorzec Linux, z uzasadnieniem zmiany póz
+  i rzeczywistych masek. Wzorzec Windows nie był zmieniany.
+- Końcowy showcase: obejrzano ponownie scenę strzału i ciosu Iron Thralla,
+  ognisko, sklep z przywróconą ikoną oraz aktywne pola Margrave'a i Buera.
+  Przywrócone faktury zachowują spójność w oświetleniu i obok istniejącego UI.
+- Pełna brama Linux `scripts/linux/TEST.sh All --timeout 1800`: PASS,
+  exitCode=0, 756,5 s. Architecture: 677 plików Lua / zero naruszeń,
+  katalog tekstur i siedem prób negatywnych/pozytywnych PASS. Mechanics:
+  6878 PASS, w tym visual-identity 13, hit-landmarks 389, weight 882,
+  shot-observation 20, geometry 365 i golden 10. Input 50 PASS, Render PASS,
+  Tools PASS (pomiary w trybie smoke). Wszystkie dziewięć świadectw ma
+  sourceStable=true i ten sam odcisk końcowych źródeł. Mniejsza liczba
+  sprawdzeń niż przed korektą wynika m.in. z usunięcia odrzuconych 15 klatek
+  oraz ich punktów; zachowano kryteria i dodano regresję oryginalnego malowania.
+  Zapisano także pierwszą nieudaną Mechanics i czerwone sondy przed naprawą.
+- Dowody: ~/Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/texture-audit;
+  wcześniejszy czerwony visual-identity: sąsiedni iron-style-before. Bez nagrań,
+  pakowania, push i zmian skryptów Windows; ta platforma pozostaje niesprawdzona.
 
 Właściciel, 2026-11-05 — doprecyzowanie po wskazaniu obrazów.
 - Wzorzec Iron Thralla: bazowy arkusz 6×4 armored-fresco-v12.png. Osobny

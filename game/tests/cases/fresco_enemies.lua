@@ -86,10 +86,10 @@ function T.run(check, renderer)
     verify('fresco ' .. kind .. ' every repaired frame retains its image reference', attached)
     local sourcePaths, loaded = {}, {}
     for frame = 1, #frames do
-      sourcePaths[frame] = entry.path
+      sourcePaths[frame] = frames[frame].sourcePath
     end
     for _, supplement in ipairs(entry.replacements or {}) do
-      for _, frame in ipairs(supplement.targets) do
+      for _, frame in pairs(supplement.targets) do
         sourcePaths[frame] = supplement.path
       end
     end
@@ -156,17 +156,21 @@ function T.run(check, renderer)
       #columnProblems == 0
     )
     for _, supplement in ipairs(entry.replacements or {}) do
-      for _, frame in ipairs(supplement.targets) do
+      for _, frame in pairs(supplement.targets) do
         verify(
-          'fresco ' .. kind .. ' repaired pose ' .. frame .. ' does not use the rejected base cell',
+          'fresco '
+            .. kind
+            .. ' repaired pose '
+            .. frame
+            .. ' retains its explicitly selected source image',
           renderer.frameImages[kind][frame] ~= nil
         )
       end
     end
   end
   verify(
-    'armored retains 24 original action poses, four watchful poses and 15 distinct attack poses',
-    #renderer.frames.armored == 43
+    'armored retains all 24 approved base cells and four watchful references',
+    #renderer.frames.armored == 28
   )
   return count
 end
