@@ -38,6 +38,12 @@ wyłącznie sprawdzone właściwości techniczne. Najpierw poprawić Iron Thrall
 następnie przejrzeć wszystkie tekstury i wcześniejsze podmiany, w tym ogień,
 którego obecny wygląd właściciel również odrzucił.
 
+**Odbiór 2026-11-05:** właściciel zaakceptował korektę i audyt wszystkich
+tekstur z commitu `9867b7f`. Wzorce są w `baza/`, która służy wyłącznie do
+porównania. To zamyka powyższą naprawę, ale nie uchyla zasad spójności ani
+nie zatwierdza przyszłych nowych ilustracji. Kolejne projekty nadal
+wymagają propozycji i akceptacji przed podłączeniem do gry.
+
 - Do każdego zlecenia grafiki dołącz obraz Inferno. Zachowuj istniejący styl demonów, HUD i broni; odczucie trafienia i wyraźnego chybienia jest jednym z najważniejszych priorytetów.
 - Dolny pasek HUD jest chroniony: kształt, kompozycja i styl. Wolno poprawiać czytelność treści w istniejących niszach. Zmianę wyglądu pokaż przed/po w 960×540, 1024×768, 1280×720, 1920×810 i 1920×1080, zanim uznasz ją za przyjętą.
 - Znacznik trafienia: cztery cienkie kreski 4–8 px, zabójstwo zgaszoną czerwienią. Nie powiększać ani nie wracać do dużego X.

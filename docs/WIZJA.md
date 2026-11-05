@@ -22,6 +22,12 @@ Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właści
   kryteria porównań w STYL.md. Po korekcie Iron Thralla właściciel zlecił
   przegląd wszystkich tekstur i poprawienie niespójnych wcześniejszych podmian.
 
+**Odbiór 2026-11-05:** właściciel zaakceptował korektę i audyt wszystkich
+tekstur z commitu `9867b7f`. Wzorce są w `baza/`, która służy wyłącznie do
+porównania. To zamyka powyższą naprawę, ale nie uchyla zasad spójności ani
+nie zatwierdza przyszłych nowych ilustracji. Kolejne projekty nadal
+wymagają propozycji i akceptacji przed podłączeniem do gry.
+
 Przeniesione z instrukcji przekazanej przez właściciela; mają pierwszeństwo przed starszymi propozycjami niżej.
 
 - D1: ognisko odmawia odpoczynku i podaje powód, gdy ściga rycerza czuwający stwór.
