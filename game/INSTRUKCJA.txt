@@ -36,6 +36,10 @@ egzekucję przez 1,6 s (Margrave) albo 1,5 s (Furfur). Stolas ma dwa różne ryt
 niską falę można przeskoczyć, gdy dojdzie do nóg; przed wysokim rozdarciem trzeba zejść
 w bok z zaznaczonego toru albo przerwać przygotowanie strzałem. Skok nie chroni przed
 rozdarciem. Gasnący popiół po ataku już nie zadaje obrażeń.
+Iron Thrall walczy ciałem: pazur, szeroki zamach, szarża barkiem, cios za plecy
+i uderzenie pięściami w ziemię. Po chybionej szarży zapiera nogi i może ruszyć ponownie.
+Niski grzbiet odłamków po uderzeniu w posadzkę można przeskoczyć; popiół za nim jest
+nieszkodliwy. Po ciosie jest czas na odpowiedź, a nogi mają słabszy pancerz.
 [F] flaska. [Q] ładunek prochowy. Unik kosztuje 26 wytrzymałości i ogranicza go tylko
 wytrzymałość: trzy uniki z pełnego paska, odnowa po 0,4 s przerwy. Strzał nic nie kosztuje,
 ale po strzale przez chwilę nie zrobisz uniku (0,22 s po Exorciście, 0,12 s po Judge'u);

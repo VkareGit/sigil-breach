@@ -554,8 +554,11 @@ local definitions = {
   { 'reload_close', 'CLOSE' },
   { 'reload_eject', 'EJECT' },
   { 'creature_armored', 'Iron Thrall' },
-  { 'creature_armored_text', 'Armour protects it.' },
-  { 'creature_armored_tip', 'Pierce or the Judge.' },
+  {
+    'creature_armored_text',
+    'A servant bowed under iron. Sidestep its shoulder; jump the floor shock.',
+  },
+  { 'creature_armored_tip', 'Punish the recovery. Aim for the legs.' },
   { 'creature_boss', 'Margrave of Ash' },
   { 'creature_boss_calm', 'MARGRAVE OF ASH' },
   { 'creature_boss_fury', 'MARGRAVE / FURY' },

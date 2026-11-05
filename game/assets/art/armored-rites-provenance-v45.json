@@ -1,0 +1,71 @@
+{
+  "prompt": "Use case: stylized-concept. Create one 3-column by 3-row sprite effects atlas for SIGIL: BREACH. Image 1 is Giovanni da Modena's Inferno, the mandatory paint/style reference. Image 2 is the approved Iron Thrall monster: these effects belong to its physical weight, iron and damned flesh. This is a living medieval dark fresco, matte coarse broad mineral pigment, sparse brown outlines, reduced small-game-sprite detail. Absolutely no glossy metal, photoreal cracks, particles of light, neon, bloom, digital smooth gradients, detailed skull engraving, or modern magical HUD glyphs. Uniform solid #FF00FF chroma-key background, no grid lines, text or cast shadows. Nine separate assets with generous empty gutters, never touching neighbouring cells. TOP ROW cells 1,2,3: three animation phases of a LOW outward moving ridge of broken iron and lime plaster, represented as a wide horizontal tileable band. It travels along the floor, is only shin height, and can be jumped. Jagged dark warm-grey iron shards mixed with a few pale ochre plaster wedges rise through brown-red earth, then fall and crumble to coarse ash. Band fills 90% cell width and only central 25% cell height; same baseline and extent in all three, no tall towers, no flames, no faces. Make the body of each ridge opaque with a readable low rim. MIDDLE ROW: cell 4 a top-down broken circular imprint of dark iron links and a few broad anguished medieval faces embedded in umber earth, hollow centre transparent magenta, ominous and subdued, no bright continuous ring. Cell 5 the same circular imprint and dimensions, with a few narrow pale bone and red-ochre inner notches indicating a brief counterattack opening; still matte, never luminous. Circular outer radius about 43% of the cell. Cell 6 a wide horizontal spent scar of dark ash and scattered small flat broken plates, the same 90% width by 25% height footprint as the upper row; harmless after the wave passed. BOTTOM ROW cells 7,8,9: three short animation phases of a horizontal CLAW SWEEP smear, as sinopia red-brown brushstrokes and a few dark iron flakes tearing across plaster. One thin curved slash with three uneven claw strokes, grows to full readable sweeping arc then breaks into sparse pigment, no fiery crescent, no energy sword. Each arc within the central 75% width and 55% height. Keep every mark looking cut from the reference fresco, simple enough to read around a small character without concealing it.",
+  "raw": "/home/nahiko/.codex/generated_images/01a1a81e-16c1-7a12-88e4-4929de3c0741/exec-80c5358f-4fc1-491f-bccf-34b59f538114.png",
+  "tool": "built-in image_gen",
+  "date": "2026-11-05",
+  "asset": "game/assets/art/armored-rites-v45.png",
+  "references": [
+    "docs/art/giovanni-da-modena-inferno.webp",
+    "game/assets/art/armored-fresco-v12.png"
+  ],
+  "technical_processing": "Chroma-key alpha: min(R,B)-G > 0.24. Remove magenta spill: R := R-max(0,B-G), B := min(B,G). Transparent RGB #553c2e. No resampling, sharpening or painting.",
+  "sha256": "7a3987fb2ce967fad99d8a184ac9c9eac2698cbfed25f783e33321e6e575846d",
+  "acceptance": "Owner review pending; anatomy, gameplay and render checks in docs/HISTORIA.md.",
+  "source_crops": [
+    [
+      0,
+      0,
+      512,
+      256
+    ],
+    [
+      512,
+      0,
+      512,
+      256
+    ],
+    [
+      1024,
+      0,
+      512,
+      256
+    ],
+    [
+      0,
+      280,
+      512,
+      410
+    ],
+    [
+      512,
+      280,
+      512,
+      410
+    ],
+    [
+      1024,
+      280,
+      512,
+      410
+    ],
+    [
+      0,
+      700,
+      512,
+      324
+    ],
+    [
+      512,
+      700,
+      512,
+      324
+    ],
+    [
+      1024,
+      700,
+      512,
+      324
+    ]
+  ],
+  "packing": "Crops centred without resizing into 512-pixel cells, 3 by 3."
+}

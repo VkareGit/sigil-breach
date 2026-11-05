@@ -15,6 +15,7 @@
 --            from bounds[i - 1] up to (not including) bounds[i]; a value on
 --            a boundary belongs to the next frame
 --   rate     cycles frames: floor(clock x rate) mod #frames
+--   footsteps each frame of a seconds-clocked strike marks a moving foot contact
 --   step     one frame every step seconds, the last held
 --   ends     the clock value where the pose is over (the state goes on in
 --            another pose: a knockdown in its rise)
@@ -72,7 +73,9 @@ Poses.fallbacks = {
 }
 local function clockOf(name)
   return Poses.clockOf[name]
-    or ((name:match('^strike%.') or name:match('^windup%.')) and 'action')
+    or ((name:match('^strike%.') or name:match('^windup%.') or name:match('^recover%.') or name:match(
+      '^turn%.'
+    )) and 'action')
     or nil
 end
 local function fallbackOf(poses, name)
@@ -86,6 +89,7 @@ local function fallbackOf(poses, name)
   return Poses.fallbacks[name]
     or (name:match('^strike%.') and 'strike')
     or (name:match('^windup%.') and 'windup')
+    or (name:match('^recover%.') and 'recover')
     or nil
 end
 -- The pose a name stands for (its fallbacks followed), or nil.
@@ -165,6 +169,15 @@ local function poseProblems(name, pose, frameCount, fail)
     fail(name .. ': bounds, rate and step exclude each other')
   end
   local clock = pose.clock
+  if pose.footsteps ~= nil then
+    if type(pose.footsteps) ~= 'boolean' then
+      fail(name .. ': footsteps must be a boolean')
+    elseif
+      pose.footsteps and not (clock == 'seconds' and pose.rate and name:match('^strike%.'))
+    then
+      fail(name .. ': footsteps need a cycling strike on the seconds clock')
+    end
+  end
   if (#frames > 1 or forms > 0 or pose.ends) and not clock then
     fail(name .. ': a pose of several frames names its clock')
   end
@@ -172,8 +185,9 @@ local function poseProblems(name, pose, frameCount, fail)
     fail(name .. ': unknown clock ' .. tostring(clock))
   end
   local wanted = clockOf(name)
-  local release = clock == 'release' and (name == 'strike' or name:match('^strike%.'))
-  if clock and wanted and clock ~= wanted and not release then
+  local strikeClock = (clock == 'release' or clock == 'seconds')
+    and (name == 'strike' or name:match('^strike%.'))
+  if clock and wanted and clock ~= wanted and not strikeClock then
     fail(name .. ': chosen by the ' .. wanted .. ' clock, not ' .. clock)
   end
   if pose.bounds then

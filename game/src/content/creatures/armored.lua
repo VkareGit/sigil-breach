@@ -1,4 +1,4 @@
--- Iron Thrall: the Ember Thrall in iron (variant: same atlas and AI family).
+-- Iron Thrall: a heavy melee servant with its own painted body and shared AI family.
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
@@ -25,6 +25,9 @@ return Creature.define({
     atlas = 'armored',
     portal = { 0.66, 0.70, 0.78 },
     motion = 'heavy',
+    windupMark = 'ironMark',
+    counterMark = 'ironCounter',
+    cut = 'iron',
     art = { leap = false },
   },
   -- Armour protects from a major wound: a Judge body shot (53.8) does not
@@ -48,7 +51,16 @@ return Creature.define({
     { when = 'behind', attack = 'back-swing', rest = 4, within = 3.6 },
     { when = 'hugging', attack = 'ground-slam', rest = 6, within = 2.4, after = 1.2 },
   },
-  sounds = { step = 'iron_step' },
+  sounds = {
+    step = 'iron_step',
+    alert = 'iron_alert',
+    windup = 'chain_settle',
+    strike = 'claw',
+    breath = 'iron_breath',
+    murmur = 'iron_murmur',
+    hurt = 'iron_hurt',
+    death = 'iron_death',
+  },
   tactics = {
     roll = true,
     moves = {
@@ -62,6 +74,7 @@ return Creature.define({
     -- The thrall's claw with hyperarmour (guard x2 while it attacks).
     Action.lunge({
       id = 'claw',
+      windupVoice = 'iron_claw_effort',
       range = 2.05,
       windup = 0.56,
       lead = 0.24,
@@ -78,6 +91,8 @@ return Creature.define({
     -- other one it feints: the body stays lowered.
     Action.charge({
       id = 'shoulder',
+      windupVoice = 'iron_charge_effort',
+      sound = 'iron_rush',
       minRange = 2.6,
       range = 8,
       rest = 3.0,
@@ -103,6 +118,7 @@ return Creature.define({
     -- rest is the way in.
     Action.sweep({
       id = 'cleave',
+      windupVoice = 'iron_cleave_effort',
       range = 4.6,
       rest = 3,
       windup = 0.72,
@@ -130,6 +146,7 @@ return Creature.define({
     -- Who gets behind the plate meets the elbow: slow to turn, not helpless.
     Action.sweep({
       id = 'back-swing',
+      windupVoice = 'iron_elbow_effort',
       range = 3.6,
       windup = 0.5,
       turn = 4,
@@ -148,7 +165,9 @@ return Creature.define({
     -- The fist driven into the floor: a low ring to jump, and a long rest.
     Action.wave({
       id = 'ground-slam',
-      windupSound = 'furnace_warning',
+      windupVoice = 'iron_slam_effort',
+      art = 'iron',
+      windupSound = 'chain_settle',
       sound = 'ground_sunder',
       range = 3.6,
       rest = 6,

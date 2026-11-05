@@ -76,6 +76,7 @@ Creature.appearance = Schema:new('appearance', {
   portal = { type = 'table', required = true, desc = 'colour of its summoning portal' },
   stain = { type = 'table', desc = 'colour of its ground stain (default: blood)' },
   warning = { type = 'table', desc = 'colour of its wind-up ring (default: ember)' },
+  cut = { type = 'string', desc = 'painted physical sweep sequence' },
   windupMark = { type = 'string', default = 'circle', desc = 'painted ground preparation' },
   counterMark = { type = 'string', default = 'circle', desc = 'painted counter window' },
   shadow = { type = 'number', default = 1, min = 0, desc = 'shadow scale' },

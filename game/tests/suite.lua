@@ -6,6 +6,21 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'iron-thrall',
+    title = 'Iron Thrall contact, movement and recovery',
+    module = 'tests.cases.iron_thrall',
+  },
+  {
+    id = 'iron-thrall-audio',
+    title = 'Iron Thrall body voice and physical cues',
+    module = 'tests.cases.iron_thrall_audio',
+  },
+  {
+    id = 'iron-thrall-art',
+    title = 'Iron Thrall physical gestures and pigments',
+    module = 'tests.cases.iron_thrall_art',
+  },
+  {
     id = 'star-acolyte-audio',
     title = 'Distinct owl warnings and spatial teleport voices',
     module = 'tests.cases.star_acolyte_audio',

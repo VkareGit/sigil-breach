@@ -250,6 +250,202 @@ local supplements = {
   },
   furfur = { [13] = { first = 32, x = 0, y = 512, row = 512 } },
 }
+-- Independent points on the supplemental Iron Thrall poses, reached by named attacks.
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 29,
+  via = 'attack:cleave',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 244, 96, 'head', 'exposed face' },
+    { 180, 152, 'torso', 'breastplate' },
+    { 104, 289, 'lower', 'iron shin' },
+    { 58, 129, 'body', 'exposed hand' },
+    { 20, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 30,
+  via = 'attack:cleave',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 605, 94, 'head', 'exposed face' },
+    { 549, 150, 'torso', 'breastplate' },
+    { 463, 290, 'lower', 'iron shin' },
+    { 476, 52, 'body', 'exposed hand' },
+    { 382, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 31,
+  via = 'attack:cleave',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 950, 80, 'head', 'exposed face' },
+    { 909, 169, 'torso', 'breastplate' },
+    { 828, 280, 'lower', 'iron shin' },
+    { 977, 126, 'body', 'exposed hand' },
+    { 744, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 32,
+  via = 'attack:cleave',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 1322, 95, 'head', 'exposed face' },
+    { 1263, 172, 'torso', 'breastplate' },
+    { 1197, 275, 'lower', 'iron shin' },
+    { 1394, 159, 'body', 'exposed hand' },
+    { 1106, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 33,
+  via = 'attack:shoulder',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 236, 495, 'head', 'exposed face' },
+    { 184, 531, 'torso', 'breastplate' },
+    { 121, 638, 'lower', 'iron shin' },
+    { 185, 561, 'body', 'exposed hand' },
+    { 20, 382, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 34,
+  via = 'attack:shoulder',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 639, 476, 'head', 'exposed face' },
+    { 575, 528, 'torso', 'breastplate' },
+    { 481, 635, 'lower', 'iron shin' },
+    { 570, 536, 'body', 'exposed hand' },
+    { 382, 382, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 35,
+  via = 'attack:shoulder',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 1010, 471, 'head', 'exposed face' },
+    { 951, 525, 'torso', 'breastplate' },
+    { 852, 608, 'lower', 'iron shin' },
+    { 994, 535, 'body', 'exposed hand' },
+    { 744, 382, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 36,
+  via = 'attack:shoulder',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 1295, 437, 'head', 'exposed face' },
+    { 1255, 518, 'torso', 'breastplate' },
+    { 1202, 610, 'lower', 'iron shin' },
+    { 1360, 550, 'body', 'exposed hand' },
+    { 1106, 382, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 37,
+  via = 'attack:ground-slam',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 202, 825, 'head', 'exposed face' },
+    { 182, 898, 'torso', 'breastplate' },
+    { 134, 1000, 'lower', 'iron shin' },
+    { 143, 759, 'body', 'exposed hand' },
+    { 20, 744, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 38,
+  via = 'attack:ground-slam',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 585, 925, 'head', 'exposed face' },
+    { 546, 962, 'torso', 'breastplate' },
+    { 473, 1000, 'lower', 'iron shin' },
+    { 551, 1045, 'body', 'exposed hand' },
+    { 382, 744, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 39,
+  via = 'attack:ground-slam',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 950, 848, 'head', 'exposed face' },
+    { 907, 914, 'torso', 'breastplate' },
+    { 843, 983, 'lower', 'iron shin' },
+    { 876, 950, 'body', 'exposed hand' },
+    { 744, 744, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 40,
+  via = 'attack:back-swing',
+  image = 'assets/art/armored-attacks-v45.png',
+  points = {
+    { 1324, 806, 'head', 'exposed face' },
+    { 1269, 877, 'torso', 'breastplate' },
+    { 1182, 1015, 'lower', 'iron shin' },
+    { 1214, 863, 'body', 'exposed hand' },
+    { 1106, 744, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 41,
+  via = 'attack:claw',
+  image = 'assets/art/armored-claw-v45.png',
+  points = {
+    { 447, 155, 'head', 'exposed face' },
+    { 335, 317, 'torso', 'breastplate' },
+    { 188, 553, 'lower', 'iron knee' },
+    { 301, 237, 'body', 'forward palm' },
+    { 20, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 42,
+  via = 'attack:claw',
+  image = 'assets/art/armored-claw-v45.png',
+  points = {
+    { 1141, 154, 'head', 'exposed face' },
+    { 1097, 332, 'torso', 'breastplate' },
+    { 912, 546, 'lower', 'iron knee' },
+    { 1068, 293, 'body', 'forward palm' },
+    { 740, 20, 'air', 'clear gutter' },
+  },
+}
+landmarks[#landmarks + 1] = {
+  kind = 'armored',
+  frame = 43,
+  via = 'attack:claw',
+  image = 'assets/art/armored-claw-v45.png',
+  points = {
+    { 1878, 206, 'head', 'exposed face' },
+    { 1836, 334, 'torso', 'breastplate' },
+    { 1655, 542, 'lower', 'iron knee' },
+    { 1678, 437, 'body', 'forward palm' },
+    { 1460, 20, 'air', 'clear gutter' },
+  },
+}
 local result = {}
 for _, entry in ipairs(landmarks) do
   local group = supplements[entry.kind]

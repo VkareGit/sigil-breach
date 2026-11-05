@@ -17,11 +17,15 @@
 -- 0.45 Stolas follow-up (2026-11-05): the rotating beam becomes a low
 -- jumpable wave; projectile casting uses the new hand poses and hit masks.
 -- Two identical native Linux captures. Windows remains unverified.
+-- 0.45 Iron Thrall (2026-11-05): distinct physical poses select new authored
+-- hit masks; the forward claw now carries its painted palm through the target.
+-- HP, damage packets and action timings are unchanged. Two identical native
+-- Linux captures; Windows requires its own capture and remains untouched.
 return {
-  playtest = 'd4d19581/e426f88c',
-  human = '309f8e54/268527fd',
-  drill = '30ea43a9/bdecd8ef',
-  playtestContacts = '99bb8675/134',
-  humanContacts = 'd9a060ab/172',
-  drillContacts = '1c419a1d/381',
+  playtest = '9d079cf9/f298cf18',
+  human = '289b31af/63954170',
+  drill = '1a5fcb89/d35eff44',
+  playtestContacts = '5b3980dc/151',
+  humanContacts = 'ecf47677/155',
+  drillContacts = '6e664cd9/352',
 }

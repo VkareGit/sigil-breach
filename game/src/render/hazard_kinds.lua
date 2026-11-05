@@ -48,7 +48,7 @@ Kinds:register('wave', {
   ground = function(r, g, h)
     if Rites.waves[h.art] then
       if h.delay > 0 then
-        HazardArt.circle(r, g, h, 'owlMark', h.radius, 1)
+        HazardArt.circle(r, g, h, Rites.waves[h.art].warning or 'circle', h.radius, 1)
       else
         waveResidue(r, g, h, h.radius - h.width, 0.5)
       end

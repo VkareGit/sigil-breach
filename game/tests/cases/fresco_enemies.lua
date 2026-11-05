@@ -165,8 +165,8 @@ function T.run(check, renderer)
     end
   end
   verify(
-    'armored imp retains 24 action poses plus four painted watchful poses',
-    #renderer.frames.armored == 28
+    'armored retains 24 original action poses, four watchful poses and 15 distinct attack poses',
+    #renderer.frames.armored == 43
   )
   return count
 end

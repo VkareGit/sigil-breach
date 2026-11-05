@@ -13,6 +13,30 @@ return {
   cells = { wave = { 0, 0 }, circle = { 1, 0 }, cut = { 0, 1 }, ray = { 1, 1 } },
   supplements = {
     {
+      path = 'assets/art/armored-rites-v45.png',
+      columns = 3,
+      rows = 3,
+      cells = {
+        ironWave1 = { 0, 0 },
+        ironWave2 = { 1, 0 },
+        ironWave3 = { 2, 0 },
+        ironMark = { 0, 1 },
+        ironCounter = { 1, 1 },
+        ironSpent = { 2, 1 },
+        ironCut1 = { 0, 2 },
+        ironCut2 = { 1, 2 },
+        ironCut3 = { 2, 2 },
+      },
+      crops = {
+        ironWave1 = { 0.05, 0.435, 0.90, 0.212 },
+        ironWave2 = { 0.05, 0.435, 0.90, 0.212 },
+        ironWave3 = { 0.05, 0.435, 0.90, 0.212 },
+        ironSpent = { 0.05, 0.435, 0.90, 0.212 },
+        ironMark = { 0.12, 0.16, 0.76, 0.72 },
+        ironCounter = { 0.12, 0.16, 0.76, 0.72 },
+      },
+    },
+    {
       path = 'assets/art/stolas-eruptions-v45.png',
       columns = 3,
       rows = 2,
@@ -134,8 +158,18 @@ return {
     settling = 'cleftSpent',
   },
   ribbon = { segments = 64, tileLength = 2.4 },
+  cuts = { iron = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' } } },
   waves = {
+    iron = {
+      frames = { 'ironWave1', 'ironWave2', 'ironWave3' },
+      rate = 10,
+      trail = 0.55,
+      residue = 'ironSpent',
+      warning = 'ironMark',
+      embers = 0.32,
+    },
     hell = {
+      warning = 'owlMark',
       frames = { 'crest1', 'crest2', 'crest3' },
       rate = 10,
       trail = 0.7,

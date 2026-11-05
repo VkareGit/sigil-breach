@@ -83,7 +83,7 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   love.graphics.draw(mesh)
 end
 -- The cut a wide blow leaves in the air, while it can land and a moment after.
-local function cut(r, g, e, spec)
+local function cut(r, g, e, spec, look)
   local active = spec.active
   local age = e.phase - active[1]
   local span = active[2] - active[1] + Rites.cut
@@ -100,7 +100,9 @@ local function cut(r, g, e, spec)
       or e.attackCount % 2 * math.pi
     )
   local y = Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight - size * 0.5
-  HazardArt.upright(r, x, y, z, 'cut', size, yaw, age < span * 0.65 and 1 or 0.8)
+  local style = look.cut and Rites.cuts[look.cut]
+  local cell = style and HazardArt.sequence(style.frames, age / span) or 'cut'
+  HazardArt.upright(r, x, y, z, cell, size, yaw, age < span * 0.65 and 1 or 0.8)
 end
 function E.spells(r, g)
   love.graphics.setDepthMode('less', false)
@@ -109,7 +111,7 @@ function E.spells(r, g)
     local casts = look.casts
     local spec = e.attackSpec
     if e.hp > 0 and e.ai == 'strike' and spec and Action.trait(spec, 'cuts') then
-      cut(r, g, e, spec)
+      cut(r, g, e, spec, look)
     end
     local accented = CastAccents.draw(r, g, e, E)
     if

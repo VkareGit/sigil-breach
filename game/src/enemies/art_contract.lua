@@ -82,6 +82,9 @@ function Contract.problems(def)
       bad('unknown/incomplete baked atlas masks ' .. tostring(atlas))
     end
   end
+  if look.cut and not require('src.content.art.rites').cuts[look.cut] then
+    bad('unknown painted cut ' .. tostring(look.cut))
+  end
   local actions, checked = {}, {}
   for _, action in ipairs(def.attacks or {}) do
     actions[action.id] = true
@@ -110,9 +113,12 @@ function Contract.problems(def)
     end
     sequence(look.evadeArt)
   end
-  -- An attack's own windup/strike pose names one of its attacks.
+  -- Every named stage of an attack refers to an action of this creature.
   for name in pairs(Atlases.poses[atlas] or {}) do
-    local action = name:match('^strike%.(.+)$') or name:match('^windup%.(.+)$')
+    local action = name:match('^strike%.(.+)$')
+      or name:match('^windup%.(.+)$')
+      or name:match('^recover%.(.+)$')
+      or name:match('^turn%.(.+)$')
     if action and not actions[action] then
       bad('action pose ' .. name .. ' names no attack of it')
     end

@@ -17,11 +17,18 @@ end
 -- Same distance clock and frame cycle as the painted walk, two contacts/cycle.
 function C.stepIndex(e)
   local sheet = Atlases.sheets[Creatures.look(e).atlas]
+  local strike = e.ai == 'strike'
+    and e.attackKind
+    and sheet
+    and Poses.resolve(sheet.poses, 'strike.' .. e.attackKind)
+  if strike and strike.footsteps then
+    return math.floor((e.phase or 0) * strike.rate), 'strike.' .. e.attackKind
+  end
   local pose = sheet and Poses.resolve(sheet.poses, 'walk')
   if not pose or not pose.rate then
-    return 0
+    return 0, 'walk'
   end
-  return math.floor((e.walk or 0) * pose.rate * 2 / #pose.frames)
+  return math.floor((e.walk or 0) * pose.rate * 2 / #pose.frames), 'walk'
 end
 function C.update(audio, g, dt)
   BodyVoices.update(audio, g, dt)
@@ -47,22 +54,28 @@ function C.update(audio, g, dt)
     return C.update(audio, g, dt)
   end
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    local now, before = C.stepIndex(e), state.feet[e]
-    state.feet[e] = now
+    local now, clock = C.stepIndex(e)
+    local before = state.feet[e]
+    local moving = clock == 'walk' and (e.walkSpeed or 0) > 0.15
+      or (clock ~= 'walk' and before and (e.x ~= before.x or e.z ~= before.z))
     local def = Creatures.of(e)
     local voice = def.sounds and def.sounds.step
     if
       voice
       and before
-      and now > before
+      and before.clock == clock
+      and now > before.index
       and e.hp > 0
       and not e.leaping
       and (e.leapY or 0) < 0.05
-      and (e.walkSpeed or 0) > 0.15
+      and moving
       and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < 400
     then
       audio.playAt(voice, e.x, e.z, p, math.min(0.5, 0.16 + def.body.mass * 0.09), 0, g.world)
     end
+    local entry = before or {}
+    entry.index, entry.clock, entry.x, entry.z = now, clock, e.x, e.z
+    state.feet[e] = entry
   end
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
     if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < 25 then

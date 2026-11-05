@@ -58,6 +58,26 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- IRON THRALL, 2026-11-05: dopracowano pięć istniejących ataków jako walkę
+  ciężkiego ciała: pazur, szeroki zamach, bark, cios za plecy i pięści w ziemię.
+  Dodano 15 malowanych póz według dołączonego Inferno i istniejącej postaci:
+  osobne przygotowania, bieg i zaparcie szarży, kontakt z podłożem i powrót.
+  Nawrót i kroki czytają istniejący czas oraz rzeczywisty ruch; nie zatrzymują SI.
+- Naprawiono fizyczny pazur: stare dwie klatki prowadziły punkt kontaktu obok
+  stojącego celu. Nowa dłoń przechodzi przez środek sylwetki. Nie powiększono
+  niewidzialnego zasięgu, HP ani obrażeń, nie skrócono ostrzeżeń. Dobór nowych
+  póz celowo zmienia również maskę trafianego ciała. Dodano anatomię 15 klatek,
+  75 niezależnych punktów kontroli i wypiek masek; wcześniejsze 201 masek bez zmian.
+- Efekty to matowy ślad pazurów, ciemny odcisk żelaza oraz niski grzbiet
+  odłamków po uderzeniu w ziemię. Wysokość obrazu odpowiada 0,5 m kontaktu;
+  skok omija falę, pozostawiony popiół jest nieszkodliwy. Bestiariusz i instrukcja
+  wyjaśniają szarżę, skok i słabszy pancerz nóg.
+- Jedenaście nagranych głosów CC0: oddech, pomruk, wykrycie, ból, śmierć,
+  pięć wysiłków przygotowania i głos szarży. Głos ciała gra obok żelaza,
+  a przerwanie zatrzymuje obie warstwy. Tłum współdzieli istniejący limit
+  oddechów i puli głosów. Progi i źródła zapisano w proweniencji WAV-ów.
+  Kroki szarży działają również bez zegara chodu i milczą podczas zaparcia.
+
 - Brama Linux, 2026-11-05: naprawiono wspólną przyczynę wcześniejszych
   FAIL-i weight i cienia. Shader próbkował mipmapowane tekstury konturu
   wewnątrz warunku zależnego od alfa; pigment dodatkowo po discard.
@@ -4108,6 +4128,82 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-05 — Iron Thrall, zakres zlecony po dopracowaniu Stolasa.
+- Analiza: miał już pięć ataków i odpowiedzi na obejście pleców/przytulenie,
+  lecz wszystkie używały tego samego przygotowania i uderzenia. Brakowało
+  oddechu, bólu, śmierci i własnego wysiłku przy atakach; szarża nie miała
+  kroków, bo jej ruch nie zwiększa zegara chodu. Zachowano rolę zwykłego
+  opancerzonego sługi (560 HP), wszystkie pakiety obrażeń i czasy akcji.
+- Ostrzeżenia: pazur 0,56 s, bark 0,80 s (co drugi z przytrzymaniem 0,45 s),
+  zamach 0,72 s (możliwe przytrzymanie 0,40 s), cios za plecy 0,50 s,
+  pięści 0,86 s. Nawrót barku ma realne zaparcie 0,40 s. To istniejące
+  reguły, teraz odróżniane sylwetką, odzyskaniem równowagi i głosem.
+- Dowód kontaktu: przed zmianą pazur zadawał 0 zamiast 30 obrażeń stojącemu
+  graczowi z 1/1,6/2 m; po zmianie dokładnie 30, z zachowanym uniknięciem
+  przez późny unik w bok. Punkty ręki w starych klatkach omijały środek celu.
+  Poprawiono malowany gest i jego rzeczywisty punkt, bez rozszerzania sfery.
+  Pierwszą sondę poprawiono, aby odcinała kolejną automatyczną odpowiedź
+  stwora: jej obrażenia nie mogą udawać trafienia testowanego pazura.
+- Fala: z 3 m wypuszczenie 0,867 s od początku zamachu, trafienie stojącego
+  około 1,133 s. Skoki w 0,85/0,95 s dają 0 obrażeń; w 0,50 lub 1,15 s — 26.
+  Ściana blokuje, Continue zachowuje skok i pojedynczy kontakt. Ten sam
+  wynik przed/po: zmieniono czytelność istniejącej fali, nie jej trudność.
+- Nowe testy: walka 21 PASS, gesty/efekty 23 PASS, dźwięk 45 PASS.
+  Czerwone próby: 7 błędów pazura, 11 pierwotnego zróżnicowania gestów,
+  24 brakujących zachowań dźwięku; dodatkowo przypadek pozy nawrotu bez
+  cache definicji. Po poprawkach wszystkie przeszły. Hit-landmarks 521 PASS:
+  38 żywych klatek, 240 punktów sprawdzanych z 3/8/16 m. Kontrola zachowania
+  oryginalnych masek: wszystkie 201 identyczne; teraz 216 klatek z maskami.
+- Golden Linux: dwa identyczne przebiegi przed przeniesieniem wartości;
+  zmiana uzasadniona nowymi pozami/maskami i działającym kontaktem pazura.
+  playtest 9d079cf9/f298cf18, human 289b31af/63954170, drill 1a5fcb89/d35eff44;
+  kontakty odpowiednio 5b3980dc/151, ecf47677/155, 6e664cd9/352.
+  Wzorzec Windows niezmieniony; wymaga własnych dwóch przebiegów.
+- Koszt rysowania na izolowanym klonie, Intel Arc MTL, bez VSync:
+  dwa naprzemienne przebiegi przed/po, po 60 klatek rozgrzewki i 90 próbek,
+  pełne rysowanie z odczytem piksela. 32 atakujących/6 fal: 4,19–4,26 →
+  5,24–5,86 ms; 128/25 fal: 5,00–5,34 → 7,76–8,25 ms; 256/51 fal:
+  7,42–7,87 → 11,47–11,61 ms. Nowe pionowe grzbiety i ich pozostałości mają
+  mierzalny koszt, choć geometria i pula dźwięku pozostają ograniczone.
+  To obciążeniowa scena renderera, nie wynik FPS całej gry ani opóźnienia wejścia.
+- Dźwięki: StarNinjas, https://opengameart.org/content/16-monster-growls;
+  ArcadeParty, https://opengameart.org/content/zombie-skeleton-monster-voice-effects.
+  CC0, mono 44,1 kHz PCM16, pasmo 75–2600 Hz, krótki pogłos, łagodne krańce,
+  peak ≤ 0,56 i RMS ≤ 0,105. 128 mieszanych ciał współdzieli rytm oddechu.
+  Pomiary poziomów nie zastępują odsłuchu i oceny grozy przez właściciela.
+- Pierwsza pełna brama wykryła stary licznik 28 klatek oraz różnicę
+  rejestracji trzech stóp o 1–2 px. Licznik teraz jawnie wymaga 43 klatek,
+  a stopy odpowiadają pomiarowi oficjalnego narzędzia (co najmniej 3 piksele
+  alfa > 0,65). Nie osłabiono kontroli obrazu. Fresco 346 PASS, pipeline 17 PASS.
+  Dwa kolejne golden na końcowych danych dały te same wartości.
+  Osobno po pierwszym FAIL: Input, Render i Tools PASS. Kontrakt treści
+  odrzuca również recover/turn wskazujące nieistniejący atak.
+- Końcowe dwa pomiary kosztu po korekcie rejestracji stóp: 32/6 fal
+  4,78–4,80 ms; 128/25 fal 7,06–7,26 ms; 256/51 fal 10,51–10,87 ms.
+  Nie zastępują naprzemiennego porównania powyżej ani nie oznaczają
+  przyspieszenia: pokazują rozrzut kolejnych sesji natywnego GPU.
+- Kontrast w nawie, 6,7 m: mediany obszarów 3×3 przy niezależnych punktach
+  twarzy, korpusu i nóg wynoszą 1,03–3,36:1 względem pustego tła. Nie jest
+  to ocena całej sylwetki; nie wszystkie miejsca spełniają 1,5:1. Dawny
+  punkt czytelności Iron Thralla pozostaje otwarty, bez rozjaśniania
+  całego malowidła. Raport contrast.txt zachowuje wyniki każdej pozy.
+- Boty: souls-bots 9 PASS (uczący się rycerz wygrywa próbę iron 3 razy),
+  souls-gate 6 PASS. Przebieg kaplicy przed: 6 zabójstw/4 śmierci; po:
+  8 zabójstw/6 śmierci, maksimum 10 czuwających. Sanktuarium nieosiągnięte
+  w obu wersjach; nie jest to potwierdzenie trudności startu z Judge’em.
+- Pełna brama Linux TEST.sh All --timeout 1800: PASS, końcowy exitCode=0.
+  Architecture: 674 pliki Lua, 5401 ścieżek, 0 naruszeń; Mechanics 6977
+  PASS (w tym 89 Iron Thralla, weight i golden); Input 50 PASS, Render PASS,
+  Tools PASS. Dziewięć świadectw ma sourceStable=true i ten sam fingerprint:
+  845044A1C0C0E6CB9565A41BED9E6436F5876F8CB1BEDA8599F34E7C6B17DA1E.
+  Końcowy diff i proweniencje sprawdzone; nowe pliki mają zgodne SHA-256.
+  Windows niesprawdzony. Własny klon pomiarowy i przypisane mu wyniki
+  usunięto po zachowaniu dowodów w głównym katalogu QA poza repozytorium.
+- Dowody: Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/
+  iron-thrall-before i iron-thrall-after: czerwone próby, pomiary, rendery,
+  golden, wyniki testów. Klimat gestów, efektów i głosu pozostaje do odbioru
+  właściciela. Chroniony HUD, elity i mapa nie były zmieniane. Push niezamówiony.
 
 Codex, 2026-11-05 — usunięcie wcześniejszych błędów bramy.
 - Odtworzenie na Intel Arc MTL / OpenGL 4.6 / Mesa 26.2.5: nieruchoma

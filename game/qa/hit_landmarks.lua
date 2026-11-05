@@ -23,9 +23,21 @@ function L.reach(G, kind, frame, via)
     Rules.knockDown(e)
   elseif via == 'falter' then
     Rules.guard(e, Rules.body(e).poise * 1.05)
-  elseif via == 'attack' then
+  elseif via == 'attack' or via:match('^attack:') then
     local d = math.sqrt((e.x - g.player.x) ^ 2 + (e.z - g.player.z) ^ 2)
-    Attacks.begin(g, e, d, Rules.archetype(e).attacks[1])
+    local attacks = Rules.archetype(e).attacks
+    local chosen = attacks[1]
+    local id = via:match('^attack:(.+)$')
+    if id then
+      chosen = nil
+      for _, attack in ipairs(attacks) do
+        if attack.id == id then
+          chosen = attack
+        end
+      end
+      assert(chosen, 'landmark names unknown attack ' .. id)
+    end
+    Attacks.begin(g, e, d, chosen)
   end
   for _ = 1, 600 do
     if Geometry.pose(g, e) == frame and not AbilityArt.select(g, e) then

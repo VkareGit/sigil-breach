@@ -1,0 +1,130 @@
+{
+  "license": "CC0-1.0",
+  "sources": [
+    {
+      "title": "16 Monster Growls",
+      "author": "StarNinjas",
+      "page": "https://opengameart.org/content/16-monster-growls",
+      "sha256": "7542446ebc69892e4267d8b3abd3167193505833692da9624c01c8da392d9065"
+    },
+    {
+      "title": "Zombie / Skeleton / Monster voice effects",
+      "author": "ArcadeParty",
+      "page": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+      "sha256": "041ef356efc5d947db903530d68eb55b7e6fbfb77b96fdd092ab81eb8be59d57"
+    }
+  ],
+  "processing": "Mono 44100 Hz PCM16. Leading silence removed, modest downward pitch, low throat blended with human effort, 75–2600 Hz band, 31/69 ms quiet reflections, 18/65 ms fades, peak <= 0.56, RMS <= 0.105. No game audio copied.",
+  "cues": {
+    "iron_breath": {
+      "source": "monster.11.ogg",
+      "pitch": 0.92,
+      "layer": null,
+      "layer_gain": 0,
+      "duration": 1.65,
+      "peak": 0.56,
+      "rms": 0.06015,
+      "sha256": "e3d4d1aafbffea1b19c20a37cac554437b62e12b9241b942b62b5964b913dd43"
+    },
+    "iron_murmur": {
+      "source": "monster.8.ogg",
+      "pitch": 0.91,
+      "layer": "humanDeath2.wav",
+      "layer_gain": 0.18,
+      "duration": 1.8,
+      "peak": 0.49349,
+      "rms": 0.07,
+      "sha256": "126078f153c02e933e9d4bec3375ade1c691f66ab083d458ea046f89ab98583f"
+    },
+    "iron_hurt": {
+      "source": "humanYell3.wav",
+      "pitch": 0.87,
+      "layer": "monster.1.ogg",
+      "layer_gain": 0.2,
+      "duration": 0.4,
+      "peak": 0.54463,
+      "rms": 0.105,
+      "sha256": "8062cb3b2e6dad9826be664b4ea92807b766a066cb1d17678294da6724b6cb3a"
+    },
+    "iron_death": {
+      "source": "monster.11.ogg",
+      "pitch": 0.78,
+      "layer": "humanDeath1.wav",
+      "layer_gain": 0.35,
+      "duration": 2.05,
+      "peak": 0.56,
+      "rms": 0.06289,
+      "sha256": "ea6a7bfe66eba8082a9276a5331539c68ad5b5ed826a408b2227743927cb7a16"
+    },
+    "iron_alert": {
+      "source": "monster.10.ogg",
+      "pitch": 0.91,
+      "layer": "humanYell2.wav",
+      "layer_gain": 0.18,
+      "duration": 1.25,
+      "peak": 0.56,
+      "rms": 0.04854,
+      "sha256": "6f2a7f664697bd2289d20b82c464991bd7556ecf329744461ad2b7e84ad59666"
+    },
+    "iron_claw_effort": {
+      "source": "humanYell1.wav",
+      "pitch": 0.91,
+      "layer": "monster.3.ogg",
+      "layer_gain": 0.2,
+      "duration": 0.5,
+      "peak": 0.49368,
+      "rms": 0.095,
+      "sha256": "1082f079712321767dd3b98cd64bc25a391159f5db1fc6fafbbe448f9ee98079"
+    },
+    "iron_charge_effort": {
+      "source": "zombieYell8.wav",
+      "pitch": 0.9,
+      "layer": "monster.6.ogg",
+      "layer_gain": 0.24,
+      "duration": 0.72,
+      "peak": 0.56,
+      "rms": 0.08744,
+      "sha256": "1890943cd4c92f5b0d736498d54da18c04d946efdca7f41c5ff2d48007a92217"
+    },
+    "iron_cleave_effort": {
+      "source": "humanYell2.wav",
+      "pitch": 0.87,
+      "layer": "monster.13.ogg",
+      "layer_gain": 0.25,
+      "duration": 0.66,
+      "peak": 0.56,
+      "rms": 0.06675,
+      "sha256": "85367450ac063f90ddd1fc7eba83948f1de8dab4a9a80598091c33244f1a6fdd"
+    },
+    "iron_elbow_effort": {
+      "source": "humanYell3.wav",
+      "pitch": 0.86,
+      "layer": "monster.4.ogg",
+      "layer_gain": 0.18,
+      "duration": 0.38,
+      "peak": 0.48232,
+      "rms": 0.1,
+      "sha256": "099caef292a4bce51af82c4f85423c7f4e68a7e7bc7131cbe9c48678e9ac6650"
+    },
+    "iron_slam_effort": {
+      "source": "zombieDeath3.wav",
+      "pitch": 0.91,
+      "layer": "monster.7.ogg",
+      "layer_gain": 0.2,
+      "duration": 0.82,
+      "peak": 0.56,
+      "rms": 0.09496,
+      "sha256": "2b483d977675ff04255e50256ae331873ffb887bb7e3270d0afd09dade7d91ca"
+    },
+    "iron_rush": {
+      "source": "zombieYell4.wav",
+      "pitch": 0.91,
+      "layer": "humanYell4.wav",
+      "layer_gain": 0.2,
+      "duration": 0.6,
+      "peak": 0.56,
+      "rms": 0.05793,
+      "sha256": "e3f80588f4f05ff2babf946d2f9f5e256f24a868d26ad65d91cef4a094c564b7"
+    }
+  }
+}
