@@ -17,6 +17,7 @@ local A = {
   priorities = {},
   -- Recorded takes by set and cue (content/sound_sets.lua), and the set in use (0.43, D02).
   takes = {},
+  variants = {},
   set = Sets.default,
   lastTake = {},
 }
@@ -50,7 +51,14 @@ function A.release()
       end
     end
   end
-  A.takes, A.lastTake = {}, {}
+  for _, list in pairs(A.variants) do
+    -- The first take is owned by sources and was already released above.
+    for i = 2, #list do
+      list[i]:stop()
+      list[i]:release()
+    end
+  end
+  A.takes, A.variants, A.lastTake = {}, {}, {}
   A.priorities = {}
   A.warningHold = 0
   tickets = setmetatable({}, { __mode = 'k' })
@@ -70,6 +78,15 @@ function A.init(checkpoint)
     local data = VoiceData.render(name, recipe, A.rate)
     A.sources[name] = love.audio.newSource(data, 'static')
     data:release()
+    if recipe.variants then
+      local list = { A.sources[name] }
+      for _, path in ipairs(recipe.variants) do
+        local take = VoiceData.render(name, { path = path }, A.rate)
+        list[#list + 1] = love.audio.newSource(take, 'static')
+        take:release()
+      end
+      A.variants[name] = list
+    end
     if checkpoint then
       checkpoint('sound ' .. name)
     end
@@ -103,22 +120,27 @@ function A.baked(name)
     and A.takes[A.set] ~= nil
     and A.takes[A.set][name] ~= nil
 end
--- The recorded take of a cue in the set in use, never the same twice running: its source,
--- the pool key and the gain; nothing for a cue the set does not replace.
+-- Weapon sets take precedence over a recipe's performances. Both use the same
+-- bounded pool and independent random stream, never repeating a take consecutively.
 local function takeOf(name)
   local list = A.takes[A.set] and A.takes[A.set][name]
+  local family, gain = A.set, list and Sets.cues[name].gain or 1
+  if not list then
+    list, family = A.variants[name], 'voice'
+  end
   if not list then
     return nil
   end
-  local last, take = A.lastTake[name], 1
+  local key = name .. '#' .. family
+  local last, take = A.lastTake[key], 1
   if #list > 1 then
     take = takeRolls:random(1, #list - (last and 1 or 0))
     if last and take >= last then
       take = take + 1
     end
   end
-  A.lastTake[name] = take
-  return list[take], name .. '#' .. A.set .. take, Sets.cues[name].gain
+  A.lastTake[key] = take
+  return list[take], key .. take, gain
 end
 -- Reuse finished voices instead of allocating a new Source on every pellet,
 -- step and impact. Both active voices and the idle cache have strict caps.
@@ -147,7 +169,8 @@ function A.play(name, volume, priority, category)
   if A.muted or not A.sources[name] then
     return
   end
-  priority = priority or Recipes[name].priority or 1
+  local recipe = Recipes[name]
+  priority = math.max(priority or recipe.priority or 1, recipe.minPriority or 0)
   if #A.live >= 28 then
     local victim = 1
     for i = 2, #A.live do
@@ -176,7 +199,11 @@ function A.play(name, volume, priority, category)
   if priority >= 3 then
     A.warningHold = 0.65
   end
-  s:setVolume((volume or 0.65) * gain * A.levels[category or 'effects'])
+  local level = (volume or 0.65) * gain
+  if recipe.gain then
+    level = math.min(1, level * recipe.gain)
+  end
+  s:setVolume(level * A.levels[category or 'effects'])
   s:setPitch(1)
   s:setRelative(true)
   s:setPosition(0, 0, 0)
@@ -204,7 +231,8 @@ function A.playAt(name, x, z, p, volume, priority, world, category)
   if d > 32 then
     return
   end
-  local gain = (volume or 0.6) / (1 + d * 0.13)
+  local recipe = Recipes[name]
+  local gain = (volume or 0.6) / (1 + d * (recipe and recipe.falloff or 0.13))
   if world and not Arena.visible(world, x, z, p.x, p.z) then
     gain = gain * 0.38
   end

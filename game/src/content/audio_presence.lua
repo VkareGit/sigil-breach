@@ -8,4 +8,5 @@ return {
   hurtGap = 0.45,
   hurtGain = 0.5,
   resumeDelay = 0.35,
+  movingSpeed = 0.15,
 }

@@ -3,6 +3,7 @@ local Context = require('src.session.context')
 local Bodies = require('src.combat.bodies')
 local Enemies = require('src.content.enemies')
 local K = require('src.content.audio_presence')
+local Recipes = require('src.audio.recipes')
 local V = {}
 local sessions = setmetatable({}, { __mode = 'k' })
 local function stop(audio, entry)
@@ -83,6 +84,11 @@ function V.update(audio, g, dt)
     local sounds = Enemies.of(e).sounds
     if sounds.breath then
       local entry = entryOf(state, e)
+      local contexts = Recipes[sounds.breath] and Recipes[sounds.breath].presence
+      if contexts and e.ai == 'recover' and entry.pose ~= 'recover' then
+        entry.remaining = math.min(entry.remaining, K.resumeDelay)
+      end
+      entry.pose = e.ai
       local nearby = e.hp > 0 and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < K.reach ^ 2
       local quiet = nearby and e.ai ~= 'windup' and e.ai ~= 'strike' and e.ai ~= 'hurt'
       if not quiet then
@@ -95,6 +101,13 @@ function V.update(audio, g, dt)
         if entry.remaining <= 0 and state.gap <= 0 then
           stop(audio, entry)
           local voice = entry.alternate and sounds.murmur or sounds.breath
+          if contexts then
+            if e.ai == 'recover' then
+              voice = contexts.recover or voice
+            elseif (e.walkSpeed or 0) > K.movingSpeed then
+              voice = contexts.move or voice
+            end
+          end
           entry.source, entry.ticket =
             audio.playAt(voice or sounds.breath, e.x, e.z, p, K.gain, 0, g.world)
           entry.role = 'breath'

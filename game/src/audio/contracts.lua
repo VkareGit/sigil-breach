@@ -34,6 +34,23 @@ function C.validate()
       not recipe.path or love.filesystem.getInfo(recipe.path, 'file'),
       name .. ': missing recording'
     )
+    local paths = { [recipe.path or ''] = true }
+    for _, path in ipairs(recipe.variants or {}) do
+      assert(recipe.path and not paths[path], name .. ': variants need distinct recordings')
+      assert(love.filesystem.getInfo(path, 'file'), name .. ': missing variant ' .. path)
+      paths[path] = true
+    end
+    for _, voice in pairs(recipe.presence or {}) do
+      assert(Recipes[voice], name .. ': unknown body context ' .. voice)
+    end
+    for _, field in ipairs({ 'gain', 'falloff', 'minPriority' }) do
+      local value = recipe[field]
+      assert(
+        value == nil
+          or (type(value) == 'number' and value == value and value >= 0 and value < math.huge),
+        name .. ': invalid ' .. field
+      )
+    end
   end
   for _, map in Maps:each() do
     C.scene(map.decor and map.decor.soundscape)

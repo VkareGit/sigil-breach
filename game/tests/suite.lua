@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'creature-audio-mix',
+    title = 'Creature performances, context and combat audibility',
+    module = 'tests.cases.creature_audio_mix',
+  },
+  {
     id = 'plague-gardener-audio',
     title = 'Gardener body voice, releases and crowd budget',
     module = 'tests.cases.plague_gardener_audio',
