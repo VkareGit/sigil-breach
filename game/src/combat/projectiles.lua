@@ -22,6 +22,7 @@ local Bodies = require('src.combat.bodies')
 local Factions = require('src.content.factions')
 local Roles = require('src.core.roles')
 local K = Defaults.missiles
+local Garden = require('src.combat.garden')
 local P = {}
 local finite = MathX.finite
 -- Whether a missile of this side can harm any creature: its hostile sides
@@ -183,9 +184,9 @@ local function before(t)
 end
 local function stopAtWorld(g, b)
   local length = s.length
-  s.worldT, s.wall = 1, false
+  s.worldT, s.wall, s.normal = 1, false, nil
   if length > 1e-8 then
-    local distance, _, kind = SphereCast.world(
+    local distance, normal, kind = SphereCast.world(
       g.world,
       b.x,
       b.y,
@@ -198,7 +199,7 @@ local function stopAtWorld(g, b)
       floorSurface
     )
     if kind ~= 'range' then
-      s.worldT, s.wall = distance / length, true
+      s.worldT, s.wall, s.normal = distance / length, true, normal
     end
   else
     local _, _, kind = SphereCast.world(g.world, b.x, b.y, b.z, 0, 0, 0, 0, s.own, floorSurface)
@@ -306,7 +307,8 @@ end
 local function sweep(g, b, i, dt, player, previous, ground, bodies, events, count)
   local duration = math.max(0, math.min(dt, b.life))
   s.duration, s.fraction = duration, duration / dt
-  s.dx, s.dy, s.dz = b.vx * duration, b.vy * duration, b.vz * duration
+  s.dx, s.dy, s.dz =
+    b.vx * duration, b.vy * duration - (b.gravity or 0) * duration * duration * 0.5, b.vz * duration
   s.length = math.sqrt(s.dx * s.dx + s.dy * s.dy + s.dz * s.dz)
   s.own = Shape.radius(b)
   s.hit, s.target, s.part, s.surface, s.struck, s.struckFrom = nil, nil, nil, nil, nil, nil
@@ -321,6 +323,9 @@ local function sweep(g, b, i, dt, player, previous, ground, bodies, events, coun
     hearNearMiss(g, b, player, ground, t)
   end
   b.x, b.y, b.z = b.x + s.dx * t, b.y + s.dy * t, b.z + s.dz * t
+  if b.gravity then
+    b.vy = b.vy - b.gravity * duration * t
+  end
   if b.travelled ~= nil then
     b.travelled = b.travelled + s.length * t
   end
@@ -344,6 +349,7 @@ local function sweep(g, b, i, dt, player, previous, ground, bodies, events, coun
     event.contact = playerFirst and s.struck and contactWith(g, b, t) or nil
     event.retain, event.passed = not over and retain or nil, passed
     event.wall = s.wall and not playerFirst
+    event.normal = event.wall and s.normal or nil
     event.thing = not playerFirst and s.thing or nil
   end
   return count
@@ -351,6 +357,9 @@ end
 -- What a swept missile did, in the order it happened.
 local function deliver(g, event)
   local b = event.bullet
+  if event.wall then
+    Garden.land(g, b, event.normal)
+  end
   if event.player and event.enemy then
     strikeDemon(g, b, event.enemy, event.part, event.surface)
   elseif event.player then

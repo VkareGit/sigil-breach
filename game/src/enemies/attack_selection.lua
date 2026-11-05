@@ -1,6 +1,11 @@
 -- Deterministic policies. No input reading, RNG or mutation of definitions.
 local A = require('src.content.enemies')
+local Kinds = require('src.combat.action_kinds')
 local Selection = {}
+function Selection.available(g, e, attack)
+  local kind = Kinds:has(attack.kind) and Kinds:get(attack.kind)
+  return not (kind and kind.available) or kind.available(g, e, attack)
+end
 local function policy(e)
   local def, stage = A.of(e), A.phase(e)
   return stage and stage.tactics or def.tactics
@@ -26,16 +31,16 @@ local function offersFollowup(e, id)
   end
   return false
 end
-local function usable(e, attack, distance, now)
+local function usable(e, attack, distance, now, g)
   if distance > attack.range or distance < attack.minRange then
     return false
   end
   local until_ = e.restUntil and e.restUntil[attack.id]
-  return not (until_ and now and now < until_)
+  return not (until_ and now and now < until_) and Selection.available(g, e, attack)
 end
-local function ordered(e, distance, now, list)
+local function ordered(e, distance, now, list, g)
   for _, attack in ipairs(list) do
-    if usable(e, attack, distance, now) then
+    if usable(e, attack, distance, now, g) then
       if attack.maxRange then
         if distance < attack.maxRange then
           return attack
@@ -46,9 +51,9 @@ local function ordered(e, distance, now, list)
     end
   end
   local last = list[#list]
-  return last and usable(e, last, distance, now) and last or nil
+  return last and usable(e, last, distance, now, g) and last or nil
 end
-local function context(e, distance, now, list, tactics, rng)
+local function context(e, distance, now, list, tactics, rng, g)
   local chosen, best = nil, nil
   local total = 0
   for _, choice in ipairs(tactics.moves) do
@@ -58,7 +63,7 @@ local function context(e, distance, now, list, tactics, rng)
       and follows(e, choice, now)
     then
       for _, attack in ipairs(list) do
-        if attack.id == choice.attack and usable(e, attack, distance, now) then
+        if attack.id == choice.attack and usable(e, attack, distance, now, g) then
           -- A metre of mismatch halves utility. Weight/history choose among
           -- usable moves; they never expand their damage geometry.
           local score = choice.weight / (1 + math.abs(distance - choice.ideal))
@@ -80,13 +85,13 @@ local function context(e, distance, now, list, tactics, rng)
   end
   return chosen
 end
-function Selection.choose(e, distance, now, rng)
+function Selection.choose(e, distance, now, rng, g)
   local def = A.of(e)
   local tactics = policy(e)
   if tactics and tactics.policy == 'context' then
-    return context(e, distance, now, def.attacks, tactics, rng)
+    return context(e, distance, now, def.attacks, tactics, rng, g)
   end
-  return ordered(e, distance, now, def.attacks)
+  return ordered(e, distance, now, def.attacks, g)
 end
 function Selection.committed(e, attack, target)
   Selection.clear(e)

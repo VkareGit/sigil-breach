@@ -34,7 +34,7 @@ local function freshStarts(check, Game)
   local g = session(Game)
   local p = g.player
   Encounter.clearStage(g)
-  local burn = require('src.content.enemies').get('buer').attacks[1].pool.packet.effects
+  local burn = require('src.content.enemies').get('buer').attacks[1].deposit.packet.effects
   local function still(title)
     Encounter.clearStage(g)
     local hp, armor, x, z = p.hp, p.armor, p.x, p.z
@@ -86,7 +86,7 @@ local function safeRest(check, Game)
   local Spawn = require('src.session.spawn')
   p.x, p.z, p.hp = 10, 21, 20
   local e = g:spawn('buer', 10, 17)
-  local pool = require('src.content.enemies').get('buer').attacks[1].pool
+  local pool = require('src.content.enemies').get('buer').attacks[1].deposit
   Hazards.add(g, p.x, p.z, 0, pool.radius, pool.life, {
     packet = pool.packet,
     pulse = pool.pulse,

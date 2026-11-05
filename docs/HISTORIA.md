@@ -60,6 +60,31 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Plague Gardener, 2026-11-05: wdrożono zaakceptowaną przebudowę czterech
+  ataków przy zachowaniu 520 HP. Wymioty wychodzą z ust w namierzonym
+  kierunku, mają 4 m zasięgu, 0,8 s przygotowania, 0,6 s działania i 0,8 s
+  odpoczynku. Wydech nie śledzi celu po wypuszczeniu. Splunięcie i trzy
+  nasiona lecą fizycznie; dopiero podłoże tworzy plamę. Ściana i ciało
+  zatrzymują pocisk. Żniwo zapowiada pełny zasięg przez 1 s i zużywa własne
+  dojrzałe plamy. Limit trzech obejmuje również nasiona w locie.
+- Wolniejszy obrót ciężkiego ciała (2,1 rad/s), różne sekwencje istniejących
+  póz dla czterech gestów. Żadnego przemalowania postaci: oba arkusze Buera
+  są identyczne bajtowo. Dawny boczny rysunek plucia oddzielono przez jawny
+  wielokąt efektu w anatomii i shaderze, także w cieniu. Źródłowe maski alfa
+  po ponownym wypieczeniu są identyczne; anatomia wyklucza odłączony efekt.
+- Nowe, zgaszone malowane nasiona, zasiew, wyrwanie korzeni i przestrzenny
+  rozprysk używają rzeczywistej pozycji, kierunku i czasu ataku. Do bazy
+  dodano po jednym reprezentatywnym kadrze ogrodu i rozprysku; katalog
+  obejmuje 154 tekstury. Chroniony HUD, inne postacie i ogień nie zmienione.
+- Osobne oddech, pomruk, alarm, ból, śmierć i wysiłek każdego ataku, obok
+  odgłosów materiału czarów. 21 nagranych próbek z udokumentowanych źródeł
+  CC0, z filtrowaniem i zapasem głośności. Głos wypuszczenia jest opcjonalną
+  właściwością każdego ataku, obsługiwaną przez wspólny system audio.
+- Wspólne rodzaje wykonania stream/sow/harvest, rezerwacja pola w locie,
+  zapis właścicieli i ostrzeżeń. Migracja sekcji pools 4→5 zachowuje stare
+  rozpoczęte ataki i ich pociski; po ich zakończeniu działa nowy zestaw.
+  Dwa identyczne golden uzasadniają nowy wzorzec Linux. Windows niesprawdzony.
+
 - Dokumentacja, 2026-11-05: właściciel zaakceptował korektę grafiki z 9867b7f.
   Następny zakres to Plague Gardener: analiza i plan przed wdrożeniem.
   Zapisano aktualne pomiary oraz propozycję czterech przebudowanych ataków,
@@ -4177,6 +4202,81 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-05 — dopracowanie Plague Gardenera po akceptacji planu.
+- Dowód przed/po: wcześniejszy root-brace tworzył pola, a namalowane plucie
+  nie trafiało stojącego z przodu gracza na 2,8–3,2 m. Zapisano czerwone
+  testy nowego wykonania i osobny czerwony test rozjazdu ust z osią ataku.
+  Teraz natywna sonda z 3 m: przód 28 obrażeń, odejście ±2,5 m po blokadzie
+  kierunku 0. Osobne testy dowodzą chybienia z tyłu, za ścianą, na innym
+  piętrze i po zakończeniu. Zwykły skok nie omija wydechu na wysokości ciała.
+  Osobna sonda zwykłego ruchu (36 prób, bez przestawiania współrzędnych):
+  reakcja 0,25 s pozwala ominąć wszystkie cztery ataki w 60/120/240 Hz;
+  opóźnienie 0,65 s powoduje 28 obrażeń od Wymiotów we wszystkich trzech.
+- Celowane: 92 sprawdzenia mechaniki Gardenera i 57 audio PASS; wykonanie
+  i kontakty 60/120/240 Hz, przerwanie, śmierć, rezerwacje, podłoże/ściana/
+  strop, pełny zapis Continue lotu, ogrodu i Żniwa oraz migracja starego
+  rozpoczętego ataku. Powiązane kontrakty, wolumeny, pielgrzymka, anatomia,
+  niezależne punkty ciała, malowane powierzchnie, souls-bots i souls-gate PASS.
+  Kontrola tożsamości grafiki 20 PASS, katalog 154/154 + 7 prób negatywnych.
+- Trzy odrębne kontrole spójności grafiki wykonano przed commitem:
+  (1) źródłowe klatki i wszystkie używane fazy efektów przy bazie Buera oraz
+  Inferno; zgodna paleta ochry/brunatnej oliwki, matowa faktura i skala detalu;
+  (2) natywne rendery 3/6/12 m w tym samym świetle, z osobnym porównaniem
+  oryginalnej klatki 7 przed/po odłączeniu bocznego plucia — zachowane usta,
+  twarz, brzuch i przedramię; (3) spoczynek, chód, przygotowanie, wypuszczenie,
+  skutek, powrót i śmierć, dla wszystkich czterech czynności. Tę samą postać
+  potwierdzają niezmienione SHA obu źródłowych PNG. Dwie wczesne wersje
+  przestrzennego wydechu odrzucono: wielka płachta i zbyt gęsty wir.
+  Ostateczny rozprysk nie zasłania całej sceny. To oględziny Codexa,
+  a nie deklaracja osobistego odbioru artystycznego przez właściciela.
+- 54 próby przed i 54 po: 100 HP/40 ward, skończona amunicja, dwie bronie,
+  dystanse 3/6/8 m, trzy seedy, stanie/krążenie/czytanie. Idealne celowanie
+  w tułów wygrywało wszystkie próby przed i po. Po zmianie Exorcist 1,89–2,83 s,
+  Judge 4,37 s; nieruchomy Judge średnio traci 16 zamiast 30 HP+ward.
+  W tym scenariuszu Gardener nie stał się trudniejszy dla perfekcyjnego
+  strzelca. Nie podniesiono HP i nie osłabiono kontr, żeby wymusić porażkę bota.
+- 27 prób grup w rzeczywistej geometrii kaplicy: dwóch Gardenerów, krypta
+  Gardener/Imp, wschodnie wejście Gardener/Stolas/Imp; trzy strategie i seedy.
+  Nieruchomy bez strzałów ginie odpowiednio po 15,36–22,62 / 9,05–9,98 /
+  5,42–6,02 s. Krążący bez strzałów ginie w krypcie i wejściu, ale przez 30 s
+  utrzymuje 91–100 HP przeciw parze w otwartej sali. Czytający i strzelający
+  bot wygrywa 9/9 prób. Brak przejścia środka ciała przez kamień; maksimum
+  3 ogniska na właściciela, 6 dla pary. Nie dowodzi to trudności dla człowieka
+  ani konieczności zmiany kierunku na każdej otwartej arenie.
+- Pomiar przed/po w osobnym klonie, 600 mierzonych kroków po rozgrzewce,
+  50 rysowań 1280×720, 1/8/32/128 stworów. Średnia aktualizacja (ms):
+  0,059→0,072 / 0,157→0,179 / 0,455→0,538 / 1,730→2,227; p95 dla 128:
+  2,077→2,683. Średni czas zlecenia rysowania 128: 1,939→2,156 ms.
+  To koszt CPU w tym scenariuszu, bez pomiaru zakończenia pracy GPU; nie
+  maksymalny koszt 384 równocześnie rozwiniętych plam. Wzrost jest jawny.
+- Golden: dwa identyczne przebiegi dały playtest 1acdbfc7/e459aff1,
+  human e150ef62/dd3f8dbf, drill c01ecbea/7062f8b8; kontakty odpowiednio
+  65449712/132, f9d7aa69/191, 73abe184/368. Celowa zmiana wykonania, obrotu
+  i harmonogramu istniejących póz; wzorca Windows nie zmieniono.
+- Pierwszy Mechanics ujawnił utratę condition=poisoned w nowym depozycie
+  i dawny odczyt attack.pool w kontroli obrazu. Przywrócono warunek trucizny
+  i podłączono kontrolę do rzeczywistego depozytu; nie obniżono oczekiwań.
+  Stary golden był celowo niezgodny. Pierwszy test nowych nagrań wykrył
+  nadmierny skok próbki splunięcia; poprawiono filtrację, próg testu bez zmian.
+- Odsłuch pozostaje ograniczeniem: zweryfikowano poziomy, ciągłość, źródła,
+  niezależny głos ciała, tłum 128 stworów, pauzę, dystans, anulowanie i śmierć.
+  Narzędzie nie udostępnia temu agentowi odbioru audio, więc nie deklaruje
+  odsłuchu ani zatwierdzenia barwy w grze. Właściciel powinien ocenić grozę
+  i czytelność miksu przy normalnej głośności. Windows niesprawdzony; bez push.
+- Końcowa pełna brama Linux `scripts/linux/TEST.sh All --timeout 1800`:
+  PASS, exitCode=0, 741,24 s. Mechanics/Assets 7035, Input 50, Architecture
+  691 Lua / 0 naruszeń, Render i Tools PASS; wszystkie 9 świadectw ma
+  sourceStable=true i ten sam fingerprint źródeł. Oddzielne Input/Render/
+  Tools po pierwszym nieudanym Mechanics również PASS. Nie ma pozostałych
+  FAIL w końcowym raporcie. Dowody w uzgodnionym katalogu
+  Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/:
+  gardener-analysis, gardener-red, gardener-mouth-red, gardener-directions,
+  gardener-art-final, gardener-related-complete2, gardener-audio-final,
+  gardener-golden-1/2, gardener-reaction oraz gardener-final-gates.
+  Ostatni render trafienie/chybienie: gardener-directions-final. Pomiary klonu zachowano
+  w gardener-measurements i porównano bajtowo; własny klon oraz przypisany
+  katalog wyników usunięto. Skrypty sond: gardener-evidence-scripts.
 
 Właściciel / Codex, 2026-11-05 — odbiór audytu i analiza następnego stworzenia.
 - Właściciel: „jest ok”, zgoda na commit audytu. Poprawki były już zapisane

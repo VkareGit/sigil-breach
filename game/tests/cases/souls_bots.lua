@@ -65,6 +65,34 @@ local function blow(Game, id, attack, knight)
   local e = g:spawn(id, 10, 19)
   e.awake, e.visible, e.memory, e.spawnAge, e.target = true, true, 60, 2, g.player.id
   e.attack = 99
+  if attack.kind == 'harvest' then
+    -- This delivery consumes an existing garden. Start outside ordinary rot,
+    -- inside the newly announced eruption, so the bot must actually respond.
+    local deposit
+    for _, candidate in ipairs(A.of(e).attacks) do
+      if candidate.deposit and candidate.deposit.group == attack.group then
+        deposit = candidate.deposit
+        break
+      end
+    end
+    assert(deposit, 'harvest fixture needs its real deposit definition')
+    require('src.session.spawn').make(g, 'hazard', {
+      kind = 'pool',
+      garden = attack.group,
+      owner = e.id,
+      side = 'demons',
+      x = g.player.x + deposit.radius + 0.1,
+      z = g.player.z,
+      delay = -attack.mature,
+      maxDelay = deposit.delay,
+      life = deposit.life,
+      radius = deposit.radius,
+      volume = deposit.volume,
+      packet = deposit.packet,
+      interval = deposit.pulse,
+      pulse = 0,
+    })
+  end
   local memory, released = {}, 0
   g.bus:on('sim', 'AttackReleased', function(ev)
     released = released + (ev.attack.id == attack.id and 1 or 0)

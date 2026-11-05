@@ -14,6 +14,7 @@ local Definitions = require('src.content.hazards')
 local Registry = require('src.core.registry')
 local MathX = require('src.core.mathx')
 local Hazards = {}
+local Garden = require('src.combat.garden')
 -- Scratch swept points of a creature sampled by a pool pulse.
 local sampled = {}
 function Hazards.add(g, x, z, delay, r, life, spec)
@@ -135,6 +136,7 @@ Hazards.kinds:register('lightning', {
 })
 Hazards.kinds:register('pool', {
   step = function(g, h, dt, previousPlayer)
+    Garden.watch(g, h)
     local waiting = math.max(0, h.delay)
     local active = math.min(h.life, math.max(0, dt - waiting))
     h.delay = h.delay - dt

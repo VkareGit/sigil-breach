@@ -71,7 +71,7 @@ function Test.run(Game, renderer)
       local enemy = game:spawn(id, 16, 17)
       enemy.ai = 'idle'
       local attack = Archetypes[id].attacks[1]
-      local spec = attack.line or attack.pool
+      local spec = attack.line or attack.pool or attack.deposit
       Hazards.add(game, 16, 21, spec.delay, spec.radius, spec.life, {
         packet = spec.packet,
         pulse = spec.pulse,

@@ -352,6 +352,32 @@
       "sourcePath": "game/assets/art/chapel-hall/inferno-sky.jpg",
       "sha256": "1394154a511f9a4ec5ca051e9818dcdf6afc924181122ce7a23409ae8c159b8e",
       "basis": "Istniejący projekt sprawdzony względem pokrewnej bazy podczas audytu 2026-11-05; bez tworzenia nowego projektu."
+    },
+    {
+      "id": "gardener-garden",
+      "reference": "baza/gardener-garden.png",
+      "sourcePath": "game/assets/art/gardener-rites-v45.png",
+      "sourceCrop": [
+        418,
+        627,
+        418,
+        314
+      ],
+      "sha256": "526b5f6399f02547559455c9111db4ec6aa5b22d0c2d210387353163f954ece2",
+      "basis": "Właściciel zaakceptował plan przebudowy czterech ataków. Nowy efekt porównany z niezmienionym baza/buer.png i Inferno; jeden reprezentatywny kadr po trzech kontrolach spójności. 2026-11-05: porównano wszystkie używane fazy z Buerem i Inferno; natywne sceny 3/6/12 m w jednym świetle; przejścia przygotowanie/atak/powrót. HISTORIA: dopracowanie Plague Gardenera. Oględziny Codexa, odbiór właściciela w grze pozostaje otwarty."
+    },
+    {
+      "id": "gardener-spray",
+      "reference": "baza/gardener-spray.png",
+      "sourcePath": "game/assets/art/gardener-spray-v45.png",
+      "sourceCrop": [
+        0,
+        0,
+        724,
+        724
+      ],
+      "sha256": "a1789aa02e0140626be8d8b0c34b7a34bfec2c5f9dddc858e60172f86926cc5c",
+      "basis": "Właściciel zaakceptował plan przebudowy czterech ataków. Nowy efekt porównany z niezmienionym baza/buer.png i Inferno; jeden reprezentatywny kadr po trzech kontrolach spójności. 2026-11-05: porównano wszystkie używane fazy z Buerem i Inferno; natywne sceny 3/6/12 m w jednym świetle; przejścia przygotowanie/atak/powrót. HISTORIA: dopracowanie Plague Gardenera. Oględziny Codexa, odbiór właściciela w grze pozostaje otwarty."
     }
   ]
 }

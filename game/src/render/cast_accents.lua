@@ -8,6 +8,7 @@ local Ground = require('src.physics.ground')
 local Context = require('src.session.context')
 local Archetypes = require('src.content.enemies')
 local Accents = {}
+local GardenArt = require('src.render.garden_art')
 local posed = {}
 local function centre(g, e, id)
   local p = Surface.prepare(g, e, posed)
@@ -26,6 +27,9 @@ function Accents.draw(r, g, e, effects)
   local spec = e.attackSpec
   if e.hp <= 0 then
     return false
+  end
+  if GardenArt.cast(r, g, e) then
+    return true
   end
   local look = Archetypes.look(e)
   local evading = look.evadeArt and e.ai == 'move' and (e.evadeTime or 0) > 0

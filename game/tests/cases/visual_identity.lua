@@ -77,46 +77,48 @@ function T.run()
         return bytes
       end) > 0
     )
-    for _, mutation in ipairs({ 'filter', 'mipmaps', 'scale' }) do
-      local changed = Copy(sheet)
-      changed.sources[2][mutation] = ({ filter = 'linear', mipmaps = true, scale = 2 })[mutation]
-      check(id .. ' rejects a changed copy ' .. mutation, #Identity.problems(changed, policy) > 0)
-    end
-    local resampledIdle = Copy(sheet)
-    resampledIdle.sources[3].filter = 'linear'
-    check(
-      id .. ' checks sampling even when idle reuses an already inspected image',
-      #Identity.problems(resampledIdle, policy) > 0
-    )
-    local copied = love.image.newImageData(sheet.sources[2].path)
-    local cw, ch = copied:getDimensions()
-    local changed = false
-    for y = 0, ch - 1 do
-      for x = 0, cw - 1 do
-        local r, g, b, a = copied:getPixel(x, y)
-        if a > 0.95 then
-          copied:setPixel(x, y, r > 0.5 and r - 0.2 or r + 0.2, g, b, a)
-          changed = true
+    if policy.copies then
+      for _, mutation in ipairs({ 'filter', 'mipmaps', 'scale' }) do
+        local changed = Copy(sheet)
+        changed.sources[2][mutation] = ({ filter = 'linear', mipmaps = true, scale = 2 })[mutation]
+        check(id .. ' rejects a changed copy ' .. mutation, #Identity.problems(changed, policy) > 0)
+      end
+      local resampledIdle = Copy(sheet)
+      resampledIdle.sources[3].filter = 'linear'
+      check(
+        id .. ' checks sampling even when idle reuses an already inspected image',
+        #Identity.problems(resampledIdle, policy) > 0
+      )
+      local copied = love.image.newImageData(sheet.sources[2].path)
+      local cw, ch = copied:getDimensions()
+      local changed = false
+      for y = 0, ch - 1 do
+        for x = 0, cw - 1 do
+          local r, g, b, a = copied:getPixel(x, y)
+          if a > 0.95 then
+            copied:setPixel(x, y, r > 0.5 and r - 0.2 or r + 0.2, g, b, a)
+            changed = true
+            break
+          end
+        end
+        if changed then
           break
         end
       end
-      if changed then
-        break
-      end
+      local encoded = copied:encode('png')
+      local damagedCopy = encoded:getString()
+      check(
+        id .. ' rejects repainting inside an allowed technical copy',
+        #Identity.problems(sheet, policy, function(path)
+            if path == sheet.sources[2].path then
+              return damagedCopy
+            end
+            return love.filesystem.read(path)
+          end) > 0
+      )
+      copied:release()
+      encoded:release()
     end
-    local encoded = copied:encode('png')
-    local damagedCopy = encoded:getString()
-    check(
-      id .. ' rejects repainting inside an allowed technical copy',
-      #Identity.problems(sheet, policy, function(path)
-          if path == sheet.sources[2].path then
-            return damagedCopy
-          end
-          return love.filesystem.read(path)
-        end) > 0
-    )
-    copied:release()
-    encoded:release()
     local rendered = require('src.render.fresco_enemies')
     local image, _, frames, images, _, supplements = rendered.load(id)
     local framesToBake = require('qa.mask_provenance').frames()
@@ -135,12 +137,15 @@ function T.run()
       supplement:release()
     end
     local roundtrip = assert(loadstring(require('qa.art.sheet_tool').text(sheet)))()
+    local steps = true
+    for name, pose in pairs(sheet.poses) do
+      steps = steps and roundtrip.poses[name].footsteps == pose.footsteps
+    end
     check(
       id .. ' sheet export preserves sampling and audible movement',
       roundtrip.sources[2].filter == sheet.sources[2].filter
         and roundtrip.sources[2].mipmaps == sheet.sources[2].mipmaps
-        and roundtrip.poses['strike.shoulder'].footsteps
-          == sheet.poses['strike.shoulder'].footsteps
+        and steps
     )
   end
   if #failures > 0 then

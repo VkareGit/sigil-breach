@@ -216,7 +216,7 @@ function Tests.run(G, check)
   g = fresh()
   p = g.player
   p.armor = 100
-  AI.hazard(g, p.x, p.z, 0, 1.5, 2, A.buer.attacks[1].pool)
+  AI.hazard(g, p.x, p.z, 0, 1.5, 2, A.buer.attacks[1].deposit)
   p.resources.stamina, p.resourcePause = 0, nil
   for _ = 1, 24 do
     g:update(1 / 120, {})

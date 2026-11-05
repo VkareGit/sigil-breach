@@ -146,6 +146,7 @@ extern vec3 effectTint;
 extern number wallRepeat;
 ]]
   .. require('src.render.creature_pigment').shader
+  .. require('src.render.paint_cutout').shader
   .. [[
 #ifdef VERTEX
 vec4 position(mat4 tp,vec4 vp){vp.xy*=spriteStretch;vp.x+=vp.y*lean;return projectVertex(vp);}
@@ -163,6 +164,7 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
  // Fetch before alpha branches/discard, including the pigment neighbours.
  float edge=max(max(Texel(tex,clamp(atlasUV+vec2(stepUV.x,0.0),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(stepUV.x,0.0),lo,hi)).a),max(Texel(tex,clamp(atlasUV+vec2(0.0,stepUV.y),lo,hi)).a,Texel(tex,clamp(atlasUV-vec2(0.0,stepUV.y),lo,hi)).a));
  vec3 pigment=bodyPigment(tex,spriteUV,p);
+ if(removedPaint(atlasUV))discard;
  if(p.a<(soft>.5?.025:.30)) {
   if(silhouette>.5) {
    if(edge>.5)return vec4(.24,.11,.07,effectAlpha); // sinopia contour

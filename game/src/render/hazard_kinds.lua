@@ -7,11 +7,25 @@ local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
+local GardenArt = require('src.render.garden_art')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
 end)
-Kinds:register('pool', { ground = HazardArt.draw })
+Kinds:register('pool', {
+  ground = function(r, g, h)
+    if h.garden then
+      GardenArt.pool(r, g, h)
+    else
+      HazardArt.draw(r, g, h)
+    end
+  end,
+  air = function(r, g, h)
+    if h.garden then
+      GardenArt.eruption(r, g, h)
+    end
+  end,
+})
 Kinds:register('lightning', {
   ground = function(r, g, h)
     HazardArt.circle(r, g, h, 'circle', h.radius, 1)

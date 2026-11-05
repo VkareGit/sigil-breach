@@ -4,10 +4,12 @@ local Context = require('src.session.context')
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
+local PaintCutout = require('src.render.paint_cutout')
 local S = {}
 -- How far a body's shadow reaches past it (m).
 local REACH = 5
-local code = [[
+local code = PaintCutout.shader
+  .. [[
 // One shadow per body, all bodies of an image in one instanced draw (plan
 // v10 V3): the body's placement, light and frame come per instance.
 extern vec3 camera,rightDir,upDir,forwardDir;
@@ -46,6 +48,7 @@ vec4 effect(vec4 c,Image tex,vec2 uv,vec2 px){
  a+=Texel(tex,clamp(p-vec2(0,d.y),lo,hi)).a*.125;
  vec2 q=clamp((ground.xz-shadowOrigin)/tileSpan*.25,vec2(.5/512.0),vec2(127.5/512.0));
  vec4 visibility=Texel(shadowAtlas,shadowTile+q);
+ if(removedPaint(p))discard;
  a*=visibility.r*(1.0-smoothstep(.45,.8,visibility.b));
  a*=mix(.45,1.0,uv.y)*opacity;
  if(a<.005)discard;
@@ -85,6 +88,7 @@ function S.draw(r, g)
         local rect, tile, origin =
           r.frames[atlas][frame].rect, r.lighting.tiles[index], r.lighting.origins[index]
         local v = batch:add(image)
+        r.bodyCutouts[image] = PaintCutout.of(atlas)[r.frames[atlas][frame].sourcePath] or false
         v[1], v[2], v[3], v[4] =
           e.x, baseY, e.z, math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
         v[5], v[6], v[7], v[8] = size, sx, sy, lean
@@ -96,7 +100,9 @@ function S.draw(r, g)
       end
     end
   end
-  batch:draw()
+  batch:draw(function(image)
+    PaintCutout.apply(s, r.bodyCutouts[image] or nil)
+  end)
   lg.setDepthMode('less', true)
   lg.setShader(r.shader)
 end

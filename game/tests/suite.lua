@@ -6,6 +6,16 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'plague-gardener-audio',
+    title = 'Gardener body voice, releases and crowd budget',
+    module = 'tests.cases.plague_gardener_audio',
+  },
+  {
+    id = 'plague-gardener',
+    title = 'Gardener stream, sowing and owned harvest contacts',
+    module = 'tests.cases.plague_gardener',
+  },
+  {
     id = 'visual-identity',
     title = 'Owner-approved paint continuity through every creature frame',
     module = 'tests.cases.visual_identity',

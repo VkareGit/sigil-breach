@@ -185,6 +185,9 @@ function Tests.run(Game)
     e.x, e.z = 16, 18
     g.player.x, g.player.z = 16, 20.8
     Actions.begin(g, e, 2.8, attack(e, 'root-brace'))
+    local hp = g.player.hp
+    check('retch preparation leaves time for ' .. response, g.player.hp == hp and e.ai == 'windup')
+    e.ai, e.phase = 'strike', 0
     Actions.execute(g, e)
     if response == 'approach' then
       g.player.z = 19.7
@@ -192,12 +195,13 @@ function Tests.run(Game)
     if response == 'flank' then
       g.player.x, g.player.z = 18.5, 19.2
     end
-    local hp = g.player.hp
-    require('src.enemies.hazards').update(g, 0.59)
-    check('root defence leaves time for ' .. response, g.player.hp == hp)
-    require('src.enemies.hazards').update(g, 0.02)
+    if response == 'retreat' then
+      g.player.z = 23
+    end
+    e.phase = 0.1
+    Actions.strike(g, e, 0.1, g.player)
     check(
-      'root defence contacts approach, leaves retreat/flank: ' .. response,
+      'retch contacts approach, leaves retreat/flank: ' .. response,
       (g.player.hp < hp) == (response == 'approach')
     )
   end

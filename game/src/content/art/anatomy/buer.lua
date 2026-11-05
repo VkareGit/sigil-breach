@@ -151,6 +151,20 @@ for _, i in ipairs({ 11, 12 }) do
 end
 table.insert(
   Buer.frames[7].parts,
-  Author.effect('painted-spit', { 0.705, 0.415, 1, 0.43, 1, 0.66, 0.83, 0.59, 0.72, 0.48 })
+  Author.effect(
+    'painted-spit',
+    { 0.650, 0.418, 0.720, 0.385, 1, 0.400, 1, 0.720, 0.900, 0.680, 0.790, 0.555, 0.690, 0.485 }
+  )
 )
+Buer.frames[7].parts[#Buer.frames[7].parts].detached = true
+-- Mouth and hand landmarks belong to the unchanged source painting.
+for i, frame in ipairs(Buer.frames) do
+  local h = heads[i]
+  frame.anchors = { mouth = { h[1], h[3] - 0.025 } }
+  local a = arms[i]
+  if a then
+    frame.anchors['seed-hand'] = { a[7], a[8] }
+  end
+end
+Buer.frames[7].anchors.mouth = { 0.650, 0.424 }
 return Buer

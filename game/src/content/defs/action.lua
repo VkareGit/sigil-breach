@@ -98,6 +98,7 @@ Action.common = {
     desc = 'share of the windup after which a turning body stops turning',
   },
   sound = { type = 'string' },
+  releaseVoice = { type = 'string', desc = 'body effort layered with released material' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   windupVoice = {
     type = 'string',
@@ -635,4 +636,5 @@ for name in Action.kinds:each() do
     return def
   end
 end
+require('src.content.defs.garden_actions')(Action)
 return Action

@@ -2,11 +2,12 @@
 
 ## Zakres i status
 
-**2026-11-05: PLAGUE GARDENER / Buer — analiza zakończona, plan DO AKCEPTACJI.**
+**2026-11-05: PLAGUE GARDENER / Buer — wdrożone, brama Linux zielona; odbiór gry przez właściciela otwarty.**
 Właściciel zamówił takie samo całościowe dopracowanie jak dla Stolasa i Iron
 Thralla, z rozważeniem przebudowy czarów. Dodatkowo wskazał nieintuicyjne
 wymioty na obrazie i zaproponował rzeczywisty atak wymiotami przed siebie.
-Na tym etapie nie zmieniono gry, grafiki, dźwięku ani balansu.
+Właściciel zaakceptował poniższy zakres poleceniem „akceptuj zaczni wdrazanie”.
+Zachowujemy cztery role ataków i dotychczasowy wygląd postaci.
 
 Poprzedni PLAN zachowano w całości w HISTORII, w rozdziale „Plan sprzed
 Plague Gardenera (zastąpiony 2026-11-05)”. Analiza kodu i sondy są w rozdziale
@@ -23,7 +24,22 @@ Plague Gardenera (zastąpiony 2026-11-05)”. Analiza kodu i sondy są w rozdzia
 - Zachowano 16 natywnych kadrów czterech ataków, 14 prób pojedynczych ataków,
   12 prób zachowania bez/z ostrzałem oraz 12 prób obu broni przy 100 HP/40 ward.
   To pomiary wersji wyjściowej, nie dowód ukończenia przyszłej poprawki.
-- Następny krok wymaga akceptacji zestawu czterech ataków poniżej.
+- Zestaw czterech ataków zaakceptowany. Rozpoczęto testy regresji przed
+  zmianą wykonania: strumień, kontakt pocisku z podłożem, Siew i Żniwo.
+- Wdrożono cztery role, cięższy obrót, gesty z oryginalnych póz i osobne
+  głosy ciała/czarów. Oba PNG postaci oraz źródłowe maski alfa nie zmienione.
+  Boczny rysunek plucia odłączony; rzeczywisty strumień mierzy kierunek od ust.
+- Celowane 92 sprawdzenia Gardenera i 57 audio PASS; trzy kontrole grafiki,
+  54+54 pojedynki, 27 prób grup, pomiary 1/8/32/128 i dwa zgodne golden.
+  Szczegóły i ograniczenia pomiarów są w najnowszym ODBIOR w HISTORII.
+- Perfekcyjny bot nadal szybko zabija zwykłego Gardenera; para w otwartej
+  sali nie wymusza zejścia z automatycznego krążenia w 30-sekundowej próbie.
+  Odbiór trudności, nowych efektów i barwy dźwięku należy do właściciela.
+  Pełna brama Linux PASS: 7035 Mechanics/Assets, 50 Input, Architecture,
+  Render i Tools; 741,24 s, 9 stabilnych świadectw. Windows niesprawdzony.
+  Osobna sonda potwierdza uniknięcie każdego ataku zwykłym ruchem po 0,25 s
+  reakcji w 60/120/240 Hz. Własny klon usunięty po zachowaniu dowodów.
+  Pełny zatwierdzony zakres zweryfikowany; bez push.
 
 ## 1. Cel walki
 
@@ -33,7 +49,7 @@ Zostaje zwykłym cięższym przeciwnikiem, z obecnym 520 HP. Na początek nie
 zwiększamy HP, nie dodajemy faz bossa ani odporności na celne kontry.
 
 Rekomendacja: **cztery różne ataki, z przebudową obecnego zestawu**, zamiast
-piątego podobnego pola na ziemi. Nowe poniżej są propozycją, nie wdrożeniem.
+piątego podobnego pola na ziemi. Poniższy zestaw jest zatwierdzony do wdrożenia.
 Nazwy angielskie są robocze; tekst gry nadal po angielsku.
 
 ## 2. Proponowany zestaw

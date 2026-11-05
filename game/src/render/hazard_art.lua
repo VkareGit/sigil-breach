@@ -180,6 +180,21 @@ local function layer(renderer, hazard, image, rect, alpha, height, scale, yaw, m
   love.graphics.setShader(shader)
   love.graphics.draw(mesh)
 end
+-- An authored cell on a caller-owned world mesh, sharing the same matte lighting.
+function HazardArt.mesh(renderer, at, name, mesh, height, alpha)
+  local art = renderer.hazardArt
+  layer(
+    renderer,
+    at,
+    art.images[name] or art.rites,
+    assert(art.cells[name]),
+    alpha or 1,
+    height,
+    1,
+    0,
+    mesh
+  )
+end
 -- A painted circle of the rites atlas on the floor, its rim at this radius.
 function HazardArt.circle(renderer, game, at, name, radius, alpha)
   local art = renderer.hazardArt

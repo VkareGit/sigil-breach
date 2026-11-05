@@ -405,7 +405,7 @@ local function free(g, e, d, dt)
       ready
       and e.visible
       and e.attack <= 0
-      and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim)
+      and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
     )
   if chosen and reserveAttack(g, e, answer ~= nil) then
     Attacks.begin(g, e, d, chosen)

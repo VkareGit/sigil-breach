@@ -9,6 +9,7 @@ local Pose = require('src.enemies.pose')
 local AbilityArt = require('src.render.ability_art')
 local AbilityMetadata = require('src.content.ability_art')
 local Pigment = require('src.render.creature_pigment')
+local PaintCutout = require('src.render.paint_cutout')
 local FX = require('src.feedback.effects')
 local Queries = require('src.session.queries')
 local Ground = require('src.physics.ground')
@@ -114,8 +115,10 @@ function R.new(checkpoint)
   r.bodyShader:send('effectTint', WHITE)
   r.bodies = Instances.new(SPRITE_QUAD, BODY_FORMAT, r.native)
   r.bodyPigments = {}
+  r.bodyCutouts = {}
   r.bodyPigment = function(image)
     Pigment.apply(r.bodyShader, r.bodyPigments[image] or nil)
+    PaintCutout.apply(r.bodyShader, r.bodyCutouts[image] or nil)
   end
   r.stampShader = shader(Shaders.stamp, 'stamp shader')
   HazardArt.init(r)
@@ -347,6 +350,7 @@ function R:enemy(g, e, batch)
   if batch then
     local v = batch:add(p.image)
     self.bodyPigments[p.image] = p.ability and AbilityMetadata[p.ability].pigment or false
+    self.bodyCutouts[p.image] = not p.ability and PaintCutout.of(p.atlas)[p.sourcePath] or false
     v[1], v[2], v[3], v[4] = e.x + math.cos(yaw) * shift, p.baseY, e.z - math.sin(yaw) * shift, yaw
     v[5], v[6], v[7], v[8] = p.size, p.sx, p.sy, p.lean
     local rect = p.region.rect
@@ -360,6 +364,7 @@ function R:enemy(g, e, batch)
   end
   local s = self.spriteShader
   Pigment.apply(s, p.ability and AbilityMetadata[p.ability].pigment)
+  PaintCutout.apply(s, not p.ability and PaintCutout.of(p.atlas)[p.sourcePath] or nil)
   self.sprite:setTexture(p.image)
   s:send('silhouette', e.hp > 0 and 1 or 0)
   s:send('spriteStretch', self:vec2(p.sx, p.sy))
@@ -376,6 +381,7 @@ function R:enemy(g, e, batch)
   s:send('keyLight', key)
   love.graphics.draw(self.sprite)
   Pigment.apply(s)
+  PaintCutout.apply(s)
   key[1], key[2] = 0, 0
   s:send('keyLight', key) -- props and effects stay evenly lit
 end

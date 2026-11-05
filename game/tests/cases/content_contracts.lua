@@ -21,7 +21,8 @@ function Tests.run()
     local ok, err = pcall(Action.build, def, 'probe')
     check(name, not ok and tostring(err):find(path, 1, true))
   end
-  local pool, fan, claw = A.buer.attacks[1], A.boss.attacks[1], A.imp.attacks[1]
+  local pool = require('src.content.migrations.gardener_045').attacks[1]
+  local fan, claw = A.boss.attacks[1], A.imp.attacks[1]
   rejects('zero pool pulse cannot reach the hazard loop', pool, function(a)
     a.pool.pulse = 0
   end, '.pool.pulse')

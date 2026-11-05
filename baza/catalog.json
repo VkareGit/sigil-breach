@@ -1214,6 +1214,20 @@
       "sha256": "c4c2e7182f3c1ee7ae7a7e47ed2a54e17fe747ddddee67f891f58224a2bb49fc",
       "reference": "iron-thrall",
       "review": "2026-11-05: techniczna kopia oryginalnych pikseli z przezroczystym obramowaniem; oddzielny test każdego piksela, filtra i skali."
+    },
+    {
+      "path": "game/assets/art/gardener-rites-v45.png",
+      "sha256": "78efc8d7c704f33a83df20b40bba67e8ce11b7465ce3a5d070d4692993e01e1a",
+      "reference": "gardener-garden",
+      "review": "2026-11-05: porównano wszystkie używane fazy z Buerem i Inferno; natywne sceny 3/6/12 m w jednym świetle; przejścia przygotowanie/atak/powrót. HISTORIA: dopracowanie Plague Gardenera. Oględziny Codexa, odbiór właściciela w grze pozostaje otwarty.",
+      "history": "new effect for the approved Plague Gardener rework; body paintings unchanged"
+    },
+    {
+      "path": "game/assets/art/gardener-spray-v45.png",
+      "sha256": "83dfa0e1e97d66f7d5dae0a799b636f2510b2a5ba478d9cca16379840de4c068",
+      "reference": "gardener-spray",
+      "review": "2026-11-05: porównano wszystkie używane fazy z Buerem i Inferno; natywne sceny 3/6/12 m w jednym świetle; przejścia przygotowanie/atak/powrót. HISTORIA: dopracowanie Plague Gardenera. Oględziny Codexa, odbiór właściciela w grze pozostaje otwarty.",
+      "history": "new effect for the approved Plague Gardener rework; body paintings unchanged"
     }
   ],
   "retired": [

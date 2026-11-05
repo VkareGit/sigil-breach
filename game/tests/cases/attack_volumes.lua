@@ -175,7 +175,7 @@ function Tests.run(Game)
     Area.test(g, { x = 10, z = 10, radius = 1 }, Volumes.defaults.pool, p)
   )
   -- Designer extension: different finite band, same executor and payload.
-  local authored = Schema.copy(require('src.content.enemies').buer.attacks[1])
+  local authored = Schema.copy(require('src.content.migrations.gardener_045').attacks[1])
   authored.pool.volume = { bottom = 1.5, top = 2, sample = 'body', includeRadius = true }
   local custom = Action.build(authored)
   g, p = fresh()

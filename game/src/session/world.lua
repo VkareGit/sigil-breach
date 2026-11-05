@@ -211,9 +211,11 @@ end
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 4,
+  version = 5,
   migrations = {
+    [4] = require('src.storage.definition_migration').pools,
     [3] = function(data)
+      require('src.storage.definition_migration').pools(data)
       local all = Tree.decode(data.pools)
       for _, knight in ipairs(all.knights or {}) do
         -- P6 replaces the old passive sigil fields. Equipped copies belong

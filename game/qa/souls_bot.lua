@@ -80,7 +80,8 @@ local function underfoot(g)
   for _, h in ipairs(Pools.of(g, 'hazards')) do
     local d = math.sqrt((h.x - p.x) ^ 2 + (h.z - p.z) ^ 2)
     if h.kind ~= 'wave' and h.kind ~= 'tempest' and h.kind ~= 'sweepline' then
-      if d < h.radius + 0.9 and (h.delay or 0) < 0.8 then
+      local radius = h.harvest and h.harvest.radius or h.radius
+      if d < radius + 0.9 and (h.delay or 0) < 0.8 then
         return h
       end
     end

@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-05",
+  "tool": "image_gen.imagegen",
+  "scope": "Only spell pigment; original creature PNGs are byte-identical. Source-UV shader detaches the previously decorative spit in frame 7.",
+  "references": [
+    {
+      "path": "baza/buer.png",
+      "sha256": "b0c35650a0f57fea82414efe75779f9c09090758d868c5fa07148a0f96e3a59b"
+    },
+    {
+      "path": "docs/art/giovanni-da-modena-inferno.webp",
+      "sha256": "1fc2334d3651ac6223223a6ee349e7cc80b703e976634a7722b673641167888c"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "game/assets/art/gardener-rites-v45.png",
+      "sha256": "78efc8d7c704f33a83df20b40bba67e8ce11b7465ce3a5d070d4692993e01e1a",
+      "prompt": "Use case: stylized-concept. Production transparent sprite atlas for SIGIL: BREACH, Plague Gardener's bodily rot attacks.\nInput image 1 is the EXACT APPROVED game painting reference: preserve its muted ochre/olive vomit pigment, dry irregular brushwork, worn mineral highlights, dark warm contours and moderate scale of detail. Image 2 Giovanni da Modena Inferno is the overall medieval fresco reference.\nGenerate ONLY effects, no creature or other characters. Match effects as if cut out from the same painted 300-pixel creature cells. Do not redraw, reinterpret or improve the creature.\nLayout: exactly THREE equal columns and FOUR equal rows, 12 separated cells, generous transparent gutters, NO grid lines and NO text. Square atlas, true alpha background, no black or checkerboard background painted in.\nROW 1: three consecutive animation phases of a short heavy forward vomit stream, viewed from the side. Each originates at a narrow point at LEFT centre and opens into a broad torn fan at RIGHT centre. Murky olive ochre, thin dry root-like strands, opaque thick painterly core with ragged edge. Same footprint all three frames, different folded strands. Fits inside central 90% width and 55% height of each cell.\nROW 2: three consecutive phases of one compact tumbling rotten seed/spit bolus. Dark brown core, dull olive ochre membranes, a few short torn trails. Centre of each cell, circular footprint 65% width, identical size and material.\nROW 3: three phases of one circular patch of rot seen DIRECTLY FROM ABOVE, for a floor decal. Phase1 planted wet decayed root knot, phase2 mature tightly matted roots, phase3 ruptured dying flattened husk. Circular footprint 80% cell width, edge visibly distinct but naturally irregular. Dark umber roots through subdued olive ochre, sparse parchment highlights, NEVER neon green. No graphic rune, perfect bright circle or fire.\nROW 4: three sequential phases of the roots erupting vertically. Seen from the SIDE at ground level, roots pull out of a low rot patch; first swollen stunted knot, second full jagged bodily root eruption, third collapsing torn strands. Same width, ground line at 85% of cell height, tallest phase reaches 15% height. No faces, tiny creatures, flames, teeth, crystals or skull decorations.\nStyle continuity is the overriding constraint. Same pigment variation, subdued earthy saturation, matte directional painted texture and detail scale as the original approved Gardener. No shiny slime, glass, glow, smoke, particles, photographic gore, modern VFX, flat vector simplification, pixel art, micro-detail or smooth polished concept art. Effects should feel sickly, corporeal and ominous in a medieval hell fresco.\n",
+      "usage": "Rows 2–4: seed, ground stages and eruption. Row 1 is unused.",
+      "postprocessing": "None. Original RGBA pixels; atlas crops are metadata."
+    },
+    {
+      "path": "game/assets/art/gardener-spray-v45.png",
+      "sha256": "83dfa0e1e97d66f7d5dae0a799b636f2510b2a5ba478d9cca16379840de4c068",
+      "prompt": "Use case: stylized-concept. Asset: one transparent sprite sheet with THREE equal square cells in a horizontal row for a medieval fresco FPS. References: first buer.png is the EXACT approved painted creature and its ochre vomit material (row 2 column 3); second Giovanni da Modena Inferno is the required fresco style reference. Create ONLY the detached airborne vomit spray, no creature. Each cell shows an irregular sparse burst of sickly ochre/dirty olive fluid filaments and separate small coarse droplets, seen roughly END-ON as it comes towards the viewer. Three consecutive moving spray phases with equal density and dimensions. At least 65 percent EMPTY TRANSPARENT SPACE THROUGH THE MIDDLE of each burst, so one sees the monster behind the spray. Broken thin streaks with large gaps and roughly 12-20 small detached clots; never a continuous sheet, ring, circular vortex, cabbage, fireball, stone or smoke cloud. Deliberately restrained broad fresco brush strokes, dark umber edges, muted ochre highlights, dull dry plaster pigment matching the approved original vomit. Same limited detail and hand-painted modelling as reference; no photoreal slime, shiny wet 3D highlights, neon, microtexture or soft digital particles. Composition centered each cell, 15 percent transparent gutters on all sides, nothing touching edges, no text or grid. Genuine RGBA transparency, not black or colored backdrop. This will animate as several small overlapping clumps flowing from the monster's mouth, so the broken silhouette is essential.\n",
+      "usage": "Three sparse frontal spray stages; rendered inside the physical mouth stream.",
+      "postprocessing": "None. Original RGBA pixels; atlas crops are metadata."
+    }
+  ],
+  "review": "2026-11-05: porównano wszystkie używane fazy z Buerem i Inferno; natywne sceny 3/6/12 m w jednym świetle; przejścia przygotowanie/atak/powrót. HISTORIA: dopracowanie Plague Gardenera. Oględziny Codexa, odbiór właściciela w grze pozostaje otwarty."
+}

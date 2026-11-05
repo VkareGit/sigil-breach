@@ -58,7 +58,11 @@ end
 -- length to the pose: the body acts the whole of it, not a single frame held for 1.9 s (0.45,
 -- Astra 2026-11-03b: storm-steps read 0.4 s of a 2.08 s action).
 local ActionPhase = require('src.enemies.action_phase')
-for _, family in ipairs({ require('src.enemies.melee_kinds'), require('src.enemies.ranged_kinds') }) do
+for _, family in ipairs({
+  require('src.enemies.melee_kinds'),
+  require('src.enemies.ranged_kinds'),
+  require('src.enemies.garden_kinds'),
+}) do
   for id, kind in pairs(family) do
     ActionKinds:register(id, kind)
     if kind.duration and not ActionPhase.has(id) then
@@ -82,8 +86,8 @@ local function execute(g, e)
   Signal(g, 'AttackReleased', { enemy = e, attack = atk })
 end
 local function beginAttack(g, e, d, chosen)
-  local atk = chosen or choose(e, d, g.elapsed, g.rng and g.rng.sim)
-  if not atk then
+  local atk = chosen or choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
+  if not atk or not Selection.available(g, e, atk) then
     return false
   end
   -- Session tallies for balance reports (qa/scenarios/playtest.lua).

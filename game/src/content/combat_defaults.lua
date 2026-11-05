@@ -243,6 +243,7 @@ return {
     muzzle = 0.30,
     aimHeight = 1.15,
     boltLife = 5,
+    seedMinFlight = 0.25,
     boltRadius = 0.12,
     bigBoltRadius = 0.26,
     chargeMargin = 0.08,

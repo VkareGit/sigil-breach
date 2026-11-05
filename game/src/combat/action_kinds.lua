@@ -16,6 +16,7 @@ local Kinds = Registry:new('action executors', function(_, id)
 end)
 -- A commitment broken before release: what it marked on the ground goes with it.
 function Kinds.abandon(e)
+  e.harvestMarks, e.streamHits = nil, nil
   local mark = e.pendingHazard
   if mark then
     mark.cancelled = true

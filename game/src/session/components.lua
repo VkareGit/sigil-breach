@@ -92,6 +92,8 @@ C.schemas = {
     phaseEnteredAt = f(nil, 'simulation time of the current encounter phase transition'),
     phaseBaseHp = f(nil, 'spawn HP, basis of later health stocks'),
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
+    streamHits = f(nil, 'bodies already met by the current finite exhale'),
+    harvestMarks = f(nil, 'owned patches committed to an eruption; shared save references'),
     phase = f(0, 'time in the state'),
     recover = f(0),
     spent = f(0, 'what is left of the recovery after a blow: it moves but cannot strike (s)'),
@@ -190,6 +192,9 @@ C.schemas = {
 }
 -- A projectile in flight (enemies/actions.lua: projectile).
 C.schemas.projectile = {
+  gravity = f(nil, 'optional ballistic downward acceleration'),
+  deposit = f(nil, 'reserved ground payload, delivered only on a floor contact'),
+  art = f(nil, 'painted projectile family'),
   x = f(0),
   y = f(0),
   z = f(0),
@@ -222,6 +227,9 @@ C.schemas.entity = {
 }
 -- A marked ground hazard: pool, line, lightning (enemies/hazards.lua).
 C.schemas.hazard = {
+  garden = f(nil, 'owned deposit family counted against its capacity'),
+  harvest = f(nil, 'pending eruption warning bound to the owner windup'),
+  erupting = f(nil, 'a consumed deposit in its final brief contact'),
   x = f(0),
   z = f(0),
   level = f(nil, 'the surface it lies on, on a world with decks'),

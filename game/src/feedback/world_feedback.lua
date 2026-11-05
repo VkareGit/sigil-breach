@@ -82,6 +82,7 @@ World.handlers = {
       2,
       g.world
     )
+    warningLayer(g, e, ev.attack.releaseVoice, 0.58, 2)
   end,
   ChargeBlocked = function(g, ev)
     A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.5)
