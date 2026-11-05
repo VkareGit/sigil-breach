@@ -58,6 +58,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+
+- Korekta zasad po odrzuconym odbiorze, 2026-11-05: utrwalono nadrzędny
+  obowiązek zachowania istniejącej faktury, tożsamości i stylu wszystkich
+  zasobów. Nowe animacje nie upoważniają do przemalowania postaci.
+  Zasada jest w START-HERE, AGENTS, STYLU i WIZJI. PLAN zapisuje kolejność:
+  korekta Iron Thralla, następnie audyt wszystkich tekstur i ognia.
+
 - IRON THRALL, 2026-11-05: dopracowano pięć istniejących ataków jako walkę
   ciężkiego ciała: pazur, szeroki zamach, bark, cios za plecy i pięści w ziemię.
   Dodano 15 malowanych póz według dołączonego Inferno i istniejącej postaci:
@@ -4128,6 +4135,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+
+Właściciel, 2026-11-05 — ODRZUCONY WYGLĄD IRON THRALLA z 18c25e0.
+- Nowe animacje zmieniają fakturę i wygląd postaci. To naruszenie istniejących
+  wymagań, a nie nowa preferencja właściciela. Agent błędnie uznał zgodność
+  ogólnego motywu za wystarczającą mimo różnic względem oryginalnego modelu.
+- Wcześniejsze PASS-y pozostają wynikami technicznymi; nie świadczą o
+  zgodności stylu. Nowych odrzuconych arkuszy nie używać jako wzorca.
+- Właściciel odrzucił również obecny wygląd ognia i zlecił po naprawie
+  Iron Thralla przegląd każdej tekstury oraz wcześniejszych podmian.
+- Ten wpis zapisuje decyzję i obowiązki; nie deklaruje naprawienia grafiki.
+  Zmiana dotyczy tylko dokumentacji, więc testów gry nie uruchamiano.
 
 Codex, 2026-11-05 — Iron Thrall, zakres zlecony po dopracowaniu Stolasa.
 - Analiza: miał już pięć ataków i odpowiedzi na obejście pleców/przytulenie,

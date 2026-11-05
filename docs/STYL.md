@@ -4,6 +4,29 @@ Kierunek artystyczny: żywy mroczny fresk, HUD, broń, demony, atmosfera. Głów
 
 ## Obowiązujące ograniczenia właściciela (4 listopada 2026)
 
+
+**Doprecyzowanie nadrzędne, 2026-11-05: istniejący styl graficzny ma zostać
+zachowany i spójny w całej grze.** Nowa klatka jest inną pozą dokładnie tej
+samej postaci, nie nowym projektem. Obowiązuje zgodność twarzy, anatomii,
+proporcji, elementów ubioru, materiałów, faktury pigmentu, modelunku, palety,
+konturu i skali detalu. Niedopuszczalne są zarówno dodatkowy realizm/detal,
+jak i wygładzenie, uproszczenie lub kreskówkowe przemalowanie istniejącej
+tekstury. Nie zmieniać wyglądu pod pretekstem dopracowania animacji.
+
+Bezpośrednim wzorcem ciągłości jest zaakceptowany zasób używany w grze.
+Inferno zawsze dołączać jako kierunek całej gry; nie zastępuje ono wzorca
+konkretnej postaci. Kontrola przed podłączeniem: stara i nowa klatka obok
+siebie w tej samej skali, potem przejścia idle/chód/przygotowanie/atak/powrót
+w identycznym świetle gry. Zmiana faktury lub tożsamości w trakcie ruchu
+blokuje wdrożenie. Testy masek, anatomii i golden nie potwierdzają stylu.
+
+Właściciel odrzucił nowe klatki Iron Thralla z commitu 18c25e0: zmieniają
+fakturę i wygląd postaci. Nie są wzorcem do następnych generacji ani
+zaakceptowanym rozwinięciem modelu. Zielona brama tego commitu potwierdza
+wyłącznie sprawdzone właściwości techniczne. Najpierw poprawić Iron Thralla;
+następnie przejrzeć wszystkie tekstury i wcześniejsze podmiany, w tym ogień,
+którego obecny wygląd właściciel również odrzucił.
+
 - Do każdego zlecenia grafiki dołącz obraz Inferno. Zachowuj istniejący styl demonów, HUD i broni; odczucie trafienia i wyraźnego chybienia jest jednym z najważniejszych priorytetów.
 - Dolny pasek HUD jest chroniony: kształt, kompozycja i styl. Wolno poprawiać czytelność treści w istniejących niszach. Zmianę wyglądu pokaż przed/po w 960×540, 1024×768, 1280×720, 1920×810 i 1920×1080, zanim uznasz ją za przyjętą.
 - Znacznik trafienia: cztery cienkie kreski 4–8 px, zabójstwo zgaszoną czerwienią. Nie powiększać ani nie wracać do dużego X.

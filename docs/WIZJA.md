@@ -13,6 +13,15 @@ Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właści
 
 ## Uzupełnienia obowiązujące (4 listopada 2026)
 
+
+- **Nadrzędna decyzja wizualna, 2026-11-05:** istniejący styl i wygląd
+  zaakceptowanych postaci oraz tekstur mają zostać zachowane i spójne.
+  Rozwój animacji zmienia pozę, nie tożsamość, fakturę ani skalę detalu.
+  Odrzucenie nowych klatek Iron Thralla i obecnego ognia jest wiążące;
+  techniczne PASS nie oznacza akceptacji artystycznej. Szczegółowe
+  kryteria porównań w STYL.md. Po korekcie Iron Thralla właściciel zlecił
+  przegląd wszystkich tekstur i poprawienie niespójnych wcześniejszych podmian.
+
 Przeniesione z instrukcji przekazanej przez właściciela; mają pierwszeństwo przed starszymi propozycjami niżej.
 
 - D1: ognisko odmawia odpoczynku i podaje powód, gdy ściga rycerza czuwający stwór.

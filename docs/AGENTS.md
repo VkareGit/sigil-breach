@@ -7,6 +7,19 @@ Przed pracą poznaj `game/INSTRUKCJA.txt` (zwłaszcza KAPLICA), `docs/WIZJA.md`,
 przed starszymi opisami. Pamięć automatyczna nie zastępuje sprawdzenia kodu,
 wersji, `git status` i ostatnich commitów.
 
+
+**Nienaruszalna zasada grafiki (właściciel, 2026-11-05): zachować istniejący
+styl i pełną spójność wizualną.** Animacja ma pokazywać tę samą postać w innej
+pozie: identyczną tożsamość twarzy, anatomię, proporcje, ubiór, materiały,
+fakturę, paletę, modelunek, kontur i skalę detalu. Nie wolno jej wygładzać,
+upiększać ani reinterpretować. Wzorcem jest zaakceptowany obraz używany
+w grze; samo podobieństwo do Inferno nie wystarcza. Do generowania dołącz
+oba wzorce. Przed podłączeniem porównaj nowe i stare klatki obok siebie oraz
+przejścia w grze, przy tej samej skali i oświetleniu. Skok wyglądu pomiędzy
+klatkami jest błędem blokującym, nawet przy zielonych testach. Nie uznawaj
+technicznego PASS za odbiór artystyczny. Dotyczy to także ognia, efektów,
+otoczenia, broni i HUD-u. Szczegóły i odrzucenie Iron Thralla: docs/STYL.md.
+
 - Środowisko właściciela to natywny Linux / Omarchy. Główne repozytorium:
   `/home/nahiko/Work/sigil-breach`. Osobne klony, eksperymenty i katalogi
   robocze można tworzyć w `/home/nahiko/Work/tries` w ramach zleconego zadania.

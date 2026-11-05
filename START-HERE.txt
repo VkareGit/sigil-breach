@@ -5,6 +5,12 @@ bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stwora
 dusze i echo po śmierci, śluby przy ogniskach, 3 sloty zapisu. Bossów i zakończenia
 jeszcze nie ma: Margrave i Furfur to najtrudniejsze zwykłe moby.
 
+ZASADA GRAFIKI
+  Zachować istniejący styl, fakturę i wygląd postaci. Nowa animacja zmienia
+  pozę, nie projekt postaci. Skok wyglądu pomiędzy klatkami blokuje wdrożenie.
+  Przed grafiką przeczytaj docs/STYL.md i docs/AGENTS.md; testy nie zastępują
+  porównania z zaakceptowanymi zasobami w rzeczywistej skali gry.
+
 KATALOGI
   game/       gra (main.lua, src/, assets/), testy (tests/), narzędzia QA (qa/),
               instrukcja gracza INSTRUKCJA.txt
