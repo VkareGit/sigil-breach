@@ -11,6 +11,12 @@ Jeden bieżący plan. Gdy powstaje nowy plan, ten plik w całości trafia jako r
 
 ## Postęp (stan punktów)
 
+Obowiązkowe przed commitem grafiki: trzy kontrole spójności opisane w
+AGENTS/STYLU oraz test regresji odrzucający niewłaściwy wariant. Wzorzec
+Iron Thralla potwierdzony przez właściciela: bazowy arkusz 6×4 v12; osobna
+klatka strike-matte v12 także odrzucona. Korekta trwa, bez akceptacji nowych
+zasobów na podstawie samego PASS.
+
 
 **Odrzucony odbiór grafiki, 2026-11-05:** właściciel odrzucił nowe klatki
 Iron Thralla z 18c25e0: podczas animacji zmieniają się faktura i wygląd

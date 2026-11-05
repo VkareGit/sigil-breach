@@ -20,6 +20,17 @@ klatkami jest błędem blokującym, nawet przy zielonych testach. Nie uznawaj
 technicznego PASS za odbiór artystyczny. Dotyczy to także ognia, efektów,
 otoczenia, broni i HUD-u. Szczegóły i odrzucenie Iron Thralla: docs/STYL.md.
 
+Obowiązek przed każdym commitem dotyczącym grafiki (właściciel, 2026-11-05):
+wykonać co najmniej trzy odrębne kontrole spójności i zapisać ich wyniki
+w ODBIOR w HISTORII: (1) każda zmieniona klatka/tekstura obok zatwierdzonej
+bazy, w tej samej skali; (2) rzeczywiste rendery w jednakowym oświetleniu,
+z bliska, z dystansu walki i z daleka; (3) przejścia między spoczynkiem,
+chodem, przygotowaniem, atakiem i powrotem — bez zmiany twarzy, materiału,
+faktury czy poziomu detalu. Test regresji musi wykrywać odrzucony wariant
+przed poprawką; nie aktualizować wzorca tylko po to, by uzyskać PASS.
+Niespójność blokuje commit grafiki. Testy techniczne nie zastępują oględzin.
+Właściciel określił powtórzenie tego naruszenia jako **karygodne**.
+
 - Środowisko właściciela to natywny Linux / Omarchy. Główne repozytorium:
   `/home/nahiko/Work/sigil-breach`. Osobne klony, eksperymenty i katalogi
   robocze można tworzyć w `/home/nahiko/Work/tries` w ramach zleconego zadania.

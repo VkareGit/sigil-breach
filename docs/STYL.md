@@ -2,6 +2,17 @@
 
 Kierunek artystyczny: żywy mroczny fresk, HUD, broń, demony, atmosfera. Główny wzorzec całej gry: `docs/art/giovanni-da-modena-inferno.webp` (Giovanni da Modena, Inferno, Bolonia). Starszy wzorzec architektury: `docs/art/painted-direction-2026-10-31.png`. Analiza czytelności obrazu i strzelania (V01) jest w `docs/HISTORIA.md`.
 
+Obowiązek przed każdym commitem dotyczącym grafiki (właściciel, 2026-11-05):
+wykonać co najmniej trzy odrębne kontrole spójności i zapisać ich wyniki
+w ODBIOR w HISTORII: (1) każda zmieniona klatka/tekstura obok zatwierdzonej
+bazy, w tej samej skali; (2) rzeczywiste rendery w jednakowym oświetleniu,
+z bliska, z dystansu walki i z daleka; (3) przejścia między spoczynkiem,
+chodem, przygotowaniem, atakiem i powrotem — bez zmiany twarzy, materiału,
+faktury czy poziomu detalu. Test regresji musi wykrywać odrzucony wariant
+przed poprawką; nie aktualizować wzorca tylko po to, by uzyskać PASS.
+Niespójność blokuje commit grafiki. Testy techniczne nie zastępują oględzin.
+Właściciel określił powtórzenie tego naruszenia jako **karygodne**.
+
 ## Obowiązujące ograniczenia właściciela (4 listopada 2026)
 
 
@@ -32,6 +43,15 @@ którego obecny wygląd właściciel również odrzucił.
 - Znacznik trafienia: cztery cienkie kreski 4–8 px, zabójstwo zgaszoną czerwienią. Nie powiększać ani nie wracać do dużego X.
 - Amunicja: zachować ciepłe, ciemniejsze obrazy wybrane przez właściciela; jaśniejsze i matowe warianty odrzucono. Bez przemalowania bez pytania.
 - Tekst gry i tekst na obrazach po angielsku. Nowe klatki stworów muszą zachować zgodność anatomii i masek (`anatomy-data`, `hit-landmarks`, `painted-surfaces`). Ocena klimatu malarskich efektów 0.45 nadal należy do właściciela.
+
+
+Właściciel następnie wskazał wprost bazowy arkusz 6×4 Iron Thralla:
+`game/assets/art/armored-fresco-v12.png`, SHA-256
+`f03d7c87527b2e5fd80208d9cdcf58f69493dd3e36701cd3353f6226dc5ba4a8`.
+Starsza osobna klatka `armored-strike-matte-fresco-v12.png` również została
+odrzucona i nie może być wzorcem; nazwa wersji ani obecność w repozytorium
+nie dowodzi akceptacji. Dotyczy to również wyniku generacji z 2026-11-05
+opartego na tej błędnie wybranej referencji: nie został podłączony do gry.
 
 ## Spis rozdziałów
 

@@ -58,6 +58,11 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Dodatkowe polecenie właściciela: przed commitem grafiki obowiązują trzy
+  kontrole spójności (arkusz, rendery w grze, przejścia animacji) i test
+  regresji. Jawnie wskazano bazowy arkusz Iron Thralla 6×4; odrzucono też
+  starszy strike-matte v12. Szczegóły i SHA-256 bazy w STYLU.
+
 
 - Korekta zasad po odrzuconym odbiorze, 2026-11-05: utrwalono nadrzędny
   obowiązek zachowania istniejącej faktury, tożsamości i stylu wszystkich
@@ -4135,6 +4140,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Właściciel, 2026-11-05 — doprecyzowanie po wskazaniu obrazów.
+- Wzorzec Iron Thralla: bazowy arkusz 6×4 armored-fresco-v12.png. Osobny
+  armored-strike-matte-fresco-v12.png też nie spełnia stylu i jest odrzucony.
+- Wymagane wielokrotne oględziny przed commitem i test, który wykrywa
+  poprzedni rozjazd. Powtórzenie naruszenia właściciel nazwał karygodnym.
+- Zapis dokumentacyjny, bez zmian gry i bez deklaracji naprawienia obrazu.
 
 
 Właściciel, 2026-11-05 — ODRZUCONY WYGLĄD IRON THRALLA z 18c25e0.
