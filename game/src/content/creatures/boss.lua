@@ -66,6 +66,7 @@ return Creature.boss({
     execution = 0.2,
   },
   move = {
+    attackWait = 0.9,
     speed = 4.6,
     accel = 20,
     ideal = 3.2,

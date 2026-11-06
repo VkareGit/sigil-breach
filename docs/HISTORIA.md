@@ -66,6 +66,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Margrave, 2026-11-06, końcowy krok zaakceptowanego pakietu: gotowa
+  elita po 0,9 s oczekiwania korzysta z istniejącej kolejki do wolnego
+  miejsca ataku. Nie zwiększa limitu napastników, nie odbiera rozpoczętej
+  serii i nie skraca przygotowań ani odpoczynku. Jedyny parametr produkcyjny
+  tego kroku to move.attackWait Margrave'a; pozostałe postacie bez zmian.
+  Oczekiwanie przeżywa Continue. Stan niegotowy, martwy, ogłuszony,
+  niewidoczny, zbyt odległy lub z innym celem nie blokuje pozostałych.
+
 - Margrave, 2026-11-06, lądowanie, animacje, efekty i głos:
   kontakt lądowania obejmuje rzeczywisty obrys uderzenia o promieniu 1,5 m,
   zamiast pudłować przez odstęp między ciałami. Zachowano 56 obrażeń,
@@ -4332,6 +4340,39 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Margrave, kolejka grupowa, 2026-11-06: czerwony test przed zmianą
+  potwierdził wyprzedzenie czekającego Margrave'a przez świeżego Embera.
+  Po zmianie margrave-queue 36 PASS, w 60/120/240 Hz, z prawdziwym plikiem
+  Continue, kontrolą nieprzerywania serii i braku skutków ubocznych
+  odczytu kolejki. Izolowane margrave-strings 85, landing 74, margrave 182,
+  furfur 128, boss-pressure 30, souls-gate 6 oraz souls-bots 9 PASS.
+  Dwa golden identyczne z dotychczasowym wzorcem; żadnej zmiany baseline.
+  Test kolejki uruchomiony osobno oraz razem z całością.
+  Końcowe Linux All PASS, exit 0: 8402 Mechanics/Assets, Input 50,
+  Architecture 711 Lua / 0 problemów, Render i wszystkie Tools.
+  Dziewięć stabilnych świadectw:
+  5C885CC4A492814BC64B65F408E447D80285D64A8DE1F020FBE6C2E8459B7F54.
+  Każdy z trzech kroków gry miał własne zielone All przed commitem:
+  d37c143 (seria), a47a6ae (lądowanie/obraz/głos), następnie kolejka.
+  Windows niesprawdzony. Push nie wykonywano. Rytm walki, czytelność
+  znaków i barwa głosu pozostają do próby właściciela w grze.
+- Te same 36 swobodnych scenariuszy po 20 s, pomiar w osobnym klonie:
+  w grupie czterech Emberów wypuszczenia 1–4 → 5–6 w pierwszym akcie
+  i 1–4 → 5–7 w drugim. Średni bezruch w stanie ruchu 4,828 → 3,808 s
+  oraz 5,389 → 2,821 s; najdłuższy 3,583 → 2,392 s i 3,583 → 1,842 s.
+  Scenariusze bez grupy nie zmieniły liczby czynności ani czasów stanów.
+  Odniesienie to stan po wcześniejszym ograniczeniu serii i naprawie
+  lądowania, więc pomiar wyodrębnia wpływ kolejki.
+- Mediany trzech p95 aktualizacji CPU (1/4/12/32 ciał): po kolejce
+  0,2533/0,4484/1,1114/1,2962 ms, przed 0,1840/0,4314/0,8025/1,1195 ms.
+  Rozrzut pojedynczych przebiegów jest większy niż część tych różnic;
+  pomiar nie dowodzi dokładnego narzutu kolejki ani poprawy FPS. Osobny
+  stres efektów i audio poprzedniego etapu pozostaje aktualny, bo ten
+  krok nie zmienia renderowania, próbek ani zarządzania źródłami.
+  Dowody i źródła sond: work/qa-direct/margrave-queue-final-20261106;
+  komplet raportów All w margrave-final-all-20261106. Własny klon
+  pomiarowy i jego roboczy katalog usunięto po zachowaniu dowodów.
 
 - Margrave, dopracowanie lądowania/obrazu/głosu, 2026-11-06:
   nowa weryfikacja izolowana PASS: margrave 182, margrave-landing 74,

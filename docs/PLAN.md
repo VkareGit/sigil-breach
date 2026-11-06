@@ -2,7 +2,7 @@
 
 ## Zakres i status
 
-**2026-11-06: Margrave of Ash — plan zaakceptowany, wdrożenie w toku.**
+**2026-11-06: Margrave of Ash — zaakceptowany pakiet wdrożony i zweryfikowany.**
 Właściciel uważa obecną walkę za dobrą i zlecił całościowy przegląd.
 Właściciel zaakceptował cały pakiet. Kierunek: dopracować obecnego kata z tasakiem
 oraz popiołem, bez dodatkowego dużego czaru. Zachować 2700 HP, pakiety
@@ -82,14 +82,23 @@ zachowano tam w całości.
 
 ## Postęp
 
+- 2026-11-06, ostatnia poprawka kolejki wdrożona: czerwony test → 36 PASS,
+  z Continue i trzema częstotliwościami. W grupie 1–4 → 5–7 wypuszczeń
+  na 20 s, bez zmiany scenariuszy solo. Końcowe Linux All PASS:
+  8402 Mechanics/Assets, Input 50, Architecture 711 Lua / 0 problemów,
+  Render i Tools, dziewięć stabilnych świadectw. Dwa golden identyczne
+  z bazą. Wszystkie trzy kroki miały własne zielone All przed commitem.
+  Odbiór rytmu, obrazu oraz głosu przez właściciela jest osobny od tej
+  weryfikacji. Windows niesprawdzony; bez push.
+
 - 2026-11-06, lądowanie, emisja, sekwencje, malowane efekty i głos wdrożone.
   Izolowane sprawdzenia PASS: margrave 182, landing 74, art 23, miks 627
   oraz anatomia, trafienia, zapis, presja i boty. Trzy kontrole grafiki
   zakończone; bez zmiany PNG i bazy. Dwa golden bez zmiany wzorca.
   Pełna Linux All PASS: 8366 Mechanics/Assets, Input 50, Architecture
   710 Lua / 0 problemów, Render i Tools; dziewięć stabilnych świadectw.
-  Pozostaje osobne włączenie kolejki grupowej,
-  jej pomiar i pełna weryfikacja. Odsłuch oraz odbiór w grze są osobne.
+  Commit a47a6ae; kolejka rozliczona w osobnym kroku powyżej.
+  Odsłuch oraz odbiór w grze są osobne.
 
 - 2026-11-06, limit serii wdrożony i zweryfikowany: najwyżej trzy ciosy
   z reakcją na unik, pełne 1,2 s odpowiedzi, zapisany budżet. Test czerwony
@@ -97,7 +106,7 @@ zachowano tam w całości.
   10,53 → 3,79 s do odpoczynku. Pełne Linux All PASS: 7943 Mechanics/Assets,
   Input 50, Architecture/Render/Tools; dziewięć stabilnych świadectw.
   Dwa golden identyczne z dotychczasową bazą. Windows niesprawdzony.
-  Pozostały zaakceptowany zakres jest nadal w realizacji.
+  Commit d37c143; pozostały zaakceptowany zakres rozliczony powyżej.
 
 - Punkt wejściowy: czysty `7b09c94`, wersja 0.45. Zweryfikowano dziewięć
   stabilnych świadectw ostatniego All Furfura zgodnych z obecną grą:
@@ -135,7 +144,9 @@ Właściciel zaakceptował powyższy pakiet, w tym najwyżej trzy ciosy,
 naprawę lądowania wraz z przerwą przed falą, pierwszeństwo w grupie oraz
 pokazanie bliskiego ciosu jako uderzenia tasakiem w ziemię. Rekomenduję
 całość bez dodawania nowego dużego czaru. Dokładne parametry wykonawcze
-podlegają pomiarom w zatwierdzonym kierunku, nie nowym pytaniom o każdą liczbę.
+podlegały pomiarom w zatwierdzonym kierunku. Całość wdrożona; do odbioru
+pozostaje odczucie walki, czytelność popiołu oraz barwa własnych głosów.
+Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 
 ## Pozostaje poza zakresem
 

@@ -206,6 +206,11 @@ Suite.registry = {
     module = 'tests.cases.ember_thrall',
   },
   {
+    id = 'margrave-queue',
+    title = 'Patient ash elite preserves committed group attacks',
+    module = 'tests.cases.margrave_queue',
+  },
+  {
     id = 'margrave-strings',
     title = 'Bounded cleaver strings and saved recovery budgets',
     module = 'tests.cases.margrave_strings',
