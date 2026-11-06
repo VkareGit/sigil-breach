@@ -36,6 +36,8 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Analiza audio sześciu postaci (2026-11-06)
+- Plan sprzed przeglądu audio (zastąpiony 2026-11-06)
 - Analiza Margrave'a (2026-11-06)
 - Plan sprzed Margrave'a (zastąpiony 2026-11-06)
 - Analiza Furfura (2026-11-06)
@@ -65,6 +67,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Audio sześciu postaci, 2026-11-06: zakończono ponowną analizę głosów,
+  ataków, ruchu i słyszalności. PLAN zawiera propozycję do akceptacji:
+  sześć odrębnych charakterów, krzyki potępionych w czarach Stolasa,
+  spójne wyzwalanie, przestrzeń i miks. Wdrożenie nie rozpoczęło się;
+  kod, WAV, PNG, balans i golden pozostają bez zmian. Szczegółowy raport
+  i poprzedni PLAN Margrave'a zachowano na końcu HISTORII.
 
 - Margrave, 2026-11-06, końcowy krok zaakceptowanego pakietu: gotowa
   elita po 0,9 s oczekiwania korzysta z istniejącej kolejki do wolnego
@@ -4340,6 +4349,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Audio sześciu postaci, analiza 2026-11-06: 792 nowe sprawdzenia PASS
+  (miks 627, Stolas 59, Iron Thrall 47, Gardener 59). Natywne sondy
+  i 243 wykonania / 144 rodziny, z nieaktywnymi definicjami i wspólnymi
+  odgłosami. Potwierdzono: brak aktualizacji przestrzeni długiego głosu,
+  pomijanie świata w części wywołań, wyciszanie drugiej aktywacji pola
+  przez wspólny cooldown i brak odgłosu aktywacji piekielnej fali Stolasa.
+  To dowody stanu wejściowego, nie naprawa ani artystyczny odbiór.
+  Pięć nowych stabilnych świadectw i dziewięć wcześniejszego All są
+  zgodne z grą 5C885CC4A492814BC64B65F408E447D80285D64A8DE1F020FBE6C2E8459B7F54.
+  Nowego pełnego All nie uruchamiano; Windows niesprawdzony. Brak
+  wiarygodnego odsłuchu: metryki nie potwierdzają klimatu ani maskowania.
+  Dowody: zewnętrzne work/qa-direct/creature-audio-analysis-20261106/.
+  Klon pomiarowy usunięto po zachowaniu wyników. Czekamy na akceptację PLAN.
 
 - Margrave, kolejka grupowa, 2026-11-06: czerwony test przed zmianą
   potwierdził wyprzedzenie czekającego Margrave'a przez świeżego Embera.
@@ -13937,3 +13960,378 @@ postaci; zlecenie Furfura nie zmienia ich materiałów.
   fizycznie zająć. Oczekiwanie za drobnicą i zły wybór ataku zostały
   poprawione; ten przypadek trasy po utracie celu nie jest ich skutkiem.
   Nie zmieniano wspólnych klas nawigacji ani promieni innych stworów.
+
+## Analiza audio sześciu postaci (2026-11-06)
+
+### Zlecenie i granica etapu
+
+Właściciel zlecił ponowny przegląd całego audio wszystkich sześciu
+dopracowanych postaci: głosy ciała, czary, fizyczne ciosy, uniki, ruch,
+trafienia, śmierć oraz słyszalność w walce. Przykład kierunku: zniekształcone
+ludzkie krzyki cierpienia w piekielnych czarach Stolasa z potępionymi.
+Dopuszczona jest wymiana odgłosów, ale **najpierw analiza i plan do
+akceptacji**. W tym kroku nie zmieniono kodu, WAV, PNG ani symulacji.
+Nowy PLAN zawiera proponowany zakres. Odsłuch artystyczny nie został
+wiarygodnie wykonany; niższe wyniki opisują kod i pomiar, nie ocenę grozy.
+
+Punkt wejściowy: czysty `011d3dd`, wersja 0.45. Przeczytano instrukcje
+projektu, bieżący plan i odbiór, WIZJĘ, STYL, TECHNIKĘ oraz odpowiednie
+części INSTRUKCJI. Zweryfikowano je z sześcioma definicjami stworów,
+recepturami, materiałem źródłowym audio, feedbackiem, pętlą prezentacji,
+world_cues/body_voices, mikserem, pociskami/polami oraz testami.
+
+### Dowody i metoda
+
+Własny klon w Work/tries, dopasowany bajtowo do gry głównego repozytorium.
+Natywny LÖVE 11.5, ukryte okno QA, OpenAL z wyjściem null. Nie przeszkadzano
+w pracy na aktywnym pulpicie i nie nagrywano wideo. Dekodowanie/synteza
+próbek korzystały z tego samego VoiceData co gra; badano rzeczywiste
+Source:getVolume/getPosition i wywołania istniejących handlerów.
+
+Zachowane dowody pod:
+`/home/nahiko/Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/creature-audio-analysis-20261106/`.
+`audit/inventory.csv` zawiera przypisania czynność/warstwa, `samples.csv`
+243 wykonania w 144 rodzinach, `levels.csv` natywne wzmocnienia przy
+różnych dystansach i poziomach, `samples/` wyeksportowane WAV, `routing.txt`
+wyniki sond. Rodziny obejmują również nieużywane definicje i odgłosy
+ogólne, więc liczba nie oznacza 144 aktywnych umiejętności.
+Inwentarz zawiera też ogólne handlery uniku i zderzenia dla porównania:
+nie oznacza to, że każda postać wykonuje każdą z tych czynności.
+
+`levels-summary.json` mierzy pełną pierwszą próbkę razy natywne
+wzmocnienie w umownych 10 m, przed master, panoramą i sumowaniem.
+To porównanie warstw, nie loudness końcowego odsłuchu. Nie każdy cios
+sięga 10 m; przygotowanie może skończyć się przed końcem pliku.
+Wyniki nie potwierdzają ani nie wykluczają maskowania przez strzał.
+Źródła sond i skrypt metryk zachowano obok dowodów; własny klon i jego
+oddzielny katalog roboczy usunięto po skopiowaniu wyników.
+
+### Potwierdzony stan i luki
+
+1. **Wszystkie sześć postaci ma już głos ciała i trzy warianty śmierci.**
+   Obecne mechanizmy obejmują oddech, obecność, ruch/powrót, alarm, ból
+   i przygotowanie. RNG wariantów jest osobny od symulacji, z zakazem
+   bezpośredniego powtórzenia wykonania. Nie należy opisywać tego stanu
+   jako „brak głosów”. Problemem jest pokrycie czynności, charakter,
+   powtarzalność części materiałów oraz działanie w całym miksie.
+2. **Brak ciągłej aktualizacji przestrzeni długiego odgłosu.** Natywna
+   sonda owl_death: po przesunięciu gracza z x=16 na x=10 i obrocie o
+   90° Source nadal ma pozycję (0,8; 0; −0,6) i głośność 0,67241.
+   playAt oblicza je tylko w chwili startu; update nie przelicza emisji.
+   Dodatkowo kod różnicuje stronę lewo/prawo, ale nie położenie przód/tył.
+   To istotne dla długiej śmierci, rytuału, pościgu i nadchodzącej fali.
+3. **Niespójne zasłanianie dźwięku.** Evaded, Alerted oraz ChargeBlocked
+   w sondzie wywołują playAt bez świata; podobnie część innych kontaktów
+   w kodzie. Nie stosują więc tłumienia muru. Zwykłe ostrzeżenie Stolasa
+   otrzymuje za murem dokładnie ×0,38 (−8,4 dB): 0,64338 → 0,24449
+   w tej samej scenie. Obecne zasłanianie to skok poziomu oparty na
+   widoczności 2D, bez filtrowania pasma i płynnej aktualizacji.
+4. **Jedna aktywacja pola może wyciszyć inną.** Dwa pola ognia z różnymi
+   impactSound, aktywowane w tej samej klatce, dają tylko pierwszy odgłos.
+   world_cues ma wspólny cooldown 0,09 s według typu obrażeń, oznaczając
+   oba pola jako już obsłużone. Potrzebne jest grupowanie znaków jednej
+   czynności, bez globalnego wyciszania innego rzucającego/rytuału.
+5. **Stolas: ogień ma rzucenie, ale nie własny głos pola.** star-ray
+   wywołuje owl_ray_warning i owl_cast_chant przy przygotowaniu oraz
+   owl_rupture przy wypuszczeniu. Fala wygląda jak piekielny ogień,
+   lecz jej pakiet jest astralny i nie ma impactSound. Sonda aktywacji
+   takiego pola nie wywołuje żadnego dźwięku. Tabela domyślna obsługuje
+   tu tylko fire/lightning. Nie jest to brak dźwięku całego czaru:
+   brakuje warstwy samego zagrożenia w świecie. Fala i rozdarcie mają
+   wspólne owl_rupture; sześć ostrzeżeń Stolasa ma po jednym wykonaniu.
+6. **Ujednolicone przejścia i kontakty.** Unik używa ogólnego whoosh,
+   zatrzymanie szarży thud. Astralne i trujące pociski domyślnie
+   dzielą whoosh/hit z innymi typami; ich własny dźwięk rzucenia nie
+   zmienia automatycznie lotu i kontaktu. Przelot jest jednorazowym
+   sygnałem przy pierwszym wejściu pocisku w promień 5 m. Nie odtwarza
+   długiego przemieszczania. Odgłos końca pola nie jest podpięty w
+   HazardEnded. Cztery materiały przygotowań Gardenera też mają po
+   jednym wykonaniu, chociaż głos wysiłku obok nich ma warianty.
+7. **Poziom głosu nie jest poziomem całego ataku.** Przy umownych 10 m
+   pierwsze wykonania głosów przygotowania sześciu postaci mają RMS
+   około −25 do −23,6 dBFS po wzmocnieniu źródła. Nie jest to test
+   słyszalności, ale nie uzasadnia tezy, że wszystkie głosy są za ciche.
+   Materiał chain_settle Iron Thralla to około −43,3 dBFS, a głos jego
+   wysiłku około −23,6; materiał może ginąć pod własnym głosem.
+   Analogicznie margrave_prepare to około −48,1, przy wysiłku około
+   −24 dBFS. Wymaga to porównania ich ról i odsłuchu w walce, nie
+   automatycznego wyrównania wszystkich plików do jednego RMS.
+8. **Okna i końcówki wymagają dopasowania.** chain_settle ma 1,5 s,
+   podczas gdy nominalne przygotowania Iron Thralla wynoszą 0,5–0,86 s
+   (niektóre czynności mają jeszcze przytrzymanie). AttackReleased i
+   AttackCancelled zatrzymują zapisane źródła natychmiast przez stop.
+   Sama poprawna końcówka WAV nie zapewnia łagodnego zakończenia podczas
+   gry. Potencjalnego trzasku nie potwierdzono odsłuchem; mechanizm
+   przerwania oraz niedopasowanie długości są potwierdzone w kodzie.
+9. **Budżet i miks mają fundament, ale ograniczony model ważności.**
+   Pula: najwyżej 28 aktywnych i 28 zapasowych źródeł. Przy przeciążeniu
+   usuwa najniższy priorytet, a przy remisie najstarszy głos, bez oceny
+   dystansu czy aktualnego zagrożenia. To ryzyko do testu przeciążenia,
+   nie dowód, że zwykła kaplica już gubi 28 ostrzeżeń. Priorytet ≥3
+   ścisza muzykę na krótki czas; nie rozwiązuje maskowania w samych SFX.
+   Głosy obecności są już ograniczone ciszą, dystansem i stanem ciała;
+   nie należy usuwać tych ograniczeń, aby potwory „mówiły więcej”.
+10. **Dotychczasowy PASS ma węższe znaczenie od odbioru słuchem.**
+    Test miksu sprawdza m.in. RMS×gain ≥0,045 dla wybranych próbek przy
+    umownych 10 m oraz wybrane nakładania ze strzałem Exorcista.
+    Nie dowodzi rozpoznania każdego ataku we wszystkich sześciu grupach,
+    z oboma rodzajami strzału, muzyką, ścianą i obrotem słuchacza.
+    Potrzebne są scenariusze całego zdarzenia i odsłuch obok metryk.
+
+### Rekomendacja artystyczna
+
+Główny kierunek: rozpoznawalne cierpiące ciało pod deformacją, właściwy
+materiał i odrębny rytm czynności. Sześć głosów nie może stać się jednym
+obniżonym pomrukiem. Czary różnicować także rytmem i miejscem emisji.
+Nie używać niskiego filtra, distortion lub jednakowej głośności jako
+zamiennika wykonania. Źródła zastępować tam, gdzie nie niosą potrzebnego
+charakteru; poprawne dotychczasowe wykonania mogą zostać.
+
+Najbardziej wyrazista własna propozycja rozwija przykład właściciela:
+Stolas jako celebrans zmusza głosy potępionych do uczestnictwa w czarze.
+Przed falą słyszalny zbiorowy wdech, podczas przejścia grzbietu krzyk,
+po ustaniu zagrożenia krótki gasnący wydech. Rozdarcie ma inny rytm:
+napięcie, nagłe otwarcie i urwane warstwy głosów w rzeczywistej szczelinie.
+Krzyki są warstwą ataku, nie głosem gardła Stolasa. Pozostałe czary oraz
+teleport nie muszą powielać tego chóru. Brak nowych pól obrażeń czy
+zmiany wysokości fali: audio opisuje już istniejącą geometrię.
+Szczegóły pozostałych pięciu postaci i śmierci znajdują się w PLAN.
+
+To propozycje do akceptacji i odsłuchu, nie twierdzenie, że tak już brzmi gra.
+Bez arbitralnego przypisywania stworom kręgów piekła, nowych kwestii
+dialogowych, nowych umiejętności ani przemalowania zaakceptowanych efektów.
+
+### Źródła i ich zastosowanie
+
+- Crytek, [Hunt Audio: Readability, Realism, and Consistency](https://www.huntshowdown.com/news/hunt-audio-readability-realism-and-consistency):
+  tożsamość, miejsce i stan przeciwnika rozpoznawalne po audio; odrębne
+  zestawy głosów, poziomy pobudzenia, spójne tłumienie i zasłanianie.
+  Zastosowanie tutaj: inny charakter sześciu stworów i pełne zdarzenie
+  w świecie zamiast samej podmiany WAV.
+- Samuel Justice/Frictional, [SOMA — Behind The Sound](https://frictionalgames.com/2015-09-soma-behind-the-sound/):
+  kontrast i przestrzeń na dźwięk, materialne, brudne brzmienie oraz
+  wiarygodność głosu, który nie jest całkiem ludzki. Zastosowanie tutaj:
+  nagrane wykonanie, oddech i materiały jako fundament, cisza między
+  zdarzeniami. To nie kopiowanie podwodnej ani technologicznej stylistyki.
+- Motive/EA, [Dead Space — Audio Developer Livestream](https://www.ea.com/ea-studios/motive/amp/news/focus-on-deadspace-audio-design):
+  oficjalny opis A.L.I.V.E. dotyczy oddechu/tętna/mowy Isaaca oraz
+  zasłaniania dźwięku przez materiały. Inspiracja dla nas: cielesne
+  wykonanie zależne od sytuacji i konsekwentna przestrzeń. Nie twierdzę,
+  że jest to opis dokładnego systemu głosów Necromorphów.
+- Mick Gordon/GDC, [DOOM: Behind the Music](https://www.gdcvault.com/play/1024068/):
+  przeczytano opis wystąpienia o kierunku i energii muzyki; nie wykonano
+  odsłuchu całego wystąpienia ani audytu dźwięków demonów. DOOM pozostaje
+  odniesieniem tempa i energii gry, a nie gotową recepturą głosu potwora.
+- Kandydaci nagrań: [Male Screams [1] — marc3122](https://freesound.org/people/marc3122/sounds/556976/),
+  strona autora potwierdza odegrane krzyki oraz CC0; jakość i przydatność
+  wymagają sprawdzenia (plik opisany jako MP3 96 kb/s, nie zakładać jakości
+  studyjnej). [Female Hurt Grunts & Groans — AuraVoice/Nocturnal_Vanguard](https://opengameart.org/content/female-hurt-grunts-groans)
+  oraz [grunts of male death and pain](https://opengameart.org/content/grunts-male-death-and-pain)
+  mają CC0 i opis głosów w indeksie wyszukiwarki, ale bezpośredni odczyt
+  stron zwrócił 403. Przed użyciem potwierdzić źródłową licencję i autora.
+  Niczego z tych źródeł jeszcze nie pobrano ani nie dołączono do gry.
+  Obecne banki mają provenance.json; ich przejrzano, nie zastępuje to
+  weryfikacji nowego materiału. Nie kopiować nagrań z innych gier.
+
+### Zależności i weryfikacja przyszłego wdrożenia
+
+Profile treści → zdarzenia walki → warstwa prezentacji → głosy ciała/
+pociski/pola → mikser i przestrzeń → zwolnienie źródła. To wspólny ciąg
+dla sześciu postaci. Parametry audio i identyfikatory profili nie mogą
+zmienić RNG, trafień, tempa SI ani wyników golden. Stare Continue może
+zawierać rozpoczętą zamrożoną definicję; brak nowego pola audio musi mieć
+bezpieczny fallback, bez ponownego wyzwolenia przeszłej erupcji.
+Nie zapisywać uchwytów Source ani losowania audio w stanie rozgrywki.
+
+Życie głosu musi wynikać z właściciela: przerwany wysiłek ciała znika,
+ale już wypuszczony niezależny pocisk/ogień może nadal brzmieć po śmierci
+rzucającego, jeżeli nadal istnieje i zadaje obrażenia. Pauza, powrót,
+mapa/pomoc, odpoczynek i zmiana świata wymagają sprawdzenia całego audio,
+nie tylko obecności. Bilety odtwarzania muszą nadal chronić reużyte źródło
+przed zatrzymaniem przez stary uchwyt.
+
+Testy przyszłe: zdarzenia osobno i w całym starciu; różne częstotliwości,
+dystanse, kierunki, ściany, grupa mieszana, przeciążenie, obie bronie
+z zestawami i muzyką, suwaki, pliki Continue, brak powtórzeń i wycieków.
+Metryki pasm/krótkich okien i pełnego miksu obok odsłuchu. Pomiar wydajności
+przed/po w izolacji. Bez deklaracji „przerażające” na podstawie samego PASS.
+Pełna Linux All po zmianie gry, golden ma zostać identyczny; Windows
+bez uruchomienia nie jest zweryfikowany. Bez zmiany bazy graficznej/HUD.
+
+### Wyniki bieżącego etapu
+
+- Nowe cztery zestawy PASS: creature-audio-mix 627, star-acolyte-audio
+  59, iron-thrall-audio 47, plague-gardener-audio 59; razem 792 sprawdzenia.
+- Natywny audyt ukończony. Wszystkie pięć świadectw ma exit 0,
+  sourceStable=true i fingerprint
+  `5C885CC4A492814BC64B65F408E447D80285D64A8DE1F020FBE6C2E8459B7F54`.
+  PASS wykonania audytu oznacza zapis pomiarów, nie brak wykrytych problemów.
+- Zweryfikowane dziewięć świadectw poprzedniego pełnego All Margrave'a
+  dotyczy identycznej gry: 8402 Mechanics/Assets, Input 50,
+  Architecture/Render/Tools PASS. Nie uruchamiano nowego All dla tej
+  dokumentacji. Nie uruchamiano Windows.
+- Wnioski o barwie, grozie i faktycznym maskowaniu pozostają do odsłuchu.
+  W tym etapie nie mierzono kosztu przyszłego mechanizmu ciągłej przestrzeni.
+  Nie ma jeszcze zmiany „po”; to zachowane dowody stanu wejściowego.
+
+## Plan sprzed przeglądu audio (zastąpiony 2026-11-06)
+
+# SIGIL: BREACH — plan rozwoju
+
+## Zakres i status
+
+**2026-11-06: Margrave of Ash — zaakceptowany pakiet wdrożony i zweryfikowany.**
+Właściciel uważa obecną walkę za dobrą i zlecił całościowy przegląd.
+Właściciel zaakceptował cały pakiet. Kierunek: dopracować obecnego kata z tasakiem
+oraz popiołem, bez dodatkowego dużego czaru. Zachować 2700 HP, pakiety
+obrażeń, nagrodę, dwa akty i pękniętą gardę 1,2 s. Margrave pozostaje elitą,
+nie bossem. Chroniony HUD i pozostałe postacie poza zakresem.
+Pełne wyniki, inwentarz czynności, zależności i źródła są w HISTORII,
+w rozdziale „Analiza Margrave'a (2026-11-06)”. Poprzedni PLAN Furfura
+zachowano tam w całości.
+
+## Zaakceptowana kolejność
+
+1. Utrwalić czerwone testy lądowania, nieograniczonej serii, rozjazdu
+   kierunku ciała i ciosu, zapowiedzi pod graczem oraz oczekiwania w grupie.
+   Dotychczasowe sondy i rendery pozostają dowodem wejściowym.
+2. Naprawić kontakt lądowania: ciało zatrzymuje się 1,52 m od gracza,
+   a trafienie sięga 1,32 m. Dopasować kontakt do widocznego uderzenia
+   i popiołu; bez niewidocznego rozszerzania zasięgu. Zachować obrażenia 56,
+   zamrożony cel lotu i ściany. Oddzielić lądowanie od następującej niskiej
+   fali nowym, czytelnym oddechem: wstępnie około 0,5 s. Pomiar musi
+   potwierdzić, że pierwsze trafienie nie wymusza drugiego. Nie zwiększać
+   prędkości skoku tylko dlatego, że z 11 m nie dolatuje do samego celu.
+3. Ograniczyć serię tasaka do najwyżej trzech ciosów, wliczając reakcję
+   na przedwczesny unik. Zachować zmienne przytrzymania, serie 1–3 i pełne
+   końcowe 1,2 s odpowiedzi. Opcjonalny parametr treści i wspólny licznik,
+   bez wyjątku po nazwie Margrave'a. Stan licznika musi przeżyć Continue.
+   To celowa zmiana balansu do przyjęcia, nie usuwanie błędu składni.
+4. Powiązać widoczny obrót z rzeczywistym kierunkiem istniejących cięć,
+   wykorzystując wspólny mechanizm `turnBody`. Nie dodawać naprowadzania.
+   Włączyć Margrave'owi istniejące pierwszeństwo po oczekiwaniu na miejsce
+   w grupie, wstępnie 0,9 s jak u Furfura. Nie podnosić limitów atakujących,
+   nie przerywać cudzych serii. Zachować celowe przygotowania i powroty.
+5. Zachować obecne rodziny ataków: cięcia/pchnięcie, skok i niska fala,
+   trzy kolejne ogniska popiołu z osobnym pociskiem, bliski cios fizyczny
+   i krótki wybuch żaru. Nie włączać siedmiu dawnych, nieużywanych definicji.
+   Bliski `stomp` pokazać jako ciężkie uderzenie tasakiem w posadzkę:
+   pojedynczy niski kontakt fizyczny, odmienny od utrzymującego się żaru.
+   Zachować jego obszar i obrażenia; obraz musi objąć rzeczywisty obwód.
+6. Rozróżnić gesty zamachu, ciosu powrotnego, pchnięcia, skoku, uderzenia
+   w ziemię i czaru. Najpierw istniejące 32 klatki i ich poprawne przejścia.
+   Zachować twarz, anatomię, fakturę, skalę detalu, ubranie i tasak. Nowa
+   grafika wyłącznie przy faktycznym braku pozy, z bazą oraz Inferno jako
+   referencjami i kontrolą przed podłączeniem. Nie zastępować bazy.
+7. Usunąć mylący ognisty wygląd zwykłego fizycznego cięcia: ślad tasaka
+   w zgaszonym materiale metalu/popielatej kości; ognisty ślad tasaka
+   oznacza drugi akt (czary ognia istnieją już w pierwszym).
+   Trzy ogniska popiołu mają pokazywać kolejne rzeczywiste miejsca erupcji,
+   również spod poziomej kamery. Niska fala ma czytelny grzbiet do wysokości
+   rzeczywistego kontaktu 0,5 m. Pocisk wychodzi z tasaka lub dłoni zgodnie
+   z gestem i anatomią, w kierunku faktycznego lotu. Niegroźny popiół po
+   wygaśnięciu różni się od trzysekundowego, nadal groźnego śladu cięcia.
+   Bez neonów, nowych jasnych kręgów i przemalowania wspólnego ognia.
+8. Dodać własny głos ciała: suchy, zdarty ludzki oddech, chrapliwy wysiłek
+   i krótka wściekłość potępieńca. Osobno obecność, pościg, alarm, zamach,
+   wypuszczenie, powrót, ból/przerwanie oraz trzy śmierci. Warianty i cisza
+   między odgłosami. Tasak, kamień i żar osobno; własne profile Margrave'a,
+   bez podmiany współdzielonych próbek innych stworów. Źródła, licencje,
+   przetwarzanie; miks ze strzałami/muzyką/grupą i próbka do odsłuchu.
+9. Trzy zapisane kontrole grafiki: każda zmieniona klatka/tekstura obok
+   bazy w tej samej skali, rendery 3/6/10 m w tym samym świetle, przejścia
+   wszystkich stanów. Anatomia, maski, cień, kierunek i punkty emisji.
+   PASS testu i suma pliku nie zastępują oględzin ani odbioru właściciela.
+10. Testy 60/120/240 Hz: kontakt/chybienie/skok/odejście/kontra, ściany,
+    kolumny i wysokości, przerwanie/śmierć/przejście aktu, zapis na dysk
+    i Continue we wszystkich fazach, odpoczynek, grupy i zwalnianie zasobów.
+    Zachować zasadę, że już wypuszczony materialny ogień/pocisk może trwać
+    po śmierci; nie kopiować automatycznie wygaszania burzy Furfura.
+    Stare rozpoczęte czynności w zapisach wymagają świadomej migracji.
+11. Pomiar przed/po w odrębnym klonie: solo, grupa mieszana, większa liczba
+    ciał i faktycznie nakładające się efekty/głosy. Audio: dynamika, clipping,
+    warianty, suwaki, dystans/ściany, limity, przerwanie/pauza/odpoczynek,
+    zmiana świata i osobny RNG. Odsłuch właściciela osobno od pomiaru.
+12. Dwa identyczne golden dla celowych zmian symulacji, z uzasadnieniem;
+    nie ruszać wzorca Windows bez jego weryfikacji. Pełne Linux All
+    (`scripts/linux/TEST.sh All --timeout 1800`), pozostałe bramy po błędzie,
+    końcowy przegląd diffu, ZMIANY/ODBIOR i commity po zielonej bramie.
+    Jedna zmiana balansu na commit. Push wyłącznie na polecenie.
+
+## Postęp
+
+- 2026-11-06, ostatnia poprawka kolejki wdrożona: czerwony test → 36 PASS,
+  z Continue i trzema częstotliwościami. W grupie 1–4 → 5–7 wypuszczeń
+  na 20 s, bez zmiany scenariuszy solo. Końcowe Linux All PASS:
+  8402 Mechanics/Assets, Input 50, Architecture 711 Lua / 0 problemów,
+  Render i Tools, dziewięć stabilnych świadectw. Dwa golden identyczne
+  z bazą. Wszystkie trzy kroki miały własne zielone All przed commitem.
+  Odbiór rytmu, obrazu oraz głosu przez właściciela jest osobny od tej
+  weryfikacji. Windows niesprawdzony; bez push.
+
+- 2026-11-06, lądowanie, emisja, sekwencje, malowane efekty i głos wdrożone.
+  Izolowane sprawdzenia PASS: margrave 182, landing 74, art 23, miks 627
+  oraz anatomia, trafienia, zapis, presja i boty. Trzy kontrole grafiki
+  zakończone; bez zmiany PNG i bazy. Dwa golden bez zmiany wzorca.
+  Pełna Linux All PASS: 8366 Mechanics/Assets, Input 50, Architecture
+  710 Lua / 0 problemów, Render i Tools; dziewięć stabilnych świadectw.
+  Commit a47a6ae; kolejka rozliczona w osobnym kroku powyżej.
+  Odsłuch oraz odbiór w grze są osobne.
+
+- 2026-11-06, limit serii wdrożony i zweryfikowany: najwyżej trzy ciosy
+  z reakcją na unik, pełne 1,2 s odpowiedzi, zapisany budżet. Test czerwony
+  przed zmianą → 85 PASS; ta sama sonda 100 ziaren: 8 → 3 ciosy,
+  10,53 → 3,79 s do odpoczynku. Pełne Linux All PASS: 7943 Mechanics/Assets,
+  Input 50, Architecture/Render/Tools; dziewięć stabilnych świadectw.
+  Dwa golden identyczne z dotychczasową bazą. Windows niesprawdzony.
+  Commit d37c143; pozostały zaakceptowany zakres rozliczony powyżej.
+
+- Punkt wejściowy: czysty `7b09c94`, wersja 0.45. Zweryfikowano dziewięć
+  stabilnych świadectw ostatniego All Furfura zgodnych z obecną grą:
+  7858 Mechanics/Assets, Input 50, Architecture 701 Lua / 0 problemów,
+  Render i Tools PASS. To wcześniejszy przebieg, nie nowe All tej analizy.
+- Nowe testy: `elite-art` PASS 89, `boss-pressure` PASS 30, `souls-gate`
+  PASS 6. Sondy: 117 wymuszonych prób ataków, 36 scenariuszy swobodnej SI,
+  120 prób kontaktu, 24 lądowania, 90 prób skoku, 100 serii, 21 odtworzeń
+  stanu w pamięci i osiem śmierci. Aktualne testy nie wykrywają wszystkich
+  opisanych problemów; PASS nie oznacza, że lądowanie działa poprawnie.
+- Lądowanie: 0 trafień w 24 próbach nieruchomego gracza. Seria: brak limitu
+  w kodzie; 10 ze 100 prób przekroczyło trzy ciosy, najdłuższa osiem ciosów
+  i 10,53 s do końcowego odpoczynku. Rozjazd ciała i cięcia do 32,66 stopnia.
+- Solo 8–11 wypuszczeń w 20 s; z czterema Emberami 1–6. W grupie do
+  3,58 s bezruchu w stanie ruchu. Główne postoje solo to przygotowanie,
+  atak i odzyskiwanie równowagi, nie zatkanie SI.
+- Skok rzeczywiście omija niską falę i fizyczne uderzenie przy poprawnym
+  czasie. Bardzo wąskie okno omija oba pulsy bliskiego żaru. Trzy ogniska
+  popiołu istnieją, ale centralna zapowiedź pod graczem daje 0 widocznych
+  pikseli sceny w badanym ujęciu poziomej kamery.
+- 150 kadrów czynności, porównanie 32 klatek z bazą (poprawiona wersja r2),
+  trzy dystanse, 22 pary renderów widoczności i trzy izolowane znaki.
+  Własnych głosów ciała i wariantów śmierci brak; 15 istniejących próbek
+  wyeksportowano i zmierzono. Bez wiarygodnego odsłuchu.
+- Mediany trzech p95 aktualizacji CPU: 1/4/12/32 Margrave'ów —
+  0,2064/0,5236/0,9642/1,2105 ms. Bez audio i oczekiwania na GPU;
+  najwyżej 4–6 pól, więc to nie maksymalne obciążenie efektami.
+  Własny klon pomiarowy i jego robocze wyniki usunięto po zachowaniu dowodów.
+- Dowody i źródła sond: zewnętrzne `work/qa-direct/margrave-*-20261106`.
+  Bez zmiany kodu, PNG, WAV, balansu ani golden. Windows niesprawdzony.
+
+## Decyzja i odbiór
+
+Właściciel zaakceptował powyższy pakiet, w tym najwyżej trzy ciosy,
+naprawę lądowania wraz z przerwą przed falą, pierwszeństwo w grupie oraz
+pokazanie bliskiego ciosu jako uderzenia tasakiem w ziemię. Rekomenduję
+całość bez dodawania nowego dużego czaru. Dokładne parametry wykonawcze
+podlegały pomiarom w zatwierdzonym kierunku. Całość wdrożona; do odbioru
+pozostaje odczucie walki, czytelność popiołu oraz barwa własnych głosów.
+Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
+
+## Pozostaje poza zakresem
+
+- Odbiór Furfura w grze, barwy jego głosu oraz wcześniejszych głosów Embera,
+  Stolasa, Iron Thralla i Gardenera przez właściciela.
+- Wcześniej potwierdzony przypadek wspólnej nawigacji Furfura: ciało
+  o promieniu 0,55 m otrzymuje punkty przy murze, których nie może zająć.
+  Nie zmieniać tutaj wspólnych klas nawigacji ani promieni innych stworów.
+- Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
+  analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
