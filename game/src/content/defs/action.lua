@@ -100,6 +100,7 @@ Action.common = {
   sound = { type = 'string' },
   warning = { type = 'boolean', desc = 'false for movement without a damaging release' },
   landingSound = { type = 'string', desc = 'physical body contact after an airborne action' },
+  turnBody = { type = 'boolean', desc = 'body facing follows this physical delivery direction' },
   releaseVoice = { type = 'string', desc = 'body effort layered with released material' },
   windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
   windupVoice = {
@@ -194,6 +195,11 @@ Action.kinds:register(
     turns = { type = 'number', default = 0, min = 0, desc = 'new rushes at the target' },
     bend = { type = 'number', min = 0, desc = 'how fast the rush turns after him (rad/s)' },
     turnPause = { type = 'number', default = 0.3, min = 0, desc = 'visible stop before each (s)' },
+    returnTurn = {
+      type = 'number',
+      min = 0.001,
+      desc = 'planted return facing speed (rad/s); freezes its target before turning',
+    },
   }, { 'speed', 'minTime', 'maxTime', 'reach', 'contactY', 'contactRadius', 'packet' })
 )
 Action.kinds:register(
@@ -233,6 +239,8 @@ Action.kinds:register(
 Action.kinds:register(
   'strike',
   kind('strike', {
+    impactSound = { type = 'string', desc = 'voice of the released ground contact' },
+    art = { type = 'string', desc = 'painted ground rite style' },
     volume = Area.field('lightning'),
     radius = { type = 'number', min = 0 },
     life = { type = 'number', min = 0 },
@@ -399,6 +407,9 @@ Action.kinds:register('salvo', kind('salvo', salvo, { 'speed', 'count', 'interva
 Action.kinds:register(
   'storm',
   kind('storm', {
+    impactSound = { type = 'string', desc = 'voice of the released ground contact' },
+    art = { type = 'string', desc = 'painted ground rite style' },
+    requireSight = { type = 'boolean', desc = 'each new mark requires sight of its target' },
     count = { type = 'number', min = 1 },
     interval = { type = 'number', min = 0 },
     delay = { type = 'number', min = 0, desc = 'warned before each falls (s)' },

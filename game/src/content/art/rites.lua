@@ -13,6 +13,23 @@ return {
   cells = { wave = { 0, 0 }, circle = { 1, 0 }, cut = { 0, 1 }, ray = { 1, 1 } },
   supplements = {
     {
+      path = 'assets/art/spells-fresco-v12.png',
+      columns = 1,
+      rows = 1,
+      cells = {
+        stormBolt1 = { 0, 0 },
+        stormBolt2 = { 0, 0 },
+        stormBolt3 = { 0, 0 },
+        stormBolt4 = { 0, 0 },
+      },
+      crops = {
+        stormBolt1 = { 0, 929 / 1254, 313 / 1254, 325 / 1254 },
+        stormBolt2 = { 313 / 1254, 925 / 1254, 314 / 1254, 329 / 1254 },
+        stormBolt3 = { 627 / 1254, 930 / 1254, 313 / 1254, 324 / 1254 },
+        stormBolt4 = { 940 / 1254, 930 / 1254, 314 / 1254, 324 / 1254 },
+      },
+    },
+    {
       path = 'assets/art/gardener-spray-v45.png',
       columns = 3,
       rows = 1,
@@ -196,7 +213,27 @@ return {
     settling = 'cleftSpent',
   },
   ribbon = { segments = 64, tileLength = 2.4 },
-  cuts = { iron = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' } } },
+  cuts = {
+    iron = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' } },
+    antler = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' }, scale = 0.5, anchor = 'antlers' },
+  },
+  lightnings = {
+    antler = {
+      frames = { 'stormBolt1', 'stormBolt2', 'stormBolt3' },
+      spent = 'stormBolt4',
+      near = 0.7,
+      columns = 8,
+      warningBase = 1.25,
+      warningWidth = 0.48,
+      strikeWidth = 1.8,
+      warningAlpha = 0.3,
+      edgeAlpha = 0.3,
+      flash = 0.22,
+      embers = 0.45,
+      limit = 24,
+      hornSize = 0.7,
+    },
+  },
   waves = {
     iron = {
       frames = { 'ironWave1', 'ironWave2', 'ironWave3' },

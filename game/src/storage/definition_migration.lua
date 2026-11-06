@@ -2,7 +2,7 @@
 -- A committed legacy action completes once; future choices use current content.
 local Paths = require('src.content.migrations.pool_definitions')
 local Migration = {}
-function Migration.pools(data)
+function Migration.pools(data, version)
   local function visit(value)
     if type(value) ~= 'table' then
       return
@@ -10,7 +10,7 @@ function Migration.pools(data)
     local path = value['$def']
     if path then
       for _, rule in ipairs(Paths) do
-        local matches = true
+        local matches = not version or version <= rule.through
         for i, word in ipairs(rule.from) do
           matches = matches and path[i] == word
         end

@@ -1,0 +1,916 @@
+{
+  "sources": [
+    {
+      "author": "msantoro11",
+      "title": "Deer Meewing 01.wav",
+      "url": "https://freesound.org/people/msantoro11/sounds/351113/",
+      "download": "https://cdn.freesound.org/previews/351/351113_4790684-hq.mp3",
+      "license": "CC0",
+      "note": "Public high-quality preview; original download requires login."
+    },
+    {
+      "author": "Ogrebane",
+      "title": "Monster Sound Effects Pack",
+      "url": "https://opengameart.org/content/monster-sound-effects-pack",
+      "license": "CC0"
+    },
+    {
+      "author": "ArcadeParty",
+      "title": "Zombie / Skeleton / Monster Voice Effects",
+      "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+      "license": "CC0"
+    }
+  ],
+  "processing": "Mono 44100 Hz PCM16. Source-specific offset/pitch; 95 Hz highpass / 2600 Hz lowpass; RMS-matched primary and .38 secondary layer. Reflections 41ms/.09, 97ms/.045. Soft crest shaping .8*RMS, two 2500Hz smoothing stages, 15/90ms fades. Peak <= .38. Materials are original seeded filtered-noise/impact constructions for SIGIL: BREACH. No other game recordings. Listening approval remains with owner.",
+  "cues": {
+    "furfur_breath": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.7,
+      "offset": 1.5,
+      "layer": {
+        "source": "monster-7.wav",
+        "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+        "pitch": 0.83,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "5288265c2bc195ff92b5fb3b3989977dd4936881d8bc2c3f361896a21e7e0a28",
+      "peak": 0.17451852961275402,
+      "rms": 0.085,
+      "duration": 1.2
+    },
+    "furfur_breath-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.76,
+      "offset": 6.5,
+      "layer": {
+        "source": "monster-5.wav",
+        "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+        "pitch": 0.88,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "eca968d53c0d01ef8b0f7af69bfabb4c32899824c1e153e27a4b7d23fa59bd27",
+      "peak": 0.18225131822346863,
+      "rms": 0.085,
+      "duration": 1.2
+    },
+    "furfur_murmur": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.66,
+      "offset": 8.5,
+      "layer": {
+        "source": "zombieYell5.wav",
+        "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
+        "pitch": 0.78,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "d9bad971a1b6590903a51d58eccd80af0e41ee2d5e247f1a481acaad1f0a71b5",
+      "peak": 0.18999598478651125,
+      "rms": 0.085,
+      "duration": 1.35
+    },
+    "furfur_murmur-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.72,
+      "offset": 11,
+      "layer": {
+        "source": "zombieYell8.wav",
+        "source_sha256": "e438cb50800d20c94224ebbd82efa31ae611530e34be57926b52bfe77117dff5",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "3b6ee16271f19bc71f7fcfc6d18a0682392b179db32a2642ccacd181a7e1df5d",
+      "peak": 0.20200953861225956,
+      "rms": 0.085,
+      "duration": 1.35
+    },
+    "furfur_move": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.78,
+      "offset": 3,
+      "layer": {
+        "source": "monster-1.wav",
+        "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+        "pitch": 0.82,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "3a1a220c7d16777157fa219842d372f261678fa96d0622ac5341410694174832",
+      "peak": 0.2052832302511427,
+      "rms": 0.1,
+      "duration": 0.75
+    },
+    "furfur_move-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.74,
+      "offset": 5.5,
+      "layer": {
+        "source": "monster-10.wav",
+        "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+        "pitch": 0.85,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "dfa380e53fa971a04b7e666e05b4d5be5b932a2d7715fca130acb93bca1cab20",
+      "peak": 0.19763795102689416,
+      "rms": 0.1,
+      "duration": 0.75
+    },
+    "furfur_recover": {
+      "source": "monster-7.wav",
+      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+      "pitch": 0.78,
+      "offset": 0,
+      "layer": {
+        "source": "deer",
+        "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+        "pitch": 0.8,
+        "offset": 7.5,
+        "gain": 0.38
+      },
+      "sha256": "f98a500847504ce30a02562bf01f98e09d44d1f01aa12442e0f63da45c494fc4",
+      "peak": 0.19301706249655706,
+      "rms": 0.09999999999999999,
+      "duration": 0.6
+    },
+    "furfur_recover-2": {
+      "source": "monster-5.wav",
+      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+      "pitch": 0.8,
+      "offset": 0,
+      "layer": {
+        "source": "deer",
+        "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+        "pitch": 0.78,
+        "offset": 10,
+        "gain": 0.38
+      },
+      "sha256": "db7dbdb5080e23c423f66dfe5c5a7fef8ce46904d826a47ac3710e8afd1e3963",
+      "peak": 0.22963482047890912,
+      "rms": 0.1,
+      "duration": 0.6
+    },
+    "furfur_alert": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.69,
+      "offset": 4.5,
+      "layer": {
+        "source": "humanYell2.wav",
+        "source_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
+        "pitch": 0.78,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "c914e0275efabecc7b39e44ff1dbd0632ac783f39fbfe9ebc6452bfa5244c773",
+      "peak": 0.3137922680872294,
+      "rms": 0.14,
+      "duration": 1.05
+    },
+    "furfur_alert-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.72,
+      "offset": 11,
+      "layer": {
+        "source": "humanYell4.wav",
+        "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "d6971b940859b8adc16ca9934eb64a1b87a413ea90d8501b0b95c0b6bddca4e9",
+      "peak": 0.3194858655203377,
+      "rms": 0.14,
+      "duration": 1.05
+    },
+    "furfur_hurt": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.8,
+      "offset": 9.5,
+      "layer": {
+        "source": "monster-2.wav",
+        "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
+        "pitch": 0.82,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "f23e9d217186b0e43c040e0f6709e7a0a4cbae82413455b6fb2b7f81c71e73a3",
+      "peak": 0.3516812105247344,
+      "rms": 0.14000000000000004,
+      "duration": 0.6
+    },
+    "furfur_hurt-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.83,
+      "offset": 13.5,
+      "layer": {
+        "source": "monster-3.wav",
+        "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
+        "pitch": 0.85,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "a839d3b659293151a74fa260da8096aedeb3c1d44f1533cb7921f57eccd90915",
+      "peak": 0.2889936242937126,
+      "rms": 0.14,
+      "duration": 0.6
+    },
+    "furfur_death": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.62,
+      "offset": 8.5,
+      "layer": {
+        "source": "humanDeath2.wav",
+        "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+        "pitch": 0.78,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "f9ef4241c6099f682a8f3bb2ab4630d9e7273f6cd6098a22a8a30cca3e790c4d",
+      "peak": 0.30397003445597737,
+      "rms": 0.14,
+      "duration": 2.2
+    },
+    "furfur_death-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.66,
+      "offset": 11,
+      "layer": {
+        "source": "zombieDeath1.wav",
+        "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "11b082bcb9db913729956b0c5c71a8f0509afe12b36c1a4fb30d080f0a69fef7",
+      "peak": 0.3144965030572516,
+      "rms": 0.14,
+      "duration": 2.2
+    },
+    "furfur_death-3": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.68,
+      "offset": 4.5,
+      "layer": {
+        "source": "humanDeath1.wav",
+        "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "pitch": 0.78,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "50d87be00eb9b3355382f9ed6dfc0e4bcb91ec7cecd8ff5e49f2cca385e32a4d",
+      "peak": 0.30896495838729976,
+      "rms": 0.14,
+      "duration": 2.2
+    },
+    "furfur_gore_effort": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.75,
+      "offset": 5.5,
+      "layer": {
+        "source": "monster-1.wav",
+        "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "17e4f7fdf4f1a258cd5a432cf83414b26c612543b4c2d310d89239cc6d071949",
+      "peak": 0.28,
+      "rms": 0.14086662210008186,
+      "duration": 0.52
+    },
+    "furfur_gore_effort-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.79,
+      "offset": 9.5,
+      "layer": {
+        "source": "monster-10.wav",
+        "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+        "pitch": 0.82,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "da518db25861ab6f3e440db6b901b7bb699ba16ef4ab46ed18534b1d8f6cb7df",
+      "peak": 0.28,
+      "rms": 0.11611958496553015,
+      "duration": 0.52
+    },
+    "furfur_return_effort": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.8,
+      "offset": 3,
+      "layer": {
+        "source": "monster-5.wav",
+        "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+        "pitch": 0.83,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "b0d0c8fd30e4d20af348f6235d698ac6de4e520abc81c7f4334d3663ade76a15",
+      "peak": 0.28,
+      "rms": 0.12533887032317026,
+      "duration": 0.43
+    },
+    "furfur_return_effort-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.76,
+      "offset": 7.5,
+      "layer": {
+        "source": "monster-7.wav",
+        "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "5eb02b2ae1ecbe588ffd15ac7c19672fe064adfdca92049e81ff64a4c5847e85",
+      "peak": 0.28,
+      "rms": 0.1264024897801706,
+      "duration": 0.43
+    },
+    "furfur_charge_effort": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.66,
+      "offset": 11,
+      "layer": {
+        "source": "humanYell2.wav",
+        "source_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
+        "pitch": 0.75,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "979dc9ae742e2f45ef8dc4373ea684da9fbfe7b6c00f35e2ebee89b0245af14f",
+      "peak": 0.28,
+      "rms": 0.14520587250614972,
+      "duration": 0.62
+    },
+    "furfur_charge_effort-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.7,
+      "offset": 4.5,
+      "layer": {
+        "source": "humanYell4.wav",
+        "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
+        "pitch": 0.78,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "3d574110a9b2f0fc8565b73acb539f5bc18bf2a5d27e39850be1a4b92dbb204e",
+      "peak": 0.28,
+      "rms": 0.14056319395598466,
+      "duration": 0.62
+    },
+    "furfur_crown_effort": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.62,
+      "offset": 8.5,
+      "layer": {
+        "source": "monster-6.wav",
+        "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "842b1b2de7821ed4be240b1dc6b798b39c2d5ef6f38eb5799ad292c3998bd016",
+      "peak": 0.28,
+      "rms": 0.13481252350920947,
+      "duration": 0.8
+    },
+    "furfur_crown_effort-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.68,
+      "offset": 5.5,
+      "layer": {
+        "source": "monster-8.wav",
+        "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+        "pitch": 0.85,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "915e42be94dba3406c424fdec5faf34f5cd374d4b4ff1be95e3a5ad1aa27ca6e",
+      "peak": 0.2765257482593894,
+      "rms": 0.15,
+      "duration": 0.8
+    },
+    "furfur_storm_effort": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.65,
+      "offset": 9.5,
+      "layer": {
+        "source": "zombieYell5.wav",
+        "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
+        "pitch": 0.75,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "62f2a6befdefe842735cb3ca937692f93fcf76c47d0f4b6c8d3779605922d167",
+      "peak": 0.28,
+      "rms": 0.10834832707760662,
+      "duration": 0.72
+    },
+    "furfur_storm_effort-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.7,
+      "offset": 11,
+      "layer": {
+        "source": "zombieYell8.wav",
+        "source_sha256": "e438cb50800d20c94224ebbd82efa31ae611530e34be57926b52bfe77117dff5",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "df5ccf4b1ba2b4728a96fd00d9cb6f1f1cc688d4ee137bc2326b82d3997fc658",
+      "peak": 0.28,
+      "rms": 0.144410054658777,
+      "duration": 0.72
+    },
+    "furfur_storm_voice": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.77,
+      "offset": 13.5,
+      "layer": {
+        "source": "monster-4.wav",
+        "source_sha256": "23cb32d814846c22e5141e69f90814d9b3d9e283219e48fbb798f19d1a1bb35f",
+        "pitch": 0.86,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "f3a4d959149a5e8d27c8ce0dec0461465b7fe7ed0fe6c3c1785f26c7ab6ba52b",
+      "peak": 0.28,
+      "rms": 0.12362046120820204,
+      "duration": 0.48
+    },
+    "furfur_storm_voice-2": {
+      "source": "deer",
+      "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+      "pitch": 0.72,
+      "offset": 3,
+      "layer": {
+        "source": "monster-9.wav",
+        "source_sha256": "a4aeacd88e614fccf15e9c47b4258a76811f3c77a5d7402b7ceb1a89f5f367fc",
+        "pitch": 0.8,
+        "offset": 0,
+        "gain": 0.38
+      },
+      "sha256": "476a23be9721d97d917b96dd6fb62ad44ae4bd202e1519bf0f0d9d7a360c18f9",
+      "peak": 0.28,
+      "rms": 0.13023576483500143,
+      "duration": 0.48
+    },
+    "furfur_backstep_effort": {
+      "source": "monster-7.wav",
+      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+      "pitch": 0.86,
+      "offset": 0,
+      "layer": {
+        "source": "deer",
+        "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+        "pitch": 0.82,
+        "offset": 7.5,
+        "gain": 0.38
+      },
+      "sha256": "db935a91d85ddeffcf4799b58ed1018933486d37a5389823a05939251ce7bbf5",
+      "peak": 0.1901033642383542,
+      "rms": 0.1,
+      "duration": 0.3
+    },
+    "furfur_backstep_effort-2": {
+      "source": "monster-5.wav",
+      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+      "pitch": 0.87,
+      "offset": 0,
+      "layer": {
+        "source": "deer",
+        "source_sha256": "86edd367a4bc85320f643c866fc6f779973841c52194d1ea82fa10f042c0802b",
+        "pitch": 0.85,
+        "offset": 5.5,
+        "gain": 0.38
+      },
+      "sha256": "900b0494afe2fdf60171ef82ea4c4dfdb657f032859fda0dc2c0ad90841a6dc4",
+      "peak": 0.20720478907601986,
+      "rms": 0.1,
+      "duration": 0.3
+    },
+    "furfur_hoof": {
+      "synthetic": true,
+      "seed": 902,
+      "bursts": [
+        [
+          0.01,
+          0.055,
+          1
+        ],
+        [
+          0.1,
+          0.07,
+          0.65
+        ]
+      ],
+      "low_weight": 0.9,
+      "sha256": "e7300d55a86492f4cd22add840af99f0b2a865c04302eaffdc9470be171279b9",
+      "peak": 0.28,
+      "rms": 0.08442300905650015,
+      "duration": 0.42
+    },
+    "furfur_hoof-2": {
+      "synthetic": true,
+      "seed": 903,
+      "bursts": [
+        [
+          0.01,
+          0.055,
+          1
+        ],
+        [
+          0.1,
+          0.07,
+          0.65
+        ]
+      ],
+      "low_weight": 0.9,
+      "sha256": "5208194505998a9117aca8c0509f0cb2e62e6b64cb1145a6efec7ab163eafb86",
+      "peak": 0.28,
+      "rms": 0.08478335908848222,
+      "duration": 0.42
+    },
+    "furfur_prepare": {
+      "synthetic": true,
+      "seed": 912,
+      "bursts": [
+        [
+          0.02,
+          0.18,
+          0.6
+        ],
+        [
+          0.17,
+          0.17,
+          0.8
+        ]
+      ],
+      "low_weight": 0.35,
+      "sha256": "267aff53f8e8884e86dabbd185d55a5a3604e85cb5071d7251f2a34b8e29ec43",
+      "peak": 0.2002064971641611,
+      "rms": 0.07500000000000001,
+      "duration": 0.42
+    },
+    "furfur_prepare-2": {
+      "synthetic": true,
+      "seed": 913,
+      "bursts": [
+        [
+          0.02,
+          0.18,
+          0.6
+        ],
+        [
+          0.17,
+          0.17,
+          0.8
+        ]
+      ],
+      "low_weight": 0.35,
+      "sha256": "e585456d1c3e74277bdfd41384ba022c06438cf36ea7e1e2f473b95e764b5df1",
+      "peak": 0.19723701420980055,
+      "rms": 0.075,
+      "duration": 0.42
+    },
+    "furfur_antler": {
+      "synthetic": true,
+      "seed": 922,
+      "bursts": [
+        [
+          0.01,
+          0.08,
+          0.4
+        ],
+        [
+          0.055,
+          0.16,
+          1
+        ],
+        [
+          0.16,
+          0.11,
+          0.3
+        ]
+      ],
+      "low_weight": 0.5,
+      "sha256": "dcc793b49e47452e6cd37558331b2662c9aaae6e16c53eff59a39a51179657e7",
+      "peak": 0.28,
+      "rms": 0.10463224352910819,
+      "duration": 0.33
+    },
+    "furfur_antler-2": {
+      "synthetic": true,
+      "seed": 923,
+      "bursts": [
+        [
+          0.01,
+          0.08,
+          0.4
+        ],
+        [
+          0.055,
+          0.16,
+          1
+        ],
+        [
+          0.16,
+          0.11,
+          0.3
+        ]
+      ],
+      "low_weight": 0.5,
+      "sha256": "a3746f651230d2795a22fc7f453152e39e36e57142a6fccf60a628fb5883c11b",
+      "peak": 0.28,
+      "rms": 0.10597591027394787,
+      "duration": 0.33
+    },
+    "furfur_charge": {
+      "synthetic": true,
+      "seed": 932,
+      "bursts": [
+        [
+          0.01,
+          0.08,
+          1
+        ],
+        [
+          0.13,
+          0.1,
+          0.8
+        ],
+        [
+          0.24,
+          0.15,
+          0.55
+        ]
+      ],
+      "low_weight": 0.9,
+      "sha256": "4d2a3236a8cbfffd0426166d02d1b3809d7ee76137c5ab97880b623b713eeb3b",
+      "peak": 0.28,
+      "rms": 0.10607316003731915,
+      "duration": 0.48
+    },
+    "furfur_charge-2": {
+      "synthetic": true,
+      "seed": 933,
+      "bursts": [
+        [
+          0.01,
+          0.08,
+          1
+        ],
+        [
+          0.13,
+          0.1,
+          0.8
+        ],
+        [
+          0.24,
+          0.15,
+          0.55
+        ]
+      ],
+      "low_weight": 0.9,
+      "sha256": "4ce839833a328b0e6d39f8f486915acc2bddc00a6299c14d0e29d2d9011e5868",
+      "peak": 0.28,
+      "rms": 0.105990941773966,
+      "duration": 0.48
+    },
+    "furfur_storm_prepare": {
+      "synthetic": true,
+      "seed": 942,
+      "bursts": [
+        [
+          0.02,
+          0.15,
+          0.3
+        ],
+        [
+          0.24,
+          0.22,
+          0.6
+        ],
+        [
+          0.47,
+          0.22,
+          1
+        ]
+      ],
+      "low_weight": 1.1,
+      "sha256": "51462aa06efe79df9fc4431a2a470de773ef03a3ef29ec9d7e02f8dbb0415fdb",
+      "peak": 0.28,
+      "rms": 0.10270121901691646,
+      "duration": 0.72
+    },
+    "furfur_storm_prepare-2": {
+      "synthetic": true,
+      "seed": 943,
+      "bursts": [
+        [
+          0.02,
+          0.15,
+          0.3
+        ],
+        [
+          0.24,
+          0.22,
+          0.6
+        ],
+        [
+          0.47,
+          0.22,
+          1
+        ]
+      ],
+      "low_weight": 1.1,
+      "sha256": "31ab7f19564a642f09ae6bf4a28edec9aa9157f1719f6914ac90ed0933dfbeab",
+      "peak": 0.28,
+      "rms": 0.1021603108342814,
+      "duration": 0.72
+    },
+    "furfur_storm_release": {
+      "synthetic": true,
+      "seed": 952,
+      "bursts": [
+        [
+          0.01,
+          0.05,
+          1
+        ],
+        [
+          0.08,
+          0.12,
+          0.8
+        ],
+        [
+          0.17,
+          0.18,
+          0.3
+        ]
+      ],
+      "low_weight": 1.4,
+      "sha256": "de5d0ac6de486c55f8c7852a38b2c1a591d88c6aabdfcfecd66677dbfe3a80c2",
+      "peak": 0.28,
+      "rms": 0.10677746318117248,
+      "duration": 0.38
+    },
+    "furfur_storm_release-2": {
+      "synthetic": true,
+      "seed": 953,
+      "bursts": [
+        [
+          0.01,
+          0.05,
+          1
+        ],
+        [
+          0.08,
+          0.12,
+          0.8
+        ],
+        [
+          0.17,
+          0.18,
+          0.3
+        ]
+      ],
+      "low_weight": 1.4,
+      "sha256": "5f7607169173a70bdd9aee579ceb2787cd24d4d748e977437f0205ad8d78ca41",
+      "peak": 0.28,
+      "rms": 0.10903690471577443,
+      "duration": 0.38
+    },
+    "furfur_thunder": {
+      "synthetic": true,
+      "seed": 962,
+      "bursts": [
+        [
+          0.01,
+          0.045,
+          1
+        ],
+        [
+          0.06,
+          0.18,
+          0.8
+        ],
+        [
+          0.24,
+          0.34,
+          0.6
+        ],
+        [
+          0.52,
+          0.6,
+          0.3
+        ]
+      ],
+      "low_weight": 1.6,
+      "sha256": "5eedbeb60a1d9b44549141bf985d19f6d547761bc1a51314dfe95e63c591d054",
+      "peak": 0.28,
+      "rms": 0.11452005041979944,
+      "duration": 1.25
+    },
+    "furfur_thunder-2": {
+      "synthetic": true,
+      "seed": 963,
+      "bursts": [
+        [
+          0.01,
+          0.045,
+          1
+        ],
+        [
+          0.06,
+          0.18,
+          0.8
+        ],
+        [
+          0.24,
+          0.34,
+          0.6
+        ],
+        [
+          0.52,
+          0.6,
+          0.3
+        ]
+      ],
+      "low_weight": 1.6,
+      "sha256": "4f71a137a770e13007a35b510d40f939d014c26500bea2706512b5105eaed8de",
+      "peak": 0.28,
+      "rms": 0.11508322048200889,
+      "duration": 1.25
+    },
+    "furfur_backstep": {
+      "synthetic": true,
+      "seed": 972,
+      "bursts": [
+        [
+          0.015,
+          0.06,
+          0.7
+        ],
+        [
+          0.1,
+          0.14,
+          1
+        ]
+      ],
+      "low_weight": 0.8,
+      "sha256": "1c5c69707114ed92810d48df74f09a1a13498b0dfd78ef6799ba05ab18353661",
+      "peak": 0.28,
+      "rms": 0.09633293161308105,
+      "duration": 0.32
+    },
+    "furfur_backstep-2": {
+      "synthetic": true,
+      "seed": 973,
+      "bursts": [
+        [
+          0.015,
+          0.06,
+          0.7
+        ],
+        [
+          0.1,
+          0.14,
+          1
+        ]
+      ],
+      "low_weight": 0.8,
+      "sha256": "03f28be3272630c0545c6afd3bb22c76df3a684e654c12a654a5849efc471973",
+      "peak": 0.28,
+      "rms": 0.09397627767902868,
+      "duration": 0.32
+    }
+  }
+}

@@ -66,6 +66,9 @@ World.handlers = {
       BodyVoices.hurt(A, g, ev.enemy)
     end
   end,
+  GroundStruck = function(g, ev)
+    RiteFeedback.struck(g, ev)
+  end,
   AttackReleased = function(g, ev)
     local e = ev.enemy
     RiteFeedback.released(g, ev)

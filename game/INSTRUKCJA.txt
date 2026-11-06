@@ -32,10 +32,15 @@ pociski). Przy ogniskach sal bocznych budzisz się za ogniem, plecami do strażn
 Margrave i Furfur to elity, nie bossowie: 2700 i 2250 HP, pełne obrażenia także w trakcie
 ich ciosu, egzekucja zabiera 20% HP, dwa akty (drugi od połowy życia), 250 dusz i 2 łuski.
 Ich ciosy dystansowe sięgają 16–18 m. Z pękniętą gardą elita chwieje się i jest otwarta na
-egzekucję przez 1,6 s (Margrave) albo 1,5 s (Furfur). Stolas ma dwa różne rytuały posadzki:
+egzekucję przez 1,2 s. Stolas ma dwa różne rytuały posadzki:
 niską falę można przeskoczyć, gdy dojdzie do nóg; przed wysokim rozdarciem trzeba zejść
 w bok z zaznaczonego toru albo przerwać przygotowanie strzałem. Skok nie chroni przed
 rozdarciem. Gasnący popiół po ataku już nie zadaje obrażeń.
+Furfur szarżuje najwyżej dwa razy: przed nawrotem hamuje i obraca ciało, a po całej
+serii daje 1,2 s na odpowiedź. Dobitka ma nowy zamach. Na długie stanie za plecami
+odpowiada powolnym zwrotem i ciosem poroża. Znaki burzy pozostają tam, gdzie powstały;
+trzeba wyjść z ich obszaru, skok nie chroni przed wysokim piorunem. Schowanie się za
+ścianą zatrzymuje namierzanie kolejnych znaków. Gasnący ślad po błysku jest nieszkodliwy.
 Iron Thrall walczy ciałem: pazur, szeroki zamach, szarża barkiem, cios za plecy
 i uderzenie pięściami w ziemię. Po chybionej szarży zapiera nogi i może ruszyć ponownie.
 Niski grzbiet odłamków po uderzeniu w posadzkę można przeskoczyć; popiół za nim jest

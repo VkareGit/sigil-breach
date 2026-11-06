@@ -117,6 +117,8 @@ C.schemas = {
     target = f(nil, 'id of the body it fights (enemies/target.lua)'),
   },
   attacker = {
+    slotWaitAt = f(nil, 'when the ready body first waited for an attack slot'),
+    slotWaitTarget = f(nil, 'the target of that optional waiting claim'),
     attackSpec = f(nil),
     attackKind = f(nil),
     attackCount = f(0),
@@ -143,6 +145,7 @@ C.schemas = {
     released = f(nil, 'missiles or bolts of this strike so far'),
     turnsLeft = f(nil, 'new rushes left in this charge'),
     turnAt = f(nil, 'when the next rush begins, on the strike clock'),
+    turnStart = f(nil, 'start of a planted return on the strike clock'),
     summoner = f(nil, 'id of the body that called it'),
   },
   rush = {
@@ -244,6 +247,7 @@ C.schemas.hazard = {
   condition = f(nil),
   kind = f(nil, 'content/hazards.lua; none: a pool'),
   art = f(nil, 'painted ground rite style'),
+  impactSound = f(nil, 'voice of the released ground contact'),
   reach = f(nil, 'where a wave dies out (m)'),
   spread = f(nil, 'how fast a wave grows (m/s)'),
   width = f(nil, 'depth of a wave or full width of a floor tear (m)'),

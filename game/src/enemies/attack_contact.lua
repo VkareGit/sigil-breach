@@ -55,7 +55,10 @@ function Contact.rush(g, e, speed, step, previous, current)
   BodyContact.moveEnemy(g, e, e.rushVX * step, e.rushVZ * step, previous, current)
 end
 -- Turn the attack toward its aim angle a.
-function Contact.face(_, e, _, a)
+function Contact.face(_, e, spec, a)
   e.lungeX, e.lungeZ = sin(a), cos(a)
+  if spec.turnBody then
+    e.facing = a
+  end
 end
 return Contact

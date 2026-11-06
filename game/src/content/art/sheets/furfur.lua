@@ -92,6 +92,39 @@ local sheet = {
     { source = 2, cell = 4, feet = 51, anchors = { head = { 0.32999999999999996, 0.6 } } },
   },
   poses = {
+    ['windup.gore'] = { clock = 'action', frames = { 12, 7, 10 }, bounds = { 0.3, 0.7 } },
+    ['windup.gore-return'] = {
+      clock = 'action',
+      frames = { 12, 10, 7, 10 },
+      bounds = { 0.18, 0.42, 0.72 },
+    },
+    ['windup.crown'] = {
+      clock = 'action',
+      frames = { 7, 8, 9, 29, 30, 31 },
+      bounds = { 0.18, 0.36, 0.55, 0.72, 0.87 },
+    },
+    ['windup.charge'] = { clock = 'action', frames = { 12, 7, 10 }, bounds = { 0.25, 0.55 } },
+    ['turn.charge'] = {
+      rear = 'watchRear',
+      clock = 'action',
+      frames = { 10, 12, 7, 10 },
+      bounds = { 0.15, 0.55, 0.82 },
+    },
+    ['windup.antler-pivot'] = {
+      rear = 'watchRear',
+      clock = 'action',
+      frames = { 13, 12, 7, 10 },
+      bounds = { 0.28, 0.64, 0.86 },
+    },
+    ['windup.recoil'] = { clock = 'action', frames = { 12, 13, 12 }, bounds = { 0.35, 0.7 } },
+    ['strike.recoil'] = { clock = 'action', frames = { 6, 5, 4 }, bounds = { 0.3, 0.7 } },
+    ['strike.crown'] = { clock = 'action', frames = { 9, 10, 11 }, bounds = { 0.18, 0.64 } },
+    ['strike.gore-return'] = { clock = 'action', frames = { 11, 10, 12 }, bounds = { 0.35, 0.8 } },
+    ['recover.charge'] = {
+      clock = 'action',
+      frames = { 10, 12, 35, 36, 37 },
+      bounds = { 0.12, 0.3, 0.5, 0.74 },
+    },
     ['windup.lightning'] = {
       clock = 'action',
       frames = { 7, 8, 29, 30, 31 },
@@ -120,7 +153,7 @@ local sheet = {
         0.87,
       },
     },
-    ['windup.antler-return'] = { clock = 'action', frames = { 12, 7, 8 }, bounds = { 0.24, 0.7 } },
+    ['windup.antler-return'] = { clock = 'action', frames = { 12, 7, 10 }, bounds = { 0.24, 0.7 } },
     ['strike.antler-return'] = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
     ['phase.tempest'] = {
       clock = 'action',
@@ -145,7 +178,7 @@ local sheet = {
     recover = { clock = 'action', frames = { 35, 36, 37 }, bounds = { 0.3, 0.66 } },
     rise = { clock = 'countdown', frames = { 16, 15, 14 }, bounds = { -0.15, -0.07 } },
     strike = { clock = 'action', frames = { 10, 11 }, bounds = { 0.5 } },
-    ['strike.charge'] = { frames = { 10 } },
+    ['strike.charge'] = { clock = 'seconds', frames = { 10, 11 }, rate = 7, footsteps = true },
     walk = { clock = 'stride', frames = { 1, 2, 3, 4, 5, 6 }, rate = 4.2 },
     walkRear = { clock = 'stride', frames = { 19, 20, 21, 22, 23, 24 }, rate = 4.2 },
     watchRear = { frames = { 19 } },

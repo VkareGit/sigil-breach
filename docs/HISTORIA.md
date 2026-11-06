@@ -64,6 +64,35 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Furfur, 2026-11-06, wdrożenie zaakceptowanego planu: szarża ma jeden
+  nawrót zamiast dwóch. Przed nim ciało hamuje i obraca się z ograniczoną
+  prędkością do zapamiętanego celu; wypuszczony przebieg nie naprowadza się.
+  Zachowano pełne 1,2 s odpoczynku. Dobitka jest dostępna po tym odpoczynku,
+  ma osobny zamach i rzeczywisty zasięg poroża; usunięto pudło o 3 cm.
+  Nieskuteczne kopnięcie zastąpił powolny zwrot z ciosem poroża. Dwa zwykłe
+  zamachy pokazują kierunek istniejącego ruchu ciała. Bez zwiększania HP,
+  obrażeń, nagrody, liczby aktów ani okna pękniętej gardy.
+- Burza nie namierza nowych miejsc za ścianą. Już postawione znaki pozostają
+  nieruchome; śmierć usuwa zagrożenia. Sygnały wzniesione na obwodzie
+  rzeczywistego obszaru są widoczne z poziomej kamery. Piorun ma wysokość
+  zagrożenia, gest poroża własny akcent, a gasnący ślad nie zadaje obrażeń.
+  Wykorzystano istniejące malowane tekstury; żadnego przemalowania PNG,
+  ognia, ogona, ciała ani chronionego HUD-u.
+- Opcjonalna kolejka przyznaje wolne miejsce gotowemu Furfurowi czekającemu
+  co najmniej 0,9 s. Nie podnosi limitów atakujących i nie przecina rozpoczętej
+  serii. Sprawdza cel, widoczność, gotowość i możliwość ataku bez losowania.
+  Sekcja zapisu pools v6 zachowuje stare rozpoczęte czynności Furfura przez
+  zamrożone definicje; nowe wybory korzystają z aktualnego zestawu.
+- Czytelniejsze przygotowania, nawrót, zwrot, odskok i powroty wykorzystują
+  istniejące 37 klatek. Powrót i reakcja na obejście pokazują tył zgodnie
+  z obserwatorem; punkty emisji biorą pozycję z anatomii poroża.
+- Własny głos Furfura: oddech, pomruk, pościg, alarm, wysiłek poszczególnych
+  czynności, odpoczynek, ból i trzy śmierci. 45 próbek mono PCM 44,1 kHz
+  w 22 rolach, osobne materiały kopyt, poroża i burzy, warianty i wspólne
+  limity źródeł. CC0: msantoro11 (Deer Meewing 01.wav), Ogrebane i ArcadeParty;
+  pochodzenie, licencje, przetwarzanie i sumy w assets/sounds/furfur/provenance.json.
+  Materiały są własną syntezą. Nie zmieniono próbek innych stworów.
+
 - Dokumentacja, 2026-11-06: analiza Furfura i plan DO AKCEPTACJI.
   Potwierdzono niedostępną dobitkę, błędny kontakt kopnięcia, niewidoczny
   zwrot szarży, oczekiwanie za drobnicą, namierzanie burzy za ścianą
@@ -4257,6 +4286,94 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-06 — Furfur, wdrożenie zaakceptowanego planu; pełna brama Linux PASS.
+- Dowody poza repo: Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/.
+  Początek na eb6f6cc; analiza i pomiary wejściowe są niżej. Sondy oraz
+  ich źródła zachowano, własne klony pomiarowe i przypisane im katalogi usunięto.
+- Przed/po: dobitka i odpowiedź na obejście nie trafiały w 18 próbach.
+  Teraz kontakty przechodzą w 60/120/240 Hz i z trzech dystansów, a obrót
+  nie przekracza określonej prędkości. Nowy test wykrywał również dawną
+  rozbieżność między kierunkiem ruchu zwykłego zamachu a ciałem.
+  Burza po utracie widoczności: wcześniej cztery nowe znaki i 200 HP straty,
+  teraz zero nowych znaków i zero obrażeń w tej samej próbie za osłoną.
+- 36 scenariuszy swobodnej SI po 20 s, te same dystanse i ziarna: Furfur
+  w grupie czterech Impów wypuszcza teraz 5–8 czynności w pierwszym akcie
+  i 6–8 w drugim (wcześniej po 2–5). Średni bezruch w stanie ruchu spadł
+  z 4,994 do 2,803 s i z 3,444 do 2,243 s. Najdłuższy ciągły postój
+  w grupie spadł z 2,808 do 2,117 s oraz z 2,100 do 1,783 s.
+  Solo nadal 11–14 i 11–12 czynności; nie usuwano przygotowań ani odpoczynku.
+  Wyniki: furfur-final-20261106/free-r2, porównanie furfur-free-r2-20261106.
+- Widoczność: w tej samej scenie pozioma kamera wewnątrz znaku wcześniej
+  nie pokazywała ani jednego zmienionego piksela. Teraz przy t=0,5 s pioruna
+  jest ich 24509, przy t=0,908 s burzy 43951. To pomiar obecności obrazu,
+  nie gwarancja percepcyjnego kontrastu. Po odejściu w bok znak może znaleźć
+  się poza kadrem: zero pikseli wtedy nie oznacza utraty ostrzeżenia pod graczem.
+- Trzy kontrole grafiki: (1) wszystkie produkcyjne PNG, maski i baza
+  niezmienione; VISUAL CATALOG PASS, pięć tablic wszystkich 37 klatek obok
+  bazy przy tej samej skali; bez nowej twarzy, materiałów i detalu; (2) rzeczywiste kadry
+  w jednym świetle z 3/6/10 m, także burza i śmierć; (3) 94 kadry czynności
+  i 52 końcowe dodatkowe kadry trafienia, upadku oraz chybionej szarży. Kontrola
+  usunęła klatkę galopu z nieruchomego początku dobitki. Pierwsza próba
+  nawrotu wyszła poza kadr; końcowa kamera śledząca pokazuje zatrzymanie,
+  tył, obrót i ponowne opuszczenie poroża. Nie dodano nowych kątów sylwetki:
+  wykorzystywane są istniejące ujęcia przednie i tylne.
+  Źródła: furfur-final-20261106/review i furfur-extra-review-r2-20261106.
+- Audio: 252 modelowane miksy jednego/trzech Furfurów, strzałów obu broni
+  we wszystkich zestawach i pełnej muzyki, master 0,7: zero przesterowań,
+  największy szczyt 0,99073. Wcześniejszy wariant miał 56 przesterowanych
+  przypadków przy trzech identycznych, jednoczesnych wykonaniach — zachowano
+  raport przed masteringiem. Sam głos zapowiedzi burzy ma przy 4/10 m RMS
+  o 1,30/2,68 dB wyższy od dawnego ostrzeżenia, dodatkowo gra materiał burzy.
+  To nie pomiar każdego możliwego miksu ani wiarygodny odsłuch barwy.
+  Próbki do odbioru: furfur-audio-final-20261106/furfur-voice-review.wav
+  oraz furfur-combat-shot.wav i furfur-combat-revolver.wav. Receptę zachowano
+  obok pomiarów; wszystkie 45 sum audio zgadza się z provenance.
+- Izolowany pomiar CPU: mediany trzech przebiegów p95 aktualizacji
+  1/4/12/32 ciał = 0,2267/0,2629/0,4235/0,6831 ms; wcześniej
+  0,1596/0,2185/0,2980/0,5788 ms. Koszt wzrósł, zmienił się też faktyczny
+  przebieg walki. Bez audio i GPU present; nie przedstawiać tego jako FPS.
+  Klon ma inne końce linii w części plików tekstowych niż checkout główny,
+  więc inny fingerprint; badany Lua i PNG są zgodne. Końcowe All bada repo główne.
+  Osobna próba wymuszonych równoczesnych burz przy 32 ciałach: 64 znaki,
+  maksymalnie 28 grających + 28 zachowanych źródeł i 24 ślady, po zwolnieniu
+  zero grających. p95 aktualizacji z audio 0,245 ms, zgłaszania rysowania
+  2,143 ms; nie jest to czas ukończenia pracy GPU. Wyniki: furfur-final-20261106.
+- Osobno PASS: furfur 128, furfur-art 18, creature-audio-mix 500, boss-pressure 30.
+  Testy obejmują realną kolejność zajmowania miejsc, nieaktywnych kandydatów,
+  inne cele, ściany, zapis plikowy i snapshot w fazach czterech ataków,
+  starą szarżę z zapisu, śmierć podczas sześciu faz czarów i niegroźny ślad.
+  Dwa identyczne końcowe golden: furfur-golden-3/4-20261106. Zmieniono tylko
+  Linux drill na 22f5bba4/e20ec9f5 i kontakty 9ed2129e/352; oba przebiegi
+  kaplicy zachowały dotychczasowe wartości. Przyczyna to zatwierdzona zmiana
+  czynności Furfura i sekwencji masek, nie korekta przypadkowej regresji.
+- Pierwsze All: 7825 zaliczonych sprawdzeń i jeden FAIL boss-pressure,
+  oczekujący wygaśnięcia dobitki w 1,1 s. To stara granica sprzed naprawy
+  okna 1 s krótszego od odpoczynku 1,2 s. Zastąpiono ją sprawdzeniem
+  dostępności po 1,21 s i tuż przed nową granicą (2,39 s), oraz wygaśnięcia
+  po niej (2,41 s). Dodatkowo rzeczywista SI przy 60/120/240 Hz nie rozpoczyna
+  żadnego nowego ataku przez pełne 1,2 s odpoczynku. Po FAIL dokończono
+  Input, Render i Tools — wszystkie PASS. Dowody pierwszego przebiegu
+  zachowano w furfur-all-first-20261106.
+- Końcowe `scripts/linux/TEST.sh All --timeout 1800`: PASS, 7858 Mechanics/Assets,
+  Input 50, Architecture 701 Lua / 0 problemów, Render oraz wszystkie pięć
+  narzędzi (benchmark/core-measure/step-study/audio-export smoke, startup pełny).
+  Dziewięć receiptów ma exitCode=0, sourceStable=true i jeden fingerprint
+  838597049E18B2CBABAA7CA21301A6C2D567B267CDF9CD17146F09ED52F95455.
+  Czas 750 s. Raporty: qa-direct/furfur-all-final-20261106. Końcowy diff
+  sprawdzony; brak zmian PNG, chronionego HUD-u, skryptów Windows i jego golden.
+- Oddzielne odkrycie nawigacji: po utracie celu przy narożniku duże ciało
+  może utknąć, choć pole trasy ma drogę. W odtworzeniu pozycja gracza jest
+  prawidłowa dla jego promienia 0,22 m. Zapamiętany punkt i kilka węzłów
+  trasy są jednak zajęte dla promienia Furfura 0,55 m; klasa pozioma
+  nawigacji zmienia się dopiero powyżej 0,6 m. Sonda pokazuje np. węzeł
+  (6,10) z odległością 3 i jednocześnie W.solid=true. To niespójność
+  wspólnego pola i fizycznego prześwitu, nie powód do zmniejszenia ciała
+  ani odczytywania pozycji ukrytego gracza. Nie zmieniano nawigacji innych
+  stworów; zakres tej naprawy wymaga osobnego przeglądu tras i map.
+  Dowód: furfur-extra-review-r2-20261106/furfur-extra.stdout.txt.
+- Windows niesprawdzony; jego golden nie zmieniono. Odbiór rytmu, jasności
+  zapowiedzi i grozy głosu pozostaje próbą właściciela, poza technicznym PASS.
 
 Codex, 2026-11-06 — Furfur, wyłącznie analiza i plan do akceptacji.
 - Stan wejściowy 162aa88, wersja 0.45, czyste repo. Potwierdzono zgodność

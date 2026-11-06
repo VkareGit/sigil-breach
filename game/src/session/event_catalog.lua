@@ -41,6 +41,7 @@ local Catalog = {
   { 'BodiesCollided', 'a thrown body struck another {body, other}' },
   { 'AttackTelegraphed', 'a demon committed to an attack {enemy, attack}' },
   { 'AttackReleased', 'a telegraph ran out and the attack went off {enemy, attack}' },
+  { 'GroundStruck', 'a marked ground contact resolved once {hazard, at}' },
   { 'AttackCancelled', 'a committed attack was cancelled {enemy}' },
   { 'Landed', 'a leaping or falling body reached the floor {enemy, heavy}' },
   { 'Evaded', 'a demon sidestepped the aim {enemy}' },

@@ -132,7 +132,11 @@ function Anim.pose(g, e, observer)
     frame = Poses.frame(posed(e, encounter.transitionPose), transitionAge / encounter.recovery)
   elseif e.ai == 'windup' then
     local t = Anim.actionPhase(e)
-    frame = Poses.frame(posed(e, e.attackKind and ('windup.' .. e.attackKind) or 'windup'), t)
+    local pose = posed(e, e.attackKind and ('windup.' .. e.attackKind) or 'windup')
+    if pose.rear and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos then
+      pose = posed(e, pose.rear)
+    end
+    frame = Poses.frame(pose, t)
     lean = -0.025 * t
     sx = 1 + t * 0.025
     sy = 1 - t * 0.025
@@ -150,6 +154,9 @@ function Anim.pose(g, e, observer)
       pose = turn
       clock = pause
     end
+    if pose.rear and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos then
+      pose = posed(e, pose.rear)
+    end
     frame = Poses.frame(pose, clock)
     lean = 0.06 * (1 - t)
     sx = 1 + 0.035 * math.sin(t * math.pi)
@@ -163,14 +170,14 @@ function Anim.pose(g, e, observer)
     local phase = e.walk * (walk.rate or 0)
     bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
     lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
-    rear = math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < -0.25
+    rear = math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos
     frame = Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk)
   else
     -- Breath and vigilance are painted into the ribs, hands, wings and neck.
     -- Never stretch armor, skull or the whole silhouette to fake breathing.
     local watching = e.awake
       and (e.memory or 0) > 0
-      and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < -0.25
+      and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos
     local pose = watching and posed(e, 'watchRear') or posed(e, 'quiet')
     if pose.clock == 'breath' then
       frame = Idle.sample(Idle.kind(e), g.time, e.id)

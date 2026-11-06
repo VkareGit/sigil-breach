@@ -41,7 +41,7 @@ ActionPhase.register('charge', function(e)
 end)
 -- The existing return deadline also supplies the planted presentation pose.
 function ActionPhase.turn(e)
-  local pause = attack(e).turnPause
+  local pause = e.turnStart and e.turnAt and e.turnAt - e.turnStart or attack(e).turnPause
   if not e.turnAt or not finitePositive(pause) then
     return nil
   end

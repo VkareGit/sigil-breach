@@ -33,7 +33,7 @@ function T.run(Game)
   A.muted, A.levels.effects = false, 1
   local ok, err = xpcall(function()
     drain()
-    for _, kind in ipairs({ 'stolas', 'armored', 'buer', 'imp' }) do
+    for _, kind in ipairs({ 'stolas', 'armored', 'buer', 'imp', 'furfur' }) do
       local sounds = Enemies[kind].sounds
       local recipe = Recipes[sounds.death]
       check(kind .. ' has three death performances', #(recipe.variants or {}) == 2)
@@ -97,6 +97,9 @@ function T.run(Game)
       'gardener_sow_release',
       'ember_claw_effort',
       'ember_leap_effort',
+      'furfur_charge_effort',
+      'furfur_storm_effort',
+      'furfur_storm_prepare',
     }) do
       local data = require('src.audio.voice_data').render(name, Recipes[name], A.rate)
       local sum = 0
@@ -114,6 +117,7 @@ function T.run(Game)
       require('src.audio.iron_voices'),
       require('src.audio.garden_voices'),
       require('src.audio.ember_voices'),
+      require('src.audio.furfur_voices'),
     }) do
       for name, recipe in pairs(voices) do
         local paths, hashes = { recipe.path }, {}
@@ -150,20 +154,23 @@ function T.run(Game)
         A.levels.effects = 1
       end
     end
-    do
-      -- Three simultaneous reload answers can align their recordings. Test
-      -- the actual runtime gains with the loud recorded Exorcist take.
+    for _, sample in ipairs({
+      { 'ember_leap_effort', 'ember_prepare', 0.15 },
+      { 'furfur_gore_effort', 'furfur_prepare', 0.257 },
+      { 'furfur_storm_effort', 'furfur_storm_prepare', 0.15 },
+    }) do
+      -- Coincident warnings must leave room for the loud recorded Exorcist take.
       local VoiceData = require('src.audio.voice_data')
-      local throat = VoiceData.render('ember_leap_effort', Recipes.ember_leap_effort, A.rate)
-      local cloth = VoiceData.render('ember_prepare', Recipes.ember_prepare, A.rate)
+      local throat = VoiceData.render(sample[1], Recipes[sample[1]], A.rate)
+      local cloth = VoiceData.render(sample[2], Recipes[sample[2]], A.rate)
       local shot = VoiceData.render('shot', { path = 'assets/sounds/exorcist/B1-3.wav' }, A.rate)
-      local voice = A.playAt('ember_leap_effort', 0, 0, { x = 0, z = 0, yaw = 0 }, 0.58, 2)
+      local voice = A.playAt(sample[1], 0, 0, { x = 0, z = 0, yaw = 0 }, 0.58, 2)
       local throatGain = voice:getVolume()
       drain()
-      voice = A.playAt('ember_prepare', 0, 0, { x = 0, z = 0, yaw = 0 }, 0.7, 3)
+      voice = A.playAt(sample[2], 0, 0, { x = 0, z = 0, yaw = 0 }, 0.7, 3)
       local clothGain = voice:getVolume()
       drain()
-      local peak, start = 0, math.floor(A.rate * 0.15)
+      local peak, start = 0, math.floor(A.rate * sample[3])
       for i = 0, math.max(throat:getSampleCount(), cloth:getSampleCount(), shot:getSampleCount() + start) - 1 do
         local sample = 0
         if i < throat:getSampleCount() then
@@ -182,7 +189,9 @@ function T.run(Game)
       cloth:release()
       shot:release()
       check(
-        'three aligned Ember warnings leave headroom for Exorcist (peak '
+        'three aligned '
+          .. sample[1]
+          .. ' warnings leave headroom for Exorcist (peak '
           .. string.format('%.3f', peak)
           .. ')',
         peak < 1

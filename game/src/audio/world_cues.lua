@@ -97,7 +97,7 @@ function C.update(audio, g, dt)
     then
       state.hazards[h] = true
       local kind = h.packet and h.packet.damageType
-      local voice = impacts[kind]
+      local voice = h.impactSound or impacts[kind]
       -- A ring of eight simultaneous marks is one audible eruption. Advancing
       -- lane/cross beats remain separate. This state is presentation only.
       if voice and (state.impactCooldown[kind] or 0) <= 0 then

@@ -46,6 +46,11 @@ Creature.move = Schema:new('move', {
   style = { type = 'string', default = 'keep', desc = 'movement style (enemies/styles.lua)' },
   ideal = { type = 'number', default = 6.5, min = 0, desc = "'keep': preferred distance (m)" },
   turn = { type = 'number', min = 0, desc = 'how fast the body turns (rad/s); absent: at once' },
+  attackWait = {
+    type = 'number',
+    min = 0.001,
+    desc = 'seconds before an eligible waiting body precedes new attackers',
+  },
   duel = { type = 'table', schema = Creature.duel, desc = "'duel': between its blows" },
   heavy = { type = 'boolean', default = false },
   evade = { type = 'table', schema = Creature.evade },

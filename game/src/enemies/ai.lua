@@ -20,6 +20,7 @@ local ActionKinds = require('src.combat.action_kinds')
 local Action = require('src.content.defs.action')
 local Answers = require('src.enemies.answers')
 local AI = {}
+local Slots = require('src.enemies.attack_slots')
 -- Whom e fights now (enemies/target.lua): the knight by default; any body of
 -- a hostile side when relations say so (plan v10 V2).
 local target = Target.of
@@ -100,13 +101,15 @@ local function crowded(g, e)
   return count >= max
 end
 local function reserveAttack(g, e, urgent)
+  Slots.request(g, e)
   local victim = target(g, e)
   local controlled = victim == Bodies.controlled(g)
   local pacing = g.attackPacing
   local next = controlled and (g.nextAttack or 0) or (pacing and pacing[victim.id] or 0)
-  if crowded(g, e) or (next > g.elapsed and not urgent) then
+  if crowded(g, e) or Slots.yields(g, e) or (next > g.elapsed and not urgent) then
     return false
   end
+  Slots.clear(e)
   local at = g.elapsed + Archetypes.defaults.attackSpacing / Selection.pace(e)
   if controlled then
     g.nextAttack = at
@@ -410,6 +413,9 @@ local function free(g, e, d, dt)
       and e.attack <= 0
       and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
     )
+  if not chosen then
+    Slots.clear(e)
+  end
   if chosen and reserveAttack(g, e, answer ~= nil) then
     Attacks.begin(g, e, d, chosen)
   elseif evade(g, e, d, dt) then

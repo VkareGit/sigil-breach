@@ -2,8 +2,9 @@
 
 ## Zakres i status
 
-**2026-11-06: Furfur — analiza zakończona, plan DO AKCEPTACJI.**
-Nie rozpoczęto wdrożenia. Właściciel zgłasza postoje i słabą widoczność
+**2026-11-06: Furfur — wdrożony, pełna brama Linux PASS; czeka na próbę właściciela.**
+Właściciel zaakceptował cały plan, w tym nawrót, zwrot z porożem i pierwszeństwo
+w grupie. Zgłoszone problemy to postoje i słaba widoczność
 umiejętności. Sondy potwierdzają błędy kontaktu, wyboru dobitki, prezentacji
 szarży, namierzania za ścianą i widoczności burzy. Zachować rolę elity,
 2250 HP, obrażenia, nagrodę, dwa akty oraz okno pękniętej gardy 1,2 s.
@@ -11,7 +12,7 @@ Nie wzmacniać Margrave'a ani innych stworów. Chroniony HUD poza zakresem.
 Poprzedni PLAN zachowano w całości w HISTORII; tam również pełna analiza,
 inwentarz ataków, pomiary, źródła inspiracji i ograniczenia weryfikacji.
 
-## Proponowany zakres do akceptacji
+## Zaakceptowany zakres
 
 1. Naprawić działanie obecnego zestawu. Najpierw czerwone testy dobitki
    po szarży, geometrii reakcji na obejście, kierunku nawrotu i burzy
@@ -102,9 +103,44 @@ inwentarz ataków, pomiary, źródła inspiracji i ograniczenia weryfikacji.
 
 ## Odbiór i ograniczenia
 
-Do akceptacji cały powyższy kierunek, szczególnie skrócenie szarży do jednego
-nawrotu, zastąpienie kopnięcia zwrotem z porożem i pierwszeństwo po oczekiwaniu
-w grupie. Kod gry, grafika, dźwięk i golden nie zostały zmienione.
-Windows niesprawdzony. Nie wykonano wiarygodnego odsłuchu ani pełnego miksu
-na tym etapie. Pozostają osobne odbiory audio Embera i trzech poprzednich
+Cały powyższy kierunek został zaakceptowany i wdrożony; weryfikacja techniczna zakończona.
+Windows niesprawdzony. Wykonano techniczny pomiar miksu, bez wiarygodnego
+odsłuchu. Rytm walki, czytelność burzy i charakter głosu pozostają do próby
+właściciela. Pozostają też osobne odbiory audio Embera i trzech poprzednich
 postaci; zlecenie Furfura nie zmienia ich materiałów.
+
+## Postęp wdrożenia
+
+- Dodano test furfur; zachowany czerwony wynik odtwarza niedostępną dobitkę,
+  nieskuteczne kontakty, niewidoczny zwrot i namierzanie za ścianą.
+- Wdrożono jeden nawrót z ograniczonym obrotem i zamrożonym celem, działającą
+  dobitkę po odpoczynku, zwrot z porożem, widoczne kierunki zwykłych zamachów,
+  burzę wymagającą widoczności oraz opcjonalne pierwszeństwo czekającej elity.
+  HP, pakiety obrażeń, nagroda, dwa akty i garda 1,2 s bez zmian.
+- Zachowano wszystkie PNG; sekwencje korzystają z 37 istniejących klatek.
+  Sygnały burzy są widoczne spod poziomej kamery, efekty poroża mają punkty
+  z anatomii, a końcowy ślad pozostaje wyłącznie obrazem. Trzy kontrole
+  grafiki ukończone: 37 klatek obok bazy, 3/6/10 m, przejścia i nawrót
+  kamerą śledzącą. Żadnego nowego projektu postaci ani podmiany bazy.
+- 45 nagrań w 22 rolach, także trzy śmierci; CC0 i pochodzenie zapisane.
+  Miks 252 przypadków po korekcie: zero przesterowań, szczyt 0,99073.
+  Próbki czekają na odsłuch właściciela; pomiar nie zatwierdza grozy barwy.
+- Osobne testy PASS: furfur 128, furfur-art 18, creature-audio-mix 500,
+  boss-pressure 30.
+  Dwa identyczne golden; tylko Linux drill celowo zmieniony. Wstępne All
+  wykryło dawną granicę czasu dobitki w boss-pressure; Input, Render i Tools
+  dokończono z PASS. Test obejmuje teraz dostępność po pełnym odpoczynku
+  i obie strony nowej granicy; rzeczywista SI zachowuje pełne okno 1,2 s
+  w 60/120/240 Hz. Końcowe `scripts/linux/TEST.sh All --timeout 1800` PASS:
+  7858 Mechanics/Assets, Input 50, Architecture 701 Lua / 0 problemów,
+  Render i Tools. Dziewięć zgodnych, stabilnych receiptów, 750 s.
+  Raporty zachowano w qa-direct/furfur-all-final-20261106.
+- Pomiary w odrębnych klonach zachowano w qa-direct/furfur-final-20261106,
+  klony i przypisane katalogi usunięto. Grupa 4 Impów: 5–8/6–8 czynności
+  Furfura na 20 s zamiast 2–5; aktualizacja 32 ciał p95 0,6831 ms.
+  Osobna próba 64 znaków utrzymała limity audio 28+28 i 24 niegroźnych śladów.
+- Osobna usterka wspólnej nawigacji do rozpatrzenia: ciało o promieniu
+  0,55 m otrzymuje pole trasy przez punkty przy murze, których nie może
+  fizycznie zająć. Oczekiwanie za drobnicą i zły wybór ataku zostały
+  poprawione; ten przypadek trasy po utracie celu nie jest ich skutkiem.
+  Nie zmieniano wspólnych klas nawigacji ani promieni innych stworów.

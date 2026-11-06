@@ -83,6 +83,7 @@ function E.spell(r, g, row, phase, x, y, z, size, alpha, ground)
   love.graphics.draw(mesh)
 end
 -- The cut a wide blow leaves in the air, while it can land and a moment after.
+local cutSurface = {}
 local function cut(r, g, e, spec, look)
   local active = spec.active
   local age = e.phase - active[1]
@@ -90,17 +91,24 @@ local function cut(r, g, e, spec, look)
   if age < 0 or age > span then
     return
   end
-  local size = spec.reach * Rites.cutSize
+  local style = look.cut and Rites.cuts[look.cut]
+  local size = spec.reach * Rites.cutSize * (style and style.scale or 1)
   local x, z =
     e.x + e.lungeX * spec.reach * Rites.cutForward, e.z + e.lungeZ * spec.reach * Rites.cutForward
+  local anchorY
+  if style and style.anchor then
+    local ax, ay, az = Surface.centre(Surface.prepare(g, e, cutSurface), style.anchor)
+    if ax then
+      x, anchorY, z = ax, ay, az
+    end
+  end
   local viewer = Context.viewer(g)
   local yaw = math.atan2(viewer.x - x, viewer.z - z)
     + (
       spec.trace and (spec.trace[1].angle * (e.swingSide or 1) > 0 and math.pi or 0)
       or e.attackCount % 2 * math.pi
     )
-  local y = Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight - size * 0.5
-  local style = look.cut and Rites.cuts[look.cut]
+  local y = (anchorY or (Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight)) - size * 0.5
   local cell = style and HazardArt.sequence(style.frames, age / span) or 'cut'
   HazardArt.upright(r, x, y, z, cell, size, yaw, age < span * 0.65 and 1 or 0.8)
 end
@@ -146,6 +154,9 @@ function E.spells(r, g)
   end
   for _, burst in ipairs(g.view.riteBursts or {}) do
     HazardKinds.rayAfterimage(r, g, burst, g.elapsed - burst.starts)
+  end
+  for _, burst in ipairs(g.view.lightningBursts or {}) do
+    require('src.render.storm_art').residue(r, g, burst, g.elapsed - burst.starts)
   end
   for _, burst in ipairs(g.view.blinkBursts or {}) do
     local age = g.elapsed - burst.starts

@@ -60,7 +60,14 @@ function C.validate()
       assert(Recipes[name], id .. ': unknown voice ' .. name)
     end
     for _, attack in ipairs(def.attacks) do
-      for _, key in ipairs({ 'sound', 'windupSound', 'windupVoice', 'releaseVoice', 'landingSound' }) do
+      for _, key in ipairs({
+        'sound',
+        'windupSound',
+        'windupVoice',
+        'releaseVoice',
+        'landingSound',
+        'impactSound',
+      }) do
         local name = attack[key]
         assert(
           not name or Recipes[name],

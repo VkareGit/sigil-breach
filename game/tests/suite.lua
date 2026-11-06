@@ -206,6 +206,16 @@ Suite.registry = {
     module = 'tests.cases.ember_thrall',
   },
   {
+    id = 'furfur-art',
+    title = 'Furfur warning visibility and authored antler anchors',
+    module = 'tests.cases.furfur_art',
+  },
+  {
+    id = 'furfur',
+    title = 'Storm elite physical contact, turns and visible targeting',
+    module = 'tests.cases.furfur',
+  },
+  {
     id = 'v12-pack',
     title = 'One whole content pack through public registries',
     module = 'tests.cases.v12_pack',

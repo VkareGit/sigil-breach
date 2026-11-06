@@ -8,8 +8,9 @@ local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
 local charge = Action.charge({
   id = 'charge',
-  windupSound = 'charge_warning',
-  sound = 'antler_rush',
+  windupSound = 'furfur_prepare',
+  windupVoice = 'furfur_charge_effort',
+  sound = 'furfur_charge',
   rest = 2.2,
   range = 11,
   every = 2,
@@ -24,7 +25,8 @@ local charge = Action.charge({
   contactY = 1.18,
   contactRadius = 0.9,
   reach = 1.1,
-  turns = 2,
+  turns = 1,
+  returnTurn = 3.4,
   turnPause = 0.36,
   -- 0.42: the end of the rush is the opening it pays for (was 0.24 s, too short to use).
   recover = 1.2,
@@ -40,6 +42,7 @@ return Creature.boss({
   catalog = { field = 6 },
   appearance = {
     seal = 'furfur',
+    cut = 'antler',
     portal = { 0.86, 0.86, 1 },
     stature = 'large',
     casts = {
@@ -80,6 +83,7 @@ return Creature.boss({
     speed = 5,
     accel = 24,
     style = 'duel',
+    attackWait = 0.9,
     ideal = 3.6,
     turn = 3.4,
     -- 0.42: it seldom stands and watches (wait 0.5 -> 0.2).
@@ -89,19 +93,22 @@ return Creature.boss({
   answers = {
     { when = 'dodged', attack = 'gore-return', rest = 5, within = 6 },
     { when = 'drinking', attack = 'charge', rest = 7 },
-    { when = 'behind', attack = 'hoof-kick', rest = 3, within = 3.6 },
+    { when = 'behind', attack = 'antler-pivot', rest = 3, within = 3.6 },
     { when = 'hugging', attack = 'recoil', rest = 5, within = 2.4, after = 0.7 },
     { when = 'reloading', attack = 'lightning', rest = 7, within = 11 },
     { when = 'sniped', attack = 'charge', rest = 8, within = 7 },
   },
   sounds = {
-    step = 'heavy_step',
-    alert = 'growl',
-    windup = 'growl',
-    strike = 'antler',
+    step = 'furfur_hoof',
+    breath = 'furfur_breath',
+    murmur = 'furfur_murmur',
+    hurt = 'furfur_hurt',
+    alert = 'furfur_alert',
+    windup = 'furfur_gore_effort',
+    strike = 'furfur_antler',
     summon = 'binding_release',
     arrival = 'storm_arrival',
-    death = 'boss_collapse',
+    death = 'furfur_death',
   },
   -- Two acts (0.42; the ring, the cross and the whole sky wait for a true boss): the antlers
   -- and the charge, then the storm follows them at half his life. No shells at it.
@@ -120,7 +127,7 @@ return Creature.boss({
             ideal = 2,
             max = 3.3,
             weight = 12,
-            after = { attack = 'charge', within = 1 },
+            after = { attack = 'charge', within = 2.4 },
           },
         },
       },
@@ -145,7 +152,7 @@ return Creature.boss({
             ideal = 2,
             max = 3.3,
             weight = 12,
-            after = { attack = 'charge', within = 1 },
+            after = { attack = 'charge', within = 2.4 },
           },
         },
       },
@@ -154,7 +161,8 @@ return Creature.boss({
   attacks = {
     Action.charge({
       id = 'melee',
-      windupSound = 'antler_warning',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_gore_effort',
       maxRange = 3,
       range = 11,
       windup = 0.5,
@@ -173,7 +181,11 @@ return Creature.boss({
     charge,
     Action.strike({
       id = 'lightning',
-      windupSound = 'storm_warning',
+      art = 'antler',
+      windupSound = 'furfur_storm_prepare',
+      windupVoice = 'furfur_storm_effort',
+      releaseVoice = 'furfur_storm_voice',
+      impactSound = 'furfur_thunder',
       rest = 3.4,
       -- 0.43 (B01): it reaches a knight who shoots from beyond a door it cannot pass.
       range = 18,
@@ -183,7 +195,7 @@ return Creature.boss({
       cooldown = 0.85,
       radius = 1.55,
       life = 0.22,
-      sound = 'storm_release',
+      sound = 'furfur_storm_release',
       packet = packet(50, 90, 'lightning'),
     }),
     -- Centre, sides, then the other axis. All five locations are warned
@@ -217,7 +229,8 @@ return Creature.boss({
     -- New windup, new locked aim, normal contact geometry, then a full rest.
     Action.charge({
       id = 'antler-return',
-      windupSound = 'return_warning',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_return_effort',
       range = 3.3,
       windup = 0.55,
       speed = 6.5,
@@ -225,7 +238,7 @@ return Creature.boss({
       maxTime = 0.30,
       contactY = 1.18,
       contactRadius = 0.42,
-      reach = 0.75,
+      reach = 1.1,
       duration = 0.32,
       recover = 1.25,
       cooldown = 1.8,
@@ -234,8 +247,9 @@ return Creature.boss({
     -- The antlers: a hook, a held hook, a throw of the head.
     Action.sweep({
       id = 'gore',
-      windupSound = 'antler_warning',
-      sound = 'antler_rush',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_gore_effort',
+      sound = 'furfur_antler',
       range = 6,
       windup = 0.56,
       turn = 3.6,
@@ -245,6 +259,7 @@ return Creature.boss({
       steady = true,
       mirror = true,
       chase = 2.6,
+      turnBody = true,
       trace = {
         { at = 0.07, angle = -1.4, reach = 2.9, height = 1.5 },
         { at = 0.2, angle = 1.4, reach = 3, height = 1.1 },
@@ -267,8 +282,9 @@ return Creature.boss({
     }),
     Action.sweep({
       id = 'gore-return',
-      windupSound = 'return_warning',
-      sound = 'antler_rush',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_return_effort',
+      sound = 'furfur_antler',
       range = 6,
       windup = 0.46,
       turn = 4,
@@ -276,6 +292,7 @@ return Creature.boss({
       steady = true,
       mirror = true,
       chase = 2.6,
+      turnBody = true,
       trace = {
         { at = 0.07, angle = 1.4, reach = 2.9, height = 1.1 },
         { at = 0.2, angle = -1.4, reach = 3, height = 1.5 },
@@ -291,8 +308,9 @@ return Creature.boss({
     }),
     Action.sweep({
       id = 'crown',
-      windupSound = 'charge_warning',
-      sound = 'antler_rush',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_crown_effort',
+      sound = 'furfur_antler',
       range = 6.5,
       windup = 0.74,
       turn = 3,
@@ -316,13 +334,18 @@ return Creature.boss({
     -- The sky follows a step behind: stand and it finds you.
     Action.storm({
       id = 'storm-steps',
-      windupSound = 'storm_warning',
-      sound = 'storm_release',
+      art = 'antler',
+      windupSound = 'furfur_storm_prepare',
+      windupVoice = 'furfur_storm_effort',
+      releaseVoice = 'furfur_storm_voice',
+      impactSound = 'furfur_thunder',
+      sound = 'furfur_storm_release',
       range = 11,
       minRange = 3,
       rest = 4.5,
       windup = 0.6,
       count = 5,
+      requireSight = true,
       interval = 0.42,
       delay = 0.62,
       radius = 1.2,
@@ -360,17 +383,20 @@ return Creature.boss({
       },
       packet = packet(46, 90, 'lightning'),
     }),
-    -- Behind him the hooves: a short kick straight back, no turn at all.
+    -- A planted turn gives the knight a shot before the antlers answer behind him.
     Action.sweep({
-      id = 'hoof-kick',
-      windupSound = 'return_warning',
-      sound = 'antler_rush',
+      id = 'antler-pivot',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_return_effort',
+      sound = 'furfur_antler',
       range = 3.6,
-      windup = 0.34,
+      windup = 1.35,
+      turn = 3.4,
+      lockAt = 0.75,
       steady = true,
       trace = {
-        { at = 0.05, angle = 2.6, reach = 3, height = 1 },
-        { at = 0.16, angle = 3.7, reach = 3, height = 0.8 },
+        { at = 0.05, angle = -0.7, reach = 2.9, height = 1.2 },
+        { at = 0.16, angle = 0.7, reach = 3, height = 0.8 },
       },
       duration = 0.3,
       recover = 0.9,
@@ -380,7 +406,10 @@ return Creature.boss({
     -- He springs back and the bolt is already on the place he left.
     Action.hop({
       id = 'recoil',
-      windupSound = 'return_warning',
+      warning = false,
+      sound = 'furfur_backstep',
+      windupSound = 'furfur_prepare',
+      windupVoice = 'furfur_backstep_effort',
       range = 2.8,
       rest = 5,
       windup = 0.26,

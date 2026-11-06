@@ -139,12 +139,16 @@ function T.run(Game)
   Selection.committed(e, charge, e.target)
   Selection.finished(e, charge, 0)
   check(
-    'return is available in first stock after charge',
-    Actions.choose(e, 2, 0.3).id == 'antler-return'
+    'return is available in first stock after the full charge recovery',
+    Actions.choose(e, 2, 1.21).id == 'antler-return'
+  )
+  check(
+    'return remains available at the end of its new response window',
+    Actions.choose(e, 2, 2.39).id == 'antler-return'
   )
   check(
     'return expires instead of stealing the next opening',
-    Actions.choose(e, 2, 1.1).id == 'gore'
+    Actions.choose(e, 2, 2.41).id == 'gore'
   )
   return lines
 end

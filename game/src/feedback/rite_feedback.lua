@@ -4,9 +4,29 @@ local Rites = require('src.content.art.rites')
 local Feedback = {}
 require('src.session.fields').declareView(
   'feedback.rite_feedback',
-  { 'riteBursts', 'blinkBursts' },
+  { 'riteBursts', 'blinkBursts', 'lightningBursts' },
   'world'
 )
+function Feedback.struck(g, event)
+  local h = event.hazard
+  local style = Rites.lightnings[h.art]
+  if not style then
+    return
+  end
+  local list = g.view.lightningBursts or {}
+  g.view.lightningBursts = list
+  list[#list + 1] = {
+    x = h.x,
+    z = h.z,
+    level = h.level,
+    radius = h.radius,
+    art = h.art,
+    starts = event.at + math.max(0, h.life),
+  }
+  while #list > style.limit do
+    table.remove(list, 1)
+  end
+end
 function Feedback.blinked(g, event)
   local list = g.view.blinkBursts or {}
   g.view.blinkBursts = list
@@ -56,6 +76,13 @@ function Feedback.released(g, event)
   end
 end
 function Feedback.update(g)
+  local lightning = g.view.lightningBursts
+  for i = #(lightning or {}), 1, -1 do
+    local burst = lightning[i]
+    if g.elapsed - burst.starts >= Rites.lightnings[burst.art].embers then
+      table.remove(lightning, i)
+    end
+  end
   local blinks = g.view.blinkBursts
   for i = #(blinks or {}), 1, -1 do
     if g.elapsed - blinks[i].starts >= Rites.blink.duration then

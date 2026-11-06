@@ -97,16 +97,24 @@ Kinds.charge = {
   execute = function(g, e, atk, a)
     face(g, e, atk, a)
     e.chargeTime = rushTime(e, atk)
-    e.turnsLeft, e.turnAt = atk.turns, nil
+    e.turnsLeft, e.turnAt, e.turnStart = atk.turns, nil, nil
   end,
   strike = function(g, e, atk, dt, ctx)
     -- A rush with turns stops, looks at the target again and goes.
     if e.turnAt then
+      if atk.returnTurn then
+        local off = MathX.wrapAngle(math.atan2(e.aimX - e.x, e.aimZ - e.z) - e.facing)
+        local most = atk.returnTurn * dt
+        e.facing = e.facing + math.max(-most, math.min(most, off))
+      end
       if e.phase < e.turnAt then
         return
       end
       local t = victimOf(g, e)
-      e.aimX, e.aimZ, e.aimLevel, e.turnAt = t.x, t.z, t.level, nil
+      if not atk.returnTurn then
+        e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
+      end
+      e.turnAt, e.turnStart = nil, nil
       face(g, e, atk, math.atan2(e.aimX - e.x, e.aimZ - e.z))
       e.chargeTime = e.phase + rushTime(e, atk)
       return
@@ -115,6 +123,15 @@ Kinds.charge = {
       if (e.turnsLeft or 0) > 0 and not e.didHit then
         e.turnsLeft = e.turnsLeft - 1
         e.turnAt = e.phase + atk.turnPause
+        if atk.returnTurn then
+          -- Looking at this position is part of the planted turn, not a hidden
+          -- retarget on release. A later sidestep can avoid the returning rush.
+          local t = victimOf(g, e)
+          e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
+          local off = MathX.wrapAngle(math.atan2(e.aimX - e.x, e.aimZ - e.z) - e.facing)
+          e.turnStart = e.phase
+          e.turnAt = e.phase + math.max(atk.turnPause, math.abs(off) / atk.returnTurn)
+        end
         e.chargeTime = e.turnAt + atk.maxTime
       end
       return

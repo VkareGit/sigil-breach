@@ -14,6 +14,7 @@ local Definitions = require('src.content.hazards')
 local Registry = require('src.core.registry')
 local MathX = require('src.core.mathx')
 local Hazards = {}
+local Signal = require('src.session.signal')
 local Garden = require('src.combat.garden')
 -- Scratch swept points of a creature sampled by a pool pulse.
 local sampled = {}
@@ -21,6 +22,8 @@ function Hazards.add(g, x, z, delay, r, life, spec)
   if not W.solid(g.world, x, z, K.clearance) then
     Spawn.make(g, 'hazard', {
       kind = spec and spec.kind,
+      art = spec and spec.art,
+      impactSound = spec and spec.impactSound,
       x = x,
       z = z,
       delay = delay,
@@ -129,6 +132,7 @@ Hazards.kinds:register('lightning', {
           -- A just-released cast executes after movement in this step.
           -- A previously placed mark expires at its own point within the step.
           strike(g, h, released and 1 or math.min(1, waiting / dt), previousPlayer, dt)
+          Signal(g, 'GroundStruck', { hazard = h, at = g.elapsed })
         end
       end
     end

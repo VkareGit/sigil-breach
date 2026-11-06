@@ -71,6 +71,8 @@ Kinds.strike = {
     local packet = atk.packet
     e.pendingHazard = Spawn.make(g, 'hazard', {
       kind = 'lightning',
+      art = atk.art,
+      impactSound = atk.impactSound,
       owner = e.id,
       side = Bodies.side(g, e),
       x = e.aimX,
@@ -251,14 +253,18 @@ Kinds.storm = {
     while e.released < atk.count and e.phase >= e.released * atk.interval do
       local t = Contact.victim(g, e)
       e.released = e.released + 1
-      Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
-        kind = 'lightning',
-        packet = atk.packet,
-        volume = atk.volume,
-        owner = e.id,
-        side = Bodies.side(g, e),
-        level = t.level,
-      })
+      if not atk.requireSight or Rules.sees(g, e, t) then
+        Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
+          kind = 'lightning',
+          art = atk.art,
+          impactSound = atk.impactSound,
+          packet = atk.packet,
+          volume = atk.volume,
+          owner = e.id,
+          side = Bodies.side(g, e),
+          level = t.level,
+        })
+      end
     end
   end,
   duration = function(e, atk)

@@ -593,6 +593,7 @@ for _, voices in ipairs({
   'src.audio.owl_voices',
   'src.audio.iron_voices',
   'src.audio.ember_voices',
+  'src.audio.furfur_voices',
   'src.audio.garden_voices',
   'src.audio.medal_voices',
   'src.audio.hit_voices',

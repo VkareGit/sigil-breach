@@ -8,6 +8,7 @@ local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
 local GardenArt = require('src.render.garden_art')
+local StormArt = require('src.render.storm_art')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
@@ -28,9 +29,15 @@ Kinds:register('pool', {
 })
 Kinds:register('lightning', {
   ground = function(r, g, h)
+    if StormArt.ground(r, g, h) then
+      return
+    end
     HazardArt.circle(r, g, h, 'circle', h.radius, 1)
   end,
   air = function(r, g, h, effects)
+    if StormArt.air(r, g, h) then
+      return
+    end
     local preparing = h.delay > 0
     local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
       or (1 - (h.life or 0) / 0.22)

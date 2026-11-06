@@ -12,17 +12,9 @@ local GardenArt = require('src.render.garden_art')
 local posed = {}
 local function centre(g, e, id)
   local p = Surface.prepare(g, e, posed)
-  for _, part in ipairs(p.parts) do
-    if part.id == id then
-      local left, top, right, bottom = 1, 1, 0, 0
-      for i = 1, #part.polygon, 2 do
-        left, right = math.min(left, part.polygon[i]), math.max(right, part.polygon[i])
-        top, bottom = math.min(top, part.polygon[i + 1]), math.max(bottom, part.polygon[i + 1])
-      end
-      return Surface.point(p, (left + right) * 0.5, (top + bottom) * 0.5)
-    end
-  end
+  return Surface.centre(p, id)
 end
+
 function Accents.draw(r, g, e, effects)
   local spec = e.attackSpec
   if e.hp <= 0 then
@@ -94,6 +86,24 @@ function Accents.draw(r, g, e, effects)
     local x, y, z = centre(g, e, 'antlers')
     if x then
       local p = posed
+      local storm = Rites.lightnings[spec.art]
+      if storm then
+        local viewer = Context.viewer(g)
+        local size = storm.hornSize * (0.65 + charge * 0.35)
+        for _, side in ipairs({ -0.28, 0.28 }) do
+          HazardArt.upright(
+            r,
+            x + p.rx * side,
+            y - size * 0.3,
+            z + p.rz * side,
+            HazardArt.sequence(storm.frames, charge),
+            size,
+            math.atan2(viewer.x - x, viewer.z - z),
+            0.6 + charge * 0.4
+          )
+        end
+        return true
+      end
       for i = 1, 4 do
         local side = (i - 2.5) * 0.17
         effects.spell(

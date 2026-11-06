@@ -261,4 +261,17 @@ function Surface.sweep(p, ox, oy, oz, dx, dy, dz, limit, radius)
   end
   return best, selected and selected.zone, selected
 end
+-- Centre of an authored anatomical part in the already sampled painting.
+function Surface.centre(p, id)
+  for _, part in ipairs(p.parts) do
+    if part.id == id then
+      local left, top, right, bottom = 1, 1, 0, 0
+      for i = 1, #part.polygon, 2 do
+        left, right = math.min(left, part.polygon[i]), math.max(right, part.polygon[i])
+        top, bottom = math.min(top, part.polygon[i + 1]), math.max(bottom, part.polygon[i + 1])
+      end
+      return Surface.point(p, (left + right) * 0.5, (top + bottom) * 0.5)
+    end
+  end
+end
 return Surface

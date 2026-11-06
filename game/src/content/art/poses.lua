@@ -15,13 +15,14 @@
 --            from bounds[i - 1] up to (not including) bounds[i]; a value on
 --            a boundary belongs to the next frame
 --   rate     cycles frames: floor(clock x rate) mod #frames
+--   rear     optional pose shown to an observer behind a planted turn
 --   footsteps each frame of a seconds-clocked strike marks a moving foot contact
 --   step     one frame every step seconds, the last held
 --   ends     the clock value where the pose is over (the state goes on in
 --            another pose: a knockdown in its rise)
 -- A pose may instead be { fallback = '<name>' }; a pose a sheet leaves out
 -- falls back by Poses.fallbacks ('strike.<attack>' falls back to 'strike').
-local Poses = {}
+local Poses = { rearCos = -0.25 }
 Poses.clocks = {
   action = true,
   release = true,
@@ -240,6 +241,9 @@ function Poses.problems(poses, frameCount, where)
         fail(name .. ': fallback is not a name')
       end
     else
+      if pose.rear and (type(pose.rear) ~= 'string' or not Poses.resolve(poses, pose.rear)) then
+        fail(name .. ': missing rear pose')
+      end
       poseProblems(name, pose, frameCount, fail)
     end
   end
