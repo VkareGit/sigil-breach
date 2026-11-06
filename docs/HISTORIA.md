@@ -36,6 +36,8 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Analiza Furfura (2026-11-06)
+- Plan sprzed Furfura (zastąpiony 2026-11-06)
 - Analiza Ember Thralla (2026-11-05)
 - Plan sprzed Ember Thralla (zastąpiony 2026-11-05)
 - Analiza Plague Gardenera (2026-11-05)
@@ -61,6 +63,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Dokumentacja, 2026-11-06: analiza Furfura i plan DO AKCEPTACJI.
+  Potwierdzono niedostępną dobitkę, błędny kontakt kopnięcia, niewidoczny
+  zwrot szarży, oczekiwanie za drobnicą, namierzanie burzy za ścianą
+  i znikanie jej znaku pod graczem. Zapisano pomiary, inwentarz ataków,
+  kierunek animacji/głosu, zależności i plan testów. Poprzedni PLAN Embera
+  zachowano w całości. Bez zmian gry, zasobów, balansu i golden.
 
 - Ember Thrall, 2026-11-05: dopracowano najliczniejszego przeciwnika wręcz
   bez nowego czaru, zwiększania 360 HP, obrażeń, prędkości czy czasów ataków.
@@ -4248,6 +4257,25 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+Codex, 2026-11-06 — Furfur, wyłącznie analiza i plan do akceptacji.
+- Stan wejściowy 162aa88, wersja 0.45, czyste repo. Potwierdzono zgodność
+  ostatniego All PASS z obecnym fingerprintem; pełnego All nie powtarzano.
+  Dzisiaj elite-art PASS 89, boss-pressure PASS 29, souls-gate PASS 6.
+- Zachowano 81 prób czynności, 36 poprawionych prób SI, 18 prób dwóch
+  wadliwych kontaktów, 15 przywróceń pamięciowego stanu, cztery próby śmierci,
+  sondy widoczności/zasłon, kadry, WAV i trzy pomiary w izolowanym klonie.
+  Dobitka i kopnięcie nie trafiają w badanych przypadkach; burza po utracie
+  widoczności zadaje 200 HP czterema nowymi znakami za ścianą (60/120/240 Hz).
+- Obraz znaku/pioruna pod graczem nie zmienia pikseli badanego obszaru sceny
+  w poziomym widoku z 7 m; cofanie i spojrzenie w dół są kontrolą dodatnią.
+  To pomiar czytelności istniejącego obrazu, nie odbiór nowej grafiki.
+- Szczegółowe wyniki, ścieżki, ograniczenia i odrzucone dane w rozdziale
+  „Analiza Furfura (2026-11-06)”. Zachowano skrypty sond poza repozytorium.
+  Własny klon pomiarowy i jego katalog roboczy usunięte. Audio bez
+  wiarygodnego odsłuchu i bez pełnego miksu. Windows niesprawdzony.
+- Zmiany dotyczą wyłącznie PLAN i HISTORII. Kod/PNG/audio/golden bez zmian;
+  nie wdrażano propozycji ani nie przeprowadzano odbioru ich efektów.
 
 Codex, 2026-11-05 — Ember Thrall, zaakceptowany plan wdrożenia.
 - Punkt wyjścia `304388d`, czyste repo, wersja 0.45. Poprzednie All: 7328
@@ -12752,3 +12780,423 @@ Proponowany zakres do akceptacji:
 https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-Combat-in — publiczny opis wykładu id Software, nie oglądano pełnego filmu.
 https://slayersclub.bethesda.net/en-US/news/doom-eternal-boss-tips — rola zwykłych demonów w pozyskiwaniu zasobów i czytelne okna odpowiedzi.
 https://www.bandainamcoent.com/es_mx/news/elden-ring-introduction-part-4-combat-guide — zobowiązanie do ruchu, okna kontrataku i odpowiedź zależna od rodzaju ciosu.
+
+## Analiza Furfura (2026-11-06)
+
+### Zakres i punkt wyjścia
+
+Etap A, przed zgodą na wdrożenie. Polecenie właściciela: zbadać postoje,
+mało widoczne umiejętności i całość postaci, z zachowaniem dokładnej bazy
+wyglądu i piekielnego fresku. HEAD `162aa88`, wersja 0.45; początkowo czyste
+repo. Przeczytano instrukcje, wizję, styl, bieżący plan i odbiór; porównano
+je z treścią, SI, renderowaniem, audio i zapisem. Nie zmieniono gry ani
+zasobów. Poprzedni plan Embera zachowano w całości w następnym rozdziale.
+
+Główny fingerprint gry:
+`95B2B1B84D258C9EFF6318583007E18F87AD82710DAAFBD9655D549EE53C26E1`.
+Ostatnie All z zakończonego Embera ma ten sam fingerprint i PASS:
+7572 Mechanics/Assets, Input 50, Architecture 695 Lua, Render i Tools,
+9 stabilnych świadectw, 701 s. Zweryfikowano świadectwa; nie jest to nowy
+przebieg All z 6 listopada. Windows nie sprawdzano.
+
+### Stan i rola w grze
+
+Furfur jest elitarnym mobem, choć korzysta z wewnętrznego szablonu `boss`.
+Ma 2250 HP, 320 gardy, 35 pancerza tułowia, odsłoniętą głowę, 50 pancerza
+nóg, promień 0,55 m i odstęp ciała 1,2 m. Prędkość chodzenia 5 m/s,
+przyspieszenie treści 24 dzielone przez pierwiastek masy około 8,333;
+rzeczywisty limit przyspieszania około 8,31 m/s². Styl pojedynkowy dąży do
+3,6 m i wybiera podejście/okrążanie/odwrót, rzadziej czekanie. Kierunek
+chodu obraca się do 3,4 rad/s. Dwa akty: poroże, a od 50% HP burza,
+z przejściem 1,4 s i otwarciem `storm-steps`. Pęknięta garda 1,2 s,
+egzekucja 20%; 250 dusz i dwie łuski Exorcista jak dla Margrave'a.
+
+Próby botów nie uzasadniają zwiększania HP ani obrażeń. `boss-pressure`:
+bot stojący ginie po 8,175 s, orbitujący po 10,750 s, reagujący przeżywa
+30 s z 10 HP. W `souls-gate` stojący i strzelający ginie po 11,8 s,
+zostawiając Furfura z 32% HP. Wyniki botów odczytujących ataki są mieszane:
+część ginie, część wygrywa po około 14,9–21,6 s. Nie jest to potwierdzenie
+właścicielskiego celu 20–35 s dla człowieka; bot nie zastępuje odbioru.
+
+### Inwentarz istniejących czynności
+
+13 definicji; 9 jest przywoływanych przez taktyki, serie lub reakcje.
+`antler-return` ma niespełnialne naturalne okno wyboru, więc normalnie
+nie działa. `melee`, `tempest-cross`, `storm-ring`, `whole-sky` nie są
+wybierane przez obecną SI. Dawny sześciosekundowy odpoczynek `whole-sky`
+nie wyjaśnia zwykłych postojów; włączenie tych obszarówek nie jest rekomendowane.
+
+Czasy poniżej są bazowymi wartościami treści. Atak spoza pola widzenia
+może mieć dodatkową zapowiedź; przytrzymanie i rozgałęzienie serii zmieniają
+łączny czas. `recover` jest pełnym oknem bez następnego ataku, choć ciało
+stoi w nim najwyżej 0,7 s, a potem może znów chodzić.
+
+| Czynność | Przygotowanie | Działanie / kontakt | Powrót; obrażenia | Obecna odpowiedź gracza |
+| --- | --- | --- | --- | --- |
+| Poroże `gore` | 0,56 s + 0/0,3/0,6 s | Łuk 0,07–0,20 s, zasięg 2,9–3 m, wysokość 1,5→1,1 m; doskok | 0,5 s albo przerwa serii 0,14 s; 40 | Czytać przytrzymanie, uniknąć łuku, obserwować kontynuację |
+| Powrotny łuk `gore-return` | 0,46 s | Odwrotny łuk 0,07–0,20 s i doskok | 0,7 s albo przerwa 0,2 s; 40 | Odejść z kierunku drugiego ruchu, nie atakować automatycznie po pierwszym |
+| Cios z góry `crown` | 0,74 s + 0/0,35/0,7 s | 0,10–0,22 s; 3,3–3,6 m, wysokość 2,4→0,3 m | 1,2 s; 70 | Unik bokiem / kontra, wykorzystanie długiej końcówki |
+| Szarża `charge` | 0,65 s, blokada celu po 75% przygotowania | 14 m/s, 0,30–0,85 s na przebieg, dwa nawroty po 0,36 s; kontakt na wysokości 1,18 m | 1,2 s; 65 | Bokiem przy przebiegu, uwaga na powrót, kontra w pędzące ciało |
+| Dobitka `antler-return` | 0,55 s | Krótkie pchnięcie 6,5 m/s przez 0,18–0,30 s; obecnie wybór i kontakt wadliwe | 1,25 s; nominalnie 50 | Planowana kara za pozostanie przy zakończeniu szarży; dziś nieskuteczna |
+| Piorun `lightning` | 0,72 s | Stały punkt od rozpoczęcia; promień 1,55 m, kolumna 0–2,9 m; jedno trafienie, obraz 0,22 s | 0,8 s; 50 | Opuścić zapowiedziane miejsce; skok nie jest obiecaną odpowiedzią na kolumnę |
+| Kroki burzy `storm-steps` | 0,6 s | 5 punktów co 0,42 s; każdy zamiera i ostrzega 0,62 s, promień 1,2 m; stan ataku 2,08 s | 1 s; 50 za uderzenie | Poruszać się, nie wracać od razu w poprzedni znak |
+| Kopnięcie `hoof-kick` | 0,34 s | Łuk za lokalnym kierunkiem ataku, zasięg 3 m, wysokość 1→0,8 m; błędny kierunek względem ciała | 0,9 s; nominalnie 48 | Zamierzona odpowiedź na przebywanie za plecami; dziś mija stojący cel |
+| Odskok `recoil` | 0,26 s | 9 m/s przez 0,3 s; brak własnego trafienia | Łączy się z piorunem; sam nie zadaje obrażeń | Rozpoznać odwrót, potem nową zapowiedź pioruna |
+
+Reakcje odnoszą się do obecnych wydarzeń: unik podczas przerwy serii,
+picie, przeładowanie, trafienie z dystansu, cel z tyłu lub zbyt blisko.
+Nie znaleziono czytania przyszłego wejścia gracza. Namierzanie w trakcie
+zamachu i niektórych doskoków istnieje; orientacja renderowanego ciała nie
+zawsze nadąża za kierunkiem kontaktu. Odróżnić fizyczny, widoczny zwrot od
+ukrytego naprowadzania po wypuszczeniu. Pięć znaków burzy to pięć osobnych
+odczytów obecnej pozycji; sam położony znak już nie śledzi gracza.
+
+### Potwierdzone problemy i ich dowody
+
+1. **Dobitka po szarży jest martwą możliwością.** Warunek wyboru dopuszcza
+   ją przez 1 s od końca szarży, ale `spent` zabrania następnego ataku przez
+   1,2 s. Losowania przy wieku 0,7 i 1 s ją oferują, przy 1,2 i 1,3 s już
+   nie. Nie wystąpiła w 36 przebiegach swobodnej SI. Dodatkowo wymuszona
+   dobitka nie trafia stojącego celu w 9 próbach: rozdzielenie ciał zatrzymuje
+   je przy 1,42 m, a kontakt dochodzi tylko do 0,75 + 0,42 + 0,22 = 1,39 m.
+   To 3 cm luki. Naprawa musi uzgodnić fizyczny gest, odstęp i kontakt,
+   nie dodać niewidocznej sfery daleko poza porożem.
+2. **Kopnięcie celuje od gracza.** Przy rozpoczęciu namierza gracza za
+   plecami, po czym łuk dodaje drugi obrót do tyłu. W 3 dystansach
+   (1,6/2,4/3,2 m) × 60/120/240 Hz nie trafiło ani razu. Jest także pokazane
+   tym samym przednim zamachem co poroże, nie oddzielnym ruchem kopyt.
+3. **Szarża zmienia kierunek bez pokazania zwrotu.** W zarejestrowanej
+   próbie po pauzie kierunek pędu zmienił się z −0,328 na −1,805 rad
+   (około 85°), ale `facing` pozostał −0,328, a poza cały czas była klatką 10.
+   Brakuje rytmu kopyt: zwykły licznik kroków nie postępuje w tym wykonaniu.
+4. **Część bezruchu to niewyraźny atak, część to blokada w grupie.**
+   36 poprawnych scenariuszy, po 20 s: dwie fazy, trzy dystanse (3/7/14 m),
+   nieruchomy/okrążający gracz lub cztery Impy, dwa ziarna. Samotny Furfur
+   przy nieruchomym graczu wykonuje 11–14 czynności. Stoi przez około
+   77–78% czasu, ale prawie cały ten czas to zamach/atak/odpoczynek;
+   bezruch w stanie ruchu wynosi średnio tylko 0,16–0,22 s na 20 s.
+   Z czterema Impami wypuszcza 2–5 czynności, bezruch w stanie ruchu rośnie
+   do średnio 3,44–4,99 s, maksymalnie 2,81 s ciągiem. Jego limit 1 liczy
+   innych atakujących oraz zarezerwowane serie; Impy z limitem 3 mogą
+   odnawiać swoją presję, zanim Furfur dostanie miejsce. Nie należy
+   usuwać naprawy rezerwacji serii Embera ani zwiększać limitu dla wyniku.
+   Jeden scenariusz okrążania przy przeszkodzie kończy się utratą widoczności
+   i dłuższym zatrzymaniem. To kandydat do oddzielnego testu trasy, nie dowód,
+   że każdy utracony cel powinien być nadal śledzony przez mur.
+5. **Burza namierza za pełną ścianą.** Po pierwszym znaku przeniesiono cel
+   do pozycji za istniejącą ścianą. Bezpośredni test widoczności zmienia
+   true→false, a kolejne cztery znaki powstają przy nowej ukrytej pozycji
+   i zabierają 200 HP. Identycznie w 60/120/240 Hz. To kontrolowana sonda
+   utraty widoczności, nie nagranie fizycznego przejścia gracza przez mur.
+   `Kinds.storm.strike` odczytuje cel bez kontroli widoczności; osłona
+   pomiędzy samym znakiem i ofiarą tego nie naprawi, bo znak jest pod ofiarą.
+6. **Znaki pod stopami znikają z użytecznego widoku.** Natywne pary renderów
+   1280×720: ten sam stan z hazardem i bez niego, pozostałe efekty jednakowe.
+   Kamera pozioma, Furfur w odległości 7 m. Dla próbek zapowiedzi/pioruna
+   (0,5/0,742/0,808 s) i burzy (0,908/1,242/1,358/2,008 s) różnica w obszarze
+   sceny x=0–1279, y=80–579 wynosi **0 pikseli**, także przy ruchu bokiem.
+   To nie znaczy, że znika sygnał na porożu — nie był usuwany w porównaniu.
+   Kontrola dodatnia: cofanie ujawnia piorun (3756/75858/109953 pikseli),
+   patrzenie w dół także ujawnia znak. Po cofnięciu biały, szeroki płat
+   pękniętego tynku zasłania dużą część Furfura. Przyczyna jest przestrzenna
+   i kompozycyjna; samo podbicie jasności nie wystarczy.
+7. **Głos ciała jest niepełny i współdzielony.** W definicji są kroki,
+   wspólny `growl`, materiał ataku i wspólne z Margrave'em `boss_collapse`.
+   Brak własnych oddechów, pomruków, bólu oraz `windupVoice`/`releaseVoice`.
+   Obecne próbki nie mają wariantów. Pomiary RMS: `storm_warning` 0,1118
+   wobec `charge_warning` 0,2592 (około −7,3 dB); `storm_release` 0,0589
+   wobec `antler_rush` 0,1332 (około −7,1 dB). Szczyty pojedynczych próbek
+   do 0,799, bez przesterowania. Nie jest to odsłuch ani pomiar pełnej walki.
+
+### Grafika, dźwięk i zależności
+
+Obejrzano zatwierdzoną bazę `baza/furfur.png`, arkusze i Inferno oraz
+natywne kadry. Baza jest istniejącym oryginalnym arkuszem; nie zastępować
+jej nową interpretacją. Furfur ma trzy źródła: 24 klatki v12, 4 spoczynku
+v13 i 9 wnętrz oddechu v45, razem 37. Jego kościste jelenie ciało, poroże,
+czerwienie, faktura i ognisty ogon już określają tożsamość.
+
+Wiele czynności korzysta z ogólnej sekwencji windup 7/8/29/30/31/30 oraz
+strike 10/11. Szarża ma tylko klatkę 10. Burza już synchronizuje pięć
+impulsów przez całe 2,08 s — nie jest dawnym błędem ucięcia animacji
+po 0,4 s. Ma jednak podobny gest do pojedynczego pioruna i mały akcent
+przy porożu. Fizyczne ciosy pokazują wspólną pomarańczową smugę; wymaga
+ona porównania z rzeczywistym porożem i obszarem trafienia, nie ogólnego
+przemalowania wszystkich cięć. Najpierw użyć istniejących poprawnych póz
+oraz opcjonalnych reguł prezentacji (`turn.<id>`, zegar zwrotu, punkty anatomii).
+
+Prześledzono `content/creatures/furfur`, `enemies/actions`, wybór taktyki,
+reakcje, ruch/separację, wykonania melee/ranged, hazardy, geometrię kontaktu,
+`art/sheets/furfur`, akcenty czarów i render hazardów. Warstwy kontaktu
+wpływają na doskonały unik, kontrę, obrażenia, ranę, gardę i egzekucję.
+Zmiana klatki wybiera inną maskę, nawet bez zmiany PNG, więc może świadomie
+zmienić golden. Nowa korekta wspólnego nawrotu wymaga regresji Iron Thralla
+oraz definicji bossów; nie wolno przy okazji przestawiać ich parametrów.
+
+15 prób `Snapshot.capture/restore` (pięć czynności × windup/strike/recover)
+przywraca identyczny późniejszy stan. Cztery próby śmierci podczas
+lightning/storm-steps usuwają znaki i nie zadają nowych obrażeń. To zapis
+w pamięci, nie pełny dyskowy Continue. Wdrożenie musi objąć serializację
+pools i zachowanie starych rozpoczętych definicji przez migracje, jeśli
+zmienią się pola/rodzaj czynności; osobno pauzę, odpoczynek, śmierć i zmianę
+świata. Nie trzeba wymyślać nowego systemu zapisu.
+
+Dla audio istnieją osobny RNG prezentacji, warianty bez powtórzeń pod rząd,
+priorytety ostrzeżeń, budżet głosów sali i pula 28+28 Source. Furfur powinien
+ich użyć. Trzeba testować zwalnianie źródeł, zatrzymanie głosu po przerwaniu,
+śmierci i zmianie świata, suwaki, dystans i przeszkody. Nie poprawiać jego
+brzmienia podmianą wspólnych próbek używanych przez Margrave'a.
+
+### Rekomendowany projekt do akceptacji
+
+**Ruchliwy, ciężki hrabia burzy — walczy ciałem i porożem, a burzą odbiera
+bezpieczne stanie.** Pozostaje elitą. Słabość: zakończony pęd, przestrzelony
+cios, odsłonięta głowa i złamana garda. Mocna strona: presja na średnim
+dystansie i wymuszanie świadomych zmian pozycji. Nie przypisywać mu nowego
+konkretnego kręgu piekła bez decyzji świata; inspiracja Goetią nie daje
+kanonicznego numeru kręgu Dantego.
+
+1. Rozróżnić gesty poroża, ciosu z góry, obniżenia łba do szarży,
+   przywołania pojedynczego pioruna, całej burzy oraz bezpiecznego odwrotu.
+   Chód, hamowanie i kierunek ciała muszą zgadzać się z ruchem i kontaktem.
+   Nie wypełniać każdego odpoczynku nowym atakiem; zachować okna 1,2 s.
+2. Szarża: proponowany **jeden nawrót zamiast dwóch**, z widocznym osadzeniem
+   kopyt i obrotem, najwyżej dwa przebiegi. Każdy przebieg ma zamknięty
+   kierunek. Dobitka jest osobną, nowo zapowiedzianą czynnością dopiero
+   po pełnym oknie odpowiedzi. Naprawić jej wybór i rzeczywisty kontakt.
+3. Wadliwe kopnięcie proponuję **zastąpić zwrotem z krótkim ciosem poroża**,
+   wykorzystując zaakceptowany materiał postaci. Obrót ograniczony prędkością
+   ciała, potem osobny zamach. Obchodzenie daje czas na strzał i odejście,
+   nie bezterminową bezkarność. Nie zmieniać go w niewidoczny atak do tyłu.
+4. Zostawić serię dwóch łuków z możliwością mocnego zakończenia. Pojedynczy
+   piorun karze stanie i nieostrożne leczenie; pięć kroków burzy po połowie
+   HP wymusza marsz zamiast chaotycznego powrotu. Nowe znaki wymagają
+   widoczności celu; po jej utracie nie śledzą go w sąsiednim pomieszczeniu.
+   Już pokazane znaki pozostają w swoich miejscach do wykonania, o ile
+   Furfur żyje. Zachować odskok z ponowną zapowiedzią pioruna. Nie dodawać
+   następnego dużego czaru i nie włączać odłożonych obszarówek bossów.
+5. Piorun: poroże prowadzi rytuał, ale wyładowanie spada w rzeczywistym
+   punkcie świata. Zapowiedź ma także przestrzenną część widoczną z kamery
+   gracza bez patrzenia pod nogi; obwiednia zgadza się z promieniem/kolumną.
+   Używać oszczędnego, poszarpanego pigmentu kości, sadzy i ochry, bez neonów,
+   nowego gładkiego materiału i wielkiej białej zasłony. Po uderzeniu krótki,
+   gasnący ślad bez obrażeń; jego koniec nie może udawać kolejnej pułapki.
+   Ogon i stojący ogień pozostają zatwierdzonymi obrazami, bez nowej aury.
+6. W grupie dodać opcjonalne pierwszeństwo po oczekiwaniu na wolny slot,
+   włączone w treści Furfura. Już rozpoczęte czynności innych stworów kończą
+   się normalnie; limit nie rośnie. To zmienia kolejność działań w grupie
+   i wymaga osobnej akceptacji jako część planu oraz regresji kaplicy.
+   Nie odbierać miejsca rozpoczętej serii Embera. Rezerwacja znika przy
+   utracie celu, śmierci i utracie możliwości wykonania.
+7. Głos: chrapliwy, zduszony ryk jelenia z ludzkim oddechem potępieńca,
+   sucha praca żeber i przerwy między odgłosami. Oddech/alarm/pościg,
+   różne wysiłki łuku, pędu i przywołania, ból, powrót, trzy śmierci.
+   Poroże i kopyta mają krótki kostny/ziemny materiał, burza powietrze
+   i przestrzenny grzmot. 2–3 wykonania często używanych odgłosów, bez
+   stałego ryku, bolesnego pisku i podnoszenia całego miksu. Nowe źródła
+   muszą mieć licencje, autorstwo i opis przetwarzania. Właściciel ocenia
+   barwę i grozę; środowisko agenta nie daje wiarygodnego odsłuchu.
+
+Powyższe jest propozycją, nie zatwierdzonym balansem ani odbiorem grafiki.
+Szczególnie jeden nawrót, zastąpienie kopnięcia i pierwszeństwo w grupie
+wymagają akceptacji kierunku. Parametry czasowe stroić sondą bez zwiększania
+HP/obrażeń. Zasady dla innych stworów i chroniony HUD poza tym zakresem.
+
+### Weryfikacja przed wdrożeniem i wymagana po nim
+
+Dzisiaj PASS: `elite-art` 89, `boss-pressure` 29, `souls-gate` 6.
+Sondy wykazały niezgodności opisane wyżej; PASS istniejącego zestawu nie
+znaczy, że te zachowania są poprawne. 81 izolowanych prób dziewięciu
+czynności (stanie, odejście, skok; 60/120/240 Hz) wyłącza inne wybory SI,
+więc nie mierzy normalnej trudności całej walki. Skok w jednym momencie
+nie ominął kilku badanych ataków; to nie dowód dla wszystkich faz skoku.
+Ruch bokiem może dojść do ściany — nie mylić tego z nieuniknioną burzą.
+
+Po akceptacji: nowe czerwone testy dla stwierdzonych błędów; następnie
+identyczne próby po zmianie. Testy kontr/unik/skok/chybienie, granice ciał,
+przeszkody i różne wysokości, śmierć/przerwanie/zmiana aktu na granicach faz,
+dyskowy Continue starych i nowych działań, odpoczynek, pauza, grupy mieszane.
+Do tego zachowanie slotów i maksymalnej liczby hazardów/głosów, osobny RNG,
+źródła dźwięku i suwaków. Testy osobno i razem; nie osłabiać oczekiwań.
+
+Obowiązkowe trzy przeglądy grafiki z zapisanym wynikiem: źródło/baza
+w równej skali; rendery blisko/średnio/daleko w jednym świetle; rzeczywiste
+przejścia wszystkich stanów, trafienia i śmierci. Anatomia, maski, cień,
+punkty emisji i widoczność z wnętrza zapowiedzi. Osobno miks z muzyką,
+Judge'em i Exorcistem, innymi stworami oraz z dystansu i zza przeszkody;
+próbki A/B do odsłuchu, pomiar przesterowania i zagłuszania ostrzeżeń.
+
+Celowe zmiany symulacji lub wyboru masek: dwa identyczne golden,
+uzasadniony wzorzec Linux, bez aktualizowania Windows bez jego przebiegu.
+Pełne `scripts/linux/TEST.sh All --timeout 1800`, pozostałe wymagane bramy
+po ewentualnym błędzie, końcowy diff, dokumentacja, commit bez kolejnego
+pytania tylko po zielonej weryfikacji. Jedna zmiana balansu na commit.
+
+### Pomiar i dowody
+
+Pomiary wykonano w odrębnym klonie HEAD, bez równoległych ciężkich sond.
+Intel Arc (MTL), Mesa 26.2.5, OpenGL 4.6, natywny renderer 1280×720.
+Trzy przebiegi, 240 kroków rozgrzewki i 600 pomiarowych na populację,
+aktualizacja 120 Hz, render co 12 kroków. Mediany trzech wyników:
+
+| Furfurów | Średnia aktualizacja CPU ms | p95 aktualizacji CPU ms | p95 zgłoszenia rysowania CPU ms |
+| --- | --- | --- | --- |
+| 1 | 0,0605 | 0,1596 | 5,0383 |
+| 4 | 0,0950 | 0,2185 | 3,3693 |
+| 12 | 0,1779 | 0,2980 | 1,2985 |
+| 32 | 0,4476 | 0,5788 | 1,2791 |
+
+To nie FPS, czas GPU ani maksimum burzy. Audio wyłączone; wszystkie ciała
+celują w jednego gracza, limit dopuszcza najwyżej jeden znak naraz.
+Wyniki rysowania zależą od aktualnej pozycji i widocznych ciał, dlatego
+spadek przy większej populacji nie dowodzi optymalizacji. Wdrożenie musi
+mieć dodatkową próbę nakładających się efektów i prawdziwego miksu.
+Klon i przypisany mu katalog roboczy usunięto po zachowaniu dowodów.
+
+Fingerprint klonu `804AB2C0268E5594748B8E5A0A1F205851F5B463F8E48CEC25A1CB635A7811AC`
+różni się od głównego wyłącznie zakończeniami linii 16 plików tekstowych
+(instrukcja/provenance/prompty): checkout ma LF, główny CRLF lub mieszane.
+Przeliczono hash wszystkich plików po wirtualnym zastąpieniu tych 16 treścią
+HEAD i otrzymano dokładnie fingerprint klonu. Bez zmiany plików głównego
+repo. Każdy przebieg ma stabilne świadectwo źródeł, kod/obrazy są zgodne z HEAD.
+
+Katalog dowodów to
+`~/Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/`:
+
+- `furfur-analysis-20261106`: 81 prób, 100 kadrów i źródła sond.
+- `furfur-free-r2-20261106`: właściwe 36 przebiegów SI, CSV i segmenty stanów.
+- `furfur-edge-20261106`: kontakty, okno dobitki, nawrót, zapis i śmierć.
+- `furfur-cover-before-r3-20261106`: utrata widoczności po pierwszym znaku,
+  cztery dalsze trafienia po 50 HP w 60/120/240 Hz.
+- `furfur-visibility-20261106` i `furfur-visibility-control-20261106`:
+  pary renderów bez/z hazardem, cofanie i spojrzenie w dół.
+- `furfur-audio-before-20261106`: 12 WAV i pomiary poziomów; nie pełny miks.
+- `furfur-focused-20261106`: istniejące testy i świadectwa.
+- `furfur-performance-before-20261106`: trzy pomiary w klonie i ich źródła.
+
+Odrzucone/ograniczone dane: pierwsza sonda free miała zły punkt startu
+14 m (gracz w ścianie), dlatego interpretowano poprawiony `free-r2`;
+jej poprawne próby izolowane/render nadal są przydatne. Pierwsza sonda
+cover przerwała się przez nil w liczniku identyfikatorów, nie przez grę.
+W r2 gracz patrzył w inną stronę, więc wydłużona zapowiedź dała pięć znaków
+za ścianą; r3 jawnie patrzy na Furfura i chowa się po pierwszym znaku.
+Nazwy na pasku katalogu w renderach wynikają z domyślnego wyboru fixture;
+rysowany przeciwnik i śledzone zdarzenia pochodzą z `spawn('furfur')`.
+
+Poza wdrożeniem: instrukcja gry ma starsze długości pęknięcia gardy elit
+(Furfur 1,5 s / Margrave 1,6 s), choć obecna decyzja i kod mają 1,2 s.
+Przy wdrażaniu poprawić opis faktycznego stanu, bez zmiany Margrave'a.
+Otwarte odbiory barwy wcześniejszych postaci nie są częścią prac nad Furfurem.
+
+### Źródła i przełożenie na projekt
+
+- [Goetia, opis 34: Furfur](https://sacred-texts.com/book/the-lesser-key-of-solomon/shemhamphorash):
+  jeleń, ognisty ogon, burza/wiatr/pioruny i chrapliwy głos opisany przy
+  przemianie. Inspiracja głosem nie oznacza dodania przemiany ani zmiany
+  zatwierdzonej postaci. To źródło literackie, nie opis mechaniki SIGIL.
+- [id Software, GDC: Embracing Push Forward Combat in DOOM](https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-Combat-in):
+  publiczny opis prelekcji akcentuje agresję, szybkość i zasoby zdobywane
+  na wrogach. Wniosek projektowy: Furfur wymusza ruch, ale po jego błędzie
+  można wrócić do ofensywy; nie robić z niego nieruchomego worka HP.
+- [Bandai Namco: ELDEN RING Combat Guide](https://www.bandainamcoent.com/news/elden-ring-introduction-part-4-combat-guide):
+  zobowiązanie do czynności, karanie panicznych uników, znaczenie otwarć.
+  Wniosek: oddzielny gest przytrzymania/zwrotu i uczciwa końcówka; skok
+  omija tylko zgodne z tym geometrie, nie automatycznie każdy atak.
+- [Crytek: 3D Audio in Hunt](https://www.huntshowdown.com/news/dev-insight-a-deep-dive-into-3d-audio-in-hunt):
+  pozycjonowanie dźwięku to inny problem niż tłumienie dystansu i przeszkód.
+  Wniosek: osobno badać kierunek głosu, poziom, osłonę i zagłuszanie w miksie;
+  nie rozszerzać zadania na nowy system HRTF.
+- [Obsidian: Pentiment](https://pentiment.obsidian.net/): ograniczona animacja
+  podporządkowana historycznemu obrazowi. Wniosek: czytelna poza i rytm
+  istniejącego fresku są ważniejsze niż więcej, gładszych klatek.
+
+Przeczytano publiczne teksty/opisy; nie przedstawia się tego jako obejrzenia
+pełnych materiałów wideo. Nie pobrano dźwięków z innych gier.
+
+## Plan sprzed Furfura (zastąpiony 2026-11-06)
+
+# SIGIL: BREACH — plan rozwoju
+
+## Zakres i status
+
+**2026-11-05: Ember Thrall — zaakceptowane wdrożenie zakończone i zweryfikowane na Linuxie.**
+Zachować rolę najliczniejszego, lekkiego przeciwnika wręcz, 360 HP,
+obrażenia i podstawowe czasy ataków. Dopracować gesty, odwrót, przejścia,
+efekty i pełny głos ciała. Bez nowego czaru i reinterpretacji wyglądu.
+Właściciel zaakceptował także naprawę wspólnego limitu atakujących podczas
+kontynuacji serii. Nie stroić innych stworów; sprawdzić regresje ich walki.
+Po wymaganej zielonej bramie commit bez ponownego pytania, bez push.
+Poprzedni PLAN zachowano w całości w HISTORII, wraz z analizą Embera.
+
+## Plan wykonania
+
+1. Zachować dowody przed zmianą. Dodać czerwone testy limitu serii,
+   mylącej prezentacji odskoku i brakujących ról audio.
+2. Domknąć rezerwację miejsca przez serię, zachowując jej rytm oraz
+   zwalnianie po przerwaniu, śmierci i utracie możliwości kontynuacji.
+   Sprawdzić grupy, różnych odbiorców ataku i zapis w przerwie serii.
+3. Rozróżnić gesty drugiego pazura, ciosu po skoku i odwrotu istniejącymi
+   zaakceptowanymi klatkami. Dopasować powrót do chodu. Odwrót nie może
+   pokazywać ani odtwarzać ostrzeżenia o ciosie. Nie zmieniać zegarów SI.
+4. Sprawdzić kontakt pazurów, znak lądowania i fizyczne punkty efektów;
+   stosować oszczędne, zaakceptowane malowane efekty. Zachować paletę,
+   fakturę, twarz, anatomię, kontur i skalę detalu. Chroniony HUD poza zakresem.
+5. Własny suchy, chrapliwy głos potępieńca: oddech, pościg, alarm,
+   wysiłek, powrót, ból i trzy śmierci; oddzielnie materiał pazurów,
+   wybicia, odwrotu i lądowania. Warianty, cisza i budżet tłumu; źródła,
+   licencje i przetwarzanie zapisane przy nagraniach. Nie ruszać wspólnych
+   próbek używanych przez inne postacie.
+6. Sprawdzić zgodność masek, anatomii i cieni; wykonać trzy kontrole
+   grafiki: klatki obok bazy w tej samej skali, rendery blisko/średnio/daleko
+   w jednym świetle, rzeczywiste przejścia stanów. Audio sprawdzić
+   technicznie i przygotować odsłuch właściciela; pomiar nie jest odsłuchem.
+7. Próby 60/120/240 Hz, unik/skok/chybienie, ściany/kolumny/wysokości,
+   przerwanie/śmierć, zapis/Continue/odpoczynek, grupy mieszane i koszty
+   większej populacji. Testy osobno i razem. Golden: dwa identyczne przebiegi
+   oraz uzasadnienie tylko świadomej zmiany symulacji; Windows bez aktualizacji.
+8. Pełne `scripts/linux/TEST.sh All --timeout 1800`, dokończenie pozostałych
+   bram po ewentualnym błędzie, przegląd diffu, ZMIANY/ODBIOR i commit.
+
+## Postęp
+
+- Stan wejściowy `304388d`, wersja 0.45, repo czyste. Historyczne All PASS:
+  7328 Mechanics/Assets, Input 50, Architecture, Render i Tools; świadectwa
+  odpowiadają obecnemu fingerprintowi głównego katalogu gry.
+- Analiza: 90 prób czynności/reakcji, 18 prób grup, 94 kadry badawcze.
+  Istniejące `attack-contact` PASS 30, `ability-art` PASS 85.
+  Nowa sonda: 6/6 prób ośmiu Emberów osiąga czterech atakujących przy limicie 3.
+  Odwrót używa gestu i odgłosu ciosu; brak własnych ról ciała i śmierci.
+- Dowody w zewnętrznym `work/qa-direct/ember-*-20261105*`; punkt odniesienia
+  czynności to `ember-analysis-20261105-r2` (pierwsza sonda miała niewłaściwe
+  początkowe ustawienie kierunku). Własny klon pomiarowy usunięto.
+- Pomiar wejściowy p95 aktualizacji CPU: 1/8/24/64 postacie —
+  0,4006/0,9012/1,2644/2,2227 ms. Jedna seria, bez odtwarzania audio,
+  bez GPU present; nie jest to FPS. Kod i zasoby wykonawcze zgodne z HEAD.
+- Testy przed/po: `attack-slots` PASS 11, `ember-thrall` PASS 117,
+  `creature-audio-mix` PASS 375. Zachowane czerwone próby rezerwacji,
+  odwrotu, brakujących ról audio, kontaktu przez ścianę i nakładania sygnału.
+  Pounce przez kamień: 34 → 0 HP; żywy wspólny cel w grupie ośmiu Emberów:
+  4 → 3 atakujących, w grupie mieszanej 4–5 → 3. Pośmiertną końcówkę klatki
+  raportuje osobny licznik; nie posłużyła do maskowania wyniku.
+- Cztery PNG postaci, maski, anatomia, baza i użyty istniejący efekt pazurów
+  są identyczne bajtowo. Trzy kontrole grafiki zapisane w ODBIOR: porównanie
+  źródeł/bazy, 174 kadry blisko/średnio/daleko, rzeczywiste przejścia ataków
+  oraz dodatkowe 36 kadrów trafienia i śmierci. Chroniony HUD bez zmian.
+- 35 własnych próbek z wariantami; trzy śmierci, oddechy, konteksty ruchu,
+  wysiłek i materiały. Końcowe 252 modele miksu z pełną muzyką i bronią
+  bez przesterowania (szczyt 0,975). Odsłuch w `ember-audio-final-20261105`.
+- Dwa identyczne golden i późniejszy PASS; zaktualizowany tylko Linux.
+  Pełne All PASS: Architecture 695 Lua, Mechanics/Assets 7572, Input 50,
+  Render i Tools. Dziewięć stabilnych świadectw, 701 s. Raporty zachowane
+  w `ember-full-gate-20261105`; komplet wyników w bieżącym ODBIOR HISTORII.
+- Powtórzony pomiar w izolowanym klonie (po trzy przebiegi): p95 CPU przy
+  64 ciałach 1,7914 → 1,8778 ms, przy 24: 0,9782 → 1,1587 ms. Bez audio
+  i GPU present; nie jest to pomiar FPS. Klon i jego katalog roboczy usunięto.
+  Nie zmieniano plików gry podczas testów; końcowy diff przejrzany.
+
+## Odbiór i ograniczenia
+
+Odsłuch barwy, grozy i obecności Embera należy do właściciela. Środowisko
+agenta nie udostępnia wiarygodnego odsłuchu. Windows poza zakresem.
+Odbiór dźwięku trzech poprzednich postaci pozostaje osobnym otwartym punktem
+z zakończonego planu; bieżące zlecenie nie zmienia ich próbek.
