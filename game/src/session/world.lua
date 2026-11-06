@@ -211,8 +211,11 @@ end
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 6,
+  version = 7,
   migrations = {
+    [6] = function(data)
+      return require('src.storage.definition_migration').pools(data, 6)
+    end,
     [5] = function(data)
       return require('src.storage.definition_migration').pools(data, 5)
     end,

@@ -13,6 +13,8 @@ local Contact = require('src.enemies.attack_contact')
 local Shape = require('src.combat.projectile_shape')
 local Schema = require('src.core.schema')
 local Caster = require('src.combat.caster')
+local Anchor = require('src.enemies.contact_anchor')
+local Ballistics = require('src.combat.ballistics')
 local Defaults = require('src.content.combat_defaults')
 local K = Defaults.attacks
 local Pools = require('src.session.world')
@@ -25,6 +27,9 @@ Kinds.pattern = { execute = require('src.enemies.ground_pattern').release }
 -- A missile leaves a caster's mouth along its aim. radius: its own collision
 -- radius, also its painted size.
 local function launch(g, spec, speed, caster)
+  if not caster then
+    return false
+  end
   Spawn.make(g, 'projectile', {
     x = caster.mx,
     y = caster.my,
@@ -48,6 +53,46 @@ local function aimed(g, e, a, spec)
   local ground = Ground.of(g.world, e)
   local y = ground + (e.leapY or 0) + spec.height
   local d = len(e.aimX - e.x, e.aimZ - e.z)
+  if spec.originAnchor then
+    local x, ay, z = Anchor.point(g, e, e.phase or 0, e.x, e.z, spec.originAnchor)
+    if not x then
+      return nil
+    end
+    local sy = ground + ay
+    local dx, dy, dz = x - e.x, sy - y, z - e.z
+    local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+    if
+      distance > 0
+      and Ballistics.world(
+          g.world,
+          e.x,
+          y,
+          e.z,
+          dx / distance,
+          dy / distance,
+          dz / distance,
+          distance
+        )
+        < distance
+    then
+      return nil
+    end
+    local run = math.max(K.aimClearance, len(e.aimX - x, e.aimZ - z))
+    return {
+      body = e,
+      owner = e.id,
+      side = Bodies.side(g, e),
+      mx = x,
+      my = sy,
+      mz = z,
+      dx = (e.aimX - x) / run,
+      dz = (e.aimZ - z) / run,
+      run = run,
+      rise = Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel)
+        + (spec.aimHeight or K.aimHeight)
+        - sy,
+    }
+  end
   return {
     body = e,
     owner = e.id,
@@ -334,6 +379,7 @@ Kinds.bolt = {
     return launch(g, action, action.speed, caster)
   end,
   execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
     launch(g, atk, atk.speed, aimed(g, e, a, atk))
   end,
 }

@@ -13,6 +13,27 @@ return {
   cells = { wave = { 0, 0 }, circle = { 1, 0 }, cut = { 0, 1 }, ray = { 1, 1 } },
   supplements = {
     {
+      path = 'assets/art/props-fresco-v12.png',
+      columns = 4,
+      rows = 2,
+      cells = {
+        ashFlame1 = { 0, 0 },
+        ashFlame2 = { 1, 0 },
+        ashFlame3 = { 2, 0 },
+        ashFlame4 = {
+          3,
+          0,
+        },
+      },
+      -- Only the existing flames above the brazier rim; the world painting is untouched.
+      crops = {
+        ashFlame1 = { 0.1, 0, 0.8, 0.45 },
+        ashFlame2 = { 0.1, 0, 0.8, 0.45 },
+        ashFlame3 = { 0.1, 0, 0.8, 0.45 },
+        ashFlame4 = { 0.1, 0, 0.8, 0.45 },
+      },
+    },
+    {
       path = 'assets/art/spells-fresco-v12.png',
       columns = 1,
       rows = 1,
@@ -177,7 +198,34 @@ return {
     arrival = { 'blink3', 'blink2', 'blink1', 'blink4' },
     prepare = { 'blink1', 'blink2' },
   },
+  panels = { limit = 16 },
+  pools = {
+    ash = {
+      upright = true,
+      tileLength = 0.85,
+      segments = 192,
+      frames = { 'ashFlame1', 'ashFlame2', 'ashFlame3', 'ashFlame4' },
+      spent = 'ironSpent',
+      columns = 8,
+      near = 0.6,
+      width = 0.35,
+      warningWidth = 0.18,
+      warningHeight = 0.12,
+      warningBase = 1.2,
+      flameWidth = 0.7,
+      rate = 8,
+      embers = 0.4,
+      limit = 32,
+    },
+  },
   casts = {
+    ash = {
+      frames = { 'cinder1', 'cinder2', 'cinder3', 'cinder4' },
+      anchors = { 'cleaver' },
+      release = 0.18,
+      forward = 0.06,
+      minScale = 0.4,
+    },
     condemned = {
       frames = { 'condemned1', 'condemned2', 'condemned3', 'condemned4' },
       anchors = { 'castLeft', 'castRight' },
@@ -212,8 +260,16 @@ return {
     active = 'cleftOpen',
     settling = 'cleftSpent',
   },
-  ribbon = { segments = 64, tileLength = 2.4 },
+  ribbon = { segments = 64, tileLength = 2.4, capacity = 192 },
   cuts = {
+    ashSteel = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' }, scale = 0.7, anchor = 'cleaver' },
+    ashBurning = { frames = { 'cut' }, scale = 0.7, anchor = 'cleaver' },
+    ashGround = {
+      frames = { 'ironWave1', 'ironWave2', 'ironWave3' },
+      ground = true,
+      height = 0.35,
+      width = 0.4,
+    },
     iron = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' } },
     antler = { frames = { 'ironCut1', 'ironCut2', 'ironCut3' }, scale = 0.5, anchor = 'antlers' },
   },
@@ -234,7 +290,26 @@ return {
       hornSize = 0.7,
     },
   },
+  impacts = {
+    ashImpact = {
+      frames = { 'ironWave1', 'ironWave2', 'ironWave3' },
+      life = 0.32,
+      width = 0.4,
+      height = 0.45,
+      limit = 24,
+    },
+  },
   waves = {
+    ash = {
+      upright = true,
+      tileLength = 0.85,
+      segments = 192,
+      frames = { 'ashFlame1', 'ashFlame2', 'ashFlame3', 'ashFlame4' },
+      rate = 8,
+      trail = 0.5,
+      residue = 'ironSpent',
+      embers = 0.32,
+    },
     iron = {
       frames = { 'ironWave1', 'ironWave2', 'ironWave3' },
       rate = 10,

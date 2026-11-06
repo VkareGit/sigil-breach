@@ -12,9 +12,9 @@ local Flight = {}
 -- A body meets the floor after a leap: low dust, a thud, a short tremor
 -- felt only near the landing (presentation; the strike is resolved by the
 -- attack kind).
-function Flight.land(g, e, heavy)
+function Flight.land(g, e, heavy, attack)
   e.landings = (e.landings or 0) + 1
-  Signal(g, 'Landed', { enemy = e, heavy = heavy })
+  Signal(g, 'Landed', { enemy = e, heavy = heavy, attack = attack })
 end
 -- Integrate a body in the air: world gravity, horizontal motion stopped by
 -- walls, landing at y = 0. Returns whether it landed and the time it used.

@@ -66,6 +66,32 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Margrave, 2026-11-06, lądowanie, animacje, efekty i głos:
+  kontakt lądowania obejmuje rzeczywisty obrys uderzenia o promieniu 1,5 m,
+  zamiast pudłować przez odstęp między ciałami. Zachowano 56 obrażeń,
+  prędkość i zamrożony cel skoku. Przed niską falą jest 0,5 s przerwy;
+  wcześniejsze trafienie nie wymusza następnego. To druga, oddzielna
+  zmiana balansu zaakceptowanego pakietu; kolejka grupowa jest następnym krokiem.
+- Włączono istniejący obrót ciała zgodny z kierunkiem ataku. Pocisk żaru
+  wychodzi z punktu anatomii tasaka ku już zapamiętanemu celowi; ściana
+  między ciałem a tasakiem blokuje wypuszczenie. Zapis pools v7 zachowuje
+  starsze rozpoczęte czynności, a przyszłe wybory korzystają z nowej treści.
+  Zimny start wczytuje katalog zamrożonych definicji także przy ponownym
+  odczycie już zmigrowanego pliku; zapis nie może wskazać dowolnego modułu.
+- Nowe sekwencje wykorzystują wyłącznie istniejące 32 klatki. Fizyczne
+  cięcie ma zgaszony ślad, płonące cięcie osobny materiał, a bliski cios
+  pokazuje tasak uderzający w posadzkę na rzeczywistym obwodzie kontaktu.
+  Popiół ostrzega również pod poziomą kamerą; płomienie mają wysokość
+  rzeczywistego zagrożenia. Niegroźny gasnący osad różni się od aktywnego
+  ognia. Płomienie pochodzą z istniejącego zaakceptowanego arkusza palenisk;
+  żaden PNG, wzorzec baza/, maska, stojący ogień ani HUD nie został przemalowany.
+- Własny zdarty głos potępieńca i oddzielne materiały tasaka, kamienia
+  oraz żaru: 45 WAV w 22 rolach, warianty obecności, wysiłku, bólu
+  i trzy śmierci. CC0: rubberduck oraz ArcadeParty; źródła, przetwarzanie
+  i sumy zapisano w assets/sounds/margrave/provenance.json. Warianty
+  korzystają z RNG audio, wspólnych limitów i suwaków. Pozostałe postacie,
+  ich próbki, HP, obrażenia oraz nagroda Margrave'a pozostają bez zmian.
+
 - Margrave, 2026-11-06, pierwszy krok zaakceptowanego wdrożenia:
   seria tasaka ma najwyżej trzy ciosy, wliczając odpowiedź na zbyt wczesny
   unik. Wspólny opcjonalny budżet pochodzi z treści, przeżywa Continue
@@ -4306,6 +4332,67 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Margrave, dopracowanie lądowania/obrazu/głosu, 2026-11-06:
+  nowa weryfikacja izolowana PASS: margrave 182, margrave-landing 74,
+  margrave-art 23, creature-audio-mix 627, furfur-art 18, elite-art 89,
+  anatomy-data 17, hit-landmarks 389, painted-surfaces 15, boss-pressure 30,
+  souls-gate 6 i souls-bots 9. Zestawy uruchomione osobno i następnie
+  w pełnym przebiegu. Dwa golden po 10 PASS są identyczne i zgodne
+  z dotychczasową bazą Linux; żadnej aktualizacji baseline Windows.
+  Pełna brama Linux All PASS, exit 0: 8366 Mechanics/Assets, Input 50,
+  Architecture 710 Lua / 0 problemów, Render i Tools. Dziewięć stabilnych
+  świadectw: 99DBF3031CE2A54A2AB3B5EC12525494DEA6A4F7336D5BA2EF3D7F5718759CE2.
+  Raporty zachowane w margrave-refinement-all-20261106.
+- Dowód przed/po: ta sama sonda lądowania 0/24 → 18/24 trafień.
+  Dystanse 4,5/7/10 m trafiają za 56; sześć prób z 11 m pozostaje
+  zamierzonym chybieniem przy ograniczonej prędkości. Sonda 54 skoków
+  potwierdza unik następującej fali po trafieniu lądowaniem: skok w oknie
+  0,55–0,70 s po kontakcie, w 60/120/240 Hz. Brak ukrytego naprowadzania.
+  Rozjazd kierunku ciała i ciosu usunięty. Zapowiedź ognisk pod poziomą
+  kamerą: wcześniej 0, teraz 14921 zmienionych pikseli sceny przy t=0,808 s.
+  To obecność obrazu, nie pomiar postrzeganej czytelności. Po odejściu
+  znaku poza kadr zero pikseli nie oznacza utraty ostrzeżenia pod graczem.
+- Zapis: rzeczywiste pliki we wszystkich fazach 13 osiągalnych czynności,
+  odtworzenie dalszej symulacji, śmierć i reset; stary plik pools v6
+  i następnie zmigrowany v7 odczytane w dwóch świeżych procesach. Stara
+  rozpoczęta czynność zachowuje promień 1,1 i dawną przerwę, nowe wybory
+  1,5 i 0,5 s. Emisja sprawdzona na dwóch wysokościach i przy kolumnie.
+- Trzy kontrole grafiki wykonane i obejrzane: (1) wszystkie 32 klatki
+  na czterech tablicach obok zaakceptowanej bazy, bez zmiany pikseli,
+  twarzy, anatomii, materiałów i detalu; (2) 177 końcowych kadrów przy
+  identycznym świetle z 3/6/10 m, 15 tablic wszystkich faz, ruchu,
+  trafienia i śmierci; (3) 113 kadrów rzeczywistych przejść czynności
+  na dziesięciu tablicach oraz 22 końcowe pary efektów. Początkowe ujęcia
+  z kamerą w murze odrzucono i powtórzono w poprawnej lokalizacji.
+  Oględziny wykryły rozciąganie płomienia w ukośne pasy; czerwony test
+  geometrii, poprawka pionowego grzbietu i ponowne rendery potwierdziły
+  usunięcie tego błędu. Nie ruszono tekstury ognia świata ani katalogu bazy.
+  To kontrola spójności, a nie zastępstwo odbioru artystycznego właściciela.
+- Audio: 252 scenariusze trzech zgodnych czasowo Margrave'ów ze strzałami
+  i muzyką, zero próbek poza zakresem, najwyższy szczyt 0,99241.
+  Warianty, tłumienie, suwaki i limity przechodzą testy. Sam nowy głos
+  zapowiedzi popiołu nie jest głośniejszy od starego wspólnego efektu;
+  działa razem z osobną warstwą materiału. Nie wykonywano wiarygodnego
+  odsłuchu, więc klimat i rozpoznawalność wymagają odsłuchu właściciela.
+  Przygotowano margrave-voice-review.wav oraz dwa miksy walki w katalogu
+  margrave-audio-final-20261106. Techniczny PASS nie zatwierdza brzmienia.
+- Wydajność, mediany trzech p95 aktualizacji CPU dla 1/4/12/32 ciał:
+  przed 0,2064/0,5236/0,9642/1,2105 ms, po 0,1840/0,4314/0,8025/1,1195 ms.
+  To nie FPS ani oczekiwanie GPU; różnice nie dowodzą optymalizacji.
+  Osobny stres z audio: 3/12/36/96 pól, p95 wysłania rysowania
+  0,9823/1,9750/5,0040/12,3200 ms; limit 28 głosów, 32 osady, po zakończeniu
+  zero żywych źródeł. Pomiar na Intel Arc MTL/Mesa 26.2.5 w odrębnym
+  klonie o identycznym fingerprincie; własne klony i ich katalogi usunięte.
+  Bot uczący się wygrywa w 12,8 s z 88 HP i 15 ward, nieostrożny ginie
+  w 9,6 s (3/3 ziarna); to sonda techniczna, nie czas walki człowieka.
+- Dowody: zewnętrzne work/qa-direct/margrave-refinement-final-20261106,
+  margrave-distance-final-20261106, margrave-flame-projection-green-r2-20261106,
+  margrave-legacy-after-r2-20261106, margrave-landing-jumps-20261106
+  i margrave-audio-final-20261106; wcześniejsze czerwone wyniki zachowane.
+  Jedna próba natywnego testu grafiki przekroczyła 180 s bez raportu;
+  ponowny test przez aplikację i niezależny harness przeszedł z vblank_mode=0.
+  Przyczyna tamtego timeoutu nie została rozstrzygnięta. Windows niesprawdzony.
 
 - Margrave, limit serii, 2026-11-06: pełne Linux All PASS, kod wyjścia 0.
   Architecture: 702 Lua / 0 problemów; Mechanics/Assets 7943, Input 50,

@@ -82,6 +82,15 @@ zachowano tam w całości.
 
 ## Postęp
 
+- 2026-11-06, lądowanie, emisja, sekwencje, malowane efekty i głos wdrożone.
+  Izolowane sprawdzenia PASS: margrave 182, landing 74, art 23, miks 627
+  oraz anatomia, trafienia, zapis, presja i boty. Trzy kontrole grafiki
+  zakończone; bez zmiany PNG i bazy. Dwa golden bez zmiany wzorca.
+  Pełna Linux All PASS: 8366 Mechanics/Assets, Input 50, Architecture
+  710 Lua / 0 problemów, Render i Tools; dziewięć stabilnych świadectw.
+  Pozostaje osobne włączenie kolejki grupowej,
+  jej pomiar i pełna weryfikacja. Odsłuch oraz odbiór w grze są osobne.
+
 - 2026-11-06, limit serii wdrożony i zweryfikowany: najwyżej trzy ciosy
   z reakcją na unik, pełne 1,2 s odpowiedzi, zapisany budżet. Test czerwony
   przed zmianą → 85 PASS; ta sama sonda 100 ziaren: 8 → 3 ciosy,

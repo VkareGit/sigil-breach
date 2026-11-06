@@ -211,6 +211,21 @@ Suite.registry = {
     module = 'tests.cases.margrave_strings',
   },
   {
+    id = 'margrave-landing',
+    title = 'Landing contact and an answerable second beat',
+    module = 'tests.cases.margrave_landing',
+  },
+  {
+    id = 'margrave',
+    title = 'Ash elite facing, emitters, voices and persisted hazards',
+    module = 'tests.cases.margrave',
+  },
+  {
+    id = 'margrave-art',
+    title = 'Painted ash warning visibility and cleaver anchors',
+    module = 'tests.cases.margrave_art',
+  },
+  {
     id = 'furfur-art',
     title = 'Furfur warning visibility and authored antler anchors',
     module = 'tests.cases.furfur_art',

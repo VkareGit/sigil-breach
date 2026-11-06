@@ -112,6 +112,10 @@ Action.common = {
 }
 -- A projectile as part of an action (bolt, pool's spit, fan orbs).
 Action.projectile = {
+  originAnchor = {
+    type = 'string',
+    desc = 'registered anatomy emitter instead of a body-centre muzzle',
+  },
   speed = { type = 'number', required = true, min = 0 },
   height = { type = 'number', default = 1.4, desc = 'launch height (m)' },
   aimHeight = {
@@ -209,6 +213,7 @@ Action.kinds:register(
     height = { type = 'number', default = 1, min = 0, desc = 'apex of the arc (m)' },
     leadShare = { type = 'number', min = 0, max = 1, desc = 'predicted share of player motion' },
     landRadius = { type = 'number', default = 0.65, min = 0 },
+    landArt = { type = 'string', desc = 'painted physical landing footprint' },
     landVolume = Area.field('landing'),
   }, { 'packet' })
 )
@@ -257,6 +262,8 @@ local Mark = Schema:new('pattern mark', {
 Action.kinds:register(
   'pattern',
   kind('pattern', {
+    impactSound = { type = 'string', desc = 'voice of the first ground pulse' },
+    art = { type = 'string', desc = 'painted ground rite style' },
     origin = { type = 'string', default = 'target', values = { 'target', 'caster' } },
     marks = { type = 'table', required = true, list = Mark },
     hazard = { type = 'string', required = true, check = HazardKinds.problem },
@@ -269,6 +276,8 @@ Action.kinds:register(
 )
 -- What a burning cut leaves on the floor where it passed.
 local Trail = Schema:new('trail', {
+  impactSound = { type = 'string', desc = 'voice of the first ground pulse' },
+  art = { type = 'string', desc = 'painted ground rite style' },
   origin = { type = 'string', default = 'caster', values = { 'caster' } },
   marks = { type = 'table', required = true, list = Mark },
   hazard = { type = 'string', default = 'pool', check = HazardKinds.problem },

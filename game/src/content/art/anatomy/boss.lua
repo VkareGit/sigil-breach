@@ -246,7 +246,15 @@ for i, h in ipairs(heads) do
   weapon.hittable = true
   p[#p + 1] = weapon
   p[#p + 1] = Author.head(h[1], h[2], h[3], h[4], 'bone')
-  Boss.frames[i] = { parts = p }
+  Boss.frames[i] = {
+    parts = p,
+    anchors = {
+      cleaver = {
+        (blade[1] + blade[3] + blade[5] + blade[7]) / 4,
+        (blade[2] + blade[4] + blade[6] + blade[8]) / 4,
+      },
+    },
+  }
 end
 table.insert(
   Boss.frames[9].parts,

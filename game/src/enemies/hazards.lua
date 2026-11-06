@@ -283,6 +283,9 @@ function Hazards.update(g, dt, previousPlayer)
     local h = hazards[i]
     Hazards.kinds:get(h.kind or Definitions.default).step(g, h, dt, previousPlayer)
     if h.life <= 0 then
+      if h.art then
+        Signal(g, 'HazardEnded', { hazard = h, at = g.elapsed })
+      end
       Pools.removeAt(g, 'hazards', i)
     end
   end

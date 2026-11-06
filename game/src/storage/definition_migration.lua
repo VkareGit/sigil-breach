@@ -1,6 +1,11 @@
 -- Rewrite serialized definition paths before decoding the old pool section.
 -- A committed legacy action completes once; future choices use current content.
 local Paths = require('src.content.migrations.pool_definitions')
+-- Only catalogue-owned modules are loaded. Serialized input never chooses a module.
+-- They must also be available on a later cold load of an already migrated save.
+for _, rule in ipairs(Paths) do
+  require(rule.to[1])
+end
 local Migration = {}
 function Migration.pools(data, version)
   local function visit(value)

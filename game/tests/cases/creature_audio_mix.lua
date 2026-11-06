@@ -33,7 +33,7 @@ function T.run(Game)
   A.muted, A.levels.effects = false, 1
   local ok, err = xpcall(function()
     drain()
-    for _, kind in ipairs({ 'stolas', 'armored', 'buer', 'imp', 'furfur' }) do
+    for _, kind in ipairs({ 'stolas', 'armored', 'buer', 'imp', 'furfur', 'boss' }) do
       local sounds = Enemies[kind].sounds
       local recipe = Recipes[sounds.death]
       check(kind .. ' has three death performances', #(recipe.variants or {}) == 2)
@@ -98,6 +98,11 @@ function T.run(Game)
       'ember_claw_effort',
       'ember_leap_effort',
       'furfur_charge_effort',
+      'margrave_cut_effort',
+      'margrave_ash_effort',
+      'margrave_heavy_effort',
+      'margrave_leap_effort',
+      'margrave_ash_prepare',
       'furfur_storm_effort',
       'furfur_storm_prepare',
     }) do
@@ -118,6 +123,7 @@ function T.run(Game)
       require('src.audio.garden_voices'),
       require('src.audio.ember_voices'),
       require('src.audio.furfur_voices'),
+      require('src.audio.margrave_voices'),
     }) do
       for name, recipe in pairs(voices) do
         local paths, hashes = { recipe.path }, {}
@@ -158,6 +164,8 @@ function T.run(Game)
       { 'ember_leap_effort', 'ember_prepare', 0.15 },
       { 'furfur_gore_effort', 'furfur_prepare', 0.257 },
       { 'furfur_storm_effort', 'furfur_storm_prepare', 0.15 },
+      { 'margrave_cut_effort', 'margrave_prepare', 0.15 },
+      { 'margrave_ash_effort', 'margrave_ash_prepare', 0.15 },
     }) do
       -- Coincident warnings must leave room for the loud recorded Exorcist take.
       local VoiceData = require('src.audio.voice_data')

@@ -91,7 +91,23 @@ local function cut(r, g, e, spec, look)
   if age < 0 or age > span then
     return
   end
-  local style = look.cut and Rites.cuts[look.cut]
+  local name = look.cuts and look.cuts[spec.id] or look.cut
+  local style = name and Rites.cuts[name]
+  if style and style.ground then
+    HazardArt.ribbon(
+      r,
+      g,
+      e,
+      HazardArt.sequence(style.frames, age / span),
+      'ring',
+      spec.reach,
+      style.width,
+      style.height,
+      0,
+      1 - age / span
+    )
+    return
+  end
   local size = spec.reach * Rites.cutSize * (style and style.scale or 1)
   local x, z =
     e.x + e.lungeX * spec.reach * Rites.cutForward, e.z + e.lungeZ * spec.reach * Rites.cutForward
@@ -151,6 +167,12 @@ function E.spells(r, g)
     if art.air then
       art.air(r, g, h, E)
     end
+  end
+  for _, burst in ipairs(g.view.poolBursts or {}) do
+    require('src.render.ash_art').residue(r, g, burst, g.elapsed - burst.starts)
+  end
+  for _, burst in ipairs(g.view.impactBursts or {}) do
+    require('src.render.impact_art').draw(r, g, burst, g.elapsed - burst.starts)
   end
   for _, burst in ipairs(g.view.riteBursts or {}) do
     HazardKinds.rayAfterimage(r, g, burst, g.elapsed - burst.starts)

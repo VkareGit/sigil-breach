@@ -1,6 +1,16 @@
 -- Definition prefixes preserved while crossing their last historical pool version.
 return {
   {
+    through = 6,
+    from = { 'src.content.creatures.boss', 'attacks' },
+    to = { 'src.content.migrations.margrave_045', 'attacks' },
+  },
+  {
+    through = 6,
+    from = { 'src.content.enemies', 'boss', 'attacks' },
+    to = { 'src.content.migrations.margrave_045', 'attacks' },
+  },
+  {
     through = 4,
     from = { 'src.content.creatures.buer', 'attacks' },
     to = { 'src.content.migrations.gardener_045', 'attacks' },

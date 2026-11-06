@@ -9,12 +9,16 @@ local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
 local GardenArt = require('src.render.garden_art')
 local StormArt = require('src.render.storm_art')
+local AshArt = require('src.render.ash_art')
 local Kinds = Registry:new('hazard art', function(entry, id)
   Definitions:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
 end)
 Kinds:register('pool', {
   ground = function(r, g, h)
+    if AshArt.ground(r, g, h) then
+      return
+    end
     if h.garden then
       GardenArt.pool(r, g, h)
     else
@@ -22,6 +26,9 @@ Kinds:register('pool', {
     end
   end,
   air = function(r, g, h)
+    if AshArt.air(r, g, h) then
+      return
+    end
     if h.garden then
       GardenArt.eruption(r, g, h)
     end
@@ -81,6 +88,22 @@ Kinds:register('wave', {
     local style = Rites.waves[h.art]
     if style and h.delay <= 0 then
       local frame = style.frames[1 + math.floor(-h.delay * style.rate) % #style.frames]
+      if style.upright and h.radius > h.width then
+        -- Both edges carry upright flames; the spent floor behind them is harmless.
+        HazardArt.ribbon(
+          r,
+          g,
+          h,
+          frame,
+          'ring',
+          h.radius - h.width,
+          h.width,
+          h.volume.top,
+          0,
+          1,
+          style
+        )
+      end
       HazardArt.ribbon(
         r,
         g,
@@ -91,7 +114,8 @@ Kinds:register('wave', {
         math.min(h.width, h.radius),
         h.volume.top,
         0,
-        1
+        1,
+        style.tileLength and style or nil
       )
     end
   end,

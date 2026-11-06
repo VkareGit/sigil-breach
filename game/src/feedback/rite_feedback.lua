@@ -4,9 +4,44 @@ local Rites = require('src.content.art.rites')
 local Feedback = {}
 require('src.session.fields').declareView(
   'feedback.rite_feedback',
-  { 'riteBursts', 'blinkBursts', 'lightningBursts' },
+  { 'riteBursts', 'blinkBursts', 'lightningBursts', 'impactBursts', 'poolBursts' },
   'world'
 )
+function Feedback.landed(g, event)
+  local spec = event.attack
+  local style = spec and Rites.impacts[spec.landArt]
+  if not style then
+    return
+  end
+  local e = event.enemy
+  local list = g.view.impactBursts or {}
+  g.view.impactBursts = list
+  list[#list + 1] = {
+    x = e.x,
+    z = e.z,
+    level = e.level,
+    radius = spec.landRadius,
+    art = spec.landArt,
+    starts = event.at or g.elapsed,
+  }
+  while #list > style.limit do
+    table.remove(list, 1)
+  end
+end
+function Feedback.ended(g, event)
+  local h = event.hazard
+  local style = Rites.pools[h.art]
+  if not style then
+    return
+  end
+  local list = g.view.poolBursts or {}
+  g.view.poolBursts = list
+  list[#list + 1] =
+    { x = h.x, z = h.z, level = h.level, radius = h.radius, art = h.art, starts = event.at }
+  while #list > style.limit do
+    table.remove(list, 1)
+  end
+end
 function Feedback.struck(g, event)
   local h = event.hazard
   local style = Rites.lightnings[h.art]
@@ -76,6 +111,18 @@ function Feedback.released(g, event)
   end
 end
 function Feedback.update(g)
+  local pools = g.view.poolBursts
+  for i = #(pools or {}), 1, -1 do
+    if g.elapsed - pools[i].starts >= Rites.pools[pools[i].art].embers then
+      table.remove(pools, i)
+    end
+  end
+  local impacts = g.view.impactBursts
+  for i = #(impacts or {}), 1, -1 do
+    if g.elapsed - impacts[i].starts >= Rites.impacts[impacts[i].art].life then
+      table.remove(impacts, i)
+    end
+  end
   local lightning = g.view.lightningBursts
   for i = #(lightning or {}), 1, -1 do
     local burst = lightning[i]

@@ -82,6 +82,7 @@ Creature.appearance = Schema:new('appearance', {
   stain = { type = 'table', desc = 'colour of its ground stain (default: blood)' },
   warning = { type = 'table', desc = 'colour of its wind-up ring (default: ember)' },
   cut = { type = 'string', desc = 'painted physical sweep sequence' },
+  cuts = { type = 'table', desc = 'optional painted cut styles by action id' },
   windupMark = { type = 'string', default = 'circle', desc = 'painted ground preparation' },
   counterMark = { type = 'string', default = 'circle', desc = 'painted counter window' },
   landingMark = {

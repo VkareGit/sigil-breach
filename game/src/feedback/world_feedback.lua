@@ -93,7 +93,11 @@ World.handlers = {
     A.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.5)
   end,
   -- A body meets the floor: low dust, a thud, a tremor felt only near it.
+  HazardEnded = function(g, ev)
+    RiteFeedback.ended(g, ev)
+  end,
   Landed = function(g, ev)
+    RiteFeedback.landed(g, ev)
     local e, p = ev.enemy, Context.viewer(g)
     FX.emit(g, 'stone', e.x, K.dustHeight, e.z, ev.heavy and 0.75 or 0.5)
     local voice = e.attackSpec and e.attackSpec.landingSound

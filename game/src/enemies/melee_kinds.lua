@@ -368,7 +368,8 @@ Kinds.leap = {
   end,
   -- Ballistic leap under world gravity: apex 'height', flight time
   -- T = 2 vy / g, horizontal speed = distance / T (capped at 11 m/s).
-  execute = function(_, e, atk, a)
+  execute = function(g, e, atk, a)
+    Contact.face(g, e, atk, a)
     local gravity = Tuning.gravity
     local vy = math.sqrt(2 * gravity * atk.height)
     local flight = 2 * vy / gravity
@@ -387,7 +388,7 @@ Kinds.leap = {
         p = Melee.playerAt(previousOf(g, t, ctx and ctx.previous) or p, p, used / dt, nil, g.world)
       end
       e.didHit = true
-      Flight.land(g, e)
+      Flight.land(g, e, nil, atk)
       local source = { x = e.x, z = e.z, level = e.level, radius = atk.landRadius }
       local volume = atk.landVolume or Volumes.defaults.landing
       local hit, contact = Area.test(g, source, volume, t, p)

@@ -49,7 +49,7 @@ end
 local stripCorners = quad()
 local function ribbonVertices()
   local result = {}
-  for _ = 1, Rites.ribbon.segments * 6 do
+  for _ = 1, Rites.ribbon.capacity * 6 do
     result[#result + 1] = { 0, 0, 0, 0, 0 }
   end
   return result
@@ -250,8 +250,9 @@ end
 -- A vertical crest or a flat residue uses the same bounded reusable mesh.
 -- Ring width extends inward from the authoritative leading radius; line width
 -- spans the two edges of the fissure. Pigment never invents damage height.
-function HazardArt.ribbon(renderer, game, at, name, shape, reach, width, height, yaw, alpha)
-  local art, settings = renderer.hazardArt, Rites.ribbon
+function HazardArt.ribbon(renderer, game, at, name, shape, reach, width, height, yaw, alpha, tiling)
+  local art, settings = renderer.hazardArt, tiling or Rites.ribbon
+  assert(settings.segments <= Rites.ribbon.capacity, 'painted ribbon exceeds its bounded mesh')
   local ring = shape == 'ring'
   local repeats = math.min(
     settings.segments / 4,
@@ -270,7 +271,7 @@ function HazardArt.ribbon(renderer, game, at, name, shape, reach, width, height,
         local t = (segment + along) / count
         if ring then
           local a = t * math.pi * 2
-          local radius = reach - width * (1 - up)
+          local radius = settings.upright and reach or reach - width * (1 - up)
           v[1], v[3] = math.sin(a) * radius, math.cos(a) * radius
           v[4] = (segment % 4 + along) / 4
         else

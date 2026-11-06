@@ -18,6 +18,8 @@ function Pattern.release(g, e, attack, angle)
     if World.visible(g.world, e.x, e.z, mx, mz) then
       Hazards.add(g, mx, mz, mark.delay, attack.radius, attack.life, {
         kind = attack.hazard,
+        art = attack.art,
+        impactSound = attack.impactSound,
         packet = packet,
         pulse = attack.pulse,
         condition = attack.condition,

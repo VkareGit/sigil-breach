@@ -48,7 +48,8 @@ function Accents.draw(r, g, e, effects)
   end
   local windup = e.ai == 'windup'
   local cast = look.cast and Rites.casts[look.cast.sequence]
-  if cast and (windup or e.ai == 'strike') then
+  local permitted = not look.casts or look.casts.all or look.casts[spec.id]
+  if cast and permitted and (windup or e.ai == 'strike') then
     local t = ActionPhase.sample(e)
     local age = e.phase or 0
     if not windup and spec.kind == 'salvo' then
