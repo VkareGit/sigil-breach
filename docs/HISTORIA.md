@@ -66,6 +66,15 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Margrave, 2026-11-06, pierwszy krok zaakceptowanego wdrożenia:
+  seria tasaka ma najwyżej trzy ciosy, wliczając odpowiedź na zbyt wczesny
+  unik. Wspólny opcjonalny budżet pochodzi z treści, przeżywa Continue
+  i odnawia się przy nowym zobowiązaniu. Pozostałe postacie zachowują
+  swoje reguły. Zachowano zmienne przytrzymania i pełny końcowy odpoczynek
+  1,2 s. Starsza zapisana seria bez budżetu kończy się według starych reguł.
+  Ten commit obejmuje jedną zmianę balansu; lądowanie, obraz, głos i kolejka
+  grupowa pozostają kolejnymi krokami zaakceptowanego planu.
+
 - Dokumentacja, 2026-11-06: analiza Margrave'a i plan DO AKCEPTACJI.
   Potwierdzono pudło lądowania, nieograniczone serie, rozjazd kierunku
   ciała i tasaka, znikanie zapowiedzi pod graczem, oczekiwanie w grupie
@@ -4297,6 +4306,22 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Margrave, limit serii, 2026-11-06: pełne Linux All PASS, kod wyjścia 0.
+  Architecture: 702 Lua / 0 problemów; Mechanics/Assets 7943, Input 50,
+  Render i Tools PASS. Dziewięć świadectw ma stabilny fingerprint
+  F23330D83F6A0E56424C131F7A3D224C04DF74AC51F6D0518C95D7A841C1D1EE.
+  Dwa osobne golden są identyczne i zgodne z dotychczasowym wzorcem;
+  żadnej aktualizacji baseline. Windows niesprawdzony.
+  Nowy test margrave-strings: czerwony przed zmianą, potem 85 PASS
+  w 60/120/240 Hz, z reakcją na unik, zapisem budżetu i końcowym odpoczynkiem.
+  Ta sama sonda 100 ziaren: maksimum 8 → 3 ciosy, najdłuższy czas
+  do odpoczynku 10,53 → 3,79 s. Sonda po zmianie w odrębnym klonie
+  o identycznym fingerprincie; własny klon i jego roboczy katalog usunięte.
+  Dowody: zewnętrzne work/qa-direct/margrave-strings-*-20261106.
+  Pierwszy przebieg All przerwało zakończenie procesu sterującego (143),
+  bez raportu błędu gry; jego logi zachowano. Pełny ponowny przebieg
+  zakończył się poprawnie. W tym kroku nie zmieniono grafiki ani dźwięku.
 
 - Analiza Margrave'a, 2026-11-06: DO AKCEPTACJI, jeszcze bez wdrożenia.
   Nowe elite-art PASS 89, boss-pressure PASS 30, souls-gate PASS 6;

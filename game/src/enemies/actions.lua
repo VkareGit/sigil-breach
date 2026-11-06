@@ -85,10 +85,18 @@ local function execute(g, e)
   kindOf(atk).execute(g, e, atk, a)
   Signal(g, 'AttackReleased', { enemy = e, attack = atk })
 end
-local function beginAttack(g, e, d, chosen)
+local function beginAttack(g, e, d, chosen, continuation)
   local atk = chosen or choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
   if not atk or not Selection.available(g, e, atk) then
     return false
+  end
+  -- Capture the budget only at a fresh commitment. An older saved string without
+  -- a budget completes under its original rules; subsequent choices are bounded.
+  if not continuation then
+    e.stringLimit = atk.string and atk.string.limit or nil
+    e.stringCount = e.stringLimit and 1 or nil
+  elseif e.stringCount then
+    e.stringCount = e.stringCount + 1
   end
   -- Session tallies for balance reports (qa/scenarios/playtest.lua).
   g.attackStarts = (g.attackStarts or 0) + 1
@@ -198,7 +206,11 @@ local function strike(g, e, dt, previousPlayer)
     Selection.finished(e, atk, g.elapsed)
     change(e, 'recover')
     local flow = atk.string
-    local into = flow and (not flow.every or e.attackCount % flow.every == 0) and nextOf(g, flow)
+    local available = not e.stringLimit or e.stringCount < e.stringLimit
+    local into = available
+      and flow
+      and (not flow.every or e.attackCount % flow.every == 0)
+      and nextOf(g, flow)
     if into then
       e.chain, e.chainFrom = into, atk.id
       e.recover = flow.gap
@@ -215,6 +227,7 @@ end
 -- the recovery it moves but cannot strike, not even an answer (spent: the whole recovery, so
 -- the knight's window keeps its length; 0.43, audit F04). The pause runs beside it, as before.
 function Attacks.rest(e, atk)
+  e.stringCount, e.stringLimit = nil, nil
   e.recover = math.min(atk.recover, Defaults.recoverStill)
   e.spent = atk.recover
   e.attack = atk.cooldown / Selection.pace(e)
@@ -233,7 +246,7 @@ function Attacks.flow(g, e, d)
   end
   e.chain, e.chainFrom = nil, nil
   if nextBlow and e.visible and d <= nextBlow.range and d >= nextBlow.minRange then
-    return Attacks.begin(g, e, d, nextBlow)
+    return Attacks.begin(g, e, d, nextBlow, true)
   end
   if last then
     Attacks.rest(e, last)

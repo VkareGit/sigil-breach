@@ -206,6 +206,11 @@ Suite.registry = {
     module = 'tests.cases.ember_thrall',
   },
   {
+    id = 'margrave-strings',
+    title = 'Bounded cleaver strings and saved recovery budgets',
+    module = 'tests.cases.margrave_strings',
+  },
+  {
     id = 'furfur-art',
     title = 'Furfur warning visibility and authored antler anchors',
     module = 'tests.cases.furfur_art',

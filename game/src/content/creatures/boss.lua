@@ -274,6 +274,7 @@ return Creature.boss({
       recover = 1.2,
       cooldown = 0.6,
       string = {
+        limit = 3,
         gap = 0.16,
         branches = {
           { into = 'backcut', weight = 3 },
@@ -306,6 +307,7 @@ return Creature.boss({
       recover = 1.2,
       cooldown = 0.8,
       string = {
+        limit = 3,
         gap = 0.2,
         branches = {
           { into = 'overhead', weight = 2 },
@@ -422,6 +424,7 @@ return Creature.boss({
       recover = 1.2,
       cooldown = 0.65,
       string = {
+        limit = 3,
         gap = 0.16,
         branches = {
           { into = 'backcut', weight = 2 },

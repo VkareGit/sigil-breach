@@ -21,6 +21,7 @@ local Branch = Schema:new('attack branch', {
   weight = { type = 'number', default = 1, min = 0 },
 })
 local Flow = Schema:new('attack string', {
+  limit = { type = 'number', min = 1, desc = 'maximum blows in a freshly committed string' },
   into = { type = 'string', desc = 'the attack it flows into' },
   branches = { type = 'table', list = Branch, desc = 'or a roll among these' },
   gap = { type = 'number', default = 0.12, min = 0, desc = 'the beat between them (s)' },
@@ -637,6 +638,8 @@ function Action.build(def, where)
     samples(built.hold, path .. '.hold')
   end
   if built.string then
+    local limit = built.string.limit
+    assert(not limit or limit % 1 == 0, path .. '.string.limit: expected a whole number')
     assert(built.string.into or built.string.branches, path .. '.string: flows nowhere')
     assert(built.string.into ~= built.id, path .. '.string: flows into itself')
   end

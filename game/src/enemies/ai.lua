@@ -370,7 +370,7 @@ local function free(g, e, d, dt)
     local answer = e.visible and Answers.pick(g, e, target(g, e), d)
     if answer and reserveAttack(g, e, true) then
       e.chain, e.chainFrom = nil, nil
-      Attacks.begin(g, e, d, answer)
+      Attacks.begin(g, e, d, answer, true)
       return
     end
     if Attacks.flow(g, e, d) then

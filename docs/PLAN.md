@@ -2,9 +2,9 @@
 
 ## Zakres i status
 
-**2026-11-06: Margrave of Ash — analiza zakończona, plan DO AKCEPTACJI.**
+**2026-11-06: Margrave of Ash — plan zaakceptowany, wdrożenie w toku.**
 Właściciel uważa obecną walkę za dobrą i zlecił całościowy przegląd.
-Nie rozpoczęto wdrożenia. Rekomendacja: dopracować obecnego kata z tasakiem
+Właściciel zaakceptował cały pakiet. Kierunek: dopracować obecnego kata z tasakiem
 oraz popiołem, bez dodatkowego dużego czaru. Zachować 2700 HP, pakiety
 obrażeń, nagrodę, dwa akty i pękniętą gardę 1,2 s. Margrave pozostaje elitą,
 nie bossem. Chroniony HUD i pozostałe postacie poza zakresem.
@@ -12,7 +12,7 @@ Pełne wyniki, inwentarz czynności, zależności i źródła są w HISTORII,
 w rozdziale „Analiza Margrave'a (2026-11-06)”. Poprzedni PLAN Furfura
 zachowano tam w całości.
 
-## Proponowana kolejność po akceptacji
+## Zaakceptowana kolejność
 
 1. Utrwalić czerwone testy lądowania, nieograniczonej serii, rozjazdu
    kierunku ciała i ciosu, zapowiedzi pod graczem oraz oczekiwania w grupie.
@@ -82,6 +82,14 @@ zachowano tam w całości.
 
 ## Postęp
 
+- 2026-11-06, limit serii wdrożony i zweryfikowany: najwyżej trzy ciosy
+  z reakcją na unik, pełne 1,2 s odpowiedzi, zapisany budżet. Test czerwony
+  przed zmianą → 85 PASS; ta sama sonda 100 ziaren: 8 → 3 ciosy,
+  10,53 → 3,79 s do odpoczynku. Pełne Linux All PASS: 7943 Mechanics/Assets,
+  Input 50, Architecture/Render/Tools; dziewięć stabilnych świadectw.
+  Dwa golden identyczne z dotychczasową bazą. Windows niesprawdzony.
+  Pozostały zaakceptowany zakres jest nadal w realizacji.
+
 - Punkt wejściowy: czysty `7b09c94`, wersja 0.45. Zweryfikowano dziewięć
   stabilnych świadectw ostatniego All Furfura zgodnych z obecną grą:
   7858 Mechanics/Assets, Input 50, Architecture 701 Lua / 0 problemów,
@@ -114,8 +122,8 @@ zachowano tam w całości.
 
 ## Decyzja i odbiór
 
-Do przyjęcia powyższy pakiet; istotne decyzje to najwyżej trzy ciosy,
-naprawa lądowania wraz z przerwą przed falą, pierwszeństwo w grupie oraz
+Właściciel zaakceptował powyższy pakiet, w tym najwyżej trzy ciosy,
+naprawę lądowania wraz z przerwą przed falą, pierwszeństwo w grupie oraz
 pokazanie bliskiego ciosu jako uderzenia tasakiem w ziemię. Rekomenduję
 całość bez dodawania nowego dużego czaru. Dokładne parametry wykonawcze
 podlegają pomiarom w zatwierdzonym kierunku, nie nowym pytaniom o każdą liczbę.
