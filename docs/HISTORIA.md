@@ -36,6 +36,8 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Analiza Margrave'a (2026-11-06)
+- Plan sprzed Margrave'a (zastąpiony 2026-11-06)
 - Analiza Furfura (2026-11-06)
 - Plan sprzed Furfura (zastąpiony 2026-11-06)
 - Analiza Ember Thralla (2026-11-05)
@@ -63,6 +65,15 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Dokumentacja, 2026-11-06: analiza Margrave'a i plan DO AKCEPTACJI.
+  Potwierdzono pudło lądowania, nieograniczone serie, rozjazd kierunku
+  ciała i tasaka, znikanie zapowiedzi pod graczem, oczekiwanie w grupie
+  oraz brak własnych głosów. Zapisano pełny inwentarz i pomiary.
+  Rekomendacja: dopracować obecny zestaw, ograniczyć serię do trzech
+  ciosów, naprawić lądowanie z uczciwą przerwą przed falą i rozróżnić
+  gesty/materiały. Poprzedni PLAN Furfura zachowano w całości.
+  Bez zmiany kodu, grafiki, audio, balansu ani golden.
 
 - Furfur, 2026-11-06, wdrożenie zaakceptowanego planu: szarża ma jeden
   nawrót zamiast dwóch. Przed nim ciało hamuje i obraca się z ograniczoną
@@ -4286,6 +4297,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Analiza Margrave'a, 2026-11-06: DO AKCEPTACJI, jeszcze bez wdrożenia.
+  Nowe elite-art PASS 89, boss-pressure PASS 30, souls-gate PASS 6;
+  21 odtworzeń stanu w pamięci PASS. Lądowanie: 0 trafień w 24 próbach,
+  luka kontaktu 0,20 m; najdłuższa ze 100 serii osiem ciosów / 10,53 s.
+  Zapisano 117 prób ataków, 36 swobodnych scenariuszy, 120 kontaktów,
+  90 prób skoku, osiem śmierci, 150 kadrów i poprawione porównanie 32
+  klatek z bazą. Przeanalizowano kierunek, emisję i widoczność efektów.
+  Ostatnie All Furfura ma dziewięć stabilnych świadectw zgodnych z grą;
+  pełnego All tutaj nie powtarzano. Windows i wiarygodny odsłuch nie
+  były wykonywane. Rytm, wygląd i głos przyszłych zmian wymagają nowej
+  weryfikacji oraz próby właściciela; pomiary nie są odbiorem artystycznym.
 
 Codex, 2026-11-06 — Furfur, wdrożenie zaakceptowanego planu; pełna brama Linux PASS.
 - Dowody poza repo: Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct/.
@@ -13317,3 +13340,447 @@ Odsłuch barwy, grozy i obecności Embera należy do właściciela. Środowisko
 agenta nie udostępnia wiarygodnego odsłuchu. Windows poza zakresem.
 Odbiór dźwięku trzech poprzednich postaci pozostaje osobnym otwartym punktem
 z zakończonego planu; bieżące zlecenie nie zmienia ich próbek.
+
+## Analiza Margrave'a (2026-11-06)
+
+### Zakres i pochodzenie dowodów
+
+Etap A, przed akceptacją wdrożenia. Właściciel uważa obecną walkę za dobrą,
+zleca pełny przegląd roli, ataków, ruchu, gestów, efektów i dźwięku.
+HEAD `7b09c948ede8a3840c5452bb89a9c8f6135097a3`, wersja 0.45; początkowo
+czyste repo. Sprawdzono log -15, instrukcje projektu, WIZJĘ, STYL, PLAN,
+TECHNIKĘ, najnowszą HISTORIĘ i INSTRUKCJĘ oraz aktualny kod i zasoby.
+Nie zmieniono gry. Poprzedni PLAN Furfura zachowano w całości poniżej.
+
+Fingerprint głównej gry:
+`838597049E18B2CBABAA7CA21301A6C2D567B267CDF9CD17146F09ED52F95455`.
+Dziewięć świadectw poprzedniego pełnego All Furfura jest stabilnych,
+z exit 0 i tym fingerprintem: 7858 Mechanics/Assets, Input 50,
+Architecture 701 Lua / 0 problemów, Render i Tools. W analizie nie
+powtarzano pełnego All. Nie nazywać tych wyników nowym przebiegiem.
+
+Długie próby oraz trzy pomiary wykonano w osobnym klonie tego samego HEAD.
+Fingerprint klonu `255A587E8F794A023272FB7FD2ECF545653826E48309F39119F9E90A33F8259F`
+różni się, ponieważ Git normalizuje zakończenia linii 16 plików tekstu
+i pochodzenia zasobów. Porównano wszystkie pliki: różnice wyłącznie CRLF/LF,
+żadnych zmian Lua, PNG i WAV; odtworzono fingerprint klonu z blobów HEAD.
+Osiem świadectw izolowanych przebiegów ma stabilne źródło i exit 0.
+Klon `sigil-margrave-check-0g9pTD` oraz przypisany katalog pracy usunięto
+po skopiowaniu dowodów do głównego zewnętrznego katalogu raportów.
+
+Korzeń raportów:
+`/home/nahiko/Work/tries/sigil-breach-fcd220901f33f62b2f468c3244397c0be71f943d3a6fffa5bf5b128cc0949d3e/work/qa-direct`.
+Nazwy poniżej są względem niego. Każdy katalog zawiera źródło sondy albo
+jego kopię w nadrzędnym raporcie. Okna QA uruchamiano istniejącą izolacją,
+bez otwierania gry na bieżącym pulpicie właściciela. Bez nagrań wideo.
+
+### Rola i obecna konstrukcja
+
+`src/content/creatures/boss.lua` to Margrave of Ash: elita zachodniej sali,
+nie boss mimo identyfikatora `boss`. Ma 2700 HP, 360 gardy, 30 pancerza
+ciała, 0 głowy i 45 nóg, odporność na ogień 0,4 i astral 0,15, masę około
+8,333. Pęknięta garda 1,2 s, egzekucja 20%, nagroda 250 dusz i dwie łuski.
+Prędkość 4,6 m/s, przyspieszenie treści 20 daje około 6,93 m/s² po masie,
+obrót chodu 2,4 rad/s; preferowany dystans 3,2 m. Styl pojedynkowy wybiera
+podejście, krążenie, odwrót i rzadsze czekanie. Promień względem otoczenia
+0,25 m i osobisty odstęp ciała 1,3 m pełnią różne zadania.
+
+Akt ognia zaczyna się przy 50% HP: przejście 1,4 s i niska fala otwierająca.
+Nie leczy ani nie czyści ran. Nie ma powodu dokładać HP/obrażeń: w obecnym
+`boss-pressure` nieruchomy gracz ginie po 10,500 s, orbitujący po 23,142 s,
+a reagujący po 30 s zachowuje 86,5 HP i 23,5 osłony. To boty, nie dowód
+właścicielskiego celu 20–35 s dla dobrego człowieka.
+
+Rekomendowany charakter jest interpretacją istniejącego wyglądu i zestawu:
+kat z ciężkim tasakiem, którego oddech i gniew poruszają popiół. Presja przez
+zajmowanie bliskiego/średniego dystansu, przytrzymane zamachy i teren po ciosie.
+Słabości: odsłonięta czaszka, zobowiązanie do kierunku, końcowe okno i garda.
+Furfur pozostaje porożem, szarżą i burzą; Margrave nie potrzebuje ich kopii.
+Pieczęć `asmoday` w wyglądzie nie ustanawia nowej biografii ani konkretnego
+przypisania do kręgu. Nie proponuje się zmiany zaakceptowanej anatomii.
+
+### Inwentarz ataków
+
+20 definicji, 13 osiągalnych z taktyk, odpowiedzi, serii i przejścia aktu.
+Siedem uśpionych: `ember-fan`, `furnace`, `ash-grip`, `ash-cage`, `ash-rush`,
+`call-embers`, `apse-wave`. Nie włączać ich dla samego zwiększenia liczby czarów.
+Czasy bazowe; dodatkowa zapowiedź spoza widoku, przytrzymanie i kontynuacja
+mogą zmienić całkowity przebieg. Zasięg wyboru i rzeczywisty kontakt to nie
+zawsze to samo. `recover` po zakończeniu serii jest pełnym oknem bez ataku,
+choć ciało nie musi przez cały ten czas stać.
+
+| Czynność | Przygotowanie i blokada kierunku | Wykonanie / rzeczywisty kontakt | Powrót; pakiet obrażeń HP | Odpowiedź gracza |
+| --- | --- | --- | --- | --- |
+| `cleave` | 0,62 s + 0/0,34/0,68; śledzenie do 70% przygotowania | Łuk −1,5→1,5 rad, 3,2–3,4 m, wysokość 1,6→1 m; doskok 18 m/s przez 0,2 s; stan 0,34 s | 1,2 s albo 0,16 s do kolejnego zamachu; 45 fizycznych | Czytać przytrzymanie, unik/kontra, rozpoznać kontynuację |
+| `backcut` | 0,48 s; blokada 70% | Odwrotny łuk, 3,2–3,4 m, 1→1,6 m; podobny doskok i 0,34 s | 1,2 s albo 0,2 s do kolejnego; 42 | Nie karać automatycznie pierwszego ciosu; zmienić kierunek uniku |
+| `overhead` | 0,78 s + 0/0,3/0,6; blokada 75%, kontra 0,2 s | Wąski łuk, 4–4,3 m, wysokość 2,8→0,2; doskok, stan 0,36 s | 1,2 s; 65 | Bokiem po zobowiązaniu do ciosu, potem odpowiedź |
+| `ash-thrust` | 0,7 s + 0,1/0,45/0,9; blokada 90%, kontra 0,2 s | Wąskie pchnięcie 5,5–6 m na 1,2 m; doskok 12 m/s przez 0,2 s; stan 0,4 s; wybór od 3 m | 1,2 s; 70 | Odejść/uniknąć bokiem po blokadzie; wcześnie rozpoczęty marsz może być śledzony |
+| `burning-cut` | Akt II, 0,6 s + 0/0,34; blokada 70% | Łuk 3,3–3,5 m, wysokość 1,5→1; doskok; trzy pola przed ciałem co 1,4 m, r=0,9, życie 3 s | 1,2 s albo seria; 45 ognia + pulsy pól po 10 | Uniknąć tasaka i opuścić pozostawiony żar |
+| `ash-leap` | 0,68 s; cel z obserwowanego ruchu zamiera przy rozpoczęciu | Wysokość 1,5 m, lot około 0,805 s, limit 11 m/s; lądowanie r=1,1 m; wybór 4,5–11 m | Łączy się bez przerwy z falą; 56, obecnie kontakt wadliwy | Odejść z zapamiętanego miejsca; po poprawce nadal osobna odpowiedź na falę |
+| `ash-ring` | 0,18 s | Niska fala: od 0,6 do 6,5 m, 9 m/s, grubość 0,8 m, wysokość 0–0,5 m | 1,2 s; 30 ognia | Przeskoczyć właściwy grzbiet albo opuścić zasięg |
+| `ash-lance` | 0,65 s; cel zamiera na początku z przewidywaniem 0,8 | Trzy pola −2,2/0/+2,2 m wokół celu; po wypuszczeniu czekają 0,65/0,95/1,25 s; r=1, życie 1,3 s, puls 0,45 s, wysokość 0–0,42 m | 0,38 s, potem możliwy osobny pocisk; 26 na puls | Odejść bokiem z rzeczywistych pól, nie zakładać że jeden skok ominie cały czas ognia |
+| `cinder-spear` | 0,62 s; nowe, zamrożone celowanie przy własnym przygotowaniu | Jeden pocisk 16 m/s, start wysokość 1,9 m, promień 0,26 m; zasięg wyboru 2–18 m | 1,25 s; 30 ognia | Zmienić kierunek po namierzeniu, schować się za przeszkodą |
+| `stomp` | 0,55 s; odpowiedź na przebywanie blisko przez 0,9 s | Prawie pełny obwód, r≈3 m, wysokość 0,35 m, kontakt 0,08–0,30 s | 1,1 s; 46 fizycznych | Odejdź albo przeskocz niski kontakt; obecny gest tego nie wyjaśnia |
+| `turn-cut` | 0,46 s; obrót do 7 rad/s, blokada 70%; odpowiedź na obejście | Łuk −1,9→1,9 rad, 3,1–3,3 m, wysokość 1,4→1,2; stan 0,36 s | 1 s; 52 fizyczne | Odczytać obrót i opuścić łuk; ciało dziś nie pokazuje całego obrotu |
+| `ash-catch` | 0,32 s, blokada 85%; odpowiedź na już wykonany unik podczas serii | Łuk 3,6–3,8 m na 1,2 m, doskok 12 m/s przez 0,14 s; stan 0,3 s | 1,2 s; 48 fizycznych | Nie zużywać uniku przed zamachem, odczytać krótki nowy cios |
+| `ash-burst` | 0,3 s + 0,25 s zapowiedzi pola | Pole przy ciele r=2,7 m, wysokość 0–0,42 m, życie 0,5 s, puls 0,3 s | 0,8 s; 44 na puls, możliwe 88 | Wyjść poza obwód; precyzyjny skok może ominąć oba pulsy |
+
+Kierunek wczesnego śledzenia i pościg broni podczas aktywnej części są
+już częścią obecnego kontaktu. Nie znaleziono czytania przyszłego wejścia:
+reakcje dotyczą picia, przeładowania, ostrzału i wykonanego uniku. Nowy
+pocisk po polach jest osobnym celowaniem, nie zakrętem wypuszczonego pocisku.
+
+### Potwierdzone problemy i granice wniosków
+
+1. **Lądowanie mija nieruchomy cel.** `margrave-leap-20261106/leap.csv`:
+   24 próby (pusta sala/poligon × 4,5/7/10/11 m × 60/120/240 Hz), zero
+   obrażeń przy poprawnie wykonanym lądowaniu. Dla bliższych odległości
+   odstęp ciała 1,3 + promień gracza 0,22 zatrzymuje środek na 1,52 m;
+   kontakt lądowania 1,1 + 0,22 kończy się na 1,32 m. Brakuje 0,20 m.
+   Z 11 m dodatkowo ogranicza lot: maksymalny przebieg około 8,86 m,
+   pozostały dystans 2,14 m. Nie należy leczyć obu sytuacji zmianą szybkości.
+   Hipoteza do testu po naprawie: obecne natychmiastowe połączenie z falą
+   mogłoby gwarantować drugie trafienie graczowi ogłuszonemu lądowaniem.
+2. **Seria nie ma górnej granicy.** `backcut` może wrócić do `cleave`.
+   `margrave-combos-20261106/combos.csv`, 100 ziaren, jedna wymuszona seria,
+   bez świeżych wyborów i reakcji: długości 1/2/3/4/5/8 wystąpiły odpowiednio
+   19/47/24/5/4/1 razy. Najdłuższa trwała 10,533 s do końcowego odpoczynku.
+   To własność obecnego projektu, a nie sam błąd techniczny. Rekomendowany
+   limit trzech ciosów wymaga zgody jako zmiana balansu; utrzymać zmienne
+   przytrzymania i uczciwy powrót, także po reakcji `ash-catch`.
+3. **Kierunek broni i ciała potrafi się rozejść.** Brak `turnBody`
+   w czynnościach Margrave'a. W próbach reakcji na obejście rozjazd wyniósł
+   32,09–32,66 stopnia; przy śledzeniu kroku bocznego zwykłe cięcie do
+   25,11 stopnia. Poprawić prezentację już istniejącego obrotu, nie dodać
+   kolejnego ukrytego namierzania. Dowód: `margrave-edge-20261106/edge.txt`.
+4. **Zapowiedź pola pod graczem znika z poziomego widoku.** W 22 parach
+   z/bez efektów pierwsze pole `ash-lance` było widoczne (2756 pikseli),
+   ale izolacja trzech znaków wykazała 0 pikseli znaku centralnego pod
+   graczem i tylnego za nim. Tylne pole poza kadrem jest oczekiwane;
+   problemem jest brak widocznej informacji o zagrożeniu pod stopami.
+   `margrave-visibility-20261106`, `margrave-marks-20261106`: badane pasmo
+   sceny x=0–1279, y=80–579, bez HUD. Nie jest to pomiar kontrastu 3:1.
+5. **Grupa może zagłodzić wybory elity.** 36 scenariuszy po 20 s, dwa akty,
+   3 dystanse i 2 ziarna; stojący/krążący gracz albo cztery Embery.
+   Samotnie 8–11 wypuszczeń, z drobnicą 1–6; bezruch w stanie ruchu
+   do 3,583 s w grupie, solo najwyżej około 0,542 s. Większość bezruchu
+   solo to zapowiedzi, wykonanie i powroty. Nie dowodzi to potrzeby
+   przyspieszenia wszystkich zegarów. Raport `margrave-analysis-20261106/free-r2`.
+6. **Gesty zbyt podobne mimo różnych kontaktów.** Render fizycznego ciosu
+   z góry, obrotu i niskiego `stomp` używa podobnego zamachu i pomarańczowego
+   łuku. To utrudnia odróżnienie niskiego kontaktu od ognistego cięcia.
+   Trzydzieści dwie klatki istnieją, ale dodatkowe klatki 21–32 pochodzą
+   z już zaakceptowanych póz 7, 9, 8 i 6; sama liczba nie daje nowych gestów.
+   `ash-burst` nie ma wpisu w `appearance.casts`; nie ma więc wszystkich
+   sygnałów stosowanych przez pozostałe czary. To obserwacja kodu i obrazu,
+   nie dowód, że absolutnie cały atak jest niewidoczny.
+7. **Brak własnego życia głosowego.** `sounds` ma krok, wspólny alarm,
+   ostrzeżenie/materiał czaru, przybycie i jeden `boss_collapse`. Nie ma
+   oddechu, pomruku, bólu ani `windupVoice`/`releaseVoice`. Śmierć jest
+   syntetycznym rozpadem z niskim szumem i metalem, bez wariantów głosu.
+   Piętnaście eksportów i poziomy: `margrave-audio-20261106`. Szczyt próbek
+   do 0,8363; brak cyfrowego clippingu pojedynczych eksportów nie potwierdza
+   miksu całej walki. Model tłumienia 7 m w CSV jest obliczeniem, nie
+   nagraniem realnego miksu. Nie wykonano wiarygodnego odsłuchu.
+
+### Co działa i czego nie należy niepotrzebnie ruszać
+
+117 prób wymuszonych ataków (13 × trzy odpowiedzi × 60/120/240 Hz),
+120 prób kontaktu czterech fizycznych czynności oraz analiza swobodnej SI
+potwierdzają działające pozostałe rodziny. Aktualna walka nie jest pusta.
+Prosta próba skoku zawsze o 0,35 s dawała fałszywie pesymistyczny obraz;
+sprawdzono rzeczywistą wysokość skoku i wykonano 90 prób różnych czasów.
+
+W `margrave-jumps-20261106` z 3 m skok rozpoczęty po 0,3/0,4/0,5 s
+omijał `stomp`, a po 0,1/0,2/0,3 s niską falę w trzech częstotliwościach.
+Przy bliskim żarze z 2 m skok po 0,4 s omijał oba pulsy. To próbki
+skutecznych czasów, nie wyznaczone ciągłe granice okna. Na samych granicach
+liczba pulsów może różnić się o jeden krok symulacji. Wysokość skoku około
+0,817 m wystarcza na niskie zagrożenia; nie zmieniać skoku gracza.
+
+21 przywróceń Snapshot w pamięci (siedem czynności × trzy fazy) przeszło;
+nie jest to test pliku Continue. Osiem prób śmierci potwierdza: niewypuszczony
+czar znika, już wypuszczone pola/fala/pocisk trwają i mogą zranić. Dalsze
+obrażenia wymuszonych prób: pola 78, fala 30, żar 88, pocisk 30. To obecna
+zasada materialnych zagrożeń, odmienna od burzy Furfura; nie usuwać jej
+przez przypadkowe kopiowanie rozwiązania. Złamanie gardy nie urywa już
+zobowiązanego elitarnego ciosu; okno otwiera się po nim. Przejście aktu
+odrzuca niegotowe czynności, lecz zachowuje fizyczny lot i wypuszczone efekty.
+
+### Obraz i zalecany kierunek
+
+Obejrzano `baza/margrave-of-ash.png`, Inferno, wszystkie 32 klatki obok
+bazy, kadry ataków oraz postać z 3/6/10 m. Bazą pozostaje wychudzony,
+rogaty kat z tasakiem, postrzępioną rdzawą tkaniną i fragmentem metalu na
+ramieniu. Nie tworzyć opancerzonego rycerza, nowych rogów ani bogatszej
+faktury. Porównanie ma zachować dokładną tożsamość i skalę detalu.
+
+Pierwsza plansza `margrave-base-20261106` miała różną skalę bazy i runtime;
+nie jest dowodem porównania w tej samej skali. Poprawiono ją w
+`margrave-base-r2-20261106` według jednostek świata i obejrzano cztery
+plansze obejmujące 32 klatki. `margrave-analysis-20261106/review` zachowuje
+150 kadrów, 13 plansz i wybrane pozy. To kontrola stanu wejściowego, nie
+odbiór przyszłych animacji ani nowe zatwierdzenie grafiki przez właściciela.
+
+Najpierw komponować gesty z istniejących klatek. Zwykły łuk tasaka ma
+czytać się jako metal, żar dopiero jako ogień. Wysoki zamach, pchnięcie,
+odwrotny cios, skok, cios w posadzkę i czar wymagają osobnych sekwencji
+oraz powrotów. Rekomendacja dla `stomp`: cios tasakiem w podłogę, niski
+impuls pyłu obejmujący faktyczny obwód; nie udawać tupnięcia gestem ręki.
+Pola popiołu mają czytelny niski profil, widoczny również blisko stóp;
+nie rysować wysokiej ściany, której kontakt pozostaje na 0,42 m. Fala
+ma grzbiet do 0,5 m. Miejsce emisji pocisku powiązać z aktualnym tasakiem
+lub dłonią; nie zostawić startu w stałym środku ciała na wysokości 1,9 m.
+
+Ślad płonącego cięcia dziś powstaje z trzech pól przed postacią, nie z
+ciągłej krzywej ostrza. Obraz ma pokazywać ich faktyczne położenie i 3 s
+zagrożenia. Po wygaśnięciu może pozostać oszczędny szary popiół bez obrażeń.
+Wszystkie efekty mają używać zatwierdzonych malowanych materiałów. Trzy
+kontrole spójności przed commitem obowiązują również bez nowych PNG,
+ponieważ zmiana sekwencji i sposobu rysowania też zmienia odbiór.
+
+### Głos, materiały i zależności systemów
+
+Propozycja barwy: suche, zdarte gardło z resztką ludzkiego wysiłku; ciężki
+wdech przed zamachem, krótki wydech przy cięciu, urwany kaszel popiołu przy
+czarze, wyczerpanie po serii. Bez ciągłego ryku, pisku, skrzypienia i basu
+zamiast charakteru. Trzy różne śmierci: zdławiony ryk, urwany wydech,
+rozpad oddechu w popiół; osobno upadek ciała i tasaka. Opisy to kierunek
+artystyczny do realizacji/odsłuchu, nie deklaracja jakości obecnych próbek.
+
+Wspólne mechanizmy już obsługują warianty, osobny audio RNG, dystans,
+przesłonięcie, priorytety, suwaki oraz pule 28+28 źródeł. Ostrzeżenia mają
+uchwyty do przerwania po śmierci/odwołaniu. Wykorzystać te mechanizmy przez
+własne profile Margrave'a. Nie podmieniać wspólnych `ash_*`, `cast` i
+`growl`, bo dotyczą innych użytkowników. Techniczne testy miksu i próbki
+odsłuchowe z muzyką/strzałami są obowiązkowe w etapie B; analiza nie pobierała
+nowych dźwięków ani nie nadaje istniejącym eksportom statusu odbioru.
+
+Najważniejsze ścieżki zależności:
+
+- Treść `content/creatures/boss.lua` → wybory, odpowiedzi i kolejka SI →
+  `enemies/actions.lua`, `action_phase.lua`, `melee_kinds.lua` →
+  `attack_contact.lua` / `combat/body_contact.lua` / geometria zagrożeń.
+  Limit serii musi objąć odpowiedź na unik i zapis, nie tylko dwie nazwy
+  cięć. Kolejka to istniejąca opcja treści, nie zmiana globalnej liczby ataków.
+- Wspólne fazy czynności → sekwencje arkusza `content/art/sheets/boss.lua`,
+  anatomia `content/art/anatomy/boss.lua` → rzeczywista maska trafień,
+  cienie i efekty. Zmiana samej sekwencji może zmienić golden przez maskę.
+  Obecna anatomia ma części tasaka i rąk, nie gotowy punkt emisji pocisku.
+- `feedback/world_feedback.lua` i mechanizm percepcji audio → własne głosy,
+  materiały, przerwanie i zwalnianie źródeł; zero losowań z RNG symulacji.
+- `session/snapshot.lua` oraz wersjonowane pule zapisu → wznowienie lotu,
+  serii, pól, śmierci, zmiany aktu. Wzorzec migracji dawnych czynności
+  Furfura istnieje w pools v6; zmiana Margrave'a wymaga osobnej świadomej
+  migracji, nie zastosowania nowych parametrów do starego zamachu.
+- UI pozostaje bez zmian. Śmierć, odpoczynek i zmiana świata mają sprzątać
+  przejściowe głosy i obrazy; wypuszczone zagrożenie podczas zwykłej walki
+  zachowuje własną długość. Nie zmieniać nagród, amunicji ani zakupów.
+
+### Wydajność i weryfikacja
+
+`margrave-analysis-20261106/performance-1`, `performance-2`, `performance-3`:
+1/4/12/32 ciał, 840 aktualizacji po 240 rozgrzewki, wybrane wysłania rysowania,
+Intel Arc/Mesa 26.2.5. Mediany trzech p95 aktualizacji CPU odpowiednio
+0,2064 / 0,5236 / 0,9642 / 1,2105 ms. Bez audio i czekania na GPU; nie są to
+FPS ani pełny czas klatki. Maksymalnie 4–6 pól, zero pocisków w tym pomiarze:
+później dodać osobny pomiar faktycznej kumulacji efektów i głosów.
+
+Nowe uruchomienia istniejących zestawów: `elite-art` PASS 89,
+`boss-pressure` PASS 30, `souls-gate` PASS 6. Zestaw 21 odtworzeń pamięci
+PASS. Sondy lądowania, widoczności i serii wykrywają problemy mimo zielonych
+starych zestawów; nie przedstawiać ich jako PASS poprawnego zachowania.
+Pierwotne pomiary i błędnie dobrane momenty skoku zachowano z objaśnieniem.
+
+Po akceptacji: testy oczekiwanego lądowania, końca serii, czytelnej blokady
+kierunku, rzeczywistej geometrii ostrzeżeń, przerwania i starego Continue;
+60/120/240 Hz, ściany/kolumny/wysokości, kontra/unik/skok/chybienie,
+wszystkie fazy aktu i śmierci, solo i grupa. Osobno testy dźwięku, baz grafiki,
+anatomii, masek i cienia. Każdy zestaw samodzielnie i razem. Dwa identyczne
+golden dla celowej zmiany symulacji, bez przepisywania wzorca Windows.
+Pełne Linux All i pozostałe bramy po błędzie, przegląd diffu, trzy oględziny,
+ZMIANY/ODBIOR oraz commit po zielonej bramie. Jedna zmiana balansu na commit;
+nie sklejać różnych zmian balansu w celu ominięcia wymaganej weryfikacji.
+
+Windows nie był sprawdzany. Nie było pełnego testu zapisu na dysk,
+wiarygodnego odsłuchu ani próby człowieka nowego rytmu — implementacji
+jeszcze nie ma. Dawna usterka nawigacji Furfura pozostaje osobnym tematem.
+
+### Inspiracje i przełożenie na tę grę
+
+- [GDC, Kurt Loudy i Jake Campbell z id Software: Embracing Push Forward Combat in DOOM](https://www.gdcvault.com/play/1024940/Embracing-Push-Forward-):
+  publiczny opis wykładu podkreśla agresję, tempo i zdobywanie zasobów od
+  wrogów. Przeczytano opis, nie obejrzano całego wykładu. Własny wniosek:
+  Margrave ma naciskać ruchem i obszarem, lecz dawać okazję do podejścia
+  i odpowiedzi po serii; nie wymaga dodania większego paska życia.
+- [Bandai Namco: Elden Ring — Combat Guide](https://www.bandainamcoent.com/news/elden-ring-introduction-part-4-combat-guide):
+  zobowiązanie do czynności, obserwacja okazji i boczna odpowiedź na
+  pchnięcia. Własna adaptacja: widoczna blokada kierunku, różne gesty,
+  ograniczona seria i czytelne końcowe okno. Liczba trzech ciosów wynika
+  z naszej sondy i propozycji, nie z reguły zapożyczonej z Elden Ring.
+- [Dante, Inferno, pieśń XIV, przekład Longfellowa](https://www.gutenberg.org/files/1001/1001-h/1001-h.htm):
+  opad płatów ognia na jałowy piasek i duma Kapaneusa pod karą. Własna
+  inspiracja: osypujący się żar, suchy popiół i gniew potępieńca. Nie jest
+  to przypisanie Margrave'a do Kapaneusa ani zatwierdzenie konkretnego kręgu.
+- Główny wzorzec wizualny nadal lokalne Inferno Giovanniego da Modena
+  oraz zatwierdzona baza Margrave'a. Literatura i inne gry nie upoważniają
+  do zmiany jego tożsamości, faktury ani detalu.
+
+### Rekomendacja do akceptacji
+
+Dopracować obecny zestaw, bez nowego dużego czaru i bez wzrostu HP/obrażeń.
+Istotne decyzje właściciela: limit trzech ciosów; skuteczne lądowanie
+oddzielone od fali; sprawiedliwe dopuszczanie w grupie; bliski cios pokazany
+jako uderzenie tasakiem w ziemię. Reszta to podporządkowane temu gesty,
+efekty, własny głos, maski, zapis i weryfikacja. Dokładny czas około 0,5 s
+przed falą oraz kolejka 0,9 s są punktami startowymi strojenia, nie już
+sprawdzonymi wynikami. Akceptacja planu poprzedza wszelkie zmiany gry.
+
+## Plan sprzed Margrave'a (zastąpiony 2026-11-06)
+
+# SIGIL: BREACH — plan rozwoju
+
+## Zakres i status
+
+**2026-11-06: Furfur — wdrożony, pełna brama Linux PASS; czeka na próbę właściciela.**
+Właściciel zaakceptował cały plan, w tym nawrót, zwrot z porożem i pierwszeństwo
+w grupie. Zgłoszone problemy to postoje i słaba widoczność
+umiejętności. Sondy potwierdzają błędy kontaktu, wyboru dobitki, prezentacji
+szarży, namierzania za ścianą i widoczności burzy. Zachować rolę elity,
+2250 HP, obrażenia, nagrodę, dwa akty oraz okno pękniętej gardy 1,2 s.
+Nie wzmacniać Margrave'a ani innych stworów. Chroniony HUD poza zakresem.
+Poprzedni PLAN zachowano w całości w HISTORII; tam również pełna analiza,
+inwentarz ataków, pomiary, źródła inspiracji i ograniczenia weryfikacji.
+
+## Zaakceptowany zakres
+
+1. Naprawić działanie obecnego zestawu. Najpierw czerwone testy dobitki
+   po szarży, geometrii reakcji na obejście, kierunku nawrotu i burzy
+   namierzającej gracza za ścianą. Zachować obecne dowody przed zmianą.
+2. Furfur jako ruchliwa, ciężka elita poroża i burzy. Spoczynek, obserwacja,
+   podejście, hamowanie i odzyskanie równowagi mają mieć różne gesty.
+   Nie usuwać uczciwych okien odpowiedzi i nie przyspieszać zegarów SI
+   dla samego odczucia. Sprawdzić rzeczywiste blokady dużego ciała.
+3. Rekomendowane uproszczenie szarży: jeden czytelny nawrót zamiast dwóch
+   (maksymalnie dwa przebiegi zamiast trzech), widoczny obrót ciała podczas
+   hamowania, kierunek zamrożony na czas każdego przebiegu, pełne 1,2 s
+   odpowiedzi po zakończeniu. Dobitka dopiero po tym oknie, z nowym zamachem;
+   naprawić jej dostępność i kontakt, bez niewidocznego powiększania trafień.
+4. Rekomendowane zastąpienie wadliwego kopnięcia w tył: ograniczony prędkością
+   zwrot i krótki cios porożem, z osobnym przygotowaniem. Zachować rolę
+   reakcji na długie przebywanie z tyłu; obejście ma nadal dawać czas na
+   strzał i odejście. Nie tworzyć natychmiastowego obrotu o 180 stopni.
+5. Zachować serię poroża, mocny cios z góry, pojedynczy piorun, pięć uderzeń
+   burzy po połowie HP i odskok z ponownym przywołaniem pioruna. Rozróżnić
+   ich gesty, blokadę kierunku i końcówki. Nie uruchamiać dawnych ataków
+   obszarowych przeznaczonych dla bossów i nie dodawać szóstego dużego czaru.
+   Kolejne znaki burzy wymagają widoczności celu; już postawiony znak jest
+   nieruchomy i kończy się zgodnie z zapowiedzią. Śmierć nadal je wygasza.
+6. Ograniczyć zagładzanie Furfura przez drobnicę: wspólny, opcjonalny
+   mechanizm pierwszeństwa po oczekiwaniu na wolne miejsce, włączony
+   definicją Furfura. Bez podnoszenia limitów i przerywania rozpoczętych
+   ataków innych stworów. To zmieni kolejność dopuszczania w grupie;
+   sprawdzić kaplicę, cele, serie, utratę widoczności i zwalnianie rezerwacji.
+7. Zachować zaakceptowane PNG ciała; najpierw złożyć czytelne sekwencje
+   z istniejących 37 klatek. Powiązać krok/odgłos kopyt z rzeczywistą szarżą.
+   Burza: widoczny z poziomej kamery sygnał przy porożu i w miejscu zagrożenia,
+   przestrzenna zapowiedź ponad podłożem, oszczędny pionowy błysk o faktycznej
+   wysokości, krótki niegroźny ślad po uderzeniu. Bez neonów, zasłaniania
+   całego celu, dodatkowej szczegółowości i przemalowania ognia/ogona.
+8. Własny chrapliwy, oddechowy głos potępionego jelenia: obecność, pościg,
+   alarm, wysiłek różnych czynności, powrót, ból i trzy śmierci. Materiał
+   poroża/kopyt i burzy osobno; warianty, pauzy, limity sali. Nie podmieniać
+   wspólnych próbek Margrave'a. Techniczny miks i próbka do odsłuchu właściciela,
+   ze źródłami/licencjami i przetwarzaniem. Pomiar nie potwierdza grozy barwy.
+9. Trzy zapisane kontrole grafiki: każda zmieniona klatka/tekstura obok bazy
+   w tej samej skali; bliski/średni/daleki render w jednakowym świetle;
+   rzeczywiste przejścia stanów. Anatomia, maski, cień i punkty emisji.
+   Generowanie tylko rzeczywiście brakującego elementu z bazą i Inferno,
+   bez reinterpretacji postaci. Odbiór artystyczny nie wynika z sumy pliku.
+10. Testy 60/120/240 Hz, kontr/skok/unik/chybienie, ściany/kolumny/wysokości,
+    przerwanie/śmierć/przejście aktu, zapis/Continue/odpoczynek, grupy mieszane,
+    warunki kanałów audio i osobny RNG. Powtórzyć pomiary w izolowanym klonie,
+    także przy faktycznie nakładających się efektach i głosach. Golden według
+    procedury: dwa identyczne przebiegi celowej zmiany symulacji, uzasadnienie;
+    Windows bez zmiany wzorca na podstawie Linuxa.
+11. Pełne `scripts/linux/TEST.sh All --timeout 1800`, pozostałe bramy po
+    ewentualnym błędzie, końcowy diff, ZMIANY/ODBIOR, commit po zielonej
+    weryfikacji. Jedna zmiana balansu na commit. Push wyłącznie na polecenie.
+
+## Postęp analizy
+
+- Stan wejściowy `162aa88`, wersja 0.45, czyste repo. Historyczne All PASS
+  dla aktualnego fingerprintu: 7572 Mechanics/Assets, Input 50, Architecture,
+  Render i Tools. W tym etapie nie powtarzano pełnego All.
+- 81 izolowanych prób czynności, 36 poprawionych prób swobodnej SI,
+  18 prób dwóch wadliwych kontaktów, 15 przywróceń stanu w pamięci,
+  cztery próby śmierci podczas czarów, 100 kadrów czynności i dodatkowe
+  pary renderów widoczności. `elite-art` PASS 89, `boss-pressure` PASS 29,
+  `souls-gate` PASS 6. Istniejące testy nie wykrywają opisanych usterek.
+- Dobitka: dostępność 1 s po szarży, wymuszony odpoczynek 1,2 s; nawet
+  wymuszona mija ciało o 3 cm. Kopnięcie: 0 trafień w dziewięciu próbach.
+  Nawrót: kierunek ruchu zmienia się o około 85 stopni przy starej orientacji
+  ciała i tej samej klatce. Burza po schowaniu celu za ścianą stawia cztery
+  nowe znaki i zabiera 200 HP; wynik zgodny w 60/120/240 Hz.
+- Przy nieruchomym graczu Furfur samotnie wypuszcza 11–14 czynności/20 s;
+  z czterema Impami 2–5. Bezruch w stanie ruchu dochodzi w grupie do 2,81 s
+  ciągiem. Większość bezruchu samotnego Furfura to przygotowanie/atak,
+  nie bezczynna SI. Jeden przypadek utraty celu przy przeszkodzie wymaga
+  osobnej próby trasy, zanim uzna się go za błąd szukania drogi.
+- W widoku poziomym z 7 m znaki i piorun pod graczem nie zmieniły ani
+  jednego piksela badanego obszaru sceny; po cofnięciu były widoczne.
+  Kontrola ze spojrzeniem w dół również potwierdziła obecność znaków.
+  To problem projekcji i czytelności, nie tylko jasności materiału.
+- Własnych głosów ciała brak. RMS ostrzeżenia burzy około 7,3 dB niższy
+  od ostrzeżenia szarży; to pomiar próbek, nie dowód słyszalności pełnego miksu.
+- Pomiar wejściowy w izolowanym klonie, mediany trzech przebiegów p95 CPU:
+  1/4/12/32 Furfurów — 0,1596/0,2185/0,2980/0,5788 ms. Bez audio i GPU
+  present; w scenariuszu najwyżej jeden znak naraz. Nie jest to FPS ani
+  test maksymalnej burzy. Klon i jego wyniki robocze usunięto po zachowaniu
+  dowodów w zewnętrznym `qa-direct/furfur-performance-before-20261106`.
+- Dowody i źródła sond: zewnętrzne `work/qa-direct/furfur-*-20261106`.
+  Szczegółowa interpretacja, odrzucone pomiary i ścieżki w HISTORII.
+
+## Odbiór i ograniczenia
+
+Cały powyższy kierunek został zaakceptowany i wdrożony; weryfikacja techniczna zakończona.
+Windows niesprawdzony. Wykonano techniczny pomiar miksu, bez wiarygodnego
+odsłuchu. Rytm walki, czytelność burzy i charakter głosu pozostają do próby
+właściciela. Pozostają też osobne odbiory audio Embera i trzech poprzednich
+postaci; zlecenie Furfura nie zmienia ich materiałów.
+
+## Postęp wdrożenia
+
+- Dodano test furfur; zachowany czerwony wynik odtwarza niedostępną dobitkę,
+  nieskuteczne kontakty, niewidoczny zwrot i namierzanie za ścianą.
+- Wdrożono jeden nawrót z ograniczonym obrotem i zamrożonym celem, działającą
+  dobitkę po odpoczynku, zwrot z porożem, widoczne kierunki zwykłych zamachów,
+  burzę wymagającą widoczności oraz opcjonalne pierwszeństwo czekającej elity.
+  HP, pakiety obrażeń, nagroda, dwa akty i garda 1,2 s bez zmian.
+- Zachowano wszystkie PNG; sekwencje korzystają z 37 istniejących klatek.
+  Sygnały burzy są widoczne spod poziomej kamery, efekty poroża mają punkty
+  z anatomii, a końcowy ślad pozostaje wyłącznie obrazem. Trzy kontrole
+  grafiki ukończone: 37 klatek obok bazy, 3/6/10 m, przejścia i nawrót
+  kamerą śledzącą. Żadnego nowego projektu postaci ani podmiany bazy.
+- 45 nagrań w 22 rolach, także trzy śmierci; CC0 i pochodzenie zapisane.
+  Miks 252 przypadków po korekcie: zero przesterowań, szczyt 0,99073.
+  Próbki czekają na odsłuch właściciela; pomiar nie zatwierdza grozy barwy.
+- Osobne testy PASS: furfur 128, furfur-art 18, creature-audio-mix 500,
+  boss-pressure 30.
+  Dwa identyczne golden; tylko Linux drill celowo zmieniony. Wstępne All
+  wykryło dawną granicę czasu dobitki w boss-pressure; Input, Render i Tools
+  dokończono z PASS. Test obejmuje teraz dostępność po pełnym odpoczynku
+  i obie strony nowej granicy; rzeczywista SI zachowuje pełne okno 1,2 s
+  w 60/120/240 Hz. Końcowe `scripts/linux/TEST.sh All --timeout 1800` PASS:
+  7858 Mechanics/Assets, Input 50, Architecture 701 Lua / 0 problemów,
+  Render i Tools. Dziewięć zgodnych, stabilnych receiptów, 750 s.
+  Raporty zachowano w qa-direct/furfur-all-final-20261106.
+- Pomiary w odrębnych klonach zachowano w qa-direct/furfur-final-20261106,
+  klony i przypisane katalogi usunięto. Grupa 4 Impów: 5–8/6–8 czynności
+  Furfura na 20 s zamiast 2–5; aktualizacja 32 ciał p95 0,6831 ms.
+  Osobna próba 64 znaków utrzymała limity audio 28+28 i 24 niegroźnych śladów.
+- Osobna usterka wspólnej nawigacji do rozpatrzenia: ciało o promieniu
+  0,55 m otrzymuje pole trasy przez punkty przy murze, których nie może
+  fizycznie zająć. Oczekiwanie za drobnicą i zły wybór ataku zostały
+  poprawione; ten przypadek trasy po utracie celu nie jest ich skutkiem.
+  Nie zmieniano wspólnych klas nawigacji ani promieni innych stworów.
