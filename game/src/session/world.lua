@@ -302,6 +302,7 @@ Save.declare({
     Roles.control(g, value.pools.knights[value.controlled])
     g.nextId = value.nextId
     M.reindex(g)
+    require('src.session.presentation').call(g, 'worldRestored')
   end,
 })
 -- A knight as one member of the pools section (plan v11 E3: what a journal's

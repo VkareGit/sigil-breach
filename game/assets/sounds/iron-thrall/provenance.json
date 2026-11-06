@@ -1,5 +1,4 @@
 {
-  "license": "CC0-1.0",
   "sources": [
     {
       "title": "16 Monster Growls",
@@ -12,389 +11,1207 @@
       "author": "ArcadeParty",
       "page": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
       "sha256": "041ef356efc5d947db903530d68eb55b7e6fbfb77b96fdd092ab81eb8be59d57"
+    },
+    {
+      "author": "marc3122",
+      "title": "Male Screams [performed by author]",
+      "url": "https://freesound.org/people/marc3122/sounds/556976/",
+      "download": "https://cdn.freesound.org/previews/556/556976_12497831-hq.mp3",
+      "file": "male-screams-marc3122.mp3",
+      "license": "CC0-1.0",
+      "sha256": "a7c4abd986ee308854ac33b6d5cad5f67d5d4c2b0eb36bd1a2231d3f93597dc4"
+    },
+    {
+      "author": "AuraVoice / Nocturnal_Vanguard",
+      "title": "Female Hurt Grunts & Groans",
+      "url": "https://opengameart.org/content/female-hurt-grunts-groans",
+      "download": "https://opengameart.org/sites/default/files/female_hurt_grunts_groans_1_0.ogg",
+      "file": "female-hurt-auravoice.ogg",
+      "license": "CC0-1.0",
+      "sha256": "80a9fb09203bb8feb065ba15197609b118cbe167c9a2264670a31ee22c384adb"
+    },
+    {
+      "author": "kyles",
+      "title": "chain thick rattle hooked onto metal1.wav",
+      "url": "https://freesound.org/people/kyles/sounds/452576/",
+      "download": "https://cdn.freesound.org/previews/452/452576_612689-hq.mp3",
+      "file": "chain-kyles.mp3",
+      "license": "CC0-1.0",
+      "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec"
+    },
+    {
+      "author": "rubberduck",
+      "title": "80 CC0 creature SFX",
+      "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+      "download": "https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip",
+      "license": "CC0",
+      "archive_sha256": "5d4002eea42f278e76543bb36e8ddd2cb978588a13271984191d8228f5d26768"
     }
   ],
-  "processing": "Mono 44100 Hz PCM16. Original performances retained except death; added independent human/throat performances for variants and movement/recovery. Modest pitch changes and quiet short room/helmet reflections as recorded per take. Crest shaping x/sqrt(1+(x/(2.7*RMS))^2), two 2800 Hz smoothing stages, 16/75 ms fades, peak <= .58; RMS targets .080 presence, .095 movement/recovery, .115 pain/alert, .125 death, .145 spells/effort. Runtime gain and falloff are in recipe data. No game audio copied.",
-  "cues": {
-    "iron_breath": {
-      "previous_performance": {
-        "source": "monster.11.ogg",
-        "pitch": 0.92,
-        "layer": null,
-        "layer_gain": 0,
+  "processing": "2026-11-06: per-character continuation of the licensed performances at commit 7243ac1. Mono PCM16 44100 Hz; FFmpeg rubberband pitch (duration preserved), HP 100 Hz / LP 2600-4100 Hz; independent recorded human, throat, deer, wet and chain layers documented per take. Soft crest x/sqrt(1+(x/(drive*RMS))^2), drive 1.45-1.8, two 3000 Hz smoothing stages, 16/75 ms fades. No stolen game audio. Additional sources with licenses inherited through prior_take and original provenance; new public HQ previews explicitly identified. Technical shaping is not a listening approval.",
+  "prior_provenance": {
+    "license": "CC0-1.0",
+    "sources": [
+      {
+        "title": "16 Monster Growls",
+        "author": "StarNinjas",
+        "page": "https://opengameart.org/content/16-monster-growls",
+        "sha256": "7542446ebc69892e4267d8b3abd3167193505833692da9624c01c8da392d9065"
+      },
+      {
+        "title": "Zombie / Skeleton / Monster voice effects",
+        "author": "ArcadeParty",
+        "page": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+        "sha256": "041ef356efc5d947db903530d68eb55b7e6fbfb77b96fdd092ab81eb8be59d57"
+      }
+    ],
+    "processing": "Mono 44100 Hz PCM16. Original performances retained except death; added independent human/throat performances for variants and movement/recovery. Modest pitch changes and quiet short room/helmet reflections as recorded per take. Crest shaping x/sqrt(1+(x/(2.7*RMS))^2), two 2800 Hz smoothing stages, 16/75 ms fades, peak <= .58; RMS targets .080 presence, .095 movement/recovery, .115 pain/alert, .125 death, .145 spells/effort. Runtime gain and falloff are in recipe data. No game audio copied.",
+    "cues": {
+      "iron_breath": {
+        "previous_performance": {
+          "source": "monster.11.ogg",
+          "pitch": 0.92,
+          "layer": null,
+          "layer_gain": 0,
+          "duration": 1.65,
+          "peak": 0.56,
+          "rms": 0.06015,
+          "sha256": "e3d4d1aafbffea1b19c20a37cac554437b62e12b9241b942b62b5964b913dd43"
+        },
+        "input_sha256": "e3d4d1aafbffea1b19c20a37cac554437b62e12b9241b942b62b5964b913dd43",
+        "peak": 0.348548,
+        "rms": 0.08,
         "duration": 1.65,
-        "peak": 0.56,
-        "rms": 0.06015,
-        "sha256": "e3d4d1aafbffea1b19c20a37cac554437b62e12b9241b942b62b5964b913dd43"
+        "sha256": "c0a50b3a35f1337978b185cf739e3f6bc3083a0f01f4ee82a9e5a073404aa967"
       },
-      "input_sha256": "e3d4d1aafbffea1b19c20a37cac554437b62e12b9241b942b62b5964b913dd43",
-      "peak": 0.348548,
-      "rms": 0.08,
-      "duration": 1.65,
-      "sha256": "c0a50b3a35f1337978b185cf739e3f6bc3083a0f01f4ee82a9e5a073404aa967"
-    },
-    "iron_breath-2": {
-      "source": "monster.3.ogg",
-      "source_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
-      "pitch": 0.88,
-      "offset": 0,
-      "layer": "monster.11.ogg",
-      "layer_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.14,
-      "peak": 0.332541,
-      "rms": 0.08,
-      "duration": 1.65,
-      "sha256": "abc342e7a3d0e56709299bcf398dcbc0c7ccdb7e67beddf0cdfea39479aacf14"
-    },
-    "iron_murmur": {
-      "previous_performance": {
-        "source": "monster.8.ogg",
-        "pitch": 0.91,
-        "layer": "humanDeath2.wav",
-        "layer_gain": 0.18,
+      "iron_breath-2": {
+        "source": "monster.3.ogg",
+        "source_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
+        "pitch": 0.88,
+        "offset": 0,
+        "layer": "monster.11.ogg",
+        "layer_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.14,
+        "peak": 0.332541,
+        "rms": 0.08,
+        "duration": 1.65,
+        "sha256": "abc342e7a3d0e56709299bcf398dcbc0c7ccdb7e67beddf0cdfea39479aacf14"
+      },
+      "iron_murmur": {
+        "previous_performance": {
+          "source": "monster.8.ogg",
+          "pitch": 0.91,
+          "layer": "humanDeath2.wav",
+          "layer_gain": 0.18,
+          "duration": 1.8,
+          "peak": 0.49349,
+          "rms": 0.07,
+          "sha256": "126078f153c02e933e9d4bec3375ade1c691f66ab083d458ea046f89ab98583f"
+        },
+        "input_sha256": "126078f153c02e933e9d4bec3375ade1c691f66ab083d458ea046f89ab98583f",
+        "peak": 0.292263,
+        "rms": 0.08,
         "duration": 1.8,
-        "peak": 0.49349,
-        "rms": 0.07,
-        "sha256": "126078f153c02e933e9d4bec3375ade1c691f66ab083d458ea046f89ab98583f"
+        "sha256": "4335482126465528e477bc91f9ac1575f89eb504ae794f8e20aa422a5a70b9b4"
       },
-      "input_sha256": "126078f153c02e933e9d4bec3375ade1c691f66ab083d458ea046f89ab98583f",
-      "peak": 0.292263,
-      "rms": 0.08,
-      "duration": 1.8,
-      "sha256": "4335482126465528e477bc91f9ac1575f89eb504ae794f8e20aa422a5a70b9b4"
-    },
-    "iron_murmur-2": {
-      "source": "monster.8.ogg",
-      "source_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
-      "pitch": 0.86,
-      "offset": 0.24,
-      "layer": "humanDeath1.wav",
-      "layer_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.289254,
-      "rms": 0.08,
-      "duration": 1.8,
-      "sha256": "623ac5cf46dacdb85aa9db2a992d600c7e9e19dd42c6652689b486d6fc7aae43"
-    },
-    "iron_hurt": {
-      "previous_performance": {
-        "source": "humanYell3.wav",
-        "pitch": 0.87,
-        "layer": "monster.1.ogg",
+      "iron_murmur-2": {
+        "source": "monster.8.ogg",
+        "source_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
+        "pitch": 0.86,
+        "offset": 0.24,
+        "layer": "humanDeath1.wav",
+        "layer_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
         "layer_gain": 0.2,
+        "peak": 0.289254,
+        "rms": 0.08,
+        "duration": 1.8,
+        "sha256": "623ac5cf46dacdb85aa9db2a992d600c7e9e19dd42c6652689b486d6fc7aae43"
+      },
+      "iron_hurt": {
+        "previous_performance": {
+          "source": "humanYell3.wav",
+          "pitch": 0.87,
+          "layer": "monster.1.ogg",
+          "layer_gain": 0.2,
+          "duration": 0.4,
+          "peak": 0.54463,
+          "rms": 0.105,
+          "sha256": "8062cb3b2e6dad9826be664b4ea92807b766a066cb1d17678294da6724b6cb3a"
+        },
+        "input_sha256": "8062cb3b2e6dad9826be664b4ea92807b766a066cb1d17678294da6724b6cb3a",
+        "peak": 0.349143,
+        "rms": 0.115,
         "duration": 0.4,
-        "peak": 0.54463,
-        "rms": 0.105,
-        "sha256": "8062cb3b2e6dad9826be664b4ea92807b766a066cb1d17678294da6724b6cb3a"
+        "sha256": "c5d3b43dcf2cfdf5affb6473a331901175be9914b0c373a77b462d008acfd673"
       },
-      "input_sha256": "8062cb3b2e6dad9826be664b4ea92807b766a066cb1d17678294da6724b6cb3a",
-      "peak": 0.349143,
-      "rms": 0.115,
-      "duration": 0.4,
-      "sha256": "c5d3b43dcf2cfdf5affb6473a331901175be9914b0c373a77b462d008acfd673"
-    },
-    "iron_hurt-2": {
-      "source": "humanYell5.wav",
-      "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
-      "pitch": 0.88,
-      "offset": 0,
-      "layer": "monster.1.ogg",
-      "layer_sha256": "359540221dad0ceed939a3416c3f525329fb7a5bbb28369a421108b3bc842310",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.368274,
-      "rms": 0.115,
-      "duration": 0.4,
-      "sha256": "4cb8a2f72c25812904543378e6cb300894cac862d87fc5542c273ecf29026482"
-    },
-    "iron_death": {
-      "source": "humanDeath1.wav",
-      "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
-      "pitch": 0.82,
-      "offset": 0,
-      "layer": "monster.11.ogg",
-      "layer_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.475148,
-      "rms": 0.125,
-      "duration": 2.05,
-      "sha256": "f018cc240d4e11e4248cea71e45082d6e58074cdfeb31c8b1d9fed36d01e7ab7"
-    },
-    "iron_death-2": {
-      "source": "humanDeath2.wav",
-      "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
-      "pitch": 0.79,
-      "offset": 0,
-      "layer": "monster.8.ogg",
-      "layer_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.22,
-      "peak": 0.504429,
-      "rms": 0.125,
-      "duration": 2.05,
-      "sha256": "dd2807d7ac80a82aa19ed46943de9169e8b1ea6b0929a270a19dbaec06aa651c"
-    },
-    "iron_death-3": {
-      "source": "zombieDeath3.wav",
-      "source_sha256": "9fb3eecfeef887007b8f737e663ef52cf6e8419b46011eb04e0775f1d78a1db8",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": "humanDeath1.wav",
-      "layer_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.22,
-      "peak": 0.524637,
-      "rms": 0.125,
-      "duration": 2.05,
-      "sha256": "f11c12bc22308857cbba29cfbfae24e7cecad6cc4efb82eb1901455940a8232c"
-    },
-    "iron_alert": {
-      "previous_performance": {
-        "source": "monster.10.ogg",
-        "pitch": 0.91,
-        "layer": "humanYell2.wav",
-        "layer_gain": 0.18,
+      "iron_hurt-2": {
+        "source": "humanYell5.wav",
+        "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
+        "pitch": 0.88,
+        "offset": 0,
+        "layer": "monster.1.ogg",
+        "layer_sha256": "359540221dad0ceed939a3416c3f525329fb7a5bbb28369a421108b3bc842310",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.368274,
+        "rms": 0.115,
+        "duration": 0.4,
+        "sha256": "4cb8a2f72c25812904543378e6cb300894cac862d87fc5542c273ecf29026482"
+      },
+      "iron_death": {
+        "source": "humanDeath1.wav",
+        "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "pitch": 0.82,
+        "offset": 0,
+        "layer": "monster.11.ogg",
+        "layer_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.475148,
+        "rms": 0.125,
+        "duration": 2.05,
+        "sha256": "f018cc240d4e11e4248cea71e45082d6e58074cdfeb31c8b1d9fed36d01e7ab7"
+      },
+      "iron_death-2": {
+        "source": "humanDeath2.wav",
+        "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+        "pitch": 0.79,
+        "offset": 0,
+        "layer": "monster.8.ogg",
+        "layer_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.22,
+        "peak": 0.504429,
+        "rms": 0.125,
+        "duration": 2.05,
+        "sha256": "dd2807d7ac80a82aa19ed46943de9169e8b1ea6b0929a270a19dbaec06aa651c"
+      },
+      "iron_death-3": {
+        "source": "zombieDeath3.wav",
+        "source_sha256": "9fb3eecfeef887007b8f737e663ef52cf6e8419b46011eb04e0775f1d78a1db8",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": "humanDeath1.wav",
+        "layer_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.22,
+        "peak": 0.524637,
+        "rms": 0.125,
+        "duration": 2.05,
+        "sha256": "f11c12bc22308857cbba29cfbfae24e7cecad6cc4efb82eb1901455940a8232c"
+      },
+      "iron_alert": {
+        "previous_performance": {
+          "source": "monster.10.ogg",
+          "pitch": 0.91,
+          "layer": "humanYell2.wav",
+          "layer_gain": 0.18,
+          "duration": 1.25,
+          "peak": 0.56,
+          "rms": 0.04854,
+          "sha256": "6f2a7f664697bd2289d20b82c464991bd7556ecf329744461ad2b7e84ad59666"
+        },
+        "input_sha256": "6f2a7f664697bd2289d20b82c464991bd7556ecf329744461ad2b7e84ad59666",
+        "peak": 0.465981,
+        "rms": 0.115,
         "duration": 1.25,
-        "peak": 0.56,
-        "rms": 0.04854,
-        "sha256": "6f2a7f664697bd2289d20b82c464991bd7556ecf329744461ad2b7e84ad59666"
+        "sha256": "bfb07aed975f3e5c286ce6b6485e92fb3bda248cb680d6d36ef79f153d5a417d"
       },
-      "input_sha256": "6f2a7f664697bd2289d20b82c464991bd7556ecf329744461ad2b7e84ad59666",
-      "peak": 0.465981,
-      "rms": 0.115,
+      "iron_alert-2": {
+        "source": "humanYell4.wav",
+        "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
+        "pitch": 0.84,
+        "offset": 0,
+        "layer": "monster.10.ogg",
+        "layer_sha256": "08a7990d67d7607fe46d9b0171a0d209ee328ac4a29a5d7fc16985cecf18d106",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.22,
+        "peak": 0.429435,
+        "rms": 0.115,
+        "duration": 1.25,
+        "sha256": "681e446f1525baeae6f753b64bf37a4828b8a17b769b7669ade4bb3b8cb67e7c"
+      },
+      "iron_claw_effort": {
+        "previous_performance": {
+          "source": "humanYell1.wav",
+          "pitch": 0.91,
+          "layer": "monster.3.ogg",
+          "layer_gain": 0.2,
+          "duration": 0.5,
+          "peak": 0.49368,
+          "rms": 0.095,
+          "sha256": "1082f079712321767dd3b98cd64bc25a391159f5db1fc6fafbbe448f9ee98079"
+        },
+        "input_sha256": "1082f079712321767dd3b98cd64bc25a391159f5db1fc6fafbbe448f9ee98079",
+        "peak": 0.430757,
+        "rms": 0.145,
+        "duration": 0.5,
+        "sha256": "efd33ee0875ddc259b2f85f52b1941771fecfd5d87733dea6c156c66d63caa67"
+      },
+      "iron_claw_effort-2": {
+        "source": "humanYell4.wav",
+        "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
+        "pitch": 0.89,
+        "offset": 0,
+        "layer": "monster.3.ogg",
+        "layer_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.426366,
+        "rms": 0.145,
+        "duration": 0.5,
+        "sha256": "dbe800c6b3d42b826ec1eb4316f2499cc2fb57319ee922a9275010a1e4f6b70f"
+      },
+      "iron_charge_effort": {
+        "previous_performance": {
+          "source": "zombieYell8.wav",
+          "pitch": 0.9,
+          "layer": "monster.6.ogg",
+          "layer_gain": 0.24,
+          "duration": 0.72,
+          "peak": 0.56,
+          "rms": 0.08744,
+          "sha256": "1890943cd4c92f5b0d736498d54da18c04d946efdca7f41c5ff2d48007a92217"
+        },
+        "input_sha256": "1890943cd4c92f5b0d736498d54da18c04d946efdca7f41c5ff2d48007a92217",
+        "peak": 0.479737,
+        "rms": 0.145,
+        "duration": 0.72,
+        "sha256": "e847ad8fed5260b50db54390879808d6f94d31f5d2fb23621338a82f9cf0e16a"
+      },
+      "iron_charge_effort-2": {
+        "source": "zombieYell6.wav",
+        "source_sha256": "79cd27c70ac3b44d4f7e8940310ee21073987032ea299203347639170f8c1208",
+        "pitch": 0.89,
+        "offset": 0,
+        "layer": "humanYell2.wav",
+        "layer_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.58,
+        "rms": 0.08871,
+        "duration": 0.72,
+        "sha256": "6a8fe70db9145db2d04e3d442ae75672111010962ac5f5734da0c0b830ecdecf"
+      },
+      "iron_cleave_effort": {
+        "previous_performance": {
+          "source": "humanYell2.wav",
+          "pitch": 0.87,
+          "layer": "monster.13.ogg",
+          "layer_gain": 0.25,
+          "duration": 0.66,
+          "peak": 0.56,
+          "rms": 0.06675,
+          "sha256": "85367450ac063f90ddd1fc7eba83948f1de8dab4a9a80598091c33244f1a6fdd"
+        },
+        "input_sha256": "85367450ac063f90ddd1fc7eba83948f1de8dab4a9a80598091c33244f1a6fdd",
+        "peak": 0.458128,
+        "rms": 0.145,
+        "duration": 0.66,
+        "sha256": "c3f704460d7d0e019b4062e3c94d9f6106a4171145e273c6f0a948e2e324dc48"
+      },
+      "iron_cleave_effort-2": {
+        "source": "humanYell5.wav",
+        "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": "monster.13.ogg",
+        "layer_sha256": "eb9bafa33e86361e8dfd9afe13293bb49429dd942dd2d85e9492ed5f3d69ba23",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.494784,
+        "rms": 0.145,
+        "duration": 0.66,
+        "sha256": "2ea1365d8ef2e9ddd6d2ed824de985fac6895fec1318f4313692d1002f486709"
+      },
+      "iron_elbow_effort": {
+        "previous_performance": {
+          "source": "humanYell3.wav",
+          "pitch": 0.86,
+          "layer": "monster.4.ogg",
+          "layer_gain": 0.18,
+          "duration": 0.38,
+          "peak": 0.48232,
+          "rms": 0.1,
+          "sha256": "099caef292a4bce51af82c4f85423c7f4e68a7e7bc7131cbe9c48678e9ac6650"
+        },
+        "input_sha256": "099caef292a4bce51af82c4f85423c7f4e68a7e7bc7131cbe9c48678e9ac6650",
+        "peak": 0.457113,
+        "rms": 0.145,
+        "duration": 0.38,
+        "sha256": "28401f079c5c31c388da057d40918eafeb3f9a68ac665d2d453ef6f31830e4ca"
+      },
+      "iron_elbow_effort-2": {
+        "source": "humanYell1.wav",
+        "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
+        "pitch": 0.86,
+        "offset": 0.08,
+        "layer": "monster.4.ogg",
+        "layer_sha256": "c6039463fc74c7fe5a95050c5a6d64ff9c7c049e670067f4173001e9fd6a61aa",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.439244,
+        "rms": 0.145,
+        "duration": 0.38,
+        "sha256": "ca3d5a9a22cab1cab3a22a1acdbff0d8a3dfc551f05ab0bb70dbb22c996f7e24"
+      },
+      "iron_slam_effort": {
+        "previous_performance": {
+          "source": "zombieDeath3.wav",
+          "pitch": 0.91,
+          "layer": "monster.7.ogg",
+          "layer_gain": 0.2,
+          "duration": 0.82,
+          "peak": 0.56,
+          "rms": 0.09496,
+          "sha256": "2b483d977675ff04255e50256ae331873ffb887bb7e3270d0afd09dade7d91ca"
+        },
+        "input_sha256": "2b483d977675ff04255e50256ae331873ffb887bb7e3270d0afd09dade7d91ca",
+        "peak": 0.480383,
+        "rms": 0.145,
+        "duration": 0.82,
+        "sha256": "575b6fa953fee29481764063432afb938dd4e3c1d399eafba610be318e14c3e6"
+      },
+      "iron_slam_effort-2": {
+        "source": "zombieYell8.wav",
+        "source_sha256": "e438cb50800d20c94224ebbd82efa31ae611530e34be57926b52bfe77117dff5",
+        "pitch": 0.87,
+        "offset": 0,
+        "layer": "humanYell2.wav",
+        "layer_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.553622,
+        "rms": 0.145,
+        "duration": 0.82,
+        "sha256": "5d0913385c86e1af1abace00e2f04a688f422f1827442eb0cd7aec4553e116c9"
+      },
+      "iron_rush": {
+        "previous_performance": {
+          "source": "zombieYell4.wav",
+          "pitch": 0.91,
+          "layer": "humanYell4.wav",
+          "layer_gain": 0.2,
+          "duration": 0.6,
+          "peak": 0.56,
+          "rms": 0.05793,
+          "sha256": "e3f80588f4f05ff2babf946d2f9f5e256f24a868d26ad65d91cef4a094c564b7"
+        },
+        "input_sha256": "e3f80588f4f05ff2babf946d2f9f5e256f24a868d26ad65d91cef4a094c564b7",
+        "peak": 0.58,
+        "rms": 0.138041,
+        "duration": 0.6,
+        "sha256": "75431bfaa146ab699a23393ac239c1385d9b195faaff26f89fa0b3a84ba8d4b7"
+      },
+      "iron_move": {
+        "source": "monster.11.ogg",
+        "source_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
+        "pitch": 0.91,
+        "offset": 0,
+        "layer": "humanYell4.wav",
+        "layer_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.09,
+        "peak": 0.386238,
+        "rms": 0.095,
+        "duration": 1.1,
+        "sha256": "abd5a9ac2d831c3a01b720fb0f3e69cccedaac16225d6d09ce946ba0b225065f"
+      },
+      "iron_recover": {
+        "source": "humanYell5.wav",
+        "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": "monster.3.ogg",
+        "layer_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.18,
+        "peak": 0.284642,
+        "rms": 0.095,
+        "duration": 0.55,
+        "sha256": "d523cec0cb52518a84c107944065e78e4a7bdb975034c976ca65d59e42857274"
+      }
+    }
+  },
+  "cues": {
+    "iron_alert": {
+      "input_sha256": "bfb07aed975f3e5c286ce6b6485e92fb3bda248cb680d6d36ef79f153d5a417d",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "6cf284237f49dd6f16d31736356e7025f873098df6a1b4cf6f68fa999b9edfde",
+      "peak": 0.315277099609375,
+      "rms": 0.12499613884284407,
       "duration": 1.25,
-      "sha256": "bfb07aed975f3e5c286ce6b6485e92fb3bda248cb680d6d36ef79f153d5a417d"
+      "max_sample_step": 0.070526123046875,
+      "prior_take_ref": "prior_provenance.cues.iron_alert"
     },
     "iron_alert-2": {
-      "source": "humanYell4.wav",
-      "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
-      "pitch": 0.84,
-      "offset": 0,
-      "layer": "monster.10.ogg",
-      "layer_sha256": "08a7990d67d7607fe46d9b0171a0d209ee328ac4a29a5d7fc16985cecf18d106",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.22,
-      "peak": 0.429435,
-      "rms": 0.115,
+      "input_sha256": "681e446f1525baeae6f753b64bf37a4828b8a17b769b7669ade4bb3b8cb67e7c",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "fe6b3ac34151acd393a56ed93f7b2b7bfb1300f1870020d485c15f63915e98fb",
+      "peak": 0.316131591796875,
+      "rms": 0.1249961760689813,
       "duration": 1.25,
-      "sha256": "681e446f1525baeae6f753b64bf37a4828b8a17b769b7669ade4bb3b8cb67e7c"
+      "max_sample_step": 0.060150146484375,
+      "prior_take_ref": "prior_provenance.cues.iron_alert-2"
     },
-    "iron_claw_effort": {
-      "previous_performance": {
-        "source": "humanYell1.wav",
-        "pitch": 0.91,
-        "layer": "monster.3.ogg",
-        "layer_gain": 0.2,
-        "duration": 0.5,
-        "peak": 0.49368,
-        "rms": 0.095,
-        "sha256": "1082f079712321767dd3b98cd64bc25a391159f5db1fc6fafbbe448f9ee98079"
-      },
-      "input_sha256": "1082f079712321767dd3b98cd64bc25a391159f5db1fc6fafbbe448f9ee98079",
-      "peak": 0.430757,
-      "rms": 0.145,
-      "duration": 0.5,
-      "sha256": "efd33ee0875ddc259b2f85f52b1941771fecfd5d87733dea6c156c66d63caa67"
+    "iron_breath": {
+      "input_sha256": "c0a50b3a35f1337978b185cf739e3f6bc3083a0f01f4ee82a9e5a073404aa967",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "b1a5f0462a681271f4b57db147f1403c5bb2ef028010a9f56d271ff87db98dcb",
+      "peak": 0.213348388671875,
+      "rms": 0.0799975515950063,
+      "duration": 1.65,
+      "max_sample_step": 0.05511474609375,
+      "prior_take_ref": "prior_provenance.cues.iron_breath"
     },
-    "iron_claw_effort-2": {
-      "source": "humanYell4.wav",
-      "source_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
-      "pitch": 0.89,
-      "offset": 0,
-      "layer": "monster.3.ogg",
-      "layer_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.426366,
-      "rms": 0.145,
-      "duration": 0.5,
-      "sha256": "dbe800c6b3d42b826ec1eb4316f2499cc2fb57319ee922a9275010a1e4f6b70f"
+    "iron_breath-2": {
+      "input_sha256": "abc342e7a3d0e56709299bcf398dcbc0c7ccdb7e67beddf0cdfea39479aacf14",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "b64fb0661a3e5b8b7e19e09958ca75448d722e0511af30cf6b2aa7aa91dfb6c6",
+      "peak": 0.2337646484375,
+      "rms": 0.07999751880684021,
+      "duration": 1.65,
+      "max_sample_step": 0.0479736328125,
+      "prior_take_ref": "prior_provenance.cues.iron_breath-2"
     },
     "iron_charge_effort": {
-      "previous_performance": {
-        "source": "zombieYell8.wav",
-        "pitch": 0.9,
-        "layer": "monster.6.ogg",
-        "layer_gain": 0.24,
-        "duration": 0.72,
-        "peak": 0.56,
-        "rms": 0.08744,
-        "sha256": "1890943cd4c92f5b0d736498d54da18c04d946efdca7f41c5ff2d48007a92217"
-      },
-      "input_sha256": "1890943cd4c92f5b0d736498d54da18c04d946efdca7f41c5ff2d48007a92217",
-      "peak": 0.479737,
-      "rms": 0.145,
+      "input_sha256": "e847ad8fed5260b50db54390879808d6f94d31f5d2fb23621338a82f9cf0e16a",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "404bd30b7e775860798596b7fb85e7b2edef444a2eff761e4be599471222fefe",
+      "peak": 0.34326171875,
+      "rms": 0.14999535771335637,
       "duration": 0.72,
-      "sha256": "e847ad8fed5260b50db54390879808d6f94d31f5d2fb23621338a82f9cf0e16a"
+      "max_sample_step": 0.06396484375,
+      "prior_take_ref": "prior_provenance.cues.iron_charge_effort"
     },
     "iron_charge_effort-2": {
-      "source": "zombieYell6.wav",
-      "source_sha256": "79cd27c70ac3b44d4f7e8940310ee21073987032ea299203347639170f8c1208",
-      "pitch": 0.89,
-      "offset": 0,
-      "layer": "humanYell2.wav",
-      "layer_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.58,
-      "rms": 0.08871,
+      "input_sha256": "6a8fe70db9145db2d04e3d442ae75672111010962ac5f5734da0c0b830ecdecf",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "1099a349529b71b60b33c7f4e695de04c2ba19a68855dbf8ffb413539d516202",
+      "peak": 0.399993896484375,
+      "rms": 0.10470381544153264,
       "duration": 0.72,
-      "sha256": "6a8fe70db9145db2d04e3d442ae75672111010962ac5f5734da0c0b830ecdecf"
+      "max_sample_step": 0.115264892578125,
+      "prior_take_ref": "prior_provenance.cues.iron_charge_effort-2"
+    },
+    "iron_claw_effort": {
+      "input_sha256": "efd33ee0875ddc259b2f85f52b1941771fecfd5d87733dea6c156c66d63caa67",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "5fc6de0a349bb115b8129cace2642dfa5d05f2eeea61b74e57069996a5f7201e",
+      "peak": 0.312255859375,
+      "rms": 0.14999538758296682,
+      "duration": 0.5,
+      "max_sample_step": 0.05291748046875,
+      "prior_take_ref": "prior_provenance.cues.iron_claw_effort"
+    },
+    "iron_claw_effort-2": {
+      "input_sha256": "dbe800c6b3d42b826ec1eb4316f2499cc2fb57319ee922a9275010a1e4f6b70f",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "8f5cab6c8f8efeeb819cff3cebe929dc67458ab7adeb4b283823f767fb8a3c8a",
+      "peak": 0.327392578125,
+      "rms": 0.14999529431082412,
+      "duration": 0.5,
+      "max_sample_step": 0.046875,
+      "prior_take_ref": "prior_provenance.cues.iron_claw_effort-2"
     },
     "iron_cleave_effort": {
-      "previous_performance": {
-        "source": "humanYell2.wav",
-        "pitch": 0.87,
-        "layer": "monster.13.ogg",
-        "layer_gain": 0.25,
-        "duration": 0.66,
-        "peak": 0.56,
-        "rms": 0.06675,
-        "sha256": "85367450ac063f90ddd1fc7eba83948f1de8dab4a9a80598091c33244f1a6fdd"
-      },
-      "input_sha256": "85367450ac063f90ddd1fc7eba83948f1de8dab4a9a80598091c33244f1a6fdd",
-      "peak": 0.458128,
-      "rms": 0.145,
+      "input_sha256": "c3f704460d7d0e019b4062e3c94d9f6106a4171145e273c6f0a948e2e324dc48",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "81f7c3649e3af86ba3dcd90fec0089ca174b5cbf0f2c22b3a1857aae75e41884",
+      "peak": 0.313201904296875,
+      "rms": 0.14999535129207173,
       "duration": 0.66,
-      "sha256": "c3f704460d7d0e019b4062e3c94d9f6106a4171145e273c6f0a948e2e324dc48"
+      "max_sample_step": 0.061553955078125,
+      "prior_take_ref": "prior_provenance.cues.iron_cleave_effort"
     },
     "iron_cleave_effort-2": {
-      "source": "humanYell5.wav",
-      "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": "monster.13.ogg",
-      "layer_sha256": "eb9bafa33e86361e8dfd9afe13293bb49429dd942dd2d85e9492ed5f3d69ba23",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.494784,
-      "rms": 0.145,
+      "input_sha256": "2ea1365d8ef2e9ddd6d2ed824de985fac6895fec1318f4313692d1002f486709",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "a70c8e4c5fb18ea7930437a883086d58ca468bb7e04ebb1c2cc4cde07bbe630f",
+      "peak": 0.341033935546875,
+      "rms": 0.1499955135827293,
       "duration": 0.66,
-      "sha256": "2ea1365d8ef2e9ddd6d2ed824de985fac6895fec1318f4313692d1002f486709"
+      "max_sample_step": 0.069732666015625,
+      "prior_take_ref": "prior_provenance.cues.iron_cleave_effort-2"
+    },
+    "iron_death": {
+      "input_sha256": "f018cc240d4e11e4248cea71e45082d6e58074cdfeb31c8b1d9fed36d01e7ab7",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "7b5e11ef99a018229d534e98b8dd68a0b1c371b4285ecf9b2f41f907dc7dea29",
+      "peak": 0.369293212890625,
+      "rms": 0.13499593424010908,
+      "duration": 2.05,
+      "max_sample_step": 0.0875244140625,
+      "prior_take_ref": "prior_provenance.cues.iron_death"
+    },
+    "iron_death-2": {
+      "input_sha256": "dd2807d7ac80a82aa19ed46943de9169e8b1ea6b0929a270a19dbaec06aa651c",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "787bd3d7ffbc9e2492780d193a26f39e0a50004a390ab9f8d003af33e7df5266",
+      "peak": 0.365447998046875,
+      "rms": 0.13499589770389836,
+      "duration": 2.05,
+      "max_sample_step": 0.09490966796875,
+      "prior_take_ref": "prior_provenance.cues.iron_death-2"
+    },
+    "iron_death-3": {
+      "input_sha256": "f11c12bc22308857cbba29cfbfae24e7cecad6cc4efb82eb1901455940a8232c",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "d72a702e18f4af3c29508de46a6b7325a8d6f9d8d70d1571eec25e5fa1123430",
+      "peak": 0.399993896484375,
+      "rms": 0.12884168765416862,
+      "duration": 2.05,
+      "max_sample_step": 0.097869873046875,
+      "prior_take_ref": "prior_provenance.cues.iron_death-3"
     },
     "iron_elbow_effort": {
-      "previous_performance": {
-        "source": "humanYell3.wav",
-        "pitch": 0.86,
-        "layer": "monster.4.ogg",
-        "layer_gain": 0.18,
-        "duration": 0.38,
-        "peak": 0.48232,
-        "rms": 0.1,
-        "sha256": "099caef292a4bce51af82c4f85423c7f4e68a7e7bc7131cbe9c48678e9ac6650"
-      },
-      "input_sha256": "099caef292a4bce51af82c4f85423c7f4e68a7e7bc7131cbe9c48678e9ac6650",
-      "peak": 0.457113,
-      "rms": 0.145,
+      "input_sha256": "28401f079c5c31c388da057d40918eafeb3f9a68ac665d2d453ef6f31830e4ca",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "ff0775fa9ed72dcf583a23527ab452d6d8f843085552988fc34324e7990800d8",
+      "peak": 0.34576416015625,
+      "rms": 0.14999529761438302,
       "duration": 0.38,
-      "sha256": "28401f079c5c31c388da057d40918eafeb3f9a68ac665d2d453ef6f31830e4ca"
+      "max_sample_step": 0.061676025390625,
+      "prior_take_ref": "prior_provenance.cues.iron_elbow_effort"
     },
     "iron_elbow_effort-2": {
-      "source": "humanYell1.wav",
-      "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
-      "pitch": 0.86,
-      "offset": 0.08,
-      "layer": "monster.4.ogg",
-      "layer_sha256": "c6039463fc74c7fe5a95050c5a6d64ff9c7c049e670067f4173001e9fd6a61aa",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.439244,
-      "rms": 0.145,
+      "input_sha256": "ca3d5a9a22cab1cab3a22a1acdbff0d8a3dfc551f05ab0bb70dbb22c996f7e24",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "b4bf08ed6fa1d8ba15f98b8b5278e177aa5d72eee8229900f9244f363857805c",
+      "peak": 0.330322265625,
+      "rms": 0.14999544485881391,
       "duration": 0.38,
-      "sha256": "ca3d5a9a22cab1cab3a22a1acdbff0d8a3dfc551f05ab0bb70dbb22c996f7e24"
+      "max_sample_step": 0.060699462890625,
+      "prior_take_ref": "prior_provenance.cues.iron_elbow_effort-2"
     },
-    "iron_slam_effort": {
-      "previous_performance": {
-        "source": "zombieDeath3.wav",
-        "pitch": 0.91,
-        "layer": "monster.7.ogg",
-        "layer_gain": 0.2,
-        "duration": 0.82,
-        "peak": 0.56,
-        "rms": 0.09496,
-        "sha256": "2b483d977675ff04255e50256ae331873ffb887bb7e3270d0afd09dade7d91ca"
-      },
-      "input_sha256": "2b483d977675ff04255e50256ae331873ffb887bb7e3270d0afd09dade7d91ca",
-      "peak": 0.480383,
-      "rms": 0.145,
-      "duration": 0.82,
-      "sha256": "575b6fa953fee29481764063432afb938dd4e3c1d399eafba610be318e14c3e6"
+    "iron_hurt": {
+      "input_sha256": "c5d3b43dcf2cfdf5affb6473a331901175be9914b0c373a77b462d008acfd673",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "884dc09cbd27d2baec72b66007d8392f72946d434bdef89978e5c9b35a355c36",
+      "peak": 0.282196044921875,
+      "rms": 0.12499621504310711,
+      "duration": 0.4,
+      "max_sample_step": 0.042327880859375,
+      "prior_take_ref": "prior_provenance.cues.iron_hurt"
     },
-    "iron_slam_effort-2": {
-      "source": "zombieYell8.wav",
-      "source_sha256": "e438cb50800d20c94224ebbd82efa31ae611530e34be57926b52bfe77117dff5",
-      "pitch": 0.87,
-      "offset": 0,
-      "layer": "humanYell2.wav",
-      "layer_sha256": "5d630e5e228fc2a5760ef15b93e2507382d8420918386dfbdb266d95d37e20f6",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.553622,
-      "rms": 0.145,
-      "duration": 0.82,
-      "sha256": "5d0913385c86e1af1abace00e2f04a688f422f1827442eb0cd7aec4553e116c9"
-    },
-    "iron_rush": {
-      "previous_performance": {
-        "source": "zombieYell4.wav",
-        "pitch": 0.91,
-        "layer": "humanYell4.wav",
-        "layer_gain": 0.2,
-        "duration": 0.6,
-        "peak": 0.56,
-        "rms": 0.05793,
-        "sha256": "e3f80588f4f05ff2babf946d2f9f5e256f24a868d26ad65d91cef4a094c564b7"
-      },
-      "input_sha256": "e3f80588f4f05ff2babf946d2f9f5e256f24a868d26ad65d91cef4a094c564b7",
-      "peak": 0.58,
-      "rms": 0.138041,
-      "duration": 0.6,
-      "sha256": "75431bfaa146ab699a23393ac239c1385d9b195faaff26f89fa0b3a84ba8d4b7"
+    "iron_hurt-2": {
+      "input_sha256": "4cb8a2f72c25812904543378e6cb300894cac862d87fc5542c273ecf29026482",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "2e52056d7c18e346f7c1c168facff1a597c73a06ce5e5dea55c642b2ecba8f3c",
+      "peak": 0.287139892578125,
+      "rms": 0.12499619626593364,
+      "duration": 0.4,
+      "max_sample_step": 0.05877685546875,
+      "prior_take_ref": "prior_provenance.cues.iron_hurt-2"
     },
     "iron_move": {
-      "source": "monster.11.ogg",
-      "source_sha256": "77164b18afdbfc67d6b927bf49e51b42edab638711c39f2636eb805aff506930",
-      "pitch": 0.91,
-      "offset": 0,
-      "layer": "humanYell4.wav",
-      "layer_sha256": "8294cfabf6b967c0f669f312d6f71ce4c3d87cd99063d566d612ee93e4fe736e",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.09,
-      "peak": 0.386238,
-      "rms": 0.095,
+      "input_sha256": "abd5a9ac2d831c3a01b720fb0f3e69cccedaac16225d6d09ce946ba0b225065f",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "7d5ecae25d6c8ebee609c0d73976369fb20ecc66db84e7771eb4c47d8254bd90",
+      "peak": 0.247802734375,
+      "rms": 0.09999693854863939,
       "duration": 1.1,
-      "sha256": "abd5a9ac2d831c3a01b720fb0f3e69cccedaac16225d6d09ce946ba0b225065f"
+      "max_sample_step": 0.061859130859375,
+      "prior_take_ref": "prior_provenance.cues.iron_move"
+    },
+    "iron_murmur": {
+      "input_sha256": "4335482126465528e477bc91f9ac1575f89eb504ae794f8e20aa422a5a70b9b4",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "cd078ae5ee90709492e0cac465fbf75411f6db11539389b9f33541201de9f46c",
+      "peak": 0.19903564453125,
+      "rms": 0.07999754129141835,
+      "duration": 1.8,
+      "max_sample_step": 0.043365478515625,
+      "prior_take_ref": "prior_provenance.cues.iron_murmur"
+    },
+    "iron_murmur-2": {
+      "input_sha256": "623ac5cf46dacdb85aa9db2a992d600c7e9e19dd42c6652689b486d6fc7aae43",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "00bcc748ed5d334d8df310a4daa9791d08e1da2e3cfe4b9951dacb3ec3208621",
+      "peak": 0.19378662109375,
+      "rms": 0.07999758232745675,
+      "duration": 1.8,
+      "max_sample_step": 0.045379638671875,
+      "prior_take_ref": "prior_provenance.cues.iron_murmur-2"
     },
     "iron_recover": {
-      "source": "humanYell5.wav",
-      "source_sha256": "c17afdcb5be9024666d49f4ab7420317ec992fb6d31d394537174bdd435f4b4f",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": "monster.3.ogg",
-      "layer_sha256": "04c40c3ef82bbe59b165cd593bbe5777756085c29bedc633e865d601569241be",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.18,
-      "peak": 0.284642,
-      "rms": 0.095,
+      "input_sha256": "d523cec0cb52518a84c107944065e78e4a7bdb975034c976ca65d59e42857274",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "372f770c5b5cbdf64608b6f8ff658dbcd7433225ed92f6841ceaaaa877163743",
+      "peak": 0.216278076171875,
+      "rms": 0.0999969136693132,
       "duration": 0.55,
-      "sha256": "d523cec0cb52518a84c107944065e78e4a7bdb975034c976ca65d59e42857274"
+      "max_sample_step": 0.039947509765625,
+      "prior_take_ref": "prior_provenance.cues.iron_recover"
+    },
+    "iron_rush": {
+      "input_sha256": "75431bfaa146ab699a23393ac239c1385d9b195faaff26f89fa0b3a84ba8d4b7",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "cd8e2fca08e6ade011a34b4b243c1047e92b90c8b28a7e15a8d9400c19444370",
+      "peak": 0.3509521484375,
+      "rms": 0.12499613265436833,
+      "duration": 0.6,
+      "max_sample_step": 0.095977783203125,
+      "prior_take_ref": "prior_provenance.cues.iron_rush"
+    },
+    "iron_slam_effort": {
+      "input_sha256": "575b6fa953fee29481764063432afb938dd4e3c1d399eafba610be318e14c3e6",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "e3188b3743c5c19c15f60443a927632afde11404f6c0f701c28eeb9f919b372f",
+      "peak": 0.3634033203125,
+      "rms": 0.14999543234475401,
+      "duration": 0.82,
+      "max_sample_step": 0.065887451171875,
+      "prior_take_ref": "prior_provenance.cues.iron_slam_effort"
+    },
+    "iron_slam_effort-2": {
+      "input_sha256": "5d0913385c86e1af1abace00e2f04a688f422f1827442eb0cd7aec4553e116c9",
+      "base_pitch": 0.88,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.65
+        }
+      ],
+      "reflection": [
+        0.033,
+        0.18
+      ],
+      "sha256": "eac50a02957ecdff4b060c64f7826ada5138bf845619d1357555e72a507f1f5c",
+      "peak": 0.399993896484375,
+      "rms": 0.14402508406438544,
+      "duration": 0.82,
+      "max_sample_step": 0.074310302734375,
+      "prior_take_ref": "prior_provenance.cues.iron_slam_effort-2"
+    },
+    "iron_step": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1
+        }
+      ],
+      "material": "chain",
+      "sha256": "cbb0d613222eba84433ab1292290a4a5815e98c559ec550037cbddf719367ce1",
+      "peak": 0.379974365234375,
+      "rms": 0.08877883951502993,
+      "duration": 0.34,
+      "max_sample_step": 0.1168212890625
+    },
+    "iron_step-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "chain",
+      "sha256": "5ea97b300fed8b4dc3550465d23df01b6dc8687b6eba04b181c2442f264b24c8",
+      "peak": 0.370635986328125,
+      "rms": 0.09999682643394388,
+      "duration": 0.34,
+      "max_sample_step": 0.124420166015625
+    },
+    "iron_prepare": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1
+        }
+      ],
+      "material": "chain",
+      "sha256": "0eec2e103d7d576fb4b001e029259decb6b994c3784f883d9a0fa0d892001366",
+      "peak": 0.379974365234375,
+      "rms": 0.08211991597241826,
+      "duration": 0.44,
+      "max_sample_step": 0.1170654296875
+    },
+    "iron_prepare-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "chain",
+      "sha256": "1ae15ba5bfdaa6ab41680661b82961cfb8cab315579e36acf177bfe2c14817b5",
+      "peak": 0.379974365234375,
+      "rms": 0.11087499620361,
+      "duration": 0.44,
+      "max_sample_step": 0.127685546875
+    },
+    "iron_cut": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1
+        }
+      ],
+      "material": "chain",
+      "sha256": "5d495504362b589611dbefd4f8fbc68d84ac4fd5a5ab8c370481899fd8af68f5",
+      "peak": 0.379974365234375,
+      "rms": 0.09040441821552908,
+      "duration": 0.32,
+      "max_sample_step": 0.11676025390625
+    },
+    "iron_cut-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "chain",
+      "sha256": "14db2c825ddb99f68e9311c33e01531a517e7add414ace90dfa08df8a6d6344b",
+      "peak": 0.379974365234375,
+      "rms": 0.10477123007493278,
+      "duration": 0.32,
+      "max_sample_step": 0.127777099609375
+    },
+    "iron_crash": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "fall",
+      "sha256": "60c95835d1b11f92a111e791ee805671590a8b54575e71a44cf384cfb585a80b",
+      "peak": 0.379974365234375,
+      "rms": 0.08416255452726513,
+      "duration": 0.64,
+      "max_sample_step": 0.1146240234375
+    },
+    "iron_crash-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "fall",
+      "sha256": "9d24be6aaae4d610553e12497f0d69e7ccc2dec9dd52f9c1ea3272086c830a3f",
+      "peak": 0.379974365234375,
+      "rms": 0.10233496530691227,
+      "duration": 0.64,
+      "max_sample_step": 0.118438720703125
+    },
+    "iron_fall": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "fall",
+      "sha256": "df2c30460bb09a00fba28da1e7c20db0f4eeb55e5925207a87ffb72e150179a0",
+      "peak": 0.379974365234375,
+      "rms": 0.07070430687093529,
+      "duration": 1.15,
+      "max_sample_step": 0.1163330078125
+    },
+    "iron_fall-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "fall",
+      "sha256": "3072718d2313de882cf533c6cdf118a6212b2d6acde440c4e41b83077e7c5751",
+      "peak": 0.379974365234375,
+      "rms": 0.08575914346433368,
+      "duration": 1.15,
+      "max_sample_step": 0.1190185546875
+    },
+    "iron_ground": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "stone",
+      "sha256": "5e4a080e71af4acc7e97f20819dd4beeabbfd1e6ae825fd61a0e63c30dbded60",
+      "peak": 0.379974365234375,
+      "rms": 0.08915243472878169,
+      "duration": 0.64,
+      "max_sample_step": 0.11346435546875
+    },
+    "iron_ground-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "stone",
+      "sha256": "c5654f2083c6395ab946850fd72465f1ddef3824ce169dd3063ec77b0776a9dd",
+      "peak": 0.379974365234375,
+      "rms": 0.11197390055548463,
+      "duration": 0.64,
+      "max_sample_step": 0.11614990234375
+    },
+    "iron_ground_roll": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "stone",
+      "sha256": "94a4c5a446cab43acfb8bac8358cb5f51687ccd175cc1d1ab1d8c225f7fef332",
+      "peak": 0.379974365234375,
+      "rms": 0.0761381400866493,
+      "duration": 1.1,
+      "max_sample_step": 0.11566162109375
+    },
+    "iron_ground_roll-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "stone",
+      "sha256": "e570caaaf0d226347319622d257701be331166b69d775b5e4c18c3bd870770b9",
+      "peak": 0.379974365234375,
+      "rms": 0.09584476899900085,
+      "duration": 1.1,
+      "max_sample_step": 0.116729736328125
+    },
+    "iron_ground_end": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "stone",
+      "sha256": "726af24d29716dbbeb6d499dd47a435e7c08c1eb55c5b36906408883b9a24b83",
+      "peak": 0.379974365234375,
+      "rms": 0.09267028751874098,
+      "duration": 0.55,
+      "max_sample_step": 0.112579345703125
+    },
+    "iron_ground_end-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "stone",
+      "sha256": "b4d06dfd890c1477bc58535fe0dad9f264eb06e5f1999a561dd636ad42f1e942",
+      "peak": 0.379974365234375,
+      "rms": 0.11621808310147481,
+      "duration": 0.55,
+      "max_sample_step": 0.115966796875
     }
+  },
+  "additional_source_hashes": {
+    "humanDeath1.wav": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+    "humanDeath2.wav": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a"
   }
 }

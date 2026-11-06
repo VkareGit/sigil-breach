@@ -68,6 +68,26 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Audio sześciu postaci, wdrożenie zaakceptowane 2026-11-06: rozdzielono
+  odgłosy ciała, przygotowania i wykonania, przelot/kontakt pocisku oraz
+  groźny przebieg i wygaśnięcie pola. Źródła podążają za ciałem, pociskiem
+  i najbliższym punktem fali; panorama, odległość i zasłonięcie reagują na
+  ruch gracza. Alarm, odskok i zderzenie również uwzględniają ściany.
+  Przerwanie wygasza głos, pauza go zawiesza, a Continue odtwarza właściwą
+  fazę bez ponownego uderzenia dawnego pioruna. Zapis i symulacja bez zmian.
+- Sześć odrębnych charakterów głosu otrzymało mocniejsze, indywidualne
+  przetwarzanie oraz własne kontakty z podłożem i materiały ataków. Stolas:
+  odegrane ludzkie krzyki i jęki w fali/rozdarciu, oddzielone od głosu maga.
+  Iron: ludzki głos w pancerzu i nagrany łańcuch; Gardener: zdławienie,
+  mokre kontakty, nasiona i korzenie; Furfur: zwierzęcy ryk i burza;
+  Ember: krótkie wysiłki i oddech; Margrave: zdarty głos, żar i ciężar.
+  Nowe nagrania marc3122, AuraVoice i kyles: CC0, pochodzenie przy WAV.
+- Poprawiono rywalizację o 28 głosów i ochronę strzału; nakładające się
+  rytuały mają wspólny budżet poziomu, ponieważ sonda 24 chórów wykazała
+  przesterowanie. Pojedynczy czar zachowuje poziom, osobni rzucający nie
+  tracą automatycznie odgłosu przez wspólny typ obrażeń. Żadnych zmian
+  grafiki, HUD-u, obrażeń, HP, czasów SI ani pozostałych zasad walki.
+
 - Audio sześciu postaci, 2026-11-06: zakończono ponowną analizę głosów,
   ataków, ruchu i słyszalności. PLAN zawiera propozycję do akceptacji:
   sześć odrębnych charakterów, krzyki potępionych w czarach Stolasa,
@@ -4349,6 +4369,69 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Audio sześciu postaci, wdrożenie 2026-11-06 — pełna brama Linux PASS;
+  odbiór artystyczny brzmienia pozostaje otwarty.
+  Czerwony test odtworzył 16 błędów przestrzeni, poziomów i aktywacji;
+  po rozszerzeniu creature-audio-lifecycle: 112 PASS. Dodatkowo natywny
+  zapis 24 nakładających się chórów przekraczał pełną skalę: peak 1,321,
+  2918 próbek >= 1. Po budżecie rytuałów: peak 0,385 i zero przekroczeń.
+  Konserwatywny test 24 chórów z Exorcistem: peak 2,043 → 0,614, PASS.
+  Pojedyncze odgłosy zachowują poziom; ograniczenie dotyczy sumy rytuałów.
+- Miks i zasoby: creature-audio-mix 887 PASS; 324 wykonania / 161 rodzin
+  sześciu postaci, maksimum próbki 0,400, minimum RMS 0,0643, największy
+  krok między próbkami 0,1559. Warianty, trzy śmierci, końcówki i zapas
+  sygnału sprawdzone technicznie. Osobne zestawy: Stolas 72, Iron 55,
+  Gardener 71, Ember 117, Furfur 128, Margrave 182 PASS. Dwa wcześniejsze
+  przebiegi golden w tej implementacji identyczne, zgodne z baseline_linux;
+  wzorców nie zmieniano. Pierwsze All wykryło nieaktualne oczekiwanie
+  cloven_step w teście kroku Embera; zmieniono je na ember_step, dodając
+  jawne wymaganie dokładnie jednego kontaktu, bez osłabiania kontroli stanu.
+  Drugie All zatrzymał dawny test natychmiastowego ucinania ostrzeżenia:
+  sprawdza teraz spadek poziomu po 10 ms i zakończenie w 30 ms, także przy
+  pełnej puli zwalniającej obiekt Source. Oddzielna integracja weapons:
+  441 PASS. Sprzątanie pola toleruje brak przydzielonego źródła.
+- Prawdziwe śmiertelne trafienie odtworzyło jeszcze nakładanie alarmu
+  żywego stworzenia na jego śmierć. Po poprawce alarm wygasa, nowy głos
+  śmierci pozostaje, a wypuszczone pola mają własne życie. Dowód:
+  creature-audio-death-red-real; wcześniejsza niekompletna fikstura zdarzenia
+  (brak damage) nie stanowiła dowodu błędu gry. Końcowe All: Architecture,
+  8808 Mechanics/Assets (w tym golden i integracja), Input 50, Render
+  oraz Tools PASS. Dziewięć świadectw ma exitCode 0, sourceStable true
+  i ten sam fingerprint źródeł:
+  A5AB00CDB05367485095C8E2622FD4B0D4DDB178D2AA072EBF75CF3C364A2D1D.
+  Po pierwszym błędzie Mechanics dokończono Input/Render/Tools osobno;
+  wcześniejsze nieudane przebiegi zachowano jako dowody, nie wynik końcowy.
+- Izolowany pomiar aktualizacji (mediana p95 z trzech prób): 1 ciało
+  0,0579 → 0,0596 ms, 6 ciał 0,1705 → 0,2007 ms, 24 ciała
+  0,7483 → 0,7918 ms. To koszt aktualizacji bez renderowania, z backendem
+  null i przyspieszonym czasem symulacji; nie pomiar FPS całej gry.
+  Maksimum 28 żywych źródeł, limitu nie podnoszono. Surowe powtórzenia,
+  w tym wolniejszy pierwszy przebieg po zmianie, zachowano w CSV.
+- Rzeczywisty miks OpenAL Soft: 36 s sześciu SI, muzyka, obrót słuchacza,
+  dźwięki Judge'a i Exorcista, trzy zestawy broni. Szczyt 0,551 → 0,529;
+  zero przekroczeń pełnej skali. Odgłosy strzałów wyzwalano skryptem — nie
+  jest to ręczne granie ani przebieg bota używającego rzeczywistej broni.
+  Dziennik potwierdza głosy fali/rozdarcia Stolasa, kontaktów pocisków
+  i fali Iron Thralla. Krótkie porównania mono przy poziomie dla 6 m mają
+  osobno oznaczoną oś czasu; są prezentacją próbek, nie dodatkowym miksem gry.
+- Osobny natywny zapis zwykłej kaplicy: 45 s prawdziwego wejścia bota,
+  ruchu, strzałów i trafień. Szczyt 0,717, zero przekroczeń pełnej skali,
+  maksymalnie 28 źródeł, 2231 wyzwoleń w 92 rodzinach. Dwa ponowienia po
+  śmierci; na końcu 65,6 HP i jedno zabójstwo w aktualnym podejściu.
+  To próba audio, nie dowód ukończenia kaplicy ani odbiór balansu.
+  Pomiar końcowy pochodzi z klonu o identycznym fingerprint jak zielone All.
+- Dowody i odsłuch: work/qa-direct/creature-audio-delivery-20261106/,
+  w tym listen/*-before-after.wav, before/after-native-combat.ogg,
+  listen/chapel-actual-bot.ogg, samples-final.csv, measurements.json,
+  źródła CC0 i stabilne świadectwa sond oraz pełnej bramy.
+  Natywne testy sprawdzają także pauzę, suwaki, ruch, ściany, przerwanie,
+  ponowne użycie źródła i odtworzenie faz po Continue. Brak wiarygodnego
+  odsłuchu agenta w słuchawkach/głośnikach; klimat, komfort, maskowanie
+  i normalna gra pozostają do próby właściciela. Windows niesprawdzony.
+  Grafika i katalog baza/ bez zmian. Formatowanie i końcowy diff poprawne;
+  sumy 324 WAV zgodne z pochodzeniem. Własny klon pomiarowy i przypisany
+  katalog wyników usunięto po zachowaniu dowodów. Push nie został wykonany.
 
 - Audio sześciu postaci, analiza 2026-11-06: 792 nowe sprawdzenia PASS
   (miks 627, Stolas 59, Iron Thrall 47, Gardener 59). Natywne sondy

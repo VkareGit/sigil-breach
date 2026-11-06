@@ -177,6 +177,24 @@ Ruch gracza / feeling:
   nowy ruch = nowy wpis. Podgląd: --movement-review.
 
 Dźwięk i muzyka:
+  Audio sześciu stworów ma osobne profile content/creature_audio.lua:
+  ciało, czynność, pocisk i pole. Profile są prezentacją i nie trafiają
+  do zamrożonych definicji walki ani zapisu. Rozpoznawanie przez archetype.id
+  zachowuje odrębność Iron Thralla mimo wspólnego rodzaju SI z Emberem.
+  audio/spatial.lua aktualizuje źródła i słuchacza; bada zasłonięcie co
+  0,08 s, łagodzi zmianę poziomu i filtruje zasłonięte źródło. Bilet głosu
+  chroni ponownie wykorzystany Source przed spóźnionym przerwaniem.
+  audio/field_voices.lua śledzi faktyczne życie pola, początek i koniec;
+  jednorazowy kontakt nie jest zapętlany, a groźny przebieg może być.
+  worldRestored odbudowuje wyłącznie prezentację: bez ponownego kontaktu
+  aktywnego pioruna; oczekujący kontakt i rozpoczęty głos czaru zostają.
+  content/audio_mix.lua ogranicza sumę poziomów nakładających się rytuałów,
+  nie głośność pojedynczego pola ani głosu rzucającego. Pule nadal mają
+  po 28 źródeł żywych i odłożonych; strzał ma pierwszeństwo przed tłumem.
+  creature-audio-lifecycle oraz creature-audio-mix sprawdzają natywne
+  Sources, przypisanie zdarzeń, Continue, granice miksu i wszystkie warianty.
+  PASS techniczny nie zastępuje odsłuchu. Pochodzenie i licencje nagrań:
+  assets/sounds/<rodzina>/provenance.json; dowody i próbki poza repozytorium.
   Efekty to przepisy w audio/recipes.lua (długość, głos; wspólne narzędzia
   audio/synth.lua); każdy dźwięk ma własne ziarno szumu, nowy nie zmienia
   innych. Muzyka to dane w audio/score.lua (chorał, warstwy, nastroje),

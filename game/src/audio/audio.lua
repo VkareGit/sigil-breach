@@ -5,6 +5,7 @@ local Soundscape = require('src.audio.soundscape')
 local WorldCues = require('src.audio.world_cues')
 local Arena = require('src.world.arena')
 local VoiceData = require('src.audio.voice_data')
+local Spatial = require('src.audio.spatial')
 local Recipes = require('src.audio.recipes')
 local Sets = require('src.content.sound_sets')
 local A = {
@@ -61,6 +62,7 @@ function A.release()
   A.takes, A.variants, A.lastTake = {}, {}, {}
   A.priorities = {}
   A.warningHold = 0
+  Spatial.reset()
   tickets = setmetatable({}, { __mode = 'k' })
   WorldCues.reset()
   Soundscape.release()
@@ -146,6 +148,7 @@ end
 -- step and impact. Both active voices and the idle cache have strict caps.
 local function recycle(s)
   s:stop()
+  Spatial.remove(s)
   local name = A.voiceNames[s]
   A.voiceNames[s] = nil
   A.priorities[s] = nil
@@ -171,15 +174,39 @@ function A.play(name, volume, priority, category)
   end
   local recipe = Recipes[name]
   priority = math.max(priority or recipe.priority or 1, recipe.minPriority or 0)
+  -- The player's report must survive even a full room of simultaneous warnings.
+  if Sets.cues[name] and Sets.cues[name].baked then
+    priority = math.max(priority, 4)
+  end
   if #A.live >= 28 then
     local victim = 1
     for i = 2, #A.live do
-      if (A.priorities[A.live[i]] or 0) < (A.priorities[A.live[victim]] or 0) then
+      local candidate, current = A.live[i], A.live[victim]
+      if
+        (A.priorities[candidate] or 0) < (A.priorities[current] or 0)
+        or (
+          (A.priorities[candidate] or 0) == (A.priorities[current] or 0)
+          and Spatial.loudness(candidate) < Spatial.loudness(current)
+        )
+      then
         victim = i
       end
     end
     -- A drip/footfall cannot steal an attack warning or the player's shot.
     if (A.priorities[A.live[victim]] or 0) > priority then
+      return
+    end
+    local recorded = A.takes[A.set] and A.takes[A.set][name]
+    local setGain = recorded and Sets.cues[name].gain or 1
+    local incoming = (volume or 0.65) * (recipe.gain or 1) * setGain
+    if recipe.gain then
+      incoming = math.min(1, incoming)
+    end
+    incoming = incoming * A.levels[category or 'effects']
+    if
+      A.priorities[A.live[victim]] == priority
+      and Spatial.loudness(A.live[victim]) > incoming * 1.05
+    then
       return
     end
     recycle(table.remove(A.live, victim))
@@ -196,14 +223,24 @@ function A.play(name, volume, priority, category)
   end
   A.voiceNames[s] = key
   A.priorities[s] = priority
-  if priority >= 3 then
+  if priority == 3 then
     A.warningHold = 0.65
   end
-  local level = (volume or 0.65) * gain
+  local base = (volume or 0.65) * gain * (recipe.gain or 1)
+  local level = base
   if recipe.gain then
-    level = math.min(1, level * recipe.gain)
+    level = math.min(1, level)
   end
+  Spatial.begin(
+    s,
+    base,
+    category,
+    recipe.gain ~= nil,
+    recipe,
+    level * A.levels[category or 'effects']
+  )
   s:setVolume(level * A.levels[category or 'effects'])
+  s:setLooping(false)
   s:setPitch(1)
   s:setRelative(true)
   s:setPosition(0, 0, 0)
@@ -212,37 +249,72 @@ function A.play(name, volume, priority, category)
   if jitter then
     s:setPitch(1 - jitter + love.math.random() * 2 * jitter)
   end
-  s:play()
   A.live[#A.live + 1] = s
+  Spatial.mix(A.live, 0)
+  s:play()
   serial = serial + 1
   tickets[s] = serial
   return s, serial
 end
 -- A Source may have been recycled for another voice since its caller held it.
 -- The playback ticket prevents cancelling that unrelated sound.
-function A.stopVoice(source, ticket)
+function A.stopVoice(source, ticket, fade)
   if source and ticket and tickets[source] == ticket then
-    source:stop()
+    if not fade or not Spatial.fade(source, fade) then
+      source:stop()
+    end
   end
 end
-function A.playAt(name, x, z, p, volume, priority, world, category)
+function A.loopVoice(source, ticket, age)
+  if source and ticket and tickets[source] == ticket then
+    source:setLooping(true)
+    if age then
+      source:seek(age % source:getDuration())
+      Spatial.rise(source, 0.04)
+    end
+  end
+end
+function A.seekVoice(source, ticket, age)
+  if source and ticket and tickets[source] == ticket then
+    if age >= source:getDuration() then
+      source:stop()
+    else
+      source:seek(math.max(0, age))
+    end
+  end
+end
+function A.ownsVoice(source, ticket)
+  return source ~= nil and ticket ~= nil and tickets[source] == ticket
+end
+function A.stopEmitter(emitter, fade)
+  for _, source in ipairs(A.live) do
+    if Spatial.emits(source, emitter) then
+      A.stopVoice(source, tickets[source], fade)
+    end
+  end
+end
+function A.clearWorld()
+  for i = #A.live, 1, -1 do
+    if Spatial.isWorld(A.live[i]) then
+      recycle(table.remove(A.live, i))
+    end
+  end
+  WorldCues.reset()
+end
+function A.playAt(name, x, z, p, volume, priority, world, category, emitter)
   local dx, dz = x - p.x, z - p.z
   local d = math.sqrt(dx * dx + dz * dz)
   if d > 32 then
     return
   end
   local recipe = Recipes[name]
-  local gain = (volume or 0.6) / (1 + d * (recipe and recipe.falloff or 0.13))
+  local attenuation = 1 / (1 + d * (recipe and recipe.falloff or 0.13))
   if world and not Arena.visible(world, x, z, p.x, p.z) then
-    gain = gain * 0.38
+    attenuation = attenuation * 0.38
   end
-  local s, ticket = A.play(name, gain, priority, category)
+  local s, ticket = A.play(name, (volume or 0.6) * attenuation, priority, category)
   if s then
-    local side =
-      math.max(-1, math.min(1, (dx * math.cos(p.yaw) - dz * math.sin(p.yaw)) / math.max(1, d)))
-    s:setRelative(true)
-    s:setPosition(side * 0.8, 0, -0.6)
-    s:setRolloff(0)
+    Spatial.attach(s, x, z, p, world, emitter, attenuation)
   end
   return s, ticket
 end
@@ -252,10 +324,11 @@ function A.update(dt, g)
     Soundscape.update(A, dt, g)
   end
   for i = #A.live, 1, -1 do
-    if not A.live[i]:isPlaying() then
+    if not Spatial.update(A.live[i], dt, g, A.levels, A.muted) then
       recycle(table.remove(A.live, i))
     end
   end
+  Spatial.mix(A.live, dt)
   if g and dt > 0 then
     WorldCues.update(A, g, dt)
   end

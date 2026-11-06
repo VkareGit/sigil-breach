@@ -2,17 +2,18 @@
 
 ## Zakres i status
 
-**2026-11-06: ponowny przegląd całego audio sześciu postaci — analiza
-zakończona, plan czeka na akceptację właściciela. Wdrożenie nierozpoczęte.**
+**2026-11-06: zaakceptowany pakiet audio sześciu postaci wdrożony;
+pełna brama Linux PASS, odsłuch właściciela pozostaje otwarty.** Właściciel dodatkowo zezwolił na bardziej
+mroczne i zniekształcone głosy, z zachowaniem charakteru stworów i czytelności.
 Zakres: Ember Thrall, Iron Thrall, Star Acolyte/Stolas, Plague Gardener/Buer,
 Furfur i Margrave of Ash; głos ciała, ruch i uniki, przygotowanie,
 wypuszczenie, przebieg i zakończenie ataków, trafienia, przerwanie i śmierć.
 Cel: rozpoznawalne, niepokojące postacie oraz czytelne zagrożenia w walce.
-Właściciel dopuszcza zmianę wszystkich tych odgłosów; najpierw wymaga planu.
+Właściciel zaakceptował plan i zmianę wszystkich tych odgłosów.
 Szczegółowa analiza i źródła: HISTORIA, „Analiza audio sześciu postaci
 (2026-11-06)”. Poprzedni PLAN Margrave'a zachowany tam w całości.
 
-## Proponowany kierunek
+## Zaakceptowany kierunek
 
 Wspólny świat: ciało potępieńca, oddech, kamień, żelazo, popiół,
 zepsucie i obrzęd. Dziewięć kręgów piekła jako kierunek świata, bez
@@ -23,7 +24,7 @@ Nie każdy atak potrzebuje krzyku ani każda chwila obecności — pomruku.
 Przetwarzanie ma zachować słyszalnego człowieka lub zwierzę pod deformacją.
 Bez słownych kwestii, współczesnej mechaniki, ciągłego basu i ostrych pisków.
 
-| Postać | Proponowany charakter i najważniejsze czynności |
+| Postać | Charakter i najważniejsze czynności |
 | --- | --- |
 | Ember Thrall | Krótki, urywany oddech wyniszczonego napastnika; wysiłek pazurów, skoku, odskoku i lądowania. Najczęstszy przeciwnik: oszczędna obecność, krótkie zakończenia i różne wykonania, żeby grupa nie zamieniała się w stały wrzask. |
 | Iron Thrall | Ludzki głos uwięziony w pancerzu, napięcie płyt i łańcucha, ciężki kontakt z posadzką. Rozróżnić zamach, szarżę barkiem, cios powrotny, uderzenie w ziemię i zatrzymanie na murze; materiał nie może być tylko ogólnym szumem. |
@@ -40,7 +41,7 @@ Margrave'a. Kontakt ciała/wyposażenia z ziemią ma przypadać na rzeczywisty
 upadek, nie na początek całej animacji. Kilka wykonań każdej śmierci;
 długie ogony ograniczane w tłumie, bez zasłaniania żywych zagrożeń.
 
-## Proponowana kolejność wdrożenia po akceptacji
+## Zaakceptowana kolejność wdrożenia
 
 1. **Dowody wejściowe i testy regresji.** Uzupełnić zachowany inwentarz
    rzeczywistymi śladami zdarzeń każdej czynności, także odskoku, przerwania,
@@ -101,6 +102,35 @@ długie ogony ograniczane w tłumie, bez zasłaniania żywych zagrożeń.
 
 ## Postęp
 
+- 2026-11-06: wdrożenie zakończone. Końcowe All: Architecture, 8808
+  Mechanics/Assets, Input 50, Render i Tools PASS; dziewięć stabilnych
+  świadectw tego samego stanu gry. Lifecycle 112 i mix 887 PASS także
+  osobno; golden bez zmiany wzorca. 324 wykonania w 161 rodzinach,
+  pochodzenie i sumy wszystkich nagrań sprawdzone. Grafika bez zmian.
+- Zachowano przed/po: 16 czerwonych oczekiwań cyklu życia naprawionych;
+  24 chóry w natywnym miksie: peak 1,321 → 0,385, przekroczenia pełnej
+  skali 2918 → 0. Dodatkowo prawdziwa śmierć wygasza dawny alarm,
+  zachowując głos śmierci i niezależne życie wypuszczonych pól.
+- Pomiar 1/6/24 ciał i nagrania natywnego miksu ukończone. Osobne 45 s
+  zwykłej kaplicy z rzeczywistym wejściem bota: peak 0,717, zero
+  przekroczeń, maksymalnie 28 źródeł. Nie jest to odbiór trudności.
+  Dowody i sześć porównań do odsłuchu: zewnętrzne
+  work/qa-direct/creature-audio-delivery-20261106/; szczegóły w ODBIOR.
+  Pozostaje odsłuch właściciela w grze: groza, komfort i rozpoznawalność
+  zapowiedzi. Agent nie miał wiarygodnego odsłuchu. Windows niesprawdzony;
+  push nie został wykonany. Własny klon pomiarowy usunięto po zachowaniu
+  nagrań, pomiarów i świadectw.
+- 2026-11-06: akceptacja całego pakietu. Zachowano nagranie natywnego miksu
+  sprzed zmian, pomiary aktualizacji dla 1/6/24 przeciwników oraz czerwony
+  test cyklu życia: 16 niezaliczonych oczekiwań. Pierwsza poprawka zaliczyła
+  wszystkie 21 sprawdzeń tej sondy; rozszerzono weryfikację o Continue,
+  tożsamość wariantu Iron Thralla, przerwania i przeciążenie źródeł.
+- Wdrożenie obejmuje profile audio poza definicjami symulacji, ruch źródeł,
+  tłumienie przez ściany, wyciszanie trwających głosów, fazy pól i wznowienie
+  bez powtarzania wcześniejszych kontaktów. Nagrania sześciu postaci otrzymały
+  odrębne przetwarzanie, warianty i materiały. Nowe odegrane ludzkie głosy
+  dla rytuałów Stolasa oraz nagrany łańcuch mają zweryfikowaną licencję CC0.
+  Wynik odsłuchu artystycznego nadal wymaga właściciela.
 - 2026-11-06: analiza zakończona na czystym `011d3dd`, wersja 0.45.
   Prześledzono definicje sześciu postaci, receptury, feedback, głosy ciała,
   pociski/pola, pulę źródeł, tłumienie, muzykę, obecne testy i pochodzenie
@@ -121,11 +151,12 @@ długie ogony ograniczane w tłumie, bez zasłaniania żywych zagrożeń.
 
 ## Decyzja
 
-Rekomendowany jest cały powyższy pakiet: sześć odrębnych charakterów,
+Wdrożono cały powyższy pakiet: sześć odrębnych charakterów,
 krzyki ofiar jako warstwa piekielnych czarów Stolasa, naprawa wyzwalania
 i przestrzeni oraz wspólny miks. Bez nowych umiejętności i zmian balansu.
-Akceptacja planu upoważni do wdrożenia; dobór plików i dokładne parametry
-są decyzjami wykonawczymi sprawdzanymi pomiarem i odsłuchem.
+Właściciel zaakceptował plan i wdrożenie. Dobór plików i dokładne parametry
+są decyzjami wykonawczymi sprawdzanymi pomiarem; klimat oraz komfort
+brzmienia pozostają do jego odsłuchu w grze.
 
 ## Poza zakresem
 

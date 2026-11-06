@@ -12,529 +12,1216 @@
       "title": "Zombie / Skeleton / Monster Voice Effects",
       "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
       "license": "CC0"
+    },
+    {
+      "author": "marc3122",
+      "title": "Male Screams [performed by author]",
+      "url": "https://freesound.org/people/marc3122/sounds/556976/",
+      "download": "https://cdn.freesound.org/previews/556/556976_12497831-hq.mp3",
+      "file": "male-screams-marc3122.mp3",
+      "license": "CC0-1.0",
+      "sha256": "a7c4abd986ee308854ac33b6d5cad5f67d5d4c2b0eb36bd1a2231d3f93597dc4"
+    },
+    {
+      "author": "AuraVoice / Nocturnal_Vanguard",
+      "title": "Female Hurt Grunts & Groans",
+      "url": "https://opengameart.org/content/female-hurt-grunts-groans",
+      "download": "https://opengameart.org/sites/default/files/female_hurt_grunts_groans_1_0.ogg",
+      "file": "female-hurt-auravoice.ogg",
+      "license": "CC0-1.0",
+      "sha256": "80a9fb09203bb8feb065ba15197609b118cbe167c9a2264670a31ee22c384adb"
+    },
+    {
+      "author": "kyles",
+      "title": "chain thick rattle hooked onto metal1.wav",
+      "url": "https://freesound.org/people/kyles/sounds/452576/",
+      "download": "https://cdn.freesound.org/previews/452/452576_612689-hq.mp3",
+      "file": "chain-kyles.mp3",
+      "license": "CC0-1.0",
+      "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec"
+    },
+    {
+      "author": "rubberduck",
+      "title": "80 CC0 creature SFX",
+      "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+      "download": "https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip",
+      "license": "CC0",
+      "archive_sha256": "5d4002eea42f278e76543bb36e8ddd2cb978588a13271984191d8228f5d26768"
     }
   ],
-  "processing": "Mono 44100 Hz PCM16; per-take pitch and offsets, 130 Hz highpass / 3000 Hz lowpass; quiet 31 ms reflection at .07; crest shaping x/sqrt(1+(x/(k*RMS))^2), k=1.4 effort / 2 body / .6 preparation / 1.8 material, two 2800 Hz smoothing stages, 12/65 ms fades. Peak <= .30 effort, .38 body, .18 preparation, .32 physical material. Physical materials are original deterministic filtered-noise fibre/ground gestures generated for SIGIL: BREACH, not recordings from another game. Listening approval remains with the owner.",
+  "processing": "2026-11-06: per-character continuation of the licensed performances at commit 7243ac1. Mono PCM16 44100 Hz; FFmpeg rubberband pitch (duration preserved), HP 100 Hz / LP 2600-4100 Hz; independent recorded human, throat, deer, wet and chain layers documented per take. Soft crest x/sqrt(1+(x/(drive*RMS))^2), drive 1.45-1.8, two 3000 Hz smoothing stages, 16/75 ms fades. No stolen game audio. Additional sources with licenses inherited through prior_take and original provenance; new public HQ previews explicitly identified. Technical shaping is not a listening approval.",
+  "prior_provenance": {
+    "sources": [
+      {
+        "author": "Ogrebane",
+        "title": "Monster Sound Effects Pack",
+        "url": "https://opengameart.org/content/monster-sound-effects-pack",
+        "license": "CC0",
+        "archive_sha256": "f39c5ae356b1fc01284057ee48e35ec1a52fcc84bfa959b77d0a696adc8459e4"
+      },
+      {
+        "author": "ArcadeParty",
+        "title": "Zombie / Skeleton / Monster Voice Effects",
+        "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+        "license": "CC0"
+      }
+    ],
+    "processing": "Mono 44100 Hz PCM16; per-take pitch and offsets, 130 Hz highpass / 3000 Hz lowpass; quiet 31 ms reflection at .07; crest shaping x/sqrt(1+(x/(k*RMS))^2), k=1.4 effort / 2 body / .6 preparation / 1.8 material, two 2800 Hz smoothing stages, 12/65 ms fades. Peak <= .30 effort, .38 body, .18 preparation, .32 physical material. Physical materials are original deterministic filtered-noise fibre/ground gestures generated for SIGIL: BREACH, not recordings from another game. Listening approval remains with the owner.",
+    "cues": {
+      "ember_breath": {
+        "source": "monster-6.wav",
+        "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+        "pitch": 0.94,
+        "offset": 0,
+        "sha256": "fb740393f14eb773761603a22c3c818cb57f42bd023183e61f847b14c4e11185",
+        "peak": 0.2235354575240625,
+        "rms": 0.08,
+        "duration": 1.1
+      },
+      "ember_breath-2": {
+        "source": "monster-8.wav",
+        "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+        "pitch": 0.97,
+        "offset": 0.12,
+        "sha256": "a18e7a74d036df5c159feb3dfee1df35022e4e600ba35eda9d598751ff952cda",
+        "peak": 0.2218836074500212,
+        "rms": 0.08,
+        "duration": 1.1
+      },
+      "ember_murmur": {
+        "source": "monster-8.wav",
+        "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+        "pitch": 0.88,
+        "offset": 0,
+        "sha256": "3a8667bd61b7810296d2208a36f8c088e47e38a6178304a2cd258445e4132828",
+        "peak": 0.21727362801087913,
+        "rms": 0.08,
+        "duration": 1.15
+      },
+      "ember_murmur-2": {
+        "source": "monster-6.wav",
+        "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+        "pitch": 0.88,
+        "offset": 0.1,
+        "sha256": "7c399dd9415fce8581cc767ef5e4dc6cae1524fd7b07c987eae7a549a84510f5",
+        "peak": 0.22185638767209184,
+        "rms": 0.08,
+        "duration": 1.15
+      },
+      "ember_move": {
+        "source": "monster-1.wav",
+        "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+        "pitch": 1.02,
+        "offset": 0,
+        "sha256": "37b21632d8e19ddff426fd845d9ef139659be7c800f291f6f289fe3891e21b32",
+        "peak": 0.2639557987059589,
+        "rms": 0.095,
+        "duration": 0.66
+      },
+      "ember_move-2": {
+        "source": "monster-10.wav",
+        "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+        "pitch": 1.01,
+        "offset": 0,
+        "sha256": "d061d9bddff490d65d5f4cbf30d75cf70c755277683e13b630207f3e8131a991",
+        "peak": 0.27163679787095774,
+        "rms": 0.095,
+        "duration": 0.66
+      },
+      "ember_recover": {
+        "source": "monster-7.wav",
+        "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+        "pitch": 1.0,
+        "offset": 0,
+        "sha256": "40a14fb79d39f0199aae600768315a97b26ac881d718a3ab263fabc69070d82c",
+        "peak": 0.2716449438624286,
+        "rms": 0.095,
+        "duration": 0.48
+      },
+      "ember_recover-2": {
+        "source": "monster-5.wav",
+        "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+        "pitch": 0.96,
+        "offset": 0,
+        "sha256": "0a300f07f40fb025a65b75eee14725575bf5d1e5d73116d53dd71cfd50053715",
+        "peak": 0.3232601616360053,
+        "rms": 0.09500000000000001,
+        "duration": 0.48
+      },
+      "ember_alert": {
+        "source": "monster-8.wav",
+        "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+        "pitch": 1.04,
+        "offset": 0,
+        "sha256": "a41c636de5a16eb636d4894321d207dea8c2a6c549814ee148d4c8c9ca8025c2",
+        "peak": 0.29658815298132024,
+        "rms": 0.115,
+        "duration": 0.85
+      },
+      "ember_alert-2": {
+        "source": "monster-6.wav",
+        "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+        "pitch": 1.06,
+        "offset": 0,
+        "sha256": "5f5e744eb5f4752aa121b089cfea2689d2a9df402e618a4ab321f289ce7da938",
+        "peak": 0.31431177563688845,
+        "rms": 0.115,
+        "duration": 0.85
+      },
+      "ember_hurt": {
+        "source": "monster-3.wav",
+        "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
+        "pitch": 0.96,
+        "offset": 0,
+        "sha256": "4361b38808d328a7280da33647e15f6a7b389b3e5b99a61859e0f03a49fb2dd3",
+        "peak": 0.36615533612234274,
+        "rms": 0.115,
+        "duration": 0.43
+      },
+      "ember_hurt-2": {
+        "source": "monster-2.wav",
+        "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
+        "pitch": 0.97,
+        "offset": 0,
+        "sha256": "eb67e9ae1cd5e6037529cbb058ca1ef042ea80558a6c7052dc7ada1a4437f7e7",
+        "peak": 0.3350235264634253,
+        "rms": 0.11499999999999999,
+        "duration": 0.43
+      },
+      "ember_death": {
+        "source": "monster-8.wav",
+        "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "humanDeath2.wav",
+          "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+          "pitch": 0.93,
+          "gain": 0.3
+        },
+        "sha256": "c2492dd3eae82efc782017f8474d8b4a0f42e0b29f662d008d7fea1f18ce8ce6",
+        "peak": 0.36146830579291933,
+        "rms": 0.125,
+        "duration": 1.55
+      },
+      "ember_death-2": {
+        "source": "monster-6.wav",
+        "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
+        "pitch": 0.84,
+        "offset": 0,
+        "layer": {
+          "source": "zombieDeath1.wav",
+          "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
+          "pitch": 0.98,
+          "gain": 0.3
+        },
+        "sha256": "d18e81254c8345a9f79f89dba4378b8a824f83217335023eb081971226ed39de",
+        "peak": 0.3680074387211413,
+        "rms": 0.12499999999999999,
+        "duration": 1.55
+      },
+      "ember_death-3": {
+        "source": "monster-1.wav",
+        "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+        "pitch": 0.9,
+        "offset": 0,
+        "layer": {
+          "source": "humanDeath1.wav",
+          "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+          "pitch": 1.01,
+          "gain": 0.3
+        },
+        "sha256": "eb993c08c20b1eb092c9715ff6e8ae91f20a36eb3c88c6f2302fe0bf8c3b56d2",
+        "peak": 0.38,
+        "rms": 0.11159005130100345,
+        "duration": 1.55
+      },
+      "ember_claw_effort": {
+        "source": "monster-1.wav",
+        "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
+        "pitch": 1.03,
+        "offset": 0.05,
+        "sha256": "b2ce40cf71b0420cb7ce6c53947fb8068572c606c04e05159aa70c00a01ce6b9",
+        "peak": 0.3,
+        "rms": 0.13697477219864956,
+        "duration": 0.48
+      },
+      "ember_claw_effort-2": {
+        "source": "monster-10.wav",
+        "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
+        "pitch": 1.04,
+        "offset": 0.04,
+        "sha256": "be7789f644915a0c38db81cca91682ad66ed5a4da0859bae202ecf464ab4e561",
+        "peak": 0.3,
+        "rms": 0.13005580425624902,
+        "duration": 0.48
+      },
+      "ember_late_effort": {
+        "source": "monster-5.wav",
+        "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
+        "pitch": 1.01,
+        "offset": 0,
+        "sha256": "24be6c54870590130dd44c5891285d0f99038c8eda15d99f945a979b8233303a",
+        "peak": 0.3,
+        "rms": 0.10969369112263881,
+        "duration": 0.38
+      },
+      "ember_late_effort-2": {
+        "source": "monster-7.wav",
+        "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
+        "pitch": 1.05,
+        "offset": 0,
+        "sha256": "55d33c721c9618e9af3ab7e17f44af8a92b9f911a209b1850d01ea9daed1cd86",
+        "peak": 0.3,
+        "rms": 0.1296180904315225,
+        "duration": 0.38
+      },
+      "ember_leap_effort": {
+        "source": "monster-4.wav",
+        "source_sha256": "23cb32d814846c22e5141e69f90814d9b3d9e283219e48fbb798f19d1a1bb35f",
+        "pitch": 1.04,
+        "offset": 0,
+        "sha256": "07c29e84c021962e13c2b80443864c408ab090ca749ed1e072567476453b49c4",
+        "peak": 0.3,
+        "rms": 0.12427082721943987,
+        "duration": 0.4
+      },
+      "ember_leap_effort-2": {
+        "source": "monster-9.wav",
+        "source_sha256": "a4aeacd88e614fccf15e9c47b4258a76811f3c77a5d7402b7ceb1a89f5f367fc",
+        "pitch": 1.06,
+        "offset": 0.03,
+        "sha256": "bb351e81b2e5205f100e07a3bb928828192700cfb8609b16de4b9a8634b09464",
+        "peak": 0.3,
+        "rms": 0.1350331374272584,
+        "duration": 0.4
+      },
+      "ember_pounce_effort": {
+        "source": "monster-2.wav",
+        "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
+        "pitch": 1.04,
+        "offset": 0,
+        "sha256": "ecd4a92fe40d85c46649e41a232a6f99f95b24f632a11a805a09a6535778dc64",
+        "peak": 0.3,
+        "rms": 0.13232719653301198,
+        "duration": 0.28
+      },
+      "ember_pounce_effort-2": {
+        "source": "monster-3.wav",
+        "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
+        "pitch": 1.02,
+        "offset": 0,
+        "sha256": "3a37da0dac39efbacd492d3a668a69d0596f47f11fa76c4c714869faeebf9b29",
+        "peak": 0.3,
+        "rms": 0.12004553970250306,
+        "duration": 0.28
+      },
+      "ember_prepare": {
+        "synthetic": true,
+        "seed": 711,
+        "bursts": [
+          [
+            0.03,
+            0.19,
+            0.5
+          ],
+          [
+            0.15,
+            0.16,
+            0.7
+          ]
+        ],
+        "low_weight": 0.35,
+        "sha256": "398c633b03a2d36d69ced8f10a2300941983a67e3ff2195e973232383fbe3e2c",
+        "peak": 0.1763408201030929,
+        "rms": 0.07,
+        "duration": 0.38
+      },
+      "ember_prepare-2": {
+        "synthetic": true,
+        "seed": 712,
+        "bursts": [
+          [
+            0.03,
+            0.19,
+            0.5
+          ],
+          [
+            0.15,
+            0.16,
+            0.7
+          ]
+        ],
+        "low_weight": 0.35,
+        "sha256": "bb742cdce72cee7b37b4f12171d23a37f6e84ee95d5f3be49bbfb9eb5e746897",
+        "peak": 0.18,
+        "rms": 0.06886419707554417,
+        "duration": 0.38
+      },
+      "ember_claw": {
+        "synthetic": true,
+        "seed": 721,
+        "bursts": [
+          [
+            0.02,
+            0.13,
+            1
+          ],
+          [
+            0.075,
+            0.11,
+            0.6
+          ]
+        ],
+        "low_weight": 0.4,
+        "sha256": "ad420ab0c605e156c90446bdd45335de1df769da90eec3c9a23a4ee7b48b8af7",
+        "peak": 0.32,
+        "rms": 0.08550024779054191,
+        "duration": 0.24
+      },
+      "ember_claw-2": {
+        "synthetic": true,
+        "seed": 722,
+        "bursts": [
+          [
+            0.02,
+            0.13,
+            1
+          ],
+          [
+            0.075,
+            0.11,
+            0.6
+          ]
+        ],
+        "low_weight": 0.4,
+        "sha256": "a3971739f140585d16c7075c078a886ff70b01de83c0f9c0bc656c9cdddb6397",
+        "peak": 0.32000000000000006,
+        "rms": 0.08914095385868642,
+        "duration": 0.24
+      },
+      "ember_rake": {
+        "synthetic": true,
+        "seed": 731,
+        "bursts": [
+          [
+            0.015,
+            0.16,
+            1
+          ],
+          [
+            0.07,
+            0.16,
+            0.8
+          ],
+          [
+            0.13,
+            0.12,
+            0.4
+          ]
+        ],
+        "low_weight": 0.45,
+        "sha256": "169081f472e792b5ed1f67fd20f05a357e4036cf846bda38bdb068cfe931aa04",
+        "peak": 0.32,
+        "rms": 0.09050794302740173,
+        "duration": 0.3
+      },
+      "ember_rake-2": {
+        "synthetic": true,
+        "seed": 732,
+        "bursts": [
+          [
+            0.015,
+            0.16,
+            1
+          ],
+          [
+            0.07,
+            0.16,
+            0.8
+          ],
+          [
+            0.13,
+            0.12,
+            0.4
+          ]
+        ],
+        "low_weight": 0.45,
+        "sha256": "9b40f5d73a8cfa778118d70a6b9ddbd190023edc5ca537a00e27b783754a3a18",
+        "peak": 0.32,
+        "rms": 0.09102043230209231,
+        "duration": 0.3
+      },
+      "ember_takeoff": {
+        "synthetic": true,
+        "seed": 741,
+        "bursts": [
+          [
+            0.01,
+            0.055,
+            1
+          ],
+          [
+            0.06,
+            0.19,
+            0.8
+          ]
+        ],
+        "low_weight": 0.65,
+        "sha256": "57fc7cb95679ecaf23cd8d194ddf55b0f5c3bcbdb1b998d6e380e8c9ee35f427",
+        "peak": 0.32,
+        "rms": 0.09155738124695462,
+        "duration": 0.29
+      },
+      "ember_takeoff-2": {
+        "synthetic": true,
+        "seed": 742,
+        "bursts": [
+          [
+            0.01,
+            0.055,
+            1
+          ],
+          [
+            0.06,
+            0.19,
+            0.8
+          ]
+        ],
+        "low_weight": 0.65,
+        "sha256": "9b3760373304807e4be9997d05bcf8a8ad4367ac2f4405d6ace3428ece1a6834",
+        "peak": 0.32,
+        "rms": 0.09492888953171212,
+        "duration": 0.29
+      },
+      "ember_backstep": {
+        "synthetic": true,
+        "seed": 751,
+        "bursts": [
+          [
+            0.02,
+            0.055,
+            0.7
+          ],
+          [
+            0.14,
+            0.09,
+            1
+          ]
+        ],
+        "low_weight": 0.75,
+        "sha256": "cc1f1ff44623ce84651a2a49f90e2fb007b913cc7b342f36a238314268461b5e",
+        "peak": 0.32,
+        "rms": 0.08155425952709677,
+        "duration": 0.27
+      },
+      "ember_backstep-2": {
+        "synthetic": true,
+        "seed": 752,
+        "bursts": [
+          [
+            0.02,
+            0.055,
+            0.7
+          ],
+          [
+            0.14,
+            0.09,
+            1
+          ]
+        ],
+        "low_weight": 0.75,
+        "sha256": "af450dd8301364364c2c822f7859c8ddfa2ab4bf509cc5ecb8e0a68f1f7fdf4b",
+        "peak": 0.32,
+        "rms": 0.08089618858952413,
+        "duration": 0.27
+      },
+      "ember_landing": {
+        "synthetic": true,
+        "seed": 761,
+        "bursts": [
+          [
+            0.012,
+            0.07,
+            1
+          ],
+          [
+            0.055,
+            0.11,
+            0.55
+          ],
+          [
+            0.14,
+            0.1,
+            0.15
+          ]
+        ],
+        "low_weight": 1.0,
+        "sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
+        "peak": 0.32,
+        "rms": 0.08868662779426661,
+        "duration": 0.34
+      },
+      "ember_landing-2": {
+        "synthetic": true,
+        "seed": 762,
+        "bursts": [
+          [
+            0.012,
+            0.07,
+            1
+          ],
+          [
+            0.055,
+            0.11,
+            0.55
+          ],
+          [
+            0.14,
+            0.1,
+            0.15
+          ]
+        ],
+        "low_weight": 1.0,
+        "sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
+        "peak": 0.32,
+        "rms": 0.08935710199125617,
+        "duration": 0.34
+      }
+    }
+  },
   "cues": {
-    "ember_breath": {
-      "source": "monster-6.wav",
-      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
-      "pitch": 0.94,
-      "offset": 0,
-      "sha256": "fb740393f14eb773761603a22c3c818cb57f42bd023183e61f847b14c4e11185",
-      "peak": 0.2235354575240625,
-      "rms": 0.08,
-      "duration": 1.1
-    },
-    "ember_breath-2": {
-      "source": "monster-8.wav",
-      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
-      "pitch": 0.97,
-      "offset": 0.12,
-      "sha256": "a18e7a74d036df5c159feb3dfee1df35022e4e600ba35eda9d598751ff952cda",
-      "peak": 0.2218836074500212,
-      "rms": 0.08,
-      "duration": 1.1
-    },
-    "ember_murmur": {
-      "source": "monster-8.wav",
-      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
-      "pitch": 0.88,
-      "offset": 0,
-      "sha256": "3a8667bd61b7810296d2208a36f8c088e47e38a6178304a2cd258445e4132828",
-      "peak": 0.21727362801087913,
-      "rms": 0.08,
-      "duration": 1.15
-    },
-    "ember_murmur-2": {
-      "source": "monster-6.wav",
-      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
-      "pitch": 0.88,
-      "offset": 0.1,
-      "sha256": "7c399dd9415fce8581cc767ef5e4dc6cae1524fd7b07c987eae7a549a84510f5",
-      "peak": 0.22185638767209184,
-      "rms": 0.08,
-      "duration": 1.15
-    },
-    "ember_move": {
-      "source": "monster-1.wav",
-      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
-      "pitch": 1.02,
-      "offset": 0,
-      "sha256": "37b21632d8e19ddff426fd845d9ef139659be7c800f291f6f289fe3891e21b32",
-      "peak": 0.2639557987059589,
-      "rms": 0.095,
-      "duration": 0.66
-    },
-    "ember_move-2": {
-      "source": "monster-10.wav",
-      "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
-      "pitch": 1.01,
-      "offset": 0,
-      "sha256": "d061d9bddff490d65d5f4cbf30d75cf70c755277683e13b630207f3e8131a991",
-      "peak": 0.27163679787095774,
-      "rms": 0.095,
-      "duration": 0.66
-    },
-    "ember_recover": {
-      "source": "monster-7.wav",
-      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
-      "pitch": 1.0,
-      "offset": 0,
-      "sha256": "40a14fb79d39f0199aae600768315a97b26ac881d718a3ab263fabc69070d82c",
-      "peak": 0.2716449438624286,
-      "rms": 0.095,
-      "duration": 0.48
-    },
-    "ember_recover-2": {
-      "source": "monster-5.wav",
-      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
-      "pitch": 0.96,
-      "offset": 0,
-      "sha256": "0a300f07f40fb025a65b75eee14725575bf5d1e5d73116d53dd71cfd50053715",
-      "peak": 0.3232601616360053,
-      "rms": 0.09500000000000001,
-      "duration": 0.48
-    },
     "ember_alert": {
-      "source": "monster-8.wav",
-      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
-      "pitch": 1.04,
-      "offset": 0,
-      "sha256": "a41c636de5a16eb636d4894321d207dea8c2a6c549814ee148d4c8c9ca8025c2",
-      "peak": 0.29658815298132024,
-      "rms": 0.115,
-      "duration": 0.85
+      "input_sha256": "a41c636de5a16eb636d4894321d207dea8c2a6c549814ee148d4c8c9ca8025c2",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "9c1a293de8f8df3ed71af7c2c064047a0f065e90b1e8de30f114b27029976eae",
+      "peak": 0.282379150390625,
+      "rms": 0.12499615020823096,
+      "duration": 0.85,
+      "max_sample_step": 0.0408935546875,
+      "prior_take_ref": "prior_provenance.cues.ember_alert"
     },
     "ember_alert-2": {
-      "source": "monster-6.wav",
-      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
-      "pitch": 1.06,
-      "offset": 0,
-      "sha256": "5f5e744eb5f4752aa121b089cfea2689d2a9df402e618a4ab321f289ce7da938",
-      "peak": 0.31431177563688845,
-      "rms": 0.115,
-      "duration": 0.85
-    },
-    "ember_hurt": {
-      "source": "monster-3.wav",
-      "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
-      "pitch": 0.96,
-      "offset": 0,
-      "sha256": "4361b38808d328a7280da33647e15f6a7b389b3e5b99a61859e0f03a49fb2dd3",
-      "peak": 0.36615533612234274,
-      "rms": 0.115,
-      "duration": 0.43
-    },
-    "ember_hurt-2": {
-      "source": "monster-2.wav",
-      "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
-      "pitch": 0.97,
-      "offset": 0,
-      "sha256": "eb67e9ae1cd5e6037529cbb058ca1ef042ea80558a6c7052dc7ada1a4437f7e7",
-      "peak": 0.3350235264634253,
-      "rms": 0.11499999999999999,
-      "duration": 0.43
-    },
-    "ember_death": {
-      "source": "monster-8.wav",
-      "source_sha256": "ac7afb86566808f2d5b2ebf58dc3b68a0d1c2cd64cd8135d09a8d56af62928d7",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
-        "source": "humanDeath2.wav",
-        "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
-        "pitch": 0.93,
-        "gain": 0.3
-      },
-      "sha256": "c2492dd3eae82efc782017f8474d8b4a0f42e0b29f662d008d7fea1f18ce8ce6",
-      "peak": 0.36146830579291933,
-      "rms": 0.125,
-      "duration": 1.55
-    },
-    "ember_death-2": {
-      "source": "monster-6.wav",
-      "source_sha256": "8aac51b6b0d058bf8a78000463897a3e633e3012f6517b6de3e36e453d6ad772",
-      "pitch": 0.84,
-      "offset": 0,
-      "layer": {
-        "source": "zombieDeath1.wav",
-        "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
-        "pitch": 0.98,
-        "gain": 0.3
-      },
-      "sha256": "d18e81254c8345a9f79f89dba4378b8a824f83217335023eb081971226ed39de",
-      "peak": 0.3680074387211413,
-      "rms": 0.12499999999999999,
-      "duration": 1.55
-    },
-    "ember_death-3": {
-      "source": "monster-1.wav",
-      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
-      "pitch": 0.9,
-      "offset": 0,
-      "layer": {
-        "source": "humanDeath1.wav",
-        "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
-        "pitch": 1.01,
-        "gain": 0.3
-      },
-      "sha256": "eb993c08c20b1eb092c9715ff6e8ae91f20a36eb3c88c6f2302fe0bf8c3b56d2",
-      "peak": 0.38,
-      "rms": 0.11159005130100345,
-      "duration": 1.55
-    },
-    "ember_claw_effort": {
-      "source": "monster-1.wav",
-      "source_sha256": "eadff00fc48c13eede6255f97ca7bd47e8c44a4bef33edc5ced92f4ca3521575",
-      "pitch": 1.03,
-      "offset": 0.05,
-      "sha256": "b2ce40cf71b0420cb7ce6c53947fb8068572c606c04e05159aa70c00a01ce6b9",
-      "peak": 0.3,
-      "rms": 0.13697477219864956,
-      "duration": 0.48
-    },
-    "ember_claw_effort-2": {
-      "source": "monster-10.wav",
-      "source_sha256": "897d6f9165dfdf5ecd2a9e08d1a8a6a2cea706d6f0c43647ade44e59cdf85c75",
-      "pitch": 1.04,
-      "offset": 0.04,
-      "sha256": "be7789f644915a0c38db81cca91682ad66ed5a4da0859bae202ecf464ab4e561",
-      "peak": 0.3,
-      "rms": 0.13005580425624902,
-      "duration": 0.48
-    },
-    "ember_late_effort": {
-      "source": "monster-5.wav",
-      "source_sha256": "54d433b16399b0f155cf7a0cadf397625765a894f649f9512663c98c901a6eed",
-      "pitch": 1.01,
-      "offset": 0,
-      "sha256": "24be6c54870590130dd44c5891285d0f99038c8eda15d99f945a979b8233303a",
-      "peak": 0.3,
-      "rms": 0.10969369112263881,
-      "duration": 0.38
-    },
-    "ember_late_effort-2": {
-      "source": "monster-7.wav",
-      "source_sha256": "91d44cfb6bb6a526fe820718e70345f73d11849d6375c954fd2d03c529ce117e",
-      "pitch": 1.05,
-      "offset": 0,
-      "sha256": "55d33c721c9618e9af3ab7e17f44af8a92b9f911a209b1850d01ea9daed1cd86",
-      "peak": 0.3,
-      "rms": 0.1296180904315225,
-      "duration": 0.38
-    },
-    "ember_leap_effort": {
-      "source": "monster-4.wav",
-      "source_sha256": "23cb32d814846c22e5141e69f90814d9b3d9e283219e48fbb798f19d1a1bb35f",
-      "pitch": 1.04,
-      "offset": 0,
-      "sha256": "07c29e84c021962e13c2b80443864c408ab090ca749ed1e072567476453b49c4",
-      "peak": 0.3,
-      "rms": 0.12427082721943987,
-      "duration": 0.4
-    },
-    "ember_leap_effort-2": {
-      "source": "monster-9.wav",
-      "source_sha256": "a4aeacd88e614fccf15e9c47b4258a76811f3c77a5d7402b7ceb1a89f5f367fc",
-      "pitch": 1.06,
-      "offset": 0.03,
-      "sha256": "bb351e81b2e5205f100e07a3bb928828192700cfb8609b16de4b9a8634b09464",
-      "peak": 0.3,
-      "rms": 0.1350331374272584,
-      "duration": 0.4
-    },
-    "ember_pounce_effort": {
-      "source": "monster-2.wav",
-      "source_sha256": "1c511470f5a01ec81e9f8a9889a9b13ecb27a0dbc14fadcffb022b346971afa8",
-      "pitch": 1.04,
-      "offset": 0,
-      "sha256": "ecd4a92fe40d85c46649e41a232a6f99f95b24f632a11a805a09a6535778dc64",
-      "peak": 0.3,
-      "rms": 0.13232719653301198,
-      "duration": 0.28
-    },
-    "ember_pounce_effort-2": {
-      "source": "monster-3.wav",
-      "source_sha256": "22d83560604f25fea0b03b4710ed86c5afc739bdbb24b5e96b614803b02c07fd",
-      "pitch": 1.02,
-      "offset": 0,
-      "sha256": "3a37da0dac39efbacd492d3a668a69d0596f47f11fa76c4c714869faeebf9b29",
-      "peak": 0.3,
-      "rms": 0.12004553970250306,
-      "duration": 0.28
-    },
-    "ember_prepare": {
-      "synthetic": true,
-      "seed": 711,
-      "bursts": [
-        [
-          0.03,
-          0.19,
-          0.5
-        ],
-        [
-          0.15,
-          0.16,
-          0.7
-        ]
+      "input_sha256": "5f5e744eb5f4752aa121b089cfea2689d2a9df402e618a4ab321f289ce7da938",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
       ],
-      "low_weight": 0.35,
-      "sha256": "398c633b03a2d36d69ced8f10a2300941983a67e3ff2195e973232383fbe3e2c",
-      "peak": 0.1763408201030929,
-      "rms": 0.07,
-      "duration": 0.38
-    },
-    "ember_prepare-2": {
-      "synthetic": true,
-      "seed": 712,
-      "bursts": [
-        [
-          0.03,
-          0.19,
-          0.5
-        ],
-        [
-          0.15,
-          0.16,
-          0.7
-        ]
-      ],
-      "low_weight": 0.35,
-      "sha256": "bb742cdce72cee7b37b4f12171d23a37f6e84ee95d5f3be49bbfb9eb5e746897",
-      "peak": 0.18,
-      "rms": 0.06886419707554417,
-      "duration": 0.38
-    },
-    "ember_claw": {
-      "synthetic": true,
-      "seed": 721,
-      "bursts": [
-        [
-          0.02,
-          0.13,
-          1
-        ],
-        [
-          0.075,
-          0.11,
-          0.6
-        ]
-      ],
-      "low_weight": 0.4,
-      "sha256": "ad420ab0c605e156c90446bdd45335de1df769da90eec3c9a23a4ee7b48b8af7",
-      "peak": 0.32,
-      "rms": 0.08550024779054191,
-      "duration": 0.24
-    },
-    "ember_claw-2": {
-      "synthetic": true,
-      "seed": 722,
-      "bursts": [
-        [
-          0.02,
-          0.13,
-          1
-        ],
-        [
-          0.075,
-          0.11,
-          0.6
-        ]
-      ],
-      "low_weight": 0.4,
-      "sha256": "a3971739f140585d16c7075c078a886ff70b01de83c0f9c0bc656c9cdddb6397",
-      "peak": 0.32000000000000006,
-      "rms": 0.08914095385868642,
-      "duration": 0.24
-    },
-    "ember_rake": {
-      "synthetic": true,
-      "seed": 731,
-      "bursts": [
-        [
-          0.015,
-          0.16,
-          1
-        ],
-        [
-          0.07,
-          0.16,
-          0.8
-        ],
-        [
-          0.13,
-          0.12,
-          0.4
-        ]
-      ],
-      "low_weight": 0.45,
-      "sha256": "169081f472e792b5ed1f67fd20f05a357e4036cf846bda38bdb068cfe931aa04",
-      "peak": 0.32,
-      "rms": 0.09050794302740173,
-      "duration": 0.3
-    },
-    "ember_rake-2": {
-      "synthetic": true,
-      "seed": 732,
-      "bursts": [
-        [
-          0.015,
-          0.16,
-          1
-        ],
-        [
-          0.07,
-          0.16,
-          0.8
-        ],
-        [
-          0.13,
-          0.12,
-          0.4
-        ]
-      ],
-      "low_weight": 0.45,
-      "sha256": "9b40f5d73a8cfa778118d70a6b9ddbd190023edc5ca537a00e27b783754a3a18",
-      "peak": 0.32,
-      "rms": 0.09102043230209231,
-      "duration": 0.3
-    },
-    "ember_takeoff": {
-      "synthetic": true,
-      "seed": 741,
-      "bursts": [
-        [
-          0.01,
-          0.055,
-          1
-        ],
-        [
-          0.06,
-          0.19,
-          0.8
-        ]
-      ],
-      "low_weight": 0.65,
-      "sha256": "57fc7cb95679ecaf23cd8d194ddf55b0f5c3bcbdb1b998d6e380e8c9ee35f427",
-      "peak": 0.32,
-      "rms": 0.09155738124695462,
-      "duration": 0.29
-    },
-    "ember_takeoff-2": {
-      "synthetic": true,
-      "seed": 742,
-      "bursts": [
-        [
-          0.01,
-          0.055,
-          1
-        ],
-        [
-          0.06,
-          0.19,
-          0.8
-        ]
-      ],
-      "low_weight": 0.65,
-      "sha256": "9b3760373304807e4be9997d05bcf8a8ad4367ac2f4405d6ace3428ece1a6834",
-      "peak": 0.32,
-      "rms": 0.09492888953171212,
-      "duration": 0.29
+      "sha256": "b63044c3f83fd698694063d8c4f19918e0f74e688214c29ba376a20db8a1c24f",
+      "peak": 0.29913330078125,
+      "rms": 0.12499624795294209,
+      "duration": 0.85,
+      "max_sample_step": 0.0543212890625,
+      "prior_take_ref": "prior_provenance.cues.ember_alert-2"
     },
     "ember_backstep": {
-      "synthetic": true,
-      "seed": 751,
-      "bursts": [
-        [
-          0.02,
-          0.055,
-          0.7
-        ],
-        [
-          0.14,
-          0.09,
-          1
-        ]
+      "input_sha256": "cc1f1ff44623ce84651a2a49f90e2fb007b913cc7b342f36a238314268461b5e",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "low_weight": 0.75,
-      "sha256": "cc1f1ff44623ce84651a2a49f90e2fb007b913cc7b342f36a238314268461b5e",
-      "peak": 0.32,
-      "rms": 0.08155425952709677,
-      "duration": 0.27
+      "reflection": [],
+      "sha256": "636f475013ed59fe2c2f3671852894b06854aa469813b4e07f573735b9eeab24",
+      "peak": 0.376251220703125,
+      "rms": 0.12499614114476974,
+      "duration": 0.27,
+      "max_sample_step": 0.087860107421875,
+      "prior_take_ref": "prior_provenance.cues.ember_backstep"
     },
     "ember_backstep-2": {
-      "synthetic": true,
-      "seed": 752,
-      "bursts": [
-        [
-          0.02,
-          0.055,
-          0.7
-        ],
-        [
-          0.14,
-          0.09,
-          1
-        ]
+      "input_sha256": "af450dd8301364364c2c822f7859c8ddfa2ab4bf509cc5ecb8e0a68f1f7fdf4b",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "low_weight": 0.75,
-      "sha256": "af450dd8301364364c2c822f7859c8ddfa2ab4bf509cc5ecb8e0a68f1f7fdf4b",
-      "peak": 0.32,
-      "rms": 0.08089618858952413,
-      "duration": 0.27
+      "reflection": [],
+      "sha256": "f77f6a3ea7959eb6618f0f9e7d1e9a6092859ab2e5b1222ed46f913eeed42c0e",
+      "peak": 0.378662109375,
+      "rms": 0.1249960560689611,
+      "duration": 0.27,
+      "max_sample_step": 0.09649658203125,
+      "prior_take_ref": "prior_provenance.cues.ember_backstep-2"
+    },
+    "ember_breath": {
+      "input_sha256": "fb740393f14eb773761603a22c3c818cb57f42bd023183e61f847b14c4e11185",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "0452ae390ec5310e2d2f407e7a0aed784a5fd5329150fe20858b1f42ed5bd3b9",
+      "peak": 0.197296142578125,
+      "rms": 0.07999754197446841,
+      "duration": 1.1,
+      "max_sample_step": 0.034210205078125,
+      "prior_take_ref": "prior_provenance.cues.ember_breath"
+    },
+    "ember_breath-2": {
+      "input_sha256": "a18e7a74d036df5c159feb3dfee1df35022e4e600ba35eda9d598751ff952cda",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "f5740cc0be6d7dce8236b43faf607f352f755fa9fb804173562825dee38991b0",
+      "peak": 0.1959228515625,
+      "rms": 0.07999748620281275,
+      "duration": 1.1,
+      "max_sample_step": 0.03265380859375,
+      "prior_take_ref": "prior_provenance.cues.ember_breath-2"
+    },
+    "ember_claw": {
+      "input_sha256": "ad420ab0c605e156c90446bdd45335de1df769da90eec3c9a23a4ee7b48b8af7",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "a8376d830dba25134190832bf97dc9ac19746b382cd61c4ab32d2d65173c0030",
+      "peak": 0.336090087890625,
+      "rms": 0.12499624387457002,
+      "duration": 0.24,
+      "max_sample_step": 0.073944091796875,
+      "prior_take_ref": "prior_provenance.cues.ember_claw"
+    },
+    "ember_claw-2": {
+      "input_sha256": "a3971739f140585d16c7075c078a886ff70b01de83c0f9c0bc656c9cdddb6397",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "6687e077d9b2f5ae5b901aa22a225c26b91fc7c5fc6bd5d58f7b012a4fd8c8e7",
+      "peak": 0.35284423828125,
+      "rms": 0.12499619485827733,
+      "duration": 0.24,
+      "max_sample_step": 0.08355712890625,
+      "prior_take_ref": "prior_provenance.cues.ember_claw-2"
+    },
+    "ember_claw_effort": {
+      "input_sha256": "b2ce40cf71b0420cb7ce6c53947fb8068572c606c04e05159aa70c00a01ce6b9",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "c7c820538338b22aac0d43bb11edf6163e6e6a084262fe6d9a4e3c7c75b84913",
+      "peak": 0.357086181640625,
+      "rms": 0.14999542246727507,
+      "duration": 0.48,
+      "max_sample_step": 0.044586181640625,
+      "prior_take_ref": "prior_provenance.cues.ember_claw_effort"
+    },
+    "ember_claw_effort-2": {
+      "input_sha256": "be7789f644915a0c38db81cca91682ad66ed5a4da0859bae202ecf464ab4e561",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "05f6641168d3626375e7b56606eba953d0630899d5525930278d7df3262f251d",
+      "peak": 0.372314453125,
+      "rms": 0.1499955366832698,
+      "duration": 0.48,
+      "max_sample_step": 0.047515869140625,
+      "prior_take_ref": "prior_provenance.cues.ember_claw_effort-2"
+    },
+    "ember_death": {
+      "input_sha256": "c2492dd3eae82efc782017f8474d8b4a0f42e0b29f662d008d7fea1f18ce8ce6",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "32fc0f2bebea7fab8c9c8342936a2206b3f89abf89560f7b7ff60d42fcda50ba",
+      "peak": 0.34405517578125,
+      "rms": 0.1349958695920442,
+      "duration": 1.55,
+      "max_sample_step": 0.056488037109375,
+      "prior_take_ref": "prior_provenance.cues.ember_death"
+    },
+    "ember_death-2": {
+      "input_sha256": "d18e81254c8345a9f79f89dba4378b8a824f83217335023eb081971226ed39de",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "ad4deae4f62f624662d95e2178388b16d434160147405c8e691a77bc56071aee",
+      "peak": 0.336578369140625,
+      "rms": 0.13499582519187547,
+      "duration": 1.55,
+      "max_sample_step": 0.0555419921875,
+      "prior_take_ref": "prior_provenance.cues.ember_death-2"
+    },
+    "ember_death-3": {
+      "input_sha256": "eb993c08c20b1eb092c9715ff6e8ae91f20a36eb3c88c6f2302fe0bf8c3b56d2",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "37f1821b34c4774d662b8863024788c4d7623025c36718f95523c1e64aada332",
+      "peak": 0.399993896484375,
+      "rms": 0.13264266124881893,
+      "duration": 1.55,
+      "max_sample_step": 0.0687255859375,
+      "prior_take_ref": "prior_provenance.cues.ember_death-3"
+    },
+    "ember_hurt": {
+      "input_sha256": "4361b38808d328a7280da33647e15f6a7b389b3e5b99a61859e0f03a49fb2dd3",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "39e4cc311045dc70fda4b17a4bca751e7ccda97bc4510227942df021b042cc9c",
+      "peak": 0.35888671875,
+      "rms": 0.12499616749978973,
+      "duration": 0.43,
+      "max_sample_step": 0.03790283203125,
+      "prior_take_ref": "prior_provenance.cues.ember_hurt"
+    },
+    "ember_hurt-2": {
+      "input_sha256": "eb67e9ae1cd5e6037529cbb058ca1ef042ea80558a6c7052dc7ada1a4437f7e7",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "b3e5aaddcba57df0ca5eb1db524244641ba7823685c865674dd79ad63037c7d3",
+      "peak": 0.314727783203125,
+      "rms": 0.12499613963027174,
+      "duration": 0.43,
+      "max_sample_step": 0.044677734375,
+      "prior_take_ref": "prior_provenance.cues.ember_hurt-2"
     },
     "ember_landing": {
-      "synthetic": true,
-      "seed": 761,
-      "bursts": [
-        [
-          0.012,
-          0.07,
-          1
-        ],
-        [
-          0.055,
-          0.11,
-          0.55
-        ],
-        [
-          0.14,
-          0.1,
-          0.15
-        ]
+      "input_sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "low_weight": 1.0,
-      "sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
-      "peak": 0.32,
-      "rms": 0.08868662779426661,
-      "duration": 0.34
+      "reflection": [],
+      "sha256": "ea52a1282e622485eb68248438c081dba5d1498418ecbcb266fc64dd017081c9",
+      "peak": 0.342041015625,
+      "rms": 0.12499627263197707,
+      "duration": 0.34,
+      "max_sample_step": 0.08477783203125,
+      "prior_take_ref": "prior_provenance.cues.ember_landing"
     },
     "ember_landing-2": {
-      "synthetic": true,
-      "seed": 762,
-      "bursts": [
-        [
-          0.012,
-          0.07,
-          1
-        ],
-        [
-          0.055,
-          0.11,
-          0.55
-        ],
-        [
-          0.14,
-          0.1,
-          0.15
-        ]
+      "input_sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "low_weight": 1.0,
-      "sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
-      "peak": 0.32,
-      "rms": 0.08935710199125617,
-      "duration": 0.34
+      "reflection": [],
+      "sha256": "6f91a7235446efd18d5de447b211d347b4210503485e01b4d002380252c380f1",
+      "peak": 0.36090087890625,
+      "rms": 0.12499623983880034,
+      "duration": 0.34,
+      "max_sample_step": 0.091339111328125,
+      "prior_take_ref": "prior_provenance.cues.ember_landing-2"
+    },
+    "ember_late_effort": {
+      "input_sha256": "24be6c54870590130dd44c5891285d0f99038c8eda15d99f945a979b8233303a",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "32b5a2b9c79b04172622039e71f1ca7ef96bc3e7648e58abe53c7c58a7094b6c",
+      "peak": 0.3770751953125,
+      "rms": 0.14999538545809143,
+      "duration": 0.38,
+      "max_sample_step": 0.08050537109375,
+      "prior_take_ref": "prior_provenance.cues.ember_late_effort"
+    },
+    "ember_late_effort-2": {
+      "input_sha256": "55d33c721c9618e9af3ab7e17f44af8a92b9f911a209b1850d01ea9daed1cd86",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "834283e4c007f26cf342568fd8965b8ccda360261beee3bff6d48921f99e80e0",
+      "peak": 0.352752685546875,
+      "rms": 0.14999536070579197,
+      "duration": 0.38,
+      "max_sample_step": 0.0537109375,
+      "prior_take_ref": "prior_provenance.cues.ember_late_effort-2"
+    },
+    "ember_leap_effort": {
+      "input_sha256": "07c29e84c021962e13c2b80443864c408ab090ca749ed1e072567476453b49c4",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "6ffe6290d6340914eddc1ea92b8f745df27ec7859057ff0e3c85dc34f0db2925",
+      "peak": 0.34759521484375,
+      "rms": 0.14999540220123794,
+      "duration": 0.4,
+      "max_sample_step": 0.060699462890625,
+      "prior_take_ref": "prior_provenance.cues.ember_leap_effort"
+    },
+    "ember_leap_effort-2": {
+      "input_sha256": "bb351e81b2e5205f100e07a3bb928828192700cfb8609b16de4b9a8634b09464",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "8e00b9f79972fa422fd44cae406a1c2ebbb7f73143749cb410ae7a4952fdcdea",
+      "peak": 0.335723876953125,
+      "rms": 0.1499954610813781,
+      "duration": 0.4,
+      "max_sample_step": 0.032867431640625,
+      "prior_take_ref": "prior_provenance.cues.ember_leap_effort-2"
+    },
+    "ember_move": {
+      "input_sha256": "37b21632d8e19ddff426fd845d9ef139659be7c800f291f6f289fe3891e21b32",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "b0329fe0aa814a099fa19980f3a59bf82d785e6a181b76106a6a344804cb93ee",
+      "peak": 0.258819580078125,
+      "rms": 0.09999695481736341,
+      "duration": 0.66,
+      "max_sample_step": 0.03179931640625,
+      "prior_take_ref": "prior_provenance.cues.ember_move"
+    },
+    "ember_move-2": {
+      "input_sha256": "d061d9bddff490d65d5f4cbf30d75cf70c755277683e13b630207f3e8131a991",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "de8f3010057784163891b4e3ade962def3f888f3935ba61cfa53bcd3875e9664",
+      "peak": 0.265045166015625,
+      "rms": 0.09999701060640806,
+      "duration": 0.66,
+      "max_sample_step": 0.033233642578125,
+      "prior_take_ref": "prior_provenance.cues.ember_move-2"
+    },
+    "ember_murmur": {
+      "input_sha256": "3a8667bd61b7810296d2208a36f8c088e47e38a6178304a2cd258445e4132828",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "e61fcbd796ac5cb6c7c0bfbdebf605e990d597087d0b5ac8e219dfbd12de16d4",
+      "peak": 0.18939208984375,
+      "rms": 0.07999752120753915,
+      "duration": 1.15,
+      "max_sample_step": 0.02764892578125,
+      "prior_take_ref": "prior_provenance.cues.ember_murmur"
+    },
+    "ember_murmur-2": {
+      "input_sha256": "7c399dd9415fce8581cc767ef5e4dc6cae1524fd7b07c987eae7a549a84510f5",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "f71ca1d30afafe598153b8c16875a45fb00bd3954b1e8943caaffd4ccbcb4ae7",
+      "peak": 0.196044921875,
+      "rms": 0.07999751078355077,
+      "duration": 1.15,
+      "max_sample_step": 0.029266357421875,
+      "prior_take_ref": "prior_provenance.cues.ember_murmur-2"
+    },
+    "ember_pounce_effort": {
+      "input_sha256": "ecd4a92fe40d85c46649e41a232a6f99f95b24f632a11a805a09a6535778dc64",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "f49936fcc17ba55a27ed63231547e24d0907a892dc53d383f9b24be0635b28bd",
+      "peak": 0.34368896484375,
+      "rms": 0.14999538016413724,
+      "duration": 0.28,
+      "max_sample_step": 0.046783447265625,
+      "prior_take_ref": "prior_provenance.cues.ember_pounce_effort"
+    },
+    "ember_pounce_effort-2": {
+      "input_sha256": "3a37da0dac39efbacd492d3a668a69d0596f47f11fa76c4c714869faeebf9b29",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "610a3497365d463d35c7e1f0d2544fdb3ff0cb05fdacaf7c0f36ae67f354030f",
+      "peak": 0.3785400390625,
+      "rms": 0.14999537853570563,
+      "duration": 0.28,
+      "max_sample_step": 0.04339599609375,
+      "prior_take_ref": "prior_provenance.cues.ember_pounce_effort-2"
+    },
+    "ember_prepare": {
+      "input_sha256": "398c633b03a2d36d69ced8f10a2300941983a67e3ff2195e973232383fbe3e2c",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "5570885c7131bbae13f8e3729fd3dc6c7780376ec5eeb4d293d469dec8e5cb39",
+      "peak": 0.1978759765625,
+      "rms": 0.07999761658058353,
+      "duration": 0.38,
+      "max_sample_step": 0.04229736328125,
+      "prior_take_ref": "prior_provenance.cues.ember_prepare"
+    },
+    "ember_prepare-2": {
+      "input_sha256": "bb742cdce72cee7b37b4f12171d23a37f6e84ee95d5f3be49bbfb9eb5e746897",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "18e1698dcb3659aef3a7fb2d00c1ccf045ce8588740f72bd1af8bbbf86e66e12",
+      "peak": 0.200897216796875,
+      "rms": 0.07999751936930626,
+      "duration": 0.38,
+      "max_sample_step": 0.043670654296875,
+      "prior_take_ref": "prior_provenance.cues.ember_prepare-2"
+    },
+    "ember_rake": {
+      "input_sha256": "169081f472e792b5ed1f67fd20f05a357e4036cf846bda38bdb068cfe931aa04",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "3f55620b9842450749a8f83c58ac5df2c8222cce275630d8672f79ff3b8812e8",
+      "peak": 0.32757568359375,
+      "rms": 0.12499609157887903,
+      "duration": 0.3,
+      "max_sample_step": 0.081207275390625,
+      "prior_take_ref": "prior_provenance.cues.ember_rake"
+    },
+    "ember_rake-2": {
+      "input_sha256": "9b40f5d73a8cfa778118d70a6b9ddbd190023edc5ca537a00e27b783754a3a18",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "e9f204416d5fa9f8be9c731b44f6739c2afa9c8157fe5934f56e1d1ce0ba5e9f",
+      "peak": 0.341400146484375,
+      "rms": 0.12499626536771746,
+      "duration": 0.3,
+      "max_sample_step": 0.078155517578125,
+      "prior_take_ref": "prior_provenance.cues.ember_rake-2"
+    },
+    "ember_recover": {
+      "input_sha256": "40a14fb79d39f0199aae600768315a97b26ac881d718a3ab263fabc69070d82c",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "218778ebfb174e78947bfbe3c7e82053920fd2ca40e9d62861754075277fd254",
+      "peak": 0.252288818359375,
+      "rms": 0.099996937237057,
+      "duration": 0.48,
+      "max_sample_step": 0.033233642578125,
+      "prior_take_ref": "prior_provenance.cues.ember_recover"
+    },
+    "ember_recover-2": {
+      "input_sha256": "0a300f07f40fb025a65b75eee14725575bf5d1e5d73116d53dd71cfd50053715",
+      "base_pitch": 0.94,
+      "layers": [],
+      "reflection": [
+        0.055,
+        0.025
+      ],
+      "sha256": "83018978449b1a14b54b91ec02c9a047ddae7f26b2cef442cecb5878e4961bf5",
+      "peak": 0.2711181640625,
+      "rms": 0.09999689959538295,
+      "duration": 0.48,
+      "max_sample_step": 0.060211181640625,
+      "prior_take_ref": "prior_provenance.cues.ember_recover-2"
+    },
+    "ember_takeoff": {
+      "input_sha256": "57fc7cb95679ecaf23cd8d194ddf55b0f5c3bcbdb1b998d6e380e8c9ee35f427",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "2d1aa17b811bacddbf5ab1013dbe11c8e4fab6a9478e89b80590edf042496d17",
+      "peak": 0.32452392578125,
+      "rms": 0.12499614143599184,
+      "duration": 0.29,
+      "max_sample_step": 0.077178955078125,
+      "prior_take_ref": "prior_provenance.cues.ember_takeoff"
+    },
+    "ember_takeoff-2": {
+      "input_sha256": "9b3760373304807e4be9997d05bcf8a8ad4367ac2f4405d6ace3428ece1a6834",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "1b00d72986e1b7b7859a278f0683360c6801fad429f8d843ca555af25529cfc5",
+      "peak": 0.324127197265625,
+      "rms": 0.12499629904276252,
+      "duration": 0.29,
+      "max_sample_step": 0.072265625,
+      "prior_take_ref": "prior_provenance.cues.ember_takeoff-2"
+    },
+    "ember_step": {
+      "material": "stone body contact",
+      "source": "assets/sounds/ember-thrall/ember_landing.wav",
+      "input_sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
+      "additional_breath_layer": false,
+      "sha256": "340b7e43bf7a973b40f75641f9d039e7a764ca27cb8f8652277d3f2dfe83ae1b",
+      "peak": 0.201873779296875,
+      "rms": 0.09499712326658609,
+      "duration": 0.23,
+      "max_sample_step": 0.050933837890625
+    },
+    "ember_step-2": {
+      "material": "stone body contact",
+      "source": "assets/sounds/ember-thrall/ember_landing-2.wav",
+      "input_sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
+      "additional_breath_layer": false,
+      "sha256": "426bd31e962ad31710ff4c41a2ad751e2be61831834dbd2e614c2ce858ee6b94",
+      "peak": 0.20672607421875,
+      "rms": 0.0949968839606954,
+      "duration": 0.23,
+      "max_sample_step": 0.04931640625
+    },
+    "ember_fall": {
+      "material": "stone body contact",
+      "source": "assets/sounds/ember-thrall/ember_landing.wav",
+      "input_sha256": "dcf9b0d69044663fc398c4c6c4d75fa7ceb09bf3b959d51438524b8276f32cf0",
+      "additional_breath_layer": false,
+      "sha256": "d46bcab261c57fdbcbf5a5fc6d2cde2c0bbb1ef54ed9f6cf82c352d333d06cba",
+      "peak": 0.315582275390625,
+      "rms": 0.11999638707132794,
+      "duration": 0.62,
+      "max_sample_step": 0.08392333984375
+    },
+    "ember_fall-2": {
+      "material": "stone body contact",
+      "source": "assets/sounds/ember-thrall/ember_landing-2.wav",
+      "input_sha256": "ef4da70f4532c57f44640b0ef30bd10134579d23d34e4bc600b11fc431303b25",
+      "additional_breath_layer": false,
+      "sha256": "28450890daa858653103f22b091dff0a9b5e56025d1517c373b3886311de5831",
+      "peak": 0.31298828125,
+      "rms": 0.11999630477380822,
+      "duration": 0.62,
+      "max_sample_step": 0.086029052734375
     }
+  },
+  "additional_source_hashes": {
+    "breath.ogg": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f"
   }
 }

@@ -1,5 +1,4 @@
 {
-  "license": "CC0-1.0",
   "sources": [
     {
       "title": "16 Monster Growls",
@@ -20,664 +19,2129 @@
       "title": "Squish Sounds Effects",
       "author": "EZduzziteh",
       "page": "https://opengameart.org/content/squish-sounds-effects"
+    },
+    {
+      "author": "marc3122",
+      "title": "Male Screams [performed by author]",
+      "url": "https://freesound.org/people/marc3122/sounds/556976/",
+      "download": "https://cdn.freesound.org/previews/556/556976_12497831-hq.mp3",
+      "file": "male-screams-marc3122.mp3",
+      "license": "CC0-1.0",
+      "sha256": "a7c4abd986ee308854ac33b6d5cad5f67d5d4c2b0eb36bd1a2231d3f93597dc4"
+    },
+    {
+      "author": "AuraVoice / Nocturnal_Vanguard",
+      "title": "Female Hurt Grunts & Groans",
+      "url": "https://opengameart.org/content/female-hurt-grunts-groans",
+      "download": "https://opengameart.org/sites/default/files/female_hurt_grunts_groans_1_0.ogg",
+      "file": "female-hurt-auravoice.ogg",
+      "license": "CC0-1.0",
+      "sha256": "80a9fb09203bb8feb065ba15197609b118cbe167c9a2264670a31ee22c384adb"
+    },
+    {
+      "author": "kyles",
+      "title": "chain thick rattle hooked onto metal1.wav",
+      "url": "https://freesound.org/people/kyles/sounds/452576/",
+      "download": "https://cdn.freesound.org/previews/452/452576_612689-hq.mp3",
+      "file": "chain-kyles.mp3",
+      "license": "CC0-1.0",
+      "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec"
+    },
+    {
+      "author": "rubberduck",
+      "title": "80 CC0 creature SFX",
+      "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+      "download": "https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip",
+      "license": "CC0",
+      "archive_sha256": "5d4002eea42f278e76543bb36e8ddd2cb978588a13271984191d8228f5d26768"
     }
   ],
-  "processing": "Mono 44100 Hz PCM16. Original performances retained except death; added independent human/throat performances for variants and movement/recovery. Modest pitch changes and quiet short room/helmet reflections as recorded per take. Crest shaping x/sqrt(1+(x/(2.7*RMS))^2), two 2800 Hz smoothing stages, 16/75 ms fades, peak <= .58; RMS targets .080 presence, .095 movement/recovery, .115 pain/alert, .125 death, .145 spells/effort. Runtime gain and falloff are in recipe data. No game audio copied.",
-  "cues": {
-    "gardener_breath": {
-      "previous_performance": {
-        "source": "monster.15.ogg",
-        "source_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
-        "pitch": 0.84,
-        "offset": 0,
-        "layer": "monster.9.ogg",
-        "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-        "layer_gain": 0.12,
-        "duration": 1.65,
-        "peak": 0.52,
-        "rms": 0.03822,
-        "sha256": "3242bcef479471be54f168946aa41c1e7557bea63a45cc641614e300e1801f2a"
+  "processing": "2026-11-06: per-character continuation of the licensed performances at commit 7243ac1. Mono PCM16 44100 Hz; FFmpeg rubberband pitch (duration preserved), HP 100 Hz / LP 2600-4100 Hz; independent recorded human, throat, deer, wet and chain layers documented per take. Soft crest x/sqrt(1+(x/(drive*RMS))^2), drive 1.45-1.8, two 3000 Hz smoothing stages, 16/75 ms fades. No stolen game audio. Additional sources with licenses inherited through prior_take and original provenance; new public HQ previews explicitly identified. Technical shaping is not a listening approval.",
+  "prior_provenance": {
+    "license": "CC0-1.0",
+    "sources": [
+      {
+        "title": "16 Monster Growls",
+        "author": "StarNinjas",
+        "page": "https://opengameart.org/content/16-monster-growls"
       },
-      "input_sha256": "3242bcef479471be54f168946aa41c1e7557bea63a45cc641614e300e1801f2a",
-      "peak": 0.355912,
-      "rms": 0.08,
-      "duration": 1.65,
-      "sha256": "972e597b08478b4e7e7595a50af6218ecd8aec40a1407f905d4cd7d71bc00c05"
-    },
-    "gardener_breath-2": {
-      "source": "monster.9.ogg",
-      "source_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-      "pitch": 0.82,
-      "offset": 0,
-      "layer": "monster.15.ogg",
-      "layer_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.18,
-      "peak": 0.361362,
-      "rms": 0.08,
-      "duration": 1.65,
-      "sha256": "35ecd38c1631566e903ddf3839df4e805a46cca3724987ff7c310b33f2c437cb"
-    },
-    "gardener_murmur": {
-      "previous_performance": {
+      {
+        "title": "Zombie / Skeleton / Monster Voice Effects",
+        "author": "ArcadeParty",
+        "page": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects"
+      },
+      {
+        "title": "bad sound, crap,",
+        "author": "farfadet46",
+        "page": "https://opengameart.org/content/bad-sound-crap"
+      },
+      {
+        "title": "Squish Sounds Effects",
+        "author": "EZduzziteh",
+        "page": "https://opengameart.org/content/squish-sounds-effects"
+      }
+    ],
+    "processing": "Mono 44100 Hz PCM16. Original performances retained except death; added independent human/throat performances for variants and movement/recovery. Modest pitch changes and quiet short room/helmet reflections as recorded per take. Crest shaping x/sqrt(1+(x/(2.7*RMS))^2), two 2800 Hz smoothing stages, 16/75 ms fades, peak <= .58; RMS targets .080 presence, .095 movement/recovery, .115 pain/alert, .125 death, .145 spells/effort. Runtime gain and falloff are in recipe data. No game audio copied.",
+    "cues": {
+      "gardener_breath": {
+        "previous_performance": {
+          "source": "monster.15.ogg",
+          "source_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
+          "pitch": 0.84,
+          "offset": 0,
+          "layer": "monster.9.ogg",
+          "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
+          "layer_gain": 0.12,
+          "duration": 1.65,
+          "peak": 0.52,
+          "rms": 0.03822,
+          "sha256": "3242bcef479471be54f168946aa41c1e7557bea63a45cc641614e300e1801f2a"
+        },
+        "input_sha256": "3242bcef479471be54f168946aa41c1e7557bea63a45cc641614e300e1801f2a",
+        "peak": 0.355912,
+        "rms": 0.08,
+        "duration": 1.65,
+        "sha256": "972e597b08478b4e7e7595a50af6218ecd8aec40a1407f905d4cd7d71bc00c05"
+      },
+      "gardener_breath-2": {
+        "source": "monster.9.ogg",
+        "source_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
+        "pitch": 0.82,
+        "offset": 0,
+        "layer": "monster.15.ogg",
+        "layer_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.18,
+        "peak": 0.361362,
+        "rms": 0.08,
+        "duration": 1.65,
+        "sha256": "35ecd38c1631566e903ddf3839df4e805a46cca3724987ff7c310b33f2c437cb"
+      },
+      "gardener_murmur": {
+        "previous_performance": {
+          "source": "monster-dialog.ogg",
+          "source_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
+          "pitch": 0.8,
+          "offset": 0,
+          "layer": "monster.12.ogg",
+          "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
+          "layer_gain": 0.18,
+          "duration": 1.85,
+          "peak": 0.52,
+          "rms": 0.03346,
+          "sha256": "9f93c89455fdea7a9acb6eef059c5ceed2cbb3a23123a61f02491254b40691e4"
+        },
+        "input_sha256": "9f93c89455fdea7a9acb6eef059c5ceed2cbb3a23123a61f02491254b40691e4",
+        "peak": 0.322357,
+        "rms": 0.08,
+        "duration": 1.85,
+        "sha256": "82543c037c8596fddf23eacb31ed88a6784ebed93cb2f8dcb5166661e4282b48"
+      },
+      "gardener_murmur-2": {
         "source": "monster-dialog.ogg",
         "source_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
-        "pitch": 0.8,
-        "offset": 0,
+        "pitch": 0.77,
+        "offset": 0.4,
         "layer": "monster.12.ogg",
         "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-        "layer_gain": 0.18,
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.339101,
+        "rms": 0.08,
         "duration": 1.85,
-        "peak": 0.52,
-        "rms": 0.03346,
-        "sha256": "9f93c89455fdea7a9acb6eef059c5ceed2cbb3a23123a61f02491254b40691e4"
+        "sha256": "e4121d2771d58e39abfae888685db4ae3b8d3539491bbc3565de8464d888ad44"
       },
-      "input_sha256": "9f93c89455fdea7a9acb6eef059c5ceed2cbb3a23123a61f02491254b40691e4",
-      "peak": 0.322357,
-      "rms": 0.08,
-      "duration": 1.85,
-      "sha256": "82543c037c8596fddf23eacb31ed88a6784ebed93cb2f8dcb5166661e4282b48"
-    },
-    "gardener_murmur-2": {
-      "source": "monster-dialog.ogg",
-      "source_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
-      "pitch": 0.77,
-      "offset": 0.4,
-      "layer": "monster.12.ogg",
-      "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.339101,
-      "rms": 0.08,
-      "duration": 1.85,
-      "sha256": "e4121d2771d58e39abfae888685db4ae3b8d3539491bbc3565de8464d888ad44"
-    },
-    "gardener_alert": {
-      "previous_performance": {
-        "source": "zombieYell10.wav",
-        "source_sha256": "ec56346ae49c5743f5e6cf8a22196d05b0996177ca09cdfdd73290f20e0a2ae7",
-        "pitch": 0.8,
+      "gardener_alert": {
+        "previous_performance": {
+          "source": "zombieYell10.wav",
+          "source_sha256": "ec56346ae49c5743f5e6cf8a22196d05b0996177ca09cdfdd73290f20e0a2ae7",
+          "pitch": 0.8,
+          "offset": 0,
+          "layer": "monster.14.ogg",
+          "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+          "layer_gain": 0.24,
+          "duration": 1.1,
+          "peak": 0.52,
+          "rms": 0.03275,
+          "sha256": "c163ef3f5b33c041c8fa8cfe1c46cea2f8cbdbbe8b529d8105254e0699eb7ae5"
+        },
+        "input_sha256": "c163ef3f5b33c041c8fa8cfe1c46cea2f8cbdbbe8b529d8105254e0699eb7ae5",
+        "peak": 0.525549,
+        "rms": 0.115,
+        "duration": 1.1,
+        "sha256": "86c490c0c15604636ce2709f64bef44253d0f9c1e83c2d4f7dcaa7113ec63ee5"
+      },
+      "gardener_alert-2": {
+        "source": "zombieYell6.wav",
+        "source_sha256": "79cd27c70ac3b44d4f7e8940310ee21073987032ea299203347639170f8c1208",
+        "pitch": 0.78,
         "offset": 0,
         "layer": "monster.14.ogg",
         "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
         "layer_gain": 0.24,
+        "peak": 0.58,
+        "rms": 0.100745,
         "duration": 1.1,
-        "peak": 0.52,
-        "rms": 0.03275,
-        "sha256": "c163ef3f5b33c041c8fa8cfe1c46cea2f8cbdbbe8b529d8105254e0699eb7ae5"
+        "sha256": "af4205d38242d175367568f4de97e6191b6c2cc8f50c405cd2dca9cd19931558"
       },
-      "input_sha256": "c163ef3f5b33c041c8fa8cfe1c46cea2f8cbdbbe8b529d8105254e0699eb7ae5",
-      "peak": 0.525549,
-      "rms": 0.115,
-      "duration": 1.1,
-      "sha256": "86c490c0c15604636ce2709f64bef44253d0f9c1e83c2d4f7dcaa7113ec63ee5"
-    },
-    "gardener_alert-2": {
-      "source": "zombieYell6.wav",
-      "source_sha256": "79cd27c70ac3b44d4f7e8940310ee21073987032ea299203347639170f8c1208",
-      "pitch": 0.78,
-      "offset": 0,
-      "layer": "monster.14.ogg",
-      "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.24,
-      "peak": 0.58,
-      "rms": 0.100745,
-      "duration": 1.1,
-      "sha256": "af4205d38242d175367568f4de97e6191b6c2cc8f50c405cd2dca9cd19931558"
-    },
-    "gardener_hurt": {
-      "previous_performance": {
+      "gardener_hurt": {
+        "previous_performance": {
+          "source": "zombieYell7.wav",
+          "source_sha256": "7adcb385a60805b4020e3f973fedc70706f76608d336c8774cd8272646c41662",
+          "pitch": 0.83,
+          "offset": 0,
+          "layer": "monster.2.ogg",
+          "layer_sha256": "f8e3afb6eb7c7abe3c27a022dfd842bdda784ba179501092c605d1aab8fea3df",
+          "layer_gain": 0.16,
+          "duration": 0.42,
+          "peak": 0.49042,
+          "rms": 0.095,
+          "sha256": "394e47e5569f477e85e1604e9b6ce46a408b1da07097f9d81f84b83c453dbcac"
+        },
+        "input_sha256": "394e47e5569f477e85e1604e9b6ce46a408b1da07097f9d81f84b83c453dbcac",
+        "peak": 0.356856,
+        "rms": 0.115,
+        "duration": 0.42,
+        "sha256": "608d5722962b3a49cac6f936779832ad3c8cd36843b8d826c882372c88ff4939"
+      },
+      "gardener_hurt-2": {
+        "source": "zombieYell9.wav",
+        "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
+        "pitch": 0.81,
+        "offset": 0,
+        "layer": "monster.2.ogg",
+        "layer_sha256": "f8e3afb6eb7c7abe3c27a022dfd842bdda784ba179501092c605d1aab8fea3df",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.385697,
+        "rms": 0.115,
+        "duration": 0.42,
+        "sha256": "a7eba0e06d214e81fe043aa0bcf6d184e356b8e406fe91e07c4dc970462baae7"
+      },
+      "gardener_death": {
+        "source": "zombieDeath4.wav",
+        "source_sha256": "10437ee9e240e6b0d0c910f4586b89f306565c1e97ef7eca2bb0e11a3d6c76a2",
+        "pitch": 0.75,
+        "offset": 0,
+        "layer": "vomi.ogg",
+        "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
+        "layer_pitch": 0.78,
+        "layer_offset": 1.3,
+        "layer_gain": 0.16,
+        "peak": 0.526607,
+        "rms": 0.125,
+        "duration": 2.1,
+        "sha256": "5983185a541abffa77f146e0205ee7422580982b7d9feaf7c9427ac32d465037"
+      },
+      "gardener_death-2": {
+        "source": "zombieDeath2.wav",
+        "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
+        "pitch": 0.72,
+        "offset": 0,
+        "layer": "monster-dialog.ogg",
+        "layer_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
+        "layer_pitch": 0.84,
+        "layer_offset": 0,
+        "layer_gain": 0.18,
+        "peak": 0.575682,
+        "rms": 0.125,
+        "duration": 2.1,
+        "sha256": "e63e993a7e1d128838cc6e692393b44a5c273baa96df400ae7d99d4c36a0f87a"
+      },
+      "gardener_death-3": {
+        "source": "zombieDeath1.wav",
+        "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
+        "pitch": 0.78,
+        "offset": 0,
+        "layer": "vomi.ogg",
+        "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
+        "layer_pitch": 0.8,
+        "layer_offset": 0.7,
+        "layer_gain": 0.16,
+        "peak": 0.546621,
+        "rms": 0.125,
+        "duration": 2.1,
+        "sha256": "55c02cbe8e9630fa761543c7281d0c9eb7286ee0893cde8771abc96ecfbc18be"
+      },
+      "gardener_retch_effort": {
+        "previous_performance": {
+          "source": "monster.14.ogg",
+          "source_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+          "pitch": 0.78,
+          "offset": 0,
+          "layer": "zombieYell9.wav",
+          "layer_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
+          "layer_gain": 0.16,
+          "duration": 0.68,
+          "peak": 0.52,
+          "rms": 0.03759,
+          "sha256": "951a1cfe03eaf8054b695868dff237f9f7ba03fc08938835a88ae220de6cec65"
+        },
+        "input_sha256": "951a1cfe03eaf8054b695868dff237f9f7ba03fc08938835a88ae220de6cec65",
+        "peak": 0.58,
+        "rms": 0.131508,
+        "duration": 0.68,
+        "sha256": "ace7fc9a752d230ec5a2ff398f0350abde21479f19368f56ae19a1ee681146b6"
+      },
+      "gardener_retch_effort-2": {
+        "source": "zombieYell9.wav",
+        "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
+        "pitch": 0.79,
+        "offset": 0,
+        "layer": "monster.14.ogg",
+        "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.22,
+        "peak": 0.564703,
+        "rms": 0.145,
+        "duration": 0.68,
+        "sha256": "44d413df5dbf3cc6088afffdbf02d1efbf562d7b84e8f138d4ca8802797409db"
+      },
+      "gardener_spit_effort": {
+        "previous_performance": {
+          "source": "monster.12.ogg",
+          "source_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
+          "pitch": 0.86,
+          "offset": 0,
+          "layer": "zombieYell2.wav",
+          "layer_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
+          "layer_gain": 0.16,
+          "duration": 0.62,
+          "peak": 0.52,
+          "rms": 0.07996,
+          "sha256": "d726037191f9bde98b67938b9e4083fe015727b6cf1a6f650d5dffae1a1c8370"
+        },
+        "input_sha256": "d726037191f9bde98b67938b9e4083fe015727b6cf1a6f650d5dffae1a1c8370",
+        "peak": 0.513083,
+        "rms": 0.145,
+        "duration": 0.62,
+        "sha256": "0f0605d6a63f79448060e7d820ccb66b3a8bf2c202653dfc9c9f9ad5f5bc57f7"
+      },
+      "gardener_spit_effort-2": {
+        "source": "zombieYell2.wav",
+        "source_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
+        "pitch": 0.85,
+        "offset": 0,
+        "layer": "monster.12.ogg",
+        "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.517958,
+        "rms": 0.145,
+        "duration": 0.62,
+        "sha256": "2c166042ba3d8ebb46907656df9029d7035fa254efc02c915e2df4b22a4f343a"
+      },
+      "gardener_sow_effort": {
+        "previous_performance": {
+          "source": "monster.9.ogg",
+          "source_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
+          "pitch": 0.81,
+          "offset": 0,
+          "layer": "zombieYell5.wav",
+          "layer_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
+          "layer_gain": 0.2,
+          "duration": 0.78,
+          "peak": 0.52,
+          "rms": 0.07194,
+          "sha256": "243e038abff29b91bca464cbba728c4ff99c420589e4c0fe8c46bab27fa8479e"
+        },
+        "input_sha256": "243e038abff29b91bca464cbba728c4ff99c420589e4c0fe8c46bab27fa8479e",
+        "peak": 0.527072,
+        "rms": 0.145,
+        "duration": 0.78,
+        "sha256": "6736d1f79cc48ca63fa4d038ebf612c0afeddce2bf78e90475a03f50c2fe0bd0"
+      },
+      "gardener_sow_effort-2": {
+        "source": "zombieYell5.wav",
+        "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
+        "pitch": 0.82,
+        "offset": 0,
+        "layer": "monster.9.ogg",
+        "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.568844,
+        "rms": 0.145,
+        "duration": 0.78,
+        "sha256": "45c816fbdc7ee3369c33b1572511282fef1eade969d102e9bc9edf6807176cae"
+      },
+      "gardener_harvest_effort": {
+        "previous_performance": {
+          "source": "zombieDeath2.wav",
+          "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
+          "pitch": 0.82,
+          "offset": 0,
+          "layer": "monster.16.ogg",
+          "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
+          "layer_gain": 0.2,
+          "duration": 0.85,
+          "peak": 0.52,
+          "rms": 0.07849,
+          "sha256": "3ddd468c5f6a5cd62274c1229f1d24d9c8895ae31616c95ece460ee38daaac23"
+        },
+        "input_sha256": "3ddd468c5f6a5cd62274c1229f1d24d9c8895ae31616c95ece460ee38daaac23",
+        "peak": 0.511835,
+        "rms": 0.145,
+        "duration": 0.85,
+        "sha256": "12de1e0e92ef9bcbf8dfc47cf388974ea21efc3d0fdf925cd0d1998cd4ec7f18"
+      },
+      "gardener_harvest_effort-2": {
+        "source": "monster.16.ogg",
+        "source_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
+        "pitch": 0.76,
+        "offset": 0,
+        "layer": "zombieDeath2.wav",
+        "layer_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.24,
+        "peak": 0.58,
+        "rms": 0.122304,
+        "duration": 0.85,
+        "sha256": "f5d8a24ce8d3b7df6aa1a9df5a3684c113492d1310a143526021738f02edd192"
+      },
+      "gardener_retch_voice": {
+        "previous_performance": {
+          "source": "zombieYell9.wav",
+          "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
+          "pitch": 0.78,
+          "offset": 0,
+          "layer": "monster.14.ogg",
+          "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+          "layer_gain": 0.2,
+          "duration": 0.6,
+          "peak": 0.52,
+          "rms": 0.07742,
+          "sha256": "b3f174c08796ca03c91c07d336c1eec59ef80c29775fe31b372b67645a39841b"
+        },
+        "input_sha256": "b3f174c08796ca03c91c07d336c1eec59ef80c29775fe31b372b67645a39841b",
+        "peak": 0.520274,
+        "rms": 0.145,
+        "duration": 0.6,
+        "sha256": "4c89c8406c9d202e8a219007e579d748f727fc0e6694c028bc58833dd1aac1d0"
+      },
+      "gardener_retch_voice-2": {
+        "source": "zombieYell10.wav",
+        "source_sha256": "ec56346ae49c5743f5e6cf8a22196d05b0996177ca09cdfdd73290f20e0a2ae7",
+        "pitch": 0.78,
+        "offset": 0,
+        "layer": "monster.14.ogg",
+        "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.22,
+        "peak": 0.58,
+        "rms": 0.13946,
+        "duration": 0.6,
+        "sha256": "969c3e9ceb8c13bcaca16cb1f28e715d0ff09f3c65389564291cb9196f32b553"
+      },
+      "gardener_spit_voice": {
+        "previous_performance": {
+          "source": "zombieYell2.wav",
+          "source_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
+          "pitch": 0.82,
+          "offset": 0,
+          "layer": "monster.12.ogg",
+          "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
+          "layer_gain": 0.2,
+          "duration": 0.34,
+          "peak": 0.43751,
+          "rms": 0.085,
+          "sha256": "d75d0830633db8647c6beaeb239e8a16bc98cfa510f8330d40a012b41bc16b86"
+        },
+        "input_sha256": "d75d0830633db8647c6beaeb239e8a16bc98cfa510f8330d40a012b41bc16b86",
+        "peak": 0.42912,
+        "rms": 0.145,
+        "duration": 0.34,
+        "sha256": "0b8d615010a31684bbace97e9f61dc5d31c5b1d9c62c8438a5e6f6f1f23f0c90"
+      },
+      "gardener_spit_voice-2": {
         "source": "zombieYell7.wav",
         "source_sha256": "7adcb385a60805b4020e3f973fedc70706f76608d336c8774cd8272646c41662",
         "pitch": 0.83,
         "offset": 0,
-        "layer": "monster.2.ogg",
-        "layer_sha256": "f8e3afb6eb7c7abe3c27a022dfd842bdda784ba179501092c605d1aab8fea3df",
-        "layer_gain": 0.16,
-        "duration": 0.42,
-        "peak": 0.49042,
-        "rms": 0.095,
-        "sha256": "394e47e5569f477e85e1604e9b6ce46a408b1da07097f9d81f84b83c453dbcac"
+        "layer": "monster.12.ogg",
+        "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.18,
+        "peak": 0.462867,
+        "rms": 0.145,
+        "duration": 0.34,
+        "sha256": "e7b7a293f9481bdce9108939f236d31b646cae64c740662e16b5560d90f9846d"
       },
-      "input_sha256": "394e47e5569f477e85e1604e9b6ce46a408b1da07097f9d81f84b83c453dbcac",
-      "peak": 0.356856,
-      "rms": 0.115,
-      "duration": 0.42,
-      "sha256": "608d5722962b3a49cac6f936779832ad3c8cd36843b8d826c882372c88ff4939"
-    },
-    "gardener_hurt-2": {
-      "source": "zombieYell9.wav",
-      "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
-      "pitch": 0.81,
-      "offset": 0,
-      "layer": "monster.2.ogg",
-      "layer_sha256": "f8e3afb6eb7c7abe3c27a022dfd842bdda784ba179501092c605d1aab8fea3df",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.385697,
-      "rms": 0.115,
-      "duration": 0.42,
-      "sha256": "a7eba0e06d214e81fe043aa0bcf6d184e356b8e406fe91e07c4dc970462baae7"
-    },
-    "gardener_death": {
-      "source": "zombieDeath4.wav",
-      "source_sha256": "10437ee9e240e6b0d0c910f4586b89f306565c1e97ef7eca2bb0e11a3d6c76a2",
-      "pitch": 0.75,
-      "offset": 0,
-      "layer": "vomi.ogg",
-      "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
-      "layer_pitch": 0.78,
-      "layer_offset": 1.3,
-      "layer_gain": 0.16,
-      "peak": 0.526607,
-      "rms": 0.125,
-      "duration": 2.1,
-      "sha256": "5983185a541abffa77f146e0205ee7422580982b7d9feaf7c9427ac32d465037"
-    },
-    "gardener_death-2": {
-      "source": "zombieDeath2.wav",
-      "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
-      "pitch": 0.72,
-      "offset": 0,
-      "layer": "monster-dialog.ogg",
-      "layer_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
-      "layer_pitch": 0.84,
-      "layer_offset": 0,
-      "layer_gain": 0.18,
-      "peak": 0.575682,
-      "rms": 0.125,
-      "duration": 2.1,
-      "sha256": "e63e993a7e1d128838cc6e692393b44a5c273baa96df400ae7d99d4c36a0f87a"
-    },
-    "gardener_death-3": {
-      "source": "zombieDeath1.wav",
-      "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
-      "pitch": 0.78,
-      "offset": 0,
-      "layer": "vomi.ogg",
-      "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
-      "layer_pitch": 0.8,
-      "layer_offset": 0.7,
-      "layer_gain": 0.16,
-      "peak": 0.546621,
-      "rms": 0.125,
-      "duration": 2.1,
-      "sha256": "55c02cbe8e9630fa761543c7281d0c9eb7286ee0893cde8771abc96ecfbc18be"
-    },
-    "gardener_retch_effort": {
-      "previous_performance": {
-        "source": "monster.14.ogg",
-        "source_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-        "pitch": 0.78,
-        "offset": 0,
-        "layer": "zombieYell9.wav",
-        "layer_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
-        "layer_gain": 0.16,
-        "duration": 0.68,
-        "peak": 0.52,
-        "rms": 0.03759,
-        "sha256": "951a1cfe03eaf8054b695868dff237f9f7ba03fc08938835a88ae220de6cec65"
+      "gardener_sow_voice": {
+        "previous_performance": {
+          "source": "zombieYell5.wav",
+          "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
+          "pitch": 0.78,
+          "offset": 0,
+          "layer": "monster.9.ogg",
+          "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
+          "layer_gain": 0.22,
+          "duration": 0.44,
+          "peak": 0.4334,
+          "rms": 0.085,
+          "sha256": "ca01aea6279dd5f31e245960870184937a11dba820db93c51090064e5eb19d50"
+        },
+        "input_sha256": "ca01aea6279dd5f31e245960870184937a11dba820db93c51090064e5eb19d50",
+        "peak": 0.467334,
+        "rms": 0.145,
+        "duration": 0.44,
+        "sha256": "fea74e805a265646154c726e692f240ad6939fc556c9449f51c8f460e28d14d8"
       },
-      "input_sha256": "951a1cfe03eaf8054b695868dff237f9f7ba03fc08938835a88ae220de6cec65",
-      "peak": 0.58,
-      "rms": 0.131508,
-      "duration": 0.68,
-      "sha256": "ace7fc9a752d230ec5a2ff398f0350abde21479f19368f56ae19a1ee681146b6"
-    },
-    "gardener_retch_effort-2": {
-      "source": "zombieYell9.wav",
-      "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
-      "pitch": 0.79,
-      "offset": 0,
-      "layer": "monster.14.ogg",
-      "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.22,
-      "peak": 0.564703,
-      "rms": 0.145,
-      "duration": 0.68,
-      "sha256": "44d413df5dbf3cc6088afffdbf02d1efbf562d7b84e8f138d4ca8802797409db"
-    },
-    "gardener_spit_effort": {
-      "previous_performance": {
-        "source": "monster.12.ogg",
-        "source_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-        "pitch": 0.86,
-        "offset": 0,
-        "layer": "zombieYell2.wav",
-        "layer_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
-        "layer_gain": 0.16,
-        "duration": 0.62,
-        "peak": 0.52,
-        "rms": 0.07996,
-        "sha256": "d726037191f9bde98b67938b9e4083fe015727b6cf1a6f650d5dffae1a1c8370"
-      },
-      "input_sha256": "d726037191f9bde98b67938b9e4083fe015727b6cf1a6f650d5dffae1a1c8370",
-      "peak": 0.513083,
-      "rms": 0.145,
-      "duration": 0.62,
-      "sha256": "0f0605d6a63f79448060e7d820ccb66b3a8bf2c202653dfc9c9f9ad5f5bc57f7"
-    },
-    "gardener_spit_effort-2": {
-      "source": "zombieYell2.wav",
-      "source_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
-      "pitch": 0.85,
-      "offset": 0,
-      "layer": "monster.12.ogg",
-      "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.517958,
-      "rms": 0.145,
-      "duration": 0.62,
-      "sha256": "2c166042ba3d8ebb46907656df9029d7035fa254efc02c915e2df4b22a4f343a"
-    },
-    "gardener_sow_effort": {
-      "previous_performance": {
+      "gardener_sow_voice-2": {
         "source": "monster.9.ogg",
         "source_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-        "pitch": 0.81,
+        "pitch": 0.78,
         "offset": 0,
         "layer": "zombieYell5.wav",
         "layer_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
-        "layer_gain": 0.2,
-        "duration": 0.78,
-        "peak": 0.52,
-        "rms": 0.07194,
-        "sha256": "243e038abff29b91bca464cbba728c4ff99c420589e4c0fe8c46bab27fa8479e"
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.25,
+        "peak": 0.4996,
+        "rms": 0.145,
+        "duration": 0.44,
+        "sha256": "adf620da00a5d1cd96b865c1eb8ac72197d34bd52bbbde3e6a81f036dccc020d"
       },
-      "input_sha256": "243e038abff29b91bca464cbba728c4ff99c420589e4c0fe8c46bab27fa8479e",
-      "peak": 0.527072,
-      "rms": 0.145,
-      "duration": 0.78,
-      "sha256": "6736d1f79cc48ca63fa4d038ebf612c0afeddce2bf78e90475a03f50c2fe0bd0"
+      "gardener_harvest_voice": {
+        "previous_performance": {
+          "source": "zombieDeath2.wav",
+          "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
+          "pitch": 0.76,
+          "offset": 0.15,
+          "layer": "monster.16.ogg",
+          "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
+          "layer_gain": 0.2,
+          "duration": 0.5,
+          "peak": 0.52,
+          "rms": 0.07268,
+          "sha256": "f6983cd5a58b4796f575650f537bf1c5ea5837e534a506dadd4d223676fb14a5"
+        },
+        "input_sha256": "f6983cd5a58b4796f575650f537bf1c5ea5837e534a506dadd4d223676fb14a5",
+        "peak": 0.498867,
+        "rms": 0.145,
+        "duration": 0.5,
+        "sha256": "0bb8e20634bff3e60ca03ba536c61296ae07d073cfffdf081e06238490f3f0c2"
+      },
+      "gardener_harvest_voice-2": {
+        "source": "zombieDeath3.wav",
+        "source_sha256": "9fb3eecfeef887007b8f737e663ef52cf6e8419b46011eb04e0775f1d78a1db8",
+        "pitch": 0.77,
+        "offset": 0,
+        "layer": "monster.16.ogg",
+        "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.2,
+        "peak": 0.412312,
+        "rms": 0.145,
+        "duration": 0.5,
+        "sha256": "716eee3c4b98df1f4e993a8a2bf28b6ad935da3fff14f69617ed0dfeff41ce5e"
+      },
+      "gardener_retch_prepare": {
+        "previous_performance": {
+          "source": "vomi.ogg",
+          "source_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
+          "pitch": 0.83,
+          "offset": 0.45,
+          "layer": "crachat.ogg",
+          "layer_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
+          "layer_gain": 0.15,
+          "duration": 0.7,
+          "peak": 0.45412,
+          "rms": 0.075,
+          "sha256": "1f601e1b6c115b6b830c244f5366abe4f7c1ec91cef7cfa129ccc93d206cb754"
+        },
+        "input_sha256": "1f601e1b6c115b6b830c244f5366abe4f7c1ec91cef7cfa129ccc93d206cb754",
+        "peak": 0.484474,
+        "rms": 0.145,
+        "duration": 0.7,
+        "sha256": "11ab1ba54fc1d02e1863994ce39a71a2b896bdd5881f33fdbd3912afa3af5e9f"
+      },
+      "gardener_spit_prepare": {
+        "previous_performance": {
+          "source": "crachat.ogg",
+          "source_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
+          "pitch": 0.89,
+          "offset": 0,
+          "layer": "squish_01.mp3",
+          "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "layer_gain": 0.12,
+          "duration": 0.64,
+          "peak": 0.50773,
+          "rms": 0.075,
+          "sha256": "adea07b20c2fd3617ae8743abaaa35491a7e421df5725c1516b81ea5bd2bb47b"
+        },
+        "input_sha256": "adea07b20c2fd3617ae8743abaaa35491a7e421df5725c1516b81ea5bd2bb47b",
+        "peak": 0.488257,
+        "rms": 0.145,
+        "duration": 0.64,
+        "sha256": "8b4ed2b36bf7155aa4a568950c5eb5ced3c9819085a5475e404136da909a6480"
+      },
+      "gardener_sow_prepare": {
+        "previous_performance": {
+          "source": "squish_04.mp3",
+          "source_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.72,
+          "offset": 0,
+          "layer": "monster.8.ogg",
+          "layer_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
+          "layer_gain": 0.1,
+          "duration": 0.8,
+          "peak": 0.52,
+          "rms": 0.0401,
+          "sha256": "5ed12091e0264383a2b5d86d0a06e9970e1264b2413c81896eac85f971192b80"
+        },
+        "input_sha256": "5ed12091e0264383a2b5d86d0a06e9970e1264b2413c81896eac85f971192b80",
+        "peak": 0.58,
+        "rms": 0.113477,
+        "duration": 0.8,
+        "sha256": "dca1db929f34c384c8ee7f6ce090ee669c863fc17f272ac9e3e6fb602c23aec5"
+      },
+      "gardener_harvest_prepare": {
+        "previous_performance": {
+          "source": "squish-impact.mp3",
+          "source_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
+          "pitch": 0.67,
+          "offset": 0,
+          "layer": "monster.13.ogg",
+          "layer_sha256": "eb9bafa33e86361e8dfd9afe13293bb49429dd942dd2d85e9492ed5f3d69ba23",
+          "layer_gain": 0.12,
+          "duration": 0.9,
+          "peak": 0.52,
+          "rms": 0.05418,
+          "sha256": "0ac09a4b6e7cfe5a36e25286a8c588e416d53c624edc249a250f7fc2dfc0a666"
+        },
+        "input_sha256": "0ac09a4b6e7cfe5a36e25286a8c588e416d53c624edc249a250f7fc2dfc0a666",
+        "peak": 0.551336,
+        "rms": 0.145,
+        "duration": 0.9,
+        "sha256": "0b1ab5d5a765018d8ac437d40e595bd1a11b7adc25109097fca8f7521f53925f"
+      },
+      "gardener_retch_release": {
+        "previous_performance": {
+          "source": "vomi.ogg",
+          "source_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
+          "pitch": 0.81,
+          "offset": 2.1,
+          "layer": "squish_01.mp3",
+          "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "layer_gain": 0.36,
+          "duration": 0.6,
+          "peak": 0.44532,
+          "rms": 0.09,
+          "sha256": "dba67c83192584a2103c5b6f191902a2d202a568e0c5cc47abf75d3ee31c46c8"
+        },
+        "input_sha256": "dba67c83192584a2103c5b6f191902a2d202a568e0c5cc47abf75d3ee31c46c8",
+        "peak": 0.451559,
+        "rms": 0.145,
+        "duration": 0.6,
+        "sha256": "058d7ab2049b2e2a0a16ebacf4977c2dc68541d37fe353ef1748f5aa9eaf2899"
+      },
+      "gardener_spit_release": {
+        "previous_performance": {
+          "source": "crachat.ogg",
+          "source_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
+          "pitch": 0.84,
+          "offset": 1.1,
+          "layer": "squish-impact.mp3",
+          "layer_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
+          "layer_gain": 0.35,
+          "duration": 0.42,
+          "peak": 0.52,
+          "rms": 0.07846,
+          "sha256": "1d7a86adb5e47eb53713386681fd4b56417f1067a9f8f5669bb06c2e72402805"
+        },
+        "input_sha256": "1d7a86adb5e47eb53713386681fd4b56417f1067a9f8f5669bb06c2e72402805",
+        "peak": 0.499933,
+        "rms": 0.145,
+        "duration": 0.42,
+        "sha256": "4c93ecb34b174c9176fc48e56bc0abd38cc190b608f55c0d40544e485d7e6921"
+      },
+      "gardener_sow_release": {
+        "previous_performance": {
+          "source": "squish_04.mp3",
+          "source_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.84,
+          "offset": 0,
+          "layer": "squish_01.mp3",
+          "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "layer_gain": 0.45,
+          "duration": 0.55,
+          "peak": 0.52,
+          "rms": 0.04761,
+          "sha256": "134768e8c6d1d2a06930c138548349fd5008a6740b63515e13c2265b8d55f642"
+        },
+        "input_sha256": "134768e8c6d1d2a06930c138548349fd5008a6740b63515e13c2265b8d55f642",
+        "peak": 0.58,
+        "rms": 0.121348,
+        "duration": 0.55,
+        "sha256": "2e297a1be19593e25682681153348f4c9b4c3b552f20f0675a3774fe7674912d"
+      },
+      "gardener_harvest_release": {
+        "previous_performance": {
+          "source": "squish-impact.mp3",
+          "source_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
+          "pitch": 0.61,
+          "offset": 0,
+          "layer": "squish_04.mp3",
+          "layer_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "layer_gain": 0.5,
+          "duration": 0.65,
+          "peak": 0.52,
+          "rms": 0.04461,
+          "sha256": "3521547435862b1dfb3780ed82e43a0aeaebbc47f81aae30a412833280fbf3eb"
+        },
+        "input_sha256": "3521547435862b1dfb3780ed82e43a0aeaebbc47f81aae30a412833280fbf3eb",
+        "peak": 0.58,
+        "rms": 0.125111,
+        "duration": 0.65,
+        "sha256": "afd3307269a6296969236487d8a93c4905e2a805e9f047ba00aa4b99eb3b9fd0"
+      },
+      "gardener_move": {
+        "source": "monster.15.ogg",
+        "source_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
+        "pitch": 0.81,
+        "offset": 0,
+        "layer": "monster-dialog.ogg",
+        "layer_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
+        "layer_pitch": 0.8,
+        "layer_offset": 0,
+        "layer_gain": 0.15,
+        "peak": 0.392294,
+        "rms": 0.095,
+        "duration": 1.1,
+        "sha256": "e89ffd648dd855b958b8633e00b77d0e147f720dd76fbac750b8fb178b449ec9"
+      },
+      "gardener_recover": {
+        "source": "monster.14.ogg",
+        "source_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
+        "pitch": 0.79,
+        "offset": 0,
+        "layer": "vomi.ogg",
+        "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
+        "layer_pitch": 0.85,
+        "layer_offset": 1.2,
+        "layer_gain": 0.14,
+        "peak": 0.415481,
+        "rms": 0.095,
+        "duration": 0.55,
+        "sha256": "88fd09d86fa5c1019eccd85126fd1ba80d478da0506877d6ebaa3d9059753d21"
+      }
+    }
+  },
+  "cues": {
+    "gardener_alert": {
+      "input_sha256": "86c490c0c15604636ce2709f64bef44253d0f9c1e83c2d4f7dcaa7113ec63ee5",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "48a6c3f5d937576d11f7cc33850d4102db17d01bdeeb45b89656d7d266ccc38d",
+      "peak": 0.388885498046875,
+      "rms": 0.1249961363347454,
+      "duration": 1.1,
+      "max_sample_step": 0.097381591796875,
+      "prior_take_ref": "prior_provenance.cues.gardener_alert"
     },
-    "gardener_sow_effort-2": {
-      "source": "zombieYell5.wav",
-      "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
-      "pitch": 0.82,
-      "offset": 0,
-      "layer": "monster.9.ogg",
-      "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.568844,
-      "rms": 0.145,
-      "duration": 0.78,
-      "sha256": "45c816fbdc7ee3369c33b1572511282fef1eade969d102e9bc9edf6807176cae"
+    "gardener_alert-2": {
+      "input_sha256": "af4205d38242d175367568f4de97e6191b6c2cc8f50c405cd2dca9cd19931558",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "b6e97eedb968eff02fa92b99c1761b60f9c7dd03a22cf5bf01fd67c3c9b6fa9a",
+      "peak": 0.399322509765625,
+      "rms": 0.12499618690409986,
+      "duration": 1.1,
+      "max_sample_step": 0.106842041015625,
+      "prior_take_ref": "prior_provenance.cues.gardener_alert-2"
+    },
+    "gardener_breath": {
+      "input_sha256": "972e597b08478b4e7e7595a50af6218ecd8aec40a1407f905d4cd7d71bc00c05",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "d6fc2bd6ecf0d5e83f61e42691da5a51c8de1d2f1f64d951da7e6b30053473b3",
+      "peak": 0.226409912109375,
+      "rms": 0.07999758373742757,
+      "duration": 1.65,
+      "max_sample_step": 0.05377197265625,
+      "prior_take_ref": "prior_provenance.cues.gardener_breath"
+    },
+    "gardener_breath-2": {
+      "input_sha256": "35ecd38c1631566e903ddf3839df4e805a46cca3724987ff7c310b33f2c437cb",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "eb85b36f3d79dfb034c79c48e22b80208afd5f8eae0c5dea1a41f638d18383b6",
+      "peak": 0.229705810546875,
+      "rms": 0.07999750622242699,
+      "duration": 1.65,
+      "max_sample_step": 0.063873291015625,
+      "prior_take_ref": "prior_provenance.cues.gardener_breath-2"
+    },
+    "gardener_death": {
+      "input_sha256": "5983185a541abffa77f146e0205ee7422580982b7d9feaf7c9427ac32d465037",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "d27bb3817aa64f06148ec224ecdd529a59ad484528681f8e4e2123c80314d334",
+      "peak": 0.399993896484375,
+      "rms": 0.13323026391193438,
+      "duration": 2.1,
+      "max_sample_step": 0.100372314453125,
+      "prior_take_ref": "prior_provenance.cues.gardener_death"
+    },
+    "gardener_death-2": {
+      "input_sha256": "e63e993a7e1d128838cc6e692393b44a5c273baa96df400ae7d99d4c36a0f87a",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "e026949abf1e6301c89a66552bf969213da3af6d2f9e9e767346051347ffd0d2",
+      "peak": 0.399993896484375,
+      "rms": 0.13065569415274414,
+      "duration": 2.1,
+      "max_sample_step": 0.101654052734375,
+      "prior_take_ref": "prior_provenance.cues.gardener_death-2"
+    },
+    "gardener_death-3": {
+      "input_sha256": "55c02cbe8e9630fa761543c7281d0c9eb7286ee0893cde8771abc96ecfbc18be",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "460b2938e2fe42dc7fe5274ba99415768aeb1249196b5838b1cc4322edc37428",
+      "peak": 0.399993896484375,
+      "rms": 0.12292232614612056,
+      "duration": 2.1,
+      "max_sample_step": 0.096160888671875,
+      "prior_take_ref": "prior_provenance.cues.gardener_death-3"
     },
     "gardener_harvest_effort": {
-      "previous_performance": {
-        "source": "zombieDeath2.wav",
-        "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
-        "pitch": 0.82,
-        "offset": 0,
-        "layer": "monster.16.ogg",
-        "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
-        "layer_gain": 0.2,
-        "duration": 0.85,
-        "peak": 0.52,
-        "rms": 0.07849,
-        "sha256": "3ddd468c5f6a5cd62274c1229f1d24d9c8895ae31616c95ece460ee38daaac23"
-      },
-      "input_sha256": "3ddd468c5f6a5cd62274c1229f1d24d9c8895ae31616c95ece460ee38daaac23",
-      "peak": 0.511835,
-      "rms": 0.145,
+      "input_sha256": "12de1e0e92ef9bcbf8dfc47cf388974ea21efc3d0fdf925cd0d1998cd4ec7f18",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "63226251e9727cc3f54b60b89211f3dee89f77deb80c405de493b789ba109562",
+      "peak": 0.370513916015625,
+      "rms": 0.14999547830352927,
       "duration": 0.85,
-      "sha256": "12de1e0e92ef9bcbf8dfc47cf388974ea21efc3d0fdf925cd0d1998cd4ec7f18"
+      "max_sample_step": 0.0728759765625,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_effort"
     },
     "gardener_harvest_effort-2": {
-      "source": "monster.16.ogg",
-      "source_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
-      "pitch": 0.76,
-      "offset": 0,
-      "layer": "zombieDeath2.wav",
-      "layer_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.24,
-      "peak": 0.58,
-      "rms": 0.122304,
+      "input_sha256": "f5d8a24ce8d3b7df6aa1a9df5a3684c113492d1310a143526021738f02edd192",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "e463ce133d842c1a8c7e6be1286048e2bb13faf84ccea3691fee8434dba717ce",
+      "peak": 0.391998291015625,
+      "rms": 0.14999538929725598,
       "duration": 0.85,
-      "sha256": "f5d8a24ce8d3b7df6aa1a9df5a3684c113492d1310a143526021738f02edd192"
-    },
-    "gardener_retch_voice": {
-      "previous_performance": {
-        "source": "zombieYell9.wav",
-        "source_sha256": "0e3d558d9d98eb6cc2750f804276ec297ea827d22e6846a8a7a1f3c1c117f157",
-        "pitch": 0.78,
-        "offset": 0,
-        "layer": "monster.14.ogg",
-        "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-        "layer_gain": 0.2,
-        "duration": 0.6,
-        "peak": 0.52,
-        "rms": 0.07742,
-        "sha256": "b3f174c08796ca03c91c07d336c1eec59ef80c29775fe31b372b67645a39841b"
-      },
-      "input_sha256": "b3f174c08796ca03c91c07d336c1eec59ef80c29775fe31b372b67645a39841b",
-      "peak": 0.520274,
-      "rms": 0.145,
-      "duration": 0.6,
-      "sha256": "4c89c8406c9d202e8a219007e579d748f727fc0e6694c028bc58833dd1aac1d0"
-    },
-    "gardener_retch_voice-2": {
-      "source": "zombieYell10.wav",
-      "source_sha256": "ec56346ae49c5743f5e6cf8a22196d05b0996177ca09cdfdd73290f20e0a2ae7",
-      "pitch": 0.78,
-      "offset": 0,
-      "layer": "monster.14.ogg",
-      "layer_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.22,
-      "peak": 0.58,
-      "rms": 0.13946,
-      "duration": 0.6,
-      "sha256": "969c3e9ceb8c13bcaca16cb1f28e715d0ff09f3c65389564291cb9196f32b553"
-    },
-    "gardener_spit_voice": {
-      "previous_performance": {
-        "source": "zombieYell2.wav",
-        "source_sha256": "d1f32fedcaafce528455d49512e78f5074a10e099536585850470960b5144f60",
-        "pitch": 0.82,
-        "offset": 0,
-        "layer": "monster.12.ogg",
-        "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-        "layer_gain": 0.2,
-        "duration": 0.34,
-        "peak": 0.43751,
-        "rms": 0.085,
-        "sha256": "d75d0830633db8647c6beaeb239e8a16bc98cfa510f8330d40a012b41bc16b86"
-      },
-      "input_sha256": "d75d0830633db8647c6beaeb239e8a16bc98cfa510f8330d40a012b41bc16b86",
-      "peak": 0.42912,
-      "rms": 0.145,
-      "duration": 0.34,
-      "sha256": "0b8d615010a31684bbace97e9f61dc5d31c5b1d9c62c8438a5e6f6f1f23f0c90"
-    },
-    "gardener_spit_voice-2": {
-      "source": "zombieYell7.wav",
-      "source_sha256": "7adcb385a60805b4020e3f973fedc70706f76608d336c8774cd8272646c41662",
-      "pitch": 0.83,
-      "offset": 0,
-      "layer": "monster.12.ogg",
-      "layer_sha256": "f729a838ee2ed4bb02feb1a5d15c0104a91d2ca745a36ca96ace1d136111fc1a",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.18,
-      "peak": 0.462867,
-      "rms": 0.145,
-      "duration": 0.34,
-      "sha256": "e7b7a293f9481bdce9108939f236d31b646cae64c740662e16b5560d90f9846d"
-    },
-    "gardener_sow_voice": {
-      "previous_performance": {
-        "source": "zombieYell5.wav",
-        "source_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
-        "pitch": 0.78,
-        "offset": 0,
-        "layer": "monster.9.ogg",
-        "layer_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-        "layer_gain": 0.22,
-        "duration": 0.44,
-        "peak": 0.4334,
-        "rms": 0.085,
-        "sha256": "ca01aea6279dd5f31e245960870184937a11dba820db93c51090064e5eb19d50"
-      },
-      "input_sha256": "ca01aea6279dd5f31e245960870184937a11dba820db93c51090064e5eb19d50",
-      "peak": 0.467334,
-      "rms": 0.145,
-      "duration": 0.44,
-      "sha256": "fea74e805a265646154c726e692f240ad6939fc556c9449f51c8f460e28d14d8"
-    },
-    "gardener_sow_voice-2": {
-      "source": "monster.9.ogg",
-      "source_sha256": "0c8611d4d32c2ead9d64b2376e0ae2d440dd1da1141dfc57a64a75cd01636092",
-      "pitch": 0.78,
-      "offset": 0,
-      "layer": "zombieYell5.wav",
-      "layer_sha256": "1327e3062fef13256c5c4daaed68b829959100e13dbd522072661dcbf13015a4",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.25,
-      "peak": 0.4996,
-      "rms": 0.145,
-      "duration": 0.44,
-      "sha256": "adf620da00a5d1cd96b865c1eb8ac72197d34bd52bbbde3e6a81f036dccc020d"
-    },
-    "gardener_harvest_voice": {
-      "previous_performance": {
-        "source": "zombieDeath2.wav",
-        "source_sha256": "e84d3d060439504e07c564a13bd57d55a575dc28c8f2af32f19a1b23514d538d",
-        "pitch": 0.76,
-        "offset": 0.15,
-        "layer": "monster.16.ogg",
-        "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
-        "layer_gain": 0.2,
-        "duration": 0.5,
-        "peak": 0.52,
-        "rms": 0.07268,
-        "sha256": "f6983cd5a58b4796f575650f537bf1c5ea5837e534a506dadd4d223676fb14a5"
-      },
-      "input_sha256": "f6983cd5a58b4796f575650f537bf1c5ea5837e534a506dadd4d223676fb14a5",
-      "peak": 0.498867,
-      "rms": 0.145,
-      "duration": 0.5,
-      "sha256": "0bb8e20634bff3e60ca03ba536c61296ae07d073cfffdf081e06238490f3f0c2"
-    },
-    "gardener_harvest_voice-2": {
-      "source": "zombieDeath3.wav",
-      "source_sha256": "9fb3eecfeef887007b8f737e663ef52cf6e8419b46011eb04e0775f1d78a1db8",
-      "pitch": 0.77,
-      "offset": 0,
-      "layer": "monster.16.ogg",
-      "layer_sha256": "0120b5e32b73e275697f2169996c8566396b7b1fd7993d4e76b0341e6d579d59",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.2,
-      "peak": 0.412312,
-      "rms": 0.145,
-      "duration": 0.5,
-      "sha256": "716eee3c4b98df1f4e993a8a2bf28b6ad935da3fff14f69617ed0dfeff41ce5e"
-    },
-    "gardener_retch_prepare": {
-      "previous_performance": {
-        "source": "vomi.ogg",
-        "source_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
-        "pitch": 0.83,
-        "offset": 0.45,
-        "layer": "crachat.ogg",
-        "layer_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
-        "layer_gain": 0.15,
-        "duration": 0.7,
-        "peak": 0.45412,
-        "rms": 0.075,
-        "sha256": "1f601e1b6c115b6b830c244f5366abe4f7c1ec91cef7cfa129ccc93d206cb754"
-      },
-      "input_sha256": "1f601e1b6c115b6b830c244f5366abe4f7c1ec91cef7cfa129ccc93d206cb754",
-      "peak": 0.484474,
-      "rms": 0.145,
-      "duration": 0.7,
-      "sha256": "11ab1ba54fc1d02e1863994ce39a71a2b896bdd5881f33fdbd3912afa3af5e9f"
-    },
-    "gardener_spit_prepare": {
-      "previous_performance": {
-        "source": "crachat.ogg",
-        "source_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
-        "pitch": 0.89,
-        "offset": 0,
-        "layer": "squish_01.mp3",
-        "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
-        "layer_gain": 0.12,
-        "duration": 0.64,
-        "peak": 0.50773,
-        "rms": 0.075,
-        "sha256": "adea07b20c2fd3617ae8743abaaa35491a7e421df5725c1516b81ea5bd2bb47b"
-      },
-      "input_sha256": "adea07b20c2fd3617ae8743abaaa35491a7e421df5725c1516b81ea5bd2bb47b",
-      "peak": 0.488257,
-      "rms": 0.145,
-      "duration": 0.64,
-      "sha256": "8b4ed2b36bf7155aa4a568950c5eb5ced3c9819085a5475e404136da909a6480"
-    },
-    "gardener_sow_prepare": {
-      "previous_performance": {
-        "source": "squish_04.mp3",
-        "source_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
-        "pitch": 0.72,
-        "offset": 0,
-        "layer": "monster.8.ogg",
-        "layer_sha256": "b4758a0e9aff2776aff04651014d26b8293846e0b0c59590b77d1b07b851eac9",
-        "layer_gain": 0.1,
-        "duration": 0.8,
-        "peak": 0.52,
-        "rms": 0.0401,
-        "sha256": "5ed12091e0264383a2b5d86d0a06e9970e1264b2413c81896eac85f971192b80"
-      },
-      "input_sha256": "5ed12091e0264383a2b5d86d0a06e9970e1264b2413c81896eac85f971192b80",
-      "peak": 0.58,
-      "rms": 0.113477,
-      "duration": 0.8,
-      "sha256": "dca1db929f34c384c8ee7f6ce090ee669c863fc17f272ac9e3e6fb602c23aec5"
+      "max_sample_step": 0.10137939453125,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_effort-2"
     },
     "gardener_harvest_prepare": {
-      "previous_performance": {
-        "source": "squish-impact.mp3",
-        "source_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
-        "pitch": 0.67,
-        "offset": 0,
-        "layer": "monster.13.ogg",
-        "layer_sha256": "eb9bafa33e86361e8dfd9afe13293bb49429dd942dd2d85e9492ed5f3d69ba23",
-        "layer_gain": 0.12,
-        "duration": 0.9,
-        "peak": 0.52,
-        "rms": 0.05418,
-        "sha256": "0ac09a4b6e7cfe5a36e25286a8c588e416d53c624edc249a250f7fc2dfc0a666"
-      },
-      "input_sha256": "0ac09a4b6e7cfe5a36e25286a8c588e416d53c624edc249a250f7fc2dfc0a666",
-      "peak": 0.551336,
-      "rms": 0.145,
+      "input_sha256": "0b1ab5d5a765018d8ac437d40e595bd1a11b7adc25109097fca8f7521f53925f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "a0fa6159e22f1ddce7b5ce75bd997e745f4094d42aec224c5bc9ff5895fd5261",
+      "peak": 0.36114501953125,
+      "rms": 0.149995388035619,
       "duration": 0.9,
-      "sha256": "0b1ab5d5a765018d8ac437d40e595bd1a11b7adc25109097fca8f7521f53925f"
+      "max_sample_step": 0.108673095703125,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_prepare"
     },
-    "gardener_retch_release": {
-      "previous_performance": {
-        "source": "vomi.ogg",
-        "source_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
-        "pitch": 0.81,
-        "offset": 2.1,
-        "layer": "squish_01.mp3",
-        "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
-        "layer_gain": 0.36,
-        "duration": 0.6,
-        "peak": 0.44532,
-        "rms": 0.09,
-        "sha256": "dba67c83192584a2103c5b6f191902a2d202a568e0c5cc47abf75d3ee31c46c8"
-      },
-      "input_sha256": "dba67c83192584a2103c5b6f191902a2d202a568e0c5cc47abf75d3ee31c46c8",
-      "peak": 0.451559,
-      "rms": 0.145,
-      "duration": 0.6,
-      "sha256": "058d7ab2049b2e2a0a16ebacf4977c2dc68541d37fe353ef1748f5aa9eaf2899"
+    "gardener_harvest_prepare-2": {
+      "input_sha256": "0b1ab5d5a765018d8ac437d40e595bd1a11b7adc25109097fca8f7521f53925f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_04.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "394f1c6e01b4351e823a5a0ef8deeec9143c7acec18dbf62d4fd167ebc7647a1",
+      "peak": 0.3291015625,
+      "rms": 0.149995387586956,
+      "duration": 0.9,
+      "max_sample_step": 0.094573974609375,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_prepare"
     },
-    "gardener_spit_release": {
-      "previous_performance": {
-        "source": "crachat.ogg",
-        "source_sha256": "b77e48e950613e6d0426506e5c05351cec17827b8a6f1ae0530b468ea03a83b5",
-        "pitch": 0.84,
-        "offset": 1.1,
-        "layer": "squish-impact.mp3",
-        "layer_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
-        "layer_gain": 0.35,
-        "duration": 0.42,
-        "peak": 0.52,
-        "rms": 0.07846,
-        "sha256": "1d7a86adb5e47eb53713386681fd4b56417f1067a9f8f5669bb06c2e72402805"
-      },
-      "input_sha256": "1d7a86adb5e47eb53713386681fd4b56417f1067a9f8f5669bb06c2e72402805",
-      "peak": 0.499933,
-      "rms": 0.145,
-      "duration": 0.42,
-      "sha256": "4c93ecb34b174c9176fc48e56bc0abd38cc190b608f55c0d40544e485d7e6921"
-    },
-    "gardener_sow_release": {
-      "previous_performance": {
-        "source": "squish_04.mp3",
-        "source_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
-        "pitch": 0.84,
-        "offset": 0,
-        "layer": "squish_01.mp3",
-        "layer_sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
-        "layer_gain": 0.45,
-        "duration": 0.55,
-        "peak": 0.52,
-        "rms": 0.04761,
-        "sha256": "134768e8c6d1d2a06930c138548349fd5008a6740b63515e13c2265b8d55f642"
-      },
-      "input_sha256": "134768e8c6d1d2a06930c138548349fd5008a6740b63515e13c2265b8d55f642",
-      "peak": 0.58,
-      "rms": 0.121348,
-      "duration": 0.55,
-      "sha256": "2e297a1be19593e25682681153348f4c9b4c3b552f20f0675a3774fe7674912d"
+    "gardener_harvest_prepare-3": {
+      "input_sha256": "0b1ab5d5a765018d8ac437d40e595bd1a11b7adc25109097fca8f7521f53925f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_06.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "2cbe885eb6f077fb44ad1d109be6a64b0bcfcd2a5a716851b02b4bfcec13e49b",
+      "peak": 0.340667724609375,
+      "rms": 0.14999535322848515,
+      "duration": 0.9,
+      "max_sample_step": 0.094970703125,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_prepare"
     },
     "gardener_harvest_release": {
-      "previous_performance": {
-        "source": "squish-impact.mp3",
-        "source_sha256": "4b347996a324cb23fe82033986c96fb2b098618df626972b7c505e088013bd76",
-        "pitch": 0.61,
-        "offset": 0,
-        "layer": "squish_04.mp3",
-        "layer_sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
-        "layer_gain": 0.5,
-        "duration": 0.65,
-        "peak": 0.52,
-        "rms": 0.04461,
-        "sha256": "3521547435862b1dfb3780ed82e43a0aeaebbc47f81aae30a412833280fbf3eb"
-      },
-      "input_sha256": "3521547435862b1dfb3780ed82e43a0aeaebbc47f81aae30a412833280fbf3eb",
-      "peak": 0.58,
-      "rms": 0.125111,
+      "input_sha256": "afd3307269a6296969236487d8a93c4905e2a805e9f047ba00aa4b99eb3b9fd0",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "69719d745cf85880fcc8eb70ae098dd5eba568117492cf499525055a4fa8632a",
+      "peak": 0.389068603515625,
+      "rms": 0.12499617339783066,
       "duration": 0.65,
-      "sha256": "afd3307269a6296969236487d8a93c4905e2a805e9f047ba00aa4b99eb3b9fd0"
+      "max_sample_step": 0.1187744140625,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_release"
+    },
+    "gardener_harvest_voice": {
+      "input_sha256": "0bb8e20634bff3e60ca03ba536c61296ae07d073cfffdf081e06238490f3f0c2",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "1331047d4a6890997cfc0b717ef8eceffa04e3f939668272cf9b1e4c4d982f3d",
+      "peak": 0.346038818359375,
+      "rms": 0.14999531867830776,
+      "duration": 0.5,
+      "max_sample_step": 0.073974609375,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_voice"
+    },
+    "gardener_harvest_voice-2": {
+      "input_sha256": "716eee3c4b98df1f4e993a8a2bf28b6ad935da3fff14f69617ed0dfeff41ce5e",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "f7bab885b14f0d14b6aff24f1792a27b0e16351ae314589162d57fef89022903",
+      "peak": 0.33123779296875,
+      "rms": 0.14999544205412027,
+      "duration": 0.5,
+      "max_sample_step": 0.047760009765625,
+      "prior_take_ref": "prior_provenance.cues.gardener_harvest_voice-2"
+    },
+    "gardener_hurt": {
+      "input_sha256": "608d5722962b3a49cac6f936779832ad3c8cd36843b8d826c882372c88ff4939",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "9e219ff30c8096aa7fb22fd3a7800248cbd222072582ed678861ef82c6f5bfc2",
+      "peak": 0.280731201171875,
+      "rms": 0.12499618576686994,
+      "duration": 0.42,
+      "max_sample_step": 0.060638427734375,
+      "prior_take_ref": "prior_provenance.cues.gardener_hurt"
+    },
+    "gardener_hurt-2": {
+      "input_sha256": "a7eba0e06d214e81fe043aa0bcf6d184e356b8e406fe91e07c4dc970462baae7",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "384a9654bc25342b5ff5c81050008095890f179e3fdbf3a539b908ad42849913",
+      "peak": 0.290374755859375,
+      "rms": 0.1249961940113524,
+      "duration": 0.42,
+      "max_sample_step": 0.061614990234375,
+      "prior_take_ref": "prior_provenance.cues.gardener_hurt-2"
     },
     "gardener_move": {
-      "source": "monster.15.ogg",
-      "source_sha256": "e8d9c34c3f83c1c7bd948eaad80459cb493cb07d006d49f86009f89414a40b95",
-      "pitch": 0.81,
-      "offset": 0,
-      "layer": "monster-dialog.ogg",
-      "layer_sha256": "648950cae1161f8502c96b918139583286f895ea9eeab32d7e1cfda629c038d0",
-      "layer_pitch": 0.8,
-      "layer_offset": 0,
-      "layer_gain": 0.15,
-      "peak": 0.392294,
-      "rms": 0.095,
+      "input_sha256": "e89ffd648dd855b958b8633e00b77d0e147f720dd76fbac750b8fb178b449ec9",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "a0d90aeb4d63a688e10b751d6cc14732efdfb275cc6ddb3536ee27073c3d8af0",
+      "peak": 0.252685546875,
+      "rms": 0.09999694485172231,
       "duration": 1.1,
-      "sha256": "e89ffd648dd855b958b8633e00b77d0e147f720dd76fbac750b8fb178b449ec9"
+      "max_sample_step": 0.06292724609375,
+      "prior_take_ref": "prior_provenance.cues.gardener_move"
+    },
+    "gardener_murmur": {
+      "input_sha256": "82543c037c8596fddf23eacb31ed88a6784ebed93cb2f8dcb5166661e4282b48",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "8b6b0feff84710f7d9814b5857d71f77eddc35e44c5b5d8d7d868f7ab9c09a65",
+      "peak": 0.19964599609375,
+      "rms": 0.07999759450061232,
+      "duration": 1.85,
+      "max_sample_step": 0.051300048828125,
+      "prior_take_ref": "prior_provenance.cues.gardener_murmur"
+    },
+    "gardener_murmur-2": {
+      "input_sha256": "e4121d2771d58e39abfae888685db4ae3b8d3539491bbc3565de8464d888ad44",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "37008fcbaec8c233526ac9d9f475d81e3827cf3ba836e606774d007224f70a1b",
+      "peak": 0.19793701171875,
+      "rms": 0.07999755175405228,
+      "duration": 1.85,
+      "max_sample_step": 0.0513916015625,
+      "prior_take_ref": "prior_provenance.cues.gardener_murmur-2"
     },
     "gardener_recover": {
-      "source": "monster.14.ogg",
-      "source_sha256": "54e6edeb5f803699ae8baf44aa3c6f540dad2b84a7dd3f986375c97363abe60f",
-      "pitch": 0.79,
-      "offset": 0,
-      "layer": "vomi.ogg",
-      "layer_sha256": "488ab5ec502f9646a8f1b0e8477cb2dd09a2250e8b8a18f27d3c602b1e5548b1",
-      "layer_pitch": 0.85,
-      "layer_offset": 1.2,
-      "layer_gain": 0.14,
-      "peak": 0.415481,
-      "rms": 0.095,
+      "input_sha256": "88fd09d86fa5c1019eccd85126fd1ba80d478da0506877d6ebaa3d9059753d21",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "c29b668b61b9d614602856c7ac5f66fdb33dc9654c23e6a356585ac59b971ba7",
+      "peak": 0.263763427734375,
+      "rms": 0.09999697751533605,
       "duration": 0.55,
-      "sha256": "88fd09d86fa5c1019eccd85126fd1ba80d478da0506877d6ebaa3d9059753d21"
+      "max_sample_step": 0.068267822265625,
+      "prior_take_ref": "prior_provenance.cues.gardener_recover"
+    },
+    "gardener_retch_effort": {
+      "input_sha256": "ace7fc9a752d230ec5a2ff398f0350abde21479f19368f56ae19a1ee681146b6",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "666538e1c3e37e2297e0f4cd795709d9cec6d02fac1cd623c442b80e4291c64f",
+      "peak": 0.399993896484375,
+      "rms": 0.14684968149645233,
+      "duration": 0.68,
+      "max_sample_step": 0.098114013671875,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_effort"
+    },
+    "gardener_retch_effort-2": {
+      "input_sha256": "44d413df5dbf3cc6088afffdbf02d1efbf562d7b84e8f138d4ca8802797409db",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "1a31502661036a5fddac0d48697cc61a421ada44242f916c36ba6761b8907ff1",
+      "peak": 0.39996337890625,
+      "rms": 0.1499955148508076,
+      "duration": 0.68,
+      "max_sample_step": 0.090362548828125,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_effort-2"
+    },
+    "gardener_retch_prepare": {
+      "input_sha256": "11ab1ba54fc1d02e1863994ce39a71a2b896bdd5881f33fdbd3912afa3af5e9f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "c807439a36664041549e1f1686df0491e96dd7a58cdaf3685adf411e369b7f3e",
+      "peak": 0.35687255859375,
+      "rms": 0.1499953304282018,
+      "duration": 0.7,
+      "max_sample_step": 0.09637451171875,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_prepare"
+    },
+    "gardener_retch_prepare-2": {
+      "input_sha256": "11ab1ba54fc1d02e1863994ce39a71a2b896bdd5881f33fdbd3912afa3af5e9f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_04.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "16a30aa372deeb824616e54401b5f6909ca40f18d0d3b1b0465c03c42503c6ec",
+      "peak": 0.376220703125,
+      "rms": 0.14999548833610696,
+      "duration": 0.7,
+      "max_sample_step": 0.100799560546875,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_prepare"
+    },
+    "gardener_retch_prepare-3": {
+      "input_sha256": "11ab1ba54fc1d02e1863994ce39a71a2b896bdd5881f33fdbd3912afa3af5e9f",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_06.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "063f242dca2d83a36f0d5d21a332def3c70d1146952028a4612add902913212c",
+      "peak": 0.3350830078125,
+      "rms": 0.14999538386781977,
+      "duration": 0.7,
+      "max_sample_step": 0.075531005859375,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_prepare"
+    },
+    "gardener_retch_release": {
+      "input_sha256": "058d7ab2049b2e2a0a16ebacf4977c2dc68541d37fe353ef1748f5aa9eaf2899",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "aa625952b5cfc4251a652087e0db19c2e500b6ecc6feadba65f9ce4903da517c",
+      "peak": 0.281036376953125,
+      "rms": 0.12499618345855555,
+      "duration": 0.6,
+      "max_sample_step": 0.07672119140625,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_release"
+    },
+    "gardener_retch_voice": {
+      "input_sha256": "4c89c8406c9d202e8a219007e579d748f727fc0e6694c028bc58833dd1aac1d0",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "a26957d68717082aaf3a429f866edac4571f36e315d6f1a322273cd3887ca6a8",
+      "peak": 0.383148193359375,
+      "rms": 0.14999545691311994,
+      "duration": 0.6,
+      "max_sample_step": 0.085906982421875,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_voice"
+    },
+    "gardener_retch_voice-2": {
+      "input_sha256": "969c3e9ceb8c13bcaca16cb1f28e715d0ff09f3c65389564291cb9196f32b553",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "a70fc0f29bcd0f1184a7fe508742d597196d4f89f44c792da5128275c8585d19",
+      "peak": 0.39190673828125,
+      "rms": 0.14999538850985955,
+      "duration": 0.6,
+      "max_sample_step": 0.092498779296875,
+      "prior_take_ref": "prior_provenance.cues.gardener_retch_voice-2"
+    },
+    "gardener_sow_effort": {
+      "input_sha256": "6736d1f79cc48ca63fa4d038ebf612c0afeddce2bf78e90475a03f50c2fe0bd0",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "695c39fae677c77f0c29504ba8d4d8a492dfc95fa170e81c93368fb7c72e5a08",
+      "peak": 0.364349365234375,
+      "rms": 0.1499954246380041,
+      "duration": 0.78,
+      "max_sample_step": 0.08734130859375,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_effort"
+    },
+    "gardener_sow_effort-2": {
+      "input_sha256": "45c816fbdc7ee3369c33b1572511282fef1eade969d102e9bc9edf6807176cae",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "3574984b983c5cc02a9918e3ba8a693de834673660537dcd0fa4d632d3904972",
+      "peak": 0.372650146484375,
+      "rms": 0.149995351141186,
+      "duration": 0.78,
+      "max_sample_step": 0.093048095703125,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_effort-2"
+    },
+    "gardener_sow_prepare": {
+      "input_sha256": "dca1db929f34c384c8ee7f6ce090ee669c863fc17f272ac9e3e6fb602c23aec5",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "545856289cb1e0a88a77d37c1494c270d34adb62a61e4eab389290666181ec5d",
+      "peak": 0.399993896484375,
+      "rms": 0.13531182937316077,
+      "duration": 0.8,
+      "max_sample_step": 0.122283935546875,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_prepare"
+    },
+    "gardener_sow_prepare-2": {
+      "input_sha256": "dca1db929f34c384c8ee7f6ce090ee669c863fc17f272ac9e3e6fb602c23aec5",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_04.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "c0b860723c9a8eb33991a9761dcd033978f2cc6bd77c5d9eb11a4614a4e36dd1",
+      "peak": 0.349822998046875,
+      "rms": 0.14999545138235926,
+      "duration": 0.8,
+      "max_sample_step": 0.1055908203125,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_prepare"
+    },
+    "gardener_sow_prepare-3": {
+      "input_sha256": "dca1db929f34c384c8ee7f6ce090ee669c863fc17f272ac9e3e6fb602c23aec5",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_06.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "ae2d8719924e2bac99db4be1ba7ecf93dc5a6a8e1e79a017116e85d121690adb",
+      "peak": 0.341339111328125,
+      "rms": 0.1499954071463568,
+      "duration": 0.8,
+      "max_sample_step": 0.09844970703125,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_prepare"
+    },
+    "gardener_sow_release": {
+      "input_sha256": "2e297a1be19593e25682681153348f4c9b4c3b552f20f0675a3774fe7674912d",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "f729410f6ec1d9b12cb788ba53bf50f1dd27d3d79ebd532e7cf5289b8a631754",
+      "peak": 0.3895263671875,
+      "rms": 0.12499623889785695,
+      "duration": 0.55,
+      "max_sample_step": 0.120880126953125,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_release"
+    },
+    "gardener_sow_voice": {
+      "input_sha256": "fea74e805a265646154c726e692f240ad6939fc556c9449f51c8f460e28d14d8",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "8ad06f66015813c924a77ca52b408e8d716eccb61999c2c5f5d1522dac6f4dea",
+      "peak": 0.34527587890625,
+      "rms": 0.1499953431703452,
+      "duration": 0.44,
+      "max_sample_step": 0.080718994140625,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_voice"
+    },
+    "gardener_sow_voice-2": {
+      "input_sha256": "adf620da00a5d1cd96b865c1eb8ac72197d34bd52bbbde3e6a81f036dccc020d",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "6e36c4d3b92691c7d07cb241760b728de18651413c6bf40bec9f3ddef2fedab2",
+      "peak": 0.339599609375,
+      "rms": 0.14999544315012306,
+      "duration": 0.44,
+      "max_sample_step": 0.08087158203125,
+      "prior_take_ref": "prior_provenance.cues.gardener_sow_voice-2"
+    },
+    "gardener_spit_effort": {
+      "input_sha256": "0f0605d6a63f79448060e7d820ccb66b3a8bf2c202653dfc9c9f9ad5f5bc57f7",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "329d93f4538695215daba57371ab03563c26fdce322a64bf5e4a62f4cc747040",
+      "peak": 0.364471435546875,
+      "rms": 0.14999546867746835,
+      "duration": 0.62,
+      "max_sample_step": 0.07086181640625,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_effort"
+    },
+    "gardener_spit_effort-2": {
+      "input_sha256": "2c166042ba3d8ebb46907656df9029d7035fa254efc02c915e2df4b22a4f343a",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "61987eeb6ec04c858f372aff31cbe64145b56b082449162671c83b0e4ec32cef",
+      "peak": 0.380218505859375,
+      "rms": 0.14999545582129453,
+      "duration": 0.62,
+      "max_sample_step": 0.059234619140625,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_effort-2"
+    },
+    "gardener_spit_prepare": {
+      "input_sha256": "8b4ed2b36bf7155aa4a568950c5eb5ced3c9819085a5475e404136da909a6480",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "badd6394ada05d64a0dc80ec13f6db2b5d8acbece73dfbcac8c2c10f01e6aefd",
+      "peak": 0.350189208984375,
+      "rms": 0.14999535838848252,
+      "duration": 0.64,
+      "max_sample_step": 0.100677490234375,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_prepare"
+    },
+    "gardener_spit_prepare-2": {
+      "input_sha256": "8b4ed2b36bf7155aa4a568950c5eb5ced3c9819085a5475e404136da909a6480",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_04.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "b4972f36418488835d87e5cc1a36c393dcb4d2708a4ab40d5d8b71bc85d6a85d",
+      "peak": 0.3189697265625,
+      "rms": 0.14999538962788725,
+      "duration": 0.64,
+      "max_sample_step": 0.086669921875,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_prepare"
+    },
+    "gardener_spit_prepare-3": {
+      "input_sha256": "8b4ed2b36bf7155aa4a568950c5eb5ced3c9819085a5475e404136da909a6480",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        },
+        {
+          "source": "monster_06.ogg",
+          "gain": 0.8,
+          "new_performance": true
+        }
+      ],
+      "reflection": [],
+      "sha256": "d32ba8277cf7f21d30369ef9747e127f0cf3bb47a50d6b87f2fd628bdc26b5ee",
+      "peak": 0.332763671875,
+      "rms": 0.14999541337320516,
+      "duration": 0.64,
+      "max_sample_step": 0.082489013671875,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_prepare"
+    },
+    "gardener_spit_release": {
+      "input_sha256": "4c93ecb34b174c9176fc48e56bc0abd38cc190b608f55c0d40544e485d7e6921",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0,
+          "gain": 0.45
+        }
+      ],
+      "reflection": [],
+      "sha256": "25f538fd673e07d8784b880ab2d03db4c741e1a72cf395740229499a4051ac6f",
+      "peak": 0.2935791015625,
+      "rms": 0.12499625329497795,
+      "duration": 0.42,
+      "max_sample_step": 0.080596923828125,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_release"
+    },
+    "gardener_spit_voice": {
+      "input_sha256": "0b8d615010a31684bbace97e9f61dc5d31c5b1d9c62c8438a5e6f6f1f23f0c90",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_01.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "f9943b5ba2de8ea8a3cf087a591b99c06ea77b15d95a2ce1f7f3d21b71e9dc9c",
+      "peak": 0.33648681640625,
+      "rms": 0.14999553432381937,
+      "duration": 0.34,
+      "max_sample_step": 0.042022705078125,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_voice"
+    },
+    "gardener_spit_voice-2": {
+      "input_sha256": "e7b7a293f9481bdce9108939f236d31b646cae64c740662e16b5560d90f9846d",
+      "base_pitch": 0.9,
+      "layers": [
+        {
+          "source": "cough_03.ogg",
+          "gain": 0.25,
+          "pitch": 0.75
+        }
+      ],
+      "reflection": [
+        0.024,
+        0.1
+      ],
+      "sha256": "1245e6b2dd76bc62637e6f39957494096f8dadfae6c92541fa4be2847482c10f",
+      "peak": 0.349395751953125,
+      "rms": 0.14999535028004993,
+      "duration": 0.34,
+      "max_sample_step": 0.079193115234375,
+      "prior_take_ref": "prior_provenance.cues.gardener_spit_voice-2"
+    },
+    "gardener_step": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "4fa092c1ec3b16fc4c2e174221da75c7487dd4584aa265ce26263fea0780ec17",
+      "peak": 0.31292724609375,
+      "rms": 0.09999702012383867,
+      "duration": 0.3,
+      "max_sample_step": 0.09014892578125
+    },
+    "gardener_step-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "b3fdd22aa50811be68e9caf9fb17bff762ad8c5d3ef6e288a649107db921d56d",
+      "peak": 0.379974365234375,
+      "rms": 0.09315595021404431,
+      "duration": 0.3,
+      "max_sample_step": 0.122406005859375
+    },
+    "gardener_shift": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "f2f56dad058d837afacf20454eeda647231b172186ad2e873dde72996788433c",
+      "peak": 0.379974365234375,
+      "rms": 0.10968827112094566,
+      "duration": 0.42,
+      "max_sample_step": 0.109527587890625
+    },
+    "gardener_shift-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "c4e065d55d8218d21c8efef84965568f33a20a6069a12bc7ceee4dadfe0bbd66",
+      "peak": 0.379974365234375,
+      "rms": 0.08380966775068786,
+      "duration": 0.42,
+      "max_sample_step": 0.1219482421875
+    },
+    "gardener_body_impact": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "c8a34093320e0e7194df0d214dfcbe8e7eb3cee2e4fd3a2abb1f15844219ac58",
+      "peak": 0.379974365234375,
+      "rms": 0.10523762899053722,
+      "duration": 0.48,
+      "max_sample_step": 0.10955810546875
+    },
+    "gardener_body_impact-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "d798ee49ab288cb6f8289183bd9bc5c34ea1a10ba6158bafb5d9489a4dd72112",
+      "peak": 0.379974365234375,
+      "rms": 0.08033078056002747,
+      "duration": 0.48,
+      "max_sample_step": 0.1219482421875
+    },
+    "gardener_fall": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "b0ba9531219520974aedcc78c5a3c8e58815e0bdc1a16553a11b2198a9ed4abb",
+      "peak": 0.379974365234375,
+      "rms": 0.08447246531294474,
+      "duration": 0.95,
+      "max_sample_step": 0.111175537109375
+    },
+    "gardener_fall-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "d42330f7d5af3c0a8b59bf8306273d521f45f54125181c8cfca431e0f9ec11a0",
+      "peak": 0.379974365234375,
+      "rms": 0.06432084414627919,
+      "duration": 0.95,
+      "max_sample_step": 0.1219482421875
+    },
+    "gardener_flight": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "fb398b301bc6ba6d77d13f7b5a697cc9a324eed44439717ecf278a820451aa39",
+      "peak": 0.379974365234375,
+      "rms": 0.10664102640580465,
+      "duration": 0.46,
+      "max_sample_step": 0.10955810546875
+    },
+    "gardener_flight-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "4f6541bfd71ed866b3700c67297b4dec3393fc92a0796db4a10119e06879e290",
+      "peak": 0.379974365234375,
+      "rms": 0.08142568571214073,
+      "duration": 0.46,
+      "max_sample_step": 0.121917724609375
+    },
+    "gardener_splash": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "18406efcc105d19c5801f3209701481a0bc3811149c354a4afb1c1ee9ce8086f",
+      "peak": 0.379974365234375,
+      "rms": 0.10202233430389951,
+      "duration": 0.53,
+      "max_sample_step": 0.10955810546875
+    },
+    "gardener_splash-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "080ab7a9130f518311e2c6f31475da267ee5faa6e0fcbcfe15cbe2f1d1178fc2",
+      "peak": 0.379974365234375,
+      "rms": 0.07783001664709858,
+      "duration": 0.53,
+      "max_sample_step": 0.121917724609375
+    },
+    "gardener_seed_flight": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "seed",
+      "sha256": "b5a53e8d3d8b3620ff06064214ef4c2ea54bdae6631305edfde57f7c765d9079",
+      "peak": 0.379974365234375,
+      "rms": 0.12284233693197226,
+      "duration": 0.47,
+      "max_sample_step": 0.116729736328125
+    },
+    "gardener_seed_flight-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "seed",
+      "sha256": "387452e4ceca2f407c5be74c3a5cea843d003ac16c028014ce4b7baac831d507",
+      "peak": 0.379974365234375,
+      "rms": 0.09660643988633537,
+      "duration": 0.47,
+      "max_sample_step": 0.119781494140625
+    },
+    "gardener_seed_contact": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "seed",
+      "sha256": "85f6fa627aa89cd951091304c9fa14df3d9b092f90fd4abac8582a6c3fc886dd",
+      "peak": 0.379974365234375,
+      "rms": 0.11997089851522981,
+      "duration": 0.55,
+      "max_sample_step": 0.116180419921875
+    },
+    "gardener_seed_contact-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "seed",
+      "sha256": "2a7cdeb3bfe691b5dc77fd8da61141e449eb423ce6911f654d66cf885517c57a",
+      "peak": 0.379974365234375,
+      "rms": 0.09601519298885408,
+      "duration": 0.55,
+      "max_sample_step": 0.119720458984375
+    },
+    "gardener_root": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "root",
+      "sha256": "f0925fa87c61fe1b98098a62d9e02ebc5a2dea15e837c118cacd47fe56ccd716",
+      "peak": 0.379974365234375,
+      "rms": 0.11301002802715594,
+      "duration": 0.72,
+      "max_sample_step": 0.115386962890625
+    },
+    "gardener_root-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "root",
+      "sha256": "452b4adedec9f5807fc7133f3a2249353dc3e664a2e1c1e7af23ddc4903f6785",
+      "peak": 0.379974365234375,
+      "rms": 0.09219162079900396,
+      "duration": 0.72,
+      "max_sample_step": 0.119415283203125
+    },
+    "gardener_root_end": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "root",
+      "sha256": "1ad4c05a6c84389b7fbe4344083b31f3c73c50f8ca542f5db8ec4ded55f314ff",
+      "peak": 0.379974365234375,
+      "rms": 0.12431559273673438,
+      "duration": 0.43,
+      "max_sample_step": 0.11712646484375
+    },
+    "gardener_root_end-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.62,
+          "offset": 0
+        },
+        {
+          "source": "burble_01.ogg",
+          "gain": 0.3,
+          "pitch": 0.58
+        }
+      ],
+      "material": "root",
+      "sha256": "f65030d7d67389e3f904d79420c9832751d2c2b613809e1fe05d1c751734919f",
+      "peak": 0.379974365234375,
+      "rms": 0.09678247309212204,
+      "duration": 0.43,
+      "max_sample_step": 0.119842529296875
+    },
+    "gardener_bloom": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "0fb8dbb5f65a76c92211666f7031b59a1fa1e1a1217f8e03d8449cb5793e08db",
+      "peak": 0.379974365234375,
+      "rms": 0.08868466784658156,
+      "duration": 0.82,
+      "max_sample_step": 0.110321044921875
+    },
+    "gardener_bloom-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "1709b95ec802b38a47fb2a31851b49fb9d2a39d798ca61c36381c4dd60db79ff",
+      "peak": 0.379974365234375,
+      "rms": 0.06754567506938577,
+      "duration": 0.82,
+      "max_sample_step": 0.121917724609375
+    },
+    "gardener_bloom_end": {
+      "layers": [
+        {
+          "source": "squish_01.mp3",
+          "sha256": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "6a761844ac6fd66c94e78e8a9ca72cbdc8f502e560f00bd5c763ed3c6ae8caf3",
+      "peak": 0.379974365234375,
+      "rms": 0.10263474196521272,
+      "duration": 0.52,
+      "max_sample_step": 0.109588623046875
+    },
+    "gardener_bloom_end-2": {
+      "layers": [
+        {
+          "source": "squish_04.mp3",
+          "sha256": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+          "pitch": 0.78,
+          "offset": 0
+        }
+      ],
+      "material": "wet",
+      "sha256": "babd355781a15233a9337f1b2a133fe3bbae3582c333a7895bd78df69b3ea5f7",
+      "peak": 0.379974365234375,
+      "rms": 0.0783055732068205,
+      "duration": 0.52,
+      "max_sample_step": 0.121917724609375
     }
+  },
+  "additional_source_hashes": {
+    "squish_01.mp3": "ed0faca6a71070ab5669fe27748e0e143e0f6567b9894224345506261517f2df",
+    "squish_04.mp3": "5577601ad97a5ddc17a0da8751d77ebb234f5e669f5a23449841d6a8d2450d4e",
+    "burble_01.ogg": "f4c27a1839ef9e82d29e1bb175c0ebf73c65b6839b2914108d0c219fc1f42445",
+    "cough_01.ogg": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
+    "cough_03.ogg": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
+    "monster_04.ogg": "04b556b93bf3f99255ac362ebe7f905f750a8bcbb653f78ef7191adb91e71f49",
+    "monster_06.ogg": "6b8df01eb7821fb0fcf66b4683a8eb997ca728fded26b6937734b84ff05852f9"
   }
 }

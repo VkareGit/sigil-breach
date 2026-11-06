@@ -13,869 +13,2117 @@
       "title": "Zombie / Skeleton / Monster Voice Effects",
       "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
       "license": "CC0"
+    },
+    {
+      "author": "marc3122",
+      "title": "Male Screams [performed by author]",
+      "url": "https://freesound.org/people/marc3122/sounds/556976/",
+      "download": "https://cdn.freesound.org/previews/556/556976_12497831-hq.mp3",
+      "file": "male-screams-marc3122.mp3",
+      "license": "CC0-1.0",
+      "sha256": "a7c4abd986ee308854ac33b6d5cad5f67d5d4c2b0eb36bd1a2231d3f93597dc4"
+    },
+    {
+      "author": "AuraVoice / Nocturnal_Vanguard",
+      "title": "Female Hurt Grunts & Groans",
+      "url": "https://opengameart.org/content/female-hurt-grunts-groans",
+      "download": "https://opengameart.org/sites/default/files/female_hurt_grunts_groans_1_0.ogg",
+      "file": "female-hurt-auravoice.ogg",
+      "license": "CC0-1.0",
+      "sha256": "80a9fb09203bb8feb065ba15197609b118cbe167c9a2264670a31ee22c384adb"
+    },
+    {
+      "author": "kyles",
+      "title": "chain thick rattle hooked onto metal1.wav",
+      "url": "https://freesound.org/people/kyles/sounds/452576/",
+      "download": "https://cdn.freesound.org/previews/452/452576_612689-hq.mp3",
+      "file": "chain-kyles.mp3",
+      "license": "CC0-1.0",
+      "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec"
     }
   ],
-  "processing": "Mono PCM16 44100 Hz. Recorded takes at individual pitch/offset; highpass 105Hz / lowpass 3100Hz; RMS-matched secondary throat layer .14-.26; sparse 37ms/.075 and 83ms/.035 reflections. Soft crest shaping at 1.4*RMS, two 2900Hz smoothing stages, 15/90ms fades; peak <= .38. Materials use original seeded filtered noise and short dull impacts. No recordings from other games. Listening approval remains with owner.",
-  "cues": {
-    "margrave_breath": {
-      "source": "breath.ogg",
-      "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
-        "source": "cough_01.ogg",
-        "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
-        "pitch": 0.78,
-        "gain": 0.14
+  "processing": "2026-11-06: per-character continuation of the licensed performances at commit 7243ac1. Mono PCM16 44100 Hz; FFmpeg rubberband pitch (duration preserved), HP 100 Hz / LP 2600-4100 Hz; independent recorded human, throat, deer, wet and chain layers documented per take. Soft crest x/sqrt(1+(x/(drive*RMS))^2), drive 1.45-1.8, two 3000 Hz smoothing stages, 16/75 ms fades. No stolen game audio. Additional sources with licenses inherited through prior_take and original provenance; new public HQ previews explicitly identified. Technical shaping is not a listening approval.",
+  "prior_provenance": {
+    "sources": [
+      {
+        "author": "rubberduck",
+        "title": "80 CC0 creature SFX",
+        "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+        "download": "https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip",
+        "license": "CC0",
+        "archive_sha256": "5d4002eea42f278e76543bb36e8ddd2cb978588a13271984191d8228f5d26768"
       },
-      "sha256": "39b25182e5c40d7d07f930936780fc4b8abd513e2359b8f9961d43a2563c0786",
-      "peak": 0.34201901027431575,
-      "rms": 0.08499999999999999,
-      "duration": 1.25
-    },
-    "margrave_breath-2": {
-      "source": "breath.ogg",
-      "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-      "pitch": 0.93,
-      "offset": 0.28,
-      "layer": {
-        "source": "cough_03.ogg",
-        "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
-        "pitch": 0.81,
-        "gain": 0.14
-      },
-      "sha256": "3f5a5a891c01569d8cff38846ab03873f110ef448c4f9011a091351f16e075e1",
-      "peak": 0.35285227992624957,
-      "rms": 0.08499999999999999,
-      "duration": 1.25
-    },
-    "margrave_murmur": {
-      "source": "monster_04.ogg",
-      "source_sha256": "04b556b93bf3f99255ac362ebe7f905f750a8bcbb653f78ef7191adb91e71f49",
-      "pitch": 0.85,
-      "offset": 0,
-      "layer": {
-        "source": "grunt_01.ogg",
-        "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
-        "pitch": 0.78,
-        "gain": 0.2
-      },
-      "sha256": "0018572a38875001a10a770cce0e8c90bd1e77189c3c7205bb05aca57591f39e",
-      "peak": 0.18970613522792704,
-      "rms": 0.085,
-      "duration": 1.15
-    },
-    "margrave_murmur-2": {
-      "source": "monster_06.ogg",
-      "source_sha256": "6b8df01eb7821fb0fcf66b4683a8eb997ca728fded26b6937734b84ff05852f9",
-      "pitch": 0.88,
-      "offset": 0,
-      "layer": {
-        "source": "grunt_03.ogg",
-        "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
-        "pitch": 0.8,
-        "gain": 0.2
-      },
-      "sha256": "b40905a3acd1d6efd9d4f653c9fa6c847fa1cdbf7eaf212f3965bef50bf7d040",
-      "peak": 0.21386222945124747,
-      "rms": 0.085,
-      "duration": 1.15
-    },
-    "margrave_move": {
-      "source": "grunt_02.ogg",
-      "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
-      "pitch": 0.84,
-      "offset": 0,
-      "layer": {
+      {
+        "author": "ArcadeParty",
+        "title": "Zombie / Skeleton / Monster Voice Effects",
+        "url": "https://opengameart.org/content/zombie-skeleton-monster-voice-effects",
+        "license": "CC0"
+      }
+    ],
+    "processing": "Mono PCM16 44100 Hz. Recorded takes at individual pitch/offset; highpass 105Hz / lowpass 3100Hz; RMS-matched secondary throat layer .14-.26; sparse 37ms/.075 and 83ms/.035 reflections. Soft crest shaping at 1.4*RMS, two 2900Hz smoothing stages, 15/90ms fades; peak <= .38. Materials use original seeded filtered noise and short dull impacts. No recordings from other games. Listening approval remains with owner.",
+    "cues": {
+      "margrave_breath": {
         "source": "breath.ogg",
         "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.88,
-        "gain": 0.18
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "cough_01.ogg",
+          "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
+          "pitch": 0.78,
+          "gain": 0.14
+        },
+        "sha256": "39b25182e5c40d7d07f930936780fc4b8abd513e2359b8f9961d43a2563c0786",
+        "peak": 0.34201901027431575,
+        "rms": 0.08499999999999999,
+        "duration": 1.25
       },
-      "sha256": "a1ad58ce3eaa212c728414cf4fa84757917dab0c93cef46b7d16277ab8c548f2",
-      "peak": 0.19004321420455902,
-      "rms": 0.1,
-      "duration": 0.65
-    },
-    "margrave_move-2": {
-      "source": "grunt_05.ogg",
-      "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
+      "margrave_breath-2": {
         "source": "breath.ogg",
         "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.92,
-        "gain": 0.18
+        "pitch": 0.93,
+        "offset": 0.28,
+        "layer": {
+          "source": "cough_03.ogg",
+          "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
+          "pitch": 0.81,
+          "gain": 0.14
+        },
+        "sha256": "3f5a5a891c01569d8cff38846ab03873f110ef448c4f9011a091351f16e075e1",
+        "peak": 0.35285227992624957,
+        "rms": 0.08499999999999999,
+        "duration": 1.25
       },
-      "sha256": "9fed63c5e61fe56f53909927f369e844c9918f0e866ee96316ce2ca0aefd3cbb",
-      "peak": 0.2729940727285523,
-      "rms": 0.09999999999999999,
-      "duration": 0.65
-    },
-    "margrave_recover": {
-      "source": "cough_01.ogg",
-      "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
-        "source": "breath.ogg",
-        "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.81,
-        "gain": 0.23
-      },
-      "sha256": "de30f8653eff3cf4641b8b6a1ccb768a45c502cb51199344703bfeb39e204b01",
-      "peak": 0.2896354873297341,
-      "rms": 0.09999999999999999,
-      "duration": 0.82
-    },
-    "margrave_recover-2": {
-      "source": "cough_03.ogg",
-      "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
-      "pitch": 0.88,
-      "offset": 0,
-      "layer": {
-        "source": "breath.ogg",
-        "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.87,
-        "gain": 0.23
-      },
-      "sha256": "652d7f7ecfd7a2e0e91e2f989fd15b8b408a071ec465c4e25dc9c4949836b901",
-      "peak": 0.25203938378968893,
-      "rms": 0.1,
-      "duration": 0.82
-    },
-    "margrave_alert": {
-      "source": "humanYell1.wav",
-      "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
-      "pitch": 0.72,
-      "offset": 0,
-      "layer": {
-        "source": "monster_01.ogg",
-        "source_sha256": "e8bb5c9d3d25172666c60ed302d354144b67e66170bdf039ec88f4b6b0cd879f",
-        "pitch": 0.87,
-        "gain": 0.23
-      },
-      "sha256": "4b3c48c24f6c55a6a208165d35855353371227cd62c06d8d45e924d56114736c",
-      "peak": 0.37999999999999995,
-      "rms": 0.13787618076826536,
-      "duration": 1.1
-    },
-    "margrave_alert-2": {
-      "source": "humanYell3.wav",
-      "source_sha256": "47e2dfce001336baaf702a5d114de5f22918ab6dafcc41bf4f67bd9fea66b07b",
-      "pitch": 0.76,
-      "offset": 0,
-      "layer": {
-        "source": "monster_03.ogg",
-        "source_sha256": "1208729886f3f66e7d8018e8880dff073275fd37b30e1016dd5b164161482df1",
-        "pitch": 0.91,
-        "gain": 0.23
-      },
-      "sha256": "2747df3da37c5bcf48233679d9a83a58fcc9ea19815df02b1d42cc40c2b949c1",
-      "peak": 0.38000000000000006,
-      "rms": 0.10573967952059674,
-      "duration": 1.1
-    },
-    "margrave_hurt": {
-      "source": "hurt_01.ogg",
-      "source_sha256": "619f9f2b4bc6cb013b4a62d0ef515a11e4be3a73c9d78c7c12ec5669b166d2cd",
-      "pitch": 0.8,
-      "offset": 0,
-      "layer": {
-        "source": "grunt_04.ogg",
-        "source_sha256": "4fbc2b361ce055a3b94d43489108582313dd999e5761d4e69d59c9c7abcec295",
-        "pitch": 0.78,
-        "gain": 0.18
-      },
-      "sha256": "c3aab418f5a31f5d097ee9848d2f6c29050d0120bdf96be0dd176e1776b541b4",
-      "peak": 0.37999999999999995,
-      "rms": 0.1363511217027732,
-      "duration": 0.6
-    },
-    "margrave_hurt-2": {
-      "source": "hurt_04.ogg",
-      "source_sha256": "65a6524d46bbf2acccb09b551fe7e3616dbd19f62266b5ea7e6313df29031df1",
-      "pitch": 0.85,
-      "offset": 0,
-      "layer": {
-        "source": "grunt_02.ogg",
-        "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
-        "pitch": 0.81,
-        "gain": 0.18
-      },
-      "sha256": "b64d3e7dc169654c20ce86b76f85bf5792c83e2d81e1218c8000508e282aa172",
-      "peak": 0.3252484925229666,
-      "rms": 0.13999999999999999,
-      "duration": 0.6
-    },
-    "margrave_death": {
-      "source": "humanDeath1.wav",
-      "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
-      "pitch": 0.7,
-      "offset": 0,
-      "layer": {
-        "source": "cough_03.ogg",
-        "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
-        "pitch": 0.7,
-        "gain": 0.26
-      },
-      "sha256": "0e9e502ff36a0059cc0dba4d8db02ff71b0f1bc888415270db4ca23689f00e1d",
-      "peak": 0.38,
-      "rms": 0.13410407919560896,
-      "duration": 2.1
-    },
-    "margrave_death-2": {
-      "source": "humanDeath2.wav",
-      "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
-      "pitch": 0.74,
-      "offset": 0,
-      "layer": {
-        "source": "monster_07.ogg",
-        "source_sha256": "5f7d40c4899f2e2e146fe8a0207597d4daf4d304a644ad2e8629057bc49a87e9",
-        "pitch": 0.78,
-        "gain": 0.2
-      },
-      "sha256": "7f65fceb5733c0829a8b48e069c8da237d13fecb72823752b761fee340df18a2",
-      "peak": 0.38,
-      "rms": 0.12301926332085786,
-      "duration": 2.1
-    },
-    "margrave_death-3": {
-      "source": "zombieDeath1.wav",
-      "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
-        "source": "cough_02.ogg",
-        "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
-        "pitch": 0.8,
-        "gain": 0.23
-      },
-      "sha256": "3cfc0f2e038dafd38dd46cb96436b7726dfab55547b134726deef166937bcb66",
-      "peak": 0.38,
-      "rms": 0.10565649945878373,
-      "duration": 2.1
-    },
-    "margrave_cut_effort": {
-      "source": "grunt_01.ogg",
-      "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
-      "pitch": 0.76,
-      "offset": 0,
-      "layer": {
-        "source": "breath.ogg",
-        "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.84,
-        "gain": 0.19
-      },
-      "sha256": "e0ba3957bacb17283dc0e4616c79108ceb78aefcefc9c8d24216f97b36bde3b4",
-      "peak": 0.28,
-      "rms": 0.1293125900981805,
-      "duration": 0.58
-    },
-    "margrave_cut_effort-2": {
-      "source": "grunt_03.ogg",
-      "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
-      "pitch": 0.8,
-      "offset": 0,
-      "layer": {
-        "source": "cough_01.ogg",
-        "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
-        "pitch": 0.85,
-        "gain": 0.17
-      },
-      "sha256": "8d597cfe09a4dc1324c6542b4b338ec7d41e32f3ffafe0ecf6c26afff9756890",
-      "peak": 0.28,
-      "rms": 0.11049193104321835,
-      "duration": 0.58
-    },
-    "margrave_return_effort": {
-      "source": "grunt_02.ogg",
-      "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
-      "pitch": 0.83,
-      "offset": 0,
-      "layer": {
-        "source": "cough_02.ogg",
-        "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
-        "pitch": 0.85,
-        "gain": 0.16
-      },
-      "sha256": "fc7ee73aa208a71281245e337df9069aaeaab485d2a2f8cbbef82e86dfc8d840",
-      "peak": 0.2690447796009838,
-      "rms": 0.15,
-      "duration": 0.46
-    },
-    "margrave_return_effort-2": {
-      "source": "grunt_05.ogg",
-      "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
-      "pitch": 0.8,
-      "offset": 0,
-      "layer": {
-        "source": "breath.ogg",
-        "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
-        "pitch": 0.9,
-        "gain": 0.18
-      },
-      "sha256": "099494805614ac4e530a14f178c888847877147958a9f57e9b7352657846485f",
-      "peak": 0.28,
-      "rms": 0.10361485721405675,
-      "duration": 0.46
-    },
-    "margrave_heavy_effort": {
-      "source": "grunt_04.ogg",
-      "source_sha256": "4fbc2b361ce055a3b94d43489108582313dd999e5761d4e69d59c9c7abcec295",
-      "pitch": 0.73,
-      "offset": 0,
-      "layer": {
-        "source": "humanYell1.wav",
-        "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
-        "pitch": 0.74,
-        "gain": 0.18
-      },
-      "sha256": "0289e14f22c97dbc650b0cc4f25bc01fb0cbd832fe6499440c9d1821bb26d9d5",
-      "peak": 0.3,
-      "rms": 0.11086923964465699,
-      "duration": 0.76
-    },
-    "margrave_heavy_effort-2": {
-      "source": "monster_02.ogg",
-      "source_sha256": "2f590aec7086b2327a141ec71d5e8b8e83524a30e6b9baf3be2784f4adb153b3",
-      "pitch": 0.84,
-      "offset": 0,
-      "layer": {
-        "source": "grunt_01.ogg",
-        "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
-        "pitch": 0.75,
-        "gain": 0.24
-      },
-      "sha256": "5136de6bcb5ca6e974696df01c5a377604bbb00dfa18b1ff3c05d3066fcb05b4",
-      "peak": 0.3,
-      "rms": 0.08568648168757988,
-      "duration": 0.76
-    },
-    "margrave_leap_effort": {
-      "source": "humanYell3.wav",
-      "source_sha256": "47e2dfce001336baaf702a5d114de5f22918ab6dafcc41bf4f67bd9fea66b07b",
-      "pitch": 0.81,
-      "offset": 0.05,
-      "layer": {
-        "source": "grunt_03.ogg",
-        "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
-        "pitch": 0.74,
-        "gain": 0.2
-      },
-      "sha256": "60efa9d890528785f54279704466839991893c0b8e5504d96c0af9459859fec0",
-      "peak": 0.38,
-      "rms": 0.11466317482893215,
-      "duration": 0.65
-    },
-    "margrave_leap_effort-2": {
-      "source": "grunt_05.ogg",
-      "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
-      "pitch": 0.75,
-      "offset": 0,
-      "layer": {
-        "source": "humanYell1.wav",
-        "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
-        "pitch": 0.8,
-        "gain": 0.21
-      },
-      "sha256": "91ebb4e707beba766a7029f70615db42b8ba61403104dd4b0b8954f4033ea2bb",
-      "peak": 0.38,
-      "rms": 0.14538605216782666,
-      "duration": 0.65
-    },
-    "margrave_ash_effort": {
-      "source": "cough_01.ogg",
-      "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
-      "pitch": 0.72,
-      "offset": 0,
-      "layer": {
+      "margrave_murmur": {
         "source": "monster_04.ogg",
         "source_sha256": "04b556b93bf3f99255ac362ebe7f905f750a8bcbb653f78ef7191adb91e71f49",
-        "pitch": 0.82,
-        "gain": 0.24
+        "pitch": 0.85,
+        "offset": 0,
+        "layer": {
+          "source": "grunt_01.ogg",
+          "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
+          "pitch": 0.78,
+          "gain": 0.2
+        },
+        "sha256": "0018572a38875001a10a770cce0e8c90bd1e77189c3c7205bb05aca57591f39e",
+        "peak": 0.18970613522792704,
+        "rms": 0.085,
+        "duration": 1.15
       },
-      "sha256": "bfd15b442ca71ca7bf4d1071961704f74297bc55cb64eaf795a3225879ce2f28",
-      "peak": 0.28,
-      "rms": 0.10874183052174893,
-      "duration": 0.68
-    },
-    "margrave_ash_effort-2": {
-      "source": "cough_03.ogg",
-      "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
-      "pitch": 0.76,
-      "offset": 0,
-      "layer": {
+      "margrave_murmur-2": {
         "source": "monster_06.ogg",
         "source_sha256": "6b8df01eb7821fb0fcf66b4683a8eb997ca728fded26b6937734b84ff05852f9",
-        "pitch": 0.85,
-        "gain": 0.24
+        "pitch": 0.88,
+        "offset": 0,
+        "layer": {
+          "source": "grunt_03.ogg",
+          "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
+          "pitch": 0.8,
+          "gain": 0.2
+        },
+        "sha256": "b40905a3acd1d6efd9d4f653c9fa6c847fa1cdbf7eaf212f3965bef50bf7d040",
+        "peak": 0.21386222945124747,
+        "rms": 0.085,
+        "duration": 1.15
       },
-      "sha256": "818920ed1a6c231450d81b63bf30d72e8746e6efb9b2beb33b3b720508ff074b",
-      "peak": 0.28,
-      "rms": 0.1047774053483879,
-      "duration": 0.68
-    },
-    "margrave_release_voice": {
-      "source": "grunt_03.ogg",
-      "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
-      "pitch": 0.86,
-      "offset": 0,
-      "layer": {
-        "source": "cough_02.ogg",
-        "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
-        "pitch": 0.87,
-        "gain": 0.18
+      "margrave_move": {
+        "source": "grunt_02.ogg",
+        "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
+        "pitch": 0.84,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.88,
+          "gain": 0.18
+        },
+        "sha256": "a1ad58ce3eaa212c728414cf4fa84757917dab0c93cef46b7d16277ab8c548f2",
+        "peak": 0.19004321420455902,
+        "rms": 0.1,
+        "duration": 0.65
       },
-      "sha256": "4f3d07d96db9457e37f65b8f07222c8aa1c950fd7ea2a4541798066bd74522c6",
-      "peak": 0.28,
-      "rms": 0.09320176830886812,
-      "duration": 0.42
-    },
-    "margrave_release_voice-2": {
-      "source": "grunt_01.ogg",
-      "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
-      "pitch": 0.82,
-      "offset": 0,
-      "layer": {
+      "margrave_move-2": {
+        "source": "grunt_05.ogg",
+        "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.92,
+          "gain": 0.18
+        },
+        "sha256": "9fed63c5e61fe56f53909927f369e844c9918f0e866ee96316ce2ca0aefd3cbb",
+        "peak": 0.2729940727285523,
+        "rms": 0.09999999999999999,
+        "duration": 0.65
+      },
+      "margrave_recover": {
         "source": "cough_01.ogg",
         "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
-        "pitch": 0.9,
-        "gain": 0.18
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.81,
+          "gain": 0.23
+        },
+        "sha256": "de30f8653eff3cf4641b8b6a1ccb768a45c502cb51199344703bfeb39e204b01",
+        "peak": 0.2896354873297341,
+        "rms": 0.09999999999999999,
+        "duration": 0.82
       },
-      "sha256": "81fb6708a44b76e9cdeb9182bddce59a2a6502c77853e504e0975e2403f8ff98",
-      "peak": 0.28,
-      "rms": 0.12180443191446651,
-      "duration": 0.42
-    },
-    "margrave_foot": {
-      "synthetic": true,
-      "seed": 1912,
-      "material": "stone",
-      "bursts": [
-        [
-          0.008,
-          0.07,
-          1
+      "margrave_recover-2": {
+        "source": "cough_03.ogg",
+        "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
+        "pitch": 0.88,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.87,
+          "gain": 0.23
+        },
+        "sha256": "652d7f7ecfd7a2e0e91e2f989fd15b8b408a071ec465c4e25dc9c4949836b901",
+        "peak": 0.25203938378968893,
+        "rms": 0.1,
+        "duration": 0.82
+      },
+      "margrave_alert": {
+        "source": "humanYell1.wav",
+        "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
+        "pitch": 0.72,
+        "offset": 0,
+        "layer": {
+          "source": "monster_01.ogg",
+          "source_sha256": "e8bb5c9d3d25172666c60ed302d354144b67e66170bdf039ec88f4b6b0cd879f",
+          "pitch": 0.87,
+          "gain": 0.23
+        },
+        "sha256": "4b3c48c24f6c55a6a208165d35855353371227cd62c06d8d45e924d56114736c",
+        "peak": 0.37999999999999995,
+        "rms": 0.13787618076826536,
+        "duration": 1.1
+      },
+      "margrave_alert-2": {
+        "source": "humanYell3.wav",
+        "source_sha256": "47e2dfce001336baaf702a5d114de5f22918ab6dafcc41bf4f67bd9fea66b07b",
+        "pitch": 0.76,
+        "offset": 0,
+        "layer": {
+          "source": "monster_03.ogg",
+          "source_sha256": "1208729886f3f66e7d8018e8880dff073275fd37b30e1016dd5b164161482df1",
+          "pitch": 0.91,
+          "gain": 0.23
+        },
+        "sha256": "2747df3da37c5bcf48233679d9a83a58fcc9ea19815df02b1d42cc40c2b949c1",
+        "peak": 0.38000000000000006,
+        "rms": 0.10573967952059674,
+        "duration": 1.1
+      },
+      "margrave_hurt": {
+        "source": "hurt_01.ogg",
+        "source_sha256": "619f9f2b4bc6cb013b4a62d0ef515a11e4be3a73c9d78c7c12ec5669b166d2cd",
+        "pitch": 0.8,
+        "offset": 0,
+        "layer": {
+          "source": "grunt_04.ogg",
+          "source_sha256": "4fbc2b361ce055a3b94d43489108582313dd999e5761d4e69d59c9c7abcec295",
+          "pitch": 0.78,
+          "gain": 0.18
+        },
+        "sha256": "c3aab418f5a31f5d097ee9848d2f6c29050d0120bdf96be0dd176e1776b541b4",
+        "peak": 0.37999999999999995,
+        "rms": 0.1363511217027732,
+        "duration": 0.6
+      },
+      "margrave_hurt-2": {
+        "source": "hurt_04.ogg",
+        "source_sha256": "65a6524d46bbf2acccb09b551fe7e3616dbd19f62266b5ea7e6313df29031df1",
+        "pitch": 0.85,
+        "offset": 0,
+        "layer": {
+          "source": "grunt_02.ogg",
+          "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
+          "pitch": 0.81,
+          "gain": 0.18
+        },
+        "sha256": "b64d3e7dc169654c20ce86b76f85bf5792c83e2d81e1218c8000508e282aa172",
+        "peak": 0.3252484925229666,
+        "rms": 0.13999999999999999,
+        "duration": 0.6
+      },
+      "margrave_death": {
+        "source": "humanDeath1.wav",
+        "source_sha256": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+        "pitch": 0.7,
+        "offset": 0,
+        "layer": {
+          "source": "cough_03.ogg",
+          "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
+          "pitch": 0.7,
+          "gain": 0.26
+        },
+        "sha256": "0e9e502ff36a0059cc0dba4d8db02ff71b0f1bc888415270db4ca23689f00e1d",
+        "peak": 0.38,
+        "rms": 0.13410407919560896,
+        "duration": 2.1
+      },
+      "margrave_death-2": {
+        "source": "humanDeath2.wav",
+        "source_sha256": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+        "pitch": 0.74,
+        "offset": 0,
+        "layer": {
+          "source": "monster_07.ogg",
+          "source_sha256": "5f7d40c4899f2e2e146fe8a0207597d4daf4d304a644ad2e8629057bc49a87e9",
+          "pitch": 0.78,
+          "gain": 0.2
+        },
+        "sha256": "7f65fceb5733c0829a8b48e069c8da237d13fecb72823752b761fee340df18a2",
+        "peak": 0.38,
+        "rms": 0.12301926332085786,
+        "duration": 2.1
+      },
+      "margrave_death-3": {
+        "source": "zombieDeath1.wav",
+        "source_sha256": "f32b96086c4e23e568508bd0542bfdadb34ef0d5dc1fef9094b82dc18aa1c623",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "cough_02.ogg",
+          "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
+          "pitch": 0.8,
+          "gain": 0.23
+        },
+        "sha256": "3cfc0f2e038dafd38dd46cb96436b7726dfab55547b134726deef166937bcb66",
+        "peak": 0.38,
+        "rms": 0.10565649945878373,
+        "duration": 2.1
+      },
+      "margrave_cut_effort": {
+        "source": "grunt_01.ogg",
+        "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
+        "pitch": 0.76,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.84,
+          "gain": 0.19
+        },
+        "sha256": "e0ba3957bacb17283dc0e4616c79108ceb78aefcefc9c8d24216f97b36bde3b4",
+        "peak": 0.28,
+        "rms": 0.1293125900981805,
+        "duration": 0.58
+      },
+      "margrave_cut_effort-2": {
+        "source": "grunt_03.ogg",
+        "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
+        "pitch": 0.8,
+        "offset": 0,
+        "layer": {
+          "source": "cough_01.ogg",
+          "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
+          "pitch": 0.85,
+          "gain": 0.17
+        },
+        "sha256": "8d597cfe09a4dc1324c6542b4b338ec7d41e32f3ffafe0ecf6c26afff9756890",
+        "peak": 0.28,
+        "rms": 0.11049193104321835,
+        "duration": 0.58
+      },
+      "margrave_return_effort": {
+        "source": "grunt_02.ogg",
+        "source_sha256": "76d78154f2f22b3f373bd3ec4ff0edabb459322f72adabfa285b738f37987cbb",
+        "pitch": 0.83,
+        "offset": 0,
+        "layer": {
+          "source": "cough_02.ogg",
+          "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
+          "pitch": 0.85,
+          "gain": 0.16
+        },
+        "sha256": "fc7ee73aa208a71281245e337df9069aaeaab485d2a2f8cbbef82e86dfc8d840",
+        "peak": 0.2690447796009838,
+        "rms": 0.15,
+        "duration": 0.46
+      },
+      "margrave_return_effort-2": {
+        "source": "grunt_05.ogg",
+        "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
+        "pitch": 0.8,
+        "offset": 0,
+        "layer": {
+          "source": "breath.ogg",
+          "source_sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.9,
+          "gain": 0.18
+        },
+        "sha256": "099494805614ac4e530a14f178c888847877147958a9f57e9b7352657846485f",
+        "peak": 0.28,
+        "rms": 0.10361485721405675,
+        "duration": 0.46
+      },
+      "margrave_heavy_effort": {
+        "source": "grunt_04.ogg",
+        "source_sha256": "4fbc2b361ce055a3b94d43489108582313dd999e5761d4e69d59c9c7abcec295",
+        "pitch": 0.73,
+        "offset": 0,
+        "layer": {
+          "source": "humanYell1.wav",
+          "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
+          "pitch": 0.74,
+          "gain": 0.18
+        },
+        "sha256": "0289e14f22c97dbc650b0cc4f25bc01fb0cbd832fe6499440c9d1821bb26d9d5",
+        "peak": 0.3,
+        "rms": 0.11086923964465699,
+        "duration": 0.76
+      },
+      "margrave_heavy_effort-2": {
+        "source": "monster_02.ogg",
+        "source_sha256": "2f590aec7086b2327a141ec71d5e8b8e83524a30e6b9baf3be2784f4adb153b3",
+        "pitch": 0.84,
+        "offset": 0,
+        "layer": {
+          "source": "grunt_01.ogg",
+          "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
+          "pitch": 0.75,
+          "gain": 0.24
+        },
+        "sha256": "5136de6bcb5ca6e974696df01c5a377604bbb00dfa18b1ff3c05d3066fcb05b4",
+        "peak": 0.3,
+        "rms": 0.08568648168757988,
+        "duration": 0.76
+      },
+      "margrave_leap_effort": {
+        "source": "humanYell3.wav",
+        "source_sha256": "47e2dfce001336baaf702a5d114de5f22918ab6dafcc41bf4f67bd9fea66b07b",
+        "pitch": 0.81,
+        "offset": 0.05,
+        "layer": {
+          "source": "grunt_03.ogg",
+          "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
+          "pitch": 0.74,
+          "gain": 0.2
+        },
+        "sha256": "60efa9d890528785f54279704466839991893c0b8e5504d96c0af9459859fec0",
+        "peak": 0.38,
+        "rms": 0.11466317482893215,
+        "duration": 0.65
+      },
+      "margrave_leap_effort-2": {
+        "source": "grunt_05.ogg",
+        "source_sha256": "164059a171a8a7d8f1a2fcfdb195a9d50da3ab67bed0b52f4c2c3409fe5df049",
+        "pitch": 0.75,
+        "offset": 0,
+        "layer": {
+          "source": "humanYell1.wav",
+          "source_sha256": "87d408cdff8270ecb0eb8226d09d45517f33f15654a03861073050e5f79a0ffe",
+          "pitch": 0.8,
+          "gain": 0.21
+        },
+        "sha256": "91ebb4e707beba766a7029f70615db42b8ba61403104dd4b0b8954f4033ea2bb",
+        "peak": 0.38,
+        "rms": 0.14538605216782666,
+        "duration": 0.65
+      },
+      "margrave_ash_effort": {
+        "source": "cough_01.ogg",
+        "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
+        "pitch": 0.72,
+        "offset": 0,
+        "layer": {
+          "source": "monster_04.ogg",
+          "source_sha256": "04b556b93bf3f99255ac362ebe7f905f750a8bcbb653f78ef7191adb91e71f49",
+          "pitch": 0.82,
+          "gain": 0.24
+        },
+        "sha256": "bfd15b442ca71ca7bf4d1071961704f74297bc55cb64eaf795a3225879ce2f28",
+        "peak": 0.28,
+        "rms": 0.10874183052174893,
+        "duration": 0.68
+      },
+      "margrave_ash_effort-2": {
+        "source": "cough_03.ogg",
+        "source_sha256": "1c307cd83cbda1f6860ed496e41ac27f105be801f168a22e6e359d3f9e563bb5",
+        "pitch": 0.76,
+        "offset": 0,
+        "layer": {
+          "source": "monster_06.ogg",
+          "source_sha256": "6b8df01eb7821fb0fcf66b4683a8eb997ca728fded26b6937734b84ff05852f9",
+          "pitch": 0.85,
+          "gain": 0.24
+        },
+        "sha256": "818920ed1a6c231450d81b63bf30d72e8746e6efb9b2beb33b3b720508ff074b",
+        "peak": 0.28,
+        "rms": 0.1047774053483879,
+        "duration": 0.68
+      },
+      "margrave_release_voice": {
+        "source": "grunt_03.ogg",
+        "source_sha256": "f2a23b32fcf9cbdabf059339d346ce7eead018fda778067827e71b96936989f1",
+        "pitch": 0.86,
+        "offset": 0,
+        "layer": {
+          "source": "cough_02.ogg",
+          "source_sha256": "df56e706c69183587dbf6750bf4d5df528051456cd4a838bb1171d5dbb29fcc9",
+          "pitch": 0.87,
+          "gain": 0.18
+        },
+        "sha256": "4f3d07d96db9457e37f65b8f07222c8aa1c950fd7ea2a4541798066bd74522c6",
+        "peak": 0.28,
+        "rms": 0.09320176830886812,
+        "duration": 0.42
+      },
+      "margrave_release_voice-2": {
+        "source": "grunt_01.ogg",
+        "source_sha256": "73ee84f2bb3e1b371a72dd66a09f150c98c9000bcb735c3bdd7f607e59385206",
+        "pitch": 0.82,
+        "offset": 0,
+        "layer": {
+          "source": "cough_01.ogg",
+          "source_sha256": "ab4335a796373e46114e56ea9b8f2d5e3592d7f6e76c22c8b29b3aa985e8831c",
+          "pitch": 0.9,
+          "gain": 0.18
+        },
+        "sha256": "81fb6708a44b76e9cdeb9182bddce59a2a6502c77853e504e0975e2403f8ff98",
+        "peak": 0.28,
+        "rms": 0.12180443191446651,
+        "duration": 0.42
+      },
+      "margrave_foot": {
+        "synthetic": true,
+        "seed": 1912,
+        "material": "stone",
+        "bursts": [
+          [
+            0.008,
+            0.07,
+            1
+          ],
+          [
+            0.085,
+            0.12,
+            0.45
+          ]
         ],
-        [
-          0.085,
-          0.12,
-          0.45
-        ]
+        "sha256": "5941f72a6f831e9a5d926b043ca2ccb6f2cff4b19e4c645bf3739a10e3da9a1c",
+        "peak": 0.28,
+        "rms": 0.08525967767290438,
+        "duration": 0.3
+      },
+      "margrave_foot-2": {
+        "synthetic": true,
+        "seed": 1913,
+        "material": "stone",
+        "bursts": [
+          [
+            0.008,
+            0.07,
+            1
+          ],
+          [
+            0.085,
+            0.12,
+            0.45
+          ]
+        ],
+        "sha256": "611d08a2fc9037b4fb9a699059a6b3cf5adce358837a37b52423eb1a2f844981",
+        "peak": 0.28,
+        "rms": 0.08680271586327816,
+        "duration": 0.3
+      },
+      "margrave_prepare": {
+        "synthetic": true,
+        "seed": 1922,
+        "material": "air",
+        "bursts": [
+          [
+            0.01,
+            0.25,
+            0.6
+          ],
+          [
+            0.2,
+            0.2,
+            0.8
+          ]
+        ],
+        "sha256": "b8e15e8c1e60a83b83053fa1b14dc9d4bcf7892d2323cda9a91a4b867ec2ce97",
+        "peak": 0.21548229170592176,
+        "rms": 0.075,
+        "duration": 0.46
+      },
+      "margrave_prepare-2": {
+        "synthetic": true,
+        "seed": 1923,
+        "material": "air",
+        "bursts": [
+          [
+            0.01,
+            0.25,
+            0.6
+          ],
+          [
+            0.2,
+            0.2,
+            0.8
+          ]
+        ],
+        "sha256": "353b4bf17f0ce92fadc1a84c3ac0cc52d09c3a613dd25f654ec0ad93b83ac7b9",
+        "peak": 0.21045921313642552,
+        "rms": 0.075,
+        "duration": 0.46
+      },
+      "margrave_blade": {
+        "synthetic": true,
+        "seed": 1932,
+        "material": "iron",
+        "bursts": [
+          [
+            0.008,
+            0.13,
+            1
+          ],
+          [
+            0.11,
+            0.17,
+            0.4
+          ]
+        ],
+        "sha256": "e2e55e49b21ea76d4692c2d8f2d8f2fc08515a2e49ef77aab3e945399c338f06",
+        "peak": 0.28,
+        "rms": 0.086720733562708,
+        "duration": 0.33
+      },
+      "margrave_blade-2": {
+        "synthetic": true,
+        "seed": 1933,
+        "material": "iron",
+        "bursts": [
+          [
+            0.008,
+            0.13,
+            1
+          ],
+          [
+            0.11,
+            0.17,
+            0.4
+          ]
+        ],
+        "sha256": "dc7c19da88610bbbd8c07530309beeb5971c6f6e70aecc4cc4466b1990cc4781",
+        "peak": 0.28,
+        "rms": 0.08742551724212733,
+        "duration": 0.33
+      },
+      "margrave_landing": {
+        "synthetic": true,
+        "seed": 1942,
+        "material": "stone",
+        "bursts": [
+          [
+            0.008,
+            0.11,
+            1
+          ],
+          [
+            0.12,
+            0.18,
+            0.65
+          ],
+          [
+            0.3,
+            0.28,
+            0.28
+          ]
+        ],
+        "sha256": "43bf5134883b6668af5abcec58876a8900b56eb1427d06fac97bc9b08d47f3f3",
+        "peak": 0.28,
+        "rms": 0.0905899169271446,
+        "duration": 0.7
+      },
+      "margrave_landing-2": {
+        "synthetic": true,
+        "seed": 1943,
+        "material": "stone",
+        "bursts": [
+          [
+            0.008,
+            0.11,
+            1
+          ],
+          [
+            0.12,
+            0.18,
+            0.65
+          ],
+          [
+            0.3,
+            0.28,
+            0.28
+          ]
+        ],
+        "sha256": "1b15bada1e639c999a5cd1f8b8fc20f5ee10cc0635d7a52edf40d5f2cb28c180",
+        "peak": 0.28,
+        "rms": 0.08966139053412094,
+        "duration": 0.7
+      },
+      "margrave_ash_prepare": {
+        "synthetic": true,
+        "seed": 1952,
+        "material": "coal",
+        "bursts": [
+          [
+            0.01,
+            0.18,
+            0.35
+          ],
+          [
+            0.18,
+            0.22,
+            0.6
+          ],
+          [
+            0.39,
+            0.23,
+            1
+          ]
+        ],
+        "sha256": "4f1abcffe269b280987ecd98b36478709dbd24043182f89740a9cf25ef0f90d2",
+        "peak": 0.32,
+        "rms": 0.1085499529497285,
+        "duration": 0.65
+      },
+      "margrave_ash_prepare-2": {
+        "synthetic": true,
+        "seed": 1953,
+        "material": "coal",
+        "bursts": [
+          [
+            0.01,
+            0.18,
+            0.35
+          ],
+          [
+            0.18,
+            0.22,
+            0.6
+          ],
+          [
+            0.39,
+            0.23,
+            1
+          ]
+        ],
+        "sha256": "3720cd29662dc2c86b54de3515edfd149e8cdca4f0cc0bee19b5d051bc1e9c96",
+        "peak": 0.32,
+        "rms": 0.10784860393094196,
+        "duration": 0.65
+      },
+      "margrave_ash_release": {
+        "synthetic": true,
+        "seed": 1962,
+        "material": "coal",
+        "bursts": [
+          [
+            0.008,
+            0.13,
+            1
+          ],
+          [
+            0.12,
+            0.19,
+            0.75
+          ],
+          [
+            0.29,
+            0.22,
+            0.35
+          ]
+        ],
+        "sha256": "09b0bb2c9e5e35531ff4f96082be2b5742e817a87da65881190dd42f05dabbe9",
+        "peak": 0.28,
+        "rms": 0.09505985116104507,
+        "duration": 0.55
+      },
+      "margrave_ash_release-2": {
+        "synthetic": true,
+        "seed": 1963,
+        "material": "coal",
+        "bursts": [
+          [
+            0.008,
+            0.13,
+            1
+          ],
+          [
+            0.12,
+            0.19,
+            0.75
+          ],
+          [
+            0.29,
+            0.22,
+            0.35
+          ]
+        ],
+        "sha256": "c25e6f158b38ed7996fd60149fd8a6b520e629b3553e4cb3a03c7476c38a4b63",
+        "peak": 0.28,
+        "rms": 0.09557773767358915,
+        "duration": 0.55
+      },
+      "margrave_cinder": {
+        "synthetic": true,
+        "seed": 1972,
+        "material": "air",
+        "bursts": [
+          [
+            0.01,
+            0.13,
+            0.9
+          ],
+          [
+            0.1,
+            0.21,
+            0.8
+          ]
+        ],
+        "sha256": "1aa80e2e3ee7ca4db7eb459de7e88515f814eb17ad8671d5313d93ef667edf7b",
+        "peak": 0.28,
+        "rms": 0.10061174731064074,
+        "duration": 0.36
+      },
+      "margrave_cinder-2": {
+        "synthetic": true,
+        "seed": 1973,
+        "material": "air",
+        "bursts": [
+          [
+            0.01,
+            0.13,
+            0.9
+          ],
+          [
+            0.1,
+            0.21,
+            0.8
+          ]
+        ],
+        "sha256": "402828e2a25d2be299c446fe90aba61a0ee73d86bd8e6eee887b381a6953f7fc",
+        "peak": 0.28,
+        "rms": 0.09987013979419067,
+        "duration": 0.36
+      },
+      "margrave_burst": {
+        "synthetic": true,
+        "seed": 1982,
+        "material": "coal",
+        "bursts": [
+          [
+            0.008,
+            0.12,
+            1
+          ],
+          [
+            0.11,
+            0.26,
+            0.8
+          ],
+          [
+            0.32,
+            0.33,
+            0.35
+          ]
+        ],
+        "sha256": "58fe47902db64de76ebb01b1a420030afbff6e8144c8ebe67d14781a56931f2c",
+        "peak": 0.28,
+        "rms": 0.09765357197126928,
+        "duration": 0.72
+      },
+      "margrave_burst-2": {
+        "synthetic": true,
+        "seed": 1983,
+        "material": "coal",
+        "bursts": [
+          [
+            0.008,
+            0.12,
+            1
+          ],
+          [
+            0.11,
+            0.26,
+            0.8
+          ],
+          [
+            0.32,
+            0.33,
+            0.35
+          ]
+        ],
+        "sha256": "aa70c4ef4d96b98bca4e6ad7cabf15365a82cd9c5b98fd83cd36a3738a6acfa0",
+        "peak": 0.28,
+        "rms": 0.10009508872059515,
+        "duration": 0.72
+      },
+      "margrave_collapse": {
+        "synthetic": true,
+        "seed": 1992,
+        "material": "stone",
+        "bursts": [
+          [
+            0.02,
+            0.12,
+            0.85
+          ],
+          [
+            0.22,
+            0.17,
+            1
+          ],
+          [
+            0.45,
+            0.34,
+            0.4
+          ]
+        ],
+        "sha256": "bec09c86d9474831b7c84cbeadd51ecb47c39cdcd26bba2183c3963375aa43ae",
+        "peak": 0.28,
+        "rms": 0.0871386635003543,
+        "duration": 1.0
+      },
+      "margrave_collapse-2": {
+        "synthetic": true,
+        "seed": 1993,
+        "material": "stone",
+        "bursts": [
+          [
+            0.02,
+            0.12,
+            0.85
+          ],
+          [
+            0.22,
+            0.17,
+            1
+          ],
+          [
+            0.45,
+            0.34,
+            0.4
+          ]
+        ],
+        "sha256": "5d90716c78786000849b6045483af6516115285ce71d59c46a6d58ff1991dfc3",
+        "peak": 0.28,
+        "rms": 0.08441084068983865,
+        "duration": 1.0
+      }
+    }
+  },
+  "cues": {
+    "margrave_alert": {
+      "input_sha256": "4b3c48c24f6c55a6a208165d35855353371227cd62c06d8d45e924d56114736c",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
       ],
-      "sha256": "5941f72a6f831e9a5d926b043ca2ccb6f2cff4b19e4c645bf3739a10e3da9a1c",
-      "peak": 0.28,
-      "rms": 0.08525967767290438,
-      "duration": 0.3
-    },
-    "margrave_foot-2": {
-      "synthetic": true,
-      "seed": 1913,
-      "material": "stone",
-      "bursts": [
-        [
-          0.008,
-          0.07,
-          1
-        ],
-        [
-          0.085,
-          0.12,
-          0.45
-        ]
+      "reflection": [
+        0.038,
+        0.07
       ],
-      "sha256": "611d08a2fc9037b4fb9a699059a6b3cf5adce358837a37b52423eb1a2f844981",
-      "peak": 0.28,
-      "rms": 0.08680271586327816,
-      "duration": 0.3
+      "sha256": "7b5506611869353ae1e833806d839c4dca9ba93b6e62522fa2a8ee77712e5b93",
+      "peak": 0.366485595703125,
+      "rms": 0.12499622979154783,
+      "duration": 1.1,
+      "max_sample_step": 0.071197509765625,
+      "prior_take_ref": "prior_provenance.cues.margrave_alert"
     },
-    "margrave_prepare": {
-      "synthetic": true,
-      "seed": 1922,
-      "material": "air",
-      "bursts": [
-        [
-          0.01,
-          0.25,
-          0.6
-        ],
-        [
-          0.2,
-          0.2,
-          0.8
-        ]
+    "margrave_alert-2": {
+      "input_sha256": "2747df3da37c5bcf48233679d9a83a58fcc9ea19815df02b1d42cc40c2b949c1",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
       ],
-      "sha256": "b8e15e8c1e60a83b83053fa1b14dc9d4bcf7892d2323cda9a91a4b867ec2ce97",
-      "peak": 0.21548229170592176,
-      "rms": 0.075,
-      "duration": 0.46
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "83236e437d11133e0f9b78ad4aafbb6f511008ffc4bfcf61b6a5b206f8b52a6f",
+      "peak": 0.399993896484375,
+      "rms": 0.11734797470875258,
+      "duration": 1.1,
+      "max_sample_step": 0.081390380859375,
+      "prior_take_ref": "prior_provenance.cues.margrave_alert-2"
     },
-    "margrave_prepare-2": {
-      "synthetic": true,
-      "seed": 1923,
-      "material": "air",
-      "bursts": [
-        [
-          0.01,
-          0.25,
-          0.6
-        ],
-        [
-          0.2,
-          0.2,
-          0.8
-        ]
+    "margrave_ash_effort": {
+      "input_sha256": "bfd15b442ca71ca7bf4d1071961704f74297bc55cb64eaf795a3225879ce2f28",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
       ],
-      "sha256": "353b4bf17f0ce92fadc1a84c3ac0cc52d09c3a613dd25f654ec0ad93b83ac7b9",
-      "peak": 0.21045921313642552,
-      "rms": 0.075,
-      "duration": 0.46
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "cae4e7f5636490fcc8e91d1bd12bf58462702c518a8eaf153c608ebb43774245",
+      "peak": 0.275970458984375,
+      "rms": 0.14999548531166218,
+      "duration": 0.68,
+      "max_sample_step": 0.133880615234375,
+      "additional_processing": "Soft crest at 0.13 and RMS restore up to 0.15, peak <= 0.30; 10 m warning test correction.",
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_effort"
     },
-    "margrave_blade": {
-      "synthetic": true,
-      "seed": 1932,
-      "material": "iron",
-      "bursts": [
-        [
-          0.008,
-          0.13,
-          1
-        ],
-        [
-          0.11,
-          0.17,
-          0.4
-        ]
+    "margrave_ash_effort-2": {
+      "input_sha256": "818920ed1a6c231450d81b63bf30d72e8746e6efb9b2beb33b3b720508ff074b",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
       ],
-      "sha256": "e2e55e49b21ea76d4692c2d8f2d8f2fc08515a2e49ef77aab3e945399c338f06",
-      "peak": 0.28,
-      "rms": 0.086720733562708,
-      "duration": 0.33
-    },
-    "margrave_blade-2": {
-      "synthetic": true,
-      "seed": 1933,
-      "material": "iron",
-      "bursts": [
-        [
-          0.008,
-          0.13,
-          1
-        ],
-        [
-          0.11,
-          0.17,
-          0.4
-        ]
+      "reflection": [
+        0.038,
+        0.07
       ],
-      "sha256": "dc7c19da88610bbbd8c07530309beeb5971c6f6e70aecc4cc4466b1990cc4781",
-      "peak": 0.28,
-      "rms": 0.08742551724212733,
-      "duration": 0.33
-    },
-    "margrave_landing": {
-      "synthetic": true,
-      "seed": 1942,
-      "material": "stone",
-      "bursts": [
-        [
-          0.008,
-          0.11,
-          1
-        ],
-        [
-          0.12,
-          0.18,
-          0.65
-        ],
-        [
-          0.3,
-          0.28,
-          0.28
-        ]
-      ],
-      "sha256": "43bf5134883b6668af5abcec58876a8900b56eb1427d06fac97bc9b08d47f3f3",
-      "peak": 0.28,
-      "rms": 0.0905899169271446,
-      "duration": 0.7
-    },
-    "margrave_landing-2": {
-      "synthetic": true,
-      "seed": 1943,
-      "material": "stone",
-      "bursts": [
-        [
-          0.008,
-          0.11,
-          1
-        ],
-        [
-          0.12,
-          0.18,
-          0.65
-        ],
-        [
-          0.3,
-          0.28,
-          0.28
-        ]
-      ],
-      "sha256": "1b15bada1e639c999a5cd1f8b8fc20f5ee10cc0635d7a52edf40d5f2cb28c180",
-      "peak": 0.28,
-      "rms": 0.08966139053412094,
-      "duration": 0.7
+      "sha256": "7ca9e56986dffd647da3ffe9d9d0475cb137e82dca2a40984c5b315057a8e330",
+      "peak": 0.26190185546875,
+      "rms": 0.14999538524527153,
+      "duration": 0.68,
+      "max_sample_step": 0.09539794921875,
+      "additional_processing": "Soft crest at 0.13 and RMS restore up to 0.15, peak <= 0.30; 10 m warning test correction.",
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_effort-2"
     },
     "margrave_ash_prepare": {
-      "synthetic": true,
-      "seed": 1952,
-      "material": "coal",
-      "bursts": [
-        [
-          0.01,
-          0.18,
-          0.35
-        ],
-        [
-          0.18,
-          0.22,
-          0.6
-        ],
-        [
-          0.39,
-          0.23,
-          1
-        ]
+      "input_sha256": "4f1abcffe269b280987ecd98b36478709dbd24043182f89740a9cf25ef0f90d2",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "sha256": "4f1abcffe269b280987ecd98b36478709dbd24043182f89740a9cf25ef0f90d2",
-      "peak": 0.32,
-      "rms": 0.1085499529497285,
-      "duration": 0.65
+      "reflection": [],
+      "sha256": "e20cc392bb561221dd24c8e9ab6a6a170603facd65605db42d16e20d0d2571be",
+      "peak": 0.32080078125,
+      "rms": 0.12499618768783889,
+      "duration": 0.65,
+      "max_sample_step": 0.07049560546875,
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_prepare"
     },
     "margrave_ash_prepare-2": {
-      "synthetic": true,
-      "seed": 1953,
-      "material": "coal",
-      "bursts": [
-        [
-          0.01,
-          0.18,
-          0.35
-        ],
-        [
-          0.18,
-          0.22,
-          0.6
-        ],
-        [
-          0.39,
-          0.23,
-          1
-        ]
+      "input_sha256": "3720cd29662dc2c86b54de3515edfd149e8cdca4f0cc0bee19b5d051bc1e9c96",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "sha256": "3720cd29662dc2c86b54de3515edfd149e8cdca4f0cc0bee19b5d051bc1e9c96",
-      "peak": 0.32,
-      "rms": 0.10784860393094196,
-      "duration": 0.65
+      "reflection": [],
+      "sha256": "bdc6b6847d0ea26a6b3045d49097b14caf6faec340e82f9d646cbc6492bee9d2",
+      "peak": 0.310943603515625,
+      "rms": 0.12499616320206201,
+      "duration": 0.65,
+      "max_sample_step": 0.068572998046875,
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_prepare-2"
     },
     "margrave_ash_release": {
-      "synthetic": true,
-      "seed": 1962,
-      "material": "coal",
-      "bursts": [
-        [
-          0.008,
-          0.13,
-          1
-        ],
-        [
-          0.12,
-          0.19,
-          0.75
-        ],
-        [
-          0.29,
-          0.22,
-          0.35
-        ]
+      "input_sha256": "09b0bb2c9e5e35531ff4f96082be2b5742e817a87da65881190dd42f05dabbe9",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "sha256": "09b0bb2c9e5e35531ff4f96082be2b5742e817a87da65881190dd42f05dabbe9",
-      "peak": 0.28,
-      "rms": 0.09505985116104507,
-      "duration": 0.55
+      "reflection": [],
+      "sha256": "b27441659bf109318aebe17a3991db91058b623b3d6fd83fea905a3ac7a6f278",
+      "peak": 0.332183837890625,
+      "rms": 0.12499619063334358,
+      "duration": 0.55,
+      "max_sample_step": 0.068756103515625,
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_release"
     },
     "margrave_ash_release-2": {
-      "synthetic": true,
-      "seed": 1963,
-      "material": "coal",
-      "bursts": [
-        [
-          0.008,
-          0.13,
-          1
-        ],
-        [
-          0.12,
-          0.19,
-          0.75
-        ],
-        [
-          0.29,
-          0.22,
-          0.35
-        ]
+      "input_sha256": "c25e6f158b38ed7996fd60149fd8a6b520e629b3553e4cb3a03c7476c38a4b63",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "sha256": "c25e6f158b38ed7996fd60149fd8a6b520e629b3553e4cb3a03c7476c38a4b63",
-      "peak": 0.28,
-      "rms": 0.09557773767358915,
-      "duration": 0.55
+      "reflection": [],
+      "sha256": "47e561cfd883542225c88559b0dd2cde5f7f07122c4099a8ce3d06e67d3a7851",
+      "peak": 0.314727783203125,
+      "rms": 0.12499608667464317,
+      "duration": 0.55,
+      "max_sample_step": 0.07232666015625,
+      "prior_take_ref": "prior_provenance.cues.margrave_ash_release-2"
     },
-    "margrave_cinder": {
-      "synthetic": true,
-      "seed": 1972,
-      "material": "air",
-      "bursts": [
-        [
-          0.01,
-          0.13,
-          0.9
-        ],
-        [
-          0.1,
-          0.21,
-          0.8
-        ]
+    "margrave_blade": {
+      "input_sha256": "e2e55e49b21ea76d4692c2d8f2d8f2fc08515a2e49ef77aab3e945399c338f06",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1,
+          "gain": 0.25
+        }
       ],
-      "sha256": "1aa80e2e3ee7ca4db7eb459de7e88515f814eb17ad8671d5313d93ef667edf7b",
-      "peak": 0.28,
-      "rms": 0.10061174731064074,
-      "duration": 0.36
+      "reflection": [],
+      "sha256": "d07a9cfdd7cdd74a0077882a3bbf119f40b2da55926c455e4acb625d345d1420",
+      "peak": 0.325714111328125,
+      "rms": 0.12499606390529595,
+      "duration": 0.33,
+      "max_sample_step": 0.087799072265625,
+      "prior_take_ref": "prior_provenance.cues.margrave_blade"
     },
-    "margrave_cinder-2": {
-      "synthetic": true,
-      "seed": 1973,
-      "material": "air",
-      "bursts": [
-        [
-          0.01,
-          0.13,
-          0.9
-        ],
-        [
-          0.1,
-          0.21,
-          0.8
-        ]
+    "margrave_blade-2": {
+      "input_sha256": "dc7c19da88610bbbd8c07530309beeb5971c6f6e70aecc4cc4466b1990cc4781",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001,
+          "gain": 0.25
+        }
       ],
-      "sha256": "402828e2a25d2be299c446fe90aba61a0ee73d86bd8e6eee887b381a6953f7fc",
-      "peak": 0.28,
-      "rms": 0.09987013979419067,
-      "duration": 0.36
+      "reflection": [],
+      "sha256": "fbf6a4361aca7110576c0885e0ff09a0769106b62dbcf2314b15a391330aef76",
+      "peak": 0.327239990234375,
+      "rms": 0.12499628943675849,
+      "duration": 0.33,
+      "max_sample_step": 0.076324462890625,
+      "prior_take_ref": "prior_provenance.cues.margrave_blade-2"
+    },
+    "margrave_breath": {
+      "input_sha256": "39b25182e5c40d7d07f930936780fc4b8abd513e2359b8f9961d43a2563c0786",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "8588cd29dbeb8566a0418f7de25d3be67ce661f56b7d1f265c7b67cf470decfa",
+      "peak": 0.279632568359375,
+      "rms": 0.07999757025948005,
+      "duration": 1.25,
+      "max_sample_step": 0.074066162109375,
+      "prior_take_ref": "prior_provenance.cues.margrave_breath"
+    },
+    "margrave_breath-2": {
+      "input_sha256": "3f5a5a891c01569d8cff38846ab03873f110ef448c4f9011a091351f16e075e1",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "747156b4f4af39b7955614aaf5bf81d37393d06598da801c63ace60bc2e76fa1",
+      "peak": 0.266571044921875,
+      "rms": 0.0799975624457416,
+      "duration": 1.25,
+      "max_sample_step": 0.068603515625,
+      "prior_take_ref": "prior_provenance.cues.margrave_breath-2"
     },
     "margrave_burst": {
-      "synthetic": true,
-      "seed": 1982,
-      "material": "coal",
-      "bursts": [
-        [
-          0.008,
-          0.12,
-          1
-        ],
-        [
-          0.11,
-          0.26,
-          0.8
-        ],
-        [
-          0.32,
-          0.33,
-          0.35
-        ]
+      "input_sha256": "58fe47902db64de76ebb01b1a420030afbff6e8144c8ebe67d14781a56931f2c",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "sha256": "58fe47902db64de76ebb01b1a420030afbff6e8144c8ebe67d14781a56931f2c",
-      "peak": 0.28,
-      "rms": 0.09765357197126928,
-      "duration": 0.72
+      "reflection": [],
+      "sha256": "5d35635b8b7d3cd7a1fe13b1d3f3b8ba0ac08e44b371e22a4814b85dd7b4eea9",
+      "peak": 0.32269287109375,
+      "rms": 0.12499618837085126,
+      "duration": 0.72,
+      "max_sample_step": 0.070953369140625,
+      "prior_take_ref": "prior_provenance.cues.margrave_burst"
     },
     "margrave_burst-2": {
-      "synthetic": true,
-      "seed": 1983,
-      "material": "coal",
-      "bursts": [
-        [
-          0.008,
-          0.12,
-          1
-        ],
-        [
-          0.11,
-          0.26,
-          0.8
-        ],
-        [
-          0.32,
-          0.33,
-          0.35
-        ]
+      "input_sha256": "aa70c4ef4d96b98bca4e6ad7cabf15365a82cd9c5b98fd83cd36a3738a6acfa0",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "sha256": "aa70c4ef4d96b98bca4e6ad7cabf15365a82cd9c5b98fd83cd36a3738a6acfa0",
-      "peak": 0.28,
-      "rms": 0.10009508872059515,
-      "duration": 0.72
+      "reflection": [],
+      "sha256": "37f40e8b091877161b9caaf024551f23932ac8f1a4bb55620f69006bf10e2af1",
+      "peak": 0.32586669921875,
+      "rms": 0.12499618825176317,
+      "duration": 0.72,
+      "max_sample_step": 0.07281494140625,
+      "prior_take_ref": "prior_provenance.cues.margrave_burst-2"
+    },
+    "margrave_cinder": {
+      "input_sha256": "1aa80e2e3ee7ca4db7eb459de7e88515f814eb17ad8671d5313d93ef667edf7b",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "5c9da9f575b13914c9282606296c737504479195c11f6e07dc7d312468b20df4",
+      "peak": 0.302764892578125,
+      "rms": 0.12499617450876245,
+      "duration": 0.36,
+      "max_sample_step": 0.07843017578125,
+      "prior_take_ref": "prior_provenance.cues.margrave_cinder"
+    },
+    "margrave_cinder-2": {
+      "input_sha256": "402828e2a25d2be299c446fe90aba61a0ee73d86bd8e6eee887b381a6953f7fc",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "95233dc4b77bb5972dbccaa9502a486f2d94459c4331ae3a9b3a1febc1a5ce61",
+      "peak": 0.323394775390625,
+      "rms": 0.12499611495155713,
+      "duration": 0.36,
+      "max_sample_step": 0.064117431640625,
+      "prior_take_ref": "prior_provenance.cues.margrave_cinder-2"
     },
     "margrave_collapse": {
-      "synthetic": true,
-      "seed": 1992,
-      "material": "stone",
-      "bursts": [
-        [
-          0.02,
-          0.12,
-          0.85
-        ],
-        [
-          0.22,
-          0.17,
-          1
-        ],
-        [
-          0.45,
-          0.34,
-          0.4
-        ]
+      "input_sha256": "bec09c86d9474831b7c84cbeadd51ecb47c39cdcd26bba2183c3963375aa43ae",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
       ],
-      "sha256": "bec09c86d9474831b7c84cbeadd51ecb47c39cdcd26bba2183c3963375aa43ae",
-      "peak": 0.28,
-      "rms": 0.0871386635003543,
-      "duration": 1.0
+      "reflection": [],
+      "sha256": "95a967a2219dacff2355721ebf75c4975a07f383f840a461d18f76aae34cba9a",
+      "peak": 0.35357666015625,
+      "rms": 0.12499614431499982,
+      "duration": 1.0,
+      "max_sample_step": 0.085845947265625,
+      "prior_take_ref": "prior_provenance.cues.margrave_collapse"
     },
     "margrave_collapse-2": {
-      "synthetic": true,
-      "seed": 1993,
-      "material": "stone",
-      "bursts": [
-        [
-          0.02,
-          0.12,
-          0.85
-        ],
-        [
-          0.22,
-          0.17,
-          1
-        ],
-        [
-          0.45,
-          0.34,
-          0.4
-        ]
+      "input_sha256": "5d90716c78786000849b6045483af6516115285ce71d59c46a6d58ff1991dfc3",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
       ],
-      "sha256": "5d90716c78786000849b6045483af6516115285ce71d59c46a6d58ff1991dfc3",
-      "peak": 0.28,
-      "rms": 0.08441084068983865,
-      "duration": 1.0
+      "reflection": [],
+      "sha256": "1042f6e71c37fb3e94582ad78e7c033be87295e8fe10b618ce0fc51036cb7a4a",
+      "peak": 0.360015869140625,
+      "rms": 0.12499622364422627,
+      "duration": 1.0,
+      "max_sample_step": 0.088134765625,
+      "prior_take_ref": "prior_provenance.cues.margrave_collapse-2"
+    },
+    "margrave_cut_effort": {
+      "input_sha256": "e0ba3957bacb17283dc0e4616c79108ceb78aefcefc9c8d24216f97b36bde3b4",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "dc35ebd033b53bcf005ab567cc65743e459836a83f7181cb683feb8e49d2a0c4",
+      "peak": 0.279998779296875,
+      "rms": 0.1282374077992679,
+      "duration": 0.58,
+      "max_sample_step": 0.04119873046875,
+      "prior_take_ref": "prior_provenance.cues.margrave_cut_effort"
+    },
+    "margrave_cut_effort-2": {
+      "input_sha256": "8d597cfe09a4dc1324c6542b4b338ec7d41e32f3ffafe0ecf6c26afff9756890",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "2c29768d48add44c8bdf3a0c12a8c2c240136ca57044a7b3cb4dc2f9cfc45411",
+      "peak": 0.279998779296875,
+      "rms": 0.11816878755446188,
+      "duration": 0.58,
+      "max_sample_step": 0.057373046875,
+      "prior_take_ref": "prior_provenance.cues.margrave_cut_effort-2"
+    },
+    "margrave_death": {
+      "input_sha256": "0e9e502ff36a0059cc0dba4d8db02ff71b0f1bc888415270db4ca23689f00e1d",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "b73eceeae1e9c5245675ff8ed2ce35ff552a87db9a7372d4600cea3981dcba54",
+      "peak": 0.399993896484375,
+      "rms": 0.13140965713825714,
+      "duration": 2.1,
+      "max_sample_step": 0.094024658203125,
+      "prior_take_ref": "prior_provenance.cues.margrave_death"
+    },
+    "margrave_death-2": {
+      "input_sha256": "7f65fceb5733c0829a8b48e069c8da237d13fecb72823752b761fee340df18a2",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "b26f2f10e0d2d9f4e9459eee0d5ad9430afb30f70bbdb98d84ae65e01f11aba1",
+      "peak": 0.399993896484375,
+      "rms": 0.12859392339076753,
+      "duration": 2.1,
+      "max_sample_step": 0.096923828125,
+      "prior_take_ref": "prior_provenance.cues.margrave_death-2"
+    },
+    "margrave_death-3": {
+      "input_sha256": "3cfc0f2e038dafd38dd46cb96436b7726dfab55547b134726deef166937bcb66",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4e3d9bfd6ea09d5580d50dd9376d5e27864280037658bfd79c2a081bc8dee824",
+      "peak": 0.399993896484375,
+      "rms": 0.11070878376776454,
+      "duration": 2.1,
+      "max_sample_step": 0.093658447265625,
+      "prior_take_ref": "prior_provenance.cues.margrave_death-3"
+    },
+    "margrave_foot": {
+      "input_sha256": "5941f72a6f831e9a5d926b043ca2ccb6f2cff4b19e4c645bf3739a10e3da9a1c",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "d2a9582e5852e335afa5b829cbb5fe8cd49fd20048ed6464689e21f6ca205240",
+      "peak": 0.359130859375,
+      "rms": 0.1249962658616218,
+      "duration": 0.3,
+      "max_sample_step": 0.076934814453125,
+      "prior_take_ref": "prior_provenance.cues.margrave_foot"
+    },
+    "margrave_foot-2": {
+      "input_sha256": "611d08a2fc9037b4fb9a699059a6b3cf5adce358837a37b52423eb1a2f844981",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "ab3907834a518017c5e5fc1297cd22c004019e731ac7be570a1f6c4c88c2d0a9",
+      "peak": 0.348785400390625,
+      "rms": 0.1249961565251204,
+      "duration": 0.3,
+      "max_sample_step": 0.077423095703125,
+      "prior_take_ref": "prior_provenance.cues.margrave_foot-2"
+    },
+    "margrave_heavy_effort": {
+      "input_sha256": "0289e14f22c97dbc650b0cc4f25bc01fb0cbd832fe6499440c9d1821bb26d9d5",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4061715add287aba4ce8810d3ad9d00f5d773ac676ff8ece8960f909824db47b",
+      "peak": 0.2908935546875,
+      "rms": 0.1499954655214113,
+      "duration": 0.76,
+      "max_sample_step": 0.139801025390625,
+      "additional_processing": "Soft crest at 0.13 and RMS restore up to 0.15, peak <= 0.30; 10 m warning test correction.",
+      "prior_take_ref": "prior_provenance.cues.margrave_heavy_effort"
+    },
+    "margrave_heavy_effort-2": {
+      "input_sha256": "5136de6bcb5ca6e974696df01c5a377604bbb00dfa18b1ff3c05d3066fcb05b4",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4f7e241b7e0d245e7096a615a15e5981e1d03f83ae68d3f9c367cc6f37b2ff81",
+      "peak": 0.271942138671875,
+      "rms": 0.14999542237386024,
+      "duration": 0.76,
+      "max_sample_step": 0.155853271484375,
+      "additional_processing": "Soft crest at 0.13 and RMS restore up to 0.15, peak <= 0.30; 10 m warning test correction.",
+      "prior_take_ref": "prior_provenance.cues.margrave_heavy_effort-2"
+    },
+    "margrave_hurt": {
+      "input_sha256": "c3aab418f5a31f5d097ee9848d2f6c29050d0120bdf96be0dd176e1776b541b4",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4866208e7bdd063ad98290cdecc6d3f6271e022a7a012e752d3e2cc5a07c3b49",
+      "peak": 0.3345947265625,
+      "rms": 0.124996186369749,
+      "duration": 0.6,
+      "max_sample_step": 0.07586669921875,
+      "prior_take_ref": "prior_provenance.cues.margrave_hurt"
+    },
+    "margrave_hurt-2": {
+      "input_sha256": "b64d3e7dc169654c20ce86b76f85bf5792c83e2d81e1218c8000508e282aa172",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.35,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4f0cff9274cbedcdd9415f70833167e1ab8773e60f55a6d0d73f2b740a98c73b",
+      "peak": 0.321868896484375,
+      "rms": 0.12499624639576341,
+      "duration": 0.6,
+      "max_sample_step": 0.04913330078125,
+      "prior_take_ref": "prior_provenance.cues.margrave_hurt-2"
+    },
+    "margrave_landing": {
+      "input_sha256": "43bf5134883b6668af5abcec58876a8900b56eb1427d06fac97bc9b08d47f3f3",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "15a489cd8c3ba47e920f190ac7ea936ab0b578f9fcfd439099fe288a7dde39cd",
+      "peak": 0.33740234375,
+      "rms": 0.12499623834606251,
+      "duration": 0.7,
+      "max_sample_step": 0.0780029296875,
+      "prior_take_ref": "prior_provenance.cues.margrave_landing"
+    },
+    "margrave_landing-2": {
+      "input_sha256": "1b15bada1e639c999a5cd1f8b8fc20f5ee10cc0635d7a52edf40d5f2cb28c180",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "1427a5100d558268a7a4cfe35600ebed3b2768a0c4ae663ca475751f9f1358a9",
+      "peak": 0.34002685546875,
+      "rms": 0.1249961088452392,
+      "duration": 0.7,
+      "max_sample_step": 0.0833740234375,
+      "prior_take_ref": "prior_provenance.cues.margrave_landing-2"
+    },
+    "margrave_leap_effort": {
+      "input_sha256": "60efa9d890528785f54279704466839991893c0b8e5504d96c0af9459859fec0",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "cc75d1244acf8a489234a4a806df620b7d451ff30235ad862bf57f5e129890ce",
+      "peak": 0.399993896484375,
+      "rms": 0.12959126376913127,
+      "duration": 0.65,
+      "max_sample_step": 0.06463623046875,
+      "prior_take_ref": "prior_provenance.cues.margrave_leap_effort"
+    },
+    "margrave_leap_effort-2": {
+      "input_sha256": "91ebb4e707beba766a7029f70615db42b8ba61403104dd4b0b8954f4033ea2bb",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "dbe8adb27d46af084b966d5f6ae97b0d4083091472682659b06e841280f172f9",
+      "peak": 0.34912109375,
+      "rms": 0.14999541323462648,
+      "duration": 0.65,
+      "max_sample_step": 0.059173583984375,
+      "prior_take_ref": "prior_provenance.cues.margrave_leap_effort-2"
+    },
+    "margrave_move": {
+      "input_sha256": "a1ad58ce3eaa212c728414cf4fa84757917dab0c93cef46b7d16277ab8c548f2",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "626e6dd9fd1a33f66cbd4e617c31ff2927e6fb9718986380858b613e0b1f9372",
+      "peak": 0.20098876953125,
+      "rms": 0.09999694926063842,
+      "duration": 0.65,
+      "max_sample_step": 0.022430419921875,
+      "prior_take_ref": "prior_provenance.cues.margrave_move"
+    },
+    "margrave_move-2": {
+      "input_sha256": "9fed63c5e61fe56f53909927f369e844c9918f0e866ee96316ce2ca0aefd3cbb",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "77e65cec9a228a49e741274f4f334716b6d43f1f565ffb09bceffacb84f5abe5",
+      "peak": 0.25506591796875,
+      "rms": 0.09999695031756663,
+      "duration": 0.65,
+      "max_sample_step": 0.048797607421875,
+      "prior_take_ref": "prior_provenance.cues.margrave_move-2"
+    },
+    "margrave_murmur": {
+      "input_sha256": "0018572a38875001a10a770cce0e8c90bd1e77189c3c7205bb05aca57591f39e",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "1914b1e169a4cc39619b5e50508b55236125714c55b7bf8c99bcdb00c2089a2d",
+      "peak": 0.184600830078125,
+      "rms": 0.0799975538689933,
+      "duration": 1.15,
+      "max_sample_step": 0.014892578125,
+      "prior_take_ref": "prior_provenance.cues.margrave_murmur"
+    },
+    "margrave_murmur-2": {
+      "input_sha256": "b40905a3acd1d6efd9d4f653c9fa6c847fa1cdbf7eaf212f3965bef50bf7d040",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "2015c44cb2b52c90ebcfc832b89bf8ef36e7912d9ecc8d07c021a14ca97b44d0",
+      "peak": 0.20465087890625,
+      "rms": 0.07999752037436848,
+      "duration": 1.15,
+      "max_sample_step": 0.02911376953125,
+      "prior_take_ref": "prior_provenance.cues.margrave_murmur-2"
+    },
+    "margrave_prepare": {
+      "input_sha256": "b8e15e8c1e60a83b83053fa1b14dc9d4bcf7892d2323cda9a91a4b867ec2ce97",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "89877464a8125bfbcbda54d96378a5619443addd263fa02d65f184f445a5cbad",
+      "peak": 0.194091796875,
+      "rms": 0.0799975254593608,
+      "duration": 0.46,
+      "max_sample_step": 0.045135498046875,
+      "prior_take_ref": "prior_provenance.cues.margrave_prepare"
+    },
+    "margrave_prepare-2": {
+      "input_sha256": "353b4bf17f0ce92fadc1a84c3ac0cc52d09c3a613dd25f654ec0ad93b83ac7b9",
+      "base_pitch": 1,
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001,
+          "gain": 0.25
+        }
+      ],
+      "reflection": [],
+      "sha256": "abbd713866aab3297dcb8fc87ab7ab0f9838b4dcac412a42b5332e6987099dcb",
+      "peak": 0.201202392578125,
+      "rms": 0.07999762469228465,
+      "duration": 0.46,
+      "max_sample_step": 0.047332763671875,
+      "prior_take_ref": "prior_provenance.cues.margrave_prepare-2"
+    },
+    "margrave_recover": {
+      "input_sha256": "de30f8653eff3cf4641b8b6a1ccb768a45c502cb51199344703bfeb39e204b01",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "4fb87c34dd99689851175423fe2816de1d54d242117e1f19027431bb55bab4c3",
+      "peak": 0.28387451171875,
+      "rms": 0.09999689574361886,
+      "duration": 0.82,
+      "max_sample_step": 0.0645751953125,
+      "prior_take_ref": "prior_provenance.cues.margrave_recover"
+    },
+    "margrave_recover-2": {
+      "input_sha256": "652d7f7ecfd7a2e0e91e2f989fd15b8b408a071ec465c4e25dc9c4949836b901",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "9348ff2d6e0c5879a5e1da2f275e160b3fcd2cdea59803e9589c1f7b69944a71",
+      "peak": 0.2518310546875,
+      "rms": 0.09999692510184185,
+      "duration": 0.82,
+      "max_sample_step": 0.04888916015625,
+      "prior_take_ref": "prior_provenance.cues.margrave_recover-2"
+    },
+    "margrave_release_voice": {
+      "input_sha256": "4f3d07d96db9457e37f65b8f07222c8aa1c950fd7ea2a4541798066bd74522c6",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "65edf938112b0ae4648575da0a2c5048ad17825ff2d238631d332f784a5b5850",
+      "peak": 0.279998779296875,
+      "rms": 0.11146625592450933,
+      "duration": 0.42,
+      "max_sample_step": 0.04254150390625,
+      "prior_take_ref": "prior_provenance.cues.margrave_release_voice"
+    },
+    "margrave_release_voice-2": {
+      "input_sha256": "81fb6708a44b76e9cdeb9182bddce59a2a6502c77853e504e0975e2403f8ff98",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "b831465d5d5de94748f656b2f5d80cd0a171ebeaf82a7068a903c9c72a86572c",
+      "peak": 0.279998779296875,
+      "rms": 0.12238293388724401,
+      "duration": 0.42,
+      "max_sample_step": 0.037139892578125,
+      "prior_take_ref": "prior_provenance.cues.margrave_release_voice-2"
+    },
+    "margrave_return_effort": {
+      "input_sha256": "fc7ee73aa208a71281245e337df9069aaeaab485d2a2f8cbbef82e86dfc8d840",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath1.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "57974edff185c5abbb0d5847c440a24a5053d00257dd51ad3481553f3110e079",
+      "peak": 0.279998779296875,
+      "rms": 0.1435090427357063,
+      "duration": 0.46,
+      "max_sample_step": 0.030670166015625,
+      "prior_take_ref": "prior_provenance.cues.margrave_return_effort"
+    },
+    "margrave_return_effort-2": {
+      "input_sha256": "099494805614ac4e530a14f178c888847877147958a9f57e9b7352657846485f",
+      "base_pitch": 0.93,
+      "layers": [
+        {
+          "source": "humanDeath2.wav",
+          "gain": 0.08,
+          "pitch": 0.8
+        }
+      ],
+      "reflection": [
+        0.038,
+        0.07
+      ],
+      "sha256": "fc9e146fc4d757eb473a2d9702167959388fe003a9ee661cc2777b5e83124e09",
+      "peak": 0.279998779296875,
+      "rms": 0.11119002259450936,
+      "duration": 0.46,
+      "max_sample_step": 0.048248291015625,
+      "prior_take_ref": "prior_provenance.cues.margrave_return_effort-2"
+    },
+    "margrave_backstep": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "stone",
+      "sha256": "fa0f73e5ed0df300fd95eaa764bffebc96091e59838624a25cc1181e57683e01",
+      "peak": 0.379974365234375,
+      "rms": 0.09775098055665828,
+      "duration": 0.42,
+      "max_sample_step": 0.111724853515625
+    },
+    "margrave_backstep-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "stone",
+      "sha256": "3677baba0db3325cde842d1aeaa9628e05e860d4f6da7c51ddc44e6fbf793367",
+      "peak": 0.379974365234375,
+      "rms": 0.11937648102739011,
+      "duration": 0.42,
+      "max_sample_step": 0.11822509765625
+    },
+    "margrave_crash": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 1.1
+        }
+      ],
+      "material": "chain",
+      "sha256": "1e2fd62ecfc016d6744f6d094a2107dc6d98b1063d9e4c8293ddc48e9014c59e",
+      "peak": 0.379974365234375,
+      "rms": 0.07030646257231923,
+      "duration": 0.72,
+      "max_sample_step": 0.117095947265625
+    },
+    "margrave_crash-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.84,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "chain",
+      "sha256": "af5b085f2eb522145e1626e408abd2c4335530016e9eb527615a8209b8786588",
+      "peak": 0.379974365234375,
+      "rms": 0.09495399294784633,
+      "duration": 0.72,
+      "max_sample_step": 0.124298095703125
+    },
+    "margrave_fall": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 1.1
+        }
+      ],
+      "material": "fall",
+      "sha256": "98e4490cd301cf079a196827b3d5f2209c375f9043a6259cc763b9bd7f9cf0a1",
+      "peak": 0.379974365234375,
+      "rms": 0.07129185676034529,
+      "duration": 1.12,
+      "max_sample_step": 0.11627197265625
+    },
+    "margrave_fall-2": {
+      "layers": [
+        {
+          "source": "chain-kyles.mp3",
+          "sha256": "286534a65bcc0bee26395a05066cb6584e54d88f67d0a6b40ea098dfaadfb0ec",
+          "pitch": 0.65,
+          "offset": 4.800000000000001
+        }
+      ],
+      "material": "fall",
+      "sha256": "fb34f9b694084215ec7f4228feb1f36c8e808242c7a9508f8964ad3710d8d36d",
+      "peak": 0.379974365234375,
+      "rms": 0.08646160184245426,
+      "duration": 1.12,
+      "max_sample_step": 0.1190185546875
+    },
+    "margrave_cinder_flight": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "778e7850a58c8f7e0bb347725571541cb351efa7af48dee5283e0d6ef3f6e809",
+      "peak": 0.353118896484375,
+      "rms": 0.12499615684310869,
+      "duration": 0.52,
+      "max_sample_step": 0.096527099609375
+    },
+    "margrave_cinder_flight-2": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "7082f727d2074dabb61d90dff1a3cc3ae03a531abe530aeb988f258dfa6bbdc7",
+      "peak": 0.37738037109375,
+      "rms": 0.12499614670887643,
+      "duration": 0.52,
+      "max_sample_step": 0.105194091796875
+    },
+    "margrave_cinder_contact": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "5f13c664404b75288567a51a7f750c48d24b24dc93b79031308048bf7478d34d",
+      "peak": 0.357452392578125,
+      "rms": 0.12499625796883443,
+      "duration": 0.65,
+      "max_sample_step": 0.09930419921875
+    },
+    "margrave_cinder_contact-2": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "9a135e90091e0bc7184afc9b8a39aeba0f02963063ade007ea33f5c4c09b446a",
+      "peak": 0.378875732421875,
+      "rms": 0.12499625224641436,
+      "duration": 0.65,
+      "max_sample_step": 0.10748291015625
+    },
+    "margrave_ash_roll": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "46b4b11e7ec4b079ae8b25348af9071ed0e7606ac43c4e172a4b1837786cecae",
+      "peak": 0.379974365234375,
+      "rms": 0.11589835535799575,
+      "duration": 1.1,
+      "max_sample_step": 0.108978271484375
+    },
+    "margrave_ash_roll-2": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "8d26f8eedc92622d90662ebf7c8794a09b27941c326130ac8d4508188bf1227f",
+      "peak": 0.379974365234375,
+      "rms": 0.11099721868940748,
+      "duration": 1.1,
+      "max_sample_step": 0.110992431640625
+    },
+    "margrave_ash_end": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.0
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "6ccbc000cb810fa8d4dde34d122d1ce787c9ddd056fbd2a32c90efdc8485d3b6",
+      "peak": 0.354949951171875,
+      "rms": 0.12499611822889069,
+      "duration": 0.58,
+      "max_sample_step": 0.097808837890625
+    },
+    "margrave_ash_end-2": {
+      "layers": [
+        {
+          "source": "breath.ogg",
+          "sha256": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f",
+          "pitch": 0.71,
+          "offset": 0.05
+        },
+        {
+          "source": "assets/sounds/margrave/margrave_burst.wav",
+          "gain": 0.7,
+          "pitch": 0.89
+        }
+      ],
+      "material": "coal",
+      "sha256": "20158fb87449343e3678220587b5af05e216b28fc9051936b1eb96c275251624",
+      "peak": 0.3779296875,
+      "rms": 0.12499629533891786,
+      "duration": 0.58,
+      "max_sample_step": 0.1063232421875
     }
+  },
+  "additional_source_hashes": {
+    "humanDeath1.wav": "a9951034cb829218d5051d3b753a3b43669ce71d9b8ca2d52445e25f76ddcf7e",
+    "humanDeath2.wav": "7d180679d959cfc992f0de2ef7ec744a4758bf71eb083f4a93e82aecad7a149a",
+    "breath.ogg": "d6ecfd092c261059701fe81581957ce6e67c1737978449bbd98ec6d4f30abb7f"
   }
 }

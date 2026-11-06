@@ -521,7 +521,7 @@ local function foot(pitch, metal, wet)
     end,
   }
 end
-R.cloven_step, R.iron_step = foot(115, 0, 0), foot(75, 1, 0)
+R.cloven_step = foot(115, 0, 0)
 R.flesh_step, R.heavy_step = foot(90, 0, 1), foot(42, 0.25, 0)
 R.wing_fold = {
   duration = 0.5,

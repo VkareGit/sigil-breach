@@ -8,7 +8,7 @@ local V = {}
 local sessions = setmetatable({}, { __mode = 'k' })
 local function stop(audio, entry)
   if entry.source then
-    audio.stopVoice(entry.source, entry.ticket)
+    audio.stopVoice(entry.source, entry.ticket, 0.02)
   end
   entry.source, entry.ticket, entry.role = nil, nil, nil
 end
@@ -59,7 +59,7 @@ function V.hurt(audio, g, e)
   V.interrupt(audio, g, e)
   entry.hurtAt = g.elapsed
   entry.source, entry.ticket =
-    audio.playAt(voice, e.x, e.z, Context.viewer(g), K.hurtGain, 1, g.world)
+    audio.playAt(voice, e.x, e.z, Context.viewer(g), K.hurtGain, 1, g.world, nil, e)
   entry.role = 'hurt'
 end
 function V.update(audio, g, dt)
@@ -109,7 +109,7 @@ function V.update(audio, g, dt)
             end
           end
           entry.source, entry.ticket =
-            audio.playAt(voice or sounds.breath, e.x, e.z, p, K.gain, 0, g.world)
+            audio.playAt(voice or sounds.breath, e.x, e.z, p, K.gain, 0, g.world, nil, e)
           entry.role = 'breath'
           entry.alternate = not entry.alternate
           entry.remaining = K.interval + ((e.id or 0) % 5) / 5 * K.stagger

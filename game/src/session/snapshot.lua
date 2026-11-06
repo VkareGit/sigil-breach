@@ -97,6 +97,7 @@ function Snapshot.restore(g, snapshot)
   if g.ecs then
     g.ecs:reindex()
   end
+  require('src.session.presentation').call(g, 'worldRestored')
   return g
 end
 return Snapshot

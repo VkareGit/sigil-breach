@@ -8,6 +8,7 @@ local Effects = require('src.feedback.effects')
 local Audio = require('src.audio.audio')
 local Corpse = require('src.enemies.corpse')
 local Presentation = require('src.session.presentation')
+local Profiles = require('src.audio.creature_profiles')
 local Death = {}
 local sqrt, max = math.sqrt, math.max
 local clamp = MathX.clamp
@@ -62,7 +63,15 @@ end
 function Death.landed(g, e, energy)
   local response = e.deathResponse
   local size = clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.66)
-  Audio.playAt('thud', e.x, e.z, Context.viewer(g), clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.58))
+  Audio.playAt(
+    Profiles.body(e, 'fall', 'thud'),
+    e.x,
+    e.z,
+    Context.viewer(g),
+    clamp(0.16 + sqrt(energy) * 0.065, 0.16, 0.58),
+    1,
+    g.world
+  )
   -- Two low, lateral pigment strokes leave the falling face and hands visible.
   for _, side in ipairs({ -1, 1 }) do
     Effects.emit(g, 'stone', e.x + side * size * 0.33, 0.10, e.z, size, {

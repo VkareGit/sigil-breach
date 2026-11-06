@@ -4,6 +4,7 @@ local Enemies = require('src.content.enemies')
 local Maps = require('src.content.maps.index')
 local Recipes = require('src.audio.recipes')
 local Score = require('src.audio.score')
+local Profiles = require('src.content.creature_audio')
 local C = {}
 function C.scene(scene)
   if not scene then
@@ -29,7 +30,38 @@ function C.scene(scene)
   end
 end
 function C.validate()
+  local function voices(profile)
+    for key, value in pairs(profile) do
+      if type(value) == 'table' then
+        voices(value)
+      elseif type(value) == 'string' then
+        assert(Recipes[value], 'unknown creature audio voice ' .. value)
+      elseif key ~= 'sustain' or type(value) ~= 'boolean' then
+        error('invalid creature audio profile field ' .. key)
+      end
+    end
+  end
+  for id, profile in pairs(Profiles) do
+    local def = assert(Enemies.get(id), 'unknown creature audio owner ' .. id)
+    local sections =
+      { body = true, actions = true, projectile = true, projectiles = true, fields = true }
+    for section in pairs(profile) do
+      assert(sections[section], id .. ': unknown creature audio section ' .. section)
+    end
+    local actions = {}
+    for _, action in ipairs(def.attacks) do
+      actions[action.id] = true
+    end
+    for action in pairs(profile.actions or {}) do
+      assert(actions[action], id .. ': unknown creature audio action ' .. action)
+    end
+    voices(profile)
+  end
   for name, recipe in pairs(Recipes) do
+    assert(
+      not recipe.mixGroup or require('src.content.audio_mix').groups[recipe.mixGroup],
+      name .. ': unknown mix group'
+    )
     assert(
       not recipe.path or love.filesystem.getInfo(recipe.path, 'file'),
       name .. ': missing recording'

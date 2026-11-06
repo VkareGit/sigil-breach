@@ -1,18 +1,35 @@
 -- Read-only presentation clocks. Weak keys do not keep dead bodies, missiles
 -- or abandoned sessions alive. No audio state enters a journal or save.
-local DamageTypes = require('src.content.damage_types')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local Creatures = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
 local BodyVoices = require('src.audio.body_voices')
+local Profiles = require('src.audio.creature_profiles')
+local FieldVoices = require('src.audio.field_voices')
 local C = {}
-local impacts = { fire = 'ash_eruption', lightning = 'thunder' }
 local sessions = setmetatable({}, { __mode = 'k' })
 function C.reset()
   sessions = setmetatable({}, { __mode = 'k' })
   BodyVoices.reset()
+  FieldVoices.reset()
+end
+function C.restored(audio, g)
+  FieldVoices.restored(audio, g)
+  local flights = setmetatable({}, { __mode = 'k' })
+  local listener = Context.viewer(g)
+  for _, projectile in ipairs(Pools.of(g, 'projectiles')) do
+    if (projectile.x - listener.x) ^ 2 + (projectile.z - listener.z) ^ 2 < 25 then
+      flights[projectile] = true
+    end
+  end
+  sessions[g._contextRoot or g] = {
+    feet = setmetatable({}, { __mode = 'k' }),
+    flights = flights,
+    ambient = {},
+    world = g.world,
+  }
 end
 -- Same distance clock and frame cycle as the painted walk, two contacts/cycle.
 function C.stepIndex(e)
@@ -42,8 +59,6 @@ function C.update(audio, g, dt)
     state = {
       feet = setmetatable({}, { __mode = 'k' }),
       flights = setmetatable({}, { __mode = 'k' }),
-      hazards = setmetatable({}, { __mode = 'k' }),
-      impactCooldown = {},
       ambient = {},
       world = g.world,
     }
@@ -59,7 +74,7 @@ function C.update(audio, g, dt)
     local moving = clock == 'walk' and (e.walkSpeed or 0) > 0.15
       or (clock ~= 'walk' and before and (e.x ~= before.x or e.z ~= before.z))
     local def = Creatures.of(e)
-    local voice = def.sounds and def.sounds.step
+    local voice = Profiles.body(e, 'step')
     if
       voice
       and before
@@ -71,7 +86,17 @@ function C.update(audio, g, dt)
       and moving
       and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < 400
     then
-      audio.playAt(voice, e.x, e.z, p, math.min(0.5, 0.16 + def.body.mass * 0.09), 0, g.world)
+      audio.playAt(
+        voice,
+        e.x,
+        e.z,
+        p,
+        math.min(0.5, 0.16 + def.body.mass * 0.09),
+        0,
+        g.world,
+        nil,
+        e
+      )
     end
     local entry = before or {}
     entry.index, entry.clock, entry.x, entry.z = now, clock, e.x, e.z
@@ -80,32 +105,11 @@ function C.update(audio, g, dt)
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
     if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < 25 then
       state.flights[b] = true
-      local kind = b.packet and b.packet.damageType
-      audio.playAt(DamageTypes.cue(kind, 'flight'), b.x, b.z, p, 0.12, 0, g.world)
+      local voice, own = Profiles.projectile(g, b, 'flight')
+      audio.playAt(voice, b.x, b.z, p, own and 0.22 or 0.12, own and 1 or 0, g.world, nil, b)
     end
   end
-  for kind, time in pairs(state.impactCooldown) do
-    state.impactCooldown[kind] = math.max(0, time - dt)
-  end
-  for _, h in ipairs(Pools.of(g, 'hazards')) do
-    if
-      not state.hazards[h]
-      and h.delay <= 0
-      and h.life > 0
-      and not h.cancelled
-      and not h.waitForCast
-    then
-      state.hazards[h] = true
-      local kind = h.packet and h.packet.damageType
-      local voice = h.impactSound or impacts[kind]
-      -- A ring of eight simultaneous marks is one audible eruption. Advancing
-      -- lane/cross beats remain separate. This state is presentation only.
-      if voice and (state.impactCooldown[kind] or 0) <= 0 then
-        audio.playAt(voice, h.x, h.z, p, 0.40, 2, g.world)
-        state.impactCooldown[kind] = 0.09
-      end
-    end
-  end
+  FieldVoices.update(audio, g, dt)
   local scene = g.world.decor and g.world.decor.soundscape
   local budget = 2
   for i, source in ipairs(scene and scene.sources or {}) do

@@ -86,7 +86,9 @@ function Tests.run()
   C.update(fake, g, 0.01)
   check(
     'painted stride produces one spatial foot contact without simulation mutation',
-    calls[1] == 'cloven_step' and not Integrity.difference(before, Integrity.capture(g))
+    #calls == 1
+      and calls[1] == 'ember_step'
+      and not Integrity.difference(before, Integrity.capture(g))
   )
   C.update(fake, g, 0.01)
   check('standing at the same stride produces no duplicate footstep', #calls == 1)
@@ -136,12 +138,26 @@ function Tests.run()
   local demon = { kind = 'boss', x = g.player.x, z = g.player.z }
   handlers.AttackTelegraphed(g, { enemy = demon, attack = { windupSound = 'ash_lance_warning' } })
   local voice = A.live[#A.live]
+  local level = voice:getVolume()
+  local function retired(source)
+    -- A full cache releases stopped Sources; do not query a destroyed native handle.
+    for _, live in ipairs(A.live) do
+      if live == source then
+        return false
+      end
+    end
+    return true
+  end
   handlers.AttackCancelled(g, { enemy = demon })
-  check('actual cancellation event stops its windup', not voice:isPlaying())
+  A.update(0.01)
+  check('actual cancellation fades the warning immediately', voice:getVolume() < level * 0.5)
+  A.update(0.02)
+  check('actual cancellation event stops its windup within 30 ms', retired(voice))
   handlers.AttackTelegraphed(g, { enemy = demon, attack = { windupSound = 'ash_fan_warning' } })
   voice = A.live[#A.live]
   handlers.EnemyKilled(g, { enemy = demon })
-  check('death stops the pending warning', not voice:isPlaying())
+  A.update(0.03)
+  check('death stops the pending warning within 30 ms', retired(voice))
   A.update(0)
   -- The score: its layers loop together; the mood follows the session.
   local S = require('src.audio.soundscape')

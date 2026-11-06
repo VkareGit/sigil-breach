@@ -64,9 +64,11 @@ local function bodyHit(g, e)
 end
 local function enemyKilled(g, e)
   local enemy = e.enemy
+  -- Retire the living voice before attaching the final performance to the same body.
+  Audio.stopEmitter(enemy, 0.025)
   local death = Rules.archetype(enemy).sounds.death
   if death then
-    Audio.playAt(death, enemy.x, enemy.z, Context.viewer(g), 0.65, 2, g.world)
+    Audio.playAt(death, enemy.x, enemy.z, Context.viewer(g), 0.65, 2, g.world, nil, enemy)
   end
   local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
