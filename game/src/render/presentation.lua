@@ -4,6 +4,7 @@ local Flinch = require('src.enemies.flinch')
 -- Interpolate the fixed simulation without delaying raw mouse input or mutating gameplay.
 local Pools = require('src.session.world')
 local Components = require('src.session.components')
+local Rate = require('src.core.rate')
 local P = {}
 local playerKeys = { 'x', 'z', 'jump', 'crouch' }
 local viewerKeys = { 'x', 'y', 'z', 'jump', 'crouch' }
@@ -41,6 +42,10 @@ local viewKeys = {
   'weaponStepRoll',
   'weaponAirY',
 }
+-- Clocks of the view (seconds since an event) are shown at the image's own
+-- time, a part of a step before the simulation: the flash of a shot and its
+-- kick read one instant of the shot (PLAN E5).
+local viewClocks = { 'shotAge' }
 -- The members of the pools the image draws blend the fields their components
 -- declare smooth (session/components.lua: f(..., 'linear'), PLAN E4): a new
 -- moving field is smoothed by its declaration, not by a list kept here.
@@ -176,6 +181,11 @@ function P.sample(g, t)
   local out = blend(g, prev.game, gameKeys, t)
   out._contextRoot = g._contextRoot or g
   out.view = blend(g.view, prev.view, viewKeys, t)
+  for _, key in ipairs(viewClocks) do
+    if type(g.view[key]) == 'number' then
+      out.view[key] = math.max(0, g.view[key] - (1 - t) * Rate.step)
+    end
+  end
   local samples = {}
   out.knights = {}
   for i, knight in ipairs(Pools.of(g, 'knights')) do

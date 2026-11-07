@@ -119,7 +119,9 @@ function Tests.run(G)
     'automatic shotgun cycle visibly catches the recoil',
     V.sourceFrame(g) == 3 and not g.player.arsenal.exorcist.open
   )
-  advance(g, 0.05)
+  -- The shot counts from the start of its step (PLAN E5): after 0.083 +
+  -- 0.042 s of steps it is 0.133 s old.
+  advance(g, 0.05 - 1 / 120)
   check('automatic shotgun cycle holds its painted catch through 0.13 s', V.sourceFrame(g) == 3)
   advance(g, 0.01)
   check('automatic shotgun cycle reaches for the breech after recovery', V.sourceFrame(g) == 4)

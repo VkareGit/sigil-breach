@@ -123,7 +123,8 @@ function Tests.run(G, renderer)
   check(
     "an actual shot by B starts only B's recoil and discharge animation",
     g:shoot(nil, b.id)
-      and vb.view.shotAge == 0
+      -- The shot is one step old at the end of its step (PLAN E5).
+      and vb.view.shotAge == require('src.core.rate').step
       and vb.view.muzzle > 0
       and vb.view.recoilV > 0
       and (va.view.muzzle or 0) == 0

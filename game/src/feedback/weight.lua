@@ -14,12 +14,20 @@ local Audio = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
 local Lessons = require('src.feedback.lessons')
+local Rate = require('src.core.rate')
 local W = {}
 local sin, cos, atan2, sqrt, min, max, abs, pi =
   math.sin, math.cos, math.atan2, math.sqrt, math.min, math.max, math.abs, math.pi
 local clamp = MathX.clamp
 local angle = MathX.wrapAngle
 local guardColor = { 0.50, 0.70, 1 }
+local camera = Tuning.camera
+local hands = camera.hands
+-- The view kick is critically damped at its weapon's rate: its peak is
+-- viewKick at 1/rate s.
+local function aimSpring(rate)
+  return { rate * rate, 2 * rate }
+end
 local function addMark(g, mark)
   local marks = g.view.hurtMarks or {}
   g.view.hurtMarks = marks
@@ -71,26 +79,35 @@ function W.shot(g, profile, power)
   local w = profile.weight
   power = power or 1
   local kick = w.momentum * power / w.mass
-  g.view.recoilV = (g.view.recoilV or 0) + kick
-  g.view.shotAge = 0
+  -- Every impulse of the shot is given at the start of its step, so the
+  -- camera and the hands move in the frame its flash shows (PLAN E5).
+  local age = Rate.step
+  Impulses.kick(g.view, 'recoil', kick, camera.recoilSpring, age)
+  g.view.shotAge = age
   g.view.interruptedClose = nil
   g.view.fovKick = w.fov
   g.view.rollSide = -(g.view.rollSide or 1)
   if g.view.motion ~= false then
-    g.view.rollPunchV = (g.view.rollPunchV or 0) + g.view.rollSide * w.roll * kick
+    Impulses.kick(g.view, 'rollPunch', g.view.rollSide * w.roll * kick, hands.rollPunch, age)
     -- The hands rise and move back, then settle past rest once.
     -- Body punch moves the hands without changing the authoritative shot.
-    g.view.viewPunchV = (g.view.viewPunchV or 0) + (w.punch or 0) * kick
-    g.view.kickBackV = (g.view.kickBackV or 0) + (w.back or 0) * kick
+    Impulses.kick(g.view, 'viewPunch', (w.punch or 0) * kick, hands.viewPunch, age)
+    Impulses.kick(g.view, 'kickBack', (w.back or 0) * kick, hands.kickBack, age)
     g.view.kickFlip = w.flip or 0
     -- A single, damped wrist catch, with a consistent firing-hand direction.
     -- It is driven by the same momentum as the axial shove, never by RNG.
-    g.view.weaponShotRollV = clamp((g.view.weaponShotRollV or 0) - (w.wrist or 0) * kick, -3, 3)
-    -- The view climbs (0.26 G6): a critically damped kick whose peak is
-    -- viewKick at 1/rate s. A fast weapon swap can fire while it settles;
-    -- render/camera.lua projects the unchanged firing ray into the HUD.
+    Impulses.kick(g.view, 'weaponShotRoll', -(w.wrist or 0) * kick, { w.wristK, w.wristD }, age)
+    g.view.weaponShotRollV = clamp(g.view.weaponShotRollV, -3, 3)
+    -- The view climbs (0.26 G6). A fast weapon swap can fire while it
+    -- settles; render/camera.lua projects the unchanged firing ray into the HUD.
     g.view.aimKickRate = w.viewKickRate
-    g.view.aimKickV = (g.view.aimKickV or 0) + w.viewKick * power * w.viewKickRate * math.exp(1)
+    Impulses.kick(
+      g.view,
+      'aimKick',
+      w.viewKick * power * w.viewKickRate * math.exp(1),
+      aimSpring(w.viewKickRate),
+      age
+    )
   end
   -- A recorded shot carries its own hall and thump (0.43, D02: audio/audio.lua baked).
   local baked = Audio.baked and Audio.baked(profile.fire.sound)
@@ -280,18 +297,15 @@ function W.update(g, dt)
   if g.view.motion == false then
     W.clearMotion(g)
   else
-    g.view.rollPunch, g.view.rollPunchV =
-      Kinematics.spring(g.view.rollPunch or 0, g.view.rollPunchV or 0, 0, 230, 21, dt)
-    g.view.rollPunch = clamp(g.view.rollPunch, -0.06, 0.06)
-    g.view.viewPunch, g.view.viewPunchV =
-      Kinematics.spring(g.view.viewPunch or 0, g.view.viewPunchV or 0, 0, 300, 24, dt)
-    g.view.viewPunch = clamp(g.view.viewPunch, -0.05, 0.05)
-    g.view.kickBack, g.view.kickBackV =
-      Kinematics.spring(g.view.kickBack or 0, g.view.kickBackV or 0, 0, 900, 30, dt)
-    g.view.kickBack = clamp(g.view.kickBack, -1.5, 2.5)
-    local rate = g.view.aimKickRate or 30
+    for key, spring in pairs(hands) do
+      local rate = key .. 'V'
+      g.view[key], g.view[rate] =
+        Kinematics.spring(g.view[key] or 0, g.view[rate] or 0, 0, spring[1], spring[2], dt)
+      g.view[key] = clamp(g.view[key], spring.limits[1], spring.limits[2])
+    end
+    local kick = aimSpring(g.view.aimKickRate or 30)
     g.view.aimKick, g.view.aimKickV =
-      Kinematics.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, rate * rate, 2 * rate, dt)
+      Kinematics.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, kick[1], kick[2], dt)
     local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
     g.view.weaponShotRoll, g.view.weaponShotRollV = Kinematics.spring(
       g.view.weaponShotRoll or 0,

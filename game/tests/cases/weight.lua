@@ -20,9 +20,22 @@ function Tests.run(G, check)
     near(sw.momentum / sw.mass, 24) and near(rw.momentum / rw.mass, 6)
   )
   local g = fresh()
-  g.view.recoilV = 0
-  Weight.shot(g, Weapons.profile(1), 0.5)
-  check('one shotgun shell kicks half of a full volley', near(g.view.recoilV, 12))
+  g.view.recoil, g.view.recoilV = 0, 0
+  -- The impulse is given at the start of the shot's step and moved on by
+  -- that step at once, so the frame of the flash shows it (PLAN E5).
+  local spring = require('src.content.tuning').camera.recoilSpring
+  local _, halfV = require('src.physics.kinematics').spring(
+    0,
+    12,
+    0,
+    spring[1],
+    spring[2],
+    require('src.core.rate').step
+  )
+  check(
+    'one shotgun shell kicks half of a full volley',
+    near(Weight.shot(g, Weapons.profile(1), 0.5), 12) and near(g.view.recoilV, halfV)
+  )
   -- A heavier weapon trails the same turn further.
   local function trail(slot)
     local t = fresh()

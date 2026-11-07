@@ -199,6 +199,13 @@ return {
     pitchLimit = 1.2,
     mouse = 0.0023,
     recoilSpring = { 270, 25 },
+    -- The hands after a shot (feedback/weight.lua): roll, rise and shove back,
+    -- each a spring (stiffness, damping) held within its limits.
+    hands = {
+      rollPunch = { 230, 21, limits = { -0.06, 0.06 } },
+      viewPunch = { 300, 24, limits = { -0.05, 0.05 } },
+      kickBack = { 900, 30, limits = { -1.5, 2.5 } },
+    },
     landSpring = { 200, 20 },
     swayDecay = 13,
     dashFov = 6,

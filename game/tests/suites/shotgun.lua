@@ -213,7 +213,18 @@ function Tests.run(G, initial, renderer, getGame)
       and g.view.shotReport.damage <= 12 * (10 + g.view.shotReport.headHits * (T.shotgunHeadMultiplier - 1)) + 0.001
       and a.hp <= 0
   )
-  check('single-shell recoil is scaled', g.view.shotPower == 0.5 and g.view.recoilV == 12)
+  -- The shell's impulse (12) is given at the start of the shot's step and
+  -- moved on by that step at once (feedback/impulses.lua: kick).
+  local spring = T.camera.recoilSpring
+  local _, shellV = require('src.physics.kinematics').spring(
+    0,
+    12,
+    0,
+    spring[1],
+    spring[2],
+    require('src.core.rate').step
+  )
+  check('single-shell recoil is scaled', g.view.shotPower == 0.5 and near(g.view.recoilV, shellV))
   fresh()
   a = g:spawn('stolas', 16, 23)
   a.ai = 'windup'

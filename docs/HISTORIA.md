@@ -74,6 +74,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E5b, podbicie w klatce błysku, 2026-11-07 (decyzja właściciela): kamera
+  i dłonie ruszają w tej samej chwili strzału co błysk. Impuls strzału
+  liczy się od początku jego kroku, a wiek błysku jest pokazywany zegarem
+  obrazu, więc błysk nie wyprzedza już obrazu i płynie między krokami.
+  Szczyt podbicia wypada o jeden krok (8,3 ms) wcześniej, siła bez zmian.
+  Sprężyny dłoni (przechył, uniesienie, cofnięcie) i ich granice są
+  w content/tuning.lua (camera.hands), jedna tabela dla strzału i powrotu.
+
 - E5a, wstrząs kamery, 2026-11-07: strzał dołącza do wstrząsu już
   pokazanego zamiast go zastępować; słabszy nie zbija silniejszego.
 
@@ -4417,6 +4425,19 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E5b, podbicie w klatce błysku, 2026-11-07: czerwone przed zmianą: podbicie
+  za błyskiem w 12 z 14 strzałów (np. 60 Hz: błysk 16,7 ms, podbicie
+  33,3 ms). Po zmianie 0 z 14: ta sama klatka przy 30, 60, 144, 165 Hz
+  i nierównych klatkach; przy 120 i 240 Hz klatka po kliknięciu pokazuje
+  samą chwilę strzału (błysk i podbicie na starcie), podbicie rusza
+  w następnej (16,7 / 4,2 ms). Szczyt Exorcista 0,0349 rad przy 50 ms
+  (60 Hz), Judge'a 0,0178 rad przy 33 ms; uspokojenie 309–333 / 197–233 ms.
+  Wiek błysku bez zamrożonej klatki. Cztery testy czytały surowy stan
+  zaraz po kroku strzału (odrzut 12, wiek 0, chwyt do 0,13 s): poprawione
+  na nową chwilę strzału, ten sam sens. Golden bez zmian. Pełne Linux All
+  PASS (8995 sprawdzeń, Input, Render, Tools). Odczucie w grze ocenia
+  właściciel.
 
 - E5a, wstrząs kamery, 2026-11-07: czerwone przed zmianą 0,5 → 0,010; po
   zmianie 0,492 ze strzałem i 0,492 bez (to samo wygaszanie). Pełne Linux

@@ -201,6 +201,13 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   silniejszego wstrząsu (wcześniej Judge zbijał 0,5 do 0,010). Dalszy krok E5
   (podbicie widoku w klatce błysku) czeka na decyzję właściciela, bo
   przesuwa szczyt podbicia o ok. 8 ms.
+- 2026-11-07, **E5 krok b zrobiony (decyzja właściciela: tak):** impuls
+  strzału daje `Impulses.kick` od początku kroku strzału, wiek błysku
+  pokazuje zegar obrazu (`render/presentation.lua: viewClocks`); podbicie
+  i błysk czytają jedną chwilę strzału. Sprężyny dłoni w `camera.hands`.
+  Zostaje z E5: impuls jako zdarzenie z profilem, kierunkiem i odległością,
+  wartości domyślne pól widoku zamiast `or 0`, liczby odczucia z
+  `feedback/` do treści z zapadką literałów, odbiorcy per aktor.
 
 ## Decyzje właściciela
 

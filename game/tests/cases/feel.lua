@@ -154,8 +154,10 @@ function Tests.run(G)
 
   -- 3. A shot of each weapon: when its flash and its kick show, how far and how
   -- long the kick lasts. The flash reads the shot's own age and shows in the
-  -- frame of the shot; the kick is a spring moved on the following step and then
-  -- interpolated, so it trails the flash (known, plan E5: one impulse for both).
+  -- frame of the shot; the kick is given at the start of the shot's step and
+  -- both are shown on the image's clock (E5: one instant for both). A frame
+  -- that shows the shot's own instant shows both at their start: the kick
+  -- moves from the next one, every other frame shows it moved.
   local shotProbes = {
     flash = Feel.view('shotAge'),
     recoil = Feel.view('recoil'),
@@ -183,11 +185,6 @@ function Tests.run(G)
       check(id .. ' fired once in the run at ' .. rateName(rate), g.player.shots == 1)
       local press = frameAt(trace, 0.2)
       local frozen = 0
-      for name in pairs(shotProbes) do
-        if name ~= 'flash' then
-          frozen = frozen + Feel.stalls(trace[name])
-        end
-      end
       local flashAt
       for i = press, #trace.flash do
         if trace.flash[i] < trace.flash[i - 1] then
@@ -195,10 +192,19 @@ function Tests.run(G)
           break
         end
       end
+      for name in pairs(shotProbes) do
+        local series = trace[name]
+        if name == 'flash' and flashAt then
+          -- The flash's age counts from the shot; before it, it stands.
+          series = { unpack(series, press + flashAt) }
+        end
+        frozen = frozen + Feel.stalls(series)
+      end
       local latency = Feel.latency(trace.aim, press)
       local peak, at, settle = Feel.settle(trace.aim, trace.time, press)
       local flash, kick = delay(trace, press, flashAt), delay(trace, press, latency)
-      if kick and flash and kick > flash + 1e-6 then
+      local instant = flashAt and trace.flash[press + flashAt] <= 1e-9
+      if not (flashAt and latency) or latency > flashAt + (instant and 1 or 0) then
         trailing = trailing + 1
       end
       check(
@@ -215,18 +221,18 @@ function Tests.run(G)
         flash ~= nil
           and flash <= bound(rate, press)
           and kick ~= nil
-          and kick <= bound(rate, press) + step * 1000
+          and kick <= bound(rate, press)
           and frozen == 0
       )
     end
   end
   check(
     string.format(
-      'the view kick still trails the flash in %d of %d shots (known, plan E5)',
+      "the view kick moves with the flash, from the frame after the shot's own instant: trails it in %d of %d shots",
       trailing,
       #rates * #Weapons.defaultLoadout
     ),
-    trailing > 0
+    trailing == 0
   )
 
   -- 4. Every creature walks to the knight, then its leap, a windup and a hover:
