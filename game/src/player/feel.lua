@@ -3,7 +3,6 @@ local Pools = require('src.session.world')
 local Arena = require('src.world.arena')
 local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
-local Capabilities = require('src.session.capabilities')
 local Presentation = require('src.session.presentation')
 local Tuning = require('src.content.tuning')
 local Reload = require('src.combat.reload')
@@ -148,9 +147,9 @@ local function wantedSpeed(g, velocity, dt)
   local target = (
     onGround and Move.moveSpeed or math.max(Move.airSpeed, math.min(airCap, velocity))
   ) * condition
-  -- Where effort is paid a fight is not won by backing out of it: a knight steps
-  -- aside a little slower and walks backwards slowly.
-  if onGround and m.len > M.input and Capabilities.attrition(g) then
+  -- A fight is not won by backing out of it: a knight steps aside a little slower
+  -- and walks backwards slowly. A rule of his body, the same in every mode (E1).
+  if onGround and m.len > M.input then
     local body = Rules.playerBody(p)
     local along = (m.dx * math.sin(p.yaw) + m.dz * math.cos(p.yaw)) / math.max(m.len, 1)
     target = target

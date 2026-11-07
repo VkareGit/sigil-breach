@@ -189,12 +189,16 @@ function Game:look(dYaw, dPitch, who)
   p.pitch = math.max(-limit, math.min(limit, p.pitch + (dPitch or 0)))
 end
 
--- Where effort is paid a dodge takes its whole price, and waits for the shot before it.
+-- A dodge waits for the shot before it in every mode; where effort is paid it also
+-- takes its whole price (E1: the body's rules do not depend on the mode).
 function Game.canDodge(g, player)
   return (player.recoverAt or 0) <= g.elapsed
-    and CombatResources.can(player, {
-      stamina = Sigils.dodgeCost(player, Rules.playerBody(player).rollStamina),
-    })
+    and (
+      not Capabilities.attrition(g)
+      or CombatResources.can(player, {
+        stamina = Sigils.dodgeCost(player, Rules.playerBody(player).rollStamina),
+      })
+    )
 end
 
 function Game:dash(dx, dz, who)
@@ -205,7 +209,7 @@ function Game:dash(dx, dz, who)
     or self.map
     or self.help
     or player.dashTimer > 0
-    or (Capabilities.attrition(self) and not Game.canDodge(self, player))
+    or not Game.canDodge(self, player)
   then
     return false
   end
@@ -218,11 +222,9 @@ function Game:dash(dx, dz, who)
   local body = Rules.playerBody(player)
   if Capabilities.attrition(self) then
     CombatResources.exert(player, 'stamina', Sigils.dodgeCost(player, body.rollStamina))
-    player.invuln = math.max(player.invuln, body.rollIframes)
-    player.dodgeEnds = self.elapsed + body.rollIframes
-  else
-    player.invuln = math.max(player.invuln, body.dashIframes)
   end
+  player.invuln = math.max(player.invuln, body.rollIframes)
+  player.dodgeEnds = self.elapsed + body.rollIframes
   local length = math.sqrt(dx * dx + dz * dz)
   if length < 0.1 then
     dx, dz = math.sin(player.yaw), math.cos(player.yaw)

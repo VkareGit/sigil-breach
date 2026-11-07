@@ -74,6 +74,11 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E1, jedne zasady ruchu, 2026-11-07: spowolnienie kroku w bok i w tył,
+  chwila po strzale przed unikiem i nietykalność uniku 0,32 s obowiązują
+  w każdym trybie, także w testach. Tryb decyduje tylko o wytrzymałości.
+  Golden bez zmian.
+
 - F1, jedna nazwa modułu, 2026-11-07: brama architektury odrzuca moduł
   wczytany pod dwiema nazwami i nazwę dwóch modułów. Ujednolicono 249 nazw
   w 145 plikach i jedną kopię funkcji pomocniczej. Bez zmian gry i golden.
@@ -4400,6 +4405,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E1, jedne zasady ruchu, 2026-11-07: czerwone przed zmianą: cofanie
+  1,110 m w testach i 0,715 m na poligonie, unik 0,20 i 0,32 s; po zmianie
+  0,715/0,715 m i 0,32/0,32 s. Pełne Linux All PASS (143 zestawy,
+  8894 sprawdzenia, Input 50, Render, Tools); golden w dwóch przebiegach
+  bez zmian. Test E1 wykrył błąd ukosu (E1b, osobny commit). Windows
+  niesprawdzony.
 
 - F1, jedna nazwa modułu, 2026-11-07: pełne Linux All PASS (143 zestawy,
   8892 sprawdzenia, Input 50, Render, Tools). Czerwona próba reguły:

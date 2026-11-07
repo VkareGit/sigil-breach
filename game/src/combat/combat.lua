@@ -1,5 +1,4 @@
 local Sigils = require('src.combat.sigils')
-local Capabilities = require('src.session.capabilities')
 local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
 local Ballistics = require('src.combat.ballistics')
@@ -76,10 +75,9 @@ local function discharge(g, profile, command, p)
     state.spent = (state.spent or 0) + rounds
   end
   AI.noise(g, p.x, p.z, fire.noise)
-  -- A pull costs a moment of the body, not its breath: the knight stands behind the shot.
-  if Capabilities.attrition(g) then
-    p.recoverAt = g.elapsed + fire.recovery
-  end
+  -- A pull costs a moment of the body, not its breath: the knight stands behind the shot,
+  -- in every mode (E1).
+  p.recoverAt = g.elapsed + fire.recovery
   -- The world's shot id (journal, observations) and the actor's own shot
   -- sequence (its pellet pattern and contact seeds; plan v11 E3).
   p.shots = p.shots + 1

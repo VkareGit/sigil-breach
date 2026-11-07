@@ -242,7 +242,8 @@ function Tests.run(G, check)
   check(
     'the knight reads its i-frames, dodge i-frames and drag from its body data',
     require('src.content.characters').standard().body == knight
-      and knight.iframes > knight.dashIframes
+      and knight.iframes > 0
+      and knight.rollIframes > 0
       and knight.drag > knight.airDrag
       and D.drag > knight.drag
   )

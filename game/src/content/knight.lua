@@ -30,15 +30,14 @@ return {
     -- The eye: where the view and every shot start, standing (m).
     eye = 1.38,
     shieldShare = 0.55,
-    -- Invulnerability after a blow and during a dodge (used by the session).
+    -- Invulnerability after a blow (used by the session).
     iframes = 0.32,
-    dashIframes = 0.20,
-    -- Where effort is paid (session/capabilities.lua: attrition) a dodge is a real
-    -- commitment: longer and dearer, and stamina is all that limits it (0.42: no charges).
-    -- A shot out of one gives up what is left of its safety.
+    -- A dodge in every mode (E1): its invulnerability, and what it costs where effort
+    -- is paid (session/capabilities.lua: attrition); stamina is all that limits it
+    -- (0.42: no charges). A shot out of one gives up what is left of its safety.
     rollIframes = 0.32,
     rollStamina = 26,
-    -- Share of his walking speed going sideways and backwards there.
+    -- Share of his walking speed going sideways and backwards.
     sideStep = 0.85,
     backStep = 0.6,
     -- Friction against a shove: feet on stone, and in the air.

@@ -46,7 +46,7 @@ local function refusal(g, p, act)
     )
   then
     return 'hud_no_breath'
-  elseif act == 'dash' and Capabilities.attrition(g) and (p.recoverAt or 0) > g.elapsed then
+  elseif act == 'dash' and (p.recoverAt or 0) > g.elapsed then
     -- The body is still in its shot (content/weapons: recover): the dodge goes when it is back.
     return 'hud_recovering'
   elseif act == 'fire' and Reload.left(g, p) > 0 then

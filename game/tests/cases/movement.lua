@@ -173,10 +173,15 @@ function Tests.run(G, check)
       1e-6
     )
   )
+  local guard = require('src.content.characters').standard().body.rollIframes
   g = fresh()
-  g.player.invuln = 0.3
+  g.player.invuln = guard + 0.1
   g:dash(0, -1)
-  check('dashing never shortens existing damage immunity', g.player.invuln == 0.3)
+  check('dashing never shortens existing damage immunity', g.player.invuln == guard + 0.1)
+  g = fresh()
+  g.player.invuln = guard * 0.5
+  g:dash(0, -1)
+  check('a dodge raises a shorter immunity to its own', g.player.invuln == guard)
   g = fresh()
   g.player.hp = 1
   g.pickups = { { x = g.player.x, z = g.player.z, kind = 'health', amount = 25 } }

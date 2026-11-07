@@ -27,30 +27,24 @@ Knight.schema = Body.schema:extend('knight body', {
     desc = 'share of a hit the ward takes',
   },
   iframes = { type = 'number', required = true, min = 0, desc = 'invulnerability after a blow (s)' },
-  dashIframes = {
-    type = 'number',
-    required = true,
-    min = 0,
-    desc = 'invulnerability of a dodge (s)',
-  },
   rollIframes = {
     type = 'number',
     required = true,
     min = 0,
-    desc = 'invulnerability of a dodge paid with stamina (s)',
+    desc = 'invulnerability of a dodge (s)',
   },
   rollStamina = { type = 'number', required = true, min = 0, desc = 'what a dodge costs' },
   sideStep = {
     type = 'number',
     required = true,
     min = 0,
-    desc = 'share of walking speed sideways, where effort is paid',
+    desc = 'share of walking speed sideways',
   },
   backStep = {
     type = 'number',
     required = true,
     min = 0,
-    desc = 'share of walking speed backwards, where effort is paid',
+    desc = 'share of walking speed backwards',
   },
   airDrag = {
     type = 'number',

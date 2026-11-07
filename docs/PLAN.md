@@ -173,6 +173,13 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   przez inną nazwę modułu; dopisano go jawnie. Wspólne `MathX.smoothstep`
   zamiast czterech kopii. Wartości domyślne pól widoku i liczby odczucia
   z `feedback/` przechodzą do E5, który przepisuje te funkcje.
+- 2026-11-07, **E1 zrobione:** krok w bok i w tył, chwila ciała po strzale
+  i nietykalność uniku (0,32 s) są zasadami ciała we wszystkich trybach;
+  tryb decyduje tylko o płaceniu wytrzymałością. Usunięto `dashIframes`
+  (0,20 s, używane tylko na `floor`). Testy i poligon cofają się tak samo
+  (0,715 m); trzy testy oczekiwały starych liczb `floor` i sprawdzają teraz
+  tę samą intencję na prawdziwych zasadach. Golden bez zmian (jego
+  scenariusze grały już z zasadami wysiłku).
 
 ## Decyzje właściciela
 

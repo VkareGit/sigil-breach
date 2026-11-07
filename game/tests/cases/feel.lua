@@ -286,11 +286,17 @@ function Tests.run(G)
     )
   end
 
-  -- 5. Known rule defects held for their stage.
+  -- 5. One body, the same rules in every mode (PLAN E1): the floor of the tests,
+  -- the field and the chapel walk, dodge and recover from a shot alike. A mode
+  -- only decides whether effort is paid (stamina, the flask).
   do
-    -- E1: the floor of the tests has no effort rules; the chapel and the field
-    -- do, so the same backward walk covers a different distance.
     local Field = require('src.run.test_field')
+    local function field()
+      local g = Field.new(G)
+      g.ephemeral = true
+      g:start()
+      return g
+    end
     -- Where each session puts the knight; only the first metre is walked.
     local function backward(g)
       local x, z = g.player.x, g.player.z
@@ -299,19 +305,41 @@ function Tests.run(G)
       end
       return math.sqrt((g.player.x - x) ^ 2 + (g.player.z - z) ^ 2)
     end
-    local plain = backward(Fixtures.arena(G))
-    local field = Field.new(G)
-    field.ephemeral = true
-    field:start()
-    local effort = backward(field)
-    check('the field knight walked back at all', effort > 0.1)
+    local plain, effort = backward(Fixtures.arena(G)), backward(field())
+    check(
+      string.format('the tests and the field walk back alike: %.3f and %.3f m', plain, effort),
+      effort > 0.1 and math.abs(plain - effort) < 1e-9
+    )
+    local function dodge(g)
+      for _ = 1, 30 do
+        g:update(1 / 120, {})
+      end
+      assert(g:dash(1, 0), 'feel: a rested knight dodges')
+      return g.player.invuln
+    end
+    local plainGuard, fieldGuard = dodge(Fixtures.arena(G)), dodge(field())
     check(
       string.format(
-        'tests walk back %.3f m where the field walks %.3f m (known, plan E1)',
-        plain,
-        effort
+        'a dodge guards %.2f s on the floor and %.2f s in the field',
+        plainGuard,
+        fieldGuard
       ),
-      plain > effort * 1.05
+      math.abs(plainGuard - fieldGuard) < 1e-9
+    )
+    local function afterShot(g)
+      for _ = 1, 30 do
+        g:update(1 / 120, {})
+      end
+      assert(g.player.weapon == 2 or g:switchWeapon(2), 'feel: Judge in hand')
+      for _ = 1, 60 do
+        g:update(1 / 120, {})
+      end
+      assert(g:shoot(), 'feel: Judge fires')
+      return g:dash(1, 0)
+    end
+    check(
+      'right after a shot the body is still behind it, on the floor as in the field',
+      afterShot(Fixtures.arena(G)) == false and afterShot(field()) == false
     )
   end
   do

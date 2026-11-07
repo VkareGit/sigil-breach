@@ -89,7 +89,21 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   fresh()
   tick(1, { forward = 1, strafe = 1 })
   local diagonal = math.sqrt((g.player.x - 16) ^ 2 + (g.player.z - 27) ^ 2)
-  check('diagonal speed normalized', near(diagonal, travel[3], 0.08))
+  -- Two keys never add up to more than one; the diagonal then pays the body's
+  -- side-step share for its sideways part (content/knight.lua, E1: every mode).
+  -- Known (plan E1b): the share along the facing is divided by the key length
+  -- twice, so a 45 degree diagonal pays as if it were 60 degrees aside.
+  local body = require('src.content.characters').standard().body
+  local along = 0.5
+  local share = 1 - (1 - body.sideStep) * (1 - along)
+  check(
+    string.format(
+      'diagonal speed normalized, paying the side-step share (%.3f of %.3f m; known 60 degree share, plan E1b)',
+      diagonal,
+      travel[3]
+    ),
+    near(diagonal, travel[3] * share, 0.03) and diagonal < travel[3]
+  )
   fresh()
   tick(0.5, { forward = 1 })
   local z = g.player.z
@@ -98,7 +112,12 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   fresh()
   tick(0.3, { forward = 1 })
   tick(0.2, { forward = -1 })
-  check('direction reversal is immediate enough', g.player.vz > 4.9)
+  -- Backwards the body walks at its back-step share (E1: every mode).
+  local back = require('src.content.characters').standard().movement.moveSpeed * body.backStep
+  check(
+    string.format('direction reversal reaches the back-step speed %.2f m/s at once', back),
+    g.player.vz > back * 0.95
+  )
   fresh()
   g:dash(0, -1)
   tick(0.16)
