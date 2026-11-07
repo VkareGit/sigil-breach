@@ -185,6 +185,17 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   razy i ukos szedł jak 60° w bok (4,683 zamiast 4,834 m w pierwszej
   sekundzie). Wykryte przez test E1. Golden Linux zmieniony z dwóch
   identycznych przebiegów; `souls-gate` i `souls-bots` przed/po identyczne.
+- 2026-11-07, **E4 zrobione:** pola ciał deklarują wygładzanie
+  w `session/components.lua` (`linear` dla miejsca i wysokości, `clock` dla
+  zegara bieżącego stanu, wartość spoczynku dla wysokości lotu i upadku);
+  `render/presentation.lua` buduje z deklaracji listy stworów, pocisków
+  i ładunków (ładunki prochowe wcześniej nie były wygładzane). Zegar
+  biegnący (unoszenie, oddech, migotanie) jest wygładzany w próbce obrazu;
+  symulacja i golden bez zmian. Miernik mierzy ciągłe parametry pozy
+  (uniesienie, przechył, rozciągnięcie) każdego stwora w chodzie, każdym
+  ataku i wyjściu z portalu: przed zmianą 108 czerwonych sprawdzeń przy
+  144 Hz i nierównych klatkach, po zmianie 0. Pola widoku rycerza zostają
+  na liście do E3/E5.
 
 ## Decyzje właściciela
 

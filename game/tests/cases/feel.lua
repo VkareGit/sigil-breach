@@ -18,6 +18,7 @@ function Tests.run(G)
     Feel.stalls({ 0, 1, 2, 2, 3, 4 }) == 1
       and Feel.stalls({ 0, 1, 2, 2, 1, 0 }) == 0
       and Feel.stalls({ 0, 1, 2, 2, 2, 2 }) == 0
+      and Feel.stalls({ 0, 1, 2, 12, 12, 13 }) == 0
       and Feel.latency({ 0, 0, 0, 0.5, 1 }, 2) == 2
       and Feel.evenness({ 0, 1, 2, 3 }, 1, 4) == 1
   )
@@ -228,61 +229,88 @@ function Tests.run(G)
     trailing > 0
   )
 
-  -- 4. Every creature walks to the knight; its drawn body moves without a
-  -- frozen frame at 144 Hz. Known defects stay listed until their stage.
-  local known = {
-    -- The hover pose reads the session clock that is not interpolated (E4).
-    stolas = 'E4',
-  }
-  for _, id in ipairs(Enemies.creatures) do
-    local g = Fixtures.arena(G)
-    local e = g:spawn(id, 16, 17)
-    e.awake, e.spawnAge, e.memory = true, 1, 4
-    local trace = Feel.run(g, 144, 1.2, function()
+  -- 4. Every creature walks to the knight, then its leap, a windup and a hover:
+  -- its drawn place, height, lean and scale move without a frozen frame at
+  -- 144 Hz and on uneven frames (E4: smoothing is declared by each field).
+  local function drawn(g, e, seconds, rate)
+    return Feel.run(g, rate, seconds, function()
       return {}
-    end, { x = Feel.spriteX(e), z = Feel.spriteZ(e), y = Feel.spriteHeight(e) })
-    local moved =
-      math.sqrt((trace.x[#trace.x] - trace.x[1]) ^ 2 + (trace.z[#trace.z] - trace.z[1]) ^ 2)
-    check(string.format('%s moved %.2f m toward the knight', id, moved), moved > 0.3)
-    local placeStalls = Feel.stalls(trace.x) + Feel.stalls(trace.z)
-    local heightStalls = Feel.stalls(trace.y)
-    check(id .. ' walks at 144 Hz without a frozen frame of its place', placeStalls == 0)
-    if known[id] then
+    end, {
+      x = Feel.spriteX(e),
+      z = Feel.spriteZ(e),
+      y = Feel.spriteLift(e),
+      lean = Feel.spriteLean(e),
+      scale = Feel.spriteScale(e),
+    })
+  end
+  local function frozen(trace)
+    local total, worst = 0, 'none'
+    for _, name in ipairs({ 'x', 'z', 'y', 'lean', 'scale' }) do
+      local n, at = Feel.stalls(trace[name])
+      total = total + n
+      if n > 0 then
+        local series = trace[name]
+        worst = string.format(
+          '%s x%d, first at %.0f ms: %.5f %.5f %.5f %.5f',
+          name,
+          n,
+          trace.time[at] * 1000,
+          series[at - 2],
+          series[at - 1],
+          series[at],
+          series[at + 1]
+        )
+      end
+    end
+    return total, worst
+  end
+  for _, rate in ipairs({ 144, Feel.uneven }) do
+    for _, id in ipairs(Enemies.creatures) do
+      local g = Fixtures.arena(G)
+      local e = g:spawn(id, 16, 17)
+      e.awake, e.spawnAge, e.memory = true, 1, 4
+      local trace = drawn(g, e, 1.2, rate)
+      local moved =
+        math.sqrt((trace.x[#trace.x] - trace.x[1]) ^ 2 + (trace.z[#trace.z] - trace.z[1]) ^ 2)
+      local total, worst = frozen(trace)
       check(
         string.format(
-          '%s drawn height still freezes %d frame(s) at 144 Hz (known, plan %s)',
+          '%s walks %.2f m at %s with no frozen frame of its drawn body (%s)',
           id,
-          heightStalls,
-          known[id]
+          moved,
+          rateName(rate),
+          worst
         ),
-        heightStalls > 0
+        moved > 0.3 and total == 0
       )
-    else
-      check(id .. ' drawn height has no frozen frame at 144 Hz', heightStalls == 0)
+      -- The same body caught in each of its attacks' windups and strikes.
+      for _, attack in ipairs(Enemies[id].attacks) do
+        local a = Fixtures.arena(G)
+        local body = a:spawn(id, 16, 21)
+        body.awake, body.spawnAge, body.memory, body.target = true, 1, 4, a.player.id
+        Actions.begin(a, body, 4, attack)
+        local acted = drawn(a, body, 0.9, rate)
+        local n, which = frozen(acted)
+        check(
+          string.format(
+            '%s %s at %s: no frozen frame of its drawn body (%s)',
+            id,
+            attack.id,
+            rateName(rate),
+            which
+          ),
+          n == 0
+        )
+      end
     end
-  end
-  -- A creature's leap: its drawn height is the flight height, not interpolated (E4).
-  do
+    -- A body climbing out of a portal.
     local g = Fixtures.arena(G)
-    local e = g:spawn('imp', 16, 19)
-    e.awake, e.spawnAge, e.memory, e.target = true, 1, 4, g.player.id
-    local leap
-    for _, attack in ipairs(Enemies.imp.attacks) do
-      leap = attack.id == 'leap' and attack or leap
-    end
-    Actions.begin(g, e, 6, assert(leap))
-    local airborne = false
-    local trace = Feel.run(g, 144, 1.4, function()
-      airborne = airborne or e.leapY ~= nil
-      return {}
-    end, { y = Feel.spriteHeight(e) })
-    local stalls = Feel.stalls(trace.y)
+    local e = g:spawn('imp', 16, 17)
+    e.spawnAge = 0
+    local total, worst = frozen(drawn(g, e, 0.7, rate))
     check(
-      string.format(
-        'an Ember leap still freezes its drawn height %d frame(s) at 144 Hz (known, plan E4)',
-        stalls
-      ),
-      airborne and stalls > 0
+      string.format('a body leaving a portal at %s has no frozen frame (%s)', rateName(rate), worst),
+      total == 0
     )
   end
 

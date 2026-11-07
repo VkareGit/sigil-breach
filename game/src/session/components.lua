@@ -6,9 +6,17 @@
 -- not leaping, no pending strike).
 local Characters = require('src.content.characters')
 local C = {}
-local function f(default, desc)
-  return { default = default, desc = desc }
+-- smooth: how the drawn image blends the field between two simulation steps
+-- (render/presentation.lua, PLAN E4): 'linear' for a continuous quantity (place,
+-- height, distance walked); 'clock' for a clock of the body's current state,
+-- blended only while that state lasts (a new state starts its clock anew);
+-- nil when it is shown as it is.
+-- rest: the value an absent smoothed field stands for (a height off the floor is
+-- 0 when the body is not in the air), so its first step in the air blends too.
+local function f(default, desc, smooth, rest)
+  return { default = default, desc = desc, smooth = smooth, rest = rest }
 end
+local linear, clock = 'linear', 'clock'
 C.schemas = {
   identity = {
     id = f(nil, 'unique per session'),
@@ -25,9 +33,9 @@ C.schemas = {
     fieldKind = f(nil, 'proving-ground catalogue entry'),
   },
   transform = {
-    x = f(0),
-    y = f(nil, 'height (projectiles, charges)'),
-    z = f(0),
+    x = f(0, nil, linear),
+    y = f(nil, 'height (projectiles, charges)', linear),
+    z = f(0, nil, linear),
     level = f(nil, 'the surface it stands on, on a world with decks (physics/ground.lua)'),
     facing = f(math.pi, 'body yaw (rad)'),
   },
@@ -51,7 +59,7 @@ C.schemas = {
     poise = f(0, 'guard damage taken'),
     guardQuiet = f(nil, 'time since the last blow'),
     staggerLock = f(0),
-    stun = f(0),
+    stun = f(0, nil, clock),
     heavyStagger = f(nil),
     knockedDown = f(nil),
     knockTime = f(nil),
@@ -78,7 +86,7 @@ C.schemas = {
     pushX = f(0, 'shove velocity (m/s)'),
     pushOwner = f(nil, 'the owner of the blow that shoves it (plan v11 E3d: slams, collisions)'),
     pushZ = f(0),
-    walk = f(0, 'distance walked (animation)'),
+    walk = f(0, 'distance walked (animation)', linear),
     walkSpeed = f(0),
     walkVX = f(nil),
     walkVZ = f(nil),
@@ -94,8 +102,8 @@ C.schemas = {
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
     streamHits = f(nil, 'bodies already met by the current finite exhale'),
     harvestMarks = f(nil, 'owned patches committed to an eruption; shared save references'),
-    phase = f(0, 'time in the state'),
-    recover = f(0),
+    phase = f(0, 'time in the state', clock),
+    recover = f(0, nil, clock),
     spent = f(0, 'what is left of the recovery after a blow: it moves but cannot strike (s)'),
     attack = f(1.5, 'time until the next attack may begin'),
     decision = f(0),
@@ -131,11 +139,11 @@ C.schemas = {
     aimX = f(nil),
     aimZ = f(nil),
     aimLevel = f(nil, 'the surface under the aim, on a world with decks'),
-    windup = f(0),
+    windup = f(0, nil, clock),
     windupDuration = f(nil),
     didHit = f(nil),
     pendingHazard = f(nil),
-    holdLeft = f(nil, 'stillness left after the windup (s)'),
+    holdLeft = f(nil, 'stillness left after the windup (s)', clock),
     holdSpan = f(nil, 'the whole of that stillness (s): the pose and tell reach the blow with it'),
     chain = f(nil, 'id of the attack its string flows into'),
     chainFrom = f(nil, 'the attack that string came from'),
@@ -162,7 +170,7 @@ C.schemas = {
   },
   flight = {
     leaping = f(nil),
-    leapY = f(nil),
+    leapY = f(nil, nil, linear, 0),
     leapVX = f(nil),
     leapVY = f(nil),
     leapVZ = f(nil),
@@ -170,7 +178,7 @@ C.schemas = {
     landings = f(nil),
   },
   evade = {
-    evadeTime = f(nil),
+    evadeTime = f(nil, nil, clock),
     evadeReady = f(nil),
     evadeSide = f(nil),
     evadeX = f(nil),
@@ -178,17 +186,17 @@ C.schemas = {
     evades = f(nil),
   },
   corpse = {
-    deathTime = f(0),
-    fallY = f(nil),
+    deathTime = f(0, nil, clock),
+    fallY = f(nil, nil, linear, 0),
     fallVY = f(nil),
     fallLanded = f(nil),
     deathResponse = f(nil),
   },
   appearance = {
-    spawnAge = f(1, 'time since leaving the portal'),
-    flinch = f(0),
+    spawnAge = f(1, 'time since leaving the portal', linear),
+    flinch = f(0, nil, linear),
     flinchSide = f(nil),
-    flinchLean = f(nil),
+    flinchLean = f(nil, nil, linear),
     flinchLeanV = f(nil),
     flinchOwner = f(nil, 'body defining the painted reaction basis, never the current viewer'),
     flinchOriginX = f(nil, 'contact origin retained after the source leaves'),
@@ -200,9 +208,9 @@ C.schemas.projectile = {
   gravity = f(nil, 'optional ballistic downward acceleration'),
   deposit = f(nil, 'reserved ground payload, delivered only on a floor contact'),
   art = f(nil, 'painted projectile family'),
-  x = f(0),
-  y = f(0),
-  z = f(0),
+  x = f(0, nil, linear),
+  y = f(0, nil, linear),
+  z = f(0, nil, linear),
   vx = f(0),
   vy = f(0),
   vz = f(0),
@@ -284,15 +292,15 @@ C.schemas.pickup = {
 C.schemas.charge = {
   action = f(nil, 'immutable throw definition: flight, fuse and blast'),
   owner = f(nil, 'id of the knight that threw it (plan v11 E3d)'),
-  x = f(0),
-  y = f(0),
-  z = f(0),
+  x = f(0, nil, linear),
+  y = f(0, nil, linear),
+  z = f(0, nil, linear),
   vx = f(0),
   vy = f(0),
   vz = f(0),
   fuse = f(0, 'seconds to the blast'),
   maxFuse = f(0),
-  spin = f(0),
+  spin = f(0, nil, linear),
   grounded = f(nil),
   pillarRadius = f(nil),
 }
@@ -407,6 +415,32 @@ require('src.core.strict').retire(
 -- Fields that are caches of a member, rebuilt rather than saved (plan v10
 -- V4): a route's distance field belongs to the world's field cache.
 C.transient = { path = true }
+-- The fields of a pool's members that the drawn image blends between steps.
+-- kind: 'linear' or 'clock' (all smoothed fields when nil).
+function C.smoothed(pool, kind)
+  local keys = {}
+  for _, name in ipairs(C.pools[pool] or {}) do
+    for field, spec in pairs(C.schemas[name]) do
+      if spec.smooth and (kind == nil or spec.smooth == kind) then
+        keys[#keys + 1] = field
+      end
+    end
+  end
+  table.sort(keys)
+  return keys
+end
+-- The rest values of a pool's smoothed fields that have one.
+function C.rests(pool)
+  local rests = {}
+  for _, name in ipairs(C.pools[pool] or {}) do
+    for field, spec in pairs(C.schemas[name]) do
+      if spec.smooth and spec.rest ~= nil then
+        rests[field] = spec.rest
+      end
+    end
+  end
+  return rests
+end
 -- What every member of a pool has.
 C.pools = {
   enemies = {

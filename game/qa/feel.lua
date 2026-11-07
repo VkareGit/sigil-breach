@@ -71,22 +71,27 @@ function Feel.run(g, rate, seconds, script, probes)
   return trace
 end
 -- A frozen picture inside motion: the value did not change on frame i while it
--- moved the same way on the frames on both sides. Pauses longer than one frame
--- (a stop, a windup) and a turn at a peak are motion that ended, not a stutter.
+-- moved the same way, by a similar step, on the frames on both sides. Pauses
+-- longer than one frame (a stop, a windup), a turn at a peak and a hold next to a
+-- change of painted frame (a step several times larger) are not a stutter.
+Feel.steady = 4
 function Feel.stalls(series)
-  local count = 0
+  local count, first = 0, nil
   local still = Feel.still
   for i = 3, #series - 1 do
     local before = series[i - 1] - series[i - 2]
     local now = math.abs(series[i] - series[i - 1])
     local after = series[i + 1] - series[i]
     if now <= still and math.abs(before) > still and math.abs(after) > still then
-      if (before > 0) == (after > 0) then
+      local small, large =
+        math.min(math.abs(before), math.abs(after)), math.max(math.abs(before), math.abs(after))
+      if (before > 0) == (after > 0) and large <= small * Feel.steady then
         count = count + 1
+        first = first or i
       end
     end
   end
-  return count
+  return count, first
 end
 -- Display frames from frame `from` until the value first visibly changes; nil if never.
 function Feel.latency(series, from)
@@ -151,6 +156,33 @@ function Feel.spriteHeight(e)
   return function(shown)
     local p, view = sprite(shown, e)
     return p and (p.baseY + Ground.of(shown.world, view)) or 0
+  end
+end
+-- The continuous part of the drawn pose (enemies/animation.lua: Anim.pose): lift
+-- off the floor, lean and stretch. The painted frame itself changes in steps.
+local Animation = require('src.enemies.animation')
+local function posed(shown, e)
+  for _, view in ipairs(Pools.of(shown, 'enemies')) do
+    if rawequal(getmetatable(view) and getmetatable(view).__index, e) or view == e then
+      local _, bounce, lean, sx, sy = Animation.pose(shown, view, Context.viewer(shown))
+      return bounce, lean, sx + sy
+    end
+  end
+  return 0, 0, 0
+end
+function Feel.spriteLift(e)
+  return function(shown)
+    return (posed(shown, e))
+  end
+end
+function Feel.spriteLean(e)
+  return function(shown)
+    return select(2, posed(shown, e))
+  end
+end
+function Feel.spriteScale(e)
+  return function(shown)
+    return select(3, posed(shown, e))
   end
 end
 function Feel.spriteX(e)

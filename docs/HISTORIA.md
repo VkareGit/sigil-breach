@@ -74,6 +74,12 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E4, płynny obraz stworów, 2026-11-07: przy ekranach innych niż 120 Hz
+  stwory nie zacinają się już co kilka klatek w przygotowaniu, ciosie,
+  skoku, unoszeniu i wyjściu z portalu; ładunek prochowy leci płynnie.
+  Wygładzanie wynika z deklaracji pól. Tylko obraz: symulacja i golden
+  bez zmian.
+
 - E1b, ukos rycerza, 2026-11-07: chód na ukos płaci udział kroku w bok
   właściwy dla 45° (o ok. 3% szybciej niż dotąd). Nowy wzorzec golden Linux.
 
@@ -4408,6 +4414,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E4, płynny obraz stworów, 2026-11-07: `feel` 186 PASS; ten sam test na
+  kodzie sprzed zmiany: 108 czerwonych (każdy stwór i atak, 144 Hz
+  i nierówne klatki). Miernik doprecyzowano: zacięcie liczy się w płynnym
+  ruchu, nie przy zmianie malowanej klatki. Golden bez zmian. Pełne Linux
+  All PASS (143 zestawy, 8995 sprawdzeń, Input 50, Render, Tools). Odbiór
+  płynności w grze należy do właściciela.
 
 - E1b, ukos rycerza, 2026-11-07: czerwone przed zmianą 4,683 m, po zmianie
   4,834 m (oczekiwane 4,825 ± 0,03). Golden: dwa identyczne przebiegi,

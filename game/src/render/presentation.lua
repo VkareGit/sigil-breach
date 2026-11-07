@@ -3,10 +3,13 @@ local Roles = require('src.core.roles')
 local Flinch = require('src.enemies.flinch')
 -- Interpolate the fixed simulation without delaying raw mouse input or mutating gameplay.
 local Pools = require('src.session.world')
+local Components = require('src.session.components')
 local P = {}
 local playerKeys = { 'x', 'z', 'jump', 'crouch' }
 local viewerKeys = { 'x', 'y', 'z', 'jump', 'crouch' }
-local gameKeys = { 'step' }
+-- time: the running clock of hover, breath and flicker (enemies/animation.lua,
+-- render/lights.lua); it steps with the simulation and is drawn between steps.
+local gameKeys = { 'step', 'time' }
 -- Presentation state (g.view) blended the same way.
 local viewKeys = {
   'land',
@@ -38,7 +41,20 @@ local viewKeys = {
   'weaponStepRoll',
   'weaponAirY',
 }
-local enemyKeys = { 'x', 'z', 'walk', 'phase', 'deathTime', 'fallY', 'flinchLean' }
+-- The members of the pools the image draws blend the fields their components
+-- declare smooth (session/components.lua: f(..., 'linear'), PLAN E4): a new
+-- moving field is smoothed by its declaration, not by a list kept here.
+local memberKeys = {
+  enemies = Components.smoothed('enemies'),
+  projectiles = Components.smoothed('projectiles'),
+  charges = Components.smoothed('charges'),
+}
+local memberRests = {
+  enemies = Components.rests('enemies'),
+  projectiles = Components.rests('projectiles'),
+  charges = Components.rests('charges'),
+}
+local stateClocks = Components.smoothed('enemies', 'clock')
 local function values(object, keys)
   local out = {}
   for _, key in ipairs(keys) do
@@ -56,6 +72,31 @@ local function blend(object, previous, keys, t)
   end
   return out
 end
+-- A member's field may be absent (not leaping, not falling). It blends when the
+-- current step has it and the previous one had it or its rest value; otherwise
+-- the image shows the current value, so an absent field stays absent.
+local function memberValues(object, keys)
+  local out = {}
+  for _, key in ipairs(keys) do
+    out[key] = object[key]
+  end
+  return out
+end
+local function blendMember(object, previous, keys, t, rests)
+  local out = setmetatable({}, { __index = object })
+  if previous then
+    for _, key in ipairs(keys) do
+      local before, now = previous[key], object[key]
+      if before == nil then
+        before = rests[key]
+      end
+      if type(before) == 'number' and type(now) == 'number' then
+        out[key] = before + (now - before) * t
+      end
+    end
+  end
+  return out
+end
 local function captureView(g, scene)
   if g.state ~= 'playing' or g.map then
     g.view.presentationPrevious = nil
@@ -68,6 +109,7 @@ local function captureView(g, scene)
     view = values(g.view, viewKeys),
     enemies = scene.enemies,
     bullets = scene.bullets,
+    charges = scene.charges,
   }
   g.view.presentationPrevious = old
 end
@@ -84,7 +126,7 @@ function P.capture(g)
     end
     return
   end
-  local scene = { knights = {}, enemies = {}, bullets = {} }
+  local scene = { knights = {}, enemies = {}, bullets = {}, charges = {} }
   for _, knight in ipairs(Pools.of(g, 'knights')) do
     scene.knights[knight] = values(knight, playerKeys)
   end
@@ -94,15 +136,19 @@ function P.capture(g)
     scene.knights[actor] = values(actor, playerKeys)
   end
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    local v = values(e, enemyKeys)
+    local v = memberValues(e, memberKeys.enemies)
     v.ai = e.ai
+    v.attackKind = e.attackKind
     v.alive = e.hp > 0
     v.flinchOwner = e.flinchOwner
     v.flinchOriginX, v.flinchOriginZ = e.flinchOriginX, e.flinchOriginZ
     scene.enemies[e] = v
   end
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    scene.bullets[b] = values(b, { 'x', 'y', 'z' })
+    scene.bullets[b] = memberValues(b, memberKeys.projectiles)
+  end
+  for _, c in ipairs(Pools.of(g, 'charges')) do
+    scene.charges[c] = memberValues(c, memberKeys.charges)
   end
   captureView(g, scene)
   if g._contextRoot then
@@ -159,10 +205,12 @@ function P.sample(g, t)
   out.bullets = {}
   for i, e in ipairs(Pools.of(g, 'enemies')) do
     local old = prev.enemies[e]
-    local view = blend(e, old, enemyKeys, t)
-    if old and (old.ai ~= e.ai or old.alive ~= (e.hp > 0)) then
-      view.phase = e.phase
-      view.deathTime = e.deathTime
+    local view = blendMember(e, old, memberKeys.enemies, t, memberRests.enemies)
+    -- A new state (or a death) starts its clocks anew: they show the current value.
+    if old and (old.ai ~= e.ai or old.alive ~= (e.hp > 0) or old.attackKind ~= e.attackKind) then
+      for _, key in ipairs(stateClocks) do
+        view[key] = e[key]
+      end
     end
     if old and not Flinch.sameBasis(old, e) then
       -- The contact already rebased the spring into its new source basis.
@@ -174,7 +222,13 @@ function P.sample(g, t)
     out.enemies[i] = view
   end
   for i, b in ipairs(Pools.of(g, 'projectiles')) do
-    out.bullets[i] = blend(b, prev.bullets[b], { 'x', 'y', 'z' }, t)
+    out.bullets[i] =
+      blendMember(b, prev.bullets[b], memberKeys.projectiles, t, memberRests.projectiles)
+  end
+  out.charges = {}
+  for i, c in ipairs(Pools.of(g, 'charges')) do
+    out.charges[i] =
+      blendMember(c, (prev.charges or {})[c], memberKeys.charges, t, memberRests.charges)
   end
   return out
 end
