@@ -36,6 +36,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Przegląd jakości i powiązań kodu (2026-11-07)
 - Przegląd skalowalności projektu (2026-11-07)
 - Analiza silnika ruchu i strzału (2026-11-07)
 - Plan Exorcista (zastąpiony 2026-11-07)
@@ -72,6 +73,10 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Przegląd jakości i powiązań kodu, 2026-11-07: pomiar kosztu zmian,
+  zależności, liczb w kodzie i spójności nazw. PLAN uzupełniono
+  o fundament F1–F5 do akceptacji. Bez zmian gry, zasobów i golden.
 
 - Silnik ruchu i strzału, analiza 2026-11-07: przegląd skalowalności
   projektu i analiza fizyki ruchu oraz strzału na polecenie właściciela
@@ -4384,6 +4389,11 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Przegląd jakości i powiązań kodu, 2026-11-07: pomiary skryptami na
+  `9319e39` (graf require bez cykli, 5941 literałów poza treścią,
+  68 aliasów wielokrotnych, 22–37 plików na przebudowę stwora).
+  Analiza, nie wdrożenie; testy gry nie były potrzebne.
 
 - Silnik ruchu i strzału, analiza 2026-11-07: pełne Linux All na
   `d518491` przed analizą PASS (142 zestawy, 8808 sprawdzeń, Input 50,
@@ -14450,6 +14460,104 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
 
+
+## Przegląd jakości i powiązań kodu (2026-11-07)
+
+Przegląd Claude na `9319e39` (0.45), na polecenie właściciela: cały kod,
+połączenia, spójność, liczby w kodzie, jakość i skalowalność; cel: zmiana
+nie może wymuszać przepisywania dużej ilości kodu. Pomiary skryptami
+(graf `require`, literały, aliasy, historia gita); skrypty w katalogu
+roboczym agenta, poza repozytorium. Bez zmian gry.
+
+Mocne strony, do zachowania: 427 modułów, 1896 zależności, zero cykli
+między modułami; granice warstw pilnowane bramą; rejestry dla broni,
+dostaw strzału, rodzajów ataków, trybów, map, ekranów i zapisów; zapadki
+architektury prawie wszystkie na 0; w symulacji ok. 120 literałów, każdy
+objęty zapadką; determinizm i golden.
+
+Główny problem: koszt zmiany. Ostatnie przebudowy stworów dotknęły
+w `game/src` kolejno 37 plików w 8 katalogach (Gardener), 31 w 7 (Furfur),
+31 w 6 (Stolas), 28 w 7 (Margrave), 22 w 4 (audio sześciu postaci).
+Najczęściej zmieniane razem: `content/text` + `ui/hud` (9 razy),
+`content/pilgrimage` + `run/pilgrimage` (8), `enemies/ai` +
+`session/components` (7), `boss` + `furfur` (7). Przyczyny:
+
+1. **Nowa mechanika postaci to nowy kod silnika.** Atak Gardenera dodał
+   `combat/garden.lua`, `combat/stream.lua`, `enemies/garden_kinds.lua`,
+   `render/garden_art.lua`, `content/defs/garden_actions.lua`; burza Furfura
+   `render/storm_art.lua`; Margrave `render/ash_art.lua`. Rejestry istnieją,
+   ale rodzaje powstają dla jednej postaci, zamiast składać się z ogólnych
+   klocków (wyrzut, pocisk, osad/strefa, fala, ruch ciała).
+2. **Płaski rekord stwora.** `session/components.lua` deklaruje 317 pól;
+   każda mechanika dopisuje swoje do wspólnego ciała (`streamHits`,
+   `slotWaitAt`, `stringLimit`, `garden`, `deposit`...). Pola trafiają do
+   zapisu, a zmiana mechaniki wymaga wersji puli i migracji. Propozycja:
+   stan czynności należy do jej rodzaju (osobna tabela ze schematem
+   i wersją rodzaju).
+3. **Jedna postać w wielu miejscach.** Definicja, arkusz, anatomia, maski,
+   profil audio (`content/creature_audio.lua`), plik głosów
+   (`audio/<nazwa>_voices.lua`), ręczna lista w `audio/recipes.lua:591`,
+   teksty, rytuały w `content/art/rites.lua`, migracja. Propozycja: pakiet
+   postaci w jednym katalogu, rejestrowany przez sam pakiet.
+4. **Centralne rozgałęzienia.** `Anim.pose` (`enemies/animation.lua:92`,
+   151 linii) wybiera pozę łańcuchem warunków po stanie SI; każdy nowy stan
+   lub gest go zmienia. Ta funkcja wybiera też maskę trafień, ma 43
+   literały wpływające na położenie maski (przechył, ściśnięcie) i czyta
+   `g.time` dla unoszenia, oddechu i drżenia od rany: zegar biegnący
+   także w pauzie i na mapie wpływa na geometrię trafienia.
+5. **Trzy kanały z symulacji do prezentacji.** Zdarzenia (`Signal` 40 miejsc,
+   `bus:emit` 3), nazwane haki (`Presentation.call`, 13 nazw) i dźwięki
+   wybierane przez symulację (`Presentation.cue`, 17 miejsc, głośności
+   w `content/tuning.lua`). Propozycja: symulacja tylko publikuje zdarzenia
+   i fakty; dźwięk, kamera i ręce wybiera prezentacja.
+6. **Ręczne listy w cudzych modułach.** Wygładzane pola
+   (`render/presentation.lua`), pliki głosów (`audio/recipes.lua`), bronie
+   sklepu (`ui/fire_shop.lua:14`, `app/commands.lua:149`), reguły migracji
+   (`content/migrations/pool_definitions.lua`), sekcje profilu audio
+   (`audio/contracts.lua`). Każda nowość wymaga dopisania w obcym pliku;
+   zapomnienie daje cichy błąd (sonda 144 Hz). Propozycja: deklaracja
+   przy definicji, lista budowana z rejestru.
+
+Liczby w kodzie: poza `content/` jest 5941 nietrywialnych literałów:
+render 1750, ui 1738, audio 1697, feedback 535, reszta symulacji ok. 120.
+Synteza dźwięku (`audio/recipes.lua` 596) i układ HUD (`ui/hud.lua` 353,
+chroniony) to dane zapisane kodem; do oznaczenia, nie do przenoszenia
+na siłę. Liczby odczucia są w kodzie: `feedback/weight.lua` 98,
+`feedback/impact_response.lua` 99, `feedback/weapon_motion.lua` 87 —
+strojenie kamery i rąk wymaga edycji kodu i nie może różnić się dla
+postaci ani broni. Propozycja: profile odczucia w treści i zapadka
+literałów rozszerzona na `feedback/`.
+
+Spójność:
+
+- Ten sam moduł pod różnymi nazwami: 68 z 353 modułów. `content.tuning`
+  ma 11 aliasów, `content.combat_defaults` 8, `content.enemies` 4
+  (`Archetypes` 43, `Enemies` 12, `A` 5, `Creatures`). `K` oznacza sześć
+  różnych modułów, `W` raz `world.arena`, raz bronie, a moduł wagi zwraca
+  `W`. `player/feel.lua` wczytuje `world.arena` dwa razy (`World`, `W`).
+- 964 × `or 0` i 375 × `or {}`: pola bez pewnej wartości początkowej,
+  najwięcej w `feedback/weapon_motion.lua` (63) i `feedback/weight.lua` (51).
+  Pola widoku mają deklaracje w `session/fields.lua`, ale bez wartości
+  domyślnych, więc każdy odczyt się zabezpiecza.
+- Powielone pomocnicze: `smooth` i `copy` po 4 razy, `approach`, `dist` po 2.
+- 14 funkcji ponad 100 linii, 72 ponad 60 (największe:
+  `core/data_reader.lua:30` 231, `session/journal.lua:218` 184,
+  `ui/hud.lua:123` 163, `enemies/animation.lua:92` 151).
+
+Testy: ok. 60 tys. linii, 176 przypadków. Część sprawdza szczegóły
+wykonania (nazwy póz, dźwięków, klatki), więc przebudowa postaci
+przepisuje testy (np. `cloven_step` → `ember_step` w odbiorze 0.45).
+Golden i 34 pliki testów startują z `floor` bez zasad wysiłku (analiza
+silnika ruchu wyżej). Propozycja: testy kontraktu silnika (zachowanie
+każdego rodzaju na danych) plus testy danych każdej postaci generowane
+z definicji.
+
+Propozycja kolejności (w PLAN.md jako część F): F1 zasady jednego aliasu,
+wartości domyślne pól i liczby odczucia w treści (mechaniczne, golden bez
+zmian); F2 listy z rejestrów i deklaracji; F3 stan czynności przy jej
+rodzaju i klocki mechanik, zaczynając od już istniejących rodzajów; F4
+pakiet postaci; F5 testy kontraktu. Kanały prezentacji, wygładzanie
+i impulsy pokrywają się z E3–E5.
 
 ## Przegląd skalowalności projektu (2026-11-07)
 

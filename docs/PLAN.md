@@ -108,6 +108,37 @@ Windows pozostaje do sprawdzenia przez właściciela.
   pauza, śmierć, ognisko, Continue, MOTION, obserwator), pomiar CPU.
   Odbiór właściciela osobno od technicznego PASS.
 
+## Fundament kodu (F1–F5, do akceptacji)
+
+Z przeglądu jakości i powiązań (HISTORIA, 2026-11-07): przebudowa jednego
+stwora dotyka dziś 22–37 plików w 4–8 katalogach. Cel: nowa postać lub
+mechanika to dane i jeden pakiet, a zmiana zostaje w jednym miejscu.
+Każdy krok osobno, z bramą i golden; pierwsze kroki bez zmiany wyniku.
+
+- **F1. Higiena bez zmiany zachowania.** Jedna nazwa na moduł (sprawdzana
+  bramą), wartości domyślne pól widoku i ciała w deklaracjach zamiast
+  964 × `or 0`, wspólne pomocnicze zamiast kopii, liczby odczucia
+  z `feedback/` do treści, zapadka literałów także dla `feedback/`.
+- **F2. Listy z rejestrów.** Wygładzanie, głosy, bronie sklepu, migracje
+  i sekcje audio deklarowane przy swojej definicji; brak deklaracji
+  zatrzymuje bramę.
+- **F3. Stan czynności i klocki mechanik.** Stan ataku należy do jego
+  rodzaju (schemat i wersja rodzaju), nie do płaskiego rekordu stwora.
+  Istniejące rodzaje (strumień, zasiew, burza, fala, rytuał) rozłożone na
+  ogólne klocki: wyrzut, pocisk, osad/strefa, fala, ruch ciała. Wybór pozy
+  z rejestru stanów zamiast łańcucha w `Anim.pose`; zegar symulacji dla
+  każdej pozy wpływającej na maskę trafień.
+- **F4. Pakiet postaci.** Definicja, arkusz, anatomia, maski, profil
+  i pliki głosów, teksty i malowane efekty jednej postaci w jednym
+  katalogu, rejestrowane przez pakiet.
+- **F5. Testy kontraktu.** Zachowanie każdego rodzaju i każdego modułu
+  silnika sprawdzane na danych; testy postaci generowane z definicji,
+  zamiast sprawdzania nazw póz i dźwięków.
+
+E3–E5 (kanały prezentacji, wygładzanie, impulsy) realizują część tego
+fundamentu dla ruchu i strzału. Rekomendowana kolejność łączna:
+E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 → E7.
+
 ## Postęp i dowody
 
 - 2026-11-07: przegląd skalowalności całego projektu i analiza silnika ruchu
@@ -115,6 +146,9 @@ Windows pozostaje do sprawdzenia przez właściciela.
   48/288 powtórzonych klatek wysokości skoku stwora i zegara unoszenia,
   0/288 dla pozycji i skoku rycerza. Bez zmian gry; nie uruchamiano
   ponownie All po zmianie dokumentów.
+- 2026-11-07: przegląd jakości i powiązań kodu (HISTORIA): koszt zmiany,
+  płaski rekord stwora, trzy kanały prezentacji, 5941 literałów poza
+  treścią, 68 modułów pod różnymi nazwami, 964 × `or 0`. Bez zmian gry.
 
 ## Decyzje właściciela
 
@@ -124,6 +158,7 @@ Windows pozostaje do sprawdzenia przez właściciela.
    zegary SI, obrażenia i balans zostają (E2). Rekomendacja: tak.
 3. Plan Exorcista jako etap E6 na wspólnym silniku. Rekomendacja: tak.
 4. Kolejność E0 → E7 z próbami po E4 i E6. Rekomendacja: tak.
+5. Fundament F1–F5 razem z E, w kolejności łącznej wyżej. Rekomendacja: tak.
 
 ## Poza zakresem
 
