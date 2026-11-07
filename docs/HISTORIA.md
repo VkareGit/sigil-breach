@@ -74,6 +74,9 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E1b, ukos rycerza, 2026-11-07: chód na ukos płaci udział kroku w bok
+  właściwy dla 45° (o ok. 3% szybciej niż dotąd). Nowy wzorzec golden Linux.
+
 - E1, jedne zasady ruchu, 2026-11-07: spowolnienie kroku w bok i w tył,
   chwila po strzale przed unikiem i nietykalność uniku 0,32 s obowiązują
   w każdym trybie, także w testach. Tryb decyduje tylko o wytrzymałości.
@@ -4405,6 +4408,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E1b, ukos rycerza, 2026-11-07: czerwone przed zmianą 4,683 m, po zmianie
+  4,834 m (oczekiwane 4,825 ± 0,03). Golden: dwa identyczne przebiegi,
+  nowy baseline_linux; Windows niesprawdzony. Sondy `souls-gate` (4 liczby)
+  i `souls-bots` (9 wyników) przed i po identyczne. Pełne Linux All PASS
+  (143 zestawy, 8892 sprawdzenia). `weapons` 441 → 439: dwa sprawdzenia
+  dźwięków `antler-return` Furfura liczą się tylko, gdy ten atak padnie
+  w nagranej walce, a po zmianie ukosu nie pada; kruchość testu do F5,
+  nie ubytek gry.
 
 - E1, jedne zasady ruchu, 2026-11-07: czerwone przed zmianą: cofanie
   1,110 m w testach i 0,715 m na poligonie, unik 0,20 i 0,32 s; po zmianie

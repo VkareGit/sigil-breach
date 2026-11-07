@@ -91,14 +91,14 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   local diagonal = math.sqrt((g.player.x - 16) ^ 2 + (g.player.z - 27) ^ 2)
   -- Two keys never add up to more than one; the diagonal then pays the body's
   -- side-step share for its sideways part (content/knight.lua, E1: every mode).
-  -- Known (plan E1b): the share along the facing is divided by the key length
-  -- twice, so a 45 degree diagonal pays as if it were 60 degrees aside.
+  -- A 45 degree diagonal pays the share of 45 degrees (E1b: it was divided by
+  -- the key length twice and paid as if it were 60 degrees aside).
   local body = require('src.content.characters').standard().body
-  local along = 0.5
+  local along = 1 / math.sqrt(2)
   local share = 1 - (1 - body.sideStep) * (1 - along)
   check(
     string.format(
-      'diagonal speed normalized, paying the side-step share (%.3f of %.3f m; known 60 degree share, plan E1b)',
+      'diagonal speed normalized, paying the side-step share of 45 degrees (%.3f of %.3f m)',
       diagonal,
       travel[3]
     ),

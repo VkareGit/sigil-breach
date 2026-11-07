@@ -151,7 +151,9 @@ local function wantedSpeed(g, velocity, dt)
   -- and walks backwards slowly. A rule of his body, the same in every mode (E1).
   if onGround and m.len > M.input then
     local body = Rules.playerBody(p)
-    local along = (m.dx * math.sin(p.yaw) + m.dz * math.cos(p.yaw)) / math.max(m.len, 1)
+    -- The share of the step along the facing. Keys longer than one were already
+    -- normalized (steer), so only a shorter (partial) input is divided by its length.
+    local along = (m.dx * math.sin(p.yaw) + m.dz * math.cos(p.yaw)) / math.min(m.len, 1)
     target = target
       * (
         along < 0 and body.sideStep + (body.sideStep - body.backStep) * along

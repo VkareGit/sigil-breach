@@ -180,6 +180,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (0,715 m); trzy testy oczekiwały starych liczb `floor` i sprawdzają teraz
   tę samą intencję na prawdziwych zasadach. Golden bez zmian (jego
   scenariusze grały już z zasadami wysiłku).
+- 2026-11-07, **E1b zrobione:** ukos płaci udział kroku w bok dla 45°;
+  wcześniej udział wzdłuż patrzenia dzielono przez długość klawiszy dwa
+  razy i ukos szedł jak 60° w bok (4,683 zamiast 4,834 m w pierwszej
+  sekundzie). Wykryte przez test E1. Golden Linux zmieniony z dwóch
+  identycznych przebiegów; `souls-gate` i `souls-bots` przed/po identyczne.
 
 ## Decyzje właściciela
 

@@ -1,12 +1,13 @@
--- Linux: approved Furfur refinement, 2026-11-06, two identical native runs.
--- The drill exercises a single charge return, reachable follow-up, planted rear
--- answer and sight-bound storm. Existing poses follow those actions and their masks.
--- Chapel playtest and human traces remain identical. Windows remains unverified.
+-- Linux: the knight's diagonal pays the side-step share of 45 degrees (PLAN E1b,
+-- 2026-11-07), two identical native runs. The share along the facing was divided
+-- by the key length twice, so a diagonal walked as if 60 degrees aside (4.683
+-- instead of 4.834 m in the first second). Every scenario walks diagonals; no
+-- creature, weapon or AI timing changed. Windows remains unverified.
 return {
-  playtest = '4646b5e7/2c3dd061',
-  human = 'a764394a/0dc65dff',
-  drill = '22f5bba4/e20ec9f5',
-  playtestContacts = '9959d9ff/159',
-  humanContacts = '6483b82f/172',
-  drillContacts = '9ed2129e/352',
+  playtest = 'e9d98cd9/d4a5dcfe',
+  human = 'd252abba/00f49c35',
+  drill = '416ae3f6/58abd86e',
+  playtestContacts = 'f20a45fe/128',
+  humanContacts = 'd8d5356c/150',
+  drillContacts = 'fabb9558/341',
 }
