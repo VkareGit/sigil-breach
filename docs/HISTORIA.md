@@ -36,6 +36,9 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Przegląd skalowalności projektu (2026-11-07)
+- Analiza silnika ruchu i strzału (2026-11-07)
+- Plan Exorcista (zastąpiony 2026-11-07)
 - Analiza Exorcista — ciężar, animacje i audio (2026-11-07)
 - Plan sprzed Exorcista (zastąpiony 2026-11-07)
 - Analiza audio sześciu postaci (2026-11-06)
@@ -69,6 +72,12 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Silnik ruchu i strzału, analiza 2026-11-07: przegląd skalowalności
+  projektu i analiza fizyki ruchu oraz strzału na polecenie właściciela
+  (silnik ogólny, postacie w silniku). Nowy PLAN E0–E7 do akceptacji;
+  plan Exorcista zachowano w całości w HISTORII i włączono jako E6.
+  Bez zmian gry, zasobów i golden.
 
 - Exorcist, analiza 2026-11-07: prześledzono ciężar noszenia, gesty,
   odrzut, kamerę, audio i zależności. PLAN zawiera zakres do akceptacji;
@@ -4375,6 +4384,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Silnik ruchu i strzału, analiza 2026-11-07: pełne Linux All na
+  `d518491` przed analizą PASS (142 zestawy, 8808 sprawdzeń, Input 50,
+  Render, Tools, startup). Sonda 144 Hz w osobnym klonie: 48/288
+  powtórzonych klatek wysokości skoku stwora i zegara unoszenia, 0/288
+  dla pozycji i skoku rycerza. To analiza, nie wdrożenie; Windows
+  niesprawdzony; po zmianie samych dokumentów nie uruchamiano testów.
 
 - Exorcist, analiza 2026-11-07: 1366 nowych sprawdzeń PASS
   (weapons 441, weight 882, shotgun 43), ślady 60/120/240 Hz,
@@ -14434,6 +14450,271 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
 
+
+## Przegląd skalowalności projektu (2026-11-07)
+
+Przegląd Claude na stanie `d518491` (0.45), na polecenie właściciela:
+cały projekt pod kątem dalszej rozbudowy, nie bieżącego zakresu. Pełna
+brama Linux All przed przeglądem: PASS, 142 zestawy, 8808 sprawdzeń,
+Input 50, Render, Tools, startup. Ustalenia z czytania kodu; każde przed
+poprawką wymaga czerwonego testu.
+
+Poważne:
+
+- Zapis rozpoczętego ataku wskazuje definicję ścieżką z numerem na liście
+  (`core/data_tree.lua`: `{moduł, 'attacks', n}`; `e.attackSpec`).
+  Wstawienie ataku w środek listy podmieni po cichu atak wznowiony przez
+  Continue. Stąd zamrożone kopie w `content/migrations/` (Margrave 505,
+  Furfur 296, Gardener 124 linii), rosnące z każdą przebudową. Odczyt
+  walki ma już łagodny powrót (`readPools` pomija nieczytelną walkę).
+  Propozycja: zapis po id stwora i ataku z kontrolą, przy niezgodności
+  odpoczynek zamiast kopii; potem usunięcie kopii.
+- `run/pilgrimage.lua` (unpack) odrzuca cały zapis przy przekroczeniu
+  pojemności sigili lub liczby kopii (limit 3 wpisany na sztywno zamiast
+  `offer.limit`). Podniesienie kosztu sigila zablokuje zapis gracza
+  („Cannot read the save”). Propozycja: zdejmować nadmiar jak migracja 3.
+- `combat/sigils.lua` zna każdy sigil po nazwie, wywołania w 10 modułach.
+  Propozycja: rejestr efektów podpiętych pod momenty walki przed dodaniem
+  kolejnych sigili z katalogu.
+
+Średnie: id `boss` i flaga `body.boss` oznaczają dziś elitę (zderzy się
+z prawdziwymi bossami; propozycja: poziom postaci); profil audio stworów
+nie dziedziczy się przez `extends`; karty broni w sklepie znają dwie
+bronie; strzał nadpisuje wstrząs; kolejka ataków elit przechodzi wszystkie
+ciała dla każdego chętnego (z linią wzroku dla elit); klatka unoszenia
+liczona zegarem `g.time`, który biegnie także w pauzie.
+
+Narzędzia: brama ok. 30 min szeregowo na 22 rdzeniach (propozycja: podział
+selftestu na procesy); `.git` 362 MB i `baza/` 76 MB (propozycja: Git LFS);
+wersja 0.45 obejmuje wszystko od 4 listopada; TECHNIKA ma nieaktualne
+odwołania (`ROZSZERZANIE.txt`, `DEVELOPMENT.txt`, `work/qa-v<wersja>`,
+`%APPDATA%`).
+
+## Analiza silnika ruchu i strzału (2026-11-07)
+
+Polecenie właściciela po przeglądzie: skupić się na odczuciu strzelania
+i ruchu (fizyce gry); ma być perfekcyjne, a silnik ogólny. Analiza Claude
+na `d518491`; plan w PLAN.md. Gra, zasoby i golden bez zmian.
+
+Przepływ klatki (`app/application.lua`): akumulator stałego kroku 1/120 s,
+wejście z jednej próbki na klatkę, `Presentation.capture` przed ostatnim
+krokiem i `Presentation.sample(accumulator * 120)` do rysowania. Mysz
+obraca widok od razu (`Game:look`). Kliknięcie trafia do bufora zamiaru
+(`player/intent.lua`) z obserwacją ostatnio pokazanego obrazu i strzela
+w najbliższym kroku tej samej klatki. Opóźnienie strzału: najwyżej jedna
+klatka. To zostaje.
+
+Strzał w symulacji (`combat/combat.lua`): `ready` → `discharge` →
+dostawa z rejestru (`hitscan`, pociski) → `Volley`. Nic nie pyta o nazwę
+broni; liczby w danych broni. Sigile modyfikują atak po nazwie (wyżej).
+
+Ruch:
+
+- Rycerz: `player/feel.lua` (krok `F.update`): skręt, poślizg, przyspieszenie
+  wektorowe, unik, pchnięcie z oporem i wpływem kierunku, przejście przez
+  świat (`W.move` z podparciem i wysokością), uderzenie o mur, skok,
+  całka pionowa `K.vertical`, kroki. Pola `vx/vz`, `jump/jumpV`, `pushX/Z`.
+- Stwór: `enemies/walking.lua` (przyspieszenie przez √masy, hamowanie,
+  zablokowanie, droga po polu odległości), `enemies/flight.lua` (lot:
+  `leapY/leapVY/leapVX/Z`, własna całka grawitacji, dwie ścieżki zależnie
+  od `g.world.elevations`), separacja i kontakt w `combat/body_contact.lua`.
+  `Flight.step` omiata tylko `Bodies.controlled(g)`; inni rycerze nie istnieją
+  dla skoku stwora.
+- Wspólne są tylko mur, kontakt mas (`physics/body_physics.lua`) i sprężyna
+  (`physics/kinematics.lua`). Rycerz nie może zostać wyrzucony w powietrze
+  ciosem; stwór nie ma uniku ani ślizgu poza atakami.
+
+Zasady zależne od trybu (`Capabilities.attrition`, 11 miejsc): spowolnienie
+kroku w bok i w tył (`player/feel.lua:154`), chwila ciała po strzale
+(`combat/combat.lua:80`), koszt i odmowa uniku (`player/intent.lua`).
+Kaplica i poligon mają `attrition`; tryb `floor` (`qa/floor.lua`) nie ma
+polityki. Golden i 34 pliki testów zaczynają się od `floor`, więc pilnują
+ruchu bez tych zasad.
+
+Symulacja a prezentacja: `settleView` w `player/feel.lua` prowadzi sprężyny
+odrzutu, lądowania, kołysania, FOV, przechyłu i bujania; `fall` ustawia
+`view.landV`; `app/input.lua` dopisuje kołysanie z ruchu myszy. Rytm kroków
+(`player/movement_gait.lua`) siedzi we wspólnym `g.view`. Reakcje broni
+(`feedback/weight.lua`) to kilkanaście sprężyn z liczbami w kodzie
+(np. `25 + 85 * severity`); `feedback/shot_feedback.lua:36` nadpisuje
+`shake`, a część efektów pisze do `g.view` zamiast do widoku właściciela.
+
+Wygładzanie (`render/presentation.lua`): ręczne listy `playerKeys`,
+`viewKeys` (28 pól), `enemyKeys` (7 pól). Brakuje m.in. `leapY` i zegara
+`time`; pula `charges` nie jest próbkowana.
+
+Sonda (osobny klon, usunięty po pomiarze; źródło sondy w katalogu
+roboczym agenta): pętla jak w aplikacji, obraz 144 Hz, symulacja 120 Hz,
+288 klatek, każda wielkość rośnie 3 m/s. Powtórzone klatki: pozycja stwora
+0, pozycja rycerza 0, skok rycerza 0, wysokość skoku stwora 48, zegar
+unoszenia 48. Przy 144 Hz co szósta klatka pokazuje stary skok stwora
+i starą klatkę unoszenia; pozycja pozioma i pionowa skoku stwora są
+przesunięte w czasie o ułamek kroku.
+
+Wniosek: strzał jest ogólny i szybki; ruch nie. Plan E0–E7 w PLAN.md
+łączy oba ruchy w jeden silnik ciała, oddziela fizykę od kamery, deklaruje
+wygładzanie przy polach i wprowadza jeden system impulsów, a plan
+Exorcista wykonuje jako pierwszy profil broni.
+
+## Plan Exorcista (zastąpiony 2026-11-07)
+
+Zastąpiony planem silnika ruchu i strzału; jego punkty 2–8 są etapem E6.
+Treść bez zmian (nagłówki obniżone o jeden poziom).
+
+### Zakres i status
+
+**2026-11-07: analiza Exorcista zakończona; plan czeka na akceptację.**
+Nie rozpoczęto wdrażania. Stan gry: `8011e3a`, 0.45. Zlecenie dotyczy
+odczucia noszenia strzelby, reakcji ciała/rąk/kamery, animacji oraz całego
+jej audio. Judge służy jako kontrola regresji; jego dopracowanie będzie
+osobnym zadaniem. Poprzedni PLAN audio sześciu stworów zachowano w całości
+w HISTORII. Odsłuch właściciela tamtego pakietu pozostaje otwarty.
+
+Kierunek: ciężka, dwuręczna strzelba człowieka w piekle. Żelazo, drewno,
+proch, rękawice i rycerskie ciało. Mocny wystrzał, pewny chwyt i wyraźne
+odzyskanie kontroli; nie nieustanne bujanie ani magiczny krzyk z broni.
+Wygląd `baza/exorcist.png` i aktywny `shotgun-iron-v16.png` są wiążące.
+
+### Potwierdzony stan
+
+- Dwie lufy, wystrzał dwóch łusek; jedna pozostała łuska nadal działa.
+  Cykl 0,94 s: otwarcie 0,26, załadunek 0,60, zamknięcie 0,82.
+  Po strzale 0,22 s odzyskania gotowości do uniku. Nie zmieniać tych reguł
+  dla samego odczucia. Strzał i trafienie rozlicza symulacja, obraz je pokazuje.
+- Masa prezentacyjna 4, pęd 96, impuls pełnego strzału 24; Judge: 6.
+  Podbicie widoku Exorcista około 2°, pojedynczej łuski około 1°.
+  Istnieją sprężyny, bezwładność obrotu, kroki zależne od przebytej drogi,
+  skok/lądowanie i reakcje na uderzenia. To działająca podstawa.
+- Chód, skok, unik i ślizg wykorzystują wyłącznie klatkę `ready` z
+  przesunięciami/obrotem. Unik ma wspólny cel opuszczenia 4 jednostki
+  obrazu 450 px, ślizg 5; brak odrębnego gestu podtrzymania ciężkiej broni.
+  Start/hamowanie mają wspólne parametry bezwładności obu broni.
+- Strzał nadpisuje bieżący wstrząs: sonda 0,13 → 0,05. Pojedyncza łuska
+  zmniejsza podbicie, ale nie `fire.shake` ani impuls FOV. Przy następnych
+  zmianach nie dodawać kolejnych niezależnych drgań bez wspólnego limitu.
+- W ustawieniach właściciela: `soundSet=classic`, MOTION włączony.
+  Strzał oraz obsługa są syntezą; IRON AND POWDER i STONE AND EMBER
+  zawierają po trzy nagrane strzały, lecz F7 nie zmienia przeładowania.
+  Kroki/uniki/ślizg są wspólne dla rycerza; nie ma osobnej warstwy noszenia
+  strzelby ani dźwięku jej dobycia. `shellIn` zawsze zawiera dwa osadzenia.
+- Ręce mają 16 zatwierdzonych póz, w tym odrzut, powrót i cały mechanizm
+  łamanej broni. Pokaz odrzutu trwa do 0,08 s, powrotu do 0,14 s, dalej
+  wchodzi automatyczne przeładowanie. Przy 60 Hz poza `reach` w tym
+  przejściu trwa zaledwie około jednej klatki; rytm wymaga przeglądu.
+
+### Plan do akceptacji
+
+1. **Zabezpieczyć punkt odniesienia i regresje.** Wykorzystać zachowane
+   ślady 60/120/240 Hz, 50 renderów i eksporty obecnego audio. Przed
+   poprawką dopisać czerwone testy wstrząsu po silniejszym uderzeniu,
+   proporcji jednej/dwóch luf oraz rzeczywistych gestów i kontaktów.
+   Nowe kryteria jakości ruchu odróżnić od błędów obecnej mechaniki.
+2. **Ciężar noszenia.** Wspólne reakcje na przyspieszenie, hamowanie,
+   zmianę kierunku, obrót, krok i lądowanie mają brać parametry z profilu
+   prezentacji broni. Exorcist: podparcie obu rąk, niewielkie opóźnienie
+   ciężkich luf i kontrolowane osiadanie. Cięższy nie znaczy większe
+   kołysanie w każdej osi. Spoczynek oszczędny; drobne korekty chwytu
+   wygaszane przez strzał/atak/obronę, bez blokowania wejścia gracza.
+3. **Unik, ślizg, skok i dobycie.** Trzy fazy: przyjęcie ciężaru,
+   podtrzymanie, odzyskanie chwytu. Podczas uniku strzelba bliżej ciała,
+   reakcja zgodna z kierunkiem; w ślizgu niski chwyt i stabilne lufy,
+   czytelne wyjście; w skoku opóźnienie rąk i przejęcie lądowania.
+   Dobycie ma osadzenie kolby i chwytu, zamiast samego wysunięcia obrazka.
+   Strzał nadal możliwy dokładnie wtedy, kiedy pozwala mechanika, także
+   podczas przejść. Przeładowanie, flaska i proch mają jasne pierwszeństwo
+   ręki; przerwanie nie pozostawia starego gestu. Bez nowego klawisza
+   inspekcji i nowych blokad strzału w tym zakresie.
+4. **Strzał: dłonie, bark i kamera.** Impuls wzdłuż luf, krótki odrzut
+   i chwyt zatrzymujący broń; potem czytelne przejście do otwarcia.
+   Przestroić nakładające się ruchy jako jeden gest. Kamera daje krótki,
+   silny akcent, ręce niosą większość ciężaru. Jedna łuska odpowiednio
+   słabsza; strzał w powietrze nadal ma moc, trafienie dodaje osobną
+   informację. Bez zmiany celu, rozrzutu, HP, push ani kadencji.
+5. **Wspólne impulsy prezentacji.** Rozwinąć istniejące sprężyny i
+   mechanizm wstrząsów: zdarzenie + profil + kierunek + ewentualna pozycja
+   i odległość → ograniczona odpowiedź rąk/kamery. Samo `damage` nie jest
+   właściwą miarą huku ani mechanicznego odrzutu: chybiąca strzelba nadal
+   kopie, a odległa rana nie trzęsie rycerzem. Impuls od broni bierze moc
+   wypuszczenia i profil, kontakt pęd, zdarzenie przestrzenne maleje
+   z dystansem. Łączyć i ograniczać współbieżne reakcje; słabszy impuls
+   nie kasuje mocniejszego. Istniejące wybuchy/lądowania przeprowadzić
+   przez wspólny mechanizm z zachowaniem ich dotychczasowej siły, bez
+   samodzielnego dodawania nowych efektów stworom. MOTION wyłącza ruch
+   i usuwa jego resztki; celownik wskazuje rzeczywisty kierunek strzału.
+6. **Audio całego Exorcista.** Przygotować dwa krótkie kierunki A/B o
+   wyrównanym poziomie odsłuchu: A — suche żelazo, gwałtowny huk i ciężki
+   proch; B — ten sam czytelny atak, głębszy pomruk prochu i ciemniejszy
+   pogłos kamienia. Rekomendacja: A jako rdzeń, oszczędny ogon B.
+   Własne warianty wystrzału, jednej lufy, otwierania, wyrzutu i kontaktu
+   łusek, wkładania jednej/dwóch, domknięcia, pustego spustu, dobycia,
+   przejęcia ciężaru podczas uniku/ślizgu/lądowania. Kontakty wynikają
+   z rzeczywistej czynności; nie odtwarzać dawnego kliknięcia po Continue.
+   Nowe foley nie duplikuje kroków ani kolczugi. Brzmienie groźne przez
+   dynamikę, materiały i odpowiedź sali; bez demonizowania głosu broni,
+   ciągłego basu i pisków. Zostawić miejsce na ostrzeżenia stworów.
+7. **Dźwięk i przestrzeń.** Oddzielić bezpośredni huk, mechanikę i ogon,
+   żeby nie odtwarzać identycznej „kamiennej sali” wszędzie. Wykorzystać
+   istniejącą geometrię/regiony i profile, jeśli wystarczą; ograniczyć
+   próbkowanie przestrzeni do zdarzenia, nie budować pełnej akustyki map.
+   Sprawdzić w kaplicy, przy ścianie i w otwartej części poligonu, z muzyką
+   i sześcioma stworami. Pozostawić globalny F7 do decyzji właściciela:
+   najpierw A/B Exorcista, potem jego zatwierdzony domyślny bank. Nie
+   podmieniać przy tym Judge'a, trafień, ładunku ani ostatniego audio mobów.
+8. **Grafika bez reinterpretacji.** Najpierw istniejące pozy, rejestracja
+   chwytu i wspólny ruch. Brakujące gesty podparcia/tuck dopiero z bazy
+   konkretnej strzelby i Inferno, z pokazaniem przed podłączeniem.
+   Zachować żelazo, drewno, rękawice, proporcje, fakturę i skalę detalu.
+   Żadnego gumowego zginania atlasu, nowego połysku ani ostrzenia.
+   Trzy zapisane kontrole: baza obok każdej zmiany; rendery w tej samej
+   skali/świetle; przejścia wszystkich gestów. Emisja błysku/dymu i łusek
+   zgodna z widocznym wylotem/komorą. Chroniony HUD poza zakresem.
+9. **Weryfikacja i commit.** Macierz ruch × strzał × reload, jedna/dwie
+   łuski, brak zapasu, anulowanie, flaska/Q, szybka zamiana, strzał przed
+   pełnym osiadaniem, ściana, schody, lot, pauza, śmierć, ognisko, Continue,
+   MOTION off/on i obserwator. 30/60/120/240 Hz oraz nieregularne kroki.
+   Test fikcyjnego trzeciego profilu bez dodawania broni do gry, brak
+   przecieku stanu między aktorami i RNG prezentacji niezależne od symulacji.
+   Sprawdzić zachowanie starszych zapisów: metadane prezentacji nie mogą
+   przypadkiem zmieniać zamrożonej definicji walki lub golden.
+   Mierzyć CPU, źródła, clipping, szczyty/krótkie okna i maskowanie;
+   odsłuch A/B oraz normalna gra osobno od technicznego PASS.
+   Po wymaganych testach pełne Linux All, golden bez zmiany wzorców,
+   przegląd diffu i trzy kontrole grafiki. PLAN/HISTORIA, commit; bez push.
+
+### Postęp i dowody
+
+- 2026-11-07: analiza źródeł, zależności i materiałów producentów DOOM,
+  Modern Warfare, Hunt oraz Dead Space zakończona. Szczegółowe źródła
+  i pomiary w HISTORII, „Analiza Exorcista — ciężar, animacje i audio”.
+- W izolowanym klonie: weapons 441, weight 882, shotgun 43 PASS — 1366
+  nowych sprawdzeń. Sonda eksportu i 50 PNG: PASS, stabilne źródła.
+  Ślady potwierdzają jednolitą pozę ruchu, brak odrębnego audio noszenia,
+  ten sam wstrząs jednej/dwóch luf i kasowanie silniejszego impulsu.
+- Nie uruchamiano nowego All, bo gra nie była zmieniana. Poprzednie
+  All audio na `8011e3a`: 8808, Input 50, pozostałe bramy PASS; to punkt
+  odniesienia, nie nowy przebieg. Windows nie był sprawdzany.
+- Dowody poza repo: work/qa-direct/exorcist-analysis-20261107/.
+  Porównanie trzech obecnych zestawów to montaż z poziomami runtime,
+  nie natywny miks walki. Agent nie miał wiarygodnego odsłuchu.
+  Po sprawdzeniu kopii dowodów usunięto własny klon pomiarowy i jego
+  tymczasowy katalog wyników; zachowany raport należy do głównego repo.
+
+### Decyzja właściciela
+
+Do akceptacji: cały pakiet powyżej, z ciężarem przekazywanym przez gest,
+obraz i dźwięk oraz zachowaniem obecnej szybkości ruchu, kadencji i zasad
+celowania. Rekomenduję ten zakres. Zmniejszenie prędkości rycerza przez
+noszenie strzelby byłoby osobnym zadaniem balansu, nie warunkiem ciężaru.
+Dokładny wybór brzmienia A/B należy do odsłuchu przed przyjęciem banku.
+Nowy atlas, gdy okaże się niezbędny, wymaga odbioru spójności przed użyciem.
+
+### Poza zakresem
+
+Nowe bronie/tryby strzału/ADS, obrażenia, rozrzut, amunicja i jej ekonomia,
+czasy przeładowania/uniku, AI i balans stworów, przebudowa postaci rycerza,
+HUD, muzyka jako kompozycja, całkowicie nowy silnik dźwięku, usunięcie F7,
+zmiany Windows, pakowanie i wideo. Nie zmieniać innych broni dla przejścia
+sondy. Odłożone sprawy i wcześniejsze plany pozostają w HISTORII.
 
 ## Plan sprzed Exorcista (zastąpiony 2026-11-07)
 
