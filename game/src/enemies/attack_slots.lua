@@ -3,14 +3,14 @@
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Rules = require('src.combat.rules')
-local Enemies = require('src.content.enemies')
-local Selection = require('src.enemies.attack_selection')
+local Archetypes = require('src.content.enemies')
+local AttackSelection = require('src.enemies.attack_selection')
 local Slots = {}
 function Slots.clear(e)
   e.slotWaitAt, e.slotWaitTarget = nil, nil
 end
 function Slots.request(g, e)
-  if Enemies.of(e).move.attackWait then
+  if Archetypes.of(e).move.attackWait then
     if e.slotWaitTarget ~= e.target then
       Slots.clear(e)
     end
@@ -18,7 +18,7 @@ function Slots.request(g, e)
   end
 end
 local function eligible(g, e)
-  local patience = Enemies.of(e).move.attackWait
+  local patience = Archetypes.of(e).move.attackWait
   if not patience or not e.slotWaitAt or g.elapsed - e.slotWaitAt < patience then
     return false
   end
@@ -35,7 +35,7 @@ local function eligible(g, e)
     or e.stun > 0
     or e.hitPause > 0
     or (e.evadeTime or 0) > 0
-    or e.spawnAge < Enemies.defaults.spawnPause
+    or e.spawnAge < Archetypes.defaults.spawnPause
   then
     return false
   end
@@ -49,7 +49,7 @@ local function eligible(g, e)
     return false
   end
   local distance = math.sqrt((victim.x - e.x) ^ 2 + (victim.z - e.z) ^ 2)
-  return Selection.choose(e, distance, g.elapsed, nil, g) ~= nil
+  return AttackSelection.choose(e, distance, g.elapsed, nil, g) ~= nil
 end
 function Slots.yields(g, e)
   -- The connecting beat already owns a slot. Fairness cannot cut a series in half.

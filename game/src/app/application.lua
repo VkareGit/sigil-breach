@@ -1,6 +1,6 @@
 local Release = require('src.app.release')
 local Soundscape = require('src.audio.soundscape')
-local Pilgrimage = require('src.content.pilgrimage')
+local Way = require('src.content.pilgrimage')
 local Text = require('src.content.text')
 local Tuning = require('src.content.tuning')
 local ArtContract = require('src.enemies.art_contract')
@@ -13,7 +13,7 @@ local Game = require('src.session.game')
 local Renderer = require('src.render.renderer')
 local UI = require('src.ui.interface')
 local Audio = require('src.audio.audio')
-local Presentation = require('src.render.presentation')
+local RenderPresentation = require('src.render.presentation')
 local Sanctuary = require('src.session.sanctuary')
 local Preferences = require('src.storage.preferences')
 local QA = require('src.app.runtime')
@@ -23,7 +23,7 @@ local Input = require('src.app.input')
 local Commands = require('src.app.commands')
 local Navigation = require('src.app.navigation')
 -- The composition root: the modes register here, the session knows only their registry.
-local Modes = require('src.run.modes')
+local RunModes = require('src.run.modes')
 local SessionReport = require('src.app.session_report')
 local Pools = require('src.session.world')
 -- The presentation plugs itself into the simulation's hooks (sound, effects,
@@ -105,7 +105,7 @@ end
 -- The world of a session is painted behind a loading page, also when the way moves on to
 -- another map.
 function Application:prepareWorld(game)
-  if self.renderer and self.renderer.prepareWorld and Modes.of(game).prepared then
+  if self.renderer and self.renderer.prepareWorld and RunModes.of(game).prepared then
     local jobs = {}
     for _, job in ipairs(Halls.loadingJobs(self.renderer, game.world)) do
       jobs[#jobs + 1] = job
@@ -113,7 +113,7 @@ function Application:prepareWorld(game)
     jobs[#jobs + 1] = {
       label = 'loading_creatures',
       run = function(checkpoint)
-        self.renderer:prepareCreatures(Modes.act(game, 'creatures') or {}, checkpoint)
+        self.renderer:prepareCreatures(RunModes.act(game, 'creatures') or {}, checkpoint)
       end,
     }
     jobs[#jobs + 1] = {
@@ -134,7 +134,7 @@ end
 
 -- The save slot of the way: where a new session of it reads and writes.
 function Application:useSlot(slot)
-  local count = Pilgrimage.slots
+  local count = Way.slots
   self.settings.slot = (slot - 1) % count + 1
   self.sessionOptions.pilgrimage = { slot = self.settings.slot }
 end
@@ -143,7 +143,7 @@ end
 -- is about to be left, has one now. A command, so a journal replays the same writes.
 function Application:flushSave(leaving)
   local game = self.game
-  if game and (leaving or game.state ~= 'playing') and Modes.act(game, 'unsaved') then
+  if game and (leaving or game.state ~= 'playing') and RunModes.act(game, 'unsaved') then
     game:act('flush')
   end
 end
@@ -390,7 +390,7 @@ function Application:update(dt)
     -- Input observations still describe the last displayed frame; these
     -- temporary motion samples never supply authoritative shot geometry.
     if self.accumulator - fixedStep < fixedStep then
-      Presentation.capture(self.game)
+      RenderPresentation.capture(self.game)
     end
     self.game:update(fixedStep, input)
     -- Held controls repeat; dash and slide edges belong to one simulation tick.
@@ -427,7 +427,7 @@ function Application:draw()
   if not game then
     return
   end
-  local shown = Presentation.sample(game, self.accumulator * 120)
+  local shown = RenderPresentation.sample(game, self.accumulator * 120)
   self.renderer:draw(shown, w, h)
   if self:has('--screenshot') then
     local previous = game.state

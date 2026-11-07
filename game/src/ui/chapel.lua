@@ -1,4 +1,4 @@
-local TestField = require('src.ui.test_field')
+local FieldUI = require('src.ui.test_field')
 local Characters = require('src.content.characters')
 local Tiles = require('src.core.tiles')
 local Context = require('src.session.context')
@@ -7,9 +7,9 @@ local FireShop = require('src.ui.fire_shop')
 local Stats = require('src.session.stats')
 local Text = require('src.content.text')
 local Pages = require('src.ui.pages')
-local Fit = require('src.ui.text_fit')
+local TextFit = require('src.ui.text_fit')
 local lg = love.graphics
-local E = require('src.run.economy')
+local Economy = require('src.run.economy')
 local Queries = require('src.session.queries')
 local Way = require('src.content.pilgrimage')
 local Skin = require('src.ui.skin')
@@ -38,7 +38,7 @@ end
 -- the tabs at the top switch it), the rest under every tab (0.42, the owner).
 function D.offers(g)
   local held, list = Weapons.idAt(g, nil, Context.actor(g)), {}
-  for _, offer in ipairs(E.offersFor(g)) do
+  for _, offer in ipairs(Economy.offersFor(g)) do
     if not offer.weapon or offer.weapon == held then
       list[#list + 1] = offer
     end
@@ -49,7 +49,7 @@ function D.shopPage(g)
   local detailed = false
   local offers = D.offers(g)
   for _, offer in ipairs(offers) do
-    local name, description = E.describe(g, offer.id)
+    local name, description = Economy.describe(g, offer.id)
     detailed = detailed
       or U.fonts[20]:getInk(name).w > 648
       or U.fonts[16]:getInk(description).w > 648
@@ -98,10 +98,10 @@ function D.controls(g)
     local offers = D.offers(g)
     for i = first, last do
       local o = offers[i]
-      local _, reason = E.quote(g, o.id)
+      local _, reason = Economy.quote(g, o.id)
       list[#list + 1] = {
         id = 'buy_' .. o.id,
-        label = E.label(g, o.id),
+        label = Economy.label(g, o.id),
         x = 881,
         y = 189 + (i - first) * rowHeight,
         w = 270,
@@ -235,7 +235,7 @@ local Clocks = require('src.content.tuning').clocks
 local place = {}
 function D.heading(g)
   if Queries.field(g) then
-    return TestField.heading(g, U)
+    return FieldUI.heading(g, U)
   end
   -- The place stands for a moment when it changes and whenever the game stands (0.45, owner
   -- D18); in play nothing rests over the scene.
@@ -295,7 +295,7 @@ function D.shop(g)
     end
     Skin.icon(assert(o.icon, 'missing shop offer icon ' .. o.id), 145, y + 7, 40)
     Skin.zone('offer ' .. o.id, 208, y + 3, 650, rowHeight - 6)
-    local name, description = E.describe(g, o.id)
+    local name, description = Economy.describe(g, o.id)
     local titleSize = 20
     if detailed then
       for _, candidate in ipairs({ 20, 18, 16, 14 }) do
@@ -305,10 +305,10 @@ function D.shop(g)
         end
       end
     end
-    text(Fit.ellipsis(U.fonts[titleSize], name, 648), 209, y + 7, titleSize, gold)
+    text(TextFit.ellipsis(U.fonts[titleSize], name, 648), 209, y + 7, titleSize, gold)
     if detailed then
       local line = 0
-      for value in Fit.wrap(U.fonts[16], description, 648, 2):gmatch('[^\n]+') do
+      for value in TextFit.wrap(U.fonts[16], description, 648, 2):gmatch('[^\n]+') do
         text(value, 209, y + 32 + line * 22, 16, muted)
         line = line + 1
       end
@@ -320,7 +320,7 @@ function D.shop(g)
   local selected = U.controls(g, {})[U.focus]
   local price, reason
   if selected and selected.id:sub(1, 4) == 'buy_' then
-    price, reason = E.quote(g, selected.id:sub(5))
+    price, reason = Economy.quote(g, selected.id:sub(5))
   end
   -- The purchase message and balance have their own columns; the rest message
   -- spans the next line, clear of both even with the longest fire description.
@@ -349,7 +349,7 @@ function D.shop(g)
 end
 function D.map(g)
   if Queries.field(g) then
-    return TestField.map(g, U)
+    return FieldUI.map(g, U)
   end
   local r = Queries.run(g)
   rect(0, 0, 1280, 720, Palette.veilCool, 0.96)

@@ -6,7 +6,7 @@ local Archetypes = require('src.content.enemies')
 local Characters = require('src.content.characters')
 local Body = require('src.content.defs.body')
 local Ground = require('src.physics.ground')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Pose = require('src.enemies.pose')
 local Surface = require('src.enemies.surface')
 local sqrt = math.sqrt
@@ -117,7 +117,7 @@ return function(R)
     local world = g.world
     if not world.elevations then
       -- A flat map has no heights for sight to compare: no eye to pose.
-      return World.visible(world, o.x, o.z, x or t.x, z or t.z)
+      return Arena.visible(world, o.x, o.z, x or t.x, z or t.z)
     end
     local target
     if not x then
@@ -127,7 +127,7 @@ return function(R)
     else
       target = Ground.height(world, x, z, t.level) + R.eye(g, t) - Ground.of(world, t)
     end
-    return World.visible(world, o.x, o.z, x or t.x, z or t.z, R.eye(g, o), target)
+    return Arena.visible(world, o.x, o.z, x or t.x, z or t.z, R.eye(g, o), target)
   end
   function R.radius(e)
     return R.body(e).radius or 0.25

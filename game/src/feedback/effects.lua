@@ -1,9 +1,9 @@
-local SurfaceMarks = require('src.feedback.surface_marks')
+local SurfaceMarkFeedback = require('src.feedback.surface_marks')
 local E = { limits = { effects = 48, decals = 40, smoke = 8 } }
-local Art = require('src.content.effect_art')
+local EffectArt = require('src.content.effect_art')
 function E.emit(g, kind, x, y, z, size, options)
   g.view.effects = g.view.effects or {}
-  local sequence = Art:get(kind)
+  local sequence = EffectArt:get(kind)
   local life = sequence.duration
   local effects = g.view.effects
   local recycle
@@ -51,7 +51,7 @@ function E.stain(g, x, z, size, kind)
   return d
 end
 function E.update(g, dt)
-  SurfaceMarks.update(g, dt)
+  SurfaceMarkFeedback.update(g, dt)
   g.view.effectPool = g.view.effectPool or {}
   g.view.decalPool = g.view.decalPool or {}
   local write = 1
@@ -62,7 +62,7 @@ function E.update(g, dt)
     e.x = e.x + (e.vx or 0) * dt
     e.y = e.y + (e.vy or 0) * dt
     e.z = e.z + (e.vz or 0) * dt
-    e.y = e.y + dt * (Art:get(e.kind).rise or 0)
+    e.y = e.y + dt * (EffectArt:get(e.kind).rise or 0)
     if e.age < e.duration then
       g.view.effects[write] = e
       write = write + 1
@@ -90,10 +90,10 @@ function E.update(g, dt)
   end
 end
 function E.frame(e)
-  local frames = Art:get(e.kind).frames
+  local frames = EffectArt:get(e.kind).frames
   return frames[1 + math.min(#frames - 1, math.max(0, math.floor(e.age / e.duration * #frames)))]
 end
 E.profile = function(e)
-  return Art:get(e.kind)
+  return EffectArt:get(e.kind)
 end
 return E

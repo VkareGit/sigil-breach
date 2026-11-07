@@ -1,7 +1,7 @@
 -- Living bodies never overlap. See separate below.
 local Archetypes = require('src.content.enemies')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Pools = require('src.session.world')
 local Spatial = require('src.physics.spatial')
@@ -24,8 +24,8 @@ local function part(g, a, b, dt, S)
     local amount = math.min(S.step, dt * S.rate, overlap * S.share)
     local ma, mb = Rules.body(a).mass or 1, Rules.body(b).mass or 1
     local ga, gb = 2 * amount * mb / (ma + mb), 2 * amount * ma / (ma + mb)
-    W.move(g.world, a, dx / d * ga, dz / d * ga, radius(a), nil, Rules.tall(g, a))
-    W.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b), nil, Rules.tall(g, b))
+    Arena.move(g.world, a, dx / d * ga, dz / d * ga, radius(a), nil, Rules.tall(g, a))
+    Arena.move(g.world, b, -dx / d * gb, -dz / d * gb, radius(b), nil, Rules.tall(g, b))
     return true
   end
   return false

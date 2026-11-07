@@ -3,7 +3,7 @@ local Sigils = require('src.combat.sigils')
 -- applied once. Public to every delivery of a weapon (combat/weapon_delivery.lua):
 -- a new way of hitting traces or contacts through this and reports like a shot.
 local Entities = require('src.session.entities')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Bodies = require('src.combat.bodies')
 local Damage = require('src.combat.damage')
 local Hit = require('src.combat.hit')
@@ -51,7 +51,7 @@ function Volley.new(g, profile, attack, pellets, shooter)
       contacts = {},
       hitTargets = {},
       strong = profile.fire.heavy,
-      origin = { B.origin(g, shooter) },
+      origin = { Ballistics.origin(g, shooter) },
       actor = shooter and shooter.id,
       byControlled = shooter == nil or shooter == Roles.controlled(g),
     },
@@ -140,7 +140,7 @@ end
 -- the visible trail ends).
 function Volley:pierce(first, d, dx, dy, dz, bodies, firstPart, firstSurface)
   local pierce = self.attack.pierce
-  local chain = B.traceAll(self.g, dx, dy, dz, self.profile.range, bodies, self.origin)
+  local chain = Ballistics.traceAll(self.g, dx, dy, dz, self.profile.range, bodies, self.origin)
   local retain, passed, prev, prevPart = 1, 0, first, firstPart
   local previousSurface = firstSurface
   for _, h in ipairs(chain) do
@@ -182,10 +182,10 @@ function Volley:trace(i, pellets, spread, bodies)
   local fire, p = self.profile.fire, self.shooter
   local ox, oy = 0, 0
   if fire.pellets > 1 then
-    ox, oy = B.pellet(i, self.sequence, pellets)
+    ox, oy = Ballistics.pellet(i, self.sequence, pellets)
     ox, oy = ox * spread, oy * spread
   end
-  local dx, dy, dz = B.spreadDirection(self.yaw or p.yaw, self.pitch or p.pitch, ox, oy)
+  local dx, dy, dz = Ballistics.spreadDirection(self.yaw or p.yaw, self.pitch or p.pitch, ox, oy)
   return self:ray(i, dx, dy, dz, ox, oy, bodies)
 end
 -- One ray along (dx, dy, dz) from the volley's origin; ox, oy: its place in the
@@ -193,7 +193,7 @@ end
 function Volley:ray(i, dx, dy, dz, ox, oy, bodies)
   local g, report = self.g, self.report
   local e, d, x, y, z, kind, normal, part, surface =
-    B.traceVector(g, dx, dy, dz, self.profile.range, bodies, self.origin)
+    Ballistics.traceVector(g, dx, dy, dz, self.profile.range, bodies, self.origin)
   local ray = {
     x = x,
     y = y,

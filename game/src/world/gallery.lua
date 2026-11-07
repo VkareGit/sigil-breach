@@ -2,7 +2,7 @@
 -- the normal test-field spawning (src/run/test_field.lua). They are drawn in render/gallery.lua.
 local Weapons = require('src.content.weapons')
 local Field = require('src.run.test_field')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
@@ -41,7 +41,7 @@ function G.nearestPad(g)
     if
       dp < (p.reach or 1.05)
       and dp < d
-      and W.visible(g.world, Roles.controlled(g).x, Roles.controlled(g).z, p.x, p.z)
+      and Arena.visible(g.world, Roles.controlled(g).x, Roles.controlled(g).z, p.x, p.z)
     then
       best, d = p, dp
     end

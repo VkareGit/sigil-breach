@@ -1,6 +1,6 @@
 -- The physical place of the trade, shared by the chapel and the proving ground.
 local Intent = require('src.player.intent')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Presentation = require('src.session.presentation')
 local Maps = require('src.content.maps.index')
 local Tuning = require('src.content.tuning')
@@ -20,7 +20,7 @@ function Sanctuary.near(g)
   end
   local dx, dz = p.x - shrine.x, p.z - shrine.z
   return math.sqrt(dx * dx + dz * dz) < Tuning.reach.ember
-    and World.visible(g.world, p.x, p.z, shrine.x, shrine.z)
+    and Arena.visible(g.world, p.x, p.z, shrine.x, shrine.z)
 end
 
 -- The trade opens wherever the mode allows it.

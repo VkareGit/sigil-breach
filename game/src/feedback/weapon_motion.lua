@@ -3,8 +3,8 @@ local Context = require('src.session.context')
 -- Presentation only: this module never changes the camera, aim, collision,
 -- weapon clocks or ammunition. Units are pixels at the 450 px scene height.
 local MathX = require('src.core.mathx')
-local K = require('src.physics.kinematics')
-local Impact = require('src.feedback.movement_impact')
+local Kinematics = require('src.physics.kinematics')
+local MovementImpact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
 local Gait = require('src.player.movement_gait')
 local Reload = require('src.combat.reload')
@@ -16,8 +16,7 @@ local function ease(v, target, rate, dt)
   return target + (v - target) * math.exp(-rate * dt)
 end
 local function smooth(v)
-  v = clamp(v, 0, 1)
-  return v * v * (3 - 2 * v)
+  return MathX.smoothstep(0, 1, v)
 end
 function M.grip(g)
   local left = Reload.left(g, Context.actor(g))
@@ -75,8 +74,9 @@ end
 -- sine wave. Evaluate their remaining fraction of this step analytically so
 -- a foot landing near a frame boundary does not get a whole frame of delay.
 local function contactSpring(g, dt, before, after, steps, load)
-  local y, vy = K.spring(g.view.weaponStepY or 0, g.view.weaponStepVY or 0, 0, 520, 30, dt)
-  local roll, vr = K.spring(g.view.weaponStepRoll or 0, g.view.weaponStepVRoll or 0, 0, 620, 38, dt)
+  local y, vy = Kinematics.spring(g.view.weaponStepY or 0, g.view.weaponStepVY or 0, 0, 520, 30, dt)
+  local roll, vr =
+    Kinematics.spring(g.view.weaponStepRoll or 0, g.view.weaponStepVRoll or 0, 0, 620, 38, dt)
   if steps > 0 and after > before then
     local last = math.floor(after / pi + 1e-9)
     local mass = Weight.carryFactor(g)
@@ -84,8 +84,9 @@ local function contactSpring(g, dt, before, after, steps, load)
     -- contribute visible motion. The shared gait still counts every contact.
     for step = math.max(last - steps + 1, last - 3), last do
       local age = clamp(dt * (after - step * pi) / (after - before), 0, dt)
-      local dy, dv = K.spring(0, (20 + 12 * load) * load * mass, 0, 520, 30, age)
-      local dr, dvr = K.spring(0, (step % 2 == 0 and -1 or 1) * 0.13 * load * mass, 0, 620, 38, age)
+      local dy, dv = Kinematics.spring(0, (20 + 12 * load) * load * mass, 0, 520, 30, age)
+      local dr, dvr =
+        Kinematics.spring(0, (step % 2 == 0 and -1 or 1) * 0.13 * load * mass, 0, 620, 38, age)
       y, vy, roll, vr = y + dy, vy + dv, roll + dr, vr + dvr
     end
   end
@@ -117,10 +118,22 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   local aim = Weight.aimFactor(g)
   g.view.weaponAimVX = clamp((g.view.weaponAimVX or 0) - yawDelta * 480 / aim, -100, 100)
   g.view.weaponAimVY = clamp((g.view.weaponAimVY or 0) + pitchDelta * 390 / aim, -80, 80)
-  g.view.weaponAimX, g.view.weaponAimVX =
-    K.spring(g.view.weaponAimX or 0, g.view.weaponAimVX, 0, 196 * aim, 28 * math.sqrt(aim), dt)
-  g.view.weaponAimY, g.view.weaponAimVY =
-    K.spring(g.view.weaponAimY or 0, g.view.weaponAimVY, 0, 196 * aim, 28 * math.sqrt(aim), dt)
+  g.view.weaponAimX, g.view.weaponAimVX = Kinematics.spring(
+    g.view.weaponAimX or 0,
+    g.view.weaponAimVX,
+    0,
+    196 * aim,
+    28 * math.sqrt(aim),
+    dt
+  )
+  g.view.weaponAimY, g.view.weaponAimVY = Kinematics.spring(
+    g.view.weaponAimY or 0,
+    g.view.weaponAimVY,
+    0,
+    196 * aim,
+    28 * math.sqrt(aim),
+    dt
+  )
   g.view.weaponAimX = clamp(g.view.weaponAimX, -7, 7)
   g.view.weaponAimY = clamp(g.view.weaponAimY, -5, 5)
   local speed = math.max(0, travelled or 0) / dt
@@ -133,7 +146,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   local ax, az = ((p.vx or 0) - (previousVX or 0)) / dt, ((p.vz or 0) - (previousVZ or 0)) / dt
   local side = ax * cos(yaw) - az * sin(yaw)
   local ahead = ax * sin(yaw) + az * cos(yaw)
-  g.view.weaponLagX, g.view.weaponLagVX = K.spring(
+  g.view.weaponLagX, g.view.weaponLagVX = Kinematics.spring(
     g.view.weaponLagX or 0,
     g.view.weaponLagVX or 0,
     clamp(-side * 0.075, -3.6, 3.6),
@@ -141,7 +154,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     17,
     dt
   )
-  g.view.weaponLagY, g.view.weaponLagVY = K.spring(
+  g.view.weaponLagY, g.view.weaponLagVY = Kinematics.spring(
     g.view.weaponLagY or 0,
     g.view.weaponLagVY or 0,
     clamp(ahead * 0.045, -2.5, 2.5),
@@ -154,25 +167,25 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     ease(g.view.weaponLean or 0, clamp(-sideVelocity * 0.018, -0.022, 0.022), 10, dt)
   if landingImpact then
     local contact = type(landingImpact) == 'table' and landingImpact
-      or Impact.landingMetrics(landingImpact)
+      or MovementImpact.landingMetrics(landingImpact)
     if contact then
       g.view.weaponDipV = (g.view.weaponDipV or 0) + contact.kick
     end
   end
   g.view.weaponDip, g.view.weaponDipV =
-    K.spring(g.view.weaponDip or 0, g.view.weaponDipV or 0, 0, 196, 20, dt)
+    Kinematics.spring(g.view.weaponDip or 0, g.view.weaponDipV or 0, 0, 196, 20, dt)
   -- On ascent the hands trail below the body, on descent they float above it.
   -- Vertical speed determines the offset; no fake walking in mid-air. The
   -- existing landing impulse remains authoritative when the feet touch down.
   local air = p.jump > 0 and clamp((p.jumpV or 0) * 0.30, -2.2, 2.2) * Weight.carryFactor(g) or 0
   g.view.weaponAirY, g.view.weaponAirVY =
-    K.spring(g.view.weaponAirY or 0, g.view.weaponAirVY or 0, air, 120, 22, dt)
+    Kinematics.spring(g.view.weaponAirY or 0, g.view.weaponAirVY or 0, air, 120, 22, dt)
   g.view.weaponImpactX, g.view.weaponImpactVX =
-    K.spring(g.view.weaponImpactX or 0, g.view.weaponImpactVX or 0, 0, 220, 23, dt)
+    Kinematics.spring(g.view.weaponImpactX or 0, g.view.weaponImpactVX or 0, 0, 220, 23, dt)
   g.view.weaponImpactY, g.view.weaponImpactVY =
-    K.spring(g.view.weaponImpactY or 0, g.view.weaponImpactVY or 0, 0, 220, 23, dt)
+    Kinematics.spring(g.view.weaponImpactY or 0, g.view.weaponImpactVY or 0, 0, 220, 23, dt)
   g.view.weaponImpactRoll, g.view.weaponImpactVRoll =
-    K.spring(g.view.weaponImpactRoll or 0, g.view.weaponImpactVRoll or 0, 0, 210, 24, dt)
+    Kinematics.spring(g.view.weaponImpactRoll or 0, g.view.weaponImpactVRoll or 0, 0, 210, 24, dt)
   -- A broken guard (condition 'staggered') drops the gun out of the aim for
   -- the stagger itself: the helpless moment is unmistakable in the hands.
   local conditions = p.conditions or {}

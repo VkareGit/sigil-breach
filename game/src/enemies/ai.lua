@@ -4,11 +4,11 @@
 -- means adding data; this file only knows attack KINDS, never demon names.
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
-local Body = require('src.enemies.body')
+local EnemiesBody = require('src.enemies.body')
 local Attacks = require('src.enemies.actions')
-local Selection = require('src.enemies.attack_selection')
+local AttackSelection = require('src.enemies.attack_selection')
 local Hazards = require('src.enemies.hazards')
 local Pools = require('src.session.world')
 local Ground = require('src.physics.ground')
@@ -20,7 +20,7 @@ local ActionKinds = require('src.combat.action_kinds')
 local Action = require('src.content.defs.action')
 local Answers = require('src.enemies.answers')
 local AI = {}
-local Slots = require('src.enemies.attack_slots')
+local AttackSlots = require('src.enemies.attack_slots')
 -- Whom e fights now (enemies/target.lua): the knight by default; any body of
 -- a hostile side when relations say so (plan v10 V2).
 local target = Target.of
@@ -101,16 +101,16 @@ local function crowded(g, e)
   return count >= max
 end
 local function reserveAttack(g, e, urgent)
-  Slots.request(g, e)
+  AttackSlots.request(g, e)
   local victim = target(g, e)
   local controlled = victim == Bodies.controlled(g)
   local pacing = g.attackPacing
   local next = controlled and (g.nextAttack or 0) or (pacing and pacing[victim.id] or 0)
-  if crowded(g, e) or Slots.yields(g, e) or (next > g.elapsed and not urgent) then
+  if crowded(g, e) or AttackSlots.yields(g, e) or (next > g.elapsed and not urgent) then
     return false
   end
-  Slots.clear(e)
-  local at = g.elapsed + Archetypes.defaults.attackSpacing / Selection.pace(e)
+  AttackSlots.clear(e)
+  local at = g.elapsed + Archetypes.defaults.attackSpacing / AttackSelection.pace(e)
   if controlled then
     g.nextAttack = at
   else
@@ -152,7 +152,7 @@ local function tickBody(g, e, dt, paused)
   e.woundFlash = math.max(0, (e.woundFlash or 0) - dt)
   e.breakFlash = math.max(0, (e.breakFlash or 0) - dt)
   Rules.tick(e, dt)
-  Body.recover(e, dt)
+  EnemiesBody.recover(e, dt)
   -- A body in the air keeps flying whatever its state: a leap shot out of
   -- the sky falls and lands knocked down (the painted fall).
   if
@@ -177,7 +177,7 @@ local function tickBody(g, e, dt, paused)
       e.hitPause = math.max(0, e.hitPause - dt)
       return false
     end
-    Body.fall(g, e, dt)
+    EnemiesBody.fall(g, e, dt)
     e.deathTime = e.deathTime + dt
     return false
   end
@@ -197,7 +197,7 @@ local function tickBody(g, e, dt, paused)
     end
   end
   if math.abs(e.pushX) + math.abs(e.pushZ) > Walk.minPush then
-    Body.push(g, e, dt, Rules.body(e).drag or defaults.drag)
+    EnemiesBody.push(g, e, dt, Rules.body(e).drag or defaults.drag)
   else
     -- The shove is over: so is its owner's claim on a slam (plan v11 E3d).
     e.pushOwner = nil
@@ -217,7 +217,7 @@ end
 -- wakes when he enters it and is seen there. Before that, posts stand guard or walk patrols.
 local function alarm(g, first, p)
   local raised, hops, at = { first }, { 0 }, 1
-  local part = W.zone(g.world, first.x, first.z)
+  local part = Arena.zone(g.world, first.x, first.z)
   while raised[at] do
     local caller, hop = raised[at], hops[at]
     at = at + 1
@@ -228,7 +228,7 @@ local function alarm(g, first, p)
         and not other.dummy
         and other.hp > 0
         and len(other.x - caller.x, other.z - caller.z) < Senses.alarmRange
-        and W.zone(g.world, other.x, other.z) == part
+        and Arena.zone(g.world, other.x, other.z) == part
         and Rules.sees(g, other, caller)
       then
         Signal(g, 'Alerted', { enemy = other })
@@ -345,7 +345,7 @@ function States.windup(g, e, d, dt)
   -- repositions instead of looping crouch-cancel-crouch.
   ActionKinds.abandon(e)
   change(e, 'recover')
-  Selection.clear(e)
+  AttackSelection.clear(e)
   e.recover = defaults.interruptRecover
   e.attack = defaults.cancelPause
   e.side = -e.side
@@ -414,7 +414,7 @@ local function free(g, e, d, dt)
       and Attacks.choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
     )
   if not chosen then
-    Slots.clear(e)
+    AttackSlots.clear(e)
   end
   if chosen and reserveAttack(g, e, answer ~= nil) then
     Attacks.begin(g, e, d, chosen)

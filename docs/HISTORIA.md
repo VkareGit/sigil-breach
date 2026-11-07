@@ -74,6 +74,10 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F1, jedna nazwa modułu, 2026-11-07: brama architektury odrzuca moduł
+  wczytany pod dwiema nazwami i nazwę dwóch modułów. Ujednolicono 249 nazw
+  w 145 plikach i jedną kopię funkcji pomocniczej. Bez zmian gry i golden.
+
 - E0, miernik odczucia, 2026-11-07: nowy zestaw `feel` mierzy obraz
   pokazywany graczowi (pętla aplikacji, wygładzona próbka) przy sześciu
   częstotliwościach ekranu i nierównych klatkach: zamrożone klatki,
@@ -4396,6 +4400,10 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F1, jedna nazwa modułu, 2026-11-07: pełne Linux All PASS (143 zestawy,
+  8892 sprawdzenia, Input 50, Render, Tools). Czerwona próba reguły:
+  `W` zamiast `Arena` w `player/feel.lua` daje 2 błędy MODULE NAME.
 
 - E0, miernik odczucia, 2026-11-07: pełne Linux All PASS (143 zestawy,
   8892 sprawdzenia, Input 50, Render, Tools, startup), w osobnym klonie

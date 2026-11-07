@@ -6,8 +6,8 @@
 -- his move, the demons after theirs).
 local Clocks = require('src.systems.clocks')
 local Knight = require('src.systems.knight')
-local Combat = require('src.systems.combat')
-local World = require('src.systems.world')
+local SystemsCombat = require('src.systems.combat')
+local SystemsWorld = require('src.systems.world')
 return {
   Clocks,
   Knight.recovery,
@@ -15,22 +15,22 @@ return {
   Knight.snapshot,
   Knight.motion,
   Knight.contact,
-  World.effects,
-  World.transientsBefore,
+  SystemsWorld.effects,
+  SystemsWorld.transientsBefore,
   Knight.trigger,
   Knight.casting,
-  Combat.demons,
-  Combat.separation,
-  Combat.bodies,
-  World.scenery,
-  Combat.hazards,
-  Combat.projectiles,
-  Combat.charges,
-  Combat.effects,
-  World.telemetry,
-  World.remains,
-  World.stillPlaying,
-  World.transientsAfter,
-  World.supplies,
-  World.progression,
+  SystemsCombat.demons,
+  SystemsCombat.separation,
+  SystemsCombat.bodies,
+  SystemsWorld.scenery,
+  SystemsCombat.hazards,
+  SystemsCombat.projectiles,
+  SystemsCombat.charges,
+  SystemsCombat.effects,
+  SystemsWorld.telemetry,
+  SystemsWorld.remains,
+  SystemsWorld.stillPlaying,
+  SystemsWorld.transientsAfter,
+  SystemsWorld.supplies,
+  SystemsWorld.progression,
 }

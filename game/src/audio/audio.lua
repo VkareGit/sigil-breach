@@ -5,7 +5,7 @@ local Soundscape = require('src.audio.soundscape')
 local WorldCues = require('src.audio.world_cues')
 local Arena = require('src.world.arena')
 local VoiceData = require('src.audio.voice_data')
-local Spatial = require('src.audio.spatial')
+local AudioSpatial = require('src.audio.spatial')
 local Recipes = require('src.audio.recipes')
 local Sets = require('src.content.sound_sets')
 local A = {
@@ -62,7 +62,7 @@ function A.release()
   A.takes, A.variants, A.lastTake = {}, {}, {}
   A.priorities = {}
   A.warningHold = 0
-  Spatial.reset()
+  AudioSpatial.reset()
   tickets = setmetatable({}, { __mode = 'k' })
   WorldCues.reset()
   Soundscape.release()
@@ -148,7 +148,7 @@ end
 -- step and impact. Both active voices and the idle cache have strict caps.
 local function recycle(s)
   s:stop()
-  Spatial.remove(s)
+  AudioSpatial.remove(s)
   local name = A.voiceNames[s]
   A.voiceNames[s] = nil
   A.priorities[s] = nil
@@ -186,7 +186,7 @@ function A.play(name, volume, priority, category)
         (A.priorities[candidate] or 0) < (A.priorities[current] or 0)
         or (
           (A.priorities[candidate] or 0) == (A.priorities[current] or 0)
-          and Spatial.loudness(candidate) < Spatial.loudness(current)
+          and AudioSpatial.loudness(candidate) < AudioSpatial.loudness(current)
         )
       then
         victim = i
@@ -205,7 +205,7 @@ function A.play(name, volume, priority, category)
     incoming = incoming * A.levels[category or 'effects']
     if
       A.priorities[A.live[victim]] == priority
-      and Spatial.loudness(A.live[victim]) > incoming * 1.05
+      and AudioSpatial.loudness(A.live[victim]) > incoming * 1.05
     then
       return
     end
@@ -231,7 +231,7 @@ function A.play(name, volume, priority, category)
   if recipe.gain then
     level = math.min(1, level)
   end
-  Spatial.begin(
+  AudioSpatial.begin(
     s,
     base,
     category,
@@ -250,7 +250,7 @@ function A.play(name, volume, priority, category)
     s:setPitch(1 - jitter + love.math.random() * 2 * jitter)
   end
   A.live[#A.live + 1] = s
-  Spatial.mix(A.live, 0)
+  AudioSpatial.mix(A.live, 0)
   s:play()
   serial = serial + 1
   tickets[s] = serial
@@ -260,7 +260,7 @@ end
 -- The playback ticket prevents cancelling that unrelated sound.
 function A.stopVoice(source, ticket, fade)
   if source and ticket and tickets[source] == ticket then
-    if not fade or not Spatial.fade(source, fade) then
+    if not fade or not AudioSpatial.fade(source, fade) then
       source:stop()
     end
   end
@@ -270,7 +270,7 @@ function A.loopVoice(source, ticket, age)
     source:setLooping(true)
     if age then
       source:seek(age % source:getDuration())
-      Spatial.rise(source, 0.04)
+      AudioSpatial.rise(source, 0.04)
     end
   end
 end
@@ -288,14 +288,14 @@ function A.ownsVoice(source, ticket)
 end
 function A.stopEmitter(emitter, fade)
   for _, source in ipairs(A.live) do
-    if Spatial.emits(source, emitter) then
+    if AudioSpatial.emits(source, emitter) then
       A.stopVoice(source, tickets[source], fade)
     end
   end
 end
 function A.clearWorld()
   for i = #A.live, 1, -1 do
-    if Spatial.isWorld(A.live[i]) then
+    if AudioSpatial.isWorld(A.live[i]) then
       recycle(table.remove(A.live, i))
     end
   end
@@ -314,7 +314,7 @@ function A.playAt(name, x, z, p, volume, priority, world, category, emitter)
   end
   local s, ticket = A.play(name, (volume or 0.6) * attenuation, priority, category)
   if s then
-    Spatial.attach(s, x, z, p, world, emitter, attenuation)
+    AudioSpatial.attach(s, x, z, p, world, emitter, attenuation)
   end
   return s, ticket
 end
@@ -324,11 +324,11 @@ function A.update(dt, g)
     Soundscape.update(A, dt, g)
   end
   for i = #A.live, 1, -1 do
-    if not Spatial.update(A.live[i], dt, g, A.levels, A.muted) then
+    if not AudioSpatial.update(A.live[i], dt, g, A.levels, A.muted) then
       recycle(table.remove(A.live, i))
     end
   end
-  Spatial.mix(A.live, dt)
+  AudioSpatial.mix(A.live, dt)
   if g and dt > 0 then
     WorldCues.update(A, g, dt)
   end

@@ -2,7 +2,7 @@ local Context = require('src.session.context')
 local Ballistics = require('src.combat.ballistics')
 -- Presentation-only camera and the projection of the authoritative firing ray.
 -- Recoil can move the view; the reticle must still mark where the shot goes.
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Settings = require('src.content.settings')
 local Layout = require('src.ui.layout')
 local Camera = {}
@@ -32,7 +32,7 @@ function Camera.basis(g, right, up, forward)
   right[1], right[2], right[3] = rx * cr + ux * sr, ry * cr + uy * sr, rz * cr + uz * sr
   up[1], up[2], up[3] = ux * cr - rx * sr, uy * cr - ry * sr, uz * cr - rz * sr
   forward[1], forward[2], forward[3] = sy * cp, sp, cy * cp
-  return (g.view.fov or T.baseFov) + (motion and (g.view.fovKick or 0) or 0)
+  return (g.view.fov or Tuning.baseFov) + (motion and (g.view.fovKick or 0) or 0)
 end
 -- A detached camera supplies absolute world eye height. Knight viewers use
 -- the same physical eye as shooting; actor recoil never moves another viewer.
@@ -46,7 +46,7 @@ end
 local right, up, forward = {}, {}, {}
 function Camera.dimensions(g, w, h)
   local _, _, vw, vh = Layout.scene(g, w, h)
-  local height = Layout.hasBar(g) and math.floor(T.renderHeight * 5 / 6) or T.renderHeight
+  local height = Layout.hasBar(g) and math.floor(Tuning.renderHeight * 5 / 6) or Tuning.renderHeight
   height = math.floor(height * (g.view.renderScale or Settings.renderScale.default) + 0.5)
   return math.floor(height * vw / vh + 0.5), height
 end

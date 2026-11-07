@@ -566,6 +566,59 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     graph[id] = {}
     lines[#lines + 1] = 'COMPILE ' .. relative
   end
+  -- One name per module (PLAN F1): a whole src module is required under the
+  -- same local name in every src file, and one name never stands for two
+  -- modules. A reader meets Arena, Pools or Tuning and knows which file it is.
+  local nameOf, moduleOf = {}, {}
+  for id, text in pairs(sources) do
+    if id:match('^src%.') then
+      for line in text:gmatch('[^\n]+') do
+        local name, module =
+          line:match("^%s*local%s+([%a_][%w_]*)%s*=%s*require%(%s*'(src%.[%w_%.]+)'%s*%)%s*$")
+        if not name then
+          name, module =
+            line:match("^%s*local%s+([%a_][%w_]*)%s*=%s*require%(%s*'(src%.[%w_%.]+)'%s*%)%s*%-%-")
+        end
+        if name then
+          if #name < 2 then
+            failure('MODULE NAME ' .. id .. ': ' .. module .. ' needs a word, not ' .. name)
+          end
+          local known = nameOf[module]
+          if known and known.name ~= name then
+            failure(
+              'MODULE NAME '
+                .. module
+                .. ' is '
+                .. known.name
+                .. ' in '
+                .. known.at
+                .. ' but '
+                .. name
+                .. ' in '
+                .. id
+            )
+          end
+          nameOf[module] = known or { name = name, at = id }
+          local other = moduleOf[name]
+          if other and other.module ~= module then
+            failure(
+              'MODULE NAME '
+                .. name
+                .. ' stands for '
+                .. other.module
+                .. ' in '
+                .. other.at
+                .. ' and '
+                .. module
+                .. ' in '
+                .. id
+            )
+          end
+          moduleOf[name] = other or { module = module, at = id }
+        end
+      end
+    end
+  end
   for id, text in pairs(sources) do
     local seen = {}
     -- Registries use literal IDs as well as direct require calls.

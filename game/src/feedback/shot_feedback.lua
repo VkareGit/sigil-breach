@@ -4,14 +4,14 @@
 -- (rounds, cadence, pellets, damage) is resolved in combat/combat.lua.
 local Capabilities = require('src.session.capabilities')
 local Medals = require('src.feedback.medals')
-local A = require('src.audio.audio')
+local Audio = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
 local FX = require('src.feedback.effects')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Impact = require('src.feedback.impact_response')
 local Trails = require('src.feedback.shot_trails')
 local Weight = require('src.feedback.weight')
-local Numbers = require('src.feedback.damage_numbers')
+local DamageNumbers = require('src.feedback.damage_numbers')
 local K = require('src.content.tuning').shot
 local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
@@ -40,15 +40,15 @@ function Shot.discharge(g, e)
   end
   local volume = fire.volume + fire.volumePower * e.shotPower
   if Context.isControlled(g, p) then
-    A.play(fire.sound, volume)
+    Audio.play(fire.sound, volume)
   else
-    A.playAt(fire.sound, p.x, p.z, Context.viewer(g), volume)
+    Audio.playAt(fire.sound, p.x, p.z, Context.viewer(g), volume)
   end
   -- Powder hangs where it was fired, then rises; the revolver gets a smaller
   -- wisp. Clip the emitter before cover so a close wall cannot swallow it.
-  local fx, fy, fz = B.direction(p.yaw, p.pitch)
-  local ox, oy, oz = B.origin(g, p)
-  local cover = B.world(g.world, ox, oy, oz, fx, fy, fz, K.smokeReach)
+  local fx, fy, fz = Ballistics.direction(p.yaw, p.pitch)
+  local ox, oy, oz = Ballistics.origin(g, p)
+  local cover = Ballistics.world(g.world, ox, oy, oz, fx, fy, fz, K.smokeReach)
   local muzzleDistance = math.min(K.smokeMax, math.max(K.smokeMin, cover - K.smokeClearance))
   FX.emit(
     g,
@@ -127,7 +127,7 @@ function Shot.volley(g, e)
     local result = results[i]
     -- Where effort is paid the sum stands on the target's bar (ui/hud.lua).
     if not Capabilities.attrition(g) then
-      Numbers.add(
+      DamageNumbers.add(
         g,
         detail.point,
         detail.healthDamage,

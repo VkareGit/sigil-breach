@@ -2,7 +2,7 @@
 local MathX = require('src.core.mathx')
 local Materials = require('src.content.ballistic_surfaces')
 local Attributes = require('src.combat.attributes')
-local Types = require('src.content.damage_types')
+local DamageTypes = require('src.content.damage_types')
 local D = {}
 local clamp = MathX.clamp
 -- The armour rating that halves physical damage (Warhammer-style points).
@@ -20,7 +20,7 @@ D.neutral = {
   minPower = 1,
   penetration = 0,
   headMultiplier = 1,
-  damageType = Types.fallback,
+  damageType = DamageTypes.fallback,
 }
 -- Bounds of every resistance (D&D): vulnerable to -25 %, resistant to 60 %.
 D.resistMin, D.resistMax = -0.25, 0.60
@@ -35,7 +35,7 @@ end
 -- Resistance to a damage type, the same bounds for every body (D&D: below 0
 -- a vulnerability, at most -25 %; resistance at most 60 %).
 function D.resistance(table_, kind)
-  local r = type(table_) == 'table' and table_[kind or Types.fallback] or 0
+  local r = type(table_) == 'table' and table_[kind or DamageTypes.fallback] or 0
   if not finite(r) then
     return 0
   end
@@ -148,7 +148,7 @@ function D.core(attack, target, distance, part)
   -- A deliberate hit on the anatomical head changes the wound, not the
   -- projectile's momentum. No random critical roll or invisible aim assist.
   local raw = math.max(0, base) * scale * clamp(wound, 0, 2) * math.max(0, zoneDamage)
-  local armored = Types.entries[kind]
+  local armored = DamageTypes.entries[kind]
   armored = armored and armored.armored
   local armor = armored and math.max(0, rating) * (1 - clamp(penetration, 0, 1)) or 0
   local dealt = raw * D.armorScale / (D.armorScale + armor) * (1 - resistance)
@@ -182,7 +182,7 @@ end
 -- The part of it a target's armour takes (the shot report's armour line):
 -- the same rating the wound met (D.rating), so a bare skull shows none.
 function D.armorLoss(attack, target, distance, part)
-  local kind = Types.entries[attack.damageType or Types.fallback]
+  local kind = DamageTypes.entries[attack.damageType or DamageTypes.fallback]
   if not (kind and kind.armored) then
     return 0
   end

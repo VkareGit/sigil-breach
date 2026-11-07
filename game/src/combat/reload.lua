@@ -1,7 +1,7 @@
 local Sigils = require('src.combat.sigils')
 local Signal = require('src.session.signal')
-local T = require('src.content.tuning')
-local W = require('src.content.weapons')
+local Tuning = require('src.content.tuning')
+local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
 local Roles = require('src.core.roles')
 local Ammo = require('src.content.ammo.index')
@@ -77,10 +77,10 @@ local function build(id, data)
           if data.ejects then
             -- The spent cases fly out now (feedback/world_feedback.lua).
             event.spent = w.spent or 0
-            event.weapon = W.idAt(g, a.reloadWeapon, a)
+            event.weapon = Weapons.idAt(g, a.reloadWeapon, a)
           end
         elseif stage.name == 'load' then
-          signalled = W.load(g, a.reloadWeapon, a) > 0
+          signalled = Weapons.load(g, a.reloadWeapon, a) > 0
           w.loaded = true
         else
           w.open = false
@@ -117,7 +117,7 @@ R.mechanisms = Mechanisms
 
 -- The mechanism of the weapon in a slot of the actor's loadout.
 local function mechanism(g, slot, a)
-  local profile = W.inHand(g, slot, a) or W.inHand(g, 1, a)
+  local profile = Weapons.inHand(g, slot, a) or Weapons.inHand(g, 1, a)
   return profile.reload and Mechanisms[profile.reload.mechanism]
 end
 R.mechanism = mechanism
@@ -164,14 +164,14 @@ function R.label(g, a)
 end
 function R.start(g, afterShot, a)
   a = actor(g, a)
-  if a.reload > 0 or not W.validAmmo(g, nil, a) then
+  if a.reload > 0 or not Weapons.validAmmo(g, nil, a) then
     return false
   end
   local m = mechanism(g, a.weapon, a)
   if not m then
     return false
   end
-  local def, state = W.inHand(g, nil, a)
+  local def, state = Weapons.inHand(g, nil, a)
   local offset = m.offset(g, state, def, afterShot)
   if not offset then
     return false
@@ -201,9 +201,9 @@ function R.interrupt(g, a)
   if a.reload <= 0 or a.reloadWeapon ~= a.weapon then
     return false
   end
-  local m, w = mechanism(g, a.weapon, a), W.state(g, nil, a)
+  local m, w = mechanism(g, a.weapon, a), Weapons.state(g, nil, a)
   local age = R.age(g, a)
-  local def = W.inHand(g, nil, a)
+  local def = Weapons.inHand(g, nil, a)
   if not m.interruptBefore or not Ammo.of(def).canFire(def.ammo, w) or age >= m.interruptBefore then
     return false
   end
@@ -215,7 +215,7 @@ function R.interrupt(g, a)
     Signal(g, 'ReloadStage', {
       stage = 'close',
       mechanism = def.reload.mechanism,
-      weapon = W.idAt(g, nil, a),
+      weapon = Weapons.idAt(g, nil, a),
       interrupted = true,
       started = g.elapsed,
       duration = closing,
@@ -233,13 +233,13 @@ function R.update(g, dt, a)
     return
   end
   local before = R.age(g, a)
-  a.reload = math.max(0, a.reload - dt * W.inHand(g, a.reloadWeapon, a).reload.speed)
+  a.reload = math.max(0, a.reload - dt * Weapons.inHand(g, a.reloadWeapon, a).reload.speed)
   local after = R.age(g, a)
   local m = mechanism(g, a.reloadWeapon, a)
-  local w = W.state(g, a.reloadWeapon, a)
+  local w = Weapons.state(g, a.reloadWeapon, a)
   m.step(g, w, before, after, a)
   if a.reload == 0 then
-    local def = W.inHand(g, a.reloadWeapon, a)
+    local def = Weapons.inHand(g, a.reloadWeapon, a)
     Sigils.reloaded(a, def.id, Ammo.of(def).canFire(def.ammo, w))
     m.finish(g, w)
     a.reloadStage = 0

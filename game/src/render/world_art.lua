@@ -8,13 +8,13 @@ local Context = require('src.session.context')
 -- blend after their depth is complete, so a later distant mural cannot
 -- overwrite a nearer portal with no depth writes.
 local WorldObjects = require('src.render.world_objects')
-local M = require('src.render.mesh')
+local Mesh = require('src.render.mesh')
 local Atlas = require('src.render.atlas')
 local Shaders = require('src.render.shaders')
 local Portals = require('src.render.portals')
 local Ritual = require('src.render.ritual_art')
 local Gallery = require('src.render.gallery')
-local Goetic = require('src.ui.goetic_sigils')
+local GoeticSigils = require('src.ui.goetic_sigils')
 local Skin = require('src.ui.skin')
 local Queries = require('src.session.queries')
 local Ground = require('src.physics.ground')
@@ -111,7 +111,7 @@ function Art.pickup(r, g, a)
     love.graphics.setColor(1, 1, 1)
     Ritual.layer(
       r,
-      Goetic.image(seal),
+      GoeticSigils.image(seal),
       a.x,
       Ground.of(g.world, a) + 0.028,
       a.z,
@@ -264,7 +264,7 @@ WorldObjects.register('seal', {
     end,
   },
   init = function(r, shader)
-    r.goetic = Goetic.init()
+    r.goetic = GoeticSigils.init()
     r.goeticShader = shader(Shaders.seal, 'seal shader')
     Ritual.init(r)
     r.native:own(r.ritualArt.mesh)

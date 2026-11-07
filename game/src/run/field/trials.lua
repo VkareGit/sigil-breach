@@ -6,9 +6,9 @@
 local Gates = require('src.run.gates')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
-local K = require('src.content.field')
+local FieldData = require('src.content.field')
 local Placement = require('src.run.field.placement')
-local Stations = require('src.run.field.station_layout')
+local StationLayout = require('src.run.field.station_layout')
 local Trials = {}
 local function post(g, kind, x, z, label)
   local posts = g.testField.posts or {}
@@ -28,7 +28,7 @@ end
 local function label(g, x, z, text, y)
   local labels = g.testField.labels or {}
   g.testField.labels = labels
-  labels[#labels + 1] = { x = x, y = y or K.labelHeight, z = z, text = text }
+  labels[#labels + 1] = { x = x, y = y or FieldData.labelHeight, z = z, text = text }
 end
 local function station(field, g, name)
   field.reset(g)
@@ -44,12 +44,12 @@ function Trials.range(field, g)
   end
   station(field, g, 'range')
   local p = Roles.controlled(g)
-  local start = Stations.get(g).start
+  local start = StationLayout.get(g).start
   p.x, p.z, p.yaw, p.pitch = start.x, start.z, math.pi, 0
-  for _, lane in ipairs(K.range.lanes) do
+  for _, lane in ipairs(FieldData.range.lanes) do
     local d, dx = lane[1], lane[2]
     local x, z = p.x + dx, p.z - math.sqrt(d * d - dx * dx)
-    raise(g, post(g, K.dummy, x, z, Text.get('field_range_post', { distance = d })))
+    raise(g, post(g, FieldData.dummy, x, z, Text.get('field_range_post', { distance = d })))
     label(g, x, z, Text.get('field_range_label', { distance = d }))
   end
   field.close(g)
@@ -63,7 +63,7 @@ function Trials.physics(field, g)
     return false
   end
   station(field, g, 'physics')
-  local P = Stations.get(g).physics
+  local P = StationLayout.get(g).physics
   local p = Roles.controlled(g)
   p.x, p.z, p.yaw, p.pitch = P.stand.x, P.stand.z, math.pi, 0
   for i = 1, P.domino.count do
@@ -71,7 +71,7 @@ function Trials.physics(field, g)
       g,
       post(
         g,
-        K.dummy,
+        FieldData.dummy,
         P.domino.x,
         P.domino.z - (i - 1) * P.domino.step,
         Text.get('field_domino_post', { index = i })
@@ -79,9 +79,9 @@ function Trials.physics(field, g)
     )
   end
   label(g, P.domino.x, P.domino.z, Text.get('field_domino_label'))
-  raise(g, post(g, K.dummy, P.slam.x, P.slam.z, Text.get('field_slam_post')))
+  raise(g, post(g, FieldData.dummy, P.slam.x, P.slam.z, Text.get('field_slam_post')))
   label(g, P.slam.x, P.slam.z, Text.get('field_slam_label'))
-  local live = Placement.spawn(field, g, K.dummy, 1)
+  local live = Placement.spawn(field, g, FieldData.dummy, 1)
   if live and live[1] then
     label(g, live[1].x, live[1].z, Text.get('field_trip_label'), P.tripLabel)
   end
@@ -98,7 +98,7 @@ function Trials.tick(field, g, dt)
       e.hp = e.maxHp
     elseif e then
       entry.down = (entry.down or 0) + dt
-      if entry.down >= K.raise then
+      if entry.down >= FieldData.raise then
         raise(g, entry)
       end
     end

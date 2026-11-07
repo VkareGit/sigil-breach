@@ -2,7 +2,7 @@
 -- CPU metadata only: each gesture names its atlas and its authored frames.
 local Registry = require('src.core.registry')
 local Schema = require('src.core.schema')
-local Atlas = require('src.content.art.hand_atlas')
+local HandAtlasData = require('src.content.art.hand_atlas')
 local EquipmentArt = { worldAtlas = 'powder' }
 local atlases = Registry:new('equipment hand atlas')
 local gestures = Registry:new('equipment gesture')
@@ -10,12 +10,12 @@ EquipmentArt.atlases, EquipmentArt.entries = atlases.entries, gestures.entries
 function EquipmentArt.registerAtlas(id, entry)
   assert(not atlases:has(id), 'equipment hand atlas already registered: ' .. id)
   local built, where = Schema.copy(entry), 'equipment hand atlas ' .. id
-  built.frameNames = Atlas.validate(built, where, { 'grip' })
-  Atlas.number(built.screenScale, where .. '.screenScale', 0)
+  built.frameNames = HandAtlasData.validate(built, where, { 'grip' })
+  HandAtlasData.number(built.screenScale, where .. '.screenScale', 0)
   assert(built.screenScale > 0, where .. ': screenScale must be positive')
   assert(type(built.position) == 'table', where .. ': missing position')
   for _, name in ipairs({ 'x', 'y', 'biasY', 'exitY', 'exitPower' }) do
-    Atlas.number(built.position[name], where .. '.position.' .. name)
+    HandAtlasData.number(built.position[name], where .. '.position.' .. name)
   end
   assert(built.position.exitPower > 0, where .. ': exitPower must be positive')
   if built.motion then
@@ -23,7 +23,7 @@ function EquipmentArt.registerAtlas(id, entry)
     for _, key in ipairs(built.motion) do
       assert(#key == 4 and key[1] > previous and key[1] <= 1, where .. ': invalid motion key')
       for _, value in ipairs(key) do
-        Atlas.number(value, where .. '.motion')
+        HandAtlasData.number(value, where .. '.motion')
       end
       previous = key[1]
     end
@@ -33,14 +33,14 @@ function EquipmentArt.registerAtlas(id, entry)
     for _, frame in ipairs(built.worldFrames) do
       assert(#frame.rect == 4, where .. ': world rectangle needs four coordinates')
       for _, value in ipairs(frame.rect) do
-        Atlas.number(value, where .. '.worldFrame.rect', 0)
+        HandAtlasData.number(value, where .. '.worldFrame.rect', 0)
       end
       assert(
         frame.rect[1] + frame.rect[3] <= 1 and frame.rect[2] + frame.rect[4] <= 1,
         where .. ': world rectangle outside atlas'
       )
-      Atlas.number(frame.width, where .. '.worldFrame.width', 0)
-      Atlas.number(frame.height, where .. '.worldFrame.height', 0)
+      HandAtlasData.number(frame.width, where .. '.worldFrame.width', 0)
+      HandAtlasData.number(frame.height, where .. '.worldFrame.height', 0)
     end
   end
   return atlases:register(id, built)
@@ -63,16 +63,16 @@ function EquipmentArt.register(id, entry)
   built.clock = built.clock or 'release'
   assert(built.clock == 'release' or built.clock == 'windup', where .. ': unknown clock')
   local atlas = atlases:get(built.atlas)
-  Atlas.number(built.duration, where .. '.duration', 0)
+  HandAtlasData.number(built.duration, where .. '.duration', 0)
   assert(built.duration > 0, where .. ': duration must be positive')
-  local compiled = Atlas.sequence(built.phases, atlas.frameNames, where)
+  local compiled = HandAtlasData.sequence(built.phases, atlas.frameNames, where)
   assert(compiled[#compiled][1] == built.duration, where .. ': phases must cover duration')
   -- Optional: the firearm stands aside for the gesture (the free hand is
   -- busy): lowered by lower (share of the screen) within drop s, raised
   -- again within rise s after the gesture.
   if built.weapon then
     for _, name in ipairs({ 'lower', 'drop', 'rise' }) do
-      Atlas.number(built.weapon[name], where .. '.weapon.' .. name, 0)
+      HandAtlasData.number(built.weapon[name], where .. '.weapon.' .. name, 0)
     end
     assert(
       built.weapon.drop > 0 and built.weapon.rise > 0,

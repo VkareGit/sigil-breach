@@ -6,7 +6,7 @@ local Presentation = require('src.session.presentation')
 local Abilities = require('src.content.abilities')
 local Weapons = require('src.content.weapons')
 local Occult = require('src.content.occult_catalog')
-local Settings = require('src.content.field')
+local FieldData = require('src.content.field')
 local Stations = require('src.run.field.stations')
 local Roles = require('src.core.roles')
 local Access = require('src.run.field.access')
@@ -90,7 +90,7 @@ Actions.fixed:register('field_blow_go', {
       field.tell(g, 'field_no_body')
       return true
     end
-    best.awake, best.visible, best.memory, best.target = true, true, Settings.engage.memory, p.id
+    best.awake, best.visible, best.memory, best.target = true, true, FieldData.engage.memory, p.id
     best.previewFrame, best.recover = nil, 0
     Attacks.begin(g, best, far, blow)
     field.tell(g, 'field_blow_gone', { id = blow.id, windup = blow.windup })
@@ -111,7 +111,7 @@ end
 Actions.fixed:register('field_low', {
   run = function(g, field)
     Roles.controlled(g).hp, Roles.controlled(g).armor, Roles.controlled(g).souls =
-      Settings.lowHealth, 0, 0
+      FieldData.lowHealth, 0, 0
     Abilities.fill(g, true, Roles.controlled(g))
     Weapons.clear(g, Roles.controlled(g))
     field.tell(g, 'field_low')

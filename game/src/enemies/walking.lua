@@ -2,10 +2,10 @@
 -- see. What it wants to reach is the business of enemies/ai.lua.
 local Archetypes = require('src.content.enemies')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
-local Navigation = require('src.world.navigation')
+local WorldNavigation = require('src.world.navigation')
 local Walking = {}
 local len = MathX.len
 local radius = Rules.radius
@@ -43,7 +43,7 @@ local function move(g, e, tx, tz, speed, dt)
     vx, vz = vx + ax / al * step, vz + az / al * step
   end
   local ox, oz = e.x, e.z
-  local sx, sz = W.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
+  local sx, sz = Arena.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
   e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt
   local moved = len(e.x - ox, e.z - oz)
   e.walk = e.walk + moved
@@ -75,31 +75,31 @@ local function route(g, e, tx, tz, dt, level)
     e.lineClear, e.lineTimer = false, 0
   elseif e.lineTimer <= 0 then
     e.lineTimer = Walk.lineCheck
-    e.lineClear = W.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
-      and (not w.elevations or W.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
+    e.lineClear = Arena.visible(w, e.x, e.z, tx, tz, nil, nil, e.level, level)
+      and (not w.elevations or Arena.clear(w, e.x, e.z, tx, tz, radius(e), e.level, tall, level))
   end
   if e.lineClear then
     move(g, e, tx, tz, e.speed, dt)
     return
   end
-  local class = W.class(radius(e), tall)
+  local class = Arena.class(radius(e), tall)
   e.pathTimer = (e.pathTimer or 0) - dt
   if e.pathTimer <= 0 or not e.path then
-    e.path = W.flow(w, tx, tz, class, level)
+    e.path = Arena.flow(w, tx, tz, class, level)
     e.pathTimer = Walk.replan
   end
   -- The next node down the distance field from a node (nil at the goal).
   local function downhill(x, z, layer)
-    local here = w.decks and W.level(w, x, z, layer)
-    local best, bx, bz, bl = e.path[W.node(w, x, z, layer)] or 1e9, nil, nil, nil
+    local here = w.decks and Arena.level(w, x, z, layer)
+    local best, bx, bz, bl = e.path[Arena.node(w, x, z, layer)] or 1e9, nil, nil, nil
     for _, o in ipairs(steps) do
       local nx, nz = x + o[1], z + o[2]
       local nl = 0
       if here then
-        nl = W.step(w, nx, nz, here, class)
+        nl = Arena.step(w, nx, nz, here, class)
       end
-      local d = nl and e.path[W.node(w, nx, nz, nl)]
-      if d and d < best and not W.solid(w, nx, nz, radius(e)) then
+      local d = nl and e.path[Arena.node(w, nx, nz, nl)]
+      if d and d < best and not Arena.solid(w, nx, nz, radius(e)) then
         best = d
         bx, bz, bl = nx, nz, nl
       end
@@ -109,13 +109,13 @@ local function route(g, e, tx, tz, dt, level)
   -- Walk toward the furthest cell of the route the body can reach in a
   -- straight line (0.25): no zigzag from cell centre to cell centre.
   local x, z = math.floor(e.x + 0.5), math.floor(e.z + 0.5)
-  local layer = w.decks and W.layer(w, x, z, Ground.of(w, e) - (w.floor or 0)) or 0
+  local layer = w.decks and Arena.layer(w, x, z, Ground.of(w, e) - (w.floor or 0)) or 0
   local bx, bz, bl = downhill(x, z, layer)
   if not bx then
     -- Beyond the exact field around the goal (plan v10 V3): cross region by
     -- region toward it (world/navigation.lua).
-    if Navigation.beyond(e.x, e.z, tx, tz) then
-      local wx, wz = Navigation.waypoint(w, e.x, e.z, tx, tz, class, e.level, level)
+    if WorldNavigation.beyond(e.x, e.z, tx, tz) then
+      local wx, wz = WorldNavigation.waypoint(w, e.x, e.z, tx, tz, class, e.level, level)
       if wx then
         move(g, e, wx, wz, e.speed, dt)
       end
@@ -127,7 +127,7 @@ local function route(g, e, tx, tz, dt, level)
     cx, cz, cl = downhill(cx, cz, cl)
     if
       not cx
-      or not W.clear(
+      or not Arena.clear(
         w,
         e.x,
         e.z,
@@ -136,7 +136,7 @@ local function route(g, e, tx, tz, dt, level)
         radius(e),
         e.level,
         tall,
-        w.decks and W.level(w, cx, cz, cl) + (w.floor or 0)
+        w.decks and Arena.level(w, cx, cz, cl) + (w.floor or 0)
       )
     then
       break

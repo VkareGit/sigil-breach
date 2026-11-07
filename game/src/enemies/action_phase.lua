@@ -2,7 +2,7 @@
 -- a duration source without adding presentation branches to creature animation.
 local Registry = require('src.core.registry')
 local Archetypes = require('src.content.enemies')
-local Defaults = require('src.content.animation_timing')
+local AnimationTiming = require('src.content.animation_timing')
 local ActionPhase = {}
 local durations = Registry:new('action phase duration', function(sampler, id)
   assert(type(sampler) == 'function', 'action phase ' .. id .. ': expected duration sampler')
@@ -57,17 +57,19 @@ function ActionPhase.sample(e, state)
     -- goes, not when the windup clock does (owner: "arm raised, it could already hit").
     local windup = finitePositive(e.windupDuration) and e.windupDuration
       or spec.windup
-      or Defaults.windup
+      or AnimationTiming.windup
     duration = windup + (e.holdSpan or 0)
     elapsed = duration - (e.windup or windup) - (e.holdLeft or 0)
   elseif state == 'strike' then
     local sampler = durations:find(spec.kind)
     duration = sampler and sampler(e, spec) or spec.duration
     if not finitePositive(duration) then
-      duration = Defaults.strike
+      duration = AnimationTiming.strike
     end
   elseif state == 'recover' then
-    duration = finitePositive(e.recover) and elapsed + e.recover or spec.recover or Defaults.recover
+    duration = finitePositive(e.recover) and elapsed + e.recover
+      or spec.recover
+      or AnimationTiming.recover
   else
     return 0
   end

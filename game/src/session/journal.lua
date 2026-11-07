@@ -10,7 +10,7 @@
 --   Journal.stop(g)                     -- g is plain again
 --   Journal.replay(fresh, journal)      -- the same session again
 local Tuning = require('src.content.tuning')
-local Mathx = require('src.core.mathx')
+local MathX = require('src.core.mathx')
 local Serialize = require('src.core.serialize')
 local Integrity = require('src.session.integrity')
 local Observation = require('src.combat.observation')
@@ -579,7 +579,7 @@ end
 local function applyEntries(g, journal, permitted, external, expand)
   for _, entry in ipairs(journal.entries) do
     if entry[1] == 'aim' then
-      assert(Mathx.finite(entry[2]) and Mathx.finite(entry[3]), 'invalid journal aim')
+      assert(MathX.finite(entry[2]) and MathX.finite(entry[3]), 'invalid journal aim')
       Roles.controlled(g).yaw, Roles.controlled(g).pitch = entry[2], entry[3]
     elseif entry[1] == 'set' then
       assert(external[entry[2]], 'journal cannot set ' .. tostring(entry[2]))

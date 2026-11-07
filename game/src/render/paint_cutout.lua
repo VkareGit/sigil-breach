@@ -1,7 +1,7 @@
 -- Detach an explicitly annotated decorative effect without editing its painting.
 -- Source-UV clipping leaves every body pixel, contour sample and hit mask intact.
 local Anatomy = require('src.content.art.anatomy_regions')
-local Art = require('src.content.enemy_art')
+local EnemyArt = require('src.content.enemy_art')
 local Cutout = {}
 local cache = {}
 function Cutout.of(atlas)
@@ -10,7 +10,7 @@ function Cutout.of(atlas)
   end
   local result = {}
   local anatomy = Anatomy.layouts[atlas]
-  for index, frame in ipairs(Art.layouts[atlas].frames) do
+  for index, frame in ipairs(EnemyArt.layouts[atlas].frames) do
     for _, part in ipairs(anatomy and anatomy.frames[index].parts or {}) do
       if part.detached then
         assert(

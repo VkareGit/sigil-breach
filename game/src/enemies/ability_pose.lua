@@ -4,8 +4,8 @@ local MathX = require('src.core.mathx')
 local Animation = require('src.enemies.animation')
 local Capabilities = require('src.session.capabilities')
 local Archetypes = require('src.content.enemies')
-local AbilityArt = require('src.content.ability_art')
-local Timing = AbilityArt.timing
+local AbilitySequences = require('src.content.ability_art')
+local Timing = AbilitySequences.timing
 local AbilityPose = {}
 local samples = {}
 AbilityPose.samplers = samples
@@ -49,7 +49,7 @@ function samples.evade(e)
   return frame, (e.evadeSide or 1) > 0 and 1 or 0
 end
 local function sampled(key, e)
-  local entry = AbilityArt.get(key)
+  local entry = AbilitySequences.get(key)
   local sampler = samples[entry.sampler]
   if not sampler then
     error('ability artwork ' .. key .. ': missing sampler ' .. entry.sampler)

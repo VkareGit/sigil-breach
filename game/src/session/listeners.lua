@@ -19,7 +19,7 @@ local Presentation = require('src.session.presentation')
 local Stats = require('src.session.stats')
 local Roles = require('src.core.roles')
 local Spawn = require('src.session.spawn')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Destruction = require('src.combat.destruction')
 local Reactions = require('src.combat.reactions')
 local K = Tuning.rewards
@@ -142,7 +142,7 @@ local function spill(g, event)
   for i, drop in ipairs(stage and stage.drops or {}) do
     local side = (i - 1) * K.dropSpacing
     local x, z = e.x + nx * out - nz * side, e.z + nz * out + nx * side
-    if World.solid(g.world, x, z, 0) then
+    if Arena.solid(g.world, x, z, 0) then
       x, z = p.x, p.z
     end
     Spawn.make(g, 'pickup', {

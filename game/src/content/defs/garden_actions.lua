@@ -1,6 +1,6 @@
 -- Reusable bodily streams, physical sowing and consumption of owned ground.
 local Schema = require('src.core.schema')
-local Area = require('src.content.defs.area')
+local Volumes = require('src.content.defs.area')
 local Packet = require('src.content.defs.packet')
 local Conditions = require('src.content.conditions')
 return function(Action)
@@ -11,7 +11,7 @@ return function(Action)
     life = { type = 'number', required = true, min = 0 },
     delay = { type = 'number', required = true, min = 0 },
     pulse = { type = 'number', required = true, min = 0 },
-    volume = Area.field('pool'),
+    volume = Volumes.field('pool'),
     packet = { type = 'table', required = true, schema = Packet.schema },
     art = { type = 'string' },
     condition = { type = 'string' },
@@ -40,7 +40,7 @@ return function(Action)
         d.limit % 1 == 0 and d.radius > 0 and d.life > 0 and d.pulse > 0,
         path .. ': invalid ground deposit'
       )
-      Area.validate(d.volume, path .. '.deposit.volume')
+      Volumes.validate(d.volume, path .. '.deposit.volume')
       assert(
         not d.condition or Conditions.find(d.condition),
         path .. '.deposit.condition: unknown condition'
@@ -52,12 +52,12 @@ return function(Action)
     mature = { type = 'number', required = true, min = 0 },
     radius = { type = 'number', required = true, min = 0 },
     life = { type = 'number', required = true, min = 0 },
-    volume = Area.field('lightning'),
+    volume = Volumes.field('lightning'),
     art = { type = 'string' },
   }, { 'packet' }, {
     validate = function(a, path)
       assert(a.radius > 0 and a.life > 0, path .. ': positive eruption required')
-      Area.validate(a.volume, path .. '.volume')
+      Volumes.validate(a.volume, path .. '.volume')
     end,
   })
   Action.defineKind('stream', {

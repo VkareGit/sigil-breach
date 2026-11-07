@@ -1,7 +1,7 @@
 -- A displayed view is an explicit, serializable input observation, never a
 -- renderer hook in the simulation. Only geometry is retained; health, armour,
 -- rewards and world cover are resolved now. Static art is identified by keys.
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Anatomy = require('src.content.art.anatomy_regions')
 local Masks = require('src.content.art.hit_masks')
 local Surface = require('src.enemies.surface')
@@ -10,7 +10,7 @@ local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Tuning = require('src.content.tuning')
 local Weapons = require('src.content.weapons')
-local Pattern = require('src.content.ballistic_pattern')
+local BallisticPattern = require('src.content.ballistic_pattern')
 local O = { maxAge = Tuning.observation.maxAge }
 -- Angle (rad) added to the corridor against rounding at its edge.
 local corridorSlack = 1e-6
@@ -85,11 +85,11 @@ function O.capture(shown, owner, shooter)
     time = owner.elapsed,
     sequence = owner._observationSequence,
     map = owner.world.mapId,
-    origin = { B.origin(shown, eye) },
+    origin = { Ballistics.origin(shown, eye) },
     bodies = {},
   }
   for _, enemy in ipairs(Pools.of(shown, 'enemies')) do
-    if B.blocks(enemy) then
+    if Ballistics.blocks(enemy) then
       local body = { id = enemy.id, kind = enemy.kind, x = enemy.x, z = enemy.z }
       if not Geometry.uses(enemy) then
         local surface = Surface.prepare(shown, enemy, nil, eye)
@@ -111,7 +111,7 @@ end
 -- this range. The resolver meets nothing outside it, so a command keeps only
 -- the bodies whose bounds reach into it.
 local patternBound = 1
-for _, v in ipairs(Pattern) do
+for _, v in ipairs(BallisticPattern) do
   patternBound = math.max(patternBound, math.abs(v[1]), math.abs(v[2]))
 end
 function O.corridor(g, shooter)
@@ -168,7 +168,7 @@ function O.inCorridor(body, origin, yaw, pitch, half, range)
   if d - r > range then
     return false
   end
-  local fx, fy, fz = B.direction(yaw, pitch)
+  local fx, fy, fz = Ballistics.direction(yaw, pitch)
   local cosine = math.max(-1, math.min(1, (vx * fx + vy * fy + vz * fz) / d))
   return math.acos(cosine) <= half + math.asin(math.min(1, r / d)) + corridorSlack
 end

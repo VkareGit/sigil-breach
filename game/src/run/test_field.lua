@@ -3,9 +3,9 @@ local Destruction = require('src.combat.destruction')
 local Reload = require('src.combat.reload')
 local Characters = require('src.content.characters')
 local Presentation = require('src.session.presentation')
-local K = require('src.content.field')
+local FieldData = require('src.content.field')
 local Text = require('src.content.text')
-local F = { limit = K.limit }
+local F = { limit = FieldData.limit }
 local Feel = require('src.player.feel')
 local Encounter = require('src.session.encounter')
 local Sanctuary = require('src.session.sanctuary')
@@ -15,7 +15,7 @@ local Access = require('src.run.field.access')
 local Placement = require('src.run.field.placement')
 local Trials = require('src.run.field.trials')
 local Chambers = require('src.run.field.chambers')
-local Stations = require('src.run.field.station_layout')
+local StationLayout = require('src.run.field.station_layout')
 local ActorReset = require('src.run.actor_reset')
 local TrialReset = require('src.run.field.reset')
 local Visits = require('src.run.field.visits')
@@ -27,7 +27,7 @@ local Shop = require('src.content.shop')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Stats = require('src.session.stats')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 F.catalog = require('src.run.field.catalog')
 -- The weapons the knight of this session carries, as catalogue entries
 -- { id = slot, name = text key } (the catalogue follows the loadout, never
@@ -54,12 +54,12 @@ function F.init(g, options)
   Chambers.validate(g)
   -- Legacy maps retain their historical tools; authored stations are checked.
   if Chambers.layout(g) and Chambers.layout(g).stations then
-    Stations.validate(g)
+    StationLayout.validate(g)
   end
   g.testField = {
     invincible = true,
     frozen = false,
-    selected = K.dummy,
+    selected = FieldData.dummy,
     poseIndex = 1,
     features = Access.copy(options),
     -- Effort is paid here unless a frozen reference asks for the old rules.
@@ -121,11 +121,11 @@ function F.reset(g)
   local motion = g.view.motion
   Feel.init(g)
   g.view.motion = motion
-  local start = Stations.get(g).start
+  local start = StationLayout.get(g).start
   Roles.controlled(g).x, Roles.controlled(g).z, Roles.controlled(g).yaw, Roles.controlled(g).pitch =
     start.x, start.z, math.pi, 0
   g.run = {
-    wallet = K.wallet,
+    wallet = FieldData.wallet,
     glyph = 'none',
     owned = {},
     claimed = {},
@@ -139,7 +139,7 @@ function F.reset(g)
   g.map, g.help = false, false
   Encounter.setGuardian(g, false, false)
   Destruction.reset(g.world)
-  World.breakSeals(g.world, 0)
+  Arena.breakSeals(g.world, 0)
   Roles.controlled(g).weapon = 1
   Roles.controlled(g).cooldown, g.view.muzzle, g.view.hurt, g.view.shake, g.view.surge, g.view.hitmarker =
     0, 0, 0, 0, 0, 0
@@ -178,9 +178,9 @@ function F.skirmish(g)
   g.testField.skirmish = true
   g.testField.invincible = false
   g.testField.frozen = false
-  Roles.controlled(g).armor = K.armor
+  Roles.controlled(g).armor = FieldData.armor
   Weapons.restock(g, Roles.controlled(g))
-  for _, kind in ipairs(K.skirmish) do
+  for _, kind in ipairs(FieldData.skirmish) do
     F.spawn(g, kind, 1)
   end
   F.close(g)

@@ -1,6 +1,6 @@
 -- The help panel (F1): controls and the bestiary.
 -- (0.24 F7: one file per screen; ui/views.lua dispatches.)
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Occult = require('src.content.occult_catalog')
 local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
@@ -9,16 +9,16 @@ local lg = love.graphics
 local c, text, right, center = Kit.c, Kit.text, Kit.right, Kit.center
 local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.bar
 local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gold
-local Goetia = require('src.ui.goetic_sigils')
+local GoeticSigils = require('src.ui.goetic_sigils')
 local Text = require('src.content.text')
-local Fit = require('src.ui.text_fit')
+local TextFit = require('src.ui.text_fit')
 local Pages = require('src.ui.pages')
 local Queries = require('src.session.queries')
 local S = {}
 require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
 -- Page 1 is the rules of the fight (audit L04); the bestiary follows, its pages after it.
 function S.page(g)
-  local cards = Enemies.listed('bestiary')
+  local cards = Archetypes.listed('bestiary')
   local detailed = false
   for _, def in ipairs(cards) do
     local card = def.catalog.bestiary
@@ -98,7 +98,7 @@ function S.draw(g, s, U)
   Skin.panel(70, 42, 1140, 640, 6, 14)
   for _, seal in ipairs(Occult.margins) do
     Skin.zone('Goetia parchment margin', seal[2] - 4, seal[3] - 4, 44, 44)
-    Goetia.draw(seal[1], seal[2], seal[3], 36, Palette.sepia, 0.55)
+    GoeticSigils.draw(seal[1], seal[2], seal[3], 36, Palette.sepia, 0.55)
     Skin.imageBounds('Goetia ' .. seal[1], seal[2], seal[3], 36, 36)
     Skin.endZone()
   end
@@ -169,7 +169,7 @@ function S.draw(g, s, U)
       local height = wrap and rowStep * 2 or 26
       if wrap then
         size = initial
-        value = Fit.wrap(U.fonts[size], value, width, 2)
+        value = TextFit.wrap(U.fonts[size], value, width, 2)
       else
         for _, candidate in ipairs({ 18, 16, 14, 13, 12, 11 }) do
           if candidate <= initial and Skin.inkBounds(U.fonts[candidate], value).w <= width then
@@ -177,7 +177,7 @@ function S.draw(g, s, U)
             break
           end
         end
-        value = Fit.ellipsis(U.fonts[size], value, width)
+        value = TextFit.ellipsis(U.fonts[size], value, width)
       end
       Skin.zone('bestiary card ' .. v.kind, x + 6, y, width, height)
       if wrap then

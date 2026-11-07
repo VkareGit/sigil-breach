@@ -4,7 +4,7 @@ local Context = require('src.session.context')
 -- The death itself (strength, contact, landing, collapse pose) is simulation:
 -- enemies/corpse.lua, which calls the hooks registered here.
 local MathX = require('src.core.mathx')
-local Effects = require('src.feedback.effects')
+local FX = require('src.feedback.effects')
 local Audio = require('src.audio.audio')
 local Corpse = require('src.enemies.corpse')
 local Presentation = require('src.session.presentation')
@@ -74,7 +74,7 @@ function Death.landed(g, e, energy)
   )
   -- Two low, lateral pigment strokes leave the falling face and hands visible.
   for _, side in ipairs({ -1, 1 }) do
-    Effects.emit(g, 'stone', e.x + side * size * 0.33, 0.10, e.z, size, {
+    FX.emit(g, 'stone', e.x + side * size * 0.33, 0.10, e.z, size, {
       tint = { 0.58, 0.49, 0.36 },
       material = 'corpse-contact',
       energy = energy,
@@ -87,7 +87,7 @@ function Death.landed(g, e, energy)
   -- contact patch only after travelling far enough to make that distinction.
   local dx, dz = e.x - response.originX, e.z - response.originZ
   if dx * dx + dz * dz > 0.0625 then
-    Effects.stain(g, e.x, e.z, clamp(0.34 + size * 0.45, 0.34, 0.64), e.kind)
+    FX.stain(g, e.x, e.z, clamp(0.34 + size * 0.45, 0.34, 0.64), e.kind)
   end
 end
 

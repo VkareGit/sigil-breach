@@ -2,12 +2,12 @@
 -- and unchanged weapon art; the same offer owns its quote and preview.
 local Skin = require('src.ui.skin')
 local Text = require('src.content.text')
-local Fit = require('src.ui.text_fit')
-local E = require('src.run.economy')
-local W = require('src.content.weapons')
+local TextFit = require('src.ui.text_fit')
+local Economy = require('src.run.economy')
+local Weapons = require('src.content.weapons')
 local Queries = require('src.session.queries')
-local Goetic = require('src.ui.goetic_sigils')
-local Sigils = require('src.content.sigils')
+local GoeticSigils = require('src.ui.goetic_sigils')
+local SigilRules = require('src.content.sigils')
 local C = Skin.colors
 local Shop = {}
 local stations = { 'arsenal', 'vows', 'sigils' }
@@ -26,7 +26,7 @@ local function weapon(g)
 end
 function Shop.offers(g)
   local out, current = {}, station(g)
-  for _, offer in ipairs(E.offersFor(g)) do
+  for _, offer in ipairs(Economy.offersFor(g)) do
     if
       (current == 'arsenal' and offer.weapon == weapon(g) and offer.kind ~= 'sigil')
       or (current == 'vows' and offer.kind == 'vow' and not offer.weapon)
@@ -54,7 +54,7 @@ function Shop.controls(g, elsewhere)
     for i, id in ipairs(weapons) do
       list[#list + 1] = {
         id = 'shop_card_' .. id,
-        label = Text.get(W.get(id).hud.tab),
+        label = Text.get(Weapons.get(id).hud.tab),
         x = 128 + (i - 1) * 202,
         y = 204,
         w = 190,
@@ -64,11 +64,11 @@ function Shop.controls(g, elsewhere)
     end
   end
   for i, o in ipairs(Shop.offers(g)) do
-    local _, reason = E.quote(g, o.id)
+    local _, reason = Economy.quote(g, o.id)
     local y = 212 + (i - 1) * 86
     list[#list + 1] = {
       id = 'buy_' .. o.id,
-      label = E.label(g, o.id),
+      label = Economy.label(g, o.id),
       x = 944,
       y = y,
       w = 208,
@@ -84,7 +84,7 @@ function Shop.controls(g, elsewhere)
         y = y + 42,
         w = 208,
         h = 38,
-        disabled = not E.wearing(r, o),
+        disabled = not Economy.wearing(r, o),
       }
     end
   end
@@ -103,7 +103,7 @@ function Shop.controls(g, elsewhere)
 end
 local function write(U, value, x, y, width, size, color)
   Skin.boxText(
-    Fit.ellipsis(U.fonts[size], value, width),
+    TextFit.ellipsis(U.fonts[size], value, width),
     x,
     y,
     width,
@@ -123,10 +123,10 @@ function Shop.draw(g, U)
   if station(g) == 'arsenal' then
     local id = weapon(g)
     Skin.weaponCard(id, 128, 258, 392, 262)
-    write(U, Text.get(W.get(id).name), 150, 454, 348, 22, C.gold)
+    write(U, Text.get(Weapons.get(id).name), 150, 454, 348, 22, C.gold)
     write(
       U,
-      Text.get(W.slotOf(g, id) and 'shop_weapon_owned' or 'shop_weapon_unowned'),
+      Text.get(Weapons.slotOf(g, id) and 'shop_weapon_owned' or 'shop_weapon_unowned'),
       150,
       486,
       348,
@@ -136,9 +136,9 @@ function Shop.draw(g, U)
   else
     Skin.panel(128, 204, 392, 316, 2, 12)
     if station(g) == 'sigils' then
-      for i, id in ipairs(Sigils.order) do
+      for i, id in ipairs(SigilRules.order) do
         local x, y = 185 + (i - 1) % 2 * 152, 218 + math.floor((i - 1) / 2) * 68
-        Goetic.draw(id:gsub('sigil_', ''), x, y, 60, C.sepia)
+        GoeticSigils.draw(id:gsub('sigil_', ''), x, y, 60, C.sepia)
       end
     else
       Skin.icon('vow_flask', 260, 235, 128)
@@ -146,7 +146,7 @@ function Shop.draw(g, U)
     if station(g) == 'sigils' then
       write(
         U,
-        Text.get('shop_sigil_capacity', { used = E.sigilsWorn(r), max = Sigils.capacity }),
+        Text.get('shop_sigil_capacity', { used = Economy.sigilsWorn(r), max = SigilRules.capacity }),
         150,
         360,
         342,
@@ -157,20 +157,20 @@ function Shop.draw(g, U)
     local description =
       Text.get(station(g) == 'sigils' and 'shop_collection_tip' or 'shop_vows_tip')
     local n = 0
-    for line in Fit.wrap(U.fonts[18], description, 342, 5):gmatch('[^\n]+') do
+    for line in TextFit.wrap(U.fonts[18], description, 342, 5):gmatch('[^\n]+') do
       write(U, line, 150, 385 + n * 24, 342, 18, C.ivory)
       n = n + 1
     end
   end
   for i, o in ipairs(Shop.offers(g)) do
     local y = 208 + (i - 1) * 86
-    local name = E.describe(g, o.id)
+    local name = Economy.describe(g, o.id)
     write(U, name, 550, y, 380, 18, C.gold)
-    write(U, E.preview(g, o.id), 550, y + 25, 380, 14, C.ivory)
-    local _, reason = E.quote(g, o.id)
+    write(U, Economy.preview(g, o.id), 550, y + 25, 380, 14, C.ivory)
+    local _, reason = Economy.quote(g, o.id)
     if o.kind == 'sigil' then
       local n = 0
-      for line in Fit.wrap(U.fonts[12], Text.get(o.description), 380, 2):gmatch('[^\n]+') do
+      for line in TextFit.wrap(U.fonts[12], Text.get(o.description), 380, 2):gmatch('[^\n]+') do
         write(U, line, 550, y + 44 + n * 18, 380, 12, C.muted)
         n = n + 1
       end

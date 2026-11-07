@@ -1,7 +1,7 @@
 -- Stream one compact instance record per particle, not 36 expanded vertices.
 -- A batch of stamps (plan v10 V3) also carries each instance's alpha and is
 -- lit like the world it lies on (the shadow pools under bodies).
-local M = require('src.render.mesh')
+local Mesh = require('src.render.mesh')
 local B = {}
 local white = { 1, 1, 1 }
 local zero = { 0, 0, 0 }
@@ -25,7 +25,7 @@ function B.new(source, capacity, stamps)
     format[#format + 1] = { 'InstanceAlpha', 'float', 1 }
   end
   local instances = love.graphics.newMesh(format, capacity, 'points', 'stream')
-  local mesh = M.finish(source)
+  local mesh = Mesh.finish(source)
   for _, attribute in ipairs(format) do
     mesh:attachAttribute(attribute[1], instances, 'perinstance')
   end

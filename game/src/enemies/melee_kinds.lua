@@ -3,7 +3,7 @@
 -- the leap. Each kind's fields and defaults: content/defs/action.lua.
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Ground = require('src.physics.ground')
 local Melee = require('src.combat.melee')
 local Dodge = require('src.combat.dodge')
@@ -359,7 +359,7 @@ Kinds.leap = {
     local t = (e.windup + flight) * atk.leadShare
     for _ = 1, K.aimTries do
       local x, z = p.x + (p.vx or 0) * t, p.z + (p.vz or 0) * t
-      if not W.solid(g.world, x, z, K.aimClearance) then
+      if not Arena.solid(g.world, x, z, K.aimClearance) then
         e.aimX, e.aimZ = x, z
         break
       end

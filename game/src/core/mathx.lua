@@ -29,6 +29,11 @@ function M.distance(a, b)
   local dx, dz = a.x - b.x, a.z - b.z
   return sqrt(dx * dx + dz * dz)
 end
+-- Hermite smoothstep: 0 at edge0, 1 at edge1, eased between (edges may be reversed).
+function M.smoothstep(edge0, edge1, x)
+  local t = max(0, min(1, (x - edge0) / (edge1 - edge0)))
+  return t * t * (3 - 2 * t)
+end
 function M.lerp(a, b, t)
   return a + (b - a) * t
 end

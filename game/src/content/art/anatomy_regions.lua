@@ -6,13 +6,13 @@
 -- annotated under its own id, and a creature may name another annotation of
 -- the same frames (appearance.regions).
 local Materials = require('src.content.ballistic_surfaces')
-local Sequences = require('src.content.ability_art')
+local AbilitySequences = require('src.content.ability_art')
 local resolved = setmetatable({}, { __mode = 'k' })
 local Anatomy = {
   layouts = {},
   abilities = setmetatable({}, {
     __index = function(_, id)
-      local entry = Sequences.entries[id]
+      local entry = AbilitySequences.entries[id]
       if not entry then
         return nil
       end
@@ -24,14 +24,14 @@ local Anatomy = {
     end,
   }),
 }
-local annotations = require('src.content.art.anatomy.index')
+local AnatomyIndex = require('src.content.art.anatomy.index')
 local ids = {}
-for id in pairs(annotations) do
+for id in pairs(AnatomyIndex) do
   ids[#ids + 1] = id
 end
 table.sort(ids)
 for _, id in ipairs(ids) do
-  Anatomy.layouts[id] = require(annotations[id])
+  Anatomy.layouts[id] = require(AnatomyIndex[id])
 end
 local ZONES = { head = true, torso = true, lower = true }
 local function polygonProblem(poly)

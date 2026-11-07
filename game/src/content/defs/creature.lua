@@ -9,7 +9,7 @@ local Factions = require('src.content.factions')
 local Schema = require('src.core.schema')
 local Body = require('src.content.defs.body')
 local Action = require('src.content.defs.action')
-local Encounter = require('src.content.defs.encounter')
+local DefsEncounter = require('src.content.defs.encounter')
 local Defaults = require('src.content.combat_defaults')
 local Creature = {}
 Creature.sounds = Schema:new('creature sounds', {
@@ -141,8 +141,8 @@ Creature.schema = Schema:new('creature', {
     desc = 'what it leaves for the guns (run/drops.lua): weapon id, chance of a pack on a kill, '
       .. 'least and most rounds in it, rounds an execution always gives',
   },
-  tactics = { type = 'table', schema = Encounter.tactics },
-  phases = { type = 'table', list = Encounter.phase },
+  tactics = { type = 'table', schema = DefsEncounter.tactics },
+  phases = { type = 'table', list = DefsEncounter.phase },
   guardian = {
     type = 'boolean',
     default = false,
@@ -253,7 +253,7 @@ function Creature.define(def)
     assert(ids[answer.attack], path .. ': unknown attack ' .. tostring(answer.attack))
   end
   Creature.schema:validate(merged, where)
-  Encounter.validate(merged, where)
+  DefsEncounter.validate(merged, where)
   return merged
 end
 function Creature.boss(def)

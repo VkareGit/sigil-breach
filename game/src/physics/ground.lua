@@ -9,7 +9,7 @@
 -- remembers the surface it stands on (o.level, world height), so its floor
 -- stays its own as it walks under or over a deck.
 local Ground = {}
-local Roof = require('src.physics.roof_cell')
+local RoofCell = require('src.physics.roof_cell')
 -- A point this close above a surface (m) still stands on it.
 local touch = 1e-6
 -- Height (m) of the floor of cell (x, z) above the datum.
@@ -63,7 +63,7 @@ function Ground.ceiling(world, x, z, y)
   end
   local datum, best = world.floor or 0, nil
   for _, deck in ipairs(decks) do
-    local bottom = datum + Roof.height(deck, x, z)
+    local bottom = datum + RoofCell.height(deck, x, z)
     if bottom > y + touch and (not best or bottom < best) then
       best = bottom
     end

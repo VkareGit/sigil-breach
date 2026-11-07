@@ -1,5 +1,5 @@
 -- Bounded world-space panels shared by painted ground warnings.
-local Art = require('src.render.hazard_art')
+local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Ground = require('src.physics.ground')
 local Context = require('src.session.context')
@@ -53,7 +53,7 @@ function Panels.draw(r, g, h, style, cell, count, radius, width, height, alpha, 
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setColor(1, 1, 1)
-  Art.mesh(r, h, cell, cache.mesh, Ground.of(g.world, h), alpha)
+  HazardArt.mesh(r, h, cell, cache.mesh, Ground.of(g.world, h), alpha)
   love.graphics.pop()
 end
 return Panels

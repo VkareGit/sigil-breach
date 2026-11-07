@@ -6,7 +6,7 @@
 -- slowed fight is the same fight.
 local Archetypes = require('src.content.enemies')
 local Bench = require('src.content.field').bench
-local Definitions = require('src.session.definitions')
+local SessionDefinitions = require('src.session.definitions')
 local Pools = require('src.session.world')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
@@ -44,7 +44,7 @@ function Tools.reloadCreatures(game)
     end
   end
   -- A deliberate change: what is sealed from now on is the new data.
-  Definitions.seal()
+  SessionDefinitions.seal()
   return true
 end
 local handlers = {}

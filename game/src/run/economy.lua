@@ -12,7 +12,7 @@ local SigilRules = require('src.content.sigils')
 --   describe(g, offer, def) -> name, text    optional, else the offer's own
 --   done                                     the message after a purchase (a
 --                                            text key)
-local W = require('src.content.weapons')
+local Weapons = require('src.content.weapons')
 local Ammo = require('src.content.ammo.index')
 local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
@@ -29,7 +29,7 @@ function E.preview(g, id)
   elseif offer.kind == 'vow' then
     local rank = r.vows[offer.id] or 0
     if offer.weapon then
-      local base = W.get(offer.weapon).attack.base
+      local base = Weapons.get(offer.weapon).attack.base
       local factor = Tuning.temperDamage
       return Text.get('shop_temper_change', {
         before = string.format('%.1f', base * factor ^ rank),
@@ -98,7 +98,7 @@ function E.modifiers(r)
   return list
 end
 local function missing(g, def)
-  return W.room(def, W.state(g))
+  return Weapons.room(def, Weapons.state(g))
 end
 local function terms(def)
   return Ammo.of(def).offer(def.ammo)
@@ -114,7 +114,7 @@ local function describeRounds(g, offer, def)
     Text.get('shop_rounds_text', { price = unit, cap = cap })
 end
 local function roundsFull(g)
-  return missing(g, W.inHand(g)) <= 0 and Text.get('shop_reserve_full') or nil
+  return missing(g, Weapons.inHand(g)) <= 0 and Text.get('shop_reserve_full') or nil
 end
 -- Rounds for the weapon in hand, by count: a pack, or everything missing.
 local function rounds(count, fill)
@@ -130,7 +130,7 @@ local function rounds(count, fill)
     end,
     apply = function(g, _, def)
       local pack = terms(def)
-      W.refill(def, W.state(g), fill and missing(g, def) or pack)
+      Weapons.refill(def, Weapons.state(g), fill and missing(g, def) or pack)
     end,
     label = roundsFull,
     describe = describeRounds,
@@ -139,17 +139,17 @@ end
 E.kinds = {
   weapon = {
     quote = function(g, offer)
-      if W.slotOf(g, offer.weapon) then
+      if Weapons.slotOf(g, offer.weapon) then
         return 0, Text.get('shop_weapon_owned'), true
       end
       return offer.price
     end,
     apply = function(g, offer)
-      W.give(g, offer.weapon)
-      W.stock(g, offer.weapon, Way.carried[offer.weapon])
+      Weapons.give(g, offer.weapon)
+      Weapons.stock(g, offer.weapon, Way.carried[offer.weapon])
     end,
     label = function(g, offer)
-      return W.slotOf(g, offer.weapon) and Text.get('shop_weapon_owned') or nil
+      return Weapons.slotOf(g, offer.weapon) and Text.get('shop_weapon_owned') or nil
     end,
   },
   rounds = rounds(function(g, def)
@@ -319,7 +319,7 @@ function E.describe(g, id)
   end
   local kind = E.kinds[offer.kind]
   if kind.describe then
-    return kind.describe(g, offer, (W.inHand(g)))
+    return kind.describe(g, offer, (Weapons.inHand(g)))
   end
   return Text.get(offer.name), Text.get(offer.description)
 end
@@ -340,7 +340,7 @@ local function validUses(p)
 end
 local function validState(g)
   local r, p = g.run, Roles.controlled(g)
-  return W.validAmmo(g)
+  return Weapons.validAmmo(g)
     and type(r.wallet) == 'number'
     and r.wallet >= 0
     and r.wallet <= Shop.maxWallet
@@ -364,9 +364,10 @@ function E.quote(g, id)
     return nil, Text.get('shop_unknown')
   end
   -- final: the kind's answer stands even when the wallet could not pay.
-  local price, reason, final = E.kinds[offer.kind].quote(g, offer, (W.inHand(g)))
-  if offer.weapon and offer.kind ~= 'weapon' and not W.slotOf(g, offer.weapon) then
-    return price, Text.get('shop_weapon_needed', { weapon = Text.get(W.get(offer.weapon).hud.tab) })
+  local price, reason, final = E.kinds[offer.kind].quote(g, offer, (Weapons.inHand(g)))
+  if offer.weapon and offer.kind ~= 'weapon' and not Weapons.slotOf(g, offer.weapon) then
+    return price,
+      Text.get('shop_weapon_needed', { weapon = Text.get(Weapons.get(offer.weapon).hud.tab) })
   end
   if reason or final then
     return price, reason
@@ -399,7 +400,7 @@ function E.buy(g, id)
   local offer = find(g, id)
   local kind = E.kinds[offer.kind]
   r.wallet = r.wallet - price
-  kind.apply(g, offer, (W.inHand(g)))
+  kind.apply(g, offer, (Weapons.inHand(g)))
   return true, Text.get(kind.done or 'shop_bought')
 end
 -- A purchase and its notice (any mode with a wallet).

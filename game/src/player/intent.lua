@@ -14,7 +14,7 @@ local Observation = require('src.combat.observation')
 local Presentation = require('src.session.presentation')
 local Registry = require('src.core.registry')
 local Reload = require('src.combat.reload')
-local Resources = require('src.combat.resources')
+local CombatResources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
 local function active(g)
@@ -40,7 +40,10 @@ local function refusal(g, p, act)
   elseif
     act == 'dash'
     and Capabilities.attrition(g)
-    and not Resources.can(p, { stamina = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina) })
+    and not CombatResources.can(
+      p,
+      { stamina = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina) }
+    )
   then
     return 'hud_no_breath'
   elseif act == 'dash' and Capabilities.attrition(g) and (p.recoverAt or 0) > g.elapsed then

@@ -10,7 +10,7 @@ local Chapel = require('src.ui.chapel')
 local Hud = require('src.ui.hud')
 local OccultArchive = require('src.ui.occult_archive')
 local Help = require('src.ui.screens.help')
-local TestField = require('src.ui.test_field')
+local FieldUI = require('src.ui.test_field')
 local Registry = require('src.core.registry')
 local Views = Registry:new('views')
 local Text = require('src.content.text')
@@ -52,7 +52,7 @@ Views:register('field_archive', {
 })
 Views:register('field_catalog', {
   draw = function(g, _, U)
-    TestField.draw(g, U)
+    FieldUI.draw(g, U)
   end,
 })
 -- Overlays over any screen.
@@ -165,7 +165,7 @@ Views.providers = {
     end
   end,
   function(g)
-    return TestField.controls(g)
+    return FieldUI.controls(g)
   end,
   function(g)
     return Chapel.controls(g)

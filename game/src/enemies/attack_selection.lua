@@ -1,13 +1,13 @@
 -- Deterministic policies. No input reading, RNG or mutation of definitions.
-local A = require('src.content.enemies')
-local Kinds = require('src.combat.action_kinds')
+local Archetypes = require('src.content.enemies')
+local ActionKinds = require('src.combat.action_kinds')
 local Selection = {}
 function Selection.available(g, e, attack)
-  local kind = Kinds:has(attack.kind) and Kinds:get(attack.kind)
+  local kind = ActionKinds:has(attack.kind) and ActionKinds:get(attack.kind)
   return not (kind and kind.available) or kind.available(g, e, attack)
 end
 local function policy(e)
-  local def, stage = A.of(e), A.phase(e)
+  local def, stage = Archetypes.of(e), Archetypes.phase(e)
   return stage and stage.tactics or def.tactics
 end
 local function follows(e, choice, now)
@@ -86,7 +86,7 @@ local function context(e, distance, now, list, tactics, rng, g)
   return chosen
 end
 function Selection.choose(e, distance, now, rng, g)
-  local def = A.of(e)
+  local def = Archetypes.of(e)
   local tactics = policy(e)
   if tactics and tactics.policy == 'context' then
     return context(e, distance, now, def.attacks, tactics, rng, g)
@@ -98,7 +98,7 @@ function Selection.committed(e, attack, target)
   if offersFollowup(e, attack.id) then
     e.finishedTarget = target or e.target
   end
-  local def, stage = A.of(e), A.phase(e)
+  local def, stage = Archetypes.of(e), Archetypes.phase(e)
   if not (def.tactics or (stage and stage.tactics)) then
     return
   end
@@ -117,7 +117,7 @@ function Selection.finished(e, attack, now)
   Selection.clear(e)
 end
 function Selection.pace(e)
-  local stage = A.phase(e)
+  local stage = Archetypes.phase(e)
   return stage and stage.pace or 1
 end
 return Selection

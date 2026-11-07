@@ -2,7 +2,7 @@
 -- enemies/actions.lua split by responsibility): the marked thunderbolt, the
 -- pool, the fan and the bolt. Each kind's fields and defaults:
 -- content/defs/action.lua.
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
 local Ground = require('src.physics.ground')
@@ -19,7 +19,7 @@ local Defaults = require('src.content.combat_defaults')
 local K = Defaults.attacks
 local Pools = require('src.session.world')
 local Signal = require('src.session.signal')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local sin, cos = math.sin, math.cos
 local len = MathX.len
 local Kinds = {}
@@ -161,7 +161,7 @@ Kinds.pool = {
 }
 Kinds.fan = {
   execute = function(g, e, atk, a)
-    local rage = Enemies.furious(e)
+    local rage = Archetypes.furious(e)
     local n = rage and atk.rageCount or atk.count
     for j = 1, n do
       local angle = a + (j - (n + 1) / 2) * atk.spread
@@ -329,7 +329,7 @@ Kinds.blink = {
       local b = from + bearings[(e.attackCount + i) % #bearings + 1]
       local x, z = t.x + sin(b) * atk.distance, t.z + cos(b) * atk.distance
       if
-        not World.solid(g.world, x, z, K.aimClearance) and World.visible(g.world, t.x, t.z, x, z)
+        not Arena.solid(g.world, x, z, K.aimClearance) and Arena.visible(g.world, t.x, t.z, x, z)
       then
         local fromX, fromZ = e.x, e.z
         e.x, e.z = x, z
@@ -364,7 +364,7 @@ Kinds.summon = {
     for i = 1, count do
       local b = a + (i - (count + 1) * 0.5) * atk.spread
       local x, z = e.x + sin(b) * atk.distance, e.z + cos(b) * atk.distance
-      if not World.solid(g.world, x, z, K.aimClearance) then
+      if not Arena.solid(g.world, x, z, K.aimClearance) then
         local called = g:spawn(atk.creature, x, z)
         called.summoner, called.awake, called.spawnAge = e.id, true, 0
         called.memory = Defaults.senses.memory

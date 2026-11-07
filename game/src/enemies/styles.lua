@@ -2,7 +2,7 @@
 -- style (move.style); a new style is a new entry here.
 local Archetypes = require('src.content.enemies')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Signal = require('src.session.signal')
 local Target = require('src.enemies.target')
@@ -31,7 +31,7 @@ local function evade(g, e, d, dt)
     e.evadeTime = math.max(0, e.evadeTime - dt)
     local step = spec.speed * elapsed
     local ox, oz = e.x, e.z
-    W.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e), nil, Rules.tall(g, e))
+    Arena.move(g.world, e, e.evadeX * step, e.evadeZ * step, radius(e), nil, Rules.tall(g, e))
     local dx, dz = e.x - ox, e.z - oz
     local distance = len(dx, dz)
     e.walk = e.walk + distance
@@ -57,7 +57,7 @@ local function evade(g, e, d, dt)
   local dx, dz = cos(toward), -sin(toward)
   local distance = spec.speed * spec.time
   local function clear(direction)
-    return W.clear(
+    return Arena.clear(
       g.world,
       e.x,
       e.z,
@@ -98,7 +98,7 @@ function Styles.flank(g, e, d, dt, waiting)
   if waiting and d < F.far then
     local offset = e.side * F.orbit
     local tx, tz = p.x + sin(a + offset) * F.wait, p.z + cos(a + offset) * F.wait
-    if not W.solid(g.world, tx, tz, radius(e)) then
+    if not Arena.solid(g.world, tx, tz, radius(e)) then
       move(g, e, tx, tz, e.speed * (d < F.wait and 1 or F.slow), dt)
     end
   elseif d > F.far then
@@ -108,13 +108,13 @@ function Styles.flank(g, e, d, dt, waiting)
     -- instead of standing frozen against them.
     local side = a + e.side * F.swing
     local tx, tz = p.x + sin(side) * F.step, p.z + cos(side) * F.step
-    if not W.solid(g.world, tx, tz, radius(e)) then
+    if not Arena.solid(g.world, tx, tz, radius(e)) then
       move(g, e, tx, tz, e.speed * F.slow, dt)
     end
   else
     local offset = e.side * F.orbit
     local tx, tz = p.x + sin(a + offset) * F.ring, p.z + cos(a + offset) * F.ring
-    if W.solid(g.world, tx, tz, radius(e)) then
+    if Arena.solid(g.world, tx, tz, radius(e)) then
       tx, tz = p.x, p.z
     end
     move(g, e, tx, tz, e.speed, dt)

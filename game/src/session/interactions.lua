@@ -6,7 +6,7 @@ local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Tuning = require('src.content.tuning')
 local Rules = require('src.combat.rules')
 local Weapons = require('src.content.weapons')
@@ -101,7 +101,7 @@ local function mercy(g, player)
   end
   for _, offset in ipairs(Tuning.mercy.offsets) do
     local x, z = player.x + offset[1], player.z + offset[2]
-    if not World.solid(g.world, x, z, Tuning.reach.supply) then
+    if not Arena.solid(g.world, x, z, Tuning.reach.supply) then
       Spawn.make(g, 'pickup', {
         x = x,
         z = z,
@@ -124,7 +124,7 @@ function Interactions.collectSupplies(g)
       supply
       and supply.wanted(player, pickup, g)
       and distance(player, pickup) < Tuning.reach.supply
-      and World.visible(
+      and Arena.visible(
         g.world,
         player.x,
         player.z,

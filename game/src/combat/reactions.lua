@@ -1,7 +1,7 @@
 -- What a body's own fighting sets off (content/defs/reaction.lua). Sources run
 -- in a fixed order: weapon, the run's modifier, character, conditions. What a
 -- reaction causes sets off no reaction, as an effect's pulse adds no effects.
-local Definitions = require('src.content.defs.reaction')
+local Reaction = require('src.content.defs.reaction')
 local Characters = require('src.content.characters')
 local Conditions = require('src.content.conditions')
 local Weapons = require('src.content.weapons')
@@ -11,14 +11,14 @@ local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Caster = require('src.combat.caster')
-local Kinds = require('src.combat.action_kinds')
+local ActionKinds = require('src.combat.action_kinds')
 local Effects = require('src.combat.effects')
 local Explosives = require('src.combat.explosives')
 local Loadout = require('src.combat.loadout')
 local Telemetry = require('src.combat.telemetry')
 local Reactions = {}
 Reactions.kinds = Registry:new('reaction handlers', function(entry, id)
-  Definitions.kinds:get(id)
+  Reaction.kinds:get(id)
   assert(type(entry.run) == 'function', 'reaction handler ' .. id .. ' needs run')
 end)
 Reactions.kinds:register('heal', {
@@ -39,7 +39,7 @@ Reactions.kinds:register('blast', {
 Reactions.kinds:register('action', {
   run = function(g, effect, body, _, at)
     local y = at.y or Ground.of(g.world, at) + Tuning.explosives.aimHeight
-    Kinds:get(effect.action.kind).cast(g, effect.action, Caster.point(g, body, at.x, y, at.z))
+    ActionKinds:get(effect.action.kind).cast(g, effect.action, Caster.point(g, body, at.x, y, at.z))
   end,
 })
 local function run(g, list, on, body, target, at)
@@ -77,7 +77,7 @@ function Reactions.fire(g, on, owner, weapon, target, at)
   if conditions then
     for _, id in ipairs(Conditions.ids()) do
       if (conditions[id] or 0) > 0 then
-        run(g, Definitions.ofCondition[id], on, body, target, at)
+        run(g, Reaction.ofCondition[id], on, body, target, at)
       end
     end
   end

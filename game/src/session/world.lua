@@ -14,7 +14,7 @@
 local Abilities = require('src.content.abilities')
 local Characters = require('src.content.characters')
 local Weapons = require('src.content.weapons')
-local World = require('src.core.ecs')
+local Ecs = require('src.core.ecs')
 local Components = require('src.session.components')
 local Roles = require('src.core.roles')
 local Tree = require('src.core.data_tree')
@@ -40,7 +40,7 @@ M.arrays = {
 -- Pools whose members are found by id (Pools.get).
 local indexed = { enemies = true, remains = true, knights = true }
 function M.new(g)
-  local w = World:new()
+  local w = Ecs:new()
   Components.declare(w)
   -- Pools: every member has the pool's components (hand-made members too).
   for _, name in ipairs(M.order) do

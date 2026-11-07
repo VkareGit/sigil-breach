@@ -1,7 +1,7 @@
 -- Timed attack footprints. Telegraph and damage share the same owner clock;
 -- pool pulses sample movement at pulse time, independent of frame rate.
 local Spawn = require('src.session.spawn')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Area = require('src.combat.area_contact')
 local Volumes = require('src.content.defs.area')
 local Schema = require('src.core.schema')
@@ -10,7 +10,7 @@ local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
-local Definitions = require('src.content.hazards')
+local HazardDefs = require('src.content.hazards')
 local Registry = require('src.core.registry')
 local MathX = require('src.core.mathx')
 local Hazards = {}
@@ -19,7 +19,7 @@ local Garden = require('src.combat.garden')
 -- Scratch swept points of a creature sampled by a pool pulse.
 local sampled = {}
 function Hazards.add(g, x, z, delay, r, life, spec)
-  if not W.solid(g.world, x, z, K.clearance) then
+  if not Arena.solid(g.world, x, z, K.clearance) then
     Spawn.make(g, 'hazard', {
       kind = spec and spec.kind,
       art = spec and spec.art,
@@ -99,7 +99,7 @@ local function pulse(g, h, t, interval, previousPlayer, dt)
 end
 -- What each kind does (content/hazards.lua): step(g, h, dt, previousPlayer).
 Hazards.kinds = Registry:new('hazard executors', function(entry, id)
-  Definitions:get(id)
+  HazardDefs:get(id)
   assert(type(entry.step) == 'function', 'hazard executor ' .. id .. ' needs step')
 end)
 Hazards.kinds:register('lightning', {
@@ -281,7 +281,7 @@ function Hazards.update(g, dt, previousPlayer)
   local hazards = Pools.of(g, 'hazards')
   for i = #hazards, 1, -1 do
     local h = hazards[i]
-    Hazards.kinds:get(h.kind or Definitions.default).step(g, h, dt, previousPlayer)
+    Hazards.kinds:get(h.kind or HazardDefs.default).step(g, h, dt, previousPlayer)
     if h.life <= 0 then
       if h.art then
         Signal(g, 'HazardEnded', { hazard = h, at = g.elapsed })

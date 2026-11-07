@@ -13,7 +13,7 @@
 local Grid = require('src.physics.grid')
 local Ground = require('src.physics.ground')
 local Tuning = require('src.content.tuning').navigation
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Navigation = {}
 local cache = setmetatable({}, { __mode = 'k' })
 local neighbours = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }
@@ -28,15 +28,15 @@ end
 -- class and the step from a's surface landing on b's (climbing at most a
 -- step, dropping any height, no deck in the way).
 local function passes(w, ax, az, al, bx, bz, bl, class)
-  return World.open(w, bx, bz, class)
-    and World.step(w, bx, bz, World.level(w, ax, az, al), class) == bl
+  return Arena.open(w, bx, bz, class)
+    and Arena.step(w, bx, bz, Arena.level(w, ax, az, al), class) == bl
 end
 -- Whether a body of class k can stand on node (x, z, l).
 local function stands(w, x, z, l, class)
-  if not World.open(w, x, z, class) then
+  if not Arena.open(w, x, z, class) then
     return false
   end
-  return l == 0 and not w.decks or World.step(w, x, z, World.level(w, x, z, l), class) == l
+  return l == 0 and not w.decks or Arena.step(w, x, z, Arena.level(w, x, z, l), class) == l
 end
 local function sectorOf(x, z)
   local s = Tuning.sector
@@ -51,7 +51,7 @@ local function build(w, class)
   for z = 1, depth do
     for x = 1, width do
       for l = 0, layers(w, x, z) do
-        local key = World.node(w, x, z, l)
+        local key = Arena.node(w, x, z, l)
         if nav.region[key] == nil and stands(w, x, z, l, class) then
           count = count + 1
           local id, sx, sz = count, sectorOf(x, z)
@@ -65,7 +65,7 @@ local function build(w, class)
               local nx, nz = px + a[1], pz + a[2]
               local tx, tz = sectorOf(nx, nz)
               for nl = 0, layers(w, nx, nz) do
-                local nk = World.node(w, nx, nz, nl)
+                local nk = Arena.node(w, nx, nz, nl)
                 -- Within the sector, both ways: a region is mutually walkable.
                 if
                   tx == sx
@@ -90,12 +90,12 @@ local function build(w, class)
   for z = 1, depth do
     for x = 1, width do
       for l = 0, layers(w, x, z) do
-        local from = nav.region[World.node(w, x, z, l)]
+        local from = nav.region[Arena.node(w, x, z, l)]
         if from then
           for _, a in ipairs(neighbours) do
             local nx, nz = x + a[1], z + a[2]
             for nl = 0, layers(w, nx, nz) do
-              local to = nav.region[World.node(w, nx, nz, nl)]
+              local to = nav.region[Arena.node(w, nx, nz, nl)]
               if to and to ~= from and passes(w, x, z, l, nx, nz, nl, class) then
                 nav.links[from] = nav.links[from] or {}
                 local border = nav.links[from][to]
@@ -172,13 +172,13 @@ local function nodeAt(w, x, z, level)
   local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
   local l = 0
   if w.decks and level then
-    l = World.layer(w, cx, cz, Ground.surface(w, cx, cz, level - (w.floor or 0)))
+    l = Arena.layer(w, cx, cz, Ground.surface(w, cx, cz, level - (w.floor or 0)))
   end
   return cx, cz, l
 end
 local function regionAt(w, nav, x, z, level)
   local cx, cz, l = nodeAt(w, x, z, level)
-  return nav.region[World.node(w, cx, cz, l)]
+  return nav.region[Arena.node(w, cx, cz, l)]
 end
 -- Whether (x, z) is beyond the exact field around a goal at (gx, gz).
 function Navigation.beyond(x, z, gx, gz)
@@ -207,7 +207,7 @@ local function crossing(w, nav, from, to)
   field = {}
   local qx, qz, ql = {}, {}, {}
   for _, b in ipairs(nav.links[from][to]) do
-    local k = World.node(w, b[1], b[2], b[3])
+    local k = Arena.node(w, b[1], b[2], b[3])
     if field[k] == nil then
       field[k] = 0
       qx[#qx + 1], qz[#qz + 1], ql[#ql + 1] = b[1], b[2], b[3]
@@ -218,11 +218,11 @@ local function crossing(w, nav, from, to)
     local px, pz, pl = qx[head], qz[head], ql[head]
     head = head + 1
     Navigation.stats.visited = Navigation.stats.visited + 1
-    local d = field[World.node(w, px, pz, pl)]
+    local d = field[Arena.node(w, px, pz, pl)]
     for _, a in ipairs(neighbours) do
       local nx, nz = px + a[1], pz + a[2]
       for nl = 0, layers(w, nx, nz) do
-        local nk = World.node(w, nx, nz, nl)
+        local nk = Arena.node(w, nx, nz, nl)
         if
           nav.region[nk] == from
           and field[nk] == nil
@@ -256,7 +256,7 @@ function Navigation.waypoint(w, x, z, gx, gz, class, level, goalLevel)
   end
   local field = crossing(w, nav, from, to)
   local cx, cz, cl = nodeAt(w, x, z, level)
-  local here = field[World.node(w, cx, cz, cl)]
+  local here = field[Arena.node(w, cx, cz, cl)]
   if here == 0 then
     -- On the border: step into the next region.
     for _, b in ipairs(nav.links[from][to]) do
@@ -266,11 +266,11 @@ function Navigation.waypoint(w, x, z, gx, gz, class, level, goalLevel)
     end
   end
   local best, bx, bz = here or math.huge, nil, nil
-  local surface = World.level(w, cx, cz, cl)
+  local surface = Arena.level(w, cx, cz, cl)
   for _, a in ipairs(neighbours) do
     local nx, nz = cx + a[1], cz + a[2]
-    local nl = World.step(w, nx, nz, surface, nav.class)
-    local d = nl and field[World.node(w, nx, nz, nl)]
+    local nl = Arena.step(w, nx, nz, surface, nav.class)
+    local d = nl and field[Arena.node(w, nx, nz, nl)]
     if d and d < best then
       best, bx, bz = d, nx, nz
     end
@@ -281,9 +281,9 @@ end
 -- field's window, else the region crossings times the sector size; nil when
 -- (x, z) cannot reach the goal. level, goalLevel as for waypoint.
 function Navigation.distance(w, x, z, gx, gz, class, level, goalLevel)
-  local field = World.flow(w, gx, gz, class, goalLevel)
+  local field = Arena.flow(w, gx, gz, class, goalLevel)
   local cx, cz, cl = nodeAt(w, x, z, level)
-  local exact = field[World.node(w, cx, cz, cl)]
+  local exact = field[Arena.node(w, cx, cz, cl)]
   if exact or not Navigation.beyond(x, z, gx, gz) then
     return exact
   end

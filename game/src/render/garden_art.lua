@@ -1,5 +1,5 @@
 -- Bodily pigment follows the same mouth, flight, ground and eruption clocks as contact.
-local Art = require('src.content.art.garden')
+local GardenPaint = require('src.content.art.garden')
 local HazardArt = require('src.render.hazard_art')
 local Stream = require('src.combat.stream')
 local Anchor = require('src.enemies.contact_anchor')
@@ -9,7 +9,7 @@ local G = {}
 local function resources(r)
   if not r.gardenArt then
     local vertices = {}
-    for _ = 1, Art.segments * 6 do
+    for _ = 1, GardenPaint.segments * 6 do
       vertices[#vertices + 1] = { 0, 0, 0, 0, 0 }
     end
     r.gardenArt = {
@@ -31,16 +31,16 @@ function G.stream(r, g, e, a)
   local viewer = Context.viewer(g)
   local s = Stream.shape(g, e, a, viewer)
   local mesh, count = resources(r), 0
-  local flow = (e.phase or 0) * Art.flow
+  local flow = (e.phase or 0) * GardenPaint.flow
   -- Discrete clots travel inside the contact volume. A sheet through the camera
   -- would become a screen-sized carpet instead of a readable bodily discharge.
-  for index = Art.segments - 1, 0, -1 do
-    local t = (index + flow % 1) / Art.segments
+  for index = GardenPaint.segments - 1, 0, -1 do
+    local t = (index + flow % 1) / GardenPaint.segments
     local width = s.startWidth + (s.endWidth - s.startWidth) * t
     local half = s.startHeight + (s.endHeight - s.startHeight) * t
     local x, z = s.x + s.dx * t * s.reach, s.z + s.dz * t * s.reach
     local yaw = math.atan2(viewer.x - x, viewer.z - z)
-    local near = math.min(1, math.sqrt((viewer.x - x) ^ 2 + (viewer.z - z) ^ 2) / Art.near)
+    local near = math.min(1, math.sqrt((viewer.x - x) ^ 2 + (viewer.z - z) ^ 2) / GardenPaint.near)
     for _, corner in ipairs(corners) do
       count = count + 1
       local v = mesh.vertices[count]
@@ -52,7 +52,8 @@ function G.stream(r, g, e, a)
     end
   end
   mesh.mesh:setVertices(mesh.vertices)
-  local frame = Art.stream[1 + math.floor((e.phase or 0) * Art.rate) % #Art.stream]
+  local frame =
+    GardenPaint.stream[1 + math.floor((e.phase or 0) * GardenPaint.rate) % #GardenPaint.stream]
   HazardArt.mesh(r, s, frame, mesh.mesh, s.y, 1)
 end
 function G.cast(r, g, e)
@@ -65,14 +66,14 @@ function G.cast(r, g, e)
   elseif e.ai == 'windup' and a.kind == 'sow' then
     local x, y, z = Anchor.point(g, e, e.phase, e.x, e.z, a.anchor, Context.viewer(g))
     if x then
-      local size = Art.castSize * math.min(1, (e.phase or 0) / a.windup)
+      local size = GardenPaint.castSize * math.min(1, (e.phase or 0) / a.windup)
       local viewer = Context.viewer(g)
       HazardArt.upright(
         r,
         x,
         Ground.of(g.world, e) + y - size * 0.5,
         z,
-        Art.seed[1],
+        GardenPaint.seed[1],
         size,
         math.atan2(viewer.x - x, viewer.z - z),
         1
@@ -83,11 +84,11 @@ function G.cast(r, g, e)
 end
 function G.pool(r, g, h)
   local radius = h.harvest and h.harvest.radius or h.radius
-  local frame = h.delay > 0 and Art.planted or Art.mature
+  local frame = h.delay > 0 and GardenPaint.planted or GardenPaint.mature
   if h.erupting then
-    frame = Art.spent
+    frame = GardenPaint.spent
   end
-  HazardArt.circle(r, g, h, frame, radius / Art.poolRim, 1)
+  HazardArt.circle(r, g, h, frame, radius / GardenPaint.poolRim, 1)
 end
 function G.eruption(r, g, h)
   if not h.harvest and not h.erupting then
@@ -95,9 +96,9 @@ function G.eruption(r, g, h)
   end
   local viewer = Context.viewer(g)
   local size = h.harvest and h.harvest.radius * 2 or h.radius * 2
-  local frame = Art.harvest[1]
+  local frame = GardenPaint.harvest[1]
   if h.erupting then
-    frame = h.life > h.interval * 0.5 and Art.harvest[2] or Art.harvest[3]
+    frame = h.life > h.interval * 0.5 and GardenPaint.harvest[2] or GardenPaint.harvest[3]
   end
   HazardArt.upright(
     r,
@@ -114,8 +115,8 @@ function G.projectile(r, g, b)
   if b.art ~= 'rot-spit' and b.art ~= 'rot-seed' then
     return false
   end
-  local frame = Art.seed[1 + math.floor(g.time * Art.rate) % #Art.seed]
-  local size = b.radius * 2 / Art.seedCore
+  local frame = GardenPaint.seed[1 + math.floor(g.time * GardenPaint.rate) % #GardenPaint.seed]
+  local size = b.radius * 2 / GardenPaint.seedCore
   local viewer = Context.viewer(g)
   HazardArt.upright(
     r,

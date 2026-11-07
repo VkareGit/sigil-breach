@@ -19,7 +19,7 @@ local Effects = require('src.combat.effects')
 local Bodies = require('src.combat.bodies')
 local Pools = require('src.session.world')
 local Cast = require('src.combat.abilities')
-local Encounter = require('src.enemies.encounter')
+local EnemiesEncounter = require('src.enemies.encounter')
 local DamageTypes = require('src.content.damage_types')
 local Outcomes = {}
 
@@ -45,7 +45,7 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
   end
   local healthDamage = math.min(enemy.hp, damage)
   enemy.hp = math.max(0, enemy.hp - damage)
-  Encounter.advance(g, enemy)
+  EnemiesEncounter.advance(g, enemy)
   enemy.hit, enemy.awake = Defaults.hitFlash, true
   if owner ~= nil then
     enemy.pushOwner = owner

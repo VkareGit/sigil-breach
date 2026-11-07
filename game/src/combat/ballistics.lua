@@ -1,5 +1,5 @@
 local Tiles = require('src.core.tiles')
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Surface = require('src.enemies.surface')
@@ -7,7 +7,7 @@ local Corpse = require('src.enemies.corpse')
 local Roles = require('src.core.roles')
 local Masks = require('src.content.art.hit_masks')
 local CylinderCast = require('src.physics.cylinder_cast')
-local Roof = require('src.physics.roof_cell')
+local RoofCell = require('src.physics.roof_cell')
 local B = {}
 local abs, sqrt = math.abs, math.sqrt
 local Characters = require('src.content.characters')
@@ -36,7 +36,7 @@ end
 -- centre aim a reliable result at medium range; outer pairs still cover
 -- adjacent bodies. The cone remains angular, symmetric and deterministic.
 -- Damage is unchanged: each ray still resolves its own surface and distance.
-local halfPattern = require('src.content.ballistic_pattern')
+local BallisticPattern = require('src.content.ballistic_pattern')
 local Pools = require('src.session.world')
 function B.pellet(index, serial, count)
   -- Preserve the approved one/two-barrel patterns exactly. Other counts use
@@ -52,17 +52,17 @@ function B.pellet(index, serial, count)
     local radius = math.sqrt((pair - 0.5) / math.max(1, pairs))
     local angle = pair * math.pi * (3 - math.sqrt(5))
     local flip = (serial or 0) % 2 == 0 and 1 or -1
-    return side * math.cos(angle) * radius * T.pelletSpread,
-      side * math.sin(angle) * radius * T.pelletVerticalSpread * flip
+    return side * math.cos(angle) * radius * Tuning.pelletSpread,
+      side * math.sin(angle) * radius * Tuning.pelletVerticalSpread * flip
   end
   local pair = math.floor((index - 1) / 2) + 1
   local side = index % 2 == 1 and -1 or 1
   if count == 10 then
     pair = pair * 2
   end
-  local v = halfPattern[pair]
+  local v = BallisticPattern[pair]
   local flip = (serial or 0) % 2 == 0 and 1 or -1
-  return side * v[1] * T.pelletSpread, side * v[2] * T.pelletVerticalSpread * flip
+  return side * v[1] * Tuning.pelletSpread, side * v[2] * Tuning.pelletVerticalSpread * flip
 end
 -- Round pillars (tile 2) stop shots as the painted cylinder, not as their
 -- square cell: a ray through an empty cell corner passes. Radius of the
@@ -164,7 +164,7 @@ local function terrainCell(w, oy, dy, x, z, entry, exit, nx, nz)
   end
   if not tile or Tiles.solid[tile] or elevation > 0 then
     local height = elevation
-      + (Tiles.walkable[tile] and T.floorSurface or Collision.top(tile, w, x, z))
+      + (Tiles.walkable[tile] and Tuning.floorSurface or Collision.top(tile, w, x, z))
     if oy + dy * entry <= height then
       return entry, nx, 0, nz
     end
@@ -184,7 +184,7 @@ local function cell(w, oy, dy, x, z, entry, exit, nx, nz)
   if decks then
     for _, deck in ipairs(decks) do
       if deck[3] then
-        local t, n = Roof.cast(deck, x, z, ray.ox, oy, ray.oz, ray.dx, dy, ray.dz, 0, exit)
+        local t, n = RoofCell.cast(deck, x, z, ray.ox, oy, ray.oz, ray.dx, dy, ray.dz, 0, exit)
         if t and t >= entry - 1e-8 and (not best or t < best) then
           best, ax, ay, az = t, n[1], n[2], n[3]
         end
@@ -220,7 +220,7 @@ function B.world(w, ox, oy, oz, dx, dy, dz, range)
   local hit, normal, kind = range, { 0, 0, 0 }, 'range'
   ray.ox, ray.oz, ray.dx, ray.dz = ox, oz, dx, dz
   if dy < -0.000001 then
-    local floor = (T.floorSurface - oy) / dy
+    local floor = (Tuning.floorSurface - oy) / dy
     if floor >= 0 and floor < hit then
       hit = floor
       normal = { 0, 1, 0 }

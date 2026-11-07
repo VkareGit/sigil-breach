@@ -1,14 +1,14 @@
 -- Limited physical ordnance: fuse, wall sweep and blast share simulation time.
 local Rules = require('src.combat.rules')
-local Ai = require('src.enemies.ai')
+local AI = require('src.enemies.ai')
 local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local Spawn = require('src.session.spawn')
 local MathX = require('src.core.mathx')
-local B = require('src.combat.ballistics')
-local D = require('src.combat.damage')
+local Ballistics = require('src.combat.ballistics')
+local Damage = require('src.combat.damage')
 local Tuning = require('src.content.tuning')
-local Flight = require('src.physics.ordnance_flight')
+local OrdnanceFlight = require('src.physics.ordnance_flight')
 local Ground = require('src.physics.ground')
 local chest = require('src.content.combat_defaults').missiles.chest
 -- The behaviour of the 'throw' delivery; the powder charge itself is data
@@ -26,7 +26,7 @@ local function clear(g, b, x, y, z)
   if d < 0.001 then
     return true, d
   end
-  local hit, _, kind = B.world(g.world, b.x, b.y, b.z, dx / d, dy / d, dz / d, d)
+  local hit, _, kind = Ballistics.world(g.world, b.x, b.y, b.z, dx / d, dy / d, dz / d, d)
   return kind == 'range' or hit >= d - 1e-5, d
 end
 -- The 'throw' delivery: a charge leaves the eye along the aim (gates and
@@ -37,7 +37,7 @@ function X.launch(g, action, caster)
   local throwScale = math.sqrt(Tuning.gravity / action.referenceGravity)
   local throwSpeed, throwLift = action.speed * throwScale, action.lift * throwScale
   local x, y, z, dx, dy, dz = caster.x, caster.y, caster.z, caster.dx, caster.dy, caster.dz
-  local spawn = B.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
+  local spawn = Ballistics.world(g.world, x, y, z, dx, dy, dz, K.spawnReach)
   spawn = math.max(0, spawn - K.spawnClearance)
   Spawn.make(g, 'charge', {
     action = action,
@@ -55,7 +55,7 @@ function X.launch(g, action, caster)
   })
   Signal(g, 'ChargeThrown', { actor = caster.owner })
   local at = caster.body or caster
-  Ai.noise(g, at.x, at.z, action.noise)
+  AI.noise(g, at.x, at.z, action.noise)
   return true
 end
 -- A blast from point b (x, y, z, owner) on every creature it reaches. Returns
@@ -110,7 +110,7 @@ function X.explode(g, b)
       if visible and d < action.radius then
         local before = p.hp
         local own = action.selfBlast
-        local f = D.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
+        local f = Damage.falloff(d, own.falloffStart, own.falloffEnd, own.minPower)
         -- All knight charges retain the existing no-perfect-dodge policy.
         -- The effect source is separate, so it still names the actual caster.
         g:damageBody(
@@ -148,7 +148,7 @@ function X.explode(g, b)
   end
   g.explosionReport = report
   Signal(g, 'ChargeExploded', { charge = b })
-  Ai.noise(g, b.x, b.z, Tuning.explosives.blastNoise)
+  AI.noise(g, b.x, b.z, Tuning.explosives.blastNoise)
 end
 local finite, floorHeight = MathX.finite, Tuning.floorSurface
 function X.update(g, dt)
@@ -180,7 +180,7 @@ function X.update(g, dt)
       local step = math.max(0, math.min(dt, b.fuse))
       b.fuse = math.max(0, b.fuse - step)
       b.spin = (b.spin or 0) + step * K.spin
-      Flight.advance(g.world, b, step, Tuning.gravity, floorHeight, K)
+      OrdnanceFlight.advance(g.world, b, step, Tuning.gravity, floorHeight, K)
       b.y = b.y + ground
       if b.fuse <= 1e-9 then
         Pools.removeAt(g, 'charges', i)

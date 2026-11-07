@@ -7,9 +7,9 @@ local Intent = require('src.player.intent')
 local Queries = require('src.session.queries')
 local Entities = require('src.session.entities')
 local Capabilities = require('src.session.capabilities')
-local Execution = require('src.combat.execution')
-local Resources = require('src.combat.resources')
-local World = require('src.world.arena')
+local CombatExecution = require('src.combat.execution')
+local CombatResources = require('src.combat.resources')
+local Arena = require('src.world.arena')
 local Maps = require('src.content.maps.index')
 local Presentation = require('src.session.presentation')
 local Feel = require('src.player.feel')
@@ -93,7 +93,7 @@ end
 -- One cell of the world becomes another tile (a door): a command, so a journal
 -- replays it and a save keeps it.
 function Game:setCell(x, z, tile)
-  World.setCell(self.world, x, z, tile)
+  Arena.setCell(self.world, x, z, tile)
   return true
 end
 
@@ -192,7 +192,7 @@ end
 -- Where effort is paid a dodge takes its whole price, and waits for the shot before it.
 function Game.canDodge(g, player)
   return (player.recoverAt or 0) <= g.elapsed
-    and Resources.can(player, {
+    and CombatResources.can(player, {
       stamina = Sigils.dodgeCost(player, Rules.playerBody(player).rollStamina),
     })
 end
@@ -217,7 +217,7 @@ function Game:dash(dx, dz, who)
   player.dashTimer = Rules.movement(player).dashTime
   local body = Rules.playerBody(player)
   if Capabilities.attrition(self) then
-    Resources.exert(player, 'stamina', Sigils.dodgeCost(player, body.rollStamina))
+    CombatResources.exert(player, 'stamina', Sigils.dodgeCost(player, body.rollStamina))
     player.invuln = math.max(player.invuln, body.rollIframes)
     player.dodgeEnds = self.elapsed + body.rollIframes
   else
@@ -307,10 +307,10 @@ function Game:interact()
   if self.state ~= 'playing' then
     return
   end
-  return Execution.perform(self) or Entities.interact(self) or Modes.act(self, 'interact')
+  return CombatExecution.perform(self) or Entities.interact(self) or Modes.act(self, 'interact')
 end
 function Game:context()
-  return Execution.prompt(self) or Entities.prompt(self) or Modes.act(self, 'context') or nil
+  return CombatExecution.prompt(self) or Entities.prompt(self) or Modes.act(self, 'context') or nil
 end
 Game.update = Simulation.update
 Game.simulate = Simulation.step

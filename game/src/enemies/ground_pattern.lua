@@ -3,7 +3,7 @@
 local Hazards = require('src.enemies.hazards')
 local Rules = require('src.combat.rules')
 local Bodies = require('src.combat.bodies')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Pattern = {}
 function Pattern.release(g, e, attack, angle)
   local x, z, level = e.aimX, e.aimZ, e.aimLevel
@@ -15,7 +15,7 @@ function Pattern.release(g, e, attack, angle)
   for _, mark in ipairs(attack.marks) do
     local mx = x + forwardX * mark.forward + forwardZ * mark.lateral
     local mz = z + forwardZ * mark.forward - forwardX * mark.lateral
-    if World.visible(g.world, e.x, e.z, mx, mz) then
+    if Arena.visible(g.world, e.x, e.z, mx, mz) then
       Hazards.add(g, mx, mz, mark.delay, attack.radius, attack.life, {
         kind = attack.hazard,
         art = attack.art,

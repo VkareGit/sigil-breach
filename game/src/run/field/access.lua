@@ -1,13 +1,13 @@
 -- Per-session tool availability. Missing features preserve historical field
 -- sessions/replays; a release may disable tools without deleting executors.
 -- UI passes the read-only field view, execution passes the mode's record.
-local Field = require('src.content.field')
+local FieldData = require('src.content.field')
 local Id = require('src.core.id')
 local Access = {}
 function Access.check(feature)
   if feature ~= nil then
     Id.check(feature, 'field feature')
-    assert(Field.toolFeatures[feature], 'unknown field feature ' .. feature)
+    assert(FieldData.toolFeatures[feature], 'unknown field feature ' .. feature)
   end
 end
 function Access.copy(options)

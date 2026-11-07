@@ -11,7 +11,7 @@ local Encounter = require('src.session.encounter')
 local Execution = require('src.storage.execution')
 local Feel = require('src.player.feel')
 local Ground = require('src.physics.ground')
-local K = require('src.content.pilgrimage')
+local Way = require('src.content.pilgrimage')
 local MathX = require('src.core.mathx')
 local Presentation = require('src.session.presentation')
 local Roles = require('src.core.roles')
@@ -30,7 +30,7 @@ local Maps = require('src.content.maps.index')
 local Shop = require('src.content.shop')
 local Copy = require('src.core.schema').copy
 local Economy = require('src.run.economy')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local P = {}
 local distance = MathX.distance
 -- Read below (Save.declare), taken up above (resumeField).
@@ -40,7 +40,7 @@ function P.file(slot)
   return (slot or 1) == 1 and 'pilgrimage.save' or ('pilgrimage-' .. slot .. '.save')
 end
 local function area(g)
-  return K.areas:get(g.run.area)
+  return Way.areas:get(g.run.area)
 end
 -- A relic found in the chapel (0.43, owner D8; session/interactions.lua: relic). Taken, it is
 -- the way's: an engraving owned, a sigil one rank higher; it is put on at once when its place
@@ -73,14 +73,15 @@ end
 function P.fireHere(g)
   local p = Roles.controlled(g)
   for _, fire in ipairs(area(g).fires) do
-    if distance(p, fire) < K.reach then
+    if distance(p, fire) < Way.reach then
       return fire
     end
   end
 end
 local function place(g, entry)
   local e = g:spawn(entry.creature, entry.x, entry.z)
-  e.home, e.leash, e.alertRange = { x = entry.x, z = entry.z }, entry.leash or K.leash, entry.alert
+  e.home, e.leash, e.alertRange =
+    { x = entry.x, z = entry.z }, entry.leash or Way.leash, entry.alert
   e.facing, e.spawnAge, e.awake = entry.yaw, 2, false
   e.patrol, e.post = entry.patrol, entry.id
   return e
@@ -110,7 +111,7 @@ function P.populate(g, fallen, picked)
   for _, entry in ipairs(area(g).garrison) do
     if not r.slain[entry.id] and not (fallen and fallen[entry.id]) then
       local e = place(g, entry)
-      classes[World.class(Rules.radius(e), Rules.tall(g, e))] = e
+      classes[Arena.class(Rules.radius(e), Rules.tall(g, e))] = e
     end
   end
   for _, cache in ipairs(area(g).supplies or {}) do
@@ -120,7 +121,7 @@ function P.populate(g, fallen, picked)
   end
   -- The first route of a body's size walks the whole map: here, not in the first chase.
   for class, e in pairs(classes) do
-    World.flow(g.world, e.x, e.z, class)
+    Arena.flow(g.world, e.x, e.z, class)
   end
 end
 -- What his vows make of him, from his character up: a rest and a purchase both ask.
@@ -156,12 +157,12 @@ local function refresh(g, fresh)
   Abilities.fill(g, nil, p)
   Abilities.rest(g, p)
   local gathered = {}
-  for id in pairs(K.carried) do
+  for id in pairs(Way.carried) do
     local slot = Weapons.slotOf(g, id, p)
     gathered[id] = slot and not fresh and select(2, Weapons.meter(g, slot, p)) or 0
   end
   Weapons.fill(g, p)
-  for id, amount in pairs(K.carried) do
+  for id, amount in pairs(Way.carried) do
     if Weapons.slotOf(g, id, p) then
       Weapons.stock(g, id, math.max(amount, gathered[id]), p)
     end
@@ -175,7 +176,7 @@ local function wakeAt(fire)
   if spot then
     return spot.x, spot.z, spot.yaw
   end
-  return fire.x, fire.z - K.wake, math.pi
+  return fire.x, fire.z - Way.wake, math.pi
 end
 local function wake(g, fire)
   local p = Roles.controlled(g)
@@ -222,7 +223,7 @@ end
 local function stand(g)
   local r, map = g.run, area(g).map
   if g.world.mapId ~= map then
-    g.world = World.new(map)
+    g.world = Arena.new(map)
   end
   Destruction.restore(g.world, r.ruins[map])
 end
@@ -237,7 +238,7 @@ local function enter(g, id)
   end
 end
 local function renew(g, slot)
-  local first = K.start().first
+  local first = Way.start().first
   g.run = {
     phase = 'journey',
     wallet = 0,
@@ -247,7 +248,7 @@ local function renew(g, slot)
     slot = slot or 1,
     market = 'fire',
     vows = {},
-    area = K.first,
+    area = Way.first,
     fire = first,
     lit = { [first] = true },
     opened = {},
@@ -259,7 +260,7 @@ local function renew(g, slot)
     taken = {},
     sigils = {},
   }
-  Weapons.restore(g, K.startingWeapons, nil, Roles.controlled(g))
+  Weapons.restore(g, Way.startingWeapons, nil, Roles.controlled(g))
   Roles.controlled(g).weapon = 1
   Abilities.give(g, 'flask', Roles.controlled(g))
   stand(g)
@@ -297,10 +298,10 @@ local function resumeField(g, field)
   end
   p.hp = math.min(field.hp, Characters.maxHp(p))
   p.armor = math.min(field.armor, p.maxArmor)
-  if not World.solid(g.world, field.x, field.z, Rules.radius(p)) then
+  if not Arena.solid(g.world, field.x, field.z, Rules.radius(p)) then
     p.x, p.z, p.yaw, p.pitch = field.x, field.z, field.yaw, 0
   else
-    wake(g, (K.fireOf(r.fire)))
+    wake(g, (Way.fireOf(r.fire)))
   end
   if field.weapon and p.loadout[field.weapon] then
     p.weapon = field.weapon
@@ -329,8 +330,8 @@ end
 -- Souls left where the map no longer has floor wait where he wakes.
 local function reachEcho(g)
   local r, echo = g.run, g.run.echo
-  if echo and echo.area == r.area and World.solid(g.world, echo.x, echo.z, 0) then
-    echo.x, echo.z = wakeAt(K.fireOf(r.fire))
+  if echo and echo.area == r.area and Arena.solid(g.world, echo.x, echo.z, 0) then
+    echo.x, echo.z = wakeAt(Way.fireOf(r.fire))
   end
 end
 -- options: slot; origin and saves when a journal replays a session, which reads no disk
@@ -362,7 +363,7 @@ function P.init(g, options)
   end
   refresh(g, true)
   reachEcho(g)
-  wake(g, (K.fireOf(r.fire)))
+  wake(g, (Way.fireOf(r.fire)))
   P.populate(g)
 end
 function P.start(g)
@@ -372,11 +373,11 @@ function P.start(g)
 end
 local function doorHere(g)
   local p, here = Roles.controlled(g), g.run.area
-  for _, around in K.areas:each() do
+  for _, around in Way.areas:each() do
     for _, door in ipairs(around.doors or {}) do
-      if around.id == here and distance(p, door.side) < K.doorReach then
+      if around.id == here and distance(p, door.side) < Way.doorReach then
         return door, true, around
-      elseif (door.leads or around.id) == here and distance(p, door.back) < K.doorReach then
+      elseif (door.leads or around.id) == here and distance(p, door.back) < Way.doorReach then
         return door, false, around
       end
     end
@@ -439,7 +440,7 @@ local function fighting(g)
         return false
       end
       local d = distance(b, p)
-      return d < K.huntReach or (b.visible and d < reachOf(b))
+      return d < Way.huntReach or (b.visible and d < reachOf(b))
     end) ~= nil
   then
     return true
@@ -449,7 +450,7 @@ local function fighting(g)
       local owner = b.owner and Pools.get(g, b.owner)
       if
         Bodies.harms(g, b.side or 'demons', p, list[2])
-        and distance(b, p) < K.huntReach
+        and distance(b, p) < Way.huntReach
         and (list[1] == 'projectiles' or (owner and owner.hp > 0 and owner.awake))
       then
         return true
@@ -530,14 +531,14 @@ function P.travel(g)
     return false
   end
   Sanctuary.closeTrade(g)
-  local fires, at = K.fires(), nil
+  local fires, at = Way.fires(), nil
   for index, fire in ipairs(fires) do
     at = fire.id == here.id and index or at
   end
   for step = 1, #fires - 1 do
     local fire = fires[(at + step - 1) % #fires + 1]
     if g.run.lit[fire.id] then
-      local _, home = K.fireOf(fire.id)
+      local _, home = Way.fireOf(fire.id)
       local moved = home.id ~= g.run.area
       calm(g)
       secure(g)
@@ -560,7 +561,7 @@ end
 -- Whether a fire other than this one is lit: travel goes only to fires already found, and
 -- is not offered before there is one (owner).
 local function elsewhere(g, here)
-  for _, fire in ipairs(K.fires()) do
+  for _, fire in ipairs(Way.fires()) do
     if g.run.lit[fire.id] and fire.id ~= here.id then
       return true
     end
@@ -584,7 +585,7 @@ function P.context(g)
     )
   end
   local echo = g.run.echo
-  if echo and echo.area == g.run.area and distance(Roles.controlled(g), echo) < K.reach then
+  if echo and echo.area == g.run.area and distance(Roles.controlled(g), echo) < Way.reach then
     return Text.get('pilgrim_echo', { amount = echo.amount })
   end
 end
@@ -605,7 +606,7 @@ function P.retry(g)
   r.phase = 'journey'
   g.state, g.map, g.help = 'playing', false, false
   -- He wakes at his fire, on its area's map, wherever he fell; what fell where he died stays.
-  local fire, home = K.fireOf(r.fire)
+  local fire, home = Way.fireOf(r.fire)
   enter(g, home.id)
   calm(g)
   refresh(g)
@@ -618,7 +619,7 @@ end
 -- the next quiet moment, a durable event or the moment the game stops (P.flush).
 function P.reward(g, event)
   local r = g.run
-  event.souls = (Archetypes.of(event.enemy).souls or 0) * K.souls
+  event.souls = (Archetypes.of(event.enemy).souls or 0) * Way.souls
   r.wallet, r.dirty = r.wallet + event.souls, true
 end
 function P.update(g, dt)
@@ -628,7 +629,7 @@ function P.update(g, dt)
   end
   r.moved = true
   local echo = r.echo
-  if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < K.echoReach then
+  if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < Way.echoReach then
     r.wallet, r.echo = r.wallet + echo.amount, nil
     g:notify(Text.get('pilgrim_recovered', { amount = echo.amount }), 3)
     Presentation.cue(g, 'seal', 0.5)
@@ -636,7 +637,7 @@ function P.update(g, dt)
   end
   if r.dirty then
     r.waited = r.waited + dt
-    if r.waited >= K.saveEvery and not fighting(g) then
+    if r.waited >= Way.saveEvery and not fighting(g) then
       P.save(g)
     end
   end
@@ -663,7 +664,7 @@ function P.world(g, out)
     mark.x, mark.z, mark.yaw = side.art.x, side.art.z, side.art.yaw
     mark.art = g.run.opened[door.id] and 'chapel_door_open' or 'chapel_door_barred'
   end
-  for _, around in K.areas:each() do
+  for _, around in Way.areas:each() do
     for _, door in ipairs(around.doors or {}) do
       if around == here then
         show(door, door.side)
@@ -702,7 +703,7 @@ local function reachable(world, area)
       doors[key(door.back.x, door.back.z)] = door.side
     end
   end
-  local first = K.fireOf(area.first)
+  local first = Way.fireOf(area.first)
   visit(first.x, first.z)
   local at = 1
   while queue[at] do
@@ -716,7 +717,7 @@ local function reachable(world, area)
     for _, step in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
       local nx, nz = x + step[1], z + step[2]
       local rise = Ground.height(world, nx, nz, 0) - height
-      if not World.solid(world, nx, nz, K.clearance) and rise <= world.stepHeight then
+      if not Arena.solid(world, nx, nz, Way.clearance) and rise <= world.stepHeight then
         visit(nx, nz)
       end
     end
@@ -732,10 +733,10 @@ function P.problems(area)
   if not Maps:has(area.map) then
     return { area.id .. ': no map ' .. tostring(area.map) }
   end
-  local world = World.new(area.map)
+  local world = Arena.new(area.map)
   local reached = reachable(world, area)
   local function stand(name, spot)
-    if World.solid(world, spot.x, spot.z, K.clearance) then
+    if Arena.solid(world, spot.x, spot.z, Way.clearance) then
       found[#found + 1] = area.id .. ': ' .. name .. ' stands in a wall'
     elseif not reached(spot.x, spot.z) then
       found[#found + 1] = area.id .. ': ' .. name .. ' cannot be reached'
@@ -752,7 +753,7 @@ function P.problems(area)
       stand('the back of door ' .. door.id, door.back)
     end
   end
-  for _, around in K.areas:each() do
+  for _, around in Way.areas:each() do
     for _, door in ipairs(around.doors or {}) do
       if door.leads == area.id then
         stand('the far side of door ' .. door.id, door.back)
@@ -830,7 +831,7 @@ local function validEcho(echo, home)
     amount = echo.amount,
     x = echo.x,
     z = echo.z,
-    area = K.areas:has(echo.area) and echo.area or home,
+    area = Way.areas:has(echo.area) and echo.area or home,
   }
 end
 -- The ids of a list that the game still has, in order, once each.
@@ -971,7 +972,7 @@ local function validField(field)
     return nil
   end
   assert(type(field) == 'table', 'invalid field')
-  assert(type(field.area) == 'string' and K.areas:has(field.area), 'invalid field area')
+  assert(type(field.area) == 'string' and Way.areas:has(field.area), 'invalid field area')
   for _, key in ipairs({ 'x', 'z', 'yaw', 'hp', 'armor' }) do
     assert(finiteNumber(field[key]), 'invalid field ' .. key)
   end
@@ -994,8 +995,8 @@ local function validField(field)
     -- read is left out and the way is taken up from the rest of the field.
     pools = fieldPools(field.pools),
     uses = {},
-    fallen = known(field.fallen or {}, K.postOf),
-    picked = known(field.picked or {}, K.supplyOf),
+    fallen = known(field.fallen or {}, Way.postOf),
+    picked = known(field.picked or {}, Way.supplyOf),
     hunters = {},
   }
   -- Each weapon's rounds through its ammunition model, held within what the weapon holds.
@@ -1026,7 +1027,7 @@ local function validField(field)
       'invalid hunter position'
     )
     assert(finiteNumber(hunter.hp) and hunter.hp > 0, 'invalid hunter health')
-    if K.postOf(hunter.post) then
+    if Way.postOf(hunter.post) then
       out.hunters[#out.hunters + 1] =
         { post = hunter.post, x = hunter.x, z = hunter.z, yaw = hunter.yaw, hp = hunter.hp }
     end
@@ -1052,14 +1053,14 @@ Save.declare({
       return data
     end,
     [2] = function(data)
-      data.loadout = data.loadout and data.loadout[1] and data.loadout or Copy(K.legacyWeapons)
+      data.loadout = data.loadout and data.loadout[1] and data.loadout or Copy(Way.legacyWeapons)
       return data
     end,
     -- One area, one map, one ruin.
     [1] = function(data)
       data.ruins, data.ruin = { proving = data.ruin }, nil
       if data.echo then
-        data.echo.area = K.first
+        data.echo.area = Way.first
       end
       return data
     end,
@@ -1096,21 +1097,21 @@ Save.declare({
     assert(whole(data.deaths, 0, math.huge), 'invalid deaths')
     assert(type(data.fire) == 'string', 'invalid fire')
     assert(type(data.glyph) == 'string', 'invalid engraving')
-    local fire, home = K.fireOf(data.fire)
+    local fire, home = Way.fireOf(data.fire)
     if not fire then
-      home = K.start()
-      fire = K.fireOf(home.first)
+      home = Way.start()
+      fire = Way.fireOf(home.first)
     end
     local out = {
       wallet = data.wallet,
       deaths = data.deaths,
       area = home.id,
       fire = fire.id,
-      lit = known(data.lit, K.fireOf),
+      lit = known(data.lit, Way.fireOf),
       owned = known(data.owned, Shop.find),
-      opened = known(data.opened, K.doorOf),
-      slain = known(data.slain or {}, K.postOf),
-      taken = known(data.taken or {}, K.supplyOf),
+      opened = known(data.opened, Way.doorOf),
+      slain = known(data.slain or {}, Way.postOf),
+      taken = known(data.taken or {}, Way.supplyOf),
       ruins = validRuins(data.ruins),
       echo = validEcho(data.echo, home.id),
       vows = validVows(data.vows or {}),

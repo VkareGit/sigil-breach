@@ -14,7 +14,7 @@ local Explosives = require('src.combat.explosives')
 local ActionKinds = require('src.combat.action_kinds')
 local Attributes = require('src.combat.attributes')
 local Caster = require('src.combat.caster')
-local Resources = require('src.combat.resources')
+local CombatResources = require('src.combat.resources')
 local Roles = require('src.core.roles')
 local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
@@ -55,13 +55,13 @@ local function deliverer(ability)
 end
 -- One release: the action goes off and is paid for. Returns true when it went.
 local function release(g, ability, state, actor, slot)
-  if not Resources.can(actor, ability.cost) then
+  if not CombatResources.can(actor, ability.cost) then
     return false
   end
   if not deliverer(ability)(g, ability.action, Caster.actor(g, actor)) then
     return false
   end
-  Resources.spend(actor, ability.cost)
+  CombatResources.spend(actor, ability.cost)
   state.uses = state.uses - (ability.cost.uses or 0)
   state.readyAt = g.elapsed + ability.action.cooldown
   Signal(g, 'AbilityCast', {
@@ -196,7 +196,7 @@ function Cast.cast(g, slot, who)
     end
     return false
   end
-  if not Resources.can(actor, ability.cost) then
+  if not CombatResources.can(actor, ability.cost) then
     return false
   end
   if ability.action.windup > 0 or pulsing(ability) then

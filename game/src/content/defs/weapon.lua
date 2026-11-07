@@ -5,7 +5,7 @@
 -- reserve, open action, ready time) is a record in the knight's arsenal
 -- (content/weapons.lua: W.newState), never a field of the knight.
 local Schema = require('src.core.schema')
-local Types = require('src.content.damage_types')
+local DamageTypes = require('src.content.damage_types')
 local Id = require('src.core.id')
 local Delivery = require('src.content.defs.delivery')
 local Effect = require('src.content.defs.effect')
@@ -42,7 +42,7 @@ Weapon.attack = Schema:new('weapon attack', {
   impact = { type = 'number', required = true, min = 0, desc = 'guard damage' },
   push = { type = 'number', min = 0, desc = 'physical impulse when it differs from impact' },
   headMultiplier = { type = 'number', default = 1, min = 0 },
-  damageType = { type = 'string', default = 'physical', check = Types.problem },
+  damageType = { type = 'string', default = 'physical', check = DamageTypes.problem },
   penetration = { type = 'number', default = 0, min = 0, max = 1 },
   falloffStart = { type = 'number', required = true, min = 0 },
   falloffEnd = { type = 'number', required = true, min = 0 },

@@ -4,9 +4,9 @@
 -- action { open, loaded, spent, readyAt }. The knight carries the
 -- weapons of his loadout (player.loadout, an ordered list of ids); its
 -- weapon field is the slot in hand (the actor's, plan v11 E3). A new weapon is a new definition; nothing assumes two.
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Registry = require('src.core.registry')
-local Weapon = require('src.content.defs.weapon')
+local DefsWeapon = require('src.content.defs.weapon')
 local Ammo = require('src.content.ammo.index')
 local Roles = require('src.core.roles')
 local W = {}
@@ -35,12 +35,12 @@ local definitions = {
     ammo = {
       kind = 'magazine',
       capacity = 2,
-      startReserve = T.startReserve,
+      startReserve = Tuning.startReserve,
       maxReserve = 72,
       packSize = 4,
     },
-    cycle = T.shotgunCycle,
-    range = T.shotgunRange,
+    cycle = Tuning.shotgunCycle,
+    range = Tuning.shotgunRange,
     -- Reload mechanism (content/reloads.lua).
     reload = { mechanism = 'breech' },
     -- How a trigger pull fires (combat/combat.lua reads only this): rounds per
@@ -50,7 +50,7 @@ local definitions = {
       heavy = true,
       rounds = 2,
       recovery = 0.22,
-      pellets = T.shotgunPellets,
+      pellets = Tuning.shotgunPellets,
       ejects = true,
       autoReload = true,
       muzzle = 0.065,
@@ -66,14 +66,14 @@ local definitions = {
     -- What one pellet delivers (src/combat/damage.lua). impact: guard damage;
     -- push (optional, defaults to impact): physical impulse.
     attack = {
-      base = T.pelletDamage,
-      headMultiplier = T.shotgunHeadMultiplier,
+      base = Tuning.pelletDamage,
+      headMultiplier = Tuning.shotgunHeadMultiplier,
       penetration = 0.10,
-      falloffStart = T.falloffStart,
-      falloffEnd = T.falloffEnd,
-      minPower = T.pelletMinPower,
+      falloffStart = Tuning.falloffStart,
+      falloffEnd = Tuning.falloffEnd,
+      minPower = Tuning.pelletMinPower,
       -- Less than its harm: one volley hurts, a second breaks a guard.
-      impact = T.pelletImpact,
+      impact = Tuning.pelletImpact,
     },
     -- Glyphs change fields of the attack: set replaces, scale multiplies;
     -- spread scales the pellet cone (FOCUS: 28 % tighter).
@@ -81,7 +81,7 @@ local definitions = {
       pierce = { set = { penetration = 0.60 }, scale = { impact = 0.65 } },
       choke = { spread = 0.72 },
       -- A rank of tempering at a fire (content/shop.lua: temper_exorcist).
-      temper_exorcist = { scale = { base = T.temperDamage } },
+      temper_exorcist = { scale = { base = Tuning.temperDamage } },
     },
     weight = {
       mass = 4,
@@ -116,15 +116,15 @@ local definitions = {
     },
     ammo = {
       kind = 'magazine',
-      capacity = T.revolverCapacity,
-      startReserve = T.revolverStartReserve,
-      maxReserve = T.revolverMaxReserve,
+      capacity = Tuning.revolverCapacity,
+      startReserve = Tuning.revolverStartReserve,
+      maxReserve = Tuning.revolverMaxReserve,
       packSize = 6,
-      spare = T.revolverSpare,
-      spareEvery = T.revolverSpareEvery,
+      spare = Tuning.revolverSpare,
+      spareEvery = Tuning.revolverSpareEvery,
     },
-    cycle = T.revolverInterval,
-    range = T.revolverRange,
+    cycle = Tuning.revolverInterval,
+    range = Tuning.revolverRange,
     reload = { mechanism = 'cylinder' },
     fire = {
       recovery = 0.12,
@@ -136,13 +136,13 @@ local definitions = {
       smokeTime = 0.42,
     },
     attack = {
-      base = T.revolverDamage,
-      headMultiplier = T.revolverHeadMultiplier,
-      penetration = T.revolverPenetration,
-      falloffStart = T.revolverFalloffStart,
-      falloffEnd = T.revolverFalloffEnd,
-      minPower = T.revolverMinPower,
-      impact = T.revolverImpact,
+      base = Tuning.revolverDamage,
+      headMultiplier = Tuning.revolverHeadMultiplier,
+      penetration = Tuning.revolverPenetration,
+      falloffStart = Tuning.revolverFalloffStart,
+      falloffEnd = Tuning.revolverFalloffEnd,
+      minPower = Tuning.revolverMinPower,
+      impact = Tuning.revolverImpact,
       -- The Judge breaks a guard (impact 44) more than it throws a body.
       push = 25,
       -- pierce: the heavy round passes through bodies (Call of Duty
@@ -154,9 +154,9 @@ local definitions = {
     -- breaks sooner (impact 44 -> 55; a Buer in 2 body shots, not 3), the throw stays.
     -- PRECISION: the head is worth more (x1.35 -> x1.60; a Stolas in 3 head shots, not 4).
     glyphs = {
-      breaker = { scale = { impact = T.judgeBreakerImpact } },
-      precision = { set = { headMultiplier = T.judgePrecisionHead } },
-      temper_judge = { scale = { base = T.temperDamage } },
+      breaker = { scale = { impact = Tuning.judgeBreakerImpact } },
+      precision = { set = { headMultiplier = Tuning.judgePrecisionHead } },
+      temper_judge = { scale = { base = Tuning.temperDamage } },
     },
     weight = {
       mass = 1.5,
@@ -182,7 +182,7 @@ local definitions = {
 }
 local registry = Registry:new('weapons')
 for _, def in ipairs(definitions) do
-  local built = Weapon.define(def)
+  local built = DefsWeapon.define(def)
   registry:register(built.id, built)
 end
 W.registry = registry
@@ -197,7 +197,7 @@ function W.has(id)
 end
 -- Register a weapon definition (a new gun, a mod, a test).
 function W.define(def)
-  local built = Weapon.define(def)
+  local built = DefsWeapon.define(def)
   registry:register(built.id, built)
   return built
 end

@@ -5,11 +5,11 @@
 -- enemies/attack_contact.lua); a body in the air is enemies/flight.lua's.
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Flight = require('src.enemies.flight')
 local Contact = require('src.enemies.attack_contact')
-local Selection = require('src.enemies.attack_selection')
+local AttackSelection = require('src.enemies.attack_selection')
 local ActionKinds = require('src.combat.action_kinds')
 local Action = require('src.content.defs.action')
 local Attacks = {}
@@ -24,7 +24,7 @@ local function change(e, state)
   e.phase = 0
   e.rushVX, e.rushVZ = nil, nil
 end
-local choose = Selection.choose
+local choose = AttackSelection.choose
 -- The attack in progress; records prepared by hand (tests, catalogue poses)
 -- may name it only by attackKind, so look it up by id.
 local function current(e)
@@ -87,7 +87,7 @@ local function execute(g, e)
 end
 local function beginAttack(g, e, d, chosen, continuation)
   local atk = chosen or choose(e, d, g.elapsed, g.rng and g.rng.sim, g)
-  if not atk or not Selection.available(g, e, atk) then
+  if not atk or not AttackSelection.available(g, e, atk) then
     return false
   end
   -- Capture the budget only at a fresh commitment. An older saved string without
@@ -105,14 +105,14 @@ local function beginAttack(g, e, d, chosen, continuation)
   end
   if atk.rest then
     e.restUntil = e.restUntil or {}
-    e.restUntil[atk.id] = (g.elapsed or 0) + atk.rest / Selection.pace(e)
+    e.restUntil[atk.id] = (g.elapsed or 0) + atk.rest / AttackSelection.pace(e)
   end
   e.attackSpec = atk
   e.attackKind = atk.id
   change(e, 'windup')
   e.windupDuration = atk.windup
   local p = victimOf(g, e)
-  Selection.committed(e, atk, p.id)
+  AttackSelection.committed(e, atk, p.id)
   -- An attack from outside a knight's view is announced longer (fairness);
   -- a body without a view (a creature) gets no such grace.
   local inView = not p.yaw or cos(angle(atan2(e.x - p.x, e.z - p.z) - p.yaw)) > K.viewCos
@@ -138,7 +138,7 @@ local function beginAttack(g, e, d, chosen, continuation)
   -- Only a small lead at commitment; after this, targets are frozen and dodgeable.
   if atk.lead then
     local x, z = p.x + (p.vx or 0) * atk.lead, p.z + (p.vz or 0) * atk.lead
-    if not W.solid(g.world, x, z, K.aimClearance) then
+    if not Arena.solid(g.world, x, z, K.aimClearance) then
       e.aimX, e.aimZ = x, z
     end
   end
@@ -159,7 +159,7 @@ local function beginAttack(g, e, d, chosen, continuation)
     -- A prediction inside a wall is pulled back toward the player by halves.
     for _ = 1, K.aimTries do
       local x, z = p.x + vx * t, p.z + vz * t
-      if not W.solid(g.world, x, z, K.aimClearance) then
+      if not Arena.solid(g.world, x, z, K.aimClearance) then
         e.aimX, e.aimZ = x, z
         break
       end
@@ -203,7 +203,7 @@ local function strike(g, e, dt, previousPlayer)
   end
   local duration = kind.duration and kind.duration(e, atk) or atk.duration
   if e.phase > duration then
-    Selection.finished(e, atk, g.elapsed)
+    AttackSelection.finished(e, atk, g.elapsed)
     change(e, 'recover')
     local flow = atk.string
     local available = not e.stringLimit or e.stringCount < e.stringLimit
@@ -230,7 +230,7 @@ function Attacks.rest(e, atk)
   e.stringCount, e.stringLimit = nil, nil
   e.recover = math.min(atk.recover, Defaults.recoverStill)
   e.spent = atk.recover
-  e.attack = atk.cooldown / Selection.pace(e)
+  e.attack = atk.cooldown / AttackSelection.pace(e)
 end
 -- The next blow of a string, when its beat ran out. A string the target left
 -- behind ends as the last blow would have.

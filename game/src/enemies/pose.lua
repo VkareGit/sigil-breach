@@ -3,7 +3,7 @@
 local Animation = require('src.enemies.animation')
 local Archetypes = require('src.content.enemies')
 local EnemyArt = require('src.content.enemy_art')
-local AbilityArt = require('src.content.ability_art')
+local AbilitySequences = require('src.content.ability_art')
 local AbilityPose = require('src.enemies.ability_pose')
 local Roles = require('src.core.roles')
 local Pools = require('src.session.world')
@@ -56,7 +56,7 @@ function Pose.sample(g, e, out, observer)
   local shift = 0
   local sourcePath = region.sourcePath
   if key then
-    local sheet = AbilityArt[key]
+    local sheet = AbilitySequences[key]
     region = sheet.frames[index]
     local hx, hy, hz = Pose.anchor(g, e, 'head', observer)
     local rise = 1 - region.head[2] - sheet.feet[index]

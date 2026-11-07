@@ -1,5 +1,5 @@
 -- Ash warns above the true rim; living coals remain as low as their contact volume.
-local Art = require('src.render.hazard_art')
+local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Panels = require('src.render.painted_panels')
 local Ash = {}
@@ -8,7 +8,7 @@ function Ash.ground(r, g, h)
   if not style then
     return false
   end
-  Art.ribbon(
+  HazardArt.ribbon(
     r,
     g,
     h,
@@ -44,7 +44,7 @@ function Ash.air(r, g, h)
     )
   else
     local frame = style.frames[1 + math.floor(-h.delay * style.rate) % #style.frames]
-    Art.ribbon(
+    HazardArt.ribbon(
       r,
       g,
       h,
@@ -76,7 +76,7 @@ end
 function Ash.residue(r, g, h, age)
   local style = Rites.pools[h.art]
   if style and age >= 0 and age < style.embers then
-    Art.ribbon(
+    HazardArt.ribbon(
       r,
       g,
       h,

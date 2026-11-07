@@ -5,7 +5,7 @@ local Presentation = require('src.session.presentation')
 local WeaponMotion = require('src.feedback.weapon_motion')
 local MovementImpact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
-local Marks = require('src.feedback.movement_marks')
+local MovementMarks = require('src.feedback.movement_marks')
 local Motion = {}
 function Motion.init(g)
   g.view.abilityCast, g.view.abilityVoice = nil, nil
@@ -23,13 +23,13 @@ end
 function Motion.landing(g, impact)
   local measured = MovementImpact.landing(g, impact or 0)
   Weight.landing(g, impact)
-  Marks.landing(g, impact)
+  MovementMarks.landing(g, impact)
   return measured
 end
 -- A jump: the weapon dips, dust rings the boots.
 function Motion.takeoff(g, speed)
   local measured = MovementImpact.takeoff(g, speed)
-  Marks.takeoff(g)
+  MovementMarks.takeoff(g)
   return measured
 end
 Presentation.hook('motion.init', Motion.init)

@@ -1,10 +1,10 @@
 -- Cross references checked before native voices are built. Data schemas
 -- validate numbers; this boundary ensures every named stem/voice exists.
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Maps = require('src.content.maps.index')
 local Recipes = require('src.audio.recipes')
 local Score = require('src.audio.score')
-local Profiles = require('src.content.creature_audio')
+local CreatureAudio = require('src.content.creature_audio')
 local C = {}
 function C.scene(scene)
   if not scene then
@@ -41,8 +41,8 @@ function C.validate()
       end
     end
   end
-  for id, profile in pairs(Profiles) do
-    local def = assert(Enemies.get(id), 'unknown creature audio owner ' .. id)
+  for id, profile in pairs(CreatureAudio) do
+    local def = assert(Archetypes.get(id), 'unknown creature audio owner ' .. id)
     local sections =
       { body = true, actions = true, projectile = true, projectiles = true, fields = true }
     for section in pairs(profile) do
@@ -87,7 +87,7 @@ function C.validate()
   for _, map in Maps:each() do
     C.scene(map.decor and map.decor.soundscape)
   end
-  for id, def in Enemies.each() do
+  for id, def in Archetypes.each() do
     for _, name in pairs(def.sounds) do
       assert(Recipes[name], id .. ': unknown voice ' .. name)
     end

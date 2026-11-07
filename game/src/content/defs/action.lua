@@ -6,12 +6,12 @@
 -- and is checked against this list.
 local Conditions = require('src.content.conditions')
 local Schema = require('src.core.schema')
-local Types = require('src.content.damage_types')
-local HazardKinds = require('src.content.hazards')
+local DamageTypes = require('src.content.damage_types')
+local HazardDefs = require('src.content.hazards')
 local Registry = require('src.core.registry')
 local Packet = require('src.content.defs.packet')
 local Claw = require('src.content.combat_defaults').claw
-local Area = require('src.content.defs.area')
+local Volumes = require('src.content.defs.area')
 local AttackDefaults = require('src.content.combat_defaults').attacks
 local Action = { hooks = {} }
 -- A blow that flows into the next one instead of a full rest. every: only each
@@ -147,7 +147,7 @@ local function kind(name, fields, required)
   return Schema:new('action ' .. name, merged)
 end
 local Line = Schema:new('hazard line', {
-  volume = Area.field('pool'),
+  volume = Volumes.field('pool'),
   every = { type = 'number', required = true, min = 1 },
   count = { type = 'number', required = true, min = 1 },
   step = { type = 'number', required = true },
@@ -158,7 +158,7 @@ local Line = Schema:new('hazard line', {
   packet = { type = 'table', required = true, schema = Packet.schema },
 })
 local Pool = Schema:new('hazard pool', {
-  volume = Area.field('pool'),
+  volume = Volumes.field('pool'),
   delay = { type = 'number', required = true, min = 0 },
   radius = { type = 'number', required = true, min = 0 },
   life = { type = 'number', required = true, min = 0 },
@@ -214,7 +214,7 @@ Action.kinds:register(
     leadShare = { type = 'number', min = 0, max = 1, desc = 'predicted share of player motion' },
     landRadius = { type = 'number', default = 0.65, min = 0 },
     landArt = { type = 'string', desc = 'painted physical landing footprint' },
-    landVolume = Area.field('landing'),
+    landVolume = Volumes.field('landing'),
   }, { 'packet' })
 )
 local bolt = {}
@@ -247,7 +247,7 @@ Action.kinds:register(
   kind('strike', {
     impactSound = { type = 'string', desc = 'voice of the released ground contact' },
     art = { type = 'string', desc = 'painted ground rite style' },
-    volume = Area.field('lightning'),
+    volume = Volumes.field('lightning'),
     radius = { type = 'number', min = 0 },
     life = { type = 'number', min = 0 },
   }, { 'radius', 'life', 'packet' })
@@ -266,8 +266,8 @@ Action.kinds:register(
     art = { type = 'string', desc = 'painted ground rite style' },
     origin = { type = 'string', default = 'target', values = { 'target', 'caster' } },
     marks = { type = 'table', required = true, list = Mark },
-    hazard = { type = 'string', required = true, check = HazardKinds.problem },
-    volume = Area.field('pool'),
+    hazard = { type = 'string', required = true, check = HazardDefs.problem },
+    volume = Volumes.field('pool'),
     radius = { type = 'number', required = true, min = 0 },
     life = { type = 'number', required = true, min = 0 },
     pulse = { type = 'number', required = true, min = 0 },
@@ -280,8 +280,8 @@ local Trail = Schema:new('trail', {
   art = { type = 'string', desc = 'painted ground rite style' },
   origin = { type = 'string', default = 'caster', values = { 'caster' } },
   marks = { type = 'table', required = true, list = Mark },
-  hazard = { type = 'string', default = 'pool', check = HazardKinds.problem },
-  volume = Area.field('pool'),
+  hazard = { type = 'string', default = 'pool', check = HazardDefs.problem },
+  volume = Volumes.field('pool'),
   radius = { type = 'number', required = true, min = 0 },
   life = { type = 'number', required = true, min = 0 },
   pulse = { type = 'number', required = true, min = 0 },
@@ -323,7 +323,7 @@ local swing = {
     min = 0,
     desc = 'the step comes after who backs away: it stops this share of reach short of him',
   },
-  volume = Area.field('sweep'),
+  volume = Volumes.field('sweep'),
 }
 local function with(fields, more)
   local out = {}
@@ -360,7 +360,7 @@ Action.kinds:register(
     reach = { type = 'number', min = 0, desc = 'where it dies out (m)' },
     start = { type = 'number', default = 0.6, min = 0, desc = 'its first radius (m)' },
     delay = { type = 'number', default = 0, min = 0 },
-    volume = Area.field('wave'),
+    volume = Volumes.field('wave'),
     art = { type = 'string', desc = 'painted ground rite style' },
   }, { 'speed', 'reach', 'packet' })
 )
@@ -373,7 +373,7 @@ Action.kinds:register(
     arc = { type = 'number', min = 0, desc = 'the angle it crosses (radians)' },
     spin = { type = 'number', min = 0, desc = 'radians per second' },
     delay = { type = 'number', default = 0.5, min = 0, desc = 'warned before it moves (s)' },
-    volume = Area.field('beam'),
+    volume = Volumes.field('beam'),
     art = { type = 'string', desc = 'painted ground rite style' },
   }, { 'length', 'arc', 'spin', 'packet' })
 )
@@ -425,7 +425,7 @@ Action.kinds:register(
     delay = { type = 'number', min = 0, desc = 'warned before each falls (s)' },
     radius = { type = 'number', min = 0 },
     life = { type = 'number', default = 0.22, min = 0 },
-    volume = Area.field('lightning'),
+    volume = Volumes.field('lightning'),
   }, { 'count', 'interval', 'delay', 'radius', 'packet' })
 )
 -- The whole room strikes except a circle that wanders.
@@ -446,7 +446,7 @@ Action.blast = Schema:new('blast', {
   base = { type = 'number', required = true, min = 0 },
   impact = { type = 'number', required = true, min = 0 },
   push = { type = 'number', min = 0 },
-  damageType = { type = 'string', default = 'physical', check = Types.problem },
+  damageType = { type = 'string', default = 'physical', check = DamageTypes.problem },
   penetration = { type = 'number', default = 0, min = 0, max = 1 },
   falloffStart = { type = 'number', default = 0, min = 0 },
   falloffEnd = { type = 'number', required = true, min = 0 },
@@ -533,13 +533,13 @@ hook('charge', function(built, path)
 end)
 hook('leap', function(built, path)
   assert(built.height > 0, path .. '.height: must be positive')
-  Area.validate(built.landVolume, path .. '.landVolume')
+  Volumes.validate(built.landVolume, path .. '.landVolume')
 end)
 hook('strike', function(built, path)
-  Area.validate(built.volume, path .. '.volume')
+  Volumes.validate(built.volume, path .. '.volume')
 end)
 hook('pattern', function(built, path)
-  Area.validate(built.volume, path .. '.volume')
+  Volumes.validate(built.volume, path .. '.volume')
   assert(#built.marks > 0 and #built.marks <= 12, path .. ': needs 1..12 marks')
   assert(
     built.radius > 0 and built.life > 0 and built.pulse > 0,
@@ -554,7 +554,7 @@ hook('pattern', function(built, path)
   )
 end)
 hook('pool', function(built, path)
-  Area.validate(built.pool.volume, path .. '.pool.volume')
+  Volumes.validate(built.pool.volume, path .. '.pool.volume')
   assert(built.pool.pulse > 0, path .. '.pool.pulse: must be positive')
   assert(
     not built.pool.condition or Conditions.find(built.pool.condition),
@@ -566,7 +566,7 @@ hook('fan', function(built, path)
   integer(built.count, path .. '.count')
   integer(built.rageCount, path .. '.rageCount')
   if built.line then
-    Area.validate(built.line.volume, path .. '.line.volume')
+    Volumes.validate(built.line.volume, path .. '.line.volume')
     assert(built.line.pulse > 0, path .. '.line.pulse: must be positive')
     integer(built.line.count, path .. '.line.count')
     integer(built.line.every, path .. '.line.every')
@@ -596,16 +596,16 @@ local function swung(built, path)
   assert(built.active[2] > built.active[1], path .. '.active: end must follow start')
   assert(built.active[2] <= built.duration, path .. '.active: exceeds strike duration')
   assert(built.lungeTime <= built.duration, path .. '.lungeTime: exceeds strike duration')
-  Area.validate(built.volume, path .. '.volume')
+  Volumes.validate(built.volume, path .. '.volume')
 end
 hook('sweep', swung)
 hook('seize', swung)
 hook('wave', function(built, path)
-  Area.validate(built.volume, path .. '.volume')
+  Volumes.validate(built.volume, path .. '.volume')
   assert(built.speed > 0, path .. '.speed: must be positive')
 end)
 hook('beam', function(built, path)
-  Area.validate(built.volume, path .. '.volume')
+  Volumes.validate(built.volume, path .. '.volume')
   assert(built.spin > 0, path .. '.spin: must be positive')
 end)
 hook('salvo', projectile)

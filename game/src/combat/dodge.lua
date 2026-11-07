@@ -9,7 +9,7 @@
 -- Emits PerfectDodge (session/event_catalog.lua).
 local Signal = require('src.session.signal')
 local Capabilities = require('src.session.capabilities')
-local Resources = require('src.combat.resources')
+local CombatResources = require('src.combat.resources')
 local Rules = require('src.combat.rules')
 local Roles = require('src.core.roles')
 local Sigils = require('src.combat.sigils')
@@ -51,7 +51,11 @@ function Dodge.perfect(g, packet, source, knight)
   -- The sigil of Furfur arms the next shot (combat/combat.lua spends it).
   Sigils.perfect(g, player)
   -- refund: dodges' worth of stamina given back (a dodge is paid with stamina alone, 0.42).
-  Resources.restore(player, 'stamina', Sigils.dodgeCost(player, body.rollStamina) * rule.refund)
+  CombatResources.restore(
+    player,
+    'stamina',
+    Sigils.dodgeCost(player, body.rollStamina) * rule.refund
+  )
   g.impactSlow = math.max(g.impactSlow or 0, rule.freeze)
   local returned
   if

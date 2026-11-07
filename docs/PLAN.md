@@ -165,6 +165,14 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   Stolasa (E4), cofanie 1,110 m w testach i 0,715 m na poligonie (E1),
   strzał zaniża silniejszy wstrząs 0,5 → 0,010 (E5). Brama Linux All PASS:
   143 zestawy, 8892 sprawdzenia, Input 50, Render, Tools.
+- 2026-11-07, **F1 zrobione (część):** każdy moduł `src` ma jedną nazwę
+  lokalną, a nazwa oznacza jeden moduł (reguła w bramie architektury,
+  249 zmian w 145 plikach, bez zmiany zachowania; m.in. `Arena`, `Pools`,
+  `Tuning`, `Kinematics`, `Ballistics`). Zmiana nazw odsłoniła odczyt puli
+  w `audio/soundscape.lua`, którego zapadka `enemy-pool-reads` nie widziała
+  przez inną nazwę modułu; dopisano go jawnie. Wspólne `MathX.smoothstep`
+  zamiast czterech kopii. Wartości domyślne pól widoku i liczby odczucia
+  z `feedback/` przechodzą do E5, który przepisuje te funkcje.
 
 ## Decyzje właściciela
 

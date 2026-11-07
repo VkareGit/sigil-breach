@@ -1,11 +1,11 @@
 -- Spatial authoring is validated before a world allocates cells or a renderer
 -- sees it. Elevations are a heightfield, not overlapping platform solids.
 local Environment = require('src.content.art.environment')
-local Halls = require('src.content.art.halls')
+local HallArt = require('src.content.art.halls')
 local Inscriptions = require('src.content.art.inscriptions')
 local Proving = require('src.content.defs.proving')
-local Soundscape = require('src.content.defs.soundscape')
-local Breakables = require('src.content.maps.breakables')
+local DefsSoundscape = require('src.content.defs.soundscape')
+local Ruin = require('src.content.maps.breakables')
 local FloorArt = require('src.content.maps.floor_art')
 local InscriptionLayout = require('src.content.maps.inscription_layout')
 local WallMounts = require('src.content.maps.wall_mounts')
@@ -53,7 +53,7 @@ function Schema.check(map, id)
   local label = 'map ' .. id
   -- width (x) and depth (z) in cells, or size for a square map.
   local width, depth = map.width or map.size, map.depth or map.size
-  Soundscape.check(map.decor and map.decor.soundscape, width, depth)
+  DefsSoundscape.check(map.decor and map.decor.soundscape, width, depth)
   number(width, label .. '.width')
   number(depth, label .. '.depth')
   assert(
@@ -267,7 +267,7 @@ function Schema.check(map, id)
     positive(map.solids.radius, label .. '.solids.radius')
     assert(map.solids.radius < 0.71, label .. '.solids.radius must stay inside its cell')
   end
-  Breakables.check(decor.breakables, label)
+  Ruin.check(decor.breakables, label)
   if decor.zenith ~= nil then
     assert(Environment[decor.zenith], label .. '.decor.zenith is unknown')
   end
@@ -275,7 +275,7 @@ function Schema.check(map, id)
     assert(Environment[decor.horizon], label .. '.decor.horizon is unknown')
   end
   for _, hall in ipairs(decor.halls or {}) do
-    assert(Halls[hall.kit], label .. '.hall.kit is unknown')
+    assert(HallArt[hall.kit], label .. '.hall.kit is unknown')
     list(hall.footprint, label .. '.hall.footprint')
     for _, rect in ipairs(hall.footprint) do
       assert(#rect == 4, label .. '.hall.footprint rectangle needs four cell coordinates')

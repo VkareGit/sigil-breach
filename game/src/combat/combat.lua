@@ -2,7 +2,7 @@ local Sigils = require('src.combat.sigils')
 local Capabilities = require('src.session.capabilities')
 local Signal = require('src.session.signal')
 local AI = require('src.enemies.ai')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Cast = require('src.combat.abilities')
 local Chain = require('src.combat.chain')
 local Reload = require('src.combat.reload')
@@ -17,7 +17,7 @@ local Bodies = require('src.combat.bodies')
 local Hit = require('src.combat.hit')
 local Volley = require('src.combat.volley')
 local Attributes = require('src.combat.attributes')
-local C = { trace = B.trace }
+local C = { trace = Ballistics.trace }
 -- The controlled actor's shots and the shots that reached a body.
 function C.counters(g)
   local a = Roles.controlled(g)
@@ -135,7 +135,7 @@ end
 Deliveries:register('hitscan', {
   observes = true,
   prepare = function(g, _, shooter)
-    return B.prepare(g, shooter)
+    return Ballistics.prepare(g, shooter)
   end,
   fire = resolveVolley,
 })
@@ -221,7 +221,7 @@ function C.shoot(g, command, who, alt)
     shooter = a,
     sequence = a.shotSequence,
     slot = slot,
-    origin = observed and Observation.copy(observation.origin) or { B.origin(g, a) },
+    origin = observed and Observation.copy(observation.origin) or { Ballistics.origin(g, a) },
     yaw = command and command.yaw or a.yaw,
     pitch = command and command.pitch or a.pitch,
     hit = false,

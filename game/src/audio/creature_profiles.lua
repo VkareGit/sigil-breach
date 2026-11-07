@@ -1,16 +1,16 @@
-local Profiles = require('src.content.creature_audio')
-local Enemies = require('src.content.enemies')
+local CreatureAudio = require('src.content.creature_audio')
+local Archetypes = require('src.content.enemies')
 local Pools = require('src.session.world')
 local DamageTypes = require('src.content.damage_types')
 local P = {}
 local empty = {}
 function P.of(body)
-  local def = body and Enemies.of(body)
-  return def and Profiles[def.id] or empty
+  local def = body and Archetypes.of(body)
+  return def and CreatureAudio[def.id] or empty
 end
 function P.body(body, role, fallback)
   local profile = P.of(body)
-  local def = body and Enemies.of(body)
+  local def = body and Archetypes.of(body)
   return (profile.body and profile.body[role]) or (def and def.sounds[role]) or fallback
 end
 function P.action(body, action, role, fallback)

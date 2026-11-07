@@ -2,7 +2,7 @@
 local Breakables = require('src.content.breakables')
 local Audio = require('src.audio.audio')
 local Context = require('src.session.context')
-local Effects = require('src.feedback.effects')
+local FX = require('src.feedback.effects')
 local Scenery = {}
 local LOOK = {
   stone = { color = { 0.46, 0.37, 0.26 }, dust = { 0.62, 0.5, 0.38 }, sound = 'thud', volume = 0.3 },
@@ -41,7 +41,7 @@ function Scenery.attach(g, bus)
     for i = 1, 16 do
       local a = i * 2.4
       local reach = 0.6 + i * 0.28
-      Effects.emit(
+      FX.emit(
         g,
         'dust',
         e.x + math.cos(a) * reach,

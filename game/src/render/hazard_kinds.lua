@@ -1,7 +1,7 @@
 -- How each kind of marked ground looks (content/hazards.lua):
 --   ground(r, g, h, effects)  drawn on the floor
 --   air(r, g, h, effects)     its spell above it, if any (render/effects.lua)
-local Definitions = require('src.content.hazards')
+local HazardDefs = require('src.content.hazards')
 local Ballistics = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
@@ -11,7 +11,7 @@ local GardenArt = require('src.render.garden_art')
 local StormArt = require('src.render.storm_art')
 local AshArt = require('src.render.ash_art')
 local Kinds = Registry:new('hazard art', function(entry, id)
-  Definitions:get(id)
+  HazardDefs:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
 end)
 Kinds:register('pool', {
@@ -250,6 +250,6 @@ function Kinds.rayAfterimage(r, g, h, age)
   end
 end
 function Kinds.of(h)
-  return Kinds:get(h.kind or Definitions.default)
+  return Kinds:get(h.kind or HazardDefs.default)
 end
 return Kinds

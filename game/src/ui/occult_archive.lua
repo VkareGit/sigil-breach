@@ -1,7 +1,7 @@
 local A = {}
 local Skin = require('src.ui.skin')
-local Goetia = require('src.ui.goetic_sigils')
-local Plates = require('src.ui.occult_plates')
+local GoeticSigils = require('src.ui.goetic_sigils')
+local OccultPlates = require('src.ui.occult_plates')
 local Palette = require('src.ui.palette')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
@@ -39,10 +39,10 @@ function A.draw(g, U)
   label(Text.get('archive_subtitle'), 160, 138, 960, 25, 16, C.ivory, true)
   label(Text.get(entry.name), 518, 184, 610, 28, 20, C.gold, true)
   local x, y, w, h
-  if Plates.entries[entry.id] then
-    x, y, w, h = Plates.draw(entry.id, 668, 226, 310, 280, Palette.sepia)
+  if OccultPlates.entries[entry.id] then
+    x, y, w, h = OccultPlates.draw(entry.id, 668, 226, 310, 280, Palette.sepia)
   else
-    Goetia.draw(entry.id, 683, 226, 280, Palette.sepia, 1)
+    GoeticSigils.draw(entry.id, 683, 226, 280, Palette.sepia, 1)
     x, y, w, h = 683, 226, 280, 280
   end
   Skin.zone('historical figure', 620, 218, 400, 294)

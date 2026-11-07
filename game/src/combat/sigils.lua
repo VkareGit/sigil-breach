@@ -1,6 +1,6 @@
 -- Sigils modify a real discharge/contact. A miss spends a first-shot charge;
 -- pellets share one frozen payload and a volley advances a verdict only once.
-local K = require('src.content.sigils')
+local SigilRules = require('src.content.sigils')
 local Copy = require('src.core.schema').copy
 local Characters = require('src.content.characters')
 local S = {}
@@ -15,22 +15,22 @@ function S.reset(p)
   p.sigilState = nil
 end
 function S.dodgeCost(p, base)
-  return base + (S.rank(p, 'sigil_furfur') > 0 and K.sigil_furfur.stamina or 0)
+  return base + (S.rank(p, 'sigil_furfur') > 0 and SigilRules.sigil_furfur.stamina or 0)
 end
 function S.perfect(g, p)
   if S.rank(p, 'sigil_furfur') > 0 then
-    state(p).furfurUntil = g.elapsed + K.sigil_furfur.window
+    state(p).furfurUntil = g.elapsed + SigilRules.sigil_furfur.window
   end
 end
 function S.flask(p, heal)
-  return math.max(0, heal - (S.rank(p, 'sigil_buer') > 0 and K.sigil_buer.flask or 0))
+  return math.max(0, heal - (S.rank(p, 'sigil_buer') > 0 and SigilRules.sigil_buer.flask or 0))
 end
 function S.reloadStart(p, id, empty)
   if S.rank(p, 'sigil_paimon') <= 0 then
     return 0
   end
   state(p).reloadEmpty = empty and id or nil
-  return K.sigil_paimon.reload
+  return SigilRules.sigil_paimon.reload
 end
 function S.reloadCancel(p)
   if p.sigilState then
@@ -50,16 +50,16 @@ function S.shot(g, p, id, attack, pellets)
     return attack
   end
   local s, out = state(p), Copy(attack)
-  local stolas = id == K.sigil_stolas.weapon and S.rank(p, 'sigil_stolas') or 0
+  local stolas = id == SigilRules.sigil_stolas.weapon and S.rank(p, 'sigil_stolas') or 0
   local furfur = (s.furfurUntil or 0) > g.elapsed and S.rank(p, 'sigil_furfur') or 0
   local paimon = s.paimon and s.paimon[id] and S.rank(p, 'sigil_paimon') or 0
   out.sigil = {
     stolas = stolas,
     target = s.verdictReady and s.verdictTarget or nil,
-    bonus = K.sigil_furfur.bonus[furfur] or 0,
+    bonus = SigilRules.sigil_furfur.bonus[furfur] or 0,
   }
   if paimon > 0 then
-    local extra = K.sigil_paimon.impact[paimon] / math.max(1, pellets)
+    local extra = SigilRules.sigil_paimon.impact[paimon] / math.max(1, pellets)
     out.impact = (out.impact or out.base) + extra
     -- Impetus adds guard damage, without inventing extra health damage or shove.
     out.push = attack.push or attack.impact or attack.base
@@ -77,12 +77,12 @@ function S.contact(attack, target, part)
   end
   local bonus = sigil.bonus
   if sigil.stolas > 0 and part == 'head' and sigil.target == target.id then
-    bonus = bonus + K.sigil_stolas.bonus[sigil.stolas]
+    bonus = bonus + SigilRules.sigil_stolas.bonus[sigil.stolas]
   end
   local out = Copy(attack)
-  out.base = attack.base * (1 + math.min(K.damageCap, bonus))
+  out.base = attack.base * (1 + math.min(SigilRules.damageCap, bonus))
   if sigil.stolas > 0 and part == 'torso' then
-    out.base = out.base * K.sigil_stolas.torso
+    out.base = out.base * SigilRules.sigil_stolas.torso
   end
   return out
 end
@@ -103,8 +103,8 @@ function S.resolved(p, attack, report)
     if s.verdictTarget ~= first.id then
       s.verdictHits, s.verdictReady = 0, nil
     end
-    s.verdictHits = math.min(K.sigil_stolas.hits, (s.verdictHits or 0) + 1)
-    s.verdictReady = s.verdictHits >= K.sigil_stolas.hits or nil
+    s.verdictHits = math.min(SigilRules.sigil_stolas.hits, (s.verdictHits or 0) + 1)
+    s.verdictReady = s.verdictHits >= SigilRules.sigil_stolas.hits or nil
   end
   s.verdictTarget = first.id
 end
@@ -132,12 +132,14 @@ function S.rally(p, event)
   if not s.buerReady or not e or (event.health or 0) <= 0 then
     return true
   end
-  if (p.x - e.x) ^ 2 + (p.z - e.z) ^ 2 > K.sigil_buer.reach ^ 2 then
+  if (p.x - e.x) ^ 2 + (p.z - e.z) ^ 2 > SigilRules.sigil_buer.reach ^ 2 then
     return true
   end
   s.buerReady = nil
-  local back =
-    math.max(0, math.min(p.rally or 0, K.sigil_buer.heal[rank], Characters.maxHp(p) - p.hp))
+  local back = math.max(
+    0,
+    math.min(p.rally or 0, SigilRules.sigil_buer.heal[rank], Characters.maxHp(p) - p.hp)
+  )
   p.hp, p.rally = p.hp + back, math.max(0, (p.rally or 0) - back)
   return true
 end

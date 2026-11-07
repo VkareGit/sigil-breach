@@ -2,7 +2,7 @@
 -- While it lasts it changes named numbers of the body (content/attributes.lua)
 -- and forbids acts; speed and recovery are the common shorthand.
 local Schema = require('src.core.schema')
-local Attributes = require('src.content.attributes')
+local ContentAttributes = require('src.content.attributes')
 local Condition = {}
 Condition.schema = Schema:new('condition', {
   speed = { type = 'number', default = 1, min = 0, desc = 'movement multiplier' },
@@ -20,7 +20,7 @@ function Condition.define(id, def)
   local built = Condition.schema:build(def, where)
   local modifiers = {}
   for name, modifier in pairs(built.modifiers or {}) do
-    assert(Attributes:has(name), where .. ': unknown attribute ' .. tostring(name))
+    assert(ContentAttributes:has(name), where .. ': unknown attribute ' .. tostring(name))
     assert(type(modifier.mul) == 'number' and modifier.mul >= 0, where .. '.' .. name .. '.mul')
     modifiers[name] = modifier
   end

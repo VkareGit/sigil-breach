@@ -12,7 +12,7 @@
 -- low airborne bodies remain solid and cannot reappear inside him at landing.
 local Entities = require('src.session.entities')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Physics = require('src.physics.body_physics')
 local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
@@ -74,8 +74,8 @@ local function clippedMove(g, body, oldX, oldZ, dx, dz, radius, t, nx, nz, offse
     body.level = oldLevel
   end
   local height = Rules.tall(g, body)
-  W.move(world, body, dx * t, dz * t, radius, nil, height)
-  W.move(world, body, remainX - into * nx, remainZ - into * nz, radius, nil, height)
+  Arena.move(world, body, dx * t, dz * t, radius, nil, height)
+  Arena.move(world, body, remainX - into * nx, remainZ - into * nz, radius, nil, height)
   return body.x - oldX, body.z - oldZ
 end
 -- The earliest contact of a demon's own move with knight p (previous: where
@@ -101,7 +101,7 @@ end
 function Contact.moveEnemy(g, e, dx, dz, previous, current)
   local oldX, oldZ, r, oldLevel = e.x, e.z, Rules.radius(e), e.level
   local air, verticalVelocity = e.leapY, e.leapVY
-  W.move(g.world, e, dx, dz, r, nil, Rules.tall(g, e))
+  Arena.move(g.world, e, dx, dz, r, nil, Rules.tall(g, e))
   dx, dz = e.x - oldX, e.z - oldZ
   local controlled = Bodies.controlled(g)
   local p = current or controlled
@@ -218,7 +218,7 @@ function Contact.knight(g, actor)
       local depth, nx, nz = overlap(p, e, radius)
       if depth then
         exchange(g, p, e, nx, nz)
-        W.move(g.world, p, nx * depth, nz * depth, radius, nil, Rules.tall(g, p))
+        Arena.move(g.world, p, nx * depth, nz * depth, radius, nil, Rules.tall(g, p))
         -- His own velocity no longer drives into the demon.
         local into = (p.vx or 0) * nx + (p.vz or 0) * nz
         if into < 0 then
@@ -240,7 +240,7 @@ function Contact.demons(g)
           local depth, nx, nz = overlap(p, e, radius)
           if depth then
             exchange(g, p, e, nx, nz)
-            W.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e), nil, Rules.tall(g, e))
+            Arena.move(g.world, e, -nx * depth, -nz * depth, Rules.radius(e), nil, Rules.tall(g, e))
           end
         end
       end

@@ -2,10 +2,10 @@
 -- inscription per renderer. No HUD styling changes, generated letters or I/O.
 local Text = require('src.content.text')
 local BitmapFont = require('src.ui.fonts.bitmap_font')
-local Definitions = require('src.content.art.inscriptions')
+local Inscriptions = require('src.content.art.inscriptions')
 local Ritual = require('src.render.ritual_art')
 local Ground = require('src.physics.ground')
-local Layout = require('src.content.maps.inscription_layout')
+local InscriptionLayout = require('src.content.maps.inscription_layout')
 local I = {}
 local function bake(r, id)
   r.wallInscriptions = r.wallInscriptions or {}
@@ -13,7 +13,7 @@ local function bake(r, id)
   if saved then
     return saved
   end
-  local def = assert(Definitions[id])
+  local def = assert(Inscriptions[id])
   local lines = {}
   for _, key in ipairs(def.lines) do
     -- The text catalogue preserves the original wording of these excerpts.
@@ -65,7 +65,7 @@ end
 function I.init(r)
   -- Pay glyph/canvas preparation during renderer loading, not on the first
   -- frame after walking into the chapel. The catalogue is small and bounded.
-  for id in pairs(Definitions) do
+  for id in pairs(Inscriptions) do
     bake(r, id)
   end
 end
@@ -78,7 +78,7 @@ function I.draw(r, g, view)
   r.inscriptionPlacement = r.inscriptionPlacement or {}
   for _, item in ipairs((g.world.decor or {}).inscriptions or {}) do
     local art = bake(r, item.id)
-    local place = Layout.resolve(item, g.world.decor, art.aspect, r.inscriptionPlacement)
+    local place = InscriptionLayout.resolve(item, g.world.decor, art.aspect, r.inscriptionPlacement)
     love.graphics.push('all')
     love.graphics.setColor(1, 1, 1)
     love.graphics.setDepthMode('less', true)

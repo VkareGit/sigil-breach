@@ -1,7 +1,7 @@
 -- Finite contact volumes evaluated only during their authored active window.
 local MathX = require('src.core.mathx')
-local B = require('src.combat.ballistics')
-local W = require('src.world.arena')
+local Ballistics = require('src.combat.ballistics')
+local Arena = require('src.world.arena')
 local Ground = require('src.physics.ground')
 local CylinderCast = require('src.physics.cylinder_cast')
 local Receipt = require('src.combat.contact_receipt')
@@ -67,7 +67,7 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
   local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
   if distance > 1e-7 then
     -- y is above the ground; the ray takes world height (physics/ground.lua).
-    local wall, _, kind = B.world(
+    local wall, _, kind = Ballistics.world(
       g.world,
       x1,
       Ground.height(g.world) + y,
@@ -83,7 +83,17 @@ function M.contact(g, x1, z1, x2, z2, y, radius, previous, current, endY, body)
   end
   local px, pz = lerp(previous.x, p.x, lo), lerp(previous.z, p.z, lo)
   if
-    not W.visible(g.world, lerp(x1, x2, lo), lerp(z1, z2, lo), px, pz, nil, nil, p.level, p.level)
+    not Arena.visible(
+      g.world,
+      lerp(x1, x2, lo),
+      lerp(z1, z2, lo),
+      px,
+      pz,
+      nil,
+      nil,
+      p.level,
+      p.level
+    )
   then
     return false
   end
@@ -229,7 +239,7 @@ function M.claw(
         local tipX = lerp(x1 + dx1 * reach, x2 + dx2 * reach, t)
         local tipZ = lerp(z1 + dz1 * reach, z2 + dz2 * reach, t)
         local height = Ground.height(g.world) + lerp(y1, y2, t)
-        hit = W.visible(g.world, rootX, rootZ, tipX, tipZ, height, height)
+        hit = Arena.visible(g.world, rootX, rootZ, tipX, tipZ, height, height)
       end
       if hit then
         local fraction = (t1 - before + (t2 - t1) * t) / duration

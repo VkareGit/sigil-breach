@@ -1,7 +1,7 @@
 -- Stones falling while a support comes down. Nothing here is simulated: the
 -- same id gives the same fall, and the ruin is already in the world.
-local B = require('src.render.kit.builder')
-local Kinds = require('src.content.breakables')
+local Builder = require('src.render.kit.builder')
+local Breakables = require('src.content.breakables')
 local Ruin = require('src.content.maps.breakables')
 local Destruction = require('src.combat.destruction')
 local Debris = { duration = 2.6, count = 72 }
@@ -9,8 +9,8 @@ local cos, sin, pi = math.cos, math.sin, math.pi
 local plans = {}
 -- One broken stone of about a metre at the origin.
 function Debris.vertices()
-  local list = B.list(nil)
-  B.chunk(list, { 0, 0, 0 }, { 0.5, 0.34, 0.42 }, 0, 7, 0.55)
+  local list = Builder.list(nil)
+  Builder.chunk(list, { 0, 0, 0 }, { 0.5, 0.34, 0.42 }, 0, 7, 0.55)
   return list
 end
 local function plan(def)
@@ -20,7 +20,7 @@ local function plan(def)
     for i = 1, #def.id do
       seed = (seed * 31 + def.id:byte(i)) % 9973
     end
-    local rng = B.random(seed + 1)
+    local rng = Builder.random(seed + 1)
     found = {}
     local hole = def.hole
     for i = 1, Debris.count do
@@ -48,7 +48,7 @@ end
 function Debris.draw(r, g, mesh)
   local world = g.world
   for _, def in ipairs(Destruction.list(world)) do
-    if Kinds[def.kind].collapses then
+    if Breakables[def.kind].collapses then
       local stage, at = Destruction.stage(world, def.id)
       local t = stage == 2 and g.elapsed - at or -1
       if t >= 0 and t < Debris.duration then

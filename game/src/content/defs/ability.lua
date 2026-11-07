@@ -9,7 +9,7 @@ local Schema = require('src.core.schema')
 local Id = require('src.core.id')
 local Action = require('src.content.defs.action')
 local Text = require('src.content.text')
-local Resources = require('src.content.resources')
+local ContentResources = require('src.content.resources')
 local Ability = {}
 Ability.pulses = Schema:new('pulses', {
   every = { type = 'number', required = true, min = 1e-3, desc = 'between pulses (s)' },
@@ -51,7 +51,10 @@ function Ability.define(def)
   end
   built.action = Action.build(built.action, path .. '.action')
   for id, amount in pairs(built.cost) do
-    assert(id == 'uses' or Resources:has(id), path .. '.cost: unknown resource ' .. tostring(id))
+    assert(
+      id == 'uses' or ContentResources:has(id),
+      path .. '.cost: unknown resource ' .. tostring(id)
+    )
     assert(type(amount) == 'number' and amount >= 0, path .. '.cost.' .. id)
   end
   assert(not (built.channel and built.toggle), path .. ': a channel or a toggle, not both')

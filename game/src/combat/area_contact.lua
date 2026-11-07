@@ -2,7 +2,7 @@
 -- come from this one query. Floors/decks are solid, not infinite 2D footprints.
 local Ground = require('src.physics.ground')
 local Bodies = require('src.combat.bodies')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local floorSkin = require('src.content.tuning').floorSurface
 local Area = {}
 local epsilon = 1e-6
@@ -61,7 +61,7 @@ function Area.test(g, source, volume, body, point)
   end
   if distance > epsilon then
     local hit, _, kind =
-      B.world(g.world, source.x, y, source.z, dx / distance, 0, dz / distance, distance)
+      Ballistics.world(g.world, source.x, y, source.z, dx / distance, 0, dz / distance, distance)
     if kind ~= 'range' and hit < distance - epsilon then
       return false
     end

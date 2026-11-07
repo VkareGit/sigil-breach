@@ -11,7 +11,7 @@
 -- A file:  SIGIL09 \n <file kind> \n <sequence> \n <checksum> \n <payload>
 -- payload: { [section] = { version = n, data = <tree> }, ... }
 local Serialize = require('src.core.serialize')
-local Reader = require('src.core.data_reader')
+local DataReader = require('src.core.data_reader')
 local Execution = require('src.storage.execution')
 local Save = { format = 'SIGIL09' }
 -- Bounds of a save file the reader accepts.
@@ -106,7 +106,7 @@ function Save.decode(file, text)
     assert(hash == checksum(payload), 'checksum mismatch')
     seq = tonumber(seq)
     assert(seq and seq >= 1 and seq <= 1e12, 'invalid sequence')
-    local tree, reason = Reader.decode(payload, Save.limits)
+    local tree, reason = DataReader.decode(payload, Save.limits)
     assert(type(tree) == 'table', reason or 'invalid payload')
     for name, entry in pairs(tree) do
       local def = sections[name]

@@ -2,7 +2,7 @@
 -- every demon and for the knight (content/defs/knight.lua extends it).
 -- Defaults are the common case; a creature states only what differs.
 local Schema = require('src.core.schema')
-local Types = require('src.content.damage_types')
+local DamageTypes = require('src.content.damage_types')
 local Body = {}
 Body.fields = {
   hp = { type = 'number', required = true, min = 1, desc = 'health' },
@@ -11,12 +11,12 @@ Body.fields = {
   resist = {
     type = 'table',
     default = {},
-    check = Types.keysProblem,
+    check = DamageTypes.keysProblem,
     desc = 'per damage type: >0 resist, <0 vulnerable',
   },
   immune = {
     type = 'table',
-    check = Types.keysProblem,
+    check = DamageTypes.keysProblem,
     desc = 'set of damage types that never wound',
   },
   locationArmor = { type = 'table', desc = 'armour per hit zone (weak points)' },

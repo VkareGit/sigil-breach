@@ -1,5 +1,5 @@
 -- Short painted debris follows the actual contact footprint, never a predicted target.
-local Art = require('src.render.hazard_art')
+local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Impact = {}
 function Impact.draw(r, g, h, age)
@@ -8,11 +8,11 @@ function Impact.draw(r, g, h, age)
     return
   end
   local progress = age / style.life
-  Art.ribbon(
+  HazardArt.ribbon(
     r,
     g,
     h,
-    Art.sequence(style.frames, progress),
+    HazardArt.sequence(style.frames, progress),
     'ring',
     h.radius,
     math.min(h.radius, style.width),

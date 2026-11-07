@@ -2,7 +2,7 @@
 -- starts, played together as aligned loops, and mixed by the mood of the
 -- session: the menu's chant, the calm of a circle, the fight as danger nears,
 -- the guardian's knell, death. Reads the session; never changes it.
-local World = require('src.session.world')
+local Pools = require('src.session.world')
 local Synth = require('src.audio.synth')
 local Score = require('src.audio.score')
 local Queries = require('src.session.queries')
@@ -276,7 +276,7 @@ function S.mood(g)
       return 'guardian'
     end
     -- Chamber trials do not set the guardian flags.
-    for _, e in ipairs(World.of(g, 'enemies')) do
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
       if e.hp > 0 and e.boss and e.awake then
         return 'guardian'
       end

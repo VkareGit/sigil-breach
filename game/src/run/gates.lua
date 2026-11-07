@@ -1,6 +1,6 @@
 -- Summoning gates of the proving ground: a gate glows before its demon steps out.
 -- The field hands in its record r (r.pending); nothing here reads a mode's record.
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
 local Roles = require('src.core.roles')
@@ -48,7 +48,7 @@ function S.arrivals(g, r, dt, arrive)
         e.spawnAge = 0
         -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
         Signal(g, 'EnemyArrived', { enemy = e, gate = s })
-        if (Enemies.of(e) or {}).guardian then
+        if (Archetypes.of(e) or {}).guardian then
           Encounter.guardianArrived(g)
         end
         table.remove(r.pending, i)

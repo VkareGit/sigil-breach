@@ -10,15 +10,15 @@
 --   labels            { until, text key } the stage shown on the HUD
 --   sounds, voices    volume and sound of each stage (presentation)
 local Registry = require('src.core.registry')
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Reloads = Registry:new('reload mechanisms')
-local B, C = T.reload.breech, T.reload.cylinder
+local B, C = Tuning.reload.breech, Tuning.reload.cylinder
 -- The break-action shotgun: open, eject the spent shells, load two, close.
 Reloads:register('breech', {
-  duration = T.shotgunCycle,
+  duration = Tuning.shotgunCycle,
   stages = {
     { at = B.open, name = 'open' },
-    { at = T.reloadLoadTime, name = 'load' },
+    { at = Tuning.reloadLoadTime, name = 'load' },
     { at = B.close, name = 'close' },
   },
   ejects = true,
@@ -35,21 +35,21 @@ Reloads:register('breech', {
 })
 -- The revolver: swing the cylinder out, eject, load all six, close.
 Reloads:register('cylinder', {
-  duration = T.revolverReload,
+  duration = Tuning.revolverReload,
   stages = {
     { at = C.open, name = 'open' },
-    { at = T.revolverLoadTime, name = 'load' },
-    { at = T.revolverCloseTime, name = 'close' },
+    { at = Tuning.revolverLoadTime, name = 'load' },
+    { at = Tuning.revolverCloseTime, name = 'close' },
   },
-  resume = { loaded = T.revolverLoadTime, open = C.resume.open },
+  resume = { loaded = Tuning.revolverLoadTime, open = C.resume.open },
   -- The rounds still in the cylinder fire until the new ones go in; a cylinder
   -- already swung out snaps shut first.
-  interruptBefore = T.revolverLoadTime,
+  interruptBefore = Tuning.revolverLoadTime,
   closeOnFire = C.closeOnFire,
   labels = {
     { C.labels[1], 'reload_open' },
     { C.labels[2], 'reload_eject' },
-    { T.revolverLoadTime, 'reload_load' },
+    { Tuning.revolverLoadTime, 'reload_load' },
     { math.huge, 'reload_close' },
   },
   sounds = C.sounds,

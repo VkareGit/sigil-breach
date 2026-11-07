@@ -1,21 +1,20 @@
 local Weapons = require('src.content.weapons')
-local WorldModule = require('src.session.world')
-local World = require('src.world.arena')
+local Pools = require('src.session.world')
+local Arena = require('src.world.arena')
 local Attributes = require('src.combat.attributes')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
 local Capabilities = require('src.session.capabilities')
 local Presentation = require('src.session.presentation')
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Reload = require('src.combat.reload')
-local K = require('src.physics.kinematics')
+local Kinematics = require('src.physics.kinematics')
 local Rules = require('src.combat.rules')
 local Intent = require('src.player.intent')
 local Context = require('src.session.context')
 local F = {}
-local M, C = T.motion, T.camera
+local M, C = Tuning.motion, Tuning.camera
 local approach = MathX.approach
-local spring = K.spring
+local spring = Kinematics.spring
 local ViewState = require('src.session.view_state')
 local clearCamera = ViewState.clearCamera
 -- A setting change may happen twice while paused, with no simulation between.
@@ -26,7 +25,7 @@ function F.clearMotion(g)
   Presentation.call(g, 'motion.clear')
   g.view.presentationPrevious = nil
   for id in pairs(Context.watched(g)) do
-    local actor = WorldModule.get(g, id)
+    local actor = Pools.get(g, id)
     if actor then
       local shown = Context.of(g, actor)
       clearCamera(shown)
@@ -137,7 +136,7 @@ end
 local function wantedSpeed(g, velocity, dt)
   local p, Move, onGround = m.p, m.Move, m.onGround
   -- Conditions from the shared rules (stagger, wound) slow the body, not the aim.
-  local condition = Rules.speedScale(p) * World.footing(g.world, p.x, p.z)
+  local condition = Rules.speedScale(p) * Arena.footing(g.world, p.x, p.z)
   -- Momentum above the air cap (a slide-jump) is not cut in one tick: the
   -- excess decays with air drag (half-life ~.43 s) toward the cap.
   if onGround then
@@ -262,7 +261,7 @@ local function travel(g, previousVX, previousVZ, dt)
   local oldx, oldz = p.x, p.z
   local contactVX, contactVZ = p.vx, p.vz
   local slidX, slidZ, collided, supportLift, supportDrop =
-    W.move(g.world, p, m.moveX, m.moveZ, Rules.playerBody(p).radius, p, Rules.tall(g, p))
+    Arena.move(g.world, p, m.moveX, m.moveZ, Rules.playerBody(p).radius, p, Rules.tall(g, p))
   m.supportDrop = supportDrop
   if g.world.elevations and g.frame then
     if m.controlled then
@@ -352,7 +351,7 @@ local function fall(g, jumped, dt)
     -- start falling when that path leaves support, not at the tick's start.
     verticalTime = dt * (1 - m.supportDrop)
   end
-  p.jump, p.jumpV, impact = K.vertical(p.jump, p.jumpV, T.gravity, verticalTime)
+  p.jump, p.jumpV, impact = Kinematics.vertical(p.jump, p.jumpV, Tuning.gravity, verticalTime)
   if g.world.decks then
     -- A deck overhead stops the rise (plan v10 V3).
     p.jump, p.jumpV = Rules.ceiling(g, p, p.jump, p.jumpV)

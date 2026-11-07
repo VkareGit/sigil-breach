@@ -1,6 +1,6 @@
 -- Remember the actual cast, including its slot. Cooldown readiness does not
 -- imply a hand gesture: a save/load or another item's cooldown is not a cast.
-local Art = require('src.content.equipment_art')
+local EquipmentArt = require('src.content.equipment_art')
 local Abilities = require('src.content.abilities')
 local Context = require('src.session.context')
 local Feedback = {}
@@ -10,8 +10,8 @@ require('src.session.fields').declareView(
 )
 function Feedback.cast(g, event)
   local hands = event.ability.hands
-  assert(not hands or Art.entries[hands], 'unknown equipment hands: ' .. tostring(hands))
-  if hands and Art.entries[hands].clock == 'windup' then
+  assert(not hands or EquipmentArt.entries[hands], 'unknown equipment hands: ' .. tostring(hands))
+  if hands and EquipmentArt.entries[hands].clock == 'windup' then
     return
   end
   g.view.abilityCast = {
@@ -27,13 +27,13 @@ local function sample(g)
   local actor = Context.actor(g)
   local casting = actor and actor.hp > 0 and actor.casting
   local ability = casting and Abilities:find(casting.id)
-  local hands = ability and ability.hands and Art.entries[ability.hands]
+  local hands = ability and ability.hands and EquipmentArt.entries[ability.hands]
   if hands and hands.clock == 'windup' and casting.phase == 'windup' then
     local duration = ability.action.windup
     return hands, duration - casting.left, duration
   end
   local cast = g.view and g.view.abilityCast
-  local entry = cast and cast.hands and Art.entries[cast.hands]
+  local entry = cast and cast.hands and EquipmentArt.entries[cast.hands]
   if not entry or entry.clock == 'windup' then
     return nil
   end

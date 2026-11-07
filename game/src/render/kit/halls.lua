@@ -3,8 +3,8 @@
 -- ruin needs is prepared with the hall, so a fall costs no mesh building and a
 -- part only asks the world whether it is shown. A new kind of hall is one
 -- builder here and its art catalogue.
-local B = require('src.render.kit.builder')
-local Catalogue = require('src.content.art.halls')
+local Builder = require('src.render.kit.builder')
+local HallArt = require('src.content.art.halls')
 local Debris = require('src.render.kit.debris')
 local Destruction = require('src.combat.destruction')
 local Halls = {
@@ -57,7 +57,7 @@ function Halls.loadingJobs(r, w)
     end
   end
   for _, hall in ipairs((w.decor or {}).halls or {}) do
-    local art = Catalogue[hall.kit]
+    local art = HallArt[hall.kit]
     for _, path in pairs(art.images) do
       add(path, art.imageOptions)
     end
@@ -86,7 +86,7 @@ end
 function Halls.prepare(w, owner, art)
   local entries = {}
   local function mesh(vertices, path, options)
-    local built = owner:own(love.graphics.newMesh(B.format, vertices, 'triangles', 'static'))
+    local built = owner:own(love.graphics.newMesh(Builder.format, vertices, 'triangles', 'static'))
     built:setTexture(art:image(path, options))
     return built
   end
@@ -107,7 +107,7 @@ function Halls.prepare(w, owner, art)
     end
   end
   if #Destruction.list(w) > 0 then
-    local chapel = Catalogue.chapel
+    local chapel = HallArt.chapel
     entries.debris = mesh(Debris.vertices(), chapel.tiles.rubble, chapel.tileOptions)
   end
   return entries

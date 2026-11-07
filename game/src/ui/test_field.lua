@@ -5,7 +5,7 @@ local UI = {}
 local Stats = require('src.session.stats')
 local Field = require('src.run.test_field')
 local Skin = require('src.ui.skin')
-local Goetia = require('src.ui.goetic_sigils')
+local GoeticSigils = require('src.ui.goetic_sigils')
 local Defs = require('src.content.enemy_catalog')
 local lg = love.graphics
 local C = Skin.colors
@@ -273,7 +273,7 @@ function UI.map(g, ui)
   box(ui, Text.get('fui_map_arena'), 132, 163, 440, 34, 22)
   box(ui, Text.get('fui_map_tip'), 132, 208, 440, 30, 18, C.muted)
   for i, seal in ipairs(g.world.seals) do
-    Goetia.draw(seal.id, 140, 278 + (i - 1) * 74, 44, Palette.sepia, 0.95)
+    GoeticSigils.draw(seal.id, 140, 278 + (i - 1) * 74, 44, Palette.sepia, 0.95)
     Skin.imageBounds('field map seal ' .. Text.get(seal.name), 140, 278 + (i - 1) * 74, 44, 44)
     box(ui, Text.get(seal.name), 206, 288 + (i - 1) * 74, 344, 28, 20, seal.color)
   end

@@ -3,13 +3,13 @@ local Catalog = require('src.run.field.catalog')
 local Chambers = require('src.run.field.chambers')
 local Pilgrimage = require('src.run.pilgrimage')
 local Drops = require('src.run.drops')
-local TestField = require('src.run.test_field')
-local Gallery = require('src.world.gallery')
+local Field = require('src.run.test_field')
+local WorldGallery = require('src.world.gallery')
 local Economy = require('src.run.economy')
 local Encounter = require('src.session.encounter')
 local Modes = require('src.session.modes')
 local Sanctuary = require('src.session.sanctuary')
-local Views = require('src.run.mode_views')
+local ModeViews = require('src.run.mode_views')
 local Pools = require('src.session.world')
 local Text = require('src.content.text')
 -- The proving ground (skirmish and stations).
@@ -18,13 +18,13 @@ Modes:register('field', {
   session = { map = require('src.content.pilgrimage').start().map },
   record = 'testField',
   init = function(g, options)
-    TestField.init(g, options)
+    Field.init(g, options)
   end,
   construction = function(g)
-    return TestField.options(g)
+    return Field.options(g)
   end,
   reset = function(g)
-    return TestField.reset(g)
+    return Field.reset(g)
   end,
   visit = function(g, previous)
     -- Text keys (content/text.lua).
@@ -32,27 +32,27 @@ Modes:register('field', {
       or (previous.state == 'settings' and 'return_settings' or 'return_chapel')
   end,
   worldView = function(g, out)
-    return Views.fieldWorld(g, g.run, out, g.testField)
+    return ModeViews.fieldWorld(g, g.run, out, g.testField)
   end,
   tools = function(g, out)
-    return Views.fieldTools(g, g.testField, out)
+    return ModeViews.fieldTools(g, g.testField, out)
   end,
-  objective = Views.fieldObjective,
+  objective = ModeViews.fieldObjective,
   runView = function(g, out)
-    return Views.run(g, g.run, out)
+    return ModeViews.run(g, g.run, out)
   end,
   fieldView = function(g, out)
-    return Views.field(g, g.testField, out)
+    return ModeViews.field(g, g.testField, out)
   end,
   weaponModifier = function(g)
     return g.run.glyphs or g.run.glyph
   end,
   canTrade = function(g)
-    return TestField.allows(g, 'trade')
+    return Field.allows(g, 'trade')
   end,
   policy = { freezable = true, invincible = true, attrition = true },
   attrition = function(g)
-    return TestField.attrition(g)
+    return Field.attrition(g)
   end,
   creatures = function()
     local ids = {}
@@ -67,26 +67,26 @@ Modes:register('field', {
   end,
   -- Ready, retry and the shop lead back to the field.
   start = function(g)
-    return TestField.close(g)
+    return Field.close(g)
   end,
   progress = function(g, dt)
-    TestField.update(g, dt)
+    Field.update(g, dt)
   end,
   ready = function(g)
-    return TestField.close(g)
+    return Field.close(g)
   end,
   retry = function(g)
-    return TestField.retry(g)
+    return Field.retry(g)
   end,
   closeShop = function(g)
-    return g.state == 'shop' and TestField.close(g)
+    return g.state == 'shop' and Field.close(g)
   end,
   -- Trial souls: a purchase that saves nothing.
   buy = function(g, offer)
-    return TestField.allows(g, 'trade') and Economy.trade(g, offer) or false
+    return Field.allows(g, 'trade') and Economy.trade(g, offer) or false
   end,
   catalog = function(g, id)
-    return TestField.action(g, id)
+    return Field.action(g, id)
   end,
   lose = function(g)
     Chambers.failed(g)
@@ -104,22 +104,22 @@ Modes:register('field', {
   end,
   -- A gallery pad answers first, then the field (its shop, its prompt).
   interact = function(g)
-    if Gallery.interact(g) then
+    if WorldGallery.interact(g) then
       return true
     end
-    return TestField.interact(g)
+    return Field.interact(g)
   end,
   context = function(g)
-    return Gallery.context(g) or TestField.context(g)
+    return WorldGallery.context(g) or Field.context(g)
   end,
   frozen = function(g)
-    return TestField.frozen(g)
+    return Field.frozen(g)
   end,
   invincible = function(g)
-    return TestField.invincible(g)
+    return Field.invincible(g)
   end,
   hud = function(g)
-    return TestField.hud(g)
+    return Field.hud(g)
   end,
 })
 -- The way through the chapel: fires and posts (run/pilgrimage.lua).
@@ -132,13 +132,13 @@ Modes:register('pilgrimage', {
     return true
   end,
   worldView = function(g, out)
-    return Pilgrimage.world(g, Views.pilgrimWorld(g, g.run, out))
+    return Pilgrimage.world(g, ModeViews.pilgrimWorld(g, g.run, out))
   end,
   objective = function()
     return Text.get('objective_pilgrim')
   end,
   runView = function(g, out)
-    return Views.run(g, g.run, out)
+    return ModeViews.run(g, g.run, out)
   end,
   -- One engraving on each gun, and its tempering (run/economy.lua).
   weaponModifier = function(g)

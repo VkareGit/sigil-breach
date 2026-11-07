@@ -4,14 +4,14 @@ local Characters = require('src.content.characters')
 local Weapons = require('src.content.weapons')
 local ProvingPads = require('src.world.proving_pads')
 local Maps = require('src.content.maps.index')
-local A = require('src.content.enemies')
-local W = require('src.world.arena')
+local Archetypes = require('src.content.enemies')
+local Arena = require('src.world.arena')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Gates = require('src.run.gates')
 local Signal = require('src.session.signal')
 local Text = require('src.content.text')
-local K = require('src.content.field')
+local FieldData = require('src.content.field')
 local C = {}
 function C.layout(g)
   return Maps:get(g.world.mapId).proving
@@ -29,18 +29,18 @@ function C.validate(g)
     return
   end
   for _, trial in ipairs(layout.trials) do
-    local def = A.get(trial.creature)
+    local def = Archetypes.get(trial.creature)
     assert(def, 'unknown chamber creature: ' .. trial.creature)
     local room = find(layout.chambers, trial.chamber)
     local entry = room.entry
     assert(
-      not W.solid(g.world, entry.x, entry.z, Characters.standard().body.radius),
+      not Arena.solid(g.world, entry.x, entry.z, Characters.standard().body.radius),
       'blocked chamber entry'
     )
     for i, spot in ipairs(room.slots) do
-      assert(not W.solid(g.world, spot.x, spot.z, def.body.radius), 'blocked chamber spawn')
+      assert(not Arena.solid(g.world, spot.x, spot.z, def.body.radius), 'blocked chamber spawn')
       assert(
-        (spot.x - entry.x) ^ 2 + (spot.z - entry.z) ^ 2 >= K.placement.near ^ 2,
+        (spot.x - entry.x) ^ 2 + (spot.z - entry.z) ^ 2 >= FieldData.placement.near ^ 2,
         'spawn too close to entry'
       )
       for j = 1, i - 1 do
@@ -54,7 +54,7 @@ function C.validate(g)
   end
   for _, pad in ipairs(ProvingPads.forWorld(g.world)) do
     assert(
-      not W.solid(g.world, pad.x, pad.z, Characters.standard().body.radius),
+      not Arena.solid(g.world, pad.x, pad.z, Characters.standard().body.radius),
       'blocked trial pad'
     )
     if pad.weapon then
@@ -122,7 +122,7 @@ function C.start(field, g, id, count)
   -- Entering a live fight is not an invulnerable atlas inspection. The
   -- explicit GOD MODE tool can still be enabled after starting the trial.
   g.testField.invincible = false
-  p.armor = K.armor
+  p.armor = FieldData.armor
   g.testField.roomTrial =
     { id = id, count = count, actors = {}, status = 'active', started = g.elapsed }
   for i = 1, count do
@@ -171,7 +171,7 @@ function C.context(g)
   if trial then
     local definition = find(C.layout(g).trials, trial.id)
     return Text.get(trial.status == 'complete' and 'field_room_complete' or 'field_room_active', {
-      name = Text.get(A.get(definition.creature).name),
+      name = Text.get(Archetypes.get(definition.creature).name),
     })
   end
 end

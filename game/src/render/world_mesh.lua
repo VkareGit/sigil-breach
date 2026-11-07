@@ -1,11 +1,11 @@
 -- Presentation resource: built on first draw, reused until the world revision changes.
 -- World creation and collision tests never allocate a GPU mesh.
 local Tiles = require('src.core.tiles')
-local M = require('src.render.mesh')
+local Mesh = require('src.render.mesh')
 local Collision = require('src.physics.collision')
 local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
-local Roof = require('src.physics.roof_cell')
+local RoofCell = require('src.physics.roof_cell')
 local Halls = require('src.render.kit.halls')
 local Geometry = {}
 -- The weak map names worlds but owns no native resources. A live simulation
@@ -14,21 +14,21 @@ local identities, serial = setmetatable({}, { __mode = 'k' }), 0
 local stone, dark, trim, glow =
   { 0.24, 0.29, 0.30 }, { 0.095, 0.12, 0.14 }, { 0.42, 0.36, 0.24 }, { 1, 0.28, 0.055, 1 }
 local function roofCell(v, w, x, z, deck)
-  local p, top = Roof.corners(deck, x, z), deck[2]
+  local p, top = RoofCell.corners(deck, x, z), deck[2]
   if deck[3][5] then
     local middle = { x, deck[3][5], z }
     for i = 1, 4 do
-      M.tri(v, p[i], p[i % 4 + 1], middle, stone)
+      Mesh.tri(v, p[i], p[i % 4 + 1], middle, stone)
     end
   else
-    M.tri(v, p[1], p[2], p[3], stone)
-    M.tri(v, p[1], p[3], p[4], stone)
+    Mesh.tri(v, p[1], p[2], p[3], stone)
+    Mesh.tri(v, p[1], p[3], p[4], stone)
   end
   -- A hall open to the sky sees over the walls: the outer shell of the other
   -- roofs must not rise behind it. Steps between vaults stay.
   local shell = not (w.decor and w.decor.halls)
   if shell then
-    M.quad(
+    Mesh.quad(
       v,
       { x - 0.5, top, z - 0.5 },
       { x - 0.5, top, z + 0.5 },
@@ -66,7 +66,7 @@ local function roofCell(v, w, x, z, deck)
           b, highB = middle, middle[2]
         end
       end
-      M.quad(v, a, { a[1], highA, a[3] }, { b[1], highB, b[3] }, b, stone)
+      Mesh.quad(v, a, { a[1], highA, a[3] }, { b[1], highB, b[3] }, b, stone)
     end
   end
 end
@@ -88,14 +88,14 @@ local function wallFace(v, w, decor, raise, x, z, nx, nz, d)
     local h = Collision.top(w.map[nz][nx])
     local px, pz = x + d[1] * 0.55, z + d[2] * 0.55
     local bw, bd = d[1] == 0 and 1 or 0.12, d[2] == 0 and 1 or 0.12
-    M.box(v, px, 0, pz, bw, 0.30, bd, trim)
-    M.box(v, px, 0.3, pz, bw, h - 0.55, bd, stone)
-    M.box(v, px, h - 0.25, pz, bw, 0.25, bd, trim)
+    Mesh.box(v, px, 0, pz, bw, 0.30, bd, trim)
+    Mesh.box(v, px, 0.3, pz, bw, h - 0.55, bd, stone)
+    Mesh.box(v, px, h - 0.25, pz, bw, 0.25, bd, trim)
     -- Leave continuous lime behind the three narrative wall paintings:
     -- a black niche stripe through a fresco reads as a pasted decal.
     if decor.niches ~= false and (x + z) % 3 == 0 and not muralWall(decor, x, z) then
-      M.box(v, px - d[1] * 0.06, 0.55, pz - d[2] * 0.06, bw * 0.92, 2.8, bd * 0.92, dark)
-      M.box(
+      Mesh.box(v, px - d[1] * 0.06, 0.55, pz - d[2] * 0.06, bw * 0.92, 2.8, bd * 0.92, dark)
+      Mesh.box(
         v,
         px - d[1] * 0.12,
         0.7,
@@ -111,7 +111,7 @@ local function wallFace(v, w, decor, raise, x, z, nx, nz, d)
 end
 local function floorCell(v, w, decor, raise, x, z)
   local elevation = Ground.cell(w, x, z)
-  M.quad(
+  Mesh.quad(
     v,
     { x - 0.5, elevation, z - 0.5 },
     { x - 0.5, elevation, z + 0.5 },
@@ -127,7 +127,7 @@ local function floorCell(v, w, decor, raise, x, z)
       -- The riser is the same cell boundary queried by collision/rays.
       local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
       local tx, tz = d[2] * 0.5, -d[1] * 0.5
-      M.quad(
+      Mesh.quad(
         v,
         { px - tx, adjacent, pz - tz },
         { px - tx, elevation, pz - tz },
@@ -142,13 +142,13 @@ end
 local function roundShaft(v, w, raise, x, z)
   local elevation = Ground.cell(w, x, z)
   if elevation > 0 then
-    M.box(v, x, 0, z, 1, elevation, 1, stone)
+    Mesh.box(v, x, 0, z, 1, elevation, 1, stone)
   end
   local first = #v + 1
-  M.box(v, x, 0, z, 1.15, 0.22, 1.15, trim)
-  M.cone(v, x, 0.22, z, 0.48, 0.36, 4.5, stone, 8)
-  M.cone(v, x, 3.8, z, 0.37, 0.68, 0.5, trim, 8)
-  M.cone(v, x, 4.3, z, 0.68, 0.45, 0.5, stone, 8)
+  Mesh.box(v, x, 0, z, 1.15, 0.22, 1.15, trim)
+  Mesh.cone(v, x, 0.22, z, 0.48, 0.36, 4.5, stone, 8)
+  Mesh.cone(v, x, 3.8, z, 0.37, 0.68, 0.5, trim, 8)
+  Mesh.cone(v, x, 4.3, z, 0.68, 0.45, 0.5, stone, 8)
   raise(first, x, z)
 end
 -- A slab's top, underside and the edges no neighbouring cell of the same deck hides.
@@ -157,7 +157,7 @@ local function deckCell(v, w, decor, x, z, deck)
     roofCell(v, w, x, z, deck)
   else
     local bottom, top = deck[1], deck[2]
-    M.quad(
+    Mesh.quad(
       v,
       { x - 0.5, top, z - 0.5 },
       { x - 0.5, top, z + 0.5 },
@@ -165,7 +165,7 @@ local function deckCell(v, w, decor, x, z, deck)
       { x + 0.5, top, z - 0.5 },
       { 0.30, 0.33, 0.32 }
     )
-    M.quad(
+    Mesh.quad(
       v,
       { x - 0.5, bottom, z + 0.5 },
       { x - 0.5, bottom, z - 0.5 },
@@ -181,7 +181,7 @@ local function deckCell(v, w, decor, x, z, deck)
       if not shared then
         local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
         local tx, tz = d[2] * 0.5, -d[1] * 0.5
-        M.quad(
+        Mesh.quad(
           v,
           { px - tx, bottom, pz - tz },
           { px - tx, top, pz - tz },
@@ -209,7 +209,7 @@ local function ribArch(v, arch, raise)
     for i = 0, 11 do
       local a = i / 12 * math.pi / 2
       local b = (i + 1) / 12 * math.pi / 2
-      M.beam(v, point(a, side), point(b, side), arch.radius or 0.18, stone)
+      Mesh.beam(v, point(a, side), point(b, side), arch.radius or 0.18, stone)
     end
   end
   raise(first, arch.x, arch.z, arch.y)
@@ -218,11 +218,11 @@ end
 local function ritualInlay(v, ritual, raise)
   local first = #v + 1
   for _, r in ipairs(ritual.rings) do
-    M.ring(v, ritual.x, 0.012, ritual.z, r, 0.025, { 0.59, 0.40, 0.18, 0.25 })
+    Mesh.ring(v, ritual.x, 0.012, ritual.z, r, 0.025, { 0.59, 0.40, 0.18, 0.25 })
   end
   for i = 0, ritual.seals - 1 do
     local a = i * math.pi * 2 / ritual.seals
-    M.ring(
+    Mesh.ring(
       v,
       ritual.x + math.cos(a) * ritual.orbit,
       0.014,
@@ -237,21 +237,21 @@ local function ritualInlay(v, ritual, raise)
 end
 local function sealStone(v, s, raise)
   local first = #v + 1
-  M.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
-  M.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
-  M.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
-  M.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
+  Mesh.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
+  Mesh.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
+  Mesh.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
+  Mesh.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
   raise(first, s.x, s.z)
 end
 local function portalFrame(v, portal, raise)
   local first = #v + 1
-  M.box(v, portal.x, 0, portal.z, 4, 0.2, 0.9, dark)
-  M.ring(v, portal.x, portal.y, portal.z - 0.05, portal.radius, 0.16, trim, 64, true)
-  M.ring(v, portal.x, portal.y, portal.z - 0.06, portal.radius - 0.2, 0.04, glow, 64, true)
+  Mesh.box(v, portal.x, 0, portal.z, 4, 0.2, 0.9, dark)
+  Mesh.ring(v, portal.x, portal.y, portal.z - 0.05, portal.radius, 0.16, trim, 64, true)
+  Mesh.ring(v, portal.x, portal.y, portal.z - 0.06, portal.radius - 0.2, 0.04, glow, 64, true)
   for side = -1, 1, 2 do
     local x = portal.x + side * 2.2
-    M.cone(v, x, 0, portal.z + 0.1, 0.4, 0.25, 3.5, stone)
-    M.cone(v, x, 3.5, portal.z + 0.1, 0.25, 0, 0.8, trim)
+    Mesh.cone(v, x, 0, portal.z + 0.1, 0.4, 0.25, 3.5, stone)
+    Mesh.cone(v, x, 3.5, portal.z + 0.1, 0.25, 0, 0.8, trim)
   end
   raise(first, portal.x, portal.z)
 end
@@ -259,13 +259,13 @@ end
 local function hangBanner(v, banner, raise)
   local first = #v + 1
   local x, z, side = banner.x, banner.z, banner.side
-  M.beam(v, { x, 3.8, z - 0.65 }, { x, 3.8, z + 0.65 }, 0.035, trim, 6)
+  Mesh.beam(v, { x, 3.8, z - 0.65 }, { x, 3.8, z + 0.65 }, 0.035, trim, 6)
   for i = 0, 9 do
     local a = i / 10
     local b = (i + 1) / 10
     local xa = x + side * (0.09 + math.sin(a * math.pi * 4) * 0.035)
     local xb = x + side * (0.09 + math.sin(b * math.pi * 4) * 0.035)
-    M.quad(
+    Mesh.quad(
       v,
       { xa, 3.75, z - 0.55 + a * 1.1 },
       { xb, 3.75, z - 0.55 + b * 1.1 },
@@ -274,7 +274,7 @@ local function hangBanner(v, banner, raise)
       { 0.24, 0.045, 0.035, 0 }
     )
   end
-  M.ring(v, x + side * 0.14, 2.9, z, 0.20, 0.02, { 0.55, 0.32, 0.12, 0.08 }, 24, true)
+  Mesh.ring(v, x + side * 0.14, 2.9, z, 0.20, 0.02, { 0.55, 0.32, 0.12, 0.08 }, 24, true)
   raise(first, banner.x, banner.z, banner.y)
 end
 local function candles(v, spot, raise)
@@ -282,8 +282,8 @@ local function candles(v, spot, raise)
   for i = 1, 3 do
     local x = spot.x + (i - 2) * 0.16
     local h = 0.16 + i * 0.05
-    M.cone(v, x, 0, spot.z, 0.04, 0.035, h, { 0.57, 0.47, 0.29, 0.04 }, 6)
-    M.cone(v, x, h, spot.z, 0.027, 0, 0.09, { 1, 0.47, 0.12, 1 }, 5)
+    Mesh.cone(v, x, 0, spot.z, 0.04, 0.035, h, { 0.57, 0.47, 0.29, 0.04 }, 6)
+    Mesh.cone(v, x, h, spot.z, 0.027, 0, 0.09, { 1, 0.47, 0.12, 1 }, 5)
   end
   raise(first, spot.x, spot.z, spot.y)
 end
@@ -325,7 +325,7 @@ local function build(w)
   end
   for _, aisle in ipairs(decor.aisles or {}) do
     local first = #v + 1
-    M.box(v, aisle.x, 0.01, aisle.z, 0.025, 0.01, aisle.length, { 0.55, 0.35, 0.15, 0.1 })
+    Mesh.box(v, aisle.x, 0.01, aisle.z, 0.025, 0.01, aisle.length, { 0.55, 0.35, 0.15, 0.1 })
     raise(first, aisle.x, aisle.z, aisle.y)
   end
   for _, s in ipairs(w.seals) do
@@ -346,8 +346,8 @@ local function build(w)
   end
   for _, spot in ipairs(decor.reliquaries or {}) do
     local first = #v + 1
-    M.box(v, spot.x, 0, spot.z, 0.50, 0.65, 0.38, dark)
-    M.box(v, spot.x, 0.65, spot.z, 0.58, 0.07, 0.43, trim)
+    Mesh.box(v, spot.x, 0, spot.z, 0.50, 0.65, 0.38, dark)
+    Mesh.box(v, spot.x, 0.65, spot.z, 0.58, 0.07, 0.43, trim)
     raise(first, spot.x, spot.z, spot.y)
   end
   local floor = Ground.height(w)
@@ -356,7 +356,7 @@ local function build(w)
       vertex[2] = vertex[2] + floor
     end
   end
-  return M.finish(v)
+  return Mesh.finish(v)
 end
 function Geometry.prepare(w, owner)
   assert(owner, 'world geometry requires an explicit resource owner')

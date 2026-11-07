@@ -3,8 +3,8 @@
 local Abilities = require('src.content.abilities')
 local Weapons = require('src.content.weapons')
 local Listeners = require('src.session.listeners')
-local World = require('src.world.arena')
-local SessionWorld = require('src.session.world')
+local Arena = require('src.world.arena')
+local Pools = require('src.session.world')
 local EventCatalog = require('src.session.event_catalog')
 local Rng = require('src.core.rng')
 local Roles = require('src.core.roles')
@@ -16,7 +16,7 @@ State.seed = 1
 -- mapId: the map it is built on (content/maps).
 function State.new(mapId)
   local session = {
-    world = World.new(mapId),
+    world = Arena.new(mapId),
     -- What the session looks and sounds like (camera, weapon motion, effects,
     -- messages): presentation state, never read by the simulation's rules.
     -- Its fields are declared in session/fields.lua (Fields.view).
@@ -59,7 +59,7 @@ function State.new(mapId)
   }
   -- The session's ECS world over its own arrays, its event bus and its two
   -- random streams (core/ecs, core/events, core/rng).
-  session.ecs = SessionWorld.new(session)
+  session.ecs = Pools.new(session)
   -- The knight from its prefab (session/components.lua: knight); health from
   -- its character, its loadout and arsenal from the weapon definitions.
   local loadout = {}

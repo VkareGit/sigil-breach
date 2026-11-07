@@ -8,7 +8,7 @@ local BodyContact = require('src.combat.body_contact')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Cast = require('src.combat.abilities')
-local Resources = require('src.combat.resources')
+local CombatResources = require('src.combat.resources')
 local Weapons = require('src.content.weapons')
 local Knight = {}
 -- The actors of a step (plan v11 E3b): every knight in pool order; one
@@ -37,7 +37,7 @@ local function recover(knight, dt)
   Rules.tick(knight, dt)
   Rules.recover(knight, dt, body)
   -- Breath comes back as the body recovers: poison slows it (it slowed the old dodge charges).
-  Resources.tick(knight, dt, Rules.recoveryScale(knight))
+  CombatResources.tick(knight, dt, Rules.recoveryScale(knight))
   if (knight.rallyLeft or 0) > 0 then
     knight.rallyLeft = knight.rallyLeft - dt
     if knight.rallyLeft <= 0 then

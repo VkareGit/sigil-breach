@@ -8,8 +8,8 @@ local Context = require('src.session.context')
 -- a heavier blow always LOOKS, SOUNDS and SHAKES heavier, for the player and
 -- for the demons alike. Written description: SYSTEM-SWIATA-0.14.txt §12.
 local MathX = require('src.core.mathx')
-local K = require('src.physics.kinematics')
-local A = require('src.audio.audio')
+local Kinematics = require('src.physics.kinematics')
+local Audio = require('src.audio.audio')
 local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
 local Lessons = require('src.feedback.lessons')
@@ -92,13 +92,13 @@ function W.shot(g, profile, power)
     g.view.aimKickV = (g.view.aimKickV or 0) + w.viewKick * power * w.viewKickRate * math.exp(1)
   end
   -- A recorded shot carries its own hall and thump (0.43, D02: audio/audio.lua baked).
-  local baked = A.baked and A.baked(profile.fire.sound)
+  local baked = Audio.baked and Audio.baked(profile.fire.sound)
   if w.tail and not baked then
-    A.play('hall', w.tail * (0.6 + 0.4 * power))
+    Audio.play('hall', w.tail * (0.6 + 0.4 * power))
   end
   -- The gut of the report: a low thump under it.
   if (w.thump or 0) > 0 and not baked then
-    A.play('thud', w.thump * (0.6 + 0.4 * power))
+    Audio.play('thud', w.thump * (0.6 + 0.4 * power))
   end
   return kick
 end
@@ -155,18 +155,18 @@ function W.playerHit(g, info)
     life = 0.75 + 0.6 * harm,
     staggered = info.staggered,
   })
-  A.play('hurt', 0.30 + 0.40 * harm)
+  Audio.play('hurt', 0.30 + 0.40 * harm)
   if severity >= 0.55 or info.source == 'wall' then
-    A.play('thud', 0.25 + 0.45 * min(1, severity))
+    Audio.play('thud', 0.25 + 0.45 * min(1, severity))
   end
   if (info.absorbed or 0) > 0 then
-    A.play('shell', 0.12 + 0.20 * clamp(info.absorbed / 20, 0, 1))
+    Audio.play('shell', 0.12 + 0.20 * clamp(info.absorbed / 20, 0, 1))
   end
   -- A broken guard: the world's hit-stop is simulation (session/listeners.lua);
   -- here only its sound.
   if info.staggered then
     -- The player's own guard breaking sounds like a demon's, lower and heavier.
-    local s = A.play('break', 0.7)
+    local s = Audio.play('break', 0.7)
     if s then
       s:setPitch(0.72)
     end
@@ -180,8 +180,8 @@ function W.nearMiss(g, b, distance)
   end
   local packet = b.packet or {}
   local severity = W.severity(packet.impact or (b.big and 60 or 40), p)
-  if A.playAt then
-    A.playAt('whoosh', b.x, b.z, p, 0.25 + 0.30 * min(1, severity) * (1 - distance / 1.25))
+  if Audio.playAt then
+    Audio.playAt('whoosh', b.x, b.z, p, 0.25 + 0.30 * min(1, severity) * (1 - distance / 1.25))
   end
   addMark(g, {
     angle = atan2(b.x - p.x, b.z - p.z),
@@ -269,7 +269,7 @@ function W.confirm(g, report, results, hit, hitVolume)
     say(2, 'hit_head', 0.8)
   end
   if voice and not killed then
-    A.play(voice, volume)
+    Audio.play(voice, volume)
   end
 end
 function W.update(g, dt)
@@ -280,20 +280,26 @@ function W.update(g, dt)
     W.clearMotion(g)
   else
     g.view.rollPunch, g.view.rollPunchV =
-      K.spring(g.view.rollPunch or 0, g.view.rollPunchV or 0, 0, 230, 21, dt)
+      Kinematics.spring(g.view.rollPunch or 0, g.view.rollPunchV or 0, 0, 230, 21, dt)
     g.view.rollPunch = clamp(g.view.rollPunch, -0.06, 0.06)
     g.view.viewPunch, g.view.viewPunchV =
-      K.spring(g.view.viewPunch or 0, g.view.viewPunchV or 0, 0, 300, 24, dt)
+      Kinematics.spring(g.view.viewPunch or 0, g.view.viewPunchV or 0, 0, 300, 24, dt)
     g.view.viewPunch = clamp(g.view.viewPunch, -0.05, 0.05)
     g.view.kickBack, g.view.kickBackV =
-      K.spring(g.view.kickBack or 0, g.view.kickBackV or 0, 0, 900, 30, dt)
+      Kinematics.spring(g.view.kickBack or 0, g.view.kickBackV or 0, 0, 900, 30, dt)
     g.view.kickBack = clamp(g.view.kickBack, -1.5, 2.5)
     local rate = g.view.aimKickRate or 30
     g.view.aimKick, g.view.aimKickV =
-      K.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, rate * rate, 2 * rate, dt)
+      Kinematics.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, rate * rate, 2 * rate, dt)
     local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
-    g.view.weaponShotRoll, g.view.weaponShotRollV =
-      K.spring(g.view.weaponShotRoll or 0, g.view.weaponShotRollV or 0, 0, w.wristK, w.wristD, dt)
+    g.view.weaponShotRoll, g.view.weaponShotRollV = Kinematics.spring(
+      g.view.weaponShotRoll or 0,
+      g.view.weaponShotRollV or 0,
+      0,
+      w.wristK,
+      w.wristD,
+      dt
+    )
     local limit = w.wristLimit
     if math.abs(g.view.weaponShotRoll) > limit then
       g.view.weaponShotRoll = clamp(g.view.weaponShotRoll, -limit, limit)
@@ -332,7 +338,7 @@ function W.heart(g, dt)
     -- must not silently lengthen the physical pulse; a hitch plays one cue.
     g.view.heartTimer = g.view.heartTimer + beats * period
     if Context.isControlled(g, p) then
-      A.play('heart', 0.18 + 0.30 * fear)
+      Audio.play('heart', 0.18 + 0.30 * fear)
     end
     g.view.heartbeats = (g.view.heartbeats or 0) + beats
   end

@@ -2,14 +2,14 @@
 -- reload/ammunition clocks and GPU images belong to their separate owners.
 local Registry = require('src.core.registry')
 local Schema = require('src.core.schema')
-local Atlas = require('src.content.art.hand_atlas')
+local HandAtlasData = require('src.content.art.hand_atlas')
 local Authored = require('src.content.art.weapon_frames')
 local WeaponArt = { look = Authored.look }
 local registry = Registry:new('weapon artwork')
 WeaponArt.entries, WeaponArt.ids = registry.entries, registry.order
 local function validate(entry, id)
   local where = 'weapon artwork ' .. id
-  local names = Atlas.validate(entry, where, { 'grip' })
+  local names = HandAtlasData.validate(entry, where, { 'grip' })
   for _, frame in ipairs(entry.frames) do
     if frame.roundsSource then
       assert(
@@ -34,7 +34,7 @@ local function validate(entry, id)
     end
     for _, anchor in ipairs({ 'muzzle', 'eject' }) do
       if frame[anchor] then
-        Atlas.point(frame[anchor], frame.rect, where .. '.' .. frame.id .. '.' .. anchor)
+        HandAtlasData.point(frame[anchor], frame.rect, where .. '.' .. frame.id .. '.' .. anchor)
       end
     end
     if frame.rounds then
@@ -46,7 +46,7 @@ local function validate(entry, id)
           where .. ': invalid rounds index'
         )
         count, last = count + 1, math.max(last, index)
-        local target = entry.frames[Atlas.frame(names, name, where .. '.rounds')]
+        local target = entry.frames[HandAtlasData.frame(names, name, where .. '.rounds')]
         assert(
           not target.rounds,
           where .. ': rounds variants must be leaf frames (no chains or cycles)'
@@ -64,26 +64,27 @@ local function validate(entry, id)
       where .. ': placement needs x/y source pixels'
     )
     for _, value in ipairs(entry.placement) do
-      Atlas.number(value, where .. '.placement')
+      HandAtlasData.number(value, where .. '.placement')
     end
   end
   for _, key in ipairs({ 'cellWidth', 'screenScale' }) do
-    Atlas.number(entry[key], where .. '.' .. key, 0)
+    HandAtlasData.number(entry[key], where .. '.' .. key, 0)
     assert(entry[key] > 0, where .. '.' .. key .. ': must be positive')
   end
   for _, key in ipairs({ 'ready', 'reloadComplete' }) do
-    Atlas.frame(names, entry[key], where .. '.' .. key)
+    HandAtlasData.frame(names, entry[key], where .. '.' .. key)
   end
   assert(type(entry.open) == 'table', where .. ': missing open poses')
   for _, key in ipairs({ 'primed', 'empty' }) do
-    Atlas.frame(names, entry.open[key], where .. '.open.' .. key)
+    HandAtlasData.frame(names, entry.open[key], where .. '.open.' .. key)
   end
   assert(type(entry.phases) == 'table', where .. ': missing phases')
-  local fire = Atlas.sequence(entry.phases.fire, names, where .. '.fire')
-  local reload = Atlas.sequence(entry.phases.reload, names, where .. '.reload')
+  local fire = HandAtlasData.sequence(entry.phases.fire, names, where .. '.fire')
+  local reload = HandAtlasData.sequence(entry.phases.reload, names, where .. '.reload')
   local interrupted
   if entry.phases.interruptedClose then
-    interrupted = Atlas.sequence(entry.phases.interruptedClose, names, where .. '.interruptedClose')
+    interrupted =
+      HandAtlasData.sequence(entry.phases.interruptedClose, names, where .. '.interruptedClose')
     assert(
       interrupted[#interrupted][1] == 1,
       where .. ': interrupted close must end at normalized one'
@@ -107,7 +108,7 @@ local function validate(entry, id)
   for _, key in ipairs(fire) do
     firing(key[2])
   end
-  Atlas.number(entry.automaticFireUntil, where .. '.automaticFireUntil', 0)
+  HandAtlasData.number(entry.automaticFireUntil, where .. '.automaticFireUntil', 0)
   assert(
     type(entry.reloadMotion) == 'table' and #entry.reloadMotion >= 2,
     where .. ': missing reload motion'
@@ -116,7 +117,7 @@ local function validate(entry, id)
   for _, key in ipairs(entry.reloadMotion) do
     assert(#key == 4, where .. ': reload motion needs time/x/y/roll')
     for i, value in ipairs(key) do
-      Atlas.number(value, where .. '.reloadMotion', i == 1 and 0 or nil)
+      HandAtlasData.number(value, where .. '.reloadMotion', i == 1 and 0 or nil)
     end
     assert(key[1] > last, where .. ': reload motion times must increase')
     last = key[1]
@@ -127,15 +128,15 @@ local function validate(entry, id)
     type(style) == 'table' and type(style.muzzle) == 'table' and #style.muzzle > 0,
     where .. ': missing muzzle presentation'
   )
-  Atlas.number(style.flare, where .. '.style.flare', 0)
+  HandAtlasData.number(style.flare, where .. '.style.flare', 0)
   last = 0
   for _, phase in ipairs(style.muzzle) do
-    Atlas.number(phase.finish, where .. '.muzzle.finish', 0)
+    HandAtlasData.number(phase.finish, where .. '.muzzle.finish', 0)
     assert(phase.finish > last, where .. ': muzzle phase times must increase')
-    Atlas.number(phase.frame, where .. '.muzzle.frame', 1)
+    HandAtlasData.number(phase.frame, where .. '.muzzle.frame', 1)
     assert(phase.frame % 1 == 0, where .. ': muzzle frame must be an integer')
-    Atlas.number(phase.scale, where .. '.muzzle.scale', 0)
-    Atlas.number(phase.alpha, where .. '.muzzle.alpha', 0)
+    HandAtlasData.number(phase.scale, where .. '.muzzle.scale', 0)
+    HandAtlasData.number(phase.alpha, where .. '.muzzle.alpha', 0)
     assert(phase.alpha <= 1, where .. ': muzzle alpha exceeds one')
     last = phase.finish
   end
@@ -166,7 +167,7 @@ function WeaponArt.each()
   return registry:each()
 end
 function WeaponArt.frame(entry, name)
-  return Atlas.frame(entry.frameNames, name, 'weapon artwork frame')
+  return HandAtlasData.frame(entry.frameNames, name, 'weapon artwork frame')
 end
 function WeaponArt.variant(entry, index, rounds)
   local variants = entry.frames[index].rounds

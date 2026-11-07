@@ -6,14 +6,14 @@ local Maps = require('src.content.maps.index')
 local Ballistics = require('src.combat.ballistics')
 local Damage = require('src.combat.damage')
 local Hit = require('src.combat.hit')
-local Kinds = require('src.content.breakables')
+local Breakables = require('src.content.breakables')
 local Ruin = require('src.content.maps.breakables')
 local Copy = require('src.core.schema').copy
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local Signal = require('src.session.signal')
 local Save = require('src.storage.save')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Tuning = require('src.content.tuning').scenery
 local Bodies = require('src.combat.bodies')
 local D = {}
@@ -29,7 +29,7 @@ local function index(world)
     found = { byId = {}, cells = {} }
     for _, def in ipairs(D.list(world)) do
       found.byId[def.id] = def
-      if Kinds[def.kind].walk then
+      if Breakables[def.kind].walk then
         local x, z = floor(def.from[1] + 0.5), floor(def.from[3] + 0.5)
         local x2, z2 = floor(def.to[1] + 0.5), floor(def.to[3] + 0.5)
         for cz = min(z, z2), max(z, z2) do
@@ -55,7 +55,7 @@ function D.stage(world, id)
     return 2, state.at
   end
   local def = index(world).byId[id]
-  local kind = Kinds[def.kind]
+  local kind = Breakables[def.kind]
   return state.damage >= kind.health * (kind.cracked or 2) and 1 or 0
 end
 function D.broken(world, id)
@@ -143,14 +143,14 @@ local function middle(def)
 end
 local blow
 local function smash(g, def, owner)
-  local world, kind = g.world, Kinds[def.kind]
+  local world, kind = g.world, Breakables[def.kind]
   local state = world.destruction[def.id]
   state.at = g.elapsed or 0
   state.damage = kind.health
   local x, y, z = middle(def)
   if kind.collapses then
     collapse(world, def)
-    World.opened(world)
+    Arena.opened(world)
     Observation.invalidate(g)
     local crush = kind.crush
     for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -164,7 +164,7 @@ local function smash(g, def, owner)
     for _, other in ipairs(D.list(world)) do
       if not D.broken(world, other.id) then
         local ox, oz = other.from[1] - def.cell[1], other.from[3] - def.cell[2]
-        local near = Kinds[other.kind].walk and ox * ox + oz * oz < crush.radius * crush.radius
+        local near = Breakables[other.kind].walk and ox * ox + oz * oz < crush.radius * crush.radius
         if other.supports == def.id or near then
           blow(g, other, math.huge, owner)
         end
@@ -175,7 +175,7 @@ local function smash(g, def, owner)
   end
 end
 blow = function(g, def, amount, owner, point)
-  local world, kind = g.world, Kinds[def.kind]
+  local world, kind = g.world, Breakables[def.kind]
   world.destruction = world.destruction or {}
   local state = world.destruction[def.id]
   if not state then
@@ -246,7 +246,7 @@ function D.volley(g, event)
           def.to
         )
         if gap <= def.radius + Tuning.rayGrace then
-          local reach = Kinds[def.kind].mass and 0 or t
+          local reach = Breakables[def.kind].mass and 0 or t
           damage = damage + Damage.resolve(attack, def, reach, 'body')
           point = point or { px, py, pz }
         end
@@ -284,7 +284,7 @@ function D.blast(g, charge)
         end
         if open then
           local dealt = Damage.resolve(action.blast, def, reach)
-          blow(g, def, dealt * Kinds[def.kind].blast, charge.owner)
+          blow(g, def, dealt * Breakables[def.kind].blast, charge.owner)
         end
       end
     end
@@ -324,17 +324,17 @@ function D.restore(world, state)
   world.destruction = state and next(state) and Copy(state) or nil
   for id, entry in pairs(world.destruction or NONE) do
     local def = index(world).byId[id]
-    if entry.at and Kinds[def.kind].collapses then
+    if entry.at and Breakables[def.kind].collapses then
       collapse(world, def)
     end
   end
-  World.opened(world)
+  Arena.opened(world)
 end
 -- A rest: what collapsed stays down, every small thing stands again.
 function D.settle(world)
   local kept = {}
   for id, entry in pairs(world.destruction or NONE) do
-    if entry.at and Kinds[index(world).byId[id].kind].collapses then
+    if entry.at and Breakables[index(world).byId[id].kind].collapses then
       kept[id] = entry
     end
   end
@@ -357,7 +357,7 @@ local function validState(def, s)
   if type(s) ~= 'table' then
     return false
   end
-  local health = Kinds[def.kind].health
+  local health = Breakables[def.kind].health
   return type(s.damage) == 'number'
     and s.damage >= 0
     and s.damage <= health

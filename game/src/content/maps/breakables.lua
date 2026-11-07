@@ -4,7 +4,7 @@
 --   tear = { z, half, low, high, seed }     the upper edge of a torn wall
 local Ruin = {}
 local atan2, sin, sqrt, abs, huge = math.atan2, math.sin, math.sqrt, math.abs, math.huge
-local Kinds = require('src.content.breakables')
+local Breakables = require('src.content.breakables')
 function Ruin.holeEdge(hole, angle)
   local s = hole.seed
   return hole.radius
@@ -35,12 +35,12 @@ function Ruin.check(list, label)
       label .. ': breakable id ' .. tostring(item.id)
     )
     seen[item.id] = true
-    assert(Kinds[item.kind], label .. ': unknown breakable kind ' .. tostring(item.kind))
+    assert(Breakables[item.kind], label .. ': unknown breakable kind ' .. tostring(item.kind))
     assert(type(item.radius) == 'number' and item.radius > 0, label .. ': breakable radius')
     for _, point in ipairs({ item.from, item.to }) do
       assert(type(point) == 'table' and #point == 3, label .. ': breakable segment')
     end
-    if Kinds[item.kind].collapses then
+    if Breakables[item.kind].collapses then
       assert(item.cell and item.hole and item.rubble, label .. ': a support needs its ruin')
     end
   end

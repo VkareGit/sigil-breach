@@ -1,9 +1,9 @@
 -- Composition-time references: content stays independent of its samplers and
 -- renderer. Used by startup/QA, never for a per-frame scan of every creature.
 local Poses = require('src.content.art.poses')
-local Enemies = require('src.content.enemies')
-local Art = require('src.content.enemy_art')
-local Sequences = require('src.content.ability_art')
+local Archetypes = require('src.content.enemies')
+local EnemyArt = require('src.content.enemy_art')
+local AbilitySequences = require('src.content.ability_art')
 local Anatomy = require('src.content.art.anatomy_regions')
 local Masks = require('src.content.art.hit_masks')
 local Sources = require('src.content.art.sources')
@@ -12,7 +12,7 @@ local Atlases = require('src.content.art.atlases')
 local Contract = {}
 
 function Contract.sequenceProblems(id)
-  local out, entry = {}, Sequences.entries[id]
+  local out, entry = {}, AbilitySequences.entries[id]
   local function bad(message)
     out[#out + 1] = 'ability artwork ' .. tostring(id) .. ': ' .. message
   end
@@ -68,8 +68,8 @@ function Contract.problems(def)
       end
     end
   end
-  local layout = Art.layouts[atlas]
-  if not Art.entries[atlas] or not layout then
+  local layout = EnemyArt.layouts[atlas]
+  if not EnemyArt.entries[atlas] or not layout then
     bad('unknown atlas ' .. tostring(atlas))
   end
   if look.hit ~= 'volumes' then
@@ -131,10 +131,10 @@ function Contract.validate(def)
   return def
 end
 function Contract.validateAll()
-  for _, def in Enemies.each() do
+  for _, def in Archetypes.each() do
     Contract.validate(def)
   end
-  for id in Sequences.each() do
+  for id in AbilitySequences.each() do
     local problems = Contract.sequenceProblems(id)
     assert(#problems == 0, table.concat(problems, '\n'))
   end

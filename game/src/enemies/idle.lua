@@ -1,11 +1,11 @@
 -- Authored quiet poses are appended to the original action atlas. Unequal
 -- exposures hold a breath and let it settle; entity phase prevents a chorus
 -- of identical breathing. This module needs no graphics context.
-local Enemies = require('src.content.enemies')
-local Metadata = require('src.content.enemy_idle')
-local I = { count = Metadata.count, entries = Metadata.entries }
+local Archetypes = require('src.content.enemies')
+local EnemyIdle = require('src.content.enemy_idle')
+local I = { count = EnemyIdle.count, entries = EnemyIdle.entries }
 function I.kind(e)
-  return Enemies.look(e).atlas or e.kind
+  return Archetypes.look(e).atlas or e.kind
 end
 function I.sample(kind, time, id)
   local entry = assert(I.entries[kind], 'unknown idle identity: ' .. tostring(kind))

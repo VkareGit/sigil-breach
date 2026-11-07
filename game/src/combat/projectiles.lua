@@ -3,7 +3,7 @@ local Combat = require('src.combat.combat')
 local Entities = require('src.session.entities')
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
 local SphereCast = require('src.physics.sphere_cast')
 local CylinderCast = require('src.physics.cylinder_cast')
@@ -15,7 +15,7 @@ local Dodge = require('src.combat.dodge')
 local Characters = require('src.content.characters')
 local Hit = require('src.combat.hit')
 local Defaults = require('src.content.combat_defaults')
-local D = require('src.combat.damage')
+local Damage = require('src.combat.damage')
 local Materials = require('src.content.ballistic_surfaces')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
@@ -107,7 +107,7 @@ local function goesOn(b, target, part, surface)
     return
   end
   local retain = (b.retain or 1)
-    * math.max(0, pierce.retain - D.rating(target, part) * pierce.armorCost)
+    * math.max(0, pierce.retain - Damage.rating(target, part) * pierce.armorCost)
   local passed = (b.passed or 0) + 1
   if retain >= pierce.minRetain and passed <= pierce.bodies then
     return retain, passed
@@ -123,12 +123,24 @@ local function demonContact(b, dx, dy, dz, limit, bodies, g, side)
   local own = Shape.radius(b)
   for _, entry in ipairs(bodies) do
     if
-      B.near(entry, b.x, b.z, ux, uz, best, own)
+      Ballistics.near(entry, b.x, b.z, ux, uz, best, own)
       and Bodies.harms(g, side, entry.enemy, 'missile')
       and not (b.through and b.through[entry.enemy.id])
     then
-      local d, segment, contact =
-        B.body(g, entry.enemy, b.x, b.y, b.z, ux, uy, uz, best, entry.volumes, entry.surface, own)
+      local d, segment, contact = Ballistics.body(
+        g,
+        entry.enemy,
+        b.x,
+        b.y,
+        b.z,
+        ux,
+        uy,
+        uz,
+        best,
+        entry.volumes,
+        entry.surface,
+        own
+      )
       if d and (d < best or (not target and d == best)) then
         best, target, part, surface = d, entry.enemy, segment, contact
       end
@@ -233,7 +245,7 @@ local function meetCreatures(g, b, player, bodies)
       key = player
     end
     if not bodies[key] then
-      bodies[key] = B.prepare(g, observer, next(bodies) and {} or nil)
+      bodies[key] = Ballistics.prepare(g, observer, next(bodies) and {} or nil)
     end
     local share, body, segment, contact =
       demonContact(b, s.dx, s.dy, s.dz, s.worldT, bodies[key], g, sideOf(b))

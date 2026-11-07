@@ -2,7 +2,7 @@
 local Pools = require('src.session.world')
 local Spawn = require('src.session.spawn')
 local Ground = require('src.physics.ground')
-local World = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Collision = require('src.physics.collision')
 local K = require('src.content.combat_defaults').hazards
 local AttackDefaults = require('src.content.combat_defaults').attacks
@@ -64,7 +64,7 @@ function Garden.eligible(g, e, a, h)
     and h.kind == 'pool'
     and (h.x - e.x) ^ 2 + (h.z - e.z) ^ 2 <= a.range ^ 2
     and math.abs(Ground.of(g.world, h) - Ground.of(g.world, e)) < 1e-6
-    and World.visible(g.world, e.x, e.z, h.x, h.z)
+    and Arena.visible(g.world, e.x, e.z, h.x, h.z)
 end
 function Garden.available(g, e, a)
   if not g then

@@ -1,5 +1,5 @@
 local Shaders = require('src.render.shaders')
-local Marks = require('src.feedback.surface_marks')
+local SurfaceMarkFeedback = require('src.feedback.surface_marks')
 local R = {}
 local format = {
   { 'VertexPosition', 'float', 3 },
@@ -8,11 +8,11 @@ local format = {
 }
 local indices = { 1, 2, 3, 1, 3, 4 }
 function R.init(r)
-  r.markImage = r.resources:image(Marks.path)
-  r.markMesh = love.graphics.newMesh(format, Marks.limit * 6, 'triangles', 'stream')
+  r.markImage = r.resources:image(SurfaceMarkFeedback.path)
+  r.markMesh = love.graphics.newMesh(format, SurfaceMarkFeedback.limit * 6, 'triangles', 'stream')
   r.markMesh:setTexture(r.markImage)
   r.markVertices = {}
-  for i = 1, Marks.limit * 6 do
+  for i = 1, SurfaceMarkFeedback.limit * 6 do
     r.markVertices[i] = { 0, 0, 0, 0, 0, 1, 1, 1, 1 }
   end
   r.markShader = love.graphics.newShader(Shaders.surface)
@@ -58,10 +58,10 @@ function R.draw(r, g)
           math.min(1, red + 0.12),
           math.min(1, green + 0.12),
           math.min(1, blue + 0.12),
-          Marks.alpha(d)
+          SurfaceMarkFeedback.alpha(d)
       end
       count = count + 6
-      if count >= Marks.limit * 6 then
+      if count >= SurfaceMarkFeedback.limit * 6 then
         break
       end
     end

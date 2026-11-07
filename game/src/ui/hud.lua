@@ -1,5 +1,5 @@
 local Sigils = require('src.combat.sigils')
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Shop = require('src.content.shop')
 local Reliquary = require('src.ui.reliquary')
 local Characters = require('src.content.characters')
@@ -7,22 +7,22 @@ local Context = require('src.session.context')
 local H = {}
 local lg = love.graphics
 local Skin = require('src.ui.skin')
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Reload = require('src.combat.reload')
-local B = require('src.combat.ballistics')
+local Ballistics = require('src.combat.ballistics')
 local Attributes = require('src.combat.attributes')
 local Chain = require('src.combat.chain')
 local Honours = require('src.content.chain')
-local L = require('src.ui.layout')
+local Layout = require('src.ui.layout')
 local Portrait = require('src.ui.portrait')
-local Numbers = require('src.ui.fonts.painted_numbers')
+local PaintedNumbers = require('src.ui.fonts.painted_numbers')
 local Weapons = require('src.content.weapons')
 local Loadout = require('src.combat.loadout')
 local Slots = require('src.ui.hud_slots')
 local Weight = require('src.feedback.weight')
 local Lessons = require('src.feedback.lessons')
 local Rules = require('src.combat.rules')
-local Resources = require('src.combat.resources')
+local CombatResources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
 -- The gun not in hand (0.43, D04): the same ink, faded, so the one in hand reads first.
 local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.55 }
@@ -31,16 +31,17 @@ local Clocks = require('src.content.tuning').clocks
 local Modes = require('src.session.modes')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
-local Fit = require('src.ui.text_fit')
+local TextFit = require('src.ui.text_fit')
 local Pools = require('src.session.world')
 local C = Skin.colors
 local U
 -- Both HUD layouts show the same resolved cone the actor actually fires.
 function H.spreadRadius(g)
   return 640
-    * math.tan(T.pelletSpread * Loadout.spread(g, Context.actor(g)))
+    * math.tan(Tuning.pelletSpread * Loadout.spread(g, Context.actor(g)))
     / math.tan(
-      math.rad((g.view.fov or T.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0)) / 2
+      math.rad((g.view.fov or Tuning.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0))
+        / 2
     )
 end
 -- Guard (poise) under a health bar: gold fills as blows accumulate toward
@@ -85,7 +86,7 @@ local function number(t, cx, y, w, h, c)
   if type(t) == 'number' then
     t = string.format('%.0f', math.max(0, math.floor(t + 0.5)))
   end
-  local x, top, width, height = Numbers.draw(t, cx, y, w, h, c)
+  local x, top, width, height = PaintedNumbers.draw(t, cx, y, w, h, c)
   Skin.imageBounds('painted number ' .. t, x, top, width, height)
 end
 local function fitted(t, cx, y, size, w, c)
@@ -94,7 +95,7 @@ local function fitted(t, cx, y, size, w, c)
       return centered(t, cx, y, s, c)
     end
   end
-  centered(Fit.ellipsis(U.fonts[11], t, w), cx, y, 11, c)
+  centered(TextFit.ellipsis(U.fonts[11], t, w), cx, y, 11, c)
 end
 local function line(x1, y1, x2, y2, c, w)
   color(c)
@@ -261,7 +262,7 @@ function H.status(g, run)
       end
       local width = 1011 - ink.w - left
       local font = marked and 14 or (Skin.inkBounds(U.fonts[12], label).w <= width and 12 or 11)
-      local fit = Fit.ellipsis(U.fonts[font], label, width)
+      local fit = TextFit.ellipsis(U.fonts[font], label, width)
       text(fit, left - Skin.inkBounds(U.fonts[font], fit).x, y, font, C.gold)
     end
   end
@@ -287,7 +288,7 @@ end
 -- Effort, over the fresco, only while it is being spent.
 -- The bar, and the mark a dodge needs: below it the knight cannot get away.
 function H.stamina(p)
-  local share = Resources.share(p, 'stamina')
+  local share = CombatResources.share(p, 'stamina')
   if share and share < 1 then
     local price = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina)
       / Characters.of(p).resources.stamina.max
@@ -332,17 +333,18 @@ local function hitMarks(g, cx, cy, mark)
   -- and get out of the way, fading over their last moment (owner: the old heavy X shouted).
   -- A kill is the same mark in red, a little longer, with a small jump.
   local kill = g.view.lastKill
-  local reach = kill and L.killReach * (1 + L.killPop * (g.view.killPop or 0) / Timing.killPop)
-    or (L.hitReach + math.floor((g.view.hitWeight or 0) * 2))
-  local fade = math.min(1, g.view.hitmarker / L.markFade)
+  local reach = kill
+      and Layout.killReach * (1 + Layout.killPop * (g.view.killPop or 0) / Timing.killPop)
+    or (Layout.hitReach + math.floor((g.view.hitWeight or 0) * 2))
+  local fade = math.min(1, g.view.hitmarker / Layout.markFade)
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
-    local x1, y1 = cx + v[1] * L.markGap, cy + v[2] * L.markGap
+    local x1, y1 = cx + v[1] * Layout.markGap, cy + v[2] * Layout.markGap
     local x2, y2 = cx + v[1] * reach, cy + v[2] * reach
     color(Palette.inkSoft, 0.85 * fade)
-    lg.setLineWidth(L.markWidth + 1)
+    lg.setLineWidth(Layout.markWidth + 1)
     lg.line(x1, y1, x2, y2)
     color(mark, fade)
-    lg.setLineWidth(L.markWidth)
+    lg.setLineWidth(Layout.markWidth)
     lg.line(x1, y1, x2, y2)
   end
   if g.view.armorHit and not g.view.lastKill then
@@ -387,7 +389,7 @@ end
 local function aimMarks(g, cx, cy)
   local p = Context.actor(g)
   local locked = Attributes.forbids(p, 'fire')
-  local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and L.lockedGap or 0)
+  local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and Layout.lockedGap or 0)
   local hit = g.view.hitmarker > 0
   -- One colour, one meaning, on the hit mark alone: white a hit, blue armour, gold a broken
   -- guard, red a kill. The cross itself stays ivory, dimmed while the hands cannot fire.
@@ -399,7 +401,7 @@ local function aimMarks(g, cx, cy)
     or (g.view.refusalTimer or 0) > 0 and g.view.refusal
   if says then
     -- Ivory with its ink, never red: red at the reticle belongs to a kill alone.
-    centered(Text.get(says), cx, cy + L.refusalBelow, 16, C.ivory)
+    centered(Text.get(says), cx, cy + Layout.refusalBelow, 16, C.ivory)
   end
   for _, v in ipairs({ { -gap - 6, 0, -gap, 0 }, { gap, 0, gap + 6, 0 }, { 0, -gap - 6, 0, -gap } }) do
     line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
@@ -427,11 +429,11 @@ local function foePanel(g, p)
   local world = Queries.world(g)
   if world.guardianSpawned and not world.guardianDead then
     for _, e in ipairs(Pools.of(g, 'enemies')) do
-      local banner = Enemies.look(e).banner
+      local banner = Archetypes.look(e).banner
       if banner and e.hp > 0 then
         local exposed = Rules.has(e, 'exposed')
         local name = Text.get(
-          exposed and banner.exposed or (Enemies.furious(e) and banner.fury or banner.calm)
+          exposed and banner.exposed or (Archetypes.furious(e) and banner.fury or banner.calm)
         )
         Skin.panel(426, 16, 428, 64, 2, 10)
         Skin.zone('boss field', 438, 27, 402, 43)
@@ -443,8 +445,16 @@ local function foePanel(g, p)
       end
     end
   else
-    local dx, dy, dz = B.direction(p.yaw, p.pitch)
-    local target = B.traceVector(g, dx, dy, dz, 25, B.prepare(g, p, {}), { B.origin(g, p) })
+    local dx, dy, dz = Ballistics.direction(p.yaw, p.pitch)
+    local target = Ballistics.traceVector(
+      g,
+      dx,
+      dy,
+      dz,
+      25,
+      Ballistics.prepare(g, p, {}),
+      { Ballistics.origin(g, p) }
+    )
     -- An ordinary body's bar comes with a hit and goes foeBar s after the last one (0.45, owner
     -- D18); one with a banner stands in the sights as before.
     local struck = g.view.damageTrail
@@ -452,7 +462,7 @@ local function foePanel(g, p)
       and target
       and struck.id == target.id
       and struck.hold + Clocks.foeBar > Clocks.trailHold
-    if target and target.hp > 0 and (struck or Enemies.look(target).banner) then
+    if target and target.hp > 0 and (struck or Archetypes.look(target).banner) then
       local shield = (target.armorRating or 0) > 0
       Skin.panel(503, 20, 274, 60, 2, 10)
       Skin.zone('target field', 514, 30, 252, 40)
@@ -520,8 +530,14 @@ local function honours(g, cx)
     return
   end
   local medal = medalOf(g.view.medal)
-  seal(g.view.medal, cx - L.medalSeal / 2, L.medalTop, L.medalSeal, math.min(1, left / L.medalFade))
-  centered(Text.get(medal.name), cx, L.medalTop + L.medalSeal + 2, 20, C.gold)
+  seal(
+    g.view.medal,
+    cx - Layout.medalSeal / 2,
+    Layout.medalTop,
+    Layout.medalSeal,
+    math.min(1, left / Layout.medalFade)
+  )
+  centered(Text.get(medal.name), cx, Layout.medalTop + Layout.medalSeal + 2, 20, C.gold)
 end
 local function prompt(g)
   local ctx = g:context()
@@ -546,7 +562,7 @@ end
 -- under it rather than over it, and no hint is shown.
 local function message(g, medal)
   if g.view.messageTimer > 0 then
-    local top = medal and L.medalTop + L.medalSeal + L.medalBelow or 91
+    local top = medal and Layout.medalTop + Layout.medalSeal + Layout.medalBelow or 91
     local width = math.min(1180, U.fonts[16]:getWidth(g.view.message) + 40)
     Skin.panel(640 - width / 2, top, width, 46, 2, 10)
     Skin.zone('message field', 652 - width / 2, top + 10, width - 24, 26)
@@ -590,7 +606,7 @@ function H.draw(g, settings, ui, descentUI)
   U = ui
   local p = Context.actor(g)
   local run = Modes.act(g, 'hud')
-  local cx, cy = U.aimX or L.aimX, U.aimY or L.aimY
+  local cx, cy = U.aimX or Layout.aimX, U.aimY or Layout.aimY
   descentUI.heading(g)
   utilityPanel(g)
   aimMarks(g, cx, cy)

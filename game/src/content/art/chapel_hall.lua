@@ -189,10 +189,7 @@ Hall.light = {
     { 0, 2.6, 10, 0.95, 0.6, 0.36, 0.34, 11 },
   },
 }
-local function smooth(a, b, x)
-  local t = math.max(0, math.min(1, (x - a) / (b - a)))
-  return t * t * (3 - 2 * t)
-end
+local smooth = require('src.core.mathx').smoothstep
 -- How far a point lies inside a pointed arch (negative: outside).
 function Hall.inside(f, u, v)
   local half = f.half

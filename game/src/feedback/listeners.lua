@@ -1,16 +1,16 @@
 -- What the player sees and hears of the simulation's events ('present'
 -- phase): run after the step (or at once outside a step). Nothing here may
 -- change the simulation; the golden master would catch it.
-local Enemies = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Audio = require('src.audio.audio')
-local Effects = require('src.feedback.effects')
+local FX = require('src.feedback.effects')
 local Weight = require('src.feedback.weight')
 local Rules = require('src.combat.rules')
 local Tuning = require('src.content.tuning')
 local Shot = require('src.feedback.shot_feedback')
 local WorldFeedback = require('src.feedback.world_feedback')
 local Scenery = require('src.feedback.scenery_feedback')
-local Numbers = require('src.feedback.damage_numbers')
+local DamageNumbers = require('src.feedback.damage_numbers')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local MovementMarks = require('src.feedback.movement_marks')
 local Text = require('src.content.text')
@@ -18,17 +18,16 @@ local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Medals = require('src.feedback.medals')
 local Lessons = require('src.feedback.lessons')
-local Chain = require('src.content.chain')
+local Honours = require('src.content.chain')
 local Characters = require('src.content.characters')
 local Feel = Tuning.feel
 local Listeners = {}
 -- The visible consequence of a blow on a body: wound particles, or a spray.
 local Impact = require('src.feedback.impact_response')
-local FX = Effects
 local function blow(g, e)
   local target, point, contact = e.target, e.point, e.contact
   if e.number then
-    Numbers.add(g, point, e.number.value, e.number.kill, e.number.head, false)
+    DamageNumbers.add(g, point, e.number.value, e.number.kill, e.number.head, false)
   end
   if contact then
     Impact.body(g, target, point, contact.healthDamage, contact.armorAbsorbed, contact)
@@ -78,7 +77,7 @@ local function enemyKilled(g, e)
       Audio.play('seal', 0.22)
     end
   end
-  Effects.stain(g, enemy.x, enemy.z, Enemies.look(enemy).deathStain, enemy.kind)
+  FX.stain(g, enemy.x, enemy.z, Archetypes.look(enemy).deathStain, enemy.kind)
   if not personal then
     -- A world death leaves its stain regardless of who owns the blow.
     Audio.play('kill', 0.65)
@@ -88,9 +87,9 @@ local function enemyKilled(g, e)
   local p = Context.actor(g)
   if e.source == 'execution' then
     Medals.show(g, 'absolved')
-  elseif p.hp <= Characters.maxHp(p) * Chain.lastRites then
+  elseif p.hp <= Characters.maxHp(p) * Honours.lastRites then
     Medals.show(g, 'last_rites')
-  elseif ((enemy.x - p.x) ^ 2 + (enemy.z - p.z) ^ 2) ^ 0.5 <= Chain.pointBlank then
+  elseif ((enemy.x - p.x) ^ 2 + (enemy.z - p.z) ^ 2) ^ 0.5 <= Honours.pointBlank then
     Medals.show(g, 'point_blank')
   end
   if e.souls then

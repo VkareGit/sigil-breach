@@ -1,12 +1,12 @@
 -- Resolve BEFORE health/death events. Same entity, target and effects: no
 -- spawn, death reward or invulnerability at a refill.
 local AttackSelection = require('src.enemies.attack_selection')
-local A = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Signal = require('src.session.signal')
 local ActionKinds = require('src.combat.action_kinds')
 local Encounter = {}
 function Encounter.advance(g, e)
-  local def = A.of(e)
+  local def = Archetypes.of(e)
   if not (def and def.phases) then
     return false
   end

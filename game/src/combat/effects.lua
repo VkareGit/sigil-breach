@@ -2,7 +2,7 @@
 -- ongoing clocks/provenance belong to the affected body, never the weapon.
 -- Pulses re-enter the shared damage outcomes and cannot recursively add effects.
 local Registry = require('src.core.registry')
-local Definitions = require('src.content.defs.effect')
+local Effect = require('src.content.defs.effect')
 local Damage = require('src.combat.damage')
 local Rules = require('src.combat.rules')
 local Signal = require('src.session.signal')
@@ -12,7 +12,7 @@ local Bodies = require('src.combat.bodies')
 local Hit = require('src.combat.hit')
 local Effects = {}
 Effects.kinds = Registry:new('effect handlers', function(entry, id)
-  Definitions.kinds:get(id)
+  Effect.kinds:get(id)
   assert(type(entry.apply) == 'function', 'effect handler ' .. id .. ' needs apply')
   assert(
     entry.tick == nil or type(entry.tick) == 'function',

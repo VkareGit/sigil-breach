@@ -1,8 +1,8 @@
 -- Visual consequences of an already resolved contact, never another attack.
 -- Damage units are a retained-power proxy, not invented real-world joules.
 local Rules = require('src.combat.rules')
-local BallisticSurfaces = require('src.content.ballistic_surfaces')
-local SurfaceMarks = require('src.feedback.surface_marks')
+local Materials = require('src.content.ballistic_surfaces')
+local SurfaceMarkFeedback = require('src.feedback.surface_marks')
 local MathX = require('src.core.mathx')
 local Damage = require('src.combat.damage')
 local FX = require('src.feedback.effects')
@@ -177,7 +177,7 @@ end
 function I.surface(g, attack, contact, paintSprite)
   local material = contact.kind == 'floor' and 'stone' or 'plaster'
   local response = solid(g, I.retained(attack, contact.distance), contact, material, paintSprite)
-  SurfaceMarks.emit(g, contact, response)
+  SurfaceMarkFeedback.emit(g, contact, response)
   if paintSprite then
     I.contact(g, contact, false, response.energy)
   end
@@ -198,7 +198,7 @@ function I.body(g, e, point, healthDamage, armorAbsorbed, contact)
     -- What absorbed it throws its debris (iron sparks, horn and bone chips);
     -- a soft surface that still absorbed armour shows chips of bone.
     local struck = contact.material or Rules.body(e).struck
-    local surface = BallisticSurfaces[struck]
+    local surface = Materials[struck]
     solid(g, armorAbsorbed, c, surface and surface.debris or 'bone', true)
   end
   if healthDamage <= 0 then

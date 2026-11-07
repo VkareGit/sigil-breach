@@ -2,11 +2,11 @@
 -- Decision making stays in ai.lua; impulse math stays in body_physics.lua.
 local Signal = require('src.session.signal')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Rules = require('src.combat.rules')
 local Archetypes = require('src.content.enemies')
 local Physics = require('src.physics.body_physics')
-local K = require('src.physics.kinematics')
+local Kinematics = require('src.physics.kinematics')
 local Corpse = require('src.enemies.corpse')
 local SupportPath = require('src.physics.support_path')
 local Pools = require('src.session.world')
@@ -19,7 +19,7 @@ local radius = Rules.radius
 local function push(g, e, dt, drag)
   local decay, travel = Physics.drag(drag, dt)
   local dx, dz = e.pushX * travel, e.pushZ * travel
-  local vx, vz, collided = W.move(g.world, e, dx, dz, radius(e), nil, Rules.tall(g, e))
+  local vx, vz, collided = Arena.move(g.world, e, dx, dz, radius(e), nil, Rules.tall(g, e))
   if collided and travel > 0 then
     vx, vz = vx or 0, vz or 0
     local lost = len(dx - vx, dz - vz) / travel
@@ -56,7 +56,7 @@ local function fall(g, e, dt)
     end
     local y, vy = e.fallY or 0, e.fallVY or 0
     if y > 0 or vy > 0 then
-      local land = g.world.elevations and K.fallTime(y, vy, F.gravity)
+      local land = g.world.elevations and Kinematics.fallTime(y, vy, F.gravity)
         or (vy + sqrt(vy * vy + 2 * F.gravity * y)) / F.gravity
       local step = math.min(remaining, land)
       push(g, e, step, F.airDrag)
@@ -122,8 +122,14 @@ function Body.recover(e, dt)
   e.slamLock = math.max(0, (e.slamLock or 0) - dt)
   e.collideLock = math.max(0, (e.collideLock or 0) - dt)
   local spring = Archetypes.defaults.flinch
-  e.flinchLean, e.flinchLeanV =
-    K.spring(e.flinchLean or 0, e.flinchLeanV or 0, 0, spring.stiffness, spring.damping, dt)
+  e.flinchLean, e.flinchLeanV = Kinematics.spring(
+    e.flinchLean or 0,
+    e.flinchLeanV or 0,
+    0,
+    spring.stiffness,
+    spring.damping,
+    dt
+  )
 end
 Body.push = push
 Body.fall = fall

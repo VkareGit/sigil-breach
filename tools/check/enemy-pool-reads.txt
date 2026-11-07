@@ -1,5 +1,6 @@
 src/app/session_report.lua 1
 src/audio/scene.lua 1
+src/audio/soundscape.lua 1
 src/audio/world_cues.lua 1
 src/combat/ballistics.lua 3
 src/combat/body_contact.lua 3

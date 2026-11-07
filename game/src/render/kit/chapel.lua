@@ -2,14 +2,14 @@
 -- painted surfaces (content/art/chapel_hall.lua). Floors, steps and solid
 -- furniture follow the map's heights, so what is drawn is what is walked on.
 local Tiles = require('src.core.tiles')
-local Art = require('src.content.art.chapel_hall')
-local B = require('src.render.kit.builder')
+local ChapelHall = require('src.content.art.chapel_hall')
+local Builder = require('src.render.kit.builder')
 local Relief = require('src.render.kit.relief')
 local Light = require('src.render.kit.light')
 local Props = require('src.render.kit.props')
 local Ground = require('src.physics.ground')
 local Ruin = require('src.content.maps.breakables')
-local Kinds = require('src.content.breakables')
+local Breakables = require('src.content.breakables')
 local Chapel = {}
 -- A cell as one number, whatever the width of the map.
 local function cellKey(x, z)
@@ -58,7 +58,7 @@ local function floorCell(w, hall, list, risers, x, z)
       local function p(a, c)
         return { a, height, c, (a - cx) / 9 + 0.5, c / 9 }
       end
-      B.quad(list, p(x0, z0), p(x1, z0), p(x1, z1), p(x0, z1), { x0, height + 9, z0 })
+      Builder.quad(list, p(x0, z0), p(x1, z0), p(x1, z1), p(x0, z1), { x0, height + 9, z0 })
     end
   end
   for _, d in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
@@ -75,7 +75,7 @@ local function floorCell(w, hall, list, risers, x, z)
           y / 3.4,
         }
       end
-      B.quad(
+      Builder.quad(
         risers,
         p(-1, other),
         p(1, other),
@@ -88,7 +88,7 @@ local function floorCell(w, hall, list, risers, x, z)
   end
 end
 local function tombFace(list, a, b, height0, height1, rect, front)
-  B.quad(
+  Builder.quad(
     list,
     { a[1], height0, a[2], rect[1], rect[2] },
     { b[1], height0, b[2], rect[3], rect[2] },
@@ -99,7 +99,7 @@ local function tombFace(list, a, b, height0, height1, rect, front)
 end
 local function sarcophagus(lists, s, axis)
   local x0, x1, z0, z1 = s.x - 0.5, s.x + 0.5, s.z1 - 0.5, s.z2 + 0.5
-  B.moulded(lists.ashlar, x0, z0, x1, z1, 0, {
+  Builder.moulded(lists.ashlar, x0, z0, x1, z1, 0, {
     { 0, 0 },
     { 0, 0.14 },
     { 0.06, 0.18 },
@@ -128,7 +128,7 @@ local function sarcophagus(lists, s, axis)
     FIGURE,
     { s.x, 1, -99 }
   )
-  B.quad(
+  Builder.quad(
     lists.tomb,
     { x0, 1.003, z0, SLAB[1], SLAB[2] },
     { x1, 1.003, z0, SLAB[1], SLAB[4] },
@@ -148,7 +148,7 @@ local function banner(list, def, cloth)
       local c, d = j / 14, (j + 1) / 14
       local y1, y2 = top - c * cloth.height, top - d * cloth.height
       local xa, xb = x + (a - 0.5) * cloth.width, x + (b - 0.5) * cloth.width
-      B.quad(
+      Builder.quad(
         list,
         { xa, y1, z + wob(a), a, c },
         { xb, y1, z + wob(b), b, c },
@@ -171,7 +171,7 @@ local function fallenBanner(list, def, cloth)
       local c, d = j / 10, (j + 1) / 10
       local xa, xb = x + (a - 0.5) * cloth.width * 0.9, x + (b - 0.5) * cloth.width * 0.9
       local za, zb = z + c * cloth.height * 0.42, z + d * cloth.height * 0.42
-      B.quad(
+      Builder.quad(
         list,
         { xa, fold(a, c), za + sin(c * 7) * 0.1, a, c },
         { xb, fold(b, c), za + sin(c * 7) * 0.1, b, c },
@@ -186,15 +186,23 @@ local function ribs(list, hall, p)
   local x, z, inward = p.x, p.z, p.x < hall.x and 1 or -1
   local wall = hall.x - inward * (hall.half - 0.1)
   local apex, spring = hall.vaultHeight(hall.x) - 0.5, 8.3
-  B.rib(list, B.arc(x + inward * 0.7, spring, z, hall.x, apex, z, 14), 0.42, 0.34, 0.8)
+  Builder.rib(list, Builder.arc(x + inward * 0.7, spring, z, hall.x, apex, z, 14), 0.42, 0.34, 0.8)
   if abs(x - wall) > 1 then
-    B.rib(list, B.arc(x - inward * 0.7, spring, z, wall, 10.4, z, 5), 0.42, 0.34, 0.8)
+    Builder.rib(list, Builder.arc(x - inward * 0.7, spring, z, wall, 10.4, z, 5), 0.42, 0.34, 0.8)
   end
   for _, s in ipairs({ { 1, hall.piers[#hall.piers].z }, { -1, hall.piers[1].z } }) do
     if z ~= s[2] then
-      B.rib(
+      Builder.rib(
         list,
-        B.arc(x + inward * 0.5, spring, z + s[1] * 0.5, hall.x, apex + 0.4, z + s[1] * 3.5, 14),
+        Builder.arc(
+          x + inward * 0.5,
+          spring,
+          z + s[1] * 0.5,
+          hall.x,
+          apex + 0.4,
+          z + s[1] * 3.5,
+          14
+        ),
         0.2,
         0.2,
         0.7
@@ -207,20 +215,20 @@ local function pier(sink, hall, p, def, seed)
   local x, z = p.x, p.z
   local lists = sink:scope()
   if not def then
-    B.lathe(lists.drum, x, z, PIER, 28, 2, 0.95)
+    Builder.lathe(lists.drum, x, z, PIER, 28, 2, 0.95)
     ribs(lists.drum, hall, p)
     return
   end
   local id = def.id
-  B.lathe(sink:scope(id, 'whole').drum, x, z, PIER, 28, 2, 0.95)
+  Builder.lathe(sink:scope(id, 'whole').drum, x, z, PIER, 28, 2, 0.95)
   local function bite(angle, y)
     local d = sin(angle * 2 + seed) * sin(y * 1.7 + seed * 2) + sin(angle * 5 - seed) * sin(y * 3.1)
     return max(0, d - 0.35) * 0.42
   end
-  B.lathe(sink:scope(id, 'cracked').drum, x, z, PIER, 28, 2, 0.8, bite)
+  Builder.lathe(sink:scope(id, 'cracked').drum, x, z, PIER, 28, 2, 0.8, bite)
   ribs(sink:scope(id, 'gone').drum, hall, p)
   local after = sink:scope(id, 'after', { rise = 0.9 })
-  B.lathe(
+  Builder.lathe(
     after.drum,
     x,
     z,
@@ -243,16 +251,16 @@ end
 local function ruinOf(sink, hall, def, seed)
   local hole = def.hole
   local glow = Light.new({
-    ambient = Art.light.ambient,
-    tone = Art.light.tone,
+    ambient = ChapelHall.light.ambient,
+    tone = ChapelHall.light.tone,
     sources = {
       { hole.x, 13, hole.z, 1, 0.56, 0.32, 3.2, 40 },
-      Art.light.sources[1],
+      ChapelHall.light.sources[1],
     },
   }, 0, 0, {})
   local after = sink:scope(def.id, 'after', { rise = 1.4, light = glow })
   local edge = sink:scope(def.id .. '|edge', 'after', { light = glow })
-  local rng = B.random(seed)
+  local rng = Builder.random(seed)
   -- The thickness of the broken vault, then loose stones hanging at its lip.
   local function lip(a)
     local r = Ruin.holeEdge(hole, a)
@@ -267,7 +275,7 @@ local function ruinOf(sink, hall, def, seed)
     if in1 and in2 then
       local y1, y2 = hall.vaultHeight(x1), hall.vaultHeight(x2)
       local up = 0.5 + 0.22 * sin(i * 1.7 + seed)
-      B.quad(
+      Builder.quad(
         edge.rubble,
         { x1, y1 - 0.04, z1, x1 / 1.7, y1 / 1.7 },
         { x2, y2 - 0.04, z2, x2 / 1.7, y2 / 1.7 },
@@ -284,7 +292,7 @@ local function ruinOf(sink, hall, def, seed)
     x, z = x + (rng() - 0.5) * 0.3, z + (rng() - 0.5) * 0.3
     if inside then
       local size = 0.14 + rng() * 0.22
-      B.chunk(
+      Builder.chunk(
         edge.rubble,
         { x, hall.vaultHeight(x) - size * 0.2, z },
         { size * 1.5, size * 0.8, size },
@@ -302,7 +310,7 @@ local function ruinOf(sink, hall, def, seed)
       if y < 10.5 then
         for k = 0, 1 do
           local size = 0.13 + rng() * 0.17
-          B.chunk(
+          Builder.chunk(
             edge.rubble,
             { x + (rng() - 0.5) * 0.3, y - k * 0.22, z },
             { size, size * 0.7, size * 1.5 },
@@ -314,9 +322,9 @@ local function ruinOf(sink, hall, def, seed)
     end
   end
   for i, heap in ipairs(def.heaps) do
-    B.heap(after.rubble, after.ashlar, heap, seed + i)
+    Builder.heap(after.rubble, after.ashlar, heap, seed + i)
   end
-  B.drum(after.drum, def.cell[1] + 0.5, 0.25, def.cell[2] + 0.8, seed, 0.5, 1.5, 0.8)
+  Builder.drum(after.drum, def.cell[1] + 0.5, 0.25, def.cell[2] + 0.8, seed, 0.5, 1.5, 0.8)
 end
 local function sideWalls(sink, hall, surfaces, tears)
   local lists = sink:scope()
@@ -346,7 +354,7 @@ local function sideWalls(sink, hall, surfaces, tears)
 end
 -- An end wall across the hall, its opening centred on the axis.
 local function endWall(lists, hall, spec, z, facing)
-  local surface = Art.surfaces[spec.surface]
+  local surface = ChapelHall.surfaces[spec.surface]
   Relief.wall(lists[surface.image], surface, {
     x = hall.x - hall.half,
     z = z,
@@ -360,7 +368,7 @@ local function endWall(lists, hall, spec, z, facing)
 end
 -- The ring of an opening, from the wall face back through its thickness.
 local function reveal(list, hall, spec, z0, z1)
-  local f = Art.surfaces[spec.surface].features[1]
+  local f = ChapelHall.surfaces[spec.surface].features[1]
   local rise = f.apex - f.spring
   local r = (f.half * f.half + rise * rise) / (2 * f.half)
   local function outline(side, t)
@@ -375,7 +383,7 @@ local function reveal(list, hall, spec, z0, z1)
       local a, b = i / 30, (i + 1) / 30
       local x1, y1 = outline(side, a)
       local x2, y2 = outline(side, b)
-      B.quad(
+      Builder.quad(
         list,
         { x1, y1, z0, 0, y1 / 3.4 },
         { x2, y2, z0, 0, y2 / 3.4 },
@@ -418,7 +426,7 @@ local function vault(sink, hall, falls)
           break
         end
       end
-      B.quad(
+      Builder.quad(
         into,
         point(a, z),
         point(b, z),
@@ -433,7 +441,7 @@ local function vault(sink, hall, falls)
     for i = 0, 29 do
       local a, b = hall.x - half + i * half / 15, hall.x - half + (i + 1) * half / 15
       local y = hall.southTop
-      B.quad(
+      Builder.quad(
         list,
         { a, y, hall.south, a / 3.4, y / 3.4 },
         { b, y, hall.south, b / 3.4, y / 3.4 },
@@ -449,7 +457,7 @@ local function altar(w, lists, hall)
   local a = hall.altar
   local x0, x1, z0, z1 = a.x1 - 0.5, a.x2 + 0.5, a.z - 0.5, a.z + 0.5
   local base = Ground.cell(w, hall.x, a.z + 1)
-  B.moulded(lists.ashlar, x0, z0, x1, z1, 0, {
+  Builder.moulded(lists.ashlar, x0, z0, x1, z1, 0, {
     { 0, 0 },
     { 0, base + 0.14 },
     { 0.1, base + 0.2 },
@@ -473,7 +481,7 @@ local function altar(w, lists, hall)
       for i, p in ipairs(PEDESTAL) do
         profile[i] = { p[1], p[2] + h }
       end
-      B.lathe(lists.drum, seal.x, seal.z, profile, 18, 1, 0.8)
+      Builder.lathe(lists.drum, seal.x, seal.z, profile, 18, 1, 0.8)
     end
   end
   for _, post in ipairs(hall.posts) do
@@ -481,7 +489,7 @@ local function altar(w, lists, hall)
     for i, p in ipairs(TABLE) do
       profile[i] = { p[1], p[2] / 1.18 * post.height }
     end
-    B.moulded(
+    Builder.moulded(
       lists.ashlar,
       post.x - 0.5,
       post.z - 0.5,
@@ -504,12 +512,13 @@ function Chapel.build(w, hall)
   for _, h in ipairs(hall.heaps or {}) do
     blockers[#blockers + 1] = { x = h.x, z = h.z, r = h.radius * 0.8 }
   end
-  local light = Light.new(hall.light or Art.light, hall.x, hall.rear or hall.chancel, blockers)
-  local sink = B.sink(light)
+  local light =
+    Light.new(hall.light or ChapelHall.light, hall.x, hall.rear or hall.chancel, blockers)
+  local sink = Builder.sink(light)
   local lists = sink:scope()
   local falls, tears, byCell = {}, {}, {}
   for _, def in ipairs(hall.breakables) do
-    if Kinds[def.kind].collapses then
+    if Breakables[def.kind].collapses then
       falls[#falls + 1] = def
       byCell[cellKey(def.cell[1], def.cell[2])] = def
       if def.tear then
@@ -517,25 +526,25 @@ function Chapel.build(w, hall)
       end
     end
   end
-  sideWalls(sink, hall, Art.surfaces, tears)
+  sideWalls(sink, hall, ChapelHall.surfaces, tears)
   endWall(lists, hall, hall.chancelWall, hall.chancel, 1)
   if hall.chancelWall.back then
     endWall(lists, hall, hall.chancelWall, hall.chancel - 0.6, -1)
   end
   reveal(lists.ashlar, hall, hall.chancelWall, hall.chancel, hall.chancel - 0.6)
   endWall(lists, hall, hall.southWall, hall.south, -1)
-  if Art.surfaces[hall.southWall.surface].features[1].kind == 'opening' then
+  if ChapelHall.surfaces[hall.southWall.surface].features[1].kind == 'opening' then
     reveal(lists.ashlar, hall, hall.southWall, hall.south, hall.south + 0.3)
   end
   if hall.rearWall then
-    local surface = Art.surfaces[hall.rearWall]
+    local surface = ChapelHall.surfaces[hall.rearWall]
     Relief.wall(
       lists[surface.image],
       surface,
       { x = hall.x - 5.25, z = hall.rear, ux = 1, uz = 0, nx = 0, nz = 1 }
     )
     for _, side in ipairs({ -1, 1 }) do
-      Relief.wall(lists.apse_side, Art.surfaces.apse_side, {
+      Relief.wall(lists.apse_side, ChapelHall.surfaces.apse_side, {
         x = hall.x + side * hall.apse,
         z = hall.rear,
         ux = 0,
@@ -572,7 +581,7 @@ function Chapel.build(w, hall)
     altar(w, lists, hall)
   end
   for _, p in ipairs(hall.pedestals or {}) do
-    B.moulded(lists.ashlar, p.x - 0.5, p.z - 0.5, p.x + 0.5, p.z + 0.5, 0, {
+    Builder.moulded(lists.ashlar, p.x - 0.5, p.z - 0.5, p.x + 0.5, p.z + 0.5, 0, {
       { 0, 0 },
       { 0, 0.12 },
       { 0.1, 0.16 },
@@ -586,11 +595,11 @@ function Chapel.build(w, hall)
     if def.kind == 'banner' then
       banners = banners + 1
       local image = banners % 2 == 1 and 'banner_a' or 'banner_b'
-      banner(sink:scope(def.id, 'fall')[image], def, Art.banner)
-      fallenBanner(sink:scope(def.id, 'after')[image], def, Art.banner)
+      banner(sink:scope(def.id, 'fall')[image], def, ChapelHall.banner)
+      fallenBanner(sink:scope(def.id, 'after')[image], def, ChapelHall.banner)
     elseif def.kind == 'chain' then
       local top, length = def.from, def.length
-      B.chain(
+      Builder.chain(
         sink:scope(def.id, 'whole', { sway = { top[2], length } }).iron,
         def.from,
         def.to,
@@ -598,7 +607,7 @@ function Chapel.build(w, hall)
         def.links,
         0.8
       )
-      B.chain(
+      Builder.chain(
         sink:scope(def.id, 'hanging', { sway = { top[2], length } }).iron,
         def.from,
         { top[1], top[2] - 2.6, top[3] },
@@ -606,7 +615,7 @@ function Chapel.build(w, hall)
         7,
         0.8
       )
-      B.chain(
+      Builder.chain(
         sink:scope(def.id, 'after').iron,
         { def.to[1], 0.2, def.to[3] + 0.5 },
         { def.to[1] + 1.2, 0.08, def.to[3] + 0.9 },
@@ -619,15 +628,15 @@ function Chapel.build(w, hall)
     end
   end
   for _, h in ipairs(hall.heaps or {}) do
-    B.heap(lists.rubble, lists.ashlar, h)
+    Builder.heap(lists.rubble, lists.ashlar, h)
   end
   for _, d in ipairs(hall.drums or {}) do
-    B.drum(lists.drum, d.x, d.y or 0, d.z, d.yaw, d.radius, d.length, 0.82)
+    Builder.drum(lists.drum, d.x, d.y or 0, d.z, d.yaw, d.radius, d.length, 0.82)
   end
   local unlit = sink:scope(nil, 'unlit')
   unlit.far_ruins.light = false
   for _, f in ipairs(hall.backdrops or {}) do
-    B.quad(
+    Builder.quad(
       unlit.far_ruins,
       { f[1], f.bottom, f[2], 0, 1 },
       { f[3], f.bottom, f[4], 1, 1 },
@@ -636,6 +645,6 @@ function Chapel.build(w, hall)
       { hall.x, 3, 20 }
     )
   end
-  return sink:parts(Art)
+  return sink:parts(ChapelHall)
 end
 return Chapel

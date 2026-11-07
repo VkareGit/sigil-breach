@@ -5,8 +5,8 @@ local Context = require('src.session.context')
 local V = {}
 local Reload = require('src.combat.reload')
 local Weapons = require('src.content.weapons')
-local Motion = require('src.feedback.weapon_motion')
-local Art = require('src.render.weapon_art')
+local WeaponMotion = require('src.feedback.weapon_motion')
+local WeaponArt = require('src.render.weapon_art')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local EquipmentArt = require('src.content.equipment_art')
 local HandAtlas = require('src.render.hand_atlas')
@@ -14,7 +14,7 @@ local HandAtlas = require('src.render.hand_atlas')
 -- entering the arena. Existing images are reused; removed entries release GPU memory.
 function V.loadAtlases(checkpoint)
   V.atlases, V.handAtlases = V.atlases or {}, V.handAtlases or {}
-  V.manifests = Art
+  V.manifests = WeaponArt
   V.paths, V.images, V.quads, V.origins, V.centers, V.cellWidths = {}, {}, {}, {}, {}, {}
   local function load(catalogue, loaded, each)
     for id, old in pairs(loaded) do
@@ -30,14 +30,14 @@ function V.loadAtlases(checkpoint)
       end
     end
   end
-  load(Art.entries, V.atlases, Art.each)
+  load(WeaponArt.entries, V.atlases, WeaponArt.each)
   load(EquipmentArt.atlases, V.handAtlases, EquipmentArt.eachAtlas)
   for _, definition in Weapons.registry:each() do
-    if Art.entries[definition.art or definition.id] then
-      Art.validateWeapon(definition)
+    if WeaponArt.entries[definition.art or definition.id] then
+      WeaponArt.validateWeapon(definition)
     end
   end
-  for id, entry in Art.each() do
+  for id, entry in WeaponArt.each() do
     local atlas = V.atlases[id]
     V.paths[id], V.images[id], V.quads[id] = entry.path, atlas.image, atlas.quads
     V.origins[id], V.centers[id], V.cellWidths[id] = atlas.origins, atlas.centers, entry.cellWidth
@@ -54,7 +54,7 @@ function V.loadAtlases(checkpoint)
   end
 end
 function V.validateMuzzles()
-  for id, entry in Art.each() do
+  for id, entry in WeaponArt.each() do
     for _, phase in ipairs(entry.style.muzzle) do
       assert(
         V.muzzleFrames[phase.frame],
@@ -148,7 +148,7 @@ end
 -- The hands shader with the scene's light at the knight (tint), for a frame
 -- h pixels high (reviews draw the same grading).
 function V.handsShader(tint, h, image)
-  local look, s = Art.look, V.shader
+  local look, s = WeaponArt.look, V.shader
   local width, height = image:getDimensions()
   s:send('light', tint or { 1, 1, 1 })
   s:send('mist', look.mist)
@@ -167,10 +167,10 @@ function V.throwFrame(g)
   return AbilityFeedback.frame(g)
 end
 function V.frame(g)
-  return Art.frame(g)
+  return WeaponArt.frame(g)
 end
 function V.sourceFrame(g)
-  return Art.frame(g)
+  return WeaponArt.frame(g)
 end
 -- The hand's path is normalized to the gesture, whose time comes from the
 -- live cast for a drink and from the release timestamp for a throw.
@@ -186,7 +186,7 @@ function V.equipmentPose(entry, progress)
   return 0, progress ^ entry.position.exitPower * entry.position.exitY, 0
 end
 function V.muzzlePhase(g, sourceFrame)
-  local art = Art.of(g)
+  local art = WeaponArt.of(g)
   if not art.frames[sourceFrame or V.sourceFrame(g)].muzzle then
     return nil
   end
@@ -204,13 +204,13 @@ end
 -- of the mechanism that owns rounds and latches.
 function V.pose(g)
   local x, y, roll = 0, 0, 0
-  local closeProgress, close = Art.interruptedProgress(g)
+  local closeProgress, close = WeaponArt.interruptedProgress(g)
   local left = Reload.left(g, Context.actor(g))
   if left > 0 then
     closeProgress = nil
   end
   if left > 0 or closeProgress then
-    local keys = Art.of(g).reloadMotion
+    local keys = WeaponArt.of(g).reloadMotion
     local age = left > 0 and Reload.age(g, Context.actor(g))
       or close.reloadAge + (keys[#keys][1] - close.reloadAge) * closeProgress
     for i = 2, #keys do
@@ -235,7 +235,7 @@ function V.transform(g, w, h)
   local unit = h / 450
   local extra = (1 - math.min(1, g.view.swapAge / 0.20)) * h * 0.35
   local rx, ry, roll = V.pose(g)
-  local mx, my, mroll = Motion.pose(g)
+  local mx, my, mroll = WeaponMotion.pose(g)
   rx, ry, roll = rx + mx, ry + my, roll + mroll
   local kick = 0
   local wrist = 0
@@ -257,7 +257,7 @@ function V.transform(g, w, h)
     + (11 + ry + (g.view.motion ~= false and g.view.recoil * 14 or 0) + kick * 6 + bodyPunch + wrist * 32) * unit
     + extra
     + AbilityFeedback.weaponLowered(g) * h
-  local art = Art.of(g)
+  local art = WeaponArt.of(g)
   if art.placement then
     local pixels = h * art.screenScale / art.cellWidth
     x, y = x + art.placement[1] * pixels, y + art.placement[2] * pixels
@@ -271,7 +271,7 @@ function V.shellPosition(g, shell, w, h)
     return nil
   end
   if not shell.originX then
-    local entry = Art.of(g)
+    local entry = WeaponArt.of(g)
     local frame = entry.frames[V.sourceFrame(g)]
     if shell.weapon ~= Weapons.idAt(g, nil, Context.actor(g)) or not frame.eject then
       shell.hidden = true
@@ -295,8 +295,8 @@ function V.draw(g, w, h, tint)
   -- Shotgun has wider transparent gutters; compensate to retain its screen scale.
   local lg = love.graphics
   local frame = V.sourceFrame(g)
-  local art = Art.idOf(g)
-  local size = h * Art[art].screenScale
+  local art = WeaponArt.idOf(g)
+  local size = h * WeaponArt[art].screenScale
   local q = V.quads[art][frame]
   local x, y, roll, grow = V.transform(g, w, h)
   -- Use the same pixel-aligned grip for the weapon and its ignition point.
@@ -309,15 +309,15 @@ function V.draw(g, w, h, tint)
   lg.setShader()
   local muzzlePhase = V.muzzlePhase(g, frame)
   if muzzlePhase then
-    local phase = Art[art].style.muzzle[muzzlePhase]
+    local phase = WeaponArt[art].style.muzzle[muzzlePhase]
     local effect = V.muzzleFrames[phase.frame]
-    local muzzle = Art[art].frames[frame].muzzle
+    local muzzle = WeaponArt[art].frames[frame].muzzle
     local sourceX, sourceY = muzzle[1], muzzle[2]
     local mx = (sourceX - V.centers[art][frame]) * scale
     local my = (sourceY - V.origins[art][frame]) * scale
     local px = x + math.cos(roll) * mx - math.sin(roll) * my
     local py = y + math.sin(roll) * mx + math.cos(roll) * my
-    local height = h * Art[art].style.flare * phase.scale
+    local height = h * WeaponArt[art].style.flare * phase.scale
     local factor = height / effect.height
     -- Readable pigment against the background; no additive screen-wide flare.
     lg.setColor(1, 1, 1, phase.alpha)

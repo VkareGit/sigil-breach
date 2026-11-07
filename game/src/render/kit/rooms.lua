@@ -2,8 +2,8 @@
 -- own cells and roofs, so a new room is dressed by naming its rectangle and
 -- its painted wall. The wall image repeats along each run of wall.
 local Tiles = require('src.core.tiles')
-local Art = require('src.content.art.chapel_hall')
-local B = require('src.render.kit.builder')
+local ChapelHall = require('src.content.art.chapel_hall')
+local Builder = require('src.render.kit.builder')
 local Light = require('src.render.kit.light')
 local Props = require('src.render.kit.props')
 local Ground = require('src.physics.ground')
@@ -43,7 +43,7 @@ local function wallFace(list, w, room, x, z, d)
   local rows = math.max(1, math.ceil(top - base))
   for i = 0, rows - 1 do
     local y0, y1 = base + (top - base) * i / rows, base + (top - base) * (i + 1) / rows
-    B.quad(list, p(-1, y0), p(1, y0), p(1, y1), p(-1, y1), { x, 1, z })
+    Builder.quad(list, p(-1, y0), p(1, y0), p(1, y1), p(-1, y1), { x, 1, z })
   end
 end
 local function ceiling(list, w, x, z)
@@ -53,7 +53,7 @@ local function ceiling(list, w, x, z)
       local function p(q)
         return { q[1], q[2], q[3], q[1] / 3.4, q[3] / 3.4 }
       end
-      B.quad(list, p(c[1]), p(c[2]), p(c[3]), p(c[4]), { x, 0, z }, 0.8)
+      Builder.quad(list, p(c[1]), p(c[2]), p(c[3]), p(c[4]), { x, 0, z }, 0.8)
     end
   end
 end
@@ -62,7 +62,7 @@ local function floorCell(list, risers, w, x, z)
   local function p(a, c)
     return { a, h, c, (a - 24) / 9 + 0.5, c / 9 }
   end
-  B.quad(
+  Builder.quad(
     list,
     p(x - 0.5, z - 0.5),
     p(x + 0.5, z - 0.5),
@@ -84,7 +84,7 @@ local function floorCell(list, risers, w, x, z)
           y / 3.4,
         }
       end
-      B.quad(
+      Builder.quad(
         risers,
         q(-1, other),
         q(1, other),
@@ -98,7 +98,7 @@ local function floorCell(list, risers, w, x, z)
 end
 local function pillar(list, w, x, z)
   local base, top = Ground.cell(w, x, z), wallTop(w, x, z)
-  B.lathe(list, x, z, {
+  Builder.lathe(list, x, z, {
     { 0.62, base },
     { 0.62, base + 0.3 },
     { 0.5, base + 0.5 },
@@ -117,7 +117,7 @@ function Rooms.build(w, hall)
     sources[#sources + 1] = { seal.x, 2.2, seal.z, 1, 0.66, 0.38, 0.5, 9 }
   end
   local light = Light.new({ ambient = hall.ambient, tone = hall.tone, sources = sources }, 0, 0, {})
-  local sink = B.sink(light)
+  local sink = Builder.sink(light)
   local lists = sink:scope()
   for _, room in ipairs(hall.rooms) do
     local rect = room.rect
@@ -142,6 +142,6 @@ function Rooms.build(w, hall)
   for _, def in ipairs(hall.breakables or {}) do
     Props.add(sink, w, def)
   end
-  return sink:parts(Art)
+  return sink:parts(ChapelHall)
 end
 return Rooms

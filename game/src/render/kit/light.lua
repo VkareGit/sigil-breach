@@ -3,10 +3,7 @@
 local L = {}
 L.__index = L
 local sqrt, max, min = math.sqrt, math.max, math.min
-local function smooth(a, b, x)
-  local t = max(0, min(1, (x - a) / (b - a)))
-  return t * t * (3 - 2 * t)
-end
+local smooth = require('src.core.mathx').smoothstep
 -- spec: the kit's light; x, rear: the hall axis and rear wall; blockers: { x, z, r }.
 function L.new(spec, x, rear, blockers)
   local sources = {}

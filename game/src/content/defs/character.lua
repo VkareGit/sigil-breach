@@ -2,9 +2,9 @@
 -- starts with and how it is shown. Everything a knight used to take from
 -- constants comes from here, so a second character is one definition.
 local Schema = require('src.core.schema')
-local Knight = require('src.content.defs.knight')
+local DefsKnight = require('src.content.defs.knight')
 local Reaction = require('src.content.defs.reaction')
-local Resources = require('src.content.resources')
+local ContentResources = require('src.content.resources')
 local Character = {}
 local function speed(desc)
   return { type = 'number', required = true, min = 0, desc = desc }
@@ -51,10 +51,10 @@ Character.schema = Schema:new('character', {
 function Character.define(def)
   local where = 'character ' .. tostring(def.id)
   local built = Schema.copy(def)
-  built.body = Knight.schema:build(def.body, where .. '.body')
+  built.body = DefsKnight.schema:build(def.body, where .. '.body')
   built = Character.schema:build(built, where)
   for id, resource in pairs(built.resources or {}) do
-    assert(Resources:has(id), where .. '.resources: unknown resource ' .. tostring(id))
+    assert(ContentResources:has(id), where .. '.resources: unknown resource ' .. tostring(id))
     built.resources[id] = Character.resource:build(resource, where .. '.resources.' .. id)
   end
   built.kit = built.kit or {}

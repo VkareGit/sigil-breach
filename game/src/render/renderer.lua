@@ -1,13 +1,13 @@
-local Numbers = require('src.render.numbers')
+local RenderNumbers = require('src.render.numbers')
 local Context = require('src.session.context')
-local M = require('src.render.mesh')
+local Mesh = require('src.render.mesh')
 local WorldMesh = require('src.render.world_mesh')
-local T = require('src.content.tuning')
+local Tuning = require('src.content.tuning')
 local Weapon = require('src.render.weapon')
 local WeaponArt = require('src.render.weapon_art')
 local Pose = require('src.enemies.pose')
 local AbilityArt = require('src.render.ability_art')
-local AbilityMetadata = require('src.content.ability_art')
+local AbilitySequences = require('src.content.ability_art')
 local Pigment = require('src.render.creature_pigment')
 local PaintCutout = require('src.render.paint_cutout')
 local FX = require('src.feedback.effects')
@@ -28,7 +28,7 @@ local Shadows = require('src.render.shadows')
 local RenderFX = require('src.render.effects')
 local HazardArt = require('src.render.hazard_art')
 local HazardKinds = require('src.render.hazard_kinds')
-local Hazards = require('src.content.hazards')
+local HazardDefs = require('src.content.hazards')
 local SurfaceMarks = require('src.render.surface_marks')
 local Trails = require('src.feedback.shot_trails')
 local Death = require('src.feedback.death_response')
@@ -101,7 +101,7 @@ function R.new(checkpoint)
   r.abilityArt = AbilityArt.load(r.resources)
   r.spriteShader:send('effectTint', WHITE)
   r.tracerShader = shader(Shaders.tracer, 'tracer shader')
-  r.tracerMesh = M.dynamic(384)
+  r.tracerMesh = Mesh.dynamic(384)
 
   r.sprite = love.graphics.newMesh(
     { { 'VertexPosition', 'float', 3 }, { 'VertexTexCoord', 'float', 2 } },
@@ -122,21 +122,21 @@ function R.new(checkpoint)
   end
   r.stampShader = shader(Shaders.stamp, 'stamp shader')
   HazardArt.init(r)
-  for id in Hazards:each() do
+  for id in HazardDefs:each() do
     HazardKinds:get(id)
   end
   local v = {}
-  M.box(v, 0, -0.025, 0, 0.045, 0.045, 0.045, { 1, 1, 1, 0.6 })
-  r.spark = M.finish(v)
+  Mesh.box(v, 0, -0.025, 0, 0.045, 0.045, 0.045, { 1, 1, 1, 0.6 })
+  r.spark = Mesh.finish(v)
   r.particleBatch = Batch.new(v, 240)
   r.ashBatch = Batch.new(v, Ash.count)
   v = {}
-  M.ring(v, 0, 0, 0, 0.48, 0.025, { 1, 1, 1, 1 }, 40, true)
-  M.ring(v, 0, 0, 0, 0.37, 0.015, { 1, 1, 1, 1 }, 40, true)
+  Mesh.ring(v, 0, 0, 0, 0.48, 0.025, { 1, 1, 1, 1 }, 40, true)
+  Mesh.ring(v, 0, 0, 0, 0.37, 0.015, { 1, 1, 1, 1 }, 40, true)
   for i = 0, 4 do
     local a = i * math.pi * 4 / 5
     local b = (i + 1) * math.pi * 4 / 5
-    M.beam(
+    Mesh.beam(
       v,
       { math.cos(a) * 0.36, math.sin(a) * 0.36, 0 },
       { math.cos(b) * 0.36, math.sin(b) * 0.36, 0 },
@@ -145,23 +145,23 @@ function R.new(checkpoint)
       5
     )
   end
-  r.sigil = M.finish(v)
+  r.sigil = Mesh.finish(v)
   v = {}
-  M.ring(v, 0, 0, 0, 1, 0.035, { 1, 1, 1, 0.7 }, 40)
-  r.warning = M.finish(v)
+  Mesh.ring(v, 0, 0, 0, 1, 0.035, { 1, 1, 1, 0.7 }, 40)
+  r.warning = Mesh.finish(v)
   v = {}
-  M.cone(v, 0, 0, 0, 0.44, 0.44, 0.006, { 0.025, 0.018, 0.025, 0.05 }, 24)
-  r.shadow = M.finish(v)
+  Mesh.cone(v, 0, 0, 0, 0.44, 0.44, 0.006, { 0.025, 0.018, 0.025, 0.05 }, 24)
+  r.shadow = Mesh.finish(v)
   r.shadowStamps = Batch.new(v, 2 * 1024, true)
   v = {}
-  M.cone(v, 0, 0, 0, 0.45, 0.45, 0.003, { 1, 1, 1, 0.05 }, 16)
+  Mesh.cone(v, 0, 0, 0, 0.45, 0.45, 0.003, { 1, 1, 1, 0.05 }, 16)
   for i = 1, 7 do
     local a = i * 2.4
     local d = 0.22 + (i % 3) * 0.14
     local radius = 0.04 + (i % 3) * 0.025
-    M.cone(v, math.sin(a) * d, 0, math.cos(a) * d, radius, radius, 0.003, { 1, 1, 1, 0.05 }, 7)
+    Mesh.cone(v, math.sin(a) * d, 0, math.cos(a) * d, radius, radius, 0.003, { 1, 1, 1, 0.05 }, 7)
   end
-  r.stain = M.finish(v)
+  r.stain = Mesh.finish(v)
   r.lighting = Lights.new()
   r.castShadowShader = Shadows.new()
   r.castShadows = Instances.new(SPRITE_QUAD, Shadows.format, r.native)
@@ -221,7 +221,7 @@ function R.new(checkpoint)
   return r
 end
 function R:resize(w, h, resolution)
-  resolution = resolution or T.renderHeight
+  resolution = resolution or Tuning.renderHeight
   self.w, self.h = math.floor(resolution * w / h + 0.5), resolution
   local targets = Resources.new('renderer viewport')
   local canvas = targets:own(love.graphics.newCanvas(self.w, self.h, { format = 'rgba8' }))
@@ -349,7 +349,7 @@ function R:enemy(g, e, batch)
   local yaw, shift = p.yaw, p.shift
   if batch then
     local v = batch:add(p.image)
-    self.bodyPigments[p.image] = p.ability and AbilityMetadata[p.ability].pigment or false
+    self.bodyPigments[p.image] = p.ability and AbilitySequences[p.ability].pigment or false
     self.bodyCutouts[p.image] = not p.ability and PaintCutout.of(p.atlas)[p.sourcePath] or false
     v[1], v[2], v[3], v[4] = e.x + math.cos(yaw) * shift, p.baseY, e.z - math.sin(yaw) * shift, yaw
     v[5], v[6], v[7], v[8] = p.size, p.sx, p.sy, p.lean
@@ -363,7 +363,7 @@ function R:enemy(g, e, batch)
     return
   end
   local s = self.spriteShader
-  Pigment.apply(s, p.ability and AbilityMetadata[p.ability].pigment)
+  Pigment.apply(s, p.ability and AbilitySequences[p.ability].pigment)
   PaintCutout.apply(s, not p.ability and PaintCutout.of(p.atlas)[p.sourcePath] or nil)
   self.sprite:setTexture(p.image)
   s:send('silhouette', e.hp > 0 and 1 or 0)
@@ -483,7 +483,7 @@ function R:tracers(g)
       rx, ry, rz = rx / len * width, ry / len * width, rz / len * width
     end
     local alpha = math.max(0, t.life / t.maxLife) * 0.46
-    M.traceQuad(vertices, (i - 1) * 6, exposure, rx, ry, rz, alpha)
+    Mesh.traceQuad(vertices, (i - 1) * 6, exposure, rx, ry, rz, alpha)
     if t.swept then
       for _, j in ipairs({ 1, 2, 4 }) do
         vertices[(i - 1) * 6 + j][10] = alpha * 0.18
@@ -589,7 +589,7 @@ function R.lowHealth(g)
     return 0
   end
   local share = Characters.share(p)
-  local low = math.max(0, math.min(1, (T.lowHealthFade - share) / T.lowHealth))
+  local low = math.max(0, math.min(1, (Tuning.lowHealthFade - share) / Tuning.lowHealth))
   if low == 0 then
     return 0
   end
@@ -606,7 +606,7 @@ function R:present(g, w, h)
   lg.clear(0.008, 0.007, 0.011, 1)
   self.post:send('hurt', math.min(1, g.view.hurt + (g.view.staggerFlash or 0)))
   self.post:send('surge', g.view.surge)
-  self.post:send('still', math.min(1, (g.view.perfectDodge or 0) / T.feel.perfectDodgeFlash))
+  self.post:send('still', math.min(1, (g.view.perfectDodge or 0) / Tuning.feel.perfectDodgeFlash))
   self.post:send('low', R.lowHealth(g))
   self.post:send('kill', math.min(1, (g.view.killPunch or 0) * 7))
   self.post:send('size', self:vec2(self.w, self.h))
@@ -620,6 +620,6 @@ end
 -- Damage numbers painted where the blow landed (Risk of Rain-style feedback):
 -- they rise and fade in 0.7 s; heads and kills are larger and in red ochre.
 function R:damageNumbers(g, x, y, vw, vh)
-  return Numbers.draw(self, g, x, y, vw, vh)
+  return RenderNumbers.draw(self, g, x, y, vw, vh)
 end
 return R

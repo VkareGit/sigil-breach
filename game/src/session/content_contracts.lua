@@ -8,14 +8,14 @@ local Deliveries = require('src.combat.weapon_delivery')
 local Reload = require('src.combat.reload')
 local Intent = require('src.player.intent')
 require('src.combat.abilities')
-local Kinds = require('src.combat.action_kinds')
+local ActionKinds = require('src.combat.action_kinds')
 local Attacks = require('src.enemies.actions')
 local Effects = require('src.combat.effects')
 local Reactions = require('src.combat.reactions')
 local AI = require('src.enemies.ai')
 local Target = require('src.enemies.target')
 local Animation = require('src.enemies.animation')
-local HazardKinds = require('src.content.hazards')
+local HazardDefs = require('src.content.hazards')
 local Hazards = require('src.enemies.hazards')
 local Contracts = {}
 local function effects(value, seen)
@@ -47,7 +47,7 @@ local function reactions(list, where)
     local action = reaction.effect.action
     if action then
       assert(
-        type(Kinds:get(action.kind).cast) == 'function',
+        type(ActionKinds:get(action.kind).cast) == 'function',
         where .. ': cannot cast ' .. action.kind
       )
     end
@@ -82,7 +82,7 @@ function Contracts.weapon(definition)
   reactions(definition.reactions, 'weapon ' .. definition.id)
 end
 function Contracts.ability(definition)
-  local kind = Kinds:get(definition.action.kind)
+  local kind = ActionKinds:get(definition.action.kind)
   assert(
     type(kind.cast) == 'function',
     'ability ' .. definition.id .. ': kind ' .. definition.action.kind .. ' cannot be cast'
@@ -118,7 +118,7 @@ function Contracts.creature(definition)
   effects(definition)
 end
 function Contracts.validate()
-  for id in HazardKinds:each() do
+  for id in HazardDefs:each() do
     Hazards.kinds:get(id)
   end
   for _, definition in Weapons.registry:each() do

@@ -6,14 +6,14 @@ local Animation = require('src.enemies.animation')
 local Chambers = require('src.run.field.chambers')
 local MathX = require('src.core.mathx')
 local Signal = require('src.session.signal')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
 local Gates = require('src.run.gates')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
-local K = require('src.content.field')
+local FieldData = require('src.content.field')
 local Placement = {}
 local distance = MathX.distance
 -- A catalogue demon set on the knight: awake, remembering where he stands,
@@ -22,11 +22,11 @@ local function engage(g, e, kind)
   local p = Roles.controlled(g)
   e.fieldKind = kind
   e.awake = true
-  e.memory = K.engage.memory
+  e.memory = FieldData.engage.memory
   e.lastX = p.x
   e.lastZ = p.z
   e.facing = math.atan2(p.x - e.x, p.z - e.z)
-  e.attack = K.engage.firstBlow
+  e.attack = FieldData.engage.firstBlow
 end
 -- Check catalogue requests before a caller replaces an active trial.
 function Placement.request(field, g, kind, count)
@@ -68,28 +68,28 @@ local function place(field, g, kind, count)
   local function legal(x, z)
     local candidate = { x = x, z = z }
     if
-      W.solid(g.world, x, z, radius)
-      or distance(p, candidate) < K.placement.near
-      or not W.visible(g.world, p.x, p.z, x, z)
+      Arena.solid(g.world, x, z, radius)
+      or distance(p, candidate) < FieldData.placement.near
+      or not Arena.visible(g.world, p.x, p.z, x, z)
     then
       return false
     end
     for _, e in ipairs(Pools.of(g, 'enemies')) do
-      if e.hp > 0 and distance(e, candidate) < K.placement.spacing then
+      if e.hp > 0 and distance(e, candidate) < FieldData.placement.spacing then
         return false
       end
     end
     for _, list in ipairs({ g.run.pending, spots }) do
       for _, s in ipairs(list) do
-        if distance(s, candidate) < K.placement.spacing then
+        if distance(s, candidate) < FieldData.placement.spacing then
           return false
         end
       end
     end
     return true
   end
-  for _, d in ipairs(K.placement.rings) do
-    for _, offset in ipairs(K.placement.offsets) do
+  for _, d in ipairs(FieldData.placement.rings) do
+    for _, offset in ipairs(FieldData.placement.offsets) do
       local x = p.x + math.sin(p.yaw) * d + math.cos(p.yaw) * offset
       local z = p.z + math.cos(p.yaw) * d - math.sin(p.yaw) * offset
       if #spots < count and legal(x, z) then
@@ -102,7 +102,7 @@ local function place(field, g, kind, count)
     for z = 2, Grid.depth(g.world) - 1 do
       for x = 2, Grid.width(g.world) - 1 do
         local d = distance(p, { x = x, z = z })
-        if d >= K.placement.near and d < K.placement.search and legal(x, z) then
+        if d >= FieldData.placement.near and d < FieldData.placement.search and legal(x, z) then
           candidates[#candidates + 1] = { x = x, z = z, d = d }
         end
       end

@@ -2,7 +2,7 @@
 -- or abandoned sessions alive. No audio state enters a journal or save.
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
-local Creatures = require('src.content.enemies')
+local Archetypes = require('src.content.enemies')
 local Atlases = require('src.content.art.atlases')
 local Poses = require('src.content.art.poses')
 local BodyVoices = require('src.audio.body_voices')
@@ -33,7 +33,7 @@ function C.restored(audio, g)
 end
 -- Same distance clock and frame cycle as the painted walk, two contacts/cycle.
 function C.stepIndex(e)
-  local sheet = Atlases.sheets[Creatures.look(e).atlas]
+  local sheet = Atlases.sheets[Archetypes.look(e).atlas]
   local strike = e.ai == 'strike'
     and e.attackKind
     and sheet
@@ -73,7 +73,7 @@ function C.update(audio, g, dt)
     local before = state.feet[e]
     local moving = clock == 'walk' and (e.walkSpeed or 0) > 0.15
       or (clock ~= 'walk' and before and (e.x ~= before.x or e.z ~= before.z))
-    local def = Creatures.of(e)
+    local def = Archetypes.of(e)
     local voice = Profiles.body(e, 'step')
     if
       voice

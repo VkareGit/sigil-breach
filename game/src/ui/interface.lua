@@ -1,5 +1,5 @@
-local catalog = require('src.render.fresco_enemies')
-local Bitmap = require('src.ui.fonts.bitmap_font')
+local FrescoEnemies = require('src.render.fresco_enemies')
+local BitmapFont = require('src.ui.fonts.bitmap_font')
 local PaintedNumbers = require('src.ui.fonts.painted_numbers')
 local PaintedTitles = require('src.ui.fonts.painted_titles')
 local GoeticSigils = require('src.ui.goetic_sigils')
@@ -16,12 +16,12 @@ local Pause = require('src.ui.screens.pause')
 local U = { focus = 1, mouseX = -1, mouseY = -1 }
 local lg = love.graphics
 local Skin = require('src.ui.skin')
-local D = require('src.ui.chapel')
+local Chapel = require('src.ui.chapel')
 local Palette = require('src.ui.palette')
 local Resources = require('src.render.resources')
 local Camera = require('src.render.camera')
 local TextFit = require('src.ui.text_fit')
-D.install(U)
+Chapel.install(U)
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
 local gold = Skin.colors.gold
@@ -51,7 +51,7 @@ function U.init(checkpoint)
   Portrait.init(checkpoint)
   U.fonts = {}
   for _, size in ipairs({ 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 36, 42, 48, 64, 94 }) do
-    local font = Bitmap.load(size, checkpoint)
+    local font = BitmapFont.load(size, checkpoint)
     assert(
       font:hasGlyphs('ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ 0123456789'),
       'Missing painted Polish UI glyphs'
@@ -66,8 +66,8 @@ function U.init(checkpoint)
   U.faces = {}
   U.faceQuads = {}
   U.faceResources = Resources.new('UI creature portraits', checkpoint)
-  for _, kind in ipairs(catalog.kinds) do
-    local entry = catalog.entries[kind]
+  for _, kind in ipairs(FrescoEnemies.kinds) do
+    local entry = FrescoEnemies.entries[kind]
     local img = U.faceResources:image(entry.path, { filter = 'linear' })
     U.faces[kind] = img
     local w, h = img:getDimensions()
@@ -109,10 +109,10 @@ function U.objective(g)
 end
 -- The screens live in ui/screens/ (0.24 F7); these names stay for callers.
 function U.hud(g, s)
-  return Hud.draw(g, s, U, D)
+  return Hud.draw(g, s, U, Chapel)
 end
 function U.map(g)
-  return D.map(g)
+  return Chapel.map(g)
 end
 function U.menu(g)
   return Menu.draw(g, nil, U)

@@ -3,12 +3,12 @@
 -- shop. Every function takes the field module (run/test_field.lua).
 local StationLayout = require('src.run.field.station_layout')
 local MathX = require('src.core.mathx')
-local W = require('src.world.arena')
+local Arena = require('src.world.arena')
 local Sanctuary = require('src.session.sanctuary')
 local Pools = require('src.session.world')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
-local K = require('src.content.field')
+local FieldData = require('src.content.field')
 local Observation = require('src.combat.observation')
 local Intent = require('src.player.intent')
 local Visits = {}
@@ -31,11 +31,13 @@ function Visits.seal(field, g, id)
   if not g.testField then
     return false
   end
-  local S = K.seal
+  local S = FieldData.seal
   for _, s in ipairs(g.world.seals) do
     if s.id == tostring(id):lower() then
       local function clear(x, z)
-        if W.solid(g.world, x, z, S.clearance) or not W.visible(g.world, x, z, s.x, s.z) then
+        if
+          Arena.solid(g.world, x, z, S.clearance) or not Arena.visible(g.world, x, z, s.x, s.z)
+        then
           return false
         end
         for _, e in ipairs(Pools.of(g, 'enemies')) do
@@ -85,7 +87,7 @@ function Visits.shop(_, g)
   p.yaw = math.atan2(shrine.x - p.x, shrine.z - p.z)
   p.pitch = 0
   p.vx, p.vz = 0, 0
-  g.run.wallet = K.wallet
+  g.run.wallet = FieldData.wallet
   g.state = 'playing'
   g.map = false
   g.help = false

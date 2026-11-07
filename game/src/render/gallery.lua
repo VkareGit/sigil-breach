@@ -1,12 +1,12 @@
 local Weapons = require('src.content.weapons')
-local Numbers = require('src.render.numbers')
+local RenderNumbers = require('src.render.numbers')
 local Ink = require('src.ui.ink')
-local ui = require('src.ui.interface')
+local UI = require('src.ui.interface')
 local Context = require('src.session.context')
 -- The proving-ground pads drawn, and their name plates. Where they stand and what
 -- they do is world/gallery.lua.
-local W = require('src.world.arena')
-local WG = require('src.world.gallery')
+local Arena = require('src.world.arena')
+local WorldGallery = require('src.world.gallery')
 local Archetypes = require('src.content.enemies')
 local Ritual = require('src.render.ritual_art')
 local Skin = require('src.ui.skin')
@@ -22,7 +22,7 @@ function G.draw(r, g)
     return
   end
   -- Painted, fixed floor medallions.
-  for _, p in ipairs(WG.padsFor(g.world)) do
+  for _, p in ipairs(WorldGallery.padsFor(g.world)) do
     if not p.altar then
       Ritual.pad(r, p, g.world.floor)
     end
@@ -62,17 +62,17 @@ function G.labels(r, g, ox, oy, vw, vh)
   if not (tools and tools.gallery) or g.state ~= 'playing' or g.map or g.help then
     return
   end
-  if not ui.fonts then
+  if not UI.fonts then
     return
   end
-  local font = ui.fonts[14]
+  local font = UI.fonts[14]
   local lg = love.graphics
   local state = r.galleryLabelLayout
   local stationLabels = tools.labels
   if not state or state.world ~= g.world or state.labels ~= stationLabels then
     state = { world = g.world, labels = stationLabels, items = {}, taken = {}, boxes = {} }
     r.galleryLabelLayout = state
-    for _, p in ipairs(WG.padsFor(g.world)) do
+    for _, p in ipairs(WorldGallery.padsFor(g.world)) do
       local name = Text.get(
         p.spawn and Archetypes.get(p.spawn).name
           or (p.weapon and Weapons.get(p.weapon).name or 'gallery_refill')
@@ -97,13 +97,13 @@ function G.labels(r, g, ox, oy, vw, vh)
     taken[i] = nil
   end
   local p = Context.viewer(g)
-  local overlap = Numbers.overlap
+  local overlap = RenderNumbers.overlap
   -- Only one nearby pad gets a caption. Station
   -- rulers retain their separate distance labels for actual measurement drills.
   local focused, scores = {}, {}
   for _, it in ipairs(items) do
     it.d = dist(p, it.x, it.z)
-    if it.kind and it.d < (it.reach or 8) and W.visible(g.world, p.x, p.z, it.x, it.z) then
+    if it.kind and it.d < (it.reach or 8) and Arena.visible(g.world, p.x, p.z, it.x, it.z) then
       local x, y = r:project(it.x, it.focusY, it.z)
       if x then
         local dx, dy = x / r.w - 0.5, y / r.h - 0.5
@@ -132,7 +132,7 @@ function G.labels(r, g, ox, oy, vw, vh)
     if
       (not it.kind or focused[it.kind] == it)
       and d < (it.reach or 8)
-      and W.visible(g.world, p.x, p.z, it.x, it.z)
+      and Arena.visible(g.world, p.x, p.z, it.x, it.z)
     then
       local px, py = r:project(it.x, it.y, it.z)
       if px then

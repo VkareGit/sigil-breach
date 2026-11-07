@@ -5,7 +5,7 @@
 local Reload = require('src.combat.reload')
 local MathX = require('src.core.mathx')
 local Archetypes = require('src.content.enemies')
-local Selection = require('src.enemies.attack_selection')
+local AttackSelection = require('src.enemies.attack_selection')
 local Answers = {}
 local angle = MathX.wrapAngle
 local Events = {}
@@ -51,7 +51,7 @@ function Answers.pick(g, e, p, d)
     local until_ = e.answered and e.answered[answer.when]
     if not (until_ and until_ > g.elapsed) and Events[answer.when](g, e, p, d, answer) then
       local atk = attackOf(e, answer.attack)
-      if atk and d <= atk.range and d >= atk.minRange and Selection.available(g, e, atk) then
+      if atk and d <= atk.range and d >= atk.minRange and AttackSelection.available(g, e, atk) then
         e.answered = e.answered or {}
         e.answered[answer.when] = g.elapsed + answer.rest
         return atk
