@@ -82,7 +82,7 @@ function Marks.move(g, name, emitters, scale)
     end
   end
   if move.flash > 0 then
-    g.view.surge = math.max(g.view.surge or 0, move.flash)
+    g.view.surge = math.max(g.view.surge, move.flash)
   end
 end
 

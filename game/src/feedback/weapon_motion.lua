@@ -8,6 +8,7 @@ local MovementImpact = require('src.feedback.movement_impact')
 local Weight = require('src.feedback.weight')
 local Gait = require('src.player.movement_gait')
 local Reload = require('src.combat.reload')
+local Fields = require('src.session.fields')
 local M = {}
 local sin, cos, pi = math.sin, math.cos, math.pi
 local clamp = MathX.clamp
@@ -60,7 +61,7 @@ local keys = {
 }
 function M.init(g, preserveGait)
   for _, key in ipairs(keys) do
-    g.view[key] = 0
+    g.view[key] = Fields.viewStarts[key]
   end
   if not preserveGait then
     Gait.init(g)
@@ -74,9 +75,8 @@ end
 -- sine wave. Evaluate their remaining fraction of this step analytically so
 -- a foot landing near a frame boundary does not get a whole frame of delay.
 local function contactSpring(g, dt, before, after, steps, load)
-  local y, vy = Kinematics.spring(g.view.weaponStepY or 0, g.view.weaponStepVY or 0, 0, 520, 30, dt)
-  local roll, vr =
-    Kinematics.spring(g.view.weaponStepRoll or 0, g.view.weaponStepVRoll or 0, 0, 620, 38, dt)
+  local y, vy = Kinematics.spring(g.view.weaponStepY, g.view.weaponStepVY, 0, 520, 30, dt)
+  local roll, vr = Kinematics.spring(g.view.weaponStepRoll, g.view.weaponStepVRoll, 0, 620, 38, dt)
   if steps > 0 and after > before then
     local last = math.floor(after / pi + 1e-9)
     local mass = Weight.carryFactor(g)
@@ -100,7 +100,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   local p = Context.actor(g)
   local running = Characters.of(p).movement.moveSpeed
   local planted = Gait.planted(p) and plantedTravel ~= false
-  local before = g.view.gaitPhase or 0
+  local before = g.view.gaitPhase
   local footsteps = Gait.advance(g, travelled, planted)
   -- Accessibility affects decoration, not the physical footfall clock.
   if g.view.motion == false then
@@ -116,117 +116,100 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
   -- Weapon mass (weapon_defs weight.aim): a heavier gun trails the turn
   -- further and settles on a softer spring. 1 = the light revolver.
   local aim = Weight.aimFactor(g)
-  g.view.weaponAimVX = clamp((g.view.weaponAimVX or 0) - yawDelta * 480 / aim, -100, 100)
-  g.view.weaponAimVY = clamp((g.view.weaponAimVY or 0) + pitchDelta * 390 / aim, -80, 80)
-  g.view.weaponAimX, g.view.weaponAimVX = Kinematics.spring(
-    g.view.weaponAimX or 0,
-    g.view.weaponAimVX,
-    0,
-    196 * aim,
-    28 * math.sqrt(aim),
-    dt
-  )
-  g.view.weaponAimY, g.view.weaponAimVY = Kinematics.spring(
-    g.view.weaponAimY or 0,
-    g.view.weaponAimVY,
-    0,
-    196 * aim,
-    28 * math.sqrt(aim),
-    dt
-  )
+  g.view.weaponAimVX = clamp(g.view.weaponAimVX - yawDelta * 480 / aim, -100, 100)
+  g.view.weaponAimVY = clamp(g.view.weaponAimVY + pitchDelta * 390 / aim, -80, 80)
+  g.view.weaponAimX, g.view.weaponAimVX =
+    Kinematics.spring(g.view.weaponAimX, g.view.weaponAimVX, 0, 196 * aim, 28 * math.sqrt(aim), dt)
+  g.view.weaponAimY, g.view.weaponAimVY =
+    Kinematics.spring(g.view.weaponAimY, g.view.weaponAimVY, 0, 196 * aim, 28 * math.sqrt(aim), dt)
   g.view.weaponAimX = clamp(g.view.weaponAimX, -7, 7)
   g.view.weaponAimY = clamp(g.view.weaponAimY, -5, 5)
   local speed = math.max(0, travelled or 0) / dt
   local weight = planted and clamp(speed / running, 0, 1.12) or 0
-  contactSpring(g, dt, before, g.view.gaitPhase or before, footsteps, weight)
-  g.view.weaponCarry = ease(g.view.weaponCarry or 0, weight, 12, dt)
+  contactSpring(g, dt, before, g.view.gaitPhase, footsteps, weight)
+  g.view.weaponCarry = ease(g.view.weaponCarry, weight, 12, dt)
   -- No walking-in-place against a wall, in the air, or through a dash.
-  g.view.weaponStride = g.view.gaitPhase or 0
-  g.view.weaponClock = (g.view.weaponClock or 0) + dt
+  g.view.weaponStride = g.view.gaitPhase
+  g.view.weaponClock = g.view.weaponClock + dt
   local ax, az = ((p.vx or 0) - (previousVX or 0)) / dt, ((p.vz or 0) - (previousVZ or 0)) / dt
   local side = ax * cos(yaw) - az * sin(yaw)
   local ahead = ax * sin(yaw) + az * cos(yaw)
   g.view.weaponLagX, g.view.weaponLagVX = Kinematics.spring(
-    g.view.weaponLagX or 0,
-    g.view.weaponLagVX or 0,
+    g.view.weaponLagX,
+    g.view.weaponLagVX,
     clamp(-side * 0.075, -3.6, 3.6),
     110,
     17,
     dt
   )
   g.view.weaponLagY, g.view.weaponLagVY = Kinematics.spring(
-    g.view.weaponLagY or 0,
-    g.view.weaponLagVY or 0,
+    g.view.weaponLagY,
+    g.view.weaponLagVY,
     clamp(ahead * 0.045, -2.5, 2.5),
     110,
     17,
     dt
   )
   local sideVelocity = ((p.vx or 0) * cos(yaw) - (p.vz or 0) * sin(yaw)) / running
-  g.view.weaponLean =
-    ease(g.view.weaponLean or 0, clamp(-sideVelocity * 0.018, -0.022, 0.022), 10, dt)
+  g.view.weaponLean = ease(g.view.weaponLean, clamp(-sideVelocity * 0.018, -0.022, 0.022), 10, dt)
   if landingImpact then
     local contact = type(landingImpact) == 'table' and landingImpact
       or MovementImpact.landingMetrics(landingImpact)
     if contact then
-      g.view.weaponDipV = (g.view.weaponDipV or 0) + contact.kick
+      g.view.weaponDipV = g.view.weaponDipV + contact.kick
     end
   end
   g.view.weaponDip, g.view.weaponDipV =
-    Kinematics.spring(g.view.weaponDip or 0, g.view.weaponDipV or 0, 0, 196, 20, dt)
+    Kinematics.spring(g.view.weaponDip, g.view.weaponDipV, 0, 196, 20, dt)
   -- On ascent the hands trail below the body, on descent they float above it.
   -- Vertical speed determines the offset; no fake walking in mid-air. The
   -- existing landing impulse remains authoritative when the feet touch down.
   local air = p.jump > 0 and clamp((p.jumpV or 0) * 0.30, -2.2, 2.2) * Weight.carryFactor(g) or 0
   g.view.weaponAirY, g.view.weaponAirVY =
-    Kinematics.spring(g.view.weaponAirY or 0, g.view.weaponAirVY or 0, air, 120, 22, dt)
+    Kinematics.spring(g.view.weaponAirY, g.view.weaponAirVY, air, 120, 22, dt)
   g.view.weaponImpactX, g.view.weaponImpactVX =
-    Kinematics.spring(g.view.weaponImpactX or 0, g.view.weaponImpactVX or 0, 0, 220, 23, dt)
+    Kinematics.spring(g.view.weaponImpactX, g.view.weaponImpactVX, 0, 220, 23, dt)
   g.view.weaponImpactY, g.view.weaponImpactVY =
-    Kinematics.spring(g.view.weaponImpactY or 0, g.view.weaponImpactVY or 0, 0, 220, 23, dt)
+    Kinematics.spring(g.view.weaponImpactY, g.view.weaponImpactVY, 0, 220, 23, dt)
   g.view.weaponImpactRoll, g.view.weaponImpactVRoll =
-    Kinematics.spring(g.view.weaponImpactRoll or 0, g.view.weaponImpactVRoll or 0, 0, 210, 24, dt)
+    Kinematics.spring(g.view.weaponImpactRoll, g.view.weaponImpactVRoll, 0, 210, 24, dt)
   -- A broken guard (condition 'staggered') drops the gun out of the aim for
   -- the stagger itself: the helpless moment is unmistakable in the hands.
   local conditions = p.conditions or {}
   local staggered = ((conditions.staggered or 0) > 0 or (conditions.shaken or 0) > 0) and 9 or 0
   local lowered = (p.dashTimer > 0 and 4 or 0) + (p.slideTimer > 0 and 5 or 0) + staggered
-  g.view.weaponLower = ease(g.view.weaponLower or 0, lowered, 15, dt)
+  g.view.weaponLower = ease(g.view.weaponLower, lowered, 15, dt)
   return footsteps
 end
 function M.pose(g)
   if g.view.motion == false then
     return 0, 0, 0
   end
-  local weight = g.view.weaponCarry or 0
-  local phase = g.view.weaponStride or 0
+  local weight = g.view.weaponCarry
+  local phase = g.view.weaponStride
   local mass = Weight.carryFactor(g)
   -- Alternating load transfer and the half-frequency foot plant describe a
   -- supported weight. Breathing recedes during travel, a shot and reloading.
   local grip = M.grip(g)
   local quiet = (1 - clamp(weight, 0, 1)) * (1 - 0.82 * (1 - grip) / 0.52)
-  quiet = quiet * clamp(((g.view.shotAge or 10) - 0.16) / 0.35, 0, 1)
-  local breath = sin((g.view.weaponClock or 0) * 1.48) * quiet
+  quiet = quiet * clamp((g.view.shotAge - 0.16) / 0.35, 0, 1)
+  local breath = sin(g.view.weaponClock * 1.48) * quiet
   local gaitX = sin(phase) * 4.8 * weight * mass
   local gaitY = (1 - cos(phase * 2)) * 1.55 * weight * mass
-  local x = gaitX
-    + (g.view.weaponAimX or 0)
-    + (g.view.weaponLagX or 0)
-    + (g.view.weaponImpactX or 0)
-    + breath * 0.30
+  local x = gaitX + g.view.weaponAimX + g.view.weaponLagX + g.view.weaponImpactX + breath * 0.30
   local y = gaitY
-    + (g.view.weaponAimY or 0)
-    + (g.view.weaponLagY or 0)
-    + (g.view.weaponDip or 0)
-    + (g.view.weaponLower or 0)
-    + (g.view.weaponImpactY or 0)
+    + g.view.weaponAimY
+    + g.view.weaponLagY
+    + g.view.weaponDip
+    + g.view.weaponLower
+    + g.view.weaponImpactY
     + breath * 0.72
-  y = y + (g.view.weaponStepY or 0) + (g.view.weaponAirY or 0)
-  local roll = (g.view.weaponLean or 0)
+  y = y + g.view.weaponStepY + g.view.weaponAirY
+  local roll = g.view.weaponLean
     + sin(phase) * 0.0065 * weight * mass
-    + (g.view.weaponAimX or 0) * 0.0012
-    + (g.view.weaponImpactRoll or 0)
-    + (g.view.weaponStepRoll or 0)
+    + g.view.weaponAimX * 0.0012
+    + g.view.weaponImpactRoll
+    + g.view.weaponStepRoll
   roll = roll - (Context.actor(g).crouch or 0) * 0.045
   -- Reload actions retain their clear silhouette while the hands keep weight.
   return clamp(x * grip, -13, 13), clamp(y * grip, -8, 14), clamp(roll * grip, -0.04, 0.04)

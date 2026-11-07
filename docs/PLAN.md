@@ -208,6 +208,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   Zostaje z E5: impuls jako zdarzenie z profilem, kierunkiem i odległością,
   wartości domyślne pól widoku zamiast `or 0`, liczby odczucia z
   `feedback/` do treści z zapadką literałów, odbiorcy per aktor.
+- 2026-11-07, **E5 krok c zrobiony:** wartości startowe pól widoku
+  w `Fields.start` (`session/fields.lua`); `ViewState.init`, widok ciała
+  (`player/feel.lua`), `Weight.clearMotion` i `WeaponMotion.init` biorą je
+  stamtąd; reguła VIEW START w `tools/check/main.lua` pilnuje `feedback/`.
+  Odczyty w `render/` i `ui/` zostają z zapasem, bo przeglądy QA rysują
+  widoki budowane ręcznie; to do F5 (kontrakty).
 
 ## Decyzje właściciela
 

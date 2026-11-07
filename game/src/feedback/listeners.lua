@@ -73,7 +73,7 @@ local function enemyKilled(g, e)
   local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
     personal.view.breakKill = Feel.breakKillFlash
-    personal.view.killPunch = math.max(personal.view.killPunch or 0, Feel.breakKillPunch)
+    personal.view.killPunch = math.max(personal.view.killPunch, Feel.breakKillPunch)
     if (e.healed or 0) > 0 then
       Audio.play('seal', 0.22)
     end
@@ -95,7 +95,10 @@ local function enemyKilled(g, e)
   end
   if e.souls then
     -- What the purse really gained, at the purse; a run of kills adds up.
-    local running = (g.view.soulsGainTimer or 0) > 0 and g.view.soulsGain or 0
+    local running = 0
+    if g.view.soulsGainTimer > 0 then
+      running = g.view.soulsGain
+    end
     g.view.soulsGain, g.view.soulsGainTimer = running + e.souls, Feel.soulsGain
   else
     g.view.feedback, g.view.feedbackTimer =
@@ -126,7 +129,7 @@ end
 -- stood (feedback/movement_marks.lua), the sanctuary's bells ring.
 local function perfectDodge(g)
   g.view.perfectDodge = Feel.perfectDodgeFlash
-  g.view.surge = math.max(g.view.surge or 0, Feel.perfectDodgeSurge)
+  g.view.surge = math.max(g.view.surge, Feel.perfectDodgeSurge)
   g.view.feedback, g.view.feedbackTimer = Text.get('feedback_perfect_dodge'), 1.2
   MovementMarks.afterimage(g)
   Audio.play('afterimage', Feel.perfectDodgeSound)

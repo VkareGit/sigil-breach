@@ -10,7 +10,9 @@
 --   ui/palette.lua              interface colours
 -- tools/check refuses new unnamed numbers in simulation code (KONWENCJE).
 return {
-  viewDefaults = { shotAge = 10, flash = { 1, 0.45, 0.12 } },
+  -- A new view's shot age (long after any shot: no flash, no kick, the
+  -- hands quiet), the view kick's rate before a first shot, the flash colour.
+  viewDefaults = { shotAge = 10, aimKickRate = 30, flash = { 1, 0.45, 0.12 } },
   -- Heightfield support: largest walkable riser (m), segment length (m).
   -- Sight is queried between observers' eye planes, independently of walking.
   terrain = { stepHeight = 0.32, segment = 0.25, eye = 1.15 },

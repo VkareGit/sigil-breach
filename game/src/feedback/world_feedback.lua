@@ -173,7 +173,7 @@ World.handlers = {
     end
     local e = ev.body
     Recipient.each(g, function(personal)
-      personal.view.killPunch = math.max(personal.view.killPunch or 0, K.slamPunch)
+      personal.view.killPunch = math.max(personal.view.killPunch, K.slamPunch)
     end)
     Audio.playAt(
       Profiles.body(e, 'impact', 'thud'),
@@ -245,7 +245,7 @@ World.handlers = {
     if not g then
       return
     end
-    g.view.recoilV = (g.view.recoilV or 0) + K.staggerRecoil
+    g.view.recoilV = g.view.recoilV + K.staggerRecoil
     g.view.staggerFlash = K.staggerFlash
     Impulses.shake(g.view, K.staggerShake)
   end,

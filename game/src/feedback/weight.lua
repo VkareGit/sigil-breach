@@ -15,6 +15,7 @@ local Weapons = require('src.content.weapons')
 local Text = require('src.content.text')
 local Lessons = require('src.feedback.lessons')
 local Rate = require('src.core.rate')
+local Fields = require('src.session.fields')
 local W = {}
 local sin, cos, atan2, sqrt, min, max, abs, pi =
   math.sin, math.cos, math.atan2, math.sqrt, math.min, math.max, math.abs, math.pi
@@ -53,16 +54,15 @@ local motionKeys = {
 }
 function W.clearMotion(g)
   for _, key in ipairs(motionKeys) do
-    g.view[key] = 0
+    g.view[key] = Fields.viewStarts[key]
   end
 end
 function W.init(g)
   W.clearMotion(g)
-  g.view.rollSide = 1
+  for _, key in ipairs({ 'rollSide', 'breakConfirm', 'heartTimer', 'heartbeats' }) do
+    g.view[key] = Fields.viewStarts[key]
+  end
   g.view.hurtMarks = {}
-  g.view.breakConfirm = 0
-  g.view.heartTimer = 0
-  g.view.heartbeats = 0
 end
 -- One colour per damage type (content/damage_types.lua), shared by projectiles,
 -- pools, the player's hit markers and incoming-hit arcs.
@@ -86,7 +86,7 @@ function W.shot(g, profile, power)
   g.view.shotAge = age
   g.view.interruptedClose = nil
   g.view.fovKick = w.fov
-  g.view.rollSide = -(g.view.rollSide or 1)
+  g.view.rollSide = -g.view.rollSide
   if g.view.motion ~= false then
     Impulses.kick(g.view, 'rollPunch', g.view.rollSide * w.roll * kick, hands.rollPunch, age)
     -- The hands rise and move back, then settle past rest once.
@@ -148,19 +148,15 @@ function W.playerHit(g, info)
   if g.view.motion ~= false then
     -- The hands take the blow first: the weapon is knocked away from its source,
     -- the head twists away, the frame shakes by the shove, not by the damage.
-    g.view.weaponImpactVX =
-      clamp((g.view.weaponImpactVX or 0) - side * (25 + 85 * severity), -150, 150)
-    g.view.weaponImpactVY = clamp(
-      (g.view.weaponImpactVY or 0) + (18 + 60 * severity) * (0.45 + 0.55 * max(0, ahead)),
-      -120,
-      120
-    )
+    g.view.weaponImpactVX = clamp(g.view.weaponImpactVX - side * (25 + 85 * severity), -150, 150)
+    g.view.weaponImpactVY =
+      clamp(g.view.weaponImpactVY + (18 + 60 * severity) * (0.45 + 0.55 * max(0, ahead)), -120, 120)
     g.view.weaponImpactVRoll =
-      clamp((g.view.weaponImpactVRoll or 0) - side * (0.05 + 0.22 * severity), -0.36, 0.36)
-    g.view.rollPunchV = (g.view.rollPunchV or 0) - side * (0.06 + 0.30 * severity)
+      clamp(g.view.weaponImpactVRoll - side * (0.05 + 0.22 * severity), -0.36, 0.36)
+    g.view.rollPunchV = g.view.rollPunchV - side * (0.06 + 0.30 * severity)
     -- A blow from the front snaps the head back (view rises), from behind it
     -- throws it forward (view drops).
-    g.view.viewPunchV = (g.view.viewPunchV or 0) + ahead * (0.10 + 0.45 * severity)
+    g.view.viewPunchV = g.view.viewPunchV + ahead * (0.10 + 0.45 * severity)
   end
   Impulses.shake(g.view, 0.05 + 0.08 * min(1, severity))
   local shield = (info.absorbed or 0) > (info.lost or 0)
@@ -240,40 +236,40 @@ function W.confirm(g, report, results, hit, hitVolume)
   if falter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), 1.6
     say(4, 'break', 0.75)
-    g.view.killPunch = math.max(g.view.killPunch or 0, 0.12)
+    g.view.killPunch = math.max(g.view.killPunch, 0.12)
   elseif not killed and stopped then
     -- 0.24: the blow reversed a rush; the body goes down.
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), 1.0
     say(3, 'thud', 0.55)
-    g.view.killPunch = math.max(g.view.killPunch or 0, 0.10)
+    g.view.killPunch = math.max(g.view.killPunch, 0.10)
   elseif not killed and tripped then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), 1.0
     say(3, 'thud', 0.5)
-    g.view.killPunch = math.max(g.view.killPunch or 0, 0.08)
+    g.view.killPunch = math.max(g.view.killPunch, 0.08)
   elseif not killed and counter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), 0.9
     say(3, 'crit', 0.32)
   elseif not killed and crippled then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_crippled'), 0.9
   end
-  g.view.breakConfirm = broke and 0.22 or (g.view.breakConfirm or 0)
+  g.view.breakConfirm = broke and 0.22 or g.view.breakConfirm
   if broke then
     Lessons.note(g.view, 'guard')
-    say(4, 'break', 0.30 + 0.25 * (g.view.hitWeight or 0))
+    say(4, 'break', 0.30 + 0.25 * g.view.hitWeight)
   end
   -- A heavy stagger lands with weight: a body blow and a short frame punch;
   -- a light falter keeps only the crack of the broken guard.
   if heavy and not killed then
     say(3, 'thud', 0.38)
-    g.view.killPunch = math.max(g.view.killPunch or 0, 0.06)
+    g.view.killPunch = math.max(g.view.killPunch, 0.06)
   end
   if wounded or (counter and broke) then
     -- The player caused the decisive blow: a short frame punch (post shader
     -- 'kill' pulse) and a small view rise, presentation only.
     say(3, 'heavyhit', 0.45)
-    g.view.killPunch = math.max(g.view.killPunch or 0, 0.08)
+    g.view.killPunch = math.max(g.view.killPunch, 0.08)
     if g.view.motion ~= false then
-      g.view.viewPunchV = (g.view.viewPunchV or 0) + 0.12
+      g.view.viewPunchV = g.view.viewPunchV + 0.12
     end
   end
   if crippled then
@@ -300,21 +296,15 @@ function W.update(g, dt)
     for key, spring in pairs(hands) do
       local rate = key .. 'V'
       g.view[key], g.view[rate] =
-        Kinematics.spring(g.view[key] or 0, g.view[rate] or 0, 0, spring[1], spring[2], dt)
+        Kinematics.spring(g.view[key], g.view[rate], 0, spring[1], spring[2], dt)
       g.view[key] = clamp(g.view[key], spring.limits[1], spring.limits[2])
     end
-    local kick = aimSpring(g.view.aimKickRate or 30)
+    local kick = aimSpring(g.view.aimKickRate)
     g.view.aimKick, g.view.aimKickV =
-      Kinematics.spring(g.view.aimKick or 0, g.view.aimKickV or 0, 0, kick[1], kick[2], dt)
+      Kinematics.spring(g.view.aimKick, g.view.aimKickV, 0, kick[1], kick[2], dt)
     local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
-    g.view.weaponShotRoll, g.view.weaponShotRollV = Kinematics.spring(
-      g.view.weaponShotRoll or 0,
-      g.view.weaponShotRollV or 0,
-      0,
-      w.wristK,
-      w.wristD,
-      dt
-    )
+    g.view.weaponShotRoll, g.view.weaponShotRollV =
+      Kinematics.spring(g.view.weaponShotRoll, g.view.weaponShotRollV, 0, w.wristK, w.wristD, dt)
     local limit = w.wristLimit
     if math.abs(g.view.weaponShotRoll) > limit then
       g.view.weaponShotRoll = clamp(g.view.weaponShotRoll, -limit, limit)
@@ -325,7 +315,7 @@ function W.update(g, dt)
     end
   end
   W.heart(g, dt)
-  g.view.breakConfirm = max(0, (g.view.breakConfirm or 0) - dt)
+  g.view.breakConfirm = max(0, g.view.breakConfirm - dt)
   local marks = g.view.hurtMarks
   if marks then
     for i = #marks, 1, -1 do
@@ -344,7 +334,7 @@ function W.heart(g, dt)
     g.view.heartTimer = 0
     return
   end
-  g.view.heartTimer = (g.view.heartTimer or 0) - dt
+  g.view.heartTimer = g.view.heartTimer - dt
   if g.view.heartTimer <= 0 then
     local fear = 1 - Characters.share(p) / Tuning.lowHealth
     local period = 0.95 - 0.45 * fear
@@ -355,7 +345,7 @@ function W.heart(g, dt)
     if Context.isControlled(g, p) then
       Audio.play('heart', 0.18 + 0.30 * fear)
     end
-    g.view.heartbeats = (g.view.heartbeats or 0) + beats
+    g.view.heartbeats = g.view.heartbeats + beats
   end
 end
 -- Landing: the view dips with the impact speed (render only).
@@ -363,7 +353,7 @@ function W.landing(g, speed)
   if g.view.motion == false then
     return
   end
-  g.view.viewPunchV = (g.view.viewPunchV or 0) - min(0.55, abs(speed or 0) * 0.045)
+  g.view.viewPunchV = g.view.viewPunchV - min(0.55, abs(speed or 0) * 0.045)
 end
 -- HUD: arcs around the reticle pointing at each blow, length and width from
 -- the blow, colour from its damage type; a near miss is a thin dashed arc.

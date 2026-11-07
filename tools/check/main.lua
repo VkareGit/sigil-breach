@@ -619,6 +619,33 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- One start value per view field (PLAN E5): a field with a start value in
+  -- session/fields.lua is read as it is by feedback, never with a fallback
+  -- that could disagree with it (the shot's age once had three).
+  local starts = {}
+  for block in (sources['src.session.fields'] or ''):gmatch('Fields%.start%(%b{}%)') do
+    for name in block:gmatch('\n%s*([%a_][%w_]*)%s*=') do
+      starts[name] = true
+    end
+  end
+  for id, text in pairs(sources) do
+    if id:match('^src%.feedback%.') then
+      for name in text:gmatch('view%.([%a_][%w_]*)%s+or[%s%(]') do
+        if starts[name] then
+          failure(
+            'VIEW START ' .. id .. ': view.' .. name .. ' has a start value; read it as it is'
+          )
+        end
+      end
+      for name in text:gmatch("view%[%s*'([%a_][%w_]*)'%s*%]%s+or[%s%(]") do
+        if starts[name] then
+          failure(
+            'VIEW START ' .. id .. ': view.' .. name .. ' has a start value; read it as it is'
+          )
+        end
+      end
+    end
+  end
   for id, text in pairs(sources) do
     local seen = {}
     -- Registries use literal IDs as well as direct require calls.

@@ -64,7 +64,7 @@ end
 local function record(g, report, kind)
   report.kind = kind
   report.time = g.elapsed or 0
-  g.view.movementImpactSerial = (g.view.movementImpactSerial or 0) + 1
+  g.view.movementImpactSerial = g.view.movementImpactSerial + 1
   report.serial = g.view.movementImpactSerial
   g.view.lastMovementImpact = report
   return report
@@ -127,15 +127,14 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
       / report.lostSpeed
     local ahead = (report.deltaX * math.sin(p.yaw) + report.deltaZ * math.cos(p.yaw))
       / report.lostSpeed
-    g.view.weaponImpactVX =
-      clamp((g.view.weaponImpactVX or 0) + side * report.kick * 0.85, -150, 150)
+    g.view.weaponImpactVX = clamp(g.view.weaponImpactVX + side * report.kick * 0.85, -150, 150)
     g.view.weaponImpactVY = clamp(
-      (g.view.weaponImpactVY or 0) + (math.abs(ahead) * 0.58 + math.abs(side) * 0.12) * report.kick,
+      g.view.weaponImpactVY + (math.abs(ahead) * 0.58 + math.abs(side) * 0.12) * report.kick,
       -120,
       120
     )
     g.view.weaponImpactVRoll =
-      clamp((g.view.weaponImpactVRoll or 0) + side * report.kick * 0.0022, -0.36, 0.36)
+      clamp(g.view.weaponImpactVRoll + side * report.kick * 0.0022, -0.36, 0.36)
   end
   return report
 end
@@ -180,7 +179,7 @@ function I.takeoff(g, speed)
   local report = I.measure(0, 0, 0, 0, speed, 0, I.mass, I.takeoffCushion)
   record(g, report, 'takeoff')
   if g.view.motion ~= false then
-    g.view.weaponDipV = (g.view.weaponDipV or 0) + 26 * (1 - math.exp(-report.impulse / 5))
+    g.view.weaponDipV = g.view.weaponDipV + 26 * (1 - math.exp(-report.impulse / 5))
   end
   return report
 end

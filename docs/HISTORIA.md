@@ -74,6 +74,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E5c, wartości startowe pól widoku, 2026-11-07: pole widoku z wartością
+  startową ma ją zapisaną raz (session/fields.lua: Fields.start); nowy
+  widok, widok ciała bez obserwatora i wyczyszczony ruch biorą ją stamtąd.
+  Odczyty w feedback/ nie mają już własnych zapasów `or 0` (76 miejsc).
+  Wiek strzału miał wcześniej trzy różne zapasy (10, 99, nieskończoność),
+  teraz ma jeden (content/tuning.lua: viewDefaults). Brama: reguła VIEW START.
+
 - E5b, podbicie w klatce błysku, 2026-11-07 (decyzja właściciela): kamera
   i dłonie ruszają w tej samej chwili strzału co błysk. Impuls strzału
   liczy się od początku jego kroku, a wiek błysku jest pokazywany zegarem
@@ -4425,6 +4432,11 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E5c, wartości startowe pól widoku, 2026-11-07: reguła VIEW START czerwona
+  przed zmianą (86 odczytów z zapasem w feedback/), po zmianie 0. Obraz
+  i symulacja bez zmian: golden bez zmian, `feel` 186 PASS. Pełne Linux
+  All PASS (8995 sprawdzeń, Input, Render, Tools).
 
 - E5b, podbicie w klatce błysku, 2026-11-07: czerwone przed zmianą: podbicie
   za błyskiem w 12 z 14 strzałów (np. 60 Hz: błysk 16,7 ms, podbicie

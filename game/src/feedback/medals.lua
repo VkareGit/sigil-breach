@@ -17,8 +17,8 @@ end
 -- Every medal has its own sound (audio/medal_voices.lua), heard when it takes the view.
 function Medals.show(g, id)
   local view = g.view
-  if (view.medalTimer or 0) <= 0 or rankOf(id) >= rankOf(view.medal) then
-    if view.medal ~= id or (view.medalTimer or 0) <= 0 then
+  if view.medalTimer <= 0 or rankOf(id) >= rankOf(view.medal) then
+    if view.medal ~= id or view.medalTimer <= 0 then
       Audio.play('medal_' .. id, Honours.medalVolume)
     end
     view.medal, view.medalTimer = id, Honours.medalTime

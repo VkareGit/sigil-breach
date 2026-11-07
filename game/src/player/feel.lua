@@ -15,6 +15,7 @@ local M, C = Tuning.motion, Tuning.camera
 local approach = MathX.approach
 local spring = Kinematics.spring
 local ViewState = require('src.session.view_state')
+local Fields = require('src.session.fields')
 local clearCamera = ViewState.clearCamera
 -- A setting change may happen twice while paused, with no simulation between.
 -- Discard decoration now; never reset firing/reload clocks, jump, contact
@@ -41,20 +42,7 @@ local bodyViews = setmetatable({}, { __mode = 'k' })
 local function bodyView(p)
   local v = bodyViews[p]
   if not v then
-    v = {
-      recoil = 0,
-      recoilV = 0,
-      land = 0,
-      landV = 0,
-      swayX = 0,
-      swayY = 0,
-      shotAge = math.huge,
-      swapAge = 1,
-      fovKick = 0,
-      bobWeight = 0,
-      bank = 0,
-      stepSound = 0,
-    }
+    v = Fields.startView({})
     bodyViews[p] = v
   end
   return v

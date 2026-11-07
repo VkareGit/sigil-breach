@@ -5,6 +5,7 @@
 -- declared here first; the golden suite fails on an undeclared one.
 -- Simulation fields are part of a snapshot and of the golden digest;
 -- presentation fields never feed back into the simulation.
+local Defaults = require('src.content.tuning').viewDefaults
 local Fields = {}
 Fields.groups = {}
 local index = {}
@@ -272,5 +273,113 @@ declareView('feedback/weapon_motion.lua', {
   'weaponStepVY',
   'weaponStepY',
   'weaponStride',
+})
+-- The start value of the presentation fields that have one (PLAN E5): a new
+-- view begins with it (session/view_state.lua), a cleared motion returns to
+-- it, and the feedback that owns a field reads it as it is, with no fallback
+-- of its own (tools/check/main.lua: VIEW START). Only a knight's own view
+-- has them; a field shared by the world keeps its owner's reading.
+Fields.viewStarts = {}
+function Fields.start(values)
+  for name, value in pairs(values) do
+    assert(viewIndex[name], 'start value for an undeclared view field: ' .. name)
+    assert(viewScopes[name] == 'actor', 'start value for a shared view field: ' .. name)
+    assert(type(value) == 'number', 'a start value is a number: ' .. name)
+    Fields.viewStarts[name] = value
+  end
+end
+-- Give view every start value (a view a test or a review builds by hand).
+function Fields.startView(view)
+  for name, value in pairs(Fields.viewStarts) do
+    view[name] = value
+  end
+  return view
+end
+-- The camera's springs and clocks (player/feel.lua).
+Fields.start({
+  bank = 0,
+  bobWeight = 0,
+  fovKick = 0,
+  land = 0,
+  landV = 0,
+  recoil = 0,
+  recoilV = 0,
+  shotAge = Defaults.shotAge,
+  stepSound = 0,
+  swapAge = 1,
+  swayX = 0,
+  swayY = 0,
+})
+-- What the feedback answers with (feedback/listeners.lua, shot_feedback.lua,
+-- world_feedback.lua, movement_impact.lua).
+Fields.start({
+  hitWeight = 0,
+  killPop = 0,
+  killPunch = 0,
+  lastDamage = 0,
+  medalTimer = 0,
+  movementImpactSerial = 0,
+  muzzle = 0,
+  perfectDodge = 0,
+  refusalTimer = 0,
+  shake = 0,
+  shotPower = 1,
+  soulsGain = 0,
+  soulsGainTimer = 0,
+  staggerFlash = 0,
+  surge = 0,
+})
+-- The weight of the shot and of a blow (feedback/weight.lua).
+Fields.start({
+  aimKick = 0,
+  aimKickRate = Defaults.aimKickRate,
+  aimKickV = 0,
+  breakConfirm = 0,
+  heartTimer = 0,
+  heartbeats = 0,
+  kickBack = 0,
+  kickBackV = 0,
+  kickFlip = 0,
+  rollPunch = 0,
+  rollPunchV = 0,
+  rollSide = 1,
+  viewPunch = 0,
+  viewPunchV = 0,
+  weaponShotRoll = 0,
+  weaponShotRollV = 0,
+})
+-- The carried weapon and the gait (feedback/weapon_motion.lua,
+-- player/movement_gait.lua). weaponLastYaw/Pitch have none: absent means
+-- the next step only notes where the view is.
+Fields.start({
+  gaitPhase = 0,
+  gaitSteps = 0,
+  weaponAimVX = 0,
+  weaponAimVY = 0,
+  weaponAimX = 0,
+  weaponAimY = 0,
+  weaponAirVY = 0,
+  weaponAirY = 0,
+  weaponCarry = 0,
+  weaponClock = 0,
+  weaponDip = 0,
+  weaponDipV = 0,
+  weaponImpactRoll = 0,
+  weaponImpactVRoll = 0,
+  weaponImpactVX = 0,
+  weaponImpactVY = 0,
+  weaponImpactX = 0,
+  weaponImpactY = 0,
+  weaponLagVX = 0,
+  weaponLagVY = 0,
+  weaponLagX = 0,
+  weaponLagY = 0,
+  weaponLean = 0,
+  weaponLower = 0,
+  weaponStepRoll = 0,
+  weaponStepVRoll = 0,
+  weaponStepVY = 0,
+  weaponStepY = 0,
+  weaponStride = 0,
 })
 return Fields
