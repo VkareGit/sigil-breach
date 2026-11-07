@@ -196,6 +196,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   ataku i wyjściu z portalu: przed zmianą 108 czerwonych sprawdzeń przy
   144 Hz i nierównych klatkach, po zmianie 0. Pola widoku rycerza zostają
   na liście do E3/E5.
+- 2026-11-07, **E5 krok a zrobiony:** wstrząs kamery ma jedną regułę łączenia
+  (`feedback/impulses.lua`); wszystkie zapisy przez nią. Strzał nie zaniża już
+  silniejszego wstrząsu (wcześniej Judge zbijał 0,5 do 0,010). Dalszy krok E5
+  (podbicie widoku w klatce błysku) czeka na decyzję właściciela, bo
+  przesuwa szczyt podbicia o ok. 8 ms.
 
 ## Decyzje właściciela
 

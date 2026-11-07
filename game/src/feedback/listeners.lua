@@ -1,6 +1,7 @@
 -- What the player sees and hears of the simulation's events ('present'
 -- phase): run after the step (or at once outside a step). Nothing here may
 -- change the simulation; the golden master would catch it.
+local Impulses = require('src.feedback.impulses')
 local Archetypes = require('src.content.enemies')
 local Audio = require('src.audio.audio')
 local FX = require('src.feedback.effects')
@@ -117,7 +118,7 @@ local function playerHit(g, e)
     g.view.damageDir = math.atan2(info.x - player.x, info.z - player.z)
   end
   g.view.hurt = Feel.hurtFlash
-  g.view.shake = math.max(g.view.shake or 0, Feel.hurtShake)
+  Impulses.shake(g.view, Feel.hurtShake)
   Weight.playerHit(g, info)
 end
 -- The perfect dodge: the world stills into its underdrawing for a moment

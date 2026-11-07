@@ -1,3 +1,4 @@
+local Impulses = require('src.feedback.impulses')
 local Tuning = require('src.content.tuning')
 local Characters = require('src.content.characters')
 local DamageTypes = require('src.content.damage_types')
@@ -144,7 +145,7 @@ function W.playerHit(g, info)
     -- throws it forward (view drops).
     g.view.viewPunchV = (g.view.viewPunchV or 0) + ahead * (0.10 + 0.45 * severity)
   end
-  g.view.shake = max(g.view.shake or 0, 0.05 + 0.08 * min(1, severity))
+  Impulses.shake(g.view, 0.05 + 0.08 * min(1, severity))
   local shield = (info.absorbed or 0) > (info.lost or 0)
   addMark(g, {
     angle = atan2(info.x and info.x - p.x or sin(p.yaw), info.z and info.z - p.z or cos(p.yaw)),

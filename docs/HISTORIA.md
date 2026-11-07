@@ -74,6 +74,9 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E5a, wstrząs kamery, 2026-11-07: strzał dołącza do wstrząsu już
+  pokazanego zamiast go zastępować; słabszy nie zbija silniejszego.
+
 - E4, płynny obraz stworów, 2026-11-07: przy ekranach innych niż 120 Hz
   stwory nie zacinają się już co kilka klatek w przygotowaniu, ciosie,
   skoku, unoszeniu i wyjściu z portalu; ładunek prochowy leci płynnie.
@@ -4414,6 +4417,11 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E5a, wstrząs kamery, 2026-11-07: czerwone przed zmianą 0,5 → 0,010; po
+  zmianie 0,492 ze strzałem i 0,492 bez (to samo wygaszanie). Pełne Linux
+  All PASS (143 zestawy, 8995 sprawdzeń, Input 50, Render, Tools). Golden
+  bez zmian.
 
 - E4, płynny obraz stworów, 2026-11-07: `feel` 186 PASS; ten sam test na
   kodzie sprzed zmiany: 108 czerwonych (każdy stwór i atak, 144 Hz

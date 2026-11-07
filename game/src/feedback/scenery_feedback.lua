@@ -1,4 +1,5 @@
 -- The dust and sound of broken things. Nothing here changes the simulation.
+local Impulses = require('src.feedback.impulses')
 local Breakables = require('src.content.breakables')
 local Audio = require('src.audio.audio')
 local Context = require('src.session.context')
@@ -57,7 +58,7 @@ function Scenery.attach(g, bus)
     end
     sound(g, e, 'thunder', 1)
     sound(g, e, 'blast', 0.8)
-    g.view.shake = math.max(g.view.shake or 0, 0.55)
+    Impulses.shake(g.view, 0.55)
   end)
 end
 return Scenery

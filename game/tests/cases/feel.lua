@@ -371,21 +371,25 @@ function Tests.run(G)
     )
   end
   do
-    -- E5: a shot replaces the shake already shown instead of joining it.
-    local g = Fixtures.arena(G)
-    assert(g:switchWeapon(2), 'feel: Judge in hand')
-    for _ = 1, 120 do
+    -- E5: a shot joins the shake already shown; a weaker one never lowers it.
+    -- The same shake left alone fades by the same step: the shot changes nothing.
+    local function shaken(fire)
+      local g = Fixtures.arena(G)
+      assert(g:switchWeapon(2), 'feel: Judge in hand')
+      for _ = 1, 120 do
+        g:update(1 / 120, {})
+      end
+      g.view.shake = 0.5
+      if fire then
+        assert(g:shoot(), 'feel: Judge fires')
+      end
       g:update(1 / 120, {})
+      return g.view.shake
     end
-    g.view.shake = 0.5
-    assert(g:shoot(), 'feel: Judge fires')
-    g:update(1 / 120, {})
+    local alone, fired = shaken(false), shaken(true)
     check(
-      string.format(
-        'a Judge shot lowers a stronger shake 0.5 to %.3f (known, plan E5)',
-        g.view.shake
-      ),
-      g.view.shake < 0.5
+      string.format('a Judge shot keeps a stronger shake: %.3f with it, %.3f without', fired, alone),
+      math.abs(fired - alone) < 1e-9
     )
   end
   return lines

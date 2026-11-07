@@ -2,6 +2,7 @@
 -- ShotFired and VolleyResolved): recoil, flash, powder, surface marks,
 -- trails, damage numbers, the hitmarker and the named rules. The shot itself
 -- (rounds, cadence, pellets, damage) is resolved in combat/combat.lua.
+local Impulses = require('src.feedback.impulses')
 local Capabilities = require('src.session.capabilities')
 local Medals = require('src.feedback.medals')
 local Audio = require('src.audio.audio')
@@ -33,7 +34,8 @@ function Shot.discharge(g, e)
   if personal then
     personal.view.shotPower = e.shotPower
     personal.view.muzzle = fire.muzzle
-    personal.view.shake = fire.shake
+    -- The report joins a shake already shown; it never lowers a stronger one.
+    Impulses.shake(personal.view, fire.shake)
     personal.view.flashColor = { fire.flash[1], fire.flash[2], fire.flash[3] }
     -- Recoil belongs to the firing actor, never to whichever view renders next.
     Weight.shot(personal, Weapons.inHand(g, nil, p) or e.profile, e.shotPower or 1)
@@ -158,7 +160,7 @@ function Shot.volley(g, e)
   end
   g.view.hitmarker = K.hitmarker + g.view.hitWeight * K.hitmarkerWeight
   -- Heavy flesh hits and kills land in the frame itself, not only in the reticle.
-  g.view.shake = math.max(g.view.shake or 0, K.hitShake + g.view.hitWeight * K.hitShakeWeight)
+  Impulses.shake(g.view, K.hitShake + g.view.hitWeight * K.hitShakeWeight)
   if report.kills > 0 then
     g.view.killPunch = K.killPunch
   end
