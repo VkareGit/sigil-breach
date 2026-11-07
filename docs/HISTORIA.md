@@ -74,6 +74,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E0, miernik odczucia, 2026-11-07: nowy zestaw `feel` mierzy obraz
+  pokazywany graczowi (pętla aplikacji, wygładzona próbka) przy sześciu
+  częstotliwościach ekranu i nierównych klatkach: zamrożone klatki,
+  opóźnienie od wejścia, kształt i uspokojenie podbicia po strzale, ruch
+  każdego stwora. Znane wady są trzymane z etapem planu, który je usuwa.
+  Bez zmian gry, zasobów i golden.
+
 - Przegląd jakości i powiązań kodu, 2026-11-07: pomiar kosztu zmian,
   zależności, liczb w kodzie i spójności nazw. PLAN uzupełniono
   o fundament F1–F5 do akceptacji. Bez zmian gry, zasobów i golden.
@@ -4389,6 +4396,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E0, miernik odczucia, 2026-11-07: pełne Linux All PASS (143 zestawy,
+  8892 sprawdzenia, Input 50, Render, Tools, startup), w osobnym klonie
+  z plikami identycznymi z commitem. `feel` 84 PASS. Chód, skok i unik
+  bez zamrożonych klatek we wszystkich częstotliwościach; opóźnienie
+  w granicy pętli. Potwierdzone znane wady: wysokość skoku stwora 27
+  i unoszenie Stolasa 25 zamrożonych klatek przy 144 Hz (E4); podbicie
+  kamery za błyskiem w 12 z 14 strzałów (E5); cofanie 1,110 m w testach
+  i 0,715 m na poligonie (E1); strzał zaniża wstrząs 0,5 do 0,010 (E5).
+  Windows niesprawdzony.
 
 - Przegląd jakości i powiązań kodu, 2026-11-07: pomiary skryptami na
   `9319e39` (graf require bez cykli, 5941 literałów poza treścią,
@@ -14626,8 +14643,10 @@ Ruch:
   zablokowanie, droga po polu odległości), `enemies/flight.lua` (lot:
   `leapY/leapVY/leapVX/Z`, własna całka grawitacji, dwie ścieżki zależnie
   od `g.world.elevations`), separacja i kontakt w `combat/body_contact.lua`.
-  `Flight.step` omiata tylko `Bodies.controlled(g)`; inni rycerze nie istnieją
-  dla skoku stwora.
+  `Flight.step` podaje pozycje z wnętrza kroku tylko dla `Bodies.controlled(g)`;
+  `Contact.moveEnemy` sprawdza pozostałych rycerzy od początku do końca kroku.
+  (Korekta 2026-11-07: pierwsza wersja tej analizy błędnie podawała, że inni
+  rycerze nie istnieją dla skoku stwora.)
 - Wspólne są tylko mur, kontakt mas (`physics/body_physics.lua`) i sprężyna
   (`physics/kinematics.lua`). Rycerz nie może zostać wyrzucony w powietrze
   ciosem; stwór nie ma uniku ani ślizgu poza atakami.

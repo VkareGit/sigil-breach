@@ -6,6 +6,11 @@ local Suite = {}
 -- responsibilities; adding a test no longer requires another release/report chain.
 Suite.registry = {
   {
+    id = 'feel',
+    title = 'Feel meter: smoothness, latency and recoil of the shown image',
+    module = 'tests.cases.feel',
+  },
+  {
     id = 'creature-audio-lifecycle',
     title = 'Creature sources, occlusion, field voices and session lifetime',
     module = 'tests.cases.creature_audio_lifecycle',

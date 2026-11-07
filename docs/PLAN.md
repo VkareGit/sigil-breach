@@ -2,9 +2,11 @@
 
 ## Zakres i status
 
-**2026-11-07: silnik ruchu i strzału — plan do akceptacji.** Nie rozpoczęto
-wdrażania. Stan gry: `d518491`, 0.45; pełna brama Linux All PASS
-(142 zestawy, 8808 sprawdzeń, Input 50, Render i Tools).
+**2026-11-07: silnik ruchu i strzału — zaakceptowany, wdrażanie trwa.**
+Właściciel: „zacznij wdrażanie” po przedstawieniu planu E + F, czyli
+z przyjęciem pięciu rekomendacji z „Decyzji właściciela”. Punkt wyjścia:
+`d518491`, 0.45; pełna brama Linux All PASS (142 zestawy, 8808 sprawdzeń,
+Input 50, Render i Tools).
 
 Polecenie właściciela: odczucie strzelania i ruchu, czyli fizyka gry, ma być
 perfekcyjne. Silnik ma być ogólny: tworzymy postacie w silniku, a nie silnik
@@ -29,7 +31,9 @@ Dowody i miejsca w kodzie: HISTORIA, „Analiza silnika ruchu i strzału
   powietrze, skok, unik, ślizg, pchnięcie, uderzenie o mur). Stwór:
   `enemies/walking.lua` i `enemies/flight.lua` z innymi polami, własną
   całką grawitacji i dwiema ścieżkami lotu zależnie od tego, czy mapa ma
-  podwyższenia. Lot stwora omiata tylko sterowanego rycerza.
+  podwyższenia. Lot stwora sprawdza sterowanego rycerza w pozycjach z
+  wnętrza kroku, a pozostałych tylko od początku do końca kroku
+  (korekta 2026-11-07: wcześniej błędnie zapisano, że tylko sterowanego).
 - Tryb gry zmienia fizykę. Spowolnienie kroku w bok i w tył oraz chwila
   ciała po strzale działają tylko przy `attrition`. Tryb `floor`, na którym
   stoją golden i 34 pliki testów, go nie ma: testy pilnują innego ruchu niż
@@ -76,7 +80,7 @@ Windows pozostaje do sprawdzenia przez właściciela.
   gracz (klawisze, skok, unik, ślizg), SI (droga do celu), czynność
   (skok ataku, szarża, odrzut). Zdolności i liczby w definicji postaci.
   Kolejność: najpierw przeniesienie bez zmiany wyniku (golden identyczny),
-  potem omiatanie wszystkich rycerzy w locie stwora, potem jedna ścieżka
+  potem jednakowo dokładne omiatanie każdego rycerza, potem jedna ścieżka
   lotu niezależna od podwyższeń mapy (możliwa drobna zmiana golden).
 - **E3. Fizyka oddzielona od kamery.** Symulacja publikuje fakty: prędkość,
   przyspieszenie, oderwanie, uderzenie lądowania, kontakt z murem, postawiona
@@ -149,6 +153,18 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-07: przegląd jakości i powiązań kodu (HISTORIA): koszt zmiany,
   płaski rekord stwora, trzy kanały prezentacji, 5941 literałów poza
   treścią, 68 modułów pod różnymi nazwami, 964 × `or 0`. Bez zmian gry.
+- 2026-11-07, **E0 zrobione:** `qa/feel.lua` (pętla aplikacji, próbka
+  rysowanego obrazu) i zestaw `feel` (84 sprawdzenia) przy 30/60/120/144/
+  165/240 Hz i nierównych klatkach. Punkt odniesienia: chód, skok i unik
+  bez zamrożonych klatek; pierwszy widoczny skutek klawisza mieści się
+  w kosztach pętli (jeden krok wygładzania + jedna klatka bez kroku,
+  np. 16,7 ms przy 120 Hz). Podbicie kamery po strzale idzie za błyskiem
+  (np. 60 Hz: błysk 16,7 ms, podbicie 33,3 ms; 12 z 14 strzałów): znana
+  wada E5. Szczyt podbicia Exorcist 0,0349 rad, uspokojenie ok. 320 ms;
+  Judge 0,0179 rad, ok. 215 ms. Znane: wysokość skoku stwora i unoszenie
+  Stolasa (E4), cofanie 1,110 m w testach i 0,715 m na poligonie (E1),
+  strzał zaniża silniejszy wstrząs 0,5 → 0,010 (E5). Brama Linux All PASS:
+  143 zestawy, 8892 sprawdzenia, Input 50, Render, Tools.
 
 ## Decyzje właściciela
 
@@ -159,6 +175,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 3. Plan Exorcista jako etap E6 na wspólnym silniku. Rekomendacja: tak.
 4. Kolejność E0 → E7 z próbami po E4 i E6. Rekomendacja: tak.
 5. Fundament F1–F5 razem z E, w kolejności łącznej wyżej. Rekomendacja: tak.
+
+Przyjęte 2026-11-07 („zacznij wdrażanie”): wszystkie pięć zgodnie z
+rekomendacją.
 
 ## Poza zakresem
 
