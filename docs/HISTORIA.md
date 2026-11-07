@@ -36,6 +36,8 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Analiza Exorcista — ciężar, animacje i audio (2026-11-07)
+- Plan sprzed Exorcista (zastąpiony 2026-11-07)
 - Analiza audio sześciu postaci (2026-11-06)
 - Plan sprzed przeglądu audio (zastąpiony 2026-11-06)
 - Analiza Margrave'a (2026-11-06)
@@ -67,6 +69,10 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
+
+- Exorcist, analiza 2026-11-07: prześledzono ciężar noszenia, gesty,
+  odrzut, kamerę, audio i zależności. PLAN zawiera zakres do akceptacji;
+  poprzedni plan audio zachowano w całości niżej. Bez zmian gry i zasobów.
 
 - Audio sześciu postaci, wdrożenie zaakceptowane 2026-11-06: rozdzielono
   odgłosy ciała, przygotowania i wykonania, przelot/kontakt pocisku oraz
@@ -4369,6 +4375,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Exorcist, analiza 2026-11-07: 1366 nowych sprawdzeń PASS
+  (weapons 441, weight 882, shotgun 43), ślady 60/120/240 Hz,
+  50 renderów i eksport obecnych odgłosów. Potwierdzono kasowanie
+  silniejszego wstrząsu przez strzał i jednakowy shake jednej/dwóch luf.
+  Ruch używa ready, obsługa pozostaje syntezowana także w zestawach B1/B2.
+  Pełny raport i źródła: „Analiza Exorcista — ciężar, animacje i audio”.
+  To analiza, nie wdrożenie ani odbiór brzmienia; czekamy na akceptację PLAN.
+  Nie uruchamiano nowego All. Windows i odsłuch agenta niesprawdzone.
 
 - Audio sześciu postaci, wdrożenie 2026-11-06 — pełna brama Linux PASS;
   odbiór artystyczny brzmienia pozostaje otwarty.
@@ -14418,3 +14433,338 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
   Nie zmieniać tutaj wspólnych klas nawigacji ani promieni innych stworów.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
+
+
+## Plan sprzed Exorcista (zastąpiony 2026-11-07)
+
+# SIGIL: BREACH — plan rozwoju
+
+## Zakres i status
+
+**2026-11-06: zaakceptowany pakiet audio sześciu postaci wdrożony;
+pełna brama Linux PASS, odsłuch właściciela pozostaje otwarty.** Właściciel dodatkowo zezwolił na bardziej
+mroczne i zniekształcone głosy, z zachowaniem charakteru stworów i czytelności.
+Zakres: Ember Thrall, Iron Thrall, Star Acolyte/Stolas, Plague Gardener/Buer,
+Furfur i Margrave of Ash; głos ciała, ruch i uniki, przygotowanie,
+wypuszczenie, przebieg i zakończenie ataków, trafienia, przerwanie i śmierć.
+Cel: rozpoznawalne, niepokojące postacie oraz czytelne zagrożenia w walce.
+Właściciel zaakceptował plan i zmianę wszystkich tych odgłosów.
+Szczegółowa analiza i źródła: HISTORIA, „Analiza audio sześciu postaci
+(2026-11-06)”. Poprzedni PLAN Margrave'a zachowany tam w całości.
+
+## Zaakceptowany kierunek
+
+Wspólny świat: ciało potępieńca, oddech, kamień, żelazo, popiół,
+zepsucie i obrzęd. Dziewięć kręgów piekła jako kierunek świata, bez
+samodzielnego przypisywania obecnym stworom konkretnych kręgów.
+Głos ciała i materiał ataku mają odmienne role. Krótkie ostrzeżenie musi
+przekazywać czynność; dłuższy niepokojący odgłos może rozwijać jej charakter.
+Nie każdy atak potrzebuje krzyku ani każda chwila obecności — pomruku.
+Przetwarzanie ma zachować słyszalnego człowieka lub zwierzę pod deformacją.
+Bez słownych kwestii, współczesnej mechaniki, ciągłego basu i ostrych pisków.
+
+| Postać | Charakter i najważniejsze czynności |
+| --- | --- |
+| Ember Thrall | Krótki, urywany oddech wyniszczonego napastnika; wysiłek pazurów, skoku, odskoku i lądowania. Najczęstszy przeciwnik: oszczędna obecność, krótkie zakończenia i różne wykonania, żeby grupa nie zamieniała się w stały wrzask. |
+| Iron Thrall | Ludzki głos uwięziony w pancerzu, napięcie płyt i łańcucha, ciężki kontakt z posadzką. Rozróżnić zamach, szarżę barkiem, cios powrotny, uderzenie w ziemię i zatrzymanie na murze; materiał nie może być tylko ogólnym szumem. |
+| Stolas | Ptasio-ludzki celebrans; głos rzucającego oddzielony od głosów ofiar. Piekielna fala: narastający zbiorowy wdech i krzyk niesiony przez grzbiet. Rozdarcie: krótki chór rozerwany w rytmie otwarcia ziemi. Pociski, salwa i teleport zachowują odrębne sygnały; krzyki nie wypełniają każdego czaru. |
+| Plague Gardener | Duszenie się, odruch wymiotny, napięcie brzucha i mokre rozpady; przygotowanie strumienia z ust odmienne od wysiewu i rozkwitu. Osobno kontakt wydzieliny, pękanie nasion i wyrywanie korzeni. Unikać komicznego bulgotu oraz jednego pomruku dla wszystkich czynności. |
+| Furfur | Zniekształcony zwierzęcy głos, klatka piersiowa i poroże; kopyta, nabranie powietrza, szarża, nawrót i hamowanie. Burza ma głos przywołania, napięcie przed uderzeniem oraz grzmot z rzeczywistego miejsca kontaktu. Zwierzęcy charakter odróżnia go od Margrave'a. |
+| Margrave | Zdarty ludzki głos kata: wysiłek przy ciężarze, wstrzymany oddech podczas przytrzymania i urwany wydech przy ciosie. Tasak, skok, kamień i żar mają własne materiały. Zimne cięcie i płonący ślad różnią się także dźwiękiem; nie kopiować chóru Stolasa. |
+
+Śmierć również identyfikuje ciało: urwany skowyt i wydech Embera;
+załamujący się ludzki głos i osiadanie pancerza Iron Thralla; utrata
+ptasio-ludzkiego głosu Stolasa; zdławiony ostatni wydech Gardenera;
+gasnący zwierzęcy ryk Furfura; zdarty wydech kata i ciężar upadającego
+Margrave'a. Kontakt ciała/wyposażenia z ziemią ma przypadać na rzeczywisty
+upadek, nie na początek całej animacji. Kilka wykonań każdej śmierci;
+długie ogony ograniczane w tłumie, bez zasłaniania żywych zagrożeń.
+
+## Zaakceptowana kolejność wdrożenia
+
+1. **Dowody wejściowe i testy regresji.** Uzupełnić zachowany inwentarz
+   rzeczywistymi śladami zdarzeń każdej czynności, także odskoku, przerwania,
+   zderzenia i śmierci. Utrwalić czerwone testy: położenie długiego głosu
+   po obrocie/ruchu gracza, ściana dla alarmu/uniku/zderzenia, dwie różne
+   aktywacje pola w tej samej chwili, przelot/trafienie przypisane do ataku.
+   Sprawdzić koniec próbek w rzeczywistym oknie przygotowania i przytrzymania.
+   Przed zmianą wykonać powtarzalne miksy walki oraz pomiar CPU/liczby źródeł.
+2. **Spójne wyzwalanie i przestrzeń.** Rozszerzyć istniejące profile treści
+   o potrzebne role ruchu oraz ataku, wykorzystując wspólne zdarzenia.
+   Żadnych warunków po nazwie konkretnego moba. Głos ciała pochodzi z ciała,
+   przelot z pocisku, a krzyk pola z pola. Długie głosy aktualizują położenie
+   i tłumienie przy ruchu słuchacza/emisji. Ściany działają spójnie również
+   dla alarmu, uniku i zderzenia. Ograniczony, mierzony koszt aktualizacji;
+   to nie budowa nowego pełnego silnika propagacji akustycznej.
+3. **Etapy i zakończenia.** Przygotowanie, wypuszczenie, groźny przebieg,
+   kontakt i wygaszenie wynikają z rzeczywistej fazy czynności. Nie wycinać
+   próbki na przypadkowej amplitudzie, ale też nie pozostawiać ostrzeżenia
+   po przerwaniu. Kontrolowane krótkie wygaszenie nie przedłuża zagrożenia.
+   Wiele znaków jednego rytuału może tworzyć jeden odgłos; osobne rytuały
+   nie wyciszają się wzajemnie przez wspólny typ obrażeń. Już wypuszczony
+   efekt zachowuje własne reguły życia po śmierci rzucającego.
+4. **Brzmienie sześciu postaci.** Dobór/przeróbka nagranych wykonań i
+   materiałów zgodnie z tabelą. Najpierw Stolas jako próbka kierunku,
+   potem pozostała piątka w ramach tego samego zaakceptowanego zakresu.
+   Warianty często powtarzanych odgłosów, co najmniej trzy śmierci, różne
+   wysiłki zależne od czynności, oszczędna obecność i odzyskiwanie oddechu.
+   Zachować dobre obecne wykonania; nie podmieniać banku dla samej wymiany.
+   Krzyki potępionych oprzeć na odegranych ludzkich głosach i kontrolowanym
+   nawarstwieniu, z czytelnym początkiem, bez ostrego ciągłego tonu.
+   Źródła, licencje i przetwarzanie zapisać przy zasobach; bez audio z gier.
+5. **Miks walki.** Strojenie w typowym zasięgu każdego ataku, dodatkowo
+   przy 2/6/10/16 m, za kolumną, murem i poza ekranem. Priorytet bieżącego
+   zagrożenia przed ozdobnym oddechem i dalekim echem. Zachować rozpoznawalność
+   strzałów Judge'a/Exorcista. Najpierw barwa, rytm, tłumienie i ograniczenie
+   nakładania; dopiero potem korekta głośności. W razie potrzeby krótkie,
+   łagodne ściszanie mniej ważnych warstw, bez pompowania całego miksu.
+   Zachować cztery suwaki oraz ograniczone pule źródeł; nie zwiększać
+   limitu 28 tylko dlatego, że pojawiły się nowe warstwy. Osobno sprawdzić
+   rywalizację o źródła przy równym priorytecie i przeciążenie.
+6. **Kontrola całości.** Solo, wszystkie sześć razem, zwykła kaplica oraz
+   większa grupa z nakładającymi się efektami; obie bronie, wszystkie
+   istniejące zestawy ich dźwięku i muzyka. Pomiar poziomów, krótkich okien,
+   szczytów, maskowania pasm i przerw/końcówek; osobny odsłuch w słuchawkach
+   i głośnikach. Testy 60/120/240 Hz, wariantów, braku powtórzeń, mute,
+   pauzy, mapy, śmierci, odpoczynku i zmiany świata. Continue we wszystkich
+   fazach, także starszy zapis, bez odtworzenia dawnej erupcji drugi raz.
+   Zwolnienie/reużycie źródeł, brak zmiany RNG i symulacji. Porównanie
+   wydajności przed/po w osobnym klonie, z jawnymi limitami badanej sceny.
+7. **Odbiór i domknięcie.** Krótkie porównania audio przed/po dla sześciu
+   postaci oraz fragmenty mieszanego starcia; osobno techniczny PASS i
+   artystyczny odsłuch właściciela. W tej sesji agent nie miał wiarygodnego
+   odsłuchu i nie może obiecać, że sam pomiar potwierdzi grozę brzmienia.
+   Powiązane testy osobno i razem, pełne `scripts/linux/TEST.sh All --timeout
+   1800`, pozostałe bramy po ewentualnym błędzie, golden bez zmiany wzorca.
+   Przegląd diffu, ZMIANY/ODBIOR/Postęp i commit po wymaganej zielonej bramie.
+   Windows niesprawdzony, push wyłącznie na polecenie.
+
+## Postęp
+
+- 2026-11-06: wdrożenie zakończone. Końcowe All: Architecture, 8808
+  Mechanics/Assets, Input 50, Render i Tools PASS; dziewięć stabilnych
+  świadectw tego samego stanu gry. Lifecycle 112 i mix 887 PASS także
+  osobno; golden bez zmiany wzorca. 324 wykonania w 161 rodzinach,
+  pochodzenie i sumy wszystkich nagrań sprawdzone. Grafika bez zmian.
+- Zachowano przed/po: 16 czerwonych oczekiwań cyklu życia naprawionych;
+  24 chóry w natywnym miksie: peak 1,321 → 0,385, przekroczenia pełnej
+  skali 2918 → 0. Dodatkowo prawdziwa śmierć wygasza dawny alarm,
+  zachowując głos śmierci i niezależne życie wypuszczonych pól.
+- Pomiar 1/6/24 ciał i nagrania natywnego miksu ukończone. Osobne 45 s
+  zwykłej kaplicy z rzeczywistym wejściem bota: peak 0,717, zero
+  przekroczeń, maksymalnie 28 źródeł. Nie jest to odbiór trudności.
+  Dowody i sześć porównań do odsłuchu: zewnętrzne
+  work/qa-direct/creature-audio-delivery-20261106/; szczegóły w ODBIOR.
+  Pozostaje odsłuch właściciela w grze: groza, komfort i rozpoznawalność
+  zapowiedzi. Agent nie miał wiarygodnego odsłuchu. Windows niesprawdzony;
+  push nie został wykonany. Własny klon pomiarowy usunięto po zachowaniu
+  nagrań, pomiarów i świadectw.
+- 2026-11-06: akceptacja całego pakietu. Zachowano nagranie natywnego miksu
+  sprzed zmian, pomiary aktualizacji dla 1/6/24 przeciwników oraz czerwony
+  test cyklu życia: 16 niezaliczonych oczekiwań. Pierwsza poprawka zaliczyła
+  wszystkie 21 sprawdzeń tej sondy; rozszerzono weryfikację o Continue,
+  tożsamość wariantu Iron Thralla, przerwania i przeciążenie źródeł.
+- Wdrożenie obejmuje profile audio poza definicjami symulacji, ruch źródeł,
+  tłumienie przez ściany, wyciszanie trwających głosów, fazy pól i wznowienie
+  bez powtarzania wcześniejszych kontaktów. Nagrania sześciu postaci otrzymały
+  odrębne przetwarzanie, warianty i materiały. Nowe odegrane ludzkie głosy
+  dla rytuałów Stolasa oraz nagrany łańcuch mają zweryfikowaną licencję CC0.
+  Wynik odsłuchu artystycznego nadal wymaga właściciela.
+- 2026-11-06: analiza zakończona na czystym `011d3dd`, wersja 0.45.
+  Prześledzono definicje sześciu postaci, receptury, feedback, głosy ciała,
+  pociski/pola, pulę źródeł, tłumienie, muzykę, obecne testy i pochodzenie
+  nagrań. Badanie źródeł: Hunt, SOMA, Dead Space oraz prezentacja DOOM.
+- Izolowany audyt wyeksportował 243 wykonania w 144 rodzinach, włącznie
+  z ogólnymi odgłosami i nieużywanymi definicjami. Natywne sondy potwierdziły
+  nieruchomą panoramę długiego głosu, pomijanie świata w części zdarzeń,
+  kolizję dźwięków dwóch różnych pól oraz brak aktywacji audio fali Stolasa.
+  Normalizowane pomiary warstw nie są wynikiem odsłuchu ani pełnego miksu.
+- Nowe przebiegi: creature-audio-mix 627, star-acolyte-audio 59,
+  iron-thrall-audio 47, plague-gardener-audio 59 — łącznie 792 PASS.
+  Pięć stabilnych świadectw (audyt i cztery zestawy). Stare All Margrave'a
+  nadal odpowiada grze: dziewięć świadectw, 8402 Mechanics/Assets, Input
+  50, Architecture/Render/Tools PASS. To wcześniejsze All, nie nowe.
+- Dowody: zewnętrzne `work/qa-direct/creature-audio-analysis-20261106/`.
+  Własny klon i jego katalog wyników usunięto po zachowaniu pomiarów.
+  Nie zmieniono gry, WAV, PNG ani golden. Aktualizacja wyłącznie dokumentów.
+
+## Decyzja
+
+Wdrożono cały powyższy pakiet: sześć odrębnych charakterów,
+krzyki ofiar jako warstwa piekielnych czarów Stolasa, naprawa wyzwalania
+i przestrzeni oraz wspólny miks. Bez nowych umiejętności i zmian balansu.
+Właściciel zaakceptował plan i wdrożenie. Dobór plików i dokładne parametry
+są decyzjami wykonawczymi sprawdzanymi pomiarem; klimat oraz komfort
+brzmienia pozostają do jego odsłuchu w grze.
+
+## Poza zakresem
+
+- Zmiana wyglądu, animacji, masek, HUD-u, broni, muzyki jako kompozycji,
+  zasad walki, HP, obrażeń, czasów SI oraz nowych czarów. Dopasowanie audio
+  odbywa się do istniejącego działania i obrazu.
+- Wcześniejszy problem punktów nawigacji Furfura przy murze, odbiór obrazu
+  i walki Margrave'a oraz inne odłożone kierunki zachowane w archiwach.
+- Przebudowa całej akustyki map, nowe postacie, bossowie, mapy i przypisanie
+  dziewięciu kręgów do obecnych przeciwników. Bez nagrań wideo i pakowania.
+
+## Analiza Exorcista — ciężar, animacje i audio (2026-11-07)
+
+Zakres właściciela: najpierw analiza strzelby, potem plan do akceptacji.
+Ciężar noszenia i reakcje rycerza, chód/unik/ślizg/skok, animacje obsługi,
+strzał, dźwięki oraz skalowalność mechanizmów. Stan wejściowy czysty,
+`8011e3a`, wersja 0.45. Wdrożenia jeszcze nie rozpoczęto.
+
+### Fakty z kodu i sond
+
+1. Exorcist jest dwulufową łamaną strzelbą. Pełny spust zużywa dwie łuski;
+   jedna pozostała daje połowę pełnego rozładowania. Cykl 0,94 s, otwarcie
+   0,26, przeniesienie amunicji 0,60, zatrzaśnięcie 0,82. Strzał blokuje
+   nowy unik przez 0,22 s odzyskania równowagi. Nie ma potrzeby zmiany tych
+   wartości do zadania prezentacji; ewentualna zmiana byłaby balansem.
+2. Ciężar już istnieje: weight.mass=4, momentum=96, aim=0,78, carry=1;
+   Judge: 1,5 / 9 / 1 / 0,72. Pełny impuls 24 wobec 6. Klatki recoil
+   i settle są malowane; dodatkowo działają sprężyny, nadgarstek, ruch
+   wzdłuż osi luf, FOV i podbicie widoku. Nie zaczynać od drugiego systemu.
+3. W sondzie 120 Hz podbicie Exorcista osiąga 0,03487 rad (ok. 2°),
+   jednej łuski 0,01744, Judge'a 0,01785. Ruch strzelby przy chodzie:
+   maks. |x| 4,791, |y| 3,502 jednostki sceny 450 px; Judge 3,449/2,567.
+   Przy obrocie |x| 6,894 wobec 4,507. Są już różnice, więc hipoteza
+   „brak ciężaru w ogóle” byłaby nieprawdziwa.
+4. Start/hamowanie mają wspólne targety/sprężyny: matched_acceleration
+   daje obu broniom dokładnie tę samą pozę x=0,0168146885,
+   y=0,0088797749, roll=0,0002741334. To odizolowany wkład przyspieszenia,
+   nie twierdzenie, że całe chodzenie obu broni jest identyczne.
+5. Przez chód, obrót, trzy kierunki uniku, ślizg i skok atlas wybiera
+   tylko `ready`. Pozę porusza kod; brak gestu ściskania/podparcia broni.
+   Cel opuszczenia dla uniku=4 i ślizgu=5 niezależnie od broni; w próbie
+   maksima warstwy lower odpowiednio 3,5784 i 4,99785. Boczne uniki
+   mają różnice wynikające z ogólnego przechyłu i kolizji, nie należy
+   twierdzić, że ich pełne obrazy są takie same. Plansza zawiera filar
+   blisko jednego kierunku; nie jest porównaniem równych tras.
+6. `Shot.discharge` przypisuje shake zamiast komponować impuls. Sonda
+   istniejącego wstrząsu 0,13 i realnego strzału kończy z 0,05. Dwie
+   i jedna łuska mają ten sam shake=0,05 i fovKick=1,6; podbicie i część
+   sprężyn już skaluje moc. Shake jest zarazem liniowo gasnącą wartością
+   i mnożnikiem drgania; rytm drgań bierze globalny g.time. Brakuje
+   niezależnej kontroli charakteru/czasu poszczególnego impulsu.
+7. 16 póz istniejącego arkusza wystarcza do pierwszego przejścia. Fire:
+   recoil do 0,08 s, settle do 0,14; następnie reach do 0,15, unlock
+   do 0,20. Bardzo krótki reach jest kandydatem do poprawy rytmu, nie
+   dowodem błędu rozliczenia. Wymiana całego atlasu nie jest uzasadniona.
+8. Odczytano wyłącznie istotne ustawienia właściciela: CLASSIC, MOTION=true,
+   Master/Effects/Music/Ambience=1. CLASSIC to synteza; sample B1/B2 mają
+   po trzy wykonania. Przełączanie F7 podmienia strzały oraz kilka innych
+   zdarzeń globalnie, ale nie nagrania obsługi. Nie usuwać tego selektora
+   samodzielnie przy pracy wyłącznie nad Exorcistem.
+9. `breakOpen`, `shellIn`, `breakClose`, `step`, `dash`, `slide`, `land`
+   są syntezowane. Ruch nie wybiera foley noszonej broni. Zmiana broni
+   ma odsłonięcie w 0,20 s i nie emituje własnego odgłosu dobycia.
+   `shellIn` ma zawsze dwa impulsy osadzenia, bez informacji o liczbie
+   ładowanych nabojów. Jedna łuska używa tego samego materiału `shot`,
+   który w CLASSIC zawiera dwa początki odsunięte o 6 ms. Wariant jednej
+   lufy powinien mieć własny czytelny materiał, bez fałszowania amunicji.
+10. Pogłos jest zapisany w próbce lub dodany jako stały `hall`; nie ma
+    rozróżnienia tej odpowiedzi według miejsca strzału. Próbka CLASSIC
+    z dodatkowymi warstwami ma długość 2,2 s, B1 0,66 s, B2 0,73 s.
+    To długość plików/ogona, nie zmierzony pogłos akustyczny pomieszczenia.
+
+### Pomiary dźwięku i ograniczenia
+
+Eksport przez runtime VoiceData, potem montaż mono przy bazowym pitch=1,
+Master 0,7 i poziomach pełnego strzału; bez normalizacji, muzyki, panoramy
+ani miksera OpenAL. CLASSIC łączy shot 0,95, hall 0,34, thud 0,36.
+Próbki B1/B2 mają gain 1,204 × 0,95. To jawne porównanie materiałów,
+nie wynik odsłuchu walki i nie dowód maskowania.
+
+| Zestaw | Peak | RMS pierwszych 50 ms | Długość |
+| --- | ---: | ---: | ---: |
+| CLASSIC z warstwami | 0,626 | 0,254 | 2,20 s |
+| IRON, trzy wykonania | 0,501–0,507 | 0,299–0,306 | 0,66 s |
+| STONE, trzy wykonania | 0,531–0,580 | 0,309–0,314 | 0,73 s |
+
+W tych montażach zero przekroczeń pełnej skali. CLASSIC ma najwyższy
+chwilowy szczyt, lecz mniej energii w pierwszych 50 ms niż nagrania.
+Nie można stąd wyciągnąć wniosku „wystarczy zwiększyć gain” ani uznać
+jednego zestawu za lepszy. Brak wiarygodnego odsłuchu agenta; komfort,
+rozpoznawalność i horror muszą być ocenione przez właściciela.
+
+### Inspiracje i ich przełożenie
+
+- DOOM: autor animacji broni Brett Paton opisuje ręce i broń jako stale
+  widoczną postać FPS, pomocnicze gesty skoku/lądowania oraz skracanie
+  wymiany modułu, żeby nie hamować rozgrywki. Wniosek dla nas: pełne
+  przejścia podparcia ciała, ale bez nowego opóźnienia spustu.
+  Źródło autora: https://vimeo.com/169797964 . Nie oceniano odsłuchem filmu.
+- Modern Warfare: materiał z Markiem Grigsbym opisuje naturalne korekty
+  mięśni zamiast stałego bujania, głowę prowadzącą przed bronią oraz
+  ciężar widoczny w obsłudze. Wniosek: ciężka strzelba może być bardziej
+  podparta, nie musi mieć większej sinusoidy. Przejmujemy zasadę gestu,
+  nie realistyczny renderer ani współczesną taktyczną stylistykę.
+  https://blog.activision.com/cn/zh/call-of-duty/2019-07/Modern-Warfare-Initial-Intel-Detailing-Advancements-in-Animation-and-Authenticity
+- Hunt: Crytek rozdziela mroczny naturalizm i czytelność, omawia odpowiedź
+  wnętrza, echo, tłumienie i dystans. Opisuje też cofnięcie bardziej
+  filmowego miksu, który osłabiał ocenę odległości. Wniosek: huk ma być
+  potężny, lecz pozostawić sygnały zagrożeń i informację o przestrzeni.
+  https://www.huntshowdown.com/news/dev-insight-audio-design-recap-what-s-new-in-update-24
+- Dead Space: materiał Motive przedstawia A.L.I.V.E. (oddech/tętno),
+  zasłanianie dźwięku i porównanie nowych/starych odgłosów broni.
+  Wniosek: horror z wiarygodnego ciała, materiału oraz ciszy po huku;
+  nie dodawać losowego głosu demona do ludzkiej strzelby.
+  https://www.ea.com/ea-studios/motive/news/focus-on-deadspace-audio-design
+
+Powyższe wnioski projektowe są naszą propozycją na podstawie materiałów,
+nie deklaracją odtworzenia silników tych gier lub odsłuchania wszystkich
+ich przykładów. Żadne zasoby z tych gier nie trafiają do projektu.
+
+### Zależności i granice skalowalności
+
+Ścieżka: definicja broni i model amunicji → combat/ShotFired/ReloadStage →
+feedback/weight/weapon_motion → render/weapon_art/weapon/camera oraz audio.
+Ruch rzeczywisty i gait pochodzą z player/feel, nie z czasu rysowania.
+Przeładowanie ma transakcje open/load/close i resumowane stany. Nakładanie
+rąk dotyka flaski/prochu, przełączenia broni i przerwań. Kamera używa
+Context actor/viewer; celownik rzutuje właściwy promień strzału.
+
+Wspólny wykonawca i profile danych są właściwe; jedna formuła „więcej
+obrażeń = mocniejsze drganie” nie jest. Odrzut własnej broni, wstrząs
+bliskiego wybuchu, przejęcie ciężaru przez dłonie i potwierdzenie trafienia
+mają różne znaczenie. Korzystać ze wspólnego limitowania/życia impulsów,
+nie tworzyć wielkiego nowego silnika dla wszystkich zjawisk. Profile
+muszą opisywać też kierunek, czas, tłumienie i charakter, a nie tylko moc.
+Dodatkowy profil testowy ma działać bez `if id == exorcist` w wykonawcy.
+
+Największe ryzyka: sumowanie ruchów zasłaniające cel; przesunięcie obrazu
+bez zgodności celownika; zegar dźwięku oderwany od klatki i amunicji;
+fałszywa druga łuska; pozostały gest po pauzie/zamianie/Continue;
+przekroczenie puli audio; ostrzeżenia przykryte ogonem huku. Definicje
+walki są utrwalane w zapisach — profil prezentacji nie może przypadkiem
+zmieniać golden lub wymuszać migracji reguł. Żaden test techniczny nie
+potwierdza zgodności artystycznej nowych ilustracji.
+
+### Weryfikacja analizy
+
+Nowe izolowane zestawy: weapons 441, weight 882, shotgun 43 = 1366 PASS.
+Sonda ruchu 60/120/240 Hz i 50 rzeczywistych PNG zakończona; oględziny
+bazy, planszy ruchu oraz całego cyklu przeładowania. Przebieg tylko
+odczytu/eksportu — nie implementuje nowych kryteriów ani ich nie zalicza.
+Cztery świadectwa stabilnego klonu z exitCode 0; pierwsze próby uruchomienia
+zewnętrznej sondy odrzucone przez sposób montowania źródła LÖVE, nie przez
+gameplay. Finalna aplikacja QA czyta niezmienione pliki przez dowiązania.
+
+Klon różni się od głównego drzewa wyłącznie końcami linii 16 tekstów
+instrukcji/pochodzenia (Git checkout normalizuje CRLF); żadna różnica
+Lua/PNG/WAV. Fingerprint klonu E7942A853915A94C4D53D2545694FB8681A51CDFD06BE0DDB8C55E9267F2F6A2;
+głównej gry A5AB00CDB05367485095C8E2622FD4B0D4DDB178D2AA072EBF75CF3C364A2D1D.
+Zielone All z pakietu audio (8808, Input 50, Architecture/Render/Tools)
+pozostaje wcześniejszym punktem odniesienia; nowego All przy samej analizie
+nie uruchamiano. Windows niesprawdzony. Brak pomiaru FPS nowego rozwiązania,
+bo nie zostało napisane. Mierzyć koszt podczas wdrożenia.
+
+Dowody: zewnętrzne work/qa-direct/exorcist-analysis-20261107/ — motion.csv,
+events.csv, measurements.json, cztery świadectwa, 50 PNG, receptury WAV,
+montaż current-exorcist-sound-sets.wav i jego oś czasu, skrypty sond.
+Po porównaniu sum zachowanych plików usunięto własny klon pomiarowy,
+przypisany mu katalog wyników i tymczasową aplikację QA. Dowody pozostają
+w katalogu wyników głównego repozytorium poza jego drzewem.
+PLAN opisuje cały rekomendowany zakres do akceptacji; gra, zasoby i golden
+niezmienione. Commit dokumentacyjny, bez push.
