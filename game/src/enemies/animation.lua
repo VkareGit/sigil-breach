@@ -41,18 +41,23 @@ function Anim.posed(e, name)
 end
 local posed = Anim.posed
 -- Painted motions (appearance.motion): fn(g, e, frame, bounce, lean, quiet, rear)
--- returns frame, bounce and lean of a living body.
+-- returns frame, bounce and lean of a living body. A pose places the body's hit
+-- volumes, so every clock in it is the simulation's: a pause, a map or a menu
+-- moves none of it (PLAN F3). The image drawn between two steps reads that
+-- clock between them (poseTime, render/presentation.lua).
+local function poseTime(g)
+  return g.poseTime or g.elapsed
+end
 Anim.motions = Registry:new('painted motions', function(entry, id)
   assert(type(entry) == 'function', 'painted motion ' .. id .. ' needs a function')
 end)
 Anim.motions:register('hover', function(g, e, frame, _, lean, quiet, rear)
+  local now = poseTime(g)
   if not quiet and (e.ai == 'idle' or e.ai == 'move') then
     local flight = posed(e, rear and 'hoverRear' or 'hover')
-    frame = Poses.frame(flight, g.time + e.id * (flight.offset or 0))
+    frame = Poses.frame(flight, now + e.id * (flight.offset or 0))
   end
-  return frame,
-    0.17 + math.sin(g.time * 2.6 + e.id) * 0.065,
-    lean + math.sin(g.time * 1.7 + e.id) * 0.018
+  return frame, 0.17 + math.sin(now * 2.6 + e.id) * 0.065, lean + math.sin(now * 1.7 + e.id) * 0.018
 end)
 Anim.motions:register('heavy', function(_, e, frame, bounce, lean)
   if (e.walkSpeed or 0) > 0.1 then
@@ -253,7 +258,7 @@ Anim.state('quiet', {
     local pose = watching and posed(e, 'watchRear') or posed(e, 'quiet')
     local frame
     if pose.clock == 'breath' then
-      frame = Idle.sample(Idle.kind(e), g.time, e.id)
+      frame = Idle.sample(Idle.kind(e), poseTime(g), e.id)
     else
       frame = Poses.frame(pose, 0)
     end
@@ -334,7 +339,7 @@ function Anim.pose(g, e, observer)
   -- A major wound trembles for its duration (condition 'wounded').
   local wound = e.hp > 0 and e.conditions and e.conditions.wounded
   if wound and wound > 0 then
-    lean = lean + math.sin((g.time or 0) * 38 + e.id) * 0.010 * math.min(1, wound)
+    lean = lean + math.sin(poseTime(g) * 38 + e.id) * 0.010 * math.min(1, wound)
   end
   return frame, bounce, lean, sx, sy
 end

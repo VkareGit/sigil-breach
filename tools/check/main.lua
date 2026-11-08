@@ -722,6 +722,19 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- A creature's pose places its hit volumes (PLAN F3): every clock in
+  -- src/enemies is the simulation's (g.elapsed), never the picture's (g.time),
+  -- which runs on through a pause, a map or a menu.
+  for id, text in pairs(sources) do
+    if id:match('^src%.enemies%.') then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        if code:find('%f[%w_]g%.time%f[^%w_]') then
+          failure('POSE CLOCK ' .. id .. ': a pose keeps the simulation clock (g.elapsed)')
+        end
+      end
+    end
+  end
   -- The body publishes, presentation answers (PLAN E3): a knight's step in
   -- src/player chooses no sound and writes no view field; the camera, hands
   -- and sounds answer its 'motion.*' facts in feedback/motion.lua.

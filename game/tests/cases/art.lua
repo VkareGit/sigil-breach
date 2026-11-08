@@ -252,7 +252,7 @@ function Tests.run(G, renderer)
     e.ai = 'move'
     local front, back = {}, {}
     for i = 0, 100 do
-      g.time = i * 0.025
+      g.elapsed = i * 0.025
       e.walk = i * 0.025
       e.facing = 0
       front[Anim.pose(g, e)] = true
@@ -316,7 +316,7 @@ function Tests.run(G, renderer)
   local poses = {}
   local low, high = math.huge, -math.huge
   for i = 0, 600 do
-    g.time = i / 120
+    g.elapsed = i / 120
     local frame, height = Anim.pose(g, stolas)
     poses[frame] = true
     low = math.min(low, height)
@@ -333,7 +333,7 @@ function Tests.run(G, renderer)
   stolas.hp = 0
   stolas.deathTime = 8
   local dead, bounce = Anim.pose(g, stolas)
-  g.time = g.time + 10
+  g.elapsed = g.elapsed + 10
   local later, laterBounce = Anim.pose(g, stolas)
   check(
     'dead Stolas stops hovering and remains in its final corpse pose',

@@ -16,7 +16,9 @@ function T.run(G, renderer)
   local function setup()
     local g = Fixtures.arena(G)
     g:switchWeapon(2)
-    g.player.cooldown, g.elapsed = 0, 1
+    -- The imp breathes on the simulation clock (PLAN F3): at 3.25 s a round
+    -- flies its whole way while the body holds one painted frame.
+    g.player.cooldown, g.elapsed = 0, 3.25
     local e = g:spawn('imp', 16, 21)
     e.dummy, e.spawnAge, e.hp, e.maxHp = true, 1, 1000, 1000
     local p = Surface.prepare(g, e)

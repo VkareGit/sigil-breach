@@ -94,16 +94,16 @@ function T.run(check, renderer)
     local function active(frame)
       return frame < quiet.first or frame >= quiet.first + 4
     end
-    local g = { time = 0, player = { x = 0, z = 10 } }
+    local g = { elapsed = 0, player = { x = 0, z = 10 } }
     local e = enemy(kind)
     local selected = {}
     local unmorphed, desynced, distinct = true, false, {}
     for n = 0, 160 do
-      g.time = n * quiet.period / 160
+      g.elapsed = n * quiet.period / 160
       local frame, _, _, sx, sy = Anim.pose(g, e)
       selected[frame] = true
       unmorphed = unmorphed and sx == 1 and sy == 1
-      if I.sample(kind, g.time, e.id) ~= I.sample(kind, g.time, e.id + 1) then
+      if I.sample(kind, g.elapsed, e.id) ~= I.sample(kind, g.elapsed, e.id + 1) then
         desynced = true
       end
     end

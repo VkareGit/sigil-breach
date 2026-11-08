@@ -74,6 +74,18 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F3d, poza na zegarze symulacji, 2026-11-08: trzy zegary w pozie stwora
+  czytały zegar obrazu (g.time), który biegnie także w pauzie, na mapie
+  i w menu: unoszenie Stolasa (klatka, wysokość, pochylenie), oddech
+  w spoczynku i drżenie rany. Poza ustawia bryły trafień, więc sama pauza
+  przesuwała maskę trafień stwora. Teraz te zegary to zegar symulacji
+  (g.elapsed); obraz rysowany między dwoma krokami czyta go między nimi
+  (poseTime w render/presentation.lua), więc ruch na ekranie zostaje płynny
+  przy 144 Hz. Widoczna zmiana: w pauzie, na mapie i na ekranie śmierci
+  unoszący się, oddychający i drżący stwór stoi nieruchomo, a ogień, niebo
+  i światła dalej się ruszają. W grze ruch jest ten sam, z innym
+  przesunięciem fazy. Golden bez zmian.
+
 - F3c, poza z rejestru stanów, 2026-11-08: Anim.pose
   (enemies/animation.lua) nie jest już łańcuchem warunków. Pyta po kolei
   stany ciała z rejestru Anim.states (martwe, powalone, wyczerpane, ból,
@@ -4546,6 +4558,24 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F3d, poza na zegarze symulacji, 2026-11-08: nowe testy w `animation`,
+  czerwone przed zmianą: pauza (sam zegar obrazu) nie zmienia pozy ciała
+  unoszącego się, oddychającego i rannego. Reguła POSE CLOCK (tools/check):
+  żaden moduł src/enemies nie czyta g.time; na starym kodzie 5 miejsc, po
+  zmianie 0. Render przed i po (Stolas w czterech chwilach jednej pauzy, co
+  0,25 s): przed zmianą wysokość ciała spada z 0,18 do 0,11 i ciało się
+  przesuwa, po zmianie klatka, wysokość i pochylenie są te same. Pierwsza
+  brama padła na pięciu testach: `feel` (zamrożone klatki Stolasa przy
+  144 Hz, bo obraz nie wygładzał zegara symulacji; teraz poseTime),
+  `shotgun`, `geometry` (art) i `weight` (enemy_idle), które próbkowały
+  unoszenie i oddech zegarem obrazu, oraz `shot-observation`.
+  W tym ostatnim pocisk celowany w namalowany korpus chochlika trafia
+  w klatce oddechu 27, a w klatce 28 przelatuje obok. Fixture zaczyna teraz
+  w 3,25 s, więc cały lot przypada na klatkę 27. Brak trafienia w klatce 28
+  jest osobnym znaleziskiem o masce trafień, niezmienionym. Golden bez
+  zmian. Pełne Linux All PASS w osobnym klonie: 9050 sprawdzeń (o 3 więcej), golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F3c, poza z rejestru stanów, 2026-11-08: nowe testy w `animation`,
   czerwone przed zmianą: wszystkie stany ciała są w rejestrze w swojej

@@ -109,6 +109,7 @@ local function captureView(g, scene)
     knights = scene.knights,
     viewer = values(Context.viewer(g), viewerKeys),
     game = values(g, gameKeys),
+    elapsed = g.elapsed,
     view = values(g.view, viewKeys),
     enemies = scene.enemies,
     bullets = scene.bullets,
@@ -177,6 +178,10 @@ function P.sample(g, t)
   end
   t = math.max(0, math.min(1, t))
   local out = blend(g, prev.game, gameKeys, t)
+  -- The simulation clock as the image shows it, between two steps: the clock
+  -- of a creature's pose (enemies/animation.lua). The simulation reads
+  -- g.elapsed itself, so its hit volumes keep the pose of the step.
+  out.poseTime = prev.elapsed + (g.elapsed - prev.elapsed) * t
   out._contextRoot = g._contextRoot or g
   out.view = blend(g.view, prev.view, viewKeys, t)
   for _, key in ipairs(viewClocks) do

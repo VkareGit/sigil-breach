@@ -278,6 +278,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (uzasadnienie w HISTORII). Golden bez zmian.
 - 2026-11-08, **F3 krok c zrobiony:** wybór pozy z rejestru stanów
   (`Anim.states`, `Anim.state`), sonda póz identyczna. Golden bez zmian.
+- 2026-11-08, **F3 krok d zrobiony:** każdy zegar pozy stwora to zegar
+  symulacji (reguła POSE CLOCK); obraz wygładza go między krokami. W pauzie
+  stwór stoi. Golden bez zmian. Znalezisko: w spoczynkowej klatce 28
+  chochlika pocisk w namalowany korpus mija bryłę trafień (HISTORIA).
 
 ## Decyzje właściciela
 

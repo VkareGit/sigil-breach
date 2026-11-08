@@ -370,5 +370,27 @@ function Tests.run(G, check)
     'a state added before hurt draws the body and leaves when removed',
     added and held == 3 and painted ~= 3 and Anim.pose(g, struck) == painted
   )
+  -- The pose places the hit volumes, so it keeps the simulation's clock
+  -- (PLAN F3): a pause (the clock of the picture runs, the world's does not)
+  -- moves no part of it, whether the body hovers, breathes or trembles.
+  local function still(name, e)
+    local before = { Anim.pose(g, e) }
+    g.time = g.time + 3.7
+    local after = { Anim.pose(g, e) }
+    local same = #before == #after
+    for i = 1, #before do
+      same = same and before[i] == after[i]
+    end
+    check('a pause moves no part of the pose of a ' .. name .. ' body', same)
+  end
+  local hovering = enemy('stolas', A.stolas.attacks[1], 'idle')
+  hovering.awake = false
+  still('hovering', hovering)
+  local breathing = enemy('imp', A.imp.attacks[1], 'idle')
+  breathing.awake = false
+  still('breathing', breathing)
+  local wounded = enemy('imp', A.imp.attacks[1], 'idle')
+  wounded.conditions = { wounded = 1 }
+  still('wounded', wounded)
 end
 return Tests

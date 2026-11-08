@@ -365,7 +365,7 @@ function Tests.run(G, initial, renderer, getGame)
   local frames = {}
   for i = 0, 60 do
     a.walk = i * 0.025
-    g.time = i * 0.025
+    g.elapsed = i * 0.025
     frames[Anim.pose(g, a)] = true
   end
   local count = 0
