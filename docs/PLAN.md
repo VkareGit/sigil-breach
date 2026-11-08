@@ -327,6 +327,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **F4 krok a zrobiony:** każdy stwór to katalog
   `content/creatures/<id>/` z definicją w `init.lua` (nazwa modułu bez
   zmian). Golden bez zmian. Następny: F4b (arkusz i anatomia w pakiecie).
+- 2026-11-08, **F4 krok b zrobiony:** arkusz i anatomia w pakiecie stwora,
+  skrypty eksportu instalują do pakietu; maski zostają jednym wypiekiem.
+  Golden bez zmian. Następny: F4c (dźwięk stwora w pakiecie).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 

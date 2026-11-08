@@ -1,12 +1,13 @@
 -- The anatomy annotation of each painted atlas, by atlas id: the module of
--- each (content/art/anatomy_regions.lua). Authored code (Author helpers)
+-- each (content/art/anatomy_regions.lua), kept in its creature's package
+-- (PLAN F4: content/creatures/<id>/anatomy.lua). Authored code (Author helpers)
 -- or a data file written by the anatomy tools (qa/art/anatomy_export.lua,
 -- tools/art/anatomy_editor, qa/art/anatomy_layers.lua).
 return {
-  imp = 'src.content.art.anatomy.imp',
-  armored = 'src.content.art.anatomy.armored',
-  stolas = 'src.content.art.anatomy.stolas',
-  buer = 'src.content.art.anatomy.buer',
-  boss = 'src.content.art.anatomy.boss',
-  furfur = 'src.content.art.anatomy.furfur',
+  imp = 'src.content.creatures.imp.anatomy',
+  armored = 'src.content.creatures.armored.anatomy',
+  stolas = 'src.content.creatures.stolas.anatomy',
+  buer = 'src.content.creatures.buer.anatomy',
+  boss = 'src.content.creatures.boss.anatomy',
+  furfur = 'src.content.creatures.furfur.anatomy',
 }

@@ -215,9 +215,10 @@ Strzał i przeładowanie:
 Przeciwnik / boss:
   content/enemies.lua opisuje ciało i listę ataków. enemies/actions.lua wykonuje
   ataki, animation.lua dobiera fazę, pose.lua jest wspólne dla trafień i obrazu.
-  Atlasy: arkusze content/art/sheets/ (enemy_art, enemy_frames i enemy_idle
+  Atlasy: arkusze content/creatures/<id>/sheet.lua, lista w content/art/sheets/
+  index.lua (enemy_art, enemy_frames i enemy_idle
   są ich wynikiem); ability_art rejestruje arkusze umiejętności; regiony części
-  są w content/art/anatomy/*.lua (id, zone, material, polygon, anchors) w UV
+  są w content/creatures/<id>/anatomy.lua (id, zone, material, polygon, anchors) w UV
   klatki; inne jednostki tylko przez Author.fromPixels/fromCell/cellPolygon.
   Rozmiary obrazów źródłowych: content/art/sources.lua (test anatomy-data
   porównuje je z PNG, SHA-256 wszystkich źródeł masek, dokładne prostokąty
@@ -267,7 +268,9 @@ Zapis:
   Nie zmieniaj formatu bez migracji i testów uszkodzonego/starego zapisu.
 
 Nowy demon z nowym atlasem (plan v10 V7):
-  Atlas to jeden plik danych arkusza: content/art/sheets/<id>.lua (źródła
+  Każdy stwór to pakiet content/creatures/<id>/ (PLAN F4): init.lua (definicja),
+  sheet.lua, anatomy.lua. Atlas to jeden plik danych arkusza:
+  content/creatures/<id>/sheet.lua (źródła
   z cięciami, kolejność klatek, stopy, kotwice, oddech pozy spoczynku).
   Klatki (content/art/enemy_frames.lua), wpis katalogu (enemy_art), pozy
   spoczynku (enemy_idle) i rozmiary obrazów (art/sources) są jego wynikiem
@@ -299,11 +302,11 @@ Nowy demon z nowym atlasem (plan v10 V7):
      - edytor regionów: .\scripts\win\ANATOMY-EDITOR.ps1 <id> (przeciąganie wierzchołków,
        I/Del, nowe części, strefa, materiał, kotwica, cofanie; S zapisuje
        anatomy/<id>.lua w zewnętrznym SIGIL_WORK na Linuxie; Windows:
-       work/anatomy/<id>.lua), potem kopia do content/art/anatomy/.
+       work/anatomy/<id>.lua), potem kopia do content/creatures/<id>/anatomy.lua.
      Dopisz moduł do content/art/anatomy/index.lua. Istniejącą adnotację
      zapisze jako dane .\scripts\win\EXPORT-ANATOMY.ps1 <id> (dokładnie te same liczby).
   4. .\scripts\win\BAKE-HIT-MASKS.ps1 (maski RLE związane ze źródłem).
-  5. Definicja: content/creatures/<id>.lua (appearance.atlas, klucze
+  5. Definicja: content/creatures/<id>/init.lua (appearance.atlas, klucze
      tekstów nazwy i karty bestiariusza; body.corpse = { settle, landing }
      to czas osiadania zwłok i moment uderzenia o podłogę, niezależne od
      długości malowanego upadku), id w A.creatures;
@@ -874,7 +877,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   claw, missiles, hazards, corpse, flashes, locks...), content/knight.lua,
   content/maps/*, content/pilgrimage|field|shop,
   definicje stworzeń/broni/umiejętności, content/ballistic_surfaces.lua
-  (wound, guard, penetrable, debris), content/art/anatomy/* (regiony obrazu),
+  (wound, guard, penetrable, debris), content/creatures/*/anatomy.lua (regiony obrazu),
   physics/collision (heights), ui/palette.lua, app/bindings.lua (klawisze).
   enemies/hit_volumes.lua nie ma już liczb (0.29: dawna kalibracja walców
   malowanych demonów usunięta; rejestr profili dla appearance.hit='volumes').
@@ -883,7 +886,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
     i creature_extension.lua)
 
   Demon na ISTNIEJĄCEJ ilustracji (wariant, inny pancerz, inne zachowanie):
-  content/creatures/<id>.lua: Creature.define({ extends = rodzic, ... }), id w
+  content/creatures/<id>/init.lua: Creature.define({ extends = rodzic, ... }), id w
   A.creatures. Atlas, maski, klatki i animacje umiejętności dziedziczy.
   Gdzie jest wymieniony, mówi jego definicja (catalog, nie dziedziczy się):
   field = miejsce w katalogu poligonu i na polach; bestiary =
@@ -891,7 +894,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   ekranów się nie edytuje. Nowy stwór na mapie: posterunek w content/pilgrimage.lua.
   Odmiana ciała w grze: e.variant (id odmiany z definicji), A.of(e).
   Inny opis ciała na tym samym obrazie (płyty, inne materiały, inna liczba
-  części jednej strefy): adnotacja w content/art/anatomy/<id>.lua, wpis w
+  części jednej strefy): adnotacja w content/creatures/<id>/anatomy.lua, wpis w
   anatomy_regions.layouts i appearance.regions = '<id>'; adnotacja ma klatkę
   dla każdej klatki atlasu (test anatomy-data) i spełnia Anatomy.problems.
   Atak i unik łączy się danymi: attacks (z rodzica lub from=), move.evade,
@@ -899,7 +902,7 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   w content/ballistic_surfaces.lua (wound, guard, penetrable, debris) — strzał
   i efekty czytają politykę, nigdy nazwy. Masa i promień: ruch i kontakt ciał.
   Demon z NOWYM atlasem (plan v10 V7; kroki i czasy: DEVELOPMENT): PNG,
-  arkusz content/art/sheets/<id>.lua z narzędzia (EXPORT-SHEET.ps1 -Spec:
+  arkusz content/creatures/<id>/sheet.lua z narzędzia (EXPORT-SHEET.ps1 -Spec:
   cięcia w przerwach, stopy, kotwice, kolejność, nazwane pozy) i jego
   linia w sheets/index.lua; klatki, wpis enemy_art, pozy spoczynku
   i rozmiary wylicza content/art/atlases.lua. Nazwane pozy (plan v11 E1,
@@ -1270,7 +1273,7 @@ Identyfikatory trafiają do zapisu, więc po wydaniu nie zmieniaj ich bez migrac
 
 JAK EDYTOWAĆ CIOS (plan v13)
 
-Cios stoi w game/src/content/creatures/<stwór>.lua. Poligon pokazuje go bez restartu:
+Cios stoi w game/src/content/creatures/<stwór>/init.lua. Poligon pokazuje go bez restartu:
 F2 wybierz stwora i przywołaj go, HITBOXES włącz, F3 następny cios, F4 cios teraz,
 F5 wczytaj pliki stworów od nowa, F6 czas 1, 1/2, 1/4, stop, F7 krok.
 
@@ -1790,7 +1793,7 @@ Próby w testach dodają treść na czas próby i ją usuwają.
    malowany bez malunku pisze się glifami. Test: open-presentation.
 
 16. Nowy demon z nowym atlasem (V7)
-   Arkusz content/art/sheets/<id>.lua z EXPORT-SHEET.ps1, anatomia
+   Arkusz content/creatures/<id>/sheet.lua z EXPORT-SHEET.ps1, anatomia
    z warstw części albo edytora regionów (EXPORT-ANATOMY.ps1,
    ANATOMY-EDITOR.ps1), BAKE-HIT-MASKS.ps1, definicja, CHECK-CREATURE.ps1.
    Kroki i czasy: DEVELOPMENT, „Nowy demon z nowym atlasem”. Test:
@@ -1804,7 +1807,7 @@ wspólne kontrakty pozostałych systemów mają pozostać stabilne.
 KONTRAKTY v11 / PRZEPISY ROZBUDOWY 0.34
 
 17. Inny układ atlasu i nowa animacja
-    Arkusz content/art/sheets/<id>.lua deklaruje poses: nazwę, clock,
+    Arkusz content/creatures/<id>/sheet.lua deklaruje poses: nazwę, clock,
     frames oraz bounds/rate/step. Przykład: strike = { clock='action',
     frames={7,9,12}, bounds={0.25,0.6} }. Granice należą do następnego
     przedziału. Geometria i renderer pytają tę samą nazwaną pozę; zmiana
@@ -1946,10 +1949,10 @@ Kontrola SHA-256 155 obrazów względem paczki 0.27: brak zmian. Broń ma jedyni
 łagodniejsze różnice między sąsiednimi próbkami pigmentu; alfa i obrys bez zmian.
 
 ARCHITEKTURA
-content/enemy_art (z arkuszy content/art/sheets/, plan v10 V7) i content/ability_art: źródła ilustracji i niezmienna rejestracja
+content/enemy_art (z arkuszy content/creatures/<id>/sheet.lua, plan v10 V7) i content/ability_art: źródła ilustracji i niezmienna rejestracja
 klatek. enemies/pose: wspólny opis pozy. Renderer tylko dopina uchwyt obrazu.
 Zmiana strefy trafienia nie przesuwa głowy w animacji.
-content/art/anatomy/*: części jako dane; id kształtu, strefa obrażeń i materiał
+content/creatures/*/anatomy.lua: części jako dane; id kształtu, strefa obrażeń i materiał
 są niezależne. Kilka nóg może mieć wspólną strefę lower; ich liczba nie należy
 do algorytmu strzelania. Ostatni pasujący wielokąt opisuje wierzch malunku.
 enemies/surface: promień przecina pełny, pochylony billboard, maskę alfa,
@@ -2099,7 +2102,7 @@ Wariant na istniejącej ilustracji: Creature.define({ extends = ... }),
 ewentualnie appearance.regions (własna adnotacja tych samych klatek),
 attacks/move.evade/appearance.art/evadeArt (połączenie istniejących ataków
 i uników). Nowa istota z nowym atlasem (plan v10 V7): PNG, arkusz
-content/art/sheets/<id>.lua z narzędzia (EXPORT-SHEET.ps1), anatomia z warstw
+content/creatures/<id>/sheet.lua z narzędzia (EXPORT-SHEET.ps1), anatomia z warstw
 części lub edytora regionów (EXPORT-ANATOMY.ps1, ANATOMY-EDITOR.ps1),
 BAKE-HIT-MASKS.ps1, punkty źródłowe, --hit-review i CHECK-CREATURE.ps1.
 Nowy materiał:

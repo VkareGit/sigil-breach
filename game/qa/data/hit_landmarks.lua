@@ -293,7 +293,7 @@ for _, entry in ipairs(ironBase) do
 end
 -- The runtime cells are exact copies with a clear gutter. Transfer source
 -- landmarks by that known translation, never by sampling the hit masks.
-local IronSheet = require('src.content.art.sheets.armored')
+local IronSheet = require('src.content.creatures.armored.sheet')
 local Sheet = require('src.content.art.sheet')
 for _, entry in ipairs(landmarks) do
   if entry.kind == 'armored' then

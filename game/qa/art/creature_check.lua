@@ -47,7 +47,7 @@ function Check.run(id)
   local look = def.appearance
   local atlas = look.atlas or def.kind or id
   local sheet = Atlases.sheets[atlas]
-  report(sheet ~= nil, 'atlas sheet', 'content/art/sheets/' .. atlas .. '.lua')
+  report(sheet ~= nil, 'atlas sheet', 'content/creatures/' .. atlas .. '/sheet.lua')
   if sheet then
     local problems = Sheet.problems(sheet)
     for _, source in ipairs(sheet.sources) do

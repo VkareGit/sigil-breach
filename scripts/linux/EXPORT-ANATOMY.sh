@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Exports an annotation as data, or generates one from part layers (a legend file). --install
-# copies it into game/src/content/art/anatomy/ (list it in content/art/anatomy/index.lua),
+# copies it into its creature's package, game/src/content/creatures/<id>/anatomy.lua
+# (PLAN F4; list it in content/art/anatomy/index.lua),
 # then bake the masks. As scripts/win/EXPORT-ANATOMY.ps1.
 # Usage: scripts/linux/EXPORT-ANATOMY.sh <id> [--install]
 #        scripts/linux/EXPORT-ANATOMY.sh --legend <file> [--install]
@@ -39,9 +40,10 @@ newer_than "$written" "$marker"
 cat -- "$SIGIL_QA/anatomy-$id.stdout.txt"
 [ "$status" -eq 0 ] || die "The annotation has problems; see $SIGIL_QA/anatomy-$id.stdout.txt"
 if [ -n "$install" ]; then
-  destination="$SIGIL_GAME/src/content/art/anatomy/$id.lua"
+  mkdir -p -- "$SIGIL_GAME/src/content/creatures/$id"
+  destination="$SIGIL_GAME/src/content/creatures/$id/anatomy.lua"
   cp -- "$written" "$destination"
-  "$SIGIL_ROOT/scripts/linux/FORMAT.sh" "game/src/content/art/anatomy/$id.lua" \
+  "$SIGIL_ROOT/scripts/linux/FORMAT.sh" "game/src/content/creatures/$id/anatomy.lua" \
     || die 'The annotation failed formatting validation.'
   echo "Annotation installed: $destination"
 else

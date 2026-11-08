@@ -171,6 +171,23 @@ function Tests.run()
     end
   end
   check('every creature is a package of its own: ' .. table.concat(loose, ', '), #loose == 0)
+  -- Its atlas sheet and anatomy live in its package (PLAN F4); the atlas
+  -- lists only name them.
+  local outside = {}
+  for _, module in ipairs(require('src.content.art.sheets.index')) do
+    if not module:match('^src%.content%.creatures%.[%w_]+%.sheet$') then
+      outside[#outside + 1] = module
+    end
+  end
+  for _, module in pairs(require('src.content.art.anatomy.index')) do
+    if not module:match('^src%.content%.creatures%.[%w_]+%.anatomy$') then
+      outside[#outside + 1] = module
+    end
+  end
+  check(
+    'every atlas sheet and anatomy is in its creature package: ' .. table.concat(outside, ', '),
+    #outside == 0
+  )
   -- Every sigil names a kind of effect the fight knows (PLAN G2).
   local SigilRules = require('src.content.sigils')
   local SigilKinds = require('src.combat.sigil_kinds')

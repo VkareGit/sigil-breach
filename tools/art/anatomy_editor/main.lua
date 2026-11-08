@@ -165,7 +165,7 @@ local function save()
   local file = assert(io.open(path, 'w'))
   file:write(editor:text())
   file:close()
-  status = 'saved ' .. path .. ' (copy into game/src/content/art/anatomy/ and list it in index.lua)'
+  status = 'saved ' .. path .. ' (copy into game/src/content/creatures/<id>/anatomy.lua and list it in content/art/anatomy/index.lua)'
 end
 function love.keypressed(key)
   local ctrl = love.keyboard.isDown('lctrl', 'rctrl')

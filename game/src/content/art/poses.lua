@@ -1,6 +1,6 @@
 -- Named poses of a painted atlas (plan v11 E1): which frames of its sheet a
 -- creature shows in each state, chosen by an explicit clock. A sheet names
--- them (content/art/sheets/<id>.lua: poses), the animation asks for them by
+-- them (content/creatures/<id>/sheet.lua: poses), the animation asks for them by
 -- name (enemies/animation.lua) and never knows a frame number or a layout.
 --   pose = { clock, frames, bounds? | rate? | step?, ends?, offset? }
 --   clock    what chooses the frame (a pose of one frame needs none):

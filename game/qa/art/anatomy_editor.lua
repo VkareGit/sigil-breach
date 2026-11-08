@@ -181,7 +181,7 @@ function Editor:problems()
   end
   return out
 end
--- The annotation as a data file (content/art/anatomy/<id>.lua).
+-- The annotation as a data file (content/creatures/<id>/anatomy.lua).
 function Editor:text()
   return Export.text(self.id, self.annotation)
 end

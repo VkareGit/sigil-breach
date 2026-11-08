@@ -1,8 +1,9 @@
 # The sheet tool (plan v10 V7). Re-measure an atlas sheet from its images
 # (feet, sizes), or write the sheet of a new atlas from a spec file
 # ({ id, size, idle?, sources = { { path, columns, rows, scale?, idle? } } }),
-# and install it in game/src/content/art/sheets/. A new atlas also needs its
-# line in content/art/sheets/index.lua.
+# and install it in its creature's package, game/src/content/creatures/<atlas>/
+# sheet.lua (PLAN F4). A new atlas also needs its line in
+# content/art/sheets/index.lua.
 # Usage: .\EXPORT-SHEET.ps1 <atlas>   or   .\EXPORT-SHEET.ps1 -Spec <file>
 param([string]$Id, [string]$Spec)
 $ErrorActionPreference = 'Stop'
@@ -27,9 +28,11 @@ try {
     Require-Fresh $written $run.Started $previous
 }
 finally { Exit-QaSession $session }
-$destination = Join-Path $project.Source ('src/content/art/sheets/' + $Id + '.lua')
+$package = Join-Path $project.Source ('src/content/creatures/' + $Id)
+New-Item -ItemType Directory -Force -Path $package | Out-Null
+$destination = Join-Path $package 'sheet.lua'
 Copy-Item -LiteralPath $written -Destination $destination -Force
-& (Join-Path $project.Root 'scripts/win/FORMAT.ps1') -Target @(('game/src/content/art/sheets/' + $Id + '.lua'))
+& (Join-Path $project.Root 'scripts/win/FORMAT.ps1') -Target @(('game/src/content/creatures/' + $Id + '/sheet.lua'))
 if ($LASTEXITCODE -ne 0) { throw 'The sheet failed formatting validation.' }
 Get-Content -LiteralPath $run.Stdout
 Write-Host ('Sheet installed: ' + $destination + '. Check its anchors, then BAKE-HIT-MASKS.ps1.')

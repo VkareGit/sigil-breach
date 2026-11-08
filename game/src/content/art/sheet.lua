@@ -1,5 +1,5 @@
 -- An atlas sheet (plan v10 V7): the one data file of a painted creature
--- atlas (content/art/sheets/<id>.lua), written by the sheet tool
+-- atlas (content/creatures/<id>/sheet.lua), written by the sheet tool
 -- (qa/art/sheet_tool.lua, EXPORT-SHEET.ps1). It names:
 --   id, size         the atlas and the height of its painted figure (m)
 --   idle             { period, weights }: the quiet poses' breathing

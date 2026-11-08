@@ -75,6 +75,19 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F4b, arkusz i anatomia w pakiecie stwora, 2026-11-08: arkusz atlasu
+  i anatomia każdego stwora leżą w jego pakiecie (`sheet.lua`, `anatomy.lua`);
+  listy atlasów (`content/art/sheets/index.lua`, `content/art/anatomy/index.lua`)
+  tylko je wskazują, w tej samej kolejności. Wspólne pomocniki anatomii
+  (`author`, `leap`, `evade`) zostają w `content/art/anatomy/`. Skrypty
+  eksportu arkusza i anatomii (Linux i Windows) instalują plik do pakietu
+  i zakładają katalog; komunikaty narzędzi i TECHNIKA wskazują nowe miejsca.
+  Maski trafień zostają jednym plikiem wypiekanym ze wszystkich atlasów
+  naraz (`content/art/hit_masks.lua`, z kodekiem i pochodzeniem źródeł):
+  to wynik wypieku, nie plik pisany ręcznie, więc świadomie nie dzielę go
+  na pakiety. Skrypty Windows bez próby (brak Windows). Gra i golden bez
+  zmian.
+
 - F4a, stwór jako pakiet, 2026-11-08: każdy stwór ma własny katalog
   `content/creatures/<id>/`; jego definicja to `init.lua` tego katalogu.
   Nazwa modułu (`src.content.creatures.<id>`) się nie zmienia (LÖVE ładuje
@@ -4696,6 +4709,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F4b, arkusz i anatomia w pakiecie stwora, 2026-11-08: nowe sprawdzenie
+  w `content-contracts`, czerwone przed zmianą: każdy arkusz i każda anatomia
+  z list atlasów są w pakiecie stwora. `EXPORT-SHEET.sh furfur`
+  i `EXPORT-ANATOMY.sh stolas --install` uruchomione: instalują do pakietu.
+  Ponowny eksport nie odtwarza bajt w bajt ręcznie poprawionego arkusza
+  Furfura ani autorskiej anatomii Stolasa (zapisuje ją jako dane); tak było
+  przed zmianą, pliki przywrócone.
+  Golden bez zmian. Pełne Linux All PASS w osobnym klonie: 9075
+  sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F4a, stwór jako pakiet, 2026-11-08: nowe sprawdzenie w
   `content-contracts`, czerwone przed zmianą: każdy stwór ma własny katalog

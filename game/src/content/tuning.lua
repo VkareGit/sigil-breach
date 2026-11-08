@@ -5,7 +5,7 @@
 --                               (impulse, guard, walking, senses, attacks...)
 --   content/field.lua, content/pilgrimage.lua, content/shop.lua  mode data
 --   content/ballistic_surfaces.lua  materials of a body's surface
---   content/art/anatomy/*       painted regions of every demon frame
+--   content/creatures/*/anatomy painted regions of every demon frame
 --   physics/collision.lua       tile heights and pillar radius
 --   ui/palette.lua              interface colours
 -- tools/check refuses new unnamed numbers in simulation code (KONWENCJE).

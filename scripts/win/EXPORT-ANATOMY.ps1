@@ -1,8 +1,9 @@
 # The anatomy tools (plan v10 V7). Export an annotation as data, or generate
 # one from part layers (a legend file: { id, atlas, body, parts = { { id,
 # zone, material, hittable?, masks = { [image] = mask image } } } }).
-# -Install copies the data file into game/src/content/art/anatomy/ (list it
-# in content/art/anatomy/index.lua), then bake the masks.
+# -Install copies the data file into its creature's package,
+# game/src/content/creatures/<id>/anatomy.lua (PLAN F4; list it in
+# content/art/anatomy/index.lua), then bake the masks.
 # Usage: .\EXPORT-ANATOMY.ps1 <id> [-Install]   or   -Legend <file> [-Install]
 param([string]$Id, [string]$Legend, [switch]$Install)
 $ErrorActionPreference = 'Stop'
@@ -30,9 +31,11 @@ finally { Exit-QaSession $session }
 Get-Content -LiteralPath $run.Stdout
 if ($run.ExitCode -ne 0) { throw ('The annotation has problems; see ' + $run.Stdout) }
 if ($Install) {
-    $destination = Join-Path $project.Source ('src/content/art/anatomy/' + $Id + '.lua')
+    $package = Join-Path $project.Source ('src/content/creatures/' + $Id)
+    New-Item -ItemType Directory -Force -Path $package | Out-Null
+    $destination = Join-Path $package 'anatomy.lua'
     Copy-Item -LiteralPath $written -Destination $destination -Force
-    & (Join-Path $project.Root 'scripts/win/FORMAT.ps1') -Target @(('game/src/content/art/anatomy/' + $Id + '.lua'))
+    & (Join-Path $project.Root 'scripts/win/FORMAT.ps1') -Target @(('game/src/content/creatures/' + $Id + '/anatomy.lua'))
     if ($LASTEXITCODE -ne 0) { throw 'The annotation failed formatting validation.' }
     Write-Host ('Annotation installed: ' + $destination)
 } else { Write-Host ('Annotation written: ' + $written) }

@@ -3,7 +3,7 @@
 -- Every point is traced on the owner's original 6x4 painting. The runtime
 -- copy adds one transparent pixel around each cell, without repainting it.
 local Sheet = require('src.content.art.sheet')
-local Reference = require('src.content.art.sheets.armored').sources[1]
+local Reference = require('src.content.creatures.armored.sheet').sources[1]
 local Author = require('src.content.art.anatomy.author')
 local Armored = { frames = {} }
 local part, box = Author.part, Author.box
