@@ -233,10 +233,13 @@ function V.pose(g)
 end
 function V.transform(g, w, h)
   local unit = h / 450
-  local extra = (1 - math.min(1, g.view.swapAge / 0.20)) * h * 0.35
+  -- The draw (feedback/weapon_motion.lua): the gun rises into its place and
+  -- its stock seats there.
+  local drop, seatY, seatRoll = WeaponMotion.draw(g)
+  local extra = drop * h
   local rx, ry, roll = V.pose(g)
   local mx, my, mroll = WeaponMotion.pose(g)
-  rx, ry, roll = rx + mx, ry + my, roll + mroll
+  rx, ry, roll = rx + mx, ry + my + seatY, roll + mroll + seatRoll
   local kick = 0
   local wrist = 0
   if g.view.motion ~= false then

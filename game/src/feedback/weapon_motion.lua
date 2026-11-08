@@ -11,6 +11,8 @@ local Gait = require('src.feedback.gait')
 local Reload = require('src.combat.reload')
 local Fields = require('src.session.fields')
 local Hands = require('src.feedback.hand_profile')
+local AbilityFeedback = require('src.feedback.ability_feedback')
+local Weapons = require('src.content.weapons')
 local M = {}
 local sin, cos, pi = math.sin, math.cos, math.pi
 local clamp = MathX.clamp
@@ -61,6 +63,12 @@ local keys = {
   'weaponImpactVX',
   'weaponImpactVY',
   'weaponImpactVRoll',
+  'weaponGestureX',
+  'weaponGestureY',
+  'weaponGestureRoll',
+  'weaponGestureVX',
+  'weaponGestureVY',
+  'weaponGestureVRoll',
 }
 function M.init(g, preserveGait)
   for _, key in ipairs(keys) do
@@ -73,6 +81,80 @@ function M.init(g, preserveGait)
   -- Prime on the first simulated frame so that relocation is not a mouse turn.
   g.view.weaponLastYaw = nil
   g.view.weaponLastPitch = nil
+  g.view.weaponGesture = nil
+end
+-- The gesture the body makes (content/hand_motion.lua: gestures) and its
+-- travel across and along the view; nil when it makes none.
+local function bodyGesture(p)
+  local x, z
+  if p.dashTimer > 0 then
+    x, z = p.dashX, p.dashZ
+  elseif p.slideTimer > 0 then
+    x, z = p.slideX, p.slideZ
+  else
+    return nil, 0
+  end
+  local yaw = p.yaw
+  return p.dashTimer > 0 and 'dash' or 'slide', (x or 0) * cos(yaw) - (z or 0) * sin(yaw)
+end
+-- A gesture in three phases: its take as it starts, its hold as the spring's
+-- rest while it lasts, its recover as it ends. The gesture belongs to the gun
+-- that made it: a gun drawn in its middle starts still.
+local function gestureSpring(g, hands, p, dt)
+  local v = g.view
+  local held = Weapons.inHand(g, nil, p)
+  held = held and held.id
+  if v.weaponGestureGun ~= held then
+    for _, key in ipairs({ 'X', 'Y', 'Roll', 'VX', 'VY', 'VRoll' }) do
+      v['weaponGesture' .. key] = Fields.viewStarts['weaponGesture' .. key]
+    end
+    v.weaponGestureGun, v.weaponGesture = held, nil
+  end
+  local name, side = bodyGesture(p)
+  local was = v.weaponGesture and hands.gestures[v.weaponGesture]
+  if name ~= v.weaponGesture then
+    if was then
+      v.weaponGestureVY = v.weaponGestureVY - was.recover.up
+      v.weaponGestureVRoll = v.weaponGestureVRoll + v.weaponGestureSide * was.recover.roll
+    end
+    local now = name and hands.gestures[name]
+    if now then
+      v.weaponGestureVX = v.weaponGestureVX - side * now.take.side
+      v.weaponGestureVY = v.weaponGestureVY + now.take.down
+      v.weaponGestureVRoll = v.weaponGestureVRoll - side * now.take.roll
+      v.weaponGestureSide = side
+    end
+    v.weaponGesture = name
+  end
+  local now = name and hands.gestures[name]
+  local spring = (now or was or hands.gestures.dash).spring
+  local tx, ty, tr = 0, 0, 0
+  if now then
+    tx, ty, tr = side * now.hold.side, now.hold.y, -side * now.hold.roll
+  end
+  local k, d = spring[1], spring[2]
+  v.weaponGestureX, v.weaponGestureVX =
+    Kinematics.spring(v.weaponGestureX, v.weaponGestureVX, tx, k, d, dt)
+  v.weaponGestureY, v.weaponGestureVY =
+    Kinematics.spring(v.weaponGestureY, v.weaponGestureVY, ty, k, d, dt)
+  v.weaponGestureRoll, v.weaponGestureVRoll =
+    Kinematics.spring(v.weaponGestureRoll, v.weaponGestureVRoll, tr, k, d, dt)
+end
+-- The draw of the gun in hand: the share of the image height it is still
+-- below its place, and the stock's seat (px down, rad) by its age. A reload
+-- resumed by the draw and a cast with the support hand own the hands: no seat.
+function M.draw(g)
+  local D = Hands.current(g).draw
+  local u = math.min(1, g.view.swapAge / D.time)
+  local drop = D.drop * (1 - u) ^ D.rise
+  if g.view.motion == false or u <= D.seatFrom or u >= 1 then
+    return drop, 0, 0
+  end
+  if Reload.left(g, Context.actor(g)) > 0 or AbilityFeedback.weaponLowered(g) > 0 then
+    return drop, 0, 0
+  end
+  local seat = sin(pi * (u - D.seatFrom) / (1 - D.seatFrom))
+  return drop, D.seatY * seat, D.seatRoll * seat
 end
 -- Foot plants are impulses at distance crossings, not a timer or a second
 -- sine wave. Evaluate their remaining fraction of this step analytically so
@@ -218,6 +300,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     + (p.slideTimer > 0 and L.slide or 0)
     + staggered
   g.view.weaponLower = ease(g.view.weaponLower, lowered, L.rate, dt)
+  gestureSpring(g, hands, p, dt)
   return footsteps
 end
 function M.pose(g)
@@ -243,6 +326,7 @@ function M.pose(g)
     + g.view.weaponAimX
     + g.view.weaponLagX
     + g.view.weaponImpactX
+    + g.view.weaponGestureX
     + breath * P.breathX
     + correction * P.gripX
   local y = gaitY
@@ -251,6 +335,7 @@ function M.pose(g)
     + g.view.weaponDip
     + g.view.weaponLower
     + g.view.weaponImpactY
+    + g.view.weaponGestureY
     + breath * P.breathY
     + correction * P.gripY
   y = y + g.view.weaponStepY + g.view.weaponAirY
@@ -259,6 +344,7 @@ function M.pose(g)
     + g.view.weaponAimX * P.aimRoll
     + g.view.weaponImpactRoll
     + g.view.weaponStepRoll
+    + g.view.weaponGestureRoll
     + correction * P.gripRoll
   roll = roll - (Context.actor(g).crouch or 0) * P.crouchRoll
   -- Reload actions retain their clear silhouette while the hands keep weight.

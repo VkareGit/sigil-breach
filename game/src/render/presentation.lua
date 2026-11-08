@@ -39,6 +39,9 @@ local viewKeys = {
   'weaponStepY',
   'weaponStepRoll',
   'weaponAirY',
+  'weaponGestureX',
+  'weaponGestureY',
+  'weaponGestureRoll',
 }
 -- Clocks of the view (seconds since an event) are shown at the image's own
 -- time, a part of a step before the simulation: the flash of a shot and its

@@ -297,6 +297,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   bez odbicia, kolba trzyma broń równo, lądowanie głębsze bez odbicia,
   spoczynek oszczędny z korektami chwytu wyciszanymi przez unik. Judge bez
   zmian. Golden bez zmian. Następny: punkt 3 (unik, ślizg, skok, dobycie).
+- 2026-11-08, **E6 krok c zrobiony (punkt 3 planu Exorcista):** gest
+  ciała w trzech fazach (przyjęcie, podtrzymanie, odzyskanie chwytu) jako
+  mechanizm silnika z liczbami w profilu broni; unik, ślizg, skok i dobycie
+  z osadzeniem kolby Exorcista. Pierwszeństwo przeładowania, flaski i prochu;
+  gest nie przechodzi na inną broń. Judge bez zmian. Golden bez zmian.
+  Następny: punkt 4 (gest strzału).
 
 ## Decyzje właściciela
 

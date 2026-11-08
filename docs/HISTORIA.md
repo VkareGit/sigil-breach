@@ -74,6 +74,28 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E6c, gesty uniku, ślizgu, skoku i dobycia, 2026-11-08 (punkt 3 planu
+  Exorcista): silnik ma ogólny gest ciała w trzech fazach. Przyjęcie ciężaru
+  to impuls przeciw ruchowi, gdy gest się zaczyna. Podtrzymanie to miejsce
+  broni, dopóki gest trwa. Odzyskanie chwytu to impuls w górę i z powrotem,
+  gdy gest się kończy. Liczby każdego gestu (unik, ślizg) są w profilu rąk
+  broni. Exorcist w uniku zostaje za ruchem, trzymany bliżej i niżej (1,4 px)
+  i pochylony za ruchem; na końcu uniku chwyt wraca i po 0,6 s nic z gestu nie
+  zostaje. W ślizgu trzymany nisko (2,6 px ponad dawne opuszczenie) przy
+  stałych lufach; wyjście ma wyraźny impuls chwytu. W skoku ręce mocniej
+  siadają przy odbiciu (×1,25) i później podążają za wznoszeniem. Dobycie:
+  broń szybko wznosi się i wyhamowuje w barku (w 60 ms o 38 px obrazu 450 px
+  wyżej niż dawne liniowe wysunięcie), potem kolba osiada (do 1,6 px i 0,012
+  rad); po 0,20 s, gdy broń może strzelić, jest dokładnie na miejscu.
+  Pierwszeństwo ręki: przeładowanie wznowione przy dobyciu oraz flaska i proch
+  zabierają osadzenie; przeładowanie usztywnia też gesty jak dotąd. Gest
+  należy do broni, która go zrobiła: zmiana broni w uniku zaczyna nową bez
+  gestu; MOTION off, reset i pauza czyszczą lub zatrzymują go jak resztę rąk.
+  Nowe pola widoku są deklarowane i wygładzane w obrazie. Judge ma zera
+  w gestach i dawne liniowe dobycie: porusza się dokładnie jak przedtem.
+  Mechanika (czasy uniku i ślizgu, zamiana broni po 0,20 s, strzał)
+  bez zmian. Rysunek broni bez zmian.
+
 - E6b, ciężar noszenia Exorcista, 2026-11-08 (punkt 2 planu Exorcista):
   pierwszy własny profil rąk broni. Dotąd start, hamowanie, zmiana kierunku,
   lądowanie i spoczynek wyglądały identycznie dla obu broni, a Exorcist różnił
@@ -4603,6 +4625,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E6c, gesty uniku, ślizgu, skoku i dobycia, 2026-11-08: dwanaście nowych
+  sprawdzeń w `weight` (tests/cases/weapon_motion.lua), czerwone przed
+  zmianą (brak gestu): unik przyjmuje ciężar przeciw ruchowi i trzyma broń
+  blisko; unik w lewo jest lustrem w prawo; chwyt wraca i nic nie zostaje;
+  Judge bez gestu; ślizg niżej przy stałych lufach; wyjście ze ślizgu
+  z impulsem chwytu; skok: głębsze odbicie i późniejsze wznoszenie rąk;
+  dobycie: wznosi się i osiada w barku, na miejscu po 0,20 s; dobycie Judge'a
+  jak dawniej; wznowione przeładowanie zabiera osadzenie; zmiana broni
+  w uniku nie przenosi gestu; MOTION off usuwa gest w toku. Sonda: liczby
+  Judge'a identyczne. Rendery sześciu chwil (unik +40 ms, koniec, wyjście
+  +50 ms, ślizg, dobycie 60 i 170 ms) przed/po: rysunek bez zmian. Golden
+  bez zmian. Pełne Linux All PASS w osobnym klonie: 9073 sprawdzeń,
+  golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - E6b, ciężar noszenia Exorcista, 2026-11-08: siedem nowych sprawdzeń
   w `weight` (tests/cases/weapon_motion.lua), czerwone przed zmianą, bo obie

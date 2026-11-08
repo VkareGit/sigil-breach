@@ -128,6 +128,27 @@ local definitions = {
         gaitY = 1.75,
         gaitRoll = 0.0040,
       },
+      -- In a jump the hands sink on the takeoff and trail the rise later.
+      air = { rise = 0.36, limit = 2.6, takeoff = 1.25, spring = { 110, 21 } },
+      -- A dodge throws the weight against the travel and holds the gun close,
+      -- trailing it, and the grip is retaken at its end; a slide holds it
+      -- low with steady barrels and leaves with a clear regrip.
+      gestures = {
+        dash = {
+          take = { side = 60, down = 45, roll = 0.35 },
+          hold = { y = 1.4, side = -0.6, roll = 0.012 },
+          recover = { up = 34, roll = 0.18 },
+          spring = { 260, 30 },
+        },
+        slide = {
+          take = { side = 35, down = 60, roll = 0.2 },
+          hold = { y = 2.6, side = -0.5, roll = 0.02 },
+          recover = { up = 45, roll = 0.2 },
+          spring = { 200, 27 },
+        },
+      },
+      -- Drawn fast and eased into the shoulder, where the stock seats.
+      draw = { rise = 2.2, seatY = 1.6, seatRoll = 0.012 },
     },
   },
   {

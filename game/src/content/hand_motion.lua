@@ -42,7 +42,33 @@ return {
   -- The landing dip and the hands in the air (px per m/s of vertical speed);
   -- landing: the share of the landing's contact kick the hands take.
   dip = { landing = 1, spring = { 196, 20 } },
-  air = { rise = 0.30, limit = 2.2, spring = { 120, 22 } },
+  -- takeoff: the share of the takeoff's impulse the hands take.
+  air = { rise = 0.30, limit = 2.2, takeoff = 1, spring = { 120, 22 } },
+  -- A gesture of the body (a dodge, a slide) carries the gun in three phases.
+  -- take: an impulse as it starts (px/s, rad/s): side and roll against the
+  -- travel across the view, down. hold: where the gun rests while it lasts:
+  -- y down (px), side toward the travel (px), roll against it (rad), as the
+  -- lean does. recover: an impulse as it ends: up (px/s) and roll back toward
+  -- the travel (rad/s). The hands follow on spring.
+  gestures = {
+    dash = {
+      take = { side = 0, down = 0, roll = 0 },
+      hold = { y = 0, side = 0, roll = 0 },
+      recover = { up = 0, roll = 0 },
+      spring = { 300, 30 },
+    },
+    slide = {
+      take = { side = 0, down = 0, roll = 0 },
+      hold = { y = 0, side = 0, roll = 0 },
+      recover = { up = 0, roll = 0 },
+      spring = { 300, 30 },
+    },
+  },
+  -- Drawing the gun: it rises from drop of the image height over time s
+  -- (rise above 1 eases the end of the rise); from seatFrom of the draw the
+  -- stock seats into the shoulder, seatY px down and seatRoll rad at most,
+  -- gone when the draw ends. time is never longer than a swap's wait.
+  draw = { time = 0.20, drop = 0.35, rise = 1, seatFrom = 0.6, seatY = 0, seatRoll = 0 },
   -- Knocks (content/view_reactions.lua) settle on these springs.
   impact = { spring = { 220, 23 }, rollSpring = { 210, 24 } },
   -- The gun drops out of the aim (px) while the body dashes, slides or is staggered.

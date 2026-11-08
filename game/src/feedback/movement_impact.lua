@@ -6,6 +6,7 @@ local MathX = require('src.core.mathx')
 local Collision = require('src.physics.collision')
 local FX = require('src.feedback.effects')
 local Impulses = require('src.feedback.impulses')
+local Hands = require('src.feedback.hand_profile')
 local C = require('src.content.tuning').contact
 local I = {
   mass = C.mass,
@@ -183,7 +184,8 @@ function I.takeoff(g, speed)
   end
   local report = I.measure(0, 0, 0, 0, speed, 0, I.mass, I.takeoffCushion)
   record(g, report, 'takeoff')
-  Impulses.react(g.view, 'takeoff', report.impulse)
+  -- The hands take the share of it their weapon's profile gives.
+  Impulses.react(g.view, 'takeoff', report.impulse * Hands.current(g).air.takeoff)
   return report
 end
 return I

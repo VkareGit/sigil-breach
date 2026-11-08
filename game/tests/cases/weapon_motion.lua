@@ -439,5 +439,143 @@ function Tests.run(G, check)
     "a dodge stills the shotgun's grip corrections and leaves the revolver's breath",
     shotgunDodge < 1e-3 and revolverDodge > 0.01
   )
+  -- A gesture of the body carries the gun in three phases (Exorcist plan
+  -- point 3): the weight is taken against the travel, the gun is held, the
+  -- grip is retaken as the gesture ends. Driven like the body: its timer runs
+  -- out on the hands' own steps here.
+  local Knight = require('src.content.characters').of(fresh().player).movement
+  local function gesture(slot, kind, side, after)
+    local v = fresh(slot)
+    M.update(v, dt, 0, 0, 0)
+    local p = v.player
+    local rx, rz = math.cos(p.yaw) * side, -math.sin(p.yaw) * side
+    local timer = kind == 'dash' and 'dashTimer' or 'slideTimer'
+    p[kind .. 'X'], p[kind .. 'Z'] = rx, rz
+    p[timer] = kind == 'dash' and Knight.dashTime or Knight.slideTime
+    local out = {}
+    for i = 1, math.floor((p[timer] + after) / dt + 0.5) do
+      M.update(v, dt, 0, 0, 0)
+      p[timer] = math.max(0, p[timer] - dt)
+      out[i] = {
+        x = v.view.weaponGestureX,
+        y = v.view.weaponGestureY,
+        roll = v.view.weaponGestureRoll,
+        vy = v.view.weaponGestureVY,
+      }
+    end
+    return out, v
+  end
+  local function at(trace, seconds)
+    return trace[math.max(1, math.floor(seconds / dt + 0.5))]
+  end
+  local right = gesture(1, 'dash', 1, 0.6)
+  local left = gesture(1, 'dash', -1, 0.6)
+  local early, held, out = at(right, 0.04), at(right, Knight.dashTime), right[#right]
+  local exit = at(right, Knight.dashTime + 2 * dt)
+  check(
+    "a dodge takes the shotgun's weight against its travel and holds it close",
+    early.x < -0.3 and early.roll < 0 and early.y > 0.3 and held.y > 0.5 and held.roll < 0
+  )
+  check(
+    'a dodge to the left mirrors the right',
+    near(at(left, 0.04).x, -early.x, 1e-9) and near(at(left, 0.1).roll, -at(right, 0.1).roll, 1e-9)
+  )
+  check(
+    "the shotgun's grip is retaken as the dodge ends and nothing of it stays",
+    exit.vy < 0 and math.abs(out.x) < 0.01 and math.abs(out.y) < 0.01 and math.abs(out.roll) < 1e-4
+  )
+  local revolver = gesture(2, 'dash', 1, 0.2)
+  local still = true
+  for _, s in ipairs(revolver) do
+    still = still and s.x == 0 and s.y == 0 and s.roll == 0
+  end
+  check('the revolver keeps its dodge as it was', still)
+  local slide = gesture(1, 'slide', 1, 0.6)
+  local middle, late = at(slide, 0.25), at(slide, 0.45)
+  check(
+    'a slide holds the shotgun lower than a dodge with steady barrels',
+    middle.y > held.y
+      and math.abs(middle.roll - late.roll) < 0.002
+      and math.abs(middle.y - late.y) < 0.2
+  )
+  local slideExit = at(slide, Knight.slideTime + 2 * dt)
+  check(
+    'the shotgun leaves a slide with a readable regrip and settles',
+    slideExit.vy < -20 and math.abs(slide[#slide].y) < 0.01
+  )
+  local function jumped(slot)
+    local v = fresh(slot)
+    M.update(v, dt, 0, 0, 0)
+    v:update(dt, { jump = true })
+    local peak, peakAt, dip = 0, 0, 0
+    for i = 1, 90 do
+      v:update(dt, {})
+      dip = math.max(dip, v.view.weaponDip)
+      if v.view.weaponAirY > peak then
+        peak, peakAt = v.view.weaponAirY, i
+      end
+    end
+    return peak, peakAt, dip
+  end
+  local shotgunAir, shotgunAirAt, shotgunTakeoff = jumped(1)
+  local revolverAir, revolverAirAt, revolverTakeoff = jumped(2)
+  check(
+    "the shotgun's hands sink deeper on a takeoff and trail the rise later",
+    shotgunTakeoff > revolverTakeoff
+      and shotgunAirAt > revolverAirAt
+      and shotgunAir ~= 0
+      and revolverAir ~= 0
+  )
+  -- The draw: the shotgun rises fast and seats into the shoulder, in its
+  -- firing place at the moment it may fire; the revolver's draw is unchanged.
+  local drawn = fresh(1)
+  local function draw(v, age)
+    v.view.swapAge = age
+    return M.draw(v)
+  end
+  local half = draw(drawn, 0.06)
+  local seatDrop, seatY, seatRoll = draw(drawn, 0.17)
+  local endDrop, endY, endRoll = draw(drawn, 0.20)
+  check(
+    'the shotgun rises into the shoulder and is in place when it may fire',
+    half < 0.35 * (1 - 0.06 / 0.2) - 0.02
+      and seatY > 0.5
+      and seatRoll ~= 0
+      and seatDrop < 0.02
+      and endDrop == 0
+      and endY == 0
+      and endRoll == 0
+  )
+  local judge = fresh(2)
+  local same = true
+  for _, age in ipairs({ 0, 0.03, 0.1, 0.15, 0.2, 0.5 }) do
+    local d, y, r = draw(judge, age)
+    same = same and near(d, (1 - math.min(1, age / 0.20)) * 0.35, 1e-12) and y == 0 and r == 0
+  end
+  check('the revolver is drawn as before', same)
+  drawn.player.reload = 0.5
+  drawn.player.reloadDuration = 0.94
+  drawn.player.reloadOffset = 0
+  local _, resumedY, resumedRoll = draw(drawn, 0.17)
+  check(
+    'a draw that resumes a reload leaves the hands to the reload',
+    resumedY == 0 and resumedRoll == 0
+  )
+  local _, swapped = gesture(1, 'dash', 1, -Knight.dashTime + 0.05)
+  swapped.player.weapon = 2
+  M.update(swapped, dt, 0, 0, 0)
+  check(
+    "a weapon drawn in a dodge carries none of the holstered gun's gesture",
+    swapped.view.weaponGestureX == 0
+      and swapped.view.weaponGestureY == 0
+      and swapped.view.weaponGestureRoll == 0
+  )
+  local _, off = gesture(1, 'slide', 1, -Knight.slideTime + 0.1)
+  off.view.motion = false
+  M.update(off, dt, 0, 0, 0)
+  check(
+    'motion off removes a gesture in progress',
+    off.view.weaponGestureY == 0 and off.view.weaponGestureVY == 0
+  )
 end
 return Tests
