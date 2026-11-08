@@ -75,6 +75,19 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F5, testy kontraktu z danych, 2026-11-08: nowy zestaw `contracts`
+  (`tests/cases/contracts.lua`) generowany z definicji. Każdy atak każdego
+  stwora (dziś 53) przechodzi całe życie w jednym pokoju: rozpoczyna się,
+  wypuszcza i kończy albo od razu odmawia (żniwa Gardenera bez zasianego
+  ogrodu), bez błędu, z położeniem skończonym i bez śladów innego właściciela;
+  ciało zabite w połowie zamachu albo przy wypuszczeniu nie zostawia
+  czekającego znaku. Każdy stwór ma atlas, anatomię, maski i tekst nazwy.
+  Nowy stwór albo nowy rodzaj ataku dostaje te sprawdzenia bez pisania testu.
+  Istniejące testy postaci zostają; ich sprawdzenia nazw póz i dźwięków
+  pokrywa dalej kontrakt sztuki i dźwięku (`enemies/art_contract.lua`,
+  `audio/contracts.lua`), więc ich usuwanie odkładam do przebudowy danej
+  postaci. Gra i golden bez zmian.
+
 - G3, style rysowania z rejestru, 2026-11-08: moduły rysowania nazwane po
   postaciach stały się malarzami rodzin stylów w `render/painters/`:
   `pool_rites.lua` (dawne `ash_art`, style `Rites.pools`), `lightning_rites.lua`
@@ -4746,6 +4759,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F5, testy kontraktu z danych, 2026-11-08: `contracts` 165 PASS. Próba
+  mutacji: wyłączenie gaszenia znaków zmarłego właściciela
+  (`enemies/hazards.lua`) zatrzymuje kontrakt (`furfur/lightning struck down
+  in its windup`); wyłączenie samego `ActionKinds.forget` nie, bo te znaki
+  gasi też właściciel. Golden bez zmian. Pełne Linux All PASS w osobnym
+  klonie: 9243 sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows
+  niesprawdzony.
 
 - G3, style rysowania z rejestru, 2026-11-08: nowe sprawdzenie w
   `extension`, czerwone przed zmianą: malarz zarejestrowany sam rysuje swój

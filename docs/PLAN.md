@@ -341,6 +341,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   miejsca rysowania bez nazw malarzy, `combat/deposits.lua` zamiast
   `combat/garden.lua`. Obraz i golden bez zmian. Następny: F5 (testy
   kontraktu), potem G4 (struktura świata).
+- 2026-11-08, **F5 zrobione:** zestaw `contracts` z danych: życie i śmierć
+  każdego ataku, zawartość każdego pakietu stwora. Golden bez zmian.
+  Następny: G4 (struktura świata przed drugą mapą).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 

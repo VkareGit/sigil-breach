@@ -540,6 +540,11 @@ Suite.registry = {
     module = 'tests.cases.content_contracts',
   },
   {
+    id = 'contracts',
+    title = 'Contracts of every attack and creature package, generated from data',
+    module = 'tests.cases.contracts',
+  },
+  {
     id = 'qa-tools',
     title = 'QA lifecycle, profiles and observed recording contracts',
     module = 'tests.cases.qa_tools',
