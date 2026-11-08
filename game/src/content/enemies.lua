@@ -3,12 +3,13 @@
 -- the body, the movement style and the attack list. Full description:
 -- docs/WIZJA.md (System świata 0.14).
 --
--- Registry (0.24): one file per creature in src/content/creatures/, the
+-- Registry (0.24): one package per creature in src/content/creatures/<id>/
+-- (PLAN F4; its definition is the package's init.lua), the
 -- knight's body in content/knight.lua, the shared rule constants in
 -- content/combat_defaults.lua and the conditions in content/conditions.lua.
 -- This module gathers them under one stable API (A.register, A.defaults,
--- A.conditions, A.get, A.each). A new demon is a creature file, its A.register
--- and its atlas.
+-- A.conditions, A.get, A.each). A new demon is a creature package and its
+-- A.register.
 --
 -- body:   hp, armor (rating, Warhammer-style armour points), soak (flat
 --         reduction per hit, Warhammer Toughness), resist (D&D: >0 resist,

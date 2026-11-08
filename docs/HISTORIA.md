@@ -75,6 +75,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F4a, stwór jako pakiet, 2026-11-08: każdy stwór ma własny katalog
+  `content/creatures/<id>/`; jego definicja to `init.lua` tego katalogu.
+  Nazwa modułu (`src.content.creatures.<id>`) się nie zmienia (LÖVE ładuje
+  `?/init.lua`), więc zapisy, przeładowanie stworów na poligonie (F5)
+  i odwołania działają bez migracji. Checker czyta `init.lua` jako moduł
+  katalogu; sonda ścieżek (`tools/linux/check-work-paths.sh`) i narzędzie
+  `tools/art/chapel_hall` szukają też `?/init.lua`. Gra i golden bez zmian.
+
 - G2, rejestr efektów sigili, 2026-11-08: sigil to dane i rodzaj efektu.
   `content/sigils.lua` daje każdemu sigilowi pole `effect` (Stolas: verdict,
   Furfur: riposte, Buer: reprisal, Paimon: impetus); rodzaje są w rejestrze
@@ -4688,6 +4696,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F4a, stwór jako pakiet, 2026-11-08: nowe sprawdzenie w
+  `content-contracts`, czerwone przed zmianą: każdy stwór ma własny katalog
+  z `init.lua`. Pierwsza brama zatrzymała się na sondzie ścieżek, która
+  ładuje grę zwykłym `package.path` bez `?/init.lua`; poprawione. Golden bez
+  zmian. Pełne Linux All PASS w osobnym klonie: 9074 sprawdzeń, golden 10
+  PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - G2, rejestr efektów sigili, 2026-11-08: nowe sprawdzenia, czerwone przed
   zmianą: w `extension` sigil wyłącznie z danych z własnym rodzajem efektu

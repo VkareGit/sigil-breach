@@ -324,6 +324,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (`combat/sigil_kinds.lua`); interpreter bez nazw sigili, reguła SIGIL NAMES.
   Zachowanie identyczne (sonda 36 000 momentów). Golden bez zmian. Następny:
   G3 (moduły pod jedną postać, razem z F4).
+- 2026-11-08, **F4 krok a zrobiony:** każdy stwór to katalog
+  `content/creatures/<id>/` z definicją w `init.lua` (nazwa modułu bez
+  zmian). Golden bez zmian. Następny: F4b (arkusz i anatomia w pakiecie).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 
@@ -389,6 +392,10 @@ rekomendacją.
    drugą mapą. Rekomendacja: tak, zaczynając od G1. Przyjęte 2026-11-08
    („zacznij wdrażanie”) zgodnie z rekomendacją. Tego samego dnia właściciel
    dodał G7 (usunięcie magicznych liczb) jako ostatni krok.
+7. Pakiet postaci (F4) obejmuje też arkusz i anatomię, a skrypty
+   eksportu (Linux i Windows) instalują je do pakietu. Decyzja właściciela
+   2026-11-08: „jeśli przeniesienie jest właściwe, przenieś i zaktualizuj
+   skrypty i wszystko, co potrzeba”. Skrypty Windows bez próby.
 
 ## Poza zakresem
 

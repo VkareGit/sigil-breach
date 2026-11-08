@@ -559,7 +559,8 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     if not chunk then
       failure('SYNTAX ' .. tostring(err))
     end
-    local id = relative:gsub('%.lua$', ''):gsub('/', '.')
+    -- A package's init.lua is the module of its directory (require loads it).
+    local id = relative:gsub('%.lua$', ''):gsub('/', '.'):gsub('%.init$', '')
     if governed(relative) then
       numbers[relative] = unnamedNumbers(text)
     end

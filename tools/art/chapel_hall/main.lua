@@ -1,7 +1,7 @@
 -- Writes each hall surface's layout template. The painter receives it as a
 -- reference, so what is painted lands where the relief is built.
 --   lovec tools/art/chapel_hall <output directory>
-package.path = '../../../game/?.lua;' .. package.path
+package.path = '../../../game/?.lua;../../../game/?/init.lua;' .. package.path
 local Hall
 local STONE, RED, DARK, IVORY, PALE = { 150, 128, 96 }, { 120, 34, 26 }, { 62, 46, 40 }, { 240, 225, 190 }, { 190, 170, 130 }
 local KEY = { 255, 0, 255 }

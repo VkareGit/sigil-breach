@@ -16,7 +16,7 @@ end
 LUA
 cat > "$fixture/probe/main.lua" << 'LUA'
 function love.load(args)
-  package.path = args[1] .. '/game/?.lua;' .. package.path
+  package.path = args[1] .. '/game/?.lua;' .. args[1] .. '/game/?/init.lua;' .. package.path
   local Workspace = require('src.app.workspace')
   local actualProject = args[3]
   love.filesystem.getSourceBaseDirectory = function() return actualProject end

@@ -162,6 +162,15 @@ function Tests.run()
       and table.concat(Weapons.defaultLoadout, ',') == 'exorcist,judge'
       and table.concat(Abilities.defaultLoadout, ',') == 'powder'
   )
+  -- A creature is one package (PLAN F4): a directory of its own under
+  -- content/creatures, its definition the package's init.lua.
+  local loose = {}
+  for _, id in ipairs(A.creatures) do
+    if not love.filesystem.getInfo('src/content/creatures/' .. id .. '/init.lua', 'file') then
+      loose[#loose + 1] = id
+    end
+  end
+  check('every creature is a package of its own: ' .. table.concat(loose, ', '), #loose == 0)
   -- Every sigil names a kind of effect the fight knows (PLAN G2).
   local SigilRules = require('src.content.sigils')
   local SigilKinds = require('src.combat.sigil_kinds')
