@@ -21,7 +21,8 @@ local sin, cos, atan2, sqrt, min, max, abs, pi =
   math.sin, math.cos, math.atan2, math.sqrt, math.min, math.max, math.abs, math.pi
 local clamp = MathX.clamp
 local angle = MathX.wrapAngle
-local guardColor = { 0.50, 0.70, 1 }
+local K = Tuning.weight
+local guardColor = K.marks.guard
 local camera = Tuning.camera
 local hands = camera.hands
 -- The view kick is critically damped at its weapon's rate: its peak is
@@ -32,7 +33,7 @@ end
 local function addMark(g, mark)
   local marks = g.view.hurtMarks or {}
   g.view.hurtMarks = marks
-  if #marks >= 6 then
+  if #marks >= K.marks.most then
     table.remove(marks, 1)
   end
   marks[#marks + 1] = mark
@@ -112,11 +113,11 @@ function W.shot(g, profile, power)
   -- A recorded shot carries its own hall and thump (0.43, D02: audio/audio.lua baked).
   local baked = Audio.baked and Audio.baked(profile.fire.sound)
   if w.tail and not baked then
-    Audio.play('hall', w.tail * (0.6 + 0.4 * power))
+    Audio.play('hall', w.tail * (K.shotSound.base + K.shotSound.gain * power))
   end
   -- The gut of the report: a low thump under it.
   if (w.thump or 0) > 0 and not baked then
-    Audio.play('thud', w.thump * (0.6 + 0.4 * power))
+    Audio.play('thud', w.thump * (K.shotSound.base + K.shotSound.gain * power))
   end
   return kick
 end
@@ -135,14 +136,14 @@ function W.carryFactor(g)
 end
 -- Severity of a blow against the player: 1 = it breaks a fresh guard.
 function W.severity(impact, actor)
-  return clamp((impact or 0) / Characters.of(actor).body.poise, 0, 1.6)
+  return clamp((impact or 0) / Characters.of(actor).body.poise, 0, K.severityMax)
 end
 -- The player is struck. info: amount, lost, absorbed, impact, damageType,
 -- x/z (source), staggered, wounded.
 function W.playerHit(g, info)
   local p = Context.actor(g)
   local severity = W.severity(info.impact, p)
-  local harm = clamp((info.amount or 0) / 30, 0, 1)
+  local harm = clamp((info.amount or 0) / K.harmAt, 0, 1)
   local rel = info.x and W.relative(p, info.x, info.z) or 0
   -- The hands take the blow first, the frame shakes by the shove, not by the
   -- damage (content/view_reactions.lua: blow).
@@ -154,23 +155,23 @@ function W.playerHit(g, info)
     severity = min(1, severity),
     color = shield and guardColor or W.typeColor(info.damageType),
     age = 0,
-    life = 0.75 + 0.6 * harm,
+    life = K.marks.life + K.marks.lifeHarm * harm,
     staggered = info.staggered,
   })
-  Audio.play('hurt', 0.30 + 0.40 * harm)
-  if severity >= 0.55 or info.source == 'wall' then
-    Audio.play('thud', 0.25 + 0.45 * min(1, severity))
+  Audio.play('hurt', K.hurt.base + K.hurt.gain * harm)
+  if severity >= K.thudFrom or info.source == 'wall' then
+    Audio.play('thud', K.thud.base + K.thud.gain * min(1, severity))
   end
   if (info.absorbed or 0) > 0 then
-    Audio.play('shell', 0.12 + 0.20 * clamp(info.absorbed / 20, 0, 1))
+    Audio.play('shell', K.shell.base + K.shell.gain * clamp(info.absorbed / K.shell.at, 0, 1))
   end
   -- A broken guard: the world's hit-stop is simulation (session/listeners.lua);
   -- here only its sound.
   if info.staggered then
     -- The player's own guard breaking sounds like a demon's, lower and heavier.
-    local s = Audio.play('break', 0.7)
+    local s = Audio.play('break', K.guardBreak.volume)
     if s then
-      s:setPitch(0.72)
+      s:setPitch(K.guardBreak.pitch)
     end
   end
 end
@@ -181,17 +182,19 @@ function W.nearMiss(g, b, distance)
     return
   end
   local packet = b.packet or {}
-  local severity = W.severity(packet.impact or (b.big and 60 or 40), p)
+  local severity = W.severity(packet.impact or (b.big and K.missImpactBig or K.missImpact), p)
   if Audio.playAt then
-    Audio.playAt('whoosh', b.x, b.z, p, 0.25 + 0.30 * min(1, severity) * (1 - distance / 1.25))
+    local whoosh = K.whoosh
+    local fade = 1 - distance / whoosh.reach
+    Audio.playAt('whoosh', b.x, b.z, p, whoosh.base + whoosh.gain * min(1, severity) * fade)
   end
   addMark(g, {
     angle = atan2(b.x - p.x, b.z - p.z),
     harm = 0,
-    severity = 0.25,
+    severity = K.marks.missSeverity,
     color = W.typeColor(packet.damageType),
     age = 0,
-    life = 0.45,
+    life = K.marks.missLife,
     miss = true,
   })
 end
@@ -222,50 +225,50 @@ function W.confirm(g, report, results, hit, hitVolume)
   -- Name the rule that just fired, once, unless a kill already speaks.
   local killed = report and (report.kills or 0) > 0
   if falter then
-    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), 1.6
-    say(4, 'break', 0.75)
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), K.falter.caption
+    say(4, 'break', K.falter.volume)
     Impulses.react(g.view, 'falter')
   elseif not killed and stopped then
     -- 0.24: the blow reversed a rush; the body goes down.
-    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), 1.0
-    say(3, 'thud', 0.55)
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), K.knocked.caption
+    say(3, 'thud', K.knocked.volume)
     Impulses.react(g.view, 'knocked')
   elseif not killed and tripped then
-    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), 1.0
-    say(3, 'thud', 0.5)
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), K.tripped.caption
+    say(3, 'thud', K.tripped.volume)
     Impulses.react(g.view, 'tripped')
   elseif not killed and counter then
-    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), 0.9
-    say(3, 'crit', 0.32)
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), K.counter.caption
+    say(3, 'crit', K.counter.volume)
   elseif not killed and crippled then
-    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_crippled'), 0.9
+    g.view.feedback, g.view.feedbackTimer = Text.get('feedback_crippled'), K.crippled.caption
   end
-  g.view.breakConfirm = broke and 0.22 or g.view.breakConfirm
+  g.view.breakConfirm = broke and K.breakConfirm or g.view.breakConfirm
   if broke then
     Lessons.note(g.view, 'guard')
-    say(4, 'break', 0.30 + 0.25 * g.view.hitWeight)
+    say(4, 'break', K.broke.base + K.broke.gain * g.view.hitWeight)
   end
   -- A heavy stagger lands with weight: a body blow and a short frame punch;
   -- a light falter keeps only the crack of the broken guard.
   if heavy and not killed then
-    say(3, 'thud', 0.38)
+    say(3, 'thud', K.heavyVolume)
     Impulses.react(g.view, 'heavyStagger')
   end
   if wounded or (counter and broke) then
     -- The player caused the decisive blow: a short frame punch (post shader
     -- 'kill' pulse) and a small view rise, presentation only.
-    say(3, 'heavyhit', 0.45)
+    say(3, 'heavyhit', K.decisiveVolume)
     Impulses.react(g.view, 'decisive')
   end
   if crippled then
-    say(3, 'thud', 0.28)
+    say(3, 'thud', K.crippled.volume)
   end
   if
     report
     and report.headHits > 0
     and (not report.strong or report.headHits * 4 >= report.pelletsHit)
   then
-    say(2, 'hit_head', 0.8)
+    say(2, 'hit_head', K.headVolume)
   end
   if voice and not killed then
     Audio.play(voice, volume)
@@ -322,13 +325,13 @@ function W.heart(g, dt)
   g.view.heartTimer = g.view.heartTimer - dt
   if g.view.heartTimer <= 0 then
     local fear = 1 - Characters.share(p) / Tuning.lowHealth
-    local period = 0.95 - 0.45 * fear
+    local period = K.heart.period - K.heart.faster * fear
     local beats = 1 + math.floor(-g.view.heartTimer / period)
     -- Preserve the remainder like the planted footfall clock. Low frame rates
     -- must not silently lengthen the physical pulse; a hitch plays one cue.
     g.view.heartTimer = g.view.heartTimer + beats * period
     if Context.isControlled(g, p) then
-      Audio.play('heart', 0.18 + 0.30 * fear)
+      Audio.play('heart', K.heart.base + K.heart.gain * fear)
     end
     g.view.heartbeats = g.view.heartbeats + beats
   end
@@ -345,21 +348,22 @@ function W.drawMarks(g, cx, cy, radius)
     return
   end
   local lg = love.graphics
+  local M = K.marks
   local yaw = Context.actor(g).yaw or 0
   lg.setLineStyle('smooth')
   for _, m in ipairs(marks) do
     local a = angle(m.angle - yaw) - pi / 2
     local t = m.age / m.life
-    local alpha = min(1, (1 - t) * 2.2)
-    local half = 0.16 + 0.22 * m.severity + 0.10 * m.harm
+    local alpha = min(1, (1 - t) * M.fade)
+    local half = M.half + M.halfSeverity * m.severity + M.halfHarm * m.harm
     local width = m.miss and 2 or (3 + 5 * m.harm + 3 * m.severity)
-    local r = radius + (m.miss and 10 or 0) + t * 8
+    local r = radius + (m.miss and M.missOffset or 0) + t * M.spread
     lg.setLineWidth(width + 3)
-    lg.setColor(0.01, 0.01, 0.02, alpha * 0.85)
-    lg.arc('line', 'open', cx, cy, r, a - half, a + half, 18)
+    lg.setColor(M.shadow[1], M.shadow[2], M.shadow[3], alpha * M.shadow[4])
+    lg.arc('line', 'open', cx, cy, r, a - half, a + half, M.segments)
     lg.setLineWidth(width)
     lg.setColor(m.color[1], m.color[2], m.color[3], alpha)
-    lg.arc('line', 'open', cx, cy, r, a - half, a + half, 18)
+    lg.arc('line', 'open', cx, cy, r, a - half, a + half, M.segments)
   end
   lg.setLineStyle('rough')
   lg.setLineWidth(2)

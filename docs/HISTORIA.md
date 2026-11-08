@@ -74,6 +74,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E5e, liczby odczucia rąk i ciosów w treści, 2026-11-08: ruch rąk z bronią
+  (nowy content/hand_motion.lua: zaparcie przy przeładowaniu, stopa,
+  bezwładność celowania, odchylenie, przechył, zanurzenie, lot, odepchnięcie,
+  opuszczenie broni, oddech i poza), dźwięki i znaczniki ciosu, werdykty
+  trafień i serce (tuning.lua: weight) oraz kontakty ciała odczuwane
+  w rękach (tuning.lua: contact) mają nazwy w treści. Zachowanie bez zmian.
+
 - E5d, impuls jako zdarzenie, 2026-11-08: ciosy w rycerza, ściana, wybicie
   i lądowanie, potwierdzenia trafień, zachwianie, uchwyt, wstrząsy świata,
   wybuch i zawalenie odpowiadają przez jeden zapis (feedback/impulses.lua:
@@ -4443,6 +4450,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E5e, liczby odczucia rąk i ciosów w treści, 2026-11-08: liczby bez nazwy
+  w weapon_motion 83 → 0, weight 57 → 0, movement_impact 24 → 0 (feedback/
+  razem 468 → 304; zapadka obniżona). Sonda przebiegu (chód, skręt, skok
+  i lądowanie, dwa strzały, cios z pancerzem, przeładowanie, niskie zdrowie,
+  bliski pocisk, wszystkie werdykty, rysowanie znaczników; obie bronie,
+  z ruchem i bez): 677 linii pozy rąk, pól widoku, 122 dźwięków i 16 łuków
+  identyczne bajt w bajt przed i po. Pełne Linux All PASS w osobnym
+  klonie: 9000 sprawdzeń, golden 10 PASS bez zmian wzorca, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - E5d, impuls jako zdarzenie, 2026-11-08: nowa reguła IMPULSE WRITE na
   starym kodzie: 17 zapisów omijających wspólny zapis (weight 10,

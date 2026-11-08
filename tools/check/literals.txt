@@ -53,7 +53,7 @@ src/feedback/lessons.lua 0
 src/feedback/listeners.lua 11
 src/feedback/medals.lua 0
 src/feedback/motion.lua 0
-src/feedback/movement_impact.lua 24
+src/feedback/movement_impact.lua 0
 src/feedback/movement_marks.lua 8
 src/feedback/recipient.lua 0
 src/feedback/rite_feedback.lua 0
@@ -62,8 +62,8 @@ src/feedback/shot_feedback.lua 0
 src/feedback/shot_trails.lua 16
 src/feedback/surface_marks.lua 30
 src/feedback/transients.lua 12
-src/feedback/weapon_motion.lua 83
-src/feedback/weight.lua 57
+src/feedback/weapon_motion.lua 0
+src/feedback/weight.lua 0
 src/feedback/world_feedback.lua 41
 src/physics/body_physics.lua 0
 src/physics/collision.lua 10

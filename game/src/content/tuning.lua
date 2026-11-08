@@ -303,6 +303,89 @@ return {
     blastColor = { 0.72, 0.28, 0.06 },
     boltColor = { 1, 0.4, 0.1 },
   },
+  -- What a blow, a shot and a hit say to the knight (feedback/weight.lua).
+  -- A sound volume is base + gain * its measure; times are seconds.
+  weight = {
+    -- A shot's hall and thump by its power (one shell of a volley is less).
+    shotSound = { base = 0.6, gain = 0.4 },
+    -- A blow's severity is impact over poise, up to severityMax; its harm
+    -- is the damage over harmAt.
+    severityMax = 1.6,
+    harmAt = 30,
+    hurt = { base = 0.30, gain = 0.40 },
+    thudFrom = 0.55,
+    thud = { base = 0.25, gain = 0.45 },
+    shell = { base = 0.12, gain = 0.20, at = 20 },
+    guardBreak = { volume = 0.7, pitch = 0.72 },
+    -- A near miss: the impact assumed for a missile without a packet, and
+    -- the whoosh, fading to nothing at reach m.
+    missImpact = 40,
+    missImpactBig = 60,
+    whoosh = { base = 0.25, gain = 0.30, reach = 1.25 },
+    -- The arcs around the reticle: how many, how long, how wide.
+    marks = {
+      most = 6,
+      life = 0.75,
+      lifeHarm = 0.6,
+      missSeverity = 0.25,
+      missLife = 0.45,
+      fade = 2.2,
+      half = 0.16,
+      halfSeverity = 0.22,
+      halfHarm = 0.10,
+      missOffset = 10,
+      spread = 8,
+      shadow = { 0.01, 0.01, 0.02, 0.85 },
+      segments = 18,
+      guard = { 0.50, 0.70, 1 },
+    },
+    -- A hit's verdict: how long its caption stays and how loud it speaks.
+    falter = { caption = 1.6, volume = 0.75 },
+    knocked = { caption = 1.0, volume = 0.55 },
+    tripped = { caption = 1.0, volume = 0.5 },
+    counter = { caption = 0.9, volume = 0.32 },
+    crippled = { caption = 0.9, volume = 0.28 },
+    breakConfirm = 0.22,
+    broke = { base = 0.30, gain = 0.25 },
+    heavyVolume = 0.38,
+    decisiveVolume = 0.45,
+    headVolume = 0.8,
+    -- Low health: the heartbeat's period shortens with fear, its volume grows.
+    heart = { period = 0.95, faster = 0.45, base = 0.18, gain = 0.30 },
+  },
+  -- The body's contacts as the hands feel them (feedback/movement_impact.lua).
+  -- Mass 1 is the reference equipped human; a cushion is how long (s) the
+  -- contact spreads its impulse. A kick saturates at most px, scale impulse.
+  contact = {
+    mass = 1,
+    wallCushion = 0.09,
+    landingCushion = 0.16,
+    takeoffCushion = 0.20,
+    wallKick = { most = 150, scale = 7 },
+    landingKick = { most = 210, scale = 10 },
+    -- A wall contact is new when the body was moved more than relocated m,
+    -- left it by rearm m, or meets a plane turned past newPlane (cosine)
+    -- newPlaneDistance m away; it counts from minLoss m/s lost, or a real
+    -- approach (minApproach m this step, minPriorApproach m/s before).
+    relocated = 0.25,
+    rearm = 0.075,
+    newPlane = 0.45,
+    newPlaneDistance = 0.15,
+    minLoss = 1.35,
+    minApproach = 0.025,
+    minPriorApproach = 1.2,
+    -- A hard landing (energy over energy) sheds two plumes of dust by the boots.
+    dust = {
+      energy = 28,
+      radius = 0.38,
+      growth = 0.20,
+      growthEnergy = 180,
+      ahead = 0.62,
+      apart = 0.38,
+      clearance = 0.04,
+      lift = 0.025,
+    },
+  },
   feel = {
     hitmarker = 0.14,
     -- How long what a kill paid stays by the purse (s); kills inside it add up.

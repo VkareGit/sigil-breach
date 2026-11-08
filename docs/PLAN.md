@@ -222,6 +222,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   IMPULSE WRITE i zapadka liczb bez nazwy dla `feedback/` (468).
   Zostaje z E5: dźwięk ciosu w profilu, liczby odczucia z `weapon_motion`,
   `impact_response` i `death_response` do treści, odbiorcy per aktor.
+- 2026-11-08, **E5 krok e zrobiony:** liczby ruchu rąk (`content/hand_motion.lua`),
+  ciosów, werdyktów i serca (`tuning.weight`) oraz kontaktów ciała
+  (`tuning.contact`) w treści; `weapon_motion`, `weight`, `movement_impact`
+  bez liczb bez nazwy. Przebieg sondy identyczny bajt w bajt. Zostaje
+  z E5: reakcje stworów (`impact_response`, `death_response`) i reszta
+  `feedback/` (304), odbiorcy per aktor.
 
 ## Decyzje właściciela
 

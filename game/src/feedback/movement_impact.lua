@@ -6,7 +6,13 @@ local MathX = require('src.core.mathx')
 local Collision = require('src.physics.collision')
 local FX = require('src.feedback.effects')
 local Impulses = require('src.feedback.impulses')
-local I = { mass = 1, wallCushion = 0.09, landingCushion = 0.16, takeoffCushion = 0.20 }
+local C = require('src.content.tuning').contact
+local I = {
+  mass = C.mass,
+  wallCushion = C.wallCushion,
+  landingCushion = C.landingCushion,
+  takeoffCushion = C.takeoffCushion,
+}
 local finite = MathX.finite
 function I.measure(bx, by, bz, ax, ay, az, mass, seconds)
   mass = mass or I.mass
@@ -51,8 +57,8 @@ end
 function I.kick(impulse, kind)
   -- Monotonic, saturating response: ordinary contact is readable while a dash
   -- or test-field drop can never throw the hands across the aiming area.
-  local maximum, scale = kind == 'wall' and 150 or 210, kind == 'wall' and 7 or 10
-  return maximum * (1 - math.exp(-math.max(0, impulse) / scale))
+  local kick = kind == 'wall' and C.wallKick or C.landingKick
+  return kick.most * (1 - math.exp(-math.max(0, impulse) / kick.scale))
 end
 function I.init(g)
   g.view.movementContact = { blocked = false, x = 0, z = 0, nx = 0, nz = 0 }
@@ -76,7 +82,10 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
     I.init(g)
     state = g.view.movementContact
   end
-  if state.previousX and (oldX - state.previousX) ^ 2 + (oldZ - state.previousZ) ^ 2 > 0.25 ^ 2 then
+  if
+    state.previousX
+    and (oldX - state.previousX) ^ 2 + (oldZ - state.previousZ) ^ 2 > C.relocated ^ 2
+  then
     -- Field shortcuts can relocate the player without rebuilding the run.
     -- The old wall and its impulse must not follow them across the arena.
     state.blocked = false
@@ -87,7 +96,7 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
   state.previousX, state.previousZ = p.x, p.z
   -- Merely releasing a key while touching the wall is not a new approach.
   -- Rearm only after leaving that contact plane by a visible separation.
-  if state.blocked and (p.x - state.x) * state.nx + (p.z - state.z) * state.nz > 0.075 then
+  if state.blocked and (p.x - state.x) * state.nx + (p.z - state.z) * state.nz > C.rearm then
     state.blocked = false
   end
   if not collided then
@@ -104,7 +113,7 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
   local nx, nz = -dx / loss, -dz / loss
   local approached = -(p.x - oldX) * nx - (p.z - oldZ) * nz
   local fromLast = math.sqrt((p.x - state.x) ^ 2 + (p.z - state.z) ^ 2)
-  local newPlane = state.nx * nx + state.nz * nz < 0.45 and fromLast > 0.15
+  local newPlane = state.nx * nx + state.nz * nz < C.newPlane and fromLast > C.newPlaneDistance
   local fresh = not state.blocked or newPlane
   if fresh then
     state.x, state.z, state.nx, state.nz = p.x, p.z, nx, nz
@@ -113,7 +122,11 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
   -- Acceleration pressed into an already-touching wall is motor demand, not
   -- acquired momentum. The prior velocity or actual approach must support it.
   local approach = -(previousX or 0) * nx - (previousZ or 0) * nz
-  if not fresh or loss < 1.35 or (approached < 0.025 and approach < 1.2) then
+  if
+    not fresh
+    or loss < C.minLoss
+    or (approached < C.minApproach and approach < C.minPriorApproach)
+  then
     return
   end
   local report = I.measure(beforeX, 0, beforeZ, afterX, 0, afterZ, I.mass, I.wallCushion)
@@ -145,18 +158,19 @@ function I.landing(g, speed)
   record(g, report, 'landing')
   g.view.lastLandingImpact = report
   report.dust = 0
+  local D = C.dust
   -- Only a drop considerably harder than the normal jump sheds pigment dust.
   -- Energy threshold is deliberate; it is independent of render or tick rate.
-  if g.view.motion ~= false and report.energyLost > 28 then
+  if g.view.motion ~= false and report.energyLost > D.energy then
     local p = Context.actor(g)
-    local radius = 0.38 + math.min(0.20, (report.energyLost - 28) / 180)
+    local radius = D.radius + math.min(D.growth, (report.energyLost - D.energy) / D.growthEnergy)
     for side = -1, 1, 2 do
       -- The two short plumes spread outward from the boots, outside the gun's
       -- central silhouette. They remain on the floor rather than in screen space.
-      local x = p.x + math.sin(p.yaw) * 0.62 + math.cos(p.yaw) * side * 0.38
-      local z = p.z + math.cos(p.yaw) * 0.62 - math.sin(p.yaw) * side * 0.38
-      if not Collision.solid(g.world, x, z, 0.04) then
-        FX.emit(g, 'stone', x, 0.025 + radius * 0.5, z, radius)
+      local x = p.x + math.sin(p.yaw) * D.ahead + math.cos(p.yaw) * side * D.apart
+      local z = p.z + math.cos(p.yaw) * D.ahead - math.sin(p.yaw) * side * D.apart
+      if not Collision.solid(g.world, x, z, D.clearance) then
+        FX.emit(g, 'stone', x, D.lift + radius * 0.5, z, radius)
         report.dust = report.dust + 1
       end
     end
