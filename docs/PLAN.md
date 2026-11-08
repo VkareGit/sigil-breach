@@ -276,6 +276,8 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   rodzajów w rejestrze, wersja stanu rodzaju w zapisie (zapis pul 9).
   Zatrzymanie, łańcuch i ciąg zostają na ciele jako zegary stanu ciała
   (uzasadnienie w HISTORII). Golden bez zmian.
+- 2026-11-08, **F3 krok c zrobiony:** wybór pozy z rejestru stanów
+  (`Anim.states`, `Anim.state`), sonda póz identyczna. Golden bez zmian.
 
 ## Decyzje właściciela
 

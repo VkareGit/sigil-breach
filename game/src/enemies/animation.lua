@@ -89,58 +89,106 @@ local function exhausted(e)
     end
   end
 end
-function Anim.pose(g, e, observer)
-  if e.previewFrame and Capabilities.posed(g) then
-    return e.previewFrame, 0, 0, 1, 1
+-- The state a body is drawn in (PLAN F3): Anim.pose asks the states in their
+-- order and the first whose when(g, e, ctx) holds draws the body with
+-- pose(g, e, ctx), which returns frame, bounce, lean, sx, sy, quiet and rear
+-- (0, 0, 1, 1, false, false when left out). ctx carries what every state may
+-- read: observer, look, encounter, transitionAge and flinchProjection. A
+-- creature or a mod adds a state with Anim.state(id, { before = id, ... }).
+Anim.states = Registry:new('pose states', function(entry, id)
+  assert(type(entry.when) == 'function', 'pose state ' .. id .. ' needs when')
+  assert(type(entry.pose) == 'function', 'pose state ' .. id .. ' needs pose')
+end)
+function Anim.state(id, def)
+  if def.before then
+    return Anim.states:insert(id, def, def.before)
   end
-  local frame, bounce, lean, sx, sy = 1, 0, 0, 1, 1
-  local quiet, rear = false, false
-  local look = Archetypes.look(e)
-  local encounter = Archetypes.phase(e)
-  local transitionAge = e.phaseEnteredAt and (g.elapsed - e.phaseEnteredAt)
-  local flinchProjection = Flinch.projection(g, e, observer or Roles.controlled(g))
-  if e.hp <= 0 then
-    frame, bounce, lean, sx, sy = Corpse.pose(e, posed(e, 'collapse'), flinchProjection)
-  -- Knocked down (0.24): the painted collapse frames carry the fall. The body
-  -- goes down (knockdown, seconds since the fall), stays low and climbs back
-  -- up (rise, on the time it has left; the hit volumes follow the pose).
-  elseif e.knockedDown and (e.stun or 0) > 0 then
+  return Anim.states:register(id, def)
+end
+local function facesAway(g, e, observer)
+  return math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos
+end
+Anim.state('dead', {
+  when = function(_, e)
+    return e.hp <= 0
+  end,
+  pose = function(_, e, ctx)
+    return Corpse.pose(e, posed(e, 'collapse'), ctx.flinchProjection)
+  end,
+})
+-- Knocked down (0.24): the painted collapse frames carry the fall. The body
+-- goes down (knockdown, seconds since the fall), stays low and climbs back
+-- up (rise, on the time it has left; the hit volumes follow the pose).
+Anim.state('knockedDown', {
+  when = function(_, e)
+    return e.knockedDown and (e.stun or 0) > 0
+  end,
+  pose = function(_, e)
     local total = math.max(e.knockTime or e.stun, e.stun)
-    frame = Poses.frame(posed(e, 'knockdown'), total - e.stun)
+    local frame = Poses.frame(posed(e, 'knockdown'), total - e.stun)
       or Poses.frame(posed(e, 'rise'), -e.stun)
-    lean = -0.06
-  elseif (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0 then
-    frame, lean, sy = exhausted(e)
-  -- A heavy stagger throws the body back (the first painted recoil frame),
-  -- then bows it in pain; a light falter only flinches in place.
-  elseif e.ai == 'hurt' and (e.phase < 0.20 or (e.stun or 0) > 0) then
-    frame = Poses.frame(posed(e, 'pain'), e.phase)
-    lean = -0.03
+    return frame, 0, -0.06, 1, 1
+  end,
+})
+Anim.state('exhausted', {
+  when = function(_, e)
+    return (e.stun or 0) > 0 and e.conditions and (e.conditions.exposed or 0) > 0
+  end,
+  pose = function(_, e)
+    local frame, lean, sy = exhausted(e)
+    return frame, 0, lean, 1, sy
+  end,
+})
+-- A heavy stagger throws the body back (the first painted recoil frame),
+-- then bows it in pain; a light falter only flinches in place.
+Anim.state('hurt', {
+  when = function(_, e)
+    return e.ai == 'hurt' and (e.phase < 0.20 or (e.stun or 0) > 0)
+  end,
+  pose = function(_, e)
     if e.heavyStagger then
-      frame = Poses.frame(posed(e, 'painHeavy'), e.phase)
-      lean = -0.08
-      sy = 0.95
+      return Poses.frame(posed(e, 'painHeavy'), e.phase), 0, -0.08, 1, 0.95
     end
-  elseif
-    e.ai == 'recover'
-    and encounter
-    and encounter.transitionPose
-    and transitionAge
-    and transitionAge >= 0
-    and transitionAge < encounter.recovery
-  then
-    frame = Poses.frame(posed(e, encounter.transitionPose), transitionAge / encounter.recovery)
-  elseif e.ai == 'windup' then
+    return Poses.frame(posed(e, 'pain'), e.phase), 0, -0.03, 1, 1
+  end,
+})
+Anim.state('transition', {
+  when = function(_, e, ctx)
+    local encounter, age = ctx.encounter, ctx.transitionAge
+    return e.ai == 'recover'
+      and encounter
+      and encounter.transitionPose
+      and age
+      and age >= 0
+      and age < encounter.recovery
+  end,
+  pose = function(_, e, ctx)
+    local encounter = ctx.encounter
+    return Poses.frame(posed(e, encounter.transitionPose), ctx.transitionAge / encounter.recovery),
+      0,
+      0,
+      1,
+      1
+  end,
+})
+Anim.state('windup', {
+  when = function(_, e)
+    return e.ai == 'windup'
+  end,
+  pose = function(g, e, ctx)
     local t = Anim.actionPhase(e)
     local pose = posed(e, e.attackKind and ('windup.' .. e.attackKind) or 'windup')
-    if pose.rear and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos then
+    if pose.rear and facesAway(g, e, ctx.observer) then
       pose = posed(e, pose.rear)
     end
-    frame = Poses.frame(pose, t)
-    lean = -0.025 * t
-    sx = 1 + t * 0.025
-    sy = 1 - t * 0.025
-  elseif e.ai == 'strike' then
+    return Poses.frame(pose, t), 0, -0.025 * t, 1 + t * 0.025, 1 - t * 0.025
+  end,
+})
+Anim.state('strike', {
+  when = function(_, e)
+    return e.ai == 'strike'
+  end,
+  pose = function(g, e, ctx)
     local t = Anim.actionPhase(e)
     -- An attack may hold its own painted frame (strike.<attack id>).
     local pose = posed(e, e.attackKind and ('strike.' .. e.attackKind) or 'strike')
@@ -158,38 +206,83 @@ function Anim.pose(g, e, observer)
       pose = turn
       clock = pause
     end
-    if pose.rear and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos then
+    if pose.rear and facesAway(g, e, ctx.observer) then
       pose = posed(e, pose.rear)
     end
-    frame = Poses.frame(pose, clock)
-    lean = 0.06 * (1 - t)
-    sx = 1 + 0.035 * math.sin(t * math.pi)
-  elseif e.ai == 'recover' then
+    return Poses.frame(pose, clock), 0, 0.06 * (1 - t), 1 + 0.035 * math.sin(t * math.pi), 1
+  end,
+})
+Anim.state('recover', {
+  when = function(_, e)
+    return e.ai == 'recover'
+  end,
+  pose = function(_, e)
     local t = Anim.actionPhase(e)
-    frame = Poses.frame(posed(e, e.attackKind and ('recover.' .. e.attackKind) or 'recover'), t)
-    sy = 0.98 + 0.02 * t
-  elseif (e.walkSpeed or 0) > 0.1 then
+    local pose = posed(e, e.attackKind and ('recover.' .. e.attackKind) or 'recover')
+    return Poses.frame(pose, t), 0, 0, 1, 0.98 + 0.02 * t
+  end,
+})
+Anim.state('walk', {
+  when = function(_, e)
+    return (e.walkSpeed or 0) > 0.1
+  end,
+  pose = function(g, e, ctx)
     local walk = posed(e, 'walk')
     local count = #walk.frames
     local phase = e.walk * (walk.rate or 0)
-    bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
-    lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
-    rear = math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos
-    frame = Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk)
-  else
-    -- Breath and vigilance are painted into the ribs, hands, wings and neck.
-    -- Never stretch armor, skull or the whole silhouette to fake breathing.
-    local watching = e.awake
-      and (e.memory or 0) > 0
-      and math.cos(viewerYaw(g, e, observer) - (e.facing or 0)) < Poses.rearCos
+    local bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
+    local lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
+    local rear = facesAway(g, e, ctx.observer)
+    return Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk),
+      bounce,
+      lean,
+      1,
+      1,
+      false,
+      rear
+  end,
+})
+-- Breath and vigilance are painted into the ribs, hands, wings and neck.
+-- Never stretch armor, skull or the whole silhouette to fake breathing.
+Anim.state('quiet', {
+  when = function()
+    return true
+  end,
+  pose = function(g, e, ctx)
+    local watching = e.awake and (e.memory or 0) > 0 and facesAway(g, e, ctx.observer)
     local pose = watching and posed(e, 'watchRear') or posed(e, 'quiet')
+    local frame
     if pose.clock == 'breath' then
       frame = Idle.sample(Idle.kind(e), g.time, e.id)
     else
       frame = Poses.frame(pose, 0)
     end
-    quiet = true
+    return frame, 0, 0, 1, 1, true
+  end,
+})
+local ctx = {}
+function Anim.pose(g, e, observer)
+  if e.previewFrame and Capabilities.posed(g) then
+    return e.previewFrame, 0, 0, 1, 1
   end
+  local look = Archetypes.look(e)
+  ctx.observer = observer
+  ctx.look = look
+  ctx.encounter = Archetypes.phase(e)
+  ctx.transitionAge = e.phaseEnteredAt and (g.elapsed - e.phaseEnteredAt)
+  ctx.flinchProjection = Flinch.projection(g, e, observer or Roles.controlled(g))
+  local flinchProjection = ctx.flinchProjection
+  local frame, bounce, lean, sx, sy, quiet, rear = 1
+  local states = Anim.states
+  for _, id in ipairs(states.order) do
+    local state = states.entries[id]
+    if state.when(g, e, ctx) then
+      frame, bounce, lean, sx, sy, quiet, rear = state.pose(g, e, ctx)
+      break
+    end
+  end
+  bounce, lean, sx, sy = bounce or 0, lean or 0, sx or 1, sy or 1
+  quiet, rear = quiet or false, rear or false
   if look.motion and e.hp > 0 then
     frame, bounce, lean = Anim.motions:get(look.motion)(g, e, frame, bounce, lean, quiet, rear)
   end

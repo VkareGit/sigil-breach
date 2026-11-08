@@ -340,5 +340,35 @@ function Tests.run(G, check)
   restartCase('resumed loaded breech', 1, 0.65, 0.68)
   restartCase('resumed empty cylinder', 2, 0.5, 0.68)
   restartCase('resumed loaded cylinder', 2, 1.3, T.revolverLoadTime)
+  -- A body's pose comes from a registry of states (PLAN F3): the first state
+  -- whose condition holds draws it, and a state added by a creature or a mod
+  -- takes its place in that order without a change to Anim.pose.
+  local states = Anim.states and Anim.states:ids() or {}
+  check(
+    'every built-in body state is a registered pose state, in its order',
+    table.concat(states, ',')
+      == 'dead,knockedDown,exhausted,hurt,transition,windup,strike,recover,walk,quiet'
+  )
+  local struck = enemy('furfur', A.furfur.attacks[1], 'hurt', 0.05)
+  local painted = Anim.pose(g, struck)
+  local added = Anim.states
+    and pcall(Anim.state, 'trialHeld', {
+      before = 'hurt',
+      when = function(_, e)
+        return e.trialHeld
+      end,
+      pose = function()
+        return 3, 0, 0, 1, 1
+      end,
+    })
+  struck.trialHeld = true
+  local held = Anim.pose(g, struck)
+  if added then
+    Anim.states:unregister('trialHeld')
+  end
+  check(
+    'a state added before hurt draws the body and leaves when removed',
+    added and held == 3 and painted ~= 3 and Anim.pose(g, struck) == painted
+  )
 end
 return Tests

@@ -74,6 +74,15 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F3c, poza z rejestru stanów, 2026-11-08: Anim.pose
+  (enemies/animation.lua) nie jest już łańcuchem warunków. Pyta po kolei
+  stany ciała z rejestru Anim.states (martwe, powalone, wyczerpane, ból,
+  przejście fazy, zamach, cios, odpoczynek, chód, spokój), a pierwszy, którego
+  warunek zachodzi, rysuje ciało. Stwór albo mod dodaje własny stan przed
+  wybranym (Anim.state(id, { before = ... })), bez zmiany Anim.pose; rejestr
+  rdzenia umie wstawić wpis przed innym (Registry:insert). Obraz i maski bez
+  zmian.
+
 - F3b, rodzaj kończy własny stan, 2026-11-08: miejsce oznaczone przez
   piorun przed ciosem (dawne pole ciała pendingHazard) jest teraz stanem
   jego rodzaju (e.act.mark). Rejestr rodzajów (combat/action_kinds.lua) nie
@@ -4537,6 +4546,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F3c, poza z rejestru stanów, 2026-11-08: nowe testy w `animation`,
+  czerwone przed zmianą: wszystkie stany ciała są w rejestrze w swojej
+  kolejności; stan dodany przed bólem rysuje ciało i znika po usunięciu.
+  Sonda (wszystkie stwory w 2100 krokach walki do śmierci oraz każdy stan
+  ustawiony ręcznie, 14075 linii klatki, uniesienia, pochylenia i skali)
+  identyczna przed i po zmianie oraz w dwóch przebiegach nowego kodu. Golden
+  bez zmian. Pełne Linux All PASS w osobnym klonie: 9047 sprawdzeń (o 2
+  więcej), golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F3b, rodzaj kończy własny stan, 2026-11-08: nowe testy
   w `content-contracts`, czerwone przed zmianą (brak ActionKinds.forget):

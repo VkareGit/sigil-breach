@@ -28,6 +28,23 @@ function Registry:register(id, entry)
   self.entries[id] = entry
   return entry
 end
+-- Register an entry to be met before an existing one, where the order of the
+-- entries decides (the first that applies wins).
+function Registry:insert(id, entry, before)
+  assert(
+    self.entries[before] ~= nil,
+    self.name .. ': nothing to insert before: ' .. tostring(before)
+  )
+  self:register(id, entry)
+  table.remove(self.order)
+  for i, known in ipairs(self.order) do
+    if known == before then
+      table.insert(self.order, i, id)
+      break
+    end
+  end
+  return entry
+end
 -- A deliberate override (tool or mod). It must name an existing entry and
 -- pass the same validator; success preserves that id's iteration position.
 function Registry:replace(id, entry)
