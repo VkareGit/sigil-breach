@@ -12,14 +12,12 @@
 -- at rest, out of every step), projectiles, hazards, pickups, charges, and
 -- knights (1..n; g.player is the knight this session controls).
 local Abilities = require('src.content.abilities')
-local Characters = require('src.content.characters')
 local Weapons = require('src.content.weapons')
 local Ecs = require('src.core.ecs')
 local Components = require('src.session.components')
 local Roles = require('src.core.roles')
 local Tree = require('src.core.data_tree')
 local Save = require('src.storage.save')
-local Schema = require('src.core.schema')
 local ActionKinds = require('src.combat.action_kinds')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
@@ -196,18 +194,10 @@ local members = setmetatable({}, { __mode = 'k' })
 local function transient(t, k)
   return members[t] and Components.transient[k]
 end
--- Version 2 (plan v11 E3): a knight carries its actor state (the slot in
--- hand, reload, trigger, shots, shot sequence). A version 1 save had none
--- (the session kept it and saved it nowhere): its knights take the defaults
--- of their component when restored. Version 3 (plan v12 R1): a knight names
--- its character and carries its limits; an older one is the default character.
-local function actorDefaults(knight)
-  for name, spec in pairs(Components.schemas.knight) do
-    if knight[name] == nil and spec.default ~= nil then
-      knight[name] = type(spec.default) == 'table' and Schema.copy(spec.default) or spec.default
-    end
-  end
-  Characters.born(knight)
+-- A pools section older than version 7 (PLAN G1): its definitions were
+-- named by their place in lists that have changed since, so it is not read.
+function M.beforeIds()
+  error('a fight saved before 0.45 cannot be resumed exactly', 0)
 end
 -- Body fields that became the committed attack's own state (pools 8).
 M.movedToAct = {
@@ -268,33 +258,15 @@ Save.declare({
       data.pools = Tree.encode(all)
       return data
     end,
-    [6] = function(data)
-      return require('src.storage.definition_migration').pools(data, 6)
-    end,
-    [5] = function(data)
-      return require('src.storage.definition_migration').pools(data, 5)
-    end,
-    [4] = require('src.storage.definition_migration').pools,
-    [3] = function(data)
-      require('src.storage.definition_migration').pools(data)
-      local all = Tree.decode(data.pools)
-      for _, knight in ipairs(all.knights or {}) do
-        -- P6 replaces the old passive sigil fields. Equipped copies belong
-        -- to the pilgrimage collection; resumeField binds those afterwards.
-        knight.rallyRate, knight.dodgeEdge, knight.edgeUntil = nil, nil, nil
-        knight.sigilRanks, knight.sigilState = nil, nil
-      end
-      data.pools = Tree.encode(all)
-      return data
-    end,
-    [1] = function(data)
-      data.actorDefaults = true
-      return data
-    end,
-    [2] = function(data)
-      data.actorDefaults = true
-      return data
-    end,
+    -- PLAN G1: a fight saved before version 7 named attacks by their place in
+    -- lists that changed since. It is not resumed exactly: the pilgrimage
+    -- resumes its field without it (run/pilgrimage.lua: fieldPools).
+    [6] = M.beforeIds,
+    [5] = M.beforeIds,
+    [4] = M.beforeIds,
+    [3] = M.beforeIds,
+    [2] = M.beforeIds,
+    [1] = M.beforeIds,
   },
   pack = function(g)
     local all, controlled = {}, nil
@@ -348,7 +320,6 @@ Save.declare({
       pools = all,
       controlled = t.controlled,
       nextId = t.nextId,
-      actorDefaults = t.actorDefaults == true,
     }
   end,
   restore = function(g, value)
@@ -356,11 +327,6 @@ Save.declare({
       M.clear(g, name)
       for _, e in ipairs(value.pools[name]) do
         M.add(g, name, e)
-      end
-    end
-    if value.actorDefaults then
-      for _, knight in ipairs(value.pools.knights) do
-        actorDefaults(knight)
       end
     end
     Roles.control(g, value.pools.knights[value.controlled])

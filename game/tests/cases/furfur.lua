@@ -323,37 +323,6 @@ function T.run(Game)
         )
       end
     end
-    local g, e = room(6)
-    local old = require('src.content.migrations.furfur_045').attacks[2]
-    Actions.begin(g, e, 6, old)
-    local section = Save.section('pools')
-    local encoded = section.pack(g)
-    local function oldPaths(t)
-      if type(t) ~= 'table' then
-        return
-      end
-      if t['$def'] and t['$def'][1] == 'src.content.migrations.furfur_045' then
-        t['$def'][1] = 'src.content.creatures.furfur'
-      else
-        for _, v in pairs(t) do
-          oldPaths(v)
-        end
-      end
-    end
-    oldPaths(encoded)
-    section.restore(g, section.unpack(section.migrations[5](encoded)))
-    e = g.enemies[1]
-    check(
-      'an older Continue retains the already committed three-pass charge',
-      e.attackSpec.turns == 2 and e.attackSpec.returnTurn == nil
-    )
-    e.ai = 'strike'
-    Actions.execute(g, e)
-    check('the legacy charge still executes', e.act.turnsLeft == 2 and e.chargeTime > 0)
-    check(
-      'new choices use the current charge after legacy completion',
-      Enemies.furfur.attacks[2].turns == 1
-    )
   end
   for _, id in ipairs({ 'lightning', 'storm-steps' }) do
     for _, at in ipairs({ 0.2, 0.85, 1.4 }) do

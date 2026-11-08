@@ -21,7 +21,7 @@ function Tests.run()
     local ok, err = pcall(Action.build, def, 'probe')
     check(name, not ok and tostring(err):find(path, 1, true))
   end
-  local pool = require('src.content.migrations.gardener_045').attacks[1]
+  local pool = require('tests.support.pool_attack')
   local fan, claw = A.boss.attacks[1], A.imp.attacks[1]
   rejects('zero pool pulse cannot reach the hazard loop', pool, function(a)
     a.pool.pulse = 0
@@ -162,33 +162,15 @@ function Tests.run()
       and table.concat(Weapons.defaultLoadout, ',') == 'exorcist,judge'
       and table.concat(Abilities.defaultLoadout, ',') == 'powder'
   )
-  -- Each frozen copy of old attacks is declared by its creature (PLAN F2):
-  -- the save rules are built from those declarations, and a copy that no
-  -- creature declares stops the gate.
-  local declared, orphans = {}, {}
-  for _, id in ipairs(A.creatures) do
-    for _, saved in ipairs(A.get(id).savedAttacks or {}) do
-      declared[saved.module] = id
-    end
-  end
-  for _, file in ipairs(love.filesystem.getDirectoryItems('src/content/migrations')) do
-    local module = 'src.content.migrations.' .. file:match('^(.+)%.lua$')
-    if not declared[module] then
-      orphans[#orphans + 1] = module
-    end
-  end
+  -- A fight saved before definitions had names in their lists (pools before
+  -- 7) named attacks by places that changed since (PLAN G1): it is not read,
+  -- the pilgrimage resumes its field without it, and no frozen copies of old
+  -- attacks are kept for it.
+  local poolsSection = require('src.storage.save').section('pools')
   check(
-    'every frozen copy of old attacks is declared by its creature: ' .. table.concat(orphans, ', '),
-    #orphans == 0
-  )
-  local old = { pools = { { ['$def'] = { 'src.content.enemies', 'boss', 'attacks', 2 } } } }
-  require('src.storage.definition_migration').pools(old, 6)
-  local resumed = old.pools[1]['$def']
-  check(
-    'an old Margrave attack resumes from the copy its creature declares',
-    resumed[1] == 'src.content.migrations.margrave_045'
-      and resumed[2] == 'attacks'
-      and resumed[3] == 2
+    'a fight saved before attacks had names is never resumed as another attack',
+    not pcall(poolsSection.migrations[6], { pools = {} })
+      and love.filesystem.getInfo('src/content/migrations') == nil
   )
   -- The state of a committed attack belongs to its kind (PLAN F3): a save
   -- from before keeps it on the body, and loading moves it to e.act.

@@ -29,8 +29,6 @@ end
 return Creature.define({
   id = 'buer',
   name = 'creature_buer',
-  -- Saves up to pools 4 resume their attack before the Gardener rebuild.
-  savedAttacks = { { through = 4, module = 'src.content.migrations.gardener_045' } },
   souls = 12,
   -- Heavy bodies carry the Exorcist's shells, the rarer rounds.
   ammo = { weapon = 'exorcist', chance = 0.35, least = 1, most = 2, executed = 2 },

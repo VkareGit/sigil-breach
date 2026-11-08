@@ -170,64 +170,6 @@ function T.run(Game)
       not Integrity.difference(future, Integrity.capture(g))
     )
   end
-  do
-    local g, e = room(7)
-    -- The normal session bootstrap must load trusted legacy definitions, even when
-    -- an already migrated save no longer runs a version migration on its next load.
-    local legacy = package.loaded['src.content.migrations.margrave_045']
-    check('cold session bootstrap knows frozen definitions', type(legacy) == 'table')
-    local old
-    for _, spec in ipairs(legacy and legacy.attacks or {}) do
-      if spec.id == 'ash-leap' then
-        old = spec
-      end
-    end
-    if old then
-      Actions.begin(g, e, 7, old)
-      local section = Save.section('pools')
-      local encoded = section.pack(g)
-      local function historicalPaths(t)
-        if type(t) ~= 'table' then
-          return
-        end
-        if t['$def'] and t['$def'][1] == 'src.content.migrations.margrave_045' then
-          t['$def'][1] = 'src.content.creatures.boss'
-        else
-          for _, child in pairs(t) do
-            historicalPaths(child)
-          end
-        end
-      end
-      historicalPaths(encoded)
-      section.restore(g, section.unpack(section.migrations[6](encoded)))
-      e = g.enemies[1]
-      check(
-        'old Continue preserves the committed landing and gap',
-        e.attackSpec.landRadius == 1.1 and e.attackSpec.string.gap == 0
-      )
-      local packed = Save.capture('session', g)
-      local values = Save.decode('session', Save.encode('session', packed, 1))
-      check('an already migrated file can be decoded again', values ~= nil)
-      if values then
-        Save.restore('session', g, values)
-      end
-      e = g.enemies[1]
-      local landed
-      g.bus:on('sim', 'Landed', function(ev)
-        if ev.enemy == e then
-          landed = true
-        end
-      end)
-      for _ = 1, 360 do
-        step(g, e, 120)
-      end
-      check('the legacy committed landing finishes', landed)
-      check(
-        'future choices use the current landing',
-        specs['ash-leap'].landRadius == 1.5 and specs['ash-leap'].string.gap == 0.5
-      )
-    end
-  end
   if #failures > 0 then
     error(table.concat(lines, '\n'), 0)
   end

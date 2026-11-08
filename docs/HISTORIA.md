@@ -75,6 +75,19 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G1c, koniec zamrożonych kopii ataków, 2026-11-08: usunięte
+  `content/migrations/` (kopie ataków Margrave'a, Furfura i Gardenera,
+  925 linii), `storage/definition_migration.lua` i pole `savedAttacks`
+  definicji stwora. Po G1a nowe zmiany treści nie potrzebują kopii. Walka
+  zapisana w puli starszej niż wersja 7 (sprzed nazw w listach i sprzed
+  zmian, które te kopie obsługiwały) nie jest już wznawiana dokładnie:
+  pielgrzymka wznawia teren w przybliżeniu, jak przy każdej nieczytelnej
+  walce (rycerz, stwory, ich miejsca i zdrowie zostają; ginie to, co było
+  w locie: pocisk, rozpoczęty cios). Usunięta też martwa gałąź wersji 1–2
+  puli (domyślne pola aktora). Rodzaj ataku `pool`, którego nie nosi dziś
+  żaden stwór, zostaje w silniku; jego przykład przeszedł do wsparcia testów
+  (`tests/support/pool_attack.lua`). Gra i golden bez zmian.
+
 - G1b, sigile w zapisie bez odrzucania pliku, 2026-11-08: odczyt zapisu
   pielgrzymki nie odrzuca już pliku, gdy noszone sigile przekraczają miejsca,
   znalezione kopie albo limit sigila (dawniej wpisany na sztywno limit 3
@@ -4663,6 +4676,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G1c, koniec zamrożonych kopii ataków, 2026-11-08: sprawdzenia wznowienia
+  z kopii (Gardener, Margrave, Furfur) i ich deklaracji zastąpione jednym,
+  w `content-contracts`: walka sprzed nazw nie jest wznawiana jako inny atak
+  i nie ma katalogu kopii. Wykonanie rodzaju `pool` sprawdzane dalej na
+  przykładzie z testów; stary zapis pielgrzymki z pulą w wersji 3 wczytuje
+  się z sigilami z kolekcji (`sigil-builds`). Golden bez zmian. Pełne Linux
+  All PASS w osobnym klonie: 9071 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - G1b, sigile w zapisie bez odrzucania pliku, 2026-11-08: w `sigil-builds`
   dawne sprawdzenie „zapis ponad pojemność jest odrzucany” zastąpione nowym,

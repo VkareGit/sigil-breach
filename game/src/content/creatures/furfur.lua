@@ -36,8 +36,6 @@ local charge = Action.charge({
 return Creature.boss({
   id = 'furfur',
   name = 'creature_furfur',
-  -- Saves up to pools 5 resume their attack before the Furfur rebuild.
-  savedAttacks = { { through = 5, module = 'src.content.migrations.furfur_045' } },
   -- As much as the Margrave: 250 souls on the way (was 1500) and two shells.
   souls = 25,
   ammo = { weapon = 'exorcist', chance = 1, least = 2, most = 2, executed = 2 },

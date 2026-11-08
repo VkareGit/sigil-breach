@@ -317,8 +317,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **G1 krok b zrobiony:** odczyt sigili zdejmuje nadmiar (miejsca,
   znalezione kopie, limit) zamiast odrzucać zapis. Golden bez zmian.
   Następny: G1c (usunięcie zamrożonych kopii ataków).
+- 2026-11-08, **G1 krok c zrobiony, G1 zamknięty:** usunięte zamrożone kopie
+  ataków i przepinanie ścieżek; walka sprzed puli 7 wznawia teren
+  w przybliżeniu. Golden bez zmian. Następny: G2 (rejestr efektów sigili).
 
-## Po przeglądzie 2026-11-08 (G1–G6, przyjęte)
+## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 
 Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Przyjęte
 2026-11-08 (decyzja 6); wdrażane w tej kolejności, każdy krok z bramą:
@@ -343,6 +346,27 @@ Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Przyjęte
   i `session` ↔ `combat`.
 - **G6. Narzędzia.** Selftest w procesach równoległych, Git LFS dla
   zasobów, numer wersji po 0.45, aktualizacja `docs/TECHNIKA.md`.
+  Warunek równoległości (stwierdzone 2026-11-08): każdy przebieg testów
+  używa tej samej tożsamości LÖVE (`sigil-breach-qa`, osobnej od zapisu
+  gracza), więc dwie bramy naraz, nawet w osobnych klonach, nadpisują sobie
+  pliki zapisu (`pilgrimage.save`, `trial_atlas/`). Przebieg potrzebuje
+  własnego katalogu zapisu.
+- **G7. Bez magicznych liczb (na koniec, dodane przez właściciela
+  2026-11-08).** Stan 2026-11-08 według reguły zapadki checkera (liczby
+  nienazwane poza `content/`): `ui` 1696, `audio` 1665, `render` 1376,
+  `feedback` 305, `core` 65, `enemies` 43, `app` 23, `storage` 16, `combat` 14,
+  `session` 14, `physics` 10, `world` 1. Najwięcej: `audio/recipes.lua` 587,
+  `ui/hud.lua` 357, `render/kit/chapel.lua` 290, `ui/chapel.lua` 283,
+  `ui/test_field.lua` 235, `render/world_mesh.lua` 171, banki głosów
+  (`audio/banks/`) po ok. 100–140, `feedback/impact_response.lua` 97.
+  Liczby strojenia przechodzą do treści pod nazwami (profile, style,
+  układy ekranów); dane zapisane kodem (receptury dźwięku i banki głosów,
+  zabudowa kaplicy, siatka świata) przechodzą do plików danych w `content/`.
+  Zapadka literałów obejmuje wszystkie warstwy i schodzi do zera tam, gdzie
+  liczba jest strojeniem; wyjątki nazwane w regule (stałe matematyczne,
+  formaty, indeksy). HUD jest chroniony: tylko przeniesienie liczb
+  z dowodem identycznego obrazu, bez zmiany wyglądu. Dowód każdego kroku:
+  rendery i eksport audio identyczne przed i po, golden bez zmian.
 
 ## Decyzje właściciela
 
@@ -359,10 +383,12 @@ rekomendacją.
 
 6. G1–G6 po przeglądzie 2026-11-08, w kolejności wyżej, po E6 i przed
    drugą mapą. Rekomendacja: tak, zaczynając od G1. Przyjęte 2026-11-08
-   („zacznij wdrażanie”) zgodnie z rekomendacją.
+   („zacznij wdrażanie”) zgodnie z rekomendacją. Tego samego dnia właściciel
+   dodał G7 (usunięcie magicznych liczb) jako ostatni krok.
 
 ## Poza zakresem
 
 Rejestr sigili, zapis po id, granice zapisu sigili, `boss` → poziom
-postaci, Git LFS i podział bramy: teraz G1–G6 (przyjęte 2026-11-08). Nowe bronie, balans, zegary SI, elity, HUD, Windows, pakowanie
-i wideo. Odłożone sprawy i wcześniejsze plany pozostają w HISTORII.
+postaci, Git LFS i podział bramy: teraz G1–G7 (przyjęte 2026-11-08).
+Nowe bronie, balans, zegary SI, elity, zmiana wyglądu HUD, Windows,
+pakowanie i wideo. Odłożone sprawy i wcześniejsze plany pozostają w HISTORII.

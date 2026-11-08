@@ -282,37 +282,11 @@ function T.run(Game)
     )
   end
   do
+    -- The pool kind no creature carries now still delivers its bolt and pool.
     local g, e = actor(6)
-    local old = require('src.content.migrations.gardener_045').attacks[1]
-    Actions.begin(g, e, 6, old)
-    local section = Save.section('pools')
-    local encoded = section.pack(g)
-    local function oldPaths(t)
-      if type(t) ~= 'table' then
-        return
-      end
-      if t['$def'] and t['$def'][1] == 'src.content.migrations.gardener_045' then
-        t['$def'][1] = 'src.content.creatures.buer'
-      else
-        for _, v in pairs(t) do
-          oldPaths(v)
-        end
-      end
-    end
-    oldPaths(encoded)
-    section.restore(g, section.unpack(section.migrations[4](encoded)))
-    e = g.enemies[1]
-    check(
-      'old Continue retains the committed pool delivery',
-      e.attackSpec.kind == 'pool' and e.attackSpec.bolt.packet.base == 20
-    )
+    Actions.begin(g, e, 6, require('tests.support.pool_attack'))
     Actions.execute(g, e)
-    check('old committed delivery still completes', #g.hazards == 1 and #g.bullets == 1)
-    e.attackSpec, e.attackKind = nil, nil
-    check(
-      'new choice after legacy completion uses current delivery',
-      Actions.choose(e, 6, 20, g.rng.sim, g).kind ~= 'pattern'
-    )
+    check('a pool cast still delivers its bolt and its pool', #g.hazards == 1 and #g.bullets == 1)
   end
   for _, line in ipairs(require('tests.cases.plague_gardener_edges').run(Game)) do
     lines[#lines + 1] = line
