@@ -75,6 +75,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F4d, teksty stwora w pakiecie, 2026-11-08: nazwa, karta bestiariusza
+  i paski stanu każdego stwora (klucze `creature_<id>…`, 25 wpisów) przeszły
+  z `content/text.lua` do `words.lua` jego pakietu; `text.lua` dopisuje je
+  przez `content/creature_packages.lua`. Reguła checkera PLAYER TEXT dopuszcza
+  `content/creatures/<id>/words.lua`. Teksty bez zmian. Pakiet stwora ma teraz:
+  `init.lua` (definicja), `sheet.lua`, `anatomy.lua`, `audio.lua`,
+  `voices.lua`, `words.lua`. Poza pakietem zostają: jego miejsce na mapie
+  i w pielgrzymce, wpis katalogu i zaopatrzenia (dane świata, nie postaci),
+  maski (wspólny wypiek) i style rysowania (G3). Gra i golden bez zmian.
+
 - F4c, dźwięk stwora w pakiecie, 2026-11-08: banki głosów sześciu stworów
   przeszły z `audio/banks/` do ich pakietów jako `voices.lua` (Ember Thrall:
   imp, Iron Thrall: armored, Star Acolyte: stolas, Gardener: buer, Margrave:
@@ -4720,6 +4730,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F4d, teksty stwora w pakiecie, 2026-11-08: nowe sprawdzenie
+  w `content-contracts`, czerwone na starym `text.lua`: każdy stwór ma
+  `words.lua`, a wspólna tabela tekstów nie zna jego kluczy. Golden bez zmian.
+  Pełne Linux All PASS w osobnym klonie: 9077 sprawdzeń, golden 10 PASS,
+  `feel` 186 PASS. Windows niesprawdzony.
 
 - F4c, dźwięk stwora w pakiecie, 2026-11-08: nowe sprawdzenie
   w `content-contracts`, czerwone przed zmianą: każdy stwór trzyma głosy

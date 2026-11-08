@@ -245,6 +245,8 @@ local scalingRatchets = {
     hint = 'move it to content/text (plan v10 V6)',
     -- The package smoke check's report is console output for QA.
     exempt = { 'src/content/text.lua', 'src/app/package_smoke.lua' },
+    -- A creature's own words live in its package (PLAN F4).
+    exemptPatterns = { '^src/content/creatures/[%w_]+/words%.lua$' },
     count = function(_, strings)
       return playerText(strings)
     end,
@@ -474,6 +476,11 @@ local function inScope(rule, relative)
   end
   for _, prefix in ipairs(rule.exempt) do
     if relative:sub(1, #prefix) == prefix then
+      return false
+    end
+  end
+  for _, pattern in ipairs(rule.exemptPatterns or {}) do
+    if relative:match(pattern) then
       return false
     end
   end

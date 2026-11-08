@@ -553,31 +553,6 @@ local definitions = {
   { 'reload_load', 'LOAD' },
   { 'reload_close', 'CLOSE' },
   { 'reload_eject', 'EJECT' },
-  { 'creature_armored', 'Iron Thrall' },
-  {
-    'creature_armored_text',
-    'A servant bowed under iron. Sidestep its shoulder; jump the floor shock.',
-  },
-  { 'creature_armored_tip', 'Punish the recovery. Aim for the legs.' },
-  { 'creature_boss', 'Margrave of Ash' },
-  { 'creature_boss_calm', 'MARGRAVE OF ASH' },
-  { 'creature_boss_fury', 'MARGRAVE / FURY' },
-  { 'creature_boss_exposed', 'MARGRAVE / EXPOSED' },
-  { 'creature_boss_plain_fury', 'MARGRAVE OF ASH / FURY' },
-  { 'creature_buer', 'Plague Gardener' },
-  { 'creature_buer_text', 'Spits rot and sows a garden.' },
-  { 'creature_buer_tip', 'Sidestep its breath; leave swelling roots.' },
-  { 'creature_furfur', 'Furfur, Storm Count' },
-  { 'creature_furfur_calm', 'FURFUR / STORM COUNT' },
-  { 'creature_furfur_fury', 'FURFUR / STORM WRATH' },
-  { 'creature_furfur_exposed', 'FURFUR / EXPOSED' },
-  { 'creature_furfur_plain_fury', 'FURFUR / STORM COUNT' },
-  { 'creature_imp', 'Ember Thrall' },
-  { 'creature_imp_text', 'Flanks and lunges.' },
-  { 'creature_imp_tip', 'Sidestep its swing.' },
-  { 'creature_stolas', 'Star Acolyte' },
-  { 'creature_stolas_text', 'A distant caster. Jump its low wave; sidestep its tall fissure.' },
-  { 'creature_stolas_tip', 'Heavy shots interrupt.' },
   { 'ability_powder', 'POWDER CHARGE' },
   { 'ability_powder_tag', 'BLAST' },
   { 'feedback_destroyed', '+{reward}  /  DEMON DESTROYED' },
@@ -655,5 +630,12 @@ local definitions = {
 }
 for _, entry in ipairs(definitions) do
   Text.register(entry[1], entry[2])
+end
+-- A creature's own words (its name, card and banners) live in its package
+-- (PLAN F4: content/creatures/<id>/words.lua), in the same { id, template } form.
+for _, part in ipairs(require('src.content.creature_packages').parts('words')) do
+  for _, entry in ipairs(require(part.module)) do
+    Text.register(entry[1], entry[2])
+  end
 end
 return Text

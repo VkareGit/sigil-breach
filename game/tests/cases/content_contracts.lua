@@ -204,6 +204,21 @@ function Tests.run()
       .. table.concat(unvoiced, ', '),
     #unvoiced == 0
   )
+  -- And its words: the shared text table names no creature's own key.
+  local shared = love.filesystem.read('src/content/text.lua')
+  local unworded = {}
+  for _, id in ipairs(A.creatures) do
+    if
+      not love.filesystem.getInfo('src/content/creatures/' .. id .. '/words.lua', 'file')
+      or shared:find("'creature_" .. id, 1, true)
+    then
+      unworded[#unworded + 1] = id
+    end
+  end
+  check(
+    'every creature keeps its words in its package: ' .. table.concat(unworded, ', '),
+    #unworded == 0
+  )
   -- Every sigil names a kind of effect the fight knows (PLAN G2).
   local SigilRules = require('src.content.sigils')
   local SigilKinds = require('src.combat.sigil_kinds')
