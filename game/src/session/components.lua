@@ -144,7 +144,6 @@ C.schemas = {
     windup = f(0, nil, clock),
     windupDuration = f(nil),
     didHit = f(nil),
-    pendingHazard = f(nil),
     holdLeft = f(nil, 'stillness left after the windup (s)', clock),
     holdSpan = f(nil, 'the whole of that stillness (s): the pose and tell reach the blow with it'),
     chain = f(nil, 'id of the attack its string flows into'),

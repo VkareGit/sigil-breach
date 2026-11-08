@@ -315,6 +315,9 @@ Kinds.seize = {
     holding = 'id of the body in its grip',
     holdUntil = 'when that grip closes, on the strike clock',
   },
+  release = function(e)
+    act(e).holding, act(e).holdUntil = nil, nil
+  end,
   execute = face,
   strike = function(g, e, atk, dt, ctx)
     if act(e).holding then

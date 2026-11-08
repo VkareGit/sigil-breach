@@ -703,6 +703,15 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
             end
           end
         end
+        -- The registry of kinds lets each kind end its own state (abandon,
+        -- release, forget) and names none of it.
+        if id == 'src.combat.action_kinds' then
+          for name in code:gmatch('[%a_][%w_]*') do
+            if declaredState[name] then
+              failure('ATTACK STATE ' .. id .. ': ' .. name .. ' is the state of one kind')
+            end
+          end
+        end
         if simulation then
           for owner, name in code:gmatch('([%a_][%w_]*)%.([%a_][%w_]*)') do
             if declaredState[name] and owner ~= 'act' and owner ~= 'M' then

@@ -9,6 +9,7 @@ local Rules = require('src.combat.rules')
 local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').hazards
 local Pools = require('src.session.world')
+local ActionKinds = require('src.combat.action_kinds')
 local Bodies = require('src.combat.bodies')
 local HazardDefs = require('src.content.hazards')
 local Registry = require('src.core.registry')
@@ -115,7 +116,7 @@ Hazards.kinds:register('lightning', {
       -- The displayed circle shares the exact same clock as the casting pose.
       if owner.ai ~= 'windup' then
         h.life = 0
-        owner.pendingHazard = nil
+        ActionKinds.forget(owner)
       else
         h.delay = owner.windup
       end

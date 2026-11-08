@@ -11,8 +11,15 @@
 --   unseen                       needs no sight of its target
 local Action = require('src.content.defs.action')
 local Registry = require('src.core.registry')
-local Kinds = Registry:new('action executors', function(_, id)
+local Kinds = Registry:new('action executors', function(kind, id)
   Action.kinds:get(id)
+  -- A kind that changed its state brings every older one up (Kinds.resume).
+  for v = 1, (kind.version or 1) - 1 do
+    assert(
+      kind.migrations and type(kind.migrations[v]) == 'function',
+      'action executors: ' .. id .. ' has no migration from state version ' .. v
+    )
+  end
 end)
 -- The state of a committed attack belongs to its kind (PLAN F3): each kind
 -- declares what it keeps in e.act (state = { field = meaning }), a fresh
@@ -31,23 +38,58 @@ function Kinds.act(e)
   end
   return act
 end
--- A commitment broken before release: what it marked on the ground goes with it.
+-- What a kind does when its attack ends early, each optional, given the body
+-- (its state: Kinds.act(e)):
+--   abandon(e)   the commitment broke before release: what it marked goes
+--   release(e)   a holder that falters lets go
+--   forget(e)    the body fell: it keeps no hold on the world
+local function hook(e, name)
+  local spec = e.attackSpec
+  local kind = spec and e.act and Kinds:find(spec.kind)
+  if kind and kind[name] then
+    kind[name](e)
+  end
+end
+-- A commitment broken before release: its string and its stillness end, and
+-- its kind lets go of what it marked.
 function Kinds.abandon(e)
-  if e.act then
-    e.act.harvestMarks, e.act.streamHits = nil, nil
-  end
-  local mark = e.pendingHazard
-  if mark then
-    mark.cancelled = true
-    e.pendingHazard = nil
-  end
+  hook(e, 'abandon')
   e.chain, e.chainFrom, e.holdLeft, e.holdSpan = nil, nil, nil, nil
   Kinds.release(e)
 end
 -- A holder that falters lets go, whatever else it was doing.
 function Kinds.release(e)
-  if e.act then
-    e.act.holding, e.act.holdUntil = nil, nil
+  hook(e, 'release')
+end
+-- A body that fell keeps no hold on the world through its attack.
+function Kinds.forget(e)
+  hook(e, 'forget')
+end
+-- A kind may change the shape of its state (PLAN F3): it declares version
+-- (1 when absent) and migrations[v], which bring a state of version v to v + 1.
+-- A save records the version of every kind that has one (session/world.lua).
+function Kinds.versions()
+  local versions = {}
+  for _, id in ipairs(Kinds:ids()) do
+    local kind = Kinds:get(id)
+    if (kind.version or 1) > 1 then
+      versions[id] = kind.version
+    end
+  end
+  return versions
+end
+-- The state of a body from a save that recorded these versions, brought up
+-- to the version of its kind.
+function Kinds.resume(e, versions)
+  local spec = e.attackSpec
+  local kind = spec and e.act and Kinds:find(spec.kind)
+  if not kind then
+    return
+  end
+  local saved = versions and versions[spec.kind] or 1
+  for v = saved, (kind.version or 1) - 1 do
+    assert(kind.migrations and kind.migrations[v], spec.kind .. ': no state migration from ' .. v)
+    kind.migrations[v](e.act)
   end
 end
 return Kinds

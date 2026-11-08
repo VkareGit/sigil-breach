@@ -172,7 +172,7 @@ local function tickBody(g, e, dt, paused)
   end
   if e.hp <= 0 then
     e.leapY = nil
-    e.pendingHazard = nil
+    ActionKinds.forget(e)
     if e.hitPause > 0 then
       e.hitPause = math.max(0, e.hitPause - dt)
       return false

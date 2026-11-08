@@ -74,6 +74,20 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F3b, rodzaj kończy własny stan, 2026-11-08: miejsce oznaczone przez
+  piorun przed ciosem (dawne pole ciała pendingHazard) jest teraz stanem
+  jego rodzaju (e.act.mark). Rejestr rodzajów (combat/action_kinds.lua) nie
+  zna już pól żadnego rodzaju: rodzaj sam porzuca to, co oznaczył
+  (abandon), puszcza chwyt (release) i zwalnia odwołania do świata, gdy
+  ciało upada (forget). Rodzaj może zmienić kształt swojego stanu: deklaruje
+  version i migrations, zapis pul notuje wersje rodzajów, które je mają,
+  a wczytanie podnosi starszy stan w samym rodzaju, bez nowej migracji
+  całego zapisu. Zapis pul ma wersję 9. Zatrzymanie przed ciosem
+  (holdLeft, holdSpan), łańcuch i ciąg ciosów zostają polami ciała: to
+  zegary stanu ciała wspólne dla każdego rodzaju, jak windup, wygładzane
+  w obrazie (render/presentation.lua), a łańcuch i ciąg trwają dłużej niż
+  jeden atak. Zachowanie bez zmian.
+
 - F3a, stan ataku należy do jego rodzaju, 2026-11-08: dziewięć pól, które
   znał tylko jeden rodzaj ataku (strumień: trafione ciała; żniwa: oznaczone
   łaty; szarża: zwroty; cięcie: ślad; chwyt: trzymany i czas uchwytu; salwa
@@ -4523,6 +4537,17 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F3b, rodzaj kończy własny stan, 2026-11-08: nowe testy
+  w `content-contracts`, czerwone przed zmianą (brak ActionKinds.forget):
+  przerwany piorun anuluje swój znak, a upadły rzucający go puszcza; zapis
+  sprzed zmiany przenosi znak do e.act; rodzaj w wersji 2 podnosi stan
+  z zapisu bez wersji, a stanu z zapisu z bieżącą wersją nie rusza. Reguła
+  ATTACK STATE dostała warunek: rejestr rodzajów nie wymienia stanu żadnego
+  rodzaju; na starym rejestrze 7 miejsc, po zmianie 0. Testy pioruna
+  w `intent` i `encounters` czytają e.act.mark. Golden bez zmian. Pełne
+  Linux All PASS w osobnym klonie: 9045 sprawdzeń (o 3 więcej), golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F3a, stan ataku należy do jego rodzaju, 2026-11-08: reguła ATTACK STATE
   (tools/check: każde pole e.act zadeklarowane przez rodzaj, symulacja nie

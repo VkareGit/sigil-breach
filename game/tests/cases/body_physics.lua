@@ -182,7 +182,7 @@ function Tests.run(G, check)
     end
   end
   Attacks.begin(g, e, 5, assert(lightning))
-  local hazard = e.pendingHazard
+  local hazard = e.act.mark
   check(
     'lightning telegraph belongs to its committed caster',
     hazard and hazard.waitForCast and hazard.owner == e.id and near(hazard.delay, e.windup)
@@ -212,7 +212,7 @@ function Tests.run(G, check)
     life = 0.2,
     waitForCast = true,
   }
-  e.pendingHazard = pending
+  e.attackSpec, e.act = lightning, { mark = pending }
   e.ai = 'windup'
   e.windup = 0.2
   g.hazards = { pending }
@@ -220,7 +220,7 @@ function Tests.run(G, check)
   Hazards.update(g, 0.1, g.player)
   check(
     'interrupt immediately cancels owned telegraph without a rules-to-AI cycle',
-    pending.cancelled and not e.pendingHazard and e.ai == 'hurt' and #g.hazards == 0
+    pending.cancelled and not e.act.mark and e.ai == 'hurt' and #g.hazards == 0
   )
   check(
     'legacy AI entry points remain compatible after the split',

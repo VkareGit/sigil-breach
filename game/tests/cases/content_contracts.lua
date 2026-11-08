@@ -201,13 +201,77 @@ function Tests.run()
   ).enemies
   check(
     'an older save moves an attack in progress into its own state',
-    section.version == 8
+    section.version >= 8
       and moved[1].act
       and moved[1].act.turnsLeft == 2
       and moved[1].act.turnAt == 0.4
       and moved[1].turnsLeft == nil
       and moved[1].attackSpec == A.furfur.attacks[1]
       and moved[2].act == nil
+  )
+  -- What an attack marked on the ground, and how it lets go, are its kind's
+  -- (PLAN F3): the registry of kinds names no kind's own state.
+  local ActionKinds = require('src.combat.action_kinds')
+  local Components = require('src.session.components')
+  local lightning
+  for _, atk in ipairs(A.furfur.attacks) do
+    if atk.id == 'lightning' then
+      lightning = atk
+    end
+  end
+  local mark = {}
+  local caster = { attackSpec = lightning, act = { mark = mark } }
+  ActionKinds.abandon(caster)
+  local fallen = { attackSpec = lightning, act = { mark = {} } }
+  ActionKinds.forget(fallen)
+  check(
+    'a broken strike cancels the place it marked, and a fallen caster lets go of it',
+    mark.cancelled == true
+      and caster.act.mark == nil
+      and fallen.act.mark == nil
+      and Components.schemas.attacker.pendingHazard == nil
+  )
+  local marked = Tree.decode(section.migrations[8]({
+    pools = Tree.encode({
+      enemies = { { id = 9, attackSpec = lightning, act = {}, pendingHazard = { life = 1 } } },
+    }),
+  }).pools).enemies[1]
+  check(
+    'an older save moves a marked strike into its own state',
+    section.version >= 9 and marked.pendingHazard == nil and marked.act.mark.life == 1
+  )
+  -- A kind upgrades its own state (PLAN F3): the save records the version of
+  -- every kind that has one, and an older state is brought up by its kind.
+  local charge = ActionKinds:get(A.furfur.attacks[1].kind)
+  charge.version = 2
+  charge.migrations = {
+    [1] = function(state)
+      state.turnsLeft = state.turnsLeft + 1
+    end,
+  }
+  local versions = ActionKinds.versions()
+  local restored = section.unpack({
+    pools = Tree.encode({
+      knights = { { id = 1 } },
+      enemies = { { id = 2, attackSpec = A.furfur.attacks[1], act = { turnsLeft = 2 } } },
+    }),
+    controlled = 1,
+  })
+  local current = section.unpack({
+    pools = Tree.encode({
+      knights = { { id = 1 } },
+      enemies = { { id = 2, attackSpec = A.furfur.attacks[1], act = { turnsLeft = 2 } } },
+    }),
+    controlled = 1,
+    kinds = versions,
+  })
+  charge.version, charge.migrations = nil, nil
+  check(
+    'a kind brings the state of an older save up to its own version',
+    versions[A.furfur.attacks[1].kind] == 2
+      and restored.pools.enemies[1].act.turnsLeft == 3
+      and current.pools.enemies[1].act.turnsLeft == 2
+      and ActionKinds.versions()[A.furfur.attacks[1].kind] == nil
   )
   return lines
 end

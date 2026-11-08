@@ -146,12 +146,12 @@ function Tests.run(Game)
   -- Transition cancels an unreleased mark, but not existing projectiles.
   g, e = fresh()
   Actions.begin(g, e, 6, A.furfur.attacks[3])
-  local pending = e.pendingHazard
+  local pending = e.act.mark
   g.bullets[1] = { owner = e.id, life = 2 }
   g:damageEnemy(e, e.hp, 'weapon')
   check(
     'unreleased strike cancelled at phase boundary',
-    pending.cancelled and not e.pendingHazard and e.ai == 'recover'
+    pending.cancelled and not e.act.mark and e.ai == 'recover'
   )
   check(
     'released work retains owner and lifetime',

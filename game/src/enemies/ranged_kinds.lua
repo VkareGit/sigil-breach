@@ -113,10 +113,22 @@ Kinds.strike = {
   -- at commitment or release). A wall between caster and mark at release
   -- still cancels it (v10 rule).
   unseen = true,
+  state = { mark = 'the hazard marked on the ground, waiting for the cast' },
+  -- A broken cast takes its mark with it.
+  abandon = function(e)
+    local mark = act(e).mark
+    if mark then
+      mark.cancelled = true
+      act(e).mark = nil
+    end
+  end,
+  forget = function(e)
+    act(e).mark = nil
+  end,
   -- The thunderbolt is marked during the windup and released at execution.
   commit = function(g, e, atk)
     local packet = atk.packet
-    e.pendingHazard = Spawn.make(g, 'hazard', {
+    act(e).mark = Spawn.make(g, 'hazard', {
       kind = 'lightning',
       art = atk.art,
       impactSound = atk.impactSound,
@@ -139,10 +151,10 @@ Kinds.strike = {
   -- It waits for the cast; the mark is released with it.
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    local mark = e.pendingHazard
+    local mark = act(e).mark
     if mark then
       mark.waitForCast, mark.delay, mark.justReleased = false, 0, true
-      e.pendingHazard = nil
+      act(e).mark = nil
     end
   end,
 }

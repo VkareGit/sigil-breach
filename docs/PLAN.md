@@ -271,6 +271,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (zatrzymanie, łańcuch, ciąg, oznaczony cios na ziemi) i wersja stanu
   rodzaju w zapisie; klocki mechanik (wyrzut, pocisk, osad, fala, ruch
   ciała); wybór pozy z rejestru stanów i zegar symulacji dla póz maski.
+- 2026-11-08, **F3 krok b zrobiony:** znak pioruna w stanie rodzaju
+  (`e.act.mark`), haki rodzaju `abandon`/`release`/`forget` zamiast pól
+  rodzajów w rejestrze, wersja stanu rodzaju w zapisie (zapis pul 9).
+  Zatrzymanie, łańcuch i ciąg zostają na ciele jako zegary stanu ciała
+  (uzasadnienie w HISTORII). Golden bez zmian.
 
 ## Decyzje właściciela
 

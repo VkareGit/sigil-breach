@@ -20,6 +20,7 @@ local Roles = require('src.core.roles')
 local Tree = require('src.core.data_tree')
 local Save = require('src.storage.save')
 local Schema = require('src.core.schema')
+local ActionKinds = require('src.combat.action_kinds')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.
@@ -223,8 +224,23 @@ M.movedToAct = {
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 8,
+  version = 9,
   migrations = {
+    -- PLAN F3: the place a strike marks on the ground became its kind's own
+    -- state (act.mark).
+    [8] = function(data)
+      local all = Tree.decode(data.pools)
+      for _, list in pairs(all) do
+        for _, e in ipairs(list) do
+          if e.pendingHazard ~= nil then
+            e.act = e.act or {}
+            e.act.mark, e.pendingHazard = e.pendingHazard, nil
+          end
+        end
+      end
+      data.pools = Tree.encode(all)
+      return data
+    end,
     -- PLAN F3: the state of a committed attack moved off the body into
     -- e.act, the table its kind declares.
     [7] = function(data)
@@ -285,7 +301,13 @@ Save.declare({
         end
       end
     end
-    return { pools = Tree.encode(all, transient), controlled = controlled, nextId = g.nextId }
+    local kinds = ActionKinds.versions()
+    return {
+      pools = Tree.encode(all, transient),
+      controlled = controlled,
+      nextId = g.nextId,
+      kinds = next(kinds) and kinds or nil,
+    }
   end,
   unpack = function(t)
     assert(type(t) == 'table', 'pools')
@@ -307,12 +329,15 @@ Save.declare({
           assert(not ids[e.id], 'two members with one id')
           ids[e.id] = true
         end
+        -- An attack in progress resumes in the shape its kind keeps now.
+        ActionKinds.resume(e, t.kinds)
       end
     end
     local knights = all.knights
     assert(#knights >= 1, 'no knight')
     assert(type(t.controlled) == 'number' and knights[t.controlled] ~= nil, 'no controlled knight')
     assert(t.nextId == nil or type(t.nextId) == 'number', 'next id')
+    assert(t.kinds == nil or type(t.kinds) == 'table', 'kind versions')
     return {
       pools = all,
       controlled = t.controlled,

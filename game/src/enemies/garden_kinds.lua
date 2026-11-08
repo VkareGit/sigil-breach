@@ -14,6 +14,9 @@ local K = require('src.content.combat_defaults').attacks
 local Kinds = {}
 Kinds.stream = {
   state = { streamHits = 'bodies already met by the current finite exhale' },
+  abandon = function(e)
+    act(e).streamHits = nil
+  end,
   execute = function(g, e, a, angle)
     Contact.face(g, e, a, angle)
     local mouth = Stream.shape(g, e, a)
@@ -89,6 +92,9 @@ Kinds.sow = {
 }
 Kinds.harvest = {
   state = { harvestMarks = 'owned patches committed to the eruption; shared save references' },
+  abandon = function(e)
+    act(e).harvestMarks = nil
+  end,
   unseen = true,
   available = Garden.available,
   commit = function(g, e, a)
