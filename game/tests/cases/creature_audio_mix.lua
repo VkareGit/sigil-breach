@@ -118,12 +118,12 @@ function T.run(Game)
       drain()
     end
     for _, voices in ipairs({
-      require('src.audio.banks.owl_voices'),
-      require('src.audio.banks.iron_voices'),
-      require('src.audio.banks.garden_voices'),
-      require('src.audio.banks.ember_voices'),
-      require('src.audio.banks.furfur_voices'),
-      require('src.audio.banks.margrave_voices'),
+      require('src.content.creatures.stolas.voices'),
+      require('src.content.creatures.armored.voices'),
+      require('src.content.creatures.buer.voices'),
+      require('src.content.creatures.imp.voices'),
+      require('src.content.creatures.furfur.voices'),
+      require('src.content.creatures.boss.voices'),
     }) do
       for name, recipe in pairs(voices) do
         local paths, hashes = { recipe.path }, {}

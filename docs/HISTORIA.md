@@ -75,6 +75,17 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F4c, dźwięk stwora w pakiecie, 2026-11-08: banki głosów sześciu stworów
+  przeszły z `audio/banks/` do ich pakietów jako `voices.lua` (Ember Thrall:
+  imp, Iron Thrall: armored, Star Acolyte: stolas, Gardener: buer, Margrave:
+  boss, Furfur: furfur), a ich profile z `content/creature_audio.lua` jako
+  `audio.lua`. Nowy moduł `content/creature_packages.lua` podaje części danego
+  rodzaju ze wszystkich pakietów; `content/creature_audio.lua` i
+  `audio/recipes.lua` zbierają je stamtąd, więc nowy stwór nie edytuje tych
+  plików. W `audio/banks/` zostają banki wspólne (trafienia, medale, rytuały).
+  Checker: części pakietu są osiągalne z jego `init.lua`. Receptury i profile
+  bez zmian. Gra i golden bez zmian.
+
 - F4b, arkusz i anatomia w pakiecie stwora, 2026-11-08: arkusz atlasu
   i anatomia każdego stwora leżą w jego pakiecie (`sheet.lua`, `anatomy.lua`);
   listy atlasów (`content/art/sheets/index.lua`, `content/art/anatomy/index.lua`)
@@ -4709,6 +4720,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F4c, dźwięk stwora w pakiecie, 2026-11-08: nowe sprawdzenie
+  w `content-contracts`, czerwone przed zmianą: każdy stwór trzyma głosy
+  i profil dźwięku w pakiecie. Zestawy dźwięku stworów (lifecycle 112, mix
+  887, Gardener 71, Iron Thrall 55, Star Acolyte 72) bez zmian. Golden bez
+  zmian. Pełne Linux All PASS w osobnym klonie: 9076 sprawdzeń, golden 10
+  PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F4b, arkusz i anatomia w pakiecie stwora, 2026-11-08: nowe sprawdzenie
   w `content-contracts`, czerwone przed zmianą: każdy arkusz i każda anatomia

@@ -588,17 +588,25 @@ R.crypt_drip = {
 for _, name in ipairs({ 'shot', 'revolver', 'blast', 'thunder', 'afterimage' }) do
   R[name].priority = 2
 end
--- Every file of audio/banks is a bank of recipes (creature performances,
--- rites, medals, hits): a new bank is a new file there, never an edit here.
+-- Every file of audio/banks is a shared bank of recipes (rites, medals,
+-- hits), and every creature package keeps its own performances (PLAN F4:
+-- content/creatures/<id>/voices.lua): a new bank is a new file, never an
+-- edit here.
+local function bank(recipes)
+  for name, recipe in pairs(recipes) do
+    assert(not R[name], 'duplicate sound recipe ' .. name)
+    R[name] = recipe
+  end
+end
 local BANKS = 'src/audio/banks'
 local banks = love.filesystem.getDirectoryItems(BANKS)
 table.sort(banks)
 for _, file in ipairs(banks) do
-  local bank = file:match('^(.+)%.lua$')
-  assert(bank, BANKS .. ' holds only recipe banks: ' .. file)
-  for name, recipe in pairs(require('src.audio.banks.' .. bank)) do
-    assert(not R[name], 'duplicate sound recipe ' .. name)
-    R[name] = recipe
-  end
+  local name = file:match('^(.+)%.lua$')
+  assert(name, BANKS .. ' holds only recipe banks: ' .. file)
+  bank(require('src.audio.banks.' .. name))
+end
+for _, part in ipairs(require('src.content.creature_packages').parts('voices')) do
+  bank(require(part.module))
 end
 return R

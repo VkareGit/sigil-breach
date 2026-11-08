@@ -188,6 +188,22 @@ function Tests.run()
     'every atlas sheet and anatomy is in its creature package: ' .. table.concat(outside, ', '),
     #outside == 0
   )
+  -- Its voices and its audio profile live in its package too (PLAN F4); the
+  -- shared banks of audio/banks hold no creature's own voices.
+  local unvoiced = {}
+  for _, id in ipairs(A.creatures) do
+    for _, part in ipairs({ 'audio', 'voices' }) do
+      local path = 'src/content/creatures/' .. id .. '/' .. part .. '.lua'
+      if not love.filesystem.getInfo(path, 'file') then
+        unvoiced[#unvoiced + 1] = id .. '/' .. part
+      end
+    end
+  end
+  check(
+    'every creature keeps its voices and audio profile in its package: '
+      .. table.concat(unvoiced, ', '),
+    #unvoiced == 0
+  )
   -- Every sigil names a kind of effect the fight knows (PLAN G2).
   local SigilRules = require('src.content.sigils')
   local SigilKinds = require('src.combat.sigil_kinds')

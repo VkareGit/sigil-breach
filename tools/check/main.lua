@@ -539,6 +539,7 @@ end
 
 local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesPath)
   local sources, graph, errors, lines, numbers, crossing = {}, {}, {}, {}, {}, {}
+  local packages = {}
   local scaling = {}
   local function failure(message)
     errors[#errors + 1] = message
@@ -561,6 +562,9 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     end
     -- A package's init.lua is the module of its directory (require loads it).
     local id = relative:gsub('%.lua$', ''):gsub('/', '.'):gsub('%.init$', '')
+    if relative:match('/init%.lua$') then
+      packages[id] = true
+    end
     if governed(relative) then
       numbers[relative] = unnamedNumbers(text)
     end
@@ -888,6 +892,14 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       failure('GPU IN SIMULATION DATA ' .. id)
     end
     table.sort(graph[id])
+  end
+  -- A package owns its parts (PLAN F4: content/creatures/<id>/sheet.lua...):
+  -- what reaches the package reaches every module directly inside it.
+  for id in pairs(sources) do
+    local owner = id:match('^(.+)%.[%w_]+$')
+    if owner and packages[owner] and graph[owner] then
+      graph[owner][#graph[owner] + 1] = id
+    end
   end
   local reachable = {}
   local function visit(id)
