@@ -24,6 +24,12 @@ Creature.sounds = Schema:new('creature sounds', {
   breath = { type = 'string', voice = true },
   murmur = { type = 'string', voice = true },
 })
+-- A frozen copy of the attacks older saves resume (content/migrations/):
+-- a save of the pools section up to version through reads them there.
+Creature.savedAttacks = Schema:new('saved attacks', {
+  through = { type = 'number', required = true, min = 1, desc = 'last pools version' },
+  module = { type = 'string', required = true, desc = 'content/migrations module' },
+})
 Creature.evade = Schema:new('evade', {
   speed = { type = 'number', required = true, min = 0 },
   time = { type = 'number', required = true, min = 0 },
@@ -157,6 +163,11 @@ Creature.schema = Schema:new('creature', {
   move = { type = 'table', required = true },
   attacks = { type = 'table', required = true },
   answers = { type = 'table', list = Creature.answer, desc = 'blows that meet what it sees' },
+  savedAttacks = {
+    type = 'table',
+    list = Creature.savedAttacks,
+    desc = 'frozen attacks of older saves: { through, module }',
+  },
 })
 -- The boss template: a large guard that falters instead of breaking,
 -- longer stance, one attacker at a time, never a major wound from one hit.

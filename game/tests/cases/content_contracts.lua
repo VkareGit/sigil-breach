@@ -162,6 +162,34 @@ function Tests.run()
       and table.concat(Weapons.defaultLoadout, ',') == 'exorcist,judge'
       and table.concat(Abilities.defaultLoadout, ',') == 'powder'
   )
+  -- Each frozen copy of old attacks is declared by its creature (PLAN F2):
+  -- the save rules are built from those declarations, and a copy that no
+  -- creature declares stops the gate.
+  local declared, orphans = {}, {}
+  for _, id in ipairs(A.creatures) do
+    for _, saved in ipairs(A.get(id).savedAttacks or {}) do
+      declared[saved.module] = id
+    end
+  end
+  for _, file in ipairs(love.filesystem.getDirectoryItems('src/content/migrations')) do
+    local module = 'src.content.migrations.' .. file:match('^(.+)%.lua$')
+    if not declared[module] then
+      orphans[#orphans + 1] = module
+    end
+  end
+  check(
+    'every frozen copy of old attacks is declared by its creature: ' .. table.concat(orphans, ', '),
+    #orphans == 0
+  )
+  local old = { pools = { { ['$def'] = { 'src.content.enemies', 'boss', 'attacks', 2 } } } }
+  require('src.storage.definition_migration').pools(old, 6)
+  local resumed = old.pools[1]['$def']
+  check(
+    'an old Margrave attack resumes from the copy its creature declares',
+    resumed[1] == 'src.content.migrations.margrave_045'
+      and resumed[2] == 'attacks'
+      and resumed[3] == 2
+  )
   return lines
 end
 return Tests

@@ -9,6 +9,8 @@ local packet = require('src.content.defs.packet').new
 return Creature.boss({
   id = 'boss',
   name = 'creature_boss',
+  -- Saves up to pools 6 resume their attack before the landing refinement.
+  savedAttacks = { { through = 6, module = 'src.content.migrations.margrave_045' } },
   -- 250 souls (x10 on the way; was 1500) and two shells.
   souls = 25,
   ammo = { weapon = 'exorcist', chance = 1, least = 2, most = 2, executed = 2 },

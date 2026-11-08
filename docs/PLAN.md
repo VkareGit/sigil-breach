@@ -251,6 +251,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **F2 krok b zrobiony:** banki głosów z katalogu `audio/banks`,
   pola głosów oznaczone w schematach (`voice = true`) i sprawdzane wszędzie,
   sekcje profilu audio deklarowane przy czytniku. Golden bez zmian.
+- 2026-11-08, **F2 zrobione (krok d):** migracje z deklaracji stwora
+  (`savedAttacks`), bez osobnej listy reguł. Każda z pięciu list z przeglądu
+  powstaje teraz z deklaracji przy definicji, a brak deklaracji zatrzymuje
+  bramę. Zostaje poza F2: zapis ataku po id zamiast numeru na liście
+  (przegląd skalowalności), który usunąłby same kopie. Następny: E3.
 
 ## Decyzje właściciela
 

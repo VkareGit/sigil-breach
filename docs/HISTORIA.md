@@ -74,6 +74,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F2d, migracje z deklaracji stwora, 2026-11-08: stwór, którego ataki
+  zamrożono dla starszych zapisów, deklaruje to w swojej definicji
+  (savedAttacks = { { through, module } }: Margrave do wersji pul 6,
+  Gardener 4, Furfur 5). Reguły przepisania ścieżek w zapisie
+  (storage/definition_migration.lua) powstają z tych deklaracji; osobna
+  lista content/migrations/pool_definitions.lua usunięta. Wznawianie
+  starych zapisów bez zmian.
+
 - F2b, listy audio z deklaracji, 2026-11-08: banki głosów (stworów,
   rytuałów, medali i trafień) to pliki katalogu audio/banks; recipes.lua
   wczytuje każdy plik stamtąd zamiast własnej listy dziewięciu modułów.
@@ -4490,6 +4498,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F2d, migracje z deklaracji stwora, 2026-11-08: nowe testy
+  w `content-contracts` czerwone przed zmianą (żadna kopia w
+  content/migrations nie była zadeklarowana przez stwora). Po zmianie
+  zielone: każda kopia ma swojego stwora, a stary atak Margrave'a wznawia
+  się z kopii, którą stwór wskazuje. Testy starych Continue (`furfur`,
+  `plague-gardener`, `margrave-landing`) zielone. Golden bez zmian. Pełne
+  Linux All PASS w osobnym klonie: 9040 sprawdzeń (o 2 więcej), golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F2b, listy audio z deklaracji, 2026-11-08: nowe testy w `weapons`
   (tests/cases/audio.lua) czerwone przed zmianą: brak katalogu banków;
