@@ -74,6 +74,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F2a, bronie sklepu z deklaracji broni, 2026-11-08: broń sprzedawana przy
+  ognisku deklaruje swoje miejsce w zbrojowni (content/weapons.lua:
+  shop = { order }), a karta wynika z jej ilustracji (content/art/
+  weapon_frames.lua: card, komórka arkusza kart). Sklep, jego polecenia
+  i arkusz kart nie trzymają już listy dwóch broni (ui/fire_shop.lua,
+  app/commands.lua, ui/skin.lua). Wygląd i kolejność kart bez zmian.
+
 - E2c, jedna ścieżka lotu, 2026-11-08: skok stwora i padające ciało mają
   jedną ścieżkę na każdej mapie (enemies/flight.lua, enemies/body.lua).
   Wcześniej mapa bez podwyższeń szła osobną drogą: inny wzór czasu
@@ -4473,6 +4480,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F2a, bronie sklepu z deklaracji broni, 2026-11-08: nowy test
+  w `extension` (trzecia broń z `shop = { order = 3 }` pojawia się jako
+  trzecia karta i daje się wybrać wspólnym poleceniem) czerwony przed
+  zmianą (schemat broni nie znał pola), zielony po. Dwa nowe sprawdzenia
+  zatrzymują bramę, gdy oferta broni wskazuje broń bez deklaracji sklepu
+  albo broń w sklepie nie ma karty na arkuszu. Golden bez zmian. Pełne
+  Linux All PASS w osobnym klonie: 9008 sprawdzeń (o 4 więcej), golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - E2c, jedna ścieżka lotu, 2026-11-08: nowy test w `attack-contact`
   (skok i upadek na mapie płaskiej i na mapie z podwyższeniami równymi

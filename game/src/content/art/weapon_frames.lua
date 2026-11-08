@@ -252,6 +252,9 @@ present(A.judge, {
   { 1.55, 1, 5, 0.015 },
   { 1.85, 0, 0, 0 },
 })
+-- Each gun's cell on the shop's card sheet (ui/skin.lua: weapon cards).
+A.judge.card = 1
+A.exorcist.card = 2
 -- The shotgun holds its discharge drawing as long as its fire phases (0.44, V01).
 A.exorcist.automaticFireUntil = 0.14
 -- A trigger pull on an open cylinder closes it over readyAt (0.25 s).

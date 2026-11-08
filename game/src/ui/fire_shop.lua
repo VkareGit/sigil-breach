@@ -11,7 +11,6 @@ local SigilRules = require('src.content.sigils')
 local C = Skin.colors
 local Shop = {}
 local stations = { 'arsenal', 'vows', 'sigils' }
-local weapons = { 'judge', 'exorcist' }
 require('src.session.fields').declareView('ui.fire_shop', { 'shopStation', 'shopSelection' })
 function Shop.select(g, station, weapon)
   g.view.shopStation = station or g.view.shopStation
@@ -22,7 +21,7 @@ local function station(g)
   return g.view.shopStation or 'arsenal'
 end
 local function weapon(g)
-  return g.view.shopSelection or 'judge'
+  return g.view.shopSelection or Weapons.onShop()[1]
 end
 function Shop.offers(g)
   local out, current = {}, station(g)
@@ -51,7 +50,7 @@ function Shop.controls(g, elsewhere)
     }
   end
   if station(g) == 'arsenal' then
-    for i, id in ipairs(weapons) do
+    for i, id in ipairs(Weapons.onShop()) do
       list[#list + 1] = {
         id = 'shop_card_' .. id,
         label = Text.get(Weapons.get(id).hud.tab),

@@ -21,6 +21,7 @@ local W = {}
 local definitions = {
   {
     id = 'exorcist',
+    shop = { order = 2 },
     name = 'weapon_exorcist',
     -- HUD words (text keys): its title, what kind of gun, its slot tab, how it
     -- is drawn, and the notice when one pull would be short of rounds.
@@ -107,6 +108,7 @@ local definitions = {
   },
   {
     id = 'judge',
+    shop = { order = 1 },
     name = 'weapon_judge',
     hud = {
       title = 'weapon_judge_title',
@@ -194,6 +196,24 @@ function W.get(id)
 end
 function W.has(id)
   return registry:has(id)
+end
+-- The weapons sold at a fire, in their declared order (ties: catalogue order).
+function W.onShop()
+  local out, place = {}, {}
+  for index, id in ipairs(registry:ids()) do
+    local def = registry:get(id)
+    if def.shop then
+      out[#out + 1], place[id] = id, index
+    end
+  end
+  table.sort(out, function(a, b)
+    local x, y = registry:get(a).shop.order, registry:get(b).shop.order
+    if x ~= y then
+      return x < y
+    end
+    return place[a] < place[b]
+  end)
+  return out
 end
 -- Register a weapon definition (a new gun, a mod, a test).
 function W.define(def)

@@ -174,6 +174,48 @@ function Tests.run(G)
     armed:update(1 / 120, {})
   end
   check('the reload moves rounds from its own reserve', state.mag == 5 and state.reserve == 5)
+  -- The fire's arsenal lists every weapon declared for the shop, in its
+  -- declared place (PLAN F2): a new one edits neither the shop nor its commands.
+  local FireShop = require('src.ui.fire_shop')
+  Weapons.define({ extends = carbine, id = 'trial_shop_carbine', shop = { order = 3 } })
+  local market = Fixtures.arena(G)
+  local cards = {}
+  for _, control in ipairs(FireShop.controls(market)) do
+    cards[#cards + 1] = control.id:match('^shop_card_(.+)$')
+  end
+  check(
+    'the arsenal shows every weapon declared for the shop in its place',
+    table.concat(cards, ',') == 'judge,exorcist,trial_shop_carbine'
+  )
+  require('src.app.commands').dispatch(
+    { game = market, saveSettings = function() end },
+    'shop_card_trial_shop_carbine'
+  )
+  check(
+    'its card is chosen by the shared shop command',
+    market.view.shopSelection == 'trial_shop_carbine'
+  )
+  local unsold = {}
+  for _, offer in ipairs(require('src.content.shop').offers) do
+    if offer.weapon and not (Weapons.has(offer.weapon) and Weapons.get(offer.weapon).shop) then
+      unsold[#unsold + 1] = offer.id
+    end
+  end
+  check(
+    'every weapon offer belongs to a weapon declared for the shop: ' .. table.concat(unsold, ', '),
+    #unsold == 0
+  )
+  local uncarded = {}
+  for _, id in ipairs(Weapons.onShop()) do
+    if not pcall(require('src.ui.skin').cardCell, id) then
+      uncarded[#uncarded + 1] = id
+    end
+  end
+  check(
+    'every weapon on the shop has a card on the sheet: ' .. table.concat(uncarded, ', '),
+    #uncarded == 0
+  )
+  Weapons.registry:unregister('trial_shop_carbine')
   -- A spell from data alone: a bolt on the second ability slot, cast by the
   -- shared caster, flying through the shared projectile system into a demon.
   local Abilities = require('src.content.abilities')

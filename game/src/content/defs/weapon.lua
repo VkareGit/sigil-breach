@@ -120,6 +120,11 @@ Weapon.reload = Schema:new('weapon reload', {
   mechanism = { type = 'string', required = true, check = Reloads.problem },
   speed = { type = 'number', default = 1, min = 0.01, desc = 'how fast its timeline runs' },
 })
+-- Its place on a fire's arsenal (ui/fire_shop.lua); a weapon without it is
+-- never offered there. The card is its art's card (content/art/weapon_frames.lua).
+Weapon.shop = Schema:new('weapon shop card', {
+  order = { type = 'number', required = true, desc = 'place among the arsenal cards' },
+})
 Weapon.schema = Schema:new('weapon', {
   id = { type = 'string', required = true, desc = 'registry id (saves, loadouts)' },
   name = { type = 'string', required = true },
@@ -146,6 +151,7 @@ Weapon.schema = Schema:new('weapon', {
   glyphs = { type = 'table', default = {} },
   weight = { type = 'table', required = true, schema = Weapon.weight },
   reactions = Reaction.field,
+  shop = { type = 'table', schema = Weapon.shop, desc = 'sold at a fire: { order }' },
 })
 function Weapon.define(def)
   local parent = def.extends

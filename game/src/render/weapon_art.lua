@@ -1,16 +1,16 @@
 local Context = require('src.session.context')
 -- Read-only hand-animation sampler over the CPU artwork catalogue. The
 -- compatibility facade exposes existing metadata, never owns a second copy.
-local Metadata = require('src.content.weapon_art')
+local WeaponArtwork = require('src.content.weapon_art')
 local Weapons = require('src.content.weapons')
 local Reload = require('src.combat.reload')
-local WeaponArt = setmetatable({}, { __index = Metadata })
+local WeaponArt = setmetatable({}, { __index = WeaponArtwork })
 function WeaponArt.idOf(g, slot)
   local def = Weapons.inHand(g, slot, Context.actor(g))
   return def and (def.art or def.id)
 end
 function WeaponArt.of(g, slot)
-  return Metadata.get(WeaponArt.idOf(g, slot))
+  return WeaponArtwork.get(WeaponArt.idOf(g, slot))
 end
 local function rounds(g, entry, index)
   local variants = entry.frames[index].rounds
@@ -38,7 +38,7 @@ local function rounds(g, entry, index)
       count = held + math.max(0, pending - entry.frames[index].inHand)
     end
   end
-  return Metadata.variant(entry, index, count)
+  return WeaponArtwork.variant(entry, index, count)
 end
 function WeaponArt.fireFrame(g)
   local age = g.view.shotAge or math.huge
@@ -91,7 +91,7 @@ function WeaponArt.frame(g)
         return rounds(g, entry, key[2])
       end
     end
-    return rounds(g, entry, Metadata.frame(entry, entry.reloadComplete))
+    return rounds(g, entry, WeaponArtwork.frame(entry, entry.reloadComplete))
   end
   local progress = WeaponArt.interruptedProgress(g)
   if progress then
@@ -105,8 +105,8 @@ function WeaponArt.frame(g)
   if state and state.open then
     local name = Reload.mechanism(g, Weapons.slot(g, Context.actor(g)), Context.actor(g))
       .primed(state) and entry.open.primed or entry.open.empty
-    return rounds(g, entry, Metadata.frame(entry, name))
+    return rounds(g, entry, WeaponArtwork.frame(entry, name))
   end
-  return WeaponArt.fireFrame(g) or rounds(g, entry, Metadata.frame(entry, entry.ready))
+  return WeaponArt.fireFrame(g) or rounds(g, entry, WeaponArtwork.frame(entry, entry.ready))
 end
 return WeaponArt

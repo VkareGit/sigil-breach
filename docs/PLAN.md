@@ -244,6 +244,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   i przyspieszenie rycerza to wciąż dwie reguły), zdolności i liczby
   ruchu w definicji postaci; lądowanie rycerza na końcu kroku, stworów
   o czasie podłogi.
+- 2026-11-08, **F2 krok a zrobiony:** bronie sklepu z deklaracji broni
+  (`shop = { order }`, karta z ilustracji broni); sklep, polecenia i arkusz
+  kart bez listy broni. Wygładzanie było już z deklaracji pól (E4).
+  Następne: banki głosów, sekcje i pola głosów audio, migracje.
 
 ## Decyzje właściciela
 

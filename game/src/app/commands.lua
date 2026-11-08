@@ -146,8 +146,10 @@ for _, station in ipairs({ 'arsenal', 'vows', 'sigils' }) do
     UI.focus = 1
   end
 end
-for _, weapon in ipairs({ 'judge', 'exorcist' }) do
-  handlers['shop_card_' .. weapon] = function(app)
+-- A card per weapon sold at a fire, however many: the id names the weapon.
+local function shopCard(app, id)
+  local weapon = id:sub(#'shop_card_' + 1)
+  if Weapons.has(weapon) and Weapons.get(weapon).shop then
     require('src.ui.fire_shop').select(app.game, 'arsenal', weapon)
     UI.focus = 1
   end
@@ -287,8 +289,10 @@ function Commands.dispatch(app, id)
   if fieldCommand(app, id) then
     return
   end
-  -- A weapon tab per weapon, however many: the id names its slot.
-  local handler = handlers[id] or (id:match('^shop_weapon_%d+$') and shopWeapon)
+  -- A weapon tab and a shop card per weapon, however many: the id names it.
+  local handler = handlers[id]
+    or (id:match('^shop_weapon_%d+$') and shopWeapon)
+    or (id:match('^shop_card_') and shopCard)
   if handler then
     handler(app, id)
   elseif id:sub(1, 7) == 'remove_' then

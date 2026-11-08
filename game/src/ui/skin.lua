@@ -13,6 +13,10 @@ local S = {
 local lg = love.graphics
 local Resources = require('src.render.resources')
 local Text = require('src.content.text')
+local Weapons = require('src.content.weapons')
+local WeaponArtwork = require('src.content.weapon_art')
+-- The shop's weapon card sheet holds this many cards side by side.
+local CARD_CELLS = 2
 local names = {
   'health',
   'armor',
@@ -43,8 +47,9 @@ function S.init()
   S.weaponCards = S.resources:image('assets/art/weapon-cards-v45.png')
   S.weaponCardQuads = {}
   local cw, ch = S.weaponCards:getDimensions()
-  for i, id in ipairs({ 'judge', 'exorcist' }) do
-    S.weaponCardQuads[id] = S.resources:own(lg.newQuad((i - 1) * cw / 2, 0, cw / 2, ch, cw, ch))
+  local cell = cw / CARD_CELLS
+  for i = 1, CARD_CELLS do
+    S.weaponCardQuads[i] = S.resources:own(lg.newQuad((i - 1) * cell, 0, cell, ch, cw, ch))
   end
   S.image:setFilter('nearest', 'nearest')
   S.frames = {}
@@ -120,10 +125,28 @@ function S.release()
   painted = {}
   S.weaponCards, S.weaponCardQuads = nil, nil
 end
+-- A weapon's card is its art's cell on the card sheet (content/art/weapon_frames.lua).
+function S.cardCell(id)
+  local def = Weapons.get(id)
+  local cell = WeaponArtwork.get(def.art or def.id).card
+  assert(
+    type(cell) == 'number' and cell >= 1 and cell <= CARD_CELLS and cell % 1 == 0,
+    'weapon ' .. id .. ': its art has no cell on the shop card sheet'
+  )
+  return cell
+end
 function S.weaponCard(id, x, y, width, height)
   local w, h = S.weaponCards:getDimensions()
   lg.setColor(1, 1, 1)
-  lg.draw(S.weaponCards, S.weaponCardQuads[id], x, y, 0, width / (w / 2), height / h)
+  lg.draw(
+    S.weaponCards,
+    S.weaponCardQuads[S.cardCell(id)],
+    x,
+    y,
+    0,
+    width / (w / CARD_CELLS),
+    height / h
+  )
 end
 local function record(kind, label, x, y, w, h)
   if not S.audit then
