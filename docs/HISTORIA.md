@@ -74,6 +74,20 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E6a, broń jako profil silnika, 2026-11-08: ręce niosą broń według jej
+  własnego profilu. Definicja broni może mieć pole hands: nadpisania wspólnej
+  tabeli ruchu rąk (content/hand_motion.lua) pod tymi samymi nazwami, na
+  przykład głębsze opuszczenie w uniku albo inna sprężyna celowania.
+  feedback/hand_profile.lua składa profil broni w ręku, a weapon_motion czyta
+  liczby tylko przez niego. Profil z nazwą ruchu, którego ręce nie mają, jest
+  odrzucany przy definicji broni. Broń ma też własny bank dźwięku
+  przeładowania: reload.voices i reload.sounds nadpisują głos i głośność
+  etapu (otwarcie, ładowanie, zamknięcie) jej mechanizmu; zdarzenie etapu
+  niesie teraz broń przy każdym etapie. Masa, pęd, celowanie, noszenie
+  i kształt odrzutu (podbicie, cofnięcie, obrót, nadgarstek, kopnięcie
+  widoku) były już danymi broni (weight). Exorcist i Judge nie mają jeszcze
+  własnych nadpisań: obraz i dźwięk bez zmian.
+
 - F3e, klocki mechanik, 2026-11-08: nowy moduł enemies/mechanics.lua zbiera
   to, z czego składają się rodzaje ataku: wyrzut (origin: skąd pocisk
   opuszcza ciało), pocisk prosty (launch), pocisk łukiem (lob), znak na
@@ -4571,6 +4585,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E6a, broń jako profil silnika, 2026-11-08: nowe testy w `extension`,
+  czerwone przed zmianą: fikcyjna trzecia broń (bez dodawania jej do gry,
+  D20) z profilem rąk opuszcza się w uniku do 11 jednostek, a Exorcist dalej
+  do 4; profil z literówką w nazwie ruchu jest odrzucany; fikcyjna broń na
+  mechanizmie łamanym ładuje się własnym głosem (roundsIn), a Exorcist dalej
+  głosem mechanizmu (shellIn). Reguła HAND PROFILE: tabelę rąk czyta tylko
+  profil broni; na starym kodzie 1 miejsce, po zmianie 0. Golden bez zmian.
+  Pełne Linux All PASS w osobnym klonie: 9054 (o 3 więcej) sprawdzeń, golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F3e, klocki mechanik, 2026-11-08: nowy test w `extension`, czerwony
   przed zmianą (brak modułu klocków): rodzaj ataku złożony w teście tylko

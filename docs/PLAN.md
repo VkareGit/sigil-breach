@@ -286,6 +286,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   w `enemies/mechanics.lua` (wyrzut, pocisk, pocisk łukiem, znak na ziemi,
   seria); rodzaje z nich złożone, test rodzaju z samych klocków. Golden bez
   zmian. Następny: E6.
+- 2026-11-08, **E6 krok a zrobiony:** profil rąk broni (`hands`) i jej bank
+  dźwięku przeładowania (`reload.voices`, `reload.sounds`), reguła HAND
+  PROFILE, test fikcyjnej trzeciej broni. Golden bez zmian. Zostaje z E6:
+  punkty 2–8 planu Exorcista jako jego pierwszy profil (ciężar noszenia,
+  unik/ślizg/skok/dobycie, gest strzału, audio A/B, przestrzeń, grafika)
+  i druga próba właściciela.
 
 ## Decyzje właściciela
 

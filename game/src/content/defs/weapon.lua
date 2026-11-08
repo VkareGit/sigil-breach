@@ -14,6 +14,7 @@ local Text = require('src.content.text')
 local Ammo = require('src.content.ammo.index')
 local Reloads = require('src.content.reloads')
 local Triggers = require('src.content.triggers')
+local HandMotion = require('src.content.hand_motion')
 local Weapon = {}
 Weapon.pierce = Schema:new('body penetration', {
   bodies = { type = 'number', required = true, min = 0 },
@@ -116,15 +117,50 @@ Weapon.weight = Schema:new('weapon weight', {
   viewKickRate = { type = 'number', default = 30, min = 1 },
   thump = { type = 'number', default = 0, min = 0 },
 })
+-- Its own sound bank for the stages of its mechanism (open, load, close): a
+-- stage it names sounds as its own, the others as the mechanism's.
+Weapon.stageVoices = Schema:new('weapon reload voices', {
+  open = { type = 'string', voice = true },
+  load = { type = 'string', voice = true },
+  close = { type = 'string', voice = true },
+})
+Weapon.stageVolumes = Schema:new('weapon reload volumes', {
+  open = { type = 'number', min = 0 },
+  load = { type = 'number', min = 0 },
+  close = { type = 'number', min = 0 },
+})
 Weapon.reload = Schema:new('weapon reload', {
   mechanism = { type = 'string', required = true, check = Reloads.problem },
   speed = { type = 'number', default = 1, min = 0.01, desc = 'how fast its timeline runs' },
+  voices = { type = 'table', schema = Weapon.stageVoices, desc = 'its own voice of a stage' },
+  sounds = { type = 'table', schema = Weapon.stageVolumes, desc = 'its own volume of a stage' },
 })
 -- Its place on a fire's arsenal (ui/fire_shop.lua); a weapon without it is
 -- never offered there. The card is its art's card (content/art/weapon_frames.lua).
 Weapon.shop = Schema:new('weapon shop card', {
   order = { type = 'number', required = true, desc = 'place among the arsenal cards' },
 })
+-- A hand profile overrides the shared hand motion (content/hand_motion.lua)
+-- for one weapon: the same names, numbers for numbers, a spring for a spring.
+local function handProblem(value, shared, path)
+  if type(value) ~= 'table' then
+    return path .. ': expected a table'
+  end
+  for key, own in pairs(value) do
+    local base = shared[key]
+    local at = path .. '.' .. tostring(key)
+    if base == nil then
+      return at .. ': the hands have no such motion'
+    elseif type(base) == 'table' then
+      local problem = handProblem(own, base, at)
+      if problem then
+        return problem
+      end
+    elseif type(own) ~= type(base) then
+      return at .. ': expected a ' .. type(base)
+    end
+  end
+end
 Weapon.schema = Schema:new('weapon', {
   id = { type = 'string', required = true, desc = 'registry id (saves, loadouts)' },
   name = { type = 'string', required = true },
@@ -152,6 +188,13 @@ Weapon.schema = Schema:new('weapon', {
   weight = { type = 'table', required = true, schema = Weapon.weight },
   reactions = Reaction.field,
   shop = { type = 'table', schema = Weapon.shop, desc = 'sold at a fire: { order }' },
+  hands = {
+    type = 'table',
+    desc = 'how the hands carry it: overrides of content/hand_motion.lua',
+    check = function(value)
+      return handProblem(value, HandMotion, 'hands')
+    end,
+  },
 })
 function Weapon.define(def)
   local parent = def.extends

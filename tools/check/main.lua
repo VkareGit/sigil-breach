@@ -724,6 +724,17 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- A weapon is a profile given to the engine (PLAN E6): the hands read the
+  -- shared hand motion only through the profile of the weapon in hand.
+  for id, text in pairs(sources) do
+    if
+      id ~= 'src.feedback.hand_profile'
+      and id ~= 'src.content.defs.weapon'
+      and text:find("require%(%s*'src%.content%.hand_motion'%s*%)")
+    then
+      failure('HAND PROFILE ' .. id .. ': the hands read the profile of the weapon in hand')
+    end
+  end
   -- A creature's pose places its hit volumes (PLAN F3): every clock in
   -- src/enemies is the simulation's (g.elapsed), never the picture's (g.time),
   -- which runs on through a pause, a map or a menu.

@@ -275,24 +275,22 @@ World.handlers = {
     FX.emit(g, style.impact, b.x, b.y, b.z, 0.65)
     Audio.playAt(Profiles.projectile(g, b, 'impact'), b.x, b.z, Context.viewer(g), 0.23, 1, g.world)
   end,
-  -- A reload stage sounds as its mechanism's voice for it (the breech's
-  -- lever and shells, the cylinder's crane and ratchet).
+  -- A reload stage sounds as the weapon's own voice for it where its bank
+  -- names one (content/defs/weapon.lua: reload.voices, reload.sounds), else as
+  -- its mechanism's (the breech's lever and shells, the cylinder's crane).
   ReloadStage = function(g, ev)
     local actor = Recipient.actor(g, ev.actor)
     if not actor then
       return
     end
     local mechanism = Reload.mechanisms[ev.mechanism]
+    local own = Weapons.has(ev.weapon) and Weapons.get(ev.weapon).reload or {}
+    local voice = (own.voices or mechanism.voices)[ev.stage] or mechanism.voices[ev.stage]
+    local volume = (own.sounds or mechanism.sounds)[ev.stage] or mechanism.sounds[ev.stage]
     if Context.isControlled(g, actor) then
-      Audio.play(mechanism.voices[ev.stage], mechanism.sounds[ev.stage])
+      Audio.play(voice, volume)
     else
-      Audio.playAt(
-        mechanism.voices[ev.stage],
-        actor.x,
-        actor.z,
-        Context.viewer(g),
-        mechanism.sounds[ev.stage]
-      )
+      Audio.playAt(voice, actor.x, actor.z, Context.viewer(g), volume)
     end
     g = Recipient.context(g, actor)
     if not g then

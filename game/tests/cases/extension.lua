@@ -216,6 +216,78 @@ function Tests.run(G)
     #uncarded == 0
   )
   Weapons.registry:unregister('trial_shop_carbine')
+  -- A weapon is a profile given to the engine (PLAN E6): the hands carry a
+  -- third, trial weapon by its own numbers, and a profile naming a motion the
+  -- hands do not have is refused when the weapon is defined.
+  local Motion = require('src.feedback.weapon_motion')
+  Weapons.define({
+    extends = Weapons.get('exorcist'),
+    id = 'trial_long_gun',
+    hands = { lower = { dash = 11 }, aim = { reachX = 2 } },
+  })
+  local function dashLower(id)
+    local carried = Fixtures.arena(G)
+    carried.player.weapon = Weapons.give(carried, id)
+    Motion.init(carried)
+    carried.player.dashTimer = 1
+    for _ = 1, 240 do
+      Motion.update(carried, 1 / 120, 0, 0, 0)
+    end
+    return carried.view.weaponLower
+  end
+  local long, shotgun = dashLower('trial_long_gun'), dashLower('exorcist')
+  check(
+    'a weapon carries its own hand profile, the others keep the shared one',
+    math.abs(long - 11) < 0.01 and math.abs(shotgun - 4) < 0.01
+  )
+  check('a hand profile naming no motion of the hands is refused', not pcall(Weapons.define, {
+    extends = Weapons.get('exorcist'),
+    id = 'trial_bad_hands',
+    hands = { lower = { dahs = 11 } },
+  }) and not Weapons.has('trial_bad_hands'))
+  Weapons.registry:unregister('trial_long_gun')
+  -- Its reload sounds as its own bank: a weapon on a shared mechanism names
+  -- its own voice for a stage, and the others keep the mechanism's.
+  local voiced = Weapons.define({
+    extends = Weapons.get('exorcist'),
+    id = 'trial_rebored',
+    reload = { mechanism = 'breech', voices = { load = 'roundsIn' } },
+  })
+  local Audio = require('src.audio.audio')
+  local Reload = require('src.combat.reload')
+  local function loadVoices(id)
+    local heard, play, playAt = {}, Audio.play, Audio.playAt
+    Audio.play = function(name)
+      heard[name] = true
+    end
+    Audio.playAt = function(name)
+      heard[name] = true
+    end
+    local ok, reason = pcall(function()
+      local armed = Fixtures.arena(G)
+      armed.player.weapon = Weapons.give(armed, id)
+      local state = armed.player.arsenal[id]
+      state.mag, state.reserve = 0, 4
+      assert(Reload.start(armed, false))
+      for _ = 1, 2 * 120 do
+        armed:update(1 / 120, {})
+      end
+    end)
+    Audio.play, Audio.playAt = play, playAt
+    assert(ok, reason)
+    return heard
+  end
+  local own, shared = loadVoices('trial_rebored'), loadVoices('exorcist')
+  check(
+    'a weapon reloads with its own voice where it names one, the mechanism elsewhere',
+    voiced.reload.voices.load == 'roundsIn'
+      and own.roundsIn
+      and not own.shellIn
+      and own.breakOpen
+      and shared.shellIn
+      and not shared.roundsIn
+  )
+  Weapons.registry:unregister('trial_rebored')
   -- A spell from data alone: a bolt on the second ability slot, cast by the
   -- shared caster, flying through the shared projectile system into a demon.
   local Abilities = require('src.content.abilities')

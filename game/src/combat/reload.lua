@@ -67,6 +67,8 @@ local function build(id, data)
         local event = {
           stage = stage.name,
           mechanism = id,
+          -- The weapon reloaded: its own sound bank voices the stage.
+          weapon = Weapons.idAt(g, a.reloadWeapon, a),
           actor = a.id,
           byControlled = a == Roles.controlled(g),
         }
@@ -77,7 +79,6 @@ local function build(id, data)
           if data.ejects then
             -- The spent cases fly out now (feedback/world_feedback.lua).
             event.spent = w.spent or 0
-            event.weapon = Weapons.idAt(g, a.reloadWeapon, a)
           end
         elseif stage.name == 'load' then
           signalled = Weapons.load(g, a.reloadWeapon, a) > 0
