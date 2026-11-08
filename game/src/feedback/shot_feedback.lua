@@ -35,7 +35,8 @@ function Shot.discharge(g, e)
     personal.view.shotPower = e.shotPower
     personal.view.muzzle = fire.muzzle
     -- The report joins a shake already shown; it never lowers a stronger one.
-    Impulses.shake(personal.view, fire.shake)
+    -- Part of a pull (one barrel of two) shakes by its part.
+    Impulses.shake(personal.view, fire.shake * (e.shotPower or 1))
     personal.view.flashColor = { fire.flash[1], fire.flash[2], fire.flash[3] }
     -- Recoil belongs to the firing actor, never to whichever view renders next.
     Weight.shot(personal, Weapons.inHand(g, nil, p) or e.profile, e.shotPower or 1)

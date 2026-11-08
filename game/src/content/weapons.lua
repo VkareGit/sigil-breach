@@ -96,13 +96,18 @@ local definitions = {
       flip = 0.003,
       tail = 0.34,
       wrist = 0.014,
-      wristK = 280,
-      wristD = 28,
+      wristK = 420,
+      wristD = 35,
       wristLimit = 0.024,
-      -- Two barrels: the view climbs 2 degrees and settles in ~0.25 s; a
-      -- heavy thump under the report.
+      -- One gesture in the hands: the shove along the barrels peaks with the
+      -- rise and the wrist, and the grip catches it without a swing back,
+      -- before the breech opens.
+      backK = 420,
+      backD = 34,
+      -- Two barrels: the view climbs 2 degrees, a short accent ahead of the
+      -- hands, settled in ~0.14 s; a heavy thump under the report.
       viewKick = 0.035,
-      viewKickRate = 22,
+      viewKickRate = 34,
       thump = 0.36,
     },
     -- How the hands carry it (content/hand_motion.lua, the same names): two

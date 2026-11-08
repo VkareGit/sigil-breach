@@ -110,6 +110,10 @@ Weapon.weight = Schema:new('weapon weight', {
   wristK = { type = 'number', required = true },
   wristD = { type = 'number', required = true },
   wristLimit = { type = 'number', required = true },
+  -- The spring (stiffness, damping) that catches the shove along the barrels;
+  -- without them the shared one (content/tuning.lua: camera.hands.kickBack).
+  backK = { type = 'number', min = 1 },
+  backD = { type = 'number', min = 0 },
   -- The shot felt in the eyes and the gut (0.26 G6; presentation only): the
   -- view climbs viewKick rad and settles at rate (1/s, critically damped,
   -- always back before the next pull), and a low thump plays at this volume.

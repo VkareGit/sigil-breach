@@ -74,6 +74,22 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E6d, gest strzału, 2026-11-08 (punkt 4 planu Exorcista): wystrzał jest
+  jednym gestem. Dotąd pchnięcie wzdłuż luf miało szczyt po 42 ms, a uniesienie
+  i nadgarstek po 67 ms; pchnięcie odbijało 16% za spoczynek, a kamera
+  uspokajała się razem z rękami. Teraz pchnięcie ma szczyt po 50 ms, razem
+  z nadgarstkiem, blisko uniesienia (67 ms), i chwyt zatrzymuje broń bez odbicia
+  (1%). Wszystko w rękach uspokaja się przed otwarciem zamka (0,26 s).
+  Kamera daje krótki akcent przed rękami: te same 2° podbicia, szczyt po 33 ms,
+  uspokojenie po 167 ms zamiast 258 ms (miernik `feel`: 217 ms zamiast ok. 320
+  ms z E0). Ręce niosą resztę ciężaru. Jedna łuska jest teraz słabsza w każdym
+  kanale: wstrząs i rozszerzenie widoku też biorą moc wystrzału (0,025 i 0,8
+  zamiast 0,05 i 1,6). Silnik: sprężyna pchnięcia z danych broni (weight.backK,
+  weight.backD; bez nich wspólna). Exorcist: nadgarstek 420/35, pchnięcie
+  420/34, viewKickRate 34. Judge bez zmian (sonda: liczby identyczne).
+  Cel, rozrzut, obrażenia, odrzut ciał i kadencja bez zmian. Malowane klatki
+  strzału bez zmian. Rozstaw celownika (HUD) bez zmian: kanał recoil zostaje.
+
 - E6c, gesty uniku, ślizgu, skoku i dobycia, 2026-11-08 (punkt 3 planu
   Exorcista): silnik ma ogólny gest ciała w trzech fazach. Przyjęcie ciężaru
   to impuls przeciw ruchowi, gdy gest się zaczyna. Podtrzymanie to miejsce
@@ -4625,6 +4641,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E6d, gest strzału, 2026-11-08: pięć nowych sprawdzeń w `weight`
+  (tests/cases/weight.lua), czerwone przed zmianą: jedna łuska wstrząsa
+  i rozszerza widok mniej niż dwie; kanały rąk mają szczyt w 20 ms i nie
+  odbijają ponad 6%; ręce uspokajają się przed otwarciem zamka; kamera ma
+  szczyt przed rękami, do 34 ms, i uspokaja się co najmniej 50 ms wcześniej;
+  strzał Judge'a jak dawniej. Rendery sześciu chwil strzału (8–258 ms)
+  przed/po: malowane klatki bez zmian. Golden bez zmian. Pełne Linux All PASS
+  w osobnym klonie: 9078 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony. Odczucie ocenia właściciel w drugiej próbie.
 
 - E6c, gesty uniku, ślizgu, skoku i dobycia, 2026-11-08: dwanaście nowych
   sprawdzeń w `weight` (tests/cases/weapon_motion.lua), czerwone przed

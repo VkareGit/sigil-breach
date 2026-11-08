@@ -490,5 +490,97 @@ function Tests.run(G, check)
     'under 30 HP the heart is heard, faster as health fails',
     fast > (g.view.heartbeats or 0) and (g.view.heartbeats or 0) >= 2
   )
+  -- The shot as one gesture (Exorcist plan point 4): the hands take the weight
+  -- along the barrels and catch it before the breech opens, the view gives a
+  -- short accent first, and one barrel is weaker in every channel. Aim, spread,
+  -- damage and cadence are the simulation's and stay.
+  local step = 1 / 120
+  local handKeys = { 'kickBack', 'recoil', 'viewPunch', 'weaponShotRoll' }
+  local function pull(slot, rounds)
+    local q = fresh()
+    if q.player.weapon ~= slot then
+      q:switchWeapon(slot)
+    end
+    for _ = 1, 120 do
+      q:update(step, {})
+    end
+    if rounds then
+      q.player.arsenal.exorcist.mag = rounds
+    end
+    q:update(step, { shoot = true })
+    local first = { shake = q.view.shake, fov = q.view.fovKick }
+    local trace = { aimKick = {} }
+    for _, key in ipairs(handKeys) do
+      trace[key] = {}
+    end
+    for i = 1, 48 do
+      if i > 1 then
+        q:update(step, {})
+      end
+      for key, list in pairs(trace) do
+        list[i] = q.view[key]
+      end
+    end
+    return trace, first
+  end
+  -- Peak (its size and step), the share it swings back past rest, and the
+  -- last step it is above a twentieth of its peak.
+  local function shape(values)
+    local peak, at = 0, 0
+    for i, value in ipairs(values) do
+      if math.abs(value) > math.abs(peak) then
+        peak, at = value, i
+      end
+    end
+    local back, settled = 0, 0
+    for i = at, #values do
+      if values[i] * peak < 0 then
+        back = math.max(back, math.abs(values[i]))
+      end
+      if math.abs(values[i]) > math.abs(peak) * 0.05 then
+        settled = i
+      end
+    end
+    return math.abs(peak), at, back / math.max(math.abs(peak), 1e-12), settled
+  end
+  local both, bothFirst = pull(1, 2)
+  local one, oneFirst = pull(1, 1)
+  check(
+    'one barrel of the shotgun shakes and widens the view less than two',
+    oneFirst.shake > 0
+      and oneFirst.shake < bothFirst.shake * 0.6
+      and oneFirst.fov > 0
+      and oneFirst.fov < bothFirst.fov * 0.6
+      and shape(one.kickBack) < shape(both.kickBack) * 0.6
+      and shape(one.aimKick) < shape(both.aimKick) * 0.6
+  )
+  local opens = require('src.content.reloads'):get('breech').stages[1].at
+  local earliest, latest, swing, caught = math.huge, 0, 0, 0
+  for _, key in ipairs(handKeys) do
+    local _, at, back, settled = shape(both[key])
+    earliest, latest = math.min(earliest, at), math.max(latest, at)
+    swing, caught = math.max(swing, back), math.max(caught, settled)
+  end
+  check(
+    "the shotgun's hands take the shot as one gesture and the grip catches it",
+    (latest - earliest) * step < 0.02 and swing < 0.06
+  )
+  check("the shotgun's shot is caught in the hands before its breech opens", caught * step < opens)
+  local _, viewAt, _, viewSettled = shape(both.aimKick)
+  check(
+    'the view gives the shotgun a short accent before the hands and settles first',
+    viewAt < earliest and viewAt * step <= 0.034 and (caught - viewSettled) * step >= 0.05
+  )
+  local revolver = pull(2)
+  local backPeak, backAt, backSwing = shape(revolver.kickBack)
+  local viewPeak, revolverViewAt = shape(revolver.aimKick)
+  check(
+    "the revolver's shot moves as it did",
+    math.abs(backPeak - 0.5458) < 1e-3
+      and backAt == 5
+      and math.abs(backSwing - 0.16) < 0.01
+      and math.abs(viewPeak - 0.0179) < 1e-3
+      and revolverViewAt == 4
+  )
 end
 return Tests

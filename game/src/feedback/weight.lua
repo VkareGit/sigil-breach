@@ -75,6 +75,12 @@ end
 function W.relative(p, x, z)
   return angle(atan2(x - p.x, z - p.z) - (p.yaw or 0))
 end
+-- The spring that catches the shove along the barrels: the weapon's own
+-- (weight.backK, weight.backD), else the shared one.
+function W.backSpring(w)
+  local shared = hands.kickBack
+  return { w.backK or shared[1], w.backD or shared[2], limits = shared.limits }
+end
 -- The shot: recoil impulse = discharge momentum * power / weapon mass.
 function W.shot(g, profile, power)
   local w = profile.weight
@@ -86,14 +92,14 @@ function W.shot(g, profile, power)
   Impulses.kick(g.view, 'recoil', kick, camera.recoilSpring, age)
   g.view.shotAge = age
   g.view.interruptedClose = nil
-  g.view.fovKick = w.fov
+  g.view.fovKick = w.fov * power
   g.view.rollSide = -g.view.rollSide
   if g.view.motion ~= false then
     Impulses.kick(g.view, 'rollPunch', g.view.rollSide * w.roll * kick, hands.rollPunch, age)
     -- The hands rise and move back, then settle past rest once.
     -- Body punch moves the hands without changing the authoritative shot.
     Impulses.kick(g.view, 'viewPunch', (w.punch or 0) * kick, hands.viewPunch, age)
-    Impulses.kick(g.view, 'kickBack', (w.back or 0) * kick, hands.kickBack, age)
+    Impulses.kick(g.view, 'kickBack', (w.back or 0) * kick, W.backSpring(w), age)
     g.view.kickFlip = w.flip or 0
     -- A single, damped wrist catch, with a consistent firing-hand direction.
     -- It is driven by the same momentum as the axial shove, never by RNG.
@@ -281,7 +287,9 @@ function W.update(g, dt)
   if g.view.motion == false then
     W.clearMotion(g)
   else
+    local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
     for key, spring in pairs(hands) do
+      spring = key == 'kickBack' and W.backSpring(w) or spring
       local rate = key .. 'V'
       g.view[key], g.view[rate] =
         Kinematics.spring(g.view[key], g.view[rate], 0, spring[1], spring[2], dt)
@@ -290,7 +298,6 @@ function W.update(g, dt)
     local kick = aimSpring(g.view.aimKickRate)
     g.view.aimKick, g.view.aimKickV =
       Kinematics.spring(g.view.aimKick, g.view.aimKickV, 0, kick[1], kick[2], dt)
-    local w = (Weapons.inHand(g, nil, Context.actor(g)) or Weapons.profile(1, g, Context.actor(g))).weight
     g.view.weaponShotRoll, g.view.weaponShotRollV =
       Kinematics.spring(g.view.weaponShotRoll, g.view.weaponShotRollV, 0, w.wristK, w.wristD, dt)
     local limit = w.wristLimit

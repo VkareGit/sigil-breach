@@ -303,6 +303,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   z osadzeniem kolby Exorcista. Pierwszeństwo przeładowania, flaski i prochu;
   gest nie przechodzi na inną broń. Judge bez zmian. Golden bez zmian.
   Następny: punkt 4 (gest strzału).
+- 2026-11-08, **E6 krok d zrobiony (punkt 4 planu Exorcista):** strzał jako
+  jeden gest: pchnięcie, uniesienie i nadgarstek razem, chwyt bez odbicia,
+  spokój przed otwarciem zamka; kamera krótszym akcentem przed rękami; jedna
+  łuska słabsza we wstrząsie i widoku. Judge bez zmian. Golden bez zmian.
+  Zostaje z E6: druga próba właściciela (strzelanie), audio A/B (punkty 6–7,
+  odsłuch właściciela) i grafika (punkt 8, pozy do akceptacji).
 
 ## Decyzje właściciela
 
