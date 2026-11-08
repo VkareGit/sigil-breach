@@ -1,8 +1,6 @@
 -- Reusable ground pattern delivery. A release places a bounded set of marks;
 -- the existing hazard system owns warning time, contact volume and lifetime.
-local Hazards = require('src.enemies.hazards')
-local Rules = require('src.combat.rules')
-local Bodies = require('src.combat.bodies')
+local Mechanics = require('src.enemies.mechanics')
 local Arena = require('src.world.arena')
 local Pattern = {}
 function Pattern.release(g, e, attack, angle)
@@ -16,7 +14,7 @@ function Pattern.release(g, e, attack, angle)
     local mx = x + forwardX * mark.forward + forwardZ * mark.lateral
     local mz = z + forwardZ * mark.forward - forwardX * mark.lateral
     if Arena.visible(g.world, e.x, e.z, mx, mz) then
-      Hazards.add(g, mx, mz, mark.delay, attack.radius, attack.life, {
+      Mechanics.deposit(g, e, mx, mz, level, mark.delay, attack.radius, attack.life, {
         kind = attack.hazard,
         art = attack.art,
         impactSound = attack.impactSound,
@@ -24,9 +22,6 @@ function Pattern.release(g, e, attack, angle)
         pulse = attack.pulse,
         condition = attack.condition,
         volume = attack.volume,
-        owner = e.id,
-        side = Bodies.side(g, e),
-        level = level,
       })
     end
   end

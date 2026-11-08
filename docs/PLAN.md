@@ -282,6 +282,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   symulacji (reguła POSE CLOCK); obraz wygładza go między krokami. W pauzie
   stwór stoi. Golden bez zmian. Znalezisko: w spoczynkowej klatce 28
   chochlika pocisk w namalowany korpus mija bryłę trafień (HISTORIA).
+- 2026-11-08, **F3 krok e zrobiony, F3 zamknięty:** klocki mechanik
+  w `enemies/mechanics.lua` (wyrzut, pocisk, pocisk łukiem, znak na ziemi,
+  seria); rodzaje z nich złożone, test rodzaju z samych klocków. Golden bez
+  zmian. Następny: E6.
 
 ## Decyzje właściciela
 

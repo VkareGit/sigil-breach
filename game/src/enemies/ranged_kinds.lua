@@ -6,108 +6,23 @@ local act = ActionKinds.act
 -- content/defs/action.lua.
 local Archetypes = require('src.content.enemies')
 local Spawn = require('src.session.spawn')
-local MathX = require('src.core.mathx')
-local Ground = require('src.physics.ground')
 local Rules = require('src.combat.rules')
-local Hazards = require('src.enemies.hazards')
 local Bodies = require('src.combat.bodies')
 local Contact = require('src.enemies.attack_contact')
-local Shape = require('src.combat.projectile_shape')
 local Schema = require('src.core.schema')
 local Caster = require('src.combat.caster')
-local Anchor = require('src.enemies.contact_anchor')
-local Ballistics = require('src.combat.ballistics')
 local Defaults = require('src.content.combat_defaults')
 local K = Defaults.attacks
 local Pools = require('src.session.world')
 local Signal = require('src.session.signal')
 local Arena = require('src.world.arena')
 local sin, cos = math.sin, math.cos
-local len = MathX.len
+local Mechanics = require('src.enemies.mechanics')
 local Kinds = {}
 Kinds.pattern = { execute = require('src.enemies.ground_pattern').release }
--- A missile leaves a caster's mouth along its aim. radius: its own collision
--- radius, also its painted size.
-local function launch(g, spec, speed, caster)
-  if not caster then
-    return false
-  end
-  Spawn.make(g, 'projectile', {
-    x = caster.mx,
-    y = caster.my,
-    z = caster.mz,
-    vx = caster.dx * speed,
-    vz = caster.dz * speed,
-    vy = caster.rise * speed / caster.run,
-    life = K.boltLife,
-    big = spec.big or false,
-    color = spec.color,
-    owner = caster.owner,
-    side = caster.side,
-    packet = spec.packet,
-    radius = Shape.radius(spec),
-  })
-  return true
-end
--- A creature casts from its body at the mark it took, angle a.
-local function aimed(g, e, a, spec)
-  -- Launched and aimed at heights above the ground (physics/ground.lua).
-  local ground = Ground.of(g.world, e)
-  local y = ground + (e.leapY or 0) + spec.height
-  local d = len(e.aimX - e.x, e.aimZ - e.z)
-  if spec.originAnchor then
-    local x, ay, z = Anchor.point(g, e, e.phase or 0, e.x, e.z, spec.originAnchor)
-    if not x then
-      return nil
-    end
-    local sy = ground + ay
-    local dx, dy, dz = x - e.x, sy - y, z - e.z
-    local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-    if
-      distance > 0
-      and Ballistics.world(
-          g.world,
-          e.x,
-          y,
-          e.z,
-          dx / distance,
-          dy / distance,
-          dz / distance,
-          distance
-        )
-        < distance
-    then
-      return nil
-    end
-    local run = math.max(K.aimClearance, len(e.aimX - x, e.aimZ - z))
-    return {
-      body = e,
-      owner = e.id,
-      side = Bodies.side(g, e),
-      mx = x,
-      my = sy,
-      mz = z,
-      dx = (e.aimX - x) / run,
-      dz = (e.aimZ - z) / run,
-      run = run,
-      rise = Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel)
-        + (spec.aimHeight or K.aimHeight)
-        - sy,
-    }
-  end
-  return {
-    body = e,
-    owner = e.id,
-    side = Bodies.side(g, e),
-    mx = e.x + sin(a) * K.muzzle,
-    my = y,
-    mz = e.z + cos(a) * K.muzzle,
-    dx = sin(a),
-    dz = cos(a),
-    rise = Ground.height(g.world, e.aimX, e.aimZ, e.aimLevel) + (spec.aimHeight or K.aimHeight) - y,
-    run = math.max(1, d - K.muzzle),
-  }
-end
+-- Missiles and marks are the engine's blocks (enemies/mechanics.lua).
+local launch, origin, deposit = Mechanics.launch, Mechanics.origin, Mechanics.deposit
+local series = Mechanics.series
 Kinds.strike = {
   -- A strike falls on a marked place: its mark never moves (no retargeting
   -- at commitment or release). A wall between caster and mark at release
@@ -161,16 +76,13 @@ Kinds.strike = {
 Kinds.pool = {
   execute = function(g, e, atk, a)
     local pool = atk.pool
-    Hazards.add(g, e.aimX, e.aimZ, pool.delay, pool.radius, pool.life, {
+    deposit(g, e, e.aimX, e.aimZ, e.aimLevel, pool.delay, pool.radius, pool.life, {
       packet = pool.packet,
       pulse = pool.pulse,
       condition = pool.condition,
       volume = pool.volume,
-      owner = e.id,
-      level = e.aimLevel,
-      side = Bodies.side(g, e),
     })
-    launch(g, atk.bolt, atk.bolt.speed, aimed(g, e, a, atk.bolt))
+    launch(g, atk.bolt, atk.bolt.speed, origin(g, e, a, atk.bolt))
   end,
 }
 Kinds.fan = {
@@ -179,27 +91,22 @@ Kinds.fan = {
     local n = rage and atk.rageCount or atk.count
     for j = 1, n do
       local angle = a + (j - (n + 1) / 2) * atk.spread
-      launch(g, atk, rage and atk.rageSpeed or atk.speed, aimed(g, e, angle, atk))
+      launch(g, atk, rage and atk.rageSpeed or atk.speed, origin(g, e, angle, atk))
     end
     local line = atk.line
     if line and e.attackCount % line.every == 0 then
       for j = 1, line.count do
         local d = j * line.step
-        Hazards.add(
+        deposit(
           g,
+          e,
           e.aimX + cos(a) * d - 3 * cos(a),
           e.aimZ - sin(a) * d + 3 * sin(a),
+          e.aimLevel,
           line.delay,
           line.radius,
           line.life,
-          {
-            packet = line.packet,
-            pulse = line.pulse,
-            volume = line.volume,
-            owner = e.id,
-            side = Bodies.side(g, e),
-            level = e.aimLevel,
-          }
+          { packet = line.packet, pulse = line.pulse, volume = line.volume }
         )
       end
     end
@@ -283,54 +190,45 @@ Kinds.tempest = {
   end,
 }
 -- Missiles let go in turn, each at where the target is by then.
+local function missile(g, e, atk, t)
+  e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
+  local a = math.atan2(e.aimX - e.x, e.aimZ - e.z)
+  launch(g, atk, atk.speed, origin(g, e, a, atk))
+end
 Kinds.salvo = {
-  state = { released = 'missiles let go so far' },
+  state = series.state,
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    act(e).released = 0
+    series.start(e)
   end,
   strike = function(g, e, atk)
-    while act(e).released < atk.count and e.phase >= act(e).released * atk.interval do
-      local t = Contact.victim(g, e)
-      act(e).released = act(e).released + 1
-      e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
-      local a = math.atan2(e.aimX - e.x, e.aimZ - e.z)
-      launch(g, atk, atk.speed, aimed(g, e, a, atk))
-    end
+    series.step(g, e, atk, missile)
   end,
-  duration = function(e, atk)
-    return (atk.count - 1) * atk.interval + atk.duration
-  end,
+  duration = series.duration,
 }
 -- Bolts marked where the target stands, falling when it may have left.
+local function bolt(g, e, atk, t)
+  if not atk.requireSight or Rules.sees(g, e, t) then
+    deposit(g, e, t.x, t.z, t.level, atk.delay, atk.radius, atk.life, {
+      kind = 'lightning',
+      art = atk.art,
+      impactSound = atk.impactSound,
+      packet = atk.packet,
+      volume = atk.volume,
+    })
+  end
+end
 Kinds.storm = {
-  state = { released = 'bolts marked so far' },
+  state = series.state,
   unseen = true,
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    act(e).released = 0
+    series.start(e)
   end,
   strike = function(g, e, atk)
-    while act(e).released < atk.count and e.phase >= act(e).released * atk.interval do
-      local t = Contact.victim(g, e)
-      act(e).released = act(e).released + 1
-      if not atk.requireSight or Rules.sees(g, e, t) then
-        Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
-          kind = 'lightning',
-          art = atk.art,
-          impactSound = atk.impactSound,
-          packet = atk.packet,
-          volume = atk.volume,
-          owner = e.id,
-          side = Bodies.side(g, e),
-          level = t.level,
-        })
-      end
-    end
+    series.step(g, e, atk, bolt)
   end,
-  duration = function(e, atk)
-    return (atk.count - 1) * atk.interval + atk.duration
-  end,
+  duration = series.duration,
 }
 -- The body is gone and stands where the target must turn to find it: the first
 -- free place on a fixed list of bearings, so its path can be learnt.
@@ -396,7 +294,7 @@ Kinds.bolt = {
   end,
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    launch(g, atk, atk.speed, aimed(g, e, a, atk))
+    launch(g, atk, atk.speed, origin(g, e, a, atk))
   end,
 }
 return Kinds

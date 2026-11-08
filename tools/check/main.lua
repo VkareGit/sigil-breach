@@ -674,11 +674,13 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     end
   end
   -- The state of a committed attack belongs to its kind (PLAN F3): every
-  -- e.act field is declared by a kind (state = { ... } in src/enemies/*_kinds),
+  -- e.act field is declared by a kind (state = { ... } in src/enemies/*_kinds
+  -- or a block of enemies/mechanics.lua),
   -- and simulation never keeps such a field on the body itself.
   local declaredState = {}
   for id, text in pairs(sources) do
-    if id:match('^src%.enemies%.[%w_]*_kinds$') then
+    -- The blocks a kind is made of declare their own state (enemies/mechanics.lua).
+    if id:match('^src%.enemies%.[%w_]*_kinds$') or id == 'src.enemies.mechanics' then
       for block in text:gmatch('\n%s*state%s*=%s*(%b{})') do
         for name in block:gmatch('([%a_][%w_]*)%s*=') do
           declaredState[name] = true

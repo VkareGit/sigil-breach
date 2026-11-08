@@ -74,6 +74,19 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F3e, klocki mechanik, 2026-11-08: nowy moduł enemies/mechanics.lua zbiera
+  to, z czego składają się rodzaje ataku: wyrzut (origin: skąd pocisk
+  opuszcza ciało), pocisk prosty (launch), pocisk łukiem (lob), znak na
+  ziemi należący do ciała (deposit) i serię ciosów w odstępach na zegarze
+  ciosu (series, z własnym zadeklarowanym stanem). Rodzaje bolt, fan, pool,
+  salvo, storm, sow i rytuał na ziemi (pattern) składają się z tych klocków
+  zamiast z własnych kopii; salwa i burza dzielą jedną serię. Fala, promień
+  i burza w pokoju to rodzaje zagrożeń (enemies/hazards.lua), więc zostają
+  klockami po stronie zagrożeń. Ruch ciała jest wspólny od E2. Strumień ma
+  własny kształt styku, wspólny z obrazem (combat/stream.lua), i nie
+  rozkłada się na te klocki bez zmiany zachowania. Nowy rodzaj złożony
+  z klocków nie wymaga zmiany silnika. Zachowanie bez zmian.
+
 - F3d, poza na zegarze symulacji, 2026-11-08: trzy zegary w pozie stwora
   czytały zegar obrazu (g.time), który biegnie także w pauzie, na mapie
   i w menu: unoszenie Stolasa (klatka, wysokość, pochylenie), oddech
@@ -4558,6 +4571,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F3e, klocki mechanik, 2026-11-08: nowy test w `extension`, czerwony
+  przed zmianą (brak modułu klocków): rodzaj ataku złożony w teście tylko
+  z serii i znaku na ziemi, użyty przez niezmienioną SI, zostawia trzy znaki
+  co 0,25 s w miejscu celu i znika po usunięciu. Reguła ATTACK STATE czyta
+  też stan deklarowany przez klocki. Testy `furfur`, `plague-gardener`
+  i `star-acolyte` (burza, zasiew, salwa) bez zmian. Golden bez zmian.
+  Pełne Linux All PASS w osobnym klonie: 9051 (o 1 więcej) sprawdzeń, golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F3d, poza na zegarze symulacji, 2026-11-08: nowe testy w `animation`,
   czerwone przed zmianą: pauza (sam zegar obrazu) nie zmienia pozy ciała

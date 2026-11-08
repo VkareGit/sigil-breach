@@ -1,4 +1,3 @@
-local Spawn = require('src.session.spawn')
 local ActionKinds = require('src.combat.action_kinds')
 local act = ActionKinds.act
 local Pools = require('src.session.world')
@@ -10,7 +9,7 @@ local Area = require('src.combat.area_contact')
 local Stream = require('src.combat.stream')
 local Garden = require('src.combat.garden')
 local Dodge = require('src.combat.dodge')
-local K = require('src.content.combat_defaults').attacks
+local Mechanics = require('src.enemies.mechanics')
 local Kinds = {}
 Kinds.stream = {
   state = { streamHits = 'bodies already met by the current finite exhale' },
@@ -65,27 +64,7 @@ Kinds.sow = {
       if room or not a.needsSpace then
         local tx = e.aimX + math.sin(angle) * mark.forward + math.cos(angle) * mark.lateral
         local tz = e.aimZ + math.cos(angle) * mark.forward - math.sin(angle) * mark.lateral
-        local dx, dz = tx - x, tz - z
-        local length = math.sqrt(dx * dx + dz * dz)
-        local time = math.max(K.seedMinFlight, length / a.speed)
-        local targetY = Ground.height(g.world, tx, tz, e.aimLevel) + a.radius
-        Spawn.make(g, 'projectile', {
-          x = x,
-          y = y,
-          z = z,
-          vx = dx / time,
-          vz = dz / time,
-          vy = (targetY - y) / time + a.gravity * time * 0.5,
-          gravity = a.gravity,
-          life = K.boltLife,
-          radius = a.radius,
-          color = a.color,
-          packet = a.packet,
-          owner = e.id,
-          side = Bodies.side(g, e),
-          art = a.art,
-          deposit = room and a.deposit or nil,
-        })
+        Mechanics.lob(g, e, x, y, z, tx, tz, e.aimLevel, a, room and a.deposit or nil)
       end
     end
   end,

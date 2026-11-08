@@ -342,6 +342,88 @@ function Tests.run(G)
     cell.zone == 'CELL WEST' and cell.player.z ~= 10
   )
   Maps:unregister('trial_cell')
+
+  -- A new mechanic made only of the engine's blocks (PLAN F3): a rain of
+  -- ground marks let go one after another where the target stands, a series
+  -- of deposits. The kind declares no state and no clock of its own.
+  local ActionKinds = require('src.combat.action_kinds')
+  Action.defineKind('trial_rain', {
+    count = { type = 'number', min = 1 },
+    interval = { type = 'number', min = 0 },
+    delay = { type = 'number', min = 0 },
+    radius = { type = 'number', min = 0 },
+    life = { type = 'number', min = 0 },
+  }, { 'count', 'interval', 'delay', 'radius', 'life', 'packet' })
+  local blocks, Mechanics = pcall(require, 'src.enemies.mechanics')
+  local fell = {}
+  if blocks then
+    local function fall(world, e, atk, t)
+      fell[#fell + 1] = e.phase
+      Mechanics.deposit(world, e, t.x, t.z, t.level, atk.delay, atk.radius, atk.life, {
+        packet = atk.packet,
+        pulse = atk.interval,
+      })
+    end
+    ActionKinds:register('trial_rain', {
+      state = Mechanics.series.state,
+      unseen = true,
+      execute = function(_, e)
+        Mechanics.series.start(e)
+      end,
+      strike = function(world, e, atk)
+        Mechanics.series.step(world, e, atk, fall)
+      end,
+      duration = Mechanics.series.duration,
+    })
+  end
+  Fixtures.words({ trial_rainer = 'Trial Rainer' })
+  A.register(Creature.define({
+    extends = A.imp,
+    id = 'trial_rainer',
+    kind = 'imp',
+    variant = 'trial_rainer',
+    name = 'trial_rainer',
+    attacks = {
+      Action.trial_rain({
+        id = 'rain',
+        range = 9,
+        windup = 0.3,
+        cooldown = 1,
+        count = 3,
+        interval = 0.25,
+        delay = 0.4,
+        radius = 1,
+        life = 0.6,
+        packet = packet(5, 10),
+      }),
+    },
+  }))
+  local rained = Fixtures.arena(G)
+  local rainer = rained:spawn('trial_rainer', 16, 21)
+  rainer.awake, rainer.memory, rainer.spawnAge = true, 60, 1
+  local marks, counted = 0, {}
+  for _ = 1, 4 * 120 do
+    rained:update(1 / 120, {})
+    for _, h in ipairs(rained.hazards) do
+      if h.owner == rainer.id and not counted[h] then
+        counted[h], marks = true, marks + 1
+      end
+    end
+  end
+  check(
+    'a kind made of a series and a deposit lets its marks go in turn at the target',
+    blocks
+      and #fell >= 3
+      and marks >= 3
+      and math.abs(fell[2] - fell[1] - 0.25) < 0.01
+      and math.abs(fell[3] - fell[2] - 0.25) < 0.01
+  )
+  if blocks then
+    ActionKinds:unregister('trial_rain')
+  end
+  A.unregister('trial_rainer')
+  Action.kinds:unregister('trial_rain')
+  Action.trial_rain = nil
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')
