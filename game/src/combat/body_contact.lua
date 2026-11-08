@@ -20,6 +20,7 @@ local Archetypes = require('src.content.enemies')
 local Pools = require('src.session.world')
 local Bodies = require('src.combat.bodies')
 local Roles = require('src.core.roles')
+local Melee = require('src.combat.melee')
 local Contact = {}
 local len = MathX.len
 local defaults = Archetypes.defaults
@@ -94,11 +95,23 @@ local function knightContact(g, e, oldX, oldZ, dx, dz, _, p, previous)
     girth(e) + Rules.playerBody(p).radius
   )
 end
+-- Knight k at fraction t of this step: its step snapshot at 0, where it
+-- stands at 1, between them as it moved.
+local function knightAt(g, k, t)
+  local previous = Bodies.previous(g, k)
+  if t <= 0 then
+    return previous
+  elseif t >= 1 then
+    return k
+  end
+  return Melee.playerAt(previous, k, t, nil, g.world)
+end
 -- Own attack movement obeys the same footprint as ordinary locomotion. It
--- stops at the earliest knight it meets: the controlled one swept between
--- previous and current (sub-step positions), every other knight between
--- its step snapshot and where it stands.
-function Contact.moveEnemy(g, e, dx, dz, previous, current)
+-- stops at the earliest knight it meets. Every knight is swept over the
+-- same part of the step as the body's move, from fraction from to to
+-- (default the whole step); previous and current, when given, are the
+-- controlled knight's own points for it (PLAN E2).
+function Contact.moveEnemy(g, e, dx, dz, previous, current, from, to)
   local oldX, oldZ, r, oldLevel = e.x, e.z, Rules.radius(e), e.level
   local air, verticalVelocity = e.leapY, e.leapVY
   Arena.move(g.world, e, dx, dz, r, nil, Rules.tall(g, e))
@@ -108,8 +121,17 @@ function Contact.moveEnemy(g, e, dx, dz, previous, current)
   local t, nx, nz = knightContact(g, e, oldX, oldZ, dx, dz, r, p, previous or p)
   for _, knight in ipairs(Bodies.knights(g)) do
     if knight ~= controlled and knight.hp > 0 then
-      local kt, kx, kz =
-        knightContact(g, e, oldX, oldZ, dx, dz, r, knight, Bodies.previous(g, knight))
+      local kt, kx, kz = knightContact(
+        g,
+        e,
+        oldX,
+        oldZ,
+        dx,
+        dz,
+        r,
+        knightAt(g, knight, to or 1),
+        knightAt(g, knight, from or 0)
+      )
       if kt and (not t or kt < t) then
         t, nx, nz = kt, kx, kz
       end

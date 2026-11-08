@@ -49,10 +49,12 @@ function Contact.dodged(g, e, atk, t)
   Dodge.perfect(g, atk.packet, e, t)
 end
 -- Move the body along its rush; a blow that met the rush scales it.
-function Contact.rush(g, e, speed, step, previous, current)
+-- dt: the whole step; the rush moves over its first step s.
+function Contact.rush(g, e, speed, step, previous, current, dt)
   local s = speed * (e.rushScale or 1)
   e.rushVX, e.rushVZ = e.lungeX * s, e.lungeZ * s
-  BodyContact.moveEnemy(g, e, e.rushVX * step, e.rushVZ * step, previous, current)
+  local to = dt and dt > 0 and step / dt or 1
+  BodyContact.moveEnemy(g, e, e.rushVX * step, e.rushVZ * step, previous, current, 0, to)
 end
 -- Turn the attack toward its aim angle a.
 function Contact.face(_, e, spec, a)

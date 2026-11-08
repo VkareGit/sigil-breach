@@ -74,6 +74,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E2b, równe omiatanie każdego rycerza, 2026-11-08: ruch stwora (szarża,
+  wypad, skok) spotyka każdego rycerza w tej samej części kroku, w której
+  sam się porusza (combat/body_contact.lua: moveEnemy z ułamkami kroku).
+  Wcześniej tylko sterowany rycerz był omiatany co pod-krok, a pozostali
+  od migawki początku kroku do miejsca z jego końca: stwór ruszający się
+  przez ćwierć kroku zderzał się z miejscem, do którego drugi rycerz
+  dopiero dojdzie. Jeden rycerz bez zmian.
+
 - E2a, jedno ciało: lot i pchnięcie, 2026-11-08: rycerz, skok stwora
   i padające ciało lecą przez jedno Kinematics.flight, a pchnięcie rycerza
   słabnie przez to samo Physics.drag co u stworów (wcześniej trzy kopie
@@ -4457,6 +4465,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E2b, równe omiatanie każdego rycerza, 2026-11-08: nowy test w
+  `attack-contact` czerwony przed zmianą (stwór idący przez ćwierć kroku
+  zatrzymany przez drugiego rycerza, który był w tej ćwierci 3,4 m dalej),
+  po zmianie zielony; drugi test pilnuje, że rycerz spotkany w tej ćwierci
+  nadal zatrzymuje stwora. Golden identyczny ze wzorcem (scenariusze mają
+  jednego rycerza). Pełne Linux All PASS w osobnym klonie: 9002 sprawdzenia
+  (o 2 więcej), golden 10 PASS. Windows niesprawdzony.
 
 - E2a, jedno ciało: lot i pchnięcie, 2026-11-08: reguła BODY MOTION na
   starym kodzie: 4 własne kopie (feel 1, body 1, flight 2), po zmianie 0.

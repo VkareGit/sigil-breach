@@ -41,7 +41,8 @@ Kinds.lunge = {
       atk.lungeSpeed * Rules.speedScale(e),
       step,
       ctx.previous,
-      knightAt(g, t, current, ctx.previous, step, dt)
+      knightAt(g, t, current, ctx.previous, step, dt),
+      dt
     )
     if e.didHit then
       return
@@ -148,7 +149,7 @@ Kinds.charge = {
       local most = atk.bend * step
       face(g, e, atk, way + math.max(-most, math.min(most, off)))
     end
-    rush(g, e, atk.speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt))
+    rush(g, e, atk.speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt), dt)
     local r = atk.reach
     local x1, z1 = ctx.oldX + e.lungeX * r, ctx.oldZ + e.lungeZ * r
     local x2, z2 = e.x + e.lungeX * r, e.z + e.lungeZ * r
@@ -204,7 +205,7 @@ local function lean(g, e, atk, dt, ctx)
     local gap = len(t.x - e.x, t.z - e.z) - atk.reach * atk.closing
     speed = math.min(speed, math.max(0, gap) / math.max(dt, atk.lungeTime - ctx.before))
   end
-  rush(g, e, speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt))
+  rush(g, e, speed, step, ctx.previous, knightAt(g, t, current, ctx.previous, step, dt), dt)
 end
 -- A blow's reach and arc in its active window. Returns the body caught and its
 -- receipt; a dodge that left its afterimage in the arc spends the blow.
@@ -343,7 +344,7 @@ Kinds.hop = {
   end,
   strike = function(g, e, atk, dt, ctx)
     if ctx.before < atk.lungeTime then
-      rush(g, e, atk.speed, math.min(dt, atk.lungeTime - ctx.before), ctx.previous)
+      rush(g, e, atk.speed, math.min(dt, atk.lungeTime - ctx.before), ctx.previous, nil, dt)
     end
   end,
 }

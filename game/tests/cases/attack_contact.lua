@@ -146,6 +146,48 @@ function Tests.run(Game)
       (g.player.hp < 100) == leaving
     )
   end
+  -- Every knight is swept as finely as the controlled one (PLAN E2): a body
+  -- that moves for the first quarter of a step meets a second knight where
+  -- that knight stands in that quarter, not where it ends the step.
+  local Pools = require('src.session.world')
+  local Weapons = require('src.content.weapons')
+  local function second(g2, x, z)
+    local loadout = { 'exorcist', 'judge' }
+    local k = g2.ecs:create('knight', {
+      id = 'knight2',
+      x = x,
+      z = z,
+      yaw = math.pi,
+      hp = 100,
+      loadout = loadout,
+      arsenal = Weapons.arsenal(loadout),
+    }, false)
+    assert(g2:actorJoin(Pools.memberRecord(k)))
+    for _, knight in ipairs(Pools.of(g2, 'knights')) do
+      if knight.id == 'knight2' then
+        return knight
+      end
+    end
+  end
+  local function quarter(finalZ)
+    local g2, e2 = setup()
+    g2.player.x, g2.player.z = 30, 40
+    local k = second(g2, 16, finalZ)
+    local stillPlayer = { x = 30, z = 40, jump = 0, crouch = 0 }
+    g2.frame = {
+      previousPlayer = stillPlayer,
+      previousKnights = { [k.id] = { x = 16, z = 27, jump = 0, crouch = 0 } },
+    }
+    Contact.moveEnemy(g2, e2, 0, 0.5, stillPlayer, g2.player, 0, 0.25)
+    return e2.z, k
+  end
+  local passed = quarter(22.6)
+  check(
+    'a second knight still far in the first quarter of its step lets the body pass',
+    math.abs(passed - 22.5) < 1e-9
+  )
+  local stopped = quarter(10)
+  check('a second knight already met in the first quarter stops the body', stopped < 22.5 - 1e-6)
   return lines
 end
 return Tests

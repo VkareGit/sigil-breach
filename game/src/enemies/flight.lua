@@ -26,7 +26,7 @@ function Flight.step(g, e, dt, previous)
   local gravity = Tuning.gravity
   if g.world.elevations then
     local elapsed = 0
-    -- Body contact sweeps the controlled knight by sub-step (moveEnemy).
+    -- Body contact sweeps every knight by sub-step (moveEnemy).
     local p = Bodies.controlled(g)
     previous = previous or p
     while elapsed < dt do
@@ -34,8 +34,16 @@ function Flight.step(g, e, dt, previous)
       local step = math.min(dt - elapsed, landing)
       local from = Melee.playerAt(previous, p, elapsed / dt, nil, g.world)
       local current = Melee.playerAt(previous, p, (elapsed + step) / dt, nil, g.world)
-      local vx, vz =
-        BodyContact.moveEnemy(g, e, (e.leapVX or 0) * step, (e.leapVZ or 0) * step, from, current)
+      local vx, vz = BodyContact.moveEnemy(
+        g,
+        e,
+        (e.leapVX or 0) * step,
+        (e.leapVZ or 0) * step,
+        from,
+        current,
+        elapsed / dt,
+        (elapsed + step) / dt
+      )
       if step > 0 then
         e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
       end
@@ -61,8 +69,16 @@ function Flight.step(g, e, dt, previous)
   local step = math.min(dt, landing)
   local p = Bodies.controlled(g)
   local current = step < dt and Melee.playerAt(previous or p, p, step / dt) or p
-  local vx, vz =
-    BodyContact.moveEnemy(g, e, (e.leapVX or 0) * step, (e.leapVZ or 0) * step, previous, current)
+  local vx, vz = BodyContact.moveEnemy(
+    g,
+    e,
+    (e.leapVX or 0) * step,
+    (e.leapVZ or 0) * step,
+    previous,
+    current,
+    0,
+    dt > 0 and step / dt or 1
+  )
   if step > 0 then
     e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
   end
