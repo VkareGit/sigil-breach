@@ -314,6 +314,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **G1 krok a zrobiony:** zapis wskazuje definicję z listy jej id
   (`$key`), pula w wersji 10 z migracją, wersja sekcji z liczby migracji.
   Golden bez zmian. Następny: G1b (odczyt sigili bez odrzucania zapisu).
+- 2026-11-08, **G1 krok b zrobiony:** odczyt sigili zdejmuje nadmiar (miejsca,
+  znalezione kopie, limit) zamiast odrzucać zapis. Golden bez zmian.
+  Następny: G1c (usunięcie zamrożonych kopii ataków).
 
 ## Po przeglądzie 2026-11-08 (G1–G6, przyjęte)
 

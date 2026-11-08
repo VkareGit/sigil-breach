@@ -57,11 +57,28 @@ function T.run(Game)
     'Continue keeps collection and equipped counts',
     continued.run.vows.sigil_stolas == 3 and continued.player.sigilRanks.sigil_stolas == 2
   )
+  -- A save outlives a retuned sigil (PLAN G1): what it wears beyond the places,
+  -- the copies found or the sigil's limit comes off in catalogue order; the
+  -- file is never refused for it.
   local bad = Save.capture('pilgrimage', g)
   bad.pilgrimage.data.sigils = { sigil_stolas = 3, sigil_furfur = 3 }
+  local fitted, worn = pcall(Save.section('pilgrimage').unpack, bad.pilgrimage.data)
   check(
-    'over-capacity save is refused',
-    not pcall(Save.section('pilgrimage').unpack, bad.pilgrimage.data)
+    'a save wearing more than the places hold takes sigils off until it fits',
+    fitted
+      and worn.sigils.sigil_stolas == 3
+      and worn.sigils.sigil_furfur == nil
+      and E.sigilsWorn(worn) <= require('src.content.shop').sigilSlots
+  )
+  local offer = require('src.content.shop').get('sigil_stolas')
+  local limit = offer.limit
+  offer.limit = 2
+  bad.pilgrimage.data.sigils = { sigil_stolas = 3 }
+  local lowered, kept = pcall(Save.section('pilgrimage').unpack, bad.pilgrimage.data)
+  offer.limit = limit
+  check(
+    'a sigil whose limit fell sheds the copies above it',
+    lowered and kept.sigils.sigil_stolas == 2 and kept.vows.sigil_stolas == 2
   )
   bad.pilgrimage.data.sigils = { sigil_buer = 1.5 }
   check(

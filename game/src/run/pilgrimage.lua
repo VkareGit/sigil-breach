@@ -30,6 +30,7 @@ local Maps = require('src.content.maps.index')
 local Shop = require('src.content.shop')
 local Copy = require('src.core.schema').copy
 local Economy = require('src.run.economy')
+local SigilRules = require('src.content.sigils')
 local Arena = require('src.world.arena')
 local P = {}
 local distance = MathX.distance
@@ -1043,7 +1044,7 @@ Save.declare({
       -- Old saves wore types, not copies. Keep one of each formerly worn
       -- type in catalogue order within capacity; retain every found copy.
       local old, used, worn = data.sigils or {}, 0, {}
-      for _, id in ipairs(require('src.content.sigils').order) do
+      for _, id in ipairs(SigilRules.order) do
         local cost = Economy.sigilCost(id, 1)
         if old[id] and (data.vows[id] or 0) > 0 and used + cost <= Shop.sigilSlots then
           worn[id], used = 1, used + cost
@@ -1124,17 +1125,28 @@ Save.declare({
     out.field = validField(data.field)
     out.glyph = out.owned[data.glyph] and data.glyph or 'none'
     out.worn = validWorn(data.worn, out.owned, out.glyph)
+    -- What it wears beyond the copies found, the sigil's limit or the places
+    -- comes off, in catalogue order (PLAN G1): a retuned sigil never refuses
+    -- the file.
     out.sigils = {}
     assert(data.sigils == nil or type(data.sigils) == 'table', 'invalid sigil set')
     for id, copies in pairs(data.sigils or {}) do
+      assert(type(id) == 'string' and whole(copies, 1, math.huge), 'invalid equipped copies')
+    end
+    local used = 0
+    for _, id in ipairs(SigilRules.order) do
       local offer = Shop.find(id)
-      assert(whole(copies, 1, 3), 'invalid equipped copies')
+      local copies = data.sigils and data.sigils[id] or 0
       if offer and offer.kind == 'sigil' then
-        assert(copies <= (out.vows[id] or 0), 'unfound equipped copies')
-        out.sigils[id] = copies
+        copies = math.min(copies, offer.limit, out.vows[id] or 0)
+        while copies > 0 and used + Economy.sigilCost(id, copies) > Shop.sigilSlots do
+          copies = copies - 1
+        end
+        if copies > 0 then
+          out.sigils[id], used = copies, used + Economy.sigilCost(id, copies)
+        end
       end
     end
-    assert(Economy.sigilsWorn(out) <= Shop.sigilSlots, 'sigil capacity exceeded')
     return out
   end,
   restore = function(g, data)

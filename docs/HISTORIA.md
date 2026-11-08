@@ -75,6 +75,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G1b, sigile w zapisie bez odrzucania pliku, 2026-11-08: odczyt zapisu
+  pielgrzymki nie odrzuca już pliku, gdy noszone sigile przekraczają miejsca,
+  znalezione kopie albo limit sigila (dawniej wpisany na sztywno limit 3
+  i „Cannot read the save” po podniesieniu kosztu sigila). Nadmiar jest
+  zdejmowany w kolejności katalogu, aż zmieści się w miejscach; liczba kopii
+  nie przekracza limitu oferty ani znalezionych. Zły typ (np. ułamek kopii)
+  nadal odrzuca plik. Gra i golden bez zmian.
+
 - G1a, zapis definicji po identyfikatorze, 2026-11-08: zapis wskazuje
   definicję z listy jej id, a nie miejscem na liście. Krok ścieżki elementu
   listy, którego elementy mają różne id, to `{ $key = id }`
@@ -4655,6 +4663,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G1b, sigile w zapisie bez odrzucania pliku, 2026-11-08: w `sigil-builds`
+  dawne sprawdzenie „zapis ponad pojemność jest odrzucany” zastąpione nowym,
+  czerwonym przed zmianą: zapis ponad miejsca zdejmuje sigile, aż się
+  zmieszczą; nowe: sigil z obniżonym limitem zdejmuje kopie ponad limit.
+  Ułamek kopii nadal odrzucany. Golden bez zmian. Pełne Linux All PASS
+  w osobnym klonie: 9082 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - G1a, zapis definicji po identyfikatorze, 2026-11-08: trzy nowe
   sprawdzenia w `content-contracts`, czerwone przed zmianą: zapisany atak
