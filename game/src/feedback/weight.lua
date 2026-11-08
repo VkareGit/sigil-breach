@@ -144,21 +144,9 @@ function W.playerHit(g, info)
   local severity = W.severity(info.impact, p)
   local harm = clamp((info.amount or 0) / 30, 0, 1)
   local rel = info.x and W.relative(p, info.x, info.z) or 0
-  local side, ahead = sin(rel), cos(rel)
-  if g.view.motion ~= false then
-    -- The hands take the blow first: the weapon is knocked away from its source,
-    -- the head twists away, the frame shakes by the shove, not by the damage.
-    g.view.weaponImpactVX = clamp(g.view.weaponImpactVX - side * (25 + 85 * severity), -150, 150)
-    g.view.weaponImpactVY =
-      clamp(g.view.weaponImpactVY + (18 + 60 * severity) * (0.45 + 0.55 * max(0, ahead)), -120, 120)
-    g.view.weaponImpactVRoll =
-      clamp(g.view.weaponImpactVRoll - side * (0.05 + 0.22 * severity), -0.36, 0.36)
-    g.view.rollPunchV = g.view.rollPunchV - side * (0.06 + 0.30 * severity)
-    -- A blow from the front snaps the head back (view rises), from behind it
-    -- throws it forward (view drops).
-    g.view.viewPunchV = g.view.viewPunchV + ahead * (0.10 + 0.45 * severity)
-  end
-  Impulses.shake(g.view, 0.05 + 0.08 * min(1, severity))
+  -- The hands take the blow first, the frame shakes by the shove, not by the
+  -- damage (content/view_reactions.lua: blow).
+  Impulses.react(g.view, 'blow', severity, sin(rel), cos(rel))
   local shield = (info.absorbed or 0) > (info.lost or 0)
   addMark(g, {
     angle = atan2(info.x and info.x - p.x or sin(p.yaw), info.z and info.z - p.z or cos(p.yaw)),
@@ -236,16 +224,16 @@ function W.confirm(g, report, results, hit, hitVolume)
   if falter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_falter'), 1.6
     say(4, 'break', 0.75)
-    g.view.killPunch = math.max(g.view.killPunch, 0.12)
+    Impulses.react(g.view, 'falter')
   elseif not killed and stopped then
     -- 0.24: the blow reversed a rush; the body goes down.
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_knocked'), 1.0
     say(3, 'thud', 0.55)
-    g.view.killPunch = math.max(g.view.killPunch, 0.10)
+    Impulses.react(g.view, 'knocked')
   elseif not killed and tripped then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_tripped'), 1.0
     say(3, 'thud', 0.5)
-    g.view.killPunch = math.max(g.view.killPunch, 0.08)
+    Impulses.react(g.view, 'tripped')
   elseif not killed and counter then
     g.view.feedback, g.view.feedbackTimer = Text.get('feedback_counter'), 0.9
     say(3, 'crit', 0.32)
@@ -261,16 +249,13 @@ function W.confirm(g, report, results, hit, hitVolume)
   -- a light falter keeps only the crack of the broken guard.
   if heavy and not killed then
     say(3, 'thud', 0.38)
-    g.view.killPunch = math.max(g.view.killPunch, 0.06)
+    Impulses.react(g.view, 'heavyStagger')
   end
   if wounded or (counter and broke) then
     -- The player caused the decisive blow: a short frame punch (post shader
     -- 'kill' pulse) and a small view rise, presentation only.
     say(3, 'heavyhit', 0.45)
-    g.view.killPunch = math.max(g.view.killPunch, 0.08)
-    if g.view.motion ~= false then
-      g.view.viewPunchV = g.view.viewPunchV + 0.12
-    end
+    Impulses.react(g.view, 'decisive')
   end
   if crippled then
     say(3, 'thud', 0.28)
@@ -350,10 +335,7 @@ function W.heart(g, dt)
 end
 -- Landing: the view dips with the impact speed (render only).
 function W.landing(g, speed)
-  if g.view.motion == false then
-    return
-  end
-  g.view.viewPunchV = g.view.viewPunchV - min(0.55, abs(speed or 0) * 0.045)
+  Impulses.react(g.view, 'landingHead', abs(speed or 0))
 end
 -- HUD: arcs around the reticle pointing at each blow, length and width from
 -- the blow, colour from its damage type; a near miss is a thin dashed arc.

@@ -74,6 +74,17 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E5d, impuls jako zdarzenie, 2026-11-08: ciosy w rycerza, ściana, wybicie
+  i lądowanie, potwierdzenia trafień, zachwianie, uchwyt, wstrząsy świata,
+  wybuch i zawalenie odpowiadają przez jeden zapis (feedback/impulses.lua:
+  Impulses.react). Zdarzenie podaje siłę (wielkość fizyczną, którą nazywa
+  profil), kierunek w oczach patrzącego i odległość; profil w nowym
+  content/view_reactions.lua mówi, ile każdy kanał z tego bierze. Kanały mają
+  wspólne granice, szczyt (wstrząs, puls kadru) zostaje przy silniejszym.
+  Siła odpowiedzi bez zmian. Liczby odczucia przeniesione z tuning.lua
+  (shot, world, feel) i z kodu do profili. Brama: reguła IMPULSE WRITE,
+  a zapadka liczb bez nazwy obejmuje teraz feedback/.
+
 - E5c, wartości startowe pól widoku, 2026-11-07: pole widoku z wartością
   startową ma ją zapisaną raz (session/fields.lua: Fields.start); nowy
   widok, widok ciała bez obserwatora i wyczyszczony ruch biorą ją stamtąd.
@@ -4432,6 +4443,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E5d, impuls jako zdarzenie, 2026-11-08: nowa reguła IMPULSE WRITE na
+  starym kodzie: 17 zapisów omijających wspólny zapis (weight 10,
+  movement_impact 2, world_feedback 2, listeners, shot_feedback,
+  weapon_motion); po zmianie 0. Sonda 118 przypadków (ciosy z pięciu stron
+  i pięciu sił, ściana, wybicie, lądowanie, potwierdzenia, zachwianie,
+  wybuch w ośmiu odległościach, z ruchem i bez): 1003 z 1006 wartości
+  identyczne co do bitu, trzy różne o 7·10⁻¹⁵ (kolejność mnożenia przy
+  ścianie). Liczby bez nazwy w feedback/: 508 → 468. Test kontraktu:
+  profil zapisany tylko w danych odpowiada siłą, kierunkiem i odległością;
+  wiele ciosów mieści się w jednej granicy; słabszy szczyt nie obniża
+  silniejszego; nieznany kanał zatrzymuje grę. Pełne Linux All PASS
+  w osobnym klonie: 9000 sprawdzeń (o 5 więcej), golden 10 PASS bez zmian
+  wzorca, `feel` 186 PASS. Windows niesprawdzony.
 
 - E5c, wartości startowe pól widoku, 2026-11-07: reguła VIEW START czerwona
   przed zmianą (86 odczytów z zapasem w feedback/), po zmianie 0. Obraz

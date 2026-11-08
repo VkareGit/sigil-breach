@@ -162,7 +162,7 @@ function Tests.run(G, check)
   -- 0.43 (audit D03): a powder blast shakes the view by how near it went off.
   do
     local Signal = require('src.session.signal')
-    local W = T.world
+    local blast = require('src.content.view_reactions').profiles.blast
     local function shakeAt(d)
       local q = fresh()
       q.view.shake = 0
@@ -173,7 +173,7 @@ function Tests.run(G, check)
     local near2, far10, out20 = shakeAt(2), shakeAt(10), shakeAt(20)
     check(
       'a blast near shakes in full, far less, beyond its reach not at all',
-      near(near2, W.blastShake) and far10 < near2 and far10 > 0 and out20 == 0
+      near(near2, blast.shake.base) and far10 < near2 and far10 > 0 and out20 == 0
     )
   end
   local slow = Rules.speedScale(p)

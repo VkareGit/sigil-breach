@@ -140,9 +140,7 @@ World.handlers = {
     end
     Recipient.each(g, function(personal, actor)
       local d = math.sqrt((actor.x - e.x) ^ 2 + (actor.z - e.z) ^ 2)
-      if d < K.tremorReach then
-        Impulses.shake(personal.view, K.tremor * (1 - d / K.tremorReach))
-      end
+      Impulses.react(personal.view, 'tremor', 0, 0, 0, d)
     end)
   end,
   Evaded = function(g, ev)
@@ -167,13 +165,13 @@ World.handlers = {
     if ev.player or Bodies.isKnight(g, ev.body) then
       local personal = Recipient.context(g, ev.body)
       if personal then
-        Impulses.shake(personal.view, K.knightSlamShake)
+        Impulses.react(personal.view, 'knightSlam')
       end
       return
     end
     local e = ev.body
     Recipient.each(g, function(personal)
-      personal.view.killPunch = math.max(personal.view.killPunch, K.slamPunch)
+      Impulses.react(personal.view, 'bodySlam')
     end)
     Audio.playAt(
       Profiles.body(e, 'impact', 'thud'),
@@ -237,7 +235,7 @@ World.handlers = {
   Seized = function(g, ev)
     Audio.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.6)
     Recipient.each(g, function(personal)
-      Impulses.shake(personal.view, K.staggerShake)
+      Impulses.react(personal.view, 'seized')
     end)
   end,
   PlayerStaggered = function(g, ev)
@@ -245,9 +243,8 @@ World.handlers = {
     if not g then
       return
     end
-    g.view.recoilV = g.view.recoilV + K.staggerRecoil
     g.view.staggerFlash = K.staggerFlash
-    Impulses.shake(g.view, K.staggerShake)
+    Impulses.react(g.view, 'stagger')
   end,
   -- The swing and the fuse catching; its embers: feedback/movement_marks.lua.
   ChargeThrown = function()
@@ -258,11 +255,7 @@ World.handlers = {
     local b = ev.charge
     Recipient.each(g, function(personal, actor)
       local d = math.sqrt((actor.x - b.x) ^ 2 + (actor.z - b.z) ^ 2)
-      if d < K.blastReach then
-        local fade = math.min(1, math.max(0, (d - K.blastNear) / (K.blastReach - K.blastNear)))
-        local shake = K.blastShake * (1 - (1 - K.blastFar) * fade)
-        Impulses.shake(personal.view, shake)
-      end
+      Impulses.react(personal.view, 'blast', 0, 0, 0, d)
     end)
     FX.emit(g, 'powder', b.x, b.y + 0.65, b.z, 3.2)
     FX.emit(g, 'stone', b.x, b.y + 0.15, b.z, 0.9)

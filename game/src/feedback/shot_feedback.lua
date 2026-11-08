@@ -160,9 +160,9 @@ function Shot.volley(g, e)
   end
   g.view.hitmarker = K.hitmarker + g.view.hitWeight * K.hitmarkerWeight
   -- Heavy flesh hits and kills land in the frame itself, not only in the reticle.
-  Impulses.shake(g.view, K.hitShake + g.view.hitWeight * K.hitShakeWeight)
+  Impulses.react(g.view, 'shotHit', g.view.hitWeight)
   if report.kills > 0 then
-    g.view.killPunch = K.killPunch
+    Impulses.react(g.view, 'shotKill')
   end
   if report.kills > 0 then
     -- Longer than a hit: he can stop shooting.

@@ -12,8 +12,19 @@ end
 -- tools/check/literals.txt (a ratchet: the count only goes down), and a new
 -- one holds none. Counted: decimals and integers of two or more digits in
 -- code, not in comments or strings; 0.5 and exponents (epsilons) are free.
-local simulation =
-  { 'app', 'combat', 'enemies', 'physics', 'player', 'run', 'session', 'systems', 'world' }
+-- Feedback is held to it too (PLAN E5): how the game feels is tuned in content.
+local simulation = {
+  'app',
+  'combat',
+  'enemies',
+  'feedback',
+  'physics',
+  'player',
+  'run',
+  'session',
+  'systems',
+  'world',
+}
 local function governed(relative)
   for _, dir in ipairs(simulation) do
     if relative:sub(1, #dir + 5) == 'src/' .. dir .. '/' then
@@ -646,6 +657,41 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- One way into a view impulse (PLAN E5): an event moves a channel of
+  -- content/view_reactions.lua only through feedback/impulses.lua, so answers of
+  -- many events sum within one limit and a weaker peak never lowers a
+  -- stronger one. Feedback may still move a spring by its own clock or reset it.
+  local channels, peaks = {}, {}
+  local declared = (sources['src.content.view_reactions'] or ''):match('R%.channels%s*=%s*(%b{})')
+  for line in (declared or ''):gmatch('[^\n]+') do
+    local name = line:match('^%s*([%a_][%w_]*)%s*=')
+    if name then
+      channels[name] = true
+      peaks[name] = line:find('peak%s*=%s*true') ~= nil
+    end
+  end
+  for id, text in pairs(sources) do
+    if id:match('^src%.feedback%.') and id ~= 'src.feedback.impulses' then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        for name, rest in code:gmatch('view%.([%a_][%w_]*)%s*=([^=].*)$') do
+          if channels[name] then
+            local adds = rest:find('view%.' .. name .. '%s*[%+%-]')
+              or rest:find('max%(%s*[%w_%.]*view%.' .. name .. '%s*,')
+            if adds or peaks[name] then
+              failure(
+                'IMPULSE WRITE '
+                  .. id
+                  .. ': view.'
+                  .. name
+                  .. ' is moved by an event; answer it with Impulses.react'
+              )
+            end
+          end
+        end
+      end
+    end
+  end
   for id, text in pairs(sources) do
     local seen = {}
     -- Registries use literal IDs as well as direct require calls.
@@ -813,13 +859,13 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
           .. numbers[relative]
           .. ' (allowed '
           .. allowed
-          .. '): name them in content (tuning, combat_defaults, mode data)'
+          .. '): name them in content (tuning, view_reactions, combat_defaults, mode data)'
       )
     elseif baseline and numbers[relative] < allowed then
       lines[#lines + 1] = 'RATCHET ' .. relative .. ' can drop to ' .. numbers[relative]
     end
   end
-  lines[#lines + 1] = 'UNNAMED NUMBERS IN SIMULATION CODE ' .. unnamed
+  lines[#lines + 1] = 'UNNAMED NUMBERS IN SIMULATION AND FEEDBACK CODE ' .. unnamed
   if literalsPath then
     local directory = literalsPath:gsub('[\\/][^\\/]*$', '')
     for _, rule in ipairs(scalingRatchets) do

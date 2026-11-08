@@ -5,6 +5,7 @@ local Context = require('src.session.context')
 local MathX = require('src.core.mathx')
 local Kinematics = require('src.physics.kinematics')
 local MovementImpact = require('src.feedback.movement_impact')
+local Impulses = require('src.feedback.impulses')
 local Weight = require('src.feedback.weight')
 local Gait = require('src.player.movement_gait')
 local Reload = require('src.combat.reload')
@@ -156,7 +157,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     local contact = type(landingImpact) == 'table' and landingImpact
       or MovementImpact.landingMetrics(landingImpact)
     if contact then
-      g.view.weaponDipV = g.view.weaponDipV + contact.kick
+      Impulses.react(g.view, 'landingHands', contact.kick)
     end
   end
   g.view.weaponDip, g.view.weaponDipV =

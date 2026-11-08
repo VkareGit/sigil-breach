@@ -214,6 +214,14 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   stamtąd; reguła VIEW START w `tools/check/main.lua` pilnuje `feedback/`.
   Odczyty w `render/` i `ui/` zostają z zapasem, bo przeglądy QA rysują
   widoki budowane ręcznie; to do F5 (kontrakty).
+- 2026-11-08, **E5 krok d zrobiony:** impuls jako zdarzenie. Ciosy, ściana,
+  wybicie, lądowanie, potwierdzenia trafień, zachwianie i wstrząsy świata
+  idą przez `Impulses.react` (siła, kierunek, odległość) z profilami
+  w `content/view_reactions.lua`; kanały mają jedną wspólną granicę, szczyt
+  zostaje przy silniejszym. Siła bez zmian (sonda 118 przypadków). Reguła
+  IMPULSE WRITE i zapadka liczb bez nazwy dla `feedback/` (468).
+  Zostaje z E5: dźwięk ciosu w profilu, liczby odczucia z `weapon_motion`,
+  `impact_response` i `death_response` do treści, odbiorcy per aktor.
 
 ## Decyzje właściciela
 

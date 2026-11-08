@@ -73,7 +73,7 @@ local function enemyKilled(g, e)
   local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
     personal.view.breakKill = Feel.breakKillFlash
-    personal.view.killPunch = math.max(personal.view.killPunch, Feel.breakKillPunch)
+    Impulses.react(personal.view, 'breakKill')
     if (e.healed or 0) > 0 then
       Audio.play('seal', 0.22)
     end
@@ -121,7 +121,7 @@ local function playerHit(g, e)
     g.view.damageDir = math.atan2(info.x - player.x, info.z - player.z)
   end
   g.view.hurt = Feel.hurtFlash
-  Impulses.shake(g.view, Feel.hurtShake)
+  Impulses.react(g.view, 'hurt')
   Weight.playerHit(g, info)
 end
 -- The perfect dodge: the world stills into its underdrawing for a moment

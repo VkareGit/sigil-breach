@@ -58,7 +58,7 @@ function Scenery.attach(g, bus)
     end
     sound(g, e, 'thunder', 1)
     sound(g, e, 'blast', 0.8)
-    Impulses.shake(g.view, 0.55)
+    Impulses.react(g.view, 'collapse')
   end)
 end
 return Scenery

@@ -250,8 +250,8 @@ return {
   -- strength, heights (m). guardBreakStop: the world's hit-stop when the
   -- knight's guard breaks (a simulation pause, session/listeners.lua).
   -- A shot's presentation (feedback/shot_feedback.lua): powder smoke placement
-  -- (m), drift (m/s), the hitmarker, shakes, sounds by damage and the share
-  -- of blocked damage that reads as 'armour'.
+  -- (m), drift (m/s), the hitmarker, sounds by damage and the share of
+  -- blocked damage that reads as 'armour'. Its shakes: content/view_reactions.lua.
   shot = {
     smokeReach = 0.8,
     smokeMax = 0.72,
@@ -270,9 +270,6 @@ return {
     tickWeight = 0.3,
     killVolume = 0.9,
     hitmarkerWeight = 0.04,
-    hitShake = 0.03,
-    hitShakeWeight = 0.05,
-    killPunch = 0.14,
     heavyHitSound = 60,
     grazeSound = 20,
   },
@@ -295,24 +292,12 @@ return {
     blastNoise = 20,
     aimHeight = 1.1,
   },
-  -- The fight's presentation (feedback/world_feedback.lua): landing dust height
-  -- and tremor (shake within tremorReach m), slams, the knight's stagger, the
-  -- volumes of a powder charge's throw and its lit fuse.
+  -- The fight's presentation (feedback/world_feedback.lua): landing dust height,
+  -- the knight's stagger flash, the volumes of a powder charge's throw and its
+  -- lit fuse. How the view answers each event: content/view_reactions.lua.
   world = {
     dustHeight = 0.12,
-    tremor = 0.07,
-    tremorReach = 5,
-    knightSlamShake = 0.12,
-    slamPunch = 0.06,
-    staggerRecoil = 14,
     staggerFlash = 0.25,
-    staggerShake = 0.16,
-    -- A blast shakes the view in full within blastNear m, fading to blastFar of it at
-    -- blastReach m and not at all beyond (0.43, audit D03: it shook as hard from across a hall).
-    blastShake = 0.09,
-    blastNear = 3,
-    blastReach = 16,
-    blastFar = 0.2,
     throwSound = 0.45,
     fuseSound = 0.24,
     blastColor = { 0.72, 0.28, 0.06 },
@@ -324,9 +309,7 @@ return {
     soulsGain = 1.4,
     bloodHeight = 1.3,
     breakKillFlash = 0.45,
-    breakKillPunch = 0.14,
     hurtFlash = 0.8,
-    hurtShake = 0.1,
     perfectDodgeFlash = 0.5,
     perfectDodgeSurge = 0.6,
     perfectDodgeSound = 0.55,

@@ -592,8 +592,10 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   Kontrola: kompilacja, brak cykli, granice warstw, brak nieosiągalnych
   modułów, brak GPU w danych/fizyce, KIERUNEK symulacja -> prezentacja
   (zapadka tools/check/presentation-edges.txt; 0 krawędzi), każde zdarzenie
-  katalogu ma emiter, ZAPADKA NIENAZWANYCH LICZB w kodzie symulacji i app
-  (tools/check/literals.txt; plik może tylko maleć, nowy = 0).
+  katalogu ma emiter, ZAPADKA NIENAZWANYCH LICZB w kodzie symulacji, app
+  i feedback (tools/check/literals.txt; plik może tylko maleć, nowy = 0),
+  IMPULSE WRITE (zdarzenie porusza kanał z content/view_reactions.lua tylko przez
+  Impulses.react w feedback/impulses.lua).
   Zapadki skalowania planu v10 (tools/check/<nazwa>.txt, ta sama zasada):
   knight-references (g.player w symulacji poza modułami rycerza), pool-arrays
   (bezpośrednie tablice pul poza session/world i state), mode-records
@@ -1151,10 +1153,11 @@ zmieniasz, zostawiasz zgodny z konwencją).
 
 4. DANE I LICZBY
    - Liczba, którą się stroi, ma nazwę i dom (ARCHITEKTURA, punkt 9):
-     content/tuning, content/combat_defaults, dane trybów,
+     content/tuning, content/view_reactions (odpowiedź widoku na zdarzenia),
+     content/combat_defaults, dane trybów,
      definicje, ui/palette. Kod symulacji: liczby całkowite jednocyfrowe,
      0.5 i epsilony (1e-9) wolno; reszta tylko nazwana. tools/check liczy
-     nienazwane liczby w każdym pliku symulacji (i src/app) i nie przepuści wzrostu
+     nienazwane liczby w każdym pliku symulacji (i src/app, src/feedback) i nie przepuści wzrostu
      ponad tools/check/literals.txt (nowy plik: zero). Gdy plik zejdzie
      niżej, obniż jego wpis (raport podpowiada: RATCHET ... can drop to).
    - Brak fallbacków danych w kodzie („atk.recover or 0.48”): wartości

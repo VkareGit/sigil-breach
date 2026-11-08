@@ -85,6 +85,58 @@ function Tests.run(G, check)
     'breaking the player guard holds the world for a beat',
     heavy.impactSlow > 0 and light.impactSlow == 0
   )
+  -- One way into a view impulse (PLAN E5): a profile in data is the whole
+  -- answer to an event, by its strength, direction and distance.
+  local Impulses = require('src.feedback.impulses')
+  local made = {
+    reach = 10,
+    near = 2,
+    far = 0.5,
+    weaponImpactVX = { base = 10, gain = 20, side = 1 },
+    shake = { base = 0.2 },
+  }
+  local function answer(distance, motion)
+    local t = fresh()
+    t.view.weaponImpactVX, t.view.shake, t.view.motion = 0, 0, motion
+    Impulses.react(t.view, made, 1, 1, 0, distance)
+    return t.view
+  end
+  local close, middle, beyond, still = answer(0), answer(6), answer(10), answer(0, false)
+  check(
+    'a profile made only of data answers by strength, direction and distance',
+    near(close.weaponImpactVX, 30)
+      and near(close.shake, 0.2)
+      and near(middle.weaponImpactVX, 22.5)
+      and near(middle.shake, 0.15)
+      and beyond.weaponImpactVX == 0
+      and beyond.shake == 0
+  )
+  check(
+    'reduced motion removes the hands answer and keeps the frame shake',
+    still.weaponImpactVX == 0 and near(still.shake, 0.2)
+  )
+  local piled = fresh()
+  piled.view.weaponImpactVX = 0
+  for _ = 1, 3 do
+    Impulses.react(piled.view, 'blow', 1.6, -1, 0)
+  end
+  local limit = require('src.content.view_reactions').channels.weaponImpactVX.limits[2]
+  check('many blows sum within one shared limit', near(piled.view.weaponImpactVX, limit))
+  local kept = fresh()
+  kept.view.killPunch = 0
+  Impulses.react(kept.view, 'shotKill')
+  Impulses.react(kept.view, 'heavyStagger')
+  check(
+    'a weaker answer never lowers a stronger one',
+    near(
+      kept.view.killPunch,
+      require('src.content.view_reactions').profiles.shotKill.killPunch.base
+    )
+  )
+  check(
+    'an answer on an undeclared channel stops the game',
+    not pcall(Impulses.react, fresh().view, { undeclared = { base = 1 } })
+  )
   -- Near miss: heard and marked, never damaging.
   g = fresh()
   local p = g.player

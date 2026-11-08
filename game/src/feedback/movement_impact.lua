@@ -5,9 +5,9 @@ local Context = require('src.session.context')
 local MathX = require('src.core.mathx')
 local Collision = require('src.physics.collision')
 local FX = require('src.feedback.effects')
+local Impulses = require('src.feedback.impulses')
 local I = { mass = 1, wallCushion = 0.09, landingCushion = 0.16, takeoffCushion = 0.20 }
 local finite = MathX.finite
-local clamp = MathX.clamp
 function I.measure(bx, by, bz, ax, ay, az, mass, seconds)
   mass = mass or I.mass
   seconds = seconds or I.wallCushion
@@ -122,20 +122,11 @@ function I.wall(g, collided, beforeX, beforeZ, afterX, afterZ, oldX, oldZ, previ
   report.kick = I.kick(report.impulse, 'wall')
   record(g, report, 'wall')
   g.view.lastWallImpact = report
-  if g.view.motion ~= false then
-    local side = (report.deltaX * math.cos(p.yaw) - report.deltaZ * math.sin(p.yaw))
-      / report.lostSpeed
-    local ahead = (report.deltaX * math.sin(p.yaw) + report.deltaZ * math.cos(p.yaw))
-      / report.lostSpeed
-    g.view.weaponImpactVX = clamp(g.view.weaponImpactVX + side * report.kick * 0.85, -150, 150)
-    g.view.weaponImpactVY = clamp(
-      g.view.weaponImpactVY + (math.abs(ahead) * 0.58 + math.abs(side) * 0.12) * report.kick,
-      -120,
-      120
-    )
-    g.view.weaponImpactVRoll =
-      clamp(g.view.weaponImpactVRoll + side * report.kick * 0.0022, -0.36, 0.36)
-  end
+  local side = (report.deltaX * math.cos(p.yaw) - report.deltaZ * math.sin(p.yaw))
+    / report.lostSpeed
+  local ahead = (report.deltaX * math.sin(p.yaw) + report.deltaZ * math.cos(p.yaw))
+    / report.lostSpeed
+  Impulses.react(g.view, 'wall', report.kick, side, ahead)
   return report
 end
 function I.landingMetrics(speed)
@@ -178,9 +169,7 @@ function I.takeoff(g, speed)
   end
   local report = I.measure(0, 0, 0, 0, speed, 0, I.mass, I.takeoffCushion)
   record(g, report, 'takeoff')
-  if g.view.motion ~= false then
-    g.view.weaponDipV = g.view.weaponDipV + 26 * (1 - math.exp(-report.impulse / 5))
-  end
+  Impulses.react(g.view, 'takeoff', report.impulse)
   return report
 end
 return I
