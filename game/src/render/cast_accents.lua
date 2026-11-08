@@ -53,7 +53,7 @@ function Accents.draw(r, g, e, effects)
     local t = ActionPhase.sample(e)
     local age = e.phase or 0
     if not windup and spec.kind == 'salvo' then
-      age = age - math.max(0, (e.released or 1) - 1) * spec.interval
+      age = age - math.max(0, (e.act and e.act.released or 1) - 1) * spec.interval
     end
     local alpha = windup and 1 or math.max(0, 1 - age / cast.release)
     local viewer = Context.viewer(g)

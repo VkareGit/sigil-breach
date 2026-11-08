@@ -148,7 +148,7 @@ function T.run(Game, renderer)
       if attack.kind ~= 'blink' then
         Actions.begin(g, e, math.min(7, attack.range), attack)
         Actions.execute(g, e)
-        e.ai, e.phase, e.released = 'strike', 0.04, 1
+        e.ai, e.phase, e.act.released = 'strike', 0.04, 1
         cells = {}
         require('src.render.cast_accents').draw(renderer, g, e, Effects)
         check(attack.id .. ' retains hand pigment through release', #cells == 2)

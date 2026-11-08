@@ -74,6 +74,15 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F3a, stan ataku należy do jego rodzaju, 2026-11-08: dziewięć pól, które
+  znał tylko jeden rodzaj ataku (strumień: trafione ciała; żniwa: oznaczone
+  łaty; szarża: zwroty; cięcie: ślad; chwyt: trzymany i czas uchwytu; salwa
+  i burza: wypuszczone pociski), zeszło z płaskiego rekordu stwora
+  (session/components.lua) do e.act: tabeli, którą rodzaj deklaruje
+  (state = { pole = znaczenie }) i która powstaje świeża przy każdym
+  rozpoczęciu ataku. Zapis pul ma wersję 8; starszy zapis przenosi te pola
+  do e.act przy wczytaniu. Zachowanie bez zmian.
+
 - E3b, mysz tylko obraca, 2026-11-08: ruch myszy zmienia wyłącznie kierunek
   patrzenia. Dawne kołysanie od myszy (swayX, swayY w app/input.lua) było
   zapisywane, wygaszane i wygładzane, ale nic go nie rysowało; usunięte
@@ -4514,6 +4523,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F3a, stan ataku należy do jego rodzaju, 2026-11-08: reguła ATTACK STATE
+  (tools/check: każde pole e.act zadeklarowane przez rodzaj, symulacja nie
+  trzyma go na ciele) na starym kodzie z samymi deklaracjami 56 miejsc, po
+  zmianie 0. Nowy test w `content-contracts`: zapis sprzed zmiany przenosi
+  rozpoczętą szarżę do e.act, ciało bez ataku zostaje bez niego. Test
+  starego Continue Furfura (`furfur`) przechodzi przez nową migrację.
+  Pierwsza brama padła w `contact-receipts`, `weapons` i `collision`: testy
+  wprowadzają ciało w cios ręcznie, bez rozpoczęcia ataku; rodzaje zakładają
+  teraz stan same, gdy go brak (ActionKinds.act). Golden bez zmian. Pełne
+  Linux All PASS w osobnym klonie: 9042 sprawdzenia (o 1 więcej), golden
+  10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - E3b, mysz tylko obraca, 2026-11-08: nowy test w `core` (prawdziwy
   sterownik, ruch myszy nie zmienia żadnego pola liczbowego widoku) czerwony

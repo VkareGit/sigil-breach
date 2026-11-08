@@ -112,13 +112,14 @@ function T.run(Game)
       #calls == 1 and calls[1].name == sounds.step
     )
     calls = {}
-    e.turnAt = 0.7
+    e.act = e.act or {}
+    e.act.turnAt = 0.7
     for i = 1, 20 do
       e.phase = e.phase + 1 / 60
       C.update(A, g, 1 / 60)
     end
     check('the planted return pause has no false running steps', #calls == 0)
-    e.turnAt = nil
+    e.act.turnAt = nil
     e.phase, e.z = 0.9, 20.8
     C.update(A, g, 1 / 60)
     e.phase, e.z = 1.1, 21.2

@@ -249,18 +249,18 @@ function Tests.run(Game)
     for _ = 1, 480 do
       g.player.hp = g.player.maxHp
       g:update(dt, {})
-      if e.ai == 'strike' and e.attackKind == spec.id and (e.released or 0) > 0 then
+      if e.ai == 'strike' and e.attackKind == spec.id and (e.act.released or 0) > 0 then
         local frame = Animation.pose(g, e)
-        if e.released ~= last then
+        if e.act.released ~= last then
           frames[#frames + 1] = frame
-          last = e.released
+          last = e.act.released
           if last == 2 then
             local saved = Snapshot.capture(g)
             local image = Pose.sample(g, e).frame
             g:update(dt, {})
             Snapshot.restore(g, saved)
             e = g.enemies[1]
-            restored = e.released == 2 and Pose.sample(g, e).frame == image
+            restored = e.act.released == 2 and Pose.sample(g, e).frame == image
           end
         else
           stable = stable and frame == frames[#frames]

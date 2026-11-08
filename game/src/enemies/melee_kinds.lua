@@ -15,6 +15,7 @@ local Area = require('src.combat.area_contact')
 local Volumes = require('src.content.defs.area')
 local Pattern = require('src.enemies.ground_pattern')
 local ActionKinds = require('src.combat.action_kinds')
+local act = ActionKinds.act
 local Pools = require('src.session.world')
 local Defaults = require('src.content.combat_defaults')
 local K = Defaults.attacks
@@ -95,45 +96,50 @@ local function rushTime(e, atk)
   )
 end
 Kinds.charge = {
+  state = {
+    turnsLeft = 'new rushes left in this charge',
+    turnAt = 'when the next rush begins, on the strike clock',
+    turnStart = 'start of a planted return on the strike clock',
+  },
   execute = function(g, e, atk, a)
     face(g, e, atk, a)
     e.chargeTime = rushTime(e, atk)
-    e.turnsLeft, e.turnAt, e.turnStart = atk.turns, nil, nil
+    act(e).turnsLeft, act(e).turnAt, act(e).turnStart = atk.turns, nil, nil
   end,
   strike = function(g, e, atk, dt, ctx)
     -- A rush with turns stops, looks at the target again and goes.
-    if e.turnAt then
+    if act(e).turnAt then
       if atk.returnTurn then
         local off = MathX.wrapAngle(math.atan2(e.aimX - e.x, e.aimZ - e.z) - e.facing)
         local most = atk.returnTurn * dt
         e.facing = e.facing + math.max(-most, math.min(most, off))
       end
-      if e.phase < e.turnAt then
+      if e.phase < act(e).turnAt then
         return
       end
       local t = victimOf(g, e)
       if not atk.returnTurn then
         e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
       end
-      e.turnAt, e.turnStart = nil, nil
+      act(e).turnAt, act(e).turnStart = nil, nil
       face(g, e, atk, math.atan2(e.aimX - e.x, e.aimZ - e.z))
       e.chargeTime = e.phase + rushTime(e, atk)
       return
     end
     if ctx.before >= e.chargeTime then
-      if (e.turnsLeft or 0) > 0 and not e.didHit then
-        e.turnsLeft = e.turnsLeft - 1
-        e.turnAt = e.phase + atk.turnPause
+      if (act(e).turnsLeft or 0) > 0 and not e.didHit then
+        act(e).turnsLeft = act(e).turnsLeft - 1
+        act(e).turnAt = e.phase + atk.turnPause
         if atk.returnTurn then
           -- Looking at this position is part of the planted turn, not a hidden
           -- retarget on release. A later sidestep can avoid the returning rush.
           local t = victimOf(g, e)
           e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
           local off = MathX.wrapAngle(math.atan2(e.aimX - e.x, e.aimZ - e.z) - e.facing)
-          e.turnStart = e.phase
-          e.turnAt = e.phase + math.max(atk.turnPause, math.abs(off) / atk.returnTurn)
+          act(e).turnStart = e.phase
+          act(e).turnAt = e.phase + math.max(atk.turnPause, math.abs(off) / atk.returnTurn)
         end
-        e.chargeTime = e.turnAt + atk.maxTime
+        e.chargeTime = act(e).turnAt + atk.maxTime
       end
       return
     end
@@ -181,7 +187,7 @@ Kinds.charge = {
     end
   end,
   duration = function(e)
-    return (e.turnsLeft or 0) > 0 and not e.didHit and math.huge or e.chargeTime
+    return (act(e).turnsLeft or 0) > 0 and not e.didHit and math.huge or e.chargeTime
   end,
 }
 -- Whether a point lies in the blow's arc, along the way the body faces.
@@ -286,15 +292,16 @@ local function chase(g, e, atk, dt)
   end
 end
 Kinds.sweep = {
+  state = { trailed = 'its cut already left its trail' },
   execute = function(g, e, atk, a)
     face(g, e, atk, a)
-    e.trailed = nil
+    act(e).trailed = nil
   end,
   strike = function(g, e, atk, dt, ctx)
     lean(g, e, atk, dt, ctx)
     chase(g, e, atk, dt)
-    if atk.trail and not e.trailed and e.phase >= atk.active[1] then
-      e.trailed = true
+    if atk.trail and not act(e).trailed and e.phase >= atk.active[1] then
+      act(e).trailed = true
       Pattern.release(g, e, atk.trail, math.atan2(e.lungeX, e.lungeZ))
     end
     local t, contact = swing(g, e, atk, ctx)
@@ -304,13 +311,17 @@ Kinds.sweep = {
   end,
 }
 Kinds.seize = {
+  state = {
+    holding = 'id of the body in its grip',
+    holdUntil = 'when that grip closes, on the strike clock',
+  },
   execute = face,
   strike = function(g, e, atk, dt, ctx)
-    if e.holding then
-      local t = Pools.get(g, e.holding)
+    if act(e).holding then
+      local t = Pools.get(g, act(e).holding)
       if not t or t.hp <= 0 then
         ActionKinds.release(e)
-      elseif e.phase >= e.holdUntil then
+      elseif e.phase >= act(e).holdUntil then
         ActionKinds.release(e)
         hurt(g, e, atk, t)
       else
@@ -326,14 +337,14 @@ Kinds.seize = {
       if (t.invuln or 0) > 0 then
         Dodge.perfect(g, atk.packet, e, t)
       else
-        e.holding, e.holdUntil = t.id, e.phase + atk.grip
+        act(e).holding, act(e).holdUntil = t.id, e.phase + atk.grip
         Rules.addCondition(t, 'seized', Defaults.gripHold)
         Signal(g, 'Seized', { enemy = e, target = t.id })
       end
     end
   end,
   duration = function(e, atk)
-    return e.holding and math.huge or atk.duration
+    return act(e).holding and math.huge or atk.duration
   end,
 }
 -- The body springs back from its target; nothing lands.

@@ -144,11 +144,15 @@ function Anim.pose(g, e, observer)
     local t = Anim.actionPhase(e)
     -- An attack may hold its own painted frame (strike.<attack id>).
     local pose = posed(e, e.attackKind and ('strike.' .. e.attackKind) or 'strike')
-    local clock = pose.clock == 'release' and math.max(0, (e.released or 0) - 1)
+    local act = e.act
+    local clock = pose.clock == 'release' and math.max(0, (act and act.released or 0) - 1)
       or (pose.clock == 'seconds' and (e.phase or 0) or t)
     -- A returning charge plants its weight during its existing pause. Art
     -- samples that authoritative deadline; it never creates another timer.
-    local turn = e.turnAt and e.attackKind and Poses.resolve(Anim.poses(e), 'turn.' .. e.attackKind)
+    local turn = act
+      and act.turnAt
+      and e.attackKind
+      and Poses.resolve(Anim.poses(e), 'turn.' .. e.attackKind)
     local pause = turn and ActionPhase.turn(e)
     if pause then
       pose = turn

@@ -86,7 +86,7 @@ function Garden.watch(g, h)
     not e
     or e.hp <= 0
     or e.ai ~= 'windup'
-    or not e.harvestMarks
+    or not (e.act and e.act.harvestMarks)
     or e.attackKind ~= h.harvest.attack
   then
     h.harvest = nil

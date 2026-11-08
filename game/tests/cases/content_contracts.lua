@@ -190,6 +190,25 @@ function Tests.run()
       and resumed[2] == 'attacks'
       and resumed[3] == 2
   )
+  -- The state of a committed attack belongs to its kind (PLAN F3): a save
+  -- from before keeps it on the body, and loading moves it to e.act.
+  local Tree = require('src.core.data_tree')
+  local section = require('src.storage.save').section('pools')
+  local body = { id = 7, attackSpec = A.furfur.attacks[1], turnsLeft = 2, turnAt = 0.4, hp = 9 }
+  local idle = { id = 8, hp = 9 }
+  local moved = Tree.decode(
+    section.migrations[7]({ pools = Tree.encode({ enemies = { body, idle } }) }).pools
+  ).enemies
+  check(
+    'an older save moves an attack in progress into its own state',
+    section.version == 8
+      and moved[1].act
+      and moved[1].act.turnsLeft == 2
+      and moved[1].act.turnAt == 0.4
+      and moved[1].turnsLeft == nil
+      and moved[1].attackSpec == A.furfur.attacks[1]
+      and moved[2].act == nil
+  )
   return lines
 end
 return Tests

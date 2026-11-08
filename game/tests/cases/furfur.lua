@@ -142,7 +142,7 @@ function T.run(Game)
       local turned, movingAligned, frozen, turnRate = false, true, true, 0
       local lastAim, oldTurn
       for _ = 1, hz * 5 do
-        local facing, wasTurn = e.facing, e.turnAt
+        local facing, wasTurn = e.facing, e.act.turnAt
         step(g, e, 1 / hz, { strafe = 1 })
         if e.ai == 'strike' then
           if wasTurn then
@@ -160,7 +160,7 @@ function T.run(Game)
             lastAim = nil
           end
         end
-        oldTurn = e.turnAt
+        oldTurn = e.act.turnAt
       end
       check('a moving rush faces its actual direction / ' .. hz, movingAligned)
       check(
@@ -349,7 +349,7 @@ function T.run(Game)
     )
     e.ai = 'strike'
     Actions.execute(g, e)
-    check('the legacy charge still executes', e.turnsLeft == 2 and e.chargeTime > 0)
+    check('the legacy charge still executes', e.act.turnsLeft == 2 and e.chargeTime > 0)
     check(
       'new choices use the current charge after legacy completion',
       Enemies.furfur.attacks[2].turns == 1

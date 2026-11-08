@@ -1,4 +1,6 @@
 local Spawn = require('src.session.spawn')
+local ActionKinds = require('src.combat.action_kinds')
+local act = ActionKinds.act
 local Pools = require('src.session.world')
 local Anchor = require('src.enemies.contact_anchor')
 local Ground = require('src.physics.ground')
@@ -11,13 +13,14 @@ local Dodge = require('src.combat.dodge')
 local K = require('src.content.combat_defaults').attacks
 local Kinds = {}
 Kinds.stream = {
+  state = { streamHits = 'bodies already met by the current finite exhale' },
   execute = function(g, e, a, angle)
     Contact.face(g, e, a, angle)
     local mouth = Stream.shape(g, e, a)
     -- The painted mouth is off the body's centre. Aim from that source once;
     -- keep this bearing throughout the exhale when the target steps away.
     Contact.face(g, e, a, math.atan2(e.aimX - mouth.x, e.aimZ - mouth.z))
-    e.streamHits = {}
+    act(e).streamHits = {}
   end,
   strike = function(g, e, a, dt, ctx)
     if ctx.before >= a.duration then
@@ -26,7 +29,7 @@ Kinds.stream = {
     local s = Stream.shape(g, e, a)
     Bodies.each(g, function(b)
       local key = b.id or 'knight'
-      if e.streamHits[key] or not Bodies.harms(g, Bodies.side(g, e), b, 'hazard') then
+      if act(e).streamHits[key] or not Bodies.harms(g, Bodies.side(g, e), b, 'hazard') then
         return false
       end
       local previous = b == Bodies.controlled(g) and ctx.previous or Bodies.previous(g, b)
@@ -37,10 +40,10 @@ Kinds.stream = {
         receipt.kind, receipt.id, receipt.owner, receipt.target = 'stream', a.id, e.id, b.id
         receipt.time, receipt.fraction = dt, 1
         g:damageBody(b, a.packet.base, e.x, e.z, a.packet, e, { contact = receipt })
-        e.streamHits[key] = true
+        act(e).streamHits[key] = true
       elseif ghost and Stream.test(g, s, b, ghost) then
         Dodge.perfect(g, a.packet, e, b)
-        e.streamHits[key] = true
+        act(e).streamHits[key] = true
       end
       return false
     end)
@@ -85,20 +88,21 @@ Kinds.sow = {
   end,
 }
 Kinds.harvest = {
+  state = { harvestMarks = 'owned patches committed to the eruption; shared save references' },
   unseen = true,
   available = Garden.available,
   commit = function(g, e, a)
-    e.harvestMarks = {}
+    act(e).harvestMarks = {}
     for _, h in ipairs(Pools.of(g, 'hazards')) do
       if Garden.eligible(g, e, a, h) and h.life > e.windupDuration + a.life then
-        e.harvestMarks[#e.harvestMarks + 1] = h
+        act(e).harvestMarks[#act(e).harvestMarks + 1] = h
         h.harvest = { attack = a.id, radius = a.radius, duration = e.windupDuration }
       end
     end
   end,
   execute = function(g, e, a, angle)
     Contact.face(g, e, a, angle)
-    for _, h in ipairs(e.harvestMarks or {}) do
+    for _, h in ipairs(act(e).harvestMarks or {}) do
       if h and h.harvest and h.owner == e.id and h.life > 0 then
         h.radius, h.volume, h.packet = a.radius, a.volume, a.packet
         h.condition = nil
@@ -106,7 +110,7 @@ Kinds.harvest = {
         h.harvest, h.erupting, h.art = nil, true, a.art
       end
     end
-    e.harvestMarks = nil
+    act(e).harvestMarks = nil
   end,
 }
 return Kinds

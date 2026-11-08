@@ -100,8 +100,6 @@ C.schemas = {
     phaseEnteredAt = f(nil, 'simulation time of the current encounter phase transition'),
     phaseBaseHp = f(nil, 'spawn HP, basis of later health stocks'),
     ai = f('idle', 'state: idle, move, windup, strike, recover, hurt'),
-    streamHits = f(nil, 'bodies already met by the current finite exhale'),
-    harvestMarks = f(nil, 'owned patches committed to an eruption; shared save references'),
     phase = f(0, 'time in the state', clock),
     recover = f(0, nil, clock),
     spent = f(0, 'what is left of the recovery after a blow: it moves but cannot strike (s)'),
@@ -128,6 +126,10 @@ C.schemas = {
     slotWaitAt = f(nil, 'when the ready body first waited for an attack slot'),
     slotWaitTarget = f(nil, 'the target of that optional waiting claim'),
     attackSpec = f(nil),
+    act = f(
+      nil,
+      "the committed attack's own state, declared by its kind (combat/action_kinds.lua)"
+    ),
     attackKind = f(nil),
     attackCount = f(0),
     lastAttack = f(nil, 'last committed attack, for contextual selection'),
@@ -149,13 +151,6 @@ C.schemas = {
     chainFrom = f(nil, 'the attack that string came from'),
     stringCount = f(nil, 'commitments in the current bounded string, including reactive blows'),
     stringLimit = f(nil, 'maximum commitments captured when this string began'),
-    holding = f(nil, 'id of the body in its grip'),
-    holdUntil = f(nil, 'when that grip closes, on the strike clock'),
-    trailed = f(nil, 'its cut already left its trail'),
-    released = f(nil, 'missiles or bolts of this strike so far'),
-    turnsLeft = f(nil, 'new rushes left in this charge'),
-    turnAt = f(nil, 'when the next rush begins, on the strike clock'),
-    turnStart = f(nil, 'start of a planted return on the strike clock'),
     summoner = f(nil, 'id of the body that called it'),
   },
   rush = {

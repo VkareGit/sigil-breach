@@ -126,7 +126,7 @@ function T.run(Game)
       if e.ai == 'strike' then
         g.player.x = 22
       end
-      if e.turnAt then
+      if e.act.turnAt then
         pause = true
         break
       end

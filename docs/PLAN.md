@@ -265,6 +265,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   pozostałe dźwięki wybierane przez symulację (`Presentation.cue` w walce
   i u stworów) i nazwane haki poza ruchem rycerza (przegląd jakości, pkt 5).
   Następny: F3 (E4 i E5 w głównej części zrobione wcześniej).
+- 2026-11-08, **F3 krok a zrobiony:** stan ataku jednego rodzaju w `e.act`,
+  deklarowany przez rodzaj (`state`), zapis pul 8 z migracją, reguła ATTACK
+  STATE. Golden bez zmian. Zostaje z F3: wspólne pola przebiegu ataku
+  (zatrzymanie, łańcuch, ciąg, oznaczony cios na ziemi) i wersja stanu
+  rodzaju w zapisie; klocki mechanik (wyrzut, pocisk, osad, fala, ruch
+  ciała); wybór pozy z rejestru stanów i zegar symulacji dla póz maski.
 
 ## Decyzje właściciela
 

@@ -57,7 +57,8 @@ function T.run(Game, renderer)
   e.phase = 0.2
   local second = Anim.pose(g, e)
   check('the running charge advances its feet during travel', first ~= second)
-  e.turnAt, e.phase = 1.4, 1.02
+  e.act = e.act or {}
+  e.act.turnAt, e.phase = 1.4, 1.02
   local brace = Anim.pose(g, e)
   check(
     'the return pause plants a different pose from either running foot',

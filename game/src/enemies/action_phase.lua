@@ -41,11 +41,13 @@ ActionPhase.register('charge', function(e)
 end)
 -- The existing return deadline also supplies the planted presentation pose.
 function ActionPhase.turn(e)
-  local pause = e.turnStart and e.turnAt and e.turnAt - e.turnStart or attack(e).turnPause
-  if not e.turnAt or not finitePositive(pause) then
+  local act = e.act
+  local turnAt, turnStart = act and act.turnAt, act and act.turnStart
+  local pause = turnStart and turnAt and turnAt - turnStart or attack(e).turnPause
+  if not turnAt or not finitePositive(pause) then
     return nil
   end
-  return math.max(0, math.min(1, 1 - (e.turnAt - (e.phase or 0)) / pause))
+  return math.max(0, math.min(1, 1 - (turnAt - (e.phase or 0)) / pause))
 end
 function ActionPhase.sample(e, state)
   state = state or e.ai

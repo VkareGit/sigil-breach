@@ -208,11 +208,44 @@ local function actorDefaults(knight)
   end
   Characters.born(knight)
 end
+-- Body fields that became the committed attack's own state (pools 8).
+M.movedToAct = {
+  'streamHits',
+  'harvestMarks',
+  'holding',
+  'holdUntil',
+  'trailed',
+  'released',
+  'turnsLeft',
+  'turnAt',
+  'turnStart',
+}
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 7,
+  version = 8,
   migrations = {
+    -- PLAN F3: the state of a committed attack moved off the body into
+    -- e.act, the table its kind declares.
+    [7] = function(data)
+      local all = Tree.decode(data.pools)
+      for _, list in pairs(all) do
+        for _, e in ipairs(list) do
+          local act
+          for _, name in ipairs(M.movedToAct) do
+            if e[name] ~= nil then
+              act = act or {}
+              act[name], e[name] = e[name], nil
+            end
+          end
+          if act or (e.attackSpec and e.act == nil) then
+            e.act = act or {}
+          end
+        end
+      end
+      data.pools = Tree.encode(all)
+      return data
+    end,
     [6] = function(data)
       return require('src.storage.definition_migration').pools(data, 6)
     end,

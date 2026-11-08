@@ -1,4 +1,6 @@
 -- The attack kinds that send something across the floor (plan v10 V6:
+local ActionKinds = require('src.combat.action_kinds')
+local act = ActionKinds.act
 -- enemies/actions.lua split by responsibility): the marked thunderbolt, the
 -- pool, the fan and the bolt. Each kind's fields and defaults:
 -- content/defs/action.lua.
@@ -270,14 +272,15 @@ Kinds.tempest = {
 }
 -- Missiles let go in turn, each at where the target is by then.
 Kinds.salvo = {
+  state = { released = 'missiles let go so far' },
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    e.released = 0
+    act(e).released = 0
   end,
   strike = function(g, e, atk)
-    while e.released < atk.count and e.phase >= e.released * atk.interval do
+    while act(e).released < atk.count and e.phase >= act(e).released * atk.interval do
       local t = Contact.victim(g, e)
-      e.released = e.released + 1
+      act(e).released = act(e).released + 1
       e.aimX, e.aimZ, e.aimLevel = t.x, t.z, t.level
       local a = math.atan2(e.aimX - e.x, e.aimZ - e.z)
       launch(g, atk, atk.speed, aimed(g, e, a, atk))
@@ -289,15 +292,16 @@ Kinds.salvo = {
 }
 -- Bolts marked where the target stands, falling when it may have left.
 Kinds.storm = {
+  state = { released = 'bolts marked so far' },
   unseen = true,
   execute = function(g, e, atk, a)
     Contact.face(g, e, atk, a)
-    e.released = 0
+    act(e).released = 0
   end,
   strike = function(g, e, atk)
-    while e.released < atk.count and e.phase >= e.released * atk.interval do
+    while act(e).released < atk.count and e.phase >= act(e).released * atk.interval do
       local t = Contact.victim(g, e)
-      e.released = e.released + 1
+      act(e).released = act(e).released + 1
       if not atk.requireSight or Rules.sees(g, e, t) then
         Hazards.add(g, t.x, t.z, atk.delay, atk.radius, atk.life, {
           kind = 'lightning',

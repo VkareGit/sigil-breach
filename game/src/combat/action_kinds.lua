@@ -14,9 +14,28 @@ local Registry = require('src.core.registry')
 local Kinds = Registry:new('action executors', function(_, id)
   Action.kinds:get(id)
 end)
+-- The state of a committed attack belongs to its kind (PLAN F3): each kind
+-- declares what it keeps in e.act (state = { field = meaning }), a fresh
+-- table at every commitment (enemies/actions.lua), never a field of the body.
+function Kinds.state(id)
+  local kind = Kinds:find(id)
+  return kind and kind.state or {}
+end
+-- The attack state of a body, made when a body was put into its attack
+-- without a commitment (a test, a catalogue pose).
+function Kinds.act(e)
+  local act = e.act
+  if not act then
+    act = {}
+    e.act = act
+  end
+  return act
+end
 -- A commitment broken before release: what it marked on the ground goes with it.
 function Kinds.abandon(e)
-  e.harvestMarks, e.streamHits = nil, nil
+  if e.act then
+    e.act.harvestMarks, e.act.streamHits = nil, nil
+  end
   local mark = e.pendingHazard
   if mark then
     mark.cancelled = true
@@ -27,6 +46,8 @@ function Kinds.abandon(e)
 end
 -- A holder that falters lets go, whatever else it was doing.
 function Kinds.release(e)
-  e.holding, e.holdUntil = nil, nil
+  if e.act then
+    e.act.holding, e.act.holdUntil = nil, nil
+  end
 end
 return Kinds

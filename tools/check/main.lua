@@ -673,6 +673,46 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- The state of a committed attack belongs to its kind (PLAN F3): every
+  -- e.act field is declared by a kind (state = { ... } in src/enemies/*_kinds),
+  -- and simulation never keeps such a field on the body itself.
+  local declaredState = {}
+  for id, text in pairs(sources) do
+    if id:match('^src%.enemies%.[%w_]*_kinds$') then
+      for block in text:gmatch('\n%s*state%s*=%s*(%b{})') do
+        for name in block:gmatch('([%a_][%w_]*)%s*=') do
+          declaredState[name] = true
+        end
+      end
+    end
+  end
+  for id, text in pairs(sources) do
+    if id:match('^src%.') then
+      local simulation = id:match('^src%.enemies%.')
+        or id:match('^src%.combat%.')
+        or id:match('^src%.session%.')
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        for _, pattern in ipairs({
+          '%.act%.([%a_][%w_]*)',
+          '%f[%w_]act%(%s*[%w_]+%s*%)%.([%a_][%w_]*)',
+        }) do
+          for name in code:gmatch(pattern) do
+            if not declaredState[name] then
+              failure('ATTACK STATE ' .. id .. ': act.' .. name .. ' is declared by no kind')
+            end
+          end
+        end
+        if simulation then
+          for owner, name in code:gmatch('([%a_][%w_]*)%.([%a_][%w_]*)') do
+            if declaredState[name] and owner ~= 'act' and owner ~= 'M' then
+              failure('ATTACK STATE ' .. id .. ': ' .. name .. ' belongs to e.act, not the body')
+            end
+          end
+        end
+      end
+    end
+  end
   -- The body publishes, presentation answers (PLAN E3): a knight's step in
   -- src/player chooses no sound and writes no view field; the camera, hands
   -- and sounds answer its 'motion.*' facts in feedback/motion.lua.

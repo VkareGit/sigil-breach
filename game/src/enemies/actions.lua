@@ -109,6 +109,8 @@ local function beginAttack(g, e, d, chosen, continuation)
   end
   e.attackSpec = atk
   e.attackKind = atk.id
+  -- What this attack keeps while it lasts, declared by its kind (combat/action_kinds.lua).
+  e.act = {}
   change(e, 'windup')
   e.windupDuration = atk.windup
   local p = victimOf(g, e)
