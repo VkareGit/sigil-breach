@@ -337,6 +337,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   definicja, arkusz, anatomia, profil dźwięku, głosy, teksty. Golden bez
   zmian. Następny: G3 (style rysowania z rejestru zamiast modułów pod
   jedną postać).
+- 2026-11-08, **G3 zrobione:** malarze stylów w `render/painters/` z rejestru,
+  miejsca rysowania bez nazw malarzy, `combat/deposits.lua` zamiast
+  `combat/garden.lua`. Obraz i golden bez zmian. Następny: F5 (testy
+  kontraktu), potem G4 (struktura świata).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 

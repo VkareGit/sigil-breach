@@ -22,7 +22,7 @@ local Bodies = require('src.combat.bodies')
 local Factions = require('src.content.factions')
 local Roles = require('src.core.roles')
 local K = Defaults.missiles
-local Garden = require('src.combat.garden')
+local Deposits = require('src.combat.deposits')
 local P = {}
 local finite = MathX.finite
 -- Whether a missile of this side can harm any creature: its hostile sides
@@ -370,7 +370,7 @@ end
 local function deliver(g, event)
   local b = event.bullet
   if event.wall then
-    Garden.land(g, b, event.normal)
+    Deposits.land(g, b, event.normal)
   end
   if event.player and event.enemy then
     strikeDemon(g, b, event.enemy, event.part, event.surface)

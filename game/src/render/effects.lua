@@ -2,6 +2,7 @@ local Ballistics = require('src.combat.ballistics')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local Weapon = require('src.render.weapon')
 local HazardKinds = require('src.render.hazard_kinds')
+local Painters = require('src.render.painters')
 local Context = require('src.session.context')
 local Action = require('src.content.defs.action')
 local Rites = require('src.content.art.rites')
@@ -169,7 +170,7 @@ function E.spells(r, g)
     end
   end
   for _, burst in ipairs(g.view.poolBursts or {}) do
-    require('src.render.ash_art').residue(r, g, burst, g.elapsed - burst.starts)
+    Painters.residue('poolBursts')(r, g, burst, g.elapsed - burst.starts)
   end
   for _, burst in ipairs(g.view.impactBursts or {}) do
     require('src.render.impact_art').draw(r, g, burst, g.elapsed - burst.starts)
@@ -178,7 +179,7 @@ function E.spells(r, g)
     HazardKinds.rayAfterimage(r, g, burst, g.elapsed - burst.starts)
   end
   for _, burst in ipairs(g.view.lightningBursts or {}) do
-    require('src.render.storm_art').residue(r, g, burst, g.elapsed - burst.starts)
+    Painters.residue('lightningBursts')(r, g, burst, g.elapsed - burst.starts)
   end
   for _, burst in ipairs(g.view.blinkBursts or {}) do
     local age = g.elapsed - burst.starts

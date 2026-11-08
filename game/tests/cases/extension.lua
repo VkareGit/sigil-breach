@@ -525,6 +525,51 @@ function Tests.run(G)
     'a sigil from data alone sharpens a shot through its own kind of effect',
     registry and math.abs(struck.base - 60) < 1e-9
   )
+  -- A new painted style from a painter alone (PLAN G3): the painters claim
+  -- what they paint by its data, and the places that draw ask the registry,
+  -- never a painter by name.
+  local painted, Painters = pcall(require, 'src.render.painters')
+  local strokes = 0
+  if painted then
+    Painters:register('trial_marks', {
+      hazards = {
+        pool = {
+          ground = function(_, _, h)
+            if h.art ~= 'trial_mark' then
+              return false
+            end
+            strokes = strokes + 1
+            return true
+          end,
+        },
+      },
+    })
+  end
+  local HazardKinds = require('src.render.hazard_kinds')
+  local markedPool = { kind = 'pool', art = 'trial_mark', delay = 0, radius = 1 }
+  local drew = pcall(HazardKinds:get('pool').ground, nil, {}, markedPool)
+  if painted then
+    Painters:unregister('trial_marks')
+  end
+  local named = {}
+  for _, file in ipairs({
+    'src/render/hazard_kinds.lua',
+    'src/render/effects.lua',
+    'src/render/cast_accents.lua',
+    'src/render/passes/projectiles.lua',
+  }) do
+    local text = love.filesystem.read(file) or ''
+    for style in text:gmatch("'src%.render%.(%w+)_art'") do
+      if style ~= 'hazard' and style ~= 'impact' and style ~= 'weapon' then
+        named[#named + 1] = file .. ': ' .. style
+      end
+    end
+  end
+  check(
+    'a painter registered alone paints its style, and drawing names no painter: '
+      .. table.concat(named, ', '),
+    painted and drew and strokes == 1 and #named == 0
+  )
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')

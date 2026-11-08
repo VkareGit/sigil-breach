@@ -1,4 +1,5 @@
--- Sparse painted fractures stand on the real footprint, visible from inside it.
+-- The painter of lightning rites (content/art/rites.lua: lightnings, PLAN G3):
+-- sparse painted fractures stand on the real footprint, visible from inside it.
 -- All panels share one bounded mesh; the source paintings remain unchanged.
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
@@ -50,4 +51,7 @@ function Storm.residue(r, g, h, age)
     HazardArt.circle(r, g, h, style.spent, h.radius * 0.5, 0.45 * (1 - age / style.embers))
   end
 end
+-- What it paints (render/painters.lua).
+Storm.hazards = { lightning = { ground = Storm.ground, air = Storm.air } }
+Storm.residues = { lightningBursts = Storm.residue }
 return Storm

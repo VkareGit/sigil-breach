@@ -75,6 +75,22 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G3, style rysowania z rejestru, 2026-11-08: moduły rysowania nazwane po
+  postaciach stały się malarzami rodzin stylów w `render/painters/`:
+  `pool_rites.lua` (dawne `ash_art`, style `Rites.pools`), `lightning_rites.lua`
+  (dawne `storm_art`, style `Rites.lightnings`) i `pigment.lua` (dawne
+  `garden_art`). Rejestr `render/painters.lua` odnajduje je po katalogu; każdy
+  malarz deklaruje, co rysuje (ślady według rodzaju, pozostałości, rzuty,
+  pociski), i sam rozpoznaje swoje po danych. `hazard_kinds`, `effects`,
+  `cast_accents` i `passes/projectiles` pytają rejestr i nie znają żadnego
+  malarza; kolejność rysowania bez zmian. Nazwy pocisków i rodzajów ataków
+  malowanych pigmentem przeszły z kodu do danych stylu
+  (`content/art/garden.lua`). `combat/garden.lua` (złoża posiadane przez ciało,
+  z limitem) to teraz ogólny klocek `combat/deposits.lua`; zapisane pole
+  `garden` zostaje (zmiana wymagałaby migracji). `combat/stream.lua`
+  i `render/ritual_art.lua` już są ogólne (strumień, pieczęcie świata).
+  Obraz bez zmian. Gra i golden bez zmian.
+
 - F4d, teksty stwora w pakiecie, 2026-11-08: nazwa, karta bestiariusza
   i paski stanu każdego stwora (klucze `creature_<id>…`, 25 wpisów) przeszły
   z `content/text.lua` do `words.lua` jego pakietu; `text.lua` dopisuje je
@@ -4730,6 +4746,15 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G3, style rysowania z rejestru, 2026-11-08: nowe sprawdzenie w
+  `extension`, czerwone przed zmianą: malarz zarejestrowany sam rysuje swój
+  styl, a miejsca rysowania nie nazywają żadnego malarza (na starym kodzie
+  7 miejsc). Zestawy grafiki postaci (Margrave 23, Star Acolyte 37, Iron
+  Thrall 23, Furfur 18, Gardener 90) bez zmian. Rendery pokazu (`--showcase`)
+  porównane bajt w bajt z bramą sprzed zmiany: 788 obrazów, wszystkie identyczne. Golden bez zmian.
+  Pełne Linux All PASS w osobnym klonie: 9078 sprawdzeń, golden 10 PASS,
+  `feel` 186 PASS. Windows niesprawdzony.
 
 - F4d, teksty stwora w pakiecie, 2026-11-08: nowe sprawdzenie
   w `content-contracts`, czerwone na starym `text.lua`: każdy stwór ma

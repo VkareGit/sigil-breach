@@ -127,7 +127,7 @@ function T.run(Game)
     )
   end
   local Hazards = require('src.enemies.hazards')
-  local Garden = require('src.combat.garden')
+  local Deposits = require('src.combat.deposits')
   local Spawn = require('src.session.spawn')
   local Pools = require('src.session.world')
   local Save = require('src.storage.save')
@@ -173,7 +173,7 @@ function T.run(Game)
     fly(g, rate)
     check(
       'three landed seeds respect capacity / ' .. rate,
-      #g.hazards == 3 and Garden.count(g, e.id, 'rot') == 3
+      #g.hazards == 3 and Deposits.count(g, e.id, 'rot') == 3
     )
     check(
       'full garden cannot start another sow / ' .. rate,

@@ -7,7 +7,7 @@ local Contact = require('src.enemies.attack_contact')
 local Bodies = require('src.combat.bodies')
 local Area = require('src.combat.area_contact')
 local Stream = require('src.combat.stream')
-local Garden = require('src.combat.garden')
+local Deposits = require('src.combat.deposits')
 local Dodge = require('src.combat.dodge')
 local Mechanics = require('src.enemies.mechanics')
 local Kinds = {}
@@ -53,14 +53,14 @@ Kinds.stream = {
 }
 Kinds.sow = {
   available = function(g, e, a)
-    return not a.needsSpace or (g and Garden.count(g, e.id, a.deposit.group) < a.deposit.limit)
+    return not a.needsSpace or (g and Deposits.count(g, e.id, a.deposit.group) < a.deposit.limit)
   end,
   execute = function(g, e, a, angle)
     Contact.face(g, e, a, angle)
     local x, y, z = Anchor.point(g, e, e.phase, e.x, e.z, a.anchor)
     x, y, z = x or e.x, Ground.of(g.world, e) + (y or a.height), z or e.z
     for _, mark in ipairs(a.marks) do
-      local room = Garden.count(g, e.id, a.deposit.group) < a.deposit.limit
+      local room = Deposits.count(g, e.id, a.deposit.group) < a.deposit.limit
       if room or not a.needsSpace then
         local tx = e.aimX + math.sin(angle) * mark.forward + math.cos(angle) * mark.lateral
         local tz = e.aimZ + math.cos(angle) * mark.forward - math.sin(angle) * mark.lateral
@@ -75,11 +75,11 @@ Kinds.harvest = {
     act(e).harvestMarks = nil
   end,
   unseen = true,
-  available = Garden.available,
+  available = Deposits.available,
   commit = function(g, e, a)
     act(e).harvestMarks = {}
     for _, h in ipairs(Pools.of(g, 'hazards')) do
-      if Garden.eligible(g, e, a, h) and h.life > e.windupDuration + a.life then
+      if Deposits.eligible(g, e, a, h) and h.life > e.windupDuration + a.life then
         act(e).harvestMarks[#act(e).harvestMarks + 1] = h
         h.harvest = { attack = a.id, radius = a.radius, duration = e.windupDuration }
       end

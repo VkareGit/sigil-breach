@@ -7,42 +7,32 @@ local Ground = require('src.physics.ground')
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Registry = require('src.core.registry')
-local GardenArt = require('src.render.garden_art')
-local StormArt = require('src.render.storm_art')
-local AshArt = require('src.render.ash_art')
+local Painters = require('src.render.painters')
 local Kinds = Registry:new('hazard art', function(entry, id)
   HazardDefs:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
 end)
+-- A styled pool or lightning is its painter's (render/painters.lua); a plain
+-- one is drawn here.
 Kinds:register('pool', {
   ground = function(r, g, h)
-    if AshArt.ground(r, g, h) then
-      return
-    end
-    if h.garden then
-      GardenArt.pool(r, g, h)
-    else
+    if not Painters.hazard('ground', r, g, h) then
       HazardArt.draw(r, g, h)
     end
   end,
   air = function(r, g, h)
-    if AshArt.air(r, g, h) then
-      return
-    end
-    if h.garden then
-      GardenArt.eruption(r, g, h)
-    end
+    Painters.hazard('air', r, g, h)
   end,
 })
 Kinds:register('lightning', {
   ground = function(r, g, h)
-    if StormArt.ground(r, g, h) then
+    if Painters.hazard('ground', r, g, h) then
       return
     end
     HazardArt.circle(r, g, h, 'circle', h.radius, 1)
   end,
   air = function(r, g, h, effects)
-    if StormArt.air(r, g, h) then
+    if Painters.hazard('air', r, g, h) then
       return
     end
     local preparing = h.delay > 0

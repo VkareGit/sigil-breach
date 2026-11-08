@@ -1,4 +1,6 @@
--- Bodily pigment follows the same mouth, flight, ground and eruption clocks as contact.
+-- The painter of bodily pigment (content/art/garden.lua, PLAN G3): it follows
+-- the same mouth, flight, ground and eruption clocks as contact. It paints the
+-- casts, projectiles and owned pools its style names.
 local GardenPaint = require('src.content.art.garden')
 local HazardArt = require('src.render.hazard_art')
 local Stream = require('src.combat.stream')
@@ -7,12 +9,12 @@ local Ground = require('src.physics.ground')
 local Context = require('src.session.context')
 local G = {}
 local function resources(r)
-  if not r.gardenArt then
+  if not r.pigmentArt then
     local vertices = {}
     for _ = 1, GardenPaint.segments * 6 do
       vertices[#vertices + 1] = { 0, 0, 0, 0, 0 }
     end
-    r.gardenArt = {
+    r.pigmentArt = {
       vertices = vertices,
       mesh = r.native:own(
         love.graphics.newMesh(
@@ -24,7 +26,7 @@ local function resources(r)
       ),
     }
   end
-  return r.gardenArt
+  return r.pigmentArt
 end
 local corners = { { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, -1 }, { 1, 1 }, { -1, 1 } }
 function G.stream(r, g, e, a)
@@ -58,7 +60,7 @@ function G.stream(r, g, e, a)
 end
 function G.cast(r, g, e)
   local a = e.attackSpec
-  if not a or not a.art or (a.kind ~= 'stream' and a.kind ~= 'sow' and a.kind ~= 'harvest') then
+  if not a or not a.art or not GardenPaint.casts[a.kind] then
     return false
   end
   if e.ai == 'strike' and a.kind == 'stream' and e.phase <= a.duration then
@@ -112,7 +114,7 @@ function G.eruption(r, g, h)
   )
 end
 function G.projectile(r, g, b)
-  if b.art ~= 'rot-spit' and b.art ~= 'rot-seed' then
+  if not GardenPaint.projectiles[b.art] then
     return false
   end
   local frame = GardenPaint.seed[1 + math.floor(g.time * GardenPaint.rate) % #GardenPaint.seed]
@@ -130,4 +132,24 @@ function G.projectile(r, g, b)
   )
   return true
 end
+-- What it paints (render/painters.lua): an owned deposit (h.garden) is its pool
+-- on the ground and its eruption above.
+G.hazards = {
+  pool = {
+    ground = function(r, g, h)
+      if not h.garden then
+        return false
+      end
+      G.pool(r, g, h)
+      return true
+    end,
+    air = function(r, g, h)
+      if not h.garden then
+        return false
+      end
+      G.eruption(r, g, h)
+      return true
+    end,
+  },
+}
 return G

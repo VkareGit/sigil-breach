@@ -5,14 +5,14 @@ local Pools = require('src.session.world')
 local Context = require('src.session.context')
 local Rites = require('src.content.art.rites')
 local HazardArt = require('src.render.hazard_art')
-local GardenArt = require('src.render.garden_art')
+local Painters = require('src.render.painters')
 local Pass = {}
 function Pass.draw(r, g)
   local art = Rites.projectiles
   local viewer = Context.viewer(g)
   local frame = 1 + math.floor(g.time * art.rate) % 4
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    if not GardenArt.projectile(r, g, b) then
+    if not Painters.projectile(r, g, b) then
       local style = art.styles[b.packet and b.packet.damageType] or art.default
       local radius = Shape.radius(b)
       local size = radius * 2 / style.core

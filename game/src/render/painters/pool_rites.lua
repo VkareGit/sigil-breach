@@ -1,4 +1,7 @@
--- Ash warns above the true rim; living coals remain as low as their contact volume.
+-- The painter of pool rites (content/art/rites.lua: pools, PLAN G3), such as
+-- ash: it warns above the true rim; living coals remain as low as their
+-- contact volume. It paints a pool whose art names one of those styles and the
+-- residue such a pool leaves.
 local HazardArt = require('src.render.hazard_art')
 local Rites = require('src.content.art.rites')
 local Panels = require('src.render.painted_panels')
@@ -90,4 +93,7 @@ function Ash.residue(r, g, h, age)
     )
   end
 end
+-- What it paints (render/painters.lua).
+Ash.hazards = { pool = { ground = Ash.ground, air = Ash.air } }
+Ash.residues = { poolBursts = Ash.residue }
 return Ash

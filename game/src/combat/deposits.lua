@@ -1,4 +1,6 @@
--- Owned deposits reserve capacity in flight and remain ordinary finite pools.
+-- Owned deposits (PLAN G3: a general block, first used by the Plague Gardener):
+-- a body's deposits reserve capacity in flight and remain ordinary finite pools.
+-- Their family is the hazard's garden field (a saved field name).
 local Pools = require('src.session.world')
 local Spawn = require('src.session.spawn')
 local Ground = require('src.physics.ground')
@@ -7,8 +9,8 @@ local Collision = require('src.physics.collision')
 local K = require('src.content.combat_defaults').hazards
 local AttackDefaults = require('src.content.combat_defaults').attacks
 local Bodies = require('src.combat.bodies')
-local Garden = {}
-function Garden.count(g, owner, group)
+local Deposits = {}
+function Deposits.count(g, owner, group)
   local count = 0
   for _, h in ipairs(Pools.of(g, 'hazards')) do
     if h.owner == owner and h.garden == group and h.life > 0 then
@@ -22,12 +24,12 @@ function Garden.count(g, owner, group)
   end
   return count
 end
-function Garden.land(g, b, normal)
+function Deposits.land(g, b, normal)
   local d = b.deposit
   if not d or not normal or normal[2] <= 0 then
     return
   end
-  if Garden.count(g, b.owner, d.group) >= d.limit then
+  if Deposits.count(g, b.owner, d.group) >= d.limit then
     return
   end
   local level = Ground.height(g.world, b.x, b.z, b.y)
@@ -54,7 +56,7 @@ function Garden.land(g, b, normal)
     interval = d.pulse,
   })
 end
-function Garden.eligible(g, e, a, h)
+function Deposits.eligible(g, e, a, h)
   return h.owner == e.id
     and h.side == Bodies.side(g, e)
     and h.garden == a.group
@@ -66,18 +68,18 @@ function Garden.eligible(g, e, a, h)
     and math.abs(Ground.of(g.world, h) - Ground.of(g.world, e)) < 1e-6
     and Arena.visible(g.world, e.x, e.z, h.x, h.z)
 end
-function Garden.available(g, e, a)
+function Deposits.available(g, e, a)
   if not g then
     return false
   end
   for _, h in ipairs(Pools.of(g, 'hazards')) do
-    if Garden.eligible(g, e, a, h) then
+    if Deposits.eligible(g, e, a, h) then
       return true
     end
   end
   return false
 end
-function Garden.watch(g, h)
+function Deposits.watch(g, h)
   if not h.harvest then
     return
   end
@@ -92,4 +94,4 @@ function Garden.watch(g, h)
     h.harvest = nil
   end
 end
-return Garden
+return Deposits

@@ -8,7 +8,7 @@ local Ground = require('src.physics.ground')
 local Context = require('src.session.context')
 local Archetypes = require('src.content.enemies')
 local Accents = {}
-local GardenArt = require('src.render.garden_art')
+local Painters = require('src.render.painters')
 local posed = {}
 local function centre(g, e, id)
   local p = Surface.prepare(g, e, posed)
@@ -20,7 +20,7 @@ function Accents.draw(r, g, e, effects)
   if e.hp <= 0 then
     return false
   end
-  if GardenArt.cast(r, g, e) then
+  if Painters.cast(r, g, e) then
     return true
   end
   local look = Archetypes.look(e)
