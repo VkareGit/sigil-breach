@@ -1,47 +1,93 @@
 -- Sigils modify a real discharge/contact. A miss spends a first-shot charge;
 -- pellets share one frozen payload and a volley advances a verdict only once.
+-- The interpreter of the moments of a fight (PLAN G2): it calls the kind of
+-- effect of each sigil worn (combat/sigil_kinds.lua) in catalogue order and
+-- names no sigil.
 local SigilRules = require('src.content.sigils')
 local Copy = require('src.core.schema').copy
-local Characters = require('src.content.characters')
+local Kinds = require('src.combat.sigil_kinds')
 local S = {}
 function S.rank(p, id)
   return p and p.sigilRanks and p.sigilRanks[id] or 0
 end
-local function state(p)
-  p.sigilState = p.sigilState or {}
-  return p.sigilState
-end
 function S.reset(p)
   p.sigilState = nil
 end
+-- each(id, rank, def, kind) for every sigil worn, in catalogue order.
+local function worn(p, each)
+  for _, id in ipairs(SigilRules.order) do
+    local rank = S.rank(p, id)
+    if rank > 0 then
+      local def = SigilRules[id]
+      each(id, rank, def, Kinds:get(def.effect))
+    end
+  end
+end
+-- each(kind) for every kind of effect, worn or not, in registry order.
+local function every(each)
+  for _, id in ipairs(Kinds:ids()) do
+    each(Kinds:get(id))
+  end
+end
+-- A hit is seen once by each sigil, through either of its moments.
+local function first(event, id)
+  event.sigilsSeen = event.sigilsSeen or {}
+  local seen = event.sigilsSeen[id]
+  event.sigilsSeen[id] = true
+  return not seen
+end
 function S.dodgeCost(p, base)
-  return base + (S.rank(p, 'sigil_furfur') > 0 and SigilRules.sigil_furfur.stamina or 0)
+  local cost = base
+  worn(p, function(_, rank, def, kind)
+    if kind.dodgeCost then
+      cost = cost + kind.dodgeCost(rank, def)
+    end
+  end)
+  return cost
 end
 function S.perfect(g, p)
-  if S.rank(p, 'sigil_furfur') > 0 then
-    state(p).furfurUntil = g.elapsed + SigilRules.sigil_furfur.window
-  end
+  worn(p, function(_, rank, def, kind)
+    if kind.perfect then
+      kind.perfect(g, p, rank, def)
+    end
+  end)
 end
 function S.flask(p, heal)
-  return math.max(0, heal - (S.rank(p, 'sigil_buer') > 0 and SigilRules.sigil_buer.flask or 0))
+  local less = 0
+  worn(p, function(_, rank, def, kind)
+    if kind.flask then
+      less = less + kind.flask(rank, def)
+    end
+  end)
+  return math.max(0, heal - less)
 end
 function S.reloadStart(p, id, empty)
-  if S.rank(p, 'sigil_paimon') <= 0 then
-    return 0
-  end
-  state(p).reloadEmpty = empty and id or nil
-  return SigilRules.sigil_paimon.reload
+  local shorter = 0
+  worn(p, function(_, rank, def, kind)
+    if kind.reloadStart then
+      shorter = shorter + kind.reloadStart(p, rank, def, id, empty)
+    end
+  end)
+  return shorter
 end
 function S.reloadCancel(p)
-  if p.sigilState then
-    p.sigilState.reloadEmpty = nil
+  local state = p.sigilState
+  if state then
+    every(function(kind)
+      if kind.reloadCancel then
+        kind.reloadCancel(state)
+      end
+    end)
   end
 end
 function S.reloaded(p, id, loaded)
-  local s = p.sigilState
-  if s and s.reloadEmpty == id and loaded then
-    s.paimon = s.paimon or {}
-    s.paimon[id] = true
+  local state = p.sigilState
+  if state then
+    every(function(kind)
+      if kind.reloaded then
+        kind.reloaded(state, id, loaded)
+      end
+    end)
   end
   S.reloadCancel(p)
 end
@@ -49,98 +95,75 @@ function S.shot(g, p, id, attack, pellets)
   if not p.sigilRanks or not next(p.sigilRanks) then
     return attack
   end
-  local s, out = state(p), Copy(attack)
-  local stolas = id == SigilRules.sigil_stolas.weapon and S.rank(p, 'sigil_stolas') or 0
-  local furfur = (s.furfurUntil or 0) > g.elapsed and S.rank(p, 'sigil_furfur') or 0
-  local paimon = s.paimon and s.paimon[id] and S.rank(p, 'sigil_paimon') or 0
-  out.sigil = {
-    stolas = stolas,
-    target = s.verdictReady and s.verdictTarget or nil,
-    bonus = SigilRules.sigil_furfur.bonus[furfur] or 0,
-  }
-  if paimon > 0 then
-    local extra = SigilRules.sigil_paimon.impact[paimon] / math.max(1, pellets)
-    out.impact = (out.impact or out.base) + extra
-    -- Impetus adds guard damage, without inventing extra health damage or shove.
-    out.push = attack.push or attack.impact or attack.base
-  end
-  s.furfurUntil = nil
-  if s.paimon then
-    s.paimon[id] = nil
-  end
+  local state, out = Kinds.state(p), Copy(attack)
+  local carried = {}
+  worn(p, function(sigil, rank, def, kind)
+    if kind.shot then
+      carried[sigil] = kind.shot(g, p, rank, def, state, id, out, attack, pellets)
+    end
+  end)
+  out.sigil = carried
+  every(function(kind)
+    if kind.spent then
+      kind.spent(state, id)
+    end
+  end)
   return out
 end
 function S.contact(attack, target, part)
-  local sigil = attack.sigil
-  if not sigil then
+  local carried = attack.sigil
+  if not carried then
     return attack
   end
-  local bonus = sigil.bonus
-  if sigil.stolas > 0 and part == 'head' and sigil.target == target.id then
-    bonus = bonus + SigilRules.sigil_stolas.bonus[sigil.stolas]
+  local bonus, factor = 0, 1
+  for _, id in ipairs(SigilRules.order) do
+    local payload, def = carried[id], SigilRules[id]
+    local kind = payload and Kinds:get(def.effect)
+    if kind and kind.contact then
+      local more, times = kind.contact(payload, def, target, part)
+      bonus, factor = bonus + more, factor * times
+    end
   end
   local out = Copy(attack)
   out.base = attack.base * (1 + math.min(SigilRules.damageCap, bonus))
-  if sigil.stolas > 0 and part == 'torso' then
-    out.base = out.base * SigilRules.sigil_stolas.torso
+  if factor ~= 1 then
+    out.base = out.base * factor
   end
   return out
 end
 function S.resolved(p, attack, report)
-  local sigil = attack.sigil
-  if not sigil or sigil.counted or sigil.stolas <= 0 then
+  local carried = attack.sigil
+  if not carried then
     return
   end
-  sigil.counted = true
-  local first = report.hitTargets[1]
-  if not first or first.healthDamage <= 0 then
-    return
-  end
-  local s = state(p)
-  if sigil.target == first.id and first.headHits > 0 then
-    s.verdictHits, s.verdictReady = 0, nil
-  else
-    if s.verdictTarget ~= first.id then
-      s.verdictHits, s.verdictReady = 0, nil
+  for _, id in ipairs(SigilRules.order) do
+    local payload, def = carried[id], SigilRules[id]
+    local kind = payload and Kinds:get(def.effect)
+    if kind and kind.resolved and not payload.counted then
+      payload.counted = true
+      kind.resolved(p, payload, def, report)
     end
-    s.verdictHits = math.min(SigilRules.sigil_stolas.hits, (s.verdictHits or 0) + 1)
-    s.verdictReady = s.verdictHits >= SigilRules.sigil_stolas.hits or nil
   end
-  s.verdictTarget = first.id
 end
 function S.hurt(p, event)
-  if S.rank(p, 'sigil_buer') <= 0 or event.sigilBuerProcessed then
-    return
-  end
-  event.sigilBuerProcessed = true
-  if (event.info.lost or 0) > 0 then
-    state(p).buerReady = true
-  end
+  worn(p, function(id, rank, def, kind)
+    if kind.hurt and first(event, id) then
+      kind.hurt(p, rank, def, event)
+    end
+  end)
 end
--- Returns true when Buer owns rally for this hit, including a spent/expired
--- reprisal. The ordinary rate must not award a second recovery alongside it.
+-- True when a sigil owns the rally of this hit, including a spent or expired
+-- reprisal: the ordinary rate must not award a second recovery alongside it.
 function S.rally(p, event)
-  local rank = S.rank(p, 'sigil_buer')
-  if rank <= 0 then
-    return false
-  end
-  if event.sigilBuerProcessed then
-    return true
-  end
-  event.sigilBuerProcessed = true
-  local s, e = state(p), event.enemy
-  if not s.buerReady or not e or (event.health or 0) <= 0 then
-    return true
-  end
-  if (p.x - e.x) ^ 2 + (p.z - e.z) ^ 2 > SigilRules.sigil_buer.reach ^ 2 then
-    return true
-  end
-  s.buerReady = nil
-  local back = math.max(
-    0,
-    math.min(p.rally or 0, SigilRules.sigil_buer.heal[rank], Characters.maxHp(p) - p.hp)
-  )
-  p.hp, p.rally = p.hp + back, math.max(0, (p.rally or 0) - back)
-  return true
+  local owned = false
+  worn(p, function(id, rank, def, kind)
+    if kind.rally then
+      owned = true
+      if first(event, id) then
+        kind.rally(p, rank, def, event)
+      end
+    end
+  end)
+  return owned
 end
 return S

@@ -75,6 +75,18 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G2, rejestr efektów sigili, 2026-11-08: sigil to dane i rodzaj efektu.
+  `content/sigils.lua` daje każdemu sigilowi pole `effect` (Stolas: verdict,
+  Furfur: riposte, Buer: reprisal, Paimon: impetus); rodzaje są w rejestrze
+  `combat/sigil_kinds.lua` i podpinają się pod momenty walki (koszt uniku,
+  doskonały unik, flaska, przeładowanie, strzał, trafienie, rozliczenie salwy,
+  rana, odzysk). `combat/sigils.lua` przechodzi po noszonych sigilach
+  w kolejności katalogu i nie zna żadnego po nazwie. Nowy sigil wskazuje
+  istniejący rodzaj; nowy rodzaj to jeden wpis w rejestrze. Stan sigili
+  zostaje pod tymi samymi kluczami (zapis bez migracji). Liczby i zachowanie
+  bez zmian: sonda porównała stary i nowy interpreter w 36 000 losowych
+  momentach walki (wartości, stan, zdrowie, odzysk): zero różnic.
+
 - G1c, koniec zamrożonych kopii ataków, 2026-11-08: usunięte
   `content/migrations/` (kopie ataków Margrave'a, Furfura i Gardenera,
   925 linii), `storage/definition_migration.lua` i pole `savedAttacks`
@@ -4676,6 +4688,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G2, rejestr efektów sigili, 2026-11-08: nowe sprawdzenia, czerwone przed
+  zmianą: w `extension` sigil wyłącznie z danych z własnym rodzajem efektu
+  wzmacnia strzał (50 → 60); reguła SIGIL NAMES (żaden kod walki ani jej
+  odczucia nie nazywa sigila; na starym kodzie 19 miejsc, po zmianie 0);
+  w `content-contracts` każdy sigil wskazuje znany rodzaj. `sigil-builds`
+  (88) bez zmian. Golden bez zmian. Pełne Linux All PASS w osobnym klonie:
+  9073 sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - G1c, koniec zamrożonych kopii ataków, 2026-11-08: sprawdzenia wznowienia
   z kopii (Gardener, Margrave, Furfur) i ich deklaracji zastąpione jednym,

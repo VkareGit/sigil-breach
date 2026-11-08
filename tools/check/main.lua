@@ -735,6 +735,20 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       failure('HAND PROFILE ' .. id .. ': the hands read the profile of the weapon in hand')
     end
   end
+  -- A sigil is data and a kind of effect (PLAN G2): no code of the fight or
+  -- of its feedback names one; content and the screens that show it may.
+  for id, text in pairs(sources) do
+    local layer = id:match('^src%.(%a+)%.')
+    if layer and layer ~= 'content' and layer ~= 'ui' and layer ~= 'render' then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', ''):gsub("'src%.[%w_%.]+'", "''")
+        local name = code:match('%f[%w_](sigil_%a+)')
+        if name then
+          failure('SIGIL NAMES ' .. id .. ': ' .. name .. ' is content; give the effect a kind')
+        end
+      end
+    end
+  end
   -- A creature's pose places its hit volumes (PLAN F3): every clock in
   -- src/enemies is the simulation's (g.elapsed), never the picture's (g.time),
   -- which runs on through a pause, a map or a menu.

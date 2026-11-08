@@ -162,6 +162,16 @@ function Tests.run()
       and table.concat(Weapons.defaultLoadout, ',') == 'exorcist,judge'
       and table.concat(Abilities.defaultLoadout, ',') == 'powder'
   )
+  -- Every sigil names a kind of effect the fight knows (PLAN G2).
+  local SigilRules = require('src.content.sigils')
+  local SigilKinds = require('src.combat.sigil_kinds')
+  local unknown = {}
+  for _, id in ipairs(SigilRules.order) do
+    if not SigilKinds:has(SigilRules[id].effect or '') then
+      unknown[#unknown + 1] = id
+    end
+  end
+  check('every sigil names a known kind of effect: ' .. table.concat(unknown, ', '), #unknown == 0)
   -- A fight saved before definitions had names in their lists (pools before
   -- 7) named attacks by places that changed since (PLAN G1): it is not read,
   -- the pilgrimage resumes its field without it, and no frozen copies of old

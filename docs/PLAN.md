@@ -320,6 +320,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **G1 krok c zrobiony, G1 zamknięty:** usunięte zamrożone kopie
   ataków i przepinanie ścieżek; walka sprzed puli 7 wznawia teren
   w przybliżeniu. Golden bez zmian. Następny: G2 (rejestr efektów sigili).
+- 2026-11-08, **G2 zrobione:** sigil to dane i rodzaj efektu z rejestru
+  (`combat/sigil_kinds.lua`); interpreter bez nazw sigili, reguła SIGIL NAMES.
+  Zachowanie identyczne (sonda 36 000 momentów). Golden bez zmian. Następny:
+  G3 (moduły pod jedną postać, razem z F4).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 

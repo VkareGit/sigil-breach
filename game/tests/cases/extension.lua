@@ -496,6 +496,35 @@ function Tests.run(G)
   A.unregister('trial_rainer')
   Action.kinds:unregister('trial_rain')
   Action.trial_rain = nil
+  -- A sigil from data alone (PLAN G2): its effect is a kind of the sigil
+  -- registry, hooked to the moments of a fight; the interpreter names no sigil.
+  local SigilRules = require('src.content.sigils')
+  local Sigils = require('src.combat.sigils')
+  local registry, SigilKinds = pcall(require, 'src.combat.sigil_kinds')
+  if registry then
+    SigilKinds:register('trial_keen', {
+      shot = function(_, _, rank, def, _, _, out)
+        return { bonus = def.bonus[rank] }
+      end,
+      contact = function(payload)
+        return payload.bonus, 1
+      end,
+    })
+  end
+  SigilRules.trial_keen = { costs = { 1 }, effect = 'trial_keen', bonus = { 0.2 } }
+  SigilRules.order[#SigilRules.order + 1] = 'trial_keen'
+  local bearer = { sigilRanks = { trial_keen = 1 } }
+  local keen = Sigils.shot({ elapsed = 0 }, bearer, 'judge', { base = 50, impact = 20 }, 1)
+  local struck = Sigils.contact(keen, { id = 3 }, 'torso')
+  SigilRules.order[#SigilRules.order] = nil
+  SigilRules.trial_keen = nil
+  if registry then
+    SigilKinds:unregister('trial_keen')
+  end
+  check(
+    'a sigil from data alone sharpens a shot through its own kind of effect',
+    registry and math.abs(struck.base - 60) < 1e-9
+  )
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')
