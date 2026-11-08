@@ -39,22 +39,30 @@ return {
   lag = { side = 0.075, sideLimit = 3.6, ahead = 0.045, aheadLimit = 2.5, spring = { 110, 17 } },
   -- Sideways travel leans the weapon (rad per m/s).
   lean = { side = 0.018, limit = 0.022, rate = 10 },
-  -- The landing dip and the hands in the air (px per m/s of vertical speed).
-  dip = { spring = { 196, 20 } },
+  -- The landing dip and the hands in the air (px per m/s of vertical speed);
+  -- landing: the share of the landing's contact kick the hands take.
+  dip = { landing = 1, spring = { 196, 20 } },
   air = { rise = 0.30, limit = 2.2, spring = { 120, 22 } },
   -- Knocks (content/view_reactions.lua) settle on these springs.
   impact = { spring = { 220, 23 }, rollSpring = { 210, 24 } },
   -- The gun drops out of the aim (px) while the body dashes, slides or is staggered.
   lower = { dash = 4, slide = 5, staggered = 9, rate = 15 },
   -- The resting pose: breathing returns quietAfter s after a shot over
-  -- quietRise s; gait sway and roll per unit of load; the final reach.
+  -- quietRise s and recedes by quietLower per px the gun is lowered; small
+  -- corrections of the grip (gripRate rad/s) rest out of step with the breath;
+  -- gait sway and roll per unit of load; the final reach.
   pose = {
     quietAfter = 0.16,
     quietRise = 0.35,
     quietGrip = 0.82,
+    quietLower = 0,
     breathRate = 1.48,
     breathX = 0.30,
     breathY = 0.72,
+    gripRate = 0,
+    gripX = 0,
+    gripY = 0,
+    gripRoll = 0,
     gaitX = 4.8,
     gaitY = 1.55,
     gaitRoll = 0.0065,

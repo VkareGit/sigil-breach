@@ -292,6 +292,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   punkty 2–8 planu Exorcista jako jego pierwszy profil (ciężar noszenia,
   unik/ślizg/skok/dobycie, gest strzału, audio A/B, przestrzeń, grafika)
   i druga próba właściciela.
+- 2026-11-08, **E6 krok b zrobiony (punkt 2 planu Exorcista):** ciężar
+  noszenia jako profil rąk Exorcista: lufy zostają dalej i później, osiadają
+  bez odbicia, kolba trzyma broń równo, lądowanie głębsze bez odbicia,
+  spoczynek oszczędny z korektami chwytu wyciszanymi przez unik. Judge bez
+  zmian. Golden bez zmian. Następny: punkt 3 (unik, ślizg, skok, dobycie).
 
 ## Decyzje właściciela
 

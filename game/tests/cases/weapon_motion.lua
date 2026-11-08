@@ -295,5 +295,149 @@ function Tests.run(G, check)
     'relocation after reset is not misread as a mouse turn',
     g.view.weaponAimX == 0 and g.view.weaponAimY == 0
   )
+  -- Carry weight is the weapon's own profile (PLAN E6, Exorcist plan point 2):
+  -- the two-handed shotgun (slot 1) against the revolver (slot 2) through the
+  -- same body motion. Heavier is not a bigger swing in every axis.
+  local dt = 1 / 120
+  local function series(slot, steps, key, ...)
+    local v = fresh(slot)
+    M.update(v, dt, 0, 0, 0)
+    local out = {}
+    for _, phase in ipairs({ ... }) do
+      for _ = 1, phase.steps do
+        v:update(dt, phase.input)
+      end
+    end
+    for i = 1, steps do
+      v:update(dt, {})
+      out[i] = v.view[key]
+    end
+    return out
+  end
+  local function shape(values)
+    local peak, at = 0, 0
+    for i, value in ipairs(values) do
+      if math.abs(value) > math.abs(peak) then
+        peak, at = value, i
+      end
+    end
+    local back = 0
+    for i = at, #values do
+      if values[i] * peak < 0 then
+        back = math.max(back, math.abs(values[i]))
+      end
+    end
+    return math.abs(peak), at, back / math.max(math.abs(peak), 1e-9)
+  end
+  local function started(slot)
+    local v = fresh(slot)
+    M.update(v, dt, 0, 0, 0)
+    local out = {}
+    for i = 1, 60 do
+      v:update(dt, { forward = 1 })
+      out[i] = v.view.weaponLagY
+    end
+    return out
+  end
+  local shotgunPeak, shotgunAt, shotgunBack = shape(started(1))
+  local revolverPeak, revolverAt = shape(started(2))
+  check(
+    "the shotgun's heavy barrels trail a start further and later than the revolver",
+    shotgunPeak > revolverPeak * 1.1 and shotgunAt > revolverAt and shotgunBack < 0.01
+  )
+  local running = { steps = 120, input = { forward = 1 } }
+  local stopShotgun = { shape(series(1, 120, 'weaponLagY', running)) }
+  local stopRevolver = { shape(series(2, 120, 'weaponLagY', running)) }
+  check(
+    'the shotgun settles a stop without swinging back past rest',
+    stopShotgun[1] > stopRevolver[1] and stopShotgun[3] < stopRevolver[3]
+  )
+  local function reversed(slot)
+    local v = fresh(slot)
+    M.update(v, dt, 0, 0, 0)
+    for _ = 1, 120 do
+      v:update(dt, { strafe = 1 })
+    end
+    local most = 0
+    for _ = 1, 120 do
+      v:update(dt, { strafe = -1 })
+      most = math.max(most, math.abs(v.view.weaponLean))
+    end
+    return most
+  end
+  check(
+    'two hands on the stock keep the shotgun more level than the revolver in a sidestep',
+    reversed(1) < reversed(2) * 0.8
+  )
+  local function walked(slot)
+    local v = fresh(slot)
+    local run = require('src.content.characters').of(v.player).movement.moveSpeed
+    v.player.vz = run
+    local roll, low, stepRoll = 0, 0, 0
+    for i = 1, 240 do
+      M.update(v, dt, run * dt, 0, run)
+      if i > 60 then
+        local _, y, r = M.pose(v)
+        roll, low = math.max(roll, math.abs(r)), math.max(low, y)
+        stepRoll = math.max(stepRoll, math.abs(v.view.weaponStepRoll))
+      end
+    end
+    return roll, low, stepRoll
+  end
+  local shotgunRoll, shotgunLoad, shotgunStep = walked(1)
+  local revolverRoll, revolverLoad, revolverStep = walked(2)
+  check(
+    'the walking shotgun bears down more than the revolver but rolls less',
+    shotgunLoad > revolverLoad and shotgunRoll < revolverRoll and shotgunStep < revolverStep
+  )
+  local function landed(slot)
+    local v = fresh(slot)
+    local out = {}
+    M.update(v, dt, 0, 0, 0, -8)
+    out[1] = v.view.weaponDip
+    for i = 2, 120 do
+      M.update(v, dt, 0, 0, 0)
+      out[i] = v.view.weaponDip
+    end
+    return shape(out)
+  end
+  local shotgunDip, _, shotgunRebound = landed(1)
+  local revolverDip, _, revolverRebound = landed(2)
+  check(
+    'the shotgun lands deeper than the revolver and settles without a rebound',
+    shotgunDip > revolverDip and shotgunRebound < 0.01 and shotgunRebound < revolverRebound
+  )
+  local function rest(slot)
+    local v = fresh(slot)
+    for _ = 1, 120 do
+      M.update(v, dt, 0, 0, 0)
+    end
+    local lowX, highX, lowY, highY = math.huge, -math.huge, math.huge, -math.huge
+    for _ = 1, 1440 do
+      M.update(v, dt, 0, 0, 0)
+      local x, y = M.pose(v)
+      lowX, highX = math.min(lowX, x), math.max(highX, x)
+      lowY, highY = math.min(lowY, y), math.max(highY, y)
+    end
+    v.player.dashTimer = 0.4
+    for _ = 1, 24 do
+      M.update(v, dt, 0, 0, 0)
+    end
+    local before = M.pose(v)
+    for _ = 1, 12 do
+      M.update(v, dt, 0, 0, 0)
+    end
+    return highX - lowX, highY - lowY, math.abs(M.pose(v) - before)
+  end
+  local shotgunX, shotgunY, shotgunDodge = rest(1)
+  local revolverX, revolverY, revolverDodge = rest(2)
+  check(
+    'the resting shotgun is held more sparingly than the revolver',
+    shotgunX < revolverX and shotgunY < revolverY and shotgunX > 0.1 and shotgunY > 0.1
+  )
+  check(
+    "a dodge stills the shotgun's grip corrections and leaves the revolver's breath",
+    shotgunDodge < 1e-3 and revolverDodge > 0.01
+  )
 end
 return Tests

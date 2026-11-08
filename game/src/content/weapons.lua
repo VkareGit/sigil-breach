@@ -105,6 +105,30 @@ local definitions = {
       viewKickRate = 22,
       thump = 0.36,
     },
+    -- How the hands carry it (content/hand_motion.lua, the same names): two
+    -- hands on a heavy gun. The barrels trail a start a little further and
+    -- later and settle without swinging back; the stock keeps it level in a
+    -- sidestep and a step while the load bears down; a landing sinks deeper
+    -- and does not rebound. At rest it is held sparingly, with slow small
+    -- corrections of the grip that a dodge stills.
+    hands = {
+      lag = { side = 0.09, sideLimit = 5, ahead = 0.06, aheadLimit = 3.6, spring = { 85, 18 } },
+      lean = { side = 0.011, limit = 0.014, rate = 8 },
+      step = { roll = 0.08 },
+      dip = { landing = 1.3, spring = { 180, 26 } },
+      pose = {
+        quietLower = 0.5,
+        breathX = 0.16,
+        breathY = 0.50,
+        gripRate = 0.61,
+        gripX = 0.10,
+        gripY = 0.10,
+        gripRoll = 0.0010,
+        gaitX = 3.9,
+        gaitY = 1.75,
+        gaitRoll = 0.0040,
+      },
+    },
   },
   {
     id = 'judge',

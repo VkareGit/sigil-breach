@@ -74,6 +74,24 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E6b, ciężar noszenia Exorcista, 2026-11-08 (punkt 2 planu Exorcista):
+  pierwszy własny profil rąk broni. Dotąd start, hamowanie, zmiana kierunku,
+  lądowanie i spoczynek wyglądały identycznie dla obu broni, a Exorcist różnił
+  się tylko większym kołysaniem w chodzie, w każdej osi. Teraz dwie ręce na
+  ciężkiej broni: lufy zostają przy starcie trochę dalej i później (0,94
+  wobec 0,83 jednostki obrazu 450 px, 150 wobec 142 ms) i osiadają bez
+  cofnięcia za spoczynek; kolba trzyma broń równo w zmianie kierunku (pochył
+  0,009 wobec 0,015 rad) i w kroku (obrót w chodzie 0,0036 wobec 0,0059),
+  a ciężar mocniej siada w dół (3,8 wobec 3,4); lądowanie siada głębiej
+  (4,2 wobec 3,7) i nie odbija. W spoczynku broń jest trzymana oszczędniej
+  (oddech x 0,44 zamiast 0,60, y 1,06 zamiast 1,44), z wolnymi, drobnymi
+  korektami chwytu poza rytmem oddechu; unik je wycisza. Silnik dostał
+  nazwy ruchu dip.landing, pose.quietLower i pose.grip* z wartościami, przy
+  których Judge porusza się dokładnie jak przedtem (sonda: wszystkie liczby
+  Judge'a identyczne). Rysunek broni bez zmian; przesuwa się tylko jej obraz,
+  o ułamki piksela do około piksela. Szybkość ruchu, kadencja, celowanie
+  i symulacja bez zmian.
+
 - E6a, broń jako profil silnika, 2026-11-08: ręce niosą broń według jej
   własnego profilu. Definicja broni może mieć pole hands: nadpisania wspólnej
   tabeli ruchu rąk (content/hand_motion.lua) pod tymi samymi nazwami, na
@@ -4585,6 +4603,19 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E6b, ciężar noszenia Exorcista, 2026-11-08: siedem nowych sprawdzeń
+  w `weight` (tests/cases/weapon_motion.lua), czerwone przed zmianą, bo obie
+  bronie odpowiadały identycznie: lufy strzelby zostają przy starcie dalej
+  i później niż rewolwer; hamowanie bez cofnięcia; strzelba równiejsza
+  w zmianie kierunku; w chodzie mocniej siada, mniej się obraca; lądowanie
+  głębsze, bez odbicia; spoczynek oszczędniejszy; unik wycisza korekty
+  chwytu strzelby, a oddech rewolweru zostaje. Sonda przed/po (start,
+  hamowanie, zmiana kierunku, obrót, chód, lądowanie, spoczynek, unik):
+  liczby Judge'a identyczne. Rendery pięciu chwil przed/po: rysunek bez
+  zmian. Golden bez zmian. Pełne Linux All PASS w osobnym klonie: 9061
+  sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
+  Odczucie ocenia właściciel w drugiej próbie (strzelanie, po punkcie 4).
 
 - E6a, broń jako profil silnika, 2026-11-08: nowe testy w `extension`,
   czerwone przed zmianą: fikcyjna trzecia broń (bez dodawania jej do gry,

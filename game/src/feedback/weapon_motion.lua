@@ -173,7 +173,7 @@ function M.update(g, dt, travelled, previousVX, previousVZ, landingImpact, plant
     local contact = type(landingImpact) == 'table' and landingImpact
       or MovementImpact.landingMetrics(landingImpact)
     if contact then
-      Impulses.react(g.view, 'landingHands', contact.kick)
+      Impulses.react(g.view, 'landingHands', contact.kick * hands.dip.landing)
     end
   end
   g.view.weaponDip, g.view.weaponDipV = Kinematics.spring(
@@ -234,7 +234,9 @@ function M.pose(g)
   local P = hands.pose
   local quiet = (1 - clamp(weight, 0, 1)) * (1 - P.quietGrip * (1 - grip) / hands.brace.share)
   quiet = quiet * clamp((g.view.shotAge - P.quietAfter) / P.quietRise, 0, 1)
+  quiet = quiet * clamp(1 - g.view.weaponLower * P.quietLower, 0, 1)
   local breath = sin(g.view.weaponClock * P.breathRate) * quiet
+  local correction = sin(g.view.weaponClock * P.gripRate) * quiet
   local gaitX = sin(phase) * P.gaitX * weight * mass
   local gaitY = (1 - cos(phase * 2)) * P.gaitY * weight * mass
   local x = gaitX
@@ -242,6 +244,7 @@ function M.pose(g)
     + g.view.weaponLagX
     + g.view.weaponImpactX
     + breath * P.breathX
+    + correction * P.gripX
   local y = gaitY
     + g.view.weaponAimY
     + g.view.weaponLagY
@@ -249,12 +252,14 @@ function M.pose(g)
     + g.view.weaponLower
     + g.view.weaponImpactY
     + breath * P.breathY
+    + correction * P.gripY
   y = y + g.view.weaponStepY + g.view.weaponAirY
   local roll = g.view.weaponLean
     + sin(phase) * P.gaitRoll * weight * mass
     + g.view.weaponAimX * P.aimRoll
     + g.view.weaponImpactRoll
     + g.view.weaponStepRoll
+    + correction * P.gripRoll
   roll = roll - (Context.actor(g).crouch or 0) * P.crouchRoll
   -- Reload actions retain their clear silhouette while the hands keep weight.
   return clamp(x * grip, -P.reachX, P.reachX),
