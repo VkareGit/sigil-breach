@@ -161,7 +161,6 @@ declareView('session/game.lua', { 'message', 'messageTimer' })
 declareView('feedback/damage_numbers.lua', { 'damageNumbers', 'numberSerial' }, 'world')
 declareView('app/commands.lua', { 'motion', 'fov', 'renderScale', 'confirmReturn' }, 'world')
 declareView('app/commands.lua', { 'presentationPrevious' }, 'view')
-declareView('app/input.lua', { 'swayX', 'swayY' })
 declareView('feedback/listeners.lua', {
   'feedback',
   'feedbackTimer',
@@ -229,7 +228,7 @@ declareView('feedback/movement_impact.lua', {
   'movementContact',
   'movementImpactSerial',
 })
-declareView('player/feel.lua (camera)', {
+declareView('feedback/motion.lua (camera)', {
   'bank',
   'bobWeight',
   'fovKick',
@@ -295,7 +294,7 @@ function Fields.startView(view)
   end
   return view
 end
--- The camera's springs and clocks (player/feel.lua).
+-- The camera's springs and clocks (feedback/motion.lua).
 Fields.start({
   bank = 0,
   bobWeight = 0,
@@ -307,8 +306,6 @@ Fields.start({
   shotAge = Defaults.shotAge,
   stepSound = 0,
   swapAge = 1,
-  swayX = 0,
-  swayY = 0,
 })
 -- What the feedback answers with (feedback/listeners.lua, shot_feedback.lua,
 -- world_feedback.lua, movement_impact.lua).

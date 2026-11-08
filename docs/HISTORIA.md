@@ -74,6 +74,11 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E3b, mysz tylko obraca, 2026-11-08: ruch myszy zmienia wyłącznie kierunek
+  patrzenia. Dawne kołysanie od myszy (swayX, swayY w app/input.lua) było
+  zapisywane, wygaszane i wygładzane, ale nic go nie rysowało; usunięte
+  razem z polami, wartością swayDecay i wpisami na listach. Obraz bez zmian.
+
 - E3a, krok rycerza publikuje fakty, 2026-11-08: ruch rycerza
   (player/feel.lua) nie pisze już żadnego pola widoku i nie wybiera dźwięku.
   W chwili zdarzenia publikuje fakt (początek kroku, ślizg, uderzenie w mur,
@@ -4509,6 +4514,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E3b, mysz tylko obraca, 2026-11-08: nowy test w `core` (prawdziwy
+  sterownik, ruch myszy nie zmienia żadnego pola liczbowego widoku) czerwony
+  przed zmianą (swayX, swayY), zielony po. Sonda widoku z E3a: po zmianie
+  identyczna z wcześniejszą poza usuniętymi polami sway. Golden bez zmian.
+  Pełne Linux All PASS w osobnym klonie: 9041 sprawdzeń (o 1 więcej),
+  golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - E3a, krok rycerza publikuje fakty, 2026-11-08: reguła MOVEMENT
   PRESENTATION (tools/check: moduł src/player nie pisze pól widoku i nie

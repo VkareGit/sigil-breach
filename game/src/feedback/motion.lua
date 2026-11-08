@@ -43,8 +43,6 @@ function Motion.settle(g, dt)
   view.recoil, view.recoilV =
     spring(view.recoil, view.recoilV, 0, C.recoilSpring[1], C.recoilSpring[2], dt)
   view.land, view.landV = spring(view.land, view.landV, 0, C.landSpring[1], C.landSpring[2], dt)
-  view.swayX = view.swayX * math.exp(-dt * C.swayDecay)
-  view.swayY = view.swayY * math.exp(-dt * C.swayDecay)
   view.shotAge = view.shotAge + dt
   view.swapAge = math.min(1, view.swapAge + dt)
   Weight.update(g, dt)

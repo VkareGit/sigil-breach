@@ -175,12 +175,8 @@ function Input:mousemoved(app, x, y, dx, dy)
     if not actor then
       return
     end
+    -- The mouse turns the look and nothing else (PLAN E3).
     self:invoke(game, 'look', dx * turn, -dy * turn)
-    local view = Context.view(game, actor)
-    if view then
-      view.swayX = math.max(-0.18, math.min(0.18, view.swayX - dx * 0.0009))
-      view.swayY = math.max(-0.14, math.min(0.14, view.swayY + dy * 0.0009))
-    end
   end
 end
 

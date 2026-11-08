@@ -260,6 +260,11 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia (`motion.*`), kamera, ręce i dźwięki ruchu liczy
   `feedback/motion.lua`; reguła MOVEMENT PRESENTATION. Obraz i dźwięk
   identyczne (sonda), golden bez zmian.
+- 2026-11-08, **E3 krok b zrobiony:** mysz zmienia tylko kierunek patrzenia
+  (martwe kołysanie od myszy usunięte); test w `core`. Zostaje poza E3:
+  pozostałe dźwięki wybierane przez symulację (`Presentation.cue` w walce
+  i u stworów) i nazwane haki poza ruchem rycerza (przegląd jakości, pkt 5).
+  Następny: F3 (E4 i E5 w głównej części zrobione wcześniej).
 
 ## Decyzje właściciela
 

@@ -15,8 +15,6 @@ local gameKeys = { 'step', 'time' }
 local viewKeys = {
   'land',
   'recoil',
-  'swayX',
-  'swayY',
   'bank',
   'bobWeight',
   'fovKick',

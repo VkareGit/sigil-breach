@@ -453,8 +453,6 @@ function Tests.run(G, check)
   for _, key in ipairs({
     'recoil',
     'recoilV',
-    'swayX',
-    'swayY',
     'bank',
     'fovKick',
     'land',

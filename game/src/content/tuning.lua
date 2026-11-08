@@ -191,8 +191,8 @@ return {
     crouchDown = 4.3,
     crouchUp = 3.4,
   },
-  -- The camera feel of moving (player/feel.lua, presentation state): recoil
-  -- and landing springs (stiffness, damping), sway decay, the dodge's field of
+  -- The camera feel of moving (feedback/motion.lua, presentation state): recoil
+  -- and landing springs (stiffness, damping), the dodge's field of
   -- view kick and rate, steps per metre, bob and bank rates, the landing dip,
   -- and the sound volumes of slide, thud, jump, land and step.
   camera = {
@@ -209,7 +209,6 @@ return {
       kickBack = { 900, 30, limits = { -1.5, 2.5 } },
     },
     landSpring = { 200, 20 },
-    swayDecay = 13,
     dashFov = 6,
     dashFovRate = 45,
     steps = 2.5,

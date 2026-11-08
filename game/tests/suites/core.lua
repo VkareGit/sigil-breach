@@ -386,11 +386,26 @@ function Tests.run(G, initial, renderer, getGame, getLoading)
   )
   love.keypressed('2', '2')
   check('number key switches weapon', getGame().player.weapon == 2)
+  -- The mouse turns the look and nothing else (PLAN E3): no view field moves.
+  local seen = {}
+  for key, value in pairs(getGame().view) do
+    if type(value) == 'number' then
+      seen[key] = value
+    end
+  end
   love.mousemoved(640, 360, 40, -30)
   check(
     'raw mouse input updates view',
     getGame().player.pitch > 0 and getGame().player.yaw > math.pi
   )
+  local moved = {}
+  for key, value in pairs(getGame().view) do
+    if type(value) == 'number' and seen[key] ~= value then
+      moved[#moved + 1] = key
+    end
+  end
+  table.sort(moved)
+  check('the mouse changes only the look direction: ' .. table.concat(moved, ', '), #moved == 0)
   love.keypressed('tab', 'tab')
   local elapsed = getGame().elapsed
   getGame():update(1 / 120, { shoot = true })

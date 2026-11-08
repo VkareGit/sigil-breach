@@ -6,8 +6,6 @@ local ViewState = {}
 local cameraKeys = {
   'recoil',
   'recoilV',
-  'swayX',
-  'swayY',
   'bank',
   'fovKick',
   'land',

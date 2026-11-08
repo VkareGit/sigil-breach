@@ -394,8 +394,8 @@ function Tests.run(G, renderer)
   local motionB = Context.of(motionGame, motionActor)
   local motionFree = Context.of(motionGame, motionGame.player, camera1)
   local motionFreeB = Context.of(motionGame, motionActor, camera2)
-  motionGame.view.recoil, motionGame.view.swayX, motionGame.view.hurt = 0.7, 0.1, 0.3
-  motionB.view.recoil, motionB.view.swayX, motionB.view.hurt = 0.8, 0.2, 0.6
+  motionGame.view.recoil, motionGame.view.bank, motionGame.view.hurt = 0.7, 0.1, 0.3
+  motionB.view.recoil, motionB.view.bank, motionB.view.hurt = 0.8, 0.2, 0.6
   P.capture(motionGame)
   P.capture(motionFree)
   P.capture(motionFreeB)
@@ -405,8 +405,8 @@ function Tests.run(G, renderer)
     'disabling motion clears all watched and detached camera histories immediately',
     motionGame.view.recoil == 0
       and motionB.view.recoil == 0
-      and motionGame.view.swayX == 0
-      and motionB.view.swayX == 0
+      and motionGame.view.bank == 0
+      and motionB.view.bank == 0
       and motionGame.view.presentationPrevious == nil
       and motionB.view.presentationPrevious == nil
       and motionFree.view.presentationPrevious == nil
