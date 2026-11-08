@@ -20,7 +20,8 @@ Save.limits =
 local sections, order = {}, {}
 -- Section declaration:
 --   name, file      the section and the kind of file it belongs to
---   version         the current version of its data (integer >= 1)
+--   version         the current version of its data (integer >= 1); left
+--                   out, one past its last migration
 --   schema          (optional) core/schema Schema its data must satisfy
 --   pack(source)    the data tree of the owner's state (source: what the
 --                   file's owner passes: the session, a checkpoint...)
@@ -32,6 +33,9 @@ local sections, order = {}, {}
 function Save.declare(def)
   assert(type(def.name) == 'string' and def.name:match('^[%w_]+$'), 'section needs a name')
   assert(type(def.file) == 'string' and def.file:match('^[%w_]+$'), 'section needs a file kind')
+  if def.version == nil then
+    def.version = #(def.migrations or {}) + 1
+  end
   assert(type(def.version) == 'number' and def.version >= 1 and def.version % 1 == 0)
   assert(type(def.pack) == 'function' and type(def.unpack) == 'function')
   assert(not sections[def.name], 'section declared twice: ' .. def.name)

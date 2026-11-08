@@ -240,6 +240,54 @@ function Tests.run()
     'an older save moves a marked strike into its own state',
     section.version >= 9 and marked.pendingHazard == nil and marked.act.mark.life == 1
   )
+  -- A save names a definition in a list by its id, not by its place (PLAN
+  -- G1): content may grow and reorder without a fight resuming another blow.
+  local attacks = A.boss.attacks
+  local kept = attacks[3]
+  local saved = Tree.encode({ spec = kept })
+  table.insert(attacks, 1, { id = 'trial-before' })
+  Tree.invalidate()
+  local grew, after = pcall(Tree.decode, saved)
+  table.remove(attacks, 1)
+  Tree.invalidate()
+  check(
+    'a saved attack is the same attack after another is added before it',
+    grew and after.spec == kept
+  )
+  saved = Tree.encode({ spec = kept })
+  local gone = table.remove(attacks, 3)
+  Tree.invalidate()
+  local read = pcall(Tree.decode, saved)
+  table.insert(attacks, 3, gone)
+  Tree.invalidate()
+  check('an attack its creature no longer has is never read as another one', not read)
+  local named = section.migrations[9]({
+    pools = {
+      ['$id'] = 1,
+      ['$v'] = {
+        enemies = {
+          ['$id'] = 2,
+          ['$v'] = {
+            {
+              ['$id'] = 3,
+              ['$v'] = {
+                id = 4,
+                attackSpec = { ['$def'] = { 'src.content.creatures.boss', 'attacks', 3 } },
+              },
+            },
+          },
+        },
+      },
+    },
+  }).pools
+  local step = named['$v'].enemies['$v'][1]['$v'].attackSpec['$def'][3]
+  check(
+    'a save from before names its attacks when it is read',
+    section.version >= 10
+      and type(step) == 'table'
+      and step['$key'] == kept.id
+      and Tree.decode(named).enemies[1].attackSpec == kept
+  )
   -- A kind upgrades its own state (PLAN F3): the save records the version of
   -- every kind that has one, and an older state is brought up by its kind.
   local charge = ActionKinds:get(A.furfur.attacks[1].kind)

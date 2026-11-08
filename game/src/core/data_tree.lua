@@ -6,8 +6,12 @@
 -- (a hazard both in its pool and as a demon's pending strike stays one
 -- table). Numbers outside the reader's finite range are written by name.
 -- Functions, userdata and table keys cannot be written: an error says where.
+-- A definition in a list whose members carry distinct string ids is named in
+-- its path by its id ({ ['$key'] = id }), not by its place (PLAN G1): content
+-- may add, remove or reorder members and a save still finds the same one, or
+-- none. An older path's place in a list still reads.
 local Tree = {}
-local DEF, REF, ID, VALUES, NUMBER = '$def', '$ref', '$id', '$v', '$n'
+local DEF, REF, ID, VALUES, NUMBER, KEY = '$def', '$ref', '$id', '$v', '$n', '$key'
 local CONTENT = '^src%.content%.'
 -- Definitions: table -> { module, key, key, ... }, rebuilt when the loaded
 -- content modules change.
@@ -30,6 +34,28 @@ local function sortedKeys(t)
     return rank(a) < rank(b)
   end)
   return keys
+end
+-- How many members of list t carry each string id.
+local function idsOf(t)
+  local count = {}
+  for _, v in ipairs(t) do
+    local id = type(v) == 'table' and v.id
+    if type(id) == 'string' then
+      count[id] = (count[id] or 0) + 1
+    end
+  end
+  return count
+end
+-- The member of list t whose id is id, if exactly one.
+local function member(t, id)
+  local found
+  for _, v in ipairs(t) do
+    if type(v) == 'table' and v.id == id then
+      assert(found == nil, 'two definitions with one id: ' .. tostring(id))
+      found = v
+    end
+  end
+  return found
 end
 local function definitions()
   local names, changed = {}, not paths
@@ -62,11 +88,13 @@ local function definitions()
     local t = queue[head]
     head = head + 1
     local base = paths[t]
+    local named = idsOf(t)
     for _, k in ipairs(sortedKeys(t)) do
       local v = t[k]
       if type(v) == 'table' and not paths[v] then
         local path = { unpack(base) }
-        path[#path + 1] = k
+        local id = type(k) == 'number' and type(v.id) == 'string' and v.id
+        path[#path + 1] = id and named[id] == 1 and { [KEY] = id } or k
         paths[v] = path
         queue[#queue + 1] = v
       end
@@ -161,7 +189,13 @@ function Tree.decode(t)
       local value = package.loaded[path[1]]
       assert(type(value) == 'table', 'definition module not loaded: ' .. path[1])
       for i = 2, #path do
-        value = value[path[i]]
+        local step = path[i]
+        if type(step) == 'table' then
+          assert(type(step[KEY]) == 'string', 'invalid definition step')
+          value = member(value, step[KEY])
+        else
+          value = value[step]
+        end
         assert(type(value) == 'table', 'unknown definition')
       end
       return value

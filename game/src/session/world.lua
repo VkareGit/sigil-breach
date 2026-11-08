@@ -224,8 +224,14 @@ M.movedToAct = {
 Save.declare({
   name = 'pools',
   file = 'session',
-  version = 9,
+  -- Its version is one past its last migration (storage/save.lua).
   migrations = {
+    -- PLAN G1: a definition in a list is named by its id. Read by its place
+    -- in today's content, written again by id.
+    [9] = function(data)
+      data.pools = Tree.encode(Tree.decode(data.pools))
+      return data
+    end,
     -- PLAN F3: the place a strike marks on the ground became its kind's own
     -- state (act.mark).
     [8] = function(data)

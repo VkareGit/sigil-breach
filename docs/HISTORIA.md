@@ -75,6 +75,19 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G1a, zapis definicji po identyfikatorze, 2026-11-08: zapis wskazuje
+  definicję z listy jej id, a nie miejscem na liście. Krok ścieżki elementu
+  listy, którego elementy mają różne id, to `{ $key = id }`
+  (core/data_tree.lua); odczyt szuka elementu o tym id. Wstawienie,
+  usunięcie albo przestawienie ataku w liście stwora nie podmieni już ataku
+  wznowionego po Continue: ten sam atak wraca, a atak, którego postać już
+  nie ma, czyni walkę nieczytelną (teren wznawia się w przybliżeniu, jak
+  dotąd przy każdej nieczytelnej walce), nigdy innym atakiem. Pula zapisu
+  ma wersję 10; migracja 9→10 czyta starą ścieżkę według dzisiejszej treści
+  i zapisuje ją po id. Wersja sekcji zapisu, gdy jej nie podano, to ostatnia
+  migracja plus jeden (storage/save.lua), więc wersji nie da się podnieść
+  bez migracji. Gra i golden bez zmian.
+
 - E6d, gest strzału, 2026-11-08 (punkt 4 planu Exorcista): wystrzał jest
   jednym gestem. Dotąd pchnięcie wzdłuż luf miało szczyt po 42 ms, a uniesienie
   i nadgarstek po 67 ms; pchnięcie odbijało 16% za spoczynek, a kamera
@@ -4642,6 +4655,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G1a, zapis definicji po identyfikatorze, 2026-11-08: trzy nowe
+  sprawdzenia w `content-contracts`, czerwone przed zmianą: zapisany atak
+  jest tym samym atakiem po wstawieniu innego przed nim; atak usunięty ze
+  stwora nie zostaje odczytany jako inny; zapis sprzed zmiany dostaje id przy
+  odczycie. Golden bez zmian. Pełne Linux All PASS w osobnym klonie:
+  9081 sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - E6d, gest strzału, 2026-11-08: pięć nowych sprawdzeń w `weight`
   (tests/cases/weight.lua), czerwone przed zmianą: jedna łuska wstrząsa

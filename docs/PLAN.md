@@ -311,11 +311,14 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   odsłuch właściciela) i grafika (punkt 8, pozy do akceptacji).
 - 2026-11-08, **przegląd skalowalności i jakości** (bez wdrażania): wynik
   w HISTORII, propozycje G1–G6 wyżej, do decyzji właściciela.
+- 2026-11-08, **G1 krok a zrobiony:** zapis wskazuje definicję z listy jej id
+  (`$key`), pula w wersji 10 z migracją, wersja sekcji z liczby migracji.
+  Golden bez zmian. Następny: G1b (odczyt sigili bez odrzucania zapisu).
 
-## Po przeglądzie 2026-11-08 (do decyzji, bez wdrażania)
+## Po przeglądzie 2026-11-08 (G1–G6, przyjęte)
 
-Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Nie są
-przyjęte; właściciel nie zlecił wdrażania. Kolejność rekomendowana:
+Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Przyjęte
+2026-11-08 (decyzja 6); wdrażane w tej kolejności, każdy krok z bramą:
 
 - **G1. Zapis po identyfikatorze.** Rozpoczęty atak i inne definicje
   w zapisie wskazywane id postaci i ataku, nie pozycją na liście;
@@ -352,12 +355,11 @@ Przyjęte 2026-11-07 („zacznij wdrażanie”): wszystkie pięć zgodnie z
 rekomendacją.
 
 6. G1–G6 po przeglądzie 2026-11-08, w kolejności wyżej, po E6 i przed
-   drugą mapą. Rekomendacja: tak, zaczynając od G1. Otwarte: właściciel
-   prosił o analizę bez wdrażania.
+   drugą mapą. Rekomendacja: tak, zaczynając od G1. Przyjęte 2026-11-08
+   („zacznij wdrażanie”) zgodnie z rekomendacją.
 
 ## Poza zakresem
 
 Rejestr sigili, zapis po id, granice zapisu sigili, `boss` → poziom
-postaci, Git LFS i podział bramy: teraz G1–G6, do decyzji właściciela,
-nie część E/F. Nowe bronie, balans, zegary SI, elity, HUD, Windows, pakowanie
+postaci, Git LFS i podział bramy: teraz G1–G6 (przyjęte 2026-11-08). Nowe bronie, balans, zegary SI, elity, HUD, Windows, pakowanie
 i wideo. Odłożone sprawy i wcześniejsze plany pozostają w HISTORII.
