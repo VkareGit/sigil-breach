@@ -25,6 +25,14 @@ return function(R)
     -- complete body: rules never need fallbacks for body fields.
     return a and a.body or Body.neutral
   end
+  -- The standing of a body (content/defs/body.lua: tier, PLAN G5): an elite,
+  -- and a boss above it, falters instead of being interrupted, locks longer
+  -- when its guard breaks and takes no slam.
+  local rank = { common = 0, elite = 1, boss = 2 }
+  function R.elite(e)
+    return rank[R.body(e).tier or 'common'] >= rank.elite
+      or rank[e and e.tier or 'common'] >= rank.elite
+  end
   -- The body of an actor (the player under the same rules) and how it moves.
   function R.playerBody(actor)
     return Characters.of(actor).body

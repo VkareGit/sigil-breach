@@ -17,7 +17,7 @@ local charge = Action.charge({
   recover = 0.75,
   packet = packet(28, 160, 'physical', 230),
 })
-return Creature.boss({
+return Creature.elite({
   id = 'furfur',
   name = 'creature_furfur',
   catalog = { field = 6 },

@@ -47,7 +47,7 @@ local function guardian(g, attacks, more)
     name = 'creature_armored',
     catalog = {},
     body = {
-      boss = true,
+      tier = 'elite',
       hp = 5000,
       poise = 100,
       breakTime = 2,
@@ -227,7 +227,7 @@ function T.run(Game)
     -- A counter: a shot in the window throws the blow away and opens the body.
     g = field(Game)
     local solid =
-      { body = { boss = true, hp = 5000, poise = 5000, breakTime = 2, execution = 0.2 } }
+      { body = { tier = 'elite', hp = 5000, poise = 5000, breakTime = 2, execution = 0.2 } }
     e = guardian(g, { cut('open', { parry = 0.2, windup = 0.6 }) }, solid)
     Attacks.begin(g, e, 3, A.of(e).attacks[1])
     Rules.react(g, e, 100, true)

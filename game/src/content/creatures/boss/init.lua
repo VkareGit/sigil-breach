@@ -6,7 +6,7 @@
 local Creature = require('src.content.defs.creature')
 local Action = require('src.content.defs.action')
 local packet = require('src.content.defs.packet').new
-return Creature.boss({
+return Creature.elite({
   id = 'boss',
   name = 'creature_boss',
   -- 250 souls (x10 on the way; was 1500) and two shells.

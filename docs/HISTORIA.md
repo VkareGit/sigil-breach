@@ -75,6 +75,17 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G5a, poziom postaci zamiast flagi `boss`, 2026-11-09: ciało ma pole `tier`
+  (`common`, `elite`, `boss`) zamiast flagi `boss`, która znaczyła elitę.
+  Reguły pytają `Rules.elite(e)`: elita i prawdziwy boss zachwiewają się
+  zamiast przerwania, dłużej są zablokowane po pękniętej gardzie i nie
+  dostają obrażeń od uderzenia o ciało. Szablon `Creature.elite` (dawniej
+  `Creature.boss`); Margrave (`boss`) i Furfur to elity. Zapis: pula
+  w wersji 11, migracja zamienia `e.boss` na `e.tier`. Identyfikator stwora
+  `boss` (Margrave) zostaje: to tylko nazwa, a jego zmiana dotknęłaby zapisów
+  i setek odwołań. Checker: liczba całkowita jako klucz tabeli (`[10] =`)
+  to indeks, nie strojenie. Zachowanie i golden bez zmian.
+
 - F5, testy kontraktu z danych, 2026-11-08: nowy zestaw `contracts`
   (`tests/cases/contracts.lua`) generowany z definicji. Każdy atak każdego
   stwora (dziś 53) przechodzi całe życie w jednym pokoju: rozpoczyna się,
@@ -4759,6 +4770,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G5a, poziom postaci zamiast flagi `boss`, 2026-11-09: nowe sprawdzenie
+  w `content-contracts`, czerwone przed zmianą: ciało stoi na `tier`, schemat
+  nie zna `boss`, stary zapis dostaje `tier`. Po drodze golden wykrył błąd
+  zmiany nazwy: w `combat/rules/hit_response.lua` zostało sześć odwołań do
+  starej zmiennej `boss`, które czytały nieistniejącą zmienną globalną;
+  poprawione, golden znów identyczny. Checker nie łapie dziś odczytu
+  nieznanej globalnej: dopisane do G6. Pełne Linux All PASS w osobnym
+  klonie: 9244 sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows
+  niesprawdzony.
 
 - F5, testy kontraktu z danych, 2026-11-08: `contracts` 165 PASS. Próba
   mutacji: wyłączenie gaszenia znaków zmarłego właściciela

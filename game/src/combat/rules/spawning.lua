@@ -17,7 +17,7 @@ return function(R)
     e.locationArmor = b.locationArmor
     e.zones = b.zones or defaults.zones
     e.mass = b.mass
-    e.boss = b.boss or false
+    e.tier = b.tier or 'common'
     e.speed = archetype.move.speed
     e.rewardSouls = archetype.souls
     e.displayName = archetype.name

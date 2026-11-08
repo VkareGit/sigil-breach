@@ -219,6 +219,30 @@ function Tests.run()
     'every creature keeps its words in its package: ' .. table.concat(unworded, ', '),
     #unworded == 0
   )
+  -- A body's standing is its tier, not a boss flag (PLAN G5): an elite and a
+  -- true boss share the elite's rules, and an older save names its elites.
+  local BodySchema = require('src.content.defs.body')
+  local Rules = require('src.combat.rules')
+  local tiered = Rules.elite
+    and Rules.elite({ kind = 'furfur' })
+    and Rules.elite({ kind = 'boss' })
+    and not Rules.elite({ kind = 'imp' })
+  local pools = require('src.storage.save').section('pools')
+  local Tree = require('src.core.data_tree')
+  local stood = pools.migrations[10]
+    and Tree.decode(pools.migrations[10]({
+      pools = Tree.encode({ enemies = { { id = 3, boss = true }, { id = 4, boss = false } } }),
+    }).pools).enemies
+  check(
+    'a body stands on its tier, and an older save names its elites',
+    tiered
+      and stood
+      and stood[1].tier == 'elite'
+      and stood[1].boss == nil
+      and stood[2].tier == 'common'
+      and BodySchema.fields.boss == nil
+      and BodySchema.fields.tier ~= nil
+  )
   -- Every sigil names a kind of effect the fight knows (PLAN G2).
   local SigilRules = require('src.content.sigils')
   local SigilKinds = require('src.combat.sigil_kinds')

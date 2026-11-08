@@ -17,7 +17,7 @@ return function(R)
     end
     e.slamLock = defaults.slamLock
     local b = R.body(e)
-    if e.hp > 0 and not b.boss then
+    if e.hp > 0 and not R.elite(e) then
       local harm = over * defaults.slamDamage / b.mass ^ 0.5
       -- The shove's owner owns the slam (plan v11 E3d).
       R.wound(g, e, harm, 'slam', nil, e.pushOwner)
@@ -60,7 +60,7 @@ return function(R)
     other.flinch = max(other.flinch or 0, defaults.collideFlinch)
     R.guard(other, received * defaults.collidePoise)
     local over = received - defaults.slamSpeed
-    if over > 0 and other.hp > 0 and not R.body(other).boss then
+    if over > 0 and other.hp > 0 and not R.elite(other) then
       local harm = over * defaults.slamDamage / mass ^ 0.5
       R.wound(g, other, harm, 'collision', nil, e.pushOwner)
     end

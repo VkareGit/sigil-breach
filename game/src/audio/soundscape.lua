@@ -277,7 +277,7 @@ function S.mood(g)
     end
     -- Chamber trials do not set the guardian flags.
     for _, e in ipairs(Pools.of(g, 'enemies')) do
-      if e.hp > 0 and e.boss and e.awake then
+      if e.hp > 0 and (e.tier or 'common') ~= 'common' and e.awake then
         return 'guardian'
       end
     end

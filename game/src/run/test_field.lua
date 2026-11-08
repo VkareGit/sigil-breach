@@ -312,7 +312,7 @@ function F.update(g, dt)
   end
   local bosses = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.boss and e.hp > 0 then
+    if (e.tier or 'common') ~= 'common' and e.hp > 0 then
       bosses = bosses + 1
     end
   end

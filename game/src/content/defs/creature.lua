@@ -4,7 +4,7 @@
 -- definition the rules read. Instances in play point at it.
 --   extends = <creature definition>    data inheritance (variant of a parent)
 --   attacks = { { from = 'claw', ... } } an action of the parent, changed
---   Creature.boss({...})               the boss template (falters, 1 slot)
+--   Creature.elite({...})              the elite template (falters, 1 slot)
 local Factions = require('src.content.factions')
 local Schema = require('src.core.schema')
 local Body = require('src.content.defs.body')
@@ -158,12 +158,13 @@ Creature.schema = Schema:new('creature', {
   attacks = { type = 'table', required = true },
   answers = { type = 'table', list = Creature.answer, desc = 'blows that meet what it sees' },
 })
--- The boss template: a large guard that falters instead of breaking,
--- longer stance, one attacker at a time, never a major wound from one hit.
-Creature.bossTemplate = {
+-- The elite template (PLAN G5: a tier, not a flag): a large guard that falters
+-- instead of breaking, longer stance, one attacker at a time, never a major
+-- wound from one hit.
+Creature.eliteTemplate = {
   threat = 3,
   maxAttackers = 1,
-  body = { boss = true, stability = 1.5, woundAt = 1, microStun = 0 },
+  body = { tier = 'elite', stability = 1.5, woundAt = 1, microStun = 0 },
 }
 local function actionsOf(parent, child)
   if child == nil then
@@ -256,7 +257,7 @@ function Creature.define(def)
   DefsEncounter.validate(merged, where)
   return merged
 end
-function Creature.boss(def)
-  return Creature.define(Schema.inherit(Creature.bossTemplate, def))
+function Creature.elite(def)
+  return Creature.define(Schema.inherit(Creature.eliteTemplate, def))
 end
 return Creature

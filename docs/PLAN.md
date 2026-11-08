@@ -344,6 +344,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **F5 zrobione:** zestaw `contracts` z danych: życie i śmierć
   każdego ataku, zawartość każdego pakietu stwora. Golden bez zmian.
   Następny: G4 (struktura świata przed drugą mapą).
+- 2026-11-09, **G5 krok a zrobiony:** `tier` zamiast flagi `boss`
+  (`Rules.elite`), pula w wersji 11. Golden bez zmian. G4 czeka na decyzję
+  właściciela o budowie świata; dalej G5 (podział kampanii, dźwięki
+  z symulacji jako zdarzenia, warstwy).
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 
@@ -370,6 +374,8 @@ Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Przyjęte
   i `session` ↔ `combat`.
 - **G6. Narzędzia.** Selftest w procesach równoległych, Git LFS dla
   zasobów, numer wersji po 0.45, aktualizacja `docs/TECHNIKA.md`.
+  Reguła checkera dla odczytu nieznanej zmiennej globalnej (G5a: zmiana
+  nazwy zostawiła sześć takich odczytów, złapał je dopiero golden).
   Warunek równoległości (stwierdzone 2026-11-08): każdy przebieg testów
   używa tej samej tożsamości LÖVE (`sigil-breach-qa`, osobnej od zapisu
   gracza), więc dwie bramy naraz, nawet w osobnych klonach, nadpisują sobie

@@ -203,7 +203,7 @@ function Tests.run(get, settings, settle)
     field.state == 'playing'
       and #field.enemies == 1
       and furfur.kind == 'furfur'
-      and furfur.boss
+      and furfur.tier == 'elite'
       and furfur.variant == nil
   )
   key('f2')

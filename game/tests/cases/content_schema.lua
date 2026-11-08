@@ -64,7 +64,7 @@ function Tests.run(_, check)
       -- Design rule (0.21): every demon walks slower than the running knight. Tiers
       -- left with the waves (v13): a knight backing away is what it may catch.
       if
-        not b.boss
+        (b.tier or 'common') == 'common'
         and a.move.speed >= require('src.content.characters').standard().movement.moveSpeed
       then
         bad(key .. ' outruns the knight')

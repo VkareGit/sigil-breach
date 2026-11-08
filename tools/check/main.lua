@@ -36,6 +36,9 @@ end
 local function unnamedNumbers(text)
   text = text:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%[(=*)%[.-%]%1%]', "''")
   text = text:gsub('"[^"\n]*"', "''"):gsub("'[^'\n]*'", "''"):gsub('%-%-[^\n]*', '')
+  -- A whole number as a table key ([10] = a migration, a slot) is an index,
+  -- not tuning.
+  text = text:gsub('%[%s*%d+%s*%]%s*=', '[] =')
   -- Scientific notation is one token, including the signed exponent. Without
   -- this, the 12 in an allowed geometric epsilon 1e-12 was counted as tuning.
   text = text:gsub('%d[%d%.]*[eE][%+%-]?%d+', '0')

@@ -50,7 +50,12 @@ Body.fields = {
   },
   blood = { type = 'table', default = { 0.26, 0.025, 0.016 }, desc = 'blood colour' },
   struck = { type = 'string', default = 'flesh', values = { 'flesh', 'metal', 'bone' } },
-  boss = { type = 'boolean', desc = 'falters instead of being interrupted' },
+  tier = {
+    type = 'string',
+    default = 'common',
+    values = { 'common', 'elite', 'boss' },
+    desc = 'its standing: an elite or a boss falters instead of being interrupted',
+  },
   -- A killed body (plan v11 E1): its own numbers, not its painting's.
   corpse = {
     type = 'table',

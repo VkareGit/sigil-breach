@@ -30,7 +30,7 @@ return function(R)
       dx, dz = extra.direction[1], extra.direction[2]
     end
     local len = sqrt(dx * dx + dz * dz)
-    local boss = b.boss or e.boss
+    local elite = R.elite(e)
     local mass = b.mass or e.mass or 1
     local push = extra.push or impact
     local force, n = R.shove(push, mass)
@@ -54,7 +54,7 @@ return function(R)
     end
     local result = { staggered = broke, heavy = heavy, counter = counter, parried = parried }
     if len > defaults.sameSpot then
-      if e.hp <= 0 and not boss then
+      if e.hp <= 0 and not elite then
         -- A killing blow carries the body further: overkill becomes visible weight.
         local throw = force * (defaults.killThrow.base + defaults.killThrow.gain * n)
         R.addPush(e, nx, nz, throw, mass)
@@ -73,16 +73,16 @@ return function(R)
       end
     end
     -- A rush reversed by the blow stops dead: the body is knocked down.
-    if result.stopped and not boss then
+    if result.stopped and not elite then
       R.knockDown(e)
     end
-    result.falter = boss and result.staggered or nil
-    if boss and not b.steadfast and not result.staggered and n > 0.5 then
+    result.falter = elite and result.staggered or nil
+    if elite and not b.steadfast and not result.staggered and n > 0.5 then
       R.stunBriefly(e, b.microStun or 0, 'micro') -- microStun: bosses only
     end
     -- Legs: a leg blow worth part of the guard cripples the body for a while.
     local lower = defaults.zones.lower
-    if not boss and e.hp > 0 and (extra.lower or 0) >= lower.cripple * b.poise then
+    if not elite and e.hp > 0 and (extra.lower or 0) >= lower.cripple * b.poise then
       R.addCondition(e, 'crippled', defaults.crippleTime)
       result.crippled = true
     end
@@ -92,7 +92,7 @@ return function(R)
     -- Any attack that moves the body counts (its rush velocity), whatever its kind.
     local rushing = rx ~= nil
     if rushing and e.hp > 0 and (extra.lower or 0) >= defaults.tripImpact then
-      if boss then
+      if elite then
         e.chargeTime = math.min(e.chargeTime or 0, e.phase or 0)
         R.stunBriefly(e, defaults.knockdown / R.stability(e), 'trip')
       else
@@ -102,7 +102,7 @@ return function(R)
     end
     -- Major wound: one hit removing a large share of the body breaks the guard
     -- even under a stagger lock. Bosses use woundAt=1 (never from one hit).
-    if health and e.hp > 0 and not boss and health >= b.woundAt * (e.maxHp or b.hp) then
+    if health and e.hp > 0 and not elite and health >= b.woundAt * (e.maxHp or b.hp) then
       e.stun = max(e.stun or 0, defaults.woundTime)
       e.poise = 0
       R.addCondition(e, 'wounded', defaults.woundFor)

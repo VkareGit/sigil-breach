@@ -17,7 +17,7 @@ return setmetatable({}, {
         speed = a.move.speed,
         mass = b.mass,
         resistances = b.resist,
-        boss = b.boss,
+        tier = b.tier,
       }
   end,
 })

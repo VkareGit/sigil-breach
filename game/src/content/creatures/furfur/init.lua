@@ -33,7 +33,7 @@ local charge = Action.charge({
   cooldown = 1.2,
   packet = packet(65, 160, 'physical', 230),
 })
-return Creature.boss({
+return Creature.elite({
   id = 'furfur',
   name = 'creature_furfur',
   -- As much as the Margrave: 250 souls on the way (was 1500) and two shells.

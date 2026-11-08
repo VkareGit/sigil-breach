@@ -10,7 +10,7 @@ return function(R)
   -- Rules may interrupt intent, but never call the AI scheduler. Keeping this
   -- transition here removes the former rules -> AI -> rules dependency cycle.
   function R.interrupt(e)
-    if not R.body(e).boss then
+    if not R.elite(e) then
       e.windup = 0
       e.ai = 'hurt'
       e.phase = 0
@@ -107,7 +107,7 @@ return function(R)
   end
   -- Length of the lock after a broken guard (bosses lock much longer).
   function R.lockTime(e)
-    return e and R.body(e).boss and defaults.bossLock or defaults.staggerLock
+    return e and R.elite(e) and defaults.bossLock or defaults.staggerLock
   end
   -- The current threshold, shared with the guard meter. Hyperarmour belongs
   -- to an attack's active commitment, not to the body's permanent rating.
@@ -144,7 +144,7 @@ return function(R)
     if type(opts) ~= 'table' then
       opts = {}
     end
-    local boss = b.boss or e.boss
+    local elite = R.elite(e)
     local guard = R.guardThreshold(e)
     local C = defaults.counter
     local closing = opts.closing or (opts.counter and C.refSpeed) or 0
@@ -172,7 +172,7 @@ return function(R)
     end
     e.guardFalling = nil
     local t, heavy = R.staggerTime(e.poise, guard, b)
-    if boss then
+    if elite then
       ActionKinds.release(e)
       e.stun = max(e.stun or 0, b.breakTime or t)
       e.staggerLock = defaults.bossLock

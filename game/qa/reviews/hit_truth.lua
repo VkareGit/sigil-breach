@@ -219,7 +219,7 @@ local function episodes(kind)
     },
   }
   local body = Rules.body({ kind = kind })
-  if not body.boss then
+  if (body.tier or 'common') == 'common' then
     list[#list + 1] = {
       name = 'stagger',
       seconds = 1.2,

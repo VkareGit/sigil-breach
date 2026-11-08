@@ -216,6 +216,16 @@ Save.declare({
   file = 'session',
   -- Its version is one past its last migration (storage/save.lua).
   migrations = {
+    -- PLAN G5: a body's standing is its tier, not a boss flag (an elite
+    -- falters instead of being interrupted).
+    [10] = function(data)
+      local all = Tree.decode(data.pools)
+      for _, e in ipairs(all.enemies or {}) do
+        e.tier, e.boss = e.boss and 'elite' or 'common', nil
+      end
+      data.pools = Tree.encode(all)
+      return data
+    end,
     -- PLAN G1: a definition in a list is named by its id. Read by its place
     -- in today's content, written again by id.
     [9] = function(data)
