@@ -53,21 +53,11 @@ local function refusal(g, p, act)
     return 'hud_reloading'
   end
 end
--- Say it where the eyes are, and once a moment however long the key is held.
+-- The controlled knight is told why (feedback/motion.lua: Motion.refused).
 local function tell(g, p, act)
   local reason = refusal(g, p, act)
-  local view = g.view
-  if reason and view and p == g.player then
-    -- The hands reloading already sound like what they are doing, and a dodge waiting out a shot
-    -- goes a moment later: neither is a refusal to thud.
-    if
-      (view.refusalTimer or 0) <= 0
-      and reason ~= 'hud_reloading'
-      and reason ~= 'hud_recovering'
-    then
-      Presentation.cue(g, 'thud', Tuning.refusalVolume)
-    end
-    view.refusal, view.refusalTimer = reason, Tuning.refusalTime
+  if reason and p == g.player then
+    Presentation.call(g, 'knight.refused', reason)
   end
 end
 function I.queue(g, kind, command, actor)

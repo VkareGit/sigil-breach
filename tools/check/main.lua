@@ -673,6 +673,25 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- The body publishes, presentation answers (PLAN E3): a knight's step in
+  -- src/player chooses no sound and writes no view field; the camera, hands
+  -- and sounds answer its 'motion.*' facts in feedback/motion.lua.
+  for id, text in pairs(sources) do
+    if id:match('^src%.player%.') then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        if code:find('Presentation%.cue%(') then
+          failure('MOVEMENT PRESENTATION ' .. id .. ': its sounds belong to presentation')
+        end
+        if
+          code:find('view%.[%a_][%w_]*%s*[,=][^=]')
+          and code:find('^[^=]*view%.[%a_][%w_]*[^=]*=[^=]')
+        then
+          failure('MOVEMENT PRESENTATION ' .. id .. ': its view fields belong to presentation')
+        end
+      end
+    end
+  end
   -- One way into a view impulse (PLAN E5): an event moves a channel of
   -- content/view_reactions.lua only through feedback/impulses.lua, so answers of
   -- many events sum within one limit and a weaker peak never lowers a

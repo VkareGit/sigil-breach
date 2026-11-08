@@ -3,7 +3,7 @@ local Fixtures = require('tests.support.fixtures')
 local Tests = {}
 function Tests.run(G, check)
   local Intent = require('src.player.intent')
-  local Gait = require('src.player.movement_gait')
+  local Gait = require('src.feedback.gait')
   local Weight = require('src.feedback.weight')
   local Motion = require('src.feedback.weapon_motion')
   local Feel = require('src.player.feel')
@@ -447,7 +447,7 @@ function Tests.run(G, check)
       and g.view.presentationPrevious ~= nil
   )
   g.view.motion = false
-  Feel.clearMotion(g)
+  require('src.feedback.motion').clearAll(g)
   g.view.motion = true
   local clear = true
   for _, key in ipairs({

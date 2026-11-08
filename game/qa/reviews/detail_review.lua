@@ -385,7 +385,7 @@ function Review.run(output, Game, renderer)
     assert(g:shoot())
     advance(g, 0, 0.06)
     capture(g, 'detail-reduced-motion-shot', 0.06, strip, 1, 2, 'reduced motion / shot')
-    require('src.player.feel').clearMotion(g)
+    require('src.feedback.motion').clearAll(g)
     g.view.motion = true
     advance(g, 0.06, 0.07)
     capture(

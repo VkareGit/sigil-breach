@@ -180,7 +180,7 @@ function T.run(G)
     #g.view.surfaceMarks <= S.limit and #g.view.surfaceMarks > 1
   )
   local before = #g.view.surfaceMarks
-  require('src.player.feel').clearMotion(g)
+  require('src.feedback.motion').clearAll(g)
   check(
     'reduced motion preserves physical traces on the environment',
     #g.view.surfaceMarks == before

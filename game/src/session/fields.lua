@@ -242,7 +242,7 @@ declareView('player/feel.lua (camera)', {
   'shotAge', -- seconds since the last trigger pull (hands, flash, portrait)
   'swapAge', -- seconds since the weapon was drawn (hands)
 })
-declareView('player/movement_gait.lua', { 'gaitPhase', 'gaitSteps' })
+declareView('feedback/gait.lua', { 'gaitPhase', 'gaitSteps' })
 declareView('feedback/weapon_motion.lua', {
   'weaponAimVX',
   'weaponAimVY',
@@ -349,7 +349,7 @@ Fields.start({
   weaponShotRollV = 0,
 })
 -- The carried weapon and the gait (feedback/weapon_motion.lua,
--- player/movement_gait.lua). weaponLastYaw/Pitch have none: absent means
+-- feedback/gait.lua). weaponLastYaw/Pitch have none: absent means
 -- the next step only notes where the view is.
 Fields.start({
   gaitPhase = 0,

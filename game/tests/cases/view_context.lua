@@ -400,7 +400,7 @@ function Tests.run(G, renderer)
   P.capture(motionFree)
   P.capture(motionFreeB)
   before = Integrity.capture(motionGame)
-  require('src.player.feel').clearMotion(motionGame)
+  require('src.feedback.motion').clearAll(motionGame)
   check(
     'disabling motion clears all watched and detached camera histories immediately',
     motionGame.view.recoil == 0

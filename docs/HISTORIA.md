@@ -74,6 +74,17 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E3a, krok rycerza publikuje fakty, 2026-11-08: ruch rycerza
+  (player/feel.lua) nie pisze już żadnego pola widoku i nie wybiera dźwięku.
+  W chwili zdarzenia publikuje fakt (początek kroku, ślizg, uderzenie w mur,
+  odepchnięcie zatrzymane przez mur, przebyta droga, wybicie, lądowanie,
+  koniec kroku), a sprężyny kamery, kołysanie, przechył, FOV uniku,
+  przysiad po lądowaniu, licznik kroków i dźwięki ślizgu, skoku, lądowania,
+  kroku i uderzenia liczy prezentacja (feedback/motion.lua). Tak samo odmowa
+  („nie teraz”) z player/intent.lua. Rytm kroków przeniesiony do
+  feedback/gait.lua. Sprężyny nie są już prowadzone dla rycerzy, których
+  nikt nie ogląda. Obraz i dźwięk bez zmian.
+
 - F2d, migracje z deklaracji stwora, 2026-11-08: stwór, którego ataki
   zamrożono dla starszych zapisów, deklaruje to w swojej definicji
   (savedAttacks = { { through, module } }: Margrave do wersji pul 6,
@@ -4498,6 +4509,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E3a, krok rycerza publikuje fakty, 2026-11-08: reguła MOVEMENT
+  PRESENTATION (tools/check: moduł src/player nie pisze pól widoku i nie
+  wybiera dźwięku) na starym kodzie 33 miejsca, po zmianie 0. Sonda
+  w osobnym klonie (usunięta): 480 kroków chodu, ukosu, ślizgu, skoku,
+  uniku, trzech strzałów, odepchnięcia w mur, z drugim oglądanym rycerzem;
+  każde pole widoku obu rycerzy i każdy dźwięk co krok, 589 tys. linii,
+  przed i po identyczne bajt w bajt (przed: dwa identyczne przebiegi).
+  Golden bez zmian. Pełne Linux All PASS w osobnym klonie: 9040 sprawdzeń,
+  golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - F2d, migracje z deklaracji stwora, 2026-11-08: nowe testy
   w `content-contracts` czerwone przed zmianą (żadna kopia w

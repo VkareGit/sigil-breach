@@ -73,7 +73,7 @@ src/physics/ordnance_flight.lua 0
 src/physics/sphere_cast.lua 0
 src/player/feel.lua 3
 src/player/intent.lua 1
-src/player/movement_gait.lua 1
+src/feedback/gait.lua 1
 src/run/economy.lua 0
 src/run/modes.lua 0
 src/run/navigation.lua 3

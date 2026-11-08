@@ -20,12 +20,12 @@ function G.advance(g, distance, planted)
   then
     return 0
   end
-  local before = g.view.gaitPhase or 0
+  local before = g.view.gaitPhase
   local after = before + distance * G.radiansPerMetre
   -- The epsilon only resolves floating-point noise at a foot-plant boundary.
   local steps = math.floor(after / math.pi + 1e-9) - math.floor(before / math.pi + 1e-9)
   g.view.gaitPhase = after
-  g.view.gaitSteps = (g.view.gaitSteps or 0) + steps
+  g.view.gaitSteps = g.view.gaitSteps + steps
   return steps
 end
 return G

@@ -30,5 +30,14 @@ function ViewState.init(g)
   g.view.flashColor = { Defaults.flash[1], Defaults.flash[2], Defaults.flash[3] }
   Presentation.call(g, 'motion.init')
 end
+-- A new session's presentation: empty shared effects, no watched actors,
+-- motion on, then the controlled knight's own view.
+function ViewState.start(g)
+  g.view.traces, g.view.surfaceMarks, g.view.corpses = {}, {}, {}
+  g.view.effects, g.view.decals = {}, {}
+  g.view.actors, g.view.observers = nil, nil
+  g.view.motion = true
+  ViewState.init(g)
+end
 ViewState.clearCamera = clearCamera
 return ViewState

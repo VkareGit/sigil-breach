@@ -2,7 +2,6 @@
 -- Navigation owns temporary visits; this module owns input/UI aftermath.
 local Soundscape = require('src.audio.soundscape')
 local Weapons = require('src.content.weapons')
-local Feel = require('src.player.feel')
 local Chapel = require('src.ui.chapel')
 local Help = require('src.ui.screens.help')
 local Modes = require('src.session.modes')
@@ -219,7 +218,7 @@ handlers.motion = function(app)
   app.settings.motion = not app.settings.motion
   app.game.view.motion = app.settings.motion
   if not app.settings.motion then
-    Feel.clearMotion(app.game)
+    require('src.feedback.motion').clearAll(app.game)
   end
 end
 handlers.hints = function(app)

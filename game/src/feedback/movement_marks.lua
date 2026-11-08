@@ -112,7 +112,7 @@ end
 function Marks.dash(g, dx, dz)
   Marks.move(g, 'dash', knight(g, dx, dz))
 end
--- A slide begins (player/feel.lua).
+-- A slide begins (feedback/motion.lua).
 function Marks.slide(g)
   local p = Context.actor(g)
   Marks.move(g, 'slide', knight(g, p.slideX, p.slideZ))
@@ -172,6 +172,5 @@ function Marks.update(g, dt)
 end
 
 Presentation.hook('motion.dash', Marks.dash)
-Presentation.hook('motion.slide', Marks.slide)
 Presentation.hook('motion.marks', Marks.update)
 return Marks

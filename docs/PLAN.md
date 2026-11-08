@@ -256,6 +256,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   powstaje teraz z deklaracji przy definicji, a brak deklaracji zatrzymuje
   bramę. Zostaje poza F2: zapis ataku po id zamiast numeru na liście
   (przegląd skalowalności), który usunąłby same kopie. Następny: E3.
+- 2026-11-08, **E3 krok a zrobiony:** krok rycerza publikuje fakty w chwili
+  zdarzenia (`motion.*`), kamera, ręce i dźwięki ruchu liczy
+  `feedback/motion.lua`; reguła MOVEMENT PRESENTATION. Obraz i dźwięk
+  identyczne (sonda), golden bez zmian.
 
 ## Decyzje właściciela
 
