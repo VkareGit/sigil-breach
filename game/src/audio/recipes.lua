@@ -588,18 +588,15 @@ R.crypt_drip = {
 for _, name in ipairs({ 'shot', 'revolver', 'blast', 'thunder', 'afterimage' }) do
   R[name].priority = 2
 end
-for _, voices in ipairs({
-  'src.audio.ritual_voices',
-  'src.audio.owl_voices',
-  'src.audio.iron_voices',
-  'src.audio.ember_voices',
-  'src.audio.furfur_voices',
-  'src.audio.margrave_voices',
-  'src.audio.garden_voices',
-  'src.audio.medal_voices',
-  'src.audio.hit_voices',
-}) do
-  for name, recipe in pairs(require(voices)) do
+-- Every file of audio/banks is a bank of recipes (creature performances,
+-- rites, medals, hits): a new bank is a new file there, never an edit here.
+local BANKS = 'src/audio/banks'
+local banks = love.filesystem.getDirectoryItems(BANKS)
+table.sort(banks)
+for _, file in ipairs(banks) do
+  local bank = file:match('^(.+)%.lua$')
+  assert(bank, BANKS .. ' holds only recipe banks: ' .. file)
+  for name, recipe in pairs(require('src.audio.banks.' .. bank)) do
     assert(not R[name], 'duplicate sound recipe ' .. name)
     R[name] = recipe
   end

@@ -248,6 +248,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (`shop = { order }`, karta z ilustracji broni); sklep, polecenia i arkusz
   kart bez listy broni. Wygładzanie było już z deklaracji pól (E4).
   Następne: banki głosów, sekcje i pola głosów audio, migracje.
+- 2026-11-08, **F2 krok b zrobiony:** banki głosów z katalogu `audio/banks`,
+  pola głosów oznaczone w schematach (`voice = true`) i sprawdzane wszędzie,
+  sekcje profilu audio deklarowane przy czytniku. Golden bez zmian.
 
 ## Decyzje właściciela
 

@@ -14,7 +14,7 @@ local function rankOf(id)
   end
   return 0
 end
--- Every medal has its own sound (audio/medal_voices.lua), heard when it takes the view.
+-- Every medal has its own sound (audio/banks/medal_voices.lua), heard when it takes the view.
 function Medals.show(g, id)
   local view = g.view
   if view.medalTimer <= 0 or rankOf(id) >= rankOf(view.medal) then

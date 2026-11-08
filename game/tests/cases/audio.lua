@@ -106,20 +106,51 @@ function Tests.run()
     for role, name in pairs(def.sounds) do
       check(id .. ' sound ' .. role .. ' resolves', Recipes[name] ~= nil)
     end
+    local Action = require('src.content.defs.action')
     for _, attack in ipairs(def.attacks) do
-      for _, key in ipairs({ 'sound', 'windupSound', 'windupVoice' }) do
-        if attack[key] then
-          check(id .. '/' .. attack.id .. ' ' .. key .. ' resolves', Recipes[attack[key]] ~= nil)
-        end
-      end
+      Action.kinds:get(attack.kind):marked(attack, 'voice', function(name, where)
+        check(where .. ' resolves', Recipes[name] ~= nil)
+      end, id .. '/' .. attack.id)
     end
   end
   check(
     'every sound recipe is rendered, the perfect dodge and the fuse included',
     all and A.sources.afterimage and A.sources.fuse and A.sources.slide
   )
+  -- Voice banks are the files of audio/banks (PLAN F2): a new bank is a new
+  -- file there, merged without a list kept in recipes.lua.
+  local banks, merged = love.filesystem.getDirectoryItems('src/audio/banks'), true
+  for _, file in ipairs(banks) do
+    for name, recipe in pairs(require('src.audio.banks.' .. file:match('^(.+)%.lua$'))) do
+      merged = merged and Recipes[name] == recipe
+    end
+  end
+  check('every voice bank file is merged into the recipes', #banks > 0 and merged)
+  -- A field that names a voice says so in its schema (PLAN F2): the audio
+  -- contract checks it wherever it sits, with no list of keys of its own.
+  local Contracts = require('src.audio.contracts')
+  local function refused(record, key)
+    local kept = record[key]
+    record[key] = 'trial_missing_voice'
+    local ok = pcall(Contracts.validate)
+    record[key] = kept
+    return not ok
+  end
+  local trail
+  for _, attack in ipairs(require('src.content.enemies').get('boss').attacks) do
+    trail = trail or (attack.trail and attack.trail.impactSound and attack.trail)
+  end
+  check(
+    'a missing voice deep in an action (its trail) stops the load',
+    refused(trail, 'impactSound')
+  )
+  check(
+    'a missing voice of a weapon shot stops the load',
+    refused(require('src.content.weapons').get('judge').fire, 'sound')
+  )
+  check('the live voices pass the audio contract', pcall(Contracts.validate))
   local Synth = require('src.audio.synth')
-  for name, recipe in pairs(require('src.audio.ritual_voices')) do
+  for name, recipe in pairs(require('src.audio.banks.ritual_voices')) do
     local data = Synth.effect(recipe.duration, A.rate, Synth.seed(name), recipe.make(A.rate))
     local peak, sum = 0, 0
     for i = 0, data:getSampleCount() - 1 do

@@ -711,7 +711,29 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
   for id, text in pairs(sources) do
     local seen = {}
     -- Registries use literal IDs as well as direct require calls.
-    for dependency in text:gmatch('[\'"]([%w_%.]+)[\'"]') do
+    local named = {}
+    for literal in text:gmatch('[\'"]([%w_%.]+)[\'"]') do
+      -- A package prefix ('src.audio.banks.' .. name) loads every module
+      -- directly in that package: each one is a dependency.
+      if literal:sub(-1) == '.' then
+        local members = {}
+        for other in pairs(sources) do
+          if other:sub(1, #literal) == literal and not other:find('.', #literal + 1, true) then
+            members[#members + 1] = other
+          end
+        end
+        table.sort(members)
+        if #members == 0 then
+          members[1] = literal
+        end
+        for _, member in ipairs(members) do
+          named[#named + 1] = member
+        end
+      else
+        named[#named + 1] = literal
+      end
+    end
+    for _, dependency in ipairs(named) do
       if
         dependency:match('^src%.')
         or dependency:match('^tests%.')

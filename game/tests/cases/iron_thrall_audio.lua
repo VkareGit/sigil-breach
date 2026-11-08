@@ -133,7 +133,7 @@ function T.run(Game)
   A.playAt, A.stopVoice = play, stop
   C.reset()
   assert(ok, err)
-  for name, recipe in pairs(require('src.audio.iron_voices')) do
+  for name, recipe in pairs(require('src.audio.banks.iron_voices')) do
     local data = require('src.audio.voice_data').render(name, recipe, A.rate)
     local peak, sum, jump, prev = 0, 0, 0, 0
     for i = 0, data:getSampleCount() - 1 do

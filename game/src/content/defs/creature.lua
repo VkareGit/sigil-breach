@@ -13,16 +13,16 @@ local DefsEncounter = require('src.content.defs.encounter')
 local Defaults = require('src.content.combat_defaults')
 local Creature = {}
 Creature.sounds = Schema:new('creature sounds', {
-  alert = { type = 'string' },
-  windup = { type = 'string' },
-  strike = { type = 'string' },
-  step = { type = 'string' },
-  summon = { type = 'string' },
-  arrival = { type = 'string' },
-  death = { type = 'string' },
-  hurt = { type = 'string' },
-  breath = { type = 'string' },
-  murmur = { type = 'string' },
+  alert = { type = 'string', voice = true },
+  windup = { type = 'string', voice = true },
+  strike = { type = 'string', voice = true },
+  step = { type = 'string', voice = true },
+  summon = { type = 'string', voice = true },
+  arrival = { type = 'string', voice = true },
+  death = { type = 'string', voice = true },
+  hurt = { type = 'string', voice = true },
+  breath = { type = 'string', voice = true },
+  murmur = { type = 'string', voice = true },
 })
 Creature.evade = Schema:new('evade', {
   speed = { type = 'number', required = true, min = 0 },

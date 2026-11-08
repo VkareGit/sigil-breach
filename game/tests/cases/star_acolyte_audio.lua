@@ -22,7 +22,7 @@ function T.run(Game)
     cues[cue] = true
   end
   local VoiceData = require('src.audio.voice_data')
-  for name, recipe in pairs(require('src.audio.owl_voices')) do
+  for name, recipe in pairs(require('src.audio.banks.owl_voices')) do
     local data = VoiceData.render(name, recipe, A.rate)
     local peak, sum, jump, previous = 0, 0, 0, 0
     for i = 0, data:getSampleCount() - 1 do

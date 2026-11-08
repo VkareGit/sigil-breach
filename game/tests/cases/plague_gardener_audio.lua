@@ -110,7 +110,7 @@ function T.run(Game)
   A.playAt, A.stopVoice = play, stop
   C.reset()
   assert(ok, err)
-  local registered, recipes = pcall(require, 'src.audio.garden_voices')
+  local registered, recipes = pcall(require, 'src.audio.banks.garden_voices')
   check('recorded body and spell voices are registered', registered)
   for name, recipe in pairs(registered and recipes or {}) do
     local data = require('src.audio.voice_data').render(name, recipe, A.rate)

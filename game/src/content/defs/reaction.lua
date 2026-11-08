@@ -34,6 +34,11 @@ Reaction.effect = {}
 function Reaction.effect:fill(def)
   return schemaOf(def):fill(def)
 end
+function Reaction.effect:marked(def, mark, visit, path)
+  if type(def) == 'table' then
+    schemaOf(def):marked(def, mark, visit, path)
+  end
+end
 function Reaction.effect:problems(def, path, out)
   out = out or {}
   if type(def) ~= 'table' then
@@ -50,6 +55,9 @@ local record = Schema:new('reaction', {
 Reaction.schema = {}
 function Reaction.schema:fill(def)
   return record:fill(def)
+end
+function Reaction.schema:marked(def, mark, visit, path)
+  record:marked(def, mark, visit, path)
 end
 function Reaction.schema:problems(def, path, out)
   out = record:problems(def, path, out)

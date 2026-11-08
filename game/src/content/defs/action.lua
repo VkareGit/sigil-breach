@@ -98,14 +98,27 @@ Action.common = {
     max = 1,
     desc = 'share of the windup after which a turning body stops turning',
   },
-  sound = { type = 'string' },
+  sound = { type = 'string', voice = true },
   warning = { type = 'boolean', desc = 'false for movement without a damaging release' },
-  landingSound = { type = 'string', desc = 'physical body contact after an airborne action' },
+  landingSound = {
+    type = 'string',
+    voice = true,
+    desc = 'physical body contact after an airborne action',
+  },
   turnBody = { type = 'boolean', desc = 'body facing follows this physical delivery direction' },
-  releaseVoice = { type = 'string', desc = 'body effort layered with released material' },
-  windupSound = { type = 'string', desc = 'presentation cue at commitment, distinct from release' },
+  releaseVoice = {
+    type = 'string',
+    voice = true,
+    desc = 'body effort layered with released material',
+  },
+  windupSound = {
+    type = 'string',
+    voice = true,
+    desc = 'presentation cue at commitment, distinct from release',
+  },
   windupVoice = {
     type = 'string',
+    voice = true,
     desc = 'optional creature vocalization beside the spell warning',
   },
   packet = { type = 'table', schema = Packet.schema },
@@ -245,7 +258,7 @@ Action.kinds:register(
 Action.kinds:register(
   'strike',
   kind('strike', {
-    impactSound = { type = 'string', desc = 'voice of the released ground contact' },
+    impactSound = { type = 'string', voice = true, desc = 'voice of the released ground contact' },
     art = { type = 'string', desc = 'painted ground rite style' },
     volume = Volumes.field('lightning'),
     radius = { type = 'number', min = 0 },
@@ -262,7 +275,7 @@ local Mark = Schema:new('pattern mark', {
 Action.kinds:register(
   'pattern',
   kind('pattern', {
-    impactSound = { type = 'string', desc = 'voice of the first ground pulse' },
+    impactSound = { type = 'string', voice = true, desc = 'voice of the first ground pulse' },
     art = { type = 'string', desc = 'painted ground rite style' },
     origin = { type = 'string', default = 'target', values = { 'target', 'caster' } },
     marks = { type = 'table', required = true, list = Mark },
@@ -276,7 +289,7 @@ Action.kinds:register(
 )
 -- What a burning cut leaves on the floor where it passed.
 local Trail = Schema:new('trail', {
-  impactSound = { type = 'string', desc = 'voice of the first ground pulse' },
+  impactSound = { type = 'string', voice = true, desc = 'voice of the first ground pulse' },
   art = { type = 'string', desc = 'painted ground rite style' },
   origin = { type = 'string', default = 'caster', values = { 'caster' } },
   marks = { type = 'table', required = true, list = Mark },
@@ -417,7 +430,7 @@ Action.kinds:register('salvo', kind('salvo', salvo, { 'speed', 'count', 'interva
 Action.kinds:register(
   'storm',
   kind('storm', {
-    impactSound = { type = 'string', desc = 'voice of the released ground contact' },
+    impactSound = { type = 'string', voice = true, desc = 'voice of the released ground contact' },
     art = { type = 'string', desc = 'painted ground rite style' },
     requireSight = { type = 'boolean', desc = 'each new mark requires sight of its target' },
     count = { type = 'number', min = 1 },

@@ -5,6 +5,11 @@ local Maps = require('src.content.maps.index')
 local Recipes = require('src.audio.recipes')
 local Score = require('src.audio.score')
 local CreatureAudio = require('src.content.creature_audio')
+local Profiles = require('src.audio.creature_profiles')
+local Action = require('src.content.defs.action')
+local Creature = require('src.content.defs.creature')
+local DefsWeapon = require('src.content.defs.weapon')
+local Weapons = require('src.content.weapons')
 local C = {}
 function C.scene(scene)
   if not scene then
@@ -43,10 +48,8 @@ function C.validate()
   end
   for id, profile in pairs(CreatureAudio) do
     local def = assert(Archetypes.get(id), 'unknown creature audio owner ' .. id)
-    local sections =
-      { body = true, actions = true, projectile = true, projectiles = true, fields = true }
     for section in pairs(profile) do
-      assert(sections[section], id .. ': unknown creature audio section ' .. section)
+      assert(Profiles.sections[section], id .. ': unknown creature audio section ' .. section)
     end
     local actions = {}
     for _, action in ipairs(def.attacks) do
@@ -87,26 +90,18 @@ function C.validate()
   for _, map in Maps:each() do
     C.scene(map.decor and map.decor.soundscape)
   end
+  -- Every field a schema marks voice = true names a recipe, however deep.
+  local function named(name, where)
+    assert(Recipes[name], where .. ': unknown voice ' .. tostring(name))
+  end
   for id, def in Archetypes.each() do
-    for _, name in pairs(def.sounds) do
-      assert(Recipes[name], id .. ': unknown voice ' .. name)
-    end
+    Creature.sounds:marked(def.sounds, 'voice', named, id .. '.sounds')
     for _, attack in ipairs(def.attacks) do
-      for _, key in ipairs({
-        'sound',
-        'windupSound',
-        'windupVoice',
-        'releaseVoice',
-        'landingSound',
-        'impactSound',
-      }) do
-        local name = attack[key]
-        assert(
-          not name or Recipes[name],
-          id .. '/' .. attack.id .. ': unknown voice ' .. tostring(name)
-        )
-      end
+      Action.kinds:get(attack.kind):marked(attack, 'voice', named, id .. '/' .. attack.id)
     end
+  end
+  for id, def in Weapons.registry:each() do
+    DefsWeapon.schema:marked(def, 'voice', named, 'weapon ' .. id)
   end
 end
 return C

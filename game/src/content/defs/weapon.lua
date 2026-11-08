@@ -81,7 +81,7 @@ Weapon.fire = Schema:new('trigger pull', {
   muzzle = { type = 'number', required = true, min = 0 },
   shake = { type = 'number', required = true, min = 0 },
   flash = { type = 'table', required = true },
-  sound = { type = 'string', required = true },
+  sound = { type = 'string', required = true, voice = true },
   volume = { type = 'number', default = 0.65, min = 0 },
   volumePower = { type = 'number', default = 0, min = 0 },
   smoke = { type = 'number', required = true, min = 0 },

@@ -8,6 +8,7 @@
 --   default = v, required = true, min = n, max = n, values = {...},
 --   check = fn (value -> message when it is wrong),
 --   schema = Schema (nested record), list = Schema (array of records),
+--   voice = true (the value names a sound recipe; audio/contracts.lua checks it),
 --   desc = 'what it means' }
 local Class = require('src.core.class')
 local Schema = Class:extend('Schema')
@@ -134,6 +135,27 @@ function Schema:problems(def, path, out)
     end
   end
   return out
+end
+-- Visit every value of def held by a field marked mark (spec[mark] true),
+-- nested records and lists included, as visit(value, path).
+function Schema:marked(def, mark, visit, path)
+  path = path or self.name
+  if type(def) ~= 'table' then
+    return
+  end
+  for key, spec in pairs(self.fields) do
+    local v, where = def[key], path .. '.' .. key
+    if v ~= nil and spec[mark] then
+      visit(v, where)
+    end
+    if spec.schema and type(v) == 'table' then
+      spec.schema:marked(v, mark, visit, where)
+    elseif spec.list and type(v) == 'table' then
+      for i, item in ipairs(v) do
+        spec.list:marked(item, mark, visit, where .. '[' .. i .. ']')
+      end
+    end
+  end
 end
 -- Raise one error listing every problem (load-time failure, early and clear).
 function Schema:validate(def, path)

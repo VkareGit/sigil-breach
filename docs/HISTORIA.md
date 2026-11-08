@@ -74,6 +74,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- F2b, listy audio z deklaracji, 2026-11-08: banki głosów (stworów,
+  rytuałów, medali i trafień) to pliki katalogu audio/banks; recipes.lua
+  wczytuje każdy plik stamtąd zamiast własnej listy dziewięciu modułów.
+  Pole, którego wartość jest nazwą głosu, mówi to w swoim schemacie
+  (voice = true: dźwięki stworów, ataków, także zagnieżdżone, np. ślad
+  palącego cięcia, i strzał broni); kontrakt audio sprawdza każde takie pole
+  zamiast listy kluczy, więc głos ataku zagnieżdżonego i strzału broni jest
+  teraz sprawdzany przy starcie. Sekcje profilu audio stworów deklaruje
+  czytnik, który je gra (audio/creature_profiles.lua). Dźwięk bez zmian.
+
 - F2a, bronie sklepu z deklaracji broni, 2026-11-08: broń sprzedawana przy
   ognisku deklaruje swoje miejsce w zbrojowni (content/weapons.lua:
   shop = { order }), a karta wynika z jej ilustracji (content/art/
@@ -4480,6 +4490,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- F2b, listy audio z deklaracji, 2026-11-08: nowe testy w `weapons`
+  (tests/cases/audio.lua) czerwone przed zmianą: brak katalogu banków;
+  brakujący głos śladu palącego cięcia Margrave'a i brakujący dźwięk strzału
+  Judge nie zatrzymywały startu. Po zmianie zielone; żywe dane przechodzą
+  nowy kontrakt bez poprawek (żaden istniejący głos nie był błędny).
+  Narzędzie architektury rozumie wczytanie całego pakietu
+  (`'src.audio.banks.' ..`): każdy moduł pakietu jest zależnością.
+  Po drodze: błąd przy starcie w zestawie z oknem zostawia ekran błędu LÖVE
+  i proces czeka do limitu czasu (tu 900 s) bez raportu; brama ma własne
+  limity, więc kończy się FAIL. Golden bez zmian. Pełne Linux All PASS
+  w osobnym klonie: 9038 sprawdzeń (o 30 więcej: każde pole głosu ataku
+  sprawdzane osobno), golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - F2a, bronie sklepu z deklaracji broni, 2026-11-08: nowy test
   w `extension` (trzecia broń z `shop = { order = 3 }` pojawia się jako

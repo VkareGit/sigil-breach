@@ -41,6 +41,13 @@ Effect.defineKind('buildup', {
 function Effect.schema:fill(definition)
   return Effect.kinds:get(definition.kind):fill(definition)
 end
+-- Marked fields (core/schema.lua: Schema:marked) of the effect's own kind.
+function Effect.schema:marked(definition, mark, visit, path)
+  local schema = type(definition) == 'table' and Effect.kinds:find(definition.kind)
+  if schema then
+    schema:marked(definition, mark, visit, path)
+  end
+end
 function Effect.schema:problems(definition, path, out)
   out = out or {}
   if type(definition) ~= 'table' then
