@@ -36,6 +36,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Przegląd skalowalności i jakości (2026-11-08)
 - Przegląd jakości i powiązań kodu (2026-11-07)
 - Przegląd skalowalności projektu (2026-11-07)
 - Analiza silnika ruchu i strzału (2026-11-07)
@@ -14973,6 +14974,98 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
 
+
+## Przegląd skalowalności i jakości (2026-11-08)
+
+Przegląd Claude na `e62a1e0` (0.45, po E6d), na polecenie właściciela:
+cały kod pod kątem dalszego rozwoju gry i ogólnej jakości, bez wdrażania.
+Pomiary skryptami (graf `require`, wyszukiwanie identyfikatorów, liczniki
+pętli i odwołań); gra, zasoby i golden bez zmian.
+
+Werdykt: dobra baza. Rdzeń (broń, rodzaj ataku, poza stwora, profil rąk,
+zegar) jest ogólny. Koszt rozwoju będą podnosić: zapisy, sigile, postać
+rozproszona po katalogach, świat na jednej mapie i moduł kampanii. Żadna
+z tych rzeczy nie blokuje bieżącej pracy; każda podroży drugą mapę,
+kolejne sigile albo kilka nowych stworów.
+
+Mocne strony, do zachowania:
+
+- 431 modułów `src`, 1945 zależności, zero cykli; granice warstw pilnowane
+  bramą.
+- Poza `content/` nie ma ani jednego identyfikatora postaci ani broni
+  (`exorcist`, `judge`, `imp`, `stolas`, `buer`, `armored`, `boss`,
+  `furfur`: 0 trafień). Silnik nie wie, jakie postacie istnieją.
+- Rejestry: bronie, rodzaje ataków, stany póz, mapy, tryby, teksty, banki
+  głosów. Nowa broń to same dane (test fikcyjnej trzeciej broni, D20).
+  Rodzaje ataków składają się z klocków mechanik (F3e).
+- Determinizm, golden, miernik odczucia E0, zapadka literałów symulacji.
+- Kilku rycerzy (aktorów) w jednej sesji już działa.
+
+Postęp od przeglądów z 2026-11-07: literały w `feedback/` 535 → 305,
+`or 0` 964 → 754, pola stwora 317 → 308; stan ataku przy rodzaju; poza
+z rejestru i na zegarze symulacji; listy z rejestrów; profile rąk i broni.
+
+Wąskie gardła rozwoju, od najpoważniejszego:
+
+1. **Zapis wskazuje definicję pozycją na liście.** `core/data_tree.lua`
+   zapisuje rozpoczęty atak jako ścieżkę: moduł, `attacks`, numer.
+   Wstawienie ataku w środek listy podmieni po cichu atak wznowiony po
+   Continue. Stąd zamrożone kopie w `content/migrations/` (925 linii na
+   trzy przebudowy). `run/pilgrimage.lua:1131` ma limit 3 kopii sigila
+   wpisany na sztywno i odrzuca cały zapis przy przekroczeniu pojemności:
+   podniesienie ceny sigila zablokuje graczowi zapis. Do naprawy przed
+   dokładaniem treści.
+2. **Sigile znane po nazwie.** `combat/sigils.lua` czyta pola w rodzaju
+   `sigil.stolas`; wywołania w 18 modułach. Nowy sigil to zmiana silnika.
+   Potrzebny rejestr efektów podpiętych pod momenty walki (strzał, kontakt,
+   unik, przeładowanie, flaska).
+3. **Jedna postać w 8–10 miejscach (F4).** Definicja, arkusz, anatomia,
+   wspólny generowany plik masek (`content/art/hit_masks.lua`, 2600 linii),
+   profil audio, bank głosów, teksty, katalog, zaopatrzenie, mapa. Moduły
+   silnika pod jedną postać: `combat/garden.lua`, `combat/stream.lua`
+   (Gardener), `render/ash_art.lua` (Margrave), `render/storm_art.lua`
+   (Furfur), `render/garden_art.lua`, `render/ritual_art.lua`. W F4 rozłożyć
+   je na ogólne klocki albo przenieść do pakietu postaci.
+4. **Świat to jedna mapa.** Kampania i poligon stoją na `proving` (siatka
+   szerokości 49), mapa pisana kodem Lua z funkcjami pomocniczymi. Nie ma
+   przejść między obszarami, wczytywania ani usypiania odległych stworów.
+   52 przejścia po całej puli stworów w 32 plikach, bez indeksu
+   przestrzennego: przy 15–30 stworach bez znaczenia, przy większych
+   obszarach albo hordach sufit. Strukturę świata (obszary, przejścia,
+   aktywacja) ustalić przed drugą mapą.
+5. **Kampania w jednym module.** `run/pilgrimage.lua`: 1164 linie,
+   30 zależności; zapis, ekonomia, podróż, relikwie, zaludnianie,
+   interakcje, HUD. Do rozdzielenia na podsystemy.
+6. **Symulacja wybiera dźwięki.** 10 wywołań `Presentation.cue` w symulacji
+   (`run/economy`, `run/pilgrimage`, `session/game`, `combat/execution`,
+   `combat/abilities`, `systems/clocks`). Zamienić na zdarzenia; dźwięk
+   wybiera prezentacja.
+7. **`boss` oznacza elitę** (identyfikator i flaga `body.boss`); zderzy się
+   z prawdziwymi bossami. Potrzebne pole poziomu postaci.
+8. **Warstwy w obie strony na poziomie katalogów:** `render` ↔ `ui`
+   (11 / 11), `session` ↔ `combat` (35 / 40), `enemies` ↔ `combat`
+   (49 / 13). Bez cykli modułów, do uporządkowania, zanim urosną.
+
+Jakość: liczby odczucia w kodzie `feedback/` (305 literałów; najwięcej
+`impact_response` 97, `scenery_feedback` 42, `world_feedback` 41,
+`death_response` 38; resztka E5). `render/`, `ui/`, `audio/` celowo poza
+zapadką. 754 × `or 0` i 375 × `or {}`: pola bez pewnej wartości
+początkowej. Testy: 47 tys. linii, 143 zestawy; część sprawdza szczegóły
+wykonania (nazwy póz), więc przebudowa postaci przepisuje testy (F5).
+
+Narzędzia: brama ok. 30 min szeregowo (selftest do podziału na procesy);
+`.git` 387 MB, `game/assets` 184 MB, `baza` 76 MB, bez Git LFS; wszystko
+od 4 listopada to wersja 0.45; `docs/TECHNIKA.md` ma nieaktualne odwołania
+(`ROZSZERZANIE.txt`, `work/qa-v<wersja>`).
+
+Rekomendowana kolejność, gdy właściciel zdecyduje o wdrażaniu: 1) zapis
+definicji po identyfikatorze, łagodny odczyt sigili, usunięcie zamrożonych
+kopii; 2) rejestr efektów sigili; 3) F4 z rozłożeniem modułów pod jedną
+postać; 4) projekt świata przed drugą mapą; 5) podział kampanii;
+6) dźwięki z symulacji jako zdarzenia, poziom postaci zamiast `boss`;
+7) narzędzia (równoległa brama, LFS, wersja, TECHNIKA); 8) F5. W PLAN.md
+jako G1–G6 do decyzji. Windows niesprawdzany; pełnego All nie uruchamiano,
+bo gra nie była zmieniana (ostatnie All: E6d, 9078 sprawdzeń, PASS).
 
 ## Przegląd jakości i powiązań kodu (2026-11-07)
 

@@ -309,6 +309,34 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   łuska słabsza we wstrząsie i widoku. Judge bez zmian. Golden bez zmian.
   Zostaje z E6: druga próba właściciela (strzelanie), audio A/B (punkty 6–7,
   odsłuch właściciela) i grafika (punkt 8, pozy do akceptacji).
+- 2026-11-08, **przegląd skalowalności i jakości** (bez wdrażania): wynik
+  w HISTORII, propozycje G1–G6 wyżej, do decyzji właściciela.
+
+## Po przeglądzie 2026-11-08 (do decyzji, bez wdrażania)
+
+Z przeglądu skalowalności i jakości (HISTORIA, 2026-11-08). Nie są
+przyjęte; właściciel nie zlecił wdrażania. Kolejność rekomendowana:
+
+- **G1. Zapis po identyfikatorze.** Rozpoczęty atak i inne definicje
+  w zapisie wskazywane id postaci i ataku, nie pozycją na liście;
+  przy niezgodności odpoczynek zamiast zamrożonej kopii; potem usunięcie
+  kopii z `content/migrations/`. Odczyt sigili zdejmuje nadmiar ponad
+  limit oferty i pojemność zamiast odrzucać zapis.
+- **G2. Rejestr efektów sigili.** Efekt deklarowany przy sigilu
+  i podpięty pod moment walki; `combat/sigils.lua` bez nazw sigili.
+- **G3. Moduły pod jedną postać w F4.** `combat/garden.lua`,
+  `combat/stream.lua`, `render/ash_art.lua`, `render/storm_art.lua`,
+  `render/garden_art.lua`, `render/ritual_art.lua`: ogólne klocki albo
+  pakiet postaci.
+- **G4. Struktura świata przed drugą mapą.** Obszary, przejścia,
+  wczytywanie i aktywacja stworów; indeks przestrzenny ciał, gdy obszar
+  przekroczy ok. 40 stworów.
+- **G5. Podział kampanii i kanałów.** `run/pilgrimage.lua` na podsystemy;
+  10 dźwięków wybieranych przez symulację jako zdarzenia; poziom postaci
+  zamiast `boss`; uporządkowanie zależności `render` ↔ `ui`
+  i `session` ↔ `combat`.
+- **G6. Narzędzia.** Selftest w procesach równoległych, Git LFS dla
+  zasobów, numer wersji po 0.45, aktualizacja `docs/TECHNIKA.md`.
 
 ## Decyzje właściciela
 
@@ -323,10 +351,13 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 Przyjęte 2026-11-07 („zacznij wdrażanie”): wszystkie pięć zgodnie z
 rekomendacją.
 
+6. G1–G6 po przeglądzie 2026-11-08, w kolejności wyżej, po E6 i przed
+   drugą mapą. Rekomendacja: tak, zaczynając od G1. Otwarte: właściciel
+   prosił o analizę bez wdrażania.
+
 ## Poza zakresem
 
-Rejestr sigili, zapis rozpoczętych ataków po id zamiast numeru, granice
-zapisu przy zmianie strojenia sigili, `boss` → poziom postaci, Git LFS
-i podział bramy na procesy (przegląd skalowalności w HISTORII: osobne
-zadania). Nowe bronie, balans, zegary SI, elity, HUD, Windows, pakowanie
+Rejestr sigili, zapis po id, granice zapisu sigili, `boss` → poziom
+postaci, Git LFS i podział bramy: teraz G1–G6, do decyzji właściciela,
+nie część E/F. Nowe bronie, balans, zegary SI, elity, HUD, Windows, pakowanie
 i wideo. Odłożone sprawy i wcześniejsze plany pozostają w HISTORII.
