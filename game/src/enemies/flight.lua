@@ -16,79 +16,62 @@ function Flight.land(g, e, heavy, attack)
   e.landings = (e.landings or 0) + 1
   Signal(g, 'Landed', { enemy = e, heavy = heavy, attack = attack })
 end
+-- The controlled knight at fraction t of this step (previous: where it stood
+-- when the step began); exactly its own points at the ends.
+local function knightAt(g, previous, p, t)
+  if t <= 0 then
+    return previous
+  elseif t >= 1 then
+    return p
+  end
+  return Melee.playerAt(previous, p, t, nil, g.world)
+end
 -- Integrate a body in the air: world gravity, horizontal motion stopped by
--- walls, landing at y = 0. Returns whether it landed and the time it used.
+-- walls, landing on its floor. One path on every map (PLAN E2): the step
+-- ends at the floor's landing time, and a move off a ledge that raised the
+-- floor under the body only makes that time a boundary between sub-steps.
+-- Returns whether it landed and the time it used.
 function Flight.step(g, e, dt, previous)
   if e.leapY == nil then
     e.leaping = false
     return
   end
   local gravity = Tuning.gravity
-  if g.world.elevations then
-    local elapsed = 0
-    -- Body contact sweeps every knight by sub-step (moveEnemy).
-    local p = Bodies.controlled(g)
-    previous = previous or p
-    while elapsed < dt do
-      local landing = Kinematics.fallTime(e.leapY, e.leapVY, gravity)
-      local step = math.min(dt - elapsed, landing)
-      local from = Melee.playerAt(previous, p, elapsed / dt, nil, g.world)
-      local current = Melee.playerAt(previous, p, (elapsed + step) / dt, nil, g.world)
-      local vx, vz = BodyContact.moveEnemy(
-        g,
-        e,
-        (e.leapVX or 0) * step,
-        (e.leapVZ or 0) * step,
-        from,
-        current,
-        elapsed / dt,
-        (elapsed + step) / dt
-      )
-      if step > 0 then
-        e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
-      end
-      local y
-      y, e.leapVY = Kinematics.flight(e.leapY, e.leapVY, gravity, step)
-      if g.world.decks then
-        -- A deck overhead stops the rise (plan v10 V3).
-        y, e.leapVY = Rules.ceiling(g, e, y, e.leapVY)
-      end
-      elapsed = elapsed + step
-      if y <= 0 then
-        e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
-        return true, elapsed
-      end
-      e.leapY, e.leaping = y, true
-      -- A former floor's landing time is only an integration boundary.
-      -- Leaving its ledge rebased leapY; consume the remaining time over
-      -- the new support instead of slowing the whole trajectory by a tick.
-    end
-    return false, elapsed
-  end
-  local landing = Kinematics.flatFallTime(e.leapY, e.leapVY, gravity)
-  local step = math.min(dt, landing)
+  local elapsed = 0
+  -- Body contact sweeps every knight by sub-step (moveEnemy).
   local p = Bodies.controlled(g)
-  local current = step < dt and Melee.playerAt(previous or p, p, step / dt) or p
-  local vx, vz = BodyContact.moveEnemy(
-    g,
-    e,
-    (e.leapVX or 0) * step,
-    (e.leapVZ or 0) * step,
-    previous,
-    current,
-    0,
-    dt > 0 and step / dt or 1
-  )
-  if step > 0 then
-    e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
+  previous = previous or p
+  while elapsed < dt do
+    local landing = Kinematics.fallTime(e.leapY, e.leapVY, gravity)
+    local step = math.min(dt - elapsed, landing)
+    local from, to = elapsed / dt, (elapsed + step) / dt
+    local before = e.leapY
+    local vx, vz = BodyContact.moveEnemy(
+      g,
+      e,
+      (e.leapVX or 0) * step,
+      (e.leapVZ or 0) * step,
+      knightAt(g, previous, p, from),
+      knightAt(g, previous, p, to),
+      from,
+      to
+    )
+    if step > 0 then
+      e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
+    end
+    local y
+    y, e.leapVY = Kinematics.flight(e.leapY, e.leapVY, gravity, step)
+    if g.world.decks then
+      -- A deck overhead stops the rise (plan v10 V3).
+      y, e.leapVY = Rules.ceiling(g, e, y, e.leapVY)
+    end
+    elapsed = elapsed + step
+    if y <= 0 or (step >= landing and e.leapY == before) then
+      e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
+      return true, elapsed
+    end
+    e.leapY, e.leaping = y, true
   end
-  local y
-  y, e.leapVY = Kinematics.flight(e.leapY, e.leapVY, gravity, step)
-  if (not g.world.elevations and dt >= landing) or y <= 0 then
-    e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
-    return true, step
-  end
-  e.leapY, e.leaping = y, true
-  return false, step
+  return false, elapsed
 end
 return Flight

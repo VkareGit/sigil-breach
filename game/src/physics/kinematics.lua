@@ -34,12 +34,6 @@ end
 function K.flight(height, velocity, gravity, dt)
   return height + velocity * dt - 0.5 * gravity * dt * dt, velocity - gravity * dt
 end
--- The descending root on a flat world without elevations, as leaps and fallen
--- bodies have always found it there. It differs from fallTime only in how it
--- rounds a descending body (PLAN E2: one flight path is a later step).
-function K.flatFallTime(height, velocity, gravity)
-  return (velocity + math.sqrt(velocity * velocity + 2 * gravity * height)) / gravity
-end
 -- The knight's vertical step: flight that ends on the floor, with the speed
 -- it met it at.
 function K.vertical(height, velocity, gravity, dt)

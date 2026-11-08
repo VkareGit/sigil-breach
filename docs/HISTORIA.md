@@ -74,6 +74,14 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E2c, jedna ścieżka lotu, 2026-11-08: skok stwora i padające ciało mają
+  jedną ścieżkę na każdej mapie (enemies/flight.lua, enemies/body.lua).
+  Wcześniej mapa bez podwyższeń szła osobną drogą: inny wzór czasu
+  lądowania (Kinematics.flatFallTime, usunięty), lot bez pod-kroków,
+  bez stropu i z limitem sześciu przejść upadku. Teraz ciało ląduje o
+  czasie swojej podłogi, chyba że ruch z krawędzi podniósł podłogę pod nim;
+  wtedy ten czas jest tylko granicą pod-kroku.
+
 - E2b, równe omiatanie każdego rycerza, 2026-11-08: ruch stwora (szarża,
   wypad, skok) spotyka każdego rycerza w tej samej części kroku, w której
   sam się porusza (combat/body_contact.lua: moveEnemy z ułamkami kroku).
@@ -4465,6 +4473,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E2c, jedna ścieżka lotu, 2026-11-08: nowy test w `attack-contact`
+  (skok i upadek na mapie płaskiej i na mapie z podwyższeniami równymi
+  zero, przy 60 i 144 Hz, porównane dokładnie) czerwony przed zmianą,
+  zielony po. Golden: dwa przebiegi identyczne i zgodne ze wzorcem, wzorzec
+  bez zmian (scenariusze nie trafiają w różnice obu ścieżek). Pełne Linux
+  All PASS w osobnym klonie: 9004 sprawdzenia (o 2 więcej), golden 10 PASS.
+  Windows niesprawdzony.
 
 - E2b, równe omiatanie każdego rycerza, 2026-11-08: nowy test w
   `attack-contact` czerwony przed zmianą (stwór idący przez ćwierć kroku

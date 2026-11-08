@@ -237,6 +237,13 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
 - 2026-11-08, **E2 krok b zrobiony:** każdy rycerz omiatany w tej samej
   części kroku co ruch stwora (`moveEnemy` z ułamkami kroku); test
   z drugim rycerzem czerwony przed, zielony po. Golden identyczny.
+- 2026-11-08, **E2 krok c zrobiony:** jedna ścieżka lotu i upadku na każdej
+  mapie (bez `flatFallTime`, bez osobnej drogi dla płaskiej mapy); test
+  mapa płaska = mapa z zerowymi podwyższeniami. Golden bez zmian (dwa
+  przebiegi). Zostaje z E2: sterowniki jako sam zamiar (chód stwora
+  i przyspieszenie rycerza to wciąż dwie reguły), zdolności i liczby
+  ruchu w definicji postaci; lądowanie rycerza na końcu kroku, stworów
+  o czasie podłogi.
 
 ## Decyzje właściciela
 

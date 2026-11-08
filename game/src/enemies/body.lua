@@ -47,31 +47,23 @@ local function fall(g, e, dt)
   local F = Archetypes.defaults.fall
   local remaining = math.min(dt, math.max(0, F.life - e.deathTime))
   local elapsed = e.deathTime
-  local iterations = 0
-  while g.world.elevations or iterations < 6 do
-    iterations = iterations + 1
-    if remaining <= 1e-9 then
-      break
-    end
+  while remaining > 1e-9 do
     local y, vy = e.fallY or 0, e.fallVY or 0
     if y > 0 or vy > 0 then
-      local land = g.world.elevations and Kinematics.fallTime(y, vy, F.gravity)
-        or Kinematics.flatFallTime(y, vy, F.gravity)
+      local land = Kinematics.fallTime(y, vy, F.gravity)
       local step = math.min(remaining, land)
       push(g, e, step, F.airDrag)
       -- Horizontal travel can leave a ledge. W.move preserved world height by
       -- rebasing fallY to the new support; do not overwrite it with old support.
-      if g.world.elevations then
-        y = e.fallY or 0
-      end
+      local before = y
+      y = e.fallY or 0
       local endY, endVY = Kinematics.flight(y, vy, F.gravity, step)
       if g.world.decks then
         -- A deck overhead stops the rise (plan v10 V3).
         endY, endVY = Rules.ceiling(g, e, endY, endVY)
       end
-      if
-        (not g.world.elevations and step >= land - 1e-12) or (g.world.elevations and endY <= 0)
-      then
+      -- It lands at its floor's time, unless the floor moved under it (PLAN E2).
+      if endY <= 0 or (step >= land - 1e-12 and y == before) then
         local hit = -(vy - F.gravity * land)
         e.fallY = 0
         e.fallVY = hit > F.bounceFrom and hit * F.bounce or 0
@@ -87,13 +79,11 @@ local function fall(g, e, dt)
       elapsed = elapsed + step
     else
       local step = remaining
-      if g.world.elevations then
-        local _, travel = Physics.drag(F.groundDrag, remaining)
-        local fraction =
-          SupportPath.firstChange(g.world, e.x, e.z, e.pushX * travel, e.pushZ * travel)
-        if fraction then
-          step = SupportPath.time(fraction, F.groundDrag, remaining)
-        end
+      local _, travel = Physics.drag(F.groundDrag, remaining)
+      local fraction =
+        SupportPath.firstChange(g.world, e.x, e.z, e.pushX * travel, e.pushZ * travel)
+      if fraction then
+        step = SupportPath.time(fraction, F.groundDrag, remaining)
       end
       push(g, e, step, F.groundDrag)
       remaining = remaining - step

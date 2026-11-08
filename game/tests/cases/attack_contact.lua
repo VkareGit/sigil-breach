@@ -186,6 +186,51 @@ function Tests.run(Game)
     'a second knight still far in the first quarter of its step lets the body pass',
     math.abs(passed - 22.5) < 1e-9
   )
+  -- One flight path (PLAN E2): a leap and a falling body move the same on a
+  -- flat map and on a map whose raised floor is everywhere zero.
+  local Body = require('src.enemies.body')
+  local function flown(raised, rate)
+    local g2, e2 = setup()
+    g2.player.x, g2.player.z = 30, 40
+    if raised then
+      g2.world.elevations = {}
+    end
+    e2.leapY, e2.leapVY, e2.leapVX, e2.leapVZ, e2.leaping = 0.01, 4.5, 1.3, -0.7, true
+    for _ = 1, rate do
+      Attacks.flight(g2, e2, 1 / rate)
+      if not e2.leaping then
+        break
+      end
+    end
+    local leap = { e2.x, e2.z, e2.leapY or 0 }
+    local g3, body = setup()
+    g3.player.x, g3.player.z = 30, 40
+    if raised then
+      g3.world.elevations = {}
+    end
+    body.hp, body.deathTime, body.hitPause = 0, 0, 0
+    body.pushX, body.pushZ, body.fallY, body.fallVY = 2.5, -1.5, 0.6, 3.2
+    for _ = 1, rate * 2 do
+      Body.fall(g3, body, 1 / rate)
+      body.deathTime = body.deathTime + 1 / rate
+    end
+    return leap, { body.x, body.z, body.fallY or 0, body.fallLanded or -1 }
+  end
+  for _, rate in ipairs({ 60, 144 }) do
+    local flatLeap, flatFall = flown(false, rate)
+    local raisedLeap, raisedFall = flown(true, rate)
+    local same = true
+    for i = 1, 3 do
+      same = same and flatLeap[i] == raisedLeap[i]
+    end
+    for i = 1, 4 do
+      same = same and flatFall[i] == raisedFall[i]
+    end
+    check(
+      'a leap and a fall do not depend on the map having raised floor at ' .. rate .. ' Hz',
+      same
+    )
+  end
   local stopped = quarter(10)
   check('a second knight already met in the first quarter stops the body', stopped < 22.5 - 1e-6)
   return lines
