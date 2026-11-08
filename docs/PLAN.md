@@ -228,6 +228,12 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   bez liczb bez nazwy. Przebieg sondy identyczny bajt w bajt. Zostaje
   z E5: reakcje stworów (`impact_response`, `death_response`) i reszta
   `feedback/` (304), odbiorcy per aktor.
+- 2026-11-08, **E2 krok a zrobiony:** jeden wzór lotu (`Kinematics.flight`)
+  dla rycerza, skoku stwora i padającego ciała; pchnięcie rycerza przez
+  `Physics.drag` jak u stworów; reguła BODY MOTION. Golden identyczny.
+  Następne: równie dokładne omiatanie każdego rycerza (dziś tylko
+  sterowany jest omiatany co pod-krok, pozostali od migawki kroku), potem
+  jedna ścieżka lotu bez `flatFallTime`.
 
 ## Decyzje właściciela
 

@@ -29,12 +29,25 @@ function K.spring(x, v, target, k, d, dt)
   local b = v + a * y
   return target + decay * (y + b * dt), decay * (v - a * b * dt)
 end
+-- Free flight under gravity for dt: the height and vertical velocity after
+-- it. Every body flies by this (PLAN E2): the knight, a leap, a fallen body.
+function K.flight(height, velocity, gravity, dt)
+  return height + velocity * dt - 0.5 * gravity * dt * dt, velocity - gravity * dt
+end
+-- The descending root on a flat world without elevations, as leaps and fallen
+-- bodies have always found it there. It differs from fallTime only in how it
+-- rounds a descending body (PLAN E2: one flight path is a later step).
+function K.flatFallTime(height, velocity, gravity)
+  return (velocity + math.sqrt(velocity * velocity + 2 * gravity * height)) / gravity
+end
+-- The knight's vertical step: flight that ends on the floor, with the speed
+-- it met it at.
 function K.vertical(height, velocity, gravity, dt)
-  local h = height + velocity * dt - 0.5 * gravity * dt * dt
+  local h, v = K.flight(height, velocity, gravity, dt)
   if h <= 0 then
     local impact = -math.sqrt(math.max(0, velocity * velocity + 2 * gravity * height))
     return 0, 0, impact
   end
-  return h, velocity - gravity * dt
+  return h, v
 end
 return K

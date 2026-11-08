@@ -39,8 +39,8 @@ function Flight.step(g, e, dt, previous)
       if step > 0 then
         e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
       end
-      local y = e.leapY + e.leapVY * step - 0.5 * gravity * step * step
-      e.leapVY = e.leapVY - gravity * step
+      local y
+      y, e.leapVY = Kinematics.flight(e.leapY, e.leapVY, gravity, step)
       if g.world.decks then
         -- A deck overhead stops the rise (plan v10 V3).
         y, e.leapVY = Rules.ceiling(g, e, y, e.leapVY)
@@ -57,7 +57,7 @@ function Flight.step(g, e, dt, previous)
     end
     return false, elapsed
   end
-  local landing = (e.leapVY + math.sqrt(e.leapVY * e.leapVY + 2 * gravity * e.leapY)) / gravity
+  local landing = Kinematics.flatFallTime(e.leapY, e.leapVY, gravity)
   local step = math.min(dt, landing)
   local p = Bodies.controlled(g)
   local current = step < dt and Melee.playerAt(previous or p, p, step / dt) or p
@@ -66,8 +66,8 @@ function Flight.step(g, e, dt, previous)
   if step > 0 then
     e.leapVX, e.leapVZ = (vx or 0) / step, (vz or 0) / step
   end
-  local y = e.leapY + e.leapVY * step - 0.5 * gravity * step * step
-  e.leapVY = e.leapVY - gravity * step
+  local y
+  y, e.leapVY = Kinematics.flight(e.leapY, e.leapVY, gravity, step)
   if (not g.world.elevations and dt >= landing) or y <= 0 then
     e.leapY, e.leapVY, e.leapVX, e.leapVZ, e.leaping = nil, 0, 0, 0, false
     return true, step

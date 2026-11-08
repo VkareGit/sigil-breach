@@ -595,7 +595,9 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   katalogu ma emiter, ZAPADKA NIENAZWANYCH LICZB w kodzie symulacji, app
   i feedback (tools/check/literals.txt; plik może tylko maleć, nowy = 0),
   IMPULSE WRITE (zdarzenie porusza kanał z content/view_reactions.lua tylko przez
-  Impulses.react w feedback/impulses.lua).
+  Impulses.react w feedback/impulses.lua), BODY MOTION (ciało w src/player
+  i src/enemies leci przez Kinematics.flight, pchnięcie słabnie przez
+  Physics.drag).
   Zapadki skalowania planu v10 (tools/check/<nazwa>.txt, ta sama zasada):
   knight-references (g.player w symulacji poza modułami rycerza), pool-arrays
   (bezpośrednie tablice pul poza session/world i state), mode-records

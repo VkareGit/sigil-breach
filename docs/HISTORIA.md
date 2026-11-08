@@ -74,6 +74,13 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E2a, jedno ciało: lot i pchnięcie, 2026-11-08: rycerz, skok stwora
+  i padające ciało lecą przez jedno Kinematics.flight, a pchnięcie rycerza
+  słabnie przez to samo Physics.drag co u stworów (wcześniej trzy kopie
+  wzoru lotu i własna kopia oporu). Różnica, która zostaje do E2c, ma nazwę:
+  Kinematics.flatFallTime (płaski świat bez podwyższeń) obok fallTime.
+  Brama: reguła BODY MOTION w src/player i src/enemies.
+
 - E5e, liczby odczucia rąk i ciosów w treści, 2026-11-08: ruch rąk z bronią
   (nowy content/hand_motion.lua: zaparcie przy przeładowaniu, stopa,
   bezwładność celowania, odchylenie, przechył, zanurzenie, lot, odepchnięcie,
@@ -4450,6 +4457,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E2a, jedno ciało: lot i pchnięcie, 2026-11-08: reguła BODY MOTION na
+  starym kodzie: 4 własne kopie (feel 1, body 1, flight 2), po zmianie 0.
+  Symulacja bez zmian: golden identyczny ze wzorcem. Pełne Linux All PASS
+  w osobnym klonie: 9000 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - E5e, liczby odczucia rąk i ciosów w treści, 2026-11-08: liczby bez nazwy
   w weapon_motion 83 → 0, weight 57 → 0, movement_impact 24 → 0 (feedback/

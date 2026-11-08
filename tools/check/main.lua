@@ -657,6 +657,22 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       end
     end
   end
+  -- One body for knights and creatures (PLAN E2): a body in src/player or
+  -- src/enemies flies by Kinematics.flight and sheds a shove by
+  -- Physics.drag, never by its own copy of either formula.
+  for id, text in pairs(sources) do
+    if id:match('^src%.player%.') or id:match('^src%.enemies%.') then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        if code:find('0%.5%s*%*%s*[%w_%.]*[gG]ravity%s*%*') then
+          failure('BODY MOTION ' .. id .. ': flight under gravity belongs to Kinematics.flight')
+        end
+        if code:find('math%.exp%(%s*%-%s*[%w_%.]*[dD]rag%s*%*') then
+          failure('BODY MOTION ' .. id .. ': a shove under drag belongs to Physics.drag')
+        end
+      end
+    end
+  end
   -- One way into a view impulse (PLAN E5): an event moves a channel of
   -- content/view_reactions.lua only through feedback/impulses.lua, so answers of
   -- many events sum within one limit and a weaker peak never lowers a

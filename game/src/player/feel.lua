@@ -7,6 +7,7 @@ local Presentation = require('src.session.presentation')
 local Tuning = require('src.content.tuning')
 local Reload = require('src.combat.reload')
 local Kinematics = require('src.physics.kinematics')
+local Physics = require('src.physics.body_physics')
 local Rules = require('src.combat.rules')
 local Intent = require('src.player.intent')
 local Context = require('src.session.context')
@@ -217,8 +218,8 @@ local function carryShove(dt)
       local against = -(m.dx * p.pushX + m.dz * (p.pushZ or 0)) / (pushLength * math.max(1, m.len))
       drag = drag * (1 + M.against * math.max(0, against))
     end
-    local decay = math.exp(-drag * dt)
-    local travel = (1 - decay) / drag
+    -- The same shove under drag as every other body (physics/body_physics.lua).
+    local decay, travel = Physics.drag(drag, dt)
     m.pushSpeed = math.sqrt(p.pushX * p.pushX + (p.pushZ or 0) ^ 2)
     m.moveX = m.moveX + p.pushX * travel
     m.moveZ = m.moveZ + (p.pushZ or 0) * travel

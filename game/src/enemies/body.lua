@@ -11,7 +11,6 @@ local Corpse = require('src.enemies.corpse')
 local SupportPath = require('src.physics.support_path')
 local Pools = require('src.session.world')
 local Body = {}
-local sqrt = math.sqrt
 local len = MathX.len
 local radius = Rules.radius
 -- Shove integration with drag. The speed lost against a wall is a slam and
@@ -57,7 +56,7 @@ local function fall(g, e, dt)
     local y, vy = e.fallY or 0, e.fallVY or 0
     if y > 0 or vy > 0 then
       local land = g.world.elevations and Kinematics.fallTime(y, vy, F.gravity)
-        or (vy + sqrt(vy * vy + 2 * F.gravity * y)) / F.gravity
+        or Kinematics.flatFallTime(y, vy, F.gravity)
       local step = math.min(remaining, land)
       push(g, e, step, F.airDrag)
       -- Horizontal travel can leave a ledge. W.move preserved world height by
@@ -65,8 +64,7 @@ local function fall(g, e, dt)
       if g.world.elevations then
         y = e.fallY or 0
       end
-      local endY = y + vy * step - 0.5 * F.gravity * step * step
-      local endVY = vy - F.gravity * step
+      local endY, endVY = Kinematics.flight(y, vy, F.gravity, step)
       if g.world.decks then
         -- A deck overhead stops the rise (plan v10 V3).
         endY, endVY = Rules.ceiling(g, e, endY, endVY)
