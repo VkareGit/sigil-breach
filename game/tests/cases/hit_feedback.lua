@@ -67,6 +67,63 @@ function T.run(G, renderer)
       and math.abs(contact.z - ray.z) < 0.1
       and g.view.hitmarker == 0
   )
+  -- A hit that is not a shot (a charge, a rite, a field) is confirmed from its
+  -- own outcome, taken when it landed: nothing of an earlier shot's mark stays,
+  -- and presentation, run after the step, never reads a later state of the body.
+  do
+    local Outcomes = require('src.session.damage_outcomes')
+    local heavy = require('src.content.tuning').shot.heavyDamage
+    local h = F.arena(G)
+    local imp = h:spawn('imp', 16, 19)
+    imp.spawnAge, imp.dummy = 2, true
+    imp.hp, imp.maxHp = 100, 100
+    -- What a heavy shot on armour left on the mark.
+    h.view.armorHit, h.view.hitWeight, h.view.lastKill = true, 0.9, true
+    h.bus.stepping = true
+    Outcomes.enemy(h, imp, 20, 'charge', nil, h.player.id)
+    h.bus:flush()
+    check(
+      "a charge's hit is marked by itself: no armour mark and the weight of its own 20 HP",
+      h.view.hitmarker > 0
+        and h.view.armorHit == false
+        and math.abs(h.view.hitWeight - math.min(1, 20 / heavy)) < 1e-9
+        and h.view.lastKill == false
+    )
+    -- Two hits in one step: the first is read as it landed, not after the second.
+    local other = h:spawn('imp', 18, 19)
+    other.spawnAge, other.dummy = 2, true
+    other.hp, other.maxHp = 100, 100
+    h.view.damageTrail = nil
+    -- A later step (the hits of one step are one confirmation).
+    h.elapsed = h.elapsed + 1 / 120
+    h.bus.stepping = true
+    Outcomes.enemy(h, other, 10, 'charge', nil, h.player.id)
+    Outcomes.enemy(h, other, 80, 'charge', nil, h.player.id)
+    h.bus:flush()
+    local trail = h.view.damageTrail
+    check(
+      'two hits in one step: the trail starts from the health before the first and ends at 10',
+      trail
+        and trail.shown == 100
+        and trail.hp == 10
+        and trail.sum == 90
+        and h.view.lastKill == false
+    )
+    -- A step whose blast kills one body and wounds another confirms the kill.
+    h.elapsed = h.elapsed + 1 / 120
+    local a, b = h:spawn('imp', 15, 21), h:spawn('imp', 17, 21)
+    for _, e in ipairs({ a, b }) do
+      e.spawnAge, e.dummy, e.hp, e.maxHp = 2, true, 30, 30
+    end
+    h.bus.stepping = true
+    Outcomes.enemy(h, a, 40, 'charge', nil, h.player.id)
+    Outcomes.enemy(h, b, 5, 'charge', nil, h.player.id)
+    h.bus:flush()
+    check(
+      'one step that kills one body and wounds another confirms the kill',
+      h.view.lastKill == true and math.abs(h.view.hitWeight - math.min(1, 30 / heavy)) < 1e-9
+    )
+  end
   return lines
 end
 return T

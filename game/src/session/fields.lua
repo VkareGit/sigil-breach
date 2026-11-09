@@ -186,6 +186,7 @@ declareView('feedback/listeners.lua', {
   'lastDamage',
   'lastKill',
   'precisionHit',
+  'hitConfirmAt',
 })
 declareView('feedback/shot_feedback.lua', {
   'armorHit',

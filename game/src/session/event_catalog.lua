@@ -8,7 +8,10 @@ local Catalog = {
   { 'SceneryStruck', 'a breakable took a blow and stands {id,thing,x,y,z,share}' },
   { 'SceneryBroken', 'a breakable was destroyed {id,thing,x,y,z}' },
   { 'StructureCollapsed', 'a support fell with what it carried {id,thing,x,y,z}' },
-  { 'BodyHit', 'a demon lost health {enemy, health, source, owner, weapon}' },
+  {
+    'BodyHit',
+    'a demon lost health {enemy, health, source, owner, weapon, hpAfter, maxHp, killed, at}',
+  },
   { 'ObservationUsed', 'a shot resolved against a displayed observation {observation}' },
   { 'EffectApplied', 'a damaging contact applied an effect {target, definition}' },
   { 'EffectPulse', 'an ongoing effect resolved one pulse {target, definition, health}' },

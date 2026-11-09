@@ -75,6 +75,24 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- Potwierdzenie trafienia z wyniku zdarzenia, 2026-11-09 (uwagi Codexa do
+  analizy skalowalności, potwierdzone w kodzie): trafienie spoza broni
+  (ładunek, rytuał, pole) zapalało znacznik, ale zostawiało z poprzedniego
+  strzału znak pancerza i wagę, które HUD rysuje; a ponieważ prezentacja
+  działa po kroku symulacji i zdarzenie trzymało tylko odwołanie do stwora,
+  pierwsze z dwóch trafień w jednym kroku czytało już stan po drugim (ślad
+  paska od złego zdrowia, fałszywe zabicie). Teraz `BodyHit` niesie wynik
+  z chwili trafienia (`hpAfter`, `maxHp`, `killed`, `at`), a potwierdzenie
+  budowane jest tylko z niego: bez znaku pancerza, waga z własnych obrażeń,
+  trafienia jednego kroku są jednym potwierdzeniem (najcięższa waga, zabicie,
+  jeśli którekolwiek zabiło). Salwa broni nadal ustawia własny znak po swoich
+  śrucinach. Dźwięku trafienia spoza broni nie dodano: to decyzja o odczuciu
+  i odsłuch właściciela. W samej analizie poprawione: proceduralne przechyły
+  i ściśnięcia stworów oraz pozy od tyłu istnieją, separacja ma już indeks
+  przestrzenny, zabicie spoza broni ma `kill_confirm`, porównanie RMS
+  surowych receptur nie mówi o głośności w miksie, a mikro-zatrzymanie było
+  już wprowadzone i wycofane (D05).
+
 - E7, weryfikacja końcowa, 2026-11-09: nowy zestaw `verification` mierzy
   w pokazanym obrazie macierz z planu Exorcista: obie bronie × siedem
   sposobów ruchu (stanie, chód, krok w bok, w tył, skok, unik, ślizg) ×
@@ -4944,6 +4962,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- Potwierdzenie trafienia z wyniku zdarzenia, 2026-11-09: trzy nowe
+  sprawdzenia w `hit-feedback` (10 PASS), oba błędy czerwone bez zmiany
+  i zielone z nią. Bez zmian: `firing-feedback` 32, `weapons` 471,
+  `verification` 35, `journal-values` 28, `replay` 29, `contracts` 165,
+  `damage-trail` 8. Pełne Linux All PASS w osobnym klonie: 9284 sprawdzeń,
+  golden 10 PASS. Windows niesprawdzony.
 
 - E7, weryfikacja końcowa, 2026-11-09: `verification` 35 PASS (420
   przebiegów macierzy, każda czynność się wydarzyła, zero widocznych

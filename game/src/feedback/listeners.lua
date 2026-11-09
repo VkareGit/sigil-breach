@@ -54,18 +54,28 @@ local function bodyHit(g, e)
   local enemy = e.enemy
   local personal = Recipient.chain(g, e.owner)
   if personal then
-    personal.view.hitmarker, personal.view.precisionHit = Feel.hitmarker, false
-    personal.view.lastDamage = math.floor(e.health + 0.5)
-    personal.view.lastKill = enemy.hp <= 0
+    -- The mark is this hit's own, from its outcome as it landed (the event:
+    -- hpAfter, killed): nothing of an earlier shot's mark stays (armour,
+    -- weight). The hits of one step are one confirmation: the heaviest
+    -- weight, and a kill if any of them killed. A shot's volley, resolved
+    -- after its pellets, sets its own mark (feedback/shot_feedback.lua).
+    local view = personal.view
+    local weight = math.min(1, e.health / Tuning.shot.heavyDamage)
+    local same = view.hitConfirmAt == e.at
+    view.hitConfirmAt = e.at
+    view.hitmarker, view.precisionHit, view.armorHit = Feel.hitmarker, false, false
+    view.hitWeight = same and math.max(view.hitWeight, weight) or weight
+    view.lastDamage = math.floor(e.health + 0.5)
+    view.lastKill = (same and view.lastKill) or e.killed
     -- What this body lost to this view's blows: summed here, aged by systems/clocks, drawn by
     -- ui/hud while the body is in the sights. Another body begins its own.
-    local trail = personal.view.damageTrail
+    local trail = view.damageTrail
     if not trail or trail.id ~= enemy.id then
-      trail = { id = enemy.id, sum = 0, shown = enemy.hp + e.health }
-      personal.view.damageTrail = trail
+      trail = { id = enemy.id, sum = 0, shown = e.hpAfter + e.health }
+      view.damageTrail = trail
     end
     trail.sum, trail.hold = trail.sum + e.health, Tuning.clocks.trailHold
-    trail.hp, trail.maxHp = enemy.hp, enemy.maxHp or enemy.hp + e.health
+    trail.hp, trail.maxHp = e.hpAfter, e.maxHp or e.hpAfter + e.health
   end
   if e.source ~= 'weapon' then
     g:burst(

@@ -50,6 +50,8 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
   if owner ~= nil then
     enemy.pushOwner = owner
   end
+  -- The outcome as it is at this hit: presentation runs after the step and
+  -- must not read the body's later state (a second hit in the same step).
   emit(g, 'BodyHit', {
     enemy = enemy,
     health = healthDamage,
@@ -57,6 +59,10 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
     owner = owner,
     weapon = weapon,
     target = enemy.id,
+    hpAfter = enemy.hp,
+    maxHp = enemy.maxHp,
+    killed = enemy.hp <= 0,
+    at = g.elapsed,
   })
   if enemy.hp > 0 then
     if payload and payload.effects then
