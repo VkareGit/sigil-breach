@@ -9,7 +9,7 @@ function I.kind(e)
 end
 function I.sample(kind, time, id)
   local entry = assert(I.entries[kind], 'unknown idle identity: ' .. tostring(kind))
-  local phase = ((time or 0) / entry.period + (id or 0) * 0.3819660112501051) % 1
+  local phase = ((time or 0) / entry.period + (id or 0) * 0.3819660112501051) % 1 -- constant: 1 / phi^2
   local boundary = 0
   for n, w in ipairs(entry.weights) do
     boundary = boundary + w

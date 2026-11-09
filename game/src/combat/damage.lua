@@ -1,12 +1,13 @@
 -- Pure combat math. Ratings are not a second health pool.
 local MathX = require('src.core.mathx')
+local Defaults = require('src.content.combat_defaults')
 local Materials = require('src.content.ballistic_surfaces')
 local Attributes = require('src.combat.attributes')
 local DamageTypes = require('src.content.damage_types')
 local D = {}
 local clamp = MathX.clamp
 -- The armour rating that halves physical damage (Warhammer-style points).
-D.armorScale = 100
+D.armorScale = Defaults.damage.armorScale
 local finite = MathX.finite
 -- An attack table may be partial (tests, area blasts, wall slams): a missing
 -- field takes its neutral value, so it changes nothing.
@@ -23,7 +24,7 @@ D.neutral = {
   damageType = DamageTypes.fallback,
 }
 -- Bounds of every resistance (D&D): vulnerable to -25 %, resistant to 60 %.
-D.resistMin, D.resistMax = -0.25, 0.60
+D.resistMin, D.resistMax = Defaults.damage.resistMin, Defaults.damage.resistMax
 local neutral = D.neutral
 local function field(attack, key)
   local v = attack[key]
@@ -169,7 +170,7 @@ function D.player(amount, hp, armor, share)
   if not (finite(amount) and finite(hp) and finite(armor)) or amount <= 0 then
     return 0, 0, 0
   end
-  local absorbed = math.min(math.max(0, armor), amount * (share or 0.55))
+  local absorbed = math.min(math.max(0, armor), amount * (share or Defaults.damage.armorShare))
   local remaining = amount - absorbed
   local lost = math.min(math.max(0, hp), remaining)
   return lost, absorbed, math.max(0, remaining - lost)

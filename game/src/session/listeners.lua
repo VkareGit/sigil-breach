@@ -187,16 +187,16 @@ function Listeners.attach(g)
   end, 5)
   bus:on('sim', 'EnemyKilled', function(e)
     breakKill(g, e)
-  end, 10)
+  end, 10) -- constant: listener order
   bus:on('sim', 'EnemyKilled', function(e)
     Corpse.begin(e.enemy, e.health, math.max(0, e.damage - e.health), e.source)
-  end, 15)
+  end, 15) -- constant: listener order
   bus:on('sim', 'EnemyKilled', function(e)
     score(g, e)
     chain(g, e)
-  end, 20)
+  end, 20) -- constant: listener order
   -- The mode's rewards come after the score and combo (the order in the header above).
-  local rewardOrder = 30
+  local rewardOrder = 30 -- constant: listener order
   bus:on('sim', 'EnemyKilled', function(e)
     rewards(g, e)
   end, rewardOrder)
@@ -208,10 +208,10 @@ function Listeners.attach(g)
     rallyOpens(g, e.info)
     Sigils.hurt(Roles.controlled(g), e)
     playerHit(g, e)
-  end, 10)
+  end, 10) -- constant: listener order
   bus:on('sim', 'PlayerHit', function(e)
     hitStop(g, e)
-  end, 20)
+  end, 20) -- constant: listener order
   bus:on('sim', 'KnightHit', function(e)
     knightHit(g, e)
   end)

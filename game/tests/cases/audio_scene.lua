@@ -5,7 +5,7 @@ function T.run(check)
   local Config = require('src.content.maps.proving_soundscape')
   local Contract = require('src.content.defs.soundscape')
   local Recipes = require('src.audio.recipes')
-  local Score = require('src.audio.score')
+  local Score = require('src.content.score')
   local layers = {}
   for _, layer in ipairs(Score.layers) do
     layers[layer.id] = true

@@ -4,6 +4,8 @@
 -- Distances in metres, times in seconds.
 return {
   altar = { top = 1.046, reach = 1.85 }, -- painted pedestal surface and walk-up interaction
+  -- How near a gallery pad the knight stands to use it (m).
+  padReach = 1.05,
   -- Names used by optional tool requirements. Availability is per session;
   -- new tool families declare their feature here, not in application branches.
   toolFeatures = { trade = true },

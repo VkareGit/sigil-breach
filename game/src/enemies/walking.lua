@@ -47,7 +47,7 @@ local function move(g, e, tx, tz, speed, dt)
   e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt
   local moved = len(e.x - ox, e.z - oz)
   e.walk = e.walk + moved
-  e.walkSpeed = moved / math.max(dt, 0.001)
+  e.walkSpeed = moved / math.max(dt, 1e-3)
   if moved < speed * dt * Walk.stuckShare then
     e.blocked = (e.blocked or 0) + dt
   else

@@ -155,6 +155,12 @@ return {
   -- The damage trail on a target's bar: its sum holds trailHold s after the last blow, then
   -- the pale share falls trailFall of the bar per s.
   clocks = {
+    -- The longest stretch of time one frame may ask the simulation for (s),
+    -- the wait before a drawn weapon may fire (s), and the input below which
+    -- a dodge takes the view's direction (share of a full stick).
+    longestFrame = 0.20,
+    swapReady = 0.20,
+    dashDeadZone = 0.1,
     zoneBanner = 3.5,
     zoneBell = 0.12,
     hurtFade = 1.6,

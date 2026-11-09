@@ -33,10 +33,10 @@ local function occupied(w, x, z, feet, step, head)
 end
 -- Round pillars (tile 2) are cylinders of the painted shaft radius for bodies,
 -- sight and shots alike (ballistics uses the same value).
-C.pillarRadius = 0.46
+C.pillarRadius = 0.46 -- constant: the painted shaft of the pillar tile
 -- Heights (m) of the solid tiles: walls, the pillars' flat capitals, the
 -- roof of a covered cell, and 'outside the map' (never cleared).
-C.heights = { wall = 4.2, pillar = 4.8, roof = 4.175, outside = 1000 }
+C.heights = { wall = 4.2, pillar = 4.8, roof = 4.175, outside = 1000 } -- constant: tile heights
 -- A map with taller architecture says so (w.solidTop, from the map's solids):
 -- { wall, pillar, radius, cells = { [z] = { [x] = top } } }; cells are masonry
 -- that has fallen. Round pillars of that map have its radius.
@@ -66,7 +66,7 @@ local function pillar(w, x, z)
   return w.map[z] and Tiles.round[w.map[z][x]]
 end
 function C.solid(w, x, z, r, feet, step, head)
-  r = r or 0.20
+  r = r or 0.20 -- constant: a probe without a body's own radius
   if not finite(x) or not finite(z) or not finite(r) or r < 0 then
     return true
   end
@@ -277,7 +277,7 @@ local function separate(w, o, r, feet, step)
   return not C.solid(w, o.x, o.z, r, feet, step)
 end
 function C.move(w, o, dx, dz, r, velocity, feet, step, head)
-  r = r or 0.20
+  r = r or 0.20 -- constant: a probe without a body's own radius
   if
     not finite(dx)
     or not finite(dz)
@@ -320,9 +320,9 @@ function C.move(w, o, dx, dz, r, velocity, feet, step, head)
   return vx, vz, collided
 end
 function C.visible(w, x, z, tx, tz)
-  if C.solid(w, x, z, 0.02) or C.solid(w, tx, tz, 0.02) then
+  if C.solid(w, x, z, 0.02) or C.solid(w, tx, tz, 0.02) then -- constant: a point's probe
     return false
   end
-  return C.cast(w, x, z, tx - x, tz - z, 0.02) == nil
+  return C.cast(w, x, z, tx - x, tz - z, 0.02) == nil -- constant: a point's probe
 end
 return C

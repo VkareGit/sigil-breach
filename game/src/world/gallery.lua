@@ -1,6 +1,7 @@
 -- The pads of the proving ground: [E] spawns a demon, takes a weapon or refills, with
 -- the normal test-field spawning (src/run/test_field.lua). They are drawn in render/gallery.lua.
 local Weapons = require('src.content.weapons')
+local FieldData = require('src.content.field')
 local Field = require('src.run.test_field')
 local Arena = require('src.world.arena')
 local Archetypes = require('src.content.enemies')
@@ -39,7 +40,7 @@ function G.nearestPad(g)
   for _, p in ipairs(G.padsFor(g.world)) do
     local dp = dist(Roles.controlled(g), p.x, p.z)
     if
-      dp < (p.reach or 1.05)
+      dp < (p.reach or FieldData.padReach)
       and dp < d
       and Arena.visible(g.world, Roles.controlled(g).x, Roles.controlled(g).z, p.x, p.z)
     then

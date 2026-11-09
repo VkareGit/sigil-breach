@@ -1,10 +1,10 @@
--- The music: the score's layers (audio/score.lua) rendered once when the game
+-- The music: the score's layers (content/score.lua) rendered once when the game
 -- starts, played together as aligned loops, and mixed by the mood of the
 -- session: the menu's chant, the calm of a circle, the fight as danger nears,
 -- the guardian's knell, death. Reads the session; never changes it.
 local Pools = require('src.session.world')
 local Synth = require('src.audio.synth')
-local Score = require('src.audio.score')
+local Score = require('src.content.score')
 local Queries = require('src.session.queries')
 local Scene = require('src.audio.scene')
 local scene = {}

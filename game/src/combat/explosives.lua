@@ -23,7 +23,7 @@ local X = {}
 local function clear(g, b, x, y, z)
   local dx, dy, dz = x - b.x, y - b.y, z - b.z
   local d = math.sqrt(dx * dx + dy * dy + dz * dz)
-  if d < 0.001 then
+  if d < 1e-3 then
     return true, d
   end
   local hit, _, kind = Ballistics.world(g.world, b.x, b.y, b.z, dx / d, dy / d, dz / d, d)

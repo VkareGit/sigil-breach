@@ -340,4 +340,13 @@ return {
   volley = { seedStride = 31, nearest = 0.001 },
   -- A grip is renewed each step for this long, so a holder that falters lets go.
   gripHold = 0.08,
+  -- Armour and resistance (combat/damage.lua): armour points are percent of a
+  -- blow; resistance stays within these bounds; what armour takes of a blow
+  -- by default.
+  damage = { armorScale = 100, resistMin = -0.25, resistMax = 0.60, armorShare = 0.55 },
+  -- A body that names no radius (m), and the lightest mass a shove divides by.
+  bodyRadius = 0.25,
+  lightest = 0.05,
+  -- A creature waits this long before its first blow (s).
+  firstAttack = 1.5,
 }

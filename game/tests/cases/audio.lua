@@ -117,15 +117,17 @@ function Tests.run()
     'every sound recipe is rendered, the perfect dodge and the fuse included',
     all and A.sources.afterimage and A.sources.fuse and A.sources.slide
   )
-  -- Voice banks are the files of audio/banks (PLAN F2): a new bank is a new
-  -- file there, merged without a list kept in recipes.lua.
-  local banks, merged = love.filesystem.getDirectoryItems('src/audio/banks'), true
+  -- Sound banks are the files of content/sounds (PLAN F2, G7): a new bank is
+  -- a new file there, merged without a list kept in audio/recipes.lua.
+  local banks, merged = love.filesystem.getDirectoryItems('src/content/sounds'), true
   for _, file in ipairs(banks) do
-    for name, recipe in pairs(require('src.audio.banks.' .. file:match('^(.+)%.lua$'))) do
+    local made = Recipes.banks[file:match('^(.+)%.lua$')]
+    merged = merged and made ~= nil
+    for name, recipe in pairs(made or {}) do
       merged = merged and Recipes[name] == recipe
     end
   end
-  check('every voice bank file is merged into the recipes', #banks > 0 and merged)
+  check('every sound bank file is merged into the recipes', #banks > 0 and merged)
   -- A field that names a voice says so in its schema (PLAN F2): the audio
   -- contract checks it wherever it sits, with no list of keys of its own.
   local Contracts = require('src.audio.contracts')
@@ -150,7 +152,7 @@ function Tests.run()
   )
   check('the live voices pass the audio contract', pcall(Contracts.validate))
   local Synth = require('src.audio.synth')
-  for name, recipe in pairs(require('src.audio.banks.ritual_voices')) do
+  for name, recipe in pairs(Recipes.banks.rites) do
     local data = Synth.effect(recipe.duration, A.rate, Synth.seed(name), recipe.make(A.rate))
     local peak, sum = 0, 0
     for i = 0, data:getSampleCount() - 1 do
@@ -192,7 +194,7 @@ function Tests.run()
   A.update(0)
   -- The score: its layers loop together; the mood follows the session.
   local S = require('src.audio.soundscape')
-  local Score = require('src.audio.score')
+  local Score = require('src.content.score')
   -- (QA stops every Source after loading, so only the loops are asserted.)
   local looping = true
   for _, layer in ipairs(Score.layers) do

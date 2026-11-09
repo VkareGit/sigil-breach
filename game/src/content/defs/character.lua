@@ -47,6 +47,10 @@ Character.schema = Schema:new('character', {
   presentation = { type = 'table', schema = Character.presentation },
   reactions = Reaction.field,
   resources = { type = 'table', desc = 'resource -> { max, start, regen }' },
+  start = {
+    type = 'table',
+    desc = 'where a fresh record stands until a mode places it: { x, z } (m)',
+  },
 })
 function Character.define(def)
   local where = 'character ' .. tostring(def.id)

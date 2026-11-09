@@ -1,4 +1,5 @@
 local Context = require('src.session.context')
+local Spread = require('src.content.feedback_look').sprays
 -- The knight's movement as the painted world shows it: flecks of the
 -- fresco's pigments (content/movement_marks.lua) where a dodge leaves the
 -- stone, along a dodge and a slide, round a jump and a landing, behind a
@@ -46,15 +47,16 @@ function Marks.spray(g, spray, e, scale)
     local y = e.y + spray.height + random(g) * spray.rise
     local vx, vy, vz
     if spray.ring then
-      local angle = (i - 1 + random(g) * 0.6) / count * math.pi * 2
-      local speed = (0.5 + 0.5 * random(g)) * spray.scatter
+      local angle = (i - 1 + random(g) * Spread.ringJitter) / count * math.pi * 2
+      local speed = (Spread.speed + Spread.speedSpread * random(g)) * spray.scatter
       vx, vz = sin(angle) * speed, cos(angle) * speed
-      vy = spray.up * (0.6 + 0.4 * random(g))
+      vy = spray.up * (Spread.up + Spread.upSpread * random(g))
     else
       local s = spray.scatter
       vx = e.dx * spray.along + (random(g) * 2 - 1) * s
       vz = e.dz * spray.along + (random(g) * 2 - 1) * s
-      vy = spray.up * (0.6 + 0.4 * random(g)) + (random(g) * 2 - 1) * s * 0.3
+      vy = spray.up * (Spread.up + Spread.upSpread * random(g))
+        + (random(g) * 2 - 1) * s * Spread.cross
     end
     Transients.add(
       g,
@@ -64,9 +66,9 @@ function Marks.spray(g, spray, e, scale)
       vx + e.vx * spray.carry,
       vy + e.vy * spray.carry,
       vz + e.vz * spray.carry,
-      spray.life * (1 + 0.5 * random(g)),
+      spray.life * (1 + Spread.lifeSpread * random(g)),
       color,
-      spray.size * (0.75 + 0.5 * random(g))
+      spray.size * (Spread.size + Spread.sizeSpread * random(g))
     )
   end
 end
@@ -92,7 +94,7 @@ local function knight(g, dx, dz)
   local p = Context.actor(g)
   if not dx then
     local v = sqrt(p.vx * p.vx + p.vz * p.vz)
-    if v > 0.1 then
+    if v > Spread.still then
       dx, dz = p.vx / v, p.vz / v
     else
       dx, dz = sin(p.yaw), cos(p.yaw)

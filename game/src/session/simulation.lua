@@ -3,6 +3,7 @@
 -- presentation listeners of the step's events (core/events, phase
 -- 'present'). Ordering is gameplay; it is declared, never emergent.
 local Rate = require('src.core.rate')
+local Tuning = require('src.content.tuning')
 local Presentation = require('src.session.presentation')
 local Intent = require('src.player.intent')
 local Scheduler = require('src.core.scheduler')
@@ -81,7 +82,7 @@ function Simulation.update(g, dt, input)
   end
   -- The application runs at 120 Hz. Non-application callers get the same
   -- bounded integration; a dash/slide press is consumed only on the first step.
-  local remaining = math.min(dt, 0.20)
+  local remaining = math.min(dt, Tuning.clocks.longestFrame)
   input = input or {}
   while remaining > 1e-10 do
     local step = math.min(remaining, Rate.step)

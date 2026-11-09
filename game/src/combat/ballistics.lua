@@ -42,7 +42,7 @@ function B.pellet(index, serial, count)
   -- Preserve the approved one/two-barrel patterns exactly. Other counts use
   -- mirrored golden-angle pairs in a bounded disc, with a centred odd pellet.
   -- This has no fixed pattern-array limit and no random side bias.
-  if count ~= 10 and count ~= 20 then
+  if count ~= 10 and count ~= 20 then -- constant: the pellet patterns drawn
     if count % 2 == 1 and index == count then
       return 0, 0
     end
@@ -57,7 +57,7 @@ function B.pellet(index, serial, count)
   end
   local pair = math.floor((index - 1) / 2) + 1
   local side = index % 2 == 1 and -1 or 1
-  if count == 10 then
+  if count == 10 then -- constant: the ten-pellet pattern
     pair = pair * 2
   end
   local v = BallisticPattern[pair]
@@ -219,7 +219,7 @@ function B.world(w, ox, oy, oz, dx, dy, dz, range)
   oy = oy - Ground.height(w)
   local hit, normal, kind = range, { 0, 0, 0 }, 'range'
   ray.ox, ray.oz, ray.dx, ray.dz = ox, oz, dx, dz
-  if dy < -0.000001 then
+  if dy < -1e-6 then
     local floor = (Tuning.floorSurface - oy) / dy
     if floor >= 0 and floor < hit then
       hit = floor
@@ -504,7 +504,7 @@ function B.traceVector(g, dx, dy, dz, range, bodies, origin)
   local x, y, z = ox + dx * distance, oy + dy * distance, oz + dz * distance
   if target then
     local vx, vz = x - target.x, z - target.z
-    local l = math.max(0.001, sqrt(vx * vx + vz * vz))
+    local l = math.max(1e-3, sqrt(vx * vx + vz * vz))
     normal = contact and contact.normal or { vx / l, 0, vz / l }
   end
   return target, distance, x, y, z, kind, normal, part, contact

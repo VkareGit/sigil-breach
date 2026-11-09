@@ -1,15 +1,32 @@
 -- Literal-only reader for core.serialize's stable bracketed-table format.
 -- No Lua source is compiled or evaluated, even when the input is malformed.
 local Reader = {}
-local DOUBLE_SPECIAL = '[' .. string.char(92, 34, 10, 13) .. ']'
-local SINGLE_SPECIAL = '[' .. string.char(92, 39, 10, 13) .. ']'
+-- The bytes the reader tells apart, named by their characters.
+local BACKSLASH = ('\\'):byte()
+local CLOSE = ('}'):byte()
+local DOT = ('.'):byte()
+local DQUOTE = ('"'):byte()
+local LOWER_E = ('e'):byte()
+local MINUS = ('-'):byte()
+local NEWLINE = ('\n'):byte()
+local NINE = ('9'):byte()
+local OPEN = ('{'):byte()
+local PLUS = ('+'):byte()
+local RETURN = ('\r'):byte()
+local SPACE = (' '):byte()
+local SQUOTE = ("'"):byte()
+local TAB = ('\t'):byte()
+local UPPER_E = ('E'):byte()
+local ZERO = ('0'):byte()
+local DOUBLE_SPECIAL = '[' .. string.char(BACKSLASH, DQUOTE, NEWLINE, RETURN) .. ']'
+local SINGLE_SPECIAL = '[' .. string.char(BACKSLASH, SQUOTE, NEWLINE, RETURN) .. ']'
 local DEFAULTS = {
-  maxBytes = 128 * 1024 * 1024,
+  maxBytes = 128 * 1024 * 1024, -- constant: reader limit, 128 MiB
   -- A normal recording may approach 64 MiB plus its final command. This
   -- ceiling must not reject that archive merely because its keys are short.
-  maxValues = 32 * 1024 * 1024,
-  maxDepth = 128,
-  maxString = 16 * 1024 * 1024,
+  maxValues = 32 * 1024 * 1024, -- constant: reader limit, 32 Mi values
+  maxDepth = 128, -- constant: reader limit
+  maxString = 16 * 1024 * 1024, -- constant: reader limit, 16 MiB
 }
 Reader.depthLimit = DEFAULTS.maxDepth
 local escapes = {
@@ -54,7 +71,7 @@ function Reader.decode(text, options)
   local function white()
     while position <= length do
       local b = text:byte(position)
-      if b ~= 32 and (b < 9 or b > 13) then
+      if b ~= SPACE and (b < TAB or b > RETURN) then
         break
       end
       position = position + 1
@@ -70,7 +87,7 @@ function Reader.decode(text, options)
   local function quoted()
     local quote = text:byte(position)
     position = position + 1
-    local nextSpecial = text:find(quote == 34 and DOUBLE_SPECIAL or SINGLE_SPECIAL, position)
+    local nextSpecial = text:find(quote == DQUOTE and DOUBLE_SPECIAL or SINGLE_SPECIAL, position)
     if nextSpecial and text:byte(nextSpecial) == quote then
       if nextSpecial - position > limits.maxString then
         fail('string exceeds byte limit')
@@ -96,7 +113,7 @@ function Reader.decode(text, options)
         add(text:sub(segment, position - 1))
         position = position + 1
         return table.concat(chunks)
-      elseif b == 92 then
+      elseif b == BACKSLASH then
         add(text:sub(segment, position - 1))
         position = position + 1
         local escaped = text:sub(position, position)
@@ -104,14 +121,14 @@ function Reader.decode(text, options)
         if escapes[escaped] then
           add(escapes[escaped])
           position = position + 1
-        elseif byte and byte >= 48 and byte <= 57 then
+        elseif byte and byte >= ZERO and byte <= NINE then
           local start = position
           repeat
             position = position + 1
             byte = text:byte(position)
-          until position - start == 3 or not byte or byte < 48 or byte > 57
+          until position - start == 3 or not byte or byte < ZERO or byte > NINE -- constant: \ddd
           local code = tonumber(text:sub(start, position - 1))
-          if code > 255 then
+          if code > 255 then -- constant: the largest byte
             fail('invalid decimal string escape')
           end
           add(string.char(code))
@@ -120,11 +137,11 @@ function Reader.decode(text, options)
           if #hex ~= 2 or not hex:match('^%x%x$') then
             fail('invalid hexadecimal string escape')
           end
-          add(string.char(tonumber(hex, 16)))
+          add(string.char(tonumber(hex, 16))) -- constant: hexadecimal
           position = position + 3
-        elseif byte == 10 or byte == 13 then
+        elseif byte == NEWLINE or byte == RETURN then
           position = position + 1
-          if byte == 13 and text:byte(position) == 10 then
+          if byte == RETURN and text:byte(position) == NEWLINE then
             position = position + 1
           end
           add('\n')
@@ -132,7 +149,7 @@ function Reader.decode(text, options)
           fail('invalid string escape')
         end
         segment = position
-      elseif b == 10 or b == 13 then
+      elseif b == NEWLINE or b == RETURN then
         fail('unescaped line break in string')
       else
         position = position + 1
@@ -144,7 +161,7 @@ function Reader.decode(text, options)
     local start = position
     while position <= length do
       local byte = text:byte(position)
-      if byte < 48 or byte > 57 then
+      if byte < ZERO or byte > NINE then
         break
       end
       position = position + 1
@@ -154,11 +171,11 @@ function Reader.decode(text, options)
   local function number()
     local start = position
     local b = text:byte(position)
-    if b == 43 or b == 45 then
+    if b == PLUS or b == MINUS then
       position = position + 1
     end
     local digits = scanDigits()
-    if text:byte(position) == 46 then
+    if text:byte(position) == DOT then
       position = position + 1
       digits = digits + scanDigits()
     end
@@ -166,10 +183,10 @@ function Reader.decode(text, options)
       fail('invalid number')
     end
     b = text:byte(position)
-    if b == 69 or b == 101 then
+    if b == UPPER_E or b == LOWER_E then
       position = position + 1
       b = text:byte(position)
-      if b == 43 or b == 45 then
+      if b == PLUS or b == MINUS then
         position = position + 1
       end
       digits = scanDigits()
@@ -194,17 +211,17 @@ function Reader.decode(text, options)
       fail('nesting exceeds limit')
     end
     local byte = text:byte(position)
-    if byte == 34 or byte == 39 then
+    if byte == DQUOTE or byte == SQUOTE then
       return quoted()
     end
-    if byte == 45 or byte == 43 or byte == 46 or (byte and byte >= 48 and byte <= 57) then
+    if byte == MINUS or byte == PLUS or byte == DOT or (byte and byte >= ZERO and byte <= NINE) then
       return number()
     end
-    if byte == 123 then
+    if byte == OPEN then
       position = position + 1
       local result, seen = {}, {}
       white()
-      while text:byte(position) ~= 125 do
+      while text:byte(position) ~= CLOSE do
         expect('[')
         local key = parse(depth + 1)
         if type(key) ~= 'string' and type(key) ~= 'number' and type(key) ~= 'boolean' then
@@ -218,7 +235,7 @@ function Reader.decode(text, options)
         expect('=')
         result[key] = parse(depth + 1)
         white()
-        if text:byte(position) == 125 then
+        if text:byte(position) == CLOSE then
           break
         end
         expect(',')

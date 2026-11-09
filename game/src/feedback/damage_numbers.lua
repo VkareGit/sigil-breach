@@ -2,7 +2,8 @@
 -- blow landed. A volley adds one per body it reached (feedback/shot_feedback),
 -- a missile or a blast one per blow (BlowResolved with a number). Drawn by
 -- render/numbers.lua; aged by feedback/transients.lua.
-local Numbers = { limit = 24 }
+local Look = require('src.content.feedback_look').damageNumbers
+local Numbers = { limit = Look.limit }
 -- broke: the hit broke the guard (gold); wound: a major wound (deep red).
 function Numbers.add(g, pt, value, kill, head, armor, broke, wound, counter, crippled)
   if value <= 0 and not armor then
@@ -16,7 +17,7 @@ function Numbers.add(g, pt, value, kill, head, armor, broke, wound, counter, cri
   g.view.numberSerial = (g.view.numberSerial or 0) + 1
   list[#list + 1] = {
     x = pt[1],
-    y = pt[2] + 0.15,
+    y = pt[2] + Look.rise,
     z = pt[3],
     value = math.floor(value + 0.5),
     age = 0,

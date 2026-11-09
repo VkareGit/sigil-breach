@@ -4,9 +4,9 @@ local UI = require('src.ui.interface')
 local S = {}
 function S.run(Game, renderer, getGame, settings, output)
   local lg = love.graphics
-  local tickRate = 120
+  local tickRate = require('src.core.rate').hertz
   local fingerprint = assert(love.filesystem.read('build-fingerprint.txt')):match('^%x+')
-  assert(fingerprint and #fingerprint == 64, 'package fingerprint missing')
+  assert(fingerprint and #fingerprint == 64, 'package fingerprint missing') -- constant: SHA-256 hex
   assert(not love.filesystem.getInfo('qa'), 'player package contains developer diagnostics')
   assert(not love.filesystem.getInfo('tests'), 'player package contains developer tests')
   assert(not love.filesystem.getInfo('docs'), 'player archive contains developer documentation')

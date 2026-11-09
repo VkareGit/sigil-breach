@@ -5,6 +5,8 @@
 -- A field with no default starts absent (nil means "not now": no target,
 -- not leaping, no pending strike).
 local Characters = require('src.content.characters')
+local Defaults = require('src.content.combat_defaults')
+local KnightDef = require('src.content.knight')
 local C = {}
 -- smooth: how the drawn image blends the field between two simulation steps
 -- (render/presentation.lua, PLAN E4): 'linear' for a continuous quantity (place,
@@ -105,7 +107,7 @@ C.schemas = {
     phase = f(0, 'time in the state', clock),
     recover = f(0, nil, clock),
     spent = f(0, 'what is left of the recovery after a blow: it moves but cannot strike (s)'),
-    attack = f(1.5, 'time until the next attack may begin'),
+    attack = f(Defaults.firstAttack, 'time until the next attack may begin'),
     decision = f(0),
     side = f(1, 'circling side'),
     hit = f(0, 'hit flash'),
@@ -304,8 +306,8 @@ C.schemas.charge = {
 C.schemas.knight = {
   id = f(nil, "unique per session: 'knight' .. n (pool 'knights')"),
   faction = f(nil, "own side, else 'knight' (content/factions.lua)"),
-  x = f(16),
-  z = f(27.5),
+  x = f(KnightDef.start.x),
+  z = f(KnightDef.start.z),
   level = f(nil, 'the surface he stands on, on a world with decks (physics/ground.lua)'),
   yaw = f(math.pi),
   pitch = f(0),

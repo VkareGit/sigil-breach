@@ -1,4 +1,5 @@
--- The score of the circles as data; audio/soundscape.lua renders and mixes it.
+-- The score of the circles as data (PLAN G7: music is content); audio/soundscape.lua
+-- renders and mixes it.
 -- A chant in the first mode (D) sung by a small choir of men over a held
 -- ison, an organum a fifth below with an organ under it, a frame drum's
 -- heartbeat, and the knell of bells over the organ's open fifths. Every layer

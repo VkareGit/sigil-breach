@@ -9,17 +9,17 @@ function Rng:init(seed)
   self:seed(seed or 1)
 end
 function Rng:seed(seed)
-  seed = math.floor(tonumber(seed) or 1) % 4294967296
-  self.state = bit.tobit(seed == 0 and 2463534242 or seed)
+  seed = math.floor(tonumber(seed) or 1) % 4294967296 -- constant: 2^32, the state's range
+  self.state = bit.tobit(seed == 0 and 2463534242 or seed) -- constant: xorshift32's own seed
 end
 -- Uniform in [0, 1).
 function Rng:random()
   local x = self.state
-  x = bit.bxor(x, bit.lshift(x, 13))
-  x = bit.bxor(x, bit.rshift(x, 17))
+  x = bit.bxor(x, bit.lshift(x, 13)) -- constant: xorshift32 shift
+  x = bit.bxor(x, bit.rshift(x, 17)) -- constant: xorshift32 shift
   x = bit.bxor(x, bit.lshift(x, 5))
   self.state = x
-  return (x % 4294967296) / 4294967296
+  return (x % 4294967296) / 4294967296 -- constant: 2^32
 end
 -- Uniform in [a, b).
 function Rng:range(a, b)

@@ -352,6 +352,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
   SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
   `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
+- 2026-11-09, **G7 krok a zrobiony:** zapadka liczb w każdej warstwie poza
+  treścią, wyjątek `-- constant:`; symulacja, odczucie, `core`, `storage`,
+  `app` na zero, dźwięk w treści. Zostaje `ui` 1696, `render` 1364,
+  `audio` 170 (HUD tylko z dowodem identycznego obrazu).
 - 2026-11-09, **G4 krok a zrobiony:** jeden świat z obszarami: granice
   obszarów, wejście krokiem (`AreaEntered`), garnizony całej mapy z uśpieniem
   poza obszarem rycerza. Golden bez zmian. Indeks przestrzenny przy ok. 40

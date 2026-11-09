@@ -141,7 +141,7 @@ function Game:reloadGun(who)
   end
   local mag, reserve = Weapons.meter(self, nil, actor)
   if mag == 0 and reserve == 0 then
-    actor.cooldown = 0.20
+    actor.cooldown = Tuning.clocks.swapReady
     if presented then
       self:notify(Text.get('no_ammo'), 2)
     end
@@ -164,10 +164,10 @@ function Game:switchWeapon(which, who)
   end
   Reload.cancel(self, actor)
   actor.weapon = which
-  actor.cooldown = math.max(0.20, (state.readyAt or 0) - self.elapsed)
+  actor.cooldown = math.max(Tuning.clocks.swapReady, (state.readyAt or 0) - self.elapsed)
   local view = Context.view(self, actor)
   if view then
-    view.swapAge, view.shotAge, view.interruptedClose = 0, 10, nil
+    view.swapAge, view.shotAge, view.interruptedClose = 0, Tuning.viewDefaults.shotAge, nil
   end
   -- An action left open finishes its reload when the weapon is back in hand.
   if state.open then
@@ -226,7 +226,7 @@ function Game:dash(dx, dz, who)
   player.invuln = math.max(player.invuln, body.rollIframes)
   player.dodgeEnds = self.elapsed + body.rollIframes
   local length = math.sqrt(dx * dx + dz * dz)
-  if length < 0.1 then
+  if length < Tuning.clocks.dashDeadZone then
     dx, dz = math.sin(player.yaw), math.cos(player.yaw)
   else
     dx, dz = dx / length, dz / length

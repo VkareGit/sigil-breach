@@ -1,5 +1,6 @@
 local Anim = {}
 local Idle = require('src.enemies.idle')
+local Motion = require('src.content.pose_motion')
 local Archetypes = require('src.content.enemies')
 local Corpse = require('src.enemies.corpse')
 local ActionPhase = require('src.enemies.action_phase')
@@ -57,16 +58,19 @@ Anim.motions:register('hover', function(g, e, frame, _, lean, quiet, rear)
     local flight = posed(e, rear and 'hoverRear' or 'hover')
     frame = Poses.frame(flight, now + e.id * (flight.offset or 0))
   end
-  return frame, 0.17 + math.sin(now * 2.6 + e.id) * 0.065, lean + math.sin(now * 1.7 + e.id) * 0.018
+  local H = Motion.hover
+  return frame,
+    H.height + math.sin(now * H.bobRate + e.id) * H.bob,
+    lean + math.sin(now * H.swayRate + e.id) * H.sway
 end)
 Anim.motions:register('heavy', function(_, e, frame, bounce, lean)
-  if (e.walkSpeed or 0) > 0.1 then
-    return frame, bounce * 0.3, lean * 0.55
+  if (e.walkSpeed or 0) > Motion.walking then
+    return frame, bounce * Motion.heavy.bounce, lean * Motion.heavy.lean
   end
   return frame, bounce, lean
 end)
 Anim.motions:register('sway', function(_, e, frame, bounce, lean)
-  return frame, bounce, lean + math.sin(e.walk * 5.5) * 0.018
+  return frame, bounce, lean + math.sin(e.walk * Motion.sway.rate) * Motion.sway.lean
 end)
 function Anim.frameCount(kind)
   return #Atlases.layouts[kind].frames
@@ -77,7 +81,7 @@ function Anim.exposedProgress(e)
   local left = e.conditions and e.conditions.exposed or 0
   local age = math.max(0, e.phase or 0)
   local body = Archetypes.of(e).body
-  local duration = math.max(left, body.breakTime or (age + left), 0.001)
+  local duration = math.max(left, body.breakTime or (age + left), Motion.shortestFalter)
   return math.max(0, math.min(1, 1 - left / duration))
 end
 local function exhausted(e)
@@ -132,7 +136,7 @@ Anim.state('knockedDown', {
     local total = math.max(e.knockTime or e.stun, e.stun)
     local frame = Poses.frame(posed(e, 'knockdown'), total - e.stun)
       or Poses.frame(posed(e, 'rise'), -e.stun)
-    return frame, 0, -0.06, 1, 1
+    return frame, 0, Motion.knockedLean, 1, 1
   end,
 })
 Anim.state('exhausted', {
@@ -148,13 +152,17 @@ Anim.state('exhausted', {
 -- then bows it in pain; a light falter only flinches in place.
 Anim.state('hurt', {
   when = function(_, e)
-    return e.ai == 'hurt' and (e.phase < 0.20 or (e.stun or 0) > 0)
+    return e.ai == 'hurt' and (e.phase < Motion.hurt.recoil or (e.stun or 0) > 0)
   end,
   pose = function(_, e)
     if e.heavyStagger then
-      return Poses.frame(posed(e, 'painHeavy'), e.phase), 0, -0.08, 1, 0.95
+      return Poses.frame(posed(e, 'painHeavy'), e.phase),
+        0,
+        Motion.hurt.heavyLean,
+        1,
+        Motion.hurt.heavySquash
     end
-    return Poses.frame(posed(e, 'pain'), e.phase), 0, -0.03, 1, 1
+    return Poses.frame(posed(e, 'pain'), e.phase), 0, Motion.hurt.lean, 1, 1
   end,
 })
 Anim.state('transition', {
@@ -186,7 +194,8 @@ Anim.state('windup', {
     if pose.rear and facesAway(g, e, ctx.observer) then
       pose = posed(e, pose.rear)
     end
-    return Poses.frame(pose, t), 0, -0.025 * t, 1 + t * 0.025, 1 - t * 0.025
+    local T = Motion.transition
+    return Poses.frame(pose, t), 0, T.lean * t, 1 + t * T.widen, 1 - t * T.widen
   end,
 })
 Anim.state('strike', {
@@ -214,7 +223,11 @@ Anim.state('strike', {
     if pose.rear and facesAway(g, e, ctx.observer) then
       pose = posed(e, pose.rear)
     end
-    return Poses.frame(pose, clock), 0, 0.06 * (1 - t), 1 + 0.035 * math.sin(t * math.pi), 1
+    return Poses.frame(pose, clock),
+      0,
+      Motion.strike.lean * (1 - t),
+      1 + Motion.strike.widen * math.sin(t * math.pi),
+      1
   end,
 })
 Anim.state('recover', {
@@ -224,19 +237,19 @@ Anim.state('recover', {
   pose = function(_, e)
     local t = Anim.actionPhase(e)
     local pose = posed(e, e.attackKind and ('recover.' .. e.attackKind) or 'recover')
-    return Poses.frame(pose, t), 0, 0, 1, 0.98 + 0.02 * t
+    return Poses.frame(pose, t), 0, 0, 1, Motion.recover.squash + Motion.recover.rise * t
   end,
 })
 Anim.state('walk', {
   when = function(_, e)
-    return (e.walkSpeed or 0) > 0.1
+    return (e.walkSpeed or 0) > Motion.walking
   end,
   pose = function(g, e, ctx)
     local walk = posed(e, 'walk')
     local count = #walk.frames
     local phase = e.walk * (walk.rate or 0)
-    local bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * 0.008
-    local lean = math.sin(phase * math.pi / (count * 0.5)) * 0.012
+    local bounce = math.abs(math.sin(phase * math.pi / (count * 0.5))) * Motion.walk.bounce
+    local lean = math.sin(phase * math.pi / (count * 0.5)) * Motion.walk.lean
     local rear = facesAway(g, e, ctx.observer)
     return Poses.frame(rear and posed(e, 'walkRear') or walk, e.walk),
       bounce,
@@ -299,8 +312,8 @@ function Anim.pose(g, e, observer)
     lean = lean + (e.flinchLean or 0) * flinchProjection
   end
   if f > 0 then
-    sx = sx * (1 + 0.05 * f)
-    sy = sy * (1 - 0.045 * f)
+    sx = sx * (1 + Motion.flinch.widen * f)
+    sy = sy * (1 - Motion.flinch.squash * f)
   end
   -- The leap's crouch: the body sinks and widens as it gathers (telegraph).
   local spec = e.attackSpec
@@ -311,18 +324,18 @@ function Anim.pose(g, e, observer)
   end
   if e.hp > 0 and e.ai == 'windup' and spec and Action.trait(spec, 'gathers') then
     local t = Anim.actionPhase(e)
-    sy = sy * (1 - 0.10 * t)
-    sx = sx * (1 + 0.06 * t)
+    sy = sy * (1 - Motion.gather.sink * t)
+    sx = sx * (1 + Motion.gather.widen * t)
   end
   -- A sidestep leans the body into its direction.
   if e.hp > 0 and (e.evadeTime or 0) > 0 then
-    lean = lean + 0.09 * (e.evadeSide or 1)
+    lean = lean + Motion.evadeLean * (e.evadeSide or 1)
   end
   -- Arrival from a portal: the body climbs out of the floor in 0.6 s (the
   -- floor clips the sinking sprite; hit volumes follow the same pose).
-  if e.hp > 0 and (e.spawnAge or 1) < 0.6 then
-    local k = 1 - e.spawnAge / 0.6
-    bounce = bounce - k * k * 1.4
+  if e.hp > 0 and (e.spawnAge or 1) < Motion.arrival.time then
+    local k = 1 - e.spawnAge / Motion.arrival.time
+    bounce = bounce - k * k * Motion.arrival.depth
   end
   -- A leaping (or falling) body is lifted by its flight height.
   if e.hp > 0 and e.leapY then
@@ -331,15 +344,19 @@ function Anim.pose(g, e, observer)
   -- A crippled body (leg hit) limps: every other step sinks on one side.
   local crippled = e.hp > 0 and e.conditions and e.conditions.crippled
   if crippled and crippled > 0 then
-    local limp = math.max(0, math.sin((e.walk or 0) * 4.2 + e.id))
+    local L = Motion.limp
+    local limp = math.max(0, math.sin((e.walk or 0) * L.rate + e.id))
     local side = (e.id % 2 == 0) and 1 or -1
-    lean = lean + side * (0.02 + 0.05 * limp)
-    sy = sy * (1 - 0.05 * limp)
+    lean = lean + side * (L.lean + L.leanGain * limp)
+    sy = sy * (1 - L.sink * limp)
   end
   -- A major wound trembles for its duration (condition 'wounded').
   local wound = e.hp > 0 and e.conditions and e.conditions.wounded
   if wound and wound > 0 then
-    lean = lean + math.sin(poseTime(g) * 38 + e.id) * 0.010 * math.min(1, wound)
+    lean = lean
+      + math.sin(poseTime(g) * Motion.tremble.rate + e.id)
+        * Motion.tremble.lean
+        * math.min(1, wound)
   end
   return frame, bounce, lean, sx, sy
 end

@@ -6,7 +6,8 @@ local SurfaceMarkFeedback = require('src.feedback.surface_marks')
 local MathX = require('src.core.mathx')
 local Damage = require('src.combat.damage')
 local FX = require('src.feedback.effects')
-local I = { particleLimit = 240 }
+local Splash = require('src.content.impact_response')
+local I = { particleLimit = Splash.particleLimit }
 local sqrt, abs, sin, cos = math.sqrt, math.abs, math.sin, math.cos
 local clamp = MathX.clamp
 local function unit(x, y, z, fx, fy, fz)
@@ -16,36 +17,7 @@ local function unit(x, y, z, fx, fy, fz)
   end
   return x / length, y / length, z / length
 end
-local materials = {
-  plaster = {
-    color = { 0.65, 0.51, 0.34 },
-    tint = { 1.03, 0.98, 0.87 },
-    size = 0.031,
-    speed = 0.27,
-    life = 0.28,
-  },
-  stone = {
-    color = { 0.36, 0.35, 0.31 },
-    tint = { 0.77, 0.87, 0.98 },
-    size = 0.024,
-    speed = 0.22,
-    life = 0.25,
-  },
-  metal = {
-    color = { 0.53, 0.55, 0.53 },
-    tint = { 0.66, 0.82, 1.10 },
-    size = 0.022,
-    speed = 0.36,
-    life = 0.18,
-  },
-  bone = {
-    color = { 0.40, 0.29, 0.18 },
-    tint = { 0.82, 0.69, 0.52 },
-    size = 0.026,
-    speed = 0.24,
-    life = 0.24,
-  },
-}
+local materials = Splash.materials
 -- The armour arithmetic is the damage model's (combat/damage.lua).
 I.retained = Damage.retained
 I.armorLoss = Damage.armorLoss
@@ -84,13 +56,34 @@ function I.measure(energy, contact, material)
     tz = tz,
     -- Collision is the tile face, while its painted niche fillet projects
     -- 8.25 cm in front. Start the art beyond that trim immediately.
-    offset = contact.kind == 'wall' and 0.095 or 0.028,
+    offset = contact.kind == 'wall' and Splash.offset.wall or Splash.offset.other,
     -- At glancing incidence a small scrape survives, but the dense impact plume
     -- follows normal energy. Speed follows sqrt(energy), with artistic caps.
-    size = clamp(0.07 + spec.size * normalRoot + 0.004 * sqrt(tangentialEnergy), 0.07, 0.58),
-    normalSpeed = clamp(0.12 + spec.speed * normalRoot, 0.12, 3.1),
-    tangentSpeed = clamp(spec.speed * 0.62 * sqrt(tangentialEnergy), 0, 2.1),
-    count = energy > 0 and clamp(math.ceil(0.40 * sqrt(energy) * (0.45 + 0.55 * incidence)), 1, 6)
+    size = clamp(
+      Splash.size.base + spec.size * normalRoot + Splash.size.tangent * sqrt(tangentialEnergy),
+      Splash.size.base,
+      Splash.size.high
+    ),
+    normalSpeed = clamp(
+      Splash.normalSpeed.base + spec.speed * normalRoot,
+      Splash.normalSpeed.base,
+      Splash.normalSpeed.high
+    ),
+    tangentSpeed = clamp(
+      spec.speed * Splash.tangentSpeed.share * sqrt(tangentialEnergy),
+      0,
+      Splash.tangentSpeed.high
+    ),
+    count = energy > 0
+        and clamp(
+          math.ceil(
+            Splash.count.gain
+              * sqrt(energy)
+              * (Splash.count.flat + Splash.count.incidence * incidence)
+          ),
+          1,
+          Splash.count.high
+        )
       or 0,
   }
 end
@@ -99,19 +92,21 @@ local function particles(g, c, r, color, blood)
   -- Build an orthogonal fan around the contact normal. Every initial velocity
   -- has a strictly outward component; tangential scatter cannot enter a wall.
   local ax, ay, az = 0, 1, 0
-  if abs(r.ny) > 0.85 then
+  if abs(r.ny) > Splash.vertical then
     ax, ay, az = 1, 0, 0
   end
   local ux, uy, uz = unit(r.ny * az - r.nz * ay, r.nz * ax - r.nx * az, r.nx * ay - r.ny * ax)
   local vx, vy, vz = r.ny * uz - r.nz * uy, r.nz * ux - r.nx * uz, r.nx * uy - r.ny * ux
-  local seed = (c.seed or 0) + (c.x or 0) * 0.137 + (c.z or 0) * 0.191
+  local seed = (c.seed or 0) + (c.x or 0) * Splash.seed.x + (c.z or 0) * Splash.seed.z
   for i = 1, r.count do
-    local turn = i * 2.3999632297287 + seed
-    local variation = 0.64 + 0.36 * ((i * 0.61803398875 + seed * 0.117) % 1)
+    local turn = i * Splash.turn + seed
+    local variation = Splash.variation.base
+      + Splash.variation.spread * ((i * Splash.ratio + seed * Splash.seed.scale) % 1)
     local normalSpeed = r.normalSpeed * variation
-    local spread = normalSpeed * (blood and 0.31 or 0.48)
+    local spread = normalSpeed * (blood and Splash.spread.blood or Splash.spread.debris)
     local su, sv = sin(turn) * spread, cos(turn) * spread
-    local life = (blood and 0.27 or materials[r.material].life) * (0.78 + 0.22 * variation)
+    local life = (blood and Splash.bloodLife or materials[r.material].life)
+      * (Splash.life.base + Splash.life.spread * variation)
     if #g.view.particles >= I.particleLimit then
       table.remove(g.view.particles, 1)
     end
@@ -124,7 +119,11 @@ local function particles(g, c, r, color, blood)
       vz = r.nz * normalSpeed + r.tz * r.tangentSpeed + uz * su + vz * sv,
       life = life,
       color = color,
-      size = clamp(0.20 + sqrt(r.energy) * 0.040, 0.20, 0.82),
+      size = clamp(
+        Splash.speckSize.base + sqrt(r.energy) * Splash.speckSize.gain,
+        Splash.speckSize.base,
+        Splash.speckSize.high
+      ),
       material = blood and 'blood' or r.material,
     }
   end
@@ -150,9 +149,12 @@ local function solid(g, energy, contact, material, paintSprite)
         energy = energy,
         incidence = r.incidence,
         duration = spec.life,
-        vx = r.nx * r.normalSpeed * 0.16 + r.tx * r.tangentSpeed * 0.12,
-        vy = r.ny * r.normalSpeed * 0.16 + r.ty * r.tangentSpeed * 0.12,
-        vz = r.nz * r.normalSpeed * 0.16 + r.tz * r.tangentSpeed * 0.12,
+        vx = r.nx * r.normalSpeed * Splash.sprite.normal
+          + r.tx * r.tangentSpeed * Splash.sprite.tangent,
+        vy = r.ny * r.normalSpeed * Splash.sprite.normal
+          + r.ty * r.tangentSpeed * Splash.sprite.tangent,
+        vz = r.nz * r.normalSpeed * Splash.sprite.normal
+          + r.tz * r.tangentSpeed * Splash.sprite.tangent,
       }
     )
   end
@@ -163,7 +165,8 @@ I.solid = solid
 -- spray origin. In particular, an average of two wing contacts may be air.
 function I.contact(g, c, blood, energy)
   local r = I.measure(energy, c, 'plaster')
-  local size = clamp(0.12 + sqrt(energy) * 0.012, 0.14, 0.25)
+  local size =
+    clamp(Splash.mark.base + sqrt(energy) * Splash.mark.gain, Splash.mark.low, Splash.mark.high)
   return FX.emit(
     g,
     blood and 'contact_blood' or 'contact_stone',
@@ -204,25 +207,26 @@ function I.body(g, e, point, healthDamage, armorAbsorbed, contact)
   if healthDamage <= 0 then
     return
   end
-  local color = Rules.body(e).blood or { 0.26, 0.025, 0.016 }
+  local color = Rules.body(e).blood or Splash.blood
   local r = I.measure(healthDamage, c, 'plaster')
-  r.count = clamp(math.ceil(sqrt(healthDamage) * 0.46), 1, 8)
-  r.normalSpeed = clamp(0.18 + sqrt(healthDamage) * 0.13, 0.18, 1.5)
-  r.tangentSpeed = r.tangentSpeed * 0.18
+  local W = Splash.wound
+  r.count = clamp(math.ceil(sqrt(healthDamage) * W.count), 1, W.most)
+  r.normalSpeed = clamp(W.speed + sqrt(healthDamage) * W.speedGain, W.speed, W.speedHigh)
+  r.tangentSpeed = r.tangentSpeed * W.tangent
   particles(g, c, r, color, true)
   FX.emit(
     g,
     'blood',
-    c.x + r.nx * 0.025,
-    c.y + r.ny * 0.025,
-    c.z + r.nz * 0.025,
-    clamp(0.13 + sqrt(healthDamage) * 0.035, 0.13, 0.58),
+    c.x + r.nx * W.offset,
+    c.y + r.ny * W.offset,
+    c.z + r.nz * W.offset,
+    clamp(W.size + sqrt(healthDamage) * W.sizeGain, W.size, W.sizeHigh),
     {
       material = 'blood',
       energy = healthDamage,
-      vx = r.nx * r.normalSpeed * 0.09,
-      vy = r.ny * r.normalSpeed * 0.09,
-      vz = r.nz * r.normalSpeed * 0.09,
+      vx = r.nx * r.normalSpeed * W.drift,
+      vy = r.ny * r.normalSpeed * W.drift,
+      vz = r.nz * r.normalSpeed * W.drift,
     }
   )
 end

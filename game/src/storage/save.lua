@@ -16,7 +16,7 @@ local Execution = require('src.storage.execution')
 local Save = { format = 'SIGIL09' }
 -- Bounds of a save file the reader accepts.
 Save.limits =
-  { maxBytes = 8 * 1024 * 1024, maxValues = 2 * 1024 * 1024, maxDepth = 96, maxString = 64 * 1024 }
+  { maxBytes = 8 * 1024 * 1024, maxValues = 2 * 1024 * 1024, maxDepth = 96, maxString = 64 * 1024 } -- constant: save limits
 local sections, order = {}, {}
 -- Section declaration:
 --   name, file      the section and the kind of file it belongs to
@@ -71,10 +71,10 @@ end
 local function checksum(s)
   local a, b = 1, 0
   for i = 1, #s do
-    a = (a + s:byte(i)) % 65521
-    b = (b + a) % 65521
+    a = (a + s:byte(i)) % 65521 -- constant: Adler-32
+    b = (b + a) % 65521 -- constant: Adler-32
   end
-  return tostring(b * 65536 + a)
+  return tostring(b * 65536 + a) -- constant: Adler-32
 end
 Save.checksum = checksum
 -- Every section of a kind of file packed from source.

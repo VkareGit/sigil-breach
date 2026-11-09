@@ -12,7 +12,7 @@ return function(R)
   function R.shove(J, mass)
     local law = defaults.impulse
     local n = 1 - math.exp(-max(0, J or 0) / law.scale)
-    return law.vmax * n / max(0.05, mass or 1), n
+    return law.vmax * n / max(defaults.lightest, mass or 1), n
   end
   -- Momentum adds (two blows throw further than one) but the sum is capped by
   -- the same ceiling as a single blow: vmax / mass, or the new blow itself when

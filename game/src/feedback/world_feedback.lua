@@ -11,6 +11,7 @@ local Rules = require('src.combat.rules')
 local Reload = require('src.combat.reload')
 local Weapons = require('src.content.weapons')
 local K = require('src.content.tuning').world
+local Cue = require('src.content.world_voices')
 local Context = require('src.session.context')
 local Recipient = require('src.feedback.recipient')
 local Bodies = require('src.combat.bodies')
@@ -22,7 +23,7 @@ local Profiles = require('src.audio.creature_profiles')
 local warnings = setmetatable({}, { __mode = 'k' })
 local function stopWarning(enemy)
   for _, voice in ipairs(warnings[enemy] or {}) do
-    Audio.stopVoice(voice.source, voice.ticket, 0.025)
+    Audio.stopVoice(voice.source, voice.ticket, Cue.warningFade)
   end
   warnings[enemy] = nil
 end
@@ -45,7 +46,17 @@ end
 World.handlers = {
   EnemyPhaseChanged = function(g, ev)
     local e = ev.enemy
-    Audio.playAt(sounds(e).alert or 'growl', e.x, e.z, Context.viewer(g), 0.75, 2, g.world, nil, e)
+    Audio.playAt(
+      sounds(e).alert or 'growl',
+      e.x,
+      e.z,
+      Context.viewer(g),
+      Cue.phase.gain,
+      Cue.phase.priority,
+      g.world,
+      nil,
+      e
+    )
   end,
   AttackTelegraphed = function(g, ev)
     local e = ev.enemy
@@ -58,8 +69,9 @@ World.handlers = {
       'prepare',
       ev.attack.windupSound or (warns and Profiles.body(e, 'windup', 'growl'))
     )
-    warningLayer(g, e, material, 0.7, warns and 3 or 0)
-    warningLayer(g, e, ev.attack.windupVoice, 0.58, warns and 2 or 0)
+    local T = Cue.telegraph
+    warningLayer(g, e, material, T.material, warns and T.materialPriority or 0)
+    warningLayer(g, e, ev.attack.windupVoice, T.voice, warns and T.voicePriority or 0)
   end,
   AttackCancelled = function(_, ev)
     stopWarning(ev.enemy)
@@ -96,13 +108,19 @@ World.handlers = {
       e.x,
       e.z,
       Context.viewer(g),
-      0.65,
-      ev.attack.warning == false and 0 or 2,
+      Cue.release.gain,
+      ev.attack.warning == false and 0 or Cue.release.priority,
       g.world,
       nil,
       e
     )
-    warningLayer(g, e, ev.attack.releaseVoice, 0.58, ev.attack.warning == false and 0 or 2)
+    warningLayer(
+      g,
+      e,
+      ev.attack.releaseVoice,
+      Cue.release.voice,
+      ev.attack.warning == false and 0 or Cue.release.priority
+    )
   end,
   ChargeBlocked = function(g, ev)
     Audio.playAt(
@@ -110,8 +128,8 @@ World.handlers = {
       ev.enemy.x,
       ev.enemy.z,
       Context.viewer(g),
-      0.5,
-      2,
+      Cue.chargeBlocked.gain,
+      Cue.chargeBlocked.priority,
       g.world
     )
   end,
@@ -123,17 +141,18 @@ World.handlers = {
   Landed = function(g, ev)
     RiteFeedback.landed(g, ev)
     local e, p = ev.enemy, Context.viewer(g)
-    FX.emit(g, 'stone', e.x, K.dustHeight, e.z, ev.heavy and 0.75 or 0.5)
+    local L = Cue.landing
+    FX.emit(g, 'stone', e.x, K.dustHeight, e.z, ev.heavy and L.heavyDust or L.dust)
     local voice = e.attackSpec and e.attackSpec.landingSound
     if voice then
-      Audio.playAt(voice, e.x, e.z, p, ev.heavy and 0.55 or 0.42, 1, g.world)
+      Audio.playAt(voice, e.x, e.z, p, ev.heavy and L.heavyGain or L.gain, 1, g.world)
     else
       Audio.playAt(
         Profiles.body(e, 'impact', 'thud'),
         e.x,
         e.z,
         p,
-        ev.heavy and 0.55 or 0.42,
+        ev.heavy and L.heavyGain or L.gain,
         1,
         g.world
       )
@@ -149,7 +168,7 @@ World.handlers = {
       ev.enemy.x,
       ev.enemy.z,
       Context.viewer(g),
-      0.45,
+      Cue.evaded.gain,
       1,
       g.world,
       nil,
@@ -158,7 +177,17 @@ World.handlers = {
   end,
   Alerted = function(g, ev)
     local e = ev.enemy
-    Audio.playAt(sounds(e).alert or 'snarl', e.x, e.z, Context.viewer(g), 0.4, 2, g.world, nil, e)
+    Audio.playAt(
+      sounds(e).alert or 'snarl',
+      e.x,
+      e.z,
+      Context.viewer(g),
+      Cue.alerted.gain,
+      Cue.alerted.priority,
+      g.world,
+      nil,
+      e
+    )
   end,
   -- A body driven into stone lands in the frame too.
   WallSlam = function(g, ev)
@@ -178,11 +207,12 @@ World.handlers = {
       e.x,
       e.z,
       Context.viewer(g),
-      0.30 + 0.08 * (ev.lost or 0),
+      Cue.wallSlam.gain + Cue.wallSlam.lostGain * (ev.lost or 0),
       1,
       g.world
     )
-    g:burst(e.x, 1.0, e.z, Rules.body(e).blood, 6, 1.4)
+    local W = Cue.wallSlam
+    g:burst(e.x, W.bloodHeight, e.z, Rules.body(e).blood, W.drops, W.speed)
   end,
   BodiesCollided = function(g, ev)
     Audio.playAt(
@@ -190,7 +220,7 @@ World.handlers = {
       ev.other.x,
       ev.other.z,
       Context.viewer(g),
-      0.35,
+      Cue.collided.gain,
       1,
       g.world
     )
@@ -198,15 +228,32 @@ World.handlers = {
   PortalOpened = function(g, ev)
     local def = Archetypes.get(ev.gate.kind)
     local voice = def and def.sounds and def.sounds.summon or 'cast'
-    Audio.playAt(voice, ev.gate.x, ev.gate.z, Context.viewer(g), 0.45, 2, g.world)
+    Audio.playAt(
+      voice,
+      ev.gate.x,
+      ev.gate.z,
+      Context.viewer(g),
+      Cue.portal.gain,
+      Cue.portal.priority,
+      g.world
+    )
   end,
   -- Arrival: smoke, a burst in the portal's colour, a deep pulse.
   EnemyArrived = function(g, ev)
     local e, s = ev.enemy, ev.gate
     local color = Archetypes.look(e).portal
-    FX.emit(g, 'smoke', s.x, 0.7, s.z, 0.9)
-    g:burst(s.x, 1.0, s.z, color, 14, 2.6)
-    Audio.playAt(sounds(e).arrival or 'pulse', s.x, s.z, Context.viewer(g), 0.55, 2, g.world)
+    local A = Cue.arrival
+    FX.emit(g, 'smoke', s.x, A.smokeHeight, s.z, A.smoke)
+    g:burst(s.x, A.burstHeight, s.z, color, A.specks, A.speed)
+    Audio.playAt(
+      sounds(e).arrival or 'pulse',
+      s.x,
+      s.z,
+      Context.viewer(g),
+      Cue.arrivalVoice.gain,
+      Cue.arrivalVoice.priority,
+      g.world
+    )
   end,
   -- Folding wings at departure; the stronger cast marks its actual arrival.
   Blinked = function(g, ev)
@@ -217,8 +264,8 @@ World.handlers = {
       ev.fromX,
       ev.fromZ,
       Context.viewer(g),
-      0.35,
-      2,
+      Cue.blink.departure,
+      Cue.blink.priority,
       g.world
     )
     Audio.playAt(
@@ -226,14 +273,14 @@ World.handlers = {
       ev.toX,
       ev.toZ,
       Context.viewer(g),
-      0.5,
-      2,
+      Cue.blink.arrival,
+      Cue.blink.priority,
       g.world
     )
   end,
   -- The grip closes: felt in the view, heard in the bones.
   Seized = function(g, ev)
-    Audio.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), 0.6)
+    Audio.playAt('thud', ev.enemy.x, ev.enemy.z, Context.viewer(g), Cue.seized.gain)
     Recipient.each(g, function(personal)
       Impulses.react(personal.view, 'seized')
     end)
@@ -257,9 +304,10 @@ World.handlers = {
       local d = math.sqrt((actor.x - b.x) ^ 2 + (actor.z - b.z) ^ 2)
       Impulses.react(personal.view, 'blast', 0, 0, 0, d)
     end)
-    FX.emit(g, 'powder', b.x, b.y + 0.65, b.z, 3.2)
-    FX.emit(g, 'stone', b.x, b.y + 0.15, b.z, 0.9)
-    Audio.playAt('blast', b.x, b.z, Context.viewer(g), 0.85)
+    local C = Cue.charge
+    FX.emit(g, 'powder', b.x, b.y + C.smokeRise, b.z, C.smoke)
+    FX.emit(g, 'stone', b.x, b.y + C.stoneRise, b.z, C.stone)
+    Audio.playAt('blast', b.x, b.z, Context.viewer(g), C.gain)
   end,
   NearMiss = function(g, ev)
     local personal = Recipient.context(g, ev.actor)
@@ -269,11 +317,19 @@ World.handlers = {
   end,
   ProjectileBurst = function(g, ev)
     local b = ev.bullet
-    Audio.stopEmitter(b, 0.025)
+    Audio.stopEmitter(b, Cue.projectileBurst.fade)
     local style = Rites.projectiles.styles[b.packet and b.packet.damageType]
       or Rites.projectiles.default
-    FX.emit(g, style.impact, b.x, b.y, b.z, 0.65)
-    Audio.playAt(Profiles.projectile(g, b, 'impact'), b.x, b.z, Context.viewer(g), 0.23, 1, g.world)
+    FX.emit(g, style.impact, b.x, b.y, b.z, Cue.projectileBurst.size)
+    Audio.playAt(
+      Profiles.projectile(g, b, 'impact'),
+      b.x,
+      b.z,
+      Context.viewer(g),
+      Cue.projectileBurst.gain,
+      1,
+      g.world
+    )
   end,
   -- A reload stage sounds as the weapon's own voice for it where its bank
   -- names one (content/defs/weapon.lua: reload.voices, reload.sounds), else as
@@ -314,19 +370,19 @@ World.handlers = {
       local side = i == 1 and -1 or 1
       g.view.shells[#g.view.shells + 1] = {
         weapon = ev.weapon,
-        x = side * 7,
+        x = side * Cue.shells.x,
         y = 0,
-        vx = side * 83,
-        vy = -135 + (i - 1) * 17,
-        life = 1.2,
-        angle = i * 0.3,
+        vx = side * Cue.shells.vx,
+        vy = Cue.shells.vy + (i - 1) * Cue.shells.vyStep,
+        life = Cue.shells.life,
+        angle = i * Cue.shells.turn,
         bounced = false,
       }
     end
   end,
   PickupTaken = function(g, ev)
     g:notify(ev.text, 1)
-    Audio.play('pickup', 0.4)
+    Audio.play('pickup', Cue.pickup)
   end,
 }
 function World.restored(g)

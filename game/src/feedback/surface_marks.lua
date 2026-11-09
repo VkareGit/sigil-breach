@@ -2,7 +2,8 @@
 local Tiles = require('src.core.tiles')
 local MathX = require('src.core.mathx')
 local Collision = require('src.physics.collision')
-local S = { limit = 96, duration = 36, fade = 6, path = 'assets/art/impact-scars-v17.png' }
+local Scars = require('src.content.scars')
+local S = { limit = Scars.limit, duration = Scars.duration, fade = Scars.fade, path = Scars.path }
 local abs, min, max, sqrt = math.abs, math.min, math.max, math.sqrt
 local clamp = MathX.clamp
 local function cell(w, x, z)
@@ -18,25 +19,25 @@ function S.mount(world, c)
   end
   local x, y, z = c.x, c.y, c.z
   local surface = 'wall'
-  if abs(ny) > 0.7 then
+  if abs(ny) > Scars.flat then
     nx, nz = 0, 0
     ny = ny > 0 and 1 or -1
     if c.kind == 'floor' then
-      y = 0.004
+      y = Scars.proud
       surface = 'floor'
     elseif c.kind == 'ceiling' then
-      y = y - 0.004
+      y = y - Scars.proud
       surface = 'ceiling'
     else
       -- A cap is a wall's or a pillar's (an unknown cell reads as wall).
       local cx, cz = math.floor(x + 0.5), math.floor(z + 0.5)
-      y = Collision.top(cell(world, x, z) or Tiles.wall, world, cx, cz) + 0.004
+      y = Collision.top(cell(world, x, z) or Tiles.wall, world, cx, cz) + Scars.proud
       surface = 'cap'
     end
   else
     -- Pillars have octagonal shafts AND exposed square decorative panels.
     -- Mount onto the visible panel, not inside the ideal ballistic cylinder.
-    local cx, cz = math.floor(x - nx * 0.12 + 0.5), math.floor(z - nz * 0.12 + 0.5)
+    local cx, cz = math.floor(x - nx * Scars.probe + 0.5), math.floor(z - nz * Scars.probe + 0.5)
     if not cell(world, cx, cz) or Tiles.walkable[cell(world, cx, cz)] then
       return
     end
@@ -60,13 +61,14 @@ function S.mount(world, c)
       mural = mural or (ox >= wall[1] and ox <= wall[3] and oz >= wall[2] and oz <= wall[4])
     end
     local tangent = nx ~= 0 and z - oz or x - ox
-    local offset = 0.014
-    if (ox + oz) % 3 == 0 and not mural then
-      if abs(tangent) < 0.46 and y >= 0.55 and y <= 3.35 then
-        offset = 0.0692
+    local offset = Scars.wall
+    local niche, fillet = Scars.niche, Scars.fillet
+    if (ox + oz) % niche.every == 0 and not mural then
+      if abs(tangent) < niche.half and y >= niche.low and y <= niche.high then
+        offset = niche.offset
       end
-      if abs(tangent) < 0.0175 and y >= 0.7 and y <= 2.95 then
-        offset = 0.0865
+      if abs(tangent) < fillet.half and y >= fillet.low and y <= fillet.high then
+        offset = fillet.offset
       end
     end
     x, z = x + nx * offset, z + nz * offset
@@ -75,9 +77,9 @@ function S.mount(world, c)
   -- plane along the actual shot, so an oblique scar remains under the aim ray.
   local dx, dy, dz = c.dx or 0, c.dy or 0, c.dz or 0
   local approach = dx * nx + dy * ny + dz * nz
-  if approach < -0.04 then
+  if approach < Scars.grazing then
     local shift = ((x - c.x) * nx + (y - c.y) * ny + (z - c.z) * nz) / approach
-    if math.abs(shift) > 0.75 then
+    if math.abs(shift) > Scars.detached then
       return
     end -- no detached scrape at extreme grazing angles
     x, y, z = c.x + dx * shift, c.y + dy * shift, c.z + dz * shift
@@ -96,7 +98,8 @@ function S.emit(g, c, response)
   if not x then
     return
   end
-  local size = clamp(0.060 + sqrt(response.normalEnergy) * 0.012, 0.065, 0.23)
+  local Z = Scars.size
+  local size = clamp(Z.base + sqrt(response.normalEnergy) * Z.gain, Z.low, Z.high)
   local list = g.view.surfaceMarks or {}
   g.view.surfaceMarks = list
   g.view.surfaceMarkPool = g.view.surfaceMarkPool or {}
@@ -104,10 +107,10 @@ function S.emit(g, c, response)
   for i = #list, 1, -1 do
     local d = list[i]
     if
-      d.nx * nx + d.ny * ny + d.nz * nz > 0.99
-      and (d.x - x) ^ 2 + (d.y - y) ^ 2 + (d.z - z) ^ 2 < (min(d.size, size) * 0.24) ^ 2
+      d.nx * nx + d.ny * ny + d.nz * nz > Scars.coplanar
+      and (d.x - x) ^ 2 + (d.y - y) ^ 2 + (d.z - z) ^ 2 < (min(d.size, size) * Scars.overlap) ^ 2
     then
-      d.size = min(0.25, max(d.size, size) * 1.035)
+      d.size = min(Scars.deepest, max(d.size, size) * Scars.deepen)
       d.age = 0
       return d
     end
@@ -118,15 +121,15 @@ function S.emit(g, c, response)
   d.x, d.y, d.z, d.nx, d.ny, d.nz = x, y, z, nx, ny, nz
   d.size, d.age, d.surface, d.material = size, 0, surface, response.material
   d.kind = c.kind
-  d.frame = (response.material == 'stone' and 3 or 1) + (math.floor(c.seed or 0) % 2)
-  d.rotation = ((c.seed or 0) * 2.39996323) % (2 * math.pi)
-  d.stretch = 1 + clamp(1 - response.incidence, 0, 1) * 0.65
+  d.frame = (response.material == 'stone' and Scars.stoneFrame or 1) + (math.floor(c.seed or 0) % 2)
+  d.rotation = ((c.seed or 0) * Scars.turn) % (2 * math.pi)
+  d.stretch = 1 + clamp(1 - response.incidence, 0, 1) * Scars.stretch
   d.energy = response.energy
   list[#list + 1] = d
   return d
 end
 function S.alpha(d)
-  return clamp((S.duration - d.age) / S.fade, 0, 1) * 0.91
+  return clamp((S.duration - d.age) / S.fade, 0, 1) * Scars.opacity
 end
 function S.update(g, dt)
   local list = g.view.surfaceMarks or {}

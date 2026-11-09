@@ -1,7 +1,7 @@
 -- A planted step is a distance event, shared by the carried weapon and audio.
 -- Each half-cycle plants one foot: pi / 2.5 = 1.257 m. Keeping the remainder
 -- prevents sound/hand drift when render frames have unequal durations.
-local G = { radiansPerMetre = 2.5 }
+local G = { radiansPerMetre = require('src.content.feedback_look').gait.radiansPerMetre }
 G.stepDistance = math.pi / G.radiansPerMetre
 function G.init(g)
   g.view.gaitPhase = 0

@@ -189,7 +189,7 @@ function Tests.run()
     #outside == 0
   )
   -- Its voices and its audio profile live in its package too (PLAN F4); the
-  -- shared banks of audio/banks hold no creature's own voices.
+  -- shared banks of content/sounds hold no creature's own voices.
   local unvoiced = {}
   for _, id in ipairs(A.creatures) do
     for _, part in ipairs({ 'audio', 'voices' }) do

@@ -13,16 +13,23 @@ end
 -- one holds none. Counted: decimals and integers of two or more digits in
 -- code, not in comments or strings; 0.5 and exponents (epsilons) are free.
 -- Feedback is held to it too (PLAN E5): how the game feels is tuned in content.
+-- Since PLAN G7 every layer but content is: drawing, interface, sound, the
+-- foundation and storage start from their recorded counts and only go down.
 local simulation = {
   'app',
+  'audio',
   'combat',
+  'core',
   'enemies',
   'feedback',
   'physics',
   'player',
+  'render',
   'run',
   'session',
+  'storage',
   'systems',
+  'ui',
   'world',
 }
 local function governed(relative)
@@ -98,6 +105,9 @@ local function unknownGlobals(chunk)
   return found
 end
 local function unnamedNumbers(text)
+  -- A line that says why its number is a constant of an algorithm or a format
+  -- (-- constant: why) is not tuning (PLAN G7: the named exceptions).
+  text = text:gsub('[^\n]*%-%-%s*constant:[^\n]*', '')
   text = text:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%[(=*)%[.-%]%1%]', "''")
   text = text:gsub('"[^"\n]*"', "''"):gsub("'[^'\n]*'", "''"):gsub('%-%-[^\n]*', '')
   -- A whole number as a table key ([10] = a migration, a slot) is an index,
@@ -957,7 +967,7 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     -- Registries use literal IDs as well as direct require calls.
     local named = {}
     for literal in text:gmatch('[\'"]([%w_%.]+)[\'"]') do
-      -- A package prefix ('src.audio.banks.' .. name) loads every module
+      -- A package prefix ('src.content.sounds.' .. name) loads every module
       -- directly in that package: each one is a dependency.
       if literal:sub(-1) == '.' then
         local members = {}

@@ -1,4 +1,6 @@
 local Release = require('src.app.release')
+local AppLook = require('src.content.app_look')
+local Rate = require('src.core.rate')
 local Soundscape = require('src.audio.soundscape')
 local Way = require('src.content.pilgrimage')
 local Text = require('src.content.text')
@@ -340,10 +342,12 @@ function Application:finishStartup()
     local game = self.game
     game:start()
     love.mouse.setRelativeMode(false)
-    Context.actor(game).x, Context.actor(game).z, Context.actor(game).pitch = 16, 25.5, 0.04
+    local still = AppLook.screenshot
+    Context.actor(game).x, Context.actor(game).z, Context.actor(game).pitch =
+      still.x, still.z, still.pitch
     game.view.messageTimer = 0
     local first = Pools.of(game, 'enemies')[1]
-    first.z, first.awake = 21.6, false
+    first.z, first.awake = still.enemyZ, false
   end
 end
 
@@ -383,7 +387,8 @@ function Application:update(dt)
     return
   end
   local input = self.input:sample(self.game)
-  self.accumulator = math.min(0.20, self.accumulator + FieldTools.time(self, dt))
+  self.accumulator =
+    math.min(Tuning.clocks.longestFrame, self.accumulator + FieldTools.time(self, dt))
   while self.accumulator >= fixedStep do
     -- Only the last tick's starting pose can be interpolated for this draw.
     -- Earlier captures were immediately replaced without being presented.
@@ -402,7 +407,7 @@ function Application:update(dt)
     self.preparedWorld = self.game.world
     self:prepareWorld(self.game)
   end
-  if self:has('--screenshot') and self.game.time > 0.1 then
+  if self:has('--screenshot') and self.game.time > AppLook.screenshot.wait then
     self.game.state = 'paused'
   end
 end
@@ -427,7 +432,7 @@ function Application:draw()
   if not game then
     return
   end
-  local shown = RenderPresentation.sample(game, self.accumulator * 120)
+  local shown = RenderPresentation.sample(game, self.accumulator * Rate.hertz)
   self.renderer:draw(shown, w, h)
   if self:has('--screenshot') then
     local previous = game.state
@@ -440,7 +445,11 @@ function Application:draw()
   -- Commit only a view that was actually submitted for display. This plain
   -- geometry belongs to the input adapter, never to mutable gameplay/view.
   self.input:present(game, shown)
-  if self:has('--screenshot') and not self.screenshotCaptured and game.time > 0.1 then
+  if
+    self:has('--screenshot')
+    and not self.screenshotCaptured
+    and game.time > AppLook.screenshot.wait
+  then
     self.screenshotCaptured = true
     love.graphics.captureScreenshot(function(data)
       local file = io.open(self.qa.output .. '/gameplay.png', 'wb')
@@ -502,16 +511,17 @@ function Application:errorhandler(message)
       end
     end
     love.graphics.reset()
-    love.graphics.clear(0.04, 0.05, 0.06)
-    love.graphics.setColor(1, 0.7, 0.5)
+    local crash = AppLook.crash
+    love.graphics.clear(crash.ground[1], crash.ground[2], crash.ground[3])
+    love.graphics.setColor(crash.ink[1], crash.ink[2], crash.ink[3])
     love.graphics.printf(
       'SIGIL: BREACH — prototype error\n\n' .. err,
-      30,
-      30,
-      love.graphics.getWidth() - 60
+      crash.margin,
+      crash.margin,
+      love.graphics.getWidth() - 2 * crash.margin
     )
     love.graphics.present()
-    love.timer.sleep(0.1)
+    love.timer.sleep(crash.wait)
   end
 end
 

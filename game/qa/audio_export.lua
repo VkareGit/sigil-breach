@@ -1,10 +1,10 @@
 -- --audio-export: the game's sound outside play, as 16-bit WAV files for a
 -- listen or a trailer's edit. <qa output>/music: each layer of the score (one
--- loop) and each mood's mix (two loops, the gains of audio/score.lua);
+-- loop) and each mood's mix (two loops, the gains of content/score.lua);
 -- <qa output>/sounds: every sound effect (audio/recipes.lua) as it plays.
 -- report.txt in each: render time and every file's levels.
 local Output = require('qa.output')
-local Score = require('src.audio.score')
+local Score = require('src.content.score')
 local Soundscape = require('src.audio.soundscape')
 local VoiceData = require('src.audio.voice_data')
 local Recipes = require('src.audio.recipes')

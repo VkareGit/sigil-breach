@@ -3,24 +3,24 @@ local Settings = require('src.content.settings')
 local Sets = require('src.content.sound_sets')
 local P = {}
 local defaults = {
-  sensitivity = 1,
+  sensitivity = Settings.sensitivity.default,
   muted = false,
   motion = true,
-  fov = 100,
+  fov = Settings.fov.default,
   -- Four levels (0.45, owner D17): master, effects (guns, steps, demons, warnings, menus),
   -- music and the ambience of the rooms.
   master = 1,
   effects = 1,
-  music = 0.65,
-  ambience = 0.65,
+  music = Settings.music,
+  ambience = Settings.ambience,
   hints = true,
   slot = 1,
   renderScale = Settings.renderScale.default,
   soundSet = Sets.default,
 }
 local bounds = {
-  sensitivity = { 0.2, 3 },
-  fov = { 85, 115 },
+  sensitivity = { Settings.sensitivity.low, Settings.sensitivity.high },
+  fov = { Settings.fov.low, Settings.fov.high },
   master = { 0, 1 },
   effects = { 0, 1 },
   music = { 0, 1 },

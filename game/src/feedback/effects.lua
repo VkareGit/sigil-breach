@@ -1,5 +1,6 @@
 local SurfaceMarkFeedback = require('src.feedback.surface_marks')
-local E = { limits = { effects = 48, decals = 40, smoke = 8 } }
+local Look = require('src.content.feedback_look').effects
+local E = { limits = Look.limits }
 local EffectArt = require('src.content.effect_art')
 function E.emit(g, kind, x, y, z, size, options)
   g.view.effects = g.view.effects or {}
@@ -25,7 +26,7 @@ function E.emit(g, kind, x, y, z, size, options)
   g.view.effectPool = g.view.effectPool or {}
   local pool = g.view.effectPool
   local e = recycle or table.remove(pool) or {}
-  e.kind, e.x, e.y, e.z, e.size, e.age, e.duration = kind, x, y, z, size or 0.65, 0, life
+  e.kind, e.x, e.y, e.z, e.size, e.age, e.duration = kind, x, y, z, size or Look.size, 0, life
   -- Reused impact records must not tint or propel the next muzzle-smoke puff.
   e.tint = options and options.tint or nil
   e.material = options and options.material or nil
@@ -46,7 +47,8 @@ function E.stain(g, x, z, size, kind)
   local d = (#g.view.decals >= E.limits.decals and table.remove(g.view.decals, 1))
     or table.remove(g.view.decalPool)
     or {}
-  d.x, d.z, d.size, d.kind, d.age, d.rotation = x, z, size, kind, 0, (x * 13 + z * 17) % 6.28
+  d.x, d.z, d.size, d.kind, d.age, d.rotation =
+    x, z, size, kind, 0, (x * Look.decalTurnX + z * Look.decalTurnZ) % Look.turn
   g.view.decals[#g.view.decals + 1] = d
   return d
 end
@@ -78,7 +80,7 @@ function E.update(g, dt)
   for i = 1, count do
     local d = g.view.decals[i]
     d.age = d.age + dt
-    if d.age < 24 then
+    if d.age < Look.decalLife then
       g.view.decals[write] = d
       write = write + 1
     elseif #g.view.decalPool < E.limits.decals then

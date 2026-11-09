@@ -2,6 +2,7 @@
 -- phase): run after the step (or at once outside a step). Nothing here may
 -- change the simulation; the golden master would catch it.
 local Impulses = require('src.feedback.impulses')
+local FeedbackLook = require('src.content.feedback_look')
 local Archetypes = require('src.content.enemies')
 local Audio = require('src.audio.audio')
 local FX = require('src.feedback.effects')
@@ -38,8 +39,16 @@ local function blow(g, e)
   local strength = math.min(1, e.impact / Feel.sprayImpact)
   local color = Rules.body(target).blood
   -- Fewer, darker clots: the hit reads on the body, not as a cloud of sparks.
-  g:burst(point[1], point[2], point[3], color, math.ceil(3 + strength * 5), 0.7 + strength * 1.6)
-  FX.emit(g, 'blood', point[1], point[2], point[3], 0.28 + strength * 0.48)
+  local H = FeedbackLook.hits
+  g:burst(
+    point[1],
+    point[2],
+    point[3],
+    color,
+    math.ceil(H.clots + strength * H.clotsGain),
+    H.speed + strength * H.speedGain
+  )
+  FX.emit(g, 'blood', point[1], point[2], point[3], H.blood + strength * H.bloodGain)
 end
 local function bodyHit(g, e)
   local enemy = e.enemy
@@ -59,29 +68,47 @@ local function bodyHit(g, e)
     trail.hp, trail.maxHp = enemy.hp, enemy.maxHp or enemy.hp + e.health
   end
   if e.source ~= 'weapon' then
-    g:burst(enemy.x, Feel.bloodHeight, enemy.z, Rules.body(enemy).blood, 4, 1.0)
+    g:burst(
+      enemy.x,
+      Feel.bloodHeight,
+      enemy.z,
+      Rules.body(enemy).blood,
+      FeedbackLook.hits.otherSpecks,
+      FeedbackLook.hits.otherSpeed
+    )
   end
 end
 local function enemyKilled(g, e)
   local enemy = e.enemy
   -- Retire the living voice before attaching the final performance to the same body.
-  Audio.stopEmitter(enemy, 0.025)
+  local K = FeedbackLook.kills
+  Audio.stopEmitter(enemy, K.fade)
   local death = Rules.archetype(enemy).sounds.death
   if death then
-    Audio.playAt(death, enemy.x, enemy.z, Context.viewer(g), 0.65, 2, g.world, nil, enemy)
+    Audio.playAt(
+      death,
+      enemy.x,
+      enemy.z,
+      Context.viewer(g),
+      K.voice,
+      K.priority,
+      g.world,
+      nil,
+      enemy
+    )
   end
   local personal = Recipient.chain(g, e.owner)
   if personal and e.offBalance then
     personal.view.breakKill = Feel.breakKillFlash
     Impulses.react(personal.view, 'breakKill')
     if (e.healed or 0) > 0 then
-      Audio.play('seal', 0.22)
+      Audio.play('seal', K.healed)
     end
   end
   FX.stain(g, enemy.x, enemy.z, Archetypes.look(enemy).deathStain, enemy.kind)
   if not personal then
     -- A world death leaves its stain regardless of who owns the blow.
-    Audio.play('kill', 0.65)
+    Audio.play('kill', K.worldKill)
     return
   end
   g = personal
@@ -102,7 +129,8 @@ local function enemyKilled(g, e)
     g.view.soulsGain, g.view.soulsGainTimer = running + e.souls, Feel.soulsGain
   else
     g.view.feedback, g.view.feedbackTimer =
-      Text.get('feedback_destroyed', { reward = e.reward or 0 }), 1.8
+      Text.get('feedback_destroyed', { reward = e.reward or 0 }),
+      FeedbackLook.kills.destroyedCaption
   end
   if e.offBalance then
     local healed = e.healed or 0
@@ -130,7 +158,8 @@ end
 local function perfectDodge(g)
   g.view.perfectDodge = Feel.perfectDodgeFlash
   g.view.surge = math.max(g.view.surge, Feel.perfectDodgeSurge)
-  g.view.feedback, g.view.feedbackTimer = Text.get('feedback_perfect_dodge'), 1.2
+  g.view.feedback, g.view.feedbackTimer =
+    Text.get('feedback_perfect_dodge'), FeedbackLook.kills.perfectDodgeCaption
   MovementMarks.afterimage(g)
   Audio.play('afterimage', Feel.perfectDodgeSound)
 end

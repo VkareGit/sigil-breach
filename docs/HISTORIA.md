@@ -75,6 +75,27 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G7a, magiczne liczby: zapadka wszędzie, symulacja i odczucie na zero,
+  2026-11-09: zapadka liczb nienazwanych obejmuje teraz każdą warstwę poza
+  treścią (doszły `render`, `ui`, `audio`, `core`, `storage`); żadna liczba nie
+  może przybyć, granice zaciśnięte do stanu faktycznego. Nazwany wyjątek reguły:
+  linia z komentarzem `-- constant: <powód>` to stała algorytmu albo formatu,
+  nie strojenie (xorshift32, Adler-32, długość SHA-256, krok symulacji, złoty
+  podział, kolejność słuchaczy, geometria kafli w `physics`, limity zapisu);
+  klucz liczbowy tabeli to indeks. `feedback/` na zero: liczby odczucia
+  w treści (`content/impact_response.lua`, `scenery_look`, `world_voices`,
+  `death_look`, `scars`, `feedback_look`). Symulacja, `app`, `core`, `storage`
+  na zero: pozy stworów (`content/pose_motion.lua`), obrażenia i ciała
+  (`combat_defaults`), ustawienia (`content/settings.lua`), zegary klatki
+  i zamiany broni (`tuning.clocks`), sceny aplikacji (`content/app_look.lua`),
+  start rycerza (`content/knight.lua`); kody bajtów parsera nazwane znakami
+  (`('"'):byte()`). Dźwięk: receptury efektów i wspólne banki (trafienia,
+  medale, rytuały) przeszły do `content/sounds/` (plik zwraca bank albo
+  funkcję syntezatora, więc treść nie zależy od `audio/`), zapis muzyki do
+  `content/score.lua`; `audio/recipes.lua` tylko zbiera. Zostaje: `ui` 1696,
+  `render` 1364, `audio` 170 (z 4815 na 3230). Wartości bez zmian: golden,
+  maski, rendery i eksport dźwięku identyczne.
+
 - G4a, jeden świat podzielony na obszary, 2026-11-09 (decyzja właściciela 8):
   obszar drogi może zadeklarować granice na swojej mapie (`bounds`, lista
   prostokątów); obszar bez granic to reszta mapy (jak dziś kaplica).
@@ -4819,6 +4840,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G7a, magiczne liczby, 2026-11-09: checker 0 zgłoszeń przy zaciśniętej
+  zapadce; golden, `animation` 211, `shot-observation` 20, `geometry` 365,
+  `weight` 911, `death-feedback` 26, `serialization` 37, `core` 60, `feel` 186
+  bez zmian. Rendery pokazu: 788 obrazów identycznych z G4a (sumy SHA-256), eksport dźwięku identyczny. Pełne Linux All PASS w osobnym
+  klonie: 9246 sprawdzeń, golden 10 PASS. Windows niesprawdzony.
 
 - G4a, jeden świat podzielony na obszary, 2026-11-09: nowe sprawdzenie
   w `extension`, czerwone przed zmianą: obszar próbny wykrojony z mapy kaplicy

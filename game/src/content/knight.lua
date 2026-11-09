@@ -3,6 +3,8 @@
 -- A character (content/defs/character.lua); the Body schema completes it.
 return {
   id = 'knight',
+  -- Where a fresh knight record stands until a mode places him (m).
+  start = { x = 16, z = 27.5 },
   body = {
     hp = 100,
     -- The ward: a consumable pool the hero starts with.

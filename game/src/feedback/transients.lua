@@ -2,6 +2,7 @@
 -- Keep pre-combat (shells/trails) and post-combat (particles) timing separate:
 -- effects emitted during a shot must age exactly as they did before extraction.
 local Audio = require('src.audio.audio')
+local FeedbackLook = require('src.content.feedback_look')
 local Trails = require('src.feedback.shot_trails')
 local Presentation = require('src.session.presentation')
 local Context = require('src.session.context')
@@ -20,7 +21,7 @@ local function random(g)
 end
 Transients.random = random
 -- At most this many particles live; a new one retires the oldest.
-Transients.limit = 240
+Transients.limit = FeedbackLook.transients.limit
 
 -- One particle: a fleck at (x, y, z) m flying (vx, vy, vz) m/s for life s.
 function Transients.add(g, x, y, z, vx, vy, vz, life, color, size)
@@ -35,7 +36,7 @@ end
 function Transients.burst(g, x, y, z, color, count, force)
   for _ = 1, count do
     local angle = random(g) * math.pi * 2
-    local speed = random(g) * (force or 2)
+    local speed = random(g) * (force or FeedbackLook.transients.force)
     g.view.particles[#g.view.particles + 1] = {
       x = x,
       y = y,
@@ -43,9 +44,9 @@ function Transients.burst(g, x, y, z, color, count, force)
       vx = math.sin(angle) * speed,
       vy = random(g) * 2,
       vz = math.cos(angle) * speed,
-      life = 0.4 + random(g) * 0.5,
+      life = FeedbackLook.transients.life + random(g) * FeedbackLook.transients.lifeSpread,
       color = color,
-      size = 0.4 + random(g) * 0.6,
+      size = FeedbackLook.transients.size + random(g) * FeedbackLook.transients.sizeSpread,
     }
   end
   while #g.view.particles > Transients.limit do
@@ -63,20 +64,21 @@ local function personalBeforeCombat(g, dt)
     shell.life = shell.life - dt
     shell.x = shell.x + shell.vx * dt
     shell.y = shell.y + shell.vy * dt
-    shell.vy = shell.vy + 520 * dt
-    shell.angle = shell.angle + dt * (shell.bounced and 3 or 8)
-    if shell.y >= 90 and shell.vy > 0 then
-      shell.y = 90
+    local C = FeedbackLook.shells
+    shell.vy = shell.vy + C.gravity * dt
+    shell.angle = shell.angle + dt * (shell.bounced and C.bouncedSpin or C.spin)
+    if shell.y >= C.floor and shell.vy > 0 then
+      shell.y = C.floor
       if not shell.bounced then
         shell.bounced = true
-        shell.vy = -shell.vy * 0.24
-        shell.vx = shell.vx * 0.65
+        shell.vy = -shell.vy * C.bounce
+        shell.vx = shell.vx * C.slide
         if Context.isControlled(g, Context.actor(g)) then
-          Audio.play('shell', 0.12)
+          Audio.play('shell', C.sound)
         end
       else
         shell.vy = 0
-        shell.vx = shell.vx * math.exp(-dt * 12)
+        shell.vx = shell.vx * math.exp(-dt * C.friction)
       end
     end
     if shell.life <= 0 then
@@ -92,7 +94,7 @@ function Transients.beforeCombat(g, dt)
     for i = #numbers, 1, -1 do
       local number = numbers[i]
       number.age = number.age + dt
-      if number.age >= 0.7 then
+      if number.age >= FeedbackLook.damageNumbers.life then
         table.remove(numbers, i)
       end
     end

@@ -12,7 +12,7 @@ if
   and love.filesystem.getInfo('build-fingerprint.txt', 'file')
 then
   fingerprint = assert(love.filesystem.read('build-fingerprint.txt')):match('^%x+')
-  assert(fingerprint and #fingerprint == 64, 'invalid packaged source fingerprint')
+  assert(fingerprint and #fingerprint == 64, 'invalid packaged source fingerprint') -- constant: SHA-256 hex
   origin = 'packaged-source-tree'
 end
 return { version = '0.45', sourceFingerprint = fingerprint, provenance = origin }

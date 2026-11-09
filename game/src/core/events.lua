@@ -40,7 +40,7 @@ function Bus:on(phase, kind, fn, priority)
   local list = self.handlers[phase][kind] or {}
   self.handlers[phase][kind] = list
   self.serial = self.serial + 1
-  list[#list + 1] = { priority = priority or 50, serial = self.serial, fn = fn }
+  list[#list + 1] = { priority = priority or 50, serial = self.serial, fn = fn } -- constant: the middle priority
   table.sort(list, function(a, b)
     if a.priority ~= b.priority then
       return a.priority < b.priority

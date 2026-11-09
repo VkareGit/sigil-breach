@@ -253,12 +253,17 @@ handlers.render_scale = function(app)
 end
 
 local function sensitivity(app, id)
-  app.settings.sensitivity =
-    math.max(0.2, math.min(3, app.settings.sensitivity + (id == 'sens_up' and 0.1 or -0.1)))
+  local S = Settings.sensitivity
+  app.settings.sensitivity = math.max(
+    S.low,
+    math.min(S.high, app.settings.sensitivity + (id == 'sens_up' and S.step or -S.step))
+  )
 end
 handlers.sens_down, handlers.sens_up = sensitivity, sensitivity
 local function fov(app, id)
-  app.settings.fov = math.max(85, math.min(115, app.settings.fov + (id == 'fov_up' and 5 or -5)))
+  local F = Settings.fov
+  app.settings.fov =
+    math.max(F.low, math.min(F.high, app.settings.fov + (id == 'fov_up' and F.step or -F.step)))
   app.game.view.fov = app.settings.fov
 end
 handlers.fov_down, handlers.fov_up = fov, fov

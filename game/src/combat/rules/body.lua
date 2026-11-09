@@ -138,7 +138,7 @@ return function(R)
     return Arena.visible(world, o.x, o.z, x or t.x, z or t.z, R.eye(g, o), target)
   end
   function R.radius(e)
-    return R.body(e).radius or 0.25
+    return R.body(e).radius or Archetypes.defaults.bodyRadius
   end
   -- Stability against losing balance: heavier bodies stagger and lie down
   -- shorter. A body may state its own (bosses keep their feet longer).

@@ -197,9 +197,10 @@ Dźwięk i muzyka:
   Sources, przypisanie zdarzeń, Continue, granice miksu i wszystkie warianty.
   PASS techniczny nie zastępuje odsłuchu. Pochodzenie i licencje nagrań:
   assets/sounds/<rodzina>/provenance.json; dowody i próbki poza repozytorium.
-  Efekty to przepisy w audio/recipes.lua (długość, głos; wspólne narzędzia
-  audio/synth.lua); każdy dźwięk ma własne ziarno szumu, nowy nie zmienia
-  innych. Muzyka to dane w audio/score.lua (chorał, warstwy, nastroje),
+  Efekty to przepisy w content/sounds/ (efekty, trafienia, medale, rytuały;
+  plik zwraca bank albo funkcję syntezatora audio/synth.lua) i głosy
+  w pakietach stworów; audio/recipes.lua je zbiera (PLAN G7). Każdy dźwięk ma własne ziarno szumu, nowy nie zmienia
+  innych. Muzyka to dane w content/score.lua (chorał, warstwy, nastroje),
   renderowane przy starcie przez audio/soundscape.lua (~0,4 s). Nowa warstwa
   = wpis z kind (drone, chant, pulse, knell); nowy nastrój = wpis w moods.
   Strzał broni: fire.sound w content/weapons.lua; etapy przeładowania:

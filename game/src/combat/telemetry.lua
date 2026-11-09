@@ -6,9 +6,10 @@
 --     the fight; near 0 = the demons are never interrupted.
 --   time to kill: seconds from a demon's arrival to its death.
 local Pools = require('src.session.world')
+local Archetypes = require('src.content.enemies')
 local T = {}
 local NONE = {}
-local percent = 100
+local percent = 100 -- constant: a percent
 local function fresh()
   return {
     enemyTime = 0,
@@ -113,7 +114,7 @@ end
 function T.tick(g, dt)
   local t = T.get(g)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
-    if e.hp > 0 and not e.dummy and (e.spawnAge or 1) >= 0.6 then
+    if e.hp > 0 and not e.dummy and (e.spawnAge or 1) >= Archetypes.defaults.spawnPause then
       t.enemyTime = t.enemyTime + dt
       local record = bodyRecord(g, e)
       if e.awake then

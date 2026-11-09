@@ -16,7 +16,7 @@ local function part(g, a, b, dt, S)
   -- Footprints first: heights are compared only for bodies that touch.
   if b.hp > 0 and d < minimum and Rules.bodiesOverlap(g, a, b) then
     local overlap = minimum - d
-    if d < 0.001 then
+    if d < 1e-3 then
       dx, dz, d = 1, 0, 1
     end
     -- The parting is shared by the masses (0.25): the lighter body
