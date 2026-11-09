@@ -6,20 +6,29 @@ local Palette = require('src.ui.palette')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
 A.entries = require('src.content.occult_catalog').entries
+local ArchiveLook = require('src.content.ui_look').archive
+local FrameSize = require('src.content.ui_layout')
 function A.controls(g)
   local buttons = {}
   for i, entry in ipairs(A.entries) do
     buttons[#buttons + 1] = {
       id = 'archive_' .. i,
       label = Text.get(entry.name),
-      x = 126,
-      y = 177 + (i - 1) * 58,
-      w = 340,
-      h = 48,
+      x = ArchiveLook.entry.x,
+      y = ArchiveLook.entry.y + (i - 1) * ArchiveLook.entry.step,
+      w = ArchiveLook.entry.w,
+      h = ArchiveLook.entry.h,
     }
   end
-  buttons[#buttons + 1] =
-    { id = 'field_open', label = Text.get('archive_back'), x = 445, y = 612, w = 390, h = 44 }
+  local back = ArchiveLook.back
+  buttons[#buttons + 1] = {
+    id = 'field_open',
+    label = Text.get('archive_back'),
+    x = back.x,
+    y = back.y,
+    w = back.w,
+    h = back.h,
+  }
   return buttons
 end
 function A.draw(g, U)
@@ -27,29 +36,34 @@ function A.draw(g, U)
   local C = Skin.colors
   local index = math.max(1, math.min(#A.entries, Queries.field(g).archiveSelection or 1))
   local entry = A.entries[index]
-  love.graphics.setColor(0, 0, 0, 0.90)
-  love.graphics.rectangle('fill', 0, 0, 1280, 720)
-  Skin.panel(80, 45, 1120, 630, 6, 20)
-  local function label(t, x, y, w, h, size, col, center)
+  local L = ArchiveLook
+  love.graphics.setColor(0, 0, 0, L.veil)
+  love.graphics.rectangle('fill', 0, 0, FrameSize.width, FrameSize.height)
+  Skin.panel(L.page[1], L.page[2], L.page[3], L.page[4], 6, L.page.corner)
+  local function label(t, box, col, center)
+    local x, y, w, h = box[1], box[2], box[3], box[4]
     Skin.zone('archive inscription', x, y, w, h)
-    Skin.boxText(t, x, y, w, h, U.fonts[size], col or C.ivory, center)
+    Skin.boxText(t, x, y, w, h, U.fonts[box.font], col or C.ivory, center)
     Skin.endZone()
   end
-  label(Text.get('archive_title'), 160, 92, 960, 36, 28, C.gold, true)
-  label(Text.get('archive_subtitle'), 160, 138, 960, 25, 16, C.ivory, true)
-  label(Text.get(entry.name), 518, 184, 610, 28, 20, C.gold, true)
+  label(Text.get('archive_title'), L.title, C.gold, true)
+  label(Text.get('archive_subtitle'), L.subtitle, C.ivory, true)
+  label(Text.get(entry.name), L.name, C.gold, true)
   local x, y, w, h
   if OccultPlates.entries[entry.id] then
-    x, y, w, h = OccultPlates.draw(entry.id, 668, 226, 310, 280, Palette.sepia)
+    local P = L.plate
+    x, y, w, h = OccultPlates.draw(entry.id, P[1], P[2], P[3], P[4], Palette.sepia)
   else
-    GoeticSigils.draw(entry.id, 683, 226, 280, Palette.sepia, 1)
-    x, y, w, h = 683, 226, 280, 280
+    local S = L.seal
+    GoeticSigils.draw(entry.id, S[1], S[2], S[3], Palette.sepia, 1)
+    x, y, w, h = S[1], S[2], S[3], S[3]
   end
-  Skin.zone('historical figure', 620, 218, 400, 294)
+  local F = L.figure
+  Skin.zone('historical figure', F[1], F[2], F[3], F[4])
   Skin.imageBounds('archive ' .. entry.id, x, y, w, h)
   Skin.endZone()
-  label(Text.get(entry.source), 505, 522, 638, 24, 16, C.ivory, true)
-  label(Text.get(entry.detail), 505, 551, 638, 23, 16, C.muted, true)
-  label(Text.get('archive_hint'), 126, 578, 1026, 24, 16, C.muted, true)
+  label(Text.get(entry.source), L.source, C.ivory, true)
+  label(Text.get(entry.detail), L.detail, C.muted, true)
+  label(Text.get('archive_hint'), L.hint, C.muted, true)
 end
 return A

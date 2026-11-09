@@ -2,6 +2,7 @@
 -- The registry of paintings (names): an inscription whose name has no
 -- painting in the atlas is written in glyphs instead (ui/skin.lua:
 -- inscription; its words: content/text.lua, inscription_<name>).
+local TitleInk = require('src.content.ui_look').titleInk
 local Ink = require('src.ui.ink')
 local Resources = require('src.render.resources')
 local T = {
@@ -53,7 +54,7 @@ function T.draw(name, x, y, maxW, maxH, alpha, lightGround)
   x = math.floor(x + (maxW - w) * 0.5 + 0.5)
   y = math.floor(y + (maxH - h) * 0.5 + 0.5)
   local r, g, b, a = love.graphics.getColor()
-  love.graphics.setColor(0.89, 0.84, 0.73, alpha or 1)
+  love.graphics.setColor(TitleInk[1], TitleInk[2], TitleInk[3], alpha or 1)
   local previous = love.graphics.getShader()
   love.graphics.setShader(Ink.ink(lightGround))
   love.graphics.draw(T.image, e.q, x, y, 0, s, s)

@@ -165,4 +165,23 @@ Score.states = {
 Score.danger = { full = 3, rise = 1.6, fall = 0.5 }
 -- How fast a layer's gain follows its mood (per second, rising / falling).
 Score.follow = { rise = 0.9, fall = 0.4 }
+-- How the score is performed (audio/soundscape.lua): the music's level
+-- before the settings are read; how fast it ducks under a warning (and to
+-- what) and follows a scene; a singer's breath (how long the dip lasts, how
+-- deep, the slow sway, and the steps that place each singer's breaths); a
+-- drone's vibrato share; a chant line's swell (base and rise); the organ
+-- under a chant and under a knell (attack, release); the heartbeat's level;
+-- the knell organ's detuned double (cents).
+Score.performance = {
+  music = 0.65,
+  duck = 0.48,
+  duckRates = { rise = 2.5, fall = 18 },
+  sceneRates = { rise = 0.8, fall = 1.5 },
+  breath = { dip = 0.45, deep = 0.8, sway = 0.12, singerStep = 2.3, noteStep = 1.1 },
+  droneVibrato = 0.6,
+  swell = { base = 0.82, rise = 0.18 },
+  chantOrgan = { attack = 0.05, release = 0.18 },
+  knellOrgan = { attack = 0.12, release = 0.4, detune = 3 },
+  pulse = 0.75,
+}
 return Score

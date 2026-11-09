@@ -924,9 +924,9 @@ function Tests.run(G, renderer)
   local signatures = {}
   for i, name in ipairs({ 'saturn_1', 'saturn_2', 'saturn_3' }) do
     local entry = Plates.entries[name]
-    local x0, y0, w, h = entry.q:getViewport()
+    local x0, y0, w, h = Plates.quads[name]:getViewport()
     local ref = regions[i]
-    local sample = stats(source, rectOf(entry.q, source))
+    local sample = stats(source, rectOf(Plates.quads[name], source))
     intact = intact
       and entry.figure == 10 + i
       and x0 >= ref[1]

@@ -6,6 +6,7 @@
 -- Buttons come from a chain of providers, first answer wins (Chain of
 -- Responsibility): the proving ground's archive and catalogue, the
 -- chapel's own screens, the help and map overlays, then the screen.
+local UiLook = require('src.content.ui_look')
 local Chapel = require('src.ui.chapel')
 local Hud = require('src.ui.hud')
 local OccultArchive = require('src.ui.occult_archive')
@@ -73,43 +74,55 @@ local function pageControls(g, s)
   local function rowY(i)
     return Settings.pause.rowY + (i - 1) * Settings.pause.rowStep
   end
+  local P = Settings.pause
+  local R, S, L, T, W = P.resume, P.stepper, P.level, P.toggle, P.wide
+  local function step(id, x, y, size)
+    return {
+      id = id,
+      label = Text.get(id:match('_down$') and 'page_minus' or 'page_plus'),
+      x = x,
+      y = y,
+      w = size.w,
+      h = size.h,
+    }
+  end
   return {
     {
       id = 'resume',
       label = Text.get(settings and 'page_back_menu' or 'page_back_combat'),
-      x = 380,
-      y = 164,
-      w = 520,
-      h = 46,
+      x = R.x,
+      y = R.y,
+      w = R.w,
+      h = R.h,
     },
-    { id = 'sens_down', label = Text.get('page_minus'), x = 784, y = rowY(1), w = 48, h = 34 },
-    { id = 'sens_up', label = Text.get('page_plus'), x = 852, y = rowY(1), w = 48, h = 34 },
-    { id = 'fov_down', label = Text.get('page_minus'), x = 784, y = rowY(2), w = 48, h = 34 },
-    { id = 'fov_up', label = Text.get('page_plus'), x = 852, y = rowY(2), w = 48, h = 34 },
+    step('sens_down', S.minus, rowY(1), S),
+    step('sens_up', S.plus, rowY(1), S),
+    step('fov_down', S.minus, rowY(2), S),
+    step('fov_up', S.plus, rowY(2), S),
     -- The four sound levels, two to a row (0.45, owner D17).
-    { id = 'master_down', label = Text.get('page_minus'), x = 530, y = rowY(3), w = 40, h = 34 },
-    { id = 'master_up', label = Text.get('page_plus'), x = 576, y = rowY(3), w = 40, h = 34 },
-    { id = 'effects_down', label = Text.get('page_minus'), x = 814, y = rowY(3), w = 40, h = 34 },
-    { id = 'effects_up', label = Text.get('page_plus'), x = 860, y = rowY(3), w = 40, h = 34 },
-    { id = 'music_down', label = Text.get('page_minus'), x = 530, y = rowY(4), w = 40, h = 34 },
-    { id = 'music_up', label = Text.get('page_plus'), x = 576, y = rowY(4), w = 40, h = 34 },
-    { id = 'ambience_down', label = Text.get('page_minus'), x = 814, y = rowY(4), w = 40, h = 34 },
-    { id = 'ambience_up', label = Text.get('page_plus'), x = 860, y = rowY(4), w = 40, h = 34 },
+    step('master_down', L.left[1], rowY(3), L),
+    step('master_up', L.left[2], rowY(3), L),
+    step('effects_down', L.right[1], rowY(3), L),
+    step('effects_up', L.right[2], rowY(3), L),
+    step('music_down', L.left[1], rowY(4), L),
+    step('music_up', L.left[2], rowY(4), L),
+    step('ambience_down', L.right[1], rowY(4), L),
+    step('ambience_up', L.right[2], rowY(4), L),
     {
       id = 'motion',
       label = Text.get(s.motion == false and 'page_motion_off' or 'page_motion_on'),
-      x = 670,
-      y = rowY(5) - 2,
-      w = 230,
-      h = 42,
+      x = T.x,
+      y = rowY(5) - T.raise,
+      w = T.w,
+      h = T.h,
     },
     {
       id = 'hints',
       label = Text.get(s.hints == false and 'page_off' or 'page_on'),
-      x = 670,
-      y = rowY(6) - 2,
-      w = 230,
-      h = 42,
+      x = T.x,
+      y = rowY(6) - T.raise,
+      w = T.w,
+      h = T.h,
     },
     {
       id = 'render_scale',
@@ -124,34 +137,34 @@ local function pageControls(g, s)
     {
       id = 'help',
       label = Text.get('page_help'),
-      x = 380,
-      y = Settings.pause.helpY,
-      w = 252,
-      h = 42,
+      x = W.left,
+      y = P.helpY,
+      w = W.w,
+      h = W.h,
     },
     {
       id = 'mute',
       label = Text.get(s.muted and 'page_unmute' or 'page_mute'),
-      x = 648,
-      y = Settings.pause.helpY,
-      w = 252,
-      h = 42,
+      x = W.right,
+      y = P.helpY,
+      w = W.w,
+      h = W.h,
     },
     {
       id = settings and 'fullscreen' or 'restart',
       label = Text.get(settings and 'page_fullscreen' or 'page_restart'),
-      x = 380,
-      y = Settings.pause.footerY,
-      w = 252,
-      h = 42,
+      x = W.left,
+      y = P.footerY,
+      w = W.w,
+      h = W.h,
     },
     {
       id = Queries.field(g) and 'field_leave' or (settings and 'quit' or 'menu'),
       label = Text.get(g.view.fieldReturnLabel or (settings and 'quit_game' or 'return_menu')),
-      x = 648,
-      y = Settings.pause.footerY,
-      w = 252,
-      h = 42,
+      x = W.right,
+      y = P.footerY,
+      w = W.w,
+      h = W.h,
     },
   }
 end
@@ -177,7 +190,8 @@ Views.providers = {
   end,
   function(g)
     if g.map then
-      return { { id = 'map', label = Text.get('map_back'), x = 810, y = 610, w = 290, h = 42 } }
+      local B = UiLook.mapBack
+      return { { id = 'map', label = Text.get('map_back'), x = B.x, y = B.y, w = B.w, h = B.h } }
     end
   end,
   function(g, s)

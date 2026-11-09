@@ -1,4 +1,5 @@
 -- One audible beat per caster/material; independent rites never silence one another.
+local Mix = require('src.content.audio_mix')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local Profiles = require('src.audio.creature_profiles')
@@ -35,7 +36,7 @@ function V.reset()
 end
 local function stop(audio, entry)
   if entry.source then
-    audio.stopVoice(entry.source, entry.ticket, 0.035)
+    audio.stopVoice(entry.source, entry.ticket, Mix.field.fade)
   end
   entry.source, entry.ticket = nil, nil
 end
@@ -44,7 +45,15 @@ local function finish(audio, g, entry, cancelled)
     stop(audio, entry)
   end
   if not cancelled and entry.profile and entry.profile.finish and entry.started then
-    audio.playAt(entry.profile.finish, entry.x, entry.z, Context.viewer(g), 0.22, 0, g.world)
+    audio.playAt(
+      entry.profile.finish,
+      entry.x,
+      entry.z,
+      Context.viewer(g),
+      Mix.field.finish,
+      0,
+      g.world
+    )
   end
   entry.ended = true
 end
@@ -65,7 +74,7 @@ local function stateOf(audio, g)
 end
 local function activate(audio, g, state, hazard)
   local profile, listener = Profiles.field(g, hazard), Context.viewer(g)
-  local entry = { profile = profile, present = true, retry = 0.25 }
+  local entry = { profile = profile, present = true, retry = Mix.field.retry }
   point(hazard, listener, entry)
   state.fields[hazard] = entry
   local voice = (profile and profile.sustain and profile.active)
@@ -81,13 +90,22 @@ local function activate(audio, g, state, hazard)
     .. tostring(voice)
   entry.grouped = voice and state.beats[key] ~= nil
   if voice and not state.beats[key] then
-    entry.source, entry.ticket =
-      audio.playAt(voice, entry.x, entry.z, listener, 0.4, 2, g.world, nil, entry)
+    entry.source, entry.ticket = audio.playAt(
+      voice,
+      entry.x,
+      entry.z,
+      listener,
+      Mix.field.volume,
+      Mix.field.rank,
+      g.world,
+      nil,
+      entry
+    )
     entry.started = true
     if entry.source and profile and profile.sustain and audio.loopVoice then
       audio.loopVoice(entry.source, entry.ticket)
     end
-    state.beats[key] = 0.09
+    state.beats[key] = Mix.field.beat
   end
   return entry
 end
@@ -131,14 +149,14 @@ function V.update(audio, g, dt)
         then
           entry.retry = (entry.retry or 0) - dt
           if entry.retry <= 0 then
-            entry.retry = 0.25
+            entry.retry = Mix.field.retry
             entry.source, entry.ticket = audio.playAt(
               entry.profile.active,
               entry.x,
               entry.z,
               listener,
-              0.4,
-              2,
+              Mix.field.volume,
+              Mix.field.rank,
               g.world,
               nil,
               entry
@@ -184,8 +202,8 @@ function V.restored(audio, g)
           entry.x,
           entry.z,
           Context.viewer(g),
-          0.4,
-          2,
+          Mix.field.volume,
+          Mix.field.rank,
           g.world,
           nil,
           entry

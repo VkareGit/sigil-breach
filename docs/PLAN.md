@@ -352,6 +352,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
   SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
   `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
+- 2026-11-09, **G7 krok d zrobiony:** cały `audio/` na zero, dźwięk bajt
+  w bajt ten sam; `ui` poza HUD na zero. Zostaje HUD (357, tylko z dowodem
+  identycznego obrazu).
 - 2026-11-09, **G7 krok c zrobiony:** cały `render/` na zero. Zostaje `ui`
   1696 (HUD tylko z dowodem identycznego obrazu) i `audio` 170.
 - 2026-11-09, **G7 krok b zrobiony:** `render/kit`, siatka świata

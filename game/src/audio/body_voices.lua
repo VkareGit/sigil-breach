@@ -1,4 +1,5 @@
 -- Creature presence belongs to presentation, never to a save or simulation RNG.
+local Mix = require('src.content.audio_mix')
 local Context = require('src.session.context')
 local Bodies = require('src.combat.bodies')
 local Archetypes = require('src.content.enemies')
@@ -8,7 +9,7 @@ local V = {}
 local sessions = setmetatable({}, { __mode = 'k' })
 local function stop(audio, entry)
   if entry.source then
-    audio.stopVoice(entry.source, entry.ticket, 0.02)
+    audio.stopVoice(entry.source, entry.ticket, Mix.body.fade)
   end
   entry.source, entry.ticket, entry.role = nil, nil, nil
 end
@@ -33,7 +34,11 @@ end
 local function entryOf(state, e)
   local entry = state.bodies[e]
   if not entry then
-    entry = { remaining = 0.8 + ((e.id or 0) % 7) / 7 * AudioPresence.stagger, alternate = false }
+    local B = Mix.body
+    entry = {
+      remaining = B.wait + ((e.id or 0) % B.spread) / B.spread * AudioPresence.stagger,
+      alternate = false,
+    }
     state.bodies[e] = entry
   end
   return entry

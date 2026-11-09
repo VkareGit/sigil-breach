@@ -4,11 +4,12 @@ local Release = require('src.app.release')
 local PaintedTitles = require('src.ui.fonts.painted_titles')
 local Ink = require('src.ui.ink')
 local Reliquary = require('src.ui.reliquary')
+local SkinLook = require('src.content.ui_look').skin
 local S = {
   -- The interface palette (ui/palette.lua).
   colors = require('src.ui.palette'),
   -- The painted interface atlas the frames and icons are cut from.
-  path = 'assets/art/ui-fresco-v12.png',
+  path = SkinLook.path,
 }
 local lg = love.graphics
 local Resources = require('src.render.resources')
@@ -44,7 +45,7 @@ function S.init()
   local w, h = data:getDimensions()
   S.resources = Resources.new('UI skin')
   S.image = S.resources:image(S.path, nil, data)
-  S.weaponCards = S.resources:image('assets/art/weapon-cards-v45.png')
+  S.weaponCards = S.resources:image(SkinLook.cards)
   S.weaponCardQuads = {}
   local cw, ch = S.weaponCards:getDimensions()
   local cell = cw / CARD_CELLS
@@ -55,19 +56,21 @@ function S.init()
   S.frames = {}
   S.icons = {}
   S.bounds = {}
-  for index = 0, 15 do
+  local side, rowCuts, bandCuts = SkinLook.side, SkinLook.rowCuts, SkinLook.bands
+  for index = 0, 15 do -- constant: a sheet of four by four cells
     local col, row = index % 4, math.floor(index / 4)
-    local cuts = row == 2 and { 0, 292 / 1254, 628 / 1254, 940 / 1254, 1 }
-      or { 0, 0.25, 0.5, 0.75, 1 }
+    local cuts = row == 2 and { 0, rowCuts[1] / side, rowCuts[2] / side, rowCuts[3] / side, 1 }
+      or { 0, 1 / 4, 2 / 4, 3 / 4, 1 }
     local left, right = math.floor(cuts[col + 1] * w), math.floor(cuts[col + 2] * w) - 1
     -- Authored rows have unequal gutters. These bands exclude the next row's icon tips.
-    local bands = { 0, 278 / 1254, 620 / 1254, (col == 3 and 926 or 899) / 1254, 1 }
+    local third = col == 3 and SkinLook.lastBand or bandCuts[3]
+    local bands = { 0, bandCuts[1] / side, bandCuts[2] / side, third / side, 1 }
     local top, bottom = math.floor(bands[row + 1] * h), math.floor(bands[row + 2] * h) - 1
     local x1, y1, x2, y2 = right, bottom, left, top
     for y = top, bottom do
       for x = left, right do
         local _, _, _, a = data:getPixel(x, y)
-        if a > 0.55 then
+        if a > SkinLook.painted then
           x1 = math.min(x1, x)
           y1 = math.min(y1, y)
           x2 = math.max(x2, x)
@@ -79,7 +82,7 @@ function S.init()
     local bw, bh = x2 - x1 + 1, y2 - y1 + 1
     S.bounds[index + 1] = { x = x1, y = y1, w = bw, h = bh }
     if index < 4 then
-      local cut = math.floor(math.min(bw, bh) * 0.23)
+      local cut = math.floor(math.min(bw, bh) * SkinLook.corner)
       local frame = {}
       local xs = { x1, x1 + cut, x2 + 1 - cut }
       local ys = { y1, y1 + cut, y2 + 1 - cut }
@@ -338,7 +341,7 @@ function S.inscription(name, x, y, w, h)
   local painted = paintings == true or (paintings and paintings[name])
   if not (painted and PaintedTitles.has(name)) then
     local font
-    for _, size in ipairs({ 48, 36, 28, 24, 20, 18, 16, 14 }) do
+    for _, size in ipairs(SkinLook.inscriptionSizes) do
       font = S.fallbackFonts and S.fallbackFonts[size]
       if font then
         local ink = measuredInk(font, Text.get('inscription_' .. name))
@@ -397,25 +400,27 @@ function S.icon(name, x, y, size, alpha)
   lg.setColor(1, 1, 1)
 end
 function S.meter(x, y, w, value, color, segments)
-  record('meter', 'meter', x - 1, y - 1, w + 2, 8)
+  local M = SkinLook.meter
+  record('meter', 'meter', x - 1, y - 1, w + 2, M.height)
   -- Pigment tally marks in the fresco margin. The empty portion is bare umber-
   -- washed plaster; no polished/enamel bevel competing with the painted frame.
-  segments = segments or 16
+  segments = segments or M.segments
   value = math.max(0, math.min(1, value))
-  lg.setColor(0.26, 0.17, 0.11, 1)
-  lg.rectangle('fill', x - 1, y - 1, w + 2, 8)
+  lg.setColor(M.plaster[1], M.plaster[2], M.plaster[3], 1)
+  lg.rectangle('fill', x - 1, y - 1, w + 2, M.height)
   for i = 1, segments do
     local left = math.floor(x + (i - 1) * w / segments)
     local right = math.floor(x + i * w / segments) - 2
     local fill = math.max(0, math.min(1, value * segments - i + 1))
-    lg.setColor(0.57, 0.48, 0.35, 1)
-    lg.rectangle('fill', left, y, right - left, 6)
+    lg.setColor(M.empty[1], M.empty[2], M.empty[3], 1)
+    lg.rectangle('fill', left, y, right - left, M.mark)
     if fill > 0 then
       local fw = math.max(1, math.floor((right - left) * fill))
-      lg.setColor(color[1] * 0.88, color[2] * 0.84, color[3] * 0.80, 1)
-      lg.rectangle('fill', left, y, fw, 6)
-      lg.setColor(color[1] * 0.70, color[2] * 0.65, color[3] * 0.60, 1)
-      lg.rectangle('fill', left, y + 5, fw, 1)
+      local f, d = M.fill, M.foot
+      lg.setColor(color[1] * f[1], color[2] * f[2], color[3] * f[3], 1)
+      lg.rectangle('fill', left, y, fw, M.mark)
+      lg.setColor(color[1] * d[1], color[2] * d[2], color[3] * d[3], 1)
+      lg.rectangle('fill', left, y + M.mark - 1, fw, 1)
     end
   end
 end

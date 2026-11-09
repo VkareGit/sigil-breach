@@ -8,10 +8,12 @@ local Score = require('src.content.score')
 local Queries = require('src.session.queries')
 local Scene = require('src.audio.scene')
 local scene = {}
-local S = { intensity = 0, music = 0.65, layers = {}, gains = {}, sources = {} }
+local PLAY = Score.performance
+local S = { intensity = 0, music = PLAY.music, layers = {}, gains = {}, sources = {} }
 local floor = math.floor
-local duckRates = { rise = 2.5, fall = 18 }
-local sceneRates = { rise = 0.8, fall = 1.5 }
+local duckRates = PLAY.duckRates
+local sceneRates = PLAY.sceneRates
+local CENTS = 1200 -- constant: the octave in cents
 S.sceneRates = sceneRates
 
 -- A note's frequency: 'Bb1', 'D3'...
@@ -89,8 +91,9 @@ local function breathing(loop, breaths, offset)
   return function(t)
     local d = (t - offset) % period
     d = math.min(d, period - d)
-    local dip = d < 0.45 and 0.5 + 0.5 * math.cos(math.pi * d / 0.45) or 0
-    return (1 - 0.8 * dip) * (1 + 0.12 * math.sin(2 * math.pi * t / loop + offset))
+    local B = PLAY.breath
+    local dip = d < B.dip and 0.5 + 0.5 * math.cos(math.pi * d / B.dip) or 0
+    return (1 - B.deep * dip) * (1 + B.sway * math.sin(2 * math.pi * t / loop + offset))
   end
 end
 
@@ -103,14 +106,18 @@ function kinds.drone(buffer, layer, loop)
     local wave = sung(base, layer.vowel)
     for k = 1, layer.singers do
       local cents = (k - (layer.singers + 1) / 2) * voice.spread
-      Synth.voice(buffer, rate, wave, 0, loop, periodic(base * 2 ^ (cents / 1200), loop), 1, {
+      Synth.voice(buffer, rate, wave, 0, loop, periodic(base * 2 ^ (cents / CENTS), loop), 1, {
         attack = 0,
         release = 0,
         steady = true,
-        vibrato = voice.vibrato * 0.6,
+        vibrato = voice.vibrato * PLAY.droneVibrato,
         vibratoRate = periodic(voice.vibratoRate + k * voice.vibratoStep, loop),
         breath = voice.breath,
-        swell = breathing(loop, layer.breaths, (k * 2.3 + n * 1.1) % (loop / layer.breaths)),
+        swell = breathing(
+          loop,
+          layer.breaths,
+          (k * PLAY.breath.singerStep + n * PLAY.breath.noteStep) % (loop / layer.breaths)
+        ),
         seed = Synth.seed(layer.id .. name .. k),
       })
     end
@@ -126,7 +133,7 @@ function kinds.chant(buffer, layer, _, notes)
     local wave = sung(freq, note.vowel)
     local start, length = note.start * unit, note.units * unit + voice.legato
     -- A line rises to its middle and settles on its final.
-    local gain = 0.82 + 0.18 * math.sin(math.pi * note.place)
+    local gain = PLAY.swell.base + PLAY.swell.rise * math.sin(math.pi * note.place)
     for k = 1, layer.singers do
       local cents = (k - (layer.singers + 1) / 2) * voice.spread
       Synth.voice(
@@ -135,7 +142,7 @@ function kinds.chant(buffer, layer, _, notes)
         wave,
         start + (k - 1) * voice.stagger,
         length,
-        freq * 2 ^ (cents / 1200),
+        freq * 2 ^ (cents / CENTS),
         gain,
         {
           attack = voice.attack,
@@ -157,8 +164,8 @@ function kinds.chant(buffer, layer, _, notes)
         note.freq * layer.organ.ratio,
         gain * layer.organ.gain,
         {
-          attack = 0.05,
-          release = 0.18,
+          attack = PLAY.chantOrgan.attack,
+          release = PLAY.chantOrgan.release,
           seed = Synth.seed(layer.id .. index .. 'organ'),
         }
       )
@@ -171,7 +178,7 @@ function kinds.pulse(buffer, layer, _, _, lines, units)
   local beat = Synth.heartbeat(layer.beat, rate, Synth.seed(layer.id .. 'beat'))
   local deep = Synth.heartbeat(layer.line, rate, Synth.seed(layer.id .. 'line'))
   for u = 0, units - 1 do
-    Synth.mix(buffer, rate, beat, u * unit, 0.75)
+    Synth.mix(buffer, rate, beat, u * unit, PLAY.pulse)
   end
   for _, line in ipairs(lines) do
     Synth.mix(buffer, rate, deep, line.start * unit, layer.line.gain)
@@ -189,16 +196,21 @@ function kinds.knell(buffer, layer, _, _, lines, units)
   for index, chord in ipairs(layer.chords) do
     local line = lines[index]
     for name in chord:gmatch('%S+') do
-      for rank, detune in ipairs({ 0, 3 }) do
+      local K = PLAY.knellOrgan
+      for rank, detune in ipairs({ 0, K.detune }) do
         Synth.voice(
           buffer,
           rate,
           organ(),
           line.start * unit,
           line.units * unit,
-          S.pitch(name) * 2 ^ (detune / 1200),
+          S.pitch(name) * 2 ^ (detune / CENTS),
           layer.organ / rank,
-          { attack = 0.12, release = 0.4, seed = Synth.seed(layer.id .. chord .. name .. rank) }
+          {
+            attack = K.attack,
+            release = K.release,
+            seed = Synth.seed(layer.id .. chord .. name .. rank),
+          }
         )
       end
     end
@@ -310,7 +322,7 @@ function S.update(audio, dt, g)
     target = scene.pressure
   end
   S.intensity = follow(S.intensity, target, dt, danger)
-  local duck = audio and (audio.warningHold or 0) > 0 and 0.48 or 1
+  local duck = audio and (audio.warningHold or 0) > 0 and PLAY.duck or 1
   S.duck = follow(S.duck or 1, duck, dt, duckRates)
   for _, layer in ipairs(Score.layers) do
     local id = layer.id

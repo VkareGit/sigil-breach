@@ -1,5 +1,6 @@
 -- The sound effects: each recipe (audio/recipes.lua) rendered once at start,
 -- then played from a pool of voices; the score is audio/soundscape.lua.
+local Mix = require('src.content.audio_mix')
 local Contracts = require('src.audio.contracts')
 local Soundscape = require('src.audio.soundscape')
 local WorldCues = require('src.audio.world_cues')
@@ -22,9 +23,9 @@ local A = {
   set = Sets.default,
   lastTake = {},
 }
-A.rate = 44100
+A.rate = 44100 -- constant: the sample rate of every recipe
 -- Its own stream: the take a cue plays never moves the rolls of the fight.
-local takeRolls = love and love.math and love.math.newRandomGenerator(43)
+local takeRolls = love and love.math and love.math.newRandomGenerator(Mix.takeSeed)
 local tickets, serial = setmetatable({}, { __mode = 'k' }), 0
 -- Every sound has its own seeded noise (Synth.seed of its name), so the order
 -- of rendering decides nothing and a new recipe changes no other sound.
@@ -153,7 +154,7 @@ local function recycle(s)
   A.voiceNames[s] = nil
   A.priorities[s] = nil
   tickets[s] = nil
-  if name and A.pooled < 28 then
+  if name and A.pooled < Mix.voices then
     A.pool[name] = A.pool[name] or {}
     local list = A.pool[name]
     list[#list + 1] = s
@@ -164,9 +165,9 @@ local function recycle(s)
 end
 -- The player's levels (0.45, owner D17): every voice belongs to effects unless it is the
 -- ambience of a room; the music is the soundscape's (Soundscape.music). Master scales all.
-A.levels = { master = 1, effects = 1, ambience = 0.65 }
+A.levels = { master = 1, effects = 1, ambience = Mix.ambience }
 function A.applyMaster()
-  love.audio.setVolume(A.muted and 0 or 0.7 * A.levels.master)
+  love.audio.setVolume(A.muted and 0 or Mix.master * A.levels.master)
 end
 function A.play(name, volume, priority, category)
   if A.muted or not A.sources[name] then
@@ -178,7 +179,7 @@ function A.play(name, volume, priority, category)
   if Sets.cues[name] and Sets.cues[name].baked then
     priority = math.max(priority, 4)
   end
-  if #A.live >= 28 then
+  if #A.live >= Mix.voices then
     local victim = 1
     for i = 2, #A.live do
       local candidate, current = A.live[i], A.live[victim]
@@ -198,14 +199,14 @@ function A.play(name, volume, priority, category)
     end
     local recorded = A.takes[A.set] and A.takes[A.set][name]
     local setGain = recorded and Sets.cues[name].gain or 1
-    local incoming = (volume or 0.65) * (recipe.gain or 1) * setGain
+    local incoming = (volume or Mix.volume) * (recipe.gain or 1) * setGain
     if recipe.gain then
       incoming = math.min(1, incoming)
     end
     incoming = incoming * A.levels[category or 'effects']
     if
       A.priorities[A.live[victim]] == priority
-      and AudioSpatial.loudness(A.live[victim]) > incoming * 1.05
+      and AudioSpatial.loudness(A.live[victim]) > incoming * Mix.steal
     then
       return
     end
@@ -224,9 +225,9 @@ function A.play(name, volume, priority, category)
   A.voiceNames[s] = key
   A.priorities[s] = priority
   if priority == 3 then
-    A.warningHold = 0.65
+    A.warningHold = Mix.warningHold
   end
-  local base = (volume or 0.65) * gain * (recipe.gain or 1)
+  local base = (volume or Mix.volume) * gain * (recipe.gain or 1)
   local level = base
   if recipe.gain then
     level = math.min(1, level)
@@ -270,7 +271,7 @@ function A.loopVoice(source, ticket, age)
     source:setLooping(true)
     if age then
       source:seek(age % source:getDuration())
-      AudioSpatial.rise(source, 0.04)
+      AudioSpatial.rise(source, Mix.rejoin)
     end
   end
 end
@@ -304,15 +305,15 @@ end
 function A.playAt(name, x, z, p, volume, priority, world, category, emitter)
   local dx, dz = x - p.x, z - p.z
   local d = math.sqrt(dx * dx + dz * dz)
-  if d > 32 then
+  if d > Mix.hearing then
     return
   end
   local recipe = Recipes[name]
-  local attenuation = 1 / (1 + d * (recipe and recipe.falloff or 0.13))
+  local attenuation = 1 / (1 + d * (recipe and recipe.falloff or Mix.falloff))
   if world and not Arena.visible(world, x, z, p.x, p.z) then
-    attenuation = attenuation * 0.38
+    attenuation = attenuation * Mix.obstructed
   end
-  local s, ticket = A.play(name, (volume or 0.6) * attenuation, priority, category)
+  local s, ticket = A.play(name, (volume or Mix.volumeAt) * attenuation, priority, category)
   if s then
     AudioSpatial.attach(s, x, z, p, world, emitter, attenuation)
   end

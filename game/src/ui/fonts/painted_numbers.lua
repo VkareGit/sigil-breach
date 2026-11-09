@@ -1,6 +1,7 @@
 -- Individually illustrated fresco numerals, assembled without a system font.
 local Ink = require('src.ui.ink')
 local N = { order = '0123456789%/' }
+local NumeralLook = require('src.content.ui_look').numerals
 local Resources = require('src.render.resources')
 function N.init(checkpoint)
   if N.image then
@@ -34,7 +35,7 @@ function N.measure(value, height)
   local width = 0
   for i = 1, #s do
     local g = assert(N.glyphs[s:sub(i, i)], 'Unsupported illustrated numeral: ' .. s)
-    width = width + g.w / g.h * height + (i > 1 and height * 0.065 or 0)
+    width = width + g.w / g.h * height + (i > 1 and height * NumeralLook.gap or 0)
   end
   return width
 end
@@ -57,7 +58,7 @@ function N.draw(value, cx, y, maxW, maxH, color, inkOnLime)
     local glyph = N.glyphs[s:sub(i, i)]
     local scale = height / glyph.h
     love.graphics.draw(N.image, glyph.q, px, y, 0, scale, scale)
-    px = px + glyph.w * scale + height * 0.065
+    px = px + glyph.w * scale + height * NumeralLook.gap
   end
   love.graphics.setShader(previous)
   love.graphics.setColor(r, g, b, a)

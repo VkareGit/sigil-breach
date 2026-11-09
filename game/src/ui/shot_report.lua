@@ -1,4 +1,5 @@
 -- Read-only summary of the actual combat report, displayed inside the test catalog.
+local ReportLook = require('src.content.ui_look').shotReport
 local R = {}
 local Skin = require('src.ui.skin')
 local Text = require('src.content.text')
@@ -13,7 +14,7 @@ function R.lines(report)
   local distance = Text.get('report_no_hit')
   if report.distanceMin then
     distance = amount(report.distanceMin)
-    if report.distanceMax and report.distanceMax - report.distanceMin >= 0.1 then
+    if report.distanceMax and report.distanceMax - report.distanceMin >= ReportLook.spread then
       distance = Text.get('report_range', { near = distance, far = amount(report.distanceMax) })
     end
     distance = Text.get('report_distance', { distance = distance })
@@ -38,9 +39,11 @@ function R.lines(report)
 end
 function R.draw(report, ui)
   local first, second = R.lines(report)
-  Skin.zone('last shot report', 86, 562, 1082, 44)
-  Skin.boxText(first, 86, 562, 1082, 20, ui.fonts[14], C.gold)
-  Skin.boxText(second, 86, 586, 1082, 20, ui.fonts[14], C.ivory)
+  local zone, a, b, font =
+    ReportLook.zone, ReportLook.first, ReportLook.second, ui.fonts[ReportLook.font]
+  Skin.zone('last shot report', zone[1], zone[2], zone[3], zone[4])
+  Skin.boxText(first, a[1], a[2], a[3], a[4], font, C.gold)
+  Skin.boxText(second, b[1], b[2], b[3], b[4], font, C.ivory)
   Skin.endZone()
 end
 return R

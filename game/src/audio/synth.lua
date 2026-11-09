@@ -2,32 +2,33 @@
 -- (audio/soundscape.lua): seeded noise, sung and piped wavetables, a bell's
 -- strike, a stone hall's reverb and the conversion to LÖVE sound data.
 -- Plain arrays of samples in, plain arrays out; nothing here plays a sound.
+local Tone = require('src.content.synth_tone')
 local Synth = {}
 local pi, sin, exp, floor, abs, sqrt = math.pi, math.sin, math.exp, math.floor, math.abs, math.sqrt
 local TAU = 2 * pi
 -- One period of a wavetable (samples); tables interpolate linearly.
-Synth.period = 2048
+Synth.period = Tone.period
 
 -- Soft saturation: loud sums bend instead of clipping.
 function Synth.clip(x)
-  return x / (1 + abs(x) * 0.55)
+  return x / (1 + abs(x) * Tone.bend)
 end
 
 -- A seed of a name's own, so adding a sound never changes another's noise.
 function Synth.seed(name)
   local h = 7
   for i = 1, #name do
-    h = (h * 31 + name:byte(i)) % 2147483647
+    h = (h * 31 + name:byte(i)) % 2147483647 -- constant: a string hash under 2^31
   end
   return h
 end
 
 -- Park-Miller noise in [-1, 1]: exact in doubles, cheap enough per sample.
 function Synth.noise(seed)
-  local x = seed % 2147483646 + 1
+  local x = seed % 2147483646 + 1 -- constant: Park-Miller's state
   return function()
-    x = x * 16807 % 2147483647
-    return x / 1073741823.5 - 1
+    x = x * 16807 % 2147483647 -- constant: Park-Miller's generator
+    return x / 1073741823.5 - 1 -- constant: half its modulus
   end
 end
 
@@ -39,7 +40,7 @@ function Synth.resonator(f, q, rate)
   local function tune(freq)
     local r = exp(-pi * freq / q / rate)
     a1, a2 = 2 * r * math.cos(TAU * freq / rate), -r * r
-    gain = (1 - r * r) * 0.5
+    gain = (1 - r * r) * Tone.resonatorGain
   end
   tune(f)
   return function(x)
@@ -66,8 +67,12 @@ function Synth.mail(t, onsets, amplitudes)
   for k = 1, #onsets do
     local s = t - onsets[k]
     if s > 0 then
-      local e = exp(-s * 55) * amplitudes[k]
-      sum = sum + (sin(TAU * 2350 * s) + 0.6 * sin(TAU * 3110 * s) + 0.4 * sin(TAU * 4170 * s)) * e
+      local M = Tone.mail
+      local f, g = M.partials, M.gains
+      local e = exp(-s * M.decay) * amplitudes[k]
+      sum = sum
+        + (g[1] * sin(TAU * f[1] * s) + g[2] * sin(TAU * f[2] * s) + g[3] * sin(TAU * f[3] * s))
+          * e
     end
   end
   return sum
@@ -81,7 +86,8 @@ function Synth.clicks(t, onsets, f, decay, amp)
     local s = t - onsets[k]
     if s > 0 then
       local a = type(amp) == 'table' and amp[k] or amp
-      sum = sum + (sin(TAU * f * s) + 0.5 * sin(TAU * f * 1.47 * s)) * exp(-s * decay) * a
+      local C = Tone.click
+      sum = sum + (sin(TAU * f * s) + C.share * sin(TAU * f * C.ratio * s)) * exp(-s * decay) * a
     end
   end
   return sum
@@ -103,7 +109,8 @@ function Synth.reflections(rate, taps)
     history[index] = x
     local out = x
     for k, tap in ipairs(taps) do
-      soft[k] = soft[k] * 0.55 + history[(index - delays[k]) % size] * 0.45
+      soft[k] = soft[k] * Tone.reflectionKeep
+        + history[(index - delays[k]) % size] * Tone.reflectionTake
       out = out + soft[k] * tap[2]
     end
     index = (index + 1) % size
@@ -116,16 +123,17 @@ end
 -- (low: a one-pole low-pass, slower: a slower one, high: noise minus low).
 function Synth.effect(duration, rate, seed, voice)
   local n = floor(duration * rate)
-  local data = love.sound.newSoundData(n, rate, 16, 1)
+  local data = love.sound.newSoundData(n, rate, 16, 1) -- constant: 16-bit mono
   local random = Synth.noise(seed)
   local low, slower = 0, 0
+  local E = Tone.effect
   for i = 0, n - 1 do
     local t = i / rate
     local noise = random()
-    low = low * 0.74 + noise * 0.26
-    slower = slower * 0.975 + noise * 0.025
+    low = low * E.lowKeep + noise * E.lowTake
+    slower = slower * E.slowKeep + noise * E.slowTake
     local sample = voice(t, t / duration, noise, low, slower, noise - low)
-    data:setSample(i, math.max(-0.98, math.min(0.98, sample)))
+    data:setSample(i, math.max(-E.clip, math.min(E.clip, sample)))
   end
   return data
 end
@@ -165,10 +173,10 @@ end
 function Synth.vowel(f0, formants, ceiling, seed)
   local amplitudes = {}
   for k = 1, math.max(1, floor(ceiling / f0)) do
-    local f, shape = k * f0, 0.015
+    local f, shape = k * f0, Tone.vowel.floor
     for _, formant in ipairs(formants) do
-      local width = formant[3] * 0.5
-      shape = shape + 10 ^ (formant[2] / 20) / (1 + ((f - formant[1]) / width) ^ 2)
+      local width = formant[3] * Tone.vowel.width
+      shape = shape + 10 ^ (formant[2] / 20) / (1 + ((f - formant[1]) / width) ^ 2) -- constant: decibels
     end
     amplitudes[k] = shape / k
   end
@@ -183,17 +191,18 @@ end
 -- (a gain over the note's own time), seed.
 function Synth.voice(buffer, rate, wave, start, length, freq, gain, o)
   o = o or {}
-  local attack, release = o.attack or 0.08, o.release or 0.2
-  local depth, vrate = o.vibrato or 0, o.vibratoRate or 5
+  local V = Tone.voice
+  local attack, release = o.attack or V.attack, o.release or V.release
+  local depth, vrate = o.vibrato or 0, o.vibratoRate or V.vibratoRate
   local breath, swell = o.breath or 0, o.swell
-  local random = Synth.noise(o.seed or 3)
+  local random = Synth.noise(o.seed or V.seed)
   local vphase = (random() + 1) * pi
   local n, step = Synth.period, Synth.period / rate
   local size = #buffer
   local first = floor(start * rate)
   local total = floor((length + release) * rate)
   local phase = (random() + 1) * 0.5 * n
-  local control = 32
+  local control = V.control
   local env, envNext, f, fNext
   local function at(time)
     local e = 0
@@ -207,7 +216,7 @@ function Synth.voice(buffer, rate, wave, start, length, freq, gain, o)
     if swell then
       e = e * swell(time)
     end
-    local ramp = o.steady and 1 or math.min(1, time / 0.35)
+    local ramp = o.steady and 1 or math.min(1, time / V.settle)
     return e, freq * (1 + depth * ramp * sin(TAU * vrate * time + vphase))
   end
   envNext, fNext = at(0)
@@ -223,7 +232,7 @@ function Synth.voice(buffer, rate, wave, start, length, freq, gain, o)
     local i = floor(phase)
     local s = wave[i] + (wave[i + 1] - wave[i]) * (phase - i)
     if breath > 0 then
-      air = air * 0.6 + random() * 0.4
+      air = air * V.breathKeep + random() * V.breathTake
       s = s * (1 + breath * air)
     end
     local index = (first + j) % size + 1
@@ -239,33 +248,23 @@ end
 -- A struck bell at prime Hz: the minor-third bell's partials (hum, prime,
 -- tierce, quint, nominal and upper), each beating slowly as real bells warble;
 -- seconds long at rate. Returns an array of samples.
-Synth.bellPartials = {
-  -- ratio to the prime, amplitude, decay /s
-  { 0.5, 0.42, 0.32 },
-  { 1.0, 0.46, 0.55 },
-  { 1.2, 0.50, 0.75 },
-  { 1.5, 0.22, 1.05 },
-  { 2.0, 0.58, 1.25 },
-  { 2.5, 0.20, 2.0 },
-  { 3.0, 0.16, 2.6 },
-  { 4.0, 0.10, 3.4 },
-  { 5.33, 0.07, 4.2 },
-}
+Synth.bellPartials = Tone.bell.partials
 function Synth.bell(prime, seconds, rate, seed)
-  local samples, random = {}, Synth.noise(seed or 5)
+  local B = Tone.bell
+  local samples, random = {}, Synth.noise(seed or B.seed)
   local n = floor(seconds * rate)
   -- The clapper's strike: a short knock of metal.
   for i = 1, n do
-    samples[i] = random() * 0.35 * exp(-(i - 1) / rate * 90)
+    samples[i] = random() * B.knock * exp(-(i - 1) / rate * B.knockDecay)
   end
   -- Each partial and its slow twin, as rotating oscillators (no sine per sample).
   for k, p in ipairs(Synth.bellPartials) do
     for twin = 0, 1 do
-      local f = prime * p[1] + twin * (0.4 + k * 0.07)
+      local f = prime * p[1] + twin * (B.twin + k * B.twinStep)
       local w = TAU * f / rate
       local cw, sw = math.cos(w), sin(w)
       local c, s = 1, 0
-      local a, fade = p[2] * (twin == 0 and 1 or 0.35), exp(-p[3] / rate)
+      local a, fade = p[2] * (twin == 0 and 1 or B.twinShare), exp(-p[3] / rate)
       for i = 1, n do
         samples[i] = samples[i] + a * s
         c, s = c * cw - s * sw, s * cw + c * sw
@@ -287,21 +286,26 @@ end
 -- o.pitch Hz, o.length s; low enough to be felt, saturated a little so small
 -- speakers hear its overtones.
 function Synth.heartbeat(o, rate, seed)
-  local samples, random = {}, Synth.noise(seed or 7)
+  local H = Tone.heartbeat
+  local samples, random = {}, Synth.noise(seed or H.seed)
   local n, low, dub, pitch = floor(o.length * rate), 0, o.dub, o.pitch
   local function beat(s, depth)
     if s < 0 then
       return 0
     end
-    local f = pitch + 20 * exp(-s * 18)
-    return (sin(TAU * f * s) + 0.45 * sin(TAU * 1.52 * f * s) * exp(-s * 6)) * exp(-s * depth)
+    local f = pitch + H.fall * exp(-s * H.fallSpeed)
+    return (
+      sin(TAU * f * s)
+      + H.overtone * sin(TAU * H.overtoneRatio * f * s) * exp(-s * H.overtoneDecay)
+    ) * exp(-s * depth)
   end
   for i = 1, n do
     local t = (i - 1) / rate
-    low = low * 0.9 + random() * 0.1
-    local skin = low * 1.6 * exp(-t * 60)
-      + low * 1.1 * exp(-math.max(0, t - dub) * 60) * (t > dub and 1 or 0)
-    samples[i] = Synth.clip(1.5 * (beat(t, 9) + 0.62 * beat(t - dub, 11)) + skin)
+    low = low * H.skinKeep + random() * H.skinTake
+    local skin = low * H.lub * exp(-t * H.skinDecay)
+      + low * H.dub * exp(-math.max(0, t - dub) * H.skinDecay) * (t > dub and 1 or 0)
+    samples[i] =
+      Synth.clip(H.gain * (beat(t, H.lubDecay) + H.dubShare * beat(t - dub, H.dubDecay)) + skin)
   end
   return samples
 end
@@ -324,12 +328,12 @@ end
 -- back nothing audible). o: time (RT60 s), mix (wet share), dry (the dry
 -- share, 1 - mix / 2 unless given), damp (0..1), size (scales the delay
 -- lines), predelay (s).
-local combs = { 0.0353, 0.0367, 0.0338, 0.0322 }
-local passes = { { 0.0126, 0.5 }, { 0.0051, 0.5 } }
+local HALL = Tone.hall
+local combs, passes = HALL.combs, HALL.passes
 function Synth.hall(buffer, rate, o)
   local n = #buffer
-  local tail = floor(math.min(n, (o.time + 0.5) * rate))
-  local size, damp = o.size or 1.6, o.damp or 0.3
+  local tail = floor(math.min(n, (o.time + HALL.tail) * rate))
+  local size, damp = o.size or HALL.size, o.damp or HALL.damp
   local lines = {}
   for k, d in ipairs(combs) do
     local length = floor(d * size * rate)
@@ -338,7 +342,7 @@ function Synth.hall(buffer, rate, o)
       length = length,
       index = 0,
       store = 0,
-      feedback = 10 ^ (-3 * length / rate / o.time),
+      feedback = 10 ^ (-3 * length / rate / o.time), -- constant: RT60, a fall of 60 dB
     }
     for i = 0, length - 1 do
       lines[k].data[i] = 0
@@ -352,7 +356,7 @@ function Synth.hall(buffer, rate, o)
       filters[k].data[i] = 0
     end
   end
-  local pre = math.max(1, floor((o.predelay or 0.03) * rate))
+  local pre = math.max(1, floor((o.predelay or HALL.predelay) * rate))
   local wet = {}
   for i = 1, n + tail do
     local source = i - pre
@@ -366,7 +370,7 @@ function Synth.hall(buffer, rate, o)
       line.index = (line.index + 1) % line.length
       out = out + y
     end
-    out = out * 0.25
+    out = out * HALL.combShare
     for k = 1, #filters do
       local filter = filters[k]
       local delayed = filter.data[filter.index]
@@ -400,8 +404,9 @@ function Synth.level(buffer, rms)
   for i = 1, #buffer do
     local x = buffer[i] * scale
     local m = abs(x)
-    if m > 0.6 then
-      x = (x > 0 and 1 or -1) * (0.6 + 0.38 * math.tanh((m - 0.6) / 0.38))
+    local L = Tone.level
+    if m > L.knee then
+      x = (x > 0 and 1 or -1) * (L.knee + L.headroom * math.tanh((m - L.knee) / L.headroom))
     end
     buffer[i] = x
   end
@@ -410,9 +415,9 @@ end
 
 -- LÖVE sound data from a buffer of samples in [-1, 1].
 function Synth.data(buffer, rate)
-  local data = love.sound.newSoundData(#buffer, rate, 16, 1)
+  local data = love.sound.newSoundData(#buffer, rate, 16, 1) -- constant: 16-bit mono
   for i = 1, #buffer do
-    data:setSample(i - 1, math.max(-0.99, math.min(0.99, buffer[i])))
+    data:setSample(i - 1, math.max(-Tone.ceiling, math.min(Tone.ceiling, buffer[i])))
   end
   return data
 end

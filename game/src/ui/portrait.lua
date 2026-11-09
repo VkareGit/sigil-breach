@@ -3,8 +3,8 @@ local Context = require('src.session.context')
 -- A mortal soldier behind a closed visor. Six authored changes of bearing
 -- retain the portrait's reactions without inventing supernatural eyes.
 -- The bust sits inside the painted arch, including the helmet's crown.
-local P =
-  { bounds = { x = 570, y = 602, w = 140, h = 105 }, path = 'assets/art/nosiciel-iron-v16.png' }
+local PortraitLook = require('src.content.hud_look').portrait
+local P = { bounds = PortraitLook.bounds, path = PortraitLook.path }
 local Resources = require('src.render.resources')
 function P.init(checkpoint)
   if P.image then
@@ -19,6 +19,7 @@ function P.init(checkpoint)
       love.graphics.newQuad(i % 3 * w / 3, math.floor(i / 3) * h / 2, w / 3, h / 2, w, h)
     )
   end
+  -- The shader's arch is drawn in the same frame pixels as the bounds.
   P.shader = P.resources:own(love.graphics.newShader([[
  extern vec4 frameRect;
  extern vec3 placement;
@@ -49,14 +50,14 @@ function P.frame(g)
   if Characters.low(Context.actor(g)) then
     return 5
   end
-  if g.view.hurt > 0.25 then
+  if g.view.hurt > PortraitLook.hurt then
     return 4
   end
-  if g.view.shotAge < 0.16 then
+  if g.view.shotAge < PortraitLook.shot then
     return 6
   end
-  local glance = math.floor(g.time * 0.65) % 7
-  return glance == 3 and 2 or (glance == 5 and 3 or 1)
+  local glance = math.floor(g.time * PortraitLook.glance) % 7
+  return glance == PortraitLook.right and 2 or (glance == PortraitLook.left and 3 or 1)
 end
 function P.draw(g, x, y, size)
   local q = P.quads[P.frame(g)]
@@ -64,9 +65,9 @@ function P.draw(g, x, y, size)
   local iw, ih = P.image:getDimensions()
   -- The old face filled the frame up to its hairline. A helmet needs space
   -- above its dome; keep its silhouette below the arch without shrinking HUD.
-  x = x + size * 0.045
-  y = y + size * 0.08
-  size = size * 0.91
+  x = x + size * PortraitLook.inset.x
+  y = y + size * PortraitLook.inset.y
+  size = size * PortraitLook.inset.size
   local previous = love.graphics.getShader()
   P.shader:send('frameRect', { qx / iw, qy / ih, w / iw, h / ih })
   P.shader:send('placement', { x, y, size })

@@ -17,6 +17,8 @@ local Weapons = require('src.content.weapons')
 local Palette = require('src.ui.palette')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
+local PilgrimScreens = require('src.content.screens.pilgrimage')
+local FrameSize = require('src.content.ui_layout')
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
 local gold = Skin.colors.gold
@@ -50,12 +52,18 @@ function D.shopPage(g)
   local offers = D.offers(g)
   for _, offer in ipairs(offers) do
     local name, description = Economy.describe(g, offer.id)
+    local R = PilgrimScreens.rows
     detailed = detailed
-      or U.fonts[20]:getInk(name).w > 648
-      or U.fonts[16]:getInk(description).w > 648
+      or U.fonts[R.nameFont]:getInk(name).w > R.width
+      or U.fonts[R.descFont]:getInk(description).w > R.width
   end
   local first, last, page, total = Pages.range(#offers, g.view.shopPage, detailed and 4 or 6)
-  return first, last, page, total, detailed and 80 or 56, detailed
+  return first,
+    last,
+    page,
+    total,
+    detailed and PilgrimScreens.rows.detailed or PilgrimScreens.rows.plain,
+    detailed
 end
 function D.turnShop(g, delta)
   local _, _, page, total = D.shopPage(g)
@@ -71,18 +79,36 @@ local function color(c, a)
   lg.setColor(c[1], c[2], c[3], a or 1)
 end
 local function text(t, x, y, size, c)
-  Skin.text(t, x, y, U.fonts[size or 18], c or ivory)
+  Skin.text(t, x, y, U.fonts[size or PilgrimScreens.font], c or ivory)
 end
 local function center(t, y, size, c)
-  local font = U.fonts[size or 18]
-  Skin.text(t, (1280 - font:getWidth(t)) / 2, y, font, c or ivory)
+  local font = U.fonts[size or PilgrimScreens.font]
+  Skin.text(t, (FrameSize.width - font:getWidth(t)) / 2, y, font, c or ivory)
+end
+-- A button on its box.
+local function button(id, label, box, extra)
+  local b = { id = id, label = label, x = box[1], y = box[2], w = box[3], h = box[4] }
+  for key, value in pairs(extra or {}) do
+    b[key] = value
+  end
+  return b
+end
+-- A text at its place ({ x, y, font }), or centred on its line ({ y, font }).
+local function at(t, place, c)
+  text(t, place[1], place[2], place.font, c)
+end
+local function centred(t, line, c)
+  center(t, line[1], line.font, c)
+end
+local function box(b)
+  return b[1], b[2], b[3], b[4]
 end
 local function rect(x, y, w, h, c, a)
   color(c, a)
   lg.rectangle('fill', x, y, w, h)
 end
 local function panel(x, y, w, h)
-  Skin.panel(x, y, w, h, 1, 14)
+  Skin.panel(x, y, w, h, 1, PilgrimScreens.panelCorner)
 end
 function D.controls(g)
   local r = Queries.run(g)
@@ -99,50 +125,39 @@ function D.controls(g)
     for i = first, last do
       local o = offers[i]
       local _, reason = Economy.quote(g, o.id)
+      local B = PilgrimScreens.buy
       list[#list + 1] = {
         id = 'buy_' .. o.id,
         label = Economy.label(g, o.id),
-        x = 881,
-        y = 189 + (i - first) * rowHeight,
-        w = 270,
-        h = 42,
+        x = B.x,
+        y = B.y + (i - first) * rowHeight,
+        w = B.w,
+        h = B.h,
         disabled = reason ~= nil,
       }
     end
     local field = Queries.field(g)
-    list[#list + 1] = {
-      id = 'ready',
-      label = Text.get(field and 'shop_ready_field' or 'shop_travel'),
-      x = 824,
-      y = 593,
-      w = 328,
-      h = 48,
-      -- Travel goes only to a fire already found (owner): none yet, no journey.
-      disabled = not field and not D.elsewhere(g),
-    }
-    list[#list + 1] = {
-      id = 'shop_back',
-      label = Text.get(Queries.field(g) and 'shop_back' or 'shop_leave'),
-      x = 128,
-      y = 593,
-      w = 310,
-      h = 48,
-    }
+    -- Travel goes only to a fire already found (owner): none yet, no journey.
+    list[#list + 1] = button(
+      'ready',
+      Text.get(field and 'shop_ready_field' or 'shop_travel'),
+      PilgrimScreens.travel,
+      { disabled = not field and not D.elsewhere(g) }
+    )
+    list[#list + 1] = button(
+      'shop_back',
+      Text.get(Queries.field(g) and 'shop_back' or 'shop_leave'),
+      PilgrimScreens.back
+    )
     if pages > 1 then
-      list[#list + 1] = {
-        id = 'shop_prev',
-        label = Text.get('previous_short', { page = page, pages = pages }),
-        x = 450,
-        y = 593,
-        w = 170,
-        h = 48,
-      }
-      list[#list + 1] =
-        { id = 'shop_next', label = Text.get('next_short'), x = 638, y = 593, w = 170, h = 48 }
+      local label = Text.get('previous_short', { page = page, pages = pages })
+      list[#list + 1] = button('shop_prev', label, PilgrimScreens.previous)
+      list[#list + 1] = button('shop_next', Text.get('next_short'), PilgrimScreens.next)
     end
     -- One button per weapon of the loadout across the shop's right half.
     local count = Weapons.count(g, Context.actor(g))
-    local step = count <= 2 and 262 or math.floor(524 / count)
+    local T = PilgrimScreens.weaponTab
+    local step = count <= 2 and T.pair or math.floor(T.span / count)
     for slot = 1, count do
       local mag, reserve = Weapons.meter(g, slot, Context.actor(g))
       list[#list + 1] = {
@@ -153,81 +168,44 @@ function D.controls(g)
           mag = mag,
           reserve = reserve,
         }),
-        x = 640 + (slot - 1) * step,
-        y = 137,
-        w = step - 12,
-        h = 40,
+        x = T.x + (slot - 1) * step,
+        y = T.y,
+        w = step - T.gap,
+        h = T.h,
         active = Weapons.slot(g, Context.actor(g)) == slot,
       }
     end
     return list
   elseif g.state == 'menu' then
     -- The way through the chapel, and the proving ground as a workshop beside it.
-    local list = {
-      {
-        id = 'start',
-        label = Text.get(r.saved and 'menu_continue' or 'menu_begin'),
-        x = 72,
-        y = 390,
-        w = 400,
-        h = 54,
-      },
-    }
+    local M = PilgrimScreens.menu
+    local list = { button('start', Text.get(r.saved and 'menu_continue' or 'menu_begin'), M.start) }
     if r.saved then
-      list[2] = { id = 'restart', label = Text.get('menu_new'), x = 72, y = 455, w = 194, h = 44 }
-      list[3] = {
-        id = 'field_start',
-        label = Text.get('menu_field_short'),
-        x = 270,
-        y = 455,
-        w = 194,
-        h = 44,
-      }
+      list[2] = button('restart', Text.get('menu_new'), M.restart)
+      list[3] = button('field_start', Text.get('menu_field_short'), M.fieldShort)
     else
-      list[2] =
-        { id = 'field_start', label = Text.get('menu_field'), x = 72, y = 455, w = 400, h = 44 }
+      list[2] = button('field_start', Text.get('menu_field'), M.field)
     end
-    list[#list + 1] =
-      { id = 'help', label = Text.get('menu_help'), x = 72, y = 514, w = 194, h = 44 }
-    list[#list + 1] =
-      { id = 'settings', label = Text.get('menu_settings'), x = 270, y = 514, w = 194, h = 44 }
-    list[#list + 1] =
-      { id = 'quit', label = Text.get('menu_quit'), x = 72, y = 573, w = 194, h = 40 }
-    list[#list + 1] = {
-      id = 'field_skirmish',
-      label = Text.get('menu_skirmish'),
-      x = 270,
-      y = 573,
-      w = 194,
-      h = 40,
-    }
+    list[#list + 1] = button('help', Text.get('menu_help'), M.help)
+    list[#list + 1] = button('settings', Text.get('menu_settings'), M.settings)
+    list[#list + 1] = button('quit', Text.get('menu_quit'), M.quit)
+    list[#list + 1] = button('field_skirmish', Text.get('menu_skirmish'), M.skirmish)
     if r.slot then
-      list[#list + 1] = {
-        id = 'save_slot',
-        label = Text.get('menu_slot', { slot = r.slot, count = Way.slots }),
-        x = 300,
-        y = 648,
-        w = 236,
-        h = 38,
-      }
+      local label = Text.get('menu_slot', { slot = r.slot, count = Way.slots })
+      list[#list + 1] = button('save_slot', label, M.slot)
     end
     return list
   elseif g.state == 'confirm_new' then
+    local C = PilgrimScreens.confirmButtons
     return {
-      { id = 'new_confirm', label = Text.get('confirm_new'), x = 440, y = 405, w = 400, h = 48 },
-      { id = 'new_cancel', label = Text.get('confirm_keep'), x = 440, y = 470, w = 400, h = 44 },
+      button('new_confirm', Text.get('confirm_new'), C.yes),
+      button('new_cancel', Text.get('confirm_keep'), C.keep),
     }
   elseif g.state == 'dead' then
+    local B = PilgrimScreens.deadButtons
     return {
-      {
-        id = 'retry',
-        label = Text.get('pilgrim_wake'),
-        x = 410,
-        y = 524,
-        w = 460,
-        h = 50,
-      },
-      { id = 'menu', label = Text.get('dead_menu'), x = 410, y = 591, w = 460, h = 42 },
+      button('retry', Text.get('pilgrim_wake'), B.retry),
+      button('menu', Text.get('dead_menu'), B.menu),
     }
   end
 end
@@ -244,18 +222,28 @@ function D.heading(g)
     place.shown, place.at = objective, g.elapsed
   end
   if g.state ~= 'playing' or g.map or g.elapsed - place.at < Clocks.placeFor then
-    Skin.panel(20, 16, 378, 64, 2, 9)
-    Skin.zone('objective field', 32, 26, 354, 44)
-    Skin.boxText(Text.get('menu_chapel'), 35, 27, 348, 20, U.fonts[14], gold)
-    local size = 16
-    if Skin.inkBounds(U.fonts[size], objective).w > 348 then
-      size = 14
+    local P = PilgrimScreens.place
+    local plate, title, name = P.plate, P.title, P.name
+    Skin.panel(plate[1], plate[2], plate[3], plate[4], 2, plate.corner)
+    Skin.zone('objective field', box(P.zone))
+    Skin.boxText(
+      Text.get('menu_chapel'),
+      title[1],
+      title[2],
+      title[3],
+      title[4],
+      U.fonts[title.font],
+      gold
+    )
+    local size = name.font
+    if Skin.inkBounds(U.fonts[size], objective).w > name[3] then
+      size = name.small
     end
-    Skin.boxText(objective, 35, 48, 348, 22, U.fonts[size], ivory)
+    Skin.boxText(objective, name[1], name[2], name[3], name[4], U.fonts[size], ivory)
     Skin.endZone()
   end
   if g.saveWarning then
-    center(Text.get('save_warning', { reason = g.saveWarning }), 448, 18, red)
+    centred(Text.get('save_warning', { reason = g.saveWarning }), PilgrimScreens.saveWarning, red)
   end
 end
 function D.shop(g)
@@ -263,24 +251,23 @@ function D.shop(g)
     return FireShop.draw(g, U)
   end
   local r, p = Queries.run(g), Context.actor(g)
-  rect(0, 0, 1280, 720, Palette.veilDeep, 0.9)
-  Skin.panel(96, 44, 1088, 628, 5, 14)
-  Skin.zone('shop writing field', 128, 78, 1024, 562)
-  Skin.icon('ring', 129, 84, 36)
-  Skin.inscription('merchant', 188, 82, 420, 52)
-  Skin.icon('soul', 844, 84, 31)
-  text(Text.get('souls_amount', { amount = r.wallet }), 892, 84, 28, gold)
-  text(Text.get(Queries.field(g) and 'shop_field_title' or 'shop_fire_title'), 130, 150, 20, gold)
-  text(
+  local S = PilgrimScreens.shop
+  rect(0, 0, FrameSize.width, FrameSize.height, Palette.veilDeep, S.veil)
+  Skin.panel(S.page[1], S.page[2], S.page[3], S.page[4], 5, S.page.corner)
+  Skin.zone('shop writing field', box(S.writing))
+  Skin.icon('ring', S.ring[1], S.ring[2], S.ring.size)
+  Skin.inscription('merchant', box(S.merchant))
+  Skin.icon('soul', S.soul[1], S.soul[2], S.soul.size)
+  at(Text.get('souls_amount', { amount = r.wallet }), S.wallet, gold)
+  at(Text.get(Queries.field(g) and 'shop_field_title' or 'shop_fire_title'), S.title, gold)
+  at(
     -- The weapon by the name the bar gives it, the ward against the knight's own maximum.
     Text.get('shop_buying', {
       weapon = Text.get(Weapons.inHand(g, nil, Context.actor(g)).hud.tab),
       ward = math.ceil(p.armor),
       max = Characters.maxWard(p),
     }),
-    650,
-    120,
-    14,
+    S.buying,
     muted
   )
   local first, last, _, _, rowHeight, detailed = D.shopPage(g)
@@ -288,32 +275,34 @@ function D.shop(g)
   for i = first, last do
     local o = offers[i]
     local row = i - first + 1
-    local y = 183 + (row - 1) * rowHeight
-    rect(128, y, 1024, 1, gold, 0.22)
+    local R, H, I, Z, T, D = S.row, S.highlight, S.icon, S.zone, S.rowTitle, S.description
+    local width = PilgrimScreens.rows.width
+    local y = R.y + (row - 1) * rowHeight
+    rect(R.x, y, R.w, 1, gold, R.ruleAlpha)
     if U.focus == row then
-      rect(132, y + 3, 730, rowHeight - 6, Palette.highlight, 0.22)
+      rect(H.x, y + H.inset, H.w, rowHeight - 2 * H.inset, Palette.highlight, H.alpha)
     end
-    Skin.icon(assert(o.icon, 'missing shop offer icon ' .. o.id), 145, y + 7, 40)
-    Skin.zone('offer ' .. o.id, 208, y + 3, 650, rowHeight - 6)
+    Skin.icon(assert(o.icon, 'missing shop offer icon ' .. o.id), I.x, y + I.y, I.size)
+    Skin.zone('offer ' .. o.id, Z.x, y + H.inset, Z.w, rowHeight - 2 * H.inset)
     local name, description = Economy.describe(g, o.id)
-    local titleSize = 20
+    local titleSize = T.font
     if detailed then
-      for _, candidate in ipairs({ 20, 18, 16, 14 }) do
+      for _, candidate in ipairs(T.fonts) do
         titleSize = candidate
-        if U.fonts[candidate]:getInk(name).w <= 648 then
+        if U.fonts[candidate]:getInk(name).w <= width then
           break
         end
       end
     end
-    text(TextFit.ellipsis(U.fonts[titleSize], name, 648), 209, y + 7, titleSize, gold)
+    text(TextFit.ellipsis(U.fonts[titleSize], name, width), T.x, y + T.y, titleSize, gold)
     if detailed then
       local line = 0
-      for value in TextFit.wrap(U.fonts[16], description, 648, 2):gmatch('[^\n]+') do
-        text(value, 209, y + 32 + line * 22, 16, muted)
+      for value in TextFit.wrap(U.fonts[D.font], description, width, D.lines):gmatch('[^\n]+') do
+        text(value, T.x, y + D.y + line * D.step, D.font, muted)
         line = line + 1
       end
     else
-      text(description, 209, y + 32, 16, muted)
+      text(description, T.x, y + D.y, D.font, muted)
     end
     Skin.endZone()
   end
@@ -324,27 +313,28 @@ function D.shop(g)
   end
   -- The purchase message and balance have their own columns; the rest message
   -- spans the next line, clear of both even with the longest fire description.
-  Skin.zone('shop purchase message', 128, 530, 680, 32)
+  local Ms, Bs, Rs = S.message, S.balance, S.rest
+  Skin.zone('shop purchase message', box(Ms.zone))
   -- A long message (the proving ground's) steps down a size or two rather than run into the
   -- balance column (0.43: it crossed the zone since the balance got its own column).
   local message = reason or g.shopMessage or Text.get('shop_engraving_tip')
-  local size = 18
-  while size > 14 and Skin.inkBounds(U.fonts[size], message).w > 676 do
+  local size = Ms.font
+  while size > Ms.smallest and Skin.inkBounds(U.fonts[size], message).w > Ms.wide do
     size = size - 2
   end
-  text(message, 129, 536 + (18 - size) / 2, size, reason and red or ivory)
+  text(message, Ms.x, Ms.y + (Ms.font - size) / 2, size, reason and red or ivory)
   Skin.endZone()
-  Skin.zone('shop remaining souls', 824, 530, 328, 28)
+  Skin.zone('shop remaining souls', box(Bs.zone))
   if price and not reason then
-    text(Text.get('shop_after', { amount = r.wallet - price }), 825, 536, 16, gold)
+    text(Text.get('shop_after', { amount = r.wallet - price }), Bs.x, Bs.y, Bs.font, gold)
   end
   Skin.endZone()
-  Skin.zone('shop rest message', 128, 565, 1024, 26)
-  text(Text.get('shop_fire_tip'), 129, 567, 16, muted)
+  Skin.zone('shop rest message', box(Rs.zone))
+  text(Text.get('shop_fire_tip'), Rs.x, Rs.y, Rs.font, muted)
   Skin.endZone()
   Skin.endZone()
   if g.saveWarning then
-    center(g.saveWarning, 679, 16, red)
+    centred(g.saveWarning, S.warning, red)
   end
 end
 function D.map(g)
@@ -352,19 +342,27 @@ function D.map(g)
     return FieldUI.map(g, U)
   end
   local r = Queries.run(g)
-  rect(0, 0, 1280, 720, Palette.veilCool, 0.96)
-  panel(100, 40, 1080, 640)
-  Skin.zone('map writing field', 132, 76, 1016, 570)
-  text(Text.get('map_fires'), 136, 131, 20, gold)
+  local M = PilgrimScreens.map
+  rect(0, 0, FrameSize.width, FrameSize.height, Palette.veilCool, M.veil)
+  panel(box(M.page))
+  Skin.zone('map writing field', box(M.writing))
+  at(Text.get('map_fires'), M.fires, gold)
   -- The proving ground has no way of its own: it stands in the chapel.
   local area = r.area and Way.areas:get(r.area) or Way.start()
   for i, fire in ipairs(area.fires) do
     local lit = r.lit[fire.id]
-    local y = 163 + (i - 1) * 39
-    text(Text.get(fire.name), 136, y, 22, lit and gold or muted)
-    text(Text.get(lit and 'map_fire_lit' or 'map_fire_dark'), 420, y + 5, 14, muted)
+    local F = M.fire
+    local y = F.y + (i - 1) * F.step
+    text(Text.get(fire.name), F.x, y, F.font, lit and gold or muted)
+    text(
+      Text.get(lit and 'map_fire_lit' or 'map_fire_dark'),
+      F.state.x,
+      y + F.state.y,
+      F.state.font,
+      muted
+    )
   end
-  local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
+  local sz, ox, oy = M.side / Grid.span(g.world), M.origin[1], M.origin[2]
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
       if Tiles.walkable[g.world.map[z][x]] then
@@ -374,92 +372,100 @@ function D.map(g)
   end
   local p = Context.actor(g)
   color(ivory)
-  lg.circle('fill', ox + p.x * sz, oy + p.z * sz, 4)
+  local K = M.knight
+  lg.circle('fill', ox + p.x * sz, oy + p.z * sz, K.radius)
   lg.line(
     ox + p.x * sz,
     oy + p.z * sz,
-    ox + p.x * sz + math.sin(p.yaw) * 15,
-    oy + p.z * sz + math.cos(p.yaw) * 15
+    ox + p.x * sz + math.sin(p.yaw) * K.heading,
+    oy + p.z * sz + math.cos(p.yaw) * K.heading
   )
+  local mark = M.enemy
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
-      rect(ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4, red)
+      rect(ox + e.x * sz - mark / 2, oy + e.z * sz - mark / 2, mark, mark, red)
     end
   end
   local cold = Palette.cold
   color(cold)
-  lg.setLineWidth(2)
+  lg.setLineWidth(M.line)
   for _, fire in ipairs(area.fires) do
     if r.lit[fire.id] and fire.id ~= area.first then
-      lg.circle('line', ox + fire.x * sz, oy + fire.z * sz, 7)
+      lg.circle('line', ox + fire.x * sz, oy + fire.z * sz, M.fireRing)
     end
   end
   local shrine = g.world.ember
   local sx, sy = ox + shrine.x * sz, oy + shrine.z * sz
   color(cold)
-  lg.setLineWidth(2)
-  lg.circle('line', sx, sy, 13)
-  Skin.icon('ring', sx - 8, sy - 8, 16)
+  lg.setLineWidth(M.line)
+  lg.circle('line', sx, sy, M.ember.radius)
+  local icon = M.ember.icon
+  Skin.icon('ring', sx - icon / 2, sy - icon / 2, icon)
   if r.echo then
-    local e = r.echo
+    local e, E = r.echo, M.echo
     color(blue)
-    lg.circle('line', ox + e.x * sz, oy + e.z * sz, 7)
-    text(Text.get('map_echo'), ox + e.x * sz - 18, oy + e.z * sz - 25, 14, blue)
+    lg.circle('line', ox + e.x * sz, oy + e.z * sz, E.radius)
+    text(
+      Text.get('map_echo'),
+      ox + e.x * sz + E.label.x,
+      oy + e.z * sz + E.label.y,
+      E.label.font,
+      blue
+    )
   end
-  text(Text.get('map_chapel_legend'), 132, 622, 16, muted)
-  text(Text.get('map_legend_marks'), 652, 558, 14, muted)
-  text(Text.get('map_pause'), 652, 585, 14, gold)
+  at(Text.get('map_chapel_legend'), M.legend, muted)
+  at(Text.get('map_legend_marks'), M.marks, muted)
+  at(Text.get('map_pause'), M.pause, gold)
   Skin.endZone()
 end
 function D.ending(g)
   local r = Queries.run(g)
-  rect(0, 0, 1280, 720, Palette.veil, 0.95)
-  panel(96, 42, 1088, 628)
-  Skin.icon('skull', 612, 52, 56)
-  Skin.zone('ending writing field', 128, 110, 1024, 402)
-  center(Text.get('pilgrim_died'), 116, 48, red)
-  center(Text.get('pilgrim_died_kept'), 188, 22, muted)
-  center(
+  local E = PilgrimScreens.ending
+  rect(0, 0, FrameSize.width, FrameSize.height, Palette.veil, E.veil)
+  panel(box(E.page))
+  Skin.icon('skull', E.skull[1], E.skull[2], E.skull.size)
+  Skin.zone('ending writing field', box(E.writing))
+  centred(Text.get('pilgrim_died'), E.died, red)
+  centred(Text.get('pilgrim_died_kept'), E.kept, muted)
+  centred(
     r.echo and Text.get('ending_echo', { amount = r.echo.amount }) or Text.get('ending_no_echo'),
-    260,
-    36,
+    E.echo,
     blue
   )
-  center(Text.get('ending_echo_warning'), 326, 18, muted)
+  centred(Text.get('ending_echo_warning'), E.warning, muted)
   -- What struck the last blow: what to read better next time.
   local harm = Queries.lastHarm(g)
   if harm then
-    center(
+    centred(
       harm == 'death_by_self' and Text.get(harm) or Text.get('death_by', { name = Text.get(harm) }),
-      364,
-      22,
+      E.harm,
       red
     )
   end
-  center(
+  centred(
     Text.get('ending_stats', {
-      minutes = string.format('%02d', math.floor(g.elapsed / 60)),
-      seconds = string.format('%02d', math.floor(g.elapsed % 60)),
+      minutes = string.format('%02d', math.floor(g.elapsed / 60)), -- constant: seconds a minute
+      seconds = string.format('%02d', math.floor(g.elapsed % 60)), -- constant: seconds a minute
       kills = string.format('%d', Stats.total(g, 'kills')),
       deaths = string.format('%d', r.deaths),
       souls = string.format('%d', r.wallet),
     }),
-    412,
-    22,
+    E.stats,
     ivory
   )
   if g.saveWarning then
-    center(g.saveWarning, 490, 16, red)
+    centred(g.saveWarning, E.saveWarning, red)
   end
   Skin.endZone()
 end
 function D.confirm(g)
-  rect(0, 0, 1280, 720, Palette.veil, 0.95)
-  panel(250, 144, 780, 432)
-  Skin.zone('confirmation writing field', 282, 176, 716, 180)
-  Skin.inscription('new_run', 410, 185, 460, 54)
-  center(Text.get('pilgrim_confirm'), 273, 22, muted)
-  center(Text.get('confirm_kept'), 315, 20, gold)
+  local C = PilgrimScreens.confirm
+  rect(0, 0, FrameSize.width, FrameSize.height, Palette.veil, C.veil)
+  panel(box(C.page))
+  Skin.zone('confirmation writing field', box(C.writing))
+  Skin.inscription('new_run', box(C.inscription))
+  centred(Text.get('pilgrim_confirm'), C.question, muted)
+  centred(Text.get('confirm_kept'), C.kept, gold)
   Skin.endZone()
 end
 return D

@@ -14,6 +14,8 @@ local Text = require('src.content.text')
 local TextFit = require('src.ui.text_fit')
 local Pages = require('src.ui.pages')
 local Queries = require('src.session.queries')
+local HelpPage = require('src.content.screens.help')
+local FrameSize = require('src.content.ui_layout')
 local S = {}
 require('src.session.fields').declareView('ui.screens.help', { 'helpPage' })
 -- Page 1 is the rules of the fight (audit L04); the bestiary follows, its pages after it.
@@ -27,7 +29,8 @@ function S.page(g)
       Text.get(card.text),
       Text.get(card.tip),
     }) do
-      detailed = detailed or Kit.ui.fonts[11]:getInk(value).w > 208
+      local D = HelpPage.detail
+      detailed = detailed or Kit.ui.fonts[D.font]:getInk(value).w > D.width
     end
   end
   local wanted = g and g.view.helpPage or 1
@@ -52,24 +55,27 @@ local function painting(id)
   return paintings[id]
 end
 local function rulesPage(U)
-  center(Text.get('help_rules'), 170, 18, gold)
+  local R = HelpPage.rules
+  local seal, zone, name, row = R.seal, R.zone, R.name, R.line
+  center(Text.get('help_rules'), R.title[1], R.title.font, gold)
   for i, rule in ipairs(rules) do
-    local x = 182 + (i - 1) * 310
+    local x = R.x + (i - 1) * R.step
     local image = painting(rule.art)
-    Skin.imageBounds('rule ' .. rule.art, x + 100, 200, 96, 96)
+    Skin.imageBounds('rule ' .. rule.art, x + seal.x, seal.y, seal.side, seal.side)
     lg.setColor(1, 1, 1)
-    lg.draw(image, x + 100, 200, 0, 96 / image:getWidth())
-    Skin.zone('rule ' .. rule.art, x, 304, 296, 92)
-    Skin.boxText(Text.get(rule.name), x, 304, 296, 24, U.fonts[18], gold, true)
-    for row = 1, 3 do
-      local part = Text.get(rule.art .. '_' .. row)
-      local size = Skin.inkBounds(U.fonts[14], part).w <= 290 and 14 or 12
-      Skin.boxText(part, x, 312 + row * 20, 296, 20, U.fonts[size], ivory, true)
+    lg.draw(image, x + seal.x, seal.y, 0, seal.side / image:getWidth())
+    Skin.zone('rule ' .. rule.art, x, zone.y, zone.w, zone.h)
+    Skin.boxText(Text.get(rule.name), x, name.y, zone.w, name.h, U.fonts[name.font], gold, true)
+    for index = 1, 3 do
+      local part = Text.get(rule.art .. '_' .. index)
+      local size = Skin.inkBounds(U.fonts[row.font], part).w <= row.wide and row.font or row.small
+      Skin.boxText(part, x, row.y + index * row.step, zone.w, row.step, U.fonts[size], ivory, true)
     end
     Skin.endZone()
   end
+  local B = R.beneath
   for i, key in ipairs(lines) do
-    center(Text.get(key), 410 + (i - 1) * 30, 14, i == 1 and gold or ivory)
+    center(Text.get(key), B.y + (i - 1) * B.step, B.font, i == 1 and gold or ivory)
   end
 end
 function S.turn(g, delta)
@@ -81,46 +87,56 @@ function S.reset(g)
 end
 function S.controls(g)
   local _, _, _, _, total = S.page(g)
-  local controls = {
-    { id = 'help_back', label = Text.get('help_back'), x = 460, y = 619, w = 360, h = 42 },
-  }
+  local function button(id, label, b)
+    return { id = id, label = Text.get(label), x = b.x, y = b.y, w = b.w, h = b.h }
+  end
+  local controls = { button('help_back', 'help_back', HelpPage.back) }
   if total > 1 then
-    controls[#controls + 1] =
-      { id = 'help_prev', label = Text.get('help_previous'), x = 170, y = 619, w = 240, h = 42 }
-    controls[#controls + 1] =
-      { id = 'help_next', label = Text.get('help_next'), x = 870, y = 619, w = 240, h = 42 }
+    controls[#controls + 1] = button('help_prev', 'help_previous', HelpPage.previous)
+    controls[#controls + 1] = button('help_next', 'help_next', HelpPage.next)
   end
   return controls
 end
 function S.draw(g, s, U)
   Skin.auditLayer('bestiary')
-  rect(0, 0, 1280, 720, Palette.veil, 0.96)
-  Skin.panel(70, 42, 1140, 640, 6, 14)
+  local H = HelpPage
+  rect(0, 0, FrameSize.width, FrameSize.height, Palette.veil, H.veil)
+  Skin.panel(H.page[1], H.page[2], H.page[3], H.page[4], 6, H.page.corner)
+  local M = H.margin
   for _, seal in ipairs(Occult.margins) do
-    Skin.zone('Goetia parchment margin', seal[2] - 4, seal[3] - 4, 44, 44)
-    GoeticSigils.draw(seal[1], seal[2], seal[3], 36, Palette.sepia, 0.55)
-    Skin.imageBounds('Goetia ' .. seal[1], seal[2], seal[3], 36, 36)
+    local side, pad = M.side, M.pad
+    Skin.zone(
+      'Goetia parchment margin',
+      seal[2] - pad,
+      seal[3] - pad,
+      side + 2 * pad,
+      side + 2 * pad
+    )
+    GoeticSigils.draw(seal[1], seal[2], seal[3], side, Palette.sepia, M.alpha)
+    Skin.imageBounds('Goetia ' .. seal[1], seal[2], seal[3], side, side)
     Skin.endZone()
   end
-  Skin.zone('parchment writing field', 158, 106, 964, 492)
+  local W, T = H.writing, H.heading
+  Skin.zone('parchment writing field', W[1], W[2], W[3], W[4])
   local field = g and Queries.field(g)
   Skin.boxText(
     Text.get(field and 'menu_proving' or 'menu_chapel'),
-    440,
-    112,
-    400,
-    50,
-    U.fonts[28],
+    T[1],
+    T[2],
+    T[3],
+    T[4],
+    U.fonts[T.font],
     gold
   )
   local listed, first, last, page, total, detailed = S.page(g)
   if page == 1 then
     rulesPage(U)
-    center(Text.get('page_count', { page = page, pages = total }), 572, 11, muted)
+    local count = Text.get('page_count', { page = page, pages = total })
+    center(count, H.pageCount[1], H.pageCount.font, muted)
     Skin.endZone()
     return
   end
-  center(Text.get(field and 'help_field' or 'help_pilgrim'), 170, 18, gold)
+  center(Text.get(field and 'help_field' or 'help_pilgrim'), H.title[1], H.title.font, gold)
   local keys = {
     { 'key_move', 'help_move' },
     { 'key_aim', 'help_aim' },
@@ -131,13 +147,14 @@ function S.draw(g, s, U)
     { 'key_charge', 'help_charge_key' },
     { 'key_slide', 'help_slide' },
   }
+  local K = H.keys
   for i, k in ipairs(keys) do
-    local x = 170 + ((i - 1) % 4) * 240
-    local y = 200 + math.floor((i - 1) / 4) * 44
-    key(Text.get(k[1]), x, y, 88)
-    text(Text.get(k[2]), x + 100, y + 8, 18, ivory)
+    local x = K.x + ((i - 1) % 4) * K.column
+    local y = K.y + math.floor((i - 1) / 4) * K.row
+    key(Text.get(k[1]), x, y, K.width)
+    text(Text.get(k[2]), x + K.words.x, y + K.words.y, K.words.font, ivory)
   end
-  line(170, 294, 940, gold)
+  line(H.rule[1], H.rule[2], H.rule[3], gold)
   -- One card per creature whose definition has one (catalog.bestiary), in
   -- its order; the text and the title colour are the creature's data.
   local cards = {}
@@ -153,25 +170,22 @@ function S.draw(g, s, U)
       color = assert(Palette[card.color], 'unknown palette colour ' .. card.color),
     }
   end
+  local D = H.card
+  local look = detailed and 'detailed' or 'plain'
+  local face = D.face[look]
   for i, v in ipairs(cards) do
-    local x = 160 + (i - 1) * (detailed and 480 or 240)
-    local width = detailed and 448 or 208
-    U.face(
-      v.artKind,
-      x + (detailed and 186 or 54),
-      312,
-      detailed and 76 or 116,
-      detailed and 76 or 116
-    )
+    local x = D.x + (i - 1) * D.step[look]
+    local width = D.width[look]
+    U.face(v.artKind, x + face.x, D.face.y, face.side, face.side)
     local function caption(value, y, initial, tint, wrap, rowStep)
-      local size = 11
-      rowStep = rowStep or 18
-      local height = wrap and rowStep * 2 or 26
+      local size = D.smallest
+      rowStep = rowStep or D.row
+      local height = wrap and rowStep * 2 or D.height
       if wrap then
         size = initial
         value = TextFit.wrap(U.fonts[size], value, width, 2)
       else
-        for _, candidate in ipairs({ 18, 16, 14, 13, 12, 11 }) do
+        for _, candidate in ipairs(D.fonts) do
           if candidate <= initial and Skin.inkBounds(U.fonts[candidate], value).w <= width then
             size = candidate
             break
@@ -179,28 +193,31 @@ function S.draw(g, s, U)
         end
         value = TextFit.ellipsis(U.fonts[size], value, width)
       end
-      Skin.zone('bestiary card ' .. v.kind, x + 6, y, width, height)
+      local left = x + D.inset
+      Skin.zone('bestiary card ' .. v.kind, left, y, width, height)
       if wrap then
         local row = 0
         for line in value:gmatch('[^\n]+') do
-          Skin.boxText(line, x + 6, y + row * rowStep, width, rowStep, U.fonts[size], tint)
+          Skin.boxText(line, left, y + row * rowStep, width, rowStep, U.fonts[size], tint)
           row = row + 1
         end
       else
-        Skin.boxText(value, x + 6, y, width, height, U.fonts[size], tint)
+        Skin.boxText(value, left, y, width, height, U.fonts[size], tint)
       end
       Skin.endZone()
     end
-    caption(v.name, detailed and 392 or 435, detailed and 13 or 18, v.color, detailed, 24)
-    caption(v.desc, detailed and 446 or 467, detailed and 13 or 14, ivory, detailed)
-    caption(v.tip, detailed and 486 or 491, detailed and 13 or 14, muted, detailed)
+    local name, desc, tip = D.name[look], D.desc[look], D.tip[look]
+    caption(v.name, name[1], name.font, v.color, detailed, D.name.row)
+    caption(v.desc, desc[1], desc.font, ivory, detailed)
+    caption(v.tip, tip[1], tip.font, muted, detailed)
   end
   if total > 1 then
-    center(Text.get('page_count', { page = page, pages = total }), 299, 11, muted)
+    local count = Text.get('page_count', { page = page, pages = total })
+    center(count, H.bestiaryCount[1], H.bestiaryCount.font, muted)
   end
-  center(Text.get('help_reload'), 528, 18, ivory)
-  center(Text.get('help_charge'), 554, 16, gold)
-  center(Text.get('help_ward'), 580, 14, muted)
+  center(Text.get('help_reload'), H.reload[1], H.reload.font, ivory)
+  center(Text.get('help_charge'), H.charge[1], H.charge.font, gold)
+  center(Text.get('help_ward'), H.ward[1], H.ward.font, muted)
   Skin.endZone()
 end
 return S

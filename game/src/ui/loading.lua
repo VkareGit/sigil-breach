@@ -4,10 +4,11 @@ local BitmapFont = require('src.ui.fonts.bitmap_font')
 local Skin = require('src.ui.skin')
 local Text = require('src.content.text')
 local Loading = {}
+local L = require('src.content.ui_look').loading
 function Loading.bootstrap(ui)
   local view = { viewport = ui.viewport, fonts = {} }
   Skin.init()
-  for _, size in ipairs({ 12, 16, 22 }) do
+  for _, size in ipairs(L.fonts) do
     local font = BitmapFont.load(size)
     view.fonts[size] = font
     Skin.registerFont(font)
@@ -31,42 +32,51 @@ function Loading.draw(ui, remaining, total, w, h, loadError, stage, startup)
   lg.push('all')
   lg.origin()
   lg.setShader()
-  lg.clear(0.025, 0.019, 0.021, 1)
+  lg.clear(L.clear[1], L.clear[2], L.clear[3], 1)
   local scale, ox, oy = ui.viewport(w, h)
   lg.translate(ox, oy)
   lg.scale(scale)
   Skin.beginAudit('gallery loading', w, h)
-  Skin.panel(330, 268, 620, 184)
-  Skin.zone('gallery loading text', 354, 290, 572, 142)
+  local panel, zone, title, count, back = L.panel, L.zone, L.title, L.count, L.back
+  Skin.panel(panel[1], panel[2], panel[3], panel[4])
+  Skin.zone('gallery loading text', zone[1], zone[2], zone[3], zone[4])
   Skin.boxText(
     Text.get(loadError and 'loading_failed' or (stage or 'loading_gallery')),
-    362,
-    296,
-    556,
-    32,
-    ui.fonts[22],
+    title[1],
+    title[2],
+    title[3],
+    title[4],
+    ui.fonts[title.font],
     Skin.colors.gold,
     true
   )
   Skin.boxText(
     loadError and Text.get(startup and 'loading_enter_retry' or 'loading_return')
       or Text.get('loading_count', { done = total - remaining, total = total }),
-    362,
-    341,
-    556,
-    24,
-    ui.fonts[16],
+    count[1],
+    count[2],
+    count[3],
+    count[4],
+    ui.fonts[count.font],
     Skin.colors.ivory,
     true
   )
-  Skin.meter(374, 382, 532, (total - remaining) / math.max(1, total), Skin.colors.gold, total)
+  local meter = L.meter
+  Skin.meter(
+    meter[1],
+    meter[2],
+    meter[3],
+    (total - remaining) / math.max(1, total),
+    Skin.colors.gold,
+    total
+  )
   Skin.boxText(
     Text.get(startup and 'loading_quit' or 'loading_back'),
-    362,
-    406,
-    556,
-    22,
-    ui.fonts[12],
+    back[1],
+    back[2],
+    back[3],
+    back[4],
+    ui.fonts[back.font],
     Skin.colors.muted,
     true
   )

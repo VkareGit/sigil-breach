@@ -19,13 +19,16 @@ local Queries = require('src.session.queries')
 local FieldData = require('src.content.field')
 local Text = require('src.content.text')
 local Access = require('src.run.field.access')
+local ProvingPage = require('src.content.screens.proving')
+local FrameSize = require('src.content.ui_layout')
 local function box(ui, label, x, y, w, h, size, color)
   -- Step the size down if the illustrated glyphs would overrun the field.
   -- Only sizes that exist in the painted font (36 steps to 28, not 34).
-  size = size or 18
-  local steps = { 94, 64, 48, 42, 36, 28, 24, 22, 20, 18, 16, 14, 13, 12, 11 }
+  size = size or ProvingPage.font
+  local steps = ProvingPage.fonts
+  local smallest = steps[#steps]
   for _, s in ipairs(steps) do
-    if s <= size and (Skin.inkBounds(ui.fonts[s], label).w <= w or s == 11) then
+    if s <= size and (Skin.inkBounds(ui.fonts[s], label).w <= w or s == smallest) then
       size = s
       break
     end
@@ -35,7 +38,18 @@ local function box(ui, label, x, y, w, h, size, color)
   Skin.endZone()
 end
 local function button(id, label, x, y, w, h)
-  return { id = id, label = label, x = x, y = y, w = w, h = h or 44 }
+  return { id = id, label = label, x = x, y = y, w = w, h = h or ProvingPage.buttonHeight }
+end
+-- A text on its box (content/screens/proving.lua), dy lower.
+local function put(ui, label, spec, color, dy)
+  box(ui, label, spec[1], spec[2] + (dy or 0), spec[3], spec[4], spec.font, color)
+end
+local function at(id, label, b)
+  return button(id, label, b[1], b[2], b[3], b[4])
+end
+local function veil(color)
+  lg.setColor(color[1], color[2], color[3], color[4])
+  lg.rectangle('fill', 0, 0, FrameSize.width, FrameSize.height)
 end
 function UI.controls(g)
   local t = Queries.field(g)
@@ -43,38 +57,36 @@ function UI.controls(g)
     return nil
   end
   if g.state == 'dead' then
+    local D = ProvingPage.dead
     return {
-      button(
+      at(
         t.skirmish and 'field_skirmish' or 'field_reset',
         Text.get(t.skirmish and 'fui_retry_skirmish' or 'fui_reset'),
-        410,
-        524,
-        460,
-        50
+        D.retry
       ),
-      button('field_open', Text.get('fui_catalogue'), 410, 586, 224, 44),
-      button('field_leave', Text.get(g.view.fieldReturnLabel), 650, 586, 220, 44),
+      at('field_open', Text.get('fui_catalogue'), D.catalogue),
+      at('field_leave', Text.get(g.view.fieldReturnLabel), D.leave),
     }
   end
   if g.state ~= 'field_catalog' then
     return nil
   end
   local list = {}
+  local P = ProvingPage
   for i, entry in ipairs(Field.catalog.enemies) do
-    local y = 174 + (i - 1) * 48
+    local y = P.rows.y + (i - 1) * P.rows.step
     list[#list + 1] = button(
       'field_select_' .. entry.id,
       t.selected == entry.id and Text.get('fui_selected_mark', { name = Text.get(entry.name) })
         or Text.get(entry.name),
-      140,
+      P.select.x,
       y,
-      258,
-      44
+      P.select.w
     )
     list[#list + 1] =
-      button('field_spawn_' .. entry.id .. '_1', Text.get('fui_one'), 410, y, 86, 44)
+      button('field_spawn_' .. entry.id .. '_1', Text.get('fui_one'), P.one.x, y, P.one.w)
     list[#list + 1] =
-      button('field_spawn_' .. entry.id .. '_3', Text.get('fui_three'), 508, y, 108, 44)
+      button('field_spawn_' .. entry.id .. '_3', Text.get('fui_three'), P.three.x, y, P.three.w)
   end
   local items = {
     { 'field_refill', Text.get('fui_refill') },
@@ -105,77 +117,68 @@ function UI.controls(g)
   end
   for i, item in ipairs(items) do
     if Access.allows(t, item[3]) then
+      local T = P.tools
       list[#list + 1] = button(
         item[1],
         item[2],
-        654 + (i - 1) % 2 * 264,
-        174 + math.floor((i - 1) / 2) * 52,
-        250,
-        44
+        T.x + (i - 1) % 2 * T.column,
+        T.y + math.floor((i - 1) / 2) * T.row,
+        T.w
       )
     end
   end
   -- 0.22 stations of the proving ground (seal visits remain in Field.visitSeal).
   for i, station in ipairs(Field.catalog.stationsFor(t)) do
+    local S = P.stations
     list[#list + 1] = button(
       'field_station_' .. station.id,
       Text.get(station.name),
-      654 + (i - 1) * 176,
-      511,
-      162,
-      44
+      S.x + (i - 1) * S.step,
+      S.y,
+      S.w
     )
   end
-  list[#list + 1] = button(
+  list[#list + 1] = at(
     'field_close',
     Text.get(Context.actor(g).hp <= 0 and 'fui_close_dead' or 'fui_close'),
-    86,
-    616,
-    440,
-    48
+    P.close
   )
-  list[#list + 1] = button('field_archive', Text.get('fui_archive'), 550, 616, 250, 48)
-  list[#list + 1] = button('field_leave', Text.get(g.view.fieldReturnLabel), 826, 616, 342, 48)
-  list[#list + 1] = button(
+  list[#list + 1] = at('field_archive', Text.get('fui_archive'), P.archive)
+  list[#list + 1] = at('field_leave', Text.get(g.view.fieldReturnLabel), P.leave)
+  list[#list + 1] = at(
     'field_hitboxes',
     Text.get('fui_hitboxes', { state = Text.get(t.hitboxes and 'fui_on' or 'fui_off') }),
-    904,
-    72,
-    264,
-    40
+    P.hitboxes
   )
   return list
 end
 function UI.heading(g, ui)
-  Skin.panel(20, 16, 378, 64, 2, 9)
-  box(ui, Text.get('fui_heading', { count = Queries.remaining(g) }), 35, 27, 348, 20, 14, C.gold)
+  local plate = ProvingPage.plate
+  Skin.panel(plate[1], plate[2], plate[3], plate[4], 2, plate.corner)
+  put(ui, Text.get('fui_heading', { count = Queries.remaining(g) }), ProvingPage.heading, C.gold)
   local t = Queries.field(g)
-  box(
+  put(
     ui,
     Text.get('fui_heading_state', {
       damage = Text.get(t.invincible and 'fui_invincible' or 'fui_damage_on'),
       ai = Text.get(t.frozen and 'fui_ai_stop' or 'fui_ai_live'),
     }),
-    35,
-    48,
-    348,
-    22,
-    14,
+    ProvingPage.state,
     C.ivory
   )
 end
 function UI.draw(g, ui)
-  lg.setColor(0.012, 0.010, 0.014, 0.97)
-  lg.rectangle('fill', 0, 0, 1280, 720)
-  Skin.panel(54, 36, 1172, 650, 6, 14)
+  local P = ProvingPage
+  veil(P.veil)
+  Skin.panel(P.page[1], P.page[2], P.page[3], P.page[4], 6, P.page.corner)
   local t = Queries.field(g)
-  box(ui, Text.get('fui_title'), 86, 72, 610, 42, 36, C.gold)
-  box(ui, t.message or Text.get('fui_intro'), 86, 120, 1082, 26, 18, C.ivory)
-  box(ui, Text.get('fui_demons'), 86, 148, 530, 22, 16, C.muted)
-  box(ui, Text.get('fui_tools'), 654, 148, 514, 22, 16, C.muted)
+  put(ui, Text.get('fui_title'), P.title, C.gold)
+  put(ui, t.message or Text.get('fui_intro'), P.intro, C.ivory)
+  put(ui, Text.get('fui_demons'), P.demons, C.muted)
+  put(ui, Text.get('fui_tools'), P.toolsTitle, C.muted)
   for i, entry in ipairs(Field.catalog.enemies) do
-    local y = 174 + (i - 1) * 48
-    ui.face(entry.id, 86, y, 44, 44, 'field enemy ' .. entry.id)
+    local y = P.rows.y + (i - 1) * P.rows.step
+    ui.face(entry.id, P.face.x, y, P.face.side, P.face.side, 'field enemy ' .. entry.id)
   end
   local entry = Defs[t.selected]
   local count = 0
@@ -184,28 +187,20 @@ function UI.draw(g, ui)
       count = count + 1
     end
   end
-  box(ui, Text.get('fui_selected', { name = Text.get(entry.name) }), 86, 474, 530, 26, 18, C.gold)
-  box(
+  put(ui, Text.get('fui_selected', { name = Text.get(entry.name) }), P.selected, C.gold)
+  put(
     ui,
     Text.get('fui_entry', { hp = entry.hp, armor = entry.armor, pose = t.poseIndex }),
-    86,
-    505,
-    530,
-    22,
-    16,
+    P.entry,
     C.ivory
   )
-  box(
+  put(
     ui,
     Text.get(
       'fui_live_targets',
       { count = count, limit = Field.limit, kills = Stats.total(g, 'kills') }
     ),
-    86,
-    535,
-    530,
-    22,
-    16,
+    P.live,
     C.muted
   )
   local arms = {}
@@ -222,14 +217,10 @@ function UI.draw(g, ui)
   local quick = ability
       and Text.get('fui_quick', { uses = power.uses or 0, capacity = ability.capacity })
     or ''
-  box(
+  put(
     ui,
     Text.get('fui_arms', { arms = table.concat(arms, ' / '), quick = quick }),
-    654,
-    439,
-    514,
-    22,
-    14,
+    P.arms,
     C.ivory
   )
   local stations = Text.get('fui_stations')
@@ -240,71 +231,72 @@ function UI.draw(g, ui)
     end
     stations = Text.get('fui_available_stations', { names = table.concat(names, ', ') })
   end
-  box(ui, stations, 654, 476, 514, 22, 16, C.muted)
+  put(ui, stations, P.stationNames, C.muted)
   ShotReport.draw(g.view.shotReport, ui)
 end
 function UI.ending(g, ui)
-  lg.setColor(0.015, 0.013, 0.017, 0.95)
-  lg.rectangle('fill', 0, 0, 1280, 720)
-  Skin.panel(280, 106, 720, 560, 5, 14)
-  box(ui, Text.get('fui_fell'), 328, 173, 624, 54, 36, C.gold)
-  box(ui, Text.get('fui_fell_kept'), 328, 268, 624, 34, 22)
-  box(ui, Text.get('fui_fell_tip'), 328, 320, 624, 30, 18, C.muted)
-  box(
+  local E = ProvingPage.ending
+  veil(E.veil)
+  Skin.panel(E.page[1], E.page[2], E.page[3], E.page[4], 5, E.page.corner)
+  put(ui, Text.get('fui_fell'), E.fell, C.gold)
+  put(ui, Text.get('fui_fell_kept'), E.kept)
+  put(ui, Text.get('fui_fell_tip'), E.tip, C.muted)
+  put(
     ui,
     Text.get('fui_fell_stats', {
       kills = Stats.total(g, 'kills'),
       damage = math.floor(Stats.total(g, 'damageTaken')),
-      control = math.floor(100 * Telemetry.uptime(g) + 0.5),
+      control = math.floor(100 * Telemetry.uptime(g) + 0.5), -- constant: a percent
     }),
-    328,
-    380,
-    624,
-    30,
-    20,
+    E.stats,
     C.ivory
   )
 end
 function UI.map(g, ui)
-  lg.setColor(0.015, 0.013, 0.017, 0.96)
-  lg.rectangle('fill', 0, 0, 1280, 720)
-  Skin.panel(100, 40, 1080, 640, 5, 14)
-  box(ui, Text.get('fui_map_title'), 132, 84, 1016, 46, 36, C.gold)
-  box(ui, Text.get('fui_map_arena'), 132, 163, 440, 34, 22)
-  box(ui, Text.get('fui_map_tip'), 132, 208, 440, 30, 18, C.muted)
+  local M = ProvingPage.map
+  veil(M.veil)
+  Skin.panel(M.page[1], M.page[2], M.page[3], M.page[4], 5, M.page.corner)
+  put(ui, Text.get('fui_map_title'), M.title, C.gold)
+  put(ui, Text.get('fui_map_arena'), M.arena)
+  put(ui, Text.get('fui_map_tip'), M.tip, C.muted)
+  local S = M.seal
   for i, seal in ipairs(g.world.seals) do
-    GoeticSigils.draw(seal.id, 140, 278 + (i - 1) * 74, 44, Palette.sepia, 0.95)
-    Skin.imageBounds('field map seal ' .. Text.get(seal.name), 140, 278 + (i - 1) * 74, 44, 44)
-    box(ui, Text.get(seal.name), 206, 288 + (i - 1) * 74, 344, 28, 20, seal.color)
+    local y = S.y + (i - 1) * S.step
+    GoeticSigils.draw(seal.id, S.x, y, S.side, Palette.sepia, S.alpha)
+    Skin.imageBounds('field map seal ' .. Text.get(seal.name), S.x, y, S.side, S.side)
+    put(ui, Text.get(seal.name), M.sealName, seal.color, (i - 1) * S.step)
   end
-  box(ui, Text.get('fui_map_legend'), 132, 535, 440, 28, 16, C.ivory)
-  box(ui, Text.get('fui_map_pause'), 132, 573, 440, 26, 16, C.muted)
-  local sz, ox, oy = 420 / Grid.span(g.world), 652, 121
+  put(ui, Text.get('fui_map_legend'), M.legend, C.ivory)
+  put(ui, Text.get('fui_map_pause'), M.pause, C.muted)
+  local sz, ox, oy = M.side / Grid.span(g.world), M.origin[1], M.origin[2]
   for z = 1, Grid.depth(g.world) do
     for x = 1, Grid.width(g.world) do
       if Tiles.walkable[g.world.map[z][x]] then
-        lg.setColor(0.20, 0.18, 0.16)
+        local stone = Palette.stone
+        lg.setColor(stone[1], stone[2], stone[3])
         lg.rectangle('fill', ox + x * sz, oy + z * sz, sz - 1, sz - 1)
       end
     end
   end
   for _, seal in ipairs(g.world.seals) do
     lg.setColor(seal.color)
-    lg.circle('line', ox + seal.x * sz, oy + seal.z * sz, 9)
+    lg.circle('line', ox + seal.x * sz, oy + seal.z * sz, M.sealRing)
   end
   local p = Context.actor(g)
+  local K = M.knight
   lg.setColor(C.ivory)
-  lg.circle('fill', ox + p.x * sz, oy + p.z * sz, 4)
+  lg.circle('fill', ox + p.x * sz, oy + p.z * sz, K.radius)
   lg.line(
     ox + p.x * sz,
     oy + p.z * sz,
-    ox + p.x * sz + math.sin(p.yaw) * 15,
-    oy + p.z * sz + math.cos(p.yaw) * 15
+    ox + p.x * sz + math.sin(p.yaw) * K.heading,
+    oy + p.z * sz + math.cos(p.yaw) * K.heading
   )
+  local mark = M.enemy
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 then
       lg.setColor(C.red)
-      lg.rectangle('fill', ox + e.x * sz - 2, oy + e.z * sz - 2, 4, 4)
+      lg.rectangle('fill', ox + e.x * sz - mark / 2, oy + e.z * sz - mark / 2, mark, mark)
     end
   end
 end

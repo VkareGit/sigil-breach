@@ -1,5 +1,6 @@
 -- Stateless sampling of the common world view. Never holds a borrowed query,
 -- changes encounter clocks, or knows a map/creature id. Caller owns `out`.
+local SCENE = require('src.content.audio_mix').scene
 local Context = require('src.session.context')
 local Queries = require('src.session.queries')
 local Pools = require('src.session.world')
@@ -24,11 +25,11 @@ function Scene.sample(g, out)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and e.awake then
       local d = math.sqrt((e.x - p.x) ^ 2 + (e.z - p.z) ^ 2)
-      if d < 24 then
+      if d < SCENE.reach then
         active = true
-        local near = math.max(0, 1 - d / 12)
-        local committed = (e.ai == 'windup' or e.ai == 'strike') and 0.3 or 0
-        pressure = math.max(pressure, near * 0.6 + committed)
+        local near = math.max(0, 1 - d / SCENE.near)
+        local committed = (e.ai == 'windup' or e.ai == 'strike') and SCENE.committed or 0
+        pressure = math.max(pressure, near * SCENE.weight + committed)
       end
     end
   end
@@ -36,7 +37,9 @@ function Scene.sample(g, out)
     out.stage = 'summoning'
   elseif active then
     out.stage = 'duel'
-    out.pressure = math.min(1, pressure + math.max(0, 1 - (p.hp or 100) / (p.maxHp or 100)) * 0.25)
+    local full = SCENE.fullHealth
+    local health = (p.hp or full) / (p.maxHp or full)
+    out.pressure = math.min(1, pressure + math.max(0, 1 - health) * SCENE.wounds)
   elseif view.encounterFinished and view.encounterStatus == 'complete' then
     local age = math.max(0, (g.elapsed or 0) - view.encounterFinished)
     out.returning = math.min(1, math.max(0, age - config.aftermathHold) / config.aftermathFade)

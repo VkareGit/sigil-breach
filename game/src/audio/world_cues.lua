@@ -1,5 +1,6 @@
 -- Read-only presentation clocks. Weak keys do not keep dead bodies, missiles
 -- or abandoned sessions alive. No audio state enters a journal or save.
+local Mix = require('src.content.audio_mix')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local Archetypes = require('src.content.enemies')
@@ -20,7 +21,7 @@ function C.restored(audio, g)
   local flights = setmetatable({}, { __mode = 'k' })
   local listener = Context.viewer(g)
   for _, projectile in ipairs(Pools.of(g, 'projectiles')) do
-    if (projectile.x - listener.x) ^ 2 + (projectile.z - listener.z) ^ 2 < 25 then
+    if (projectile.x - listener.x) ^ 2 + (projectile.z - listener.z) ^ 2 < Mix.flight.reach2 then
       flights[projectile] = true
     end
   end
@@ -71,7 +72,7 @@ function C.update(audio, g, dt)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     local now, clock = C.stepIndex(e)
     local before = state.feet[e]
-    local moving = clock == 'walk' and (e.walkSpeed or 0) > 0.15
+    local moving = clock == 'walk' and (e.walkSpeed or 0) > Mix.step.walk
       or (clock ~= 'walk' and before and (e.x ~= before.x or e.z ~= before.z))
     local def = Archetypes.of(e)
     local voice = Profiles.body(e, 'step')
@@ -82,16 +83,16 @@ function C.update(audio, g, dt)
       and now > before.index
       and e.hp > 0
       and not e.leaping
-      and (e.leapY or 0) < 0.05
+      and (e.leapY or 0) < Mix.step.airborne
       and moving
-      and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < 400
+      and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < Mix.step.reach2
     then
       audio.playAt(
         voice,
         e.x,
         e.z,
         p,
-        math.min(0.5, 0.16 + def.body.mass * 0.09),
+        math.min(Mix.step.most, Mix.step.base + def.body.mass * Mix.step.perMass),
         0,
         g.world,
         nil,
@@ -103,10 +104,11 @@ function C.update(audio, g, dt)
     state.feet[e] = entry
   end
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
-    if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < 25 then
+    if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < Mix.flight.reach2 then
       state.flights[b] = true
       local voice, own = Profiles.projectile(g, b, 'flight')
-      audio.playAt(voice, b.x, b.z, p, own and 0.22 or 0.12, own and 1 or 0, g.world, nil, b)
+      local level = own and Mix.flight.own or Mix.flight.other
+      audio.playAt(voice, b.x, b.z, p, level, own and 1 or 0, g.world, nil, b)
     end
   end
   FieldVoices.update(audio, g, dt)

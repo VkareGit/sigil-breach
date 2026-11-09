@@ -1,8 +1,12 @@
 -- A chapel margin painted into lime plaster. The atlas supplies the material,
 -- brush marks and figures; layout keeps the live text inside quiet fields.
-local S = { path = 'assets/art/reliquary-ash-v16.png' }
+local ReliquarySheet = require('src.content.art.reliquary_sheet')
+local S = { path = ReliquarySheet.path }
+local CORNER, ROWS, HEIGHTS = ReliquarySheet.corner, ReliquarySheet.rows, ReliquarySheet.heights
+local PAPER, RULE = ReliquarySheet.paper, ReliquarySheet.rule
 local lg = love.graphics
 local Resources = require('src.render.resources')
+local FrameSize = require('src.content.ui_layout')
 function S.init()
   if S.image then
     return
@@ -10,12 +14,12 @@ function S.init()
   S.resources = Resources.new('UI reliquary')
   S.image = S.resources:image(S.path, { filter = 'linear' })
   local w, h = S.image:getDimensions()
-  S.bar = S.resources:own(lg.newQuad(0, 0, w, 230, w, h))
+  S.bar = S.resources:own(lg.newQuad(0, 0, w, ReliquarySheet.bar, w, h))
   S.frames = {}
-  local xs = { 0, 108, w - 108 }
-  local ys = { 408, 482, 850 }
-  local ws = { 108, w - 216, 108 }
-  local hs = { 74, 368, 74 }
+  local xs = { 0, CORNER, w - CORNER }
+  local ys = ROWS
+  local ws = { CORNER, w - 2 * CORNER, CORNER }
+  local hs = HEIGHTS
   for y = 1, 3 do
     for x = 1, 3 do
       S.frames[#S.frames + 1] =
@@ -24,10 +28,10 @@ function S.init()
   end
   -- Tall menu borders use the authored nonfigurative frieze. Narrative
   -- figures stay in the spacious HUD niches, never stretched into columns.
-  S.sideTrim = S.resources:own(lg.newQuad(108, 408, w - 216, 74, w, h))
+  S.sideTrim = S.resources:own(lg.newQuad(CORNER, ROWS[1], w - 2 * CORNER, HEIGHTS[1], w, h))
   S.paper = S.image
-  S.paperQuiet = S.resources:own(lg.newQuad(200, 500, 1100, 326, w, h))
-  S.rule = S.resources:own(lg.newQuad(200, 0, 1100, 10, w, h))
+  S.paperQuiet = S.resources:own(lg.newQuad(PAPER.x, PAPER.y, PAPER.w, PAPER.h, w, h))
+  S.rule = S.resources:own(lg.newQuad(RULE.x, 0, RULE.w, RULE.h, w, h))
 end
 function S.release()
   if S.resources then
@@ -38,24 +42,23 @@ function S.release()
 end
 function S.plaster(x, y, w, h, tone)
   S.init()
-  if tone == 2 then
-    lg.setColor(0.98, 0.84, 0.68)
-  elseif tone == 3 then
-    lg.setColor(0.83, 0.84, 0.82)
+  local tint = ReliquarySheet.tones[tone]
+  if tint then
+    lg.setColor(tint[1], tint[2], tint[3])
   else
     lg.setColor(1, 1, 1)
   end
   -- Crop the lime ground to the destination aspect, rather than elongating its
   -- pigment grains into vertical wallpaper on a tall menu.
-  local cw, ch = 1100, 326
+  local cw, ch = PAPER.w, PAPER.h
   if w / h > cw / ch then
     ch = cw * h / w
   else
     cw = ch * w / h
   end
   S.paperQuiet:setViewport(
-    200 + (1100 - cw) / 2,
-    500 + (326 - ch) / 2,
+    PAPER.x + (PAPER.w - cw) / 2,
+    PAPER.y + (PAPER.h - ch) / 2,
     cw,
     ch,
     S.image:getDimensions()
@@ -72,15 +75,17 @@ function S.panel(x, y, w, h, b, style)
     lg.setShader()
     S.plaster(x, y, w, h)
     lg.setColor(1, 1, 1)
-    lg.draw(S.image, S.rule, x, y, 0, w / 1100, 2 / 10)
-    lg.draw(S.image, S.rule, x, y + h - 2, 0, w / 1100, 2 / 10)
+    local thick = ReliquarySheet.ruleWidth
+    lg.draw(S.image, S.rule, x, y, 0, w / RULE.w, thick / RULE.h)
+    lg.draw(S.image, S.rule, x, y + h - thick, 0, w / RULE.w, thick / RULE.h)
     lg.setShader(previous)
     return
   end
-  if w >= 500 and h >= 300 then
-    b = math.max(32, b or 0)
+  local large, border = ReliquarySheet.large, ReliquarySheet.border
+  if w >= large.w and h >= large.h then
+    b = math.max(large.border, b or 0)
   end
-  b = math.min(math.max(10, b or 14), math.floor(w / 3), math.floor(h / 3))
+  b = math.min(math.max(border.least, b or border.default), math.floor(w / 3), math.floor(h / 3))
   local xs = { x, x + b, x + w - b }
   local ys = { y, y + b, y + h - b }
   local ws = { b, w - 2 * b, b }
@@ -94,8 +99,15 @@ function S.panel(x, y, w, h, b, style)
       if ix == 2 and iy == 2 then
         S.plaster(xs[ix], ys[iy], ws[ix], hs[iy], style == 4 and 3 or (style == 3 and 2 or 1))
       elseif iy == 2 then
-        local cw = math.min(S.image:getWidth() - 216, hs[iy] * 74 / ws[ix])
-        S.sideTrim:setViewport((S.image:getWidth() - cw) / 2, 408, cw, 74, S.image:getDimensions())
+        local trim = HEIGHTS[1]
+        local cw = math.min(S.image:getWidth() - 2 * CORNER, hs[iy] * trim / ws[ix])
+        S.sideTrim:setViewport(
+          (S.image:getWidth() - cw) / 2,
+          ROWS[1],
+          cw,
+          trim,
+          S.image:getDimensions()
+        )
         if ix == 1 then
           lg.draw(
             S.image,
@@ -104,7 +116,7 @@ function S.panel(x, y, w, h, b, style)
             ys[iy],
             math.pi / 2,
             hs[iy] / cw,
-            ws[ix] / 74
+            ws[ix] / trim
           )
         else
           lg.draw(
@@ -114,7 +126,7 @@ function S.panel(x, y, w, h, b, style)
             ys[iy] + hs[iy],
             -math.pi / 2,
             hs[iy] / cw,
-            ws[ix] / 74
+            ws[ix] / trim
           )
         end
       else
@@ -130,7 +142,16 @@ function S.status()
   local previous = lg.getShader()
   lg.setShader()
   lg.setColor(1, 1, 1)
-  lg.draw(S.image, S.bar, 0, 584, 0, 1280 / S.image:getWidth(), 136 / 230)
+  local status = ReliquarySheet.status
+  lg.draw(
+    S.image,
+    S.bar,
+    0,
+    status.top,
+    0,
+    FrameSize.width / S.image:getWidth(),
+    status.height / ReliquarySheet.bar
+  )
   lg.setShader(previous)
 end
 return S

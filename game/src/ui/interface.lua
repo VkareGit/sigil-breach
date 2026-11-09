@@ -21,6 +21,8 @@ local Palette = require('src.ui.palette')
 local Resources = require('src.render.resources')
 local Camera = require('src.render.camera')
 local TextFit = require('src.ui.text_fit')
+local UiLook = require('src.content.ui_look')
+local Settings = require('src.content.settings')
 Chapel.install(U)
 local ivory = Skin.colors.ivory
 local muted = Skin.colors.muted
@@ -50,7 +52,7 @@ function U.init(checkpoint)
   Skin.init()
   Portrait.init(checkpoint)
   U.fonts = {}
-  for _, size in ipairs({ 11, 12, 13, 14, 16, 18, 20, 22, 24, 28, 36, 42, 48, 64, 94 }) do
+  for _, size in ipairs(UiLook.fonts) do
     local font = BitmapFont.load(size, checkpoint)
     assert(
       font:hasGlyphs('ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ 0123456789'),
@@ -167,46 +169,56 @@ local function buttons(g, s)
   end
   for i, b in ipairs(U.controls(g, s)) do
     local selected = i == U.focus
-    Skin.panel(b.x, b.y, b.w, b.h, b.disabled and 4 or ((selected or b.active) and 3 or 2), 8)
+    local B = UiLook.button
+    local narrow = b.w < B.narrow
+    Skin.panel(
+      b.x,
+      b.y,
+      b.w,
+      b.h,
+      b.disabled and 4 or ((selected or b.active) and 3 or 2),
+      B.corner
+    )
     if selected then
+      local m = B.marker
       c(gold)
       lg.polygon(
         'fill',
-        b.x + 10,
-        b.y + b.h / 2 - 4,
-        b.x + 16,
+        b.x + m.inset,
+        b.y + b.h / 2 - m.half,
+        b.x + m.reach,
         b.y + b.h / 2,
-        b.x + 10,
-        b.y + b.h / 2 + 4
+        b.x + m.inset,
+        b.y + b.h / 2 + m.half
       )
     end
-    local size = b.w < 60 and 24 or 18
+    local size = narrow and B.narrowFont or B.font
     while
-      size > 12
+      size > B.smallest
       and (
-        Skin.inkBounds(U.fonts[size], b.label).w > b.w - (b.w < 60 and 22 or 40)
-        or Skin.inkBounds(U.fonts[size], b.label).h > b.h - 22
+        Skin.inkBounds(U.fonts[size], b.label).w > b.w - (narrow and B.padNarrow or B.padWide)
+        or Skin.inkBounds(U.fonts[size], b.label).h > b.h - B.padHeight
       )
     do
-      size = size - 2
+      size = size - B.step
     end
-    Skin.zone('button ' .. b.id, b.x + 10, b.y + 10, b.w - 20, b.h - 20)
-    local inset = b.w < 60 and 11 or 24
+    Skin.zone('button ' .. b.id, b.x + B.zone, b.y + B.zone, b.w - 2 * B.zone, b.h - 2 * B.zone)
+    local inset = narrow and B.insetNarrow or B.insetWide
     Skin.boxText(
-      TextFit.ellipsis(U.fonts[size], b.label, b.w - inset - 12),
+      TextFit.ellipsis(U.fonts[size], b.label, b.w - inset - B.tail),
       b.x + inset,
-      b.y + 11,
-      b.w - inset - 12,
-      b.h - 22,
+      b.y + B.top,
+      b.w - inset - B.tail,
+      b.h - B.padHeight,
       U.fonts[size],
       b.disabled and Palette.disabled or (selected and ivory or (b.active and gold or muted)),
-      b.w < 60
+      narrow
     )
     Skin.endZone()
   end
 end
 function U.draw(g, w, h, s)
-  s = s or { sensitivity = 1, motion = true, music = 0.65 }
+  s = s or { sensitivity = Settings.sensitivity.default, motion = true, music = Settings.music }
   U.aimX, U.aimY = nil, nil
   if g.state == 'playing' then
     U.aimX, U.aimY = Camera.reticle(g, w, h)
@@ -224,8 +236,9 @@ function U.draw(g, w, h, s)
   if g.state ~= 'playing' or g.help or g.map then
     -- The page occupies the logical 16:9 writing area. Modal gutters belong to
     -- its dark surround too; never leave bright live scenery beside the page.
-    local vw, vh = 1280 * scale, 720 * scale
-    lg.setColor(0.015, 0.013, 0.017, 1)
+    local vw, vh = Layout.width * scale, Layout.height * scale
+    local veil = Palette.veil
+    lg.setColor(veil[1], veil[2], veil[3], 1)
     if ox > 0 then
       lg.rectangle('fill', 0, 0, ox, h)
       lg.rectangle('fill', ox + vw, 0, w - ox - vw, h)

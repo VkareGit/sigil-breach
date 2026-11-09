@@ -5,7 +5,7 @@ local Mix = require('src.content.audio_mix')
 local S = {}
 local voices = setmetatable({}, { __mode = 'k' })
 local mixGains = {}
-local obstructionPeriod, obstructionRate = 0.08, 18
+local obstructionPeriod, obstructionRate = Mix.obstructionPeriod, Mix.obstructionRate
 local function position(source, entry, listener)
   local origin = entry.emitter or entry
   local dx, dz = origin.x - listener.x, origin.z - listener.z
@@ -13,7 +13,7 @@ local function position(source, entry, listener)
   local divisor = math.max(1, distance)
   local side = (dx * math.cos(listener.yaw) - dz * math.sin(listener.yaw)) / divisor
   local forward = (dx * math.sin(listener.yaw) + dz * math.cos(listener.yaw)) / divisor
-  source:setPosition(side * 0.8, 0, -forward * 0.8)
+  source:setPosition(side * Mix.stereo, 0, -forward * Mix.stereo)
   entry.distance = distance
   return origin
 end
@@ -26,12 +26,15 @@ function S.attach(source, x, z, listener, world, emitter, attenuation)
   local entry = voices[source]
   entry.base = entry.base / attenuation
   entry.x, entry.z, entry.listener, entry.world, entry.emitter = x, z, listener, world, emitter
-  entry.obstruction = world and not Arena.visible(world, x, z, listener.x, listener.z) and 0.38 or 1
+  entry.obstruction = world
+      and not Arena.visible(world, x, z, listener.x, listener.z)
+      and Mix.obstructed
+    or 1
   entry.target = entry.obstruction
   entry.probe = obstructionPeriod
   position(source, entry, listener)
   if entry.obstruction < 1 then
-    source:setFilter({ type = 'lowpass', volume = 1, highgain = 0.4 })
+    source:setFilter({ type = 'lowpass', volume = 1, highgain = Mix.muffled })
   end
 end
 function S.fade(source, seconds)
@@ -130,16 +133,20 @@ function S.update(source, dt, g, levels, muted)
     if entry.world and entry.probe <= 0 then
       entry.probe = obstructionPeriod
       local target = Arena.visible(entry.world, origin.x, origin.z, listener.x, listener.z) and 1
-        or 0.38
+        or Mix.obstructed
       if target ~= entry.target then
         entry.target = target
-        source:setFilter({ type = 'lowpass', volume = 1, highgain = target < 1 and 0.4 or 1 })
+        source:setFilter({
+          type = 'lowpass',
+          volume = 1,
+          highgain = target < 1 and Mix.muffled or 1,
+        })
       end
     end
     entry.obstruction = entry.obstruction
       + (entry.target - entry.obstruction) * (1 - math.exp(-dt * obstructionRate))
-    level = entry.distance > 32 and 0
-      or level * entry.obstruction / (1 + entry.distance * (entry.recipe.falloff or 0.13))
+    level = entry.distance > Mix.hearing and 0
+      or level * entry.obstruction / (1 + entry.distance * (entry.recipe.falloff or Mix.falloff))
   end
   if entry.capped then
     level = math.min(1, level)

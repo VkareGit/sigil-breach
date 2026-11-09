@@ -75,6 +75,30 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G7d, magiczne liczby: `audio/` i ekrany `ui` poza HUD na zero, 2026-11-09: miary
+  syntezatora w `content/synth_tone.lua` (nasycenie, kolczuga, klik, odbicia,
+  szumy efektu, samogłoska, głos i jego oddech, partie dzwonu z bliźniakami,
+  bęben serca, pogłos nawy Schroedera, poziomy). Miks odtwarzania
+  w `content/audio_mix.lua` (budżet 28 głosów, poziomy domyślne, słyszalność
+  32 m, spadek, przesłonięcie i stłumienie za ścianą, stereo, głosy ciał
+  i pól, kroki i przeloty, nacisk sceny); powtórzone w `audio.lua`
+  i `spatial.lua` liczby (32 m, 0,13, 0,38, 0,4) mają teraz jedno źródło.
+  Wykonanie partytury w `Score.performance` (oddech śpiewaków, wybrzmienie
+  chorału, organy, przyciszenie pod ostrzeżeniem). Stałe algorytmu
+  z `-- constant:` (Park–Miller, hasz nazwy, RT60, 16 bitów, 1200 centów,
+  częstotliwość próbkowania). `audio` ze 170 na 0. W tym samym kroku `ui`
+  poza HUD i polem prób: paleta, rozmiar klatki i znaki celownika, pieczęcie
+  i tablice okultystyczne przeszły w całości do treści (`content/ui_palette`,
+  `ui_layout`, `goetic_seals`, `occult_plates`); wspólne części (atlas
+  skóry, miernik, przyciski, klawisze, czcionki, ekran ładowania, raport
+  strzału) w `content/ui_look.lua`, portret w `content/hud_look.lua`,
+  arkusz ramek w `content/art/reliquary_sheet.lua`, strony ekranów
+  w `content/screens/` (`menu`, `help`, `fire_shop`, `pilgrimage`), układ
+  pauzy w `Settings.pause`, pole prób w `content/screens/proving.lua`. Kody
+  znaków czcionki nazwane znakami. Ćwiartki tablicy okultystycznej leżą obok
+  wpisów (`OccultPlates.quads`), bo wpisy są teraz zapieczętowaną treścią.
+  `ui` z 1696 na 357; zostaje HUD.
+
 - G7c, magiczne liczby: cały `render/` na zero, 2026-11-09: efekty, sztuka
   świata, światła, medaliony i pieczęcie, liczby obrażeń, portale, popiół,
   ogień areny, dłonie i łuski, tabliczki galerii, akcenty rzucania, zagrożenia,
@@ -4871,6 +4895,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G7d, magiczne liczby, cały `audio/`, 2026-11-09: pełny eksport dźwięku
+  (`--audio-export`, 259 plików WAV: każdy efekt, każda warstwa i nastrój
+  muzyki) bajt w bajt identyczny przed i po zmianie (sumy SHA-256); mutacja
+  dwóch liczb zmieniała 6 plików. `creature-audio-mix` 887,
+  `creature-audio-lifecycle` 112, `plague-gardener-audio` 71,
+  `iron-thrall-audio` 55, `star-acolyte-audio` 72 bez zmian. Checker
+  0 zgłoszeń; ekrany `ui` dowodzone obrazem. Pierwsza brama stanęła na dwóch
+  błędach (powtórzony klucz `title` w stronie sklepu; ćwiartki zapisywane do
+  zapieczętowanych wpisów), oba naprawione przed drugą. Rendery pokazu: 788 obrazów identycznych z G4a (sumy SHA-256), eksport dźwięku identyczny. Pełne Linux All PASS w osobnym
+  klonie: 9246 sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows
+  niesprawdzony.
 
 - G7c, magiczne liczby, cały `render/`, 2026-11-09: checker 0 zgłoszeń
   przy zapadce `render` = 0; `interface` 19, `fresco` 338, `hazard-art` 43,

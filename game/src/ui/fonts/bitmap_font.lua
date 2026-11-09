@@ -7,7 +7,9 @@ local Resources = require('src.render.resources')
 local lg = love.graphics
 -- Clocks and counters produce new strings throughout a session. Keep only a
 -- bounded working set, including a byte limit so long captions cannot grow it.
-local CACHE_LIMIT, CACHE_TEXT_LIMIT = 256, 256
+local CACHE_LIMIT, CACHE_TEXT_LIMIT = 256, 256 -- constant: a working set, not a look
+-- The code points the walk treats apart.
+local NEWLINE, TAB, SPACE, UNKNOWN = ('\n'):byte(), ('\t'):byte(), (' '):byte(), ('?'):byte()
 function B.new(meta, image, resources)
   local self = setmetatable({
     meta = meta,
@@ -47,16 +49,16 @@ end
 function F:walk(t, visit)
   local x, y, maximum, previous = 0, 0, 0, nil
   for _, cp in utf8.codes(tostring(t)) do
-    if cp == 10 then
+    if cp == NEWLINE then
       maximum = math.max(maximum, x)
       x = 0
       y = y + self.meta.height
       previous = nil
     else
-      if cp == 9 then
-        cp = 32
+      if cp == TAB then
+        cp = SPACE
       end
-      local g = self.glyphs[cp] or self.glyphs[63]
+      local g = self.glyphs[cp] or self.glyphs[UNKNOWN]
       local kerning = previous and self.meta.kern[previous]
       x = x + (kerning and kerning[cp] or 0) + (previous and (self.meta.tracking or 0) or 0)
       if visit and g.w then
@@ -76,7 +78,7 @@ function F:getHeight()
 end
 function F:hasGlyphs(t)
   for _, cp in utf8.codes(tostring(t)) do
-    if cp ~= 10 and cp ~= 9 and not self.glyphs[cp] then
+    if cp ~= NEWLINE and cp ~= TAB and not self.glyphs[cp] then
       return false, cp
     end
   end

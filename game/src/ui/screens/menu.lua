@@ -6,6 +6,8 @@ local Kit = require('src.ui.kit')
 local Skin = require('src.ui.skin')
 local Palette = require('src.ui.palette')
 local Text = require('src.content.text')
+local MenuPage = require('src.content.screens.menu')
+local FrameSize = require('src.content.ui_layout')
 local lg = love.graphics
 local c, text, right, center = Kit.c, Kit.text, Kit.right, Kit.center
 local rect, line, panel, key, bar = Kit.rect, Kit.line, Kit.panel, Kit.key, Kit.bar
@@ -13,26 +15,33 @@ local ivory, muted, gold = Skin.colors.ivory, Skin.colors.muted, Skin.colors.gol
 local red, blue, green = Skin.colors.red, Skin.colors.blue, Palette.green
 local S = {}
 function S.draw(g, s, U)
-  -- Abutting strips (no 1 px overlap): overlapping translucent strips drew dark lines every 20 px.
-  for i = 0, 63 do
-    rect(i * 20, 0, 20, 720, Palette.curtain, 0.98 * (1 - i / 70))
+  local M = MenuPage
+  local C = M.curtain
+  for i = 0, C.strips - 1 do
+    rect(i * C.width, 0, C.width, FrameSize.height, Palette.curtain, C.alpha * (1 - i / C.thins))
   end
-  Skin.panel(36, 38, 500, 600, 5, 12)
-  Skin.zone('menu writing field', 70, 74, 434, 532)
-  Skin.inscription('sigil', 72, 105, 300, 104)
-  Skin.inscription('breach', 72, 216, 240, 44)
-  line(72, 274, 80, gold)
-  text(Text.get('menu_trial'), 72, 292, 24, gold)
-  text(Text.get('menu_tagline'), 72, 329, 18, ivory)
-  Skin.icon('ring', 402, 145, 94)
-  text(Text.get('menu_chapel'), 76, 78, 20, gold)
-  text(Text.get('menu_way'), 72, 360, 18, ivory)
+  local function box(name)
+    local b = M[name]
+    return b[1], b[2], b[3], b[4]
+  end
+  Skin.panel(M.page[1], M.page[2], M.page[3], M.page[4], 5, M.page.corner)
+  Skin.zone('menu writing field', box('writing'))
+  Skin.inscription('sigil', box('sigil'))
+  Skin.inscription('breach', box('breach'))
+  line(M.rule[1], M.rule[2], M.rule[3], gold)
+  text(Text.get('menu_trial'), M.trial[1], M.trial[2], M.trial.font, gold)
+  text(Text.get('menu_tagline'), M.tagline[1], M.tagline[2], M.tagline.font, ivory)
+  Skin.icon('ring', M.ring[1], M.ring[2], M.ring.size)
+  text(Text.get('menu_chapel'), M.chapel[1], M.chapel[2], M.chapel.font, gold)
+  text(Text.get('menu_way'), M.way[1], M.way[2], M.way.font, ivory)
   Skin.endZone()
-  text(Text.get(Release.menuLabel, { version = Release.version }), 65, 659, 16, muted)
-  right(Text.get('menu_fullscreen'), 1248, 673, 16, muted)
-  Skin.panel(580, 324, 590, 284, 5, 12)
-  Skin.zone('test field menu', 612, 358, 526, 226)
-  Skin.boxText(Text.get('menu_proving'), 612, 360, 526, 35, U.fonts[28], gold)
+  local version = Text.get(Release.menuLabel, { version = Release.version })
+  text(version, M.version[1], M.version[2], M.version.font, muted)
+  right(Text.get('menu_fullscreen'), M.fullscreen[1], M.fullscreen[2], M.fullscreen.font, muted)
+  Skin.panel(M.proving[1], M.proving[2], M.proving[3], M.proving[4], 5, M.proving.corner)
+  Skin.zone('test field menu', box('provingField'))
+  local T = M.provingTitle
+  Skin.boxText(Text.get('menu_proving'), T[1], T[2], T[3], T[4], U.fonts[T.font], gold)
   local stations = {}
   local field = Release.sessionOptions.field
   for _, station in ipairs(Catalog.stationsFor(field)) do
@@ -41,21 +50,24 @@ function S.draw(g, s, U)
     end
   end
   stations[#stations + 1] = 'menu_station_gallery'
+  local R = M.station
   for i, line in ipairs(stations) do
-    Skin.boxText(Text.get(line), 612, 400 + (i - 1) * 34, 526, 25, U.fonts[18], ivory)
+    Skin.boxText(Text.get(line), R[1], R[2] + (i - 1) * R.step, R[3], R[4], U.fonts[R.font], ivory)
   end
-  Skin.boxText(Text.get('menu_waits'), 612, 560, 526, 24, U.fonts[16], muted)
+  local W = M.waits
+  Skin.boxText(Text.get('menu_waits'), W[1], W[2], W[3], W[4], U.fonts[W.font], muted)
   Skin.endZone()
   if g.saveRecovered then
-    Skin.panel(566, 614, 650, 42, 2, 8)
-    Skin.zone('save recovery field', 582, 622, 618, 26)
+    local P, F, X = M.recovery, M.recoveryField, M.recoveryText
+    Skin.panel(P[1], P[2], P[3], P[4], 2, P.corner)
+    Skin.zone('save recovery field', F[1], F[2], F[3], F[4])
     Skin.boxText(
       Text.get(g.availableSave and 'menu_save_recovered' or 'menu_save_unreadable'),
-      584,
-      622,
-      612,
-      26,
-      U.fonts[16],
+      X[1],
+      X[2],
+      X[3],
+      X[4],
+      U.fonts[X.font],
       red
     )
     Skin.endZone()
