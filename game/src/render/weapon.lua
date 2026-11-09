@@ -10,6 +10,8 @@ local WeaponArt = require('src.render.weapon_art')
 local AbilityFeedback = require('src.feedback.ability_feedback')
 local EquipmentArt = require('src.content.equipment_art')
 local HandAtlas = require('src.render.hand_atlas')
+local WeaponFrame = require('src.content.art.weapon_frame')
+local UNIT_HEIGHT = WeaponFrame.referenceHeight
 -- Incremental catalogue loading also supports a content pack registered before
 -- entering the arena. Existing images are reused; removed entries release GPU memory.
 function V.loadAtlases(checkpoint)
@@ -66,7 +68,8 @@ end
 function V.init(checkpoint)
   V.release()
   V.loadAtlases(checkpoint)
-  V.muzzlePath = 'assets/art/muzzle-fresco-v12.png'
+  local M = WeaponFrame.muzzle
+  V.muzzlePath = M.path
   local muzzleData = love.image.newImageData(V.muzzlePath)
   local mw, mh = muzzleData:getDimensions()
   V.muzzleImage = love.graphics.newImage(muzzleData)
@@ -77,17 +80,17 @@ function V.init(checkpoint)
       local left, right = math.ceil(col * mw / 4), math.ceil((col + 1) * mw / 4)
       if row == 0 then
         if col == 0 then
-          right = 470
+          right = M.split
         elseif col == 1 then
-          left = 470
+          left = M.split
         end
       end
-      local top, bottom = row == 0 and 0 or 530, row == 0 and 530 or mh
+      local top, bottom = row == 0 and 0 or M.rowSplit, row == 0 and M.rowSplit or mh
       local ymin, ymax = bottom, top
       for py = top, bottom - 1 do
         for px = left, right - 1 do
           local _, _, _, a = muzzleData:getPixel(px, py)
-          if a > 0.10 then
+          if a > M.painted then
             ymin = math.min(ymin, py)
             ymax = math.max(ymax, py)
           end
@@ -96,10 +99,10 @@ function V.init(checkpoint)
       -- The source's painted ignition point, not the centre of its empty cell,
       -- anchors the effect to the two muzzles (or the revolver's single barrel).
       local sum, count = 0, 0
-      for py = math.max(ymin, ymax - 7), ymax do
+      for py = math.max(ymin, ymax - M.ignitionRows), ymax do
         for px = left, right - 1 do
           local _, _, _, a = muzzleData:getPixel(px, py)
-          if a > 0.20 then
+          if a > M.ignition then
             sum = sum + px - left
             count = count + 1
           end
@@ -225,14 +228,17 @@ function V.pose(g)
       end
     end
     local entry = closeProgress and 1
-      or math.max(0, math.min(1, (Reload.duration(g, Context.actor(g)) - left) / 0.08))
+      or math.max(
+        0,
+        math.min(1, (Reload.duration(g, Context.actor(g)) - left) / WeaponFrame.reloadEntry)
+      )
     entry = entry * entry * (3 - 2 * entry)
     x, y, roll = x * entry, y * entry, roll * entry
   end
   return x, y, roll
 end
 function V.transform(g, w, h)
-  local unit = h / 450
+  local unit = h / UNIT_HEIGHT
   -- The draw (feedback/weapon_motion.lua): the gun rises into its place and
   -- its stock seats there.
   local drop, seatY, seatRoll = WeaponMotion.draw(g)
@@ -242,22 +248,23 @@ function V.transform(g, w, h)
   rx, ry, roll = rx + mx, ry + my + seatY, roll + mroll + seatRoll
   local kick = 0
   local wrist = 0
+  local S = WeaponFrame.shot
   if g.view.motion ~= false then
     -- Two stages (src/feedback/weight.lua): the shove back at the eye (kickBack, fast,
     -- lower and larger) and the slower muzzle rise of the recoil spring.
     kick = g.view.kickBack or 0
     wrist = g.view.weaponShotRoll or 0
-    roll = roll - g.view.recoil * 0.018 - kick * (g.view.kickFlip or 0) + wrist
+    roll = roll - g.view.recoil * S.roll - kick * (g.view.kickFlip or 0) + wrist
   end
   local x = w * 0.5 + rx * unit
   local bodyPunch = g.view.motion ~= false
-      and math.max(-4, math.min(4, (g.view.viewPunch or 0) * 80))
+      and math.max(-S.punchReach, math.min(S.punchReach, (g.view.viewPunch or 0) * S.punch))
     or 0
   -- The wrist pivots at the registered grip, not the atlas centre. Its small
   -- upward follow-through keeps the revolver from merely falling down-screen.
   -- A cast whose hand is the gun's support hand lowers the gun meanwhile.
   local y = h
-    + (11 + ry + (g.view.motion ~= false and g.view.recoil * 14 or 0) + kick * 6 + bodyPunch + wrist * 32) * unit
+    + (S.rest + ry + (g.view.motion ~= false and g.view.recoil * S.recoil or 0) + kick * S.kick + bodyPunch + wrist * S.wrist) * unit
     + extra
     + AbilityFeedback.weaponLowered(g) * h
   local art = WeaponArt.of(g)
@@ -265,7 +272,7 @@ function V.transform(g, w, h)
     local pixels = h * art.screenScale / art.cellWidth
     x, y = x + art.placement[1] * pixels, y + art.placement[2] * pixels
   end
-  return x, y, roll, 1 + 0.045 * kick
+  return x, y, roll, 1 + S.grow * kick
 end
 -- Freeze the first visible launch point. A case already in flight belongs to
 -- that point, not to the current weapon's pose or the player's next weapon.
@@ -288,7 +295,7 @@ function V.shellPosition(g, shell, w, h)
     shell.originX = (x + math.cos(angle) * dx - math.sin(angle) * dy) / w
     shell.originY = (y + math.sin(angle) * dx + math.cos(angle) * dy) / h
   end
-  local unit = h / 450
+  local unit = h / UNIT_HEIGHT
   return shell.originX * w + shell.x * unit, shell.originY * h + shell.y * unit
 end
 function V.draw(g, w, h, tint)
@@ -365,16 +372,17 @@ function V.draw(g, w, h, tint)
   for _, s in ipairs(g.view.shells) do
     local sx, sy = V.shellPosition(g, s, w, h)
     if sx then
-      local alpha = math.min(1, s.life * 4)
+      local C = WeaponFrame.shell
+      local alpha = math.min(1, s.life * C.fade)
       lg.push()
       lg.translate(sx, sy)
       lg.rotate(s.angle)
-      lg.scale(h / 450, h / 450)
-      -- Paper cartridge in umber with a dull bone rim, not polished brass.
-      lg.setColor(0.34, 0.19, 0.11, alpha)
-      lg.rectangle('fill', -2, -5, 4, 10)
-      lg.setColor(0.66, 0.55, 0.37, alpha)
-      lg.rectangle('fill', -2, -5, 4, 3)
+      lg.scale(h / UNIT_HEIGHT, h / UNIT_HEIGHT)
+      local x, y = -C.width / 2, -C.length / 2
+      lg.setColor(C.body[1], C.body[2], C.body[3], alpha)
+      lg.rectangle('fill', x, y, C.width, C.length)
+      lg.setColor(C.rim[1], C.rim[2], C.rim[3], alpha)
+      lg.rectangle('fill', x, y, C.width, C.rimLength)
       lg.pop()
     end
   end

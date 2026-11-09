@@ -22,7 +22,7 @@ function Atlas.load(path, columns, rows, bands, columnBands, resources)
       local count = 0
       for x = x0, x1 do
         local _, _, _, a = data:getPixel(x, y)
-        if a > 0.65 then
+        if a > 0.65 then -- constant: a painted foot pixel, as the sheets were cut
           count = count + 1
         end
       end

@@ -12,9 +12,13 @@ local Visibility = require('src.render.light_visibility')
 local Resources = require('src.render.resources')
 local Pools = require('src.session.world')
 local Grid = require('src.physics.grid')
-local L = { budget = 16, capacity = Visibility.capacity, fade = 2 }
+local LightLook = require('src.content.art.light_look')
+-- The world shader has 16 light slots; the last two carry projectiles.
+local L = { budget = 16, capacity = Visibility.capacity, fade = 2 } -- constant: the shader's slots
+local PROJECTILE_SLOT = L.budget - 2
 -- A light reaches reach m (the shader's falloff: 1 - d^2 / 72).
-L.reach = math.sqrt(72)
+local REACH2 = 72 -- constant: the shader's falloff
+L.reach = math.sqrt(REACH2)
 function L.new()
   local l = setmetatable({
     positions = {},
@@ -38,7 +42,7 @@ local function occupy(self, i, s)
   self.slots[i] = s
   if s then
     pos[1], pos[2], pos[3] = s.x, s.y, s.z
-    tile[1], tile[2] = ((i - 1) % 4) * 0.25, math.floor((i - 1) / 4) * 0.25
+    tile[1], tile[2] = ((i - 1) % 4) / 4, math.floor((i - 1) / 4) / 4
     origin[1], origin[2] = Visibility.frame(self.world, s.x, s.z)
   else
     tile[1], tile[2] = -1, -1
@@ -116,7 +120,7 @@ function L:prepare(w, checkpoint)
   if w.ember then
     sources[#sources + 1] = {
       x = w.ember.x,
-      y = Ground.height(w, w.ember.x, w.ember.z) + 1.55,
+      y = Ground.height(w, w.ember.x, w.ember.z) + LightLook.emberHeight,
       z = w.ember.z,
       shrine = true,
     }
@@ -245,21 +249,23 @@ function L:update(g, camera, forward)
   for i = 1, L.capacity do
     local s, c = self.slots[i], self.colors[i]
     if s and s.lamp then
-      local lamp = s.lamp
-      local t = g.time + lamp.phase * 1.7
-      local f = 1 + math.sin(t * 1.3) * 0.045 + math.sin(t * 2.3 + 1.1) * 0.025
-      c[1], c[2], c[3] =
-        (lamp.color and lamp.color[1] or 1.65) * f,
-        (lamp.color and lamp.color[2] or 1.02) * f,
-        (lamp.color and lamp.color[3] or 0.57) * f
+      local lamp, look = s.lamp, LightLook.lamp
+      local t = g.time + lamp.phase * look.phase
+      local f = 1
+        + math.sin(t * look.rate) * look.depth
+        + math.sin(t * look.rate2 + look.offset2) * look.depth2
+      local color = lamp.color or look.color
+      c[1], c[2], c[3] = color[1] * f, color[2] * f, color[3] * f
     elseif s and s.seal then
-      local f = s.seal.active and 0.18 or 0.52
+      local look = LightLook.seal
+      local f = s.seal.active and look.active or look.waiting
       for k = 1, 3 do
-        c[k] = (0.38 + s.seal.color[k] * 0.45) * f
+        c[k] = (look.base + s.seal.color[k] * look.own) * f
       end
     elseif s and view.shrine then
-      local f = view.shrineActive and 1.1 or 0.25
-      c[1], c[2], c[3] = 0.72 * f, 1.02 * f, 0.82 * f
+      local look = LightLook.shrine
+      local f = view.shrineActive and look.lit or look.resting
+      c[1], c[2], c[3] = look.color[1] * f, look.color[2] * f, look.color[3] * f
     end
     if s and fade then
       local k = fade[s] or 0
@@ -267,7 +273,8 @@ function L:update(g, camera, forward)
     end
   end
   -- Two short-radius projectile lights. Muzzle flash is a separate camera light.
-  local best, second, bestD, secondD = nil, nil, 36, 36
+  local P = LightLook.projectile
+  local best, second, bestD, secondD = nil, nil, P.reach2, P.reach2
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
     local d = (b.x - Context.viewer(g).x) ^ 2 + (b.z - Context.viewer(g).z) ^ 2
     if d < bestD then
@@ -278,17 +285,17 @@ function L:update(g, camera, forward)
   end
   for j = 1, 2 do
     local b = j == 1 and best or second
-    local c, p = self.colors[14 + j], self.positions[14 + j]
+    local c, p = self.colors[PROJECTILE_SLOT + j], self.positions[PROJECTILE_SLOT + j]
     if b then
-      local color = b.color or { 1, 0.4, 0.1 }
+      local color = b.color or P.color
       p[1], p[2], p[3] = b.x, b.y, b.z
-      c[1], c[2], c[3] = color[1] * 0.75, color[2] * 0.75, color[3] * 0.75
+      c[1], c[2], c[3] = color[1] * P.share, color[2] * P.share, color[3] * P.share
     end
   end
 end
 function L:bind(shader)
   local look = self.world.decor and self.world.decor.atmosphere
-  shader:send('ambientLight', look and look.ambient or { 0.29, 0.31, 0.35 })
+  shader:send('ambientLight', look and look.ambient or LightLook.ambient)
   shader:send('lights', unpack(self.positions))
   shader:send('lightColors', unpack(self.colors))
   shader:send('shadowTiles', unpack(self.tiles))
@@ -313,7 +320,8 @@ function L:send(shader, g, camera, forward)
 end
 -- The light at a world point from the lights in the slots.
 function L:sample(x, y, z)
-  local r, g, b = 0.51, 0.53, 0.57
+  local r, g, b = unpack(LightLook.figures)
+  local S = LightLook.sample
   local look = self.world and self.world.decor and self.world.decor.atmosphere
   if look then
     r, g, b = unpack(look.figures)
@@ -325,9 +333,9 @@ function L:sample(x, y, z)
     if s then
       local dx, dy, dz = s.x - x, s.y - y, s.z - z
       local d2 = dx * dx + dy * dy + dz * dz
-      if d2 < 72 and Visibility.visible(self.world, s.x, s.z, x, z) then
+      if d2 < REACH2 and Visibility.visible(self.world, s.x, s.z, x, z) then
         local c = self.colors[i]
-        local f = 0.40 * (1 - d2 / 72) / (1 + d2 * 0.22)
+        local f = S.share * (1 - d2 / REACH2) / (1 + d2 * S.falloff)
         r, g, b = r + c[1] * f, g + c[2] * f, b + c[3] * f
         local weight = f * (c[1] + c[2] + c[3]) / 3
         local d = math.sqrt(dx * dx + dz * dz) + 1e-6
@@ -338,6 +346,13 @@ function L:sample(x, y, z)
       end
     end
   end
-  return math.min(1.08, r), math.min(1.06, g), math.min(1.02, b), lx, lz, dominant, strongest
+  local most = S.brightest
+  return math.min(most[1], r),
+    math.min(most[2], g),
+    math.min(most[3], b),
+    lx,
+    lz,
+    dominant,
+    strongest
 end
 return L

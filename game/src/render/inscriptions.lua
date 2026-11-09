@@ -1,5 +1,6 @@
 -- World-space pigment from the existing illustrated glyphs, baked once per
 -- inscription per renderer. No HUD styling changes, generated letters or I/O.
+local InscriptionLook = require('src.content.art.frame_look').inscription
 local Text = require('src.content.text')
 local BitmapFont = require('src.ui.fonts.bitmap_font')
 local Inscriptions = require('src.content.art.inscriptions')
@@ -19,8 +20,8 @@ local function bake(r, id)
     -- The text catalogue preserves the original wording of these excerpts.
     lines[#lines + 1] = Text.get(key)
   end
-  local font = BitmapFont.load(48)
-  local width, margin = 0, 16
+  local font = BitmapFont.load(InscriptionLook.font)
+  local width, margin = 0, InscriptionLook.margin
   for _, line in ipairs(lines) do
     assert(font:hasGlyphs(line), 'missing inscription glyph: ' .. id)
     width = math.max(width, font:getWidth(line))
@@ -93,7 +94,7 @@ function I.draw(r, g, view)
       nil,
       false,
       1,
-      { 0.42, 0.075, 0.045 },
+      InscriptionLook.ink,
       art.mesh
     )
     love.graphics.pop()

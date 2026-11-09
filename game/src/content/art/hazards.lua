@@ -17,4 +17,8 @@ return {
   warningAlpha = 1,
   liveBoundaryAlpha = 1,
   pigmentLightFloor = 0.68,
+  -- A telegraph's stain, and the share a strip's inner joins crop from each
+  -- end (outer ends keep their painted taper).
+  telegraphAlpha = 0.72,
+  stripTrim = 0.07,
 }

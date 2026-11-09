@@ -36,12 +36,14 @@ Kinds:register('lightning', {
       return
     end
     local preparing = h.delay > 0
-    local progress = preparing and (1 - h.delay / math.max(0.01, h.maxDelay or 1))
-      or (1 - (h.life or 0) / 0.22)
+    local A = Rites.air
+    local progress = preparing and (1 - h.delay / math.max(1e-2, h.maxDelay or 1))
+      or (1 - (h.life or 0) / A.strike)
     if not preparing then
       -- A short narrow strike leaves the enemy silhouette visible. The ground ring
       -- is still the exact authoritative damage radius, not this ornamental width.
-      effects.spell(r, g, 3, progress, h.x, Ground.of(g.world, h) + 1.5, h.z, 2.8, 0.9, false)
+      local y = Ground.of(g.world, h) + A.lift
+      effects.spell(r, g, 3, progress, h.x, y, h.z, A.size, A.alpha, false)
     end
   end,
 })
@@ -114,7 +116,7 @@ Kinds:register('wave', {
 -- is marked; when it strikes, bolts fall all around.
 local spot = {}
 local function around(h, i)
-  local a = i * 2.399 + h.angle * 0.3
+  local a = i * 2.399 + h.angle * Rites.storm.turn -- constant: the golden angle
   local d = h.radius + Rites.storm.near + (i % 3) * Rites.storm.spread
   spot.x, spot.z = h.x + math.sin(a) * d, h.z + math.cos(a) * d
   return spot
@@ -129,11 +131,11 @@ Kinds:register('tempest', {
       local at = around(h, i)
       local y = Ground.of(g.world, at)
       if h.delay > 0 then
-        local progress = 1 - h.delay / math.max(0.01, h.maxDelay)
-        effects.spell(r, g, 2, progress, at.x, y + 0.045, at.z, S.mark, 1, true)
-      elseif h.pulse > h.interval * 0.72 then
-        local progress = 1 - (h.pulse - h.interval * 0.72) / (h.interval * 0.28)
-        effects.spell(r, g, 3, progress, at.x, y + S.height, at.z, S.size, 0.9, false)
+        local progress = 1 - h.delay / math.max(1e-2, h.maxDelay)
+        effects.spell(r, g, 2, progress, at.x, y + S.markLift, at.z, S.mark, 1, true)
+      elseif h.pulse > h.interval * S.strike then
+        local progress = 1 - (h.pulse - h.interval * S.strike) / (h.interval * S.strikeSpan)
+        effects.spell(r, g, 3, progress, at.x, y + S.height, at.z, S.size, S.alpha, false)
       end
     end
   end,
@@ -159,7 +161,7 @@ end
 Kinds:register('sweepline', {
   ground = function(r, g, h)
     local R = Rites.ray
-    local progress = h.delay > 0 and (1 - h.delay / math.max(0.001, h.maxDelay)) or 1
+    local progress = h.delay > 0 and (1 - h.delay / math.max(1e-3, h.maxDelay)) or 1
     floorTear(
       r,
       g,
@@ -210,7 +212,7 @@ function Kinds.rayAfterimage(r, g, h, age)
   if h.kind == 'wave' then
     waveResidue(r, g, h, h.radius, 0.5 * (1 - age / R.embers))
   else
-    floorTear(r, g, h, R.settling, 0.7 * (1 - age / R.embers))
+    floorTear(r, g, h, R.settling, Rites.rayAfterimage * (1 - age / R.embers))
     local style = Rites.fissures[h.art]
     if style then
       local ground = Ground.of(g.world, h)

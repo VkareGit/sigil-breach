@@ -1,6 +1,7 @@
 -- Stream one compact instance record per particle, not 36 expanded vertices.
 -- A batch of stamps (plan v10 V3) also carries each instance's alpha and is
 -- lit like the world it lies on (the shadow pools under bodies).
+local FrameLook = require('src.content.art.frame_look')
 local Mesh = require('src.render.mesh')
 local B = {}
 local white = { 1, 1, 1 }
@@ -63,9 +64,9 @@ function B:draw(renderer, g)
   renderer:cameraUniforms(shader)
   renderer.lighting:bind(shader)
   if self.stamps then
-    shader:send('flash', g.view.muzzle * 7)
+    shader:send('flash', g.view.muzzle * FrameLook.flash.stamps)
   else
-    shader:send('flash', g.view.muzzle * 2.5) -- particles must not flare into orange specks
+    shader:send('flash', g.view.muzzle * FrameLook.flash.particles)
     shader:send('objectAlpha', 1)
   end
   shader:send('flashColor', g.view.flashColor)

@@ -18,12 +18,13 @@ function R.init(r)
   r.markShader = love.graphics.newShader(Shaders.surface)
 end
 local corners = { { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }
+local MarkLook = require('src.content.art.frame_look').surfaceMarks
 function R.draw(r, g)
   local count = 0
   for _, d in ipairs(g.view.surfaceMarks or {}) do
     if (r.camera[1] - d.x) * d.nx + (r.camera[2] - d.y) * d.ny + (r.camera[3] - d.z) * d.nz > 0 then
       local ux, uy, uz = d.nz, 0, -d.nx
-      if math.abs(d.ny) > 0.7 then
+      if math.abs(d.ny) > MarkLook.floor then
         ux, uy, uz = 1, 0, 0
       end
       local vx, vy, vz = d.ny * uz - d.nz * uy, d.nz * ux - d.nx * uz, d.nx * uy - d.ny * ux
@@ -42,22 +43,22 @@ function R.draw(r, g)
         if d.surface == 'wall' then
           if d.nx ~= 0 then
             vertex[3] = math.max(
-              math.floor(d.z + 0.5) - 0.497,
-              math.min(math.floor(d.z + 0.5) + 0.497, vertex[3])
+              math.floor(d.z + 0.5) - MarkLook.inset,
+              math.min(math.floor(d.z + 0.5) + MarkLook.inset, vertex[3])
             )
           else
             vertex[1] = math.max(
-              math.floor(d.x + 0.5) - 0.497,
-              math.min(math.floor(d.x + 0.5) + 0.497, vertex[1])
+              math.floor(d.x + 0.5) - MarkLook.inset,
+              math.min(math.floor(d.x + 0.5) + MarkLook.inset, vertex[1])
             )
           end
-          vertex[2] = math.max(0.005, vertex[2])
+          vertex[2] = math.max(MarkLook.lift, vertex[2])
         end
         vertex[4], vertex[5] = (col + (q[1] + 1) * 0.5) * 0.5, (row + (q[2] + 1) * 0.5) * 0.5
         vertex[6], vertex[7], vertex[8], vertex[9] =
-          math.min(1, red + 0.12),
-          math.min(1, green + 0.12),
-          math.min(1, blue + 0.12),
+          math.min(1, red + MarkLook.brighten),
+          math.min(1, green + MarkLook.brighten),
+          math.min(1, blue + MarkLook.brighten),
           SurfaceMarkFeedback.alpha(d)
       end
       count = count + 6

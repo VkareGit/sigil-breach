@@ -21,7 +21,7 @@ function Ash.ground(r, g, h)
     math.min(h.radius, style.width),
     0,
     0,
-    h.delay > 0 and 0.65 or 0.85
+    h.delay > 0 and Rites.poolPaint.warned or Rites.poolPaint.burning
   )
   return true
 end
@@ -31,7 +31,7 @@ function Ash.air(r, g, h)
     return false
   end
   if h.delay > 0 then
-    local progress = 1 - h.delay / math.max(h.maxDelay, 0.001)
+    local progress = 1 - h.delay / math.max(h.maxDelay, 1e-3)
     Panels.draw(
       r,
       g,
@@ -42,7 +42,7 @@ function Ash.air(r, g, h)
       h.radius,
       style.warningWidth,
       style.warningHeight,
-      0.55 + progress * 0.45,
+      Rites.poolPaint.warningFrom + progress * Rites.poolPaint.warningGrow,
       style.warningBase
     )
   else
@@ -89,7 +89,7 @@ function Ash.residue(r, g, h, age)
       math.min(h.radius, style.width),
       0,
       0,
-      0.65 * (1 - age / style.embers)
+      Rites.poolPaint.embers * (1 - age / style.embers)
     )
   end
 end

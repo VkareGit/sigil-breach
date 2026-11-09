@@ -2,20 +2,21 @@
 -- the metal bowl excluded by UVs. No hazards, particles or collision state.
 local Context = require('src.session.context')
 local Ground = require('src.physics.ground')
+local FireLook = require('src.content.art.arena_fire_look')
 local Fire = {}
 function Fire.draw(r, g, view, time)
   if not view.arenaFire then
     return
   end
-  local alpha = math.min(1, math.max(0, (g.elapsed - view.arenaStarted) / 0.8))
+  local alpha = math.min(1, math.max(0, (g.elapsed - view.arenaStarted) / FireLook.fadeIn))
   local shader, viewer = r.spriteShader, Context.viewer(g)
-  r.arenaFlameRects = r.arenaFlameRects
-    or {
-      { 0, 0, 0.25, 192 / 887 },
-      { 0.25, 0, 0.25, 192 / 887 },
-      { 0.5, 0, 0.25, 192 / 887 },
-      { 0.75, 0, 0.25, 192 / 887 },
-    }
+  if not r.arenaFlameRects then
+    local top = FireLook.flameTop / FireLook.sheetHeight
+    r.arenaFlameRects = {}
+    for i = 1, 4 do
+      r.arenaFlameRects[i] = { (i - 1) / 4, 0, 1 / 4, top }
+    end
+  end
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(shader)
@@ -23,17 +24,17 @@ function Fire.draw(r, g, view, time)
   r.sprite:setTexture(r.props)
   shader:send('silhouette', 0)
   shader:send('soft', 0)
-  shader:send('effectAlpha', alpha * 0.94)
-  shader:send('effectTint', { 1, 0.88, 0.72 })
-  shader:send('brightness', 0.94)
+  shader:send('effectAlpha', alpha * FireLook.alpha)
+  shader:send('effectTint', FireLook.tint)
+  shader:send('brightness', FireLook.brightness)
   shader:send('lean', 0)
   shader:send('pain', 0)
   for i, at in ipairs(view.arenaFire) do
     -- Offset the authored sequence so the perimeter does not march in unison.
-    local frame = 1 + math.floor(time * 7 + i * 1.37) % 4
-    local height = 0.56 + 0.12 * math.sin(i * 2.7) ^ 2
+    local frame = 1 + math.floor(time * FireLook.rate + i * FireLook.offset) % 4
+    local height = FireLook.height + FireLook.swell * math.sin(i * FireLook.wave) ^ 2
     shader:send('frameRect', r.arenaFlameRects[frame])
-    shader:send('spriteStretch', r:vec2(2.3, 1))
+    shader:send('spriteStretch', r:vec2(FireLook.width, 1))
     shader:send('objectPos', r:vec3(at.x, Ground.height(g.world, at.x, at.z), at.z))
     shader:send('objectYaw', math.atan2(viewer.x - at.x, viewer.z - at.z))
     shader:send('objectScale', height)

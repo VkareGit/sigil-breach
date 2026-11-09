@@ -3,11 +3,12 @@ local Atlas = require('src.render.atlas')
 local Ritual = require('src.render.ritual_art')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
+local PortalLook = require('src.content.art.portal_look')
 local P = {}
 local Archetypes = require('src.content.enemies')
 P.colors = require('src.run.gates').colors
 P.fallback = Archetypes.neutralLook.portal
-P.path = 'assets/art/portal-fresco-v23.png'
+P.path = PortalLook.path
 -- The portal colour of a creature id (its appearance), or the fallback.
 function P.color(kind)
   local def = Archetypes.get(kind)
@@ -16,7 +17,7 @@ end
 function P.progress(gate)
   local total = gate.maxDelay
   if type(total) ~= 'number' or total ~= total or total <= 0 or total == math.huge then
-    total = 1.2
+    total = PortalLook.delay
   end
   local delay = gate.delay
   if type(delay) ~= 'number' or delay ~= delay then
@@ -26,25 +27,22 @@ function P.progress(gate)
 end
 function P.frame(gate)
   local t = P.progress(gate)
-  if t < 0.15 then
-    return 1
+  for frame, ends in ipairs(PortalLook.opening) do
+    if t < ends then
+      return frame
+    end
   end
-  if t < 0.35 then
-    return 2
-  end
-  if t < 0.60 then
-    return 3
-  end
-  if t >= 0.90 then
+  if t >= PortalLook.done then
     return 6
   end
-  return 4 + math.floor(t * 18) % 3
+  return 4 + math.floor(t * PortalLook.cycle) % 3
 end
 function P.arrivalFrame(age)
-  if type(age) ~= 'number' or age ~= age or age < 0 or age >= 0.6 then
+  if type(age) ~= 'number' or age ~= age or age < 0 or age >= PortalLook.arrival then
     return nil
   end
-  return age < 0.16 and 6 or (age < 0.38 and 7 or 8)
+  local ends = PortalLook.arrivalFrames
+  return age < ends[1] and 6 or (age < ends[2] and 7 or 8)
 end
 function P.init(r)
   local image, feet, frames = Atlas.load(P.path, 4, 2, nil, nil, r.resources)
@@ -60,10 +58,11 @@ local function paint(r, x, z, kind, frame, alpha, brightness, ground)
   local region = art.frames[frame]
   local color, tint = P.color(kind), r.portalTint
   for i = 1, 3 do
-    tint[i] = 0.72 + 0.28 * color[i]
+    tint[i] = PortalLook.tint.base + PortalLook.tint.share * color[i]
   end
   local def = Archetypes.get(kind)
-  local size = (def and def.appearance.stature == 'large') and 3.6 or 2.75
+  local size = (def and def.appearance.stature == 'large') and PortalLook.largeSize
+    or PortalLook.size
   love.graphics.setShader(shader)
   r.sprite:setTexture(art.image)
   shader:send('spriteStretch', r:vec2(region.width, region.height))
@@ -75,7 +74,7 @@ local function paint(r, x, z, kind, frame, alpha, brightness, ground)
   shader:send('frameRect', region.rect)
   shader:send(
     'objectPos',
-    r:vec3(x, (ground or 0) + 0.018 - art.feet[frame] * size * region.height, z)
+    r:vec3(x, (ground or 0) + PortalLook.lift - art.feet[frame] * size * region.height, z)
   )
   shader:send('objectYaw', math.atan2(r.camera[1] - x, r.camera[3] - z))
   shader:send('objectScale', size)
@@ -92,20 +91,31 @@ function P.draw(r, gate, _, world)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
-  r:object(r.shadow, gate.x, ground + 0.014, gate.z, 0, 0.9 + 0.8 * t, nil, 0.25 + 0.35 * t)
+  local G = PortalLook.gate
+  r:object(
+    r.shadow,
+    gate.x,
+    ground + G.shadowLift,
+    gate.z,
+    0,
+    G.shadow + G.shadowGrow * t,
+    nil,
+    G.shadowAlpha + G.shadowAlphaGrow * t
+  )
   Ritual.draw(
     r,
     gate.x,
-    ground + 0.033,
+    ground + G.medallionLift,
     gate.z,
-    (1.55 - 0.65 * t) * 2,
+    (G.medallion - G.medallionShrink * t) * 2,
     0,
     nil,
     nil,
     false,
-    0.55 + 0.4 * t
+    G.medallionAlpha + G.medallionAlphaGrow * t
   )
-  paint(r, gate.x, gate.z, gate.kind, P.frame(gate), 0.9 + 0.1 * t, 0.85 + 0.22 * t, ground)
+  local alpha, bright = G.alpha + G.alphaGrow * t, G.bright + G.brightGrow * t
+  paint(r, gate.x, gate.z, gate.kind, P.frame(gate), alpha, bright, ground)
   love.graphics.pop()
 end
 function P.arrival(r, g, e)
@@ -119,19 +129,20 @@ function P.arrival(r, g, e)
   love.graphics.push('all')
   love.graphics.setDepthMode('less', false)
   love.graphics.setShader(r.shader)
+  local A, span = PortalLook.arriving, PortalLook.arrival
   Ritual.draw(
     r,
     e.x,
-    ground + 0.028,
+    ground + A.lift,
     e.z,
-    (1.4 - age) * 2,
+    (A.medallion - age) * 2,
     0,
     nil,
     nil,
     false,
-    (1 - age / 0.6) * 0.75
+    (1 - age / span) * A.alpha
   )
-  paint(r, e.x, e.z, kind, frame, 1 - (age / 0.6) ^ 2, 1.05 - age * 0.25, ground)
+  paint(r, e.x, e.z, kind, frame, 1 - (age / span) ^ 2, A.bright - age * A.dim, ground)
   love.graphics.pop()
 end
 -- Pending and arriving portals share a stable back-to-front order. The list

@@ -33,11 +33,11 @@ function Accents.draw(r, g, e, effects)
     HazardArt.upright(
       r,
       e.x,
-      Ground.of(g.world, e) + 0.1,
+      Ground.of(g.world, e) + Rites.accents.evadeLift,
       e.z,
       slipping and HazardArt.sequence(Rites.blink.prepare, progress)
-        or (progress < 0.55 and 'fragments' or 'feathers'),
-      1.65,
+        or (progress < Rites.accents.feathers and 'fragments' or 'feathers'),
+      Rites.accents.evadeSize,
       math.atan2(viewer.x - e.x, viewer.z - e.z),
       1
     )
@@ -78,11 +78,12 @@ function Accents.draw(r, g, e, effects)
   end
   if Rites.antlerCasts[spec.id] and (windup or e.ai == 'strike') then
     local t = ActionPhase.sample(e)
-    local charge = windup and t or math.max(0, 1 - (e.phase or 0) / 0.16)
+    local A = Rites.accents
+    local charge = windup and t or math.max(0, 1 - (e.phase or 0) / A.glow)
     if not windup and spec.kind == 'storm' then
       -- These are the marking instants, not the later strikes of each ground mark.
       local beat = (e.phase or 0) % spec.interval
-      charge = math.max(0, 1 - beat / 0.16)
+      charge = math.max(0, 1 - beat / A.glow)
     end
     local x, y, z = centre(g, e, 'antlers')
     if x then
@@ -90,32 +91,32 @@ function Accents.draw(r, g, e, effects)
       local storm = Rites.lightnings[spec.art]
       if storm then
         local viewer = Context.viewer(g)
-        local size = storm.hornSize * (0.65 + charge * 0.35)
-        for _, side in ipairs({ -0.28, 0.28 }) do
+        local size = storm.hornSize * (A.hornBase + charge * A.hornGrow)
+        for _, side in ipairs({ -A.hornSpread, A.hornSpread }) do
           HazardArt.upright(
             r,
             x + p.rx * side,
-            y - size * 0.3,
+            y - size * A.hornDrop,
             z + p.rz * side,
             HazardArt.sequence(storm.frames, charge),
             size,
             math.atan2(viewer.x - x, viewer.z - z),
-            0.6 + charge * 0.4
+            A.hornAlpha + charge * A.hornAlphaGrow
           )
         end
         return true
       end
       for i = 1, 4 do
-        local side = (i - 2.5) * 0.17
+        local side = (i - 2.5) * A.sparkSpacing -- constant: four sparks centred
         effects.spell(
           r,
           g,
           0,
           math.floor(charge * 3) / 3,
           x + p.rx * side,
-          y + (i % 2) * 0.13,
+          y + (i % 2) * A.sparkLift,
           z + p.rz * side,
-          0.42,
+          A.sparkSize,
           1,
           false
         )

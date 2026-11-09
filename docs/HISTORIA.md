@@ -75,6 +75,22 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G7c, magiczne liczby: cały `render/` na zero, 2026-11-09: efekty, sztuka
+  świata, światła, medaliony i pieczęcie, liczby obrażeń, portale, popiół,
+  ogień areny, dłonie i łuski, tabliczki galerii, akcenty rzucania, zagrożenia,
+  cienie, kamera, znaki na powierzchniach i pod ciałami, etapy upadku sal,
+  podgląd ataku, widoczność świateł. Nowa treść: `content/art/effect_look`,
+  `world_look`, `light_look`, `ritual_look`, `number_look`, `fresco_sheets`
+  (arkusze efektów przeniesione w całości), `portal_look`, `ash_look`,
+  `arena_fire_look`, `weapon_frame`, `gallery_look`; dopisane pola
+  w `rites`, `hazards`, `frame_look`, `masonry`, `falling_stone`. Długość życia
+  plamy w przejściu podłogi czyta teraz `feedback_look.effects.decalLife`
+  zamiast powtórzonej liczby 24. Stałe formatu z `-- constant:` (złoty kąt,
+  sloty shaderów, rozmiar atlasu widoczności, ostatnia klatka ostrzeżenia).
+  Dług zapisany w treści: zwrot znaków na posadzce liczony od osi mapy
+  proving (x = 16, z = 28) powinien być daną mapy. `render` z 576 na 0;
+  zostaje `ui` 1696 i `audio` 170. Obraz bez zmian.
+
 - G7b, magiczne liczby w budowie sal i w rendererze, 2026-11-09: cały
   `render/kit` (kaplica, pokoje, kamieniarka, rekwizyty, gruz, światło
   wypalone w wierzchołkach), siatka świata z kafli i `render/renderer.lua` na
@@ -4855,6 +4871,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G7c, magiczne liczby, cały `render/`, 2026-11-09: checker 0 zgłoszeń
+  przy zapadce `render` = 0; `interface` 19, `fresco` 338, `hazard-art` 43,
+  `ritual-art` 28, `summoning-art` 64, `seal-motion` 8, `charge-presentation`
+  30, `hit-feedback` 7 bez zmian. Rendery pokazu: 788 obrazów identycznych z G4a (sumy SHA-256), eksport dźwięku identyczny. Pełne Linux
+  All PASS w osobnym klonie: 9246 sprawdzeń, golden 10 PASS, `feel`
+  186 PASS. Windows niesprawdzony.
 
 - G7b, magiczne liczby w budowie sal i w rendererze, 2026-11-09: sonda
   (tymczasowa, zdjęta przed bramą) liczyła odcisk wszystkich wierzchołków

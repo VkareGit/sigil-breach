@@ -1,5 +1,6 @@
 -- Under every living demon: shadows, the windup ring, the portal it climbs
 -- out of and the landing point of a leap.
+local EnemyMarks = require('src.content.art.frame_look').enemyMarks
 local Action = require('src.content.defs.action')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
@@ -30,8 +31,9 @@ function Pass.draw(r, g)
         stamps:draw(r, g)
         stamps:clear()
       end
-      stamps:add(e.x, ground + 0.015, e.z, size * 1.35, nil, 0.24)
-      stamps:add(e.x, ground + 0.016, e.z, size * 0.95, nil, 0.38)
+      local M = EnemyMarks
+      stamps:add(e.x, ground + M.outerLift, e.z, size * M.outer, nil, M.outerAlpha)
+      stamps:add(e.x, ground + M.innerLift, e.z, size * M.inner, nil, M.innerAlpha)
     end
   end
   stamps:draw(r, g)
@@ -47,7 +49,8 @@ function Pass.draw(r, g)
       if e.ai == 'windup' and (not e.attackSpec or e.attackSpec.warning ~= false) then
         local progress = 1 - e.windup / (e.windupDuration or 1)
         local step = math.min(2, math.floor(progress * 3))
-        HazardArt.circle(r, g, e, look.windupMark, 0.42 + step * 0.175, 1)
+        local radius = EnemyMarks.windup + step * EnemyMarks.windupStep
+        HazardArt.circle(r, g, e, look.windupMark, radius, 1)
       end
       -- A leap marks its landing point from the crouch to the landing: the
       -- player always sees where the arc ends (dodgeable, never a surprise).
@@ -62,7 +65,7 @@ function Pass.draw(r, g)
       then
         local reachLand = spec.landRadius + Characters.of(Context.actor(g)).body.radius
         landing.x, landing.z, landing.level = e.aimX, e.aimZ, e.aimLevel
-        HazardArt.circle(r, g, landing, 'circle', reachLand * 1.04, 1)
+        HazardArt.circle(r, g, landing, 'circle', reachLand * EnemyMarks.landing, 1)
       end
     end
   end

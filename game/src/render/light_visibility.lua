@@ -5,13 +5,16 @@
 -- on a larger map a tile covers the window around its light, and a separate
 -- ground image carries the contact shade and walls of the whole map at the
 -- same density (plan v10 V3). Tiles are baked when a light takes a slot.
+local LightLook = require('src.content.art.light_look')
 local Tiles = require('src.core.tiles')
 local Grid = require('src.physics.grid')
 -- groundLimit: the widest whole-map shade (texels): a larger map gets a coarser one.
-local V = { resolution = 128, columns = 4, capacity = 14, texels = 4, groundLimit = 2048 }
+-- The shaders read this atlas (render/shadows.lua: 128 texels in a 512 atlas)
+-- and fourteen light slots (render/lights.lua).
+local V = { resolution = 128, columns = 4, capacity = 14, texels = 4, groundLimit = 2048 } -- constant: the shaders' atlas
 -- CPU tiles only: 64 * 128 * 128 * RGBA8 = 4 MiB per moving atlas.
 -- A world revision owns this cache; leaving it releases every native tile.
-V.cacheCapacity = 64
+V.cacheCapacity = 64 -- constant: worlds whose visibility is kept
 -- Cells covered by one tile around its light on a large map.
 V.window = V.resolution / V.texels
 local function solid(w, x, z)
@@ -68,7 +71,8 @@ function V.ambient(w, x, z)
       end
     end
   end
-  return 0.72 + 0.28 * math.min(1, nearest / 1.35)
+  local C = LightLook.contact
+  return C.darkest + C.rest * math.min(1, nearest / C.reach)
 end
 -- Whether every tile covers the whole map (the map fits the window).
 function V.whole(w)

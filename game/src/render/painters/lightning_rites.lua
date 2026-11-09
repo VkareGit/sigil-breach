@@ -21,7 +21,7 @@ function Storm.air(r, g, h)
     return false
   end
   local preparing = h.delay > 0
-  local progress = preparing and 1 - h.delay / math.max(h.maxDelay, 0.001)
+  local progress = preparing and 1 - h.delay / math.max(h.maxDelay, 1e-3)
     or 1 - h.life / style.flash
   local top = h.volume.top
   local cell = HazardArt.sequence(style.frames, progress)
@@ -48,7 +48,14 @@ end
 function Storm.residue(r, g, h, age)
   local style = Rites.lightnings[h.art]
   if style and age >= 0 and age < style.embers then
-    HazardArt.circle(r, g, h, style.spent, h.radius * 0.5, 0.45 * (1 - age / style.embers))
+    HazardArt.circle(
+      r,
+      g,
+      h,
+      style.spent,
+      h.radius * 0.5,
+      Rites.lightningEmbers * (1 - age / style.embers)
+    )
   end
 end
 -- What it paints (render/painters.lua).

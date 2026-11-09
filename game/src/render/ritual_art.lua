@@ -11,8 +11,9 @@ local Queries = require('src.session.queries')
 local GoeticSigils = require('src.ui.goetic_sigils')
 local Skin = require('src.ui.skin')
 local Archetypes = require('src.content.enemies')
-local Ritual = { path = 'assets/art/ritual-medallion-v31.png' }
-local UV, WHITE, INK = { 0, 0, 1, 1 }, { 1, 1, 1 }, { 0.88, 0.77, 0.58 }
+local RitualLook = require('src.content.art.ritual_look')
+local Ritual = { path = RitualLook.path }
+local UV, WHITE, INK = { 0, 0, 1, 1 }, { 1, 1, 1 }, RitualLook.ink
 -- In the game's camera basis, looking north puts +X at screen left. These
 -- UVs preserve source orientation from the south; yaw rotates the whole slab.
 Ritual.vertices = {
@@ -132,38 +133,42 @@ function Ritual.draw(r, x, y, z, diameter, yaw, image, uv, ink, alpha, dim)
     nil,
     false,
     alpha,
-    dim and { 0.58, 0.55, 0.50 }
+    dim and RitualLook.dim
   )
   if image then
     Ritual.layer(
       r,
       image,
       x,
-      y + 0.002,
+      y + RitualLook.symbol.lift,
       z,
-      diameter * 0.53,
+      diameter * RitualLook.symbol.share,
       yaw,
       uv,
       ink,
       alpha,
-      dim and { 0.47, 0.43, 0.36 }
+      dim and RitualLook.dimSymbol
     )
   end
   love.graphics.pop()
 end
 function Ritual.pad(r, pad, floor)
   local image, uv, ink = Ritual.symbol(pad)
-  local yaw = pad.z > 28 and math.pi or (pad.x < 16 and math.pi / 2 or -math.pi / 2)
-  Ritual.draw(r, pad.x, (floor or 0) + 0.024, pad.z, 1.8, yaw, image, uv, ink)
+  local axis, look = RitualLook.axisX, RitualLook.pad
+  local yaw = pad.z > RitualLook.southZ and math.pi
+    or (pad.x < axis and math.pi / 2 or -math.pi / 2)
+  Ritual.draw(r, pad.x, (floor or 0) + look.lift, pad.z, look.diameter, yaw, image, uv, ink)
 end
 function Ritual.seal(r, g, seal, view)
   local image = GoeticSigils.image(seal.id)
   if not image then
     return
   end
-  local yaw = seal.x < 16 and math.pi / 2 or (seal.x > 16 and -math.pi / 2 or 0)
+  local axis = RitualLook.axisX
+  local yaw = seal.x < axis and math.pi / 2 or (seal.x > axis and -math.pi / 2 or 0)
   local y = Ground.of(g.world, seal) + FieldData.altar.top
-  Ritual.draw(r, seal.x, y, seal.z, 1.18, yaw, image, nil, true, 1, seal.active)
+  local diameter = RitualLook.seal.diameter
+  Ritual.draw(r, seal.x, y, seal.z, diameter, yaw, image, nil, true, 1, seal.active)
   if seal.summoning then
     local glow, reveal, lift, complete =
       SealMotion.sample(view or Queries.world(g), seal.id, g.elapsed)
@@ -174,20 +179,21 @@ function Ritual.seal(r, g, seal, view)
     -- mural behind it and be occluded by a brazier/actor in front of it.
     love.graphics.setDepthMode('less', true)
     love.graphics.setColor(1, 1, 1)
+    local U, T, G = RitualLook.upright, RitualLook.trace, RitualLook.glow
     Ritual.layer(
       r,
       image,
       seal.x,
-      y + 0.10 + lift,
+      y + U.lift + lift,
       seal.z,
-      1.55,
+      U.size,
       facing,
       nil,
       true,
       1,
-      complete and { 0.58, 0.51, 0.40 } or { 1.0, 0.87, 0.66 },
+      complete and U.complete or U.drawing,
       r.ritualArt.upright,
-      0.58
+      U.soft
     )
     if glow > 0 then
       -- Trace the original historical ink, never invent or rotate its strokes.
@@ -196,33 +202,33 @@ function Ritual.seal(r, g, seal, view)
       Ritual.layer(
         r,
         image,
-        seal.x + math.sin(facing) * 0.003,
-        y + 0.10 + lift,
-        seal.z + math.cos(facing) * 0.003,
-        1.55,
+        seal.x + math.sin(facing) * T.toward,
+        y + U.lift + lift,
+        seal.z + math.cos(facing) * T.toward,
+        U.size,
         facing,
         nil,
         true,
         glow,
-        { 1, 0.92, 0.73 },
+        T.tint,
         r.ritualArt.upright,
-        1.15,
+        T.soft,
         reveal
       )
       Ritual.layer(
         r,
         r.ritualArt.image,
         seal.x,
-        y + 0.006,
+        y + G.lift,
         seal.z,
-        1.18 + glow * 0.15,
+        diameter + glow * G.grow,
         yaw,
         nil,
         false,
-        glow * 0.48,
-        { 1, 0.65, 0.32 },
+        glow * G.alpha,
+        G.tint,
         nil,
-        0.85
+        G.soft
       )
     end
     love.graphics.pop()

@@ -1,13 +1,14 @@
 -- Particles, the world objects on the ground (render/world_objects.lua:
 -- supplies, the Ember's ring and the echo) and the stains on the
 -- floor.
+local FrameLook = require('src.content.art.frame_look')
+local DecalLook = require('src.content.feedback_look').effects
 local WorldObjects = require('src.render.world_objects')
 local Archetypes = require('src.content.enemies')
 local Ground = require('src.physics.ground')
 local COLORS = require('src.render.effects').colors
--- A particle closer to the eye than this (m) shrinks away instead of
--- swelling into a block over the view (a fleck the knight runs through).
-local PARTICLE_NEAR = 0.7
+-- A particle near the eye shrinks away (content/art/frame_look.lua).
+local PARTICLE_NEAR = FrameLook.particleNear
 local Pass = {}
 function Pass.draw(r, g, time, view)
   local lg = love.graphics
@@ -27,12 +28,12 @@ function Pass.draw(r, g, time, view)
     r:object(
       r.stain,
       d.x,
-      Ground.of(g.world, d) + 0.012,
+      Ground.of(g.world, d) + FrameLook.decal.lift,
       d.z,
       d.rotation,
       d.size,
       color,
-      0.75 * math.min(1, (24 - d.age) / 3)
+      FrameLook.decal.alpha * math.min(1, (DecalLook.decalLife - d.age) / FrameLook.decal.fade)
     )
   end
 end

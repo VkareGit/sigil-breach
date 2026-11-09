@@ -4,19 +4,10 @@
 local PaintedNumbers = require('src.ui.fonts.painted_numbers')
 local MathX = require('src.core.mathx')
 local Ballistics = require('src.combat.ballistics')
-local N = { limit = 24, lifetime = 0.7 }
+local NumberLook = require('src.content.art.number_look')
+local N = { limit = NumberLook.limit, lifetime = NumberLook.lifetime }
 local min, max, abs, floor, sqrt = math.min, math.max, math.abs, math.floor, math.sqrt
-local colors = {
-  body = { 0.96, 0.92, 0.82 },
-  armor = { 0.70, 0.78, 0.86 },
-  head = { 1, 0.86, 0.52 },
-  broke = { 1, 0.80, 0.30 },
-  wound = { 1, 0.52, 0.50 },
-  kill = { 1, 0.62, 0.36 },
-  -- 0.20: a counter-hit glows ember red, a crippling leg hit pale ochre.
-  counter = { 1, 0.42, 0.24 },
-  crippled = { 0.86, 0.76, 0.52 },
-}
+local colors = NumberLook.colors
 local finite = MathX.finite
 local function overlap(ax, ay, aw, ah, bx, by, bw, bh, gap)
   gap = gap or 0
@@ -27,14 +18,15 @@ N.overlap = overlap
 -- The same round pillars and wall heights that stop a bullet stop its label.
 function N.visible(r, g, n)
   local cx, cy, cz = r.camera[1], r.camera[2], r.camera[3]
-  local dx, dy, dz = n.x - cx, n.y - 0.15 - cy, n.z - cz
+  local C = NumberLook.contact
+  local dx, dy, dz = n.x - cx, n.y - C.below - cy, n.z - cz
   local distance = sqrt(dx * dx + dy * dy + dz * dz)
-  if distance < 0.1 then
+  if distance < C.near then
     return false
   end
   local hit =
     Ballistics.world(g.world, cx, cy, cz, dx / distance, dy / distance, dz / distance, distance)
-  return hit >= distance - 0.035
+  return hit >= distance - C.slack
 end
 local function usable(n)
   return finite(n.x)
@@ -66,12 +58,12 @@ function N.layout(r, g, x, y, vw, vh, measure)
     return items
   end
   measure = measure or PaintedNumbers.measure
-  local unit = vh / 600
-  local margin = 8 * unit
-  local gap = 5 * unit
+  local unit = vh / NumberLook.referenceHeight
+  local margin = NumberLook.margin * unit
+  local gap = NumberLook.gap * unit
   local left, right, top, bottom = x + margin, x + vw - margin, y + margin, y + vh - margin
   local aimX, aimY = x + vw * 0.5, y + vh * 0.5
-  local aimHalf = 25 * unit
+  local aimHalf = NumberLook.aimHalf * unit
   local list = g.view.damageNumbers
   -- Older entries keep their place when another target is hit. No sort,
   -- per-frame random drift or mutation of the authoritative number records.
@@ -82,14 +74,18 @@ function N.layout(r, g, x, y, vw, vh, measure)
       if px and px >= 0 and px <= r.w and py >= 0 and py <= r.h then
         local t = n.age / N.lifetime
         local big = n.kill or n.head or n.wound or n.broke or n.counter
-        local height = (big and 32 or 26)
+        local height = (big and NumberLook.big or NumberLook.small)
           * unit
-          * (1 + (n.broke and 0.24 or 0.14) * max(0, 1 - n.age * 8))
+          * (
+            1
+            + (n.broke and NumberLook.breakPop or NumberLook.pop)
+              * max(0, 1 - n.age * NumberLook.settle)
+          )
         -- tostring switches large Lua numbers to scientific notation, whose
         -- "e+" is absent from the numeral atlas. Keep the finite integer in digits.
         local text = string.format('%.0f', floor(n.value + 0.5))
         local width = measure(text, height)
-        local maxWidth = min(150 * unit, vw * 0.23)
+        local maxWidth = min(NumberLook.widest * unit, vw * NumberLook.widestShare)
         if width > maxWidth then
           height = height * maxWidth / width
           width = maxWidth
@@ -97,9 +93,15 @@ function N.layout(r, g, x, y, vw, vh, measure)
         local side = n.side and n.side < 0 and -1 or 1
         local anchorX = x + px * vw / r.w
         local anchorY = y + py * vh / r.h
-        local bx =
-          max(left, min(right - width, anchorX + side * (30 + t * 12) * unit - width * 0.5))
-        local by = max(top, min(bottom - height, anchorY - height - (12 + t * 24) * unit))
+        local bx = max(
+          left,
+          min(
+            right - width,
+            anchorX + side * (NumberLook.side + t * NumberLook.sideDrift) * unit - width * 0.5
+          )
+        )
+        local drift = (NumberLook.rise + t * NumberLook.riseDrift) * unit
+        local by = max(top, min(bottom - height, anchorY - height - drift))
         -- Keep the entire glyph box clear, including long multi-digit numbers.
         if
           overlap(
@@ -160,7 +162,7 @@ function N.layout(r, g, x, y, vw, vh, measure)
           item.x, item.y, item.w, item.h = bx, by, width, height
           item.text, item.source, item.kind = text, n, kind
           item.color[1], item.color[2], item.color[3], item.color[4] =
-            color[1], color[2], color[3], min(1, (1 - t) * 2.2)
+            color[1], color[2], color[3], min(1, (1 - t) * NumberLook.fade)
           items[slot] = item
         end
       end

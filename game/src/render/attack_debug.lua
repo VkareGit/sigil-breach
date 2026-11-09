@@ -1,5 +1,6 @@
 -- Diagnostic contact painters, separate from attack art and damage handlers.
 -- They read the simulation's current reach/window; drawing never advances it.
+local DebugLook = require('src.content.art.effect_look').attackDebug
 local Registry = require('src.core.registry')
 local Melee = require('src.combat.melee')
 local Ground = require('src.physics.ground')
@@ -26,7 +27,7 @@ AttackDebug.register('lunge', function(r, g, e, atk, colors)
       y,
       z + dz * depth,
       0,
-      live and 1.1 or 0.6,
+      live and DebugLook.live or DebugLook.idle,
       live and colors.attack or colors.idle
     )
   end
@@ -39,7 +40,7 @@ AttackDebug.register('charge', function(r, g, e, atk, colors)
       Ground.of(g.world, e) + atk.contactY,
       e.z + e.lungeZ * atk.reach,
       0,
-      e.didHit and 0.6 or 1.1,
+      e.didHit and DebugLook.idle or DebugLook.live,
       e.didHit and colors.idle or colors.attack
     )
   end
@@ -49,12 +50,12 @@ AttackDebug.register('leap', function(r, g, e, atk, colors)
     r:object(
       r.warning,
       e.x,
-      Ground.of(g.world, e) + 0.03,
+      Ground.of(g.world, e) + DebugLook.ringLift,
       e.z,
       0,
       atk.landRadius,
       colors.attack,
-      0.85
+      DebugLook.ringAlpha
     )
   end
 end)
@@ -74,7 +75,7 @@ local function swung(r, g, e, atk, colors)
     else
       y = y + Ground.height(g.world)
     end
-    r:object(r.spark, x + dx, y, z + dz, 0, 0.5, colors.idle)
+    r:object(r.spark, x + dx, y, z + dz, 0, DebugLook.dot, colors.idle)
   end
   if atk.trace and e.phase >= from and e.phase <= atk.active[2] then
     local x, y, z, dx, dz = Melee.reach(g, e, e.phase, e.x, e.z, atk)
@@ -86,7 +87,7 @@ local function swung(r, g, e, atk, colors)
         y,
         z + dz * share,
         0,
-        e.didHit and 0.7 or 1.2,
+        e.didHit and DebugLook.bladeIdle or DebugLook.blade,
         e.didHit and colors.idle or colors.attack
       )
     end
@@ -106,7 +107,7 @@ local function windup(r, g, e, atk, colors)
       Ground.of(g.world, e) + 1,
       e.z + math.cos(yaw) * dot,
       0,
-      0.8,
+      DebugLook.facing,
       turning and colors.idle or colors.attack
     )
   end

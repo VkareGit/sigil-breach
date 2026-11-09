@@ -123,13 +123,13 @@ function HazardArt.sample(hazard)
   local row = Definition.styles[kind] or Definition.defaultStyle
   local preparing = hazard.delay > 0
   if preparing then
-    local progress = clamp(1 - hazard.delay / math.max(0.001, hazard.maxDelay))
+    local progress = clamp(1 - hazard.delay / math.max(1e-3, hazard.maxDelay))
     return {
       stage = 'telegraph',
       first = row * 4 + 1,
       second = row * 4 + 1,
       mix = 0,
-      alpha = 0.72,
+      alpha = Definition.telegraphAlpha,
       warning = Definition.warningAlpha,
       warningFrame = 9 + math.min(3, math.floor(progress * 4)),
       radius = hazard.radius,
@@ -151,7 +151,7 @@ function HazardArt.sample(hazard)
     mix = 0,
     alpha = alpha,
     warning = Definition.liveBoundaryAlpha,
-    warningFrame = 12,
+    warningFrame = 12, -- constant: the last frame of the warning row
     radius = hazard.radius,
   }
 end
@@ -226,7 +226,8 @@ function HazardArt.strip(renderer, game, at, name, length, width, yaw, alpha)
     vertex[1] = (0.5 - corner[5]) * width
     vertex[3] = -length / 2 + (segment + corner[4]) * span
     -- Inner joins crop the transparent tips; outer ends keep their painted taper.
-    local left, right = segment == 0 and 0 or 0.07, segment == count - 1 and 1 or 0.93
+    local trim = Definition.stripTrim
+    local left, right = segment == 0 and 0 or trim, segment == count - 1 and 1 or 1 - trim
     vertex[4] = left + corner[4] * (right - left)
   end
   art.strip:setVertices(art.stripVertices)
@@ -275,7 +276,7 @@ function HazardArt.ribbon(renderer, game, at, name, shape, reach, width, height,
           v[1], v[3] = math.sin(a) * radius, math.cos(a) * radius
           v[4] = (segment % 4 + along) / 4
         else
-          v[1], v[3], v[4] = (sheet - 1.5) * width, t * reach, along
+          v[1], v[3], v[4] = (sheet - 1.5) * width, t * reach, along -- constant: four sheets centred
         end
         v[2], v[5] = up * height, 1 - up
       end

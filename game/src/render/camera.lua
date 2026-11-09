@@ -5,15 +5,19 @@ local Ballistics = require('src.combat.ballistics')
 local Tuning = require('src.content.tuning')
 local Settings = require('src.content.settings')
 local Layout = require('src.ui.layout')
+local CameraLook = require('src.content.art.frame_look').camera
 local Camera = {}
 function Camera.roll(g)
   if g.view.motion == false or Context.viewer(g) ~= Context.actor(g) then
     return 0
   end
   local t = g.time or 0
-  local trauma = math.min(0.14, g.view.shake or 0)
-  return math.max(-0.03, math.min(0.03, g.view.bank or 0)) * 0.9
-    + trauma * (math.sin(t * 71) * 0.32 + math.sin(t * 113 + 1.3) * 0.18)
+  local trauma = math.min(CameraLook.trauma, g.view.shake or 0)
+  return math.max(-CameraLook.bank, math.min(CameraLook.bank, g.view.bank or 0))
+      * CameraLook.bankShare
+    + trauma * (math.sin(t * CameraLook.rate) * CameraLook.depth + math.sin(
+      t * CameraLook.rate2 + CameraLook.offset2
+    ) * CameraLook.depth2)
     + (g.view.rollPunch or 0)
 end
 function Camera.basis(g, right, up, forward)
@@ -21,7 +25,10 @@ function Camera.basis(g, right, up, forward)
   local motion = g.view.motion ~= false and p == Context.actor(g)
   local yaw, pitch = p.yaw, p.pitch
   if g.state == 'menu' then
-    yaw, pitch = math.pi - 0.30 + math.sin(g.time * 0.06) * 0.10, 0.22
+    yaw = math.pi
+      - CameraLook.menuYaw
+      + math.sin(g.time * CameraLook.menuRate) * CameraLook.menuSway
+    pitch = CameraLook.menuPitch
   elseif motion then
     pitch = pitch + (g.view.aimKick or 0)
   end

@@ -5,6 +5,7 @@ local Geometry = require('src.enemies.geometry')
 local Ground = require('src.physics.ground')
 local Pools = require('src.session.world')
 local PaintCutout = require('src.render.paint_cutout')
+local FrameLook = require('src.content.art.frame_look')
 local S = {}
 -- How far a body's shadow reaches past it (m).
 local REACH = 5
@@ -79,9 +80,10 @@ function S.draw(r, g)
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     if e.hp > 0 and not r:behind(e.x, 0, e.z, REACH) then
       local ground = Ground.of(g.world, e)
-      local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + 0.8, e.z)
+      local C = FrameLook.castShadow
+      local _, _, _, lx, lz, index, strength = r.lighting:sample(e.x, ground + C.sample, e.z)
       local length = math.sqrt(lx * lx + lz * lz)
-      if index > 0 and strength > 0.025 and length > 0.001 then
+      if index > 0 and strength > C.weakest and length > C.shortest then
         local frame, _, lean, sx, sy, size, _, _, baseY, atlas =
           Geometry.pose(g, e, Context.viewer(g))
         local image = (r.frameImages[atlas] and r.frameImages[atlas][frame]) or r.animations[atlas]
@@ -92,11 +94,11 @@ function S.draw(r, g)
         v[1], v[2], v[3], v[4] =
           e.x, baseY, e.z, math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
         v[5], v[6], v[7], v[8] = size, sx, sy, lean
-        v[9], v[10], v[11], v[12] = rect[1], rect[2], rect[3], rect[4]
-        v[13], v[14] = -lx / length * 0.95, -lz / length * 0.95
-        v[15], v[16] = ground, math.min(0.32, strength * 1.1)
-        v[17], v[18], v[19], v[20] = tile[1], tile[2], origin[1], origin[2]
-        v[21] = (r.frameMirrors[atlas] and r.frameMirrors[atlas][frame]) or 0
+        v[9], v[10], v[11], v[12] = rect[1], rect[2], rect[3], rect[4] -- constant: the record's slots
+        v[13], v[14] = -lx / length * C.lean, -lz / length * C.lean -- constant: the record's slots
+        v[15], v[16] = ground, math.min(C.darkest, strength * C.grow) -- constant: the record's slots
+        v[17], v[18], v[19], v[20] = tile[1], tile[2], origin[1], origin[2] -- constant: the record's slots
+        v[21] = (r.frameMirrors[atlas] and r.frameMirrors[atlas][frame]) or 0 -- constant: the record's slots
       end
     end
   end

@@ -1,10 +1,11 @@
 -- A painted surface as a wall: the image is laid straight on and the surface's
 -- layout pushes the wall in and out under it, so a niche has real depth.
+local Masonry = require('src.content.art.masonry')
 local ChapelHall = require('src.content.art.chapel_hall')
 local Builder = require('src.render.kit.builder')
 local Relief = {}
 local sqrt, ceil, max, min = math.sqrt, math.ceil, math.max, math.min
-local e = 0.03
+local e = Masonry.relief.epsilon
 local smooth = require('src.core.mathx').smoothstep
 -- frame: origin x, z (where u = from stands), along ux, uz; facing nx, nz;
 -- from, to: the part of the surface used (metres of u);
@@ -15,7 +16,7 @@ function Relief.wall(list, surface, frame)
   for _, f in ipairs(surface.features) do
     detailed = detailed or f.kind == 'niche' or f.kind == 'panel'
   end
-  local step = detailed and 0.14 or 0.6
+  local step = detailed and Masonry.relief.fine or Masonry.relief.coarse
   local nu, nv = ceil((to - from) / step), ceil(surface.height / step)
   local rows = {}
   for iv = 0, nv do
@@ -39,7 +40,7 @@ function Relief.wall(list, surface, frame)
         nz / l,
         u / surface.width,
         1 - v / surface.height,
-        (0.5 + 0.5 * smooth(-0.62, 0, d)) * (frame.shade or 1),
+        (0.5 + 0.5 * smooth(-Masonry.relief.shadeDepth, 0, d)) * (frame.shade or 1),
       }
     end
     rows[iv] = row

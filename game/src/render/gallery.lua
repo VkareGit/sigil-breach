@@ -11,6 +11,7 @@ local Ritual = require('src.render.ritual_art')
 local Skin = require('src.ui.skin')
 local Queries = require('src.session.queries')
 local Text = require('src.content.text')
+local GalleryLook = require('src.content.art.gallery_look')
 local G = {}
 local function dist(a, x, z)
   return math.sqrt((a.x - x) ^ 2 + (a.z - z) ^ 2)
@@ -31,21 +32,22 @@ end
 -- near a screen edge is hidden whole: cropping a label changes its meaning.
 function G.labelBox(font, text, sx, sy, ox, oy, vw, vh, box)
   local ink = font:getInk(text)
-  local unit = vh / 600
-  local margin = math.max(8, 10 * unit)
-  local padX, padY = 8, 5
+  local L = GalleryLook
+  local unit = vh / L.referenceHeight
+  local margin = math.max(L.margin.least, L.margin.unit * unit)
+  local padX, padY = L.pad.x, L.pad.y
   local w, h = ink.w + padX * 2, ink.h + padY * 2
   local x, y = math.floor(sx - w * 0.5), math.floor(sy - h * 0.5)
   -- Leave the actual proving-ground header and bottom context strip clear.
   if
     x < ox + margin
     or x + w > ox + vw - margin
-    or y < oy + 92 * unit
-    or y + h > oy + vh - 64 * unit
+    or y < oy + L.header * unit
+    or y + h > oy + vh - L.footer * unit
   then
     return
   end
-  local half = 25 * unit
+  local half = L.aimHalf * unit
   local cx, cy = ox + vw * 0.5, oy + vh * 0.5
   if x < cx + half and x + w > cx - half and y < cy + half and y + h > cy - half then
     return
@@ -61,7 +63,7 @@ function G.labels(r, g, ox, oy, vw, vh)
   if not (tools and tools.gallery) or g.state ~= 'playing' or g.map or g.help then
     return
   end
-  local font = Skin.font(14)
+  local font = Skin.font(GalleryLook.font)
   if not font then
     return
   end
@@ -78,17 +80,18 @@ function G.labels(r, g, ox, oy, vw, vh)
       )
       state.items[#state.items + 1] = {
         x = p.x,
-        y = p.altar and p.y - 0.20 or 0.35,
-        focusY = p.altar and p.y + 0.70 or 0.1,
+        y = p.altar and p.y - GalleryLook.altarDrop or GalleryLook.floorHeight,
+        focusY = p.altar and p.y + GalleryLook.altarFocus or GalleryLook.floorFocus,
         z = p.z,
         text = name:upper(),
-        reach = p.altar and 5 or 3,
+        reach = p.altar and GalleryLook.altarReach or GalleryLook.floorReach,
         kind = 'pad',
       }
     end
     -- Station captions (range distances, physics drills) from the proving ground.
     for _, l in ipairs(stationLabels or {}) do
-      state.items[#state.items + 1] = { x = l.x, y = l.y, z = l.z, text = l.text, reach = 24 }
+      state.items[#state.items + 1] =
+        { x = l.x, y = l.y, z = l.z, text = l.text, reach = GalleryLook.stationReach }
     end
   end
   local items, taken = state.items, state.taken
@@ -102,14 +105,18 @@ function G.labels(r, g, ox, oy, vw, vh)
   local focused, scores = {}, {}
   for _, it in ipairs(items) do
     it.d = dist(p, it.x, it.z)
-    if it.kind and it.d < (it.reach or 8) and Arena.visible(g.world, p.x, p.z, it.x, it.z) then
+    if
+      it.kind
+      and it.d < (it.reach or GalleryLook.defaultReach)
+      and Arena.visible(g.world, p.x, p.z, it.x, it.z)
+    then
       local x, y = r:project(it.x, it.focusY, it.z)
       if x then
         local dx, dy = x / r.w - 0.5, y / r.h - 0.5
-        local score = dx * dx + dy * dy + it.d * it.d * 0.0006
+        local score = dx * dx + dy * dy + it.d * it.d * GalleryLook.distanceWeight
         if
-          math.abs(dx) < 0.25
-          and math.abs(dy) < 0.4
+          math.abs(dx) < GalleryLook.across
+          and math.abs(dy) < GalleryLook.up
           and (not scores[it.kind] or score < scores[it.kind])
         then
           scores[it.kind], focused[it.kind] = score, it
@@ -130,7 +137,7 @@ function G.labels(r, g, ox, oy, vw, vh)
     local d = it.d
     if
       (not it.kind or focused[it.kind] == it)
-      and d < (it.reach or 8)
+      and d < (it.reach or GalleryLook.defaultReach)
       and Arena.visible(g.world, p.x, p.z, it.x, it.z)
     then
       local px, py = r:project(it.x, it.y, it.z)
@@ -160,7 +167,7 @@ function G.labels(r, g, ox, oy, vw, vh)
           lg.setShader()
           Skin.panel(box[1], box[2], box[3], box[4], 7, 6)
           lg.setShader(Ink.ink(true))
-          font:draw(it.text, box.textX, box.textY, { 0.93, 0.87, 0.72, 1 })
+          font:draw(it.text, box.textX, box.textY, GalleryLook.ink)
         end
       end
     end

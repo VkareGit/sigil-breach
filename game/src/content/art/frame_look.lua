@@ -83,4 +83,61 @@ return {
   },
   -- A kill's punch on the frame, per second of its timer.
   kill = 7,
+  -- A body's shadow cast by its strongest light: where the light is sampled
+  -- (above its floor), the weakest light and shortest direction that cast
+  -- one, how far it leans from the light, and its darkest and growth.
+  castShadow = {
+    sample = 0.8,
+    weakest = 0.025,
+    shortest = 0.001,
+    lean = 0.95,
+    darkest = 0.32,
+    grow = 1.1,
+  },
+  -- A mark on a surface: a face this upright is a floor; a mark on a wall
+  -- is trimmed just inside its cell and kept above the floor; marks show a
+  -- little brighter than their light.
+  surfaceMarks = { floor = 0.7, inset = 0.497, lift = 0.005, brighten = 0.12 },
+  -- Under a body: two soft stamps (lift, size as a share of its shadow,
+  -- opacity); its windup's mark grows in three steps; a leap's landing ring.
+  enemyMarks = {
+    outerLift = 0.015,
+    outer = 1.35,
+    outerAlpha = 0.24,
+    innerLift = 0.016,
+    inner = 0.95,
+    innerAlpha = 0.38,
+    windup = 0.42,
+    windupStep = 0.175,
+    landing = 1.04,
+  },
+  -- A particle closer to the eye than this (m) shrinks away instead of
+  -- swelling into a block over the view (a fleck the knight runs through).
+  particleNear = 0.7,
+  -- A stain on the floor: its lift, opacity, and the seconds it fades over
+  -- at the end of its life; floor art lies as high.
+  decal = { lift = 0.012, alpha = 0.75, fade = 3 },
+  -- The muzzle flash on particles and on stamps (particles must not flare
+  -- into orange specks).
+  flash = { particles = 2.5, stamps = 7 },
+  -- A painted inscription: its glyph size, margin and ink.
+  inscription = { font = 48, margin = 16, ink = { 0.42, 0.075, 0.045 } },
+  -- The camera's roll: the most trauma that shows, the bank's reach and
+  -- share, and the shake (two waves: rate and depth, the second offset).
+  camera = {
+    trauma = 0.14,
+    bank = 0.03,
+    bankShare = 0.9,
+    rate = 71,
+    depth = 0.32,
+    rate2 = 113,
+    offset2 = 1.3,
+    depth2 = 0.18,
+    -- On the menu the view turns slowly round the hall: its yaw off the
+    -- axis, its sway (rate, reach) and its pitch.
+    menuYaw = 0.30,
+    menuRate = 0.06,
+    menuSway = 0.10,
+    menuPitch = 0.22,
+  },
 }

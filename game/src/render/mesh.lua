@@ -16,7 +16,7 @@ function M.tri(v, a, b, c, col)
   local ux, uy, uz = b[1] - a[1], b[2] - a[2], b[3] - a[3]
   local vx, vy, vz = c[1] - a[1], c[2] - a[2], c[3] - a[3]
   local nx, ny, nz = uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx
-  local len = math.max(0.00001, sqrt(nx * nx + ny * ny + nz * nz))
+  local len = math.max(1e-5, sqrt(nx * nx + ny * ny + nz * nz))
   for _, p in ipairs({ a, b, c }) do
     v[#v + 1] =
       { p[1], p[2], p[3], nx / len, ny / len, nz / len, col[1], col[2], col[3], col[4] or 0 }
@@ -37,7 +37,7 @@ function M.box(v, x, y, z, w, h, d, col)
   M.quad(v, { a, y, e }, { a, y, c }, { b, y, c }, { b, y, e }, col)
 end
 function M.cone(v, x, y, z, r1, r2, h, col, n)
-  n = n or 10
+  n = n or 10 -- constant: facets of a default round
   for i = 0, n - 1 do
     local a, b = i * 2 * pi / n, (i + 1) * 2 * pi / n
     M.quad(
@@ -60,7 +60,7 @@ function M.cone(v, x, y, z, r1, r2, h, col, n)
   end
 end
 function M.sphere(v, x, y, z, rx, ry, rz, col, n)
-  n = n or 10
+  n = n or 10 -- constant: facets of a default round
   local rings = 6
   local function p(a, b)
     return { x + cos(a) * sin(b) * rx, y + cos(b) * ry, z + sin(a) * sin(b) * rz }
@@ -82,13 +82,13 @@ function M.beam(v, a, b, r, col, n)
   n = n or 8
   local dx, dy, dz = b[1] - a[1], b[2] - a[2], b[3] - a[3]
   local l = sqrt(dx * dx + dy * dy + dz * dz)
-  if l < 0.001 then
+  if l < 1e-3 then
     return
   end
   dx, dy, dz = dx / l, dy / l, dz / l
   local ux, uy, uz = -dz, 0, dx
   local ul = sqrt(ux * ux + uz * uz)
-  if ul < 0.01 then
+  if ul < 1e-2 then
     ux, uy, uz = 1, 0, 0
   else
     ux, uz = ux / ul, uz / ul
@@ -110,7 +110,7 @@ function M.beam(v, a, b, r, col, n)
   end
 end
 function M.ring(v, x, y, z, r, t, col, n, vertical)
-  n = n or 64
+  n = n or 64 -- constant: facets of a default ring
   for i = 0, n - 1 do
     local a, b = i * 2 * pi / n, (i + 1) * 2 * pi / n
     local function p(ang, rad)
@@ -138,7 +138,7 @@ function M.traceQuad(vertices, offset, t, rx, ry, rz, alpha)
     v[1] = (endpoint and t.x2 or t.x1) + rx * sign
     v[2] = (endpoint and t.y2 or t.y1) + ry * sign
     v[3] = (endpoint and t.z2 or t.z1) + rz * sign
-    v[7], v[8], v[9], v[10] = t.color[1], t.color[2], t.color[3], alpha
+    v[7], v[8], v[9], v[10] = t.color[1], t.color[2], t.color[3], alpha -- constant: colour slots
   end
 end
 

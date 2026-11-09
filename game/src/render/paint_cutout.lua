@@ -19,7 +19,10 @@ function Cutout.of(atlas)
         )
         assert(not result[frame.sourcePath], 'one detached polygon per source image')
         local points, rect = {}, frame.rect
-        assert(#part.polygon <= 16, 'detached paint polygon exceeds shader capacity')
+        assert(
+          #part.polygon <= 16, -- constant: the shader's polygon
+          'detached paint polygon exceeds shader capacity'
+        )
         for i = 1, #part.polygon, 2 do
           points[#points + 1] =
             { rect[1] + part.polygon[i] * rect[3], rect[2] + part.polygon[i + 1] * rect[4] }

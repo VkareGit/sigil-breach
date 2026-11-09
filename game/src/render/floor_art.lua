@@ -1,6 +1,7 @@
 -- Persistent painted traces are map scenery, separate from damage telegraphs
 -- and temporary impact marks. One reusable quad; no simulation mutations,
 -- per-frame native allocations, or special branches for individual maps.
+local FrameLook = require('src.content.art.frame_look')
 local Environment = require('src.content.art.environment')
 local Ground = require('src.physics.ground')
 local Art = {}
@@ -36,7 +37,7 @@ function Art.draw(r, g)
     local entry = Environment[item.art]
     local uv, yaw = entry.rect, item.yaw or 0
     local c, s = math.cos(yaw), math.sin(yaw)
-    local y = Ground.height(g.world, item.x, item.z) + 0.012
+    local y = Ground.height(g.world, item.x, item.z) + FrameLook.decal.lift
     local red, green, blue = r.lighting:sample(item.x, y, item.z)
     local gain = item.brightness or 1
     for j, index in ipairs(indices) do

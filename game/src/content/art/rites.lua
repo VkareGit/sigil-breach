@@ -330,5 +330,57 @@ return {
   fissures = {
     hell = { frames = { 'rise1', 'rise2', 'rise3' }, opening = 0.15 },
   },
-  storm = { bolts = 12, near = 1.2, spread = 2.2, height = 1.5, size = 2.8, mark = 2.6 },
+  -- A tempest: its bolts round the quiet circle (how many, how near, their
+  -- spread, height, size and the mark they leave), how they turn with the
+  -- hazard, the mark's lift, and the last share of each pulse in which they
+  -- strike (its start and its span) and their opacity.
+  storm = {
+    bolts = 12,
+    near = 1.2,
+    spread = 2.2,
+    height = 1.5,
+    size = 2.8,
+    mark = 2.6,
+    turn = 0.3,
+    markLift = 0.045,
+    strike = 0.72,
+    strikeSpan = 0.28,
+    alpha = 0.9,
+  },
+  -- A hazard in the air: its strike lasts this long, and its spell's lift,
+  -- size and opacity.
+  air = { strike = 0.22, lift = 1.5, size = 2.8, alpha = 0.9 },
+  -- The opacity a ray's settled floor tear starts at.
+  rayAfterimage = 0.7,
+  -- The opacity a lightning's spent ring starts at.
+  lightningEmbers = 0.45,
+  -- A pool of fire (render/painters/pool_rites.lua): its spent ring warned
+  -- and burning, its warning panels growing in, and its embers.
+  poolPaint = {
+    warned = 0.65,
+    burning = 0.85,
+    warningFrom = 0.55,
+    warningGrow = 0.45,
+    embers = 0.65,
+  },
+  -- The accents on a body (render/cast_accents.lua). An evasion or a slip:
+  -- lift, size, and when the fragments turn to feathers. Antlers charging:
+  -- how long a charge glows after its marking instant, the horns' growth,
+  -- their spread, drop and opacity; the four sparks of an antler cast without
+  -- a storm (spacing, lift, size).
+  accents = {
+    evadeLift = 0.1,
+    evadeSize = 1.65,
+    feathers = 0.55,
+    glow = 0.16,
+    hornBase = 0.65,
+    hornGrow = 0.35,
+    hornSpread = 0.28,
+    hornDrop = 0.3,
+    hornAlpha = 0.6,
+    hornAlphaGrow = 0.4,
+    sparkSpacing = 0.17,
+    sparkLift = 0.13,
+    sparkSize = 0.42,
+  },
 }

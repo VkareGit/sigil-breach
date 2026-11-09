@@ -8,6 +8,10 @@ return {
   stoneSpan = 3.4,
   -- A rib's image: across its four faces, and along per segment.
   rib = { across = 0.3, along = 0.25 },
+  -- A painted wall's relief: the grid it is cut in where it has a niche or a
+  -- panel, and elsewhere; the step of its depth sampling.
+  -- A recess darkens to half over this depth.
+  relief = { fine = 0.14, coarse = 0.6, epsilon = 0.03, shadeDepth = 0.62 },
   -- A pointed arch rises by t^rise along its quarter: below 1 it springs steep.
   arcRise = 0.72,
   -- A forged link: its half length, half width and thickness; where the next

@@ -45,7 +45,7 @@ local function open(self, key, image)
       mesh = self.owner:own(love.graphics.newMesh(QUAD_FORMAT, self.quad, 'triangles', 'static')),
       records = {},
     }
-    grow(self, group, 64)
+    grow(self, group, 64) -- constant: records added at a time
     self.groups[self.count] = group
   end
   group.key, group.image, group.used = key, image, 0

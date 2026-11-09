@@ -22,4 +22,11 @@ return {
   halfGravity = 4.9,
   rest = 0.25,
   sink = 0.4,
+  -- The parts of a hall in a fall (render/kit/halls.lua): a cracked part
+  -- stays while it drops (slower than a free fall), the gone part vanishes,
+  -- a falling part drops; what is left rises into place.
+  stages = { cracked = 1.1, crackedFall = 0.7, gone = 0.22, fall = 0.8, rise = 1.4 },
+  -- A struck part sways: how long it shows, its push, damping, rate and the
+  -- share across.
+  sway = { shows = 7, push = 0.5, damping = 1.1, rate = 3.4, across = 0.4 },
 }

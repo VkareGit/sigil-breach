@@ -14,7 +14,9 @@ local Halls = {
   },
 }
 local exp, sin, max = math.exp, math.sin, math.max
-local GRAVITY = 4.9
+local Fall = require('src.content.art.falling_stone')
+local GRAVITY = Fall.halfGravity
+local STAGES, SWAYING = Fall.stages, Fall.sway
 -- How far a struck part can swing past its bounds (m).
 local SWAY = 3
 local ZERO = { 0, 0, 0, 1 }
@@ -122,17 +124,18 @@ local function placed(entry, stage, t)
   elseif show == 'hanging' then
     return stage == 2, 0
   elseif show == 'cracked' then
-    return stage == 1 or (stage == 2 and t < 1.1), stage == 2 and GRAVITY * t * t * 0.7 or 0
+    return stage == 1 or (stage == 2 and t < STAGES.cracked),
+      stage == 2 and GRAVITY * t * t * STAGES.crackedFall or 0
   elseif show == 'gone' then
-    return stage < 2 or t < 0.22, 0
+    return stage < 2 or t < STAGES.gone, 0
   elseif show == 'fall' then
-    return stage < 2 or t < 0.8, stage == 2 and GRAVITY * t * t or 0
+    return stage < 2 or t < STAGES.fall, stage == 2 and GRAVITY * t * t or 0
   end
   -- after
   if stage ~= 2 then
     return false, 0
   end
-  return true, entry.rise and entry.rise * max(0, 1 - t / 1.4) or 0
+  return true, entry.rise and entry.rise * max(0, 1 - t / STAGES.rise) or 0
 end
 function Halls.draw(r, g, entries)
   if not entries or #entries == 0 then
@@ -150,13 +153,13 @@ function Halls.draw(r, g, entries)
       local shown, drop = placed(entry, stage, at and elapsed - at or 0)
       if shown then
         local struck = entry.sway and g.view.sway and g.view.sway[entry.group]
-        local t = struck and elapsed - struck or 9
-        if t < 7 then
-          local push = 0.5 * exp(-1.1 * t) * sin(t * 3.4)
-          s:send('sway', { push, push * 0.4, entry.sway[1], entry.sway[2] })
+        local t = struck and elapsed - struck or math.huge
+        if t < SWAYING.shows then
+          local push = SWAYING.push * exp(-SWAYING.damping * t) * sin(t * SWAYING.rate)
+          s:send('sway', { push, push * SWAYING.across, entry.sway[1], entry.sway[2] })
         end
         r:object(entry.mesh, 0, -drop, 0)
-        if t < 7 then
+        if t < SWAYING.shows then
           s:send('sway', ZERO)
         end
       end

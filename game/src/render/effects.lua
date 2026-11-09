@@ -19,14 +19,9 @@ local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local Queries = require('src.session.queries')
 local Pools = require('src.session.world')
+local EffectLook = require('src.content.art.effect_look')
 local E = {}
-E.colors = {
-  coal = { 0.018, 0.016, 0.014 },
-  bone = { 0.82, 0.73, 0.52 },
-  ember = { 0.83, 0.39, 0.10 },
-  brimstone = { 0.49, 0.41, 0.16 },
-  blood = { 0.29, 0.018, 0.012 },
-}
+E.colors = EffectLook.colors
 local unit = { 1, 1 }
 -- The colour of a damage zone in every hit diagnostic (E.hitColors below).
 function E.zoneColor(name)
@@ -127,7 +122,8 @@ local function cut(r, g, e, spec, look)
     )
   local y = (anchorY or (Ground.of(g.world, e) + (e.leapY or 0) + Rites.cutHeight)) - size * 0.5
   local cell = style and HazardArt.sequence(style.frames, age / span) or 'cut'
-  HazardArt.upright(r, x, y, z, cell, size, yaw, age < span * 0.65 and 1 or 0.8)
+  local look = EffectLook.cut
+  HazardArt.upright(r, x, y, z, cell, size, yaw, age < span * look.whole and 1 or look.fading)
 end
 function E.spells(r, g)
   love.graphics.setDepthMode('less', false)
@@ -146,7 +142,7 @@ function E.spells(r, g)
       and casts
       and (casts.all or casts[e.attackKind])
     then
-      local progress = 1 - e.windup / math.max(0.01, e.windupDuration or 1)
+      local progress = 1 - e.windup / math.max(1e-2, e.windupDuration or 1)
       local yaw = math.atan2(Context.viewer(g).x - e.x, Context.viewer(g).z - e.z)
       local size = look.cast.size
       E.spell(
@@ -154,11 +150,11 @@ function E.spells(r, g)
         g,
         0,
         progress,
-        e.x + math.sin(yaw) * 0.4,
+        e.x + math.sin(yaw) * EffectLook.cast.ahead,
         Ground.of(g.world, e) + (e.leapY or 0) + look.cast.height,
-        e.z + math.cos(yaw) * 0.4,
+        e.z + math.cos(yaw) * EffectLook.cast.ahead,
         size,
-        0.72,
+        EffectLook.cast.alpha,
         false
       )
     end
@@ -204,7 +200,8 @@ end
 -- from the eye. A returning/older charge remains opaque and visibly dangerous.
 function E.chargeAlpha(g, c)
   local age = math.max(0, (c.maxFuse or c.fuse or 0) - (c.fuse or 0))
-  local duration = math.min(0.12, (c.maxFuse or 1) * 0.25)
+  local H = EffectLook.handoff
+  local duration = math.min(H.longest, (c.maxFuse or 1) * H.share)
   if duration <= 0 or age >= duration or not AbilityFeedback.frame(g) then
     return 1
   end
@@ -214,7 +211,7 @@ function E.chargeAlpha(g, c)
     return 1
   end
   local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-  local progress = math.max(age / duration, (distance - 0.35) / 0.55)
+  local progress = math.max(age / duration, (distance - H.from) / H.over)
   progress = math.max(0, math.min(1, progress))
   return progress * progress * (3 - 2 * progress)
 end
@@ -233,8 +230,9 @@ function E.charges(r, g, image, frames)
   s:send('mirror', 0)
   s:send('lean', 0)
   s:send('pain', 0)
-  s:send('brightness', 1.1)
-  s:send('objectScale', 0.4)
+  local look = EffectLook.charge
+  s:send('brightness', look.brightness)
+  s:send('objectScale', look.size)
   for _, c in ipairs(Pools.of(g, 'charges')) do
     local alpha = E.chargeAlpha(g, c)
     s:send('effectAlpha', alpha)
@@ -243,7 +241,7 @@ function E.charges(r, g, image, frames)
     local region = frames[frame]
     s:send('spriteStretch', r:vec2(region.width, region.height))
     s:send('frameRect', region.rect)
-    s:send('objectPos', r:vec3(c.x, c.y - 0.16, c.z))
+    s:send('objectPos', r:vec3(c.x, c.y - look.drop, c.z))
     s:send('objectYaw', math.atan2(Context.viewer(g).x - c.x, Context.viewer(g).z - c.z))
     if alpha > 0 then
       love.graphics.draw(r.sprite)
@@ -253,7 +251,8 @@ function E.charges(r, g, image, frames)
 end
 -- The last shot as the game resolved it: every ray as a dotted line from
 -- the eye to its contact, the contact coloured by what it struck.
-local STONE = { 0.62, 0.62, 0.60 }
+local RAYS = EffectLook.rays
+local STONE = RAYS.stone
 -- A ray's colour: the zone it wounded, a surface that stopped it without a
 -- wound (blocks), a falling body that shielded (shield), or stone.
 local function rayColor(ray)
@@ -268,18 +267,20 @@ local function rayColor(ray)
 end
 local function shotRays(r, g)
   local report = g.view.shotReport
-  if not report or not report.origin or (g.view.shotAge or 99) > 3 then
+  if not report or not report.origin or (g.view.shotAge or math.huge) > RAYS.shown then
     return
   end
   local ox, oy, oz = report.origin[1], report.origin[2], report.origin[3]
   for _, ray in ipairs(report.rays) do
     local color = rayColor(ray)
-    local length = math.min(ray.distance or 0, 24)
-    for t = 0.8, length - 0.2, 0.45 do
-      r:object(r.spark, ox + ray.dx * t, oy + ray.dy * t, oz + ray.dz * t, 0, 0.18, color, 0.55)
+    local length = math.min(ray.distance or 0, RAYS.longest)
+    for t = RAYS.start, length - RAYS.gap, RAYS.every do
+      local x, y, z = ox + ray.dx * t, oy + ray.dy * t, oz + ray.dz * t
+      r:object(r.spark, x, y, z, 0, RAYS.dot, color, RAYS.dotAlpha)
     end
     if ray.kind ~= 'range' then
-      r:object(r.spark, ray.x, ray.y, ray.z, 0, ray.target and 0.9 or 0.55, color, 0.95)
+      local size = ray.target and RAYS.hit or RAYS.miss
+      r:object(r.spark, ray.x, ray.y, ray.z, 0, size, color, RAYS.hitAlpha)
     end
   end
 end
@@ -297,17 +298,7 @@ end
 --     ring), dim outside the window;
 --   * the last shot's rays, each ending where it struck.
 -- A body using explicit volumes (enemies/geometry.lua) shows its cylinders.
-E.hitColors = {
-  head = { 1, 0.84, 0.25 },
-  torso = { 0.92, 0.25, 0.16 },
-  lower = { 1, 0.58, 0.12 },
-  blocks = { 0.35, 0.85, 0.95 },
-  decorative = { 0.55, 0.42, 0.80 },
-  shield = { 0.55, 0.55, 0.55 },
-  body = { 1, 1, 1 },
-  attack = { 1, 0.15, 0.10 },
-  idle = { 0.45, 0.30, 0.28 },
-}
+E.hitColors = EffectLook.hitColors
 local patterns = {
   horn = function(i, j)
     return (i + j) % 8 < 2
@@ -336,14 +327,15 @@ local function overlay(r, p)
       local u, v = (i + 0.5) / n, (j + 0.5) / n
       if Surface.painted(p.mask, u, v, p.alive) then
         local part = Surface.part(p.parts, u, v)
-        local color, alpha = E.hitColors.decorative, 0.45
+        local O = EffectLook.overlay
+        local color, alpha = E.hitColors.decorative, O.decorative
         if not p.alive then
-          color, alpha = E.hitColors.shield, 0.6
+          color, alpha = E.hitColors.shield, O.dead
         elseif part and part.hittable ~= false then
-          color, alpha = part.zone and E.hitColors[part.zone] or E.hitColors.blocks, 0.62
+          color, alpha = part.zone and E.hitColors[part.zone] or E.hitColors.blocks, O.part
         end
         local mark = part and patterns[part.material]
-        local k = mark and mark(i, j) and 1.45 or 1
+        local k = mark and mark(i, j) and O.pattern or 1
         data:setPixel(
           i,
           j,
@@ -387,8 +379,9 @@ end
 local function volumes(r, g, e)
   for _, v in ipairs(Geometry.volumes(g, e, Context.viewer(g))) do
     local color = E.hitColors[v.zone] or E.hitColors.blocks
-    r:object(r.warning, v.x, v.bottom + 0.025, v.z, 0, v.radius, color, 0.85)
-    r:object(r.warning, v.x, v.top, v.z, 0, v.radius, color, 0.85)
+    local look = EffectLook.volume
+    r:object(r.warning, v.x, v.bottom + look.lift, v.z, 0, v.radius, color, look.alpha)
+    r:object(r.warning, v.x, v.top, v.z, 0, v.radius, color, look.alpha)
   end
 end
 function E.hitboxes(r, g)
@@ -415,12 +408,12 @@ function E.hitboxes(r, g)
       r:object(
         r.warning,
         e.x,
-        Ground.of(g.world, e) + 0.03,
+        Ground.of(g.world, e) + EffectLook.bodyRing.lift,
         e.z,
         0,
         Rules.radius(e),
         E.hitColors.body,
-        0.7
+        EffectLook.bodyRing.alpha
       )
       AttackDebug.draw(r, g, e, E.hitColors)
     end
