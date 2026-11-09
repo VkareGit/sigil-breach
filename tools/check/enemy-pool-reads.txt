@@ -22,7 +22,6 @@ src/render/presentation.lua 2
 src/render/shadows.lua 1
 src/run/field/placement.lua 3
 src/run/field/visits.lua 1
-src/run/mode_views.lua 1
 src/run/modes.lua 1
 src/run/test_field.lua 3
 src/session/interactions.lua 1

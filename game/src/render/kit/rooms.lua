@@ -4,6 +4,7 @@
 local Tiles = require('src.core.tiles')
 local ChapelHall = require('src.content.art.chapel_hall')
 local Builder = require('src.render.kit.builder')
+local RoomForms = require('src.content.art.room_forms')
 local Light = require('src.render.kit.light')
 local Props = require('src.render.kit.props')
 local Ground = require('src.physics.ground')
@@ -27,7 +28,7 @@ local function wallTop(w, x, z)
       top = max(top, deck[1])
     end
   end
-  return top > 0 and top or 4.2
+  return top > 0 and top or RoomForms.wallTop
 end
 local function wallFace(list, w, room, x, z, d)
   local px, pz = x + d[1] * 0.5, z + d[2] * 0.5
@@ -51,16 +52,17 @@ local function ceiling(list, w, x, z)
     if deck[3] then
       local c = RoofCell.corners(deck, x, z)
       local function p(q)
-        return { q[1], q[2], q[3], q[1] / 3.4, q[3] / 3.4 }
+        return { q[1], q[2], q[3], q[1] / RoomForms.stoneSpan, q[3] / RoomForms.stoneSpan }
       end
-      Builder.quad(list, p(c[1]), p(c[2]), p(c[3]), p(c[4]), { x, 0, z }, 0.8)
+      Builder.quad(list, p(c[1]), p(c[2]), p(c[3]), p(c[4]), { x, 0, z }, RoomForms.ceilingShade)
     end
   end
 end
 local function floorCell(list, risers, w, x, z)
   local h = Ground.cell(w, x, z)
   local function p(a, c)
-    return { a, h, c, (a - 24) / 9 + 0.5, c / 9 }
+    local span = RoomForms.floorSpan
+    return { a, h, c, (a - RoomForms.floorAxis) / span + 0.5, c / span }
   end
   Builder.quad(
     list,
@@ -68,7 +70,7 @@ local function floorCell(list, risers, w, x, z)
     p(x + 0.5, z - 0.5),
     p(x + 0.5, z + 0.5),
     p(x - 0.5, z + 0.5),
-    { x, h + 9, z }
+    { x, h + 9, z } -- constant: a point above the floor
   )
   for _, d in ipairs(DIRECTIONS) do
     local other = Ground.cell(w, x + d[1], z + d[2])
@@ -80,8 +82,8 @@ local function floorCell(list, risers, w, x, z)
           px + tx * side,
           y,
           pz + tz * side,
-          (px + tz * side + pz + tx * side) / 3.4,
-          y / 3.4,
+          (px + tz * side + pz + tx * side) / RoomForms.stoneSpan,
+          y / RoomForms.stoneSpan,
         }
       end
       Builder.quad(
@@ -90,31 +92,36 @@ local function floorCell(list, risers, w, x, z)
         q(1, other),
         q(1, h),
         q(-1, h),
-        { px + d[1] * 9, h, pz + d[2] * 9 },
-        0.82
+        { px + d[1] * 9, h, pz + d[2] * 9 }, -- constant: a point outside the riser
+        RoomForms.riserShade
       )
     end
   end
 end
 local function pillar(list, w, x, z)
   local base, top = Ground.cell(w, x, z), wallTop(w, x, z)
+  local P = RoomForms.pillar
   Builder.lathe(list, x, z, {
-    { 0.62, base },
-    { 0.62, base + 0.3 },
-    { 0.5, base + 0.5 },
-    { 0.46, base + 0.7 },
-    { 0.46, top - 0.5 },
-    { 0.62, top - 0.15 },
-    { 0.62, top },
-  }, 16, 1, 0.9)
+    { P.plinth, base },
+    { P.plinth, base + P.plinthTop },
+    { P.waist, base + P.waist },
+    { P.shaft, base + P.shaftFoot },
+    { P.shaft, top - P.neck },
+    { P.plinth, top - P.capital },
+    { P.plinth, top },
+  }, P.sides, 1, P.shade)
 end
 function Rooms.build(w, hall)
   local sources = {}
   for _, lamp in ipairs(w.lamps) do
-    sources[#sources + 1] = { lamp.x, 1.4, lamp.z, 1, 0.66, 0.38, 0.75, 9 }
+    local L = RoomForms.lamp
+    local c = L.color
+    sources[#sources + 1] = { lamp.x, L.height, lamp.z, c[1], c[2], c[3], L.power, L.reach }
   end
   for _, seal in ipairs(w.seals) do
-    sources[#sources + 1] = { seal.x, 2.2, seal.z, 1, 0.66, 0.38, 0.5, 9 }
+    local L = RoomForms.seal
+    local c = L.color
+    sources[#sources + 1] = { seal.x, L.height, seal.z, c[1], c[2], c[3], L.power, L.reach }
   end
   local light = Light.new({ ambient = hall.ambient, tone = hall.tone, sources = sources }, 0, 0, {})
   local sink = Builder.sink(light)

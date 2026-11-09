@@ -7,12 +7,13 @@ local Ground = require('src.physics.ground')
 local Grid = require('src.physics.grid')
 local RoofCell = require('src.physics.roof_cell')
 local Halls = require('src.render.kit.halls')
+local GridLook = require('src.content.art.grid_look')
 local Geometry = {}
 -- The weak map names worlds but owns no native resources. A live simulation
 -- world must not keep a mesh alive after its last renderer has closed.
 local identities, serial = setmetatable({}, { __mode = 'k' }), 0
-local stone, dark, trim, glow =
-  { 0.24, 0.29, 0.30 }, { 0.095, 0.12, 0.14 }, { 0.42, 0.36, 0.24 }, { 1, 0.28, 0.055, 1 }
+local colors = GridLook.colors
+local stone, dark, trim, glow = colors.stone, colors.dark, colors.trim, colors.glow
 local function roofCell(v, w, x, z, deck)
   local p, top = RoofCell.corners(deck, x, z), deck[2]
   if deck[3][5] then
@@ -86,24 +87,35 @@ local function wallFace(v, w, decor, raise, x, z, nx, nz, d)
   if tile and Tiles.solid[tile] and not (Tiles.round[tile] and decor.pillarStyle == 'shaft') then
     local first = #v + 1
     local h = Collision.top(w.map[nz][nx])
-    local px, pz = x + d[1] * 0.55, z + d[2] * 0.55
-    local bw, bd = d[1] == 0 and 1 or 0.12, d[2] == 0 and 1 or 0.12
-    Mesh.box(v, px, 0, pz, bw, 0.30, bd, trim)
-    Mesh.box(v, px, 0.3, pz, bw, h - 0.55, bd, stone)
-    Mesh.box(v, px, h - 0.25, pz, bw, 0.25, bd, trim)
+    local F = GridLook.wall
+    local px, pz = x + d[1] * F.out, z + d[2] * F.out
+    local bw, bd = d[1] == 0 and 1 or F.thickness, d[2] == 0 and 1 or F.thickness
+    Mesh.box(v, px, 0, pz, bw, F.base, bd, trim)
+    Mesh.box(v, px, F.bodyFoot, pz, bw, h - F.body, bd, stone)
+    Mesh.box(v, px, h - F.cornice, pz, bw, F.cornice, bd, trim)
     -- Leave continuous lime behind the three narrative wall paintings:
     -- a black niche stripe through a fresco reads as a pasted decal.
     if decor.niches ~= false and (x + z) % 3 == 0 and not muralWall(decor, x, z) then
-      Mesh.box(v, px - d[1] * 0.06, 0.55, pz - d[2] * 0.06, bw * 0.92, 2.8, bd * 0.92, dark)
+      local N, S = GridLook.niche, GridLook.stripe
       Mesh.box(
         v,
-        px - d[1] * 0.12,
-        0.7,
-        pz - d[2] * 0.12,
-        d[1] == 0 and 0.035 or 0.025,
-        2.25,
-        d[2] == 0 and 0.035 or 0.025,
-        { 0.5, 0.31, 0.13 }
+        px - d[1] * N.inset,
+        N.bottom,
+        pz - d[2] * N.inset,
+        bw * N.scale,
+        N.height,
+        bd * N.scale,
+        dark
+      )
+      Mesh.box(
+        v,
+        px - d[1] * S.inset,
+        S.bottom,
+        pz - d[2] * S.inset,
+        d[1] == 0 and S.wide or S.thin,
+        S.height,
+        d[2] == 0 and S.wide or S.thin,
+        colors.nicheStripe
       )
     end
     raise(first, nx, nz)
@@ -117,7 +129,7 @@ local function floorCell(v, w, decor, raise, x, z)
     { x - 0.5, elevation, z + 0.5 },
     { x + 0.5, elevation, z + 0.5 },
     { x + 0.5, elevation, z - 0.5 },
-    { 0.30, 0.33, 0.32 }
+    colors.floor
   )
   -- Every exposed face has a high base, a dark panel, and brass cornice.
   for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do
@@ -145,10 +157,12 @@ local function roundShaft(v, w, raise, x, z)
     Mesh.box(v, x, 0, z, 1, elevation, 1, stone)
   end
   local first = #v + 1
-  Mesh.box(v, x, 0, z, 1.15, 0.22, 1.15, trim)
-  Mesh.cone(v, x, 0.22, z, 0.48, 0.36, 4.5, stone, 8)
-  Mesh.cone(v, x, 3.8, z, 0.37, 0.68, 0.5, trim, 8)
-  Mesh.cone(v, x, 4.3, z, 0.68, 0.45, 0.5, stone, 8)
+  local S = GridLook.shaft
+  local drum, capital, abacus = S.drum, S.capital, S.abacus
+  Mesh.box(v, x, 0, z, S.plinth, S.plinthHeight, S.plinth, trim)
+  Mesh.cone(v, x, S.plinthHeight, z, drum.foot, drum.head, drum.height, stone, S.sides)
+  Mesh.cone(v, x, capital.at, z, capital.foot, capital.head, capital.height, trim, S.sides)
+  Mesh.cone(v, x, abacus.at, z, abacus.foot, abacus.head, abacus.height, stone, S.sides)
   raise(first, x, z)
 end
 -- A slab's top, underside and the edges no neighbouring cell of the same deck hides.
@@ -163,7 +177,7 @@ local function deckCell(v, w, decor, x, z, deck)
       { x - 0.5, top, z + 0.5 },
       { x + 0.5, top, z + 0.5 },
       { x + 0.5, top, z - 0.5 },
-      { 0.30, 0.33, 0.32 }
+      colors.floor
     )
     Mesh.quad(
       v,
@@ -206,10 +220,11 @@ local function ribArch(v, arch, raise)
     return { x, arch.spring + arch.rise * math.sin(angle), z }
   end
   for side = -1, 1, 2 do
-    for i = 0, 11 do
-      local a = i / 12 * math.pi / 2
-      local b = (i + 1) / 12 * math.pi / 2
-      Mesh.beam(v, point(a, side), point(b, side), arch.radius or 0.18, stone)
+    local n = GridLook.arch.segments
+    for i = 0, n - 1 do
+      local a = i / n * math.pi / 2
+      local b = (i + 1) / n * math.pi / 2
+      Mesh.beam(v, point(a, side), point(b, side), arch.radius or GridLook.arch.radius, stone)
     end
   end
   raise(first, arch.x, arch.z, arch.y)
@@ -217,41 +232,76 @@ end
 -- Main ritual inlay, lines and nine circles.
 local function ritualInlay(v, ritual, raise)
   local first = #v + 1
+  local R = GridLook.ritual
   for _, r in ipairs(ritual.rings) do
-    Mesh.ring(v, ritual.x, 0.012, ritual.z, r, 0.025, { 0.59, 0.40, 0.18, 0.25 })
+    Mesh.ring(v, ritual.x, R.lift, ritual.z, r, R.width, colors.ritual)
   end
   for i = 0, ritual.seals - 1 do
     local a = i * math.pi * 2 / ritual.seals
     Mesh.ring(
       v,
       ritual.x + math.cos(a) * ritual.orbit,
-      0.014,
+      R.sealLift,
       ritual.z + math.sin(a) * ritual.orbit,
-      0.14,
-      0.02,
+      R.sealRadius,
+      R.sealWidth,
       trim,
-      16
+      R.sealSides
     )
   end
   raise(first, ritual.x, ritual.z, ritual.y)
 end
 local function sealStone(v, s, raise)
   local first = #v + 1
-  Mesh.cone(v, s.x, 0, s.z, 0.95, 0.85, 0.18, dark, 32)
-  Mesh.cone(v, s.x, 0.18, s.z, 0.48, 0.32, 0.75, stone, 8)
-  Mesh.cone(v, s.x, 0.92, s.z, 0.32, 0.62, 0.12, trim, 8)
-  Mesh.ring(v, s.x, 0.20, s.z, 0.76, 0.025, { 0.31, 0.22, 0.15, 0.05 }, 40)
+  local L = GridLook.sealStone
+  local base, shaft, crown, ring = L.base, L.shaft, L.crown, L.ring
+  Mesh.cone(v, s.x, 0, s.z, base.foot, base.head, base.height, dark, base.sides)
+  Mesh.cone(
+    v,
+    s.x,
+    shaft.at,
+    s.z,
+    shaft.foot,
+    shaft.head,
+    shaft.height,
+    stone,
+    GridLook.shaft.sides
+  )
+  Mesh.cone(v, s.x, crown.at, s.z, crown.foot, crown.head, crown.height, trim, GridLook.shaft.sides)
+  Mesh.ring(v, s.x, ring.lift, s.z, ring.radius, ring.width, colors.sealRing, ring.sides)
   raise(first, s.x, s.z)
 end
 local function portalFrame(v, portal, raise)
   local first = #v + 1
-  Mesh.box(v, portal.x, 0, portal.z, 4, 0.2, 0.9, dark)
-  Mesh.ring(v, portal.x, portal.y, portal.z - 0.05, portal.radius, 0.16, trim, 64, true)
-  Mesh.ring(v, portal.x, portal.y, portal.z - 0.06, portal.radius - 0.2, 0.04, glow, 64, true)
+  local P = GridLook.portal
+  local sill, ring, light, posts = P.sill, P.ring, P.glow, P.posts
+  Mesh.box(v, portal.x, 0, portal.z, sill.width, sill.height, sill.depth, dark)
+  Mesh.ring(
+    v,
+    portal.x,
+    portal.y,
+    portal.z - ring.back,
+    portal.radius,
+    ring.width,
+    trim,
+    ring.sides,
+    true
+  )
+  Mesh.ring(
+    v,
+    portal.x,
+    portal.y,
+    portal.z - light.back,
+    portal.radius - light.inset,
+    light.width,
+    glow,
+    ring.sides,
+    true
+  )
   for side = -1, 1, 2 do
-    local x = portal.x + side * 2.2
-    Mesh.cone(v, x, 0, portal.z + 0.1, 0.4, 0.25, 3.5, stone)
-    Mesh.cone(v, x, 3.5, portal.z + 0.1, 0.25, 0, 0.8, trim)
+    local x, z = portal.x + side * posts.apart, portal.z + posts.forward
+    Mesh.cone(v, x, 0, z, posts.foot, posts.head, posts.height, stone)
+    Mesh.cone(v, x, posts.height, z, posts.head, 0, posts.tip, trim)
   end
   raise(first, portal.x, portal.z)
 end
@@ -259,31 +309,52 @@ end
 local function hangBanner(v, banner, raise)
   local first = #v + 1
   local x, z, side = banner.x, banner.z, banner.side
-  Mesh.beam(v, { x, 3.8, z - 0.65 }, { x, 3.8, z + 0.65 }, 0.035, trim, 6)
-  for i = 0, 9 do
-    local a = i / 10
-    local b = (i + 1) / 10
-    local xa = x + side * (0.09 + math.sin(a * math.pi * 4) * 0.035)
-    local xb = x + side * (0.09 + math.sin(b * math.pi * 4) * 0.035)
+  local B = GridLook.banner
+  local rod, clasp = B.rod, B.clasp
+  Mesh.beam(
+    v,
+    { x, rod.height, z - rod.half },
+    { x, rod.height, z + rod.half },
+    rod.radius,
+    trim,
+    rod.sides
+  )
+  for i = 0, B.strips - 1 do
+    local a = i / B.strips
+    local b = (i + 1) / B.strips
+    local xa = x + side * (B.out + math.sin(a * math.pi * B.ripples) * B.ripple)
+    local xb = x + side * (B.out + math.sin(b * math.pi * B.ripples) * B.ripple)
     Mesh.quad(
       v,
-      { xa, 3.75, z - 0.55 + a * 1.1 },
-      { xb, 3.75, z - 0.55 + b * 1.1 },
-      { xb, 1.9 + math.sin(b * math.pi) * 0.12, z - 0.55 + b * 1.1 },
-      { xa, 1.9 + math.sin(a * math.pi) * 0.12, z - 0.55 + a * 1.1 },
-      { 0.24, 0.045, 0.035, 0 }
+      { xa, B.top, z - B.half + a * B.width },
+      { xb, B.top, z - B.half + b * B.width },
+      { xb, B.hem + math.sin(b * math.pi) * B.sag, z - B.half + b * B.width },
+      { xa, B.hem + math.sin(a * math.pi) * B.sag, z - B.half + a * B.width },
+      colors.cloth
     )
   end
-  Mesh.ring(v, x + side * 0.14, 2.9, z, 0.20, 0.02, { 0.55, 0.32, 0.12, 0.08 }, 24, true)
+  Mesh.ring(
+    v,
+    x + side * clasp.out,
+    clasp.height,
+    z,
+    clasp.radius,
+    clasp.width,
+    colors.clasp,
+    clasp.sides,
+    true
+  )
   raise(first, banner.x, banner.z, banner.y)
 end
 local function candles(v, spot, raise)
   local first = #v + 1
+  local C = GridLook.candle
+  local flame = C.flame
   for i = 1, 3 do
-    local x = spot.x + (i - 2) * 0.16
-    local h = 0.16 + i * 0.05
-    Mesh.cone(v, x, 0, spot.z, 0.04, 0.035, h, { 0.57, 0.47, 0.29, 0.04 }, 6)
-    Mesh.cone(v, x, h, spot.z, 0.027, 0, 0.09, { 1, 0.47, 0.12, 1 }, 5)
+    local x = spot.x + (i - 2) * C.apart
+    local h = C.height + i * C.taller
+    Mesh.cone(v, x, 0, spot.z, C.foot, C.head, h, colors.wax, C.sides)
+    Mesh.cone(v, x, h, spot.z, flame.radius, 0, flame.height, colors.flame, flame.sides)
   end
   raise(first, spot.x, spot.z, spot.y)
 end
@@ -325,7 +396,8 @@ local function build(w)
   end
   for _, aisle in ipairs(decor.aisles or {}) do
     local first = #v + 1
-    Mesh.box(v, aisle.x, 0.01, aisle.z, 0.025, 0.01, aisle.length, { 0.55, 0.35, 0.15, 0.1 })
+    local A = GridLook.aisle
+    Mesh.box(v, aisle.x, A.lift, aisle.z, A.width, A.height, aisle.length, colors.aisle)
     raise(first, aisle.x, aisle.z, aisle.y)
   end
   for _, s in ipairs(w.seals) do
@@ -346,8 +418,9 @@ local function build(w)
   end
   for _, spot in ipairs(decor.reliquaries or {}) do
     local first = #v + 1
-    Mesh.box(v, spot.x, 0, spot.z, 0.50, 0.65, 0.38, dark)
-    Mesh.box(v, spot.x, 0.65, spot.z, 0.58, 0.07, 0.43, trim)
+    local chest, lid = GridLook.reliquary.chest, GridLook.reliquary.lid
+    Mesh.box(v, spot.x, 0, spot.z, chest.width, chest.height, chest.depth, dark)
+    Mesh.box(v, spot.x, chest.height, spot.z, lid.width, lid.height, lid.depth, trim)
     raise(first, spot.x, spot.z, spot.y)
   end
   local floor = Ground.height(w)

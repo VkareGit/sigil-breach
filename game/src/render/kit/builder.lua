@@ -1,5 +1,6 @@
 -- Vertex lists of painted architecture: every vertex has its place in its own
 -- image and its light baked in. A list carries the light it bakes with.
+local Masonry = require('src.content.art.masonry')
 local B = {}
 local sqrt, sin, cos, pi, max, min, abs =
   math.sqrt, math.sin, math.cos, math.pi, math.max, math.min, math.abs
@@ -10,7 +11,8 @@ B.format = {
   { 'VertexColor', 'float', 4 },
 }
 -- Metres of column one repeat of its image covers.
-B.drumHeight = 2.2
+B.drumHeight = Masonry.drumHeight
+local STONE = Masonry.stoneSpan
 function B.list(light)
   return { light = light }
 end
@@ -99,15 +101,16 @@ function B.rib(list, points, w, h, shade)
         p[1] + sx * m * w + ux * n * h,
         p[2] + uy * n * h,
         p[3] + sz * m * w + uz * n * h,
-        (m + 1) * 0.3,
+        (m + 1) * Masonry.rib.across,
         v,
       }
     end
-    local va, vb = i * 0.25, (i + 1) * 0.25
+    local va, vb = i * Masonry.rib.along, (i + 1) * Masonry.rib.along
     local mx, my, mz = (a[1] + b[1]) / 2, (a[2] + b[2]) / 2, (a[3] + b[3]) / 2
     for _, f in ipairs({ { -1, -1, 1, -1 }, { 1, -1, 1, 1 }, { 1, 1, -1, 1 }, { -1, 1, -1, -1 } }) do
       local m, n = f[1] + f[3], f[2] + f[4]
-      local front = { mx + (sx * m + ux * n) * 9, my + uy * n * 9, mz + (sz * m + uz * n) * 9 }
+      -- Any point outside a face sets which way it faces.
+      local front = { mx + (sx * m + ux * n) * 9, my + uy * n * 9, mz + (sz * m + uz * n) * 9 } -- constant: outside
       B.quad(
         list,
         corner(a, f[1], f[2], va),
@@ -126,7 +129,8 @@ function B.arc(x0, y0, z0, x1, y1, z1, segments)
   for i = 0, segments do
     local t = i / segments
     local s = sin(t * pi / 2)
-    points[#points + 1] = { x0 + (x1 - x0) * s, y0 + (y1 - y0) * t ^ 0.72, z0 + (z1 - z0) * s }
+    points[#points + 1] =
+      { x0 + (x1 - x0) * s, y0 + (y1 - y0) * t ^ Masonry.arcRise, z0 + (z1 - z0) * s }
   end
   return points
 end
@@ -137,15 +141,16 @@ function B.chain(list, a, b, sag, links, shade)
       a[2] + (b[2] - a[2]) * t - sag * 4 * t * (1 - t),
       a[3] + (b[3] - a[3]) * t
   end
-  local long, wide, thick = 0.2, 0.1, 0.032
+  local L = Masonry.link
+  local long, wide, thick = L.long, L.wide, L.thick
   for i = 0, links do
     local x, y, z = at(i / links)
-    local x2, y2, z2 = at((i + 0.6) / links)
+    local x2, y2, z2 = at((i + L.step) / links)
     local dx, dy, dz = x2 - x, y2 - y, z2 - z
     local l = max(1e-5, sqrt(dx * dx + dy * dy + dz * dz))
     dx, dy, dz = dx / l, dy / l, dz / l
     local sx, sy, sz = dz, 0, -dx
-    if abs(dy) > 0.95 then
+    if abs(dy) > L.upright then
       sx, sy, sz = 1, 0, 0
     end
     if i % 2 == 0 then
@@ -154,8 +159,8 @@ function B.chain(list, a, b, sag, links, shade)
     local sl = max(1e-4, sqrt(sx * sx + sy * sy + sz * sz))
     sx, sy, sz = sx / sl, sy / sl, sz / sl
     local ring = {}
-    for k = 0, 12 do
-      local angle = k / 12 * 2 * pi
+    for k = 0, L.sides do
+      local angle = k / L.sides * 2 * pi
       local along, across = cos(angle) * long, sin(angle) * wide
       ring[k + 1] = {
         x + dx * along + sx * across,
@@ -168,10 +173,10 @@ function B.chain(list, a, b, sag, links, shade)
 end
 -- Same seed, same stones: the hall never depends on a random stream.
 function B.random(seed)
-  local state = seed * 2654435761 % 4294967296
+  local state = seed * 2654435761 % 4294967296 -- constant: Knuth's hash into 32 bits
   return function()
-    state = (state * 1103515245 + 12345) % 2147483648
-    return state / 2147483648
+    state = (state * 1103515245 + 12345) % 2147483648 -- constant: the C library's generator
+    return state / 2147483648 -- constant: its modulus
   end
 end
 -- A dressed block, tilted as it fell. half: half sizes along its own axes.
@@ -179,18 +184,19 @@ function B.block(list, c, half, yaw, tilt, seed, shade)
   local rng = B.random(seed)
   local cy, sy, ct, st = cos(yaw), sin(yaw), cos(tilt), sin(tilt)
   local corners = {}
+  local K, T = Masonry.block, Masonry.tone
   for i = 0, 7 do
-    local lx = ((i % 2) * 2 - 1) * half[1] * (0.88 + rng() * 0.24)
-    local ly = ((math.floor(i / 2) % 2) * 2 - 1) * half[2] * (0.88 + rng() * 0.24)
-    local lz = ((math.floor(i / 4) % 2) * 2 - 1) * half[3] * (0.88 + rng() * 0.24)
+    local lx = ((i % 2) * 2 - 1) * half[1] * (K.rough + rng() * K.roughVary)
+    local ly = ((math.floor(i / 2) % 2) * 2 - 1) * half[2] * (K.rough + rng() * K.roughVary)
+    local lz = ((math.floor(i / 4) % 2) * 2 - 1) * half[3] * (K.rough + rng() * K.roughVary)
     local tx, ty = lx * ct - ly * st, lx * st + ly * ct
     corners[i] = { c[1] + tx * cy - lz * sy, c[2] + ty, c[3] + tx * sy + lz * cy, lx, ly, lz }
   end
   local uo, vo = rng(), rng()
-  local tone = (shade or 1) * (0.72 + rng() * 0.36)
+  local tone = (shade or 1) * (T.base + rng() * T.vary)
   local function p(i, u, v)
     local q = corners[i]
-    return { q[1], q[2], q[3], q[u] / 1.7 + uo, q[v] / 1.7 + vo }
+    return { q[1], q[2], q[3], q[u] / K.span + uo, q[v] / K.span + vo }
   end
   for _, f in ipairs({
     { 0, 1, 3, 2, 4, 5 },
@@ -208,9 +214,9 @@ function B.block(list, c, half, yaw, tilt, seed, shade)
       p(f[3], f[5], f[6]),
       p(f[4], f[5], f[6]),
       {
-        (a[1] + e[1]) / 2 * 9 - c[1] * 8,
-        (a[2] + e[2]) / 2 * 9 - c[2] * 8,
-        (a[3] + e[3]) / 2 * 9 - c[3] * 8,
+        (a[1] + e[1]) / 2 * 9 - c[1] * 8, -- constant: outside the face
+        (a[2] + e[2]) / 2 * 9 - c[2] * 8, -- constant: outside the face
+        (a[3] + e[3]) / 2 * 9 - c[3] * 8, -- constant: outside the face
       },
       tone
     )
@@ -220,11 +226,12 @@ end
 function B.chunk(list, c, half, yaw, seed, shade)
   local rng = B.random(seed)
   local rings, sides = 4, 6
+  local K, T = Masonry.chunk, Masonry.tone
   local noise = {}
   for j = 0, rings do
     noise[j] = {}
     for i = 0, sides - 1 do
-      noise[j][i] = 0.62 + rng() * 0.5
+      noise[j][i] = K.rough + rng() * K.roughVary
     end
     if j == 0 or j == rings then
       for i = 1, sides - 1 do
@@ -243,16 +250,17 @@ function B.chunk(list, c, half, yaw, seed, shade)
       c[1] + lx * cy - lz * sy,
       c[2] + ly,
       c[3] + lx * sy + lz * cy,
-      lx / 1.4 + uo,
-      ly / 1.4 + lz / 1.4 + vo,
+      lx / K.span + uo,
+      ly / K.span + lz / K.span + vo,
     }
   end
-  local tone = (shade or 1) * (0.72 + rng() * 0.36)
+  local tone = (shade or 1) * (T.base + rng() * T.vary)
   for j = 0, rings - 1 do
     for i = 0, sides - 1 do
       local a, b, d, e = p(j, i), p(j + 1, i), p(j + 1, i + 1), p(j, i + 1)
       local mx, my, mz = (a[1] + d[1]) / 2, (a[2] + d[2]) / 2, (a[3] + d[3]) / 2
-      B.quad(list, a, b, d, e, { mx * 9 - c[1] * 8, my * 9 - c[2] * 8, mz * 9 - c[3] * 8 }, tone)
+      local front = { mx * 9 - c[1] * 8, my * 9 - c[2] * 8, mz * 9 - c[3] * 8 } -- constant: outside
+      B.quad(list, a, b, d, e, front, tone)
     end
   end
 end
@@ -272,11 +280,11 @@ function B.moulded(list, x0, z0, x1, z1, y0, profile, shade)
       local p, q, r, s = low[k], low[n], high[n], high[k]
       B.quad(
         list,
-        { p[1], p[2], p[3], run / 3.4, p[2] / 3.4 },
-        { q[1], q[2], q[3], (run + length) / 3.4, q[2] / 3.4 },
-        { r[1], r[2], r[3], (run + length) / 3.4, r[2] / 3.4 },
-        { s[1], s[2], s[3], run / 3.4, s[2] / 3.4 },
-        { (p[1] + q[1]) * 5 - cx * 9, p[2], (p[3] + q[3]) * 5 - cz * 9 },
+        { p[1], p[2], p[3], run / STONE, p[2] / STONE },
+        { q[1], q[2], q[3], (run + length) / STONE, q[2] / STONE },
+        { r[1], r[2], r[3], (run + length) / STONE, r[2] / STONE },
+        { s[1], s[2], s[3], run / STONE, s[2] / STONE },
+        { (p[1] + q[1]) * 5 - cx * 9, p[2], (p[3] + q[3]) * 5 - cz * 9 }, -- constant: outside
         shade
       )
       run = run + length
@@ -286,36 +294,39 @@ function B.moulded(list, x0, z0, x1, z1, y0, profile, shade)
   local y = low[1][2]
   B.quad(
     list,
-    { low[1][1], y, low[1][3], low[1][1] / 3.4, low[1][3] / 3.4 },
-    { low[2][1], y, low[2][3], low[2][1] / 3.4, low[2][3] / 3.4 },
-    { low[3][1], y, low[3][3], low[3][1] / 3.4, low[3][3] / 3.4 },
-    { low[4][1], y, low[4][3], low[4][1] / 3.4, low[4][3] / 3.4 },
-    { cx, y + 9, cz },
+    { low[1][1], y, low[1][3], low[1][1] / STONE, low[1][3] / STONE },
+    { low[2][1], y, low[2][3], low[2][1] / STONE, low[2][3] / STONE },
+    { low[3][1], y, low[3][3], low[3][1] / STONE, low[3][3] / STONE },
+    { low[4][1], y, low[4][3], low[4][1] / STONE, low[4][3] / STONE },
+    { cx, y + 9, cz }, -- constant: a point above the top
     shade
   )
 end
 -- A fallen column drum lying on the floor.
 function B.drum(list, x, y, z, yaw, radius, length, shade)
   local dx, dz = cos(yaw), sin(yaw)
-  local sides = 14
+  local D = Masonry.drum
+  local sides = D.sides
+  local function jagged(t, ang)
+    return t == 0 and 0 or D.jag * sin(ang * D.jagWaves + yaw * D.jagTurn)
+  end
   for s = 0, sides - 1 do
     local a, b = s / sides * 2 * pi, (s + 1) / sides * 2 * pi
     local function p(t, ang)
       local across, up = cos(ang) * radius, sin(ang) * radius
-      local jag = t == 0 and 0 or 0.11 * sin(ang * 5 + yaw * 7)
-      local along = length * t + jag
+      local along = length * t + jagged(t, ang)
       return {
         x + dx * along - dz * across,
         y + radius + up,
         z + dz * along + dx * across,
         ang / pi,
-        along / 3.4,
+        along / STONE,
       }
     end
     B.quad(list, p(0, a), p(1, a), p(1, b), p(0, b), {
-      x + dx * length / 2 - dz * cos(a) * 9,
-      y + radius + sin(a) * 9,
-      z + dz * length / 2 + dx * cos(a) * 9,
+      x + dx * length / 2 - dz * cos(a) * 9, -- constant: outside the face
+      y + radius + sin(a) * 9, -- constant: outside the face
+      z + dz * length / 2 + dx * cos(a) * 9, -- constant: outside the face
     }, shade)
   end
   for _, t in ipairs({ 0, 1 }) do
@@ -323,15 +334,14 @@ function B.drum(list, x, y, z, yaw, radius, length, shade)
     for s = 0, sides - 1 do
       local a, b = s / sides * 2 * pi, (s + 1) / sides * 2 * pi
       local function e(ang)
-        local jag = t == 0 and 0 or 0.11 * sin(ang * 5 + yaw * 7)
-        local along = length * t + jag
+        local along = length * t + jagged(t, ang)
         local across, up = cos(ang) * radius, sin(ang) * radius
         return {
           x + dx * along - dz * across,
           y + radius + up,
           z + dz * along + dx * across,
-          0.5 + cos(ang) * 0.18,
-          0.5 + sin(ang) * 0.18,
+          0.5 + cos(ang) * D.capSpan,
+          0.5 + sin(ang) * D.capSpan,
         }
       end
       B.quad(
@@ -353,27 +363,29 @@ function B.heap(list, blocks, heap, seed)
   local rng = B.random(seed)
   local cx, cz, radius, peak = heap.x, heap.z, heap.radius, heap.peak
   local base = heap.base or 0
+  local H = Masonry.heap
   local phase = rng() * 9
   local function height(r, angle)
-    local edge = radius * (0.84 + 0.16 * sin(angle * 3 + phase) * cos(angle * 2 - phase))
+    local edge = radius * (H.edge + H.edgeVary * sin(angle * 3 + phase) * cos(angle * 2 - phase))
     local t = min(1, r / edge)
-    local lump = 0.13 * sin(angle * 5 + r * 4 + phase) + 0.09 * sin(angle * 9 - r * 7)
+    local lump = H.lump * sin(angle * 5 + r * 4 + phase) + H.lumpFine * sin(angle * 9 - r * 7)
     return max(0, peak * (1 - t * t) * (1 + lump)) + base
   end
-  local rings, spokes = 12, 34
+  local rings, spokes = H.rings, H.spokes
   local offsets = {}
   local function vertex(i, s)
-    local key = i * 100 + s % spokes
+    local key = i * 100 + s % spokes -- constant: fewer than 100 spokes
     local o = offsets[key]
     if not o then
-      o = { (rng() - 0.5) * 0.06, (rng() - 0.5) * 0.06 }
+      o = { (rng() - 0.5) * H.jitter, (rng() - 0.5) * H.jitter }
       offsets[key] = o
     end
     local r, angle = radius * i / rings, s / spokes * 2 * pi
     local x, z =
       cx + cos(angle) * r + (i > 0 and o[1] or 0), cz + sin(angle) * r + (i > 0 and o[2] or 0)
     local y = height(r, angle)
-    return { x, y + (i < rings and y > base + 0.02 and o[1] * 1.6 or 0), z, x / 2.6, z / 2.6 }
+    local rise = i < rings and y > base + H.flat and o[1] * H.rough or 0
+    return { x, y + rise, z, x / H.span, z / H.span }
   end
   for i = 0, rings - 1 do
     for s = 0, spokes - 1 do
@@ -383,19 +395,20 @@ function B.heap(list, blocks, heap, seed)
         vertex(i + 1, s),
         vertex(i + 1, s + 1),
         vertex(i, s + 1),
-        { cx, 50, cz },
-        0.72 + rng() * 0.3
+        { cx, 50, cz }, -- constant: a point above the mound
+        H.shade + rng() * H.shadeVary
       )
     end
   end
   for i = 1, heap.count do
-    local big = i <= heap.count * 0.24
-    local angle, r = rng() * 2 * pi, sqrt(rng()) * radius * (big and 0.78 or 0.98)
-    local size = big and 0.12 + rng() * 0.15 or 0.03 + rng() ^ 2 * 0.07
-    local long = 1 + rng() * 0.9
-    local hy = size * (0.55 + rng() * 0.25)
-    local c = { cx + cos(angle) * r, height(r, angle) + hy * 0.6, cz + sin(angle) * r }
-    B.block(blocks, c, { size * long, hy, size }, rng() * pi, (rng() - 0.5) * 0.9, seed * 7919 + i)
+    local big = i <= heap.count * H.bigShare
+    local angle, r = rng() * 2 * pi, sqrt(rng()) * radius * (big and H.bigReach or H.smallReach)
+    local size = big and H.big.size + rng() * H.big.vary or H.small.size + rng() ^ 2 * H.small.vary
+    local long = 1 + rng() * H.long
+    local hy = size * (H.high + rng() * H.highVary)
+    local c = { cx + cos(angle) * r, height(r, angle) + hy * H.sit, cz + sin(angle) * r }
+    local own = seed * 7919 + i -- constant: a prime, a seed of its own for every block
+    B.block(blocks, c, { size * long, hy, size }, rng() * pi, (rng() - 0.5) * H.tilt, own)
   end
 end
 -- All the lists of a build, by the way each part is shown. A scope with no
