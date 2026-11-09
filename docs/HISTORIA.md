@@ -75,6 +75,20 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G6a, narzędzia: osobne zapisy przebiegów i nieznane globale, 2026-11-09:
+  na Linuxie każdy przebieg testów zapisuje pliki gry w swoim katalogu QA
+  (`XDG_DATA_HOME=<qa>/save` w `tools/linux/project.sh`), nie we wspólnym
+  `~/.local/share/love/sigil-breach-qa`; dwie bramy z dwóch klonów już się nie
+  nadpisują. Na Windows LÖVE bierze katalog z systemu, nie ze zmiennej, więc
+  tam bez zmian (bramy po kolei). Nowa reguła checkera UNKNOWN GLOBAL: kod gry
+  (`src/`) nie czyta ani nie pisze żadnej globalnej poza Lua i `love`;
+  sprawdzane na kodzie bajtowym LuaJIT, łącznie z funkcjami zagnieżdżonymi,
+  a numery rozkazów reguła odczytuje z próbnych fragmentów (LuaJIT w LÖVE
+  z `toolchain/` różni się od systemowego). `docs/TECHNIKA.md` bez
+  nieaktualnych odwołań (`work/qa-v<wersja>`, `ROZSZERZANIE.txt`,
+  `DEVELOPMENT.txt`), z opisem miejsca raportów i zapisów przebiegów na
+  Linuxie. Gra i golden bez zmian.
+
 - G5b, dźwięki czynów jako zdarzenia, 2026-11-09: symulacja nie wybiera już
   dźwięków. Dziesięć wywołań `Presentation.cue` z symulacji (flaska, egzekucja,
   zakup, drzwi przejście i otwarcie, odpoczynek, odzyskanie dusz, pusty spust,
@@ -4781,6 +4795,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G6a, narzędzia, 2026-11-09: UNKNOWN GLOBAL na obecnym kodzie 0; próba
+  mutacji (jedno odwołanie do starej zmiennej `boss` w `hit_response.lua`)
+  zgłoszona jako `reads boss`, także na LÖVE z `toolchain/`. Pierwsza brama
+  zatrzymała się w checkerze: `jit.vmdef` ładował się z systemu i nie pasował
+  do LuaJIT bramy; poprawione. Izolacja: po bramie globalny katalog ~/.local/share/love/sigil-breach-qa nietknięty, zapisy przebiegu w work/qa/save klonu. Pełne Linux All PASS
+  w osobnym klonie: 9245 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - G5b, dźwięki czynów jako zdarzenia, 2026-11-09: reguła SIMULATION SOUND
   (żaden kod symulacji nie woła `Presentation.cue`): na starym kodzie 10

@@ -22,7 +22,9 @@ Klon wskazany w zadaniu: Windows lub Linux (migracja: rozdział Linux niżej).
 
 Pracuj w game/, nie w outputs/*/source. outputs to zbudowane snapshoty.
 outputs ma bieżące i poprzednie wydanie. Przebudowa przenosi poprzednie
-dostawy do work/qa-v<wersja>/rollback (jedna generacja, następny build ją zastępuje).
+dostawy do work/qa/rollback (jedna generacja, następny build ją zastępuje; na
+Linuxie katalog roboczy leży poza repo, w ~/Work/tries/sigil-breach-<skrót ścieżki
+checkoutu>/work, zob. tools/linux/project.sh).
 Zasada właściciela (2026-11-04): zwykłe zadania wykonujemy w głównym
 repozytorium /home/nahiko/Work/sigil-breach. Klon oznacza osobną kopię kodu,
 zasobów i historii Git; powstaje w Work/tries tylko wtedy, gdy potrzebna
@@ -439,7 +441,7 @@ To weryfikacja automatyczna; nie zastępuje ludzkiej oceny balansu i feelingu.
 FUNDAMENT v11 / ODBIÓR 0.34
 
 Receptury nowych póz, trybu, rycerza, urządzenia i widoku znajdują się
-w ROZSZERZANIE (punkty 17–22). Ich działające próby: named-poses,
+w rozdziale „Rozszerzanie treści” (punkty 17–22). Ich działające próby: named-poses,
 mode-state, actors, observer, view-context. W produkcji nadal jeden
 poligon, jeden gracz i ten sam HUD. Kolejny widok nie wykonuje kroku świata.
 
@@ -538,7 +540,7 @@ phaseIndex/phaseBaseHp/lastAttack/attackRepeats są stanem komponentów;
 snapshot, zapis i journal obejmują je. damageEnemy zwraca rzeczywistą
 utratę zdrowia; puls efektu nie odejmuje nowego zapasu HP od starego.
 EnemyPhaseChanged służy prezentacji, a nagrody i otwarcie wyjścia nadal
-należą tylko do EnemyKilled. Bieżące kontrakty: ROZSZERZANIE.txt;
+należą tylko do EnemyKilled. Bieżące kontrakty: rozdział „Rozszerzanie treści”;
 plan etapu poligonu pozostaje w historii gita.
 
 LÖVE 11.5 / LuaJIT / Lua 5.1. Baza pod rozbudowę (hub/baza, więcej demonów,
@@ -1055,8 +1057,10 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
 14. NARZĘDZIA
 
   FORMAT.ps1 (StyLua) przed testami; TEST.ps1 -Suite All|Architecture|
-  Mechanics|Input|Render|Tools; tools/win/check.ps1; raporty w work/qa-v<wersja>/
-  (qaOutput w game/src/app/release.lua). Flagi: --selftest, --input-test,
+  Mechanics|Input|Render|Tools; tools/win/check.ps1; raporty w work/qa/
+  (qaOutput w game/src/app/release.lua; na Linuxie w zewnętrznym katalogu
+  roboczym, zob. wyżej). Zapisy gry z przebiegów testów na Linuxie leżą
+  w work/qa/save (PLAN G6), więc dwie bramy z dwóch klonów ich nie dzielą. Flagi: --selftest, --input-test,
   --showcase, --benchmark, --hit-review
   (raporty trafień, GPU, opóźnienia i koszt salwy, nakładki hit-overlay-*),
   --record (+ F9), --suite=<id> (jeden zestaw), --core-measure
@@ -1081,11 +1085,12 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   64 MiB serializowanego tekstu albo 216000 komend (10 min aktualizacji 120/s
   i celowania 240/s; nie jest to limit RAM).
   Zatrzymuje się na granicy kompletnej komendy; eksport czeka na kontakty
-  i końcowy Integrity. Szczegóły i koszt: DEVELOPMENT.txt.
+  i końcowy Integrity. Szczegóły i koszt: rozdział „Praca nad grą i testy”.
   Punkty anatomiczne: tools/art/landmarks/crops.ps1 -Kind boss -Frame 9
   [-Points "x,y;..."] (wycinek z siatką pikseli źródła, po --hit-review).
-  Celowa zmiana rozgrywki: skopiuj work/qa-v<wersja>/golden-current.lua do
-  tests/golden/baseline.lua i opisz w ZMIANY (najpierw wyjaśnij różnice).
+  Celowa zmiana rozgrywki: skopiuj work/qa/golden-current.lua do
+  tests/golden/baseline.lua (Windows) albo baseline_linux.lua (Linux) i opisz
+  w ZMIANY (najpierw wyjaśnij różnice).
 
 15. KONTRAKTY DOMKNIĘCIA v11 (27 października 2026)
 

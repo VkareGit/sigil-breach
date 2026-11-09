@@ -33,6 +33,70 @@ local function governed(relative)
   end
   return false
 end
+-- The globals a compiled chunk reads or writes (LuaJIT bytecode, every nested
+-- function) that are neither Lua's own nor love.
+local knownGlobals = {}
+for name in
+  ([[
+  _G _VERSION assert collectgarbage coroutine debug dofile error gcinfo getfenv
+  getmetatable io ipairs jit bit load loadfile loadstring math module newproxy next
+  os package pairs pcall print rawequal rawget rawset require select setfenv
+  setmetatable string table tonumber tostring type unpack xpcall love
+]]):gmatch('%S+')
+do
+  knownGlobals[name] = true
+end
+-- The opcodes of a global read and write, read off two probe chunks compiled
+-- by this very LuaJIT (no jit.vmdef: a runtime's own LuaJIT may differ from
+-- the system's library files).
+local globalOps
+local function opsOf()
+  if globalOps then
+    return globalOps
+  end
+  local util = require('jit.util')
+  local function find(source)
+    local fn = loadstring(source)
+    for pc = 1, util.funcinfo(fn).bytecodes - 1 do
+      local ins = util.funcbc(fn, pc)
+      if ins and util.funck(fn, -math.floor(ins / 65536) - 1) == 'probe_global' then
+        return ins % 256
+      end
+    end
+  end
+  globalOps = { [find('return probe_global')] = 'reads', [find('probe_global = 1')] = 'writes' }
+  return globalOps
+end
+local function unknownGlobals(chunk)
+  local util, ops = require('jit.util'), opsOf()
+  local found, seen = {}, {}
+  local function walk(fn)
+    local info = util.funcinfo(fn)
+    for pc = 1, (info.bytecodes or 1) - 1 do
+      local ins = util.funcbc(fn, pc)
+      if not ins then
+        break
+      end
+      local how = ops[ins % 256]
+      if how then
+        local name = util.funck(fn, -math.floor(ins / 65536) - 1)
+        if type(name) == 'string' and not knownGlobals[name] and not seen[name] then
+          seen[name] = true
+          found[#found + 1] = how .. ' ' .. name
+        end
+      end
+    end
+    for i = 1, info.gcconsts or 0 do
+      local k = util.funck(fn, -i)
+      if type(k) == 'proto' then
+        walk(k)
+      end
+    end
+  end
+  walk(chunk)
+  table.sort(found)
+  return found
+end
 local function unnamedNumbers(text)
   text = text:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%[(=*)%[.-%]%1%]', "''")
   text = text:gsub('"[^"\n]*"', "''"):gsub("'[^'\n]*'", "''"):gsub('%-%-[^\n]*', '')
@@ -569,6 +633,12 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
     local chunk, err = loadstring(text, '@' .. relative)
     if not chunk then
       failure('SYNTAX ' .. tostring(err))
+    elseif relative:sub(1, 4) == 'src/' then
+      -- Game code reads and writes no global but Lua's own and love (PLAN G6:
+      -- a renamed local left behind reads a missing global as nil).
+      for _, name in ipairs(unknownGlobals(chunk)) do
+        failure('UNKNOWN GLOBAL ' .. relative .. ': ' .. name)
+      end
     end
     -- A package's init.lua is the module of its directory (require loads it).
     local id = relative:gsub('%.lua$', ''):gsub('/', '.'):gsub('%.init$', '')
