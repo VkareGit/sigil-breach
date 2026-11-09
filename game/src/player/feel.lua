@@ -107,14 +107,10 @@ local function accelerate(target, dt)
     or Move.airAccel
   m.moveX, m.moveZ = p.vx * dt, p.vz * dt
   if m.len > M.input or onGround then
-    local ax, az = m.dx * target - p.vx, m.dz * target - p.vz
-    local al = math.sqrt(ax * ax + az * az)
-    if al > 0 then
-      local active = math.min(dt, al / accel)
-      local amount = accel * active
-      local oldVX, oldVZ = p.vx, p.vz
-      p.vx = p.vx + ax / al * amount
-      p.vz = p.vz + az / al * amount
+    local oldVX, oldVZ = p.vx, p.vz
+    local active
+    p.vx, p.vz, active = Kinematics.steer(p.vx, p.vz, m.dx * target, m.dz * target, accel, dt)
+    if active > 0 then
       m.moveX = (oldVX + p.vx) * 0.5 * active + p.vx * (dt - active)
       m.moveZ = (oldVZ + p.vz) * 0.5 * active + p.vz * (dt - active)
     end

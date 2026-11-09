@@ -75,6 +75,21 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E2d, jedna reguła prędkości ciała, 2026-11-09: rycerz i stwór zmieniają
+  własną prędkość tą samą regułą silnika `Kinematics.steer` (ku prędkości
+  chcianej z ograniczonym tempem m/s², z czasem, przez który się zmieniała);
+  sterownik podaje tylko, czego chce i jak szybko może to zmieniać: klawisze
+  rycerza (przyspieszenie, hamowanie, w powietrzu) w `player/feel.lua`,
+  chód stwora (tempo przez √masy, hamowanie przy zawracaniu, zwolnienie
+  przed celem) w `enemies/walking.lua`. Liczby ruchu były już w definicjach
+  (`knight.movement`, `move` stwora, `combat_defaults`). Zostaje, czeka na
+  decyzję właściciela, bo zmienia golden: jedna droga w kroku dla każdego
+  ciała (stwór liczy dziś przesunięcie nową prędkością razy krok, rycerz
+  dokładnie dla stałego przyspieszenia; różnica ok. 1 cm na każde ruszenie
+  stwora, playtest `b0de7293` → `5c516a94`) i chwila lądowania rycerza
+  (dziś koniec kroku, u stwora chwila zetknięcia z podłogą). Golden bez
+  zmian.
+
 - Potwierdzenie trafienia z wyniku zdarzenia, 2026-11-09 (uwagi Codexa do
   analizy skalowalności, potwierdzone w kodzie): trafienie spoza broni
   (ładunek, rytuał, pole) zapalało znacznik, ale zostawiało z poprzedniego
@@ -4962,6 +4977,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E2d, jedna reguła prędkości ciała, 2026-11-09: golden 10 PASS (wynik
+  identyczny), `feel` 186, `movement` 46, `bodies` 5, `weapons` 471,
+  `creature-pressure` 45, `terrain-motion` 26, `souls-bots` 9,
+  `chapel-route` 10 bez zmian. Pełne Linux All PASS w osobnym klonie:
+  9284 sprawdzeń. Windows niesprawdzony.
 
 - Potwierdzenie trafienia z wyniku zdarzenia, 2026-11-09: trzy nowe
   sprawdzenia w `hit-feedback` (10 PASS), oba błędy czerwone bez zmiany

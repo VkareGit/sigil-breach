@@ -352,6 +352,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
   SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
   `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
+- 2026-11-09, **E2 krok d zrobiony:** jedna reguła prędkości ciała
+  (`Kinematics.steer`) dla rycerza i stwora, golden identyczny. Czeka na
+  właściciela (zmiana golden): jedna droga w kroku i chwila lądowania rycerza.
 - 2026-11-09, **E7 zrobione (technicznie):** macierz Exorcista mierzona
   w obrazie (`verification`), miernik E0 przed i po, CPU przed i po. Naprawione:
   odpoczynek i powrót po śmierci dokańczały odrzut ostatniego strzału. Czeka

@@ -1,5 +1,6 @@
 -- How a creature walks: a physical stride toward a point, and the route to one it cannot
 -- see. What it wants to reach is the business of enemies/ai.lua.
+local Kinematics = require('src.physics.kinematics')
 local Archetypes = require('src.content.enemies')
 local MathX = require('src.core.mathx')
 local Arena = require('src.world.arena')
@@ -35,13 +36,8 @@ local function move(g, e, tx, tz, speed, dt)
     vx, vz = 0, 0
   end
   e.walkAt = now
-  local ax, az = dx * speed - vx, dz * speed - vz
-  local al = len(ax, az)
   local rate = accel * ((vx * dx + vz * dz) < 0 and defaults.brake or 1)
-  if al > 0 then
-    local step = math.min(al, rate * dt)
-    vx, vz = vx + ax / al * step, vz + az / al * step
-  end
+  vx, vz = Kinematics.steer(vx, vz, dx * speed, dz * speed, rate, dt)
   local ox, oz = e.x, e.z
   local sx, sz = Arena.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
   e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt

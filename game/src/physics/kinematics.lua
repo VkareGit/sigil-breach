@@ -29,6 +29,22 @@ function K.spring(x, v, target, k, d, dt)
   local b = v + a * y
   return target + decay * (y + b * dt), decay * (v - a * b * dt)
 end
+-- How every body's own velocity follows what it means to do (PLAN E2): it
+-- moves toward the wanted velocity (wx, wz) at rate m/s^2, for at most dt.
+-- Returns the new velocity and the time it spent changing (the rest of dt it
+-- holds the wanted velocity). The controller says only what is wanted and how
+-- fast it may change: the knight's keys (player/feel.lua), a creature's walk
+-- (enemies/walking.lua).
+function K.steer(vx, vz, wx, wz, rate, dt)
+  local ax, az = wx - vx, wz - vz
+  local al = math.sqrt(ax * ax + az * az)
+  if al <= 0 then
+    return vx, vz, 0
+  end
+  local active = math.min(dt, al / rate)
+  local amount = rate * active
+  return vx + ax / al * amount, vz + az / al * amount, active
+end
 -- Free flight under gravity for dt: the height and vertical velocity after
 -- it. Every body flies by this (PLAN E2): the knight, a leap, a fallen body.
 function K.flight(height, velocity, gravity, dt)
