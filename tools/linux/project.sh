@@ -147,10 +147,13 @@ run_isolated() {
   [ -n "$no_display" ] || mapfile -t prefix < <(display_prefix)
   # The game's own saves stay in this QA directory (PLAN G6): two runs from two
   # clones never share the QA identity's save files.
-  mkdir -p -- "$qa/save"
+  # A run started beside others at once (TEST.sh --jobs) names its own save
+  # folder (RUN_SAVE): parallel runs in one QA directory share nothing else.
+  local save="$qa/save${RUN_SAVE:+-$RUN_SAVE}"
+  mkdir -p -- "$save"
   code=0
   (cd -- "$SIGIL_ROOT" \
-    && XDG_DATA_HOME=$qa/save SIGIL_UI_QA_DIR=$qa SIGIL_QA_SOURCE_FINGERPRINT=$RUN_SOURCE \
+    && XDG_DATA_HOME=$save SIGIL_UI_QA_DIR=$qa SIGIL_QA_SOURCE_FINGERPRINT=$RUN_SOURCE \
       SIGIL_QA_BUILD_FINGERPRINT=$RUN_BUILD SIGIL_QA_RUN=$RUN_ID \
       timeout --kill-after=10 "$seconds" "${prefix[@]}" "$runtime" "$@") \
     > "$stdout" 2> "$stderr" || code=$?

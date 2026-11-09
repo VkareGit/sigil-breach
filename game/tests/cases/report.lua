@@ -6,6 +6,9 @@ local T = {}
 function T.run()
   local lines = {}
   local check = F.checker(lines, 'report: ', 'report: ')
+  -- The save folder exists only once something wrote there: make it here,
+  -- not by relying on a suite run before this one.
+  love.filesystem.write('report-test.txt', '')
   local path = love.filesystem.getSaveDirectory() .. '/report-test.txt'
   local report = Report.new(path)
   report:run('first', 'passes', function()

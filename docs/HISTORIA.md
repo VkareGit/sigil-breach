@@ -75,6 +75,23 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G6b, selftest we fragmentach, 2026-11-10: `--selftest --shard=i/n`
+  uruchamia co n-ty zestaw od i-tego, do własnego raportu
+  (`test-results-shard-i-of-n.txt`); `scripts/linux/TEST.sh --jobs n` (1–8,
+  domyślnie 1) puszcza n fragmentów naraz, każdy w osobnym procesie
+  i własnym katalogu zapisu (`run_isolated` z `RUN_SAVE`), obok nich test
+  wejścia i pokaz; narzędzia pomiarowe zostają same i po kolei, żeby
+  równoległość nie fałszowała pomiarów. Przeciek stanu między zestawami
+  łapie tylko jeden proces ze wszystkimi zestawami po kolei, więc dostawa
+  (`tools/linux/build.sh`) dalej wymaga dowodu przebiegu `--jobs 1`
+  (`source-selftest`); fragmenty go nie piszą. Pierwszy przebieg we
+  fragmentach od razu znalazł zależność od kolejności: test `report` pisał do
+  katalogu zapisu, który tworzył wcześniejszy zestaw; teraz tworzy go sam.
+  Selftest: 355 s w jednym procesie, ok. 127 s przy czterech fragmentach,
+  ta sama liczba sprawdzeń. Najdłuższy etap bramy to teraz pokaz (jedna
+  funkcja `qa/showcase.lua`); jego podział to następny krok. Windows bez
+  zmian (`TEST.ps1` bez `--jobs`).
+
 - E2e, jedna droga w kroku i jedno lądowanie, 2026-11-09 (decyzja
   właściciela: zmiana golden przyjęta): krok stwora przebywa drogę dokładnie
   dla stałego przyspieszenia (`Kinematics.travel`), jak krok rycerza,
@@ -4994,6 +5011,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G6b, selftest we fragmentach, 2026-11-10: `TEST.sh Mechanics --jobs 4`
+  zielone, suma czterech fragmentów równa przebiegowi szeregowemu; test
+  `report` czerwony we fragmencie przed poprawką. Pełne Linux All PASS
+  (`--jobs 1`) w osobnym klonie: 9285 sprawdzeń, golden 10 PASS. Windows
+  niesprawdzony.
 
 - E2e, jedna droga w kroku i jedno lądowanie, 2026-11-09: dwa nowe
   sprawdzenia w `bodies` (7 PASS), czerwone bez zmiany. Golden: nowy wzorzec

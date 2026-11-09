@@ -73,6 +73,14 @@ function Q.new(arguments)
       q.flags[flag] = true
       -- --suite=<id>: one registered test suite (tests/suite.lua), for work on it.
       q.suite = q.suite or flag:match('^%-%-suite=(.+)$')
+      -- --shard=i/n: with --selftest, every n-th registered suite from the
+      -- i-th (scripts/linux/TEST.sh --jobs n runs the n shards at once).
+      local index, count = flag:match('^%-%-shard=(%d+)/(%d+)$')
+      if index then
+        index, count = tonumber(index), tonumber(count)
+        assert(count >= 1 and index >= 1 and index <= count, 'bad --shard=' .. flag)
+        q.shard = { index = index, count = count }
+      end
       local name, value = flag:match('^(%-%-[%w-]+)=(.+)$')
       if name and tools[name] then
         q.values[name] = value
@@ -203,7 +211,7 @@ function Q:run(G, renderer, getGame, settings, getLoading)
   elseif self:has('--frame-watch') then
     require('qa.reviews.frame_watch').run(G, renderer, self.output)
   elseif self:has('--selftest') then
-    require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading)
+    require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading, self.shard)
   elseif self:has('--input-test') then
     require('tests.input').run(getGame, settings, self.output .. '/input-results.txt', getLoading)
   elseif self:has('--ui-audit') then

@@ -727,7 +727,9 @@ function Suite.contentText()
   end
   return table.concat(parts, '|')
 end
-function Suite.run(G, renderer, getGame, output, selected, getLoading)
+-- shard (optional, { index, count }): every count-th suite from the index-th,
+-- in registry order, into its own report (a parallel gate runs the shards).
+function Suite.run(G, renderer, getGame, output, selected, getLoading, shard)
   if selected then
     local found = false
     for _, entry in ipairs(Suite.registry) do
@@ -746,11 +748,14 @@ function Suite.run(G, renderer, getGame, output, selected, getLoading)
   initial.ephemeral = true
   -- A focused run must not replace evidence from the last complete run. Only
   -- registered suite ids reach this path, never arbitrary command-line paths.
-  local filename = selected and ('suite-' .. selected .. '-results.txt') or 'test-results.txt'
+  local filename = selected and ('suite-' .. selected .. '-results.txt')
+    or shard and string.format('test-results-shard-%d-of-%d.txt', shard.index, shard.count)
+    or 'test-results.txt'
   local report = Report.new((output or Output.directory()) .. '/' .. filename)
   report:write()
-  for _, entry in ipairs(Suite.registry) do
-    if not selected or entry.id == selected then
+  for position, entry in ipairs(Suite.registry) do
+    local mine = not shard or (position - 1) % shard.count == shard.index - 1
+    if mine and (not selected or entry.id == selected) then
       report:run(entry.id, entry.title, function()
         local test = require(entry.module)
         local lines
