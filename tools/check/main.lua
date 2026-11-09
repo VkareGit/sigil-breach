@@ -750,6 +750,18 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       failure('HAND PROFILE ' .. id .. ': the hands read the profile of the weapon in hand')
     end
   end
+  -- The simulation publishes what happened; the presentation chooses its
+  -- sound (PLAN G5): no simulation code names a sound cue.
+  for id, text in pairs(sources) do
+    if layerOf(id, simulationLayers) then
+      for line in text:gmatch('[^\n]+') do
+        local code = line:gsub('%-%-.*$', '')
+        if code:find('Presentation%.cue%(') and not code:find('^%s*function') then
+          failure('SIMULATION SOUND ' .. id .. ': send an event (feedback/event_cues.lua)')
+        end
+      end
+    end
+  end
   -- A sigil is data and a kind of effect (PLAN G2): no code of the fight or
   -- of its feedback names one; content and the screens that show it may.
   for id, text in pairs(sources) do

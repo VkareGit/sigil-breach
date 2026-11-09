@@ -19,7 +19,6 @@ local Roles = require('src.core.roles')
 local Bodies = require('src.combat.bodies')
 local Text = require('src.content.text')
 local Characters = require('src.content.characters')
-local Presentation = require('src.session.presentation')
 local Rules = require('src.combat.rules')
 local Cast = {}
 Cast.kinds = ActionKinds:view()
@@ -79,7 +78,7 @@ ActionKinds:register('drink', {
     local heal = Sigils.flask(actor, action.heal)
     actor.hp = math.min(Characters.maxHp(actor), actor.hp + heal)
     if actor.hp > before then
-      Presentation.cue(g, 'pickup', 0.5)
+      Signal(g, 'FlaskDrunk', { actor = actor.id, heal = actor.hp - before })
     end
     return true
   end,

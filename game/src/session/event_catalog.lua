@@ -55,6 +55,17 @@ local Catalog = {
   { 'EnemyArrived', 'a demon climbed out of a portal {enemy}' },
   { 'PickupTaken', 'the knight took a supply {pickup, text}' },
   { 'ModeStarted', 'the session left the menu into its mode {mode}' },
+  -- What a knight's own deeds sound like is the presentation's (PLAN G5:
+  -- feedback/event_cues.lua); the simulation only says they happened.
+  { 'FlaskDrunk', 'a drink restored health {actor, heal}' },
+  { 'Bought', 'a purchase at a fire {offer}' },
+  { 'DoorPassed', 'the knight went through an open door {door}' },
+  { 'DoorOpened', 'the knight opened a door from its own side {door}' },
+  { 'Rested', 'the knight rested at a fire {fire}' },
+  { 'EchoRecovered', 'the knight took back his lost souls {amount}' },
+  { 'TriggerDry', 'a trigger pull with no rounds left {actor, presented}' },
+  { 'Dashed', 'a knight dodged {actor, presented}' },
+  { 'ZoneEntered', 'the controlled knight entered a named zone {zone}' },
 }
 local Events = require('src.core.events')
 local M = {}

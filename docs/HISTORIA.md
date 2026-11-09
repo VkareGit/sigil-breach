@@ -75,6 +75,17 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G5b, dźwięki czynów jako zdarzenia, 2026-11-09: symulacja nie wybiera już
+  dźwięków. Dziesięć wywołań `Presentation.cue` z symulacji (flaska, egzekucja,
+  zakup, drzwi przejście i otwarcie, odpoczynek, odzyskanie dusz, pusty spust,
+  unik, wejście w strefę) to teraz zdarzenia z `session/event_catalog.lua`
+  (dziewięć nowych, egzekucja już była). Który dźwięk i jak głośno: tabela
+  `content/event_cues.lua` (te same głośności co dotąd); odtwarza je słuchacz
+  `feedback/event_cues.lua` po kroku symulacji (różnica poniżej jednego
+  kroku, 8 ms). Pusty spust i unik słychać, jak dotąd, tylko dla rycerza,
+  który je wykonał na ekranie. Reguła checkera SIMULATION SOUND. Gra i golden
+  bez zmian.
+
 - G5a, poziom postaci zamiast flagi `boss`, 2026-11-09: ciało ma pole `tier`
   (`common`, `elite`, `boss`) zamiast flagi `boss`, która znaczyła elitę.
   Reguły pytają `Rules.elite(e)`: elita i prawdziwy boss zachwiewają się
@@ -4770,6 +4781,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G5b, dźwięki czynów jako zdarzenia, 2026-11-09: reguła SIMULATION SOUND
+  (żaden kod symulacji nie woła `Presentation.cue`): na starym kodzie 10
+  miejsc, po zmianie 0. Nowe sprawdzenie w `extension`: unik słychać przez
+  jego zdarzenie, a dźwięk nazywa treść. Golden bez zmian. Pełne Linux All
+  PASS w osobnym klonie: 9245 sprawdzeń, golden 10 PASS, `feel` 186 PASS.
+  Windows niesprawdzony.
 
 - G5a, poziom postaci zamiast flagi `boss`, 2026-11-09: nowe sprawdzenie
   w `content-contracts`, czerwone przed zmianą: ciało stoi na `tier`, schemat

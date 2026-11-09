@@ -3,12 +3,11 @@
 -- (content/defs/body.lua: execution). Emits Executed (session/event_catalog.lua).
 local Defaults = require('src.content.combat_defaults').execution
 local Area = require('src.combat.area_contact')
-local Presentation = require('src.session.presentation')
+local Signal = require('src.session.signal')
 local Bodies = require('src.combat.bodies')
 local Hit = require('src.combat.hit')
 local Roles = require('src.core.roles')
 local Rules = require('src.combat.rules')
-local Signal = require('src.session.signal')
 local Text = require('src.content.text')
 local Execution = {}
 -- What his arm reaches: a column from below his feet to above his head, wherever he is in the
@@ -63,7 +62,6 @@ function Execution.perform(g)
     numbered = true,
     label = 'execution',
   })
-  Presentation.cue(g, 'seal', Defaults.cue)
   g:notify(Text.get('execution_done'), 2)
   Signal(g, 'Executed', { enemy = e, amount = amount, actor = p.id })
   return true

@@ -144,8 +144,8 @@ function Game:reloadGun(who)
     actor.cooldown = 0.20
     if presented then
       self:notify(Text.get('no_ammo'), 2)
-      Presentation.cue(self, 'empty')
     end
+    Signal(self, 'TriggerDry', { actor = actor.id, presented = presented or false })
   end
   return false
 end
@@ -236,9 +236,7 @@ function Game:dash(dx, dz, who)
   if Context.view(self, player) then
     Presentation.call(Context.of(self, player), 'motion.dash', dx, dz)
   end
-  if presented then
-    Presentation.cue(self, 'dash')
-  end
+  Signal(self, 'Dashed', { actor = player.id, presented = presented or false })
   return true
 end
 -- Actors joining, leaving and taking control (plan v11 E3, journal v5): each

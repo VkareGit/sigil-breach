@@ -18,7 +18,7 @@ local Shop = require('src.content.shop')
 local Abilities = require('src.content.abilities')
 local Roles = require('src.core.roles')
 local Text = require('src.content.text')
-local Presentation = require('src.session.presentation')
+local Signal = require('src.session.signal')
 local E = {}
 E.offers = Shop.offers
 function E.preview(g, id)
@@ -407,7 +407,7 @@ end
 function E.trade(g, id)
   local ok, reason = E.buy(g, id)
   if ok then
-    Presentation.cue(g, 'pickup', Shop.boughtCue)
+    Signal(g, 'Bought', { offer = id })
     g.shopMessage = Text.get('run_bought', { souls = g.run.wallet })
   else
     g.shopMessage = reason

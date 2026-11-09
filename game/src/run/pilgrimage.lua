@@ -14,6 +14,7 @@ local Ground = require('src.physics.ground')
 local Way = require('src.content.pilgrimage')
 local MathX = require('src.core.mathx')
 local Presentation = require('src.session.presentation')
+local Signal = require('src.session.signal')
 local Roles = require('src.core.roles')
 local Rules = require('src.combat.rules')
 local Sanctuary = require('src.session.sanctuary')
@@ -403,12 +404,12 @@ local function door(g)
       P.populate(g)
       P.save(g)
     end
-    Presentation.cue(g, 'seal', 0.5)
+    Signal(g, 'DoorPassed', { door = found.id })
   elseif own then
     r.opened[found.id] = true
     P.save(g)
     g:notify(Text.get('pilgrim_door_opened'), 3)
-    Presentation.cue(g, 'seal', 0.5)
+    Signal(g, 'DoorOpened', { door = found.id })
   else
     g:notify(Text.get('pilgrim_door_barred'), 2)
   end
@@ -522,7 +523,7 @@ function P.interact(g)
   refresh(g)
   P.save(g)
   g:notify(Text.get('pilgrim_rested', { name = Text.get(fire.name) }), 3)
-  Presentation.cue(g, 'seal', 0.5)
+  Signal(g, 'Rested', { fire = fire.id })
   return Sanctuary.trade(g)
 end
 -- [ENTER] at a fire, or its menu's button: on to the next one lit.
@@ -633,7 +634,7 @@ function P.update(g, dt)
   if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < Way.echoReach then
     r.wallet, r.echo = r.wallet + echo.amount, nil
     g:notify(Text.get('pilgrim_recovered', { amount = echo.amount }), 3)
-    Presentation.cue(g, 'seal', 0.5)
+    Signal(g, 'EchoRecovered', { amount = echo.amount })
     P.save(g)
   end
   if r.dirty then

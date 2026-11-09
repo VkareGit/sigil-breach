@@ -1,7 +1,7 @@
 -- Session clocks: captions, combo, the zone banner, the countdowns of the
 -- knight's weapons and screen feedback, and both hit-stops (impactSlow: the
 -- demons wait; worldStop: missiles and ground wait too).
-local Presentation = require('src.session.presentation')
+local Signal = require('src.session.signal')
 local Arena = require('src.world.arena')
 local Timers = require('src.core.timers')
 local K = require('src.content.tuning').clocks
@@ -74,7 +74,7 @@ function Clocks.run(g, dt)
   local zone = Arena.zone(g.world, Roles.controlled(g).x, Roles.controlled(g).z)
   if zone ~= g.zone then
     g.zone, g.zoneTimer = zone, K.zoneBanner
-    Presentation.cue(g, 'bell', K.zoneBell)
+    Signal(g, 'ZoneEntered', { zone = zone })
   end
   local quiet = calm(g)
   tickView(g.view, dt, quiet)

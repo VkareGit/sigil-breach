@@ -32,4 +32,5 @@ Presentation.hook('worldRestored', function(g)
 end)
 Presentation.hook('effects', FX.update)
 Presentation.attacher(FeedbackListeners.attach)
+Presentation.attacher(require('src.feedback.event_cues').attach)
 return Install

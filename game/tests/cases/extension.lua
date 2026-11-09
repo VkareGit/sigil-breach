@@ -570,6 +570,25 @@ function Tests.run(G)
       .. table.concat(named, ', '),
     painted and drew and strokes == 1 and #named == 0
   )
+  -- A deed is heard through its event (PLAN G5): the simulation announces a
+  -- dodge, the presentation chooses its sound (content/event_cues.lua).
+  local Audio = require('src.audio.audio')
+  local heard, play = {}, Audio.play
+  Audio.play = function(sound, volume)
+    heard[#heard + 1] = sound
+    return play(sound, volume)
+  end
+  local dodging = Fixtures.arena(G)
+  for _ = 1, 30 do
+    dodging:update(1 / 120, {})
+  end
+  dodging:update(1 / 120, { strafe = 1, dash = true })
+  Audio.play = play
+  local dashed = false
+  for _, sound in ipairs(heard) do
+    dashed = dashed or sound == require('src.content.event_cues').Dashed.sound
+  end
+  check('a dodge is heard through its event, its sound named in content', dashed)
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')

@@ -348,6 +348,10 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   (`Rules.elite`), pula w wersji 11. Golden bez zmian. G4 czeka na decyzję
   właściciela o budowie świata; dalej G5 (podział kampanii, dźwięki
   z symulacji jako zdarzenia, warstwy).
+- 2026-11-09, **G5 krok b zrobiony:** symulacja publikuje czyny jako
+  zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
+  SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
+  `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
 
 ## Po przeglądzie 2026-11-08 (G1–G7, przyjęte)
 
@@ -419,6 +423,8 @@ rekomendacją.
    eksportu (Linux i Windows) instalują je do pakietu. Decyzja właściciela
    2026-11-08: „jeśli przeniesienie jest właściwe, przenieś i zaktualizuj
    skrypty i wszystko, co potrzeba”. Skrypty Windows bez próby.
+8. G4: świat to jedna ciągła mapa podzielona na obszary, nie osobne mapy
+   łączone przejściami. Decyzja właściciela 2026-11-09.
 
 ## Poza zakresem
 
