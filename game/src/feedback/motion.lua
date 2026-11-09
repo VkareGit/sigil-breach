@@ -132,6 +132,14 @@ end
 -- while paused, with no simulation between. Discard decoration now; never
 -- reset firing/reload clocks, jump, contact latches, input intentions,
 -- physical gait or combat confirmation.
+-- A fresh start of the knight (a rest at a fire, a retry, a journey): his
+-- camera and hands come to rest, and nothing of the last fight (a shot's
+-- kick, a blow's punch) finishes on them after it. The gait keeps its step.
+function Motion.afresh(g)
+  ViewState.clearCamera(g)
+  Motion.clear(g)
+  g.view.presentationPrevious = nil
+end
 function Motion.clearAll(g)
   ViewState.clearCamera(g)
   Motion.clear(g)
@@ -151,6 +159,7 @@ function Motion.clearAll(g)
 end
 Presentation.hook('motion.init', Motion.init)
 Presentation.hook('motion.clear', Motion.clear)
+Presentation.hook('motion.afresh', Motion.afresh)
 Presentation.hook('motion.settle', Motion.settle)
 Presentation.hook('motion.slide', Motion.slide)
 Presentation.hook('motion.slam', Motion.slam)

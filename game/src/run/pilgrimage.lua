@@ -165,6 +165,8 @@ local function refresh(g, fresh)
   swear(g)
   local p = Roles.controlled(g)
   ActorReset.actor(g, p)
+  -- Nothing of the last fight finishes on his camera or hands either.
+  Presentation.call(g, 'motion.afresh')
   p.hp, p.armor = Characters.maxHp(p), p.maxArmor
   Characters.rest(p)
   Abilities.fill(g, nil, p)

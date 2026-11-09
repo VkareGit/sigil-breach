@@ -11,6 +11,11 @@ Suite.registry = {
     module = 'tests.cases.feel',
   },
   {
+    id = 'verification',
+    title = 'Final verification: every weapon, move and act of the hands, MOTION, pause, observer',
+    module = 'tests.cases.verification',
+  },
+  {
     id = 'creature-audio-lifecycle',
     title = 'Creature sources, occlusion, field voices and session lifetime',
     module = 'tests.cases.creature_audio_lifecycle',

@@ -75,6 +75,45 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E7, weryfikacja końcowa, 2026-11-09: nowy zestaw `verification` mierzy
+  w pokazanym obrazie macierz z planu Exorcista: obie bronie × siedem
+  sposobów ruchu (stanie, chód, krok w bok, w tył, skok, unik, ślizg) ×
+  sześć czynności rąk (strzał; drugi strzał, gdy broń pozwala; przeładowanie;
+  przeładowanie przerwane spustem; szybka zamiana; flaszka) × 30/60/120/240 Hz
+  i nierówne klatki, a także MOTION wyłączone i wyłączone tuż po strzale,
+  pauzę, obserwatora, odpoczynek przy ognisku, śmierć z ponownym startem
+  i Continue z zapisu. Zamrożona klatka liczy się, gdy jest widoczna (krok
+  poniżej milionowej części zasięgu wielkości, ruch po obu stronach powyżej
+  dziesięciotysięcznej); wyłączenie interpolacji dwóch pól daje 754
+  zatrzymania. Znaleziona wada: odpoczynek przy ognisku i powrót po śmierci
+  zostawiały w kamerze i dłoniach cały odrzut ostatniego strzału (0,76), więc
+  po zamknięciu sklepu lub przebudzeniu widok dokańczał strzał sprzed nich.
+  Teraz wspólne odświeżenie rycerza (odpoczynek, powrót, podróż) woła hak
+  prezentacji `motion.afresh`: kamera i dłonie w spoczynku, rytm kroku
+  zostaje. Znalezisko dla właściciela, nie wada: przy 30 Hz obraz pokazuje
+  stan sprzed ostatniego kroku symulacji; przechył, który właśnie doszedł do
+  wartości kroku w bok po strzale (0,85 chodu), stoi jedną klatkę, zanim unik
+  pochyli go dalej (dwa ruchy, nie zacięcie; trzymane w teście dokładnie).
+  Przy MOTION wyłączonym kamera i proceduralny ruch dłoni stoją, a własna
+  choreografia ilustracji broni (klatki ognia, ruch przeładowania) gra dalej,
+  jak dotąd. Miernik E0 przed i po na tych samych zestawach (commit E0
+  `23f244f` w osobnym klonie, potem HEAD): chód, skok i unik bez zmian
+  (opóźnienia jak w E0, zero zamrożonych klatek); kopnięcie widoku po strzale
+  przyszło szybciej (120 Hz 25,0 → 16,7 ms, 144 Hz 13,9 → 0,0 ms, 240 Hz
+  12,5 → 4,2 ms) przy tym samym szczycie (Exorcist 0,0349 → 0,0347 rad, Judge
+  0,0179 rad) i krótszym uspokojeniu (Exorcist 333 → 217 ms przy 60 Hz);
+  kopnięcie za błyskiem w 12 z 14 strzałów → 0 z 14; wysokość Stolasa 25
+  i skoku Embera 27 zamrożonych klatek przy 144 Hz → 0, a każdy atak każdego
+  stwora mierzony jest teraz osobno przy 144 Hz i nierównych klatkach (0);
+  cofanie w testach 1,110 m wobec 0,715 m na poligonie → 0,715 i 0,715 m;
+  wstrząs przy strzale Judge'a 0,5 → 0,010 → zachowany 0,492. CPU, jeden
+  przebieg na stronę, ta sama maszyna (`--benchmark`, `--core-measure`):
+  pełna klatka z 4 stworami 4,47 → 4,41 ms, z 20 stworami 6,60 → 6,72 ms;
+  krok symulacji z 20 stworami 0,553 → 0,401 ms (powtórka 0,388 → 0,397);
+  kaplica 0,417 → 0,667 ms (powtórka 0,392 → 0,456): pomiar szumny,
+  prawdopodobny koszt uśpionych garnizonów G4, ułamek budżetu kroku 8,33 ms.
+  Golden bez zmian.
+
 - G7e, magiczne liczby: HUD na zero, G7 zamknięte, 2026-11-09: miary paska
   stanu (nisze amunicji, zdrowia, arsenału, osłony, wyposażenia i dusz,
   portret), pasek wysiłku, odzysk, panel kluczy i zegara, znaki celownika
@@ -4905,6 +4944,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E7, weryfikacja końcowa, 2026-11-09: `verification` 35 PASS (420
+  przebiegów macierzy, każda czynność się wydarzyła, zero widocznych
+  zamrożonych klatek poza trzymanym przechyłem przy 30 Hz). Sprawdzenia
+  odpoczynku i powrotu po śmierci były czerwone przed zmianą (zostawało 0,76
+  odrzutu), Continue było zielone od początku. Bez zmian: `feel` 186, `pilgrimage` 166, `pilgrimage-save` 162, `fire-shop` 13, `chapel-route` 10, `weight` 911, `mode-lifecycle` 24, `view-context` 46; 788 renderów i eksport dźwięku identyczne.
+  Pełne Linux All PASS w osobnym klonie: 9281 sprawdzeń, golden 10 PASS.
+  Windows niesprawdzony. Odbiór właściciela osobno od tego technicznego
+  PASS: trzecia próba (płynność, strzelanie, odpoczynek i powrót po śmierci)
+  oraz audio A/B i pozy dłoni z E6.
 
 - G7e, magiczne liczby, HUD, 2026-11-09: dowód identycznego obrazu: rendery
   pokazu (w tym HUD w grze, kaplicy i polu prób): 788 obrazów identycznych z G4a (sumy SHA-256), eksport dźwięku identyczny. `interface`
