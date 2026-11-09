@@ -75,6 +75,16 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G7e, magiczne liczby: HUD na zero, G7 zamknięte, 2026-11-09: miary paska
+  stanu (nisze amunicji, zdrowia, arsenału, osłony, wyposażenia i dusz,
+  portret), pasek wysiłku, odzysk, panel kluczy i zegara, znaki celownika
+  (kształty; ich rozmiary zostały w `ui_layout`), klamry rozbitej gardy,
+  stożek śrutu, panel strażnika i celu, komunikaty, podpowiedzi i monit
+  przeszły do `content/hud_look.lua`, przesunięte bez zmiany wartości (HUD
+  jest właściciela). Wyblakły atrament drugiej broni zostaje w kodzie jako
+  stała z `-- constant:`. Liczby nienazwane: każda warstwa poza treścią ma
+  zero (z 4815 na początku G7); zapadka pilnuje, by nie przybyła żadna.
+
 - G7d, magiczne liczby: `audio/` i ekrany `ui` poza HUD na zero, 2026-11-09: miary
   syntezatora w `content/synth_tone.lua` (nasycenie, kolczuga, klik, odbicia,
   szumy efektu, samogłoska, głos i jego oddech, partie dzwonu z bliźniakami,
@@ -4895,6 +4905,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G7e, magiczne liczby, HUD, 2026-11-09: dowód identycznego obrazu: rendery
+  pokazu (w tym HUD w grze, kaplicy i polu prób): 788 obrazów identycznych z G4a (sumy SHA-256), eksport dźwięku identyczny. `interface`
+  19, `details` 62, `hit-feedback` 7, `firing-feedback` 32,
+  `ui-content-extension` 58, `pilgrimage` 166 bez zmian. Checker 0 zgłoszeń,
+  zapadka `ui` = 0. Pełne Linux All PASS w osobnym klonie: 9246
+  sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - G7d, magiczne liczby, cały `audio/`, 2026-11-09: pełny eksport dźwięku
   (`--audio-export`, 259 plików WAV: każdy efekt, każda warstwa i nastrój

@@ -164,7 +164,7 @@ src/ui/fonts/bitmap_font.lua 0
 src/ui/fonts/painted_numbers.lua 0
 src/ui/fonts/painted_titles.lua 0
 src/ui/goetic_sigils.lua 0
-src/ui/hud.lua 357
+src/ui/hud.lua 0
 src/ui/interface.lua 0
 src/ui/kit.lua 0
 src/ui/layout.lua 0

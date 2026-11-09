@@ -24,8 +24,10 @@ local Lessons = require('src.feedback.lessons')
 local Rules = require('src.combat.rules')
 local CombatResources = require('src.combat.resources')
 local Palette = require('src.ui.palette')
+local HudLook = require('src.content.hud_look')
+local K = HudLook
 -- The gun not in hand (0.43, D04): the same ink, faded, so the one in hand reads first.
-local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.55 }
+local quietInk = { Palette.muted[1], Palette.muted[2], Palette.muted[3], 0.55 } -- constant: faded ink, the owner's
 local Timing = require('src.content.tuning').shot
 local Clocks = require('src.content.tuning').clocks
 local Modes = require('src.session.modes')
@@ -37,7 +39,8 @@ local C = Skin.colors
 local U
 -- Both HUD layouts show the same resolved cone the actor actually fires.
 function H.spreadRadius(g)
-  return 640
+  return Layout.width
+    / 2
     * math.tan(Tuning.pelletSpread * Loadout.spread(g, Context.actor(g)))
     / math.tan(
       math.rad((g.view.fov or Tuning.baseFov) + (g.view.motion ~= false and g.view.fovKick or 0))
@@ -50,21 +53,22 @@ end
 function H.guardStrip(g, e, x, y, w)
   local guard = Rules.guardThreshold(e)
   local lock = e.staggerLock or 0
-  lg.setColor(0.10, 0.07, 0.05, 0.9)
-  lg.rectangle('fill', x - 1, y - 1, w + 2, 6)
+  local G = K.guard
+  lg.setColor(G.ground)
+  lg.rectangle('fill', x - 1, y - 1, w + 2, G.frame)
   if Rules.has(e, 'exposed') then
-    local pulse = 0.65 + 0.35 * math.abs(math.sin((g.time or 0) * 9))
-    lg.setColor(0.98, 0.86, 0.52, pulse)
-    lg.rectangle('fill', x, y, w, 4)
+    local pulse = G.pulse.base + G.pulse.swing * math.abs(math.sin((g.time or 0) * G.pulse.rate))
+    lg.setColor(G.exposed[1], G.exposed[2], G.exposed[3], pulse)
+    lg.rectangle('fill', x, y, w, G.height)
   elseif lock > 0 then
     local full = Rules.lockTime(e)
-    lg.setColor(0.52, 0.50, 0.46, 0.85)
-    lg.rectangle('fill', x, y, math.floor(w * math.min(1, lock / full)), 4)
+    lg.setColor(G.lock)
+    lg.rectangle('fill', x, y, math.floor(w * math.min(1, lock / full)), G.height)
   else
     local fill = math.min(1, (e.poise or 0) / guard)
     if fill > 0 then
-      lg.setColor(0.98, 0.60, 0.14, 1)
-      lg.rectangle('fill', x, y, math.max(1, math.floor(w * fill)), 4)
+      lg.setColor(G.fill)
+      lg.rectangle('fill', x, y, math.max(1, math.floor(w * fill)), G.height)
     end
   end
   lg.setColor(1, 1, 1)
@@ -73,13 +77,13 @@ local function color(c, a)
   lg.setColor(c[1], c[2], c[3], a or 1)
 end
 local function text(t, x, y, size, c)
-  Skin.text(t, x, y, U.fonts[size or 18], c or C.ivory)
+  Skin.text(t, x, y, U.fonts[size or K.font], c or C.ivory)
 end
 local function centered(t, cx, y, size, c)
   text(t, cx - U.fonts[size]:getWidth(t) / 2, y, size, c)
 end
 local function center(t, y, size, c)
-  centered(t, 640, y, size, c)
+  centered(t, Layout.width / 2, y, size, c)
 end
 local function number(t, cx, y, w, h, c)
   -- Counters use whole painted digits even if a future rule supplies a fraction.
@@ -90,23 +94,27 @@ local function number(t, cx, y, w, h, c)
   Skin.imageBounds('painted number ' .. t, x, top, width, height)
 end
 local function fitted(t, cx, y, size, w, c)
-  for _, s in ipairs({ size, 22, 18, 16, 14, 12, 11 }) do
+  if U.fonts[size]:getWidth(t) <= w then
+    return centered(t, cx, y, size, c)
+  end
+  for _, s in ipairs(K.fitted) do
     if s <= size and U.fonts[s]:getWidth(t) <= w then
       return centered(t, cx, y, s, c)
     end
   end
-  centered(TextFit.ellipsis(U.fonts[11], t, w), cx, y, 11, c)
+  centered(TextFit.ellipsis(U.fonts[K.smallest], t, w), cx, y, K.smallest, c)
 end
 local function line(x1, y1, x2, y2, c, w)
   color(c)
-  lg.setLineWidth(w or 2)
+  lg.setLineWidth(w or K.line)
   lg.line(x1, y1, x2, y2)
 end
 local function notice(label, y, size, tint)
-  local width = math.min(450, Skin.inkBounds(U.fonts[size], label).w + 28)
-  Skin.panel(18, y, width, 44, 7, 10)
-  Skin.zone('combat notice ' .. label, 28, y + 10, width - 20, 24)
-  Skin.boxText(label, 30, y + 11, width - 24, 22, U.fonts[size], tint)
+  local N = K.notice
+  local width = math.min(N.widest, Skin.inkBounds(U.fonts[size], label).w + N.pad)
+  Skin.panel(N.x, y, width, N.h, 7, N.corner)
+  Skin.zone('combat notice ' .. label, N.zone.x, y + N.inset, width - N.zone.pad, N.zone.h)
+  Skin.boxText(label, N.text.x, y + N.text.y, width - N.text.pad, N.text.h, U.fonts[size], tint)
   Skin.endZone()
 end
 -- The status bar. What it shows of the mode (purse, glyph, echo, progress)
@@ -125,49 +133,56 @@ function H.status(g, run)
   run = run or Modes.act(g, 'hud')
   local p = Context.actor(g)
   Reliquary.status()
-  Skin.lightField(0, 584, 1280, 136)
-  Skin.zone('HUD ammunition', 133, 628, 105, 68)
+  local function zone(name, z)
+    Skin.zone(name, z[1], z[2], z[3], z[4])
+  end
+  local cap = K.caption
+  Skin.lightField(K.bar[1], K.bar[2], K.bar[3], K.bar[4])
+  local A = K.ammo
+  zone('HUD ammunition', A.zone)
   local mag, reserve = Weapons.meter(g, nil, Context.actor(g))
-  fitted(Text.get('ammo'), 185, 630, 14, 100, C.muted)
-  number(mag, 185, 646, 98, 29, mag == 0 and C.red or C.ivory)
+  fitted(Text.get('ammo'), A.cx, cap.y, cap.font, A.width, C.muted)
+  number(mag, A.cx, A.number[1], A.number[2], A.number[3], mag == 0 and C.red or C.ivory)
   local ammoCaption = Reload.left(g, Context.actor(g)) > 0 and Reload.label(g, Context.actor(g))
     or Text.get('reserve', { count = reserve })
   fitted(
     ammoCaption,
-    185,
-    678,
-    14,
-    100,
+    A.cx,
+    A.below,
+    cap.font,
+    A.width,
     Reload.left(g, Context.actor(g)) > 0 and C.gold or (reserve == 0 and C.red or C.muted)
   )
   Skin.endZone()
-  Skin.zone('HUD health', 271, 628, 119, 68)
+  local Hh = K.health
+  zone('HUD health', Hh.zone)
   -- Low health is said by the whole niche: its caption turns red with its number.
   local low = Characters.low(p)
-  centered(Text.get('health'), 330, 630, 14, low and C.red or C.muted)
+  centered(Text.get('health'), Hh.cx, cap.y, cap.font, low and C.red or C.muted)
   number(
     Characters.percent(Characters.share(p)) .. '%',
-    330,
-    648,
-    112,
-    29,
+    Hh.cx,
+    Hh.number[1],
+    Hh.number[2],
+    Hh.number[3],
     low and C.red or Palette.wound
   )
-  Skin.meter(275, 686, 110, Characters.share(p), C.red, 12)
+  Skin.meter(Hh.meter[1], Hh.meter[2], Hh.meter[3], Characters.share(p), C.red, Hh.meter.marks)
   Skin.endZone()
-  Skin.zone('HUD arsenal', 421, 628, 115, 68)
+  local Ar = K.arsenal
+  zone('HUD arsenal', Ar.zone)
   -- A chain is the weapon's: it stands in the niche of the weapons, as long as it lives, quiet:
   -- its seal and its count (the medal at the top of the view named it), and a small seal on
   -- the row of the weapon that made it, the one its edge is on.
   local chain = Chain.step(p)
   if chain then
     local count = Text.get('hud_chain_count', { count = p.chainCount })
-    local ink = Skin.inkBounds(U.fonts[14], count)
-    local left = 478 - (18 + 4 + ink.w) / 2
-    seal(chain.id, left, 629, 18, 1)
-    text(count, left + 22 - ink.x, 631, 14, C.gold)
+    local ink = Skin.inkBounds(U.fonts[cap.font], count)
+    local left = Ar.cx - (Ar.chainSeal + Ar.chainGap + ink.w) / 2
+    seal(chain.id, left, Ar.chainTop, Ar.chainSeal, 1)
+    text(count, left + (Ar.chainSeal + Ar.chainGap) - ink.x, Ar.chainCount, cap.font, C.gold)
   else
-    centered(Text.get('arsenal'), 478, 630, 14, C.muted)
+    centered(Text.get('arsenal'), Ar.cx, cap.y, cap.font, C.muted)
   end
   -- Two painted rows: scroll around the selected slot instead of silently
   -- dropping any third weapon or overflowing the fresco's lower ornament.
@@ -179,14 +194,15 @@ function H.status(g, run)
     local label = count > 2
         and (Text.get('weapon_slot', { slot = weapon.slot, name = Text.get(weapon.def.hud.tab) }))
       or Text.get(weapon.def.name)
-    local y = 648 + (row - 1) * 16
+    local y = Ar.row.y + (row - 1) * Ar.row.step
     -- 0.43 (D04): the gun in hand reads first, a size larger; the other stays quiet.
-    local size = weapon.selected and 14 or 12
+    local size = weapon.selected and Ar.held or Ar.quiet
+    local S = Ar.rowSeal
     if chain and p.chainWeapon == weapon.def.id then
-      seal(chain.id, 424, y + 1, 12, 1)
-      fitted(label, 486, y - (size - 12) / 2, size, 96, tint)
+      seal(chain.id, S.x, y + 1, S.size, 1)
+      fitted(label, S.cx, y - (size - Ar.quiet) / 2, size, S.width, tint)
     else
-      fitted(label, 478, y - (size - 12) / 2, size, 114, tint)
+      fitted(label, Ar.cx, y - (size - Ar.quiet) / 2, size, Ar.width, tint)
     end
   end
   -- The engraving on the gun in hand, where each gun wears its own; else the run's one.
@@ -199,20 +215,31 @@ function H.status(g, run)
     engraving = held and run.worn[held]
   end
   if chain then
-    Skin.meter(425, 686, 106, p.chainLeft / Honours.window, C.gold, 12)
+    local M = Ar.meter
+    Skin.meter(M[1], M[2], M[3], p.chainLeft / Honours.window, C.gold, M.marks)
   elseif engraving then
     local label = Text.get(assert(Shop.get(engraving).short, 'missing engraving HUD label'))
-    fitted(label, 478, 681, 12, 114, C.gold)
+    fitted(label, Ar.cx, Ar.engraving.y, Ar.engraving.font, Ar.width, C.gold)
   end
   Skin.endZone()
-  Portrait.draw(g, 565, 584, 150)
-  Skin.zone('HUD armor', 752, 628, 118, 68)
-  centered(Text.get('ward'), 810, 630, 14, C.muted)
+  Portrait.draw(g, K.portraitAt[1], K.portraitAt[2], K.portraitAt.size)
+  local W = K.ward
+  zone('HUD armor', W.zone)
+  centered(Text.get('ward'), W.cx, cap.y, cap.font, C.muted)
   local ward = Characters.wardShare(p)
-  number(Characters.percent(ward) .. '%', 810, 648, 114, 29, p.armor > 0 and C.blue or C.muted)
-  Skin.meter(753, 686, 114, ward, C.blue, 12)
+  local wn = W.number
+  number(
+    Characters.percent(ward) .. '%',
+    W.cx,
+    wn[1],
+    wn[2],
+    wn[3],
+    p.armor > 0 and C.blue or C.muted
+  )
+  Skin.meter(W.meter[1], W.meter[2], W.meter[3], ward, C.blue, W.meter.marks)
   Skin.endZone()
-  Skin.zone('HUD abilities', 908, 628, 113, 68)
+  local Ab = K.abilities
+  zone('HUD abilities', Ab.zone)
   -- The equipment of every keyed slot (ui/hud_slots.lua). One item: its key
   -- and tag, its uses of its capacity and their meter; more: one row each.
   local kit = Slots.equipment(g)
@@ -221,67 +248,79 @@ function H.status(g, run)
     local uses, capacity = item.uses, item.capacity
     text(
       Text.get('ability_key', { key = item.key, tag = item.def and Text.get(item.def.tag) or '' }),
-      912,
-      630,
-      12,
+      Ab.x,
+      Ab.key.y,
+      Ab.key.font,
       C.gold
     )
     text(
       uses > 0 and Text.get('uses', { uses = uses, capacity = capacity }) or Text.get('none'),
-      912,
-      649,
-      14,
+      Ab.x,
+      Ab.uses.y,
+      Ab.uses.font,
       uses > 0 and C.ivory or C.red
     )
-    Skin.meter(912, 667, 104, uses / capacity, C.gold, capacity)
+    Skin.meter(Ab.meter[1], Ab.meter[2], Ab.meter[3], uses / capacity, C.gold, capacity)
   else
     -- One row each, clear of the niche's edge: an item with a painted mark (assets/art/icons)
     -- shows the mark, its key and its uses large at the right, red at none; one without keeps
     -- its key and tag in small letters. Two rows have room to read large; more keep the old
     -- small rows. The meter is a single item's.
     local roomy = #kit <= 2
-    local size, step = roomy and 18 or 11, roomy and 21 or 15
+    local rows = roomy and Ab.roomy or Ab.tight
+    local size, step = rows.font, rows.step
     for row, item in ipairs(kit) do
-      local y = 630 + (row - 1) * step
+      local y = Ab.key.y + (row - 1) * step
       local count = Text.get('uses_left', { uses = item.uses })
       local ink = Skin.inkBounds(U.fonts[size], count)
       text(
         count,
-        1015 - ink.w - ink.x,
+        Ab.right - ink.w - ink.x,
         y - (roomy and 1 or 0),
         size,
         item.uses > 0 and C.ivory or C.red
       )
       local marked = roomy and Skin.hasIcon(item.def.id)
-      local left, label = 912, nil
+      local left, label = Ab.x, nil
       if marked then
-        Skin.icon(item.def.id, 912, y - 1, 18)
-        left, label = 934, Text.get('ability_key_alone', { key = item.key })
+        Skin.icon(item.def.id, Ab.x, y - 1, Ab.mark.size)
+        left, label = Ab.mark.after, Text.get('ability_key_alone', { key = item.key })
       else
         label = Text.get('ability_key', { key = item.key, tag = Text.get(item.def.tag) })
       end
-      local width = 1011 - ink.w - left
-      local font = marked and 14 or (Skin.inkBounds(U.fonts[12], label).w <= width and 12 or 11)
+      local width = Ab.labelRight - ink.w - left
+      local small = Ab.small
+      local font = marked and Ab.labelFont
+        or (Skin.inkBounds(U.fonts[small], label).w <= width and small or K.smallest)
       local fit = TextFit.ellipsis(U.fonts[font], label, width)
       text(fit, left - Skin.inkBounds(U.fonts[font], fit).x, y, font, C.gold)
     end
   end
   Skin.endZone()
-  Skin.zone('HUD souls', 1055, 628, 100, 76)
-  fitted(Text.get('souls'), 1105, 630, 14, 98, C.gold)
+  local So = K.souls
+  zone('HUD souls', So.zone)
+  fitted(Text.get('souls'), So.cx, cap.y, cap.font, So.width, C.gold)
   local showEcho = run.echo
-  number(run.wallet, 1105, 648, 98, showEcho and 22 or 25, C.gold)
+  number(run.wallet, So.cx, So.number, So.width, showEcho and So.heightEcho or So.height, C.gold)
   if showEcho then
     -- Seven-digit legal saves still keep their exact value. A separate short
     -- caption and proportional numeral line fit the fresco niche without
     -- shrinking an entire phrase below the smallest readable PNG font.
-    centered(Text.get('echo'), 1105, 672, 11, C.blue)
-    number(run.echo.amount, 1105, 688, 98, 13, C.blue)
+    local E = So.echo
+    centered(Text.get('echo'), So.cx, E.y, E.font, C.blue)
+    number(run.echo.amount, So.cx, E.number, So.width, E.height, C.blue)
   else
     -- What a kill just paid stands in the niche for a moment, in place of the count of deaths.
     local gained = (g.view.soulsGainTimer or 0) > 0
       and Text.get('hud_souls_gain', { amount = g.view.soulsGain })
-    fitted(gained or run.progress, 1105, 680, 14, 98, gained and C.gold or C.muted)
+    fitted(
+      gained or run.progress,
+      So.cx,
+      So.below,
+      cap.font,
+      So.width,
+      gained and C.gold or C.muted
+    )
   end
   Skin.endZone()
 end
@@ -292,19 +331,21 @@ function H.stamina(p)
   if share and share < 1 then
     local price = Sigils.dodgeCost(p, Rules.playerBody(p).rollStamina)
       / Characters.of(p).resources.stamina.max
-    Skin.zone('HUD stamina', 496, 570, 288, 14)
-    Skin.meter(500, 574, 280, share, share >= price and C.gold or C.red, 20)
+    local S = K.stamina
+    Skin.zone('HUD stamina', S.zone[1], S.zone[2], S.zone[3], S.zone[4])
+    Skin.meter(S.x, S.y, S.w, share, share >= price and C.gold or C.red, S.marks)
     color(C.ivory)
-    lg.rectangle('fill', 500 + 280 * price, 572, 2, 10)
+    lg.rectangle('fill', S.x + S.w * price, S.mark.y, S.mark.w, S.mark.h)
     Skin.endZone()
   end
 end
 -- What a blow took and can still be fought back, on the health meter.
 function H.rally(p)
   if (p.rally or 0) > 0 then
-    local x = 275 + 110 * Characters.share(p)
+    local R = K.rally
+    local x = R.x + R.w * Characters.share(p)
     lg.setColor(C.gold)
-    lg.rectangle('fill', x, 686, math.min(385 - x, 110 * p.rally / Characters.maxHp(p)), 4)
+    lg.rectangle('fill', x, R.y, math.min(R.right - x, R.w * p.rally / Characters.maxHp(p)), R.h)
     lg.setColor(1, 1, 1)
   end
 end
@@ -314,17 +355,20 @@ local function utilityPanel(g)
   if g.state == 'playing' and not g.map and g.elapsed >= Clocks.helpFor then
     return
   end
-  Skin.panel(1028, 12, 236, 68, 7, 10)
-  Skin.zone('utility caption field', 1038, 22, 216, 48)
+  local Ut = K.utility
+  local P, Z, T, Ck = Ut.plate, Ut.zone, Ut.text, Ut.clock
+  Skin.panel(P[1], P[2], P[3], P[4], 7, P.corner)
+  Skin.zone('utility caption field', Z[1], Z[2], Z[3], Z[4])
   local utility = Text.get('hud_utility')
-  local utilitySize = 14
-  if Skin.inkBounds(U.fonts[utilitySize], utility).w > 210 then
-    utilitySize = 12
+  local utilitySize = T.font
+  if Skin.inkBounds(U.fonts[utilitySize], utility).w > T[3] then
+    utilitySize = T.small
   end
-  Skin.boxText(utility, 1041, 23, 210, 20, U.fonts[utilitySize], C.muted, true)
-  local clock = string.format('%02d:%02d', math.floor(g.elapsed / 60), math.floor(g.elapsed % 60))
-  local clockInk = Skin.inkBounds(U.fonts[18], clock)
-  text(clock, 1250 - clockInk.w - clockInk.x, 48, 18, C.gold)
+  Skin.boxText(utility, T[1], T[2], T[3], T[4], U.fonts[utilitySize], C.muted, true)
+  local minutes, seconds = math.floor(g.elapsed / 60), math.floor(g.elapsed % 60) -- constant: a minute
+  local clock = string.format('%02d:%02d', minutes, seconds)
+  local clockInk = Skin.inkBounds(U.fonts[Ck.font], clock)
+  text(clock, Ck.right - clockInk.w - clockInk.x, Ck.y, Ck.font, C.gold)
   Skin.endZone()
 end
 -- What a hit looks like at the reticle.
@@ -335,12 +379,12 @@ local function hitMarks(g, cx, cy, mark)
   local kill = g.view.lastKill
   local reach = kill
       and Layout.killReach * (1 + Layout.killPop * (g.view.killPop or 0) / Timing.killPop)
-    or (Layout.hitReach + math.floor((g.view.hitWeight or 0) * 2))
+    or (Layout.hitReach + math.floor((g.view.hitWeight or 0) * K.hit.weight))
   local fade = math.min(1, g.view.hitmarker / Layout.markFade)
   for _, v in ipairs({ { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 } }) do
     local x1, y1 = cx + v[1] * Layout.markGap, cy + v[2] * Layout.markGap
     local x2, y2 = cx + v[1] * reach, cy + v[2] * reach
-    color(Palette.inkSoft, 0.85 * fade)
+    color(Palette.inkSoft, K.hit.outline * fade)
     lg.setLineWidth(Layout.markWidth + 1)
     lg.line(x1, y1, x2, y2)
     color(mark, fade)
@@ -348,24 +392,15 @@ local function hitMarks(g, cx, cy, mark)
     lg.line(x1, y1, x2, y2)
   end
   if g.view.armorHit and not g.view.lastKill then
-    Skin.icon('armor', cx + 19, cy - 10, 18)
+    local A = K.hit.armor
+    Skin.icon('armor', cx + A.x, cy + A.y, A.size)
   end
   if g.view.precisionHit then
     -- A small closed diamond distinguishes precision without covering the target. White, like
     -- any hit: gold belongs to a broken guard alone.
-    for _, v in ipairs({
-      { -4, -21, 0, -25 },
-      { 0, -25, 4, -21 },
-      { 4, -21, 0, -17 },
-      {
-        0,
-        -17,
-        -4,
-        -21,
-      },
-    }) do
-      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
-      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.ivory, 2)
+    for _, v in ipairs(K.hit.diamond) do
+      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, K.hit.ink)
+      line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], C.ivory, K.line)
     end
   end
 end
@@ -375,13 +410,14 @@ local function breakMarks(g, cx, cy)
   if (g.view.breakConfirm or 0) <= 0 then
     return
   end
-  local r = 17 + (1 - g.view.breakConfirm / 0.22) * 7
+  local B, ink = K.breaking, K.hit.ink
+  local r = B.from + (1 - g.view.breakConfirm / B.time) * B.snap
   for _, v in ipairs({ { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }) do
     local x, y = cx + v[1] * r, cy + v[2] * r
-    line(x, y, x - v[1] * 6, y, Palette.ink, 4)
-    line(x, y, x, y - v[2] * 6, Palette.ink, 4)
-    line(x, y, x - v[1] * 6, y, C.gold, 2)
-    line(x, y, x, y - v[2] * 6, C.gold, 2)
+    line(x, y, x - v[1] * B.arm, y, Palette.ink, ink)
+    line(x, y, x, y - v[2] * B.arm, Palette.ink, ink)
+    line(x, y, x - v[1] * B.arm, y, C.gold, K.line)
+    line(x, y, x, y - v[2] * B.arm, C.gold, K.line)
   end
 end
 -- The hands cannot fire: the reticle opens and dims for as long as that lasts, so a pull that
@@ -389,7 +425,10 @@ end
 local function aimMarks(g, cx, cy)
   local p = Context.actor(g)
   local locked = Attributes.forbids(p, 'fire')
-  local gap = 5 + math.min(6, g.view.recoil * 5) + (locked and Layout.lockedGap or 0)
+  local Rt = K.reticle
+  local gap = Rt.gap
+    + math.min(Rt.most, g.view.recoil * Rt.recoil)
+    + (locked and Layout.lockedGap or 0)
   local hit = g.view.hitmarker > 0
   -- One colour, one meaning, on the hit mark alone: white a hit, blue armour, gold a broken
   -- guard, red a kill. The cross itself stays ivory, dimmed while the hands cannot fire.
@@ -401,16 +440,21 @@ local function aimMarks(g, cx, cy)
     or (g.view.refusalTimer or 0) > 0 and g.view.refusal
   if says then
     -- Ivory with its ink, never red: red at the reticle belongs to a kill alone.
-    centered(Text.get(says), cx, cy + Layout.refusalBelow, 16, C.ivory)
+    centered(Text.get(says), cx, cy + Layout.refusalBelow, Rt.refusalFont, C.ivory)
   end
-  for _, v in ipairs({ { -gap - 6, 0, -gap, 0 }, { gap, 0, gap + 6, 0 }, { 0, -gap - 6, 0, -gap } }) do
-    line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, 4)
-    line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], reticle, 2)
+  local arm, ink = Rt.arm, K.hit.ink
+  for _, v in ipairs({
+    { -gap - arm, 0, -gap, 0 },
+    { gap, 0, gap + arm, 0 },
+    { 0, -gap - arm, 0, -gap },
+  }) do
+    line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], Palette.ink, ink)
+    line(cx + v[1], cy + v[2], cx + v[3], cy + v[4], reticle, K.line)
   end
   color(Palette.ink)
-  lg.rectangle('fill', cx - 3, cy - 3, 6, 6)
+  lg.rectangle('fill', cx - Rt.dot, cy - Rt.dot, 2 * Rt.dot, 2 * Rt.dot)
   color(reticle)
-  lg.rectangle('fill', cx - 1, cy - 1, 2, 2)
+  lg.rectangle('fill', cx - Rt.core, cy - Rt.core, 2 * Rt.core, 2 * Rt.core)
   if hit then
     hitMarks(g, cx, cy, mark)
   end
@@ -418,8 +462,9 @@ local function aimMarks(g, cx, cy)
   if Weapons.inHand(g, nil, Context.actor(g)).fire.pellets > 1 then
     local cone = H.spreadRadius(g)
     for _, side in ipairs({ -1, 1 }) do
-      line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, Palette.inkSoft, 3)
-      line(cx + side * cone, cy - 3, cx + side * cone, cy + 3, C.muted, 1)
+      local half = K.cone.half
+      line(cx + side * cone, cy - half, cx + side * cone, cy + half, Palette.inkSoft, K.cone.ink)
+      line(cx + side * cone, cy - half, cx + side * cone, cy + half, C.muted, 1)
     end
   end
 end
@@ -435,12 +480,23 @@ local function foePanel(g, p)
         local name = Text.get(
           exposed and banner.exposed or (Archetypes.furious(e) and banner.fury or banner.calm)
         )
-        Skin.panel(426, 16, 428, 64, 2, 10)
-        Skin.zone('boss field', 438, 27, 402, 43)
-        Skin.icon('skull', 440, 28, 36)
-        Skin.boxText(name, 483, 28, 345, 26, U.fonts[20], exposed and C.gold or C.ivory, true)
-        Skin.meter(483, 62, 345, e.hp / e.maxHp, C.red, 32)
-        H.guardStrip(g, e, 483, 71, 345)
+        local B = K.boss
+        local P, Z, N, M = B.plate, B.zone, B.name, B.meter
+        Skin.panel(P[1], P[2], P[3], P[4], 2, P.corner)
+        Skin.zone('boss field', Z[1], Z[2], Z[3], Z[4])
+        Skin.icon('skull', B.skull[1], B.skull[2], B.skull.size)
+        Skin.boxText(
+          name,
+          N[1],
+          N[2],
+          N[3],
+          N[4],
+          U.fonts[N.font],
+          exposed and C.gold or C.ivory,
+          true
+        )
+        Skin.meter(M[1], M[2], M[3], e.hp / e.maxHp, C.red, M.marks)
+        H.guardStrip(g, e, M[1], B.guard, M[3])
         Skin.endZone()
       end
     end
@@ -451,7 +507,7 @@ local function foePanel(g, p)
       dx,
       dy,
       dz,
-      25,
+      K.sights,
       Ballistics.prepare(g, p, {}),
       { Ballistics.origin(g, p) }
     )
@@ -464,29 +520,31 @@ local function foePanel(g, p)
       and struck.hold + Clocks.foeBar > Clocks.trailHold
     if target and target.hp > 0 and (struck or Archetypes.look(target).banner) then
       local shield = (target.armorRating or 0) > 0
-      Skin.panel(503, 20, 274, 60, 2, 10)
-      Skin.zone('target field', 514, 30, 252, 40)
+      local T = K.target
+      local P, Z, N, M = T.plate, T.zone, T.name, T.meter
+      Skin.panel(P[1], P[2], P[3], P[4], 2, P.corner)
+      Skin.zone('target field', Z[1], Z[2], Z[3], Z[4])
       local name = target.displayName and Text.show(target.displayName) or Text.get('hud_demon')
-      local width = shield and 150 or 165
-      local size = 16
-      while size > 12 and Skin.inkBounds(U.fonts[size], name).w > width do
+      local width = shield and T.width.shield or T.width.plain
+      local size = N.font
+      while size > N.smallest and Skin.inkBounds(U.fonts[size], name).w > width do
         size = size - 2
       end
-      Skin.boxText(name, shield and 552 or 520, 31, width, 22, U.fonts[size], C.ivory)
+      Skin.boxText(name, shield and N.shield or N.plain, N.y, width, N.h, U.fonts[size], C.ivory)
       if shield then
-        Skin.icon('armor', 515, 32, 22)
+        Skin.icon('armor', T.shield[1], T.shield[2], T.shield.size)
       end
-      Skin.meter(520, 62, 240, target.hp / target.maxHp, C.red, 24)
+      Skin.meter(M[1], M[2], M[3], target.hp / target.maxHp, C.red, M.marks)
       -- What this body just lost, as this view keeps it (feedback/listeners, systems/clocks): a
       -- pale trail on its bar, where the eye already is.
       local trail = g.view.damageTrail
       trail = trail and trail.id == target.id and trail
       if trail and trail.shown > target.hp then
-        local from = 520 + 240 * target.hp / target.maxHp
-        color(C.ivory, 0.8)
-        lg.rectangle('fill', from, 62, 240 * (trail.shown - target.hp) / target.maxHp, 6)
+        local from = M[1] + M[3] * target.hp / target.maxHp
+        color(C.ivory, T.trail.alpha)
+        lg.rectangle('fill', from, M[2], M[3] * (trail.shown - target.hp) / target.maxHp, T.trail.h)
       end
-      H.guardStrip(g, target, 520, 71, 240)
+      H.guardStrip(g, target, M[1], T.guard, M[3])
       Skin.endZone()
     end
   end
@@ -506,9 +564,11 @@ local function ammoNotice(g)
         ))
       or Text.get(mag == 0 and 'hud_reload' or def.hud.partial)
     -- Use the frame's full interior; the partial-load caption has 252 px of painted ink.
-    Skin.zone('ammunition notice', 512, 540, 256, 32)
-    Skin.panel(502, 530, 276, 52, 2, 10)
-    Skin.boxText(notice, 514, 542, 252, 28, U.fonts[16], empty and C.red or C.ivory, true)
+    local A = K.ammoNotice
+    local Z, P, T = A.zone, A.plate, A.text
+    Skin.zone('ammunition notice', Z[1], Z[2], Z[3], Z[4])
+    Skin.panel(P[1], P[2], P[3], P[4], 2, P.corner)
+    Skin.boxText(notice, T[1], T[2], T[3], T[4], U.fonts[T.font], empty and C.red or C.ivory, true)
     Skin.endZone()
   end
 end
@@ -537,24 +597,27 @@ local function honours(g, cx)
     Layout.medalSeal,
     math.min(1, left / Layout.medalFade)
   )
-  centered(Text.get(medal.name), cx, Layout.medalTop + Layout.medalSeal + 2, 20, C.gold)
+  local N = K.medalName
+  centered(Text.get(medal.name), cx, Layout.medalTop + Layout.medalSeal + N.gap, N.font, C.gold)
 end
 local function prompt(g)
   local ctx = g:context()
   if ctx then
-    local size = 16
-    while size > 12 and Skin.inkBounds(U.fonts[size], ctx).w > 430 do
+    local Pr = K.prompt
+    local size = Pr.font
+    while size > Pr.smallest and Skin.inkBounds(U.fonts[size], ctx).w > Pr.wide do
       size = size - 2
     end
     -- Still too wide at the least size (a long fire's name): the place before the first ' / '
     -- gives way, the keys stay (0.43, audit F07: it ran past its frame).
     local rest = ctx:match('^.- / (.+)$')
-    if rest and Skin.inkBounds(U.fonts[size], ctx).w > 430 then
+    if rest and Skin.inkBounds(U.fonts[size], ctx).w > Pr.wide then
       ctx = rest
     end
-    Skin.panel(18, 535, 460, 48, 2, 9)
-    Skin.zone('interaction field', 32, 545, 432, 28)
-    Skin.boxText(ctx, 33, 546, 430, 26, U.fonts[size], C.gold, true)
+    local P, Z, T = Pr.plate, Pr.zone, Pr.text
+    Skin.panel(P[1], P[2], P[3], P[4], 2, P.corner)
+    Skin.zone('interaction field', Z[1], Z[2], Z[3], Z[4])
+    Skin.boxText(ctx, T[1], T[2], T[3], T[4], U.fonts[size], C.gold, true)
     Skin.endZone()
   end
 end
@@ -562,17 +625,25 @@ end
 -- under it rather than over it, and no hint is shown.
 local function message(g, medal)
   if g.view.messageTimer > 0 then
-    local top = medal and Layout.medalTop + Layout.medalSeal + Layout.medalBelow or 91
-    local width = math.min(1180, U.fonts[16]:getWidth(g.view.message) + 40)
-    Skin.panel(640 - width / 2, top, width, 46, 2, 10)
-    Skin.zone('message field', 652 - width / 2, top + 10, width - 24, 26)
+    local Ms = K.message
+    local top = medal and Layout.medalTop + Layout.medalSeal + Layout.medalBelow or Ms.top
+    local width = math.min(Ms.widest, U.fonts[Ms.font]:getWidth(g.view.message) + Ms.pad)
+    local mid = Layout.width / 2
+    Skin.panel(mid - width / 2, top, width, Ms.h, 2, Ms.corner)
+    Skin.zone(
+      'message field',
+      mid + Ms.inset - width / 2,
+      top + Ms.zone.y,
+      width - Ms.zone.pad,
+      Ms.zone.h
+    )
     Skin.boxText(
       g.view.message,
-      652 - width / 2,
-      top + 11,
-      width - 24,
-      24,
-      U.fonts[16],
+      mid + Ms.inset - width / 2,
+      top + Ms.text.y,
+      width - Ms.zone.pad,
+      Ms.text.h,
+      U.fonts[Ms.font],
       C.ivory,
       true
     )
@@ -582,7 +653,10 @@ end
 local function hints(g, p, settings)
   if settings.hints ~= false then
     local tools = Queries.tools(g)
-    local hint = g.elapsed < 8 and not (tools and tools.combatTrial) and Text.get('hud_hint_moves')
+    local Hn = K.hint
+    local hint = g.elapsed < Hn.first
+        and not (tools and tools.combatTrial)
+        and Text.get('hud_hint_moves')
       or nil
     -- A lesson of something first seen (feedback/lessons.lua), once nothing hunts him.
     local lesson = Lessons.showing(g.view)
@@ -593,11 +667,20 @@ local function hints(g, p, settings)
       hint = Text.get('hud_hint_hurt')
     end
     if hint then
-      local width = math.min(1040, Skin.inkBounds(U.fonts[16], hint).w + 32)
-      local left = 640 - width / 2
-      Skin.panel(left, 139, width, 46, 2, 10)
-      Skin.zone('movement hint', left + 12, 149, width - 24, 26)
-      Skin.boxText(hint, left + 16, 150, width - 32, 24, U.fonts[16], C.ivory, true)
+      local width = math.min(Hn.widest, Skin.inkBounds(U.fonts[Hn.font], hint).w + Hn.pad)
+      local left = Layout.width / 2 - width / 2
+      Skin.panel(left, Hn.y, width, Hn.h, 2, Hn.corner)
+      Skin.zone('movement hint', left + Hn.zone.x, Hn.zone.y, width - Hn.zone.pad, Hn.zone.h)
+      Skin.boxText(
+        hint,
+        left + Hn.text.x,
+        Hn.text.y,
+        width - Hn.pad,
+        Hn.text.h,
+        U.fonts[Hn.font],
+        C.ivory,
+        true
+      )
       Skin.endZone()
     end
   end
@@ -612,14 +695,14 @@ function H.draw(g, settings, ui, descentUI)
   aimMarks(g, cx, cy)
   -- Incoming blows and near misses: arcs pointing at the source, sized by
   -- the blow's impact and damage, coloured by damage type (src/feedback/weight.lua).
-  Weight.drawMarks(g, cx, cy, 92)
+  Weight.drawMarks(g, cx, cy, K.incoming)
   foePanel(g, p)
   H.status(g, run)
   H.stamina(p)
   H.rally(p)
   ammoNotice(g)
   if g.view.feedbackTimer > 0 then
-    notice(g.view.feedback, 486, 16, C.gold)
+    notice(g.view.feedback, K.noticeY, K.noticeFont, C.gold)
   end
   local medal = (g.view.medalTimer or 0) > 0
   honours(g, cx)
