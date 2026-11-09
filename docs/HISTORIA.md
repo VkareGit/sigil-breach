@@ -75,6 +75,18 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G5c, podział pielgrzymki i kierunki warstw, 2026-11-09: format pliku drogi
+  (walidacja, pole wznowienia, odczyt puli, deklaracja sekcji) wyszedł
+  z `run/pilgrimage.lua` do `run/pilgrimage_save.lua` (1176 → 805 i 399
+  linii); tryb przekazuje mu tylko `area` i `stand`. `render/gallery.lua` nie
+  sięga już po ekran `ui/interface`, tylko po czcionkę przez
+  `ui/skin` (`Skin.font`). Nowe reguły checkera: RENDER USES A SCREEN
+  (rysowanie świata korzysta tylko ze środków malarskich `ui`: układ, skórka,
+  tusz, czcionki, pieczęcie) i COMBAT USES THE SESSION (walka korzysta tylko
+  z infrastruktury sesji: pule, sygnały, tworzenie, encje, zdolności, zasady
+  trybów; składanie gry w `session/game.lua` i słuchaczach korzysta z walki,
+  nie odwrotnie). Gra i golden bez zmian.
+
 - G6a, narzędzia: osobne zapisy przebiegów i nieznane globale, 2026-11-09:
   na Linuxie każdy przebieg testów zapisuje pliki gry w swoim katalogu QA
   (`XDG_DATA_HOME=<qa>/save` w `tools/linux/project.sh`), nie we wspólnym
@@ -4795,6 +4807,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G5c, podział pielgrzymki i kierunki warstw, 2026-11-09: RENDER USES A
+  SCREEN na starym kodzie 1 (`render/gallery` → `ui/interface`), po zmianie 0;
+  COMBAT USES THE SESSION 0 (zabezpieczenie na przyszłość). Zestawy
+  pielgrzymki (166, zapis 162, sigile 88) bez zmian. Rendery pokazu: 788 obrazów identycznych z bramą G6a.
+  Golden bez zmian. Pełne Linux All PASS w osobnym klonie: 9245
+  sprawdzeń, golden 10 PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - G6a, narzędzia, 2026-11-09: UNKNOWN GLOBAL na obecnym kodzie 0; próba
   mutacji (jedno odwołanie do starej zmiennej `boss` w `hit_response.lua`)

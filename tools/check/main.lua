@@ -298,6 +298,7 @@ local scalingRatchets = {
       'src/run/descent.lua',
       'src/run/economy.lua',
       'src/run/pilgrimage.lua',
+      'src/run/pilgrimage_save.lua',
       'src/run/test_field.lua',
       'src/run/field/',
       'src/run/modes.lua',
@@ -818,6 +819,44 @@ local function audit(manifest, root, reportPath, literalsPath, edgesPath, filesP
       and text:find("require%(%s*'src%.content%.hand_motion'%s*%)")
     then
       failure('HAND PROFILE ' .. id .. ': the hands read the profile of the weapon in hand')
+    end
+  end
+  -- The world's drawing uses the interface's painted means (layout, skin,
+  -- ink, fonts, seals), never its screens (PLAN G5): ui draws over render,
+  -- not the other way round.
+  local paintMeans = {
+    ['src.ui.layout'] = true,
+    ['src.ui.skin'] = true,
+    ['src.ui.ink'] = true,
+    ['src.ui.goetic_sigils'] = true,
+  }
+  for id, text in pairs(sources) do
+    if id:match('^src%.render%.') then
+      for dependency in text:gmatch("require%(%s*'(src%.ui%.[%w_%.]+)'%s*%)") do
+        if not paintMeans[dependency] and not dependency:match('^src%.ui%.fonts%.') then
+          failure('RENDER USES A SCREEN ' .. id .. ' -> ' .. dependency)
+        end
+      end
+    end
+  end
+  -- The fight uses the session's infrastructure (pools, signals, spawning,
+  -- entities, capabilities, mode policies), never the session that composes
+  -- the game (PLAN G5): session/game.lua and its listeners use combat.
+  local sessionInfrastructure = {
+    ['src.session.world'] = true,
+    ['src.session.signal'] = true,
+    ['src.session.spawn'] = true,
+    ['src.session.entities'] = true,
+    ['src.session.capabilities'] = true,
+    ['src.session.modes'] = true,
+  }
+  for id, text in pairs(sources) do
+    if id:match('^src%.combat%.') then
+      for dependency in text:gmatch("require%(%s*'(src%.session%.[%w_%.]+)'%s*%)") do
+        if not sessionInfrastructure[dependency] then
+          failure('COMBAT USES THE SESSION ' .. id .. ' -> ' .. dependency)
+        end
+      end
     end
   end
   -- The simulation publishes what happened; the presentation chooses its

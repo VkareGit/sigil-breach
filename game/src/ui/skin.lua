@@ -325,6 +325,11 @@ S.recordImage = S.imageBounds
 function S.useFonts(fonts)
   S.fallbackFonts = fonts
 end
+-- The painted glyph font of this size, once the interface has loaded them
+-- (nil before): the world's drawing reads it here, not from a screen.
+function S.font(size)
+  return S.fallbackFonts and S.fallbackFonts[size]
+end
 -- A painted inscription; one without a painting (none in the atlas, or a
 -- language without its own: content/text.lua) is written in glyphs: the
 -- largest font whose ink fits the field.

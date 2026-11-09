@@ -1,7 +1,6 @@
 local Weapons = require('src.content.weapons')
 local RenderNumbers = require('src.render.numbers')
 local Ink = require('src.ui.ink')
-local UI = require('src.ui.interface')
 local Context = require('src.session.context')
 -- The proving-ground pads drawn, and their name plates. Where they stand and what
 -- they do is world/gallery.lua.
@@ -62,10 +61,10 @@ function G.labels(r, g, ox, oy, vw, vh)
   if not (tools and tools.gallery) or g.state ~= 'playing' or g.map or g.help then
     return
   end
-  if not UI.fonts then
+  local font = Skin.font(14)
+  if not font then
     return
   end
-  local font = UI.fonts[14]
   local lg = love.graphics
   local state = r.galleryLabelLayout
   local stationLabels = tools.labels

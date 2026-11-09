@@ -835,7 +835,8 @@ próbki ekspozycji wybuchu i bryły ataku — każdy kontrakt jest jawny.
   { sekcja = { version, data } } przez core/serialize; odczyt literalnym
   core/data_reader (nic się nie wykonuje). Sekcję deklaruje jej właściciel
   (Save.declare: name, file, version, schema, pack, unpack, restore,
-  migrations, default): 'pilgrimage' w run/pilgrimage.lua (droga przez kaplicę),
+  migrations, default): 'pilgrimage' w run/pilgrimage_save.lua (format pliku drogi;
+  tryb gra w run/pilgrimage.lua),
   'map' w world/arena.lua, 'pools' w session/world.lua (członkowie pul ze
   stronami, definicje jako ścieżki core/data_tree.lua, wspólne tabele raz).
   Każdy błąd odrzuca cały plik przed przywróceniem czegokolwiek. Zapis jest

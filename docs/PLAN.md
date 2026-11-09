@@ -352,6 +352,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
   SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
   `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
+- 2026-11-09, **G5 krok c zrobiony, G5 zamknięty:** format zapisu drogi
+  w `run/pilgrimage_save.lua`, reguły RENDER USES A SCREEN i COMBAT USES THE
+  SESSION. Golden bez zmian.
 - 2026-11-09, **G6 krok a zrobiony:** osobne zapisy przebiegów testów na
   Linuxie, reguła UNKNOWN GLOBAL, TECHNIKA bez nieaktualnych odwołań.
 
