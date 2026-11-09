@@ -75,6 +75,23 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E2e, jedna droga w kroku i jedno lądowanie, 2026-11-09 (decyzja
+  właściciela: zmiana golden przyjęta): krok stwora przebywa drogę dokładnie
+  dla stałego przyspieszenia (`Kinematics.travel`), jak krok rycerza,
+  i zachowuje własną prędkość, rzutowaną przez ściany tak jak u rycerza
+  (`Arena.move` z prędkością), a nie drogę podzieloną przez krok. Pierwsza
+  próba bez rzutowania zwolniła rozpęd o połowę (imp 4,09 → 3,56 m w pierwszej
+  sekundzie, Ember 3,09 → 1,75 m): pomiar złapał to przed wdrożeniem. Teraz
+  ruszenie z miejsca jest ok. 2 cm krótsze w pierwszej sekundzie (imp 4,090 →
+  4,071 m, zakuty 3,282 → 3,266 m, Ember 3,092 → 3,073 m), ta sama prędkość
+  potem. Rycerz lądujący w środku kroku leci do chwili zetknięcia stóp
+  z podłogą i resztę kroku jest na ziemi (jej przyspieszenie, zbuforowany
+  skok), jak skok stwora kończy się w chwili lądowania: ten sam krok
+  lądowania, prędkość od razu zmierza do chodu (6,1 → 5,73 m/s w kroku
+  lądowania zamiast 6,1), różnica położenia poniżej 5 mm. Nowy wzorzec golden
+  Linux z uzasadnieniem w pliku; wzorzec Windows nie był odtwarzany. E2
+  zamknięte.
+
 - E2d, jedna reguła prędkości ciała, 2026-11-09: rycerz i stwór zmieniają
   własną prędkość tą samą regułą silnika `Kinematics.steer` (ku prędkości
   chcianej z ograniczonym tempem m/s², z czasem, przez który się zmieniała);
@@ -4977,6 +4994,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E2e, jedna droga w kroku i jedno lądowanie, 2026-11-09: dwa nowe
+  sprawdzenia w `bodies` (7 PASS), czerwone bez zmiany. Golden: nowy wzorzec
+  Linux, dwa identyczne przebiegi; scenariusze to długie walki, więc ich bieg
+  i kontakty rozchodzą się z małych zmian (kontakty 128/150/341 →
+  139/164/372). Bez zmian: `feel` 186, `verification` 35, `movement` 46,
+  `terrain-motion` 26, `creature-pressure` 45, `souls-bots` 9, `weapons` 471,
+  `floor-layers` 16, `falling-bodies` 8; `chapel-route` zielone (bot zginął
+  3 razy zamiast 4, jedno sprawdzenie na śmierć). Pełne Linux All PASS
+  w osobnym klonie: 9285 sprawdzeń, golden 10 PASS. Windows niesprawdzony;
+  jego wzorzec golden wymaga odtworzenia na Windows. Z 788 renderów pokazu
+  zmieniły się 23, wszystkie ze stworami w ruchu lub po strzale (komnaty
+  popiołu i burzy, waga strzału, przeładowanie, zamach, nakładka w marszu,
+  sceny portretu): inne położenia ciał, obraz bez innych różnic.
 
 - E2d, jedna reguła prędkości ciała, 2026-11-09: golden 10 PASS (wynik
   identyczny), `feel` 186, `movement` 46, `bodies` 5, `weapons` 471,

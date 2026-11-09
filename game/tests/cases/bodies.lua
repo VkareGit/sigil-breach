@@ -105,6 +105,52 @@ function Tests.run(G)
     end
   end
   check('a demon out of sight walks round a pillar to the knight within 4 s', found ~= nil)
+
+  -- One way of travelling a step for every body (PLAN E2e): a demon starting
+  -- from rest covers exactly what constant acceleration gives, step by step,
+  -- and keeps its velocity (not the distance over the step).
+  do
+    local Walking = require('src.enemies.walking')
+    local Archetypes = require('src.content.enemies')
+    local Kinematics = require('src.physics.kinematics')
+    local w = Fixtures.arena(G)
+    local imp = w:spawn('imp', 16, 20)
+    imp.spawnAge = 2
+    local accel = ((Archetypes.imp.move or {}).accel or Archetypes.defaults.accel)
+      / math.sqrt(Rules.body(imp).mass or 1)
+    local dt, z0 = 1 / 120, imp.z
+    for _ = 1, 6 do
+      Walking.move(w, imp, 16, 5, imp.speed, dt)
+      w.elapsed = w.elapsed + dt
+    end
+    local t = 6 * dt
+    check(
+      'a demon starting from rest travels a * t^2 / 2 exactly and moves at a * t',
+      math.abs((z0 - imp.z) - accel * t * t / 2) < 1e-9
+        and math.abs(math.sqrt(imp.walkVX ^ 2 + imp.walkVZ ^ 2) - accel * t) < 1e-9
+    )
+    -- The knight's landing inside a step: he flies until his feet meet the
+    -- floor and is on the ground for the rest of the step.
+    local k = Fixtures.arena(G)
+    local p = k.player
+    p.jump, p.jumpV, p.vx, p.vz = 0.01, -2, 0, -6
+    local landing = Kinematics.fallTime(p.jump, p.jumpV, require('src.content.tuning').gravity)
+    k:update(dt, { forward = 1 })
+    local Move = Rules.movement(p)
+    -- In the air he reaches toward the air speed, on the ground toward the walk.
+    local flown = math.min(Move.airSpeed, 6 + Move.airAccel * landing)
+    local expected = flown - Move.groundAccel * (dt - landing)
+    check(
+      string.format(
+        'a knight landing %.1f ms into a step brakes on the ground for the rest of it',
+        landing * 1000
+      ),
+      landing > 0
+        and landing < dt
+        and p.jump == 0
+        and math.abs(math.sqrt(p.vx ^ 2 + p.vz ^ 2) - math.max(Move.moveSpeed, expected)) < 1e-9
+    )
+  end
   return lines
 end
 return Tests

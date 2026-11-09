@@ -9,6 +9,8 @@ local Ground = require('src.physics.ground')
 local WorldNavigation = require('src.world.navigation')
 local Walking = {}
 local len = MathX.len
+-- The velocity a stride hands the walls (reused; read back at once).
+local stride = { vx = 0, vz = 0 }
 local radius = Rules.radius
 local Walk = Archetypes.defaults.walk
 local function arch(e)
@@ -37,10 +39,16 @@ local function move(g, e, tx, tz, speed, dt)
   end
   e.walkAt = now
   local rate = accel * ((vx * dx + vz * dz) < 0 and defaults.brake or 1)
-  vx, vz = Kinematics.steer(vx, vz, dx * speed, dz * speed, rate, dt)
+  local fromX, fromZ = vx, vz
+  local active
+  vx, vz, active = Kinematics.steer(vx, vz, dx * speed, dz * speed, rate, dt)
+  local mx, mz = Kinematics.travel(fromX, fromZ, vx, vz, active, dt)
   local ox, oz = e.x, e.z
-  local sx, sz = Arena.move(g.world, e, vx * dt, vz * dt, radius(e), nil, Rules.tall(g, e))
-  e.walkVX, e.walkVZ = (sx or 0) / dt, (sz or 0) / dt
+  -- The stride's own velocity, projected by the walls as the knight's is
+  -- (world/arena.lua: move): what it travelled is not what it moves at.
+  stride.vx, stride.vz = vx, vz
+  Arena.move(g.world, e, mx, mz, radius(e), stride, Rules.tall(g, e))
+  e.walkVX, e.walkVZ = stride.vx, stride.vz
   local moved = len(e.x - ox, e.z - oz)
   e.walk = e.walk + moved
   e.walkSpeed = moved / math.max(dt, 1e-3)

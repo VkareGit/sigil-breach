@@ -45,6 +45,13 @@ function K.steer(vx, vz, wx, wz, rate, dt)
   local amount = rate * active
   return vx + ax / al * amount, vz + az / al * amount, active
 end
+-- The way a steered body travels in dt: exact for its constant acceleration
+-- while it changed velocity (active s, from (ox, oz) to (vx, vz)), then at the
+-- wanted velocity for the rest. One rule for every body (PLAN E2).
+function K.travel(ox, oz, vx, vz, active, dt)
+  return (ox + vx) * 0.5 * active + vx * (dt - active),
+    (oz + vz) * 0.5 * active + vz * (dt - active)
+end
 -- Free flight under gravity for dt: the height and vertical velocity after
 -- it. Every body flies by this (PLAN E2): the knight, a leap, a fallen body.
 function K.flight(height, velocity, gravity, dt)

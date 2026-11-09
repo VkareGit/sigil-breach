@@ -111,8 +111,7 @@ local function accelerate(target, dt)
     local active
     p.vx, p.vz, active = Kinematics.steer(p.vx, p.vz, m.dx * target, m.dz * target, accel, dt)
     if active > 0 then
-      m.moveX = (oldVX + p.vx) * 0.5 * active + p.vx * (dt - active)
-      m.moveZ = (oldVZ + p.vz) * 0.5 * active + p.vz * (dt - active)
+      m.moveX, m.moveZ = Kinematics.travel(oldVX, oldVZ, p.vx, p.vz, active, dt)
     end
   end
 end
@@ -276,10 +275,37 @@ local function fall(g, jumped, dt)
     p.jumpV = 0
   end
 end
+local step
+-- Landing inside a step (PLAN E2): the body flies until its feet meet the
+-- floor, and the rest of the step is on the ground (its acceleration, its
+-- buffered jump), as a creature's leap ends at its floor's landing time
+-- (enemies/flight.lua). The landing time is foreseen from the support under
+-- him now; each part runs the whole step (support, ledges, ceilings), so a
+-- support that changes on the way only moves the split. An edge (a dash, a
+-- slide) belongs to the first part.
+local rest = {}
 function F.update(g, dt, input, actor)
   if type(dt) ~= 'number' or dt <= 0 or dt ~= dt or dt == math.huge then
     return
   end
+  local p = actor or g.player
+  if p.jump > 0 then
+    local landing = Kinematics.fallTime(p.jump, p.jumpV, Tuning.gravity)
+    if landing > 0 and landing < dt then
+      step(g, landing, input, actor)
+      for key in pairs(rest) do
+        rest[key] = nil
+      end
+      for key, value in pairs(input or {}) do
+        rest[key] = value
+      end
+      rest.dash, rest.slide = false, false
+      return step(g, dt - landing, rest, actor)
+    end
+  end
+  return step(g, dt, input, actor)
+end
+function step(g, dt, input, actor)
   local p = actor or g.player
   local personal = Context.view(g, p)
   m.p, m.Move, m.controlled = p, Rules.movement(p), p == g.player
