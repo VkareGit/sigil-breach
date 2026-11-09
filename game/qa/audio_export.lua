@@ -10,6 +10,7 @@ local VoiceData = require('src.audio.voice_data')
 local Recipes = require('src.audio.recipes')
 local Audio = require('src.audio.audio')
 local Tooling = require('qa.tooling')
+local Synth = require('src.audio.synth')
 local Export = {}
 local floor = math.floor
 
@@ -188,8 +189,57 @@ function Export.sounds(smoke)
   return smoke and 1 or #names
 end
 
+-- The Exorcist's two directions for the owner's listening (qa/sound_ab.lua):
+-- each cue in A and B, beside today's sound, every one at the level of today's
+-- (or its stated share of it). Full profile only; nothing of it plays in game.
+function Export.exorcistAB()
+  local AB = require('qa.sound_ab')
+  local dir = directory('sound-ab/exorcist')
+  local rate = Audio.rate
+  local lines = Tooling.header('EXORCIST A/B EXPORT', false)
+  lines[#lines + 1] = 'A: dry iron, violent report, heavy powder, short walls.'
+  lines[#lines + 1] = 'B: the same attack, deeper powder, darker and longer stone.'
+  lines[#lines + 1] = "Levels are matched by RMS to today's sound (classic), not by loudness"
+    .. ' as heard: listen before choosing; nothing here plays in the game.'
+  for _, cue in ipairs(AB.cues) do
+    local recipe = Recipes[cue.classic]
+    local data = VoiceData.render(cue.classic, recipe, rate)
+    local classic = {}
+    for i = 0, data:getSampleCount() - 1 do
+      classic[i + 1] = data:getSample(i)
+    end
+    data:release()
+    local _, reference = levels(classic)
+    local target = reference * cue.share
+    if cue.share == 1 then
+      write(dir .. '/' .. cue.id .. '-classic.wav', classic, rate, 1, false)
+    end
+    for _, side in ipairs({ 'A', 'B' }) do
+      local buffer =
+        AB.render(cue.duration, rate, Synth.seed('exorcist-ab-' .. cue.id .. side), cue[side](rate))
+      AB.match(buffer, target)
+      write(dir .. '/' .. cue.id .. '-' .. side .. '.wav', buffer, rate, 1, false)
+      local peak, rms = levels(buffer)
+      lines[#lines + 1] = string.format(
+        '%-6s %s %.2f s peak %.3f rms %.3f (today %s rms %.3f x %.2f)',
+        cue.id,
+        side,
+        cue.duration,
+        peak,
+        rms,
+        cue.classic,
+        reference,
+        cue.share
+      )
+    end
+  end
+  report(dir, lines, false)
+  return #AB.cues
+end
+
 function Export.run(smoke)
   local effects = Export.sounds(smoke)
+  local pairs = smoke and 0 or Export.exorcistAB()
   local dir = directory('music')
   local started = love.timer.getTime()
   local buffers, loop, rate = Soundscape.render()
@@ -236,10 +286,11 @@ function Export.run(smoke)
   report(dir, lines, smoke)
   local summary = Tooling.header('AUDIO EXPORT', smoke)
   summary[#summary + 1] = string.format(
-    'Exported effects=%d layers=%d moods=%d; detailed reports: sounds/report.txt and music/report.txt',
+    'Exported effects=%d layers=%d moods=%d exorcistAB=%d; detailed reports: sounds/report.txt and music/report.txt',
     effects,
     #layers,
-    #moods
+    #moods,
+    pairs
   )
   Tooling.write(Output.directory(), 'audio-export.txt', summary, smoke)
 end

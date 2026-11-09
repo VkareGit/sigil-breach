@@ -75,6 +75,23 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- E6e, dźwięk Exorcista w dwóch kierunkach do odsłuchu, 2026-11-10 (punkt 6
+  planu Exorcista): pełny eksport dźwięku (`--audio-export`) pisze do
+  `sound-ab/exorcist` każdy dźwięk strzelby w dwóch kierunkach obok
+  dzisiejszego: obie lufy, jedna lufa, otwarcie zamka, jeden i dwa naboje,
+  zamknięcie, pusty spust i dobycie (dwa ostatnie dziś nie istnieją). A:
+  suche żelazo, gwałtowny huk, ciężki proch, krótka odpowiedź ścian; B: ten
+  sam czytelny atak, głębszy pomruk prochu, ciemniejszy i dłuższy kamień.
+  Każda para ma poziom RMS dzisiejszego dźwięku (jedna lufa 0,7, jeden nabój
+  0,75 tego poziomu; pusty spust i dobycie 0,6 zamknięcia i otwarcia).
+  Kierunki są w `qa/sound_ab.lua`; nic z nich nie gra w grze, dopóki
+  właściciel nie wybierze. Pakiet do odsłuchu: `work/sound-ab/exorcist-e6`
+  (poza repozytorium). Pozostałe 259 plików eksportu bajt w bajt bez zmian.
+  Punkt 7 (rozdzielenie huku, mechaniki i ogona, przestrzeń) czeka na wybór
+  kierunku; punkt 8: emisję błysku i łusek z widocznego wylotu i komory
+  pilnują już `weapon-rounds` i `fresco-weapons`, nowe gesty wymagają
+  pokazania właścicielowi przed podłączeniem.
+
 - G6b, selftest we fragmentach, 2026-11-10: `--selftest --shard=i/n`
   uruchamia co n-ty zestaw od i-tego, do własnego raportu
   (`test-results-shard-i-of-n.txt`); `scripts/linux/TEST.sh --jobs n` (1–8,
@@ -5011,6 +5028,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- E6e, dźwięk Exorcista w dwóch kierunkach, 2026-11-10: pełny eksport
+  zielony, 16 nowych plików i 5 dzisiejszych do porównania, raport poziomów
+  w `sound-ab/exorcist/report.txt`; reszta eksportu identyczna. Pełne Linux
+  All PASS w osobnym klonie: 9285 sprawdzeń. Odsłuch i wybór należą do
+  właściciela; to nie jest ocena brzmienia.
 
 - G6b, selftest we fragmentach, 2026-11-10: `TEST.sh Mechanics --jobs 4`
   zielone, suma czterech fragmentów równa przebiegowi szeregowemu; test
