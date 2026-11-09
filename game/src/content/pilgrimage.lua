@@ -46,10 +46,25 @@ local function claim(seen, id, kind, taken)
   assert(not seen[id] and not (taken and taken(id)), 'way: ' .. kind .. ' id twice: ' .. id)
   seen[id] = true
 end
-local posts = {}
+local posts, mapPosts = {}, {}
+-- The world is one map divided into areas (PLAN G4, owner decision 8): an area
+-- may name its bounds on its map, a list of { x1, z1, x2, z2 } (m); one without
+-- bounds is the rest of its map. A knight is in the area he stands in; its
+-- garrison stands with every other of the map, asleep while he is elsewhere.
 Way.areas = Registry:new('way areas', function(area, id)
   assert(area.id == id, 'way area ' .. id .. ' must carry its id')
   assert(type(area.map) == 'string', 'way area ' .. id .. ' needs a map')
+  for _, box in ipairs(area.bounds or {}) do
+    assert(
+      type(box[1]) == 'number'
+        and type(box[2]) == 'number'
+        and type(box[3]) == 'number'
+        and type(box[4]) == 'number'
+        and box[1] < box[3]
+        and box[2] < box[4],
+      'way area ' .. id .. ': a bound is { x1, z1, x2, z2 } with x1 < x2 and z1 < z2'
+    )
+  end
   local first, seen = false, {}
   for _, fire in ipairs(area.fires) do
     claim(seen, fire.id, 'fire', Way.fireOf)
@@ -60,8 +75,15 @@ Way.areas = Registry:new('way areas', function(area, id)
     claim(seen, door.id, 'door', Way.doorOf)
   end
   posts[id] = {}
+  mapPosts[area.map] = mapPosts[area.map] or {}
   for _, post in ipairs(area.garrison) do
     claim(posts[id], post.id, 'post')
+    -- The garrisons of one map stand together: a post is unique on its map.
+    assert(
+      not mapPosts[area.map][post.id],
+      'way: post id twice on map ' .. area.map .. ': ' .. post.id
+    )
+    mapPosts[area.map][post.id] = id
   end
 end)
 Way.areas:register('chapel', {
@@ -242,6 +264,33 @@ function Way.supplyOf(id)
       end
     end
   end
+end
+-- The areas of a map, in the order the way declares them.
+function Way.areasOf(map)
+  local list = {}
+  for _, area in Way.areas:each() do
+    if area.map == map then
+      list[#list + 1] = area
+    end
+  end
+  return list
+end
+-- The area of a map a point stands in: an area with bounds holding it, else
+-- the map's area without bounds (nil when neither).
+function Way.areaAt(map, x, z)
+  local rest
+  for _, area in ipairs(Way.areasOf(map)) do
+    if area.bounds then
+      for _, box in ipairs(area.bounds) do
+        if x >= box[1] and x < box[3] and z >= box[2] and z < box[4] then
+          return area
+        end
+      end
+    else
+      rest = rest or area
+    end
+  end
+  return rest
 end
 -- A door by id, and its area.
 function Way.doorOf(id)

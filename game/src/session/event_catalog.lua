@@ -66,6 +66,7 @@ local Catalog = {
   { 'TriggerDry', 'a trigger pull with no rounds left {actor, presented}' },
   { 'Dashed', 'a knight dodged {actor, presented}' },
   { 'ZoneEntered', 'the controlled knight entered a named zone {zone}' },
+  { 'AreaEntered', 'the knight walked into another area of the way (PLAN G4) {area}' },
 }
 local Events = require('src.core.events')
 local M = {}

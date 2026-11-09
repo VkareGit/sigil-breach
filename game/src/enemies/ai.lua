@@ -456,7 +456,8 @@ function AI.demons(g, dt, previousPlayer)
         or g.impactSlow > 0
         or e.spawnAge < Archetypes.defaults.spawnPause
       )
-    if tickBody(g, e, dt, paused) then
+    -- A body asleep in another area (run/pilgrimage.lua: P.wake) is still.
+    if not e.dormant and tickBody(g, e, dt, paused) then
       local p = target(g, e)
       local d = perceive(g, e, len(p.x - e.x, p.z - e.z), dt)
       if not paused then

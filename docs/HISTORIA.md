@@ -75,6 +75,18 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
+- G4a, jeden świat podzielony na obszary, 2026-11-09 (decyzja właściciela 8):
+  obszar drogi może zadeklarować granice na swojej mapie (`bounds`, lista
+  prostokątów); obszar bez granic to reszta mapy (jak dziś kaplica).
+  `Way.areaAt` mówi, w którym obszarze stoi punkt, `Way.areasOf` podaje obszary
+  mapy. Rycerz jest w obszarze, w którym stoi: przekroczenie granicy to krok,
+  nie podróż (świat się nie przebudowuje), z nowym zdarzeniem `AreaEntered`.
+  Garnizony wszystkich obszarów mapy stoją od początku; stwór obszaru, w którym
+  rycerza nie ma, śpi (`dormant`: nie rusza się i nie widzi), chyba że już
+  poluje. Identyfikator posterunku jest jedyny na całej mapie. Indeks
+  przestrzenny ciał zostaje na moment, gdy obszar przekroczy ok. 40 stworów.
+  Przy jednym obszarze nic się nie zmienia. Gra i golden bez zmian.
+
 - G5c, podział pielgrzymki i kierunki warstw, 2026-11-09: format pliku drogi
   (walidacja, pole wznowienia, odczyt puli, deklaracja sekcji) wyszedł
   z `run/pilgrimage.lua` do `run/pilgrimage_save.lua` (1176 → 805 i 399
@@ -4807,6 +4819,13 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.45.txt
 SIGIL: BREACH 0.45: odbiór
+
+- G4a, jeden świat podzielony na obszary, 2026-11-09: nowe sprawdzenie
+  w `extension`, czerwone przed zmianą: obszar próbny wykrojony z mapy kaplicy
+  ma garnizon od początku, uśpiony; rycerz wchodzi krokiem, świat zostaje ten
+  sam, obszar się zmienia, zdarzenie `AreaEntered`, stwór się budzi. Golden bez
+  zmian. Pełne Linux All PASS w osobnym klonie: 9246 sprawdzeń, golden 10
+  PASS, `feel` 186 PASS. Windows niesprawdzony.
 
 - G5c, podział pielgrzymki i kierunki warstw, 2026-11-09: RENDER USES A
   SCREEN na starym kodzie 1 (`render/gallery` → `ui/interface`), po zmianie 0;

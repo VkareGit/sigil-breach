@@ -107,18 +107,31 @@ function P.populate(g, fallen, picked)
   Encounter.clearStage(g)
   -- Small things stand again; what fell of the building stays down.
   Destruction.settle(g.world)
+  -- Every area of the map stands at once (PLAN G4): his own first, then the
+  -- others in the way's order, asleep until he walks in (P.update).
   local r, classes = g.run, {}
-  for _, entry in ipairs(area(g).garrison) do
-    if not r.slain[entry.id] and not (fallen and fallen[entry.id]) then
-      local e = place(g, entry)
-      classes[Arena.class(Rules.radius(e), Rules.tall(g, e))] = e
+  local here = area(g)
+  local areas = { here }
+  for _, other in ipairs(Way.areasOf(here.map)) do
+    if other ~= here then
+      areas[#areas + 1] = other
     end
   end
-  for _, cache in ipairs(area(g).supplies or {}) do
-    if not r.taken[cache.id] and not (picked and picked[cache.id]) then
-      lay(g, cache)
+  for _, garrisoned in ipairs(areas) do
+    for _, entry in ipairs(garrisoned.garrison) do
+      if not r.slain[entry.id] and not (fallen and fallen[entry.id]) then
+        local e = place(g, entry)
+        e.homeArea = garrisoned.id
+        classes[Arena.class(Rules.radius(e), Rules.tall(g, e))] = e
+      end
+    end
+    for _, cache in ipairs(garrisoned.supplies or {}) do
+      if not r.taken[cache.id] and not (picked and picked[cache.id]) then
+        lay(g, cache)
+      end
     end
   end
+  P.wake(g)
   -- The first route of a body's size walks the whole map: here, not in the first chase.
   for class, e in pairs(classes) do
     Arena.flow(g.world, e.x, e.z, class)
@@ -622,11 +635,27 @@ function P.reward(g, event)
   event.souls = (Archetypes.of(event.enemy).souls or 0) * Way.souls
   r.wallet, r.dirty = r.wallet + event.souls, true
 end
+-- The knight is in the area he stands in (PLAN G4): crossing into another of
+-- the same map is a step, not a journey. A body of an area he is not in sleeps
+-- unless it already hunts him.
+function P.wake(g)
+  local r = g.run
+  Bodies.eachCreature(g, function(e)
+    e.dormant = (e.homeArea ~= nil and e.homeArea ~= r.area and not e.awake) or nil
+  end)
+end
 function P.update(g, dt)
   local r = g.run
   if r.phase ~= 'journey' or g.state ~= 'playing' then
     return
   end
+  local p = Roles.controlled(g)
+  local here = Way.areaAt(g.world.mapId, p.x, p.z)
+  if here and here.id ~= r.area then
+    r.area = here.id
+    Signal(g, 'AreaEntered', { area = here.id })
+  end
+  P.wake(g)
   r.moved = true
   local echo = r.echo
   if echo and echo.area == r.area and distance(Roles.controlled(g), echo) < Way.echoReach then

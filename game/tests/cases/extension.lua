@@ -589,6 +589,49 @@ function Tests.run(G)
     dashed = dashed or sound == require('src.content.event_cues').Dashed.sound
   end
   check('a dodge is heard through its event, its sound named in content', dashed)
+  -- The world is one map divided into areas (PLAN G4): an area with bounds is
+  -- carved out of the map's own; its garrison stands from the start, asleep,
+  -- and walking in is a step, not a journey.
+  local Way = require('src.content.pilgrimage')
+  local Pilgrimage = require('src.run.pilgrimage')
+  local Pools = require('src.session.world')
+  local carved = pcall(function()
+    Way.areas:register('trial_annex', {
+      id = 'trial_annex',
+      map = Way.start().map,
+      bounds = { { 6, 26, 13, 31 } },
+      first = 'trial_annex_fire',
+      fires = { { id = 'trial_annex_fire', name = 'fire_narthex', x = 9.5, z = 30 } },
+      garrison = { { id = 'trial_annex_post', creature = 'imp', x = 9.5, z = 28.5, yaw = 0 } },
+    })
+  end)
+  local walked, asleep, woke, entered = false, false, false, nil
+  if carved then
+    local way = G.new('pilgrimage')
+    Pilgrimage.forget(way)
+    way:act('start')
+    local annexed
+    for _, e in ipairs(Pools.of(way, 'enemies')) do
+      if e.post == 'trial_annex_post' then
+        annexed = e
+      end
+    end
+    asleep = annexed ~= nil and annexed.dormant == true and way.run.area ~= 'trial_annex'
+    way.bus:on('present', 'AreaEntered', function(e)
+      entered = e.area
+    end)
+    local world = way.world
+    local p = way.player
+    p.x, p.z = 9.5, 27.2
+    way:update(1 / 120, {})
+    walked = way.run.area == 'trial_annex' and way.world == world
+    woke = annexed ~= nil and not annexed.dormant
+    Way.areas:unregister('trial_annex')
+  end
+  check(
+    'an area carved out of the one map wakes its garrison as the knight walks in',
+    carved and asleep and walked and woke and entered == 'trial_annex'
+  )
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')
