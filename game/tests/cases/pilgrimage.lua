@@ -470,6 +470,23 @@ local function annexed(check, Game)
     p.x, p.z = 9.5, 29.4
     g:update(1 / 120, {})
     check('he walks into the trial area', g.run.area == 'trial_wing')
+    -- The loading page paints every creature that stands on the map, not only those of
+    -- the area he is in (PLAN A2): the garrisons of one map stand together.
+    local painted, missing = {}, {}
+    for _, id in ipairs(P.creatures(g)) do
+      painted[id] = true
+    end
+    for _, e in ipairs(Pools.of(g, 'enemies')) do
+      local id = e.post and K.postOf(e.post).creature
+      if id and not painted[id] then
+        painted[id], missing[#missing + 1] = true, id
+      end
+    end
+    check(
+      'the loading page prepares every creature that stands on his map'
+        .. (#missing > 0 and ' (not ' .. table.concat(missing, ', ') .. ')' or ''),
+      #missing == 0
+    )
     local guard = byPost(g, 'trial_wing_post')
     g:damageEnemy(guard, guard.hp + 1, 'weapon', nil, p.id)
   end

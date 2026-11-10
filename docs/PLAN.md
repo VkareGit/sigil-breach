@@ -125,6 +125,8 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **A2 zrobione:** strona wczytywania przygotowuje stwory
+  wszystkich obszarów mapy, nie tylko obszaru rycerza. Golden bez zmian.
 - 2026-11-10, **A1 zrobione:** kontrakt wznowienia ma jawne sprawdzenie
   dojścia do zamachu i ciosu; zbiór Ogrodnika jest teraz zapisywany
   i zabijany w trakcie (wcześniej zaliczany bez próby). Golden bez zmian.

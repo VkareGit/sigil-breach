@@ -83,6 +83,13 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- A2, strona wczytywania przygotowuje stwory całej mapy, 2026-11-10:
+  `P.creatures` (`run/pilgrimage.lua`) podawało stronie wczytywania tylko
+  stwory z garnizonu obszaru, w którym stoi rycerz, a `populate` stawia
+  garnizony wszystkich obszarów mapy (ta sama klasa co Z6). Teraz podaje
+  stwory wszystkich obszarów mapy, najpierw własnego. Przy jednym obszarze
+  kaplicy lista jest ta sama co dotąd.
+
 - A1, kontrakt wznowienia nie zalicza pominiętych, 2026-11-10: w `contracts`
   (`tests/cases/contracts.lua`) atak, który w pustej sali nie doszedł do
   zamachu albo ciosu, przechodził sprawdzenie „zapisany i wznowiony idzie
@@ -5238,6 +5245,17 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- A2, stwory całej mapy na stronie wczytywania, 2026-11-10: nowe
+  sprawdzenie w `pilgrimage` (obszar próbny `trial_wing` z samym Ember
+  Thrallem): po wejściu rycerza do obszaru próbnego każdy stwór stojący na
+  mapie ma być na liście strony wczytywania. Przed zmianą czerwone („not
+  stolas, armored, buer, boss, furfur”), po zmianie `pilgrimage` 195 PASS.
+  Sonda `prepared`: w obszarze próbnym przygotowany był sam `imp`, teraz
+  sześć stworów. Brama Linux zielona: 9566 sprawdzeń w 4 częściach,
+  showcase, Tools, `startup-check`, `resource-plateau`, `measure-trial`
+  PASS. Golden bez zmian. Zacięcia przy pierwszym widoku w oknie gracza
+  nie mierzono (dziś jest jeden obszar); Windows niesprawdzony.
 
 - A1, kontrakt wznowienia, 2026-11-10: sonda `skipped` (poza repozytorium)
   wskazała oba pominięte przypadki: `buer/late-bloom` w zamachu i w ciosie
