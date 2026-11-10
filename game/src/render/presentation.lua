@@ -54,11 +54,13 @@ local memberKeys = {
   enemies = Components.smoothed('enemies'),
   projectiles = Components.smoothed('projectiles'),
   charges = Components.smoothed('charges'),
+  hazards = Components.smoothed('hazards'),
 }
 local memberRests = {
   enemies = Components.rests('enemies'),
   projectiles = Components.rests('projectiles'),
   charges = Components.rests('charges'),
+  hazards = Components.rests('hazards'),
 }
 local stateClocks = Components.smoothed('enemies', 'clock')
 local function values(object, keys)
@@ -117,6 +119,7 @@ local function captureView(g, scene)
     enemies = scene.enemies,
     bullets = scene.bullets,
     charges = scene.charges,
+    hazards = scene.hazards,
   }
   g.view.presentationPrevious = old
 end
@@ -133,7 +136,7 @@ function P.capture(g)
     end
     return
   end
-  local scene = { knights = {}, enemies = {}, bullets = {}, charges = {} }
+  local scene = { knights = {}, enemies = {}, bullets = {}, charges = {}, hazards = {} }
   for _, knight in ipairs(Pools.of(g, 'knights')) do
     scene.knights[knight] = values(knight, playerKeys)
   end
@@ -156,6 +159,9 @@ function P.capture(g)
   end
   for _, c in ipairs(Pools.of(g, 'charges')) do
     scene.charges[c] = memberValues(c, memberKeys.charges)
+  end
+  for _, h in ipairs(Pools.of(g, 'hazards')) do
+    scene.hazards[h] = memberValues(h, memberKeys.hazards)
   end
   captureView(g, scene)
   if g._contextRoot then
@@ -245,6 +251,13 @@ function P.sample(g, t)
   for i, c in ipairs(Pools.of(g, 'charges')) do
     out.charges[i] =
       blendMember(c, (prev.charges or {})[c], memberKeys.charges, t, memberRests.charges)
+  end
+  -- Marked ground drawn between two steps (PLAN Z4). The sound of a field follows the
+  -- live pool (audio/field_voices.lua), never these.
+  out.hazards = {}
+  for i, h in ipairs(Pools.of(g, 'hazards')) do
+    out.hazards[i] =
+      blendMember(h, (prev.hazards or {})[h], memberKeys.hazards, t, memberRests.hazards)
   end
   return out
 end

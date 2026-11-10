@@ -140,6 +140,9 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z4 zrobione:** zagrożenia w próbce obrazu z deklarowanym
+  wygładzaniem; zamrożone klatki ruchomych znaków 3303 → 0. Rendery
+  identyczne, golden bez zmian.
 - 2026-11-10, **Z2b zrobione:** nowa droga w grze losuje i miesza własne
   ziarno; zapis i dziennik je niosą; sekcja `pilgrimage` 6. QA, testy
   i golden na ziarnie 1, golden bez zmian.

@@ -24,6 +24,11 @@ local function point(hazard, listener, out)
     out.x, out.z = hazard.x + dx * along, hazard.z + dz * along
   end
 end
+-- The marks of the live session, never of a drawn sample (PLAN Z4: the image smooths
+-- them; a field's voice is keyed by the mark itself).
+local function live(g)
+  return Pools.of(g._contextRoot or g, 'hazards')
+end
 function V.reset()
   for _, state in pairs(sessions) do
     for _, entry in pairs(state.fields) do
@@ -132,7 +137,7 @@ function V.update(audio, g, dt)
   for _, entry in pairs(state.fields) do
     entry.present = false
   end
-  for _, hazard in ipairs(Pools.of(g, 'hazards')) do
+  for _, hazard in ipairs(live(g)) do
     local entry = state.fields[hazard]
     if entry then
       entry.present = true
@@ -189,7 +194,7 @@ end
 function V.restored(audio, g)
   local state = { world = g.world, audio = audio, fields = {}, beats = {} }
   sessions[g._contextRoot or g] = state
-  for _, hazard in ipairs(Pools.of(g, 'hazards')) do
+  for _, hazard in ipairs(live(g)) do
     if hazard.delay <= 0 and not hazard.waitForCast then
       -- Active ambience may resume, but the impact happened before the save.
       local profile = Profiles.field(g, hazard)

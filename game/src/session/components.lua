@@ -236,17 +236,19 @@ C.schemas.entity = {
   maxHp = f(nil),
   state = f(nil, 'what its kind keeps'),
 }
--- A marked ground hazard: pool, line, lightning (enemies/hazards.lua).
+-- A marked ground hazard: pool, line, lightning (enemies/hazards.lua). What moves is
+-- smoothed in the image like a body (PLAN Z4): a tempest's safe circle, the ring of a wave,
+-- the turn of a line and the warning's time left.
 C.schemas.hazard = {
   garden = f(nil, 'owned deposit family counted against its capacity'),
   harvest = f(nil, 'pending eruption warning bound to the owner windup'),
   erupting = f(nil, 'a consumed deposit in its final brief contact'),
-  x = f(0),
-  z = f(0),
+  x = f(0, nil, linear),
+  z = f(0, nil, linear),
   level = f(nil, 'the surface it lies on, on a world with decks'),
-  delay = f(0, 'telegraph left (s)'),
+  delay = f(0, 'telegraph left (s)', linear),
   maxDelay = f(0),
-  radius = f(0),
+  radius = f(0, nil, linear),
   volume = f(nil, 'finite ground cylinder: bottom/top, feet/body sample and radius policy'),
   life = f(0),
   pulse = f(0, 'time to the next damage pulse'),
@@ -259,7 +261,7 @@ C.schemas.hazard = {
   reach = f(nil, 'where a wave dies out (m)'),
   spread = f(nil, 'how fast a wave grows (m/s)'),
   width = f(nil, 'depth of a wave or full width of a floor tear (m)'),
-  angle = f(nil, 'where a sweeping line points (radians)'),
+  angle = f(nil, 'where a sweeping line points (radians, not wrapped)', linear),
   spin = f(nil, 'how fast it turns (radians/s)'),
   centerX = f(nil, 'the place a safe circle wanders around'),
   centerZ = f(nil),

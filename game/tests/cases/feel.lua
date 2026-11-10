@@ -320,6 +320,116 @@ function Tests.run(G)
     )
   end
 
+  -- 4b. Marked ground that moves (PLAN Z4): every attack of every creature that marks
+  -- the floor, its first mark of each kind followed in the drawn sample: the ring of a
+  -- wave, the turn of a sweeping line, the wandering safe circle of a tempest and the
+  -- progress of every warning move without a frozen frame at 144, 165 and 240 Hz and on
+  -- uneven frames. The run says which kinds it saw, so it cannot pass on none. A mark is
+  -- followed from the step after its birth: one born within a step has no earlier picture
+  -- and is shown as it is, as a body or a shot is (render/presentation.lua).
+  do
+    local Pools = require('src.session.world')
+    local HazardDefault = require('src.content.hazards').default
+    local function viewOf(shown, h)
+      for _, view in ipairs(Pools.of(shown, 'hazards')) do
+        if view == h or rawequal(getmetatable(view) and getmetatable(view).__index, h) then
+          return view
+        end
+      end
+    end
+    local reads = {
+      radius = function(h)
+        return h.radius or 0
+      end,
+      angle = function(h)
+        return h.angle or 0
+      end,
+      x = function(h)
+        return h.x
+      end,
+      z = function(h)
+        return h.z
+      end,
+      warning = function(h)
+        return 1 - math.max(0, h.delay) / math.max(1e-6, h.maxDelay or 0)
+      end,
+    }
+    local seen, total, worst = {}, 0, 'none'
+    for _, rate in ipairs({ 144, 165, 240, Feel.uneven }) do
+      for _, id in ipairs(Enemies.creatures) do
+        for _, attack in ipairs(Enemies[id].attacks) do
+          local a = Fixtures.arena(G)
+          local p = a.player
+          p.hp, p.maxHp, p.armor = 1e6, 1e6, 0
+          local body = a:spawn(id, 16, 21)
+          body.awake, body.spawnAge, body.memory, body.target = true, 1, 4, p.id
+          Actions.begin(a, body, 4, attack)
+          local followed, probes = {}, {}
+          local function probe(kind, name)
+            return function(shown, g)
+              if not followed[kind] then
+                for _, h in ipairs(Pools.of(g, 'hazards')) do
+                  if (h.kind or HazardDefault) == kind then
+                    followed[kind] = h
+                    break
+                  end
+                end
+              end
+              local h = followed[kind]
+              if not h or h.maxDelay - h.delay < 1.5 * step then
+                return 0
+              end
+              local view = viewOf(shown, h)
+              return view and reads[name](view) or 0
+            end
+          end
+          for _, kind in ipairs({ 'pool', 'lightning', 'wave', 'sweepline', 'tempest' }) do
+            for name in pairs(reads) do
+              probes[kind .. '.' .. name] = probe(kind, name)
+            end
+          end
+          local trace = Feel.run(a, rate, 2.4, function()
+            return {}
+          end, probes)
+          for kind in pairs(followed) do
+            seen[kind] = true
+          end
+          for name in pairs(probes) do
+            local n, at = Feel.stalls(trace[name])
+            if n > 0 then
+              total = total + n
+              local series = trace[name]
+              worst = string.format(
+                '%s %s at %s: %s x%d, first at %.0f ms: %.5f %.5f %.5f %.5f',
+                id,
+                attack.id,
+                rateName(rate),
+                name,
+                n,
+                trace.time[at] * 1000,
+                series[at - 2],
+                series[at - 1],
+                series[at],
+                series[at + 1]
+              )
+            end
+          end
+        end
+      end
+    end
+    check(
+      string.format(
+        'moving marked ground shows no frozen frame (waves %s, lines %s, tempests %s; %d frozen: %s)',
+        tostring(seen.wave == true),
+        tostring(seen.sweepline == true),
+        tostring(seen.tempest == true),
+        total,
+        worst
+      ),
+      seen.wave and seen.sweepline and seen.tempest and total == 0
+    )
+  end
+
   -- 5. One body, the same rules in every mode (PLAN E1): the floor of the tests,
   -- the field and the chapel walk, dodge and recover from a shot alike. A mode
   -- only decides whether effort is paid (stamina, the flask).

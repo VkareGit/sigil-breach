@@ -81,6 +81,14 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z4, ruchome zagrożenia wygładzane w obrazie, 2026-11-10 (audyt silnika):
+  pula `hazards` wchodzi do próbki obrazu jak ciała, pociski i ładunki;
+  schemat `hazard` deklaruje `linear` dla `x`, `z`, `radius`, `angle`
+  i `delay`, więc pierścień fali, obrót rozdarcia, wędrujący bezpieczny
+  krąg burzy i zapowiedź każdego znaku przesuwają się między krokami.
+  `audio/field_voices.lua` czyta jawnie żywą pulę (głos pola kluczowany
+  samym znakiem). Bez zmian symulacji.
+
 - Z2b, własne ziarno nowej drogi, 2026-11-10 (audyt silnika, D9): w grze
   (nie w QA ani w teście) nowa droga losuje ziarno z generatora LÖVE
   (`Application:playing`, opcja `seeds` sesji drogi), miesza je
@@ -5096,6 +5104,21 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z4, ruchome zagrożenia, 2026-11-10: nowy test w `feel` przechodzi każdy
+  atak każdego stwora, śledzi pierwszy znak każdego rodzaju w próbce
+  obrazu (promień, kąt, x, z, postęp zapowiedzi) przy 144, 165, 240 Hz
+  i nierównych klatkach i liczy zamrożone klatki. Przed zmianą 3303 (np.
+  burza Furfura, kąt: 28 na nierównych klatkach), po zmianie 0; widział
+  fale, rozdarcia i burze. Znak jest śledzony od kroku po narodzinach:
+  urodzony w kroku nie ma wcześniejszego obrazu i pokazuje się taki,
+  jaki jest, jak ciało czy pocisk (bez tego warunku 11 klatek, każda
+  pierwsza klatka życia znaku). Rendery pokazu: 782 PNG z bramy
+  identyczne bajt w bajt z bramą Z2b. Brama Linux zielona: 9404
+  sprawdzenia w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Obraz
+  w oknie gracza przy wysokim odświeżaniu nieoglądany; Windows
+  niesprawdzony.
 
 - Z2b, własne ziarno nowej drogi, 2026-11-10: pierwsze rzuty 1000 ziaren
   1–1000 bez mieszania leżą wszystkie poniżej 0,0625 (cały pierwszy
