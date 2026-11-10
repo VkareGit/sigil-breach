@@ -429,6 +429,91 @@ local function wakings(check, Game)
   end
   P.forget()
 end
+-- PLAN Z6: a rest secures the whole map, not only the area he rests in (D10), and a way
+-- left in the field keeps what fell and was taken in every area of it. A trial area carved
+-- out of the chapel's map (as tests/cases/extension.lua carves it), with its own fire. Its ids
+-- are its own: the way keeps a post id of a map once registered, through an unregister.
+local function takeCache(g, id)
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    if pickup.rewardId == id then
+      Pools.remove(g, 'pickups', pickup)
+      return true
+    end
+  end
+end
+local function lies(g, id)
+  for _, pickup in ipairs(Pools.of(g, 'pickups')) do
+    if pickup.rewardId == id then
+      return true
+    end
+  end
+  return false
+end
+local function annexed(check, Game)
+  local carved = pcall(function()
+    K.areas:register('trial_wing', {
+      id = 'trial_wing',
+      map = K.start().map,
+      bounds = { { 6, 26, 13, 31 } },
+      first = 'trial_wing_fire',
+      fires = { { id = 'trial_wing_fire', name = 'fire_narthex', x = 9.5, z = 30 } },
+      garrison = { { id = 'trial_wing_post', creature = 'imp', x = 9.5, z = 28.5, yaw = 0 } },
+    })
+  end)
+  check('a trial area is carved out of the chapel map', carved)
+  local cache = K.start().supplies[1].id
+  -- A kill and a cache in the chapel, then into the trial area and its fire.
+  local function there(g)
+    local p = g.player
+    g:damageEnemy(byPost(g, 'nave_1'), byPost(g, 'nave_1').hp + 1, 'weapon', nil, p.id)
+    check('a chapel cache is taken', takeCache(g, cache))
+    p.x, p.z = 9.5, 29.4
+    g:update(1 / 120, {})
+    check('he walks into the trial area', g.run.area == 'trial_wing')
+    local guard = byPost(g, 'trial_wing_post')
+    g:damageEnemy(guard, guard.hp + 1, 'weapon', nil, p.id)
+  end
+  local ok, problem = pcall(function()
+    P.forget()
+    local g = session(Game)
+    there(g)
+    check('he rests at its fire', g:interact() and g.state == 'shop')
+    g:act('closeShop')
+    -- A journey back to the first fire, then a death: what the rest secured stays so.
+    g.run.lit[K.start().first] = true
+    check('a journey takes him to the first fire', P.travel(g) and g.run.area == K.first)
+    P.lose(g)
+    check('he wakes after a death', g:act('retry'))
+    check(
+      'a rest in another area of the map keeps what fell in the first',
+      byPost(g, 'nave_1') == nil and byPost(g, 'trial_wing_post') == nil
+    )
+    check('and what was taken there', not lies(g, cache))
+    -- Left in the field in the trial area, before any rest: taken up as it was, also when
+    -- the fight's pools do not read and the way is laid from what fell and was taken.
+    P.forget()
+    g = session(Game)
+    there(g)
+    P.save(g)
+    local Save = require('src.storage.save')
+    local payload = love.filesystem.read(P.file()):match('^SIGIL%d%d\n[%w_]+\n%d+\n%d+\n(.*)$')
+    local values = assert(require('src.core.data_reader').decode(payload, Save.limits))
+    values.pilgrimage.data.field.pools = nil
+    love.filesystem.write(P.file(), Save.encode('pilgrimage', values, g.run.saves))
+    local back = Game.new('pilgrimage')
+    back:act('start')
+    check(
+      'a way left in another area of the map keeps what fell in the first',
+      back.run.area == 'trial_wing'
+        and byPost(back, 'nave_1') == nil
+        and byPost(back, 'trial_wing_post') == nil
+    )
+    check('and what was taken there', not lies(back, cache))
+  end)
+  K.areas:unregister('trial_wing')
+  P.forget()
+  check('the trial area holds' .. (ok and '' or ': ' .. tostring(problem)), ok)
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
@@ -440,6 +525,7 @@ function T.run(Game)
   causes(check, Game)
   relics(check, Game)
   wakings(check, Game)
+  annexed(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player

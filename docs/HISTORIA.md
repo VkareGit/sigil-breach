@@ -81,6 +81,13 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z6, odpoczynek i zapis w polu obejmują całą mapę, 2026-11-10 (audyt
+  silnika): `secure` w `run/pilgrimage.lua` i zapasowe `fallen`/`picked`
+  w `fieldOf` (`run/pilgrimage_save.lua`) przechodzą wszystkie obszary
+  mapy, na której stoi rycerz (`Way.areasOf`), a nie tylko obszar
+  ogniska; wszystkie obszary jednej mapy stoją naraz (D10). Golden bez
+  zmian.
+
 - Z1, pierwsze ognisko budzi rycerza przed sobą, 2026-11-10 (audyt
   silnika, wariant A): ognisko narthexu dostaje własne miejsce
   przebudzenia `wake = { x = 27, z = 33.5, yaw = 0 }`; rycerz wstaje
@@ -5112,6 +5119,26 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z6, obszary jednej mapy, 2026-11-10: nowy test w `pilgrimage` wycina
+  z mapy kaplicy obszar próbny `trial_wing` (jak `extension`) z własnym ogniskiem
+  i strażnikiem; rycerz zabija `nave_1` i bierze zapas w kaplicy,
+  przechodzi do obszaru próbnego, zabija strażnika i odpoczywa przy jego
+  ognisku, podróżuje do narthexu i ginie. Przed zmianą `nave_1` wstawał
+  po śmierci; po zmianie zostaje martwy, a zapas zabrany. Druga część:
+  droga zostawiona w polu w obszarze próbnym, z zapisem bez puli walki
+  (droga układana z `fallen`/`picked`); przed zmianą `nave_1` stał po
+  wczytaniu, po zmianie nie. Każda część czerwona bez swojej poprawki,
+  zielona z nią (`pilgrimage` 191 PASS). Brama Linux zielona: 9429
+  sprawdzeń w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Z pełną pulą walki zapis był
+  poprawny już wcześniej: pula odtwarza ciała wprost.
+  Pierwsza brama była czerwona: test `extension` rejestruje obszar
+  `trial_annex` drugi raz w tym samym procesie, a walidator obszarów
+  (`content/pilgrimage.lua`, `mapPosts`) pamięta identyfikatory posterunków
+  mapy także po wyrejestrowaniu i odrzucił drugą rejestrację. Nowy test
+  ma więc własne identyfikatory (`trial_wing`). Błąd walidatora zostaje
+  otwarty, poza Z6.
 
 - Z1, przebudzenie przy narthexie, 2026-11-10: nowy test w
   `pilgrimage` budzi rycerza przy każdym ognisku obszaru startu po

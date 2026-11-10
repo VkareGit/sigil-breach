@@ -505,9 +505,10 @@ local function calm(g)
 end
 -- A rest secures what he has done (0.42, the owner and Astra: the chapel no longer stands again
 -- at a fire). What lies dead at a post stays dead and what was taken stays taken, for good; a
--- death brings back only what fell or was taken since (run.slain, run.taken).
+-- death brings back only what fell or was taken since (run.slain, run.taken). Every area of
+-- the map he stands on, as populate stands them all (PLAN Z6).
 local function secure(g)
-  local r, here, alive, lying = g.run, area(g), {}, {}
+  local r, alive, lying = g.run, {}, {}
   Bodies.eachCreature(g, function(e)
     if e.post and e.hp > 0 then
       alive[e.post] = true
@@ -518,11 +519,13 @@ local function secure(g)
       lying[pickup.rewardId] = true
     end
   end
-  for _, entry in ipairs(here.garrison) do
-    r.slain[entry.id] = r.slain[entry.id] or not alive[entry.id] or nil
-  end
-  for _, cache in ipairs(here.supplies or {}) do
-    r.taken[cache.id] = r.taken[cache.id] or not lying[cache.id] or nil
+  for _, here in ipairs(Way.areasOf(area(g).map)) do
+    for _, entry in ipairs(here.garrison) do
+      r.slain[entry.id] = r.slain[entry.id] or not alive[entry.id] or nil
+    end
+    for _, cache in ipairs(here.supplies or {}) do
+      r.taken[cache.id] = r.taken[cache.id] or not lying[cache.id] or nil
+    end
   end
 end
 P.fighting = fighting

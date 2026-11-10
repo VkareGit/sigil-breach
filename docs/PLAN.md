@@ -140,6 +140,8 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z6 zrobione:** odpoczynek i zapas zapisu w polu
+  przechodzą wszystkie obszary mapy. Golden bez zmian.
 - 2026-11-10, **Z1 zrobione (wariant A):** narthex budzi rycerza twarzą
   do ognia; czuwające po odpoczynku 10 → 0. Golden bez zmian; wariant B
   odłożony.

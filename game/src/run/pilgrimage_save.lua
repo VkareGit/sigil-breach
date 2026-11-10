@@ -149,14 +149,17 @@ local function fieldOf(g)
       lying[pickup.rewardId] = true
     end
   end
-  for _, entry in ipairs(way.area(g).garrison) do
-    if not alive[entry.id] and not r.slain[entry.id] then
-      field.fallen[entry.id] = true
+  -- Every area of the map he stands on: all of them stand at once (PLAN Z6).
+  for _, here in ipairs(Way.areasOf(way.area(g).map)) do
+    for _, entry in ipairs(here.garrison) do
+      if not alive[entry.id] and not r.slain[entry.id] then
+        field.fallen[entry.id] = true
+      end
     end
-  end
-  for _, cache in ipairs(way.area(g).supplies or {}) do
-    if not lying[cache.id] and not r.taken[cache.id] then
-      field.picked[cache.id] = true
+    for _, cache in ipairs(here.supplies or {}) do
+      if not lying[cache.id] and not r.taken[cache.id] then
+        field.picked[cache.id] = true
+      end
     end
   end
   return S.fightOf(g, field)
