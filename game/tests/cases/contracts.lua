@@ -226,6 +226,27 @@ function T.run(Game)
       end
     end
   end
+  -- Fire takes no blow away (owner, D24, 2026-11-10): every blow of a small creature (D25)
+  -- is steady, or is named here with the reason it is not. The duellists already keep
+  -- their blows (the Iron Thrall) or wait for their own pass (the elites, on the owner's
+  -- order only).
+  local small = { 'imp', 'stolas', 'buer' }
+  local stopped = {
+    ['imp/leap'] = 'in the air a shot is its window: a guard broken there drops it',
+  }
+  for _, id in ipairs(small) do
+    for _, spec in ipairs(A.get(id).attacks) do
+      local name = id .. '/' .. spec.id
+      if spec.packet then
+        check(
+          name
+            .. ' is a blow fire does not take away'
+            .. (stopped[name] and ', or is named as one it does (' .. stopped[name] .. ')' or ''),
+          (spec.steady == true) ~= (stopped[name] ~= nil)
+        )
+      end
+    end
+  end
   -- Every creature's package holds what its definition names (PLAN F4).
   local Atlases = require('src.content.art.atlases')
   local Anatomy = require('src.content.art.anatomy.index')

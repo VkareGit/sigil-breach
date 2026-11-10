@@ -193,6 +193,11 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **D24 wdrożone dla drobnicy:** ciosy Ember Thralla, Star
+  Acolyte i Plague Gardenera dochodzą mimo ognia (pod ogniem zachowują
+  87–100 % ciosów, było 0–50 %); ciężka rana w ciosie `steady` działa po
+  ciosie. Wzorzec golden Linux odświeżony. Żaden próg miernika jeszcze
+  niespełniony: następna jest trójka drobnicy i Iron Thrall.
 - 2026-11-10: progi właściciela są w mierniku; stan wyjściowy: żadna
   oceniana walka nie jest gotowa (lista braków w ODBIOR). Bez zmian gry.
 - 2026-11-10: decyzje właściciela po raporcie B2 i doświadczeniach C0:

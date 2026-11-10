@@ -19,6 +19,15 @@ return function(R)
       e.recover = defaults.interruptRecover
       ActionKinds.abandon(e)
     end
+    -- A blow that is gone takes with it the wound that waited for its end.
+    e.woundFalling = nil
+  end
+  -- A major wound takes the body's balance: now, or when a steady blow has struck.
+  function R.reel(e)
+    e.stun = max(e.stun or 0, defaults.woundTime)
+    e.poise = 0
+    R.addCondition(e, 'staggered', defaults.woundTime)
+    R.interrupt(e)
   end
   -- The moment a body lost its balance (a broken guard, a fall, a major
   -- wound), on its own clock: a kill soon after is a break kill. cause:
@@ -88,6 +97,7 @@ return function(R)
     ActionKinds.abandon(e)
     e.ai, e.phase, e.windup = 'hurt', 0, 0
     e.rushVX, e.rushVZ = nil, nil
+    e.woundFalling = nil
     e.recover = defaults.interruptRecover
     e.stun = max(e.stun or 0, stun)
     R.addCondition(e, 'exposed', stun)

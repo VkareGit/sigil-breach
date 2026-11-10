@@ -73,10 +73,12 @@ return Creature.define({
       { attack = 'slip', ideal = 1.5, max = 3.2, weight = 5 },
     },
   },
+  -- Fire takes no blow away (owner, D24): its blows are steady.
   attacks = {
     -- 0.21: faster than a running player; a change of direction dodges it.
     Action.bolt({
       id = 'star',
+      steady = true,
       windupVoice = 'owl_cast_grunt',
       windupSound = 'owl_star_warning',
       range = 11,
@@ -93,6 +95,7 @@ return Creature.define({
     -- change direction after the cast, then punish its longer recovery.
     Action.fan({
       id = 'talon-fan',
+      steady = true,
       windupVoice = 'owl_cast_grunt',
       windupSound = 'owl_fan_warning',
       range = 4.2,
@@ -114,6 +117,7 @@ return Creature.define({
     -- bound to the cast until the last has left.
     Action.salvo({
       id = 'star-trio',
+      steady = true,
       windupVoice = 'owl_cast_chant',
       windupSound = 'owl_trio_warning',
       range = 10,
@@ -133,6 +137,7 @@ return Creature.define({
     -- A low ring of hellfire. Time a jump as its crest approaches.
     Action.wave({
       id = 'star-ray',
+      steady = true,
       windupVoice = 'owl_cast_chant',
       windupSound = 'owl_ray_warning',
       sound = 'owl_rupture',
@@ -156,6 +161,7 @@ return Creature.define({
     -- Leave its painted width during the warning, or counter the caster first.
     Action.beam({
       id = 'star-lance',
+      steady = true,
       art = 'hell',
       windupVoice = 'owl_cast_command',
       track = 1,

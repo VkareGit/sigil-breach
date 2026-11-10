@@ -1,19 +1,19 @@
--- Linux: one way of travelling a step and one landing for every body (PLAN
--- E2e, 2026-11-09, owner's decision), two identical native runs. A creature's
--- stride travels its step exactly for its constant acceleration, as the
--- knight's does, and keeps its own velocity projected by the walls (it was the
--- distance over the step): a start from rest goes about 2 cm less in its first
--- second (imp 4.090 -> 4.071 m, Ember 3.092 -> 3.073 m), the same speed after.
--- A knight landing inside a step flies until his feet meet the floor and is on
--- the ground for the rest of it: the same landing step, under 5 mm. The
--- scenarios are long fights, so their courses and contacts diverge from these
--- small changes; no AI clock, damage or balance changed. Windows remains
+-- Linux: fire takes no blow away from a small creature (owner's decision D24,
+-- "the parry only", 2026-11-10), two identical native runs. Every blow of the
+-- Ember Thrall (but its leap), the Star Acolyte and the Plague Gardener is
+-- steady: a guard broken in it falls when it has struck, and a major wound
+-- taken in a steady blow no longer stops it either; the body reels when the
+-- blow ends. A shot in a blow's parry window stops it as before. The careful
+-- knight's walk (playtest) is the same to the digest; the clumsy knight's walk
+-- (human) and the drill meet blows that fire used to throw away, so their
+-- courses and contacts change (human contacts 164 -> 160, drill 372 -> 335).
+-- No health, damage, clock or timing of a creature changed. Windows remains
 -- unverified (tests/golden/baseline.lua is not regenerated here).
 return {
   playtest = 'caf66543/9c228f4f',
-  human = '5b8fbefe/4d8899a6',
-  drill = '43178c10/40423647',
+  human = 'a1a1d2c5/318a80f7',
+  drill = '81318b5e/735979af',
   playtestContacts = '635ea19e/139',
-  humanContacts = '31a2dcc9/164',
-  drillContacts = 'cf90111b/372',
+  humanContacts = 'd04068d6/160',
+  drillContacts = 'b247fd5e/335',
 }

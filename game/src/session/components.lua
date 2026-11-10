@@ -72,6 +72,7 @@ C.schemas = {
     brokenBy = f(nil, 'what broke it at brokenAge: guard, wound, knockdown'),
     stunCause = f(nil, 'what set a stun that is no lost balance: micro, trip'),
     guardFalling = f(nil, 'its guard broke in a steady blow: it falls when the blow ends'),
+    woundFalling = f(nil, 'a major wound taken in a steady blow: it reels when the blow ends'),
     swingSide = f(nil, 'the side a mirrored blow comes from this time'),
     closeFor = f(nil, 'how long a knight has stood close (s)'),
     home = f(nil, 'the post it goes back to'),

@@ -90,6 +90,41 @@ function T.run(Game)
     check('the blow lands', g.player.hp + g.player.armor < whole)
     check('and the body falls after it', (e.stun or 0) > 0 and Rules.has(e, 'exposed'))
     done()
+    -- D24 (owner, 2026-11-10): fire takes no blow away. A major wound taken in a steady
+    -- blow does not stop it either: the body reels when it has struck. In a blow that is
+    -- not steady the wound stops it at once, as before.
+    local frail = { body = { tier = 'common', hp = 400, poise = 5000, woundAt = 0.3 } }
+    g = field(Game)
+    whole = g.player.hp + g.player.armor
+    e = guardian(g, { cut('sure', { steady = true }) }, frail)
+    Attacks.begin(g, e, 3, A.of(e).attacks[1])
+    local hit = Rules.react(g, e, 10, true, nil, 200)
+    check(
+      'a major wound in a steady blow does not stop it',
+      hit.wounded and e.ai == 'windup' and (e.stun or 0) == 0
+    )
+    check('the body is wounded all the same', Rules.has(e, 'wounded'))
+    -- The wound holds the struck body a beat (its hit-stop), so the blow ends a little late.
+    run(g, 0.9)
+    check('the blow lands', g.player.hp + g.player.armor < whole)
+    check('and the body reels after it', (e.stun or 0) > 0 and Rules.has(e, 'staggered'))
+    done()
+    g = field(Game)
+    e = guardian(g, { cut('open') }, frail)
+    Attacks.begin(g, e, 3, A.of(e).attacks[1])
+    Rules.react(g, e, 10, true, nil, 200)
+    check('in any other blow the wound stops it at once', e.ai == 'hurt' and e.stun > 0)
+    done()
+    -- A wound waiting for its blow to end does not outlive a blow turned aside.
+    g = field(Game)
+    e = guardian(g, { cut('sure', { steady = true, parry = 0.2, windup = 0.6 }) }, frail)
+    Attacks.begin(g, e, 3, A.of(e).attacks[1])
+    Rules.react(g, e, 10, true, nil, 200)
+    run(g, 0.5)
+    Rules.react(g, e, 100, true)
+    check('a parry still turns a steady blow aside', e.ai == 'hurt' and Rules.has(e, 'exposed'))
+    check('and nothing of the wound waits for a later blow', e.woundFalling == nil)
+    done()
     g = field(Game)
     e = guardian(g, { cut('open') })
     Attacks.begin(g, e, 3, A.of(e).attacks[1])

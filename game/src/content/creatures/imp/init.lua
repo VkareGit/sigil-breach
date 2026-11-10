@@ -69,10 +69,13 @@ return Creature.define({
       },
     },
   },
+  -- Fire takes no blow away (owner, D24): its blows are steady. The leap is not: in the
+  -- air a shot is its window.
   attacks = {
     -- Every second claw goes on: a beat, then the late one.
     Action.lunge({
       id = 'claw',
+      steady = true,
       windupSound = 'ember_prepare',
       windupVoice = 'ember_claw_effort',
       sound = 'ember_claw',
@@ -117,6 +120,7 @@ return Creature.define({
     -- the gap, so the answer is across it, not away.
     Action.sweep({
       id = 'pounce',
+      steady = true,
       windupSound = 'ember_prepare',
       windupVoice = 'ember_pounce_effort',
       sound = 'ember_rake',
@@ -142,6 +146,7 @@ return Creature.define({
     -- (0.42, the owner: an ordinary body that stands with its arm up reads as stuck).
     Action.lunge({
       id = 'claw-late',
+      steady = true,
       windupSound = 'ember_prepare',
       windupVoice = 'ember_late_effort',
       sound = 'ember_claw',

@@ -222,6 +222,10 @@ local function strike(g, e, dt, previousPlayer)
     if e.guardFalling then
       Rules.guard(e, 0)
     end
+    -- So does a major wound taken in a steady blow (owner, D24).
+    if e.woundFalling then
+      Rules.reel(e)
+    end
   end
 end
 -- The full rest after an attack. A phase's pace shortens the pause between

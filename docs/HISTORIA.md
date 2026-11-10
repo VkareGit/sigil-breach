@@ -85,6 +85,23 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- D24 dla drobnicy: ogień nie odbiera ciosów, 2026-11-10 (decyzja
+  właściciela „tylko parada”; zmiana balansu, jedna): każdy cios Ember
+  Thralla (poza skokiem), Star Acolyte i Plague Gardenera jest `steady`
+  (`content/creatures/{imp,stolas,buer}/init.lua`): garda złamana
+  w trakcie ciosu pada, gdy cios uderzył. Ciężka rana w ciosie `steady`
+  też go już nie przerywa (`combat/rules/hit_response.lua`): ciało jest
+  ranne od razu, a zatacza się, gdy cios się skończy
+  (`enemies/actions.lua`; nowe pole ciała `woundFalling`, `Rules.reel`
+  w `combat/rules/balance.lua`). Cios przerwany inaczej (parada,
+  przewrócenie) zabiera czekającą ranę ze sobą. Strzał w oknie parady
+  przerywa cios jak dotąd; poza ciosem i w ciosie, który nie jest
+  `steady`, garda i rana działają od razu. Skok Ember Thralla zostaje
+  wyjątkiem: w powietrzu oknem jest sam strzał. Zdrowie, obrażenia, zegary
+  i czasy stworów bez zmian. Iron Thrall i elity: reguła rany dotyczy
+  także ich ciosów `steady` (elity nie mają ciężkiej rany), poza tym bez
+  zmian. Wzorzec golden Linux odświeżony.
+
 - Progi miernika głębi walki, 2026-11-10 (decyzja właściciela, WIZJA):
   `qa/reviews/depth_meter.lua` zna progi gotowej walki (`M.thresholds`)
   i przy każdej ocenianej walce pisze „ready: yes” albo czego brakuje.
@@ -5300,6 +5317,30 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- D24 dla drobnicy, 2026-11-10: nowe sprawdzenia w `souls-balance`
+  (ciężka rana w ciosie `steady` nie przerywa go, ciało jest ranne, cios
+  trafia, ciało zatacza się po ciosie; w innym ciosie rana przerywa od
+  razu; parada nadal przerywa cios `steady` i nie zostawia czekającej
+  rany) oraz w `contracts` z danych (każdy cios drobnicy jest `steady`
+  albo nazwany z powodem: tylko `imp/leap`). Przed zmianą czerwone
+  („a major wound in a steady blow does not stop it”; 12 ciosów „is a blow
+  fire does not take away”), po zmianie `souls-balance` 66 PASS,
+  `contracts` 390 PASS. Ciosy na sekundę pod ogniem stojącego rycerza
+  (`souls-gate`, obie bronie), przed → po: Ember Thrall 0,44 → 0,76
+  (bez ognia 0,87), Plague Gardener 0,00 → 0,47 (0,42), Star Acolyte
+  0,00 → 0,53 (0,38). Miernik głębi (5 ziaren) przed → po: stojący
+  z obiema broniami bierze od Ember Thralla 0 → 34 obrażenia i od
+  Gardenera 0 → 20; Star Acolyte wypuszcza ciosy (0 → 5 w pięciu walkach);
+  trójkę stojący wygrywa 2/5 → 1/5 (Sędzia) i 5/5 → 4/5 (obie). Żaden
+  próg właściciela nie zmienił stanu: zasada sama nie czyni walki gotową
+  (jak pokazały doświadczenia C0). Golden: dwa identyczne przebiegi;
+  `playtest` bez zmian, `human` 5b8fbefe → a1a1d2c5 (kontakty 164 → 160),
+  `drill` 43178c10 → 81318b5e (kontakty 372 → 335); wzorzec Linux
+  z uzasadnieniem w pliku, Windows nieodtwarzany. Rendery: 794 PNG bramy
+  identyczne bajt w bajt z bramą A4. Brama Linux zielona: 9627 sprawdzeń
+  w 4 częściach, showcase, Tools, `startup-check`, `resource-plateau`,
+  `measure-trial` PASS. Okno gracza nieoglądane; Windows niesprawdzony.
 
 - Progi miernika, 2026-11-10: `depth-meter` 29 PASS (było 25): drobnica
   w pojedynkę nie jest oceniana; stwór pojedynkowy na progach jest gotowy,

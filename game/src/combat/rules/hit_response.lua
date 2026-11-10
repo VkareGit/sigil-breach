@@ -103,11 +103,15 @@ return function(R)
     -- Major wound: one hit removing a large share of the body breaks the guard
     -- even under a stagger lock. Bosses use woundAt=1 (never from one hit).
     if health and e.hp > 0 and not elite and health >= b.woundAt * (e.maxHp or b.hp) then
-      e.stun = max(e.stun or 0, defaults.woundTime)
-      e.poise = 0
+      local spec = e.attackSpec
+      if spec and spec.steady and (e.ai == 'windup' or e.ai == 'strike') then
+        -- Fire takes no blow away (owner, D24): a steady blow is not stopped by a wound
+        -- either. The body reels when it has struck (enemies/actions.lua).
+        e.woundFalling = true
+      else
+        R.reel(e)
+      end
       R.addCondition(e, 'wounded', defaults.woundFor)
-      R.addCondition(e, 'staggered', defaults.woundTime)
-      R.interrupt(e)
       R.markBroken(e, 'wound')
       e.woundFlash = defaults.woundFlash
       result.wounded = true

@@ -80,10 +80,12 @@ return Creature.define({
       { attack = 'late-bloom', ideal = 6, min = 3, weight = 1.3 },
     },
   },
+  -- Fire takes no blow away (owner, D24): its blows are steady.
   attacks = {
     -- IDs remain stable for existing saves; old committed specs finish unchanged.
     Action.sow({
       id = 'spore',
+      steady = true,
       windupSound = 'gardener_spit_prepare',
       windupVoice = 'gardener_spit_effort',
       releaseVoice = 'gardener_spit_voice',
@@ -117,6 +119,7 @@ return Creature.define({
     }),
     Action.stream({
       id = 'root-brace',
+      steady = true,
       windupSound = 'gardener_retch_prepare',
       windupVoice = 'gardener_retch_effort',
       releaseVoice = 'gardener_retch_voice',
@@ -142,6 +145,7 @@ return Creature.define({
     }),
     Action.sow({
       id = 'seed-ring',
+      steady = true,
       windupSound = 'gardener_sow_prepare',
       windupVoice = 'gardener_sow_effort',
       releaseVoice = 'gardener_sow_voice',
@@ -181,6 +185,7 @@ return Creature.define({
     }),
     Action.harvest({
       id = 'late-bloom',
+      steady = true,
       windupSound = 'gardener_harvest_prepare',
       windupVoice = 'gardener_harvest_effort',
       releaseVoice = 'gardener_harvest_voice',
