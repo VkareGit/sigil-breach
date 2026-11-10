@@ -183,6 +183,10 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **A5 zrobione, werdykt do decyzji:** 7 par, po/przed
+  0,89–1,06 ze znakami w obie strony, żadna różnica ponad rozrzut;
+  protokół nadal INCONCLUSIVE, bo rozrzut maszyny (IQR 6–21 %) jest
+  większy niż jego próg 5 %. Etap A zamknięty.
 - 2026-11-10: uwaga właściciela o uniku na oślep i braku czytania ruchów
   wpisana do planu: czwarty bot i premia za czytanie w B1, krok C0 przed
   stworami. Bez zmian gry.

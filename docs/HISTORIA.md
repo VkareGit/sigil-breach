@@ -5271,6 +5271,24 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
 
+- A5, pomiar przed/po napraw Z1–Z13, 2026-11-10: `MEASURE.sh --pairs 7
+  --populations 96,256` na dwóch klonach poza repozytorium (`a7d1de4`
+  i `8cce94e`), 57 min 34 s, bez innych ciężkich procesów uruchomionych
+  przez wykonawcę (pulpit właściciela działał). Mediany po/przed: krok
+  96 ciał 1,88 / 2,12 ms (0,886), krok 256 ciał 11,47 / 10,84 ms (1,058),
+  klatka 96 ciał 14,89 / 15,47 ms (0,962), klatka 256 ciał 38,21 / 37,74
+  ms (1,013), `complete_heavy20` 8,18 / 8,20 ms (0,997),
+  `complete_normal4` 5,59 / 5,78 ms (0,967). Znaki mieszane, żadna
+  różnica nie przekracza rozrzutu: zmierzonej regresji nie ma, a obraz
+  „wszystko wolniejsze” z 3 par był szumem. Werdykt protokołu to nadal
+  INCONCLUSIVE (kod 1), bo „NO REGRESSION” wymaga IQR obu stron do 5 %,
+  a na tej maszynie IQR wynosi 6–21 % także przy 7 parach: protokół nie
+  może tu dać czystego werdyktu niezależnie od liczby par. Decyzja
+  właściciela: przyjąć „brak dowodu regresji” albo powtórzyć pomiar na
+  bezczynnej maszynie (bez pulpitu). Klony pomiarowe usunięte; wyniki
+  w `/home/nahiko/Work/tries/sigil-breach-audit-measure/measure-7par`.
+  Bez zmian gry; testów gry nie uruchamiano.
+
 - A4, cechy rodzaju ataku, 2026-11-10: nowy test w `extension` dodaje
   samymi rejestrami rodzaj `trial_tear` z cechami `settles` i `silent`
   (kładzie rozdarcie jak promień): po uwolnieniu zostaje jeden osiadający
