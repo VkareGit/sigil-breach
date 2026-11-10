@@ -35,6 +35,7 @@ local P = {}
 local distance = MathX.distance
 -- The format of its file (run/pilgrimage_save.lua).
 local PilgrimageSave = require('src.run.pilgrimage_save')
+local Rng = require('src.core.rng')
 -- The file of a save slot; the first keeps the name every earlier version wrote.
 function P.file(slot)
   return (slot or 1) == 1 and 'pilgrimage.save' or ('pilgrimage-' .. slot .. '.save')
@@ -232,7 +233,7 @@ end
 -- All a replay needs to start where this session started, and nothing from the disk.
 function P.construction(g)
   local r = g.run
-  return { slot = r.slot, origin = r.origin, saves = r.begun }
+  return { slot = r.slot, origin = r.origin, saves = r.begun, seed = r.seed }
 end
 -- The world under the knight is his area's map, with that map's ruin.
 local function stand(g)
@@ -347,8 +348,21 @@ local function reachEcho(g)
     echo.x, echo.z = wakeAt(Way.fireOf(r.fire))
   end
 end
--- options: slot; origin and saves when a journal replays a session, which reads no disk
--- (origin false: it began with no save).
+-- A new way's own random stream (PLAN Z2b). It draws its seed when the game gives it a
+-- source (options.seeds: play only, never QA, a test or a replay); a replay is told it
+-- (options.seed). A save keeps the seed and where the stream stood (pilgrimage_save.lua).
+-- A way with none (QA, tests, a journal from before 0.46) starts from the session's seed,
+-- as before.
+local function stream(g, options)
+  local r = g.run
+  r.seed = options.seed or (options.seeds and options.seeds()) or nil
+  assert(r.seed == nil or Rng.validSeed(r.seed), 'invalid way seed')
+  if r.seed then
+    g.rng.sim:seed(Rng.mix(r.seed))
+  end
+end
+-- options: slot; seeds, a source of a new way's seed; origin, saves and seed when a journal
+-- replays a session, which reads no disk (origin false: it began with no save).
 function P.init(g, options)
   options = options or {}
   Encounter.clearWorld(g)
@@ -362,6 +376,9 @@ function P.init(g, options)
     end
   elseif data then
     Save.restore('pilgrimage', g, data)
+  end
+  if not data then
+    stream(g, options)
   end
   local r = g.run
   r.origin, r.saved = data or false, data and true or false

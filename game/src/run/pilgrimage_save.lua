@@ -292,8 +292,12 @@ function S.declare(owner)
   Save.declare({
     name = 'pilgrimage',
     file = 'pilgrimage',
-    version = 5,
+    version = 6,
     migrations = {
+      -- A way kept neither its own seed nor its stream: it starts from the session's seed.
+      [5] = function(data)
+        return data
+      end,
       -- A field kept no random stream: it is taken up from a fresh one, as before.
       [4] = function(data)
         return data
@@ -346,6 +350,10 @@ function S.declare(owner)
         loadout = (Weapons.inventory(g, Roles.controlled(g))),
         abilities = select(2, Abilities.inventory(g, Roles.controlled(g))),
         field = fieldOf(g),
+        -- The way's own seed and where its stream stood (PLAN Z2b, D9): taken up at a fire
+        -- or after a death it goes on, neither redrawn nor restarted.
+        seed = r.seed,
+        rng = g.rng.sim:get(),
       }
     end,
     -- A file is judged here, before it touches a session: a wrong type refuses the whole of
@@ -356,6 +364,8 @@ function S.declare(owner)
       assert(whole(data.deaths, 0, math.huge), 'invalid deaths')
       assert(type(data.fire) == 'string', 'invalid fire')
       assert(type(data.glyph) == 'string', 'invalid engraving')
+      assert(data.seed == nil or Rng.validSeed(data.seed), 'invalid way seed')
+      assert(data.rng == nil or Rng.valid(data.rng), 'invalid way random state')
       local fire, home = Way.fireOf(data.fire)
       if not fire then
         home = Way.start()
@@ -364,6 +374,8 @@ function S.declare(owner)
       local out = {
         wallet = data.wallet,
         deaths = data.deaths,
+        seed = data.seed,
+        rng = data.rng,
         area = home.id,
         fire = fire.id,
         lit = known(data.lit, Way.fireOf),
@@ -416,6 +428,7 @@ function S.declare(owner)
       r.slain, r.taken = Copy(data.slain), Copy(data.taken)
       r.opened, r.ruins, r.echo = Copy(data.opened), Copy(data.ruins), Copy(data.echo)
       r.vows = Copy(data.vows)
+      r.seed = data.seed
       -- Taken up by P.init once the kit below is in place (D9).
       r.resume = data.field and Copy(data.field) or nil
       way.stand(g)
@@ -428,6 +441,10 @@ function S.declare(owner)
       if data.abilities[1] then
         Abilities.restore(g, nil, data.abilities, p)
         Abilities.give(g, 'flask', p)
+      end
+      -- And the stream where it stood, once nothing above can refuse the file (PLAN Z2b).
+      if data.rng then
+        g.rng.sim:set(data.rng)
       end
     end,
   })

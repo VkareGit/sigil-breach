@@ -81,6 +81,18 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z2b, własne ziarno nowej drogi, 2026-11-10 (audyt silnika, D9): w grze
+  (nie w QA ani w teście) nowa droga losuje ziarno z generatora LÖVE
+  (`Application:playing`, opcja `seeds` sesji drogi), miesza je
+  (`Rng.mix`, finalizator MurmurHash3: małe ziarna xorshift32 dawały
+  pierwsze rzuty bliskie zera) i od niego zaczyna strumień symulacji.
+  Zapis drogi niesie ziarno i miejsce strumienia (`seed`, `rng`), więc
+  strumień idzie dalej także po wyjściu przy ognisku i po śmierci, nie
+  tylko z pola walki (Z2a). Nagłówek dziennika niesie ziarno w opcjach
+  budowy, powtórka je odtwarza i nie losuje. Sekcja `pilgrimage`
+  w wersji 6; zapisy i dzienniki bez ziarna, QA, testy i golden zaczynają
+  od ziarna sesji 1 jak dotąd.
+
 - Z2a, Continue nie zaczyna losowania od nowa, 2026-11-10 (audyt silnika,
   D9): pole drogi (zapis w trakcie walki) niesie stan strumienia losowania
   symulacji, a wznowienie go ustawia, więc wyjście nie powtarza ani nie
@@ -5084,6 +5096,24 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z2b, własne ziarno nowej drogi, 2026-11-10: pierwsze rzuty 1000 ziaren
+  1–1000 bez mieszania leżą wszystkie poniżej 0,0625 (cały pierwszy
+  przedział z dziesięciu); po `Rng.mix` średnia 0,496, przedziały od 86 do
+  107 (oczekiwane 100), każde ziarno inne i różne od 0. Mieszanie
+  sprawdzone z wzorcowym fmix32 w Pythonie (5 wartości równych). Testy
+  przed zmianą: `foundation` czerwony (`Rng.mix` brak), `pilgrimage-save`
+  czerwony (dziennik bez ziarna); po zmianie zielone (24 + 171). Nowe
+  sprawdzenia: droga bez źródła ziaren zostaje przy ziarnie 1; nowa
+  losuje raz i od niego zaczyna; wzięta z zapisu przy ognisku i po
+  śmierci niczego nie losuje, a strumień idzie dalej; dziennik niesie
+  ziarno i powtórka się zgadza. Test przy śmierci złapał w trakcie pracy,
+  że P.init dostaje cały plik, nie drogę: strumień ustawia teraz
+  `restore` sekcji na końcu, gdy plik już niczego nie odrzuci. Brama
+  Linux zielona: 9403 sprawdzenia w 4 częściach (było 9395), showcase,
+  Tools, `startup-check`, `resource-plateau`, `measure-trial` PASS.
+  Golden bez zmian. Losowanie w samej grze (okno gracza) nie uruchomione:
+  QA zawsze ma ziarno 1. Windows niesprawdzony.
 
 - Z2a, Continue a losowanie, 2026-11-10: nowy test kontraktu zapisuje każdą
   walkę w połowie zamachu i w uderzeniu (106 przypadków), przepuszcza pole

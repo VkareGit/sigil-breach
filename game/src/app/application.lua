@@ -1,6 +1,7 @@
 local Release = require('src.app.release')
 local AppLook = require('src.content.app_look')
 local Rate = require('src.core.rate')
+local Rng = require('src.core.rng')
 local Soundscape = require('src.audio.soundscape')
 local Way = require('src.content.pilgrimage')
 local Text = require('src.content.text')
@@ -70,6 +71,16 @@ function Application:applySettings()
   self.game.view.renderScale = self.settings.renderScale
 end
 
+-- Play, not QA: what varies from run to run may vary here, and nowhere else.
+function Application:playing()
+  return not (self.qa.capture or self.qa.isolated)
+end
+-- A new way's own seed in play (PLAN Z2b), from LÖVE's generator, which load seeds
+-- from the clock.
+local function waySeed()
+  return love.math.random(1, Rng.largest)
+end
+
 -- Make a session the active one (a new game, the proving ground, the way
 -- back): settings, its journal with --record (every command of the session,
 -- a bug report that replays exactly: session/journal.lua), and the garbage
@@ -83,7 +94,7 @@ function Application:adopt(game, entering)
   -- In play particles vary from run to run (seeded from the clock, as before);
   -- QA keeps the session's fixed presentation seed so its captures repeat
   -- (feedback/transients.lua). The simulation's stream is never touched.
-  if not (self.qa.capture or self.qa.isolated) and game.rng then
+  if self:playing() and game.rng then
     game.rng.present:seed(os.time())
   end
   self:applySettings()
@@ -138,7 +149,11 @@ end
 function Application:useSlot(slot)
   local count = Way.slots
   self.settings.slot = (slot - 1) % count + 1
-  self.sessionOptions.pilgrimage = { slot = self.settings.slot }
+  -- In play a new way draws its own seed; QA and tests keep the session's seed 1.
+  self.sessionOptions.pilgrimage = {
+    slot = self.settings.slot,
+    seeds = self:playing() and waySeed or nil,
+  }
 end
 
 -- A kill waits for a quiet moment to be saved (run/pilgrimage.lua). A game that stopped, or

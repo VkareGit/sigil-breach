@@ -5,6 +5,7 @@
 local bit = require('bit')
 local Class = require('src.core.class')
 local Rng = Class:extend('Rng')
+Rng.largest = 4294967295 -- constant: 2^32 - 1, the largest seed and state
 function Rng:init(seed)
   self:seed(seed or 1)
 end
@@ -23,6 +24,28 @@ end
 function Rng:set(state)
   assert(Rng.valid(state), 'invalid random state')
   self.state = state
+end
+-- A seed a way can draw and keep: a whole number from 1 to 2^32 - 1.
+function Rng.validSeed(seed)
+  return type(seed) == 'number' and seed >= 1 and seed <= Rng.largest and seed % 1 == 0
+end
+-- The low 32 bits of a product of two 32-bit words, from 16-bit halves (a double holds
+-- 53 bits, a product of two words needs 64).
+local function multiply(a, b)
+  a, b = a % 4294967296, b % 4294967296 -- constant: 2^32
+  local al, bl = a % 65536, b % 65536 -- constant: 2^16, a half word
+  local ah, bh = (a - al) / 65536, (b - bl) / 65536 -- constant: 2^16
+  return bit.tobit(al * bl + ((ah * bl + al * bh) % 65536) * 65536) -- constant: 2^16
+end
+-- A seed spread over all 32 bits (MurmurHash3's finaliser, a bijection that keeps 0 at 0):
+-- xorshift32 from a small seed starts with rolls near zero; seeds 1 to 1000 all give a first
+-- roll under 0.07 (PLAN Z2b). Only a way's own seed goes through it; the sessions' fixed
+-- seed 1 keeps its stream (golden master, replays).
+function Rng.mix(seed)
+  local h = bit.tobit(seed % 4294967296) -- constant: 2^32
+  h = multiply(bit.bxor(h, bit.rshift(h, 16)), 0x85ebca6b) -- constant: fmix32 shift and multiplier
+  h = multiply(bit.bxor(h, bit.rshift(h, 13)), 0xc2b2ae35) -- constant: fmix32 shift and multiplier
+  return bit.bxor(h, bit.rshift(h, 16)) % 4294967296 -- constant: fmix32 shift, 2^32
 end
 -- Uniform in [0, 1).
 function Rng:random()

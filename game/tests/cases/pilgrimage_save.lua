@@ -10,6 +10,7 @@ local P = require('src.run.pilgrimage')
 local Pools = require('src.session.world')
 local Save = require('src.storage.save')
 local World = require('src.world.arena')
+local Rng = require('src.core.rng')
 local T = {}
 local FILE = P.file()
 local PREVIOUS = FILE .. '.previous'
@@ -416,6 +417,76 @@ local function replays(check, Game)
   journal = Journal.record(g)
   play(g)
   replay('a session taken up from its field replays', g, journal)
+  -- A way with its own seed (PLAN Z2b): the journal carries it, the replay draws none.
+  clean()
+  g = Game.new('pilgrimage', nil, {
+    seeds = function()
+      return 99
+    end,
+  })
+  journal = Journal.record(g)
+  play(g)
+  check("a journal carries the way's seed", journal.header.options.seed == 99)
+  replay('a way with its own seed replays', g, journal)
+end
+-- How many rolls on from one state of the stream another lies, if within a limit.
+local function ahead(from, state, limit)
+  local stream = Rng:new(from)
+  for rolls = 0, limit do
+    if stream.state == state then
+      return rolls
+    end
+    stream:random()
+  end
+end
+-- A new way's own seed (PLAN Z2b): drawn once in play, kept by its save, and the stream it
+-- starts goes on through a quit at the fire or after a death (D9). QA and tests give no
+-- source: the session's seed 1, as before.
+local function seeds(check, Game)
+  clean()
+  local fixed = Rng:new(1):get()
+  local g = Game.new('pilgrimage')
+  check(
+    "a way with no source of seeds keeps the session's seed",
+    g.run.seed == nil and ahead(fixed, g.rng.sim.state, 10000) ~= nil
+  )
+  local drawn = 0
+  local options = {
+    seeds = function()
+      drawn = drawn + 1
+      return 4242
+    end,
+  }
+  g = Game.new('pilgrimage', nil, options)
+  check(
+    'a new way draws its own seed once and starts its stream from it',
+    drawn == 1 and g.run.seed == 4242 and ahead(Rng.mix(4242), g.rng.sim.state, 10000) ~= nil
+  )
+  g:act('start')
+  run(g, 0.2)
+  for _ = 1, 7 do
+    g.rng.sim:random()
+  end
+  local stood = g.rng.sim.state
+  P.save(g)
+  local back = Game.new('pilgrimage', nil, options)
+  check(
+    'a way taken up keeps its seed, draws none and goes on with its stream',
+    drawn == 1 and back.run.seed == 4242 and back.rng.sim.state == stood
+  )
+  back:act('start')
+  run(back, 0.2)
+  for _ = 1, 7 do
+    back.rng.sim:random()
+  end
+  stood = back.rng.sim.state
+  P.lose(back)
+  local after = Game.new('pilgrimage', nil, options)
+  check(
+    'a way taken up after a death goes on with its stream',
+    drawn == 1 and after.run.seed == 4242 and ahead(stood, after.rng.sim.state, 10000) ~= nil
+  )
+  clean()
 end
 -- A second area on another map: a fire, a post and a door between the two.
 local function areas(check, Game)
@@ -642,7 +713,7 @@ local function resumes(check, Game)
   check('the random stream goes on from where it stood', back.rng.sim.state == stood)
   local payload = love.filesystem.read(FILE):match('^SIGIL%d%d\n[%w_]+\n%d+\n%d+\n(.*)$')
   local way = assert(require('src.core.data_reader').decode(payload, Save.limits)).pilgrimage.data
-  way.field.rng = nil
+  way.field.rng, way.rng, way.seed = nil, nil, nil
   put(FILE, way, 2, 4)
   local older = begin(Game)
   check(
@@ -663,6 +734,7 @@ function T.run(Game)
   timing(check, Game)
   refusals(check, Game)
   replays(check, Game)
+  seeds(check, Game)
   clean()
   return lines
 end

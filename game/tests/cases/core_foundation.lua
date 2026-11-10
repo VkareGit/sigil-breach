@@ -220,6 +220,31 @@ function Tests.run()
     inRange = inRange and a >= 0 and a < 1
   end
   check('a seeded stream repeats exactly and stays in [0, 1)', same and differs and inRange)
+  -- A way's own seed is mixed first (PLAN Z2b): the first rolls of seeds 1 to 1000 spread
+  -- over [0, 1) (unmixed, all 1000 lie under 0.07), each mixed seed its own and never 0.
+  local bins, total, seen, distinct = {}, 0, {}, true
+  for seed = 1, 1000 do
+    local mixed = Rng.mix(seed)
+    distinct = distinct and not seen[mixed] and Rng.validSeed(mixed)
+    seen[mixed] = true
+    local roll = Rng:new(mixed):random()
+    total = total + roll
+    bins[math.floor(roll * 10) + 1] = (bins[math.floor(roll * 10) + 1] or 0) + 1
+  end
+  local even = math.abs(total / 1000 - 0.5) < 0.03
+  for bin = 1, 10 do
+    even = even and (bins[bin] or 0) >= 70 and (bins[bin] or 0) <= 130
+  end
+  check('the first roll of 1000 way seeds spreads over [0, 1)', even and distinct)
+  check(
+    'a way seed is a whole number from 1 to 2^32 - 1',
+    Rng.validSeed(1)
+      and Rng.validSeed(Rng.largest)
+      and not Rng.validSeed(0)
+      and not Rng.validSeed(Rng.largest + 1)
+      and not Rng.validSeed(1.5)
+      and not Rng.validSeed('1')
+  )
 
   -- Timers and serialization.
   local t = { stun = 0.3, flash = 0.05 }
