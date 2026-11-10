@@ -15,4 +15,4 @@ then
   assert(fingerprint and #fingerprint == 64, 'invalid packaged source fingerprint') -- constant: SHA-256 hex
   origin = 'packaged-source-tree'
 end
-return { version = '0.45', sourceFingerprint = fingerprint, provenance = origin }
+return { version = '0.46', sourceFingerprint = fingerprint, provenance = origin }

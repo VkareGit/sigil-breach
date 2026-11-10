@@ -2155,6 +2155,8 @@ scripts/linux/RUN.sh
 | `tools\win\art-contact.ps1` | `tools/linux/art-contact.sh` | arkusze kontaktowe UV |
 | `tools\win\art-crops.ps1` | `tools/linux/art-crops.sh <kind> <frame>` | powiększenia klatek |
 
+`TEST.sh ... --jobs n` (1–8, domyślnie 1) uruchamia zestawy mechaniki jako n fragmentów naraz (`--selftest --shard=i/n`, każdy w osobnym procesie i z własnym katalogiem zapisu `save-<nazwa>`), a obok nich test wejścia i pokaz; narzędzia pomiarowe idą same i po kolei. Raporty fragmentów to `test-results-shard-i-of-n.txt`. Przeciek stanu z jednego zestawu do następnego wykrywa tylko przebieg w jednym procesie, więc paczka (`build.sh`) wymaga dowodu przebiegu `--jobs 1` (`source-selftest`). Przy 4 fragmentach mechanika trwa ok. 2 min zamiast 6; najdłuższy jest teraz pokaz (ok. 8 min).
+
 Wewnętrzne części też mają pary: `project`, `check`, `check-paths`, `check-platform`, `build`, `verify`, `package-check`. Wspólna biblioteka to `tools/linux/project.sh`, a zasady paczki gracza `tools/linux/package.py`.
 
 Na Omarchy okno bez trybu floating może zostać dopasowane do kafelka. Testy kliknięć muszą korzystać z rzeczywistego obszaru interfejsu (`U.viewport`, skala i marginesy), zamiast niezależnie rozciągać współrzędne X/Y. Sonda FOV przy 960×1080 odtworzyła błędne kliknięcie starego testu; po poprawce przechodzi 39 sprawdzeń behavior.
@@ -2168,6 +2170,15 @@ Wyniki idą do `~/Work/tries/sigil-breach-<id>/work/qa`, uruchomienia ręczne be
 Paczka na Linuxa (`BUILD.sh --package`, tylko na prośbę właściciela): `outputs/<nazwa>-Player-Linux` z `game.love`, AppImage LÖVE, `run.sh`, instrukcją i dokumentami pochodzenia oraz `outputs/<nazwa>-Developer-Linux` ze źródłami i narzędziami. `tools/linux/verify.sh` sprawdza sumy i zawartość, uruchamia gracza na 20 s, puszcza bramę Architecture w kopii deweloperskiej i pisze archiwa `.tar.gz`. Paczka EXE i ZIP powstaje tylko na Windows.
 
 Warsztat malowideł `tools/art/chapel_hall/*.py` wymaga opcjonalnie Pillow i NumPy; nie są zależnościami gry ani bramy.
+
+#### Git LFS
+
+Dziś nieużywany (decyzja 2026-11-10). Repozytorium ma ok. 250 MB, z czego obrazy PNG ok. 225 MB, JPG i WAV po ok. 23 MB; `.gitattributes` oznacza je jako binarne. LFS wymaga `git-lfs` na każdym komputerze (Linux i Windows) i limitu przestrzeni na GitHubie. Gdy będzie potrzebny:
+
+1. Na każdym komputerze zainstaluj `git-lfs` (Arch: `pacman -S git-lfs`, Windows: Git for Windows go zawiera) i wykonaj `git lfs install`.
+2. W `.gitattributes` odkomentuj linie `filter=lfs` dla `*.png`, `*.jpg`, `*.wav`.
+3. Tylko nowe i zmienione pliki: zatwierdź `.gitattributes`, a pliki trafią do LFS przy następnej zmianie. Całą historię przenosi `git lfs migrate import --include="*.png,*.jpg,*.wav" --everything`; to przepisuje historię i wymaga wypchnięcia z `--force`, więc tylko na wyraźną decyzję właściciela.
+4. Sprawdź świeży klon: `git lfs ls-files` i jedno uruchomienie gry.
 
 #### Zapisy i przenoszenie komputera
 

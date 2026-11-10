@@ -352,6 +352,9 @@ E0 → F1 → E1 → E2 → F2 → E3 → E4 → E5 → F3 → E6 → F4 → F5 
   zdarzenia, dźwięk wybiera prezentacja (`content/event_cues.lua`), reguła
   SIMULATION SOUND. Golden bez zmian. Dalej w G5: podział
   `run/pilgrimage.lua`, warstwy `render` ↔ `ui` i `session` ↔ `combat`.
+- 2026-11-10, **G6 krok c zrobiony:** wersja 0.46 (nowe sekcje HISTORII),
+  `.gitattributes`, Git LFS opisany i świadomie odłożony. Zostaje z G6:
+  podział pokazu na części (najdłuższy etap bramy).
 - 2026-11-10, **E6 krok e zrobiony (punkt 6 planu Exorcista):** dwa kierunki
   dźwięku strzelby do odsłuchu (`work/sound-ab/exorcist-e6`). Czeka na
   właściciela: wybór A/B, potem punkt 7; nowe gesty z punktu 8.

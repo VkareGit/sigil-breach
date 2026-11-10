@@ -72,6 +72,27 @@ Bieżący stan opisują ARCHITEKTURA.txt, ROZSZERZANIE.txt i DEVELOPMENT.txt.
 
 
 ########################################################################
+ZMIANY-0.46.txt
+SIGIL: BREACH 0.46 / silnik ciała, fundament kodu i porządki (PLAN E, F, G)
+
+Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
+kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
+poniżej, bo powstawały, zanim podniesiono numer.
+
+- G6c, wersja 0.46 i atrybuty plików, 2026-11-10 (decyzje właściciela:
+  numer 0.46; Git LFS według uznania wykonawcy): `src/core/build.lua` podaje
+  0.46 (menu pokazuje THE CHAPEL / 0.46; zapisy gry nie zależą od numeru,
+  dzienniki tworzone są w biegu). `.gitattributes` oznacza jako binarne także
+  JPG, WEBP, WAV i ICO, które dotąd git tylko rozpoznawał. Git LFS świadomie
+  nie włączony: repozytorium ma ok. 250 MB (PNG ok. 225 MB), a LFS wymaga
+  git-lfs na każdym komputerze i limitu na GitHubie; włączenie tylko po
+  instalacji, inaczej klon bez git-lfs czytałby wskaźniki jako obrazy.
+  Gotowe linie są zakomentowane w `.gitattributes`, kroki (także przeniesienie
+  historii, tylko na wyraźną decyzję) w `docs/TECHNIKA.md` (Linux: Git LFS).
+  TECHNIKA opisuje też `TEST.sh --jobs n`. Następny krok G6: podział pokazu.
+
+
+########################################################################
 ZMIANY-0.45.txt
 SIGIL: BREACH 0.45 / plan z 3 listopada wieczorem (docs/PLAN.md, decyzje D11–D20)
 
@@ -5023,6 +5044,16 @@ wtedy sprawdzono i czego nie zamknięto.
 Nowa wersja: dopisz na samej górze sekcję ODBIOR-<wersja>.txt. BUILD.ps1
 odmawia budowy, gdy sekcji bieżącej wersji brakuje. Odbiór B2 (ocena
 gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
+
+
+########################################################################
+ODBIOR-0.46.txt
+SIGIL: BREACH 0.46: odbiór
+
+- G6c, wersja 0.46 i atrybuty plików, 2026-11-10: rendery pokazu: poza 23 scenami zmienionymi w E2e zmieniło się tylko 6 obrazów menu (numer wersji 0.46).
+  Pełne Linux All PASS w osobnym klonie: 9285 sprawdzeń, golden 10 PASS.
+  Windows niesprawdzony; jego wzorzec golden (E2e) i odbiór 0.46 należą do
+  właściciela.
 
 
 ########################################################################
