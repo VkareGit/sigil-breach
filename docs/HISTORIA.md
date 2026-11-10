@@ -81,6 +81,25 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z10b, limit głosów kroków i skrzydeł, 2026-11-10 (audyt silnika):
+  `content/audio_mix.lua` ma `crowd`: najwyżej 18 kroków i 4 skrzydła
+  naraz (głos kroku nienazwany w `of` jest krokiem). `audio/world_cues.lua`
+  zbiera kroki klatki, a gdy jest ich więcej niż miejsca w kategorii,
+  milkną najdalsze; brzmiące zachowują kolejność ciał, więc klatka
+  w granicach gra jak przedtem (te same losowania nagrań). Głos, który
+  jeszcze brzmi, trzyma swoje miejsce.
+- Z10a, indeks przestrzenny zapytań SI: niewdrożony, bez zmierzonego
+  zysku (2026-11-10). Profil kroku symulacji (próbkowanie `jit.profile`,
+  mapa `qa_crowd`, 600 kroków): 96 ciał 1,66 ms na krok, 256 ciał 5,31 ms.
+  Zapytania przestrzenne i kolizje (`physics/spatial.lua`,
+  `physics/collision.lua`) to ok. 3–8 % kroku. Gorącym miejscem jest
+  `crowded` w `enemies/ai.lua:86`: każde ciało przechodzi całą pulę,
+  licząc atakujących ten sam cel, O(n²), 22 % kroku przy 256 ciałach
+  (9 % przy 96); indeks przestrzenny go nie dotyczy. Licznik atakujących
+  na cel mógłby oszczędzić ok. jednej piątej kroku przy 256 ciałach, ale
+  zmienia moment odczytu w ramach kroku (ciała zmieniają stan po kolei),
+  więc wynik bit w bit wymaga osobnego projektu: decyzja właściciela.
+
 - Z9, etapy przeładowania jako rodzaje, 2026-11-10 (audyt silnika):
   `combat/reload.lua` ma rejestr rodzajów etapu (`R.stages`): `open`,
   `load`, `close` robią to samo co dotąd, nowy `round` ładuje jeden nabój
@@ -5172,6 +5191,23 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z10, granice przy tłumie, 2026-11-10. b) Pomiar sondą (prawdziwy
+  mikser, zastępcze źródła trwające tyle co nagranie, 60 s, rycerz
+  w nawie): kroki naraz 10, skrzydła 3 przy załodze jak stoi; 18 i 3
+  przy wszystkich obudzonych; 22 i 4 z 12 dodatkowymi Ember Thrallami;
+  24 i 6 z 40 dodatkowymi ciałami (ograniczone wtedy tylko budżetem 28
+  głosów). Nowe sprawdzenia w `weapons` (`tests/cases/audio.lua`): 30
+  kroków naraz brzmi 18 najbliższymi, 6 skrzydeł 4; kolejne kroki czekają,
+  dopóki tamte brzmią, potem brzmią najbliższe; dzisiejsza kaplica
+  z wszystkimi obudzonymi przez 20 s daje tę samą sekwencję głosów co bez
+  limitu. Przed zmianą czerwone (ze starym `world_cues.lua` i nowym
+  `crowd`: „thirty steps at once…”), po zmianie `weapons` 475 PASS.
+  Odsłuch należy do właściciela. a) Niewdrożone, pomiar w ZMIANACH.
+  Rendery pokazu: 782 PNG identyczne bajt w bajt z bramą Z9. Brama Linux
+  zielona: 9453 sprawdzenia w 4 częściach, showcase, Tools,
+  `startup-check`, `resource-plateau`, `measure-trial` PASS. Golden bez
+  zmian. Windows niesprawdzony.
 
 - Z9, ładowanie po jednym naboju, 2026-11-10: nowy test w
   `weapon-extension` definiuje fikcyjną broń z rurą na 4 naboje

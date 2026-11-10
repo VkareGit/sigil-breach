@@ -96,6 +96,116 @@ function Tests.run()
   C.update(fake, g, 0.01)
   check('an airborne stride produces no ground contact', #calls == 1)
   C.reset()
+  -- A crowd's steps and wings (PLAN Z10b): at most Mix.crowd.voices of each category sound
+  -- at once, the nearest first, and a voice still sounding holds its place.
+  local Mix = require('src.content.audio_mix')
+  local crowd = Fixtures.arena(Game)
+  local q = crowd.player
+  local walkers, fliers = {}, {}
+  for i = 1, 30 do
+    local e = crowd:spawn('imp', q.x + 1 + i * 0.4, q.z + 0.5)
+    e.spawnAge, e.walkSpeed, e.walk = 1, 2, 0
+    walkers[i] = e
+  end
+  for i = 1, 6 do
+    local e = crowd:spawn('stolas', q.x - 1 - i * 0.5, q.z - 0.5)
+    e.spawnAge, e.walkSpeed, e.walk = 1, 2, 0
+    fliers[i] = e
+  end
+  local heard, held = {}, {}
+  local listening = {
+    playAt = function(_, _, _, _, _, _, _, _, body)
+      heard[#heard + 1] = body
+      local source = {}
+      held[source] = true
+      return source, 1
+    end,
+    ownsVoice = function(source)
+      return held[source] == true
+    end,
+    stopVoice = function(source)
+      held[source] = nil
+    end,
+    loopVoice = function() end,
+  }
+  local function stride(index)
+    heard = {}
+    for _, e in ipairs(walkers) do
+      e.walk = index
+    end
+    for _, e in ipairs(fliers) do
+      e.walk = index
+    end
+    C.update(listening, crowd, 0.01)
+  end
+  stride(0)
+  stride(1)
+  local steps, wings, nearest = 0, 0, true
+  for _, body in ipairs(heard) do
+    if require('src.content.enemies').of(body).id == 'stolas' then
+      wings = wings + 1
+    else
+      steps = steps + 1
+      nearest = nearest and body == walkers[steps]
+    end
+  end
+  check(
+    'thirty steps at once sound their nearest eighteen, six wings their four',
+    steps == Mix.crowd.voices.steps and wings == Mix.crowd.voices.wings and nearest
+  )
+  stride(2)
+  check('while they sound, the next strides wait', #heard == 0)
+  held = {}
+  stride(3)
+  check('once they ended, the nearest sound again', #heard == steps + wings)
+  C.reset()
+  -- Today's chapel, every body awake and on the knight for twenty seconds: its steps are
+  -- the same with the crowd's room as without it.
+  local Recipes = require('src.audio.recipes')
+  local function chapel()
+    local way = Game.new('pilgrimage', nil, { origin = false })
+    way.ephemeral = true
+    way:act('start')
+    way.state = 'playing'
+    local knight = way.player
+    knight.x, knight.z = 24, 24
+    for _, e in ipairs(require('src.session.world').of(way, 'enemies')) do
+      e.awake, e.memory, e.leash = true, 60, 200
+    end
+    local now, order, voices = 0, {}, {}
+    local ear = {
+      playAt = function(name, _, _, _, _, _, _, _, body)
+        order[#order + 1] = string.format('%.4f %s %s', now, name, tostring(body and body.id))
+        local source = { ends = now + ((Recipes[name] or {}).duration or 0.5) }
+        voices[source] = true
+        return source, 1
+      end,
+      ownsVoice = function(source)
+        return voices[source] == true and now < source.ends
+      end,
+      stopVoice = function(source)
+        voices[source] = nil
+      end,
+      loopVoice = function() end,
+    }
+    for _ = 1, 20 * 120 do
+      now = now + 1 / 120
+      way:update(1 / 120, {})
+      knight.hp = knight.maxHp
+      C.update(ear, way, 1 / 120)
+    end
+    C.reset()
+    return order
+  end
+  local limited = chapel()
+  local voices = Mix.crowd.voices
+  Mix.crowd.voices = { steps = math.huge, wings = math.huge }
+  local ok, free = pcall(chapel)
+  Mix.crowd.voices = voices
+  check(
+    "today's chapel, every body awake, steps as it did before the crowd's room",
+    ok and #limited > 100 and table.concat(limited, '\n') == table.concat(free, '\n')
+  )
   -- Every recipe is a sound; the knight's movement has its own voices.
   local Recipes = require('src.audio.recipes')
   local all = true

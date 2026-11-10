@@ -46,6 +46,11 @@ return {
   -- than walk and lower than airborne.
   flight = { reach2 = 25, own = 0.22, other = 0.12 },
   step = { reach2 = 400, base = 0.16, perMass = 0.09, most = 0.5, walk = 0.15, airborne = 0.05 },
+  -- The bodies' steps and wings sounding at once, by category, the nearest first (PLAN
+  -- Z10b): a crowd leaves the rest of the voices to warnings and blows. A step voice not
+  -- named in `of` is a step. Today's chapel with every body awake reaches 18 steps and 3
+  -- wings at once (measured), so it never meets these.
+  crowd = { voices = { steps = 18, wings = 4 }, of = { owl_wings = 'wings', wing_fold = 'wings' } },
   -- The scene's pressure: enemies count within reach, their nearness over
   -- near, their weight and a committed blow's; the share of the knight's
   -- lost health; a full health where the viewer names none.

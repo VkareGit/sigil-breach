@@ -11,6 +11,8 @@ local Profiles = require('src.audio.creature_profiles')
 local FieldVoices = require('src.audio.field_voices')
 local C = {}
 local sessions = setmetatable({}, { __mode = 'k' })
+-- The steps that fall in one frame, before they sound (scratch, reused).
+local falling, room = {}, {}
 function C.reset()
   sessions = setmetatable({}, { __mode = 'k' })
   BodyVoices.reset()
@@ -29,8 +31,61 @@ function C.restored(audio, g)
     feet = setmetatable({}, { __mode = 'k' }),
     flights = flights,
     ambient = {},
+    crowd = {},
     world = g.world,
   }
+end
+-- The steps of a frame sound within the crowd's room of each category (content/audio_mix.lua:
+-- crowd, PLAN Z10b): voices still sounding hold their place; when more fall than there is
+-- room for, the nearest sound. Those that sound keep the order of the bodies, so a frame
+-- within the room plays as it did before the limit.
+local function sound(audio, g, p, state, count)
+  local owns, crowd = audio.ownsVoice, state.crowd
+  for category, held in pairs(crowd) do
+    for i = #held, 1, -1 do
+      if not (owns and owns(held[i].source, held[i].ticket)) then
+        table.remove(held, i)
+      end
+    end
+    room[category] = Mix.crowd.voices[category] - #held
+  end
+  for i = 1, count do
+    local step = falling[i]
+    step.category = Mix.crowd.of[step.voice] or 'steps'
+    step.heard = true
+    room[step.category] = room[step.category] or Mix.crowd.voices[step.category]
+  end
+  for category, left in pairs(room) do
+    -- The farthest first fall silent until the rest fit.
+    local wanted = 0
+    for i = 1, count do
+      wanted = wanted + (falling[i].category == category and 1 or 0)
+    end
+    while wanted > math.max(0, left) do
+      local far
+      for i = 1, count do
+        local step = falling[i]
+        if step.heard and step.category == category and (not far or step.d2 > far.d2) then
+          far = step
+        end
+      end
+      far.heard, wanted = false, wanted - 1
+    end
+    room[category] = nil
+  end
+  for i = 1, count do
+    local step = falling[i]
+    if step.heard then
+      local source, ticket =
+        audio.playAt(step.voice, step.e.x, step.e.z, p, step.level, 0, g.world, nil, step.e)
+      if source then
+        crowd[step.category] = crowd[step.category] or {}
+        local held = crowd[step.category]
+        held[#held + 1] = { source = source, ticket = ticket }
+      end
+    end
+    step.e = nil
+  end
 end
 -- Same distance clock and frame cycle as the painted walk, two contacts/cycle.
 function C.stepIndex(e)
@@ -61,6 +116,7 @@ function C.update(audio, g, dt)
       feet = setmetatable({}, { __mode = 'k' }),
       flights = setmetatable({}, { __mode = 'k' }),
       ambient = {},
+      crowd = {},
       world = g.world,
     }
     sessions[root] = state
@@ -69,6 +125,7 @@ function C.update(audio, g, dt)
     sessions[root] = nil
     return C.update(audio, g, dt)
   end
+  local count = 0
   for _, e in ipairs(Pools.of(g, 'enemies')) do
     local now, clock = C.stepIndex(e)
     local before = state.feet[e]
@@ -87,22 +144,17 @@ function C.update(audio, g, dt)
       and moving
       and (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2 < Mix.step.reach2
     then
-      audio.playAt(
-        voice,
-        e.x,
-        e.z,
-        p,
-        math.min(Mix.step.most, Mix.step.base + def.body.mass * Mix.step.perMass),
-        0,
-        g.world,
-        nil,
-        e
-      )
+      count = count + 1
+      local step = falling[count] or {}
+      falling[count] = step
+      step.voice, step.e, step.d2 = voice, e, (e.x - p.x) ^ 2 + (e.z - p.z) ^ 2
+      step.level = math.min(Mix.step.most, Mix.step.base + def.body.mass * Mix.step.perMass)
     end
     local entry = before or {}
     entry.index, entry.clock, entry.x, entry.z = now, clock, e.x, e.z
     state.feet[e] = entry
   end
+  sound(audio, g, p, state, count)
   for _, b in ipairs(Pools.of(g, 'projectiles')) do
     if not state.flights[b] and (b.x - p.x) ^ 2 + (b.z - p.z) ^ 2 < Mix.flight.reach2 then
       state.flights[b] = true

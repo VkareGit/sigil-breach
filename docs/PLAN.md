@@ -140,6 +140,10 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z10 zrobione:** b) limit 18 kroków i 4 skrzydeł naraz,
+  najbliższe pierwsze, kaplica bez zmian; a) indeks przestrzenny
+  niewdrożony (zapytania przestrzenne 3–8 % kroku; gorące jest `crowded`,
+  O(n²), 22 % przy 256 ciałach: decyzja właściciela).
 - 2026-11-10, **Z9 zrobione:** rejestr rodzajów etapu przeładowania,
   ładowanie po naboju z przerwaniem strzałem; broń próbna z zapisem w
   trakcie przeładowania. Golden bez zmian.
