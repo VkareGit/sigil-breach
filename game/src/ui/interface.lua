@@ -65,6 +65,11 @@ function U.init(checkpoint)
   -- HUD numerals are part of the UI load, not a surprise upload when the
   -- first catalogue closes and gameplay becomes visible.
   PaintedNumbers.init(checkpoint)
+  -- So are the menu's painted titles (PLAN Z8: its first frame loaded them).
+  PaintedTitles.init()
+  if checkpoint then
+    checkpoint('painted titles')
+  end
   U.faces = {}
   U.faceQuads = {}
   U.faceResources = Resources.new('UI creature portraits', checkpoint)

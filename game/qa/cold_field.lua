@@ -26,6 +26,16 @@ function ColdField.run(app, output, lines, check)
       (clock() - menuStarted) * 1000,
       fileImages - menuImages
     )
+    -- What the menu draws was uploaded behind the loading page (PLAN Z8).
+    local late = {}
+    for index = menuImages + 1, fileImages do
+      late[#late + 1] = filePaths[index]
+    end
+    check(
+      'the ready menu loads no image of its own'
+        .. (#late > 0 and ': ' .. table.concat(late, ', ') or ''),
+      #late == 0
+    )
     local menu, pending = app.game, 0
     local start, firstFiles = clock(), fileImages
     app:action('field_start')

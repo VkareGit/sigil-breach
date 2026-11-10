@@ -140,6 +140,10 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z8 zrobione:** budżet pracy wczytywania na klatkę
+  (8 ms) i obrazy menu przez plan; gotowość w bramie 22,3 s → 14,0 s,
+  pierwsza klatka menu 4,8 s → 64 ms. Zwalnianie obrazów obszaru: warianty
+  w HISTORII, decyzja właściciela.
 - 2026-11-10, **Z7 zrobione:** stan rodzaju zagrożenia deklarowany przez
   rodzaj z wersją i migracją, haki rodzaju zamiast porównań nazw w
   prezentacji. Golden, rendery i dźwięk identyczne.

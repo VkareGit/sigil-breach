@@ -290,6 +290,7 @@ function Application:beginStartup()
         checkpoint('art contracts')
         self.renderer = Renderer.new(checkpoint)
         self.renderer:resize(love.graphics.getDimensions())
+        self.renderer:prepareSupplies(checkpoint)
       end,
     },
   })
@@ -327,8 +328,9 @@ function Application:finishStartup()
     end
   end
   -- The chapel stands behind the menu: it is prepared on the loading page, not in the
-  -- menu's first frame. A capture measures its own stages.
-  self:reset(false, not self.qa.capture)
+  -- menu's first frame. A capture measures its own stages; the startup check measures
+  -- the player's (PLAN Z8).
+  self:reset(false, not self.qa.capture or self:has('--startup-fixture'))
   if self.qa.capture then
     Audio.muted = true
     love.audio.stop()

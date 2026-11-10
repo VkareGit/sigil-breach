@@ -98,6 +98,21 @@ local function pack(path)
   packs[path] = packs[path] or love.graphics.newImage(path, { mipmaps = true })
   return packs[path]
 end
+-- Every painted supply, behind the loading page (PLAN Z8): the first frame that showed a
+-- pack loaded it.
+function Art.prepareSupplies(checkpoint)
+  for id, supply in Supplies:each() do
+    if supply.image then
+      pack(supply.image)
+    end
+    for _, path in pairs(supply.images or {}) do
+      pack(path)
+    end
+    if checkpoint then
+      checkpoint(id)
+    end
+  end
+end
 function Art.pickup(r, g, a)
   local supply = Supplies:get(a.kind)
   local seal = supply.seals and supply.seals[a.offer]

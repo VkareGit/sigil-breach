@@ -155,6 +155,9 @@ return {
   -- The damage trail on a target's bar: its sum holds trailHold s after the last blow, then
   -- the pale share falls trailFall of the bar per s.
   clocks = {
+    -- The work one displayed loading frame may do before it is shown again (s, PLAN Z8):
+    -- short slices go on in the same frame; one slice is never cut.
+    loadingWork = 0.008,
     -- The longest stretch of time one frame may ask the simulation for (s),
     -- the wait before a drawn weapon may fire (s), and the input below which
     -- a dodge takes the view's direction (share of a full stick).

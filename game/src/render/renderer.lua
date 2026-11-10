@@ -18,7 +18,7 @@ local Camera = require('src.render.camera')
 -- What stands in the world besides the bodies draws by registration
 -- (render/world_objects.lua); the renderer never names a kind of it.
 local WorldObjects = require('src.render.world_objects')
-require('src.render.world_art')
+local WorldArt = require('src.render.world_art')
 local Archetypes = require('src.content.enemies')
 local R = {}
 local Batch = require('src.render.batch')
@@ -566,6 +566,9 @@ function R:behind(x, y, z, margin)
   return (x - c[1]) * f[1] + (y - c[2]) * f[2] + (z - c[3]) * f[3] < -margin
 end
 -- The art of these creatures, on the loading page instead of on first sight.
+function R:prepareSupplies(checkpoint)
+  WorldArt.prepareSupplies(checkpoint)
+end
 function R:prepareCreatures(ids, checkpoint)
   for _, id in ipairs(ids) do
     local _ = self.frames[Archetypes.get(id).appearance.atlas]

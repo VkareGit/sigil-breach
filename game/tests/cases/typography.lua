@@ -63,15 +63,19 @@ function T.run(check)
     'unsupported glyph retains the compatible question-mark fallback',
     fonts[16]:getWidth(utf8.char(0x2603)) == fonts[16]:getWidth('?')
   )
-  -- Two long runs of changing clock/counter labels must retain only a working
+  -- Long runs of changing clock/counter labels must retain only a working
   -- set. Check real bounds after eviction and retained heap, not just metadata.
+  -- The heap is compared between the second and third run: the first two may grow
+  -- LuaJIT's string table once (a power-of-two resize, 512 KiB at 64K strings),
+  -- which depends on how many strings the process holds, not on the cache (owner,
+  -- PLAN Z8).
   local font = fonts[16]
-  for i = 1, 10000 do
+  for i = 1, 20000 do
     font:getInk(string.format('%d:%02d / SOULS %d', math.floor(i / 60), i % 60, i * 17))
   end
   collectgarbage('collect')
   local firstHeap = collectgarbage('count')
-  for i = 10001, 20000 do
+  for i = 20001, 30000 do
     font:getInk(string.format('%d:%02d / SOULS %d', math.floor(i / 60), i % 60, i * 17))
   end
   collectgarbage('collect')
@@ -81,7 +85,7 @@ function T.run(check)
     retained = retained + 1
   end
   check(
-    '20000 dynamic bitmap strings retain at most 256 entries and no growing heap ('
+    '30000 dynamic bitmap strings retain at most 256 entries and no growing heap ('
       .. string.format('%.2f KiB', heapGrowth)
       .. ')',
     retained <= 256 and #font.inkCacheKeys <= 256 and heapGrowth < 32

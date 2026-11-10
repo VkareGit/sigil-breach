@@ -45,12 +45,16 @@ function Check.run(output)
     app.renderer and app.game and app.game.state == 'menu' and not app.bootstrap
   )
   local report = app.lastStartupReport
-  check('audio, UI and renderer yield actual intermediate steps', report.steps > 30 and report.done)
+  check(
+    'audio, UI and renderer yield actual intermediate steps',
+    report.slices > 30 and report.done
+  )
   lines[#lines + 1] = string.format(
-    'New process load to first displayed loading image: %.3f ms; ready: %.3f ms; slices: %d; largest: %.3f ms',
+    'New process load to first displayed loading image: %.3f ms; ready: %.3f ms; frames: %d; slices: %d; largest: %.3f ms',
     firstImage * 1000,
     (love.timer.getTime() - started) * 1000,
     report.steps,
+    report.slices,
     report.maxStep * 1000
   )
   local costs = {}
@@ -155,6 +159,9 @@ function Check.run(output)
   local baseline = love.graphics.getStats()
   local midway = Application.new()
   midway:load({ '--startup-fixture' })
+  -- One slice a frame, so it stops inside the renderer's constructor (PLAN Z8: a frame
+  -- otherwise goes on through slices within its budget).
+  midway.loading.budget = 0
   for _ = 1, 500 do
     local plan = midway.loading
     local last = plan and plan.timings[#plan.timings]

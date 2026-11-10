@@ -81,6 +81,29 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z8, wczytywanie z budżetem czasu na klatkę, 2026-11-10 (audyt silnika):
+  `LoadPlan:step` (`app/load_plan.lua`) wykonuje kolejne porcje pracy
+  w jednej wyświetlonej klatce, dopóki nie wyczerpie budżetu
+  `Tuning.clocks.loadingWork` (8 ms, `content/tuning.lua`); porcji nie
+  tnie, więc największa porcja nadal ogranicza klatkę. `steps` liczy
+  klatki z pracą, `slices` każde wznowienie. Obrazy menu idą przez plan:
+  malowane tytuły w `UI.init`, malowane zapasy (`renderer:prepareSupplies`)
+  w etapie świata, a sprawdzenie startu przygotowuje kaplicę za menu jak
+  gra gracza (zrzuty nadal mierzą własne etapy). Zwalnianie obrazów
+  obszaru: bez zmian, warianty niżej do decyzji właściciela.
+- Z8, zwalnianie obrazów obszaru, warianty do decyzji właściciela
+  (2026-11-10, nic nie wdrożone). Dziś obrazy sal, fresków i zapasów
+  zostają w pamięci przez całe życie renderera (pomiar audytu: 139
+  obrazów, 814 MiB VRAM naraz, Intel Arc). Wariant A: zostawić (koszt:
+  pamięć rośnie z każdą nową mapą; powrót bez wczytywania). Wariant B:
+  przy zmianie mapy zwalniać obrazy sal i fresków, których nowa mapa nie
+  używa (koszt: powrót na mapę wczytuje je znów za stroną wczytywania,
+  dziś ok. 2,5 s dla zimnego pola; trzeba liczyć użycie wspólnych
+  obrazów). Wariant C: limit VRAM z wyrzucaniem najdawniej używanych
+  (koszt: najwięcej kodu i ryzyko wczytania w trakcie gry, które test
+  „no deferred image allocation” dziś wyklucza). Przy jednej mapie
+  kaplicy żaden wariant nie zmienia dziś zachowania.
+
 - Z7, stan rodzaju zagrożenia deklaruje sam rodzaj, 2026-11-10 (audyt
   silnika): każdy rodzaj w `content/hazards.lua` deklaruje pola, które
   trzyma na znaku (`state`, z wygładzaniem jak w komponencie), wersję
@@ -5136,6 +5159,36 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z8, start i wczytywanie, 2026-11-10: nowe sprawdzenie w `load-plan`
+  (krótkie porcje idą w jednej klatce, długa ją kończy; następna klatka
+  idzie dalej) czerwone przed, zielone po (11 PASS). Nowe sprawdzenie
+  w `--startup-check` („the ready menu loads no image of its own”):
+  przed zmianą czerwone z listą 56 obrazów (34 sale kaplicy, 17 fresków,
+  2 zapasy, flaszka, tytuły), po zmianie 0. Pomiar `--startup-check`
+  w bramie (obok równoległych części): gotowość 22,3 s, 330 porcji →
+  14,0 s, 111 klatek, 336 porcji, i te 14,0 s obejmują już przygotowanie
+  kaplicy za menu; pierwsza klatka menu 4770 ms → 64 ms; zimne pole 38
+  klatek wczytywania, 2,9 s → 18 klatek, 2,8 s. Osobno, bez bramy:
+  gotowość 9,0 s, pierwsza klatka menu 12,6 ms. Największa porcja bez
+  zmian (ok. 150 ms, dekodowanie PNG i wgranie są niepodzielne). Okno QA
+  jest dławione przez kompozytor (ok. 1 klatka/s), więc liczby z
+  widocznego okna 60 Hz będą inne; nie mierzone. Fikstura anulowania w środku
+  konstruktora renderera ustawia swojemu planowi budżet 0 (porcja na
+  klatkę), żeby nadal zatrzymać się w konstruktorze.
+  Pierwsza brama była czerwona w pokazie: test typografii (pamięć między
+  dwiema seriami po 10 000 napisów) pokazał +511,88 KiB. Przyczyna:
+  tytuły wczytane w `UI.init` zwiększają liczbę napisów w procesie, a przy
+  ok. 64 tys. napisów LuaJIT podwaja tablicę napisów (czysty LuaJIT:
+  ta sama pętla bez wycieku +512,92 KiB przy 65 500 żywych napisach,
+  +1024,92 KiB przy 131 000); z leniwymi tytułami −0,12 KiB. Za zgodą
+  właściciela test mierzy przyrost między drugą a trzecią serią
+  (rozgrzewka 20 000 napisów, pomiar na kolejnych 10 000); granice
+  256 wpisów i 32 KiB bez zmian.
+  Rendery pokazu: 782 PNG identyczne bajt w bajt z bramą Z7. Brama Linux
+  zielona: 9441 sprawdzeń w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Okno gracza
+  nieoglądane; Windows niesprawdzony.
 
 - Z7, rodzaj zagrożenia samymi rejestrami, 2026-11-10: nowy test
   w `extension` dodaje rodzaj `trial_drift` samymi wpisami rejestrów

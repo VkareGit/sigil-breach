@@ -46,6 +46,42 @@ function Tests.run()
     'diagnostics retain maximum slice and stage',
     math.abs(plan.maxStep - 0.02) < 1e-8 and plan.timings[1].detail == 'decoded'
   )
+  -- A displayed frame does work up to its budget (content/tuning.lua: clocks.loadingWork,
+  -- PLAN Z8): short slices go on in the same frame, a long one ends it.
+  local budget = require('src.content.tuning').clocks.loadingWork
+  local slices, clock = 0, 0
+  local short = Plan.new('short', {
+    {
+      run = function(checkpoint)
+        for _ = 1, 5 do
+          slices = slices + 1
+          clock = clock + budget / 10
+          checkpoint('short')
+        end
+      end,
+    },
+    {
+      run = function()
+        slices = slices + 1
+        clock = clock + budget * 2
+      end,
+    },
+    {
+      run = function()
+        slices = slices + 1
+      end,
+    },
+  }, function()
+    return clock
+  end)
+  short.shown = true
+  short:step()
+  check(
+    'short slices of work go on in one displayed frame, a long one ends it',
+    slices == 6 and short.remaining == 1 and short.steps == 1 and short.slices == 7
+  )
+  short.shown = true
+  check('the next frame goes on from there', short:step() and slices == 7 and short.steps == 2)
   local attempts = 0
   local broken = Plan.new('failure', {
     {
