@@ -140,6 +140,8 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z5 zrobione:** `MEASURE.sh` mierzy klatkę na mapie
+  `qa_crowd`; `--trial` w bramie Linux (Tools). Bez zmian gry.
 - 2026-11-10, **Z3 zrobione:** porzucona sesja zwalniana po kroku rycerza;
   `--resource-plateau` (3 cykle) w bramie Linux. Golden bez zmian.
 - 2026-11-10: plan Z1–Z13 przyjęty, poprzedni PLAN i streszczenie audytu

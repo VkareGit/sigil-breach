@@ -81,6 +81,18 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z5, `MEASURE.sh` z domyślnymi populacjami, 2026-11-10 (audyt silnika):
+  faza `--benchmark` nie dostawała `SIGIL_CROWD_MAP`, więc 256 ciał nie
+  mieściło się w arenie i protokół kończył się błędem (Windows ustawia
+  zmienną na cały proces). Teraz klatka jest mierzona na tej samej mapie
+  `qa_crowd` co krok. Nowa opcja `--trial` przechodzi cały protokół
+  z profilem smoke narzędzi i kilkoma krokami i klatkami (liczby to nie
+  pomiar); brama Linux (Tools i All) uruchamia `MEASURE.sh --pairs 1
+  --trial` jako `measure-trial` i wymaga klatki 256 ciał w podsumowaniu.
+  Próba stoi w Tools, nie w Architecture: Architecture nie rysuje i ma być
+  szybka, a każde uruchomienie narzędzia czeka na plan wczytania (Z8).
+  Windows bez zmian.
+
 - Z3, porzucona sesja nie zostaje w pamięci, 2026-11-10 (audyt silnika):
   tablica robocza kroku rycerza (`player/feel.lua`) trzymała rycerza
   i widok ostatniej sesji, która wykonała krok, więc porzucona sesja kaplicy
@@ -5060,6 +5072,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z5, `MEASURE.sh`, 2026-11-10: `MEASURE.sh --pairs 1 --trial` z domyślnymi
+  populacjami 20,96,256 przed zmianą exit 1 w fazie benchmarku
+  („diagnostic population does not fit the arena”), po zmianie exit 0
+  i klatka 256 ciał w podsumowaniu. Próba trwa ok. 17 min na tej maszynie:
+  okno QA dostaje teraz ok. 1 klatkę na sekundę (w bramie Z3 `startup-check`
+  doszedł do gotowości po 330 porcjach w 329,6 s; audyt mierzył 22,2 s),
+  a każde z czterech uruchomień czeka na plan wczytania (Z8). Brama skryptu:
+  Architecture PASS, Input PASS. Wpięcie `measure-trial` w `TEST.sh`
+  sprawdzi pierwsza pełna brama (Z2a). Windows niesprawdzony.
 
 - Z3, porzucona sesja, 2026-11-10: nowy test `runtime-contracts` (sesja po
   kroku porzucona i zebrana, z `jit.off`, potem `jit.flush`) czerwony przed

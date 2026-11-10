@@ -2148,7 +2148,7 @@ scripts/linux/RUN.sh
 | `.\scripts\win\FORMAT.ps1 [-Check]` | `scripts/linux/FORMAT.sh [--check]` | StyLua |
 | `.\scripts\win\TEST.ps1 -Suite All -TestTimeoutSeconds 1800` | `scripts/linux/TEST.sh All --timeout 1800` | pełna brama; także `Architecture`, `Mechanics`, `Input`, `Render`, `Tools` |
 | `.\scripts\win\BUILD.ps1 [-Package]` | `scripts/linux/BUILD.sh [--package]` | testy i paczki |
-| `.\scripts\win\MEASURE.ps1` | `scripts/linux/MEASURE.sh --before A --after B` | protokół pomiaru |
+| `.\scripts\win\MEASURE.ps1` | `scripts/linux/MEASURE.sh --before A --after B` | protokół pomiaru (`--trial`: próbny przebieg z bramy, nie pomiar) |
 | `.\scripts\win\BAKE-HIT-MASKS.ps1` | `scripts/linux/BAKE-HIT-MASKS.sh` | maski trafień |
 | `.\scripts\win\CHECK-CREATURE.ps1 <id>` | `scripts/linux/CHECK-CREATURE.sh <id>` | kompletność demona |
 | `.\scripts\win\EXPORT-SHEET.ps1 <id>` | `scripts/linux/EXPORT-SHEET.sh <id>` (`--spec plik`) | arkusz atlasu |

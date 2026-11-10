@@ -7,15 +7,26 @@
 #   REGRESSION      median after > 1.05 x before and the gap > both IQR
 #   INCONCLUSIVE    anything else (repeat with more pairs; still inconclusive is a regression)
 # Usage: scripts/linux/MEASURE.sh [--before tree] [--after tree] [--pairs n]
-#                                 [--populations 20,96,256] [--out dir]
+#                                 [--populations 20,96,256] [--out dir] [--trial]
+# --trial walks the whole protocol with the tools' smoke profile and a few steps and frames
+# (the script check runs it); its numbers are not a measurement.
 source "$(dirname -- "${BASH_SOURCE[0]}")/../../tools/linux/project.sh"
 before=game
 after=''
 pairs=5
 populations=20,96,256
 out=''
+warmup=300
+steps=2400
+frames=720
+trial=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --trial)
+      warmup=10 steps=60 frames=30 trial=(--qa-smoke)
+      shift
+      continue
+      ;;
     --before) before=$2 ;;
     --after) after=$2 ;;
     --pairs) pairs=$2 ;;
@@ -43,7 +54,8 @@ fi
 pinned() { # tree flag log
   local tree=$1 flag=$2 log=$3
   (cd -- "$SIGIL_ROOT" \
-    && timeout --kill-after=10 1800 "${priority[@]}" "${prefix[@]}" "$runtime" "$tree" "$flag") \
+    && timeout --kill-after=10 1800 "${priority[@]}" "${prefix[@]}" "$runtime" "$tree" "$flag" \
+      ${trial[@]+"${trial[@]}"}) \
     > "$log" 2> "$log.stderr.txt" || die "$flag failed in $tree; see $log"
 }
 measure() { # variant tree index
@@ -52,7 +64,7 @@ measure() { # variant tree index
     dir="$out/$variant/core-$count-$index"
     mkdir -p "$dir"
     SIGIL_UI_QA_DIR=$dir SIGIL_CORE_POPULATION=$count SIGIL_CROWD_MAP=qa_crowd \
-      SIGIL_CORE_WARMUP=300 SIGIL_CORE_STEPS=2400 SIGIL_CORE_JOURNAL_SECONDS=1 \
+      SIGIL_CORE_WARMUP=$warmup SIGIL_CORE_STEPS=$steps SIGIL_CORE_JOURNAL_SECONDS=1 \
       pinned "$tree" --core-measure "$dir/stdout.txt"
     line=$(sed -n '/step: [0-9]* bodies awake/{s/.*step: \([0-9]*\) bodies awake; whole simulation step median \([0-9.]*\) ms.*/\1 \2/p;q}' \
       "$dir/core-measure.txt")
@@ -61,8 +73,10 @@ measure() { # variant tree index
   done
   dir="$out/$variant/bench-$index"
   mkdir -p "$dir"
-  SIGIL_UI_QA_DIR=$dir SIGIL_BENCH_POPULATIONS=$populations SIGIL_BENCH_WARMUP=300 \
-    SIGIL_BENCH_FRAMES=720 pinned "$tree" --benchmark "$dir/stdout.txt"
+  # The frame is measured on the same map as the step (as scripts/win/MEASURE.ps1 sets for
+  # the whole process): 256 bodies do not fit the arena.
+  SIGIL_UI_QA_DIR=$dir SIGIL_BENCH_POPULATIONS=$populations SIGIL_CROWD_MAP=qa_crowd \
+    SIGIL_BENCH_WARMUP=$warmup SIGIL_BENCH_FRAMES=$frames pinned "$tree" --benchmark "$dir/stdout.txt"
   sed -n -E "s/^(complete_[A-Za-z0-9_]+|prepared_population_[0-9]+_live) total n=[0-9]+ median_ms=([0-9.]+).*/$variant|frame \1 (ms)|\2/p" \
     "$dir/benchmark.txt" >> "$samples"
 }
@@ -78,9 +92,10 @@ for ((i = 1; i <= pairs; i++)); do
     measure "$variant" "$tree" "$i"
   done
 done
-python3 -I - "$samples" "$out/summary.txt" "$before" "$after" "$pairs" "$populations" << 'PY'
+python3 -I - "$samples" "$out/summary.txt" "$before" "$after" "$pairs" "$populations" \
+  "$warmup" "$steps" "$frames" << 'PY'
 import sys
-samples, summary, before, after, pairs, populations = sys.argv[1:]
+samples, summary, before, after, pairs, populations, warmup, steps, frames = sys.argv[1:]
 values = {}
 for line in open(samples):
     variant, metric, value = line.rstrip('\n').split('|')
@@ -94,8 +109,8 @@ variants = ['before'] + (['after'] if after else [])
 report = ['V11 MEASUREMENT PROTOCOL', f'before = {before}']
 if after:
     report.append(f'after = {after}')
-report.append(f'pairs = {pairs} (order alternates), populations = {populations}, warm-up 300 '
-              'steps/frames, 2400 steps and 720 frames sampled, map qa_crowd, high priority')
+report.append(f'pairs = {pairs} (order alternates), populations = {populations}, warm-up {warmup} '
+              f'steps/frames, {steps} steps and {frames} frames sampled, map qa_crowd, high priority')
 regressed = False
 for metric in sorted({m for _, m in values}):
     stats = {}

@@ -42,11 +42,11 @@ if [ "$suite" = All ] || [ "$suite" = Architecture ]; then
   "$SIGIL_ROOT/tools/linux/check.sh"
 fi
 case "$suite" in
-  All) flags=(selftest input-test showcase benchmark core-measure step-study audio-export startup-check resource-plateau) ;;
+  All) flags=(selftest input-test showcase benchmark core-measure step-study audio-export startup-check resource-plateau measure-trial) ;;
   Mechanics) flags=(selftest) ;;
   Input) flags=(input-test) ;;
   Render) flags=(showcase) ;;
-  Tools) flags=(benchmark core-measure step-study audio-export startup-check resource-plateau) ;;
+  Tools) flags=(benchmark core-measure step-study audio-export startup-check resource-plateau measure-trial) ;;
   *) flags=() ;;
 esac
 reports_of() {
@@ -123,6 +123,20 @@ if [ "$jobs" -gt 1 ]; then
   flags=(${remaining[@]+"${remaining[@]}"})
 fi
 for flag in ${flags[@]+"${flags[@]}"}; do
+  if [ "$flag" = measure-trial ]; then
+    # The measurement protocol walked once as a measurement walks it, with its default
+    # populations (tools' smoke profile, a few steps and frames): every phase builds its
+    # crowd on the same map. Its numbers are not a measurement.
+    echo 'Testing source: MEASURE.sh --pairs 1 --trial'
+    trial="$SIGIL_QA/measure-trial"
+    "$SIGIL_ROOT/scripts/linux/MEASURE.sh" --pairs 1 --trial --out "$trial" \
+      > "$SIGIL_QA/measure-trial.txt" 2>&1 \
+      || { tail -20 "$SIGIL_QA/measure-trial.txt"; die 'MEASURE.sh failed.'; }
+    grep -q '^frame prepared_population_256_live' "$trial/summary.txt" \
+      || die 'MEASURE.sh measured no frame of 256 bodies.'
+    echo 'PASS: MEASURE.sh --trial'
+    continue
+  fi
   smoke=''
   case "$flag" in benchmark | core-measure | step-study | audio-export) smoke=1 ;; esac
   name="source-$flag"
