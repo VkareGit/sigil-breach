@@ -7,6 +7,7 @@ local HazardArt = require('src.render.hazard_art')
 local Ground = require('src.physics.ground')
 local Context = require('src.session.context')
 local Archetypes = require('src.content.enemies')
+local Action = require('src.content.defs.action')
 local Accents = {}
 local Painters = require('src.render.painters')
 local posed = {}
@@ -25,7 +26,8 @@ function Accents.draw(r, g, e, effects)
   end
   local look = Archetypes.look(e)
   local evading = look.evadeArt and e.ai == 'move' and (e.evadeTime or 0) > 0
-  local slipping = spec and spec.kind == 'blink' and e.ai == 'windup'
+  -- What a kind of attack shows is asked of its traits, never of its name (PLAN A4).
+  local slipping = spec and Action.trait(spec, 'slips') and e.ai == 'windup'
   if evading or slipping then
     local viewer = Context.viewer(g)
     local progress = slipping and ActionPhase.sample(e)
@@ -52,7 +54,7 @@ function Accents.draw(r, g, e, effects)
   if cast and permitted and (windup or e.ai == 'strike') then
     local t = ActionPhase.sample(e)
     local age = e.phase or 0
-    if not windup and spec.kind == 'salvo' then
+    if not windup and Action.trait(spec, 'volleys') then
       age = age - math.max(0, (e.act and e.act.released or 1) - 1) * spec.interval
     end
     local alpha = windup and 1 or math.max(0, 1 - age / cast.release)
@@ -80,7 +82,7 @@ function Accents.draw(r, g, e, effects)
     local t = ActionPhase.sample(e)
     local A = Rites.accents
     local charge = windup and t or math.max(0, 1 - (e.phase or 0) / A.glow)
-    if not windup and spec.kind == 'storm' then
+    if not windup and Action.trait(spec, 'beats') then
       -- These are the marking instants, not the later strikes of each ground mark.
       local beat = (e.phase or 0) % spec.interval
       charge = math.max(0, 1 - beat / A.glow)

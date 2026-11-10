@@ -17,6 +17,7 @@ local Recipient = require('src.feedback.recipient')
 local Bodies = require('src.combat.bodies')
 local RiteFeedback = require('src.feedback.rite_feedback')
 local Rites = require('src.content.art.rites')
+local Action = require('src.content.defs.action')
 local World = {}
 local BodyVoices = require('src.audio.body_voices')
 local Profiles = require('src.audio.creature_profiles')
@@ -93,9 +94,10 @@ World.handlers = {
     local e = ev.enemy
     RiteFeedback.released(g, ev)
     stopWarning(e)
-    -- A successful blink sounds at the two recorded endpoints. A failed
-    -- destination search has no arrival, and must not fake one here.
-    if ev.attack.kind == 'blink' then
+    -- A kind silent at its release (content/defs/action.lua, PLAN A4): a successful blink
+    -- sounds at the two recorded endpoints. A failed destination search has no arrival,
+    -- and must not fake one here.
+    if Action.trait(ev.attack, 'silent') then
       return
     end
     Audio.playAt(

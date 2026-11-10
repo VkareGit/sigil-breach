@@ -627,9 +627,24 @@ hook('salvo', projectile)
 --   gathers   the body sinks and widens through the windup
 --   lands     the place it lands on is marked from the windup
 --   cuts      it leaves a painted cut in the air
-Action.hooks.leap.traits = { airborne = true, gathers = true, lands = true }
-Action.hooks.sweep.traits = { cuts = true }
-Action.hooks.seize.traits = { cuts = true }
+--   slips     its windup is the body slipping away: painted as that, not as a cast
+--   silent    its release has no voice of its own (its two ends sound where they are)
+--   volleys   it lets go again every interval: a cast flares anew with each
+--   beats     it marks the ground every interval: a glow follows each mark
+--   settles   its release leaves a painting to settle on the floor; a name instead of
+--             true: only an art that the rites of that name paint (content/art/rites.lua)
+local function traits(kind, list)
+  Action.hooks[kind] = Action.hooks[kind] or {}
+  Action.hooks[kind].traits = list
+end
+traits('leap', { airborne = true, gathers = true, lands = true })
+traits('sweep', { cuts = true })
+traits('seize', { cuts = true })
+traits('blink', { slips = true, silent = true })
+traits('salvo', { volleys = true })
+traits('storm', { beats = true })
+traits('beam', { settles = true })
+traits('wave', { settles = 'waves' })
 function Action.trait(action, name)
   local hooks = Action.hooks[action.kind]
   return hooks and hooks.traits and hooks.traits[name]

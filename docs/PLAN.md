@@ -125,6 +125,8 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **A4 zrobione:** akcenty, głos uwolnienia i osiadający obraz
+  pytają o cechy rodzaju ataku; rendery identyczne, golden bez zmian.
 - 2026-11-10, **A3 zrobione:** walidator obszarów pyta stojące obszary
   zamiast własnej pamięci; obszar da się przyjąć ponownie i zastąpić.
   Golden bez zmian.

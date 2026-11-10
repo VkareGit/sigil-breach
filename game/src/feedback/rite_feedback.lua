@@ -2,6 +2,7 @@
 local Pools = require('src.session.world')
 local Rites = require('src.content.art.rites')
 local HazardDefs = require('src.content.hazards')
+local Action = require('src.content.defs.action')
 local Registry = require('src.core.registry')
 local Feedback = {}
 -- What the release of a mark leaves to settle on the floor, by its kind (content/hazards.lua,
@@ -105,11 +106,11 @@ function Feedback.blinked(g, event)
     table.remove(list, 1)
   end
 end
+-- A release that settles, as its kind of attack says (content/defs/action.lua: settles,
+-- PLAN A4); one that names its rites settles only in an art they paint.
 function Feedback.released(g, event)
-  if event.attack.kind ~= 'beam' and event.attack.kind ~= 'wave' then
-    return
-  end
-  if event.attack.kind == 'wave' and not Rites.waves[event.attack.art] then
+  local settles = Action.trait(event.attack, 'settles')
+  if not settles or (settles ~= true and not Rites[settles][event.attack.art]) then
     return
   end
   local bursts = g.view.riteBursts or {}

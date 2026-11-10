@@ -83,6 +83,20 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- A4, akcenty ataków pytają o cechy rodzaju, nie o nazwę, 2026-11-10
+  (reszta Z7): rodzaj ataku mówi cechami (`content/defs/action.lua`,
+  `Action.trait`), o co reszta gry może go zapytać. Nowe cechy: `slips`
+  (zamach to wymykanie się ciała: blink), `silent` (uwolnienie bez własnego
+  głosu: blink), `volleys` (kolejne uwolnienia co odstęp: salvo), `beats`
+  (znak co odstęp: storm), `settles` (uwolnienie zostawia osiadający obraz:
+  beam; wave tylko dla malowanej fali). Czytają je `render/cast_accents.lua`,
+  `feedback/world_feedback.lua` i `feedback/rite_feedback.lua` zamiast
+  porównań `kind == 'blink' / 'salvo' / 'storm' / 'beam' / 'wave'`. Malarz
+  pigmentu (`render/painters/pigment.lua`) ma wpisy `G.casts` według rodzaju
+  ataku, jak `G.hazards`. Bez zmiany obrazu i dźwięku. Zostaje jedno
+  porównanie w symulacji: pula ogrodu w `combat/deposits.lua`
+  (`kind == 'pool'`), własny rodzaj zasiewu.
+
 - A3, walidator obszarów nie pamięta tego, co odeszło, 2026-11-10:
   `content/pilgrimage.lua` trzymał identyfikatory posterunków we własnych
   tablicach (`posts`, `mapPosts`), także po wyrejestrowaniu obszaru i po
@@ -5256,6 +5270,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- A4, cechy rodzaju ataku, 2026-11-10: nowy test w `extension` dodaje
+  samymi rejestrami rodzaj `trial_tear` z cechami `settles` i `silent`
+  (kładzie rozdarcie jak promień): po uwolnieniu zostaje jeden osiadający
+  obraz na posadzce i nie gra głos uwolnienia. Przed zmianą czerwony
+  („a kind whose release settles leaves its painting on the floor”; po
+  samej cesze `settles` jeszcze „a kind silent at its release has no
+  release voice”), po zmianie `extension` 72 PASS. Rendery: 794 PNG bramy
+  (782 pokazu oraz narzędzia) identyczne bajt w bajt z bramą A3. Brama
+  Linux zielona: 9576 sprawdzeń w 4 częściach, showcase, Tools,
+  `startup-check`, `resource-plateau`, `measure-trial` PASS. Golden bez
+  zmian. Obraz i dźwięk w oknie gracza nieoglądane; Windows niesprawdzony.
 
 - A3, walidator obszarów, 2026-11-10: nowe sprawdzenia w `pilgrimage`
   (`declaredAgain`): obszar próbny przyjęty, wyrejestrowany i przyjęty

@@ -743,6 +743,90 @@ function Tests.run(G)
     'an area carved out of the one map wakes its garrison as the knight walks in',
     carved and asleep and walked and woke and entered == 'trial_annex'
   )
+  -- A kind of attack says what the rest of the game may ask of it by its traits (PLAN A4):
+  -- nothing asks for it by name. This one leaves its release to settle on the floor, as a
+  -- tear does, and has no voice of its own at its release.
+  do
+    local Audio = require('src.audio.audio')
+    local Spawn = require('src.session.spawn')
+    local Volumes = require('src.content.defs.area')
+    local Copy = require('src.core.schema').copy
+    Action.defineKind('trial_tear', {}, { 'packet' }, {
+      traits = { settles = true, silent = true },
+    })
+    Attacks.kinds.trial_tear = {
+      execute = function(g, e, atk, a)
+        Spawn.make(g, 'hazard', {
+          kind = 'sweepline',
+          owner = e.id,
+          side = 'demons',
+          x = e.x,
+          z = e.z,
+          level = e.level,
+          delay = 0.2,
+          maxDelay = 0.2,
+          radius = 3,
+          width = 0.4,
+          angle = a,
+          spin = 1,
+          volume = Copy(Volumes.defaults.beam),
+          life = 0.5,
+          packet = atk.packet,
+        })
+      end,
+    }
+    A.register(Creature.define({
+      extends = A.imp,
+      id = 'trial_tearer',
+      kind = 'imp',
+      variant = 'trial_tearer',
+      name = 'trial_thrall',
+      attacks = {
+        Action.trial_tear({
+          id = 'tear',
+          range = 6,
+          windup = 0.4,
+          cooldown = 5,
+          sound = 'ember_claw',
+          packet = packet(1, 1),
+        }),
+      },
+    }))
+    local g = Fixtures.arena(G)
+    local demon = g:spawn('trial_tearer', 16, 23)
+    demon.awake, demon.memory, demon.spawnAge = true, 60, 1
+    local released, voices = 0, {}
+    g.bus:on('present', 'AttackReleased', function()
+      released = released + 1
+    end)
+    local playAt = Audio.playAt
+    Audio.playAt = function(name, ...)
+      voices[name] = true
+      return playAt(name, ...)
+    end
+    local ok, problem = pcall(function()
+      for _ = 1, 4 * 120 do
+        g:update(1 / 120, {})
+        if released > 0 then
+          break
+        end
+      end
+    end)
+    Audio.playAt = playAt
+    A.unregister('trial_tearer')
+    Attacks.kinds.trial_tear = nil
+    Action.kinds:unregister('trial_tear')
+    Action.trial_tear, Action.hooks.trial_tear = nil, nil
+    check(
+      'a kind with traits of its own is released' .. (ok and '' or ': ' .. tostring(problem)),
+      ok and released == 1
+    )
+    check(
+      'a kind whose release settles leaves its painting on the floor',
+      #(g.view.riteBursts or {}) == 1
+    )
+    check('a kind silent at its release has no release voice', not voices.ember_claw)
+  end
   -- Everything removed again: the content and registries are as they were.
   Screens:unregister('trial_screen')
   Modes:unregister('trial')

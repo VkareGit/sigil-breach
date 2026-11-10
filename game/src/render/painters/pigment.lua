@@ -58,14 +58,18 @@ function G.stream(r, g, e, a)
     GardenPaint.stream[1 + math.floor((e.phase or 0) * GardenPaint.rate) % #GardenPaint.stream]
   HazardArt.mesh(r, s, frame, mesh.mesh, s.y, 1)
 end
-function G.cast(r, g, e)
-  local a = e.attackSpec
-  if not a or not a.art or not GardenPaint.casts[a.kind] then
-    return false
-  end
-  if e.ai == 'strike' and a.kind == 'stream' and e.phase <= a.duration then
-    G.stream(r, g, e, a)
-  elseif e.ai == 'windup' and a.kind == 'sow' then
+-- What it paints of a cast, by the kind of the attack: its own entries, like G.hazards
+-- (PLAN A4). A kind its style names without an entry here is its own and paints nothing.
+G.casts = {
+  stream = function(r, g, e, a)
+    if e.ai == 'strike' and e.phase <= a.duration then
+      G.stream(r, g, e, a)
+    end
+  end,
+  sow = function(r, g, e, a)
+    if e.ai ~= 'windup' then
+      return
+    end
     local x, y, z = Anchor.point(g, e, e.phase, e.x, e.z, a.anchor, Context.viewer(g))
     if x then
       local size = GardenPaint.castSize * math.min(1, (e.phase or 0) / a.windup)
@@ -81,6 +85,16 @@ function G.cast(r, g, e)
         1
       )
     end
+  end,
+}
+function G.cast(r, g, e)
+  local a = e.attackSpec
+  if not a or not a.art or not GardenPaint.casts[a.kind] then
+    return false
+  end
+  local paint = G.casts[a.kind]
+  if paint then
+    paint(r, g, e, a)
   end
   return true
 end
