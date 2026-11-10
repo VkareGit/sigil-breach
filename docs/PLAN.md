@@ -125,6 +125,9 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **A3 zrobione:** walidator obszarów pyta stojące obszary
+  zamiast własnej pamięci; obszar da się przyjąć ponownie i zastąpić.
+  Golden bez zmian.
 - 2026-11-10, **A2 zrobione:** strona wczytywania przygotowuje stwory
   wszystkich obszarów mapy, nie tylko obszaru rycerza. Golden bez zmian.
 - 2026-11-10, **A1 zrobione:** kontrakt wznowienia ma jawne sprawdzenie

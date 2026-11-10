@@ -83,6 +83,17 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- A3, walidator obszarów nie pamięta tego, co odeszło, 2026-11-10:
+  `content/pilgrimage.lua` trzymał identyfikatory posterunków we własnych
+  tablicach (`posts`, `mapPosts`), także po wyrejestrowaniu obszaru i po
+  odrzuceniu definicji (wbrew zasadzie rejestru „odrzucona definicja
+  niczego nie zmienia”); ognie i drzwi obszaru kolidowały z nim samym przy
+  `replace`. Teraz identyfikator jest zajęty tylko wtedy, gdy ma go inny
+  stojący obszar: pytane są `Way.fireOf`, `Way.doorOf` i `Way.postOf`.
+  Posterunek jest unikalny na całej drodze, jak ognisko (zapis nazywa
+  zabitych samym posterunkiem); dotąd pilnowano tego tylko w obrębie mapy.
+  Kaplica bez zmian.
+
 - A2, strona wczytywania przygotowuje stwory całej mapy, 2026-11-10:
   `P.creatures` (`run/pilgrimage.lua`) podawało stronie wczytywania tylko
   stwory z garnizonu obszaru, w którym stoi rycerz, a `populate` stawia
@@ -5245,6 +5256,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- A3, walidator obszarów, 2026-11-10: nowe sprawdzenia w `pilgrimage`
+  (`declaredAgain`): obszar próbny przyjęty, wyrejestrowany i przyjęty
+  drugi raz z tymi samymi posterunkami; odrzucony (posterunek kaplicy)
+  nie zostawia zajętych identyfikatorów; posterunek dwa razy w obszarze
+  i ogień innego obszaru nadal odrzucone; kaplica zadeklarowana ponownie
+  w swoim miejscu (`replace`). Przed zmianą czerwone na drugim przyjęciu
+  („and taken again with the posts it had, once it left”), po zmianie
+  `pilgrimage` 202 PASS, `extension` 69 PASS. Brama Linux zielona: 9573
+  sprawdzenia w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Windows
+  niesprawdzony.
 
 - A2, stwory całej mapy na stronie wczytywania, 2026-11-10: nowe
   sprawdzenie w `pilgrimage` (obszar próbny `trial_wing` z samym Ember

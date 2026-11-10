@@ -431,8 +431,7 @@ local function wakings(check, Game)
 end
 -- PLAN Z6: a rest secures the whole map, not only the area he rests in (D10), and a way
 -- left in the field keeps what fell and was taken in every area of it. A trial area carved
--- out of the chapel's map (as tests/cases/extension.lua carves it), with its own fire. Its ids
--- are its own: the way keeps a post id of a map once registered, through an unregister.
+-- out of the chapel's map (as tests/cases/extension.lua carves it), with its own fire and ids.
 local function takeCache(g, id)
   for _, pickup in ipairs(Pools.of(g, 'pickups')) do
     if pickup.rewardId == id then
@@ -542,9 +541,42 @@ local function strayLeash(check, Game)
   check('a leash without a post is no error' .. (ok and '' or ': ' .. tostring(problem)), ok)
   check('and the body hunts on', stray.awake and stray.memory > 0)
 end
+-- PLAN A3: the way judges an area by the areas that stand, and keeps nothing of one that
+-- left or was refused: it is taken again with the ids it had, and may be declared again
+-- in its place (a tool, a mod), while an id used twice is still refused.
+local function declaredAgain(check)
+  local own = { id = 'trial_again_post', creature = 'imp', x = 9.5, z = 28.5, yaw = 0 }
+  local function trial(garrison, fire)
+    return {
+      id = 'trial_again',
+      map = K.start().map,
+      bounds = { { 6, 26, 13, 31 } },
+      first = fire or 'trial_again_fire',
+      fires = { { id = fire or 'trial_again_fire', name = 'fire_narthex', x = 9.5, z = 30 } },
+      garrison = garrison,
+    }
+  end
+  local function taken(area)
+    local ok = pcall(K.areas.register, K.areas, 'trial_again', area)
+    K.areas:unregister('trial_again')
+    return ok
+  end
+  check('a trial area is taken', taken(trial({ own })))
+  check('and taken again with the posts it had, once it left', taken(trial({ own })))
+  local chapelPost = K.start().garrison[1].id
+  local stranger = { id = chapelPost, creature = 'imp', x = 9.5, z = 27.5, yaw = 0 }
+  check('a post of another area is refused', not taken(trial({ own, stranger })))
+  check('and the area refused leaves none of its posts claimed', taken(trial({ own })))
+  check('a post named twice in one area is refused', not taken(trial({ own, own })))
+  check('a fire of another area is refused', not taken(trial({ own }, K.start().first)))
+  local shipped = K.start()
+  local replaced = pcall(K.areas.replace, K.areas, shipped.id, shipped)
+  check('an area is declared again in its place', replaced and K.start() == shipped)
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
+  declaredAgain(check)
   freshStarts(check, Game)
   safeRest(check, Game)
   engravings(check, Game)

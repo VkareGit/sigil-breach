@@ -40,13 +40,19 @@ local Way = {
   -- A knight fits where this much is free around him (m).
   clearance = 0.3,
 }
--- Ids are unique across the way: a save names them without their area.
-local function claim(seen, id, kind, taken)
+-- Ids are unique across the way: a save names them without their area. An id is taken
+-- when an area that stands, other than the one being declared (area), holds it: the way
+-- keeps no memory of an area that left or was refused, and an area may be declared again
+-- in its place (PLAN A3).
+local function claim(seen, id, kind, taken, area)
   assert(type(id) == 'string', 'way: a ' .. kind .. ' needs an id')
-  assert(not seen[id] and not (taken and taken(id)), 'way: ' .. kind .. ' id twice: ' .. id)
+  local holder = taken and select(2, taken(id))
+  assert(
+    not seen[id] and not (holder and holder.id ~= area),
+    'way: ' .. kind .. ' id twice: ' .. id
+  )
   seen[id] = true
 end
-local posts, mapPosts = {}, {}
 -- The world is one map divided into areas (PLAN G4, owner decision 8): an area
 -- may name its bounds on its map, a list of { x1, z1, x2, z2 } (m); one without
 -- bounds is the rest of its map. A knight is in the area he stands in; its
@@ -67,23 +73,18 @@ Way.areas = Registry:new('way areas', function(area, id)
   end
   local first, seen = false, {}
   for _, fire in ipairs(area.fires) do
-    claim(seen, fire.id, 'fire', Way.fireOf)
+    claim(seen, fire.id, 'fire', Way.fireOf, id)
     first = first or fire.id == area.first
   end
   assert(first, 'way area ' .. id .. ' starts at no fire of its own')
   for _, door in ipairs(area.doors or {}) do
-    claim(seen, door.id, 'door', Way.doorOf)
+    claim(seen, door.id, 'door', Way.doorOf, id)
   end
-  posts[id] = {}
-  mapPosts[area.map] = mapPosts[area.map] or {}
+  -- A post is unique on the way, like a fire: the garrisons of one map stand together,
+  -- and a save names the slain by post alone.
+  local posted = {}
   for _, post in ipairs(area.garrison) do
-    claim(posts[id], post.id, 'post')
-    -- The garrisons of one map stand together: a post is unique on its map.
-    assert(
-      not mapPosts[area.map][post.id],
-      'way: post id twice on map ' .. area.map .. ': ' .. post.id
-    )
-    mapPosts[area.map][post.id] = id
+    claim(posted, post.id, 'post', Way.postOf, id)
   end
 end)
 Way.areas:register('chapel', {
