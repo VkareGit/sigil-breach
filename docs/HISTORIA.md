@@ -81,6 +81,15 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z3, porzucona sesja nie zostaje w pamięci, 2026-11-10 (audyt silnika):
+  tablica robocza kroku rycerza (`player/feel.lua`) trzymała rycerza
+  i widok ostatniej sesji, która wykonała krok, więc porzucona sesja kaplicy
+  żyła do następnego kroku innej. Krok puszcza oba na końcu. Narzędzie
+  `--resource-plateau`, które to wykrywa, weszło do bramy Linux (Tools i All)
+  z trzema cyklami (`SIGIL_RESOURCE_CYCLES=3`); raport musi kończyć
+  się „QA COMPLETE” i nosić odcisk źródeł. Windows bez zmian (`TEST.ps1` go
+  nie uruchamia).
+
 - G6c, wersja 0.46 i atrybuty plików, 2026-11-10 (decyzje właściciela:
   numer 0.46; Git LFS według uznania wykonawcy): `src/core/build.lua` podaje
   0.46 (menu pokazuje THE CHAPEL / 0.46; zapisy gry nie zależą od numeru,
@@ -5051,6 +5060,16 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z3, porzucona sesja, 2026-11-10: nowy test `runtime-contracts` (sesja po
+  kroku porzucona i zebrana, z `jit.off`, potem `jit.flush`) czerwony przed
+  zmianą, zielony po. `--resource-plateau` z 3 cyklami: przed zmianą błąd
+  „application retained ownership after JIT eviction: cycle_3: chapel
+  session”, po zmianie 0 zatrzymanych po usunięciu trace'ów. Czas trzech
+  cykli: 51 s uruchomione ręcznie, 363 s w bramie (okno QA na pulpicie 2,
+  jak `--startup-check`); brama wydłuża się o ok. 6 min. Pełne Linux All
+  PASS (`--jobs 4`): 9286 sprawdzeń (+1), golden 10 PASS, Input, pokaz,
+  narzędzia. Windows niesprawdzony.
 
 - G6c, wersja 0.46 i atrybuty plików, 2026-11-10: rendery pokazu: poza 23 scenami zmienionymi w E2e zmieniło się tylko 6 obrazów menu (numer wersji 0.46).
   Pełne Linux All PASS w osobnym klonie: 9285 sprawdzeń, golden 10 PASS.

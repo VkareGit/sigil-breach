@@ -336,6 +336,8 @@ function step(g, dt, input, actor)
   fall(g, jumped, dt)
   -- The step as a whole: how far the body went, and whether its feet were planted.
   publish('motion.step', dt, m.travelled, previousVX, previousVZ, planted)
+  -- The table outlives the step; the knight and his session do not stay in it.
+  m.p, m.shown = nil, nil
 end
 function F.reloadUpdate(g, dt, actor)
   Reload.update(g, dt, actor)

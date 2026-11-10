@@ -42,11 +42,11 @@ if [ "$suite" = All ] || [ "$suite" = Architecture ]; then
   "$SIGIL_ROOT/tools/linux/check.sh"
 fi
 case "$suite" in
-  All) flags=(selftest input-test showcase benchmark core-measure step-study audio-export startup-check) ;;
+  All) flags=(selftest input-test showcase benchmark core-measure step-study audio-export startup-check resource-plateau) ;;
   Mechanics) flags=(selftest) ;;
   Input) flags=(input-test) ;;
   Render) flags=(showcase) ;;
-  Tools) flags=(benchmark core-measure step-study audio-export startup-check) ;;
+  Tools) flags=(benchmark core-measure step-study audio-export startup-check resource-plateau) ;;
   *) flags=() ;;
 esac
 reports_of() {
@@ -59,6 +59,7 @@ reports_of() {
     step-study) echo step-study.txt ;;
     audio-export) echo audio-export.txt sounds/report.txt music/report.txt ;;
     startup-check) echo startup-check.txt ;;
+    resource-plateau) echo resource-plateau.txt ;;
   esac
 }
 # The mechanics shards (and, beside them, the input test and the showcase),
@@ -135,11 +136,16 @@ for flag in ${flags[@]+"${flags[@]}"}; do
   fi
   mkdir -p "$destination"
   echo "Testing source: --$flag (smoke=${smoke:-0})"
-  run_isolated "$name" "$limit" "$destination" -- "${arguments[@]}"
+  if [ "$flag" = resource-plateau ]; then
+    # Three cycles show a left session still held (about a minute).
+    SIGIL_RESOURCE_CYCLES=3 run_isolated "$name" "$limit" "$destination" -- "${arguments[@]}"
+  else
+    run_isolated "$name" "$limit" "$destination" -- "${arguments[@]}"
+  fi
   for report in $(reports_of "$flag"); do
     path="$destination/$report"
     require_fresh "$path"
-    if [ -n "$smoke" ] || [ "$flag" = startup-check ]; then
+    if [ -n "$smoke" ] || [ "$flag" = startup-check ] || [ "$flag" = resource-plateau ]; then
       profile=full
       [ -z "$smoke" ] || profile=smoke
       grep -Fq "QA COMPLETE: $(basename "$report") profile=$profile" "$path" \

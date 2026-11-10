@@ -124,6 +124,27 @@ function Tests.run(Game)
   )
 
   -- The attack list: preferences first, the last attack as the fallback.
+  -- A session that stepped its knight and was left lets go of everything
+  -- once collected: the knight's step keeps no session between steps
+  -- (qa/resource_plateau.lua found the last one held through the scratch
+  -- table of player/feel.lua). Made in a function the compiler cannot keep.
+  local left = setmetatable({}, { __mode = 'k' })
+  local function leave()
+    local session = Fixtures.arena(Game)
+    for _ = 1, 3 do
+      session:update(1 / 120, {})
+    end
+    left[session] = true
+  end
+  jit.off(leave, true)
+  leave()
+  collectgarbage('collect')
+  collectgarbage('collect')
+  jit.flush()
+  collectgarbage('collect')
+  collectgarbage('collect')
+  check('a session that stepped and was left is collected', next(left) == nil)
+
   local function attack(id, extra)
     local atk = { id = id, range = 10, minRange = 0 }
     for key, value in pairs(extra or {}) do

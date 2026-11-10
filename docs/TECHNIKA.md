@@ -460,7 +460,9 @@ jest zamrożony, bez present/VSync. Pełne próbki: work/v11-views-final.
 To koszt dwóch pełnych obrazów, nie dwa mniejsze okna ani pomiar FPS.
 
 --resource-plateau wykonuje osiem rzeczywistych cykli aplikacji przez
-menu, poligon, dodatkowy widok, replay i kaplicę. Mierzy zasoby natywne
+menu, poligon, dodatkowy widok, replay i kaplicę (`SIGIL_RESOURCE_CYCLES`
+3–32; brama Linux, zestaw Tools, puszcza trzy: ok. 1 min uruchomione
+ręcznie, ok. 6 min w bramie). Mierzy zasoby natywne
 i stertę Lua, sprawdza właścicieli po zamknięciu. Normalne cykle nie
 wyłączają JIT; pojedyncze końcowe usunięcie trace'ów jest tylko audytem
 rozróżniającym referencje aplikacji od referencji skompilowanych domknięć.
