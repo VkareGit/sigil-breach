@@ -40,6 +40,16 @@ Pełny zapis w WIZJI (D21–D23).
 - **K3 (D23): dwa prototypy mechanizmów stworów tylko na Ember Thrallu:**
   rana części i zmęczenie. O reszcie stworów decyduje pomiar z etapu B.
 - Tryb w stylu Vampire Survivors nie jest kierunkiem gry.
+- **D24: ogień nie odbiera ciosów** („tylko parada”): cios raz podjęty
+  dochodzi; przerywa go strzał w oknie parady; złamana garda i ciężka rana
+  w trakcie ciosu działają po ciosie. Dla każdego stwora; elity na osobne
+  polecenie.
+- **D25: dwa rodzaje stworów:** drobnica (Ember Thrall, Star Acolyte,
+  Plague Gardener) i pojedynkowe (Iron Thrall, elity).
+- **Progi miernika** (WIZJA): pojedynkowy: stojący ≤ 1/5, nieczytający
+  ≤ 2/5, mistrz 5/5 i ≤ 25 obrażeń, mistrz ≥ 1,5 raza szybszy od
+  nowicjusza; trójka drobnicy: nieczytający ≤ 2/5, mistrz ≥ 4/5.
+- Exorcist: wolno proponować zmianę liczb po pomiarze. A5 przyjęte.
 - **Uwaga właściciela po przyjęciu planu (2026-11-10):** stwory nie są dziś
   wymagające. Tempo jest szybkie, SHIFT daje unik z przeskokiem w bok,
   CTRL ślizg, więc walka często sprowadza się do skakania i unikania przez
@@ -183,6 +193,10 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10: decyzje właściciela po raporcie B2 i doświadczeniach C0:
+  D24 w brzmieniu „tylko parada”, D25 (drobnica i stwory pojedynkowe),
+  progi miernika, zgoda na propozycje dla Exorcista, A5 przyjęte. Bez
+  zmian gry.
 - 2026-11-10: właściciel przyjął D24 (ogień nie odbiera ciosów). Sześć
   doświadczeń w drzewie roboczym, zmierzonych miernikiem i cofniętych
   (HISTORIA, „Doświadczenia C0”): sama zasada zmienia mało; nieczytającego

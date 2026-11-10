@@ -35,16 +35,27 @@ starszymi decyzjami obowiązują te.
   tylko na Ember Thrallu: rana części i zmęczenie. O przebudowie
   pozostałych stworów decyduje pomiar głębi walki; każda zmiana liczby
   osobno i za zgodą właściciela.
-- **D24 (ogień nie odbiera ciosów):** przyjęte 10 listopada 2026 („Tak,
-  przyjmuję”) po raporcie miernika głębi walki. Cios raz podjęty przez
+- **D24 (ogień nie odbiera ciosów):** przyjęte 10 listopada 2026 po raporcie
+  miernika głębi walki, w brzmieniu „tylko parada”. Cios raz podjęty przez
   stwora dochodzi; przerywa go strzał w oknie parady, a nie strzał
-  kiedykolwiek. Zasada obowiązuje każdego stwora, nie tylko elity.
-  Doprecyzowanie wykonawcy do potwierdzenia: garda złamana w trakcie ciosu
-  i ciężka rana działają po ciosie (jak dziś `steady` u Iron Thralla
-  i elit), a złamana garda poza ciosem zatrzymuje stwora jak dotąd.
-  Wdrożenie razem z pracą nad każdym stworem (etap C), nie osobno:
-  doświadczenia pokazały, że sama zasada zmienia mało (HISTORIA,
-  „Doświadczenia C0”).
+  kiedykolwiek. Garda złamana w trakcie ciosu i ciężka rana działają
+  dopiero po ciosie (jak `steady` u Iron Thralla i elit); złamana garda
+  poza ciosem zatrzymuje stwora jak dotąd. Zasada obowiązuje każdego
+  stwora, nie tylko elity. Elity nadal tylko na osobne polecenie.
+- **D25 (dwa rodzaje stworów):** drobnica (Ember Thrall, Star Acolyte,
+  Plague Gardener) ginie szybko i jest groźna w grupie; stwory pojedynkowe
+  (Iron Thrall, elity) wymagają czytania w pojedynkę. Drobnicę poprawia
+  się jako grupę, która łapie ruch rycerza, nie każdego stwora z osobna.
+- **Progi miernika głębi walki** (5 walk botów na wariant; „gotowy” znaczy
+  spełnione wszystkie). Stwór pojedynkowy: rycerz, który stoi i strzela,
+  wygrywa najwyżej 1 z 5; rycerz, który niczego nie czyta, najwyżej
+  2 z 5; mistrz 5 z 5 przy najwyżej 25 obrażeniach i zabija co najmniej
+  1,5 raza szybciej niż nowicjusz. Trójka drobnicy: nieczytający najwyżej
+  2 z 5, mistrz co najmniej 4 z 5. Boty nie są graczami: progi mówią, czy
+  walka nagradza czytanie, a nie jak trudna jest dla człowieka.
+- **Exorcist:** wykonawca może po pomiarze zaproponować zmianę jego liczb;
+  każda zmiana czeka na zgodę właściciela (D20 bez zmian: bez nowych broni).
+- **Pomiar A5:** przyjęty jako brak dowodu regresji.
 - **Mapa:** obecna kaplica to mapa testowa do sprawdzania działania gry.
   Mapa gry będzie inna; prace nad mapą i strukturą świata są odłożone do
   osobnej decyzji. Właściciel przyjmuje propozycje.
