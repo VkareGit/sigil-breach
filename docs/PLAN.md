@@ -183,6 +183,10 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **B2 zrobione, etap B zamknięty:** raport w HISTORII. Trzy
+  z czterech zwykłych stworów przegrywają z rycerzem, który stoi i strzela;
+  wymagają tylko te, które zachowują ciosy pod ogniem; wiedza nie skraca
+  walki. Trzy pytania do właściciela przed C0.
 - 2026-11-10, **B1 zrobione:** miernik głębi walki (`--depth-meter`):
   sześciu rycerzy, osiem walk, dwa uzbrojenia; zestaw `depth-meter`
   w bramie. Bez zmian gry, golden bez zmian.

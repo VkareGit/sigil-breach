@@ -36,6 +36,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Miernik głębi walki: raport B2 (2026-11-10)
 - Przegląd po naprawach i kierunek gry (2026-11-10)
 - Plan napraw z audytu silnika (zastąpiony 2026-11-10)
 - Audyt silnika (2026-11-10)
@@ -5289,6 +5290,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- B2, raport miernika głębi walki, 2026-11-10: pełny przebieg
+  `--depth-meter` (5 ziaren, 2 min 3 s) i sonda `firstblow`; tabele
+  i ustalenia w rozdziale „Miernik głębi walki: raport B2 (2026-11-10)”.
+  W skrócie: stojący i strzelający rycerz wygrywa z Ember Thrallem, Star
+  Acolyte i Plague Gardenerem (z samym Sędzią 5/5); wymagają tylko stwory,
+  które zachowują ciosy pod ogniem (Iron Thrall, Margrave, Furfur:
+  75–106 %); Exorcist spłaszcza drabinę umiejętności; wiedza nie skraca
+  żadnej walki (mistrz wobec nowicjusza 0,3–1,4); rycerz nieczytający
+  wygrywa ze zwykłymi stworami i trójką. Niczego nie strojono; boty celują
+  bezbłędnie, więc to porównanie rycerzy, nie ocena trudności dla gracza.
+  Bez zmian gry; testów gry nie uruchamiano.
 
 - B1, miernik głębi walki, 2026-11-10: nowy zestaw `depth-meter` (25
   sprawdzeń): ta sama walka liczona dwa razy daje ten sam wynik, także dla
@@ -16142,6 +16155,125 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
 
+
+## Miernik głębi walki: raport B2 (2026-11-10)
+
+Krok B2 planu „dopracowanie bazy gry”. Narzędzie: `love game --depth-meter`
+na `590f4b8` (0.46), 5 ziaren, pełny przebieg 2 min 3 s; surowy raport poza
+repozytorium: `/home/nahiko/Work/tries/sigil-breach-audit-measure/depth`.
+Niczego nie strojono. Boty to nie gracze: celują bezbłędnie (rycerze
+`novice` i `able` gubią co trzeci strzał), więc czasy zabicia są dolną
+granicą, a tabela porównuje rycerzy między sobą.
+
+Komórka: wygrane z 5 · mediana czasu wygranej · mediana otrzymanych
+obrażeń (rycerz ma 100 zdrowia i 40 osłony; flaszka i zabójstwa przełamane
+leczą, więc suma może przekroczyć 140).
+
+Rycerze: stoi i strzela (`careless`); nie czyta niczego: skacze, ślizga się
+i unika, gdy tylko ma wytrzymałość (`restless`); nawyk: unik na koniec
+każdego zamachu (`reflex`); nowicjusz myli połowę ciosów; sprawny jeden na
+pięć; mistrz czyta wszystko (`Bot.learning`).
+
+### Sam Sędzia, jak na początku nowej drogi (D12)
+
+| Walka | stoi i strzela | nie czyta | nawyk | nowicjusz | sprawny | mistrz |
+|---|---|---|---|---|---|---|
+| Ember Thrall | 5/5 · 5,8 s · 70 | 5/5 · 11,1 s · 34 | 5/5 · 9,9 s · 0 | 5/5 · 6,5 s · 0 | 5/5 · 6,5 s · 0 | 5/5 · 6,5 s · 0 |
+| Iron Thrall | 0/5 · — · 150 | 4/5 · 20,5 s · 102 | 1/5 · 16,2 s · 154 | 5/5 · 24,1 s · 76 | 5/5 · 23,5 s · 38 | 5/5 · 19,8 s · 0 |
+| Star Acolyte | 5/5 · 3,1 s · 0 | 5/5 · 5,8 s · 0 | 5/5 · 3,1 s · 0 | 5/5 · 4,4 s · 0 | 5/5 · 4,4 s · 0 | 5/5 · 4,3 s · 0 |
+| Plague Gardener | 5/5 · 6,1 s · 12 | 5/5 · 11,1 s · 27 | 5/5 · 6,1 s · 0 | 5/5 · 7,3 s · 0 | 5/5 · 6,9 s · 0 | 5/5 · 6,9 s · 0 |
+| Margrave | 0/5 · — · 152 | 1/5 · 49,5 s · 159 | 1/5 · 53,1 s · 159 | 3/5 · 25,6 s · 117 | 4/5 · 20,3 s · 87 | 5/5 · 18,7 s · 55 |
+| Furfur | 0/5 · — · 152 | 0/5 · — · 142 | 3/5 · 37,8 s · 140 | 3/5 · 20,4 s · 80 | 4/5 · 18,2 s · 50 | 5/5 · 17,4 s · 80 |
+| trójka | 2/5 · 10,1 s · 204 | 5/5 · 17,8 s · 40 | 4/5 · 11,9 s · 36 | 5/5 · 19,0 s · 68 | 5/5 · 15,0 s · 34 | 5/5 · 16,3 s · 0 |
+| szóstka | 0/5 · — · 215 | 0/5 · — · 211 | 0/5 · — · 218 | 0/5 · — · 219 | 2/5 · 57,4 s · 222 | 3/5 · 60,0 s · 203 |
+
+### Obie bronie, jak uzbraja poligon
+
+| Walka | stoi i strzela | nie czyta | nawyk | nowicjusz | sprawny | mistrz |
+|---|---|---|---|---|---|---|
+| Ember Thrall | 5/5 · 4,0 s · 0 | 5/5 · 7,8 s · 68 | 5/5 · 4,0 s · 0 | 5/5 · 4,7 s · 0 | 5/5 · 11,8 s · 0 | 5/5 · 13,7 s · 0 |
+| Iron Thrall | 5/5 · 10,6 s · 110 | 5/5 · 15,3 s · 84 | 5/5 · 8,8 s · 64 | 4/5 · 13,3 s · 38 | 5/5 · 14,3 s · 38 | 5/5 · 12,5 s · 0 |
+| Star Acolyte | 5/5 · 3,1 s · 0 | 5/5 · 7,8 s · 0 | 5/5 · 3,1 s · 0 | 5/5 · 5,8 s · 40 | 5/5 · 5,8 s · 0 | 5/5 · 4,6 s · 0 |
+| Plague Gardener | 5/5 · 4,0 s · 0 | 5/5 · 8,8 s · 7 | 5/5 · 4,0 s · 0 | 5/5 · 8,2 s · 0 | 5/5 · 8,0 s · 0 | 5/5 · 8,0 s · 0 |
+| Margrave | 0/5 · — · 174 | 4/5 · 19,2 s · 86 | 5/5 · 21,7 s · 60 | 5/5 · 13,5 s · 60 | 5/5 · 14,3 s · 45 | 5/5 · 13,1 s · 0 |
+| Furfur | 0/5 · — · 187 | 1/5 · 32,3 s · 154 | 5/5 · 18,1 s · 65 | 5/5 · 15,6 s · 50 | 5/5 · 15,7 s · 40 | 5/5 · 15,0 s · 40 |
+| trójka | 5/5 · 7,5 s · 180 | 5/5 · 11,3 s · 42 | 5/5 · 11,0 s · 0 | 5/5 · 9,0 s · 34 | 5/5 · 10,2 s · 0 | 5/5 · 12,0 s · 0 |
+| szóstka | 0/5 · — · 223 | 1/5 · 29,2 s · 220 | 0/5 · — · 225 | 4/5 · 35,1 s · 210 | 4/5 · 40,1 s · 210 | 4/5 · 48,2 s · 212 |
+
+### Kiedy stwór pierwszy raz bije i ile ciosów zostaje mu pod ogniem
+
+Sonda `firstblow` (poza repozytorium), jedno ziarno, rycerz stoi; ciosy na
+sekundę liczone przy rycerzu nietykalnym przez czas życia stwora.
+
+| Stwór | HP / garda | pierwszy cios wypuszczony | pierwsze trafienie | ciosy/s bez ognia | pod ogniem Sędziego | pod ogniem obu broni |
+|---|---|---|---|---|---|---|
+| Ember Thrall | 360 / 140 | 2,27 s | 3,47 s | 0,83 | 0,49 (59 %) | 0,25 (30 %) |
+| Iron Thrall | 560 / 150 | 2,62 s | 2,96 s | 0,43 | 0,38 (88 %) | 0,38 (88 %) |
+| Star Acolyte | 320 / 60 | 2,77 s | 3,17 s | 0,37 | 0,00 | 0,00 |
+| Plague Gardener | 520 / 110 | 2,62 s | 3,22 s | 0,40 | 0,16 (40 %) | 0,00 |
+| Margrave | 2700 / 360 | 3,07 s | 4,02 s | 0,47 | 0,50 (106 %) | 0,46 (98 %) |
+| Furfur | 2250 / 320 | 3,14 s | 3,14 s | 0,57 | 0,47 (82 %) | 0,43 (75 %) |
+
+### Ustalenia
+
+1. **Stanie i strzelanie wygrywa z trzema z czterech zwykłych stworów.**
+   Z samym Sędzią: Ember Thrall 5/5 w 5,8 s (70 obrażeń), Star Acolyte 5/5
+   w 3,1 s bez jednego wypuszczonego ciosu, Plague Gardener 5/5 w 6,1 s
+   (12 obrażeń). Z obiema broniami wszystkie trzy giną w 3–4 s, a rycerz
+   nie traci zdrowia. Star Acolyte ginie, zanim zdąży pierwszy raz trafić
+   (3,1 s wobec 3,17 s).
+2. **Wymaga ten, kto zachowuje ciosy pod ogniem.** Iron Thrall, Margrave
+   i Furfur zachowują pod ogniem 75–106 % ciosów i tylko w ich walkach
+   widać drabinę umiejętności: z samym Sędzią stojący przegrywa 0/5,
+   nawyk wygrywa 1–3 z 5, nowicjusz 3–5, sprawny 4–5, mistrz 5/5. Ember
+   Thrall zachowuje 30–59 %, Gardener 0–40 %, Acolyte 0 %: ogień odbiera
+   im ciosy i tam nie trzeba niczego czytać. To zasada bramy planu v13
+   („strzelanie nie odbiera ciału ciosów”), dziś wymagana tylko od elit.
+3. **Exorcist spłaszcza drabinę.** Z obiema broniami nawyk wygrywa
+   z obiema elitami 5/5 (z samym Sędzią 1/5 i 3/5), stojący wygrywa
+   z Iron Thrallem 5/5 (z Sędzią 0/5) i z trójką 5/5 (z Sędzią 2/5).
+4. **Uwaga właściciela potwierdzona dla zwykłych stworów i małych grup.**
+   Rycerz, który niczego nie czyta, wygrywa każdą walkę ze zwykłym stworem
+   (Iron Thrall 4/5 z Sędzią) i trójkę 5/5 przy 40 obrażeniach. Przegrywa
+   z elitami przy samym Sędzi (Margrave 1/5, Furfur 0/5) i z szóstką.
+   Mocniejszy wniosek: wystarcza jeszcze mniej niż unikanie na oślep.
+5. **Wiedza nie skraca żadnej walki.** Mistrz zabija 0,3–1,4 razy tak
+   szybko jak nowicjusz w piętnastu z szesnastu walk (w szesnastej nowicjusz
+   nie wygrał ani razu); próg „gąbki” z planu (poniżej 2) spełnia każdy
+   stwór. Czas walki wyznaczają HP
+   i szybkostrzelność, nie czytanie. Egzekucje zdarzają się tylko na
+   elitach (2–3 na walkę) i raz–dwa w grupach; w walce jeden na jeden ze
+   zwykłym stworem nikt nigdy nie wykonał egzekucji. Parada strzałem i egzekucja istnieją, ale
+   nie są drogą na skróty.
+6. **Szóstka zabija prawie każdego i nie rozróżnia obrażeń.** Wszyscy
+   biorą ok. 205–225 obrażeń; mistrz wygrywa 3/5 (Sędzia) i 4/5 (obie),
+   reszta 0–2 (Sędzia). Czytanie zmniejsza udział trafionych ciosów
+   (10 % wobec 13–25 % przy samym Sędzi), ale o wyniku decyduje leczenie.
+7. Unik na oślep bywa gorszy niż stanie: z obiema broniami nieczytający
+   bierze od Ember Thralla 68 obrażeń, stojący 0, bo mniej strzela;
+   z samym Sędzią jest odwrotnie (34 wobec 70).
+
+### Kandydaci (do decyzji w C0; nic nie wdrożono)
+
+- **A. Ogień nie odbiera ciosów zwykłym stworom.** Cios raz podjęty
+   dochodzi, chyba że przerwie go strzał w oknie parady albo złamana garda.
+   Zamienia „strzelaj kiedykolwiek” na „strzelaj w oknie” i jest zgodne
+   z wizją właściciela (uwaga na atak, czas reakcji, ryzyko i nagroda).
+   Silnik ma do tego pola (`hyper`, `shell`, `parry`). Zmienia balans
+   każdego zwykłego stwora i golden.
+- **B. Exorcist.** Zmierzyć, czym zatrzymuje ciała (impet wobec gardy,
+   pchnięcie), zanim cokolwiek się w nim zmieni (D20: dopracowanie dwóch
+   broni).
+- **C. Pierwsze sekundy stwora.** Acolyte i Gardener giną, zanim zadziałają.
+   Albo mają być groźne same, albo świadomie tylko w grupie.
+- **D. Skrót dla mistrza.** Parada i egzekucja mają skracać walkę wyraźnie,
+   nie tylko oddawać naboje.
+- **E. Unik.** Dopiero po A: gdy ciosy dochodzą, widać, ile naprawdę jest
+   wart unik na oślep.
+
+Pytania do właściciela zadane w rozmowie 2026-11-10: czy przyjąć A jako
+zasadę dla każdego stwora; czy Acolyte i Gardener mają wymagać w pojedynkę;
+czy wolno ruszyć Exorcista.
 
 ## Przegląd po naprawach i kierunek gry (2026-11-10)
 
