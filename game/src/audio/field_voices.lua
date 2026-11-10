@@ -3,25 +3,41 @@ local Mix = require('src.content.audio_mix')
 local Context = require('src.session.context')
 local Pools = require('src.session.world')
 local Profiles = require('src.audio.creature_profiles')
+local HazardDefs = require('src.content.hazards')
+local Registry = require('src.core.registry')
 local V = {}
 local sessions = setmetatable({}, { __mode = 'k' })
 local defaults = { fire = 'ash_eruption', lightning = 'thunder' }
+-- Where a field is heard from, by its kind (content/hazards.lua, PLAN Z7): the place of
+-- its mark nearest the listener, point(hazard, listener, out); a kind without an entry is
+-- heard from its centre.
+V.points = Registry:new('hazard voice points', function(entry, id)
+  HazardDefs:get(id)
+  assert(type(entry) == 'function', 'hazard voice point ' .. id .. ' is a function')
+end)
+-- A ring is heard from its edge.
+V.points:register('wave', function(hazard, listener, out)
+  local dx, dz = listener.x - hazard.x, listener.z - hazard.z
+  local distance = math.sqrt(dx * dx + dz * dz)
+  if distance > 0 then
+    out.x, out.z =
+      hazard.x + dx / distance * hazard.radius, hazard.z + dz / distance * hazard.radius
+  end
+end)
+-- A ray from the point of it nearest the listener.
+V.points:register('sweepline', function(hazard, listener, out)
+  local dx, dz = math.sin(hazard.angle or 0), math.cos(hazard.angle or 0)
+  local along = math.max(
+    0,
+    math.min(hazard.radius, (listener.x - hazard.x) * dx + (listener.z - hazard.z) * dz)
+  )
+  out.x, out.z = hazard.x + dx * along, hazard.z + dz * along
+end)
 local function point(hazard, listener, out)
   out.x, out.z = hazard.x, hazard.z
-  if hazard.kind == 'wave' then
-    local dx, dz = listener.x - hazard.x, listener.z - hazard.z
-    local distance = math.sqrt(dx * dx + dz * dz)
-    if distance > 0 then
-      out.x, out.z =
-        hazard.x + dx / distance * hazard.radius, hazard.z + dz / distance * hazard.radius
-    end
-  elseif hazard.kind == 'sweepline' then
-    local dx, dz = math.sin(hazard.angle or 0), math.cos(hazard.angle or 0)
-    local along = math.max(
-      0,
-      math.min(hazard.radius, (listener.x - hazard.x) * dx + (listener.z - hazard.z) * dz)
-    )
-    out.x, out.z = hazard.x + dx * along, hazard.z + dz * along
+  local nearest = V.points:find(hazard.kind or HazardDefs.default)
+  if nearest then
+    nearest(hazard, listener, out)
   end
 end
 -- The marks of the live session, never of a drawn sample (PLAN Z4: the image smooths

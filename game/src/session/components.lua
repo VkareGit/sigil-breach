@@ -7,6 +7,7 @@
 local Characters = require('src.content.characters')
 local Defaults = require('src.content.combat_defaults')
 local KnightDef = require('src.content.knight')
+local HazardDefs = require('src.content.hazards')
 local C = {}
 -- smooth: how the drawn image blends the field between two simulation steps
 -- (render/presentation.lua, PLAN E4): 'linear' for a continuous quantity (place,
@@ -238,11 +239,9 @@ C.schemas.entity = {
 }
 -- A marked ground hazard: pool, line, lightning (enemies/hazards.lua). What moves is
 -- smoothed in the image like a body (PLAN Z4): a tempest's safe circle, the ring of a wave,
--- the turn of a line and the warning's time left.
+-- the turn of a line and the warning's time left. What every mark has; what one kind keeps
+-- its kind declares (content/hazards.lua, PLAN Z7: C.fields).
 C.schemas.hazard = {
-  garden = f(nil, 'owned deposit family counted against its capacity'),
-  harvest = f(nil, 'pending eruption warning bound to the owner windup'),
-  erupting = f(nil, 'a consumed deposit in its final brief contact'),
   x = f(0, nil, linear),
   z = f(0, nil, linear),
   level = f(nil, 'the surface it lies on, on a world with decks'),
@@ -258,22 +257,8 @@ C.schemas.hazard = {
   kind = f(nil, 'content/hazards.lua; none: a pool'),
   art = f(nil, 'painted ground rite style'),
   impactSound = f(nil, 'voice of the released ground contact'),
-  reach = f(nil, 'where a wave dies out (m)'),
-  spread = f(nil, 'how fast a wave grows (m/s)'),
-  width = f(nil, 'depth of a wave or full width of a floor tear (m)'),
-  angle = f(nil, 'where a sweeping line points (radians, not wrapped)', linear),
-  spin = f(nil, 'how fast it turns (radians/s)'),
-  centerX = f(nil, 'the place a safe circle wanders around'),
-  centerZ = f(nil),
-  orbit = f(nil, 'how far from it (m)'),
-  hits = f(nil, 'ids of the bodies already struck'),
   owner = f(nil),
   side = f('demons', "its maker's side (content/factions.lua): it hurts bodies of a hostile one"),
-  damage = f(nil),
-  waitForCast = f(nil),
-  cancelled = f(nil),
-  justReleased = f(nil),
-  struck = f(nil),
 }
 -- A supply or a soul on the floor.
 C.schemas.pickup = {
@@ -420,7 +405,7 @@ C.transient = { path = true }
 function C.smoothed(pool, kind)
   local keys = {}
   for _, name in ipairs(C.pools[pool] or {}) do
-    for field, spec in pairs(C.schemas[name]) do
+    for field, spec in pairs(C.fields(name)) do
       if spec.smooth and (kind == nil or spec.smooth == kind) then
         keys[#keys + 1] = field
       end
@@ -433,7 +418,7 @@ end
 function C.rests(pool)
   local rests = {}
   for _, name in ipairs(C.pools[pool] or {}) do
-    for field, spec in pairs(C.schemas[name]) do
+    for field, spec in pairs(C.fields(name)) do
       if spec.smooth and spec.rest ~= nil then
         rests[field] = spec.rest
       end
@@ -468,9 +453,26 @@ C.pools = {
 -- Pools whose members are still created by their systems (no strict schema
 -- yet): their component is a tag without declared fields.
 local tags = {}
+-- The fields a member of a component carries: a mark also carries what each kind of marked
+-- ground declares it keeps (content/hazards.lua, PLAN Z7), never a field every mark has.
+function C.fields(name)
+  local own = C.schemas[name]
+  if name ~= 'hazard' then
+    return own
+  end
+  local all = {}
+  for field, spec in pairs(own) do
+    all[field] = spec
+  end
+  for field, spec in pairs(HazardDefs.fields()) do
+    assert(own[field] == nil, 'hazard kinds: ' .. field .. ' is a field of every mark')
+    all[field] = f(nil, spec.desc, spec.smooth)
+  end
+  return all
+end
 function C.declare(world)
-  for name, fields in pairs(C.schemas) do
-    world:component(name, fields)
+  for name in pairs(C.schemas) do
+    world:component(name, C.fields(name))
   end
   for _, tag in ipairs(tags) do
     world:component(tag, {})

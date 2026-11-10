@@ -1,7 +1,38 @@
 -- Remember the end of a released tear for a brief, harmless settling painting.
 local Pools = require('src.session.world')
 local Rites = require('src.content.art.rites')
+local HazardDefs = require('src.content.hazards')
+local Registry = require('src.core.registry')
 local Feedback = {}
+-- What the release of a mark leaves to settle on the floor, by its kind (content/hazards.lua,
+-- PLAN Z7): burst(g, h), the settling painting at the end of the mark; a kind without an
+-- entry leaves nothing.
+Feedback.bursts = Registry:new('hazard bursts', function(entry, id)
+  HazardDefs:get(id)
+  assert(type(entry) == 'function', 'hazard burst ' .. id .. ' is a function')
+end)
+local function burst(g, h, life, angle, radius)
+  return {
+    kind = h.kind,
+    art = h.art,
+    height = h.volume and h.volume.top,
+    width = h.width,
+    x = h.x,
+    z = h.z,
+    level = h.level,
+    angle = angle,
+    radius = radius,
+    starts = g.elapsed + math.max(0, h.delay) + life,
+  }
+end
+-- A ring settles at its reach when it gets there.
+Feedback.bursts:register('wave', function(g, h)
+  return burst(g, h, (h.reach - h.radius) / h.spread, 0, h.reach)
+end)
+-- A ray where it stops turning.
+Feedback.bursts:register('sweepline', function(g, h)
+  return burst(g, h, h.life, h.angle + h.spin * h.life, h.radius)
+end)
 require('src.session.fields').declareView(
   'feedback.rite_feedback',
   { 'riteBursts', 'blinkBursts', 'lightningBursts', 'impactBursts', 'poolBursts' },
@@ -88,21 +119,9 @@ function Feedback.released(g, event)
   -- latest ray of this owner carries the remaining authoritative warning.
   for i = #hazards, 1, -1 do
     local h = hazards[i]
-    if (h.kind == 'sweepline' or h.kind == 'wave') and h.owner == event.enemy.id then
-      local wave = h.kind == 'wave'
-      local life = wave and (h.reach - h.radius) / h.spread or h.life
-      bursts[#bursts + 1] = {
-        kind = h.kind,
-        art = h.art,
-        height = h.volume and h.volume.top,
-        width = h.width,
-        x = h.x,
-        z = h.z,
-        level = h.level,
-        angle = not wave and h.angle + h.spin * h.life or 0,
-        radius = wave and h.reach or h.radius,
-        starts = g.elapsed + math.max(0, h.delay) + life,
-      }
+    local settle = Feedback.bursts:find(h.kind or HazardDefs.default)
+    if settle and h.owner == event.enemy.id then
+      bursts[#bursts + 1] = settle(g, h)
       break
     end
   end

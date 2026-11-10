@@ -7,6 +7,16 @@
 local Class = require('src.core.class')
 local Id = require('src.core.id')
 local Registry = Class:extend('Registry')
+-- How many times each registry changed, kept beside it rather than in it: its entries and
+-- order stay the content they were (a test that registers and unregisters leaves it so).
+local changes = setmetatable({}, { __mode = 'k' })
+local function changed(registry)
+  changes[registry] = (changes[registry] or 0) + 1
+end
+-- A count that grows at each change: what read its entries once can tell they changed.
+function Registry:revision()
+  return changes[self] or 0
+end
 function Registry:init(name, check)
   self.name = name
   self.check = check
@@ -26,6 +36,7 @@ function Registry:register(id, entry)
   -- A rejected definition changes neither the entries nor their order.
   self.order[#self.order + 1] = id
   self.entries[id] = entry
+  changed(self)
   return entry
 end
 -- Register an entry to be met before an existing one, where the order of the
@@ -52,6 +63,7 @@ function Registry:replace(id, entry)
   assert(self.entries[id] ~= nil, self.name .. ': cannot replace missing ' .. id)
   validate(self, id, entry)
   self.entries[id] = entry
+  changed(self)
   return entry
 end
 -- Remove an entry (a mod unloading, a test cleaning up after itself).
@@ -61,6 +73,7 @@ function Registry:unregister(id)
   end
   local entry = self.entries[id]
   self.entries[id] = nil
+  changed(self)
   for i, known in ipairs(self.order) do
     if known == id then
       table.remove(self.order, i)

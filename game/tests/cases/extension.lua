@@ -589,6 +589,117 @@ function Tests.run(G)
     dashed = dashed or sound == require('src.content.event_cues').Dashed.sound
   end
   check('a dodge is heard through its event, its sound named in content', dashed)
+  -- A new kind of marked ground (PLAN Z7) is entries of registries only: the state it
+  -- keeps on its mark with its version, what it does, how it looks and where it is heard
+  -- from. Its state is carried by every mark it makes, blended in the image as it declares,
+  -- kept by a save, and a mark of its older shape is brought up to the new.
+  do
+    local HazardDefs = require('src.content.hazards')
+    local HazardSteps = require('src.enemies.hazards')
+    local HazardArt = require('src.render.hazard_kinds')
+    local FieldVoices = require('src.audio.field_voices')
+    local Components = require('src.session.components')
+    local Presentation = require('src.render.presentation')
+    local Pools = require('src.session.world')
+    local Save = require('src.storage.save')
+    local Spawn = require('src.session.spawn')
+    local Volumes = require('src.content.defs.area')
+    local Copy = require('src.core.schema').copy
+    local heard = 0
+    local declared = pcall(function()
+      HazardDefs:register('trial_drift', {
+        volume = 'pool',
+        version = 2,
+        migrations = {
+          [1] = function(h)
+            h.drift, h.speedX = h.speedX, nil
+          end,
+        },
+        state = { drift = { desc = 'how fast it slides along x (m/s)', smooth = 'linear' } },
+      })
+      HazardSteps.kinds:register('trial_drift', {
+        step = function(_, h, dt)
+          h.x, h.life = h.x + h.drift * dt, h.life - dt
+        end,
+      })
+      HazardArt:register('trial_drift', { ground = function() end })
+      FieldVoices.points:register('trial_drift', function(h, _, out)
+        heard = heard + 1
+        out.x, out.z = h.x, h.z
+      end)
+    end)
+    check('a kind of marked ground is declared by registries alone', declared)
+    check(
+      'no entry is taken for a kind that is not declared',
+      not pcall(HazardArt.register, HazardArt, 'trial_nothing', { ground = function() end })
+    )
+    local smoothed = false
+    for _, field in ipairs(Components.smoothed('hazards')) do
+      smoothed = smoothed or field == 'drift'
+    end
+    check('the image blends what the new kind declares it moves', smoothed)
+    local ok, problem = pcall(function()
+      local g = G.new('pilgrimage')
+      g:act('start')
+      g.state = 'playing'
+      local p = g.player
+      local mark = Spawn.make(g, 'hazard', {
+        kind = 'trial_drift',
+        x = p.x + 3,
+        z = p.z,
+        level = p.level,
+        delay = 0,
+        maxDelay = 0,
+        radius = 1,
+        life = 5,
+        pulse = 0,
+        volume = Copy(Volumes.defaults.pool),
+        drift = 1.5,
+      })
+      local from = mark.x
+      Presentation.capture(g)
+      for _ = 1, 12 do
+        g:update(1 / 120, {})
+      end
+      check('its mark keeps its own state and goes as its kind does', mark.x > from + 0.1)
+      -- The field voices ask its kind where it is heard from, as they ask a wave.
+      local played = heard
+      local out = {}
+      FieldVoices.points:get('trial_drift')(mark, p, out)
+      check('and it is heard from where its kind says', played > 0 and out.x == mark.x)
+      local section = Save.section('pools')
+      local packed = section.pack(g)
+      check('a save records the version of its state', (packed.hazardKinds or {}).trial_drift == 2)
+      section.restore(g, section.unpack(packed))
+      local back = Pools.of(g, 'hazards')[1]
+      check(
+        'and takes its mark up as it was',
+        back and back.kind == 'trial_drift' and back.drift == 1.5
+      )
+      -- A mark as the kind's first version kept it: its speed under another name.
+      rawset(back, 'speedX', back.drift)
+      back.drift = nil
+      packed = section.pack(g)
+      packed.hazardKinds = { trial_drift = 1 }
+      section.restore(g, section.unpack(packed))
+      back = Pools.of(g, 'hazards')[1]
+      check(
+        'a mark of its older shape is brought up to the new',
+        back and back.drift == 1.5 and rawget(back, 'speedX') == nil
+      )
+      Pools.clear(g, 'hazards')
+    end)
+    check('the new kind of marked ground holds' .. (ok and '' or ': ' .. tostring(problem)), ok)
+    FieldVoices.points:unregister('trial_drift')
+    HazardArt:unregister('trial_drift')
+    HazardSteps.kinds:unregister('trial_drift')
+    HazardDefs:unregister('trial_drift')
+    smoothed = false
+    for _, field in ipairs(Components.smoothed('hazards')) do
+      smoothed = smoothed or field == 'drift'
+    end
+    check('and is gone again', not smoothed and not HazardDefs:has('trial_drift'))
+  end
   -- The world is one map divided into areas (PLAN G4): an area with bounds is
   -- carved out of the map's own; its garrison stands from the start, asleep,
   -- and walking in is a step, not a journey.

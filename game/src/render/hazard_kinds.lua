@@ -1,6 +1,8 @@
 -- How each kind of marked ground looks (content/hazards.lua):
 --   ground(r, g, h, effects)  drawn on the floor
 --   air(r, g, h, effects)     its spell above it, if any (render/effects.lua)
+--   afterimage(r, g, h, age)  what its release left settling, if anything (h: the burst of
+--                             feedback/rite_feedback.lua; age within Rites.ray.embers)
 local HazardDefs = require('src.content.hazards')
 local Ballistics = require('src.combat.ballistics')
 local Ground = require('src.physics.ground')
@@ -11,6 +13,10 @@ local Painters = require('src.render.painters')
 local Kinds = Registry:new('hazard art', function(entry, id)
   HazardDefs:get(id)
   assert(type(entry.ground) == 'function', 'hazard art ' .. id .. ' needs ground')
+  assert(
+    entry.afterimage == nil or type(entry.afterimage) == 'function',
+    'hazard art ' .. id .. ': afterimage is a function'
+  )
 end)
 -- A styled pool or lightning is its painter's (render/painters.lua); a plain
 -- one is drawn here.
@@ -65,6 +71,9 @@ local function waveResidue(r, g, h, radius, alpha)
   end
 end
 Kinds:register('wave', {
+  afterimage = function(r, g, h, age)
+    waveResidue(r, g, h, h.radius, 0.5 * (1 - age / Rites.ray.embers))
+  end,
   ground = function(r, g, h)
     if Rites.waves[h.art] then
       if h.delay > 0 then
@@ -158,7 +167,39 @@ local function floorTear(r, g, h, cell, alpha)
     alpha
   )
 end
+-- Settled pigment follows the last real line, never a floating duplicate of its origin.
+local function tearAfterimage(r, g, h, age)
+  local R = Rites.ray
+  floorTear(r, g, h, R.settling, Rites.rayAfterimage * (1 - age / R.embers))
+  local style = Rites.fissures[h.art]
+  if style then
+    local ground = Ground.of(g.world, h)
+    local reach = Ballistics.world(
+      g.world,
+      h.x,
+      ground + 1,
+      h.z,
+      math.sin(h.angle),
+      0,
+      math.cos(h.angle),
+      h.radius
+    )
+    HazardArt.ribbon(
+      r,
+      g,
+      h,
+      style.frames[3],
+      'line',
+      reach,
+      h.width,
+      h.height * (1 - age / R.embers),
+      h.angle,
+      1 - age / R.embers
+    )
+  end
+end
 Kinds:register('sweepline', {
+  afterimage = tearAfterimage,
   ground = function(r, g, h)
     local R = Rites.ray
     local progress = h.delay > 0 and (1 - h.delay / math.max(1e-3, h.maxDelay)) or 1
@@ -203,42 +244,14 @@ Kinds:register('sweepline', {
     )
   end,
 })
--- Settled pigment follows the last real line, never a floating duplicate of its origin.
+-- What a release left settling on the floor, its kind's afterimage (PLAN Z7).
 function Kinds.rayAfterimage(r, g, h, age)
-  local R = Rites.ray
-  if age < 0 or age >= R.embers then
+  if age < 0 or age >= Rites.ray.embers then
     return
   end
-  if h.kind == 'wave' then
-    waveResidue(r, g, h, h.radius, 0.5 * (1 - age / R.embers))
-  else
-    floorTear(r, g, h, R.settling, Rites.rayAfterimage * (1 - age / R.embers))
-    local style = Rites.fissures[h.art]
-    if style then
-      local ground = Ground.of(g.world, h)
-      local reach = Ballistics.world(
-        g.world,
-        h.x,
-        ground + 1,
-        h.z,
-        math.sin(h.angle),
-        0,
-        math.cos(h.angle),
-        h.radius
-      )
-      HazardArt.ribbon(
-        r,
-        g,
-        h,
-        style.frames[3],
-        'line',
-        reach,
-        h.width,
-        h.height * (1 - age / R.embers),
-        h.angle,
-        1 - age / R.embers
-      )
-    end
+  local art = Kinds:find(h.kind or HazardDefs.default)
+  if art and art.afterimage then
+    art.afterimage(r, g, h, age)
   end
 end
 function Kinds.of(h)

@@ -4,6 +4,7 @@ local Flinch = require('src.enemies.flinch')
 -- Interpolate the fixed simulation without delaying raw mouse input or mutating gameplay.
 local Pools = require('src.session.world')
 local Components = require('src.session.components')
+local HazardDefs = require('src.content.hazards')
 local Rate = require('src.core.rate')
 local P = {}
 local playerKeys = { 'x', 'z', 'jump', 'crouch' }
@@ -50,18 +51,23 @@ local viewClocks = { 'shotAge' }
 -- The members of the pools the image draws blend the fields their components
 -- declare smooth (session/components.lua: f(..., 'linear'), PLAN E4): a new
 -- moving field is smoothed by its declaration, not by a list kept here.
-local memberKeys = {
-  enemies = Components.smoothed('enemies'),
-  projectiles = Components.smoothed('projectiles'),
-  charges = Components.smoothed('charges'),
-  hazards = Components.smoothed('hazards'),
-}
-local memberRests = {
-  enemies = Components.rests('enemies'),
-  projectiles = Components.rests('projectiles'),
-  charges = Components.rests('charges'),
-  hazards = Components.rests('hazards'),
-}
+local drawn = { 'enemies', 'projectiles', 'charges', 'hazards' }
+local memberKeys, memberRests = {}, {}
+local function declared()
+  for _, pool in ipairs(drawn) do
+    memberKeys[pool], memberRests[pool] = Components.smoothed(pool), Components.rests(pool)
+  end
+end
+declared()
+-- A kind of marked ground registered later (a mod, a test) blends what it declares
+-- (PLAN Z7): the fields are read again when the kinds changed.
+local hazardKinds = HazardDefs:revision()
+local function current()
+  if HazardDefs:revision() ~= hazardKinds then
+    hazardKinds = HazardDefs:revision()
+    declared()
+  end
+end
 local stateClocks = Components.smoothed('enemies', 'clock')
 local function values(object, keys)
   local out = {}
@@ -126,6 +132,7 @@ end
 -- World positions are captured once; the motion history belongs to each
 -- watched view. Unwatched actors still have a position sample, never a view.
 function P.capture(g)
+  current()
   if g.state ~= 'playing' or g.map then
     g.view.presentationPrevious = nil
     for _, view in pairs(Context.watched(g)) do
@@ -181,6 +188,7 @@ function P.capture(g)
   end
 end
 function P.sample(g, t)
+  current()
   local prev = g.view.presentationPrevious
   if not prev or g.state ~= 'playing' or g.map then
     return g

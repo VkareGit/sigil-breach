@@ -140,6 +140,9 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z7 zrobione:** stan rodzaju zagrożenia deklarowany przez
+  rodzaj z wersją i migracją, haki rodzaju zamiast porównań nazw w
+  prezentacji. Golden, rendery i dźwięk identyczne.
 - 2026-11-10, **Z6 zrobione:** odpoczynek i zapas zapisu w polu
   przechodzą wszystkie obszary mapy. Golden bez zmian.
 - 2026-11-10, **Z1 zrobione (wariant A):** narthex budzi rycerza twarzą

@@ -81,6 +81,23 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z7, stan rodzaju zagrożenia deklaruje sam rodzaj, 2026-11-10 (audyt
+  silnika): każdy rodzaj w `content/hazards.lua` deklaruje pola, które
+  trzyma na znaku (`state`, z wygładzaniem jak w komponencie), wersję
+  i migracje (jak `combat/action_kinds.lua`); wspólny schemat `hazard`
+  w `session/components.lua` trzyma tylko pola każdego znaku, a
+  `C.fields('hazard')` dokłada pola rodzajów. Zapis puli (`pools`)
+  zapisuje wersje rodzajów, które je mają (`hazardKinds`), a wczytanie
+  podnosi starszy znak migracjami. Prezentacja nie porównuje nazw
+  rodzajów: skąd słychać pole (`audio/field_voices.lua`: `V.points`), co
+  zostaje po uwolnieniu (`feedback/rite_feedback.lua`: `Feedback.bursts`)
+  i jego osiadający obraz (`render/hazard_kinds.lua`: `afterimage`) to
+  wpisy rodzaju. Rejestr liczy swoje zmiany obok siebie
+  (`Registry:revision()`), więc obraz wygładza też pola rodzaju
+  dopisanego później. Bez zmiany zachowania. Zostają porównania poza
+  prezentacją: pula ogrodu w `combat/deposits.lua` (`kind == 'pool'`)
+  i rodzaj ataku w `rite_feedback.released`.
+
 - Z6, odpoczynek i zapis w polu obejmują całą mapę, 2026-11-10 (audyt
   silnika): `secure` w `run/pilgrimage.lua` i zapasowe `fallen`/`picked`
   w `fieldOf` (`run/pilgrimage_save.lua`) przechodzą wszystkie obszary
@@ -5119,6 +5136,23 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z7, rodzaj zagrożenia samymi rejestrami, 2026-11-10: nowy test
+  w `extension` dodaje rodzaj `trial_drift` samymi wpisami rejestrów
+  (stan `drift` wygładzany liniowo, wersja 2 z migracją, krok, obraz,
+  punkt głosu): znak niesie swój stan w trybie ścisłym i przesuwa się
+  jak każe jego rodzaj, głosy pola pytają jego rodzaj, obraz wygładza
+  `drift`, zapis puli zapisuje wersję 2 i odtwarza znak, a znak w
+  kształcie wersji 1 (`speedX`) zostaje podniesiony migracją; po
+  wyrejestrowaniu nic nie zostaje. Przed zmianą czerwony („declared by
+  registries alone”: brak wpisu głosu), po zmianie `extension` 69 PASS.
+  Licznik zmian rejestru trzymany najpierw w samym rejestrze łamał
+  pieczęć treści (`Definitions.verify`); przeniesiony obok rejestru.
+  Eksport dźwięku pełny: 279 WAV identycznych bajt w bajt przed i po.
+  Rendery pokazu: 782 PNG z bramy identyczne bajt w bajt z bramą Z6.
+  Brama Linux zielona: 9439 sprawdzeń w 4 częściach, showcase, Tools,
+  `startup-check`, `resource-plateau`, `measure-trial` PASS. Golden bez
+  zmian. Okno gracza nieoglądane; Windows niesprawdzony.
 
 - Z6, obszary jednej mapy, 2026-11-10: nowy test w `pilgrimage` wycina
   z mapy kaplicy obszar próbny `trial_wing` (jak `extension`) z własnym ogniskiem

@@ -19,6 +19,7 @@ local Roles = require('src.core.roles')
 local Tree = require('src.core.data_tree')
 local Save = require('src.storage.save')
 local ActionKinds = require('src.combat.action_kinds')
+local HazardDefs = require('src.content.hazards')
 local M = {}
 -- Pool name -> the session array field that stores it; order is the
 -- deterministic order of queries across pools.
@@ -289,18 +290,21 @@ Save.declare({
         end
       end
     end
-    local kinds = ActionKinds.versions()
+    local kinds, marks = ActionKinds.versions(), HazardDefs.versions()
     return {
       pools = Tree.encode(all, transient),
       controlled = controlled,
       nextId = g.nextId,
       kinds = next(kinds) and kinds or nil,
+      -- The version of each kind of marked ground that has one (PLAN Z7).
+      hazardKinds = next(marks) and marks or nil,
     }
   end,
   unpack = function(t)
     assert(type(t) == 'table', 'pools')
     local all = Tree.decode(t.pools)
     assert(type(all) == 'table', 'pools')
+    assert(t.hazardKinds == nil or type(t.hazardKinds) == 'table', 'hazard kind versions')
     for name in pairs(all) do
       assert(M.arrays[name], 'unknown pool ' .. tostring(name))
     end
@@ -317,8 +321,11 @@ Save.declare({
           assert(not ids[e.id], 'two members with one id')
           ids[e.id] = true
         end
-        -- An attack in progress resumes in the shape its kind keeps now.
+        -- An attack in progress resumes in the shape its kind keeps now, and a mark too.
         ActionKinds.resume(e, t.kinds)
+        if name == 'hazards' then
+          HazardDefs.resume(e, t.hazardKinds)
+        end
       end
     end
     local knights = all.knights
