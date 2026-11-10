@@ -123,11 +123,13 @@ local function enemyKilled(g, e)
   end
   g = personal
   local p = Context.actor(g)
+  -- Health and place as they were at the kill (PLAN Z13), not as the step left them.
+  local hp, x, z = e.killerHp or p.hp, e.killerX or p.x, e.killerZ or p.z
   if e.source == 'execution' then
     Medals.show(g, 'absolved')
-  elseif p.hp <= Characters.maxHp(p) * Honours.lastRites then
+  elseif hp <= Characters.maxHp(p) * Honours.lastRites then
     Medals.show(g, 'last_rites')
-  elseif ((enemy.x - p.x) ^ 2 + (enemy.z - p.z) ^ 2) ^ 0.5 <= Honours.pointBlank then
+  elseif ((enemy.x - x) ^ 2 + (enemy.z - z) ^ 2) ^ 0.5 <= Honours.pointBlank then
     Medals.show(g, 'point_blank')
   end
   if e.souls then

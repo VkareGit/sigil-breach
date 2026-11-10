@@ -68,9 +68,35 @@ local function run(g, seconds)
     g:update(TICK, {})
   end
 end
+-- PLAN Z13: the medal of a kill reads the knight as he was at the kill, not as the
+-- presentation finds him after it: a break kill's own heal, a step back.
+local function atTheKill(check, Game)
+  local Characters = require('src.content.characters')
+  local g = F.arena(Game)
+  local p = g.player
+  local most = Characters.maxHp(p)
+  p.hp = most * K.lastRites - 5
+  local broken = g:spawn('imp', p.x + 5, p.z)
+  broken.stun = 0.2
+  g:damageEnemy(broken, broken.hp + 500, 'weapon', nil, p.id)
+  check('a break kill heals him above his last rites', p.hp > most * K.lastRites)
+  g:update(TICK, {})
+  check('and he has them, as he was when it fell', g.view.medal == 'last_rites')
+  g = F.arena(Game)
+  p = g.player
+  local close = g:spawn('imp', p.x + K.pointBlank * 0.6, p.z)
+  g:damageEnemy(close, close.hp + 500, 'weapon', nil, p.id)
+  p.x = p.x - K.pointBlank * 2
+  g:update(TICK, {})
+  check(
+    'a kill at point blank is told so, though he stepped back after it',
+    g.view.medal == 'point_blank'
+  )
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'chain: ', 'chain: ')
+  atTheKill(check, Game)
   local g, p = fresh(Game)
   kill(g, p)
   check('one kill is no chain', Chain.step(p) == nil)

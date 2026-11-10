@@ -81,6 +81,13 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z13, medale czytają rycerza z chwili zabicia, 2026-11-10 (audyt
+  silnika): `EnemyKilled` (`session/damage_outcomes.lua`) niesie zdrowie
+  i położenie zabójcy w chwili zabicia (`killerHp`, `killerX`, `killerZ`),
+  zanim słuchacze symulacji go uleczą. `last_rites` i `point_blank`
+  (`feedback/listeners.lua`) czytają te pola, a nie stan rycerza w chwili
+  prezentacji.
+
 - Z12, „luka maski trafień” w klatce 28 Ember Thralla: zbadana, bez
   zmiany kodu ani danych (2026-11-10, audyt silnika). Maska klatki 28
   zgadza się z obrazem (wypiekana z namalowanej alfy). Pocisk w teście
@@ -5203,6 +5210,17 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z13, medale przy zabiciu, 2026-11-10: nowe sprawdzenia w `chain`.
+  Zabójstwo przełamane przy zdrowiu poniżej progu ostatniego namaszczenia
+  leczy rycerza ponad próg, a medal `last_rites` i tak się pojawia; zabicie
+  z bliska (1,5 m), po którym rycerz cofa się o 5 m przed prezentacją, daje
+  `point_blank`. Przed zmianą czerwone („and he has them, as he was when it
+  fell”), po zmianie `chain` 26 PASS. Rendery pokazu: 782 PNG identyczne
+  bajt w bajt z bramą Z10. Brama Linux zielona: 9456 sprawdzeń w 4
+  częściach, showcase, Tools, `startup-check`, `resource-plateau`,
+  `measure-trial` PASS. Golden bez zmian. Okno gracza nieoglądane; Windows
+  niesprawdzony.
 
 - Z12, klatka 28 Ember Thralla, 2026-11-10: sondy poza repozytorium.
   Strzał natychmiastowy, przemiatanie promieniem pocisku i prawdziwy

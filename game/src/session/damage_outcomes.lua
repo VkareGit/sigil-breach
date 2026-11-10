@@ -76,6 +76,9 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
   -- (session/listeners.lua) and its measurement read this result.
   local causes = {}
   local offBalance = Rules.offBalance(enemy, causes)
+  -- The killer as he was at the kill (PLAN Z13): what a medal reads, before the kill's own
+  -- heal (session/listeners.lua) and whatever the rest of the step does.
+  local killer = owner and Pools.get(g, owner)
   emit(g, 'EnemyKilled', {
     enemy = enemy,
     damage = damage,
@@ -86,6 +89,9 @@ function Outcomes.enemy(g, enemy, damage, source, payload, owner, weapon)
     owner = owner,
     weapon = weapon,
     target = enemy.id,
+    killerHp = killer and killer.hp,
+    killerX = killer and killer.x,
+    killerZ = killer and killer.z,
   })
   return healthDamage
 end

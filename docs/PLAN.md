@@ -140,6 +140,8 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z13 zrobione:** `EnemyKilled` niesie stan zabójcy z chwili
+  zabicia; `last_rites` i `point_blank` go czytają. Golden bez zmian.
 - 2026-11-10, **Z12 zbadane, bez zmiany:** maska klatki 28 zgadza się
   z obrazem; pudło wynika z odbicia bilboardu po przejściu rycerza za
   ciało. Zmiana obrazu: decyzja właściciela.

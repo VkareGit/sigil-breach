@@ -32,7 +32,10 @@ local Catalog = {
   { 'PlayerStaggered', 'the knight lost his balance {time}' },
   { 'Alerted', 'a demon noticed the knight {enemy}' },
   { 'ChargeBlocked', 'a rush ran into stone {enemy}' },
-  { 'EnemyKilled', 'a demon died {enemy, source, offBalance, causes, owner, weapon, souls}' },
+  {
+    'EnemyKilled',
+    'a demon died {enemy, source, offBalance, causes, owner, weapon, souls, killerHp, killerX, killerZ}',
+  },
   { 'EnemyPhaseChanged', 'a living encounter entered another phase {enemy, from, phase, id}' },
   { 'PlayerHit', 'the knight was hit {packet, events, x, z}' },
   { 'KnightHit', 'a knight other than the controlled one was hit {knight, info}' },
