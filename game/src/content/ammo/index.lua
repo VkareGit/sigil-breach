@@ -11,7 +11,7 @@
 --   full(spec, state)            a reload has nothing to do
 --   stocked(spec, state)         a reload has something to load
 --   pending(spec, state)         what the next load moves
---   load(spec, state)            moves it; returns how much
+--   load(spec, state, count)     moves it, at most count (none: all); returns how much
 --   room(spec, state)            what a supply could still add
 --   refill(spec, state, n, cap)  adds n, up to cap; returns what it added
 --   fill, clear, restock(spec, state)  everything, nothing, as it starts

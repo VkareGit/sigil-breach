@@ -1,7 +1,9 @@
 -- Reload mechanisms as data (combat/reload.lua reads them, one interpreter for
 -- all). A new action is a new entry:
 --   duration          the full timeline (s)
---   stages            in order: at, name = 'open' | 'load' | 'close'
+--   stages            in order: at, name (its voice and label), kind (what it does, a
+--                     reload stage kind of combat/reload.lua: open, load, close, round;
+--                     none: its name)
 --   ejects            the spent cases fly when it opens
 --   resume            where a reload starts: loaded (open, rounds in), open (open,
 --                     empty), afterShot (the automatic one), closed; none: 0

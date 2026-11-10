@@ -119,8 +119,9 @@ local function ended(g, event)
     Reactions.fire(g, 'miss', shot.shooter.id, shot.profile, nil, b)
   end
 end
+-- A reload done (its stage kind says so: combat/reload.lua, PLAN Z9), not stopped.
 local function reloaded(g, event)
-  if event.stage == 'close' and not event.interrupted then
+  if event.finished and not event.interrupted then
     local body = Pools.get(g, event.actor)
     Reactions.fire(g, 'reload', event.actor, body and Weapons.inHand(g, nil, body), nil, body)
   end

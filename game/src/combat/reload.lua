@@ -6,6 +6,7 @@ local Text = require('src.content.text')
 local Roles = require('src.core.roles')
 local Ammo = require('src.content.ammo.index')
 local Reloads = require('src.content.reloads')
+local Registry = require('src.core.registry')
 local R = {}
 -- The reload belongs to the actor (plan v11 E3): its timeline, stage and the
 -- slot it reloads are fields of the knight's record (session/components.lua).
@@ -27,6 +28,63 @@ end
 local function crossed(before, after, t)
   return before < t and after >= t
 end
+-- What a stage does when the timeline crosses it, by its kind (PLAN Z9; content/reloads.lua:
+-- stages[i].kind, else its name). A new kind is a new entry:
+--   enter(g, w, a, data, event)  the stage happens; returns whether it is heard (its
+--                                ReloadStage goes out) and whether the reload ends with it
+--   after(g, w, data)            optional: once its event went out
+--   finishes                     the reload is done when it is crossed (event.finished)
+-- w: the weapon's live record, a: the actor, data: the mechanism, event: its ReloadStage.
+R.stages = Registry:new('reload stage kinds', function(kind, id)
+  assert(type(kind.enter) == 'function', 'reload stage kind ' .. id .. ' needs enter')
+  assert(kind.after == nil or type(kind.after) == 'function', 'reload stage kind ' .. id)
+end)
+-- The action opens; a breech throws out its spent cases.
+R.stages:register('open', {
+  enter = function(_, w, _, data, event)
+    w.open = true
+    w.loaded = false
+    if data.ejects then
+      -- The spent cases fly out now (feedback/world_feedback.lua).
+      event.spent = w.spent or 0
+    end
+    return true
+  end,
+  after = function(_, w, data)
+    if data.ejects then
+      w.spent = 0
+    end
+  end,
+})
+-- Everything it takes goes in at once; heard only when something went in.
+R.stages:register('load', {
+  enter = function(g, w, a)
+    local signalled = Weapons.load(g, a.reloadWeapon, a) > 0
+    w.loaded = true
+    return signalled
+  end,
+})
+-- The action closes: the reload is done.
+R.stages:register('close', {
+  finishes = true,
+  enter = function(_, w)
+    w.open = false
+    w.loaded = false
+    return true
+  end,
+})
+-- One round from the reserve (a tube, a clip filled by hand): heard when one went in. The
+-- reload is done when the weapon is full; a pull stops it between rounds while it holds one
+-- (the mechanism's interruptBefore).
+R.stages:register('round', {
+  enter = function(g, w, a, _, event)
+    local moved = Weapons.load(g, a.reloadWeapon, a, 1)
+    local def = Weapons.inHand(g, a.reloadWeapon, a)
+    local full = Ammo.of(def).full(def.ammo, w)
+    event.finished = full or nil
+    return moved > 0, full
+  end,
+})
 local function finish(_, w)
   w.open = false
   w.loaded = false
@@ -61,9 +119,11 @@ local function build(id, data)
     end
     return afterShot and resume.afterShot or resume.closed or 0
   end
+  -- Each stage crossed, in order, by its kind; true when one ended the reload.
   function m.step(g, w, before, after, a)
     for index, stage in ipairs(data.stages) do
       if crossed(before, after, stage.at) then
+        local kind = R.stages:get(stage.kind or stage.name)
         local event = {
           stage = stage.name,
           mechanism = id,
@@ -71,28 +131,18 @@ local function build(id, data)
           weapon = Weapons.idAt(g, a.reloadWeapon, a),
           actor = a.id,
           byControlled = a == Roles.controlled(g),
+          finished = kind.finishes or nil,
         }
-        local signalled = true
-        if stage.name == 'open' then
-          w.open = true
-          w.loaded = false
-          if data.ejects then
-            -- The spent cases fly out now (feedback/world_feedback.lua).
-            event.spent = w.spent or 0
-          end
-        elseif stage.name == 'load' then
-          signalled = Weapons.load(g, a.reloadWeapon, a) > 0
-          w.loaded = true
-        else
-          w.open = false
-          w.loaded = false
-        end
+        local signalled, over = kind.enter(g, w, a, data, event)
         a.reloadStage = index
         if signalled then
           Signal(g, 'ReloadStage', event)
         end
-        if stage.name == 'open' and data.ejects then
-          w.spent = 0
+        if kind.after then
+          kind.after(g, w, data)
+        end
+        if over then
+          return true
         end
       end
     end
@@ -106,12 +156,16 @@ local function build(id, data)
   end
   return m
 end
+-- Built once for each definition: a mechanism registered again (a mod, a test) is built anew.
+local built = setmetatable({}, { __mode = 'k' })
 local Mechanisms = setmetatable({}, {
-  __index = function(built, id)
+  __index = function(_, id)
     local data = Reloads:find(id)
-    local m = data and build(id, data)
-    rawset(built, id, m)
-    return m
+    if not data then
+      return nil
+    end
+    built[data] = built[data] or build(id, data)
+    return built[data]
   end,
 })
 R.mechanisms = Mechanisms
@@ -238,7 +292,10 @@ function R.update(g, dt, a)
   local after = R.age(g, a)
   local m = mechanism(g, a.reloadWeapon, a)
   local w = Weapons.state(g, a.reloadWeapon, a)
-  m.step(g, w, before, after, a)
+  if m.step(g, w, before, after, a) then
+    -- A stage ended it before its timeline (a weapon filled round by round).
+    a.reload = 0
+  end
   if a.reload == 0 then
     local def = Weapons.inHand(g, a.reloadWeapon, a)
     Sigils.reloaded(a, def.id, Ammo.of(def).canFire(def.ammo, w))

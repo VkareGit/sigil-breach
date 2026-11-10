@@ -81,6 +81,19 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z9, etapy przeładowania jako rodzaje, 2026-11-10 (audyt silnika):
+  `combat/reload.lua` ma rejestr rodzajów etapu (`R.stages`): `open`,
+  `load`, `close` robią to samo co dotąd, nowy `round` ładuje jeden nabój
+  i kończy przeładowanie, gdy broń jest pełna. Etap w danych
+  (`content/reloads.lua`) ma `kind` (bez niego: jego nazwa); głos,
+  głośność i napis etapu nadal idą z deklaracji mechanizmu po nazwie
+  etapu. Strzał przerywa ładowanie po naboju jak dotąd
+  (`interruptBefore`). `Weapons.load` i model magazynka biorą opcjonalną
+  liczbę naboi. Reakcja „po przeładowaniu” (`combat/reactions.lua`)
+  czyta `event.finished` z rodzaju etapu, nie nazwę `close`. Mechanizm
+  budowany jest od nowa dla nowej definicji (pamięć podręczna po
+  definicji, nie po id). Broń i mechanizmy gracza bez zmian.
+
 - Z8, wczytywanie z budżetem czasu na klatkę, 2026-11-10 (audyt silnika):
   `LoadPlan:step` (`app/load_plan.lua`) wykonuje kolejne porcje pracy
   w jednej wyświetlonej klatce, dopóki nie wyczerpie budżetu
@@ -5159,6 +5172,21 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z9, ładowanie po jednym naboju, 2026-11-10: nowy test w
+  `weapon-extension` definiuje fikcyjną broń z rurą na 4 naboje
+  (mechanizm `trial_tube`: cztery etapy `round`, samymi wpisami
+  rejestrów). Pierwszy nabój wchodzi sam; strzał między nabojami
+  przerywa przeładowanie i wystrzeliwuje ten nabój; ponowne ładowanie
+  kończy się, gdy broń jest pełna, przed końcem osi czasu, ze
+  zdarzeniem `finished`; zapis puli w połowie przeładowania (2 naboje)
+  wczytany w świeżej sesji idzie dalej tak samo jak niezapisana. Przed
+  zmianą czerwony („its first round goes in alone”), po zmianie
+  `weapon-extension` 33 PASS.
+  Rendery pokazu: 782 PNG identyczne bajt w bajt z bramą Z8. Brama Linux
+  zielona: 9449 sprawdzeń w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Dźwięk
+  etapów w oknie gracza nieodsłuchany; Windows niesprawdzony.
 
 - Z8, start i wczytywanie, 2026-11-10: nowe sprawdzenie w `load-plan`
   (krótkie porcje idą w jednej klatce, długa ją kończy; następna klatka

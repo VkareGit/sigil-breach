@@ -27,7 +27,7 @@ local Catalog = {
   { 'ChargeExploded', 'a powder charge went off {charge}' },
   {
     'ReloadStage',
-    'a reload stage {stage, mechanism, spent, weapon, interrupted, started, duration, reloadAge}',
+    'a reload stage {stage, mechanism, spent, weapon, interrupted, started, duration, reloadAge, finished}',
   },
   { 'PlayerStaggered', 'the knight lost his balance {time}' },
   { 'Alerted', 'a demon noticed the knight {enemy}' },

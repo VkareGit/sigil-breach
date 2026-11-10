@@ -51,8 +51,8 @@ end
 function M.pending(spec, state)
   return math.min(spec.capacity - state.mag, state.reserve)
 end
-function M.load(spec, state)
-  local amount = math.max(0, M.pending(spec, state))
+function M.load(spec, state, count)
+  local amount = math.max(0, math.min(M.pending(spec, state), count or math.huge))
   state.mag = state.mag + amount
   state.reserve = state.reserve - amount
   return amount

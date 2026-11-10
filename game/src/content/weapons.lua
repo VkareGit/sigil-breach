@@ -479,13 +479,14 @@ function W.canFire(g, actor)
   end
   return Ammo.of(def).canFire(def.ammo, state)
 end
--- Move rounds from the reserve into the weapon; returns how many.
-function W.load(g, slot, actor)
+-- Move rounds from the reserve into the weapon, at most count (none: all it takes);
+-- returns how many.
+function W.load(g, slot, actor, count)
   if not W.validAmmo(g, slot, actor) then
     return 0
   end
   local def, state = W.inHand(g, slot, actor)
-  return Ammo.of(def).load(def.ammo, state)
+  return Ammo.of(def).load(def.ammo, state, count)
 end
 -- Close every weapon's action and drop its spent cases (the shrine).
 function W.close(g, actor)

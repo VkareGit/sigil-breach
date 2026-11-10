@@ -267,6 +267,105 @@ function Tests.run(G, renderer)
     'only the two shipped guns remain and their data is unchanged',
     Weapons.count() == 2 and not Weapons.registry:has(id) and Serialize.encode(parent) == before
   )
+  -- A tube filled round by round (PLAN Z9): its mechanism is data and its stages a reload
+  -- stage kind, entries of registries only. A pull between rounds stops the reload and fires
+  -- what went in; the reload ends when it is full; a save in the middle goes on the same.
+  local Reloads = require('src.content.reloads')
+  local Reload = require('src.combat.reload')
+  local Save = require('src.storage.save')
+  local DataReader = require('src.core.data_reader')
+  local cylinder = Reloads:get('cylinder')
+  local tube = 'trial_tube'
+  local tubeOK, tubeProblem = pcall(function()
+    Reloads:register(tube, {
+      duration = 1.6,
+      stages = {
+        { at = 0.3, name = 'round', kind = 'round' },
+        { at = 0.6, name = 'round', kind = 'round' },
+        { at = 0.9, name = 'round', kind = 'round' },
+        { at = 1.2, name = 'round', kind = 'round' },
+      },
+      resume = {},
+      interruptBefore = 1.6,
+      labels = { { math.huge, 'reload_load' } },
+      sounds = { round = cylinder.sounds.load },
+      voices = { round = cylinder.voices.load },
+    })
+    Weapons.define({
+      extends = Weapons.get('judge'),
+      id = tube,
+      ammo = { kind = 'magazine', capacity = 4, startReserve = 8, maxReserve = 16, packSize = 4 },
+      reload = { mechanism = tube, speed = 1 },
+      fire = { autoReload = false },
+    })
+    Snapshot.invalidateDefinitions()
+    local function armed()
+      local g = Fixtures.started(G)
+      g:switchWeapon(Weapons.give(g, tube))
+      g.player.cooldown = 0
+      Weapons.state(g).mag = 0
+      return g
+    end
+    local function run(g, seconds)
+      for _ = 1, math.floor(seconds * 120 + 0.5) do
+        g:update(1 / 120, {})
+      end
+    end
+    local g = armed()
+    local heard = {}
+    g.bus:on('sim', 'ReloadStage', function(event)
+      heard[#heard + 1] = event
+    end)
+    check('a tube starts its reload', g:reloadGun())
+    run(g, 0.35)
+    check(
+      'its first round goes in alone',
+      Weapons.state(g).mag == 1 and #heard == 1 and heard[1].stage == 'round'
+    )
+    g.player.cooldown = 0
+    check(
+      'a pull between rounds stops the reload and fires the round in it',
+      g:shoot() and Weapons.state(g).mag == 0 and Reload.left(g) == 0
+    )
+    check('it is filled again round by round', g:reloadGun())
+    run(g, 1.25)
+    check(
+      'and the reload ends when it is full, before its timeline',
+      Weapons.state(g).mag == 4
+        and Weapons.state(g).reserve == 3
+        and Reload.left(g) == 0
+        and heard[#heard].finished == true
+    )
+    -- Saved in the middle of its reload and taken up in a fresh session.
+    local played, saved = armed(), armed()
+    played:reloadGun()
+    saved:reloadGun()
+    run(played, 0.65)
+    run(saved, 0.65)
+    local section = Save.section('pools')
+    local text = Serialize.encode(section.pack(saved))
+    local again = Fixtures.started(G)
+    section.restore(again, section.unpack(assert(DataReader.decode(text, Save.limits))))
+    check(
+      'a save in the middle of a reload keeps it',
+      Reload.left(again) == Reload.left(played) and Weapons.state(again).mag == 2
+    )
+    run(played, 0.7)
+    run(again, 0.7)
+    check(
+      'and it goes on the same',
+      Weapons.state(again).mag == Weapons.state(played).mag
+        and Weapons.state(again).mag == 4
+        and Reload.left(again) == 0
+    )
+  end)
+  Weapons.registry:unregister(tube)
+  Reloads:unregister(tube)
+  Snapshot.invalidateDefinitions()
+  check(
+    'a tube filled round by round holds' .. (tubeOK and '' or ': ' .. tostring(tubeProblem)),
+    tubeOK
+  )
   return lines
 end
 return Tests
