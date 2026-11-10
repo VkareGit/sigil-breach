@@ -140,6 +140,9 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z12 zbadane, bez zmiany:** maska klatki 28 zgadza się
+  z obrazem; pudło wynika z odbicia bilboardu po przejściu rycerza za
+  ciało. Zmiana obrazu: decyzja właściciela.
 - 2026-11-10, **Z10 zrobione:** b) limit 18 kroków i 4 skrzydeł naraz,
   najbliższe pierwsze, kaplica bez zmian; a) indeks przestrzenny
   niewdrożony (zapytania przestrzenne 3–8 % kroku; gorące jest `crowded`,

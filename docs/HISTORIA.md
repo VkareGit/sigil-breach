@@ -81,6 +81,18 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z12, „luka maski trafień” w klatce 28 Ember Thralla: zbadana, bez
+  zmiany kodu ani danych (2026-11-10, audyt silnika). Maska klatki 28
+  zgadza się z obrazem (wypiekana z namalowanej alfy). Pocisk w teście
+  `shot-observation` mija ciało nie przez lukę, tylko przez scenariusz:
+  po strzale rycerz przechodzi na drugą stronę ciała (z 25 na 18 przy
+  ciele w 21), bilboard obraca się do niego o 180° bez odbicia, więc lot
+  przecina klatkę w odbitym punkcie (u → 1 − u). Środek korpusu w klatce
+  28 leży bliżej brzegu (u 0,432, w klatkach 25–27 0,44–0,46), a jego
+  odbicie (0,568, 0,436) nie jest namalowane. Poprawka w samych danych
+  trafień rozeszłaby maskę z obrazem; obraz nie musi się zmieniać, by
+  gra była poprawna. Ewentualna zmiana obrazu: decyzja właściciela.
+
 - Z10b, limit głosów kroków i skrzydeł, 2026-11-10 (audyt silnika):
   `content/audio_mix.lua` ma `crowd`: najwyżej 18 kroków i 4 skrzydła
   naraz (głos kroku nienazwany w `of` jest krokiem). `audio/world_cues.lua`
@@ -5191,6 +5203,19 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z12, klatka 28 Ember Thralla, 2026-11-10: sondy poza repozytorium.
+  Strzał natychmiastowy, przemiatanie promieniem pocisku i prawdziwy
+  pocisk w środek korpusu trafiają we wszystkich klatkach spoczynku
+  (25–28), także punkt klatki 27 w klatce 28. `shot-observation`
+  przesunięty na 0,6 s albo 1,0 s (cały lot w klatce 28) pada na
+  „finite impulse follows the incoming round after shooter relocation”.
+  Ten sam scenariusz (rycerz przechodzi za ciało po strzale) przez
+  wszystkie klatki spoczynku: chochlik pudłuje tylko, gdy strzał pada
+  w klatce 28 (26 próbek); Stolas, Żelazny, Buer, Margrave i Furfur
+  trafiają w każdej klatce. W linii po przejściu rycerza odbity punkt
+  korpusu klatki 28 jest nienamalowany w masce i w obrazie; strzał
+  natychmiastowy w tej linii też chybia. Fixture zostaje w 3,25 s.
 
 - Z10, granice przy tłumie, 2026-11-10. b) Pomiar sondą (prawdziwy
   mikser, zastępcze źródła trwające tyle co nagranie, 60 s, rycerz
