@@ -2,191 +2,135 @@
 
 ## Zakres i status
 
-**2026-11-10: naprawy z audytu silnika (Z1–Z13), przyjęte, wdrażanie trwa.**
-Audyt wykonano na `a7d1de4` (0.46); brama w chwili audytu:
-`scripts/linux/TEST.sh All --jobs 4` PASS, 9285 sprawdzeń, Input, pokaz,
-narzędzia. Streszczenie i dowody: HISTORIA, „Audyt silnika (2026-11-10)”.
-Poprzedni plan (silnik ruchu i strzału E0–E7, fundament F1–F5, porządki
-G1–G7) jest w całości w HISTORII.
+**2026-11-10: dopracowanie bazy gry (etapy A–D), przyjęte, wdrażanie trwa.**
+Właściciel: „Akceptuję, zaczynaj” po przedstawieniu przeglądu napraw Z1–Z13,
+analizy kierunku gry i tego planu z rekomendacjami K1–K3. Punkt wyjścia:
+`8cce94e`, 0.46; pełna brama Linux `TEST.sh All --jobs 4` PASS, 9458
+sprawdzeń, Input, pokaz, narzędzia (`startup-check`, `resource-plateau`,
+`measure-trial`). Przegląd i analiza: HISTORIA, „Przegląd po naprawach
+i kierunek gry (2026-11-10)”. Poprzedni plan (naprawy z audytu silnika
+Z1–Z13) jest w całości w HISTORII.
 
-Każdy krok osobno: czerwony test albo sonda odtwarzająca problem, zmiana,
-dowód przed/po, pełna brama `scripts/linux/TEST.sh All --timeout 1800`,
-wpis w ZMIANY/ODBIOR 0.46 i w Postępie, commit (bez push). Przejście do
-następnego kroku bez pytania. Zatrzymanie i czekanie na właściciela tylko,
-gdy: (a) zmienia się golden (także oczekiwana zmiana w Z1); (b) brama jest
-czerwona z przyczyny spoza bieżącego kroku; (c) poprawka wymagałaby zmiany
-tekstury, HUD-u, balansu (HP, obrażenia, zegary SI, elity, kadencja,
-rozrzut) albo decyzji, której tu nie ma. Nie osłabiamy oczekiwań testów
-i nie przesuwamy fixture'ów. Parametry jako nazwane wartości w `content/`.
-Bez zmian grafiki, HUD-u, nowych broni i stworów w grze (D20), bez Windows,
-bez pakowania. Sondy i pliki robocze poza repozytorium; sondy audytu:
-`/home/nahiko/Work/tries/sigil-breach-audit-measure/sondy`.
+Cel: dopracować bazę gry przed jej rozwojem. Mapa i struktura świata są
+poza planem: obecna kaplica to mapa testowa, mapa gry będzie inna
+(właściciel, 2026-11-10).
+
+Zasady pracy: `docs/AGENTS.md`. Każdy krok osobno: czerwony test albo sonda
+odtwarzająca problem, zmiana, dowód przed/po, pełna brama
+`scripts/linux/TEST.sh All --timeout 1800`, wpis w ZMIANY/ODBIOR 0.46
+i w Postępie, commit (bez push). Zatrzymanie i czekanie na właściciela,
+gdy: (a) zmienia się golden; (b) zmiana dotyczy balansu (HP, obrażenia,
+zegary SI, elity, kadencja, rozrzut); (c) zmiana wymagałaby nowej
+ilustracji, tekstury albo zmiany HUD-u; (d) brama jest czerwona z przyczyny
+spoza bieżącego kroku; (e) kończy się etap. Nie osłabiamy oczekiwań testów
+i nie przesuwamy fixture'ów. Sondy i pliki robocze poza repozytorium
+(`/home/nahiko/Work/tries/sigil-breach-audit-measure`).
 
 ## Decyzje właściciela (2026-11-10, wiążące)
 
-- Z1: wariant A (same dane). Reguły spojrzenia w SI się nie zmienia.
-- Ognisko sanctuary: świadomy wyjątek, zostaje jak jest; test go pomija
-  z zapisanym uzasadnieniem.
-- Z2b: tak, własne ziarno nowej drogi, jako osobny krok po Z2a.
-- Z3: `--resource-plateau` wchodzi do zestawu Tools bramy z 3 cyklami;
-  czas zmierzony przed wpisaniem.
-- Dokumenty (Z11): na końcu, osobny commit.
-- Zakres: wszystko Z1–Z13.
+Pełny zapis w WIZJI (D21–D23).
+
+- **K1 (D21): walka to pojedynek z każdym stworem.** Grupy 3–6 czuwających,
+  bez hord. Stwory nie giną od jednego strzału. Optymalizacja tłumu (Z10a)
+  zostaje odłożona.
+- **K2 (D22): ekonomia to same znajdźki.** Znikają portfel dusz, ceny, sklep
+  i echo dusz; Exorcist staje się znaleziskiem. Ognisko: zapis, odrodzenie,
+  uzupełnienie i zmiana zestawu. Zmienia D12, D13 i D16; do wdrożenia
+  w etapie D obecny sklep działa bez zmian.
+- **K3 (D23): dwa prototypy mechanizmów stworów tylko na Ember Thrallu:**
+  rana części i zmęczenie. O reszcie stworów decyduje pomiar z etapu B.
+- Tryb w stylu Vampire Survivors nie jest kierunkiem gry.
 
 ## Kolejność
 
-Z3 → Z5 → Z2a → Z2b → Z4 → Z1 (stop: golden) → Z6 → Z7 → Z8 → Z9 → Z10 →
-Z12 → Z13 → Z11.
+A1 → A2 → A3 → A4 → A5 → (stop: koniec etapu) → B1 → B2 → (stop: raport) →
+C1 → C2 → C3 → C4… → (stop przy każdej zmianie liczby) → N1 → (stop: tabela)
+→ N2. Etap B mówi, czy stwory wymagają przebudowy, zanim cokolwiek w nich
+się zmieni.
 
 ## Kroki
 
-- **Z3. Ostatnia sesja zostaje w pamięci.** Tablica robocza kroku rycerza
-  (`player/feel.lua`, `local m = {}`) trzyma `m.p` i `m.shown` ostatniej
-  sesji, która wykonała krok; `love game --resource-plateau` kończy się
-  „application retained ownership after JIT eviction: cycle_N: chapel
-  session”. Czerwony test w `runtime-contracts`: porzucona sesja po kroku
-  znika po `collectgarbage`. Zmiana: na końcu `step` czyszczenie `m.p`
-  i `m.shown`. Brama: `resource-plateau` w Tools z `SIGIL_RESOURCE_CYCLES=3`.
-  Golden bez zmian.
-- **Z5. `MEASURE.sh` z domyślnymi populacjami.** Faza `--benchmark` nie
-  dostaje `SIGIL_CROWD_MAP`, więc 256 ciał nie mieści się w arenie. Czerwony
-  test: próbny przebieg `MEASURE.sh --pairs 1` w kontroli skryptów. Zmiana:
-  `SIGIL_CROWD_MAP=qa_crowd` przy benchmarku. Windows bez zmian. Brama
-  Architecture i Input.
-- **Z2a. Continue zaczyna losowanie od nowa.** Ziarno stałe, zapis nie niesie
-  stanu RNG; pierwszy rzut po Continue 0,00006 (pierwszy zabity zawsze
-  zostawia naboje), wbrew D9. Testy: stan `rng.sim` po wznowieniu równy
-  stanowi przy zapisie; kontrakt generowany z danych (każdy atak każdego
-  stwora zapisany w połowie zamachu i w pierwszym kroku ciosu, przez tekst
-  zapisu, wznowiony w świeżej sesji, identyczny przez 6 s); powtórka
-  dziennika sesji wznowionej daje ten sam skrót. Zmiana: pole zapisu niesie
-  stan RNG, sekcja pilgrimage w wersji 5 z migracją, `core/rng.lua` jawny
-  odczyt i zapis stanu. Golden bez zmian.
-- **Z2b. Własne ziarno nowej drogi** (osobny commit). Nowa droga losuje
-  ziarno, zapisuje je w zapisie i w nagłówku dziennika; powtórka je
-  odtwarza. Testy, golden, QA i sesje ephemeral z jawnym ziarnem 1. Małe
-  ziarna xorshift32 dają rzuty bliskie zera: rozgrzanie albo wymieszanie
-  ziarna sesji gracza; test rozkładu pierwszego rzutu dla 1000 ziaren.
-  Stare zapisy i dzienniki bez ziarna jak dziś.
-- **Z4. Ruchome zagrożenia nie są wygładzane.** Pula `hazards` poza próbką
-  obrazu, schemat bez `linear`; pierścień fali stoi w 35/210 klatek przy
-  144 Hz, 65/240 przy 165 Hz, 143/288 przy 240 Hz. Czerwony test w `feel`:
-  promień fali, kąt rozdarcia, środek bezpiecznego kręgu i postęp zapowiedzi
-  bez zamrożonych klatek. Zmiana: deklaracje wygładzania i pula w próbce;
-  `audio/field_voices.lua` czyta żywą pulę. Rendery pokazu identyczne,
-  golden bez zmian.
-- **Z1. Przebudzenie przy pierwszym ognisku zaczyna się alarmem** (wariant A).
-  Rycerz budzi się twarzą w nawę; w pierwszym kroku po BEGIN i po śmierci
-  czuwa 10 z 15 stworów, rycerz bez wejścia ginie po 4,6 s. Czerwony test
-  w `pilgrimage` z danych: przy każdym ognisku, po przebudzeniu drogą
-  odpoczynku i powrotu po śmierci, po 3 s bez wejścia nikt nie czuwa
-  i zdrowie nietknięte; sanctuary pominięte z uzasadnieniem; sprawdzenie
-  „nobody knows he is here” za pierwszym krokiem. Zmiana: ognisko narthex
-  z własnym `wake` (start: `{ x = 27, z = 33.5, yaw = 0 }`). Znany stan:
-  po odwróceniu się w nawę 10 stworów budzi się w 0,1 s (wariant B
-  odłożony). Golden Linux się zmieni: dwa identyczne przebiegi,
-  uzasadnienie, souls-gate i souls-bots przed/po. **STOP: pokazać
-  właścicielowi.**
-- **Z6. Odpoczynek zabezpiecza tylko obszar rycerza.** `secure` i awaryjne
-  listy `fallen`/`picked` przechodzą tylko po obszarze rycerza, `populate`
-  stawia garnizony całej mapy (wbrew D10 przy wielu obszarach). Czerwony
-  test z obszarem próbnym (`trial_annex`) i podróżą między obszarami. Zmiana:
-  iteracja po `Way.areasOf(mapa)`. Golden bez zmian.
-- **Z7. Stan rodzaju zagrożenia w płaskim rekordzie.** Pola rodzajów we
-  wspólnym schemacie `hazard`; prezentacja pyta o rodzaj po nazwie. Zmiana
-  bez zmiany zachowania: stan deklarowany przez rodzaj z wersją i migracją
-  (jak `combat/action_kinds.lua`), wersja puli w zapisie, haki rodzaju dla
-  prezentacji. Test: nowy rodzaj w `extension` samymi rejestrami. Golden,
-  rendery i eksport dźwięku identyczne.
-- **Z8. Start i wczytywanie rosną liniowo z treścią.** Jedna porcja planu
-  na klatkę; gotowość po 22,2 s w oknie QA, pierwsza klatka menu 4,4 s.
-  Zmiana: budżet czasu na klatkę (nazwany limit w `content/`) i obrazy menu
-  przez plan. Pomiar przed/po. Zwalnianie obrazów obszaru: tylko warianty
-  i koszt w HISTORII, decyzja właściciela.
-- **Z9. Przeładowanie to jeden interpreter trzech etapów.** Zmiana: etapy
-  jako rejestr rodzajów etapu, ładowanie po jednym naboju z przerwaniem
-  strzałem, widok i dźwięk etapu z deklaracji; breech i cylinder bez zmiany
-  wyniku. Test: fikcyjna broń testowa (D20) z zapisem w trakcie
-  przeładowania. Golden bez zmian.
-- **Z10. Granice przy tłumie.** a) zapytania SI przez indeks przestrzenny,
-  wynik identyczny bit w bit, pomiar `MEASURE.sh` przed/po z medianą i IQR;
-  bez zmierzonego zysku nie wdrażać. b) limit jednoczesnych głosów na
-  kategorię (kroki, skrzydła) w `content/audio_mix.lua`, najbliższe
-  pierwsze; w obecnej kaplicy wynik bez zmian. Odsłuch należy do
+### Etap A. Domknięcie fundamentu (niezależne od mapy)
+
+- **A1. Kontrakt wznowienia zalicza pominięte przypadki.** W `contracts`
+  atak, który w fixturze nie dojdzie do zamachu albo ciosu, zwraca `nil`
+  i sprawdzenie przechodzi (dziś 2 ze 106). Czerwony test: przypadek
+  pominięty, którego nie ma na jawnej liście z powodem, jest błędem. Zmiana
+  tylko w teście. Golden bez zmian.
+- **A2. Strona wczytywania przygotowuje stwory tylko obszaru rycerza.**
+  `P.creatures` (`run/pilgrimage.lua`) czyta garnizon jednego obszaru, a
+  `populate` stawia garnizony całej mapy (ta sama klasa co Z6). Sonda
+  `prepared`: rycerz w obszarze próbnym, przygotowany tylko Ember Thrall,
+  na mapie pięć rodzin. Czerwony test w `pilgrimage` z obszarem próbnym.
+  Zmiana: iteracja po `Way.areasOf(mapa)`. Golden bez zmian.
+- **A3. Walidator obszarów pamięta posterunki po wyrejestrowaniu
+  i po odrzuceniu.** `content/pilgrimage.lua` (`posts`, `mapPosts`) trzyma
+  identyfikatory także wtedy, gdy obszar zniknął albo nie został przyjęty.
+  Czerwony test: ten sam obszar rejestruje się drugi raz po wyrejestrowaniu;
+  odrzucona definicja niczego nie zostawia. Golden bez zmian.
+- **A4. Akcenty ataków pytają o rodzaj po nazwie (reszta Z7).**
+  `render/cast_accents.lua` (blink, salvo, storm), `feedback/world_feedback.lua`
+  (blink), `render/painters/pigment.lua` (stream, sow)
+  i `feedback/rite_feedback.lua` (beam, wave). Zmiana bez zmiany obrazu:
+  wpisy rodzaju zamiast porównań nazw. Test: rodzaj ataku z własnym akcentem
+  dodany samymi rejestrami. Rendery pokazu identyczne, golden bez zmian.
+- **A5. Pomiar przed/po napraw Z1–Z13.** `MEASURE.sh` w 3 parach
+  (`a7d1de4` wobec `8cce94e`) nie rozstrzygnął: wszystkie mediany po
+  zmianach wyższe o 2–20 %, w granicach rozrzutu. Powtórka w 7 parach na
+  bezczynnej maszynie; wynik do HISTORII. Bez zmian gry. Regresja: STOP
+  i raport.
+
+### Etap B. Miernik głębi walki (bez zmian gry)
+
+- **B1. Narzędzie.** Dla każdego stwora trzy boty (nowicjusz, sprawny,
+  mistrz) na istniejących botach QA. Wynik: czas zabicia, zużyte naboje,
+  otrzymane obrażenia, udział zabójstw kontrą i egzekucją, liczba różnych
+  sytuacji w walce. Stwór, którego mistrz zabija mniej niż dwa razy szybciej
+  niż nowicjusz, jest gąbką. Narzędzie QA, nie zmienia symulacji.
+- **B2. Raport** dla sześciu stworów do HISTORII i do oceny właściciela.
+  Niczego nie stroimy.
+
+### Etap C. Stwory jako pojedynki
+
+- **C1. Karta każdego stwora** (dokument, do akceptacji): lekcja w jednym
+  zdaniu, 2–3 pytania z odpowiedziami, skrót dla mistrza, wynik z B2.
+- **C2. Prototyp: rana części** (K3) tylko na Ember Thrallu: trafienia
+  w część ciała zmieniają to, co stwór może zrobić. Stan w zapisie, test
+  rozszerzeń, kontrakt wznowienia. Bez nowych klatek; jeśli mechanizm
+  wymaga nowej ilustracji: STOP.
+- **C3. Prototyp: zmęczenie** (K3) tylko na Ember Thrallu: po długiej
+  serii większe okno kary. Te same wymagania co C2.
+- **C4. Po jednym stworze naraz** według kart i pomiaru. Każda zmiana
+  liczby to osobny commit z pomiarem miernikiem przed i po oraz zgodą
   właściciela.
-- **Z12. Luka maski trafień w klatce 28 Ember Thralla.** Czerwony test
-  obejmujący klatkę 28 (obok obecnego). Przyczyna i poprawka tylko w danych
-  trafień; zmiana obrazu: STOP. Sprawdzić strzał natychmiastowy i klatki
-  spoczynku innych stworów.
-- **Z13. Medale liczone ze stanu po kroku.** `last_rites` i `point_blank`
-  czytają stan rycerza w chwili prezentacji. Zmiana: `EnemyKilled` niesie
-  stan aktora z chwili zabicia. Test: zabójstwo przełamane z leczeniem przy
-  zdrowiu pod progiem.
-- **Z11. Dokumenty i martwy kod** (na końcu). START-HERE i INSTRUKCJA podają
-  0.45; sprzeczności INSTRUKCJI (stwory wstają / nie wstają, pieczęcie,
-  przykłady HP i leczenia, przebudzenie po Z1). Martwe `g.intensity`
-  i odwołania do nieistniejących plików (osobny commit z bramą). `enemies/ai.lua`:
-  stwór z `leash` bez `home` (walidacja albo warunek z testem).
+
+### Etap D. Ekonomia według K2
+
+Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
+
+- **N1. Tabela** (do akceptacji przed kodem): każda pozycja sklepu staje
+  się znaleziskiem, funkcją ogniska albo znika; co dzieje się z duszami
+  w starych zapisach.
+- **N2. Wdrożenie** z migracją zapisu i uzasadnionym wzorcem golden.
 
 ## Kontekst, którego nie zmieniamy
 
 - Wytrzymałość stworów przyjęta: Ember Thrall 360 HP (2 salwy Exorcista albo
-  6 kul Judge'a w tułów), Iron Thrall 4 salwy albo 11 kul.
-- Zatrzymanie trafionego ciała (25 ms przy mocnym ciosie, 60 ms przy
-  zabiciu) jest w golden.
-- Raz na minutę seria 5–6 klatek powyżej 16,7 ms w walce (frame-watch),
-  także bez GC; przyczyna nieznana (hipoteza: kompilacja JIT).
+  6 kul Judge'a w tułów), Iron Thrall 4 salwy albo 11 kul. Zmiany tylko
+  w etapie C, pojedynczo, za zgodą.
+- Nienaruszalna spójność grafiki, chroniony HUD, D20 (bez nowych broni).
 - Dźwięku nikt nie odsłuchiwał; wybór A/B strzelby czeka na właściciela.
+- Raz na minutę seria 5–6 klatek powyżej 16,7 ms w walce (frame-watch),
+  także bez GC; przyczyna nieznana.
 
 ## Postęp i dowody
 
-- 2026-11-10, **Z11 dokumenty zrobione:** START-HERE i INSTRUKCJA w wersji
-  0.46, bez sprzeczności z audytu.
-- 2026-11-10, **Z11 kod zrobiony:** usunięte `g.intensity` i odwołania do
-  nieistniejących plików, smycz bez posterunku z testem. Golden bez zmian.
-- 2026-11-10, **Z13 zrobione:** `EnemyKilled` niesie stan zabójcy z chwili
-  zabicia; `last_rites` i `point_blank` go czytają. Golden bez zmian.
-- 2026-11-10, **Z12 zbadane, bez zmiany:** maska klatki 28 zgadza się
-  z obrazem; pudło wynika z odbicia bilboardu po przejściu rycerza za
-  ciało. Zmiana obrazu: decyzja właściciela.
-- 2026-11-10, **Z10 zrobione:** b) limit 18 kroków i 4 skrzydeł naraz,
-  najbliższe pierwsze, kaplica bez zmian; a) indeks przestrzenny
-  niewdrożony (zapytania przestrzenne 3–8 % kroku; gorące jest `crowded`,
-  O(n²), 22 % przy 256 ciałach: decyzja właściciela).
-- 2026-11-10, **Z9 zrobione:** rejestr rodzajów etapu przeładowania,
-  ładowanie po naboju z przerwaniem strzałem; broń próbna z zapisem w
-  trakcie przeładowania. Golden bez zmian.
-- 2026-11-10, **Z8 zrobione:** budżet pracy wczytywania na klatkę
-  (8 ms) i obrazy menu przez plan; gotowość w bramie 22,3 s → 14,0 s,
-  pierwsza klatka menu 4,8 s → 64 ms. Zwalnianie obrazów obszaru: warianty
-  w HISTORII, decyzja właściciela.
-- 2026-11-10, **Z7 zrobione:** stan rodzaju zagrożenia deklarowany przez
-  rodzaj z wersją i migracją, haki rodzaju zamiast porównań nazw w
-  prezentacji. Golden, rendery i dźwięk identyczne.
-- 2026-11-10, **Z6 zrobione:** odpoczynek i zapas zapisu w polu
-  przechodzą wszystkie obszary mapy. Golden bez zmian.
-- 2026-11-10, **Z1 zrobione (wariant A):** narthex budzi rycerza twarzą
-  do ognia; czuwające po odpoczynku 10 → 0. Golden bez zmian; wariant B
-  odłożony.
-- 2026-11-10, **Z4 zrobione:** zagrożenia w próbce obrazu z deklarowanym
-  wygładzaniem; zamrożone klatki ruchomych znaków 3303 → 0. Rendery
-  identyczne, golden bez zmian.
-- 2026-11-10, **Z2b zrobione:** nowa droga w grze losuje i miesza własne
-  ziarno; zapis i dziennik je niosą; sekcja `pilgrimage` 6. QA, testy
-  i golden na ziarnie 1, golden bez zmian.
-- 2026-11-10, **Z2a zrobione:** pole drogi niesie strumień losowania
-  i resztę zatrzymania trafienia; sekcja `pilgrimage` 5 z migracją.
-  Wznowienia walki: 19 ze 106 rozjeżdżało się, teraz 0. Golden bez zmian.
-- 2026-11-10, **Z5 zrobione:** `MEASURE.sh` mierzy klatkę na mapie
-  `qa_crowd`; `--trial` w bramie Linux (Tools). Bez zmian gry.
-- 2026-11-10, **Z3 zrobione:** porzucona sesja zwalniana po kroku rycerza;
-  `--resource-plateau` (3 cykle) w bramie Linux. Golden bez zmian.
-- 2026-11-10: plan Z1–Z13 przyjęty, poprzedni PLAN i streszczenie audytu
-  w HISTORII. Bez zmian gry.
+- 2026-11-10: plan A–D przyjęty; poprzedni PLAN oraz przegląd po naprawach
+  z analizą kierunku w HISTORII; decyzje D21–D23 w WIZJI. Bez zmian gry.
 
 ## Poza zakresem
 
-Grafika, HUD, nowe bronie i stwory w grze (D20), balans, zegary SI, elity,
-Windows, pakowanie i wideo. Zwalnianie obrazów obszaru (Z8) i wariant B
-przebudzenia (Z1) czekają na decyzję właściciela. Podział pokazu (G6)
-i wybór A/B Exorcista (punkty 7–8 planu Exorcista) pozostają otwarte.
+Mapa i struktura świata (także „Zejście”), zwalnianie obrazów obszaru (Z8),
+wariant B przebudzenia (Z1), niepodzielna porcja 1,5 s przy wejściu na pole,
+optymalizacja tłumu (Z10a), bossowie, nowe bronie (D20), Windows, pakowanie
+i wideo. Podział pokazu (G6) i wybór A/B Exorcista pozostają otwarte.

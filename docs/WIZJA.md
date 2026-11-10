@@ -4,12 +4,41 @@ Czym jest gra, do czego dążymy i co zdecydował właściciel. Decyzje właści
 
 ## Spis rozdziałów
 
+- Decyzje właściciela (10 listopada 2026)
 - Decyzje właściciela (3 listopada 2026, wieczór)
 - Decyzje właściciela (2026-11-03)
 - Kierunek hybrydy: Doom i souls-like (2026-11-02)
 - Ogniska i ulepszenia (2026-11-02)
 - System świata (0.14)
 - Manifest Nikogo
+
+## Decyzje właściciela (10 listopada 2026)
+
+Po przeglądzie napraw z audytu silnika i analizie kierunku gry (HISTORIA,
+„Przegląd po naprawach i kierunek gry (2026-11-10)”). Właściciel przyjął
+rekomendacje K1–K3 słowami „Akceptuję, zaczynaj”. Przy sprzeczności ze
+starszymi decyzjami obowiązują te.
+
+- **D21 (K1, walka):** walka to pojedynek z każdym stworem. Grupy 3–6
+  czuwających, bez hord; stwory nie giną od jednego strzału („podoba mi
+  się, że przeciwnicy nie są na strzała”). Tryb w stylu Vampire Survivors
+  nie jest kierunkiem gry. Optymalizacja tłumu pozostaje odłożona.
+- **D22 (K2, ekonomia; zmienia D12, D13 i D16):** rozwój to same znajdźki,
+  jak w Doomie, połączone z walką Souls. Znikają portfel dusz, ceny, sklep
+  i echo dusz; Exorcist staje się znaleziskiem. Ognisko to zapis,
+  odrodzenie, uzupełnienie i zmiana zestawu (sigile i grawery nadal tylko
+  przy ogniu, D14). Wdrożenie dopiero w etapie D planu, po tabeli
+  zaakceptowanej przez właściciela; do tego czasu sklep i dusze działają
+  w grze bez zmian.
+- **D23 (K3, stwory):** stwory mają być pojedynkami ciekawymi przez wiele
+  godzin (odniesienia: Souls, Monster Hunter). Dwa prototypy mechanizmów
+  tylko na Ember Thrallu: rana części i zmęczenie. O przebudowie
+  pozostałych stworów decyduje pomiar głębi walki; każda zmiana liczby
+  osobno i za zgodą właściciela.
+- **Mapa:** obecna kaplica to mapa testowa do sprawdzania działania gry.
+  Mapa gry będzie inna; prace nad mapą i strukturą świata są odłożone do
+  osobnej decyzji. Właściciel przyjmuje propozycje.
+- **Kolejność:** najpierw dopracowanie bazy gry, potem jej rozwój.
 
 ## Uzupełnienia obowiązujące (4 listopada 2026)
 
