@@ -122,6 +122,33 @@ wszystko: każda liczba stwora jest względem obrony rycerza.
   i skoku, nagroda za unik w porę (idealny unik) wobec uniku zawczasu.
   Każda zmiana liczby to zmiana balansu: osobny commit, pomiar miernikiem
   przed i po, zgoda właściciela. Zmienia golden.
+  Pomysły wykonawcy do oceny w C0 i C1 (wizja walki właściciela w WIZJI;
+  kandydaci, nie decyzje):
+  1. *Stój i czytaj.* W grze z samą bronią palną ryzykiem nie jest
+     bliskość, tylko stanie z uniesioną lufą, gdy cios już leci. Parada
+     strzałem (`combat/rules/balance.lua`: strzał w ostatnich 0,16–0,3 s
+     zamachu przerywa cios i odsłania ciało do egzekucji) już istnieje;
+     ma stać się osią walki: każdy atak ma okno parady albo inną odpowiedź
+     lepszą niż ucieczka.
+  2. *Unik jest bezpieczny i nic nie daje.* Kto tylko unika, powoli
+     przegrywa zasobami: egzekucja zawsze oddaje naboje, zwykłe zabicie
+     z szansą (D2). Do zmierzenia w B: bilans nabojów na zabicie.
+  3. *Unik kosztuje strzał.* Dziś po strzale ciało przez 0,12–0,22 s nie
+     może unikać; w drugą stronę kosztu nie ma. Kandydat: broń po uniku
+     potrzebuje chwili.
+  4. *Stwór odpowiada na nawyk.* Tabela `answers` zna dziś przeładowanie,
+     picie, przyklejenie, obejście, unik i strzał z daleka. Kandydaci:
+     unik zawczasu (zanim cios się zablokuje), ciągle ta sama strona,
+     skakanie. To „łapanie przewrotu” z Souls, w danych.
+  5. *Wzorzec zmienia się przez to, co zrobił gracz* (rana części, K3)
+     i przez to, co zrobił stwór (zmęczenie, K3).
+  6. *Porażka uczy.* Po śmierci nazwany cios, który zabił, i bestiariusz,
+     który dopisuje ataki poznane i te, na które rycerz odpowiedział.
+     Wymaga decyzji o ekranie (HUD chroniony).
+  7. *Grywalność ponowna bez nowej grafiki:* śluby pokutne (rycerz sam
+     nakłada sobie ograniczenia za nagrodę), drugie czytanie stwora
+     (te same klatki, nowe łańcuchy i odpowiedzi na dalszym kręgu), próby
+     i rewanże w komnatach poligonu z medalami za sposób zabicia.
 
 - **C1. Karta każdego stwora** (dokument, do akceptacji): lekcja w jednym
   zdaniu, 2–3 pytania z odpowiedziami, skrót dla mistrza, wynik z B2.

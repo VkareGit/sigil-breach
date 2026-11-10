@@ -40,6 +40,31 @@ starszymi decyzjami obowiązują te.
   osobnej decyzji. Właściciel przyjmuje propozycje.
 - **Kolejność:** najpierw dopracowanie bazy gry, potem jej rozwój.
 
+### Wizja walki (właściciel, 10 listopada 2026, po przyjęciu planu)
+
+Słowa właściciela, uporządkowane; obowiązują jako kierunek, nie jako
+gotowe rozwiązania.
+
+- **Ani Doom, ani Souls.** Bossowie i stwory mają łączyć oba. Z Souls
+  właściciel chce: unikanie, zwracanie uwagi na czary i ataki, czas
+  reakcji, szukanie wzorców, które mogą się zmieniać, ryzyko, którego
+  wynikiem jest nagroda, porażkę jako część nauki i karę; nagroda i kara.
+- **Tylko broń palna, celowo.** Broń biała często bardzo ułatwia
+  rozgrywkę; z bronią palną właściciel widzi dużo więcej możliwości
+  mechanicznych. Warunek: to musi dobrze działać.
+- **Stan dzisiejszy (uwaga krytyczna):** stwory nie są wymagające. Przy
+  szybkim tempie, uniku z przeskokiem na SHIFT i ślizgu na CTRL walka
+  często sprowadza się do skakania i unikania przez cały czas; nie ma
+  radości z czytania ruchów.
+- **Co najpierw.** Dopracowanie potworów, ataków, dźwięku i odczucia jest
+  ważniejsze niż rozstrzygnięcie, czym gra będzie (masowa czy nie): jeśli
+  one będą leżeć, reszta poleci z nimi.
+- **Czego właściciel oczekuje od wykonawcy.** Dokładnej analizy i własnych
+  pomysłów: co zatrzyma gracza przy potworze i co da grywalność ponowną
+  (chęć przejścia gry jeszcze raz po jej ukończeniu). Wolno proponować
+  zmianę podstaw, jeśli są wadliwe albo mylą się z zamysłem; przed taką
+  zmianą trzeba zapytać.
+
 ## Uzupełnienia obowiązujące (4 listopada 2026)
 
 
