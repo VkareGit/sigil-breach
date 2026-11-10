@@ -183,6 +183,12 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10: właściciel przyjął D24 (ogień nie odbiera ciosów). Sześć
+  doświadczeń w drzewie roboczym, zmierzonych miernikiem i cofniętych
+  (HISTORIA, „Doświadczenia C0”): sama zasada zmienia mało; nieczytającego
+  chroni ruch, nie nietykalność ani koszt uniku; wzorcem pojedynku jest
+  Iron Thrall. C0 czeka na decyzje właściciela: podział na drobnicę
+  i stwory pojedynkowe oraz progi miernika. Bez zmian gry.
 - 2026-11-10, **B2 zrobione, etap B zamknięty:** raport w HISTORII. Trzy
   z czterech zwykłych stworów przegrywają z rycerzem, który stoi i strzela;
   wymagają tylko te, które zachowują ciosy pod ogniem; wiedza nie skraca

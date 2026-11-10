@@ -35,6 +35,16 @@ starszymi decyzjami obowiązują te.
   tylko na Ember Thrallu: rana części i zmęczenie. O przebudowie
   pozostałych stworów decyduje pomiar głębi walki; każda zmiana liczby
   osobno i za zgodą właściciela.
+- **D24 (ogień nie odbiera ciosów):** przyjęte 10 listopada 2026 („Tak,
+  przyjmuję”) po raporcie miernika głębi walki. Cios raz podjęty przez
+  stwora dochodzi; przerywa go strzał w oknie parady, a nie strzał
+  kiedykolwiek. Zasada obowiązuje każdego stwora, nie tylko elity.
+  Doprecyzowanie wykonawcy do potwierdzenia: garda złamana w trakcie ciosu
+  i ciężka rana działają po ciosie (jak dziś `steady` u Iron Thralla
+  i elit), a złamana garda poza ciosem zatrzymuje stwora jak dotąd.
+  Wdrożenie razem z pracą nad każdym stworem (etap C), nie osobno:
+  doświadczenia pokazały, że sama zasada zmienia mało (HISTORIA,
+  „Doświadczenia C0”).
 - **Mapa:** obecna kaplica to mapa testowa do sprawdzania działania gry.
   Mapa gry będzie inna; prace nad mapą i strukturą świata są odłożone do
   osobnej decyzji. Właściciel przyjmuje propozycje.

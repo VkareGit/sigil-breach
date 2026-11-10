@@ -36,6 +36,7 @@ Wszystko, co już było: zmiany każdej wersji i ich odbiór, audyty, analizy, s
 - Analiza 2026-11-03b: Claude
 - Analiza 2026-11-03b: Astra
 - Raport Astry P4 (animacje i efekty, 0.45)
+- Doświadczenia C0: co chroni rycerza, który nie czyta (2026-11-10)
 - Miernik głębi walki: raport B2 (2026-11-10)
 - Przegląd po naprawach i kierunek gry (2026-11-10)
 - Plan napraw z audytu silnika (zastąpiony 2026-11-10)
@@ -16155,6 +16156,76 @@ Próbki odsłuchu i szczegółowe dowody wskazuje ODBIOR-0.45 w HISTORII.
 - Dawne odłożone kierunki i odbiory zachowane w archiwach PLAN w HISTORII;
   analiza Margrave'a nie upoważnia do nowych broni, bossów ani map.
 
+
+## Doświadczenia C0: co chroni rycerza, który nie czyta (2026-11-10)
+
+Po przyjęciu przez właściciela zasady „ogień nie odbiera ciosów” (D24).
+Wszystkie warianty były zmianami w drzewie roboczym, zmierzonymi miernikiem
+głębi (`--depth-meter`, 5 ziaren) i cofniętymi; nic z nich nie jest
+w repozytorium. Sondy `stopped`, `moves` i `firstblow` poza repozytorium.
+
+### Co dziś zatrzymuje podjęty cios (sonda `stopped`, rycerz stoi, 5 walk)
+
+| Stwór | Broń | ciosy podjęte | wypuszczone | co zatrzymało resztę |
+|---|---|---|---|---|
+| Ember Thrall | Sędzia | 15 | 15 | nic w zamachu; 5 ciosów zatrzymanych w locie (strzał w pędzące ciało) |
+| Ember Thrall | obie | 15 | 5 | ciężka rana z salwy Exorcista (5), reszta to śmierć w zamachu |
+| Star Acolyte | Sędzia | 10 | 0 | złamana garda (5), parada (3) |
+| Star Acolyte | obie | 10 | 0 | ciężka rana (5) |
+| Plague Gardener | Sędzia | 15 | 5 | złamana garda (10) |
+| Plague Gardener | obie | 15 | 0 | ciężka rana (10) |
+| Iron Thrall | Sędzia / obie | 41 / 21 | 38 / 20 | prawie nic |
+
+Silnik ma już słowo na cios, którego złamana garda nie zatrzymuje:
+`steady` („garda złamana w tym ciosie pada, gdy cios się skończy”). Mają
+je dokładnie te stwory, które w raporcie B2 wymagają: Iron Thrall, Margrave
+i Furfur. Ciężka rana (jeden strzał zabierający `woundAt` zdrowia) przerywa
+cios zawsze, także `steady`.
+
+### Warianty (walki z samym Sędzią, chyba że napisano inaczej)
+
+| Wariant | Zmiana | Wynik |
+|---|---|---|
+| V1 | ciosy Ember Thralla `steady` | bez różnicy: garda nie była tym, co go zatrzymywało |
+| V2 | V1 i ciężka rana nie przerywa ciosu `steady` (garda pada po ciosie) | z obiema broniami stojący bierze od Ember Thralla 34 zamiast 0 i nadal wygrywa 5/5 w 4,0 s; z Sędzią bez różnicy |
+| E3 | V2 dla Ember Thralla, Star Acolyte i Plague Gardenera | stojący nadal wygrywa każdą walkę jeden na jeden (z Sędzią 70, 0 i 20 obrażeń, z obiema broniami 34, 0 i 20); Acolyte z Sędzią nadal ginie w 3,1 s bez ciosu; trójka: stojący 1/5 zamiast 2/5 |
+| E4 | unik kosztuje 40 zamiast 26 wytrzymałości | nieczytający bez zmian (Iron Thrall 5/5, trójka 5/5); gorzej czytającym na elitach (mistrz z Margrave'em 4/5 i 89 obrażeń zamiast 5/5 i 55) |
+| E5 | nietykalność uniku 0,16 s zamiast 0,32 s | nieczytający bez zmian; nawyk przegrywa z elitami (Margrave 0/5, Furfur 1/5); mistrz z Margrave'em 4/5 i 87 obrażeń zamiast 5/5 i 55 |
+| E6 | ciosy obu Thralli obracają się za rycerzem do 92 % zamachu | nieczytający bez zmian (25 %, 38 % i 9 % trafionych ciosów) |
+
+### Które ruchy chronią nieczytającego (sonda `moves`, Sędzia, 5 ziaren)
+
+Udział trafionych ciosów i wygrane; ten sam rycerz, któremu odbiera się
+po jednym ruchu.
+
+| Rycerz | Ember Thrall | Iron Thrall | trójka | Margrave |
+|---|---|---|---|---|
+| stoi | 67 % · 5/5 | 86 % · 0/5 | 75 % · 2/5 | 95 % · 0/5 |
+| tylko chodzi bokiem | 33 % · 5/5 | 85 % · 0/5 | 25 % · 5/5 | 71 % · 0/5 |
+| stoi i unika na oślep | 80 % · 5/5 | 46 % · 5/5 | 48 % · 5/5 | 125 % · 0/5 |
+| chodzi bokiem i unika na oślep | 0 % · 5/5 | 30 % · 5/5 | 14 % · 5/5 | 40 % · 0/5 |
+| wszystko (także skok i ślizg) | 25 % · 5/5 | 33 % · 4/5 | 9 % · 5/5 | 31 % · 1/5 |
+
+### Wnioski
+
+1. Zasada D24 jest słuszna, ale sama zmienia mało: zwykłe stwory giną,
+   zanim zdążą zadać drugi cios (pierwszy cios po 2,3–3,1 s, śmierć
+   Ember Thralla po 4,0–5,8 s).
+2. Nieczytającego chroni ruch, nie nietykalność i nie koszt uniku: chodzenie
+   bokiem połączone z unikiem, gdy tylko jest wytrzymałość, daje 0 %
+   trafień Ember Thralla. Cios jest wymierzony w miejsce, z którego rycerz
+   zdążył wyjść (Ember Thrall zaczyna cios z 2,05 m, zamach trwa 0,54 s,
+   doskok sięga 1,76 m; rycerz idzie 5,25 m/s, stwór 4,6 m/s, unik to
+   2,5 m).
+3. Wzorcem działającego pojedynku jest Iron Thrall: chodzenie bokiem nic
+   przeciw niemu nie daje (85 %), mistrz wygrywa bez obrażeń w ok. 20 s
+   i 32 ciosach, stojący przegrywa. Ma `steady`, `hyper`, szerokie cięcia
+   i `chase`.
+4. Skakanie i ślizg pogarszają wynik nieczytającego na Ember Thrallu
+   (25 % zamiast 0 %).
+5. Nie ma jednej taniej dźwigni po stronie rycerza. Praca jest po stronie
+   stworów, po jednym naraz, z miernikiem jako sędzią; do tego potrzebne
+   są progi, po których poznamy, że stwór jest gotowy.
 
 ## Miernik głębi walki: raport B2 (2026-11-10)
 
