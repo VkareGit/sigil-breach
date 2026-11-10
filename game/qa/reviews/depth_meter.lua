@@ -14,6 +14,7 @@
 --             nothing (restless); near 1, or with both near none, reading earns nothing
 --   standing  what the knight who stands and shoots gets: a fight he wins unhurt asks
 --             nothing of anyone
+-- and, for the fights that are judged, whether the fight is ready (M.thresholds).
 local Bot = require('qa.souls_bot')
 local Release = require('src.app.release')
 local Rng = require('src.core.rng')
@@ -57,19 +58,65 @@ M.arms = {
   { id = 'judge', weapons = { 'judge' }, note = 'the Judge alone, as a new way begins (D12)' },
   { id = 'both', note = 'both guns, as the proving ground arms him' },
 }
+-- When a fight is ready (owner, 2026-11-10, docs/WIZJA.md: D25 and the meter's
+-- thresholds), as shares of the fights fought. A duellist is a body that asks to be read
+-- alone (the Iron Thrall, the elites); three small ones are judged together; a small one
+-- alone, and the six, are measured and not judged.
+--   standing  the knight who stands and shoots wins at most this share
+--   blind     the knight who reads nothing wins at most this share
+--   master    the master wins at least this share
+--   harm      and takes at most this much
+--   mastery   and kills at least this many times as fast as the novice
+M.thresholds = {
+  duel = { standing = 1 / 5, blind = 2 / 5, master = 1, harm = 25, mastery = 1.5 },
+  three = { blind = 2 / 5, master = 4 / 5 },
+}
+-- What a fight still lacks of its thresholds: nothing when it is ready, nil when it is
+-- not judged. by: the knights' sums of M.measure, by id.
+function M.lacks(fight, by, seeds)
+  local need = M.thresholds[fight.judged]
+  if not need then
+    return nil
+  end
+  local lacks = {}
+  local function lack(text, ...)
+    lacks[#lacks + 1] = string.format(text, ...)
+  end
+  local careless, restless, novice, master = by.careless, by.restless, by.novice, by.master
+  if need.standing and careless and careless.wins / seeds > need.standing then
+    lack('standing wins %d/%d', careless.wins, seeds)
+  end
+  if need.blind and restless and restless.wins / seeds > need.blind then
+    lack('reading nothing wins %d/%d', restless.wins, seeds)
+  end
+  if need.master and master and master.wins / seeds < need.master then
+    lack('the master wins %d/%d', master.wins, seeds)
+  end
+  if need.harm and master and master.harm > need.harm then
+    lack('the master takes %.0f harm', master.harm)
+  end
+  if need.mastery and master and novice then
+    local gain = master.time and novice.time and novice.time / master.time
+    if not gain or gain < need.mastery then
+      lack('mastery %s', gain and string.format('%.2f', gain) or 'not comparable')
+    end
+  end
+  return lacks
+end
 -- The fights: each creature alone in its chamber of the proving ground, then the groups a
 -- way is made of (owner, D21: three to six awake), in the open nave of the same map. Every
 -- fight is fought where effort is paid (stamina, the flask): the plain test floor charges
 -- nothing for a dodge, and a knight who dodges for nothing proves nothing.
 M.fights = {
   { id = 'claws', trial = 'claws', seconds = 240 },
-  { id = 'iron', trial = 'iron', seconds = 240 },
+  { id = 'iron', trial = 'iron', seconds = 240, judged = 'duel' },
   { id = 'stars', trial = 'stars', seconds = 240 },
   { id = 'resin', trial = 'resin', seconds = 240 },
-  { id = 'ash', trial = 'ash', seconds = 240 },
-  { id = 'storm', trial = 'storm', seconds = 240 },
+  { id = 'ash', trial = 'ash', seconds = 240, judged = 'duel' },
+  { id = 'storm', trial = 'storm', seconds = 240, judged = 'duel' },
   {
     id = 'trio',
+    judged = 'three',
     knight = { 24, 31 },
     pack = { { 'imp', 21, 25 }, { 'imp', 27, 25 }, { 'stolas', 24, 21 } },
     seconds = 180,
@@ -334,6 +381,11 @@ function M.table(G, fight, knights, seeds, arms)
       careless.time and string.format(' in %.1f s', careless.time) or '',
       careless.harm
     )
+  end
+  local lacks = M.lacks(fight, by, seeds)
+  if lacks then
+    lines[#lines + 1] = '  ready: '
+      .. (#lacks == 0 and 'yes' or 'no (' .. table.concat(lacks, '; ') .. ')')
   end
   return lines, by
 end

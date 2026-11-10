@@ -193,6 +193,8 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10: progi właściciela są w mierniku; stan wyjściowy: żadna
+  oceniana walka nie jest gotowa (lista braków w ODBIOR). Bez zmian gry.
 - 2026-11-10: decyzje właściciela po raporcie B2 i doświadczeniach C0:
   D24 w brzmieniu „tylko parada”, D25 (drobnica i stwory pojedynkowe),
   progi miernika, zgoda na propozycje dla Exorcista, A5 przyjęte. Bez

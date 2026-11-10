@@ -70,6 +70,30 @@ function T.run(Game)
     alone.carried:find('judge', 1, true) ~= nil and alone.carried:find('exorcist', 1, true) == nil
   )
   check('and as the proving ground arms him, both', stood.carried:find('exorcist', 1, true) ~= nil)
+  -- The thresholds of a ready fight (owner, 2026-11-10): judged on sums, not on a session.
+  local iron = named(Meter.fights, 'iron')
+  local function sums(standing, blind, masterWins, harm, novice, master)
+    return {
+      careless = { wins = standing },
+      restless = { wins = blind },
+      novice = { wins = 5, time = novice },
+      master = { wins = masterWins, harm = harm, time = master },
+    }
+  end
+  check(
+    'a small one alone is measured, not judged',
+    Meter.lacks(claws, sums(5, 5, 5, 0, 6, 6), 5) == nil
+  )
+  check(
+    'a duellist that asks to be read is ready',
+    #Meter.lacks(iron, sums(1, 2, 5, 25, 30, 20), 5) == 0
+  )
+  check('and lacks each threshold it misses', #Meter.lacks(iron, sums(2, 3, 4, 26, 20, 20), 5) == 5)
+  check(
+    'three small ones are judged by the knight who reads nothing and by the master',
+    #Meter.lacks(trio, sums(5, 2, 4, 200, 9, 12), 5) == 0
+      and #Meter.lacks(trio, sums(0, 3, 3, 0, 9, 9), 5) == 2
+  )
   local report = Meter.report(Game, true)
   local text = table.concat(report, '\n')
   check(

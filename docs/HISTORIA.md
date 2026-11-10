@@ -85,6 +85,15 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Progi miernika głębi walki, 2026-11-10 (decyzja właściciela, WIZJA):
+  `qa/reviews/depth_meter.lua` zna progi gotowej walki (`M.thresholds`)
+  i przy każdej ocenianej walce pisze „ready: yes” albo czego brakuje.
+  Stwór pojedynkowy (Iron Thrall, Margrave, Furfur): stojący wygrywa
+  najwyżej 1/5, nieczytający najwyżej 2/5, mistrz 5/5 przy najwyżej 25
+  obrażeniach i co najmniej 1,5 raza szybciej niż nowicjusz. Trójka
+  drobnicy: nieczytający najwyżej 2/5, mistrz co najmniej 4/5. Drobnica
+  w pojedynkę i szóstka są mierzone, nie oceniane. Bez zmian gry.
+
 - B1, miernik głębi walki, 2026-11-10: nowe narzędzie QA
   `love game --depth-meter` (`qa/reviews/depth_meter.lua`, raport
   `depth-meter.txt`). Te same walki dostaje sześciu rycerzy różniących się
@@ -5291,6 +5300,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Progi miernika, 2026-11-10: `depth-meter` 29 PASS (było 25): drobnica
+  w pojedynkę nie jest oceniana; stwór pojedynkowy na progach jest gotowy,
+  a przy każdym przekroczeniu wymienia je wszystkie; trójkę ocenia
+  nieczytający i mistrz. Stan wyjściowy (`8cce94e` w grze): żadna oceniana
+  walka nie jest gotowa. Z samym Sędzią: Iron Thrall (nieczytający 4/5,
+  mistrzostwo 1,22), Margrave (mistrz 55 obrażeń, mistrzostwo 1,37), Furfur
+  (mistrz 80 obrażeń, mistrzostwo 1,17), trójka (nieczytający 5/5).
+  Z obiema broniami dodatkowo stojący wygrywa z Iron Thrallem 5/5,
+  a nieczytający z Margrave'em 4/5. Brama Linux zielona: 9607 sprawdzeń
+  w 4 częściach, showcase, Tools, `startup-check`, `resource-plateau`,
+  `measure-trial` PASS. Golden bez zmian.
 
 - B2, raport miernika głębi walki, 2026-11-10: pełny przebieg
   `--depth-meter` (5 ziaren, 2 min 3 s) i sonda `firstblow`; tabele
