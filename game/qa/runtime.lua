@@ -47,6 +47,7 @@ local captures = {
   ['--view-measure'] = true,
   ['--chapel-look'] = true,
   ['--frame-watch'] = true,
+  ['--depth-meter'] = true,
 }
 -- The creature pipeline tools (plan v10 V7), each --name=value: an atlas id,
 -- an annotation id, a spec or legend file, a creature id.
@@ -210,6 +211,9 @@ function Q:run(G, renderer, getGame, settings, getLoading)
     require('qa.reviews.chapel_look').run(G, renderer, self.output)
   elseif self:has('--frame-watch') then
     require('qa.reviews.frame_watch').run(G, renderer, self.output)
+  elseif self:has('--depth-meter') then
+    -- What reading a fight earns, and whether a body is a sponge (qa/reviews/depth_meter.lua).
+    require('qa.reviews.depth_meter').run(G, self.output, self:has('--qa-smoke'))
   elseif self:has('--selftest') then
     require('tests.suite').run(G, renderer, getGame, self.output, nil, getLoading, self.shard)
   elseif self:has('--input-test') then

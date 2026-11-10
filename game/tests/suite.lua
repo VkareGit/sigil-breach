@@ -146,6 +146,11 @@ Suite.registry = {
     module = 'tests.cases.souls_gate',
   },
   {
+    id = 'depth-meter',
+    title = 'The meter of a fight counts the same fight the same, for every knight',
+    module = 'tests.cases.depth_meter',
+  },
+  {
     id = 'souls-trace',
     title = 'A blow is a path in time and goes where the body came to face',
     module = 'tests.cases.souls_trace',

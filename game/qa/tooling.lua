@@ -12,6 +12,7 @@ Tooling.catalog = {
     flag = '--audio-export',
     reports = { 'audio-export.txt', 'sounds/report.txt', 'music/report.txt' },
   },
+  { flag = '--depth-meter', reports = { 'depth-meter.txt' } },
 }
 
 function Tooling.count(smoke, full, short)

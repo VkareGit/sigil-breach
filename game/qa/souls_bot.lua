@@ -8,6 +8,7 @@ local Rules = require('src.combat.rules')
 local Ground = require('src.physics.ground')
 local World = require('src.world.arena')
 local Supplies = require('src.session.interactions').supplies
+local Knight = require('src.content.knight')
 local Bot = {}
 local function nearest(g)
   local p, best, bestD = g.player, nil, nil
@@ -64,6 +65,29 @@ end
 function Bot.oneSide(g, memory)
   local input = Bot.reflex(g, memory)
   input.strafe = 1
+  return input
+end
+-- Reads nothing at all, not even when a windup ends: never still, it hops, slides and
+-- dodges whenever its breath allows, and shoots all the while. The fight the owner
+-- described (2026-11-10, PLAN B1): what this knight wins, reading did not win.
+local breath = Knight.body.rollStamina / Knight.resources.stamina.max
+function Bot.restless(g, memory)
+  local p = g.player
+  local e, distance = nearest(g)
+  if not e then
+    return {}
+  end
+  aim(g, e)
+  memory.clock = (memory.clock or 0) + 1
+  memory.side = memory.clock % 180 < 90 and 1 or -1
+  local input = { strafe = memory.side, shoot = true }
+  input.forward = distance > 6 and 1 or (distance < 4 and -1 or 0)
+  input.jump = memory.clock % 90 == 0
+  input.slide = memory.clock % 150 == 60
+  input.dash = (Resources.share(p, 'stamina') or 1) >= breath
+  if p.hp < 45 and not p.casting then
+    g:cast(2)
+  end
   return input
 end
 -- How far a committed blow of e can reach, and whether it asks for a jump.

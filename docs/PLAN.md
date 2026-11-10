@@ -183,6 +183,9 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **B1 zrobione:** miernik głębi walki (`--depth-meter`):
+  sześciu rycerzy, osiem walk, dwa uzbrojenia; zestaw `depth-meter`
+  w bramie. Bez zmian gry, golden bez zmian.
 - 2026-11-10, **A5 zrobione, werdykt do decyzji:** 7 par, po/przed
   0,89–1,06 ze znakami w obie strony, żadna różnica ponad rozrzut;
   protokół nadal INCONCLUSIVE, bo rozrzut maszyny (IQR 6–21 %) jest

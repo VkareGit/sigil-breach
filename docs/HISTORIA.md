@@ -83,6 +83,25 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- B1, miernik głębi walki, 2026-11-10: nowe narzędzie QA
+  `love game --depth-meter` (`qa/reviews/depth_meter.lua`, raport
+  `depth-meter.txt`). Te same walki dostaje sześciu rycerzy różniących się
+  tylko tym, co czytają: `careless` (stoi i strzela), `restless` (nowy bot
+  w `qa/souls_bot.lua`: nie czyta niczego, skacze, ślizga się i unika, gdy
+  tylko ma wytrzymałość), `reflex` (nawyk: unik na koniec zamachu),
+  `novice` (myli połowę ciosów), `able` (jeden na pięć), `master` (czyta
+  wszystko). Walki: sześć stworów pojedynczo w komnatach poligonu oraz
+  trójka i szóstka w nawie tej samej mapy; każda dla rycerza z samym
+  Sędzią (nowa droga, D12) i z obiema broniami. Narzędzie liczy walkę
+  z zewnątrz, zdarzeniami sesji: wynik, czas, otrzymane obrażenia, ciosy
+  wypuszczone i trafione, strzały, uniki, idealne uniki, skoki, ślizgi,
+  egzekucje, zabójstwa przełamane. Trzy odczyty: mistrzostwo (czas mistrza
+  wobec nowicjusza; poniżej 2 stwór jest gąbką), czytanie (obrażenia
+  mistrza wobec nieczytającego) i stanie (co dostaje rycerz, który stoi
+  i strzela). `SIGIL_DEPTH_FIGHTS`, `SIGIL_DEPTH_SEEDS`, `SIGIL_DEPTH_ARMS`
+  zawężają przebieg; `--qa-smoke` to jedna walka. Narzędzie nie zmienia
+  gry i niczego nie stroi.
+
 - A4, akcenty ataków pytają o cechy rodzaju, nie o nazwę, 2026-11-10
   (reszta Z7): rodzaj ataku mówi cechami (`content/defs/action.lua`,
   `Action.trait`), o co reszta gry może go zapytać. Nowe cechy: `slips`
@@ -5270,6 +5289,22 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- B1, miernik głębi walki, 2026-11-10: nowy zestaw `depth-meter` (25
+  sprawdzeń): ta sama walka liczona dwa razy daje ten sam wynik, także dla
+  rycerza, który losuje pomyłki; rycerz nieczytający unika, skacze
+  i strzela, stojący nie unika; grupa jest liczona; rycerz nowej drogi ma
+  samego Sędziego; raport ma tabelę i odczyty. Dwa błędy samego narzędzia
+  złapane w trakcie i zamknięte strażnikiem: grupy liczone najpierw na
+  zwykłej podłodze testowej, gdzie unik nic nie kosztuje (rycerz
+  nieczytający zrobił 1124 uniki w 180 s i był prawie nietykalny), potem
+  w trybie pola z domyślną nietykalnością (nikt nie tracił zdrowia).
+  Narzędzie odmawia teraz walki, w której nie płaci się wysiłkiem albo
+  cios nie rani, a test pilnuje, że uniki mieszczą się w wytrzymałości.
+  Pełny przebieg: 2 min 3 s. Brama Linux zielona: 9603 sprawdzenia
+  w 4 częściach (było 9576), showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Windows
+  niesprawdzony.
 
 - A5, pomiar przed/po napraw Z1–Z13, 2026-11-10: `MEASURE.sh --pairs 7
   --populations 96,256` na dwóch klonach poza repozytorium (`a7d1de4`
