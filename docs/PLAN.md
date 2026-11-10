@@ -140,6 +140,9 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z2a zrobione:** pole drogi niesie strumień losowania
+  i resztę zatrzymania trafienia; sekcja `pilgrimage` 5 z migracją.
+  Wznowienia walki: 19 ze 106 rozjeżdżało się, teraz 0. Golden bez zmian.
 - 2026-11-10, **Z5 zrobione:** `MEASURE.sh` mierzy klatkę na mapie
   `qa_crowd`; `--trial` w bramie Linux (Tools). Bez zmian gry.
 - 2026-11-10, **Z3 zrobione:** porzucona sesja zwalniana po kroku rycerza;

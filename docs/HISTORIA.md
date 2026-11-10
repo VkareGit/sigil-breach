@@ -81,6 +81,18 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z2a, Continue nie zaczyna losowania od nowa, 2026-11-10 (audyt silnika,
+  D9): pole drogi (zapis w trakcie walki) niesie stan strumienia losowania
+  symulacji, a wznowienie go ustawia, więc wyjście nie powtarza ani nie
+  zeruje żadnego rzutu (dotąd po Continue pierwszy rzut był 0,00006
+  i pierwszy zabity zawsze zostawiał naboje). Pole niesie też resztę
+  zatrzymania trafienia (`impactSlow`, `worldStop`): test kontraktu złapał
+  wyjście w trakcie 0,06 s zatrzymania, po którym zagrożenie ruszało krok
+  za wcześnie. `core/rng.lua` ma jawny odczyt i zapis stanu
+  (`Rng:get`, `Rng:set`, `Rng.valid`); zapis i wznowienie walki to
+  `PilgrimageSave.fightOf` i `resumeFight`. Sekcja `pilgrimage` w wersji 5;
+  pole zapisane przez wersję 4 (bez strumienia) wznawia się jak dotąd.
+
 - Z5, `MEASURE.sh` z domyślnymi populacjami, 2026-11-10 (audyt silnika):
   faza `--benchmark` nie dostawała `SIGIL_CROWD_MAP`, więc 256 ciał nie
   mieściło się w arenie i protokół kończył się błędem (Windows ustawia
@@ -5072,6 +5084,20 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z2a, Continue a losowanie, 2026-11-10: nowy test kontraktu zapisuje każdą
+  walkę w połowie zamachu i w uderzeniu (106 przypadków), przepuszcza pole
+  przez tekst zapisu, wznawia je w świeżej sesji i przez 6 s porównuje
+  ciało, stan, zdrowie rycerza, znaki i pociski. Przed zmianą (pole bez
+  strumienia) rozjeżdżało się 19 ze 106; ze strumieniem został 1 (Furfur,
+  piorun w uderzeniu: wyjście w trakcie 0,06 s zatrzymania trafienia,
+  zagrożenie ruszało o 1/120 s za wcześnie); po dodaniu reszty zatrzymania
+  0 ze 106. Test zapisu drogi „strumień idzie dalej od miejsca, w którym
+  stał” czerwony przed, zielony po; pole w wersji 4 (bez strumienia)
+  wznawia się jak dotąd; sesja wznowiona z pola się powtarza. Brama Linux
+  zielona: 9395 sprawdzeń w 4 częściach (było 9286), showcase, Tools,
+  `startup-check`, `resource-plateau` i `measure-trial` PASS (to pierwsza
+  pełna brama z `measure-trial`). Golden bez zmian. Windows niesprawdzony.
 
 - Z5, `MEASURE.sh`, 2026-11-10: `MEASURE.sh --pairs 1 --trial` z domyślnymi
   populacjami 20,96,256 przed zmianą exit 1 w fazie benchmarku

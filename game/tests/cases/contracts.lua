@@ -1,7 +1,8 @@
 -- PLAN F5: contracts proven on data, generated from the definitions. Every
 -- attack of every creature lives its whole life in one plain room: it begins,
 -- releases, ends and leaves nothing of itself; a body that dies in the middle
--- of one lets go of what it marked. Every creature's package holds what its
+-- of one lets go of what it marked; one saved in the middle of itself and taken
+-- up in a fresh session goes on the same (PLAN Z2a). Every creature's package holds what its
 -- definition names: its atlas, anatomy, words and voices.
 local T = {}
 function T.run(Game)
@@ -11,6 +12,10 @@ function T.run(Game)
   local World = require('src.world.arena')
   local Tiles = require('src.core.tiles')
   local Pools = require('src.session.world')
+  local PilgrimageSave = require('src.run.pilgrimage_save')
+  local Serialize = require('src.core.serialize')
+  local DataReader = require('src.core.data_reader')
+  local Save = require('src.storage.save')
   local lines, failures = {}, {}
   local function check(name, ok)
     lines[#lines + 1] = (ok and 'PASS ' or 'FAIL ') .. 'contracts: ' .. name
@@ -27,10 +32,13 @@ function T.run(Game)
     end
     local p = g.player
     p.x, p.z, p.yaw, p.armor, p.hp, p.maxHp = 16, 15 + distance, math.pi, 0, 1e6, 1e6
+    g.rng.sim:seed(1)
+    if not id then
+      return g
+    end
     local e = g:spawn(id, 16, 15)
     e.target, e.awake, e.visible, e.memory, e.spawnAge, e.facing, e.sense =
       p.id, true, true, 60, 2, 0, 10
-    g.rng.sim:seed(1)
     return g, e
   end
   local busy = { windup = true, strike = true, recover = true }
@@ -55,6 +63,64 @@ function T.run(Game)
       end
     end
     return foreign, waiting
+  end
+  -- What a fight shows of itself: the body, its state, the knight's health, and what it
+  -- marked and threw.
+  local function signature(g)
+    local e = Pools.of(g, 'enemies')[1]
+    local marked, thrown = 0, 0
+    for _, h in ipairs(Pools.of(g, 'hazards')) do
+      marked = marked + h.x + h.z + (h.radius or 0) + (h.life or 0)
+    end
+    for _, b in ipairs(Pools.of(g, 'projectiles')) do
+      thrown = thrown + b.x + b.y + b.z
+    end
+    return string.format(
+      '%.6f|%.6f|%s|%.4f|%d|%.5f|%d|%.5f|%d',
+      e and e.x or 0,
+      e and e.z or 0,
+      e and e.ai or '-',
+      g.player.hp,
+      #Pools.of(g, 'hazards'),
+      marked,
+      #Pools.of(g, 'projectiles'),
+      thrown,
+      #Pools.of(g, 'enemies')
+    )
+  end
+  -- Played up to the moment, then the fight as the way's field keeps it, through the
+  -- text of a save, taken up in a fresh room: the first step where the two part, if any.
+  local function resumed(id, spec, distance, moment)
+    local g, e = room(id, distance)
+    Actions.begin(g, e, distance, spec)
+    local reached = false
+    for _ = 1, 120 * 15 do
+      step(g, e)
+      if moment == 'windup' and e.ai == 'windup' and e.windup <= e.windupDuration * 0.5 then
+        reached = true
+        break
+      elseif moment == 'strike' and e.ai == 'strike' then
+        reached = true
+        break
+      elseif e.ai ~= 'windup' and e.ai ~= 'strike' then
+        break
+      end
+    end
+    if not reached then
+      return nil
+    end
+    local text = Serialize.encode(PilgrimageSave.fightOf(g, {}))
+    local again = room(nil, distance)
+    PilgrimageSave.resumeFight(again, assert(DataReader.decode(text, Save.limits)))
+    local body = Pools.of(again, 'enemies')[1]
+    for i = 1, 120 * 6 do
+      step(g, e)
+      step(again, body)
+      local a, b = signature(g), signature(again)
+      if a ~= b then
+        return string.format('parts at step %d: played %s, taken up %s', i, a, b)
+      end
+    end
   end
   for _, id in ipairs(A.creatures) do
     for _, spec in ipairs(A.get(id).attacks) do
@@ -107,6 +173,19 @@ function T.run(Game)
           name .. ' struck down in its ' .. moment .. ' leaves no mark waiting',
           dead and waiting == 0
         )
+        local ok, parted = pcall(resumed, id, spec, distance, moment)
+        check(
+          name .. ' saved in its ' .. moment .. ' and taken up goes on the same',
+          ok and parted == nil
+        )
+        if not ok or parted then
+          lines[#lines + 1] = 'FAIL contracts: '
+            .. name
+            .. ' '
+            .. moment
+            .. ': '
+            .. tostring(parted)
+        end
       end
     end
   end

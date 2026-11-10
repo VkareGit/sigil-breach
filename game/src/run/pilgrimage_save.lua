@@ -17,6 +17,7 @@ local Shop = require('src.content.shop')
 local Copy = require('src.core.schema').copy
 local Economy = require('src.run.economy')
 local SigilRules = require('src.content.sigils')
+local Rng = require('src.core.rng')
 local S = {}
 -- What the way gives the format: area(g), the area the knight is in, and
 -- stand(g), the world under him made his area's (S.declare).
@@ -158,14 +159,35 @@ local function fieldOf(g)
       field.picked[cache.id] = true
     end
   end
-  -- The fight itself as the session save keeps it (plan v10 V4: its pools section): every
-  -- creature with its blow, clocks and wounds, what flies and burns, what lies where and how
-  -- much is left, the knight with what he was doing; and the clock those times are on.
-  -- Packed, so the way's origin stays plain data for a journal.
+  return S.fightOf(g, field)
+end
+-- The fight itself as the session save keeps it (plan v10 V4: its pools section): every
+-- creature with its blow, clocks and wounds, what flies and burns, what lies where and how
+-- much is left, the knight with what he was doing; the clock those times are on; and, since
+-- PLAN Z2a, where the simulation's random stream stood and what is left of a hit's stop: a
+-- quit neither redraws nor restarts a single roll, nor ends a stop early (D9). Packed, so
+-- the way's origin stays plain data for a journal.
+function S.fightOf(g, field)
   local pools = Save.section('pools')
   field.pools = { version = pools.version, data = pools.pack(g) }
   field.elapsed, field.nextAttack = g.elapsed, g.nextAttack
+  field.rng = g.rng.sim:get()
+  field.impactSlow, field.worldStop = g.impactSlow, g.worldStop
   return field
+end
+-- The same fight taken up in a session: its pools, its clock and its stream. A field
+-- written before the stream was kept (section version 4) goes on from a fresh stream.
+function S.resumeFight(g, field)
+  if field.pools then
+    Save.section('pools').restore(g, S.readPools(field.pools))
+    g.elapsed = field.elapsed or g.elapsed
+    g.nextAttack = field.nextAttack
+  end
+  if field.rng ~= nil then
+    g.rng.sim:set(field.rng)
+  end
+  g.impactSlow = field.impactSlow or g.impactSlow
+  g.worldStop = field.worldStop or g.worldStop
 end
 local function finiteNumber(value)
   return type(value) == 'number' and MathX.finite(value)
@@ -199,6 +221,13 @@ local function validField(field)
   assert(field.hp > 0 and field.armor >= 0, 'invalid field health')
   assert(field.elapsed == nil or finiteNumber(field.elapsed), 'invalid field clock')
   assert(field.nextAttack == nil or finiteNumber(field.nextAttack), 'invalid field pacing')
+  assert(field.rng == nil or Rng.valid(field.rng), 'invalid field random state')
+  for _, key in ipairs({ 'impactSlow', 'worldStop' }) do
+    assert(
+      field[key] == nil or (finiteNumber(field[key]) and field[key] >= 0),
+      'invalid field stop'
+    )
+  end
   assert(field.weapon == nil or whole(field.weapon, 1, math.huge), 'invalid field weapon')
   local out = {
     area = field.area,
@@ -211,6 +240,9 @@ local function validField(field)
     weapons = {},
     elapsed = field.elapsed,
     nextAttack = field.nextAttack,
+    rng = field.rng,
+    impactSlow = field.impactSlow,
+    worldStop = field.worldStop,
     -- The fight's pools stay packed (plain data for a journal's origin); one that does not
     -- read is left out and the way is taken up from the rest of the field.
     pools = fieldPools(field.pools),
@@ -260,8 +292,12 @@ function S.declare(owner)
   Save.declare({
     name = 'pilgrimage',
     file = 'pilgrimage',
-    version = 4,
+    version = 5,
     migrations = {
+      -- A field kept no random stream: it is taken up from a fresh one, as before.
+      [4] = function(data)
+        return data
+      end,
       [3] = function(data)
         -- Old saves wore types, not copies. Keep one of each formerly worn
         -- type in catalogue order within capacity; retain every found copy.

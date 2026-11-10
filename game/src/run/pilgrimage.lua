@@ -335,11 +335,9 @@ local function resumeField(g, field)
   end
   -- Then the fight exactly as it was, when the field carries it (0.43, audit review: a quit
   -- dropped the missile in the air, the blow begun, the rest of a cache, a drop, a wound).
+  PilgrimageSave.resumeFight(g, field)
   if field.pools then
-    Save.section('pools').restore(g, PilgrimageSave.readPools(field.pools))
     Roles.controlled(g).sigilRanks = Copy(r.sigils or {})
-    g.elapsed = field.elapsed or g.elapsed
-    g.nextAttack = field.nextAttack
   end
 end
 -- Souls left where the map no longer has floor wait where he wakes.

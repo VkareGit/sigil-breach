@@ -404,6 +404,18 @@ local function replays(check, Game)
   journal = Journal.record(g)
   play(g)
   replay('a session begun from a save replays', g, journal)
+  -- Taken up in the middle of the way, its stream where it stood (PLAN Z2a).
+  clean()
+  g = begin(Game)
+  run(g, 0.3)
+  for _ = 1, 7 do
+    g.rng.sim:random()
+  end
+  g:act('flush')
+  g = Game.new('pilgrimage')
+  journal = Journal.record(g)
+  play(g)
+  replay('a session taken up from its field replays', g, journal)
 end
 -- A second area on another map: a fire, a post and a door between the two.
 local function areas(check, Game)
@@ -616,6 +628,27 @@ local function resumes(check, Game)
   check('a creature drop still lies there', drop)
   check('a wounded body asleep keeps its wound', byPost(back, 'nave_5').hp == 123)
   check('the clock goes on from where it stood', back.elapsed == g.elapsed)
+  -- And the random stream from where it stood (PLAN Z2a): a quit neither redraws nor
+  -- restarts a roll (D9); a way written before the stream was kept goes on as before.
+  clean()
+  g = begin(Game)
+  run(g, 0.2)
+  for _ = 1, 7 do
+    g.rng.sim:random()
+  end
+  local stood = g.rng.sim.state
+  g:act('flush')
+  back = begin(Game)
+  check('the random stream goes on from where it stood', back.rng.sim.state == stood)
+  local payload = love.filesystem.read(FILE):match('^SIGIL%d%d\n[%w_]+\n%d+\n%d+\n(.*)$')
+  local way = assert(require('src.core.data_reader').decode(payload, Save.limits)).pilgrimage.data
+  way.field.rng = nil
+  put(FILE, way, 2, 4)
+  local older = begin(Game)
+  check(
+    'a field written before the stream was kept is taken up as before',
+    math.abs(older.player.x - back.player.x) < 1e-6 and older.rng.sim.state ~= stood
+  )
   clean()
 end
 function T.run(Game)
