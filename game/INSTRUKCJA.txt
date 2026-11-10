@@ -1,5 +1,5 @@
-SIGIL: BREACH — prototyp 0.45
-4 listopada 2026
+SIGIL: BREACH — prototyp 0.46
+10 listopada 2026
 
 Ten plik to AKTUALNA SPECYFIKACJA gry: tak gra działa teraz. Historia zmian
 jest w docs/HISTORIA.md, bieżący plan w docs/PLAN.md, wizja w docs/WIZJA.md
@@ -21,14 +21,16 @@ albo PIERCE, Judge BREAKER albo PRECISION) i pieczęcie Goecji (Stolas: mocniejs
 Judge'a w głowę; Buer: silniejszy rally; Furfur: po doskonałym uniku następny strzał w ciągu
 2 s mocniejszy) to relikwie leżące w kaplicy, najlepsze w salach elit; wzięta zostaje na
 zawsze i zakłada się sama, jeśli jest wolne miejsce. Menu ognia: zmiana grawerów (każda broń
-nosi jeden swój) i pieczęci (dwie naraz) za darmo; za dusze trwałe śluby (flaska +1 łyk 150
-i 338, zdrowie +15 120 i 270, hartowanie każdej broni +8% obrażeń 250) i podróż do kolejnego
+nosi jeden swój) i pieczęci (łącznie do 4 punktów pojemności) za darmo; za dusze trwałe
+śluby (flaska +1 łyk 150 i 338, zdrowie +15 120 i 270, hartowanie każdej broni +8% obrażeń
+250) i podróż do kolejnego
 zapalonego ogniska. Ognisko zapala się przez odpoczynek przy nim; podróż prowadzi tylko do
 ognisk już zapalonych i nie jest proponowana, dopóki żadnego innego nie ma. Ognisko odmawia
 odpoczynku i podróży i mówi dlaczego, gdy ściga cię czuwający stwór w promieniu 14 m albo
 widzący cię w zasięgu swoich ciosów (elity do 18 m), gdy leci na ciebie pocisk albo obok leży
 znak polującego stwora. Przyjęty odpoczynek usuwa to, co stwory zostawiły (plamy, znaki,
-pociski). Przy ogniskach sal bocznych budzisz się za ogniem, plecami do strażnika sali.
+pociski). Przy pierwszym ognisku budzisz się twarzą do ognia, z nawą za plecami; przy
+ogniskach sal bocznych za ogniem, plecami do strażnika sali.
 Margrave i Furfur to elity, nie bossowie: 2700 i 2250 HP, pełne obrażenia także w trakcie
 ich ciosu, egzekucja zabiera 20% HP, dwa akty (drugi od połowy życia), 250 dusz i 2 łuski.
 Ich ciosy dystansowe sięgają 16–18 m. Z pękniętą gardą elita chwieje się i jest otwarta na
@@ -79,8 +81,9 @@ HEALTH i WARD na pasku to procent własnego maksimum (po ślubach pełne zdrowie
 ostatni cios. Po śmierci budzisz się przy ostatnim ognisku, na jego mapie.
 Pomoc (F1) zaczyna się od zasad walki; pierwszy złoty pierścień, pęknięta garda, seria i naboje
 ze stwora są objaśnione raz, gdy nikt cię nie ściga.
-Stwory stoją na posterunkach, wracają na nie i wstają po odpoczynku. Drzwi otwiera się
-tylko z jednej strony, [E] przy murze, i zostają otwarte. Zawalone zostaje, drobiazgi
+Stwory stoją na posterunkach i wracają na nie; zabite nie wstają po odpoczynku.
+Drzwi otwiera się tylko z jednej strony, [E] przy murze, i zostają otwarte. Zawalone
+zostaje, drobiazgi
 wracają. Na razie nie ma bossów ani zakończenia: Margrabia i Furfur to najtrudniejsze moby
 (Furfur daje tyle dusz co Margrabia).
 Zapis: trzy sloty, wybór przyciskiem SAVE SLOT w menu; pliki pilgrimage.save, pilgrimage-2.save i
@@ -134,11 +137,11 @@ cios, który trafiłby powidok albo rycerza w trakcie uniku, to idealny unik
 CZŁOWIEK BEZ MAGII
 Obie bronie zużywają amunicję. Q to proch, nie Fala Dusz.
 Zwykłe zabójstwo nie leczy i nie odnawia Q. Dusze są walutą.
-Wyjątek — ZABÓJSTWO PRZEŁAMANE leczy o 1/4 gardy zabitego (Sługa 9 HP,
-Ogrodnik 12,5 HP; nie ponad 100 HP). Liczy się, gdy w chwili śmierci demon
+Wyjątek — ZABÓJSTWO PRZEŁAMANE leczy o 1/4 gardy zabitego (Sługa 35 HP,
+Ogrodnik 27,5 HP; nie ponad pełne zdrowie). Liczy się, gdy w chwili śmierci demon
 jest ogłuszony, zachwiany lub odsłonięty (boss), albo gdy w ostatnich 2 s
 stracił gardę, upadł lub dostał poważną ranę (jednym trafieniem co najmniej
-45 % swojego HP; tak działa już pierwsze trafienie Sędziego w Sługę).
+45 % swojego HP).
 Napis pokazuje faktycznie odzyskane HP. Przy pełnym zdrowiu informuje
 o przełamanym zabójstwie bez fikcyjnej premii leczenia.
 Raport F9 liczy przyczyny przełamania osobno (jedno zabójstwo może mieć

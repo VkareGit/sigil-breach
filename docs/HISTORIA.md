@@ -81,6 +81,14 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z11, dokumenty, 2026-11-10: START-HERE i INSTRUKCJA podają wersję 0.46.
+  INSTRUKCJA: zabite stwory nie wstają po odpoczynku (sprzeczne zdanie
+  poprawione), pieczęcie mają łącznie 4 punkty pojemności (nie „dwie
+  naraz”), zabójstwo przełamane leczy Sługę o 35 HP i Ogrodnika o 27,5 HP
+  (1/4 gardy 140 i 110; nie ponad pełne zdrowie), pierwsze trafienie
+  Sędziego (70) nie jest już poważną raną Sługi (360 HP); przy pierwszym
+  ognisku rycerz budzi się twarzą do ognia, z nawą za plecami (Z1).
+
 - Z11, martwy kod i smycz bez posterunku, 2026-11-10 (audyt silnika):
   usunięte `g.intensity` (`session/listeners.lua`, deklaracja w
   `session/fields.lua`, `run/field/reset.lua`), pole dla nieistniejącego
@@ -5217,6 +5225,12 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z11, dokumenty, 2026-11-10: START-HERE i INSTRUKCJA sprawdzone z kodem
+  (`core/build.lua` 0.46, `content/sigils.lua` pojemność 4, gardy
+  `content/creatures/*/init.lua`, obrażenia Sędziego w `content/tuning.lua`,
+  przebudzenie narthexu z Z1). Bez zmian kodu; pełna brama nie
+  uruchamiana (sam tekst gracza), `TEST.sh Architecture` PASS.
 
 - Z11, kod, 2026-11-10: nowe sprawdzenie w `pilgrimage`: ciało ze smyczą
   bez posterunku. Przed zmianą czerwone („attempt to index field 'home'”),

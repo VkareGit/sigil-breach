@@ -140,6 +140,8 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z11 dokumenty zrobione:** START-HERE i INSTRUKCJA w wersji
+  0.46, bez sprzeczności z audytu.
 - 2026-11-10, **Z11 kod zrobiony:** usunięte `g.intensity` i odwołania do
   nieistniejących plików, smycz bez posterunku z testem. Golden bez zmian.
 - 2026-11-10, **Z13 zrobione:** `EnemyKilled` niesie stan zabójcy z chwili

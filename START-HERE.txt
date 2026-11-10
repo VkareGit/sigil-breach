@@ -1,4 +1,4 @@
-SIGIL: BREACH / 0.45 (4 listopada 2026)
+SIGIL: BREACH / 0.46 (w toku, stan z 10 listopada 2026)
 
 Gra: FPS w LÖVE 11.5 i LuaJIT, który staje się grą w stylu Souls. Rycerz bez magii,
 bronie Exorcist (strzelba) i Judge (rewolwer), kaplica z 4 ogniskami i 15 stworami,
