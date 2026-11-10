@@ -140,6 +140,9 @@ Z12 → Z13 → Z11.
 
 ## Postęp i dowody
 
+- 2026-11-10, **Z1 zrobione (wariant A):** narthex budzi rycerza twarzą
+  do ognia; czuwające po odpoczynku 10 → 0. Golden bez zmian; wariant B
+  odłożony.
 - 2026-11-10, **Z4 zrobione:** zagrożenia w próbce obrazu z deklarowanym
   wygładzaniem; zamrożone klatki ruchomych znaków 3303 → 0. Rendery
   identyczne, golden bez zmian.

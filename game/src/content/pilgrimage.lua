@@ -91,7 +91,9 @@ Way.areas:register('chapel', {
   map = 'proving',
   first = 'narthex',
   fires = {
-    { id = 'narthex', name = 'fire_narthex', x = 27, z = 35 },
+    -- The first fire wakes the knight before it facing it, the nave at his back: waking
+    -- with the nave in sight raised ten of its creatures in his first step (PLAN Z1).
+    { id = 'narthex', name = 'fire_narthex', x = 27, z = 35, wake = { x = 27, z = 33.5, yaw = 0 } },
     { id = 'sanctuary', name = 'fire_sanctuary', x = 24, z = 9 },
     -- The hall fires wake the knight behind them, the guardian at his back and out of its
     -- notice (0.42: in front, 5.5 m from it and facing it, it woke before he moved).

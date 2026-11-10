@@ -376,6 +376,59 @@ local function relics(check, Game)
   check('and its rank was raised once', g.run.vows.sigil_stolas == 1)
   P.forget()
 end
+-- PLAN Z1: a knight who wakes at a fire wakes nobody. At every fire of the way, reached by a
+-- journey from another fire (a rest) and by a death, he stands three seconds without a
+-- touch: nobody is awake and his health is whole. The sanctuary fire is the owner's own
+-- exception (2026-11-10): the crypt stands three metres from where he wakes, and it rises at
+-- any place of waking there; it stays as it is and is not judged here.
+local exceptions = { sanctuary = 'the crypt beside it rises at any place of waking (owner)' }
+local function awake(g)
+  local n, who = 0, {}
+  for _, e in ipairs(Pools.of(g, 'enemies')) do
+    if e.awake and e.hp > 0 then
+      n, who[#who + 1] = n + 1, e.post or e.kind
+    end
+  end
+  return n, table.concat(who, ' ')
+end
+local function wakings(check, Game)
+  for _, fire in ipairs(K.fires()) do
+    if not exceptions[fire.id] then
+      for _, way in ipairs({ 'rest', 'death' }) do
+        P.forget()
+        local g = session(Game)
+        local p = g.player
+        local r = g.run
+        if way == 'rest' then
+          local from
+          for _, other in ipairs(K.start().fires) do
+            from = from or (other.id ~= fire.id and other) or nil
+          end
+          r.lit = { [from.id] = true, [fire.id] = true }
+          p.x, p.z = from.x, from.z
+          check(fire.id .. ': a journey takes him there', P.travel(g) and r.fire == fire.id)
+        else
+          r.lit[fire.id], r.fire = true, fire.id
+          P.lose(g)
+          check(fire.id .. ': he wakes there after a death', g:act('retry'))
+        end
+        run(g, 3)
+        local n, who = awake(g)
+        check(
+          string.format(
+            '%s, after a %s: three seconds still, nobody awake (%d: %s), health whole',
+            fire.id,
+            way,
+            n,
+            who
+          ),
+          n == 0 and p.hp == p.maxHp and g.state == 'playing'
+        )
+      end
+    end
+  end
+  P.forget()
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
@@ -386,6 +439,7 @@ function T.run(Game)
   caches(check, Game)
   causes(check, Game)
   relics(check, Game)
+  wakings(check, Game)
   P.forget()
   local g = session(Game)
   local p = g.player
@@ -396,7 +450,9 @@ function T.run(Game)
   check('every post stands', #Pools.of(g, 'enemies') == #K.start().garrison)
   check('rounds lie about where the way says', #Pools.of(g, 'pickups') == #K.start().supplies)
   check('every one of them can be reached', #P.problems(K.start()) == 0)
-  check('nobody knows he is here', byPost(g, 'nave_1').awake == false)
+  -- Judged after his first step, not before the simulation has looked (PLAN Z1).
+  g:update(1 / 120, {})
+  check('nobody knows he is here, after his first step too', awake(g) == 0)
   check('no waves, effort is paid', require('src.session.capabilities').attrition(g))
   check('the flask is carried', p.abilityState.flask.uses == 3)
   -- A rest raises the creatures, heals, refills.

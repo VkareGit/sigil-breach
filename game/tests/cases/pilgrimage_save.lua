@@ -271,7 +271,9 @@ local function timing(check, Game)
   kill(g, 'nave_1')
   check('a kill pays at once', g.run.wallet > 0 and g.run.dirty)
   check('and writes nothing', love.filesystem.getInfo(FILE) == nil)
-  local e = byPost(g, 'crypt_1')
+  -- A creature of the nave, within the reach of a hunt: one of the crypt stood beyond it
+  -- and kept the fight only while the alarm woke the nave with him (PLAN Z1, owner).
+  local e = byPost(g, 'nave_2')
   e.leash = math.huge
   for _ = 1, (K.saveEvery + 1) * 120 do
     e.awake, e.memory, g.player.hp = true, 1, g.player.maxHp

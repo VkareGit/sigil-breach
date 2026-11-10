@@ -81,6 +81,14 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z1, pierwsze ognisko budzi rycerza przed sobą, 2026-11-10 (audyt
+  silnika, wariant A): ognisko narthexu dostaje własne miejsce
+  przebudzenia `wake = { x = 27, z = 33.5, yaw = 0 }`; rycerz wstaje
+  twarzą do ognia, nawę ma za plecami. Przebudzenie z nawą w polu
+  widzenia budziło dziesięć jej stworów w pierwszym kroku. Tylko dane;
+  wzrok stworów bez zmian. Sanctuary zostaje (decyzja właściciela:
+  krypta obok budzi się w każdym miejscu przebudzenia).
+
 - Z4, ruchome zagrożenia wygładzane w obrazie, 2026-11-10 (audyt silnika):
   pula `hazards` wchodzi do próbki obrazu jak ciała, pociski i ładunki;
   schemat `hazard` deklaruje `linear` dla `x`, `z`, `radius`, `angle`
@@ -5104,6 +5112,24 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z1, przebudzenie przy narthexie, 2026-11-10: nowy test w
+  `pilgrimage` budzi rycerza przy każdym ognisku obszaru startu po
+  odpoczynku (podróż z innego ogniska, zapalone tylko te dwa) i po
+  śmierci, gra 3 s i liczy czuwające stwory. Przed zmianą narthex po
+  odpoczynku: 10 czuwających; po zmianie wszędzie 0, pełne zdrowie,
+  gra trwa. Sanctuary wyjęte z testu z zapisanym powodem (właściciel).
+  Sprawdzenie „nobody knows he is here” jest teraz po pierwszym kroku.
+  Test „no fight stops for the disk” w `pilgrimage-save` trzymał walkę
+  stworem `crypt_1` (ok. 30 m, poza zasięgiem pościgu 14 m) i przechodził
+  tylko dzięki obudzonej nawie; za zgodą właściciela walkę trzyma
+  `nave_2`. Brama Linux zielona: 9416 sprawdzeń w 4 częściach, showcase,
+  Tools, `startup-check`, `resource-plateau`, `measure-trial` PASS.
+  Golden bez zmian, wbrew przewidywaniu planu (ten sam skrót
+  przed i po, 6 scenariuszy odtwarza wzorzec); `souls-gate`
+  i `souls-bots` identyczne. Zostaje: odwrócenie się w nawę budzi 10
+  stworów w 0,1 s (wariant B, odłożony). Okno gracza nieoglądane;
+  Windows niesprawdzony.
 
 - Z4, ruchome zagrożenia, 2026-11-10: nowy test w `feel` przechodzi każdy
   atak każdego stwora, śledzi pierwszy znak każdego rodzaju w próbce
