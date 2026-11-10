@@ -1,7 +1,7 @@
 -- The session field catalogue (0.24 E11): every field a session (g) may
 -- carry, grouped by the module that owns it. Reading is free; writing
 -- belongs to the owner (a mode's reset may set its owners' fields back to
--- their start values: run/descent.lua, run/test_field.lua). A new field is
+-- their start values: run/test_field.lua). A new field is
 -- declared here first; the golden suite fails on an undeclared one.
 -- Simulation fields are part of a snapshot and of the golden digest;
 -- presentation fields never feed back into the simulation.
@@ -139,7 +139,6 @@ declare('enemies/actions.lua', { 'attackStarts', 'leapStarts' })
 -- The fight's counters by actor id (plan v11 E3d).
 declare('session/stats.lua', { 'stats' })
 declare('session/listeners.lua', {
-  'intensity', -- the pacing director's faded damage (run/spawner.lua reads it)
   -- the guard-break hit-stop (s): missiles, ground and charges wait
   -- (session/capabilities.lua: held; counted down by systems/clocks)
   'worldStop',

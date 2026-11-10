@@ -514,6 +514,17 @@ local function annexed(check, Game)
   P.forget()
   check('the trial area holds' .. (ok and '' or ': ' .. tostring(problem)), ok)
 end
+-- PLAN Z11: a leash is measured from a post; a body given one without a post (a mod, a
+-- summoned body) hunts on instead of failing.
+local function strayLeash(check, Game)
+  local g = F.arena(Game)
+  local p = g.player
+  local stray = g:spawn('imp', p.x + 3, p.z)
+  stray.leash, stray.home, stray.awake, stray.memory, stray.spawnAge = 5, nil, true, 60, 2
+  local ok, problem = pcall(run, g, 0.5)
+  check('a leash without a post is no error' .. (ok and '' or ': ' .. tostring(problem)), ok)
+  check('and the body hunts on', stray.awake and stray.memory > 0)
+end
 function T.run(Game)
   local lines = {}
   local check = F.checker(lines, 'pilgrimage: ', 'pilgrimage: ')
@@ -525,6 +536,7 @@ function T.run(Game)
   causes(check, Game)
   relics(check, Game)
   wakings(check, Game)
+  strayLeash(check, Game)
   annexed(check, Game)
   P.forget()
   local g = session(Game)

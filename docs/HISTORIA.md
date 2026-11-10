@@ -81,6 +81,13 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- Z11, martwy kod i smycz bez posterunku, 2026-11-10 (audyt silnika):
+  usunięte `g.intensity` (`session/listeners.lua`, deklaracja w
+  `session/fields.lua`, `run/field/reset.lua`), pole dla nieistniejącego
+  `run/spawner.lua`; `session/fields.lua` nie wspomina już nieistniejącego
+  `run/descent.lua`. `enemies/ai.lua`: smycz mierzy się od posterunku;
+  ciało ze smyczą bez `home` poluje dalej zamiast przerywać grę.
+
 - Z13, medale czytają rycerza z chwili zabicia, 2026-11-10 (audyt
   silnika): `EnemyKilled` (`session/damage_outcomes.lua`) niesie zdrowie
   i położenie zabójcy w chwili zabicia (`killerHp`, `killerX`, `killerZ`),
@@ -5210,6 +5217,14 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- Z11, kod, 2026-11-10: nowe sprawdzenie w `pilgrimage`: ciało ze smyczą
+  bez posterunku. Przed zmianą czerwone („attempt to index field 'home'”),
+  po zmianie `pilgrimage` 193 PASS; golden 10 PASS także bez
+  `g.intensity` (nie wchodzi do skrótu).
+  Rendery pokazu: 782 PNG identyczne bajt w bajt z bramą Z13. Brama Linux
+  zielona: 9458 sprawdzeń w 4 częściach, showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian.
 
 - Z13, medale przy zabiciu, 2026-11-10: nowe sprawdzenia w `chain`.
   Zabójstwo przełamane przy zdrowiu poniżej progu ostatniego namaszczenia

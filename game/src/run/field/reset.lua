@@ -5,7 +5,7 @@ local Reset = {}
 
 function Reset.session(g)
   -- session/listeners: no inherited hit-stop or pacing from an old wound.
-  g.worldStop, g.intensity = nil, nil
+  g.worldStop = nil
   -- physics/contact and AI: diagnostics describe this trial, not the last one.
   g.lastSlam, g.collisions, g.slams = nil, nil, nil
   g.cancelledAttacks, g.evadeCount, g.retargets = nil, nil, nil

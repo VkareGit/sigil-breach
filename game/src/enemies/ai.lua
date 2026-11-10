@@ -380,8 +380,8 @@ local function free(g, e, d, dt)
   if e.recover > 0 then
     return
   end
-  -- Too far from its post it gives up the chase.
-  if e.leash and len(e.x - e.home.x, e.z - e.home.z) > e.leash then
+  -- Too far from its post it gives up the chase; a leash without a post holds nothing.
+  if e.leash and e.home and len(e.x - e.home.x, e.z - e.home.z) > e.leash then
     e.memory, e.visible = 0, false
   end
   if not (e.awake and (e.memory > 0 or e.visible)) then

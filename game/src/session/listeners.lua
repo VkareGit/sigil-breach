@@ -102,8 +102,6 @@ local function playerHit(g, event)
   local r = Stats.controlled(g)
   r.damageTaken = r.damageTaken + (info.requested or info.amount)
   Telemetry.add(g, 'hitsTaken')
-  -- The pacing director's intensity (run/spawner.lua).
-  g.intensity = (g.intensity or 0) + (info.requested or info.amount or 0)
   Telemetry.add(g, 'damageTaken', info.lost or 0)
   breakCombo(r)
   Chain.broken(Roles.controlled(g))
