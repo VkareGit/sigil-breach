@@ -88,27 +88,57 @@ function T.run(Game)
       #Pools.of(g, 'enemies')
     )
   end
-  -- Played up to the moment, then the fight as the way's field keeps it, through the
-  -- text of a save, taken up in a fresh room: the first step where the two part, if any.
-  local function resumed(id, spec, distance, moment)
-    local g, e = room(id, distance)
-    Actions.begin(g, e, distance, spec)
-    local reached = false
-    for _ = 1, 120 * 15 do
-      step(g, e)
-      if moment == 'windup' and e.ai == 'windup' and e.windup <= e.windupDuration * 0.5 then
-        reached = true
-        break
-      elseif moment == 'strike' and e.ai == 'strike' then
-        reached = true
-        break
-      elseif e.ai ~= 'windup' and e.ai ~= 'strike' then
-        break
+  -- A room with the attack begun and played to the moment asked for: half its windup, or
+  -- its first step of strike. An attack that declines in a bare room (a harvest with
+  -- nothing sown) is begun again in one where the body's other attacks have each run
+  -- their life first, as soon as it is taken (what was sown has to ripen). Nothing when
+  -- it never comes to the moment.
+  local function reach(id, spec, distance, moment)
+    for _, bare in ipairs({ true, false }) do
+      local g, e = room(id, distance)
+      local begun = false
+      if not bare then
+        for _, other in ipairs(A.get(id).attacks) do
+          if other ~= spec then
+            Actions.begin(g, e, distance, other)
+            for _ = 1, 120 * 15 do
+              step(g, e)
+              if not busy[e.ai] then
+                break
+              end
+            end
+          end
+        end
+        for _ = 1, 120 * 5 do
+          begun = Actions.begin(g, e, distance, spec)
+          if begun then
+            break
+          end
+          step(g, e)
+        end
+      end
+      if not begun then
+        Actions.begin(g, e, distance, spec)
+      end
+      for _ = 1, 120 * 15 do
+        step(g, e)
+        if moment == 'windup' and e.ai == 'windup' and e.windup <= e.windupDuration * 0.5 then
+          return g, e
+        elseif moment == 'strike' and e.ai == 'strike' then
+          return g, e
+        elseif e.ai ~= 'windup' and e.ai ~= 'strike' then
+          break
+        end
       end
     end
-    if not reached then
-      return nil
-    end
+  end
+  -- Moments no room here comes to, each with its reason (PLAN A1): a moment missed and not
+  -- named fails, and so does one named that is reached again. A missed moment was counted
+  -- as taken up the same, so an attack could pass its contract untried.
+  local unreached = {}
+  -- Played up to the moment, then the fight as the way's field keeps it, through the
+  -- text of a save, taken up in a fresh room: the first step where the two part, if any.
+  local function resumed(g, e, distance)
     local text = Serialize.encode(PilgrimageSave.fightOf(g, {}))
     local again = room(nil, distance)
     PilgrimageSave.resumeFight(again, assert(DataReader.decode(text, Save.limits)))
@@ -152,39 +182,46 @@ function T.run(Game)
       -- Struck down in its windup or at its release: what it marked is let
       -- go, nothing it owns waits to strike.
       for _, moment in ipairs({ 'windup', 'strike' }) do
-        g, e = room(id, distance)
-        local dead, waiting = pcall(function()
-          Actions.begin(g, e, distance, spec)
-          for _ = 1, 120 * 15 do
-            step(g, e)
-            if moment == 'windup' and e.ai == 'windup' and e.windup <= e.windupDuration * 0.5 then
-              break
-            elseif e.ai == 'strike' then
-              break
-            end
-          end
-          g:damageEnemy(e, e.hp + 1, 'weapon', nil, g.player.id)
-          for _ = 1, 120 * 3 do
-            g:update(1 / 120, {})
-          end
-          return select(2, owned(g, e))
-        end)
+        local reason = unreached[name .. '/' .. moment]
+        local ran
+        ran, g, e = pcall(reach, id, spec, distance, moment)
+        local came = ran and type(g) == 'table'
+        if not ran then
+          lines[#lines + 1] = 'FAIL contracts: ' .. name .. ' ' .. moment .. ': ' .. tostring(g)
+        end
         check(
-          name .. ' struck down in its ' .. moment .. ' leaves no mark waiting',
-          dead and waiting == 0
-        )
-        local ok, parted = pcall(resumed, id, spec, distance, moment)
-        check(
-          name .. ' saved in its ' .. moment .. ' and taken up goes on the same',
-          ok and parted == nil
-        )
-        if not ok or parted then
-          lines[#lines + 1] = 'FAIL contracts: '
-            .. name
-            .. ' '
+          name
+            .. ' comes to its '
             .. moment
-            .. ': '
-            .. tostring(parted)
+            .. (reason and ', or is named as one that does not (' .. reason .. ')' or ''),
+          came ~= (reason ~= nil)
+        )
+        if came then
+          local dead, waiting = pcall(function()
+            g:damageEnemy(e, e.hp + 1, 'weapon', nil, g.player.id)
+            for _ = 1, 120 * 3 do
+              g:update(1 / 120, {})
+            end
+            return select(2, owned(g, e))
+          end)
+          check(
+            name .. ' struck down in its ' .. moment .. ' leaves no mark waiting',
+            dead and waiting == 0
+          )
+          g, e = reach(id, spec, distance, moment)
+          local ok, parted = pcall(resumed, g, e, distance)
+          check(
+            name .. ' saved in its ' .. moment .. ' and taken up goes on the same',
+            ok and parted == nil
+          )
+          if not ok or parted then
+            lines[#lines + 1] = 'FAIL contracts: '
+              .. name
+              .. ' '
+              .. moment
+              .. ': '
+              .. tostring(parted)
+          end
         end
       end
     end

@@ -125,6 +125,9 @@ Kroki noszą oznaczenia N1 i N2, żeby nie mylić ich z decyzjami D1–D23.
 
 ## Postęp i dowody
 
+- 2026-11-10, **A1 zrobione:** kontrakt wznowienia ma jawne sprawdzenie
+  dojścia do zamachu i ciosu; zbiór Ogrodnika jest teraz zapisywany
+  i zabijany w trakcie (wcześniej zaliczany bez próby). Golden bez zmian.
 - 2026-11-10: plan A–D przyjęty; poprzedni PLAN oraz przegląd po naprawach
   z analizą kierunku w HISTORII; decyzje D21–D23 w WIZJI. Bez zmian gry.
 

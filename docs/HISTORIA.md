@@ -83,6 +83,17 @@ Wersja 0.46 zbiera kroki planu silnika ruchu i strzału (E0–E7), fundamentu
 kodu (F1–F5) i porządków po przeglądzie (G1–G7), opisane w sekcji 0.45
 poniżej, bo powstawały, zanim podniesiono numer.
 
+- A1, kontrakt wznowienia nie zalicza pominiętych, 2026-11-10: w `contracts`
+  (`tests/cases/contracts.lua`) atak, który w pustej sali nie doszedł do
+  zamachu albo ciosu, przechodził sprawdzenie „zapisany i wznowiony idzie
+  tak samo” bez próby. Teraz każdy moment ma własne sprawdzenie „dochodzi
+  do zamachu / ciosu”; moment, do którego sala nie dochodzi, musi stać na
+  jawnej liście z powodem (dziś pusta), a wymieniony, który znów dochodzi,
+  też jest błędem. Atak, który w pustej sali odmawia (zbiór Ogrodnika bez
+  zasiewu), zaczyna się w sali, w której pozostałe ataki tego ciała
+  przeszły wcześniej swoje życie, gdy tylko da się go zacząć. Tylko test;
+  gra bez zmian.
+
 - Z11, dokumenty, 2026-11-10: START-HERE i INSTRUKCJA podają wersję 0.46.
   INSTRUKCJA: zabite stwory nie wstają po odpoczynku (sprzeczne zdanie
   poprawione), pieczęcie mają łącznie 4 punkty pojemności (nie „dwie
@@ -5227,6 +5238,18 @@ gracza w normalnej grze) jest zawsze osobny od dowodów automatycznych.
 ########################################################################
 ODBIOR-0.46.txt
 SIGIL: BREACH 0.46: odbiór
+
+- A1, kontrakt wznowienia, 2026-11-10: sonda `skipped` (poza repozytorium)
+  wskazała oba pominięte przypadki: `buer/late-bloom` w zamachu i w ciosie
+  (zbiór bez zasiewu odmawia od razu). Przed zmianą `contracts` zaliczał
+  je bez próby; z samym nowym sprawdzeniem czerwony („buer/late-bloom comes
+  to its windup”, „…its strike”); z salą po zasiewie zielony: zbiór
+  w zamachu i w ciosie zabity nie zostawia czekającego znaku, a zapisany
+  przez tekst zapisu i wznowiony idzie tak samo przez 6 s. `contracts`
+  377 PASS (było 371). Brama Linux zielona: 9564 sprawdzenia w 4 częściach
+  (było 9458: 106 nowych „dochodzi do…”), showcase, Tools, `startup-check`,
+  `resource-plateau`, `measure-trial` PASS. Golden bez zmian. Windows
+  niesprawdzony.
 
 - Z11, dokumenty, 2026-11-10: START-HERE i INSTRUKCJA sprawdzone z kodem
   (`core/build.lua` 0.46, `content/sigils.lua` pojemność 4, gardy
